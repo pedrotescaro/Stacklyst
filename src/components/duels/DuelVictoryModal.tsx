@@ -45,7 +45,7 @@ export function DuelVictoryModal({
       >
         {/* Header Icon & Title */}
         <div className="space-y-3">
-          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl border-2 border-b-4 border-amber-500/50 border-b-amber-600 bg-amber-500/20 text-amber-300 shadow-xl shadow-amber-500/20">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl border-2 border-b-4 border-blue-500/50 border-b-blue-600 bg-blue-500/20 text-blue-500 dark:text-blue-400 shadow-xl shadow-blue-500/20">
             {isWinner ? (
               <Trophy className="h-10 w-10 animate-bounce" />
             ) : (
@@ -53,11 +53,11 @@ export function DuelVictoryModal({
             )}
           </div>
 
-          <h2 className="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          <h2 className="text-2xl sm:text-3xl font-black text-dd-text tracking-tight">
             {isWinner ? 'Vitória Épica! 🏆' : 'Fim do Duelo! ⚔️'}
           </h2>
 
-          <p className="text-xs sm:text-sm text-slate-300 max-w-xs mx-auto">
+          <p className="text-xs sm:text-sm text-dd-muted max-w-xs mx-auto">
             {isWinner
               ? 'Você superou seu oponente e resolveu o desafio com perfeição!'
               : `${winnerUsername} concluiu o desafio primeiro nesta rodada.`}
@@ -72,19 +72,27 @@ export function DuelVictoryModal({
               <Zap className="w-4 h-4 fill-current" />
             </div>
             <div className="text-left">
-              <p className="text-xs font-black text-emerald-300">+{xpAwarded} XP</p>
-              <p className="text-[10px] text-emerald-400/80 font-bold uppercase">Recompensa</p>
+              <p className="text-xs font-black text-emerald-500 dark:text-emerald-300">
+                +{xpAwarded} XP
+              </p>
+              <p className="text-[10px] text-emerald-600 dark:text-emerald-400/80 font-bold uppercase">
+                Recompensa
+              </p>
             </div>
           </div>
 
           {/* Streak Card */}
-          <div className="rounded-2xl border-2 border-b-4 border-amber-500/40 border-b-amber-600 bg-amber-500/15 p-3.5 flex items-center justify-center gap-3">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-400 font-black text-sm">
+          <div className="rounded-2xl border-2 border-b-4 border-orange-500/40 border-b-orange-600 bg-orange-500/15 p-3.5 flex items-center justify-center gap-3">
+            <div className="w-8 h-8 rounded-xl bg-orange-500/20 border border-orange-500/30 flex items-center justify-center text-orange-500 font-black text-sm">
               <Flame className="w-4 h-4 fill-current" />
             </div>
             <div className="text-left">
-              <p className="text-xs font-black text-amber-300">{streak} Dias</p>
-              <p className="text-[10px] text-amber-400/80 font-bold uppercase">Ofensiva</p>
+              <p className="text-xs font-black text-orange-600 dark:text-orange-300">
+                {streak} Dias
+              </p>
+              <p className="text-[10px] text-orange-600 dark:text-orange-400/80 font-bold uppercase">
+                Ofensiva
+              </p>
             </div>
           </div>
         </div>
@@ -117,7 +125,7 @@ export function DuelVictoryModal({
               onRematch();
             }}
             disabled={rematchSent}
-            className="dd-touch dd-focus-ring flex items-center justify-center gap-2 rounded-2xl border-2 border-b-4 border-amber-600 border-b-amber-800 bg-amber-500 hover:bg-amber-400 px-6 py-3.5 text-xs font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/25 transition-all hover:-translate-y-0.5 active:translate-y-0.5 active:border-b-2 cursor-pointer disabled:opacity-60"
+            className="dd-touch dd-focus-ring flex items-center justify-center gap-2 rounded-2xl border-2 border-b-4 border-slate-600 border-b-slate-800 bg-slate-700 hover:bg-slate-600 px-6 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-lg transition-all hover:-translate-y-0.5 active:translate-y-0.5 active:border-b-2 cursor-pointer disabled:opacity-60"
           >
             <RotateCcw className="w-4 h-4" />
             {rematchSent ? 'Revanche Pedida!' : 'Pedir Revanche'}

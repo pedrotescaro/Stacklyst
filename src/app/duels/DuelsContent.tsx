@@ -287,8 +287,8 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="text-base font-black text-white flex items-center gap-2">
-                  <Swords className="w-5 h-5 text-amber-400" />
+                <h1 className="text-base font-black text-dd-text flex items-center gap-2">
+                  <Swords className="w-5 h-5 text-blue-500" />
                   Arena de Duelos 1v1
                 </h1>
                 <p className="text-[11px] text-dd-muted font-bold">
@@ -318,16 +318,16 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
           {/* 30-Second Challenge Popup Modal */}
           {incomingRequest && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-              <div className="w-full max-w-md p-6 rounded-3xl bg-dd-surface border-2 border-amber-500/50 shadow-2xl space-y-5 text-center">
-                <div className="w-16 h-16 rounded-full bg-amber-500/20 text-amber-400 border border-amber-500/40 mx-auto flex items-center justify-center animate-pulse">
+              <div className="w-full max-w-md p-6 rounded-3xl bg-dd-surface border-2 border-blue-500/50 shadow-2xl space-y-5 text-center">
+                <div className="w-16 h-16 rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/40 mx-auto flex items-center justify-center animate-pulse">
                   <Swords className="w-8 h-8" />
                 </div>
 
                 <div>
-                  <span className="text-[10px] font-black uppercase text-amber-400 bg-amber-500/15 px-3 py-1 rounded-full border border-amber-500/30">
+                  <span className="text-[10px] font-black uppercase text-blue-400 bg-blue-500/15 px-3 py-1 rounded-full border border-blue-500/30">
                     Desafio Recebido!
                   </span>
-                  <h3 className="text-xl font-black text-white mt-2">
+                  <h3 className="text-xl font-black text-dd-text mt-2">
                     @{incomingRequest.sender.username} desafiou você para um duelo!
                   </h3>
                   <p className="text-xs text-dd-muted font-medium mt-1">
@@ -340,7 +340,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                   <span className="text-[10px] font-bold text-dd-muted uppercase tracking-wider block">
                     Tempo restante para responder:
                   </span>
-                  <span className="text-3xl font-mono font-black text-amber-400">
+                  <span className="text-3xl font-mono font-black text-blue-400">
                     00:{requestTimeLeft.toString().padStart(2, '0')}
                   </span>
                 </div>
@@ -366,25 +366,25 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
             </div>
           )}
 
-          {/* Quick Matchmaking Hero Banner (Duolingo 3D Style) */}
+          {/* Quick Matchmaking Hero Banner (Duolingo 3D Style - Blue Primary) */}
           <div className="p-4 sm:p-6 space-y-6">
-            <div className="rounded-[26px] border-2 border-b-4 border-amber-500/30 border-b-amber-600/80 bg-gradient-to-b from-amber-500/10 via-dd-surface/80 to-dd-surface p-6 shadow-xl relative overflow-hidden space-y-5">
+            <div className="rounded-[26px] border-2 border-b-4 border-blue-500/30 border-b-blue-600/80 bg-gradient-to-b from-blue-500/10 via-dd-surface/80 to-dd-surface p-6 shadow-xl relative overflow-hidden space-y-5">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1.5">
-                  <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-amber-400 bg-amber-500/20 px-2.5 py-1 rounded-xl border border-amber-500/30">
+                  <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/15 px-2.5 py-1 rounded-xl border border-blue-500/30">
                     <Zap className="w-3 h-3 fill-current" /> Fila Rápida 1v1
                   </span>
-                  <h2 className="text-xl sm:text-2xl font-black text-white">
+                  <h2 className="text-xl sm:text-2xl font-black text-dd-text">
                     Enfrente um Desenvolvedor Agora
                   </h2>
-                  <p className="text-xs text-slate-300 max-w-md">
+                  <p className="text-xs text-dd-muted max-w-md">
                     Resolva algoritmos sob pressão em tempo real, passe nos testes e conquiste +50
                     XP e posições no ranking!
                   </p>
                 </div>
 
                 <div className="flex items-center justify-center">
-                  <div className="w-16 h-16 rounded-3xl border-2 border-b-4 border-amber-500/50 border-b-amber-600 bg-amber-500/20 text-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/20 animate-bounce">
+                  <div className="w-16 h-16 rounded-3xl border-2 border-b-4 border-blue-500/50 border-b-blue-600 bg-blue-500/20 text-blue-500 dark:text-blue-400 flex items-center justify-center shadow-lg shadow-blue-500/20 animate-bounce">
                     <Swords className="w-8 h-8" />
                   </div>
                 </div>
@@ -407,7 +407,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           'dd-touch dd-focus-ring px-3.5 py-1.5 rounded-xl border-2 border-b-[3px] text-xs font-black uppercase tracking-wider transition-all duration-150 cursor-pointer',
                           isSelected
                             ? 'border-blue-500 border-b-blue-700 bg-blue-500 text-white shadow-md shadow-blue-500/20 scale-105'
-                            : 'border-dd-border/80 border-b-dd-border bg-dd-surface text-dd-muted hover:text-white hover:border-slate-600'
+                            : 'border-dd-border/80 border-b-dd-border bg-dd-surface text-dd-muted hover:text-dd-text hover:border-blue-500/40'
                         )}
                       >
                         {lang.label}
@@ -435,7 +435,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                 <div className="flex items-center justify-between border-b border-dd-border/60 pb-3">
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-blue-400" />
-                    <h3 className="text-xs font-black uppercase tracking-wider text-white">
+                    <h3 className="text-xs font-black uppercase tracking-wider text-dd-text">
                       Configurar Desafio Customizado
                     </h3>
                   </div>
@@ -449,8 +449,8 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                     className={cn(
                       'dd-touch dd-focus-ring flex items-center gap-1.5 rounded-xl border-2 border-b-[3px] px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer',
                       showGeneratorConfig
-                        ? 'border-amber-500 border-b-amber-700 bg-amber-500 text-slate-950 shadow-md shadow-amber-500/20'
-                        : 'border-amber-500/40 border-b-amber-600 bg-amber-500/15 text-amber-300 hover:bg-amber-500/25'
+                        ? 'border-blue-500 border-b-blue-700 bg-blue-500 text-white shadow-md shadow-blue-500/20'
+                        : 'border-blue-500/40 border-b-blue-600 bg-blue-500/15 text-blue-400 hover:bg-blue-500/25'
                     )}
                   >
                     <Wand2 className="w-3 h-3" />
@@ -470,7 +470,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                         <select
                           value={duelLanguage}
                           onChange={(e) => setDuelLanguage(e.target.value as Language)}
-                          className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3 py-2.5 text-white focus:border-blue-500 focus:outline-none cursor-pointer"
+                          className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3 py-2.5 text-dd-text focus:border-blue-500 focus:outline-none cursor-pointer"
                         >
                           <option value="TS">TypeScript</option>
                           <option value="JS">JavaScript</option>
@@ -486,7 +486,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           {(
                             [
                               { key: 'easy', label: 'Fácil', color: 'emerald' },
-                              { key: 'medium', label: 'Médio', color: 'amber' },
+                              { key: 'medium', label: 'Médio', color: 'blue' },
                               { key: 'hard', label: 'Difícil', color: 'rose' },
                             ] as const
                           ).map((d) => (
@@ -499,10 +499,10 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                                 generatorDifficulty === d.key
                                   ? d.color === 'emerald'
                                     ? 'border-emerald-500 border-b-emerald-700 bg-emerald-500 text-white shadow-md'
-                                    : d.color === 'amber'
-                                      ? 'border-amber-500 border-b-amber-700 bg-amber-500 text-slate-950 shadow-md'
+                                    : d.color === 'blue'
+                                      ? 'border-blue-500 border-b-blue-700 bg-blue-500 text-white shadow-md'
                                       : 'border-rose-500 border-b-rose-700 bg-rose-500 text-white shadow-md'
-                                  : 'border-dd-border/80 border-b-dd-border bg-dd-bg text-dd-muted hover:text-white'
+                                  : 'border-dd-border/80 border-b-dd-border bg-dd-bg text-dd-muted hover:text-dd-text'
                               )}
                             >
                               {d.label}
@@ -522,7 +522,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                         value={generatorTopic}
                         onChange={(e) => setGeneratorTopic(e.target.value)}
                         placeholder="Ex: Árvores binárias, Strings, Recursão, Matrizes..."
-                        className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3.5 py-2.5 text-white placeholder-slate-600 focus:border-amber-500 focus:outline-none"
+                        className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3.5 py-2.5 text-dd-text placeholder:text-dd-muted focus:border-blue-500 focus:outline-none"
                       />
                     </div>
 
@@ -531,7 +531,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                       type="button"
                       onClick={handleGenerateProblem}
                       disabled={isGenerating}
-                      className="dd-touch dd-focus-ring w-full flex items-center justify-center gap-2.5 rounded-2xl border-2 border-b-4 border-amber-600 border-b-amber-800 bg-amber-500 hover:bg-amber-400 py-3.5 text-xs font-black uppercase tracking-wider text-slate-950 shadow-lg shadow-amber-500/20 transition-all hover:-translate-y-0.5 active:translate-y-0.5 active:border-b-2 cursor-pointer disabled:opacity-60"
+                      className="dd-touch dd-focus-ring w-full flex items-center justify-center gap-2.5 rounded-2xl border-2 border-b-4 border-blue-600 border-b-blue-800 bg-blue-500 hover:bg-blue-400 py-3.5 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-blue-500/20 transition-all hover:-translate-y-0.5 active:translate-y-0.5 active:border-b-2 cursor-pointer disabled:opacity-60"
                     >
                       {isGenerating ? (
                         <>
@@ -565,7 +565,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           </div>
 
                           <div className="space-y-1.5">
-                            <h4 className="text-sm font-black text-white">
+                            <h4 className="text-sm font-black text-dd-text">
                               {generatedProblem.title}
                             </h4>
                             <div className="flex items-center gap-2">
@@ -573,10 +573,10 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                                 className={cn(
                                   'text-[9px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg border',
                                   generatedProblem.difficulty === 'Fácil'
-                                    ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-300'
+                                    ? 'border-emerald-500/40 bg-emerald-500/15 text-emerald-400'
                                     : generatedProblem.difficulty === 'Médio'
-                                      ? 'border-amber-500/40 bg-amber-500/15 text-amber-300'
-                                      : 'border-rose-500/40 bg-rose-500/15 text-rose-300'
+                                      ? 'border-blue-500/40 bg-blue-500/15 text-blue-400'
+                                      : 'border-rose-500/40 bg-rose-500/15 text-rose-400'
                                 )}
                               >
                                 {generatedProblem.difficulty}
@@ -590,7 +590,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                             </div>
                           </div>
 
-                          <p className="text-xs text-slate-300 leading-relaxed">
+                          <p className="text-xs text-dd-muted leading-relaxed">
                             {generatedProblem.description}
                           </p>
 
@@ -602,11 +602,11 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                             {generatedProblem.testCases.map((tc) => (
                               <div
                                 key={tc.id}
-                                className="flex items-center gap-2 text-[10px] text-slate-400"
+                                className="flex items-center gap-2 text-[10px] text-dd-muted"
                               >
                                 <span className="w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
-                                <span className="font-semibold">{tc.description}</span>
-                                <span className="text-dd-muted ml-auto shrink-0">
+                                <span className="font-semibold text-dd-text">{tc.description}</span>
+                                <span className="text-dd-muted ml-auto shrink-0 font-mono">
                                   {tc.inputDisplay} → {tc.expectedDisplay}
                                 </span>
                               </div>
@@ -656,7 +656,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           onChange={(e) => setDuelTitle(e.target.value)}
                           required
                           placeholder="Ex: Validador de Parênteses Balanceados"
-                          className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3.5 py-2.5 text-white placeholder-slate-600 focus:border-blue-500 focus:outline-none"
+                          className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3.5 py-2.5 text-dd-text placeholder:text-dd-muted focus:border-blue-500 focus:outline-none"
                         />
                       </div>
                       <div className="space-y-1">
@@ -666,7 +666,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                         <select
                           value={duelLanguage}
                           onChange={(e) => setDuelLanguage(e.target.value as Language)}
-                          className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3 py-2.5 text-white focus:border-blue-500 focus:outline-none cursor-pointer"
+                          className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3 py-2.5 text-dd-text focus:border-blue-500 focus:outline-none cursor-pointer"
                         >
                           <option value="TS">TypeScript</option>
                           <option value="JS">JavaScript</option>
@@ -688,7 +688,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                         required
                         rows={4}
                         placeholder="Descreva o problema, entradas e saídas esperadas..."
-                        className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3.5 py-2.5 text-white placeholder-slate-600 focus:border-blue-500 focus:outline-none resize-none"
+                        className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3.5 py-2.5 text-dd-text placeholder:text-dd-muted focus:border-blue-500 focus:outline-none resize-none"
                       />
                     </div>
 
@@ -709,8 +709,8 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
             {/* Filter Tabs by Language */}
             <div className="space-y-3 pt-2">
               <div className="flex items-center justify-between">
-                <h3 className="text-xs font-black uppercase tracking-wider text-white flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-amber-400" />
+                <h3 className="text-xs font-black uppercase tracking-wider text-dd-text flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-blue-500" />
                   Duelos Abertos da Comunidade
                 </h3>
                 <span className="text-[11px] font-bold text-dd-muted">
@@ -726,7 +726,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                     'px-3.5 py-1.5 rounded-xl border-2 border-b-[3px] text-[11px] font-black uppercase tracking-wider shrink-0 transition-all cursor-pointer',
                     filterLang === 'ALL'
                       ? 'border-blue-500 border-b-blue-700 bg-blue-500 text-white shadow-sm'
-                      : 'border-dd-border/80 border-b-dd-border bg-dd-surface text-dd-muted hover:text-white'
+                      : 'border-dd-border/80 border-b-dd-border bg-dd-surface text-dd-muted hover:text-dd-text'
                   )}
                 >
                   Todas
@@ -740,7 +740,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                       'px-3.5 py-1.5 rounded-xl border-2 border-b-[3px] text-[11px] font-black uppercase tracking-wider shrink-0 transition-all cursor-pointer',
                       filterLang === lang.key
                         ? 'border-blue-500 border-b-blue-700 bg-blue-500 text-white shadow-sm'
-                        : 'border-dd-border/80 border-b-dd-border bg-dd-surface text-dd-muted hover:text-white'
+                        : 'border-dd-border/80 border-b-dd-border bg-dd-surface text-dd-muted hover:text-dd-text'
                     )}
                   >
                     {lang.label}
@@ -753,7 +753,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
             <div className="grid grid-cols-1 gap-3.5">
               {filteredDuels.length === 0 ? (
                 <div className="rounded-[22px] border-2 border-dashed border-dd-border bg-dd-surface/30 p-12 text-center text-dd-muted space-y-2">
-                  <p className="text-sm font-bold text-slate-300">
+                  <p className="text-sm font-bold text-dd-text">
                     Nenhum duelo aberto com esse filtro
                   </p>
                   <p className="text-xs">
@@ -778,12 +778,12 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           <LanguageTag language={duel.language} size="sm" />
                           <span
                             className={cn(
-                              'text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-lg border-2 border-b-[2.5px]',
+                              'text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-lg border-2 border-b-[2.5px]',
                               isPending
-                                ? 'bg-amber-500/15 text-amber-300 border-amber-500/30 border-b-amber-600'
+                                ? 'bg-blue-500/15 text-blue-600 dark:text-blue-300 border-blue-500/30 border-b-blue-600'
                                 : isActive
-                                  ? 'bg-blue-500/15 text-blue-300 border-blue-500/30 border-b-blue-600'
-                                  : 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30 border-b-emerald-600'
+                                  ? 'bg-sky-500/15 text-sky-600 dark:text-sky-300 border-sky-500/30 border-b-sky-600'
+                                  : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 border-emerald-500/30 border-b-emerald-600'
                             )}
                           >
                             {isPending
@@ -794,11 +794,11 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           </span>
                         </div>
 
-                        <h4 className="text-sm font-black text-white group-hover:text-blue-400 transition-colors truncate">
+                        <h4 className="text-sm font-black text-dd-text group-hover:text-blue-500 transition-colors truncate">
                           {duel.problem_title}
                         </h4>
 
-                        <p className="text-xs text-slate-400 line-clamp-1">{duel.problem_body}</p>
+                        <p className="text-xs text-dd-muted line-clamp-1">{duel.problem_body}</p>
                       </div>
 
                       {/* Right: Combatants & Enter Button */}
@@ -809,17 +809,17 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                             username={duel.challenger.username}
                             avatar_url={duel.challenger.avatar_url}
                             size="md"
-                            className="ring-2 ring-blue-500 ring-offset-2 ring-offset-black"
+                            className="ring-2 ring-blue-500 ring-offset-2 ring-offset-dd-surface"
                           />
                           {duel.opponent ? (
                             <AuthorAvatar
                               username={duel.opponent.username}
                               avatar_url={duel.opponent.avatar_url}
                               size="md"
-                              className="ring-2 ring-amber-500 ring-offset-2 ring-offset-black"
+                              className="ring-2 ring-blue-400 ring-offset-2 ring-offset-dd-surface"
                             />
                           ) : (
-                            <div className="w-8 h-8 rounded-full border-2 border-dashed border-slate-600 bg-slate-900 flex items-center justify-center text-[10px] font-black text-slate-400">
+                            <div className="w-8 h-8 rounded-full border-2 border-dashed border-dd-border bg-dd-bg flex items-center justify-center text-[10px] font-black text-dd-muted">
                               ?
                             </div>
                           )}

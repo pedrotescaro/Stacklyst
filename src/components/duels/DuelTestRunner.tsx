@@ -70,9 +70,9 @@ export function DuelTestRunner({
                     className={cn(
                       'w-7 h-7 rounded-xl border-2 border-b-[3px] flex items-center justify-center font-black text-xs shrink-0',
                       !isEvaluated
-                        ? 'border-slate-700 border-b-slate-800 bg-slate-800 text-slate-400'
+                        ? 'border-dd-border border-b-dd-border bg-dd-surface text-dd-muted'
                         : passed
-                          ? 'border-emerald-600 border-b-emerald-700 bg-emerald-500 text-slate-950 shadow-sm'
+                          ? 'border-emerald-600 border-b-emerald-700 bg-emerald-500 text-white shadow-sm'
                           : 'border-rose-600 border-b-rose-700 bg-rose-500 text-white shadow-sm'
                     )}
                   >
@@ -81,8 +81,9 @@ export function DuelTestRunner({
                   <div>
                     <p className="font-bold text-dd-text">{tc.description}</p>
                     <p className="text-[10px] text-dd-muted font-mono mt-0.5">
-                      Entrada: <span className="text-slate-300">{tc.inputDisplay}</span> → Esperado:{' '}
-                      <span className="text-slate-300">{tc.expectedDisplay}</span>
+                      Entrada: <span className="text-dd-text font-semibold">{tc.inputDisplay}</span>{' '}
+                      → Esperado:{' '}
+                      <span className="text-dd-text font-semibold">{tc.expectedDisplay}</span>
                     </p>
                   </div>
                 </div>
@@ -90,7 +91,7 @@ export function DuelTestRunner({
                 {/* Status indicator */}
                 <div className="shrink-0">
                   {!isEvaluated ? (
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                    <span className="text-[10px] font-bold text-dd-muted uppercase tracking-wider">
                       Não executado
                     </span>
                   ) : passed ? (
