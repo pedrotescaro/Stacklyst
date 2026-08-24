@@ -622,65 +622,56 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
             {moreMenuOpen && (
               <>
                 <div
-                  className="fixed inset-0 z-40 cursor-default"
+                  className="fixed inset-0 z-[110] cursor-default"
                   onClick={() => setMoreMenuOpen(false)}
                 />
                 <div
                   role="menu"
-                  className="absolute bottom-full left-0 z-50 mb-2 w-[290px] max-w-[calc(100vw-2rem)] origin-bottom-left overflow-y-auto max-h-[75vh] rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-slide-up"
+                  className="absolute bottom-full left-0 z-[120] mb-2 w-[290px] max-w-[calc(100vw-2rem)] origin-bottom-left overflow-y-auto max-h-[75vh] rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-slide-up"
                 >
                   <Link
                     href="/jobs"
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                     onClick={() => setMoreMenuOpen(false)}
                   >
-                    <Briefcase className="h-5.5 w-5.5 shrink-0 text-white" />
+                    <Briefcase className="h-5.5 w-5.5 shrink-0 text-dd-text" />
                     <span>Vagas & Recrutamento</span>
                   </Link>
                   <Link
                     href="/events"
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                     onClick={() => setMoreMenuOpen(false)}
                   >
-                    <Calendar className="h-5.5 w-5.5 shrink-0 text-white" />
+                    <Calendar className="h-5.5 w-5.5 shrink-0 text-dd-text" />
                     <span>Eventos & Hackathons</span>
                   </Link>
                   <Link
                     href="/evaluations"
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                     onClick={() => setMoreMenuOpen(false)}
                   >
-                    <Code2 className="h-5.5 w-5.5 shrink-0 text-white" />
+                    <Code2 className="h-5.5 w-5.5 shrink-0 text-dd-text" />
                     <span>Avaliação de Código</span>
                   </Link>
                   <Link
                     href="/admin"
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                     onClick={() => setMoreMenuOpen(false)}
                   >
-                    <ShieldAlert className="h-5.5 w-5.5 shrink-0 text-white" />
+                    <ShieldAlert className="h-5.5 w-5.5 shrink-0 text-dd-text" />
                     <span>Painel Administrativo</span>
                   </Link>
-                  {/* <Link
-                      href="/guilds"
-                      role="menuitem"
-                      className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                      onClick={() => setMoreMenuOpen(false)}
-                    >
-                      <Users className="h-5.5 w-5.5 shrink-0 text-white" />
-                      <span>Comunidades</span>
-                    </Link> */}
                   <Link
                     href="/settings"
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                     onClick={() => setMoreMenuOpen(false)}
                   >
-                    <SettingsIcon className="h-5.5 w-5.5 shrink-0 text-white" />
+                    <SettingsIcon className="h-5.5 w-5.5 shrink-0 text-dd-text" />
                     <span>Configurações</span>
                   </Link>
                 </div>
@@ -692,7 +683,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
           {activeUser && (
             <button
               onClick={() => setModalOpen(true)}
-              className="mt-3 flex h-12 w-12 self-center cursor-pointer items-center justify-center rounded-full bg-[#0f1419] p-0 text-center text-[16px] font-bold text-white shadow-md transition-all duration-150 hover:bg-[#0f1419]/90 active:scale-[0.98] dark:bg-white dark:text-black dark:hover:bg-white/90 xl:h-auto xl:w-full xl:px-5 xl:py-3"
+              className="mt-3 flex h-12 w-12 self-center cursor-pointer items-center justify-center rounded-full bg-blue-500 p-0 text-center text-[16px] font-bold text-white shadow-md shadow-blue-500/20 transition-all duration-150 hover:bg-blue-600 active:scale-[0.98] xl:h-auto xl:w-full xl:px-5 xl:py-3"
               aria-label="Criar publicação"
             >
               <SquarePen className="h-6 w-6 xl:hidden" />
@@ -743,29 +734,29 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
             {dropdownOpen && (
               <>
                 <div
-                  className="fixed inset-0 z-40 cursor-default"
+                  className="fixed inset-0 z-[110] cursor-default"
                   onClick={() => setDropdownOpen(false)}
                 />
                 <div
                   role="menu"
-                  className="absolute bottom-full left-0 z-50 mb-2 w-[290px] max-w-[calc(100vw-2rem)] origin-bottom-left overflow-hidden rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.4)] animate-slide-up"
+                  className="absolute bottom-full left-0 z-[120] mb-2 w-[290px] max-w-[calc(100vw-2rem)] origin-bottom-left overflow-hidden rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.4)] animate-slide-up"
                 >
                   <Link
                     href={`/profile/${activeUser.username}`}
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3.5 text-[15px] font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3.5 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                     onClick={() => setDropdownOpen(false)}
                   >
-                    <UserIcon className="h-5.5 w-5.5 shrink-0 text-white" />
+                    <UserIcon className="h-5.5 w-5.5 shrink-0 text-dd-text" />
                     <span>Meu Perfil</span>
                   </Link>
                   <Link
                     href="/settings"
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3.5 text-[15px] font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3.5 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                     onClick={() => setDropdownOpen(false)}
                   >
-                    <SettingsIcon className="h-5.5 w-5.5 shrink-0 text-white" />
+                    <SettingsIcon className="h-5.5 w-5.5 shrink-0 text-dd-text" />
                     <span>Configurações</span>
                   </Link>
                   <button
@@ -792,7 +783,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
       {/* ========================================== */}
       <div className="md:hidden flex flex-col w-full">
         {/* Top Header */}
-        <header className="sticky top-0 z-40 flex w-full items-center justify-between border-b border-dd-border bg-dd-bg/80 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md">
+        <header className="sticky top-0 z-[100] flex w-full items-center justify-between border-b border-dd-border bg-dd-bg/80 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md">
           <Link href="/feed" className="flex items-center gap-2 group">
             <ThemeLogo alt="Stacklyst Logo" width={24} height={24} className="object-contain" />
             <span className="text-dd-text font-extrabold text-base tracking-tight">Stacklyst</span>
@@ -822,81 +813,81 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
 
                 {dropdownOpen && (
                   <>
-                    <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
+                    <div className="fixed inset-0 z-[110]" onClick={() => setDropdownOpen(false)} />
                     <div
                       role="menu"
-                      className="absolute right-0 z-50 mt-2 w-60 overflow-hidden rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
+                      className="absolute right-0 z-[120] mt-2 w-60 overflow-hidden rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
                     >
                       <Link
                         href={`/profile/${activeUser.username}`}
                         role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        <UserIcon className="h-5 w-5 shrink-0 text-white" />
+                        <UserIcon className="h-5 w-5 shrink-0 text-dd-text" />
                         <span>Meu Perfil</span>
                       </Link>
                       <Link
                         href="/ranking"
                         role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        <Trophy className="h-5 w-5 shrink-0 text-white" />
+                        <Trophy className="h-5 w-5 shrink-0 text-dd-text" />
                         <span>Ranking</span>
                       </Link>
                       <Link
                         href="/jobs"
                         role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        <Briefcase className="h-5 w-5 shrink-0 text-white" />
+                        <Briefcase className="h-5 w-5 shrink-0 text-dd-text" />
                         <span>Vagas</span>
                       </Link>
                       <Link
                         href="/events"
                         role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        <Calendar className="h-5 w-5 shrink-0 text-white" />
+                        <Calendar className="h-5 w-5 shrink-0 text-dd-text" />
                         <span>Eventos</span>
                       </Link>
                       <Link
                         href="/duels"
                         role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        <Swords className="h-5 w-5 shrink-0 text-white" />
+                        <Swords className="h-5 w-5 shrink-0 text-dd-text" />
                         <span>Duelos</span>
                       </Link>
                       <Link
                         href="/evaluations"
                         role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        <Code2 className="h-5 w-5 shrink-0 text-white" />
+                        <Code2 className="h-5 w-5 shrink-0 text-dd-text" />
                         <span>Avaliação de Código</span>
                       </Link>
                       <Link
                         href="/admin"
                         role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        <ShieldAlert className="h-5 w-5 shrink-0 text-white" />
+                        <ShieldAlert className="h-5 w-5 shrink-0 text-dd-text" />
                         <span>Painel Admin</span>
                       </Link>
                       <Link
                         href="/settings"
                         role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-white transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                         onClick={() => setDropdownOpen(false)}
                       >
-                        <SettingsIcon className="h-5 w-5 shrink-0 text-white" />
+                        <SettingsIcon className="h-5 w-5 shrink-0 text-dd-text" />
                         <span>Configurações</span>
                       </Link>
                       <button
@@ -919,7 +910,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
           </div>
         </header>
 
-        <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-dd-border bg-dd-bg/90 px-3 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-md sm:px-6">
+        <nav className="fixed bottom-0 left-0 right-0 z-[100] flex items-center justify-around border-t border-dd-border bg-dd-bg/90 px-3 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-md sm:px-6">
           {mobileNavItems.map(renderMobileNavItem)}
 
           {/* O feed já possui um compositor próprio; mantém o atalho flutuante para a raiz. */}

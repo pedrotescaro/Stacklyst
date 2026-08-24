@@ -1248,7 +1248,7 @@ export function FeedContent({
         {/* ========================================================================= */}
         <main
           data-testid="primary-column"
-          className="flex min-h-screen w-full min-w-0 max-w-[720px] flex-grow flex-col border-r border-dd-border/60 bg-dd-bg pb-[calc(6rem+env(safe-area-inset-bottom))] xl:max-w-[820px] 2xl:max-w-[920px] md:pb-8"
+          className="flex min-h-screen w-full min-w-0 max-w-[720px] flex-grow flex-col border-r border-dd-border/60 bg-dd-bg pb-[calc(6rem+env(safe-area-inset-bottom))] md:border-l md:pb-8 xl:max-w-[820px] 2xl:max-w-[920px]"
         >
           {/* Seletor de Abas Feed / Quizzes */}
           <div className="sticky top-0 z-30 bg-dd-bg/95 backdrop-blur-md flex border-b border-dd-border/60 select-none">

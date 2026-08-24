@@ -24,7 +24,9 @@ import {
   Copy,
   Info,
   Trash2,
+  ArrowLeft,
 } from 'lucide-react';
+import { cn } from '@/lib/cn';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { getCurrentUser } from '@/lib/client/current-user';
 
@@ -677,12 +679,17 @@ export default function MessagesPage() {
     <div className="dd-platform-shell h-screen overflow-hidden">
       <Sidebar user={user} />
 
-      <div className="flex h-full min-w-0 flex-grow overflow-hidden bg-dd-bg xl:max-w-[950px]">
+      <div className="flex h-full min-w-0 flex-1 flex-grow overflow-hidden bg-dd-bg w-full">
         <div className="flex w-full h-full overflow-hidden">
-          {/* Left Panel: Conversation List Sidebar (Matching image 4) */}
-          <div className="w-80 md:w-96 border-r border-dd-border/60 flex flex-col shrink-0 h-full overflow-hidden">
+          {/* Left Panel: Conversation List Sidebar */}
+          <div
+            className={cn(
+              'w-full md:w-80 lg:w-96 border-r border-dd-border/60 flex flex-col shrink-0 h-full overflow-hidden bg-dd-bg',
+              activeChat ? 'hidden md:flex' : 'flex'
+            )}
+          >
             {/* Header */}
-            <div className="p-4 pb-2 flex items-center justify-between">
+            <div className="p-4 pb-2 flex items-center justify-between shrink-0">
               <h1 className="text-lg font-black tracking-tight text-dd-text">Bate-papo</h1>
               <div className="flex items-center gap-2">
                 <button className="p-2 hover:bg-dd-surface/60 rounded-full text-dd-text transition-colors">
@@ -699,7 +706,7 @@ export default function MessagesPage() {
             </div>
 
             {/* Local Search Input */}
-            <div className="p-4 pt-1">
+            <div className="p-4 pt-1 shrink-0">
               <div className="relative">
                 <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 w-4 h-4 text-dd-muted" />
                 <input
@@ -783,13 +790,28 @@ export default function MessagesPage() {
             </div>
           </div>
 
-          {/* Right Panel: Chat Active Viewport OR Empty State (Matching image 4) */}
-          <div className="flex-1 flex flex-col bg-dd-bg h-full overflow-hidden">
+          {/* Right Panel: Chat Active Viewport OR Empty State */}
+          <div
+            className={cn(
+              'flex-1 flex-col bg-dd-bg h-full overflow-hidden min-w-0',
+              activeChat ? 'flex' : 'hidden md:flex'
+            )}
+          >
             {activeChat ? (
               // Active Conversation Screen
               <>
                 {/* Active Header */}
-                <div className="p-4 border-b border-dd-border/60 bg-dd-bg flex items-center gap-3">
+                <div className="p-3 sm:p-4 border-b border-dd-border/60 bg-dd-bg flex items-center gap-3 shrink-0">
+                  {/* Mobile Back Button */}
+                  <button
+                    type="button"
+                    onClick={() => setActiveChat(null)}
+                    className="md:hidden p-2 -ml-1 hover:bg-dd-surface rounded-full text-dd-text transition-colors cursor-pointer"
+                    title="Voltar para conversas"
+                  >
+                    <ArrowLeft className="w-5 h-5" />
+                  </button>
+
                   {activeChat.partner.avatar_url ? (
                     <Image
                       src={activeChat.partner.avatar_url}
@@ -855,7 +877,7 @@ export default function MessagesPage() {
                               duration: 0.2,
                               ease: [0.22, 1, 0.36, 1],
                             }}
-                            className={`flex flex-col max-w-[75%] space-y-1 group relative ${
+                            className={`flex flex-col max-w-[85%] sm:max-w-[75%] lg:max-w-[65%] xl:max-w-[55%] space-y-1 group relative ${
                               isCurrentUser ? 'ml-auto items-end' : 'mr-auto items-start'
                             }`}
                           >
@@ -1378,7 +1400,7 @@ export default function MessagesPage() {
                 <EmptyState type="dm" />
                 <button
                   onClick={handleOpenNewChatModal}
-                  className="bg-white hover:bg-slate-200 text-black text-xs font-black py-2.5 px-5 rounded-full transition-all shadow-md active:scale-95 cursor-pointer"
+                  className="bg-blue-500 hover:bg-blue-600 text-white text-xs font-black py-2.5 px-6 rounded-full transition-all shadow-md active:scale-95 cursor-pointer"
                 >
                   Novo chat
                 </button>

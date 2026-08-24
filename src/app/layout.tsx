@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import Script from 'next/script';
 import { Inter, Space_Grotesk, JetBrains_Mono, Bebas_Neue } from 'next/font/google';
 import './globals.css';
 import './landing.css';
@@ -73,10 +72,10 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <Script
+        <script
           id="theme-script"
-          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{ __html: themeScript }}
+          suppressHydrationWarning
         />
       </head>
       <body className="bg-dd-bg text-dd-text min-h-screen font-sans" suppressHydrationWarning>
