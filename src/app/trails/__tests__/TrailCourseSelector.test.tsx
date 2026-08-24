@@ -9,6 +9,27 @@ const startedCourses = [
 ];
 
 describe('TrailCourseSelector', () => {
+  it('shows only the compact language logo and XP value without an outer icon container', () => {
+    render(
+      <TrailCourseSelector
+        activeLanguage="JS"
+        courses={[startedCourses[0]]}
+        onSelectCourse={vi.fn()}
+        variant="compact"
+      />
+    );
+
+    const trigger = screen.getByRole('button', {
+      name: 'Trocar curso. JavaScript, 380 XP',
+    });
+    expect(trigger).toHaveTextContent('380');
+    expect(trigger.querySelector('img')?.parentElement).not.toHaveClass(
+      'rounded-md',
+      'rounded-full',
+      'bg-dd-surface'
+    );
+  });
+
   it('keeps unstarted courses hidden until the add-course view is opened', async () => {
     const user = userEvent.setup();
     const onSelectCourse = vi.fn();
@@ -24,9 +45,10 @@ describe('TrailCourseSelector', () => {
     const trigger = screen.getByRole('button', {
       name: 'Trocar curso. JavaScript, 380 XP',
     });
-    expect(screen.getByTestId('glossy-javascript-logo')).toHaveAttribute(
+    const triggerLogo = screen.getByTestId('active-language-logo');
+    expect(triggerLogo.querySelector('img')).toHaveAttribute(
       'src',
-      expect.stringContaining('javascript-glossy.png')
+      expect.stringMatching(/javascript-original|f0db4f/i)
     );
     expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
     expect(trigger).toHaveAttribute('aria-expanded', 'false');
@@ -35,7 +57,13 @@ describe('TrailCourseSelector', () => {
     await user.click(trigger);
 
     expect(await screen.findByRole('menu', { name: 'Meus cursos' })).toBeInTheDocument();
-    expect(screen.getByText('JavaScript')).toBeInTheDocument();
+    const javaScriptRow = screen.getByRole('menuitemradio', { name: /javascript/i });
+    expect(javaScriptRow).toBeInTheDocument();
+    expect(javaScriptRow.querySelector('img')?.parentElement).not.toHaveClass(
+      'rounded-xl',
+      'border',
+      'bg-dd-surface'
+    );
     expect(screen.queryByText('TypeScript')).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('menuitem', { name: /adicionar curso/i }));

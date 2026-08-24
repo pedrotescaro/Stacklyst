@@ -1,7 +1,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { BadgeCheck, ChevronRight, Shield, Target, Zap } from 'lucide-react';
+import { BadgeCheck, ChevronRight, Gem, Shield, Target, Zap } from 'lucide-react';
 import { TrailCourseSelector } from '@/app/trails/TrailCourseSelector';
 import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
 import type { TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
@@ -18,6 +18,7 @@ interface TrailsProgressSidebarProps {
   courses: TrailCourseOption[];
   onSelectCourse: (language: TrailLanguageCode) => void;
   totalXp: number;
+  gems?: number;
   streak: number;
   globalRank: number;
   totalParticipants: number;
@@ -97,6 +98,7 @@ export function TrailsProgressSidebar({
   courses,
   onSelectCourse,
   totalXp,
+  gems = 0,
   streak,
   globalRank,
   totalParticipants,
@@ -123,7 +125,7 @@ export function TrailsProgressSidebar({
         'sticky top-0 hidden h-screen w-[380px] shrink-0 flex-col gap-4 overflow-y-auto p-5 scrollbar-none xl:flex',
       ].join(' ')}
     >
-      <div className="grid grid-cols-[110px_64px_1fr_42px] items-center gap-2 pb-4">
+      <div className="grid grid-cols-[96px_54px_70px_54px_40px] items-center gap-1 pb-4">
         <TrailCourseSelector
           activeLanguage={activeLanguage}
           courses={courses}
@@ -160,6 +162,18 @@ export function TrailsProgressSidebar({
             className="h-6 w-6 shrink-0 object-contain drop-shadow-[0_2px_6px_rgba(250,204,21,0.4)]"
           />
           <span className="truncate text-xs font-black text-dd-text">{formatMetric(totalXp)}</span>
+        </div>
+
+        <div
+          title={`${formatMetric(gems)} gemas`}
+          className="flex min-w-0 items-center justify-center gap-1"
+        >
+          <Gem
+            aria-hidden="true"
+            className="h-5 w-5 shrink-0 fill-violet-500 text-violet-300 drop-shadow-[0_2px_7px_rgba(168,85,247,0.55)]"
+            strokeWidth={2.4}
+          />
+          <span className="truncate text-xs font-black text-dd-text">{formatMetric(gems)}</span>
         </div>
 
         <div

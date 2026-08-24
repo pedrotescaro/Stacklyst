@@ -11,6 +11,7 @@ const baseProps = {
   ],
   onSelectCourse: vi.fn(),
   totalXp: 425,
+  gems: 18,
   streak: 9,
   globalRank: 4,
   totalParticipants: 12,
@@ -40,6 +41,7 @@ describe('TrailsProgressSidebar', () => {
       screen.getByRole('button', { name: 'Abrir detalhes da ofensiva: 9 dias' })
     ).toBeInTheDocument();
     expect(screen.getByTitle('425 XP total')).toBeInTheDocument();
+    expect(screen.getByTitle('18 gemas')).toBeInTheDocument();
     expect(screen.getByText('Classificação')).toBeInTheDocument();
     expect(screen.getByText('Sua posição:')).toHaveTextContent('4º');
     expect(screen.getByText('4 de 12 desenvolvedores')).toBeInTheDocument();

@@ -64,6 +64,7 @@ describe('TrailSectionNavigation', () => {
     const onSelectSection = vi.fn();
     const onOpenSections = vi.fn();
     const onBack = vi.fn();
+    const onRequestJump = vi.fn();
     const sections = buildTrailSections(levels, { 'js-u1-checkpoint': true }, 'JS');
 
     const { rerender } = render(
@@ -76,6 +77,7 @@ describe('TrailSectionNavigation', () => {
         onOpenSections={onOpenSections}
         onBack={onBack}
         onSelectSection={onSelectSection}
+        onRequestJump={onRequestJump}
       />
     );
 
@@ -95,12 +97,16 @@ describe('TrailSectionNavigation', () => {
         onOpenSections={onOpenSections}
         onBack={onBack}
         onSelectSection={onSelectSection}
+        onRequestJump={onRequestJump}
       />
     );
 
     expect(screen.getByRole('heading', { name: 'Seções e unidades' })).toBeInTheDocument();
     expect(screen.getAllByRole('heading', { name: /seção \d/i })).toHaveLength(3);
-    expect(screen.getByRole('button', { name: 'Bloqueada' })).toBeDisabled();
+    const jumpButton = screen.getByRole('button', { name: /pular para cá/i });
+    expect(jumpButton).toBeEnabled();
+    fireEvent.click(jumpButton);
+    expect(onRequestJump).toHaveBeenCalledWith(3);
 
     fireEvent.click(screen.getByRole('button', { name: /continuar/i }));
     expect(onSelectSection).toHaveBeenCalledWith(2);

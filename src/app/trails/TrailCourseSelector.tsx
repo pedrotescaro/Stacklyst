@@ -1,9 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { useId, useMemo, useRef, useState } from 'react';
 import { Menu } from '@base-ui/react/menu';
-import { ArrowLeft, Check, ChevronDown, Plus } from 'lucide-react';
+import { ArrowLeft, Check, Plus } from 'lucide-react';
 import {
   getTrailLanguageMetadata,
   isTrailLanguage,
@@ -35,12 +34,12 @@ function CourseRow({ course, active = false }: { course: TrailCourseOption; acti
 
   return (
     <div className="flex min-w-0 flex-1 items-center gap-3">
-      <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-dd-border/70 bg-dd-bg/70">
-        <TrailLanguageLogo language={course.language} className="h-6 w-6" />
+      <span className="flex h-9 w-9 shrink-0 items-center justify-center">
+        <TrailLanguageLogo language={course.language} className="h-7 w-7" />
       </span>
       <span className="min-w-0 flex-1">
         <span
-          className={`block truncate text-sm font-black ${active ? 'text-blue-400' : 'text-dd-text'}`}
+          className={`block truncate text-sm font-black ${active ? 'text-blue-500 dark:text-blue-400' : 'text-dd-text'}`}
         >
           {metadata.label}
         </span>
@@ -61,8 +60,8 @@ export function TrailCourseSelector({
 }: TrailCourseSelectorProps) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<'courses' | 'add'>('courses');
-  const menuLabelId = useId();
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const menuLabelId = useId();
 
   const handleMouseEnter = () => {
     if (process.env.NODE_ENV === 'test') return;
@@ -125,7 +124,7 @@ export function TrailCourseSelector({
           className={
             variant === 'rail'
               ? 'group flex min-w-0 items-center gap-1.5 rounded-xl p-1 text-blue-400 outline-none transition-colors hover:bg-blue-500/10 focus-visible:ring-2 focus-visible:ring-blue-500/70'
-              : 'group flex h-10 shrink-0 items-center gap-1.5 rounded-xl border border-dd-border bg-dd-surface px-2.5 text-blue-400 outline-none transition-colors hover:border-blue-500/40 hover:bg-blue-500/10 focus-visible:ring-2 focus-visible:ring-blue-500/70'
+              : 'group flex h-9 shrink-0 items-center gap-1.5 rounded-xl px-1.5 text-blue-400 outline-none transition-colors hover:bg-white/[0.08] focus-visible:ring-2 focus-visible:ring-blue-500/70'
           }
         >
           <span
@@ -134,22 +133,9 @@ export function TrailCourseSelector({
             aria-label={`Logo de ${activeMetadata.label}`}
             className="flex h-7 w-7 shrink-0 items-center justify-center"
           >
-            {activeCourse.language === 'JS' ? (
-              <Image
-                data-testid="glossy-javascript-logo"
-                src="/assets/trails/javascript-glossy.png"
-                alt=""
-                width={30}
-                height={30}
-                className="h-7 w-7 object-contain"
-              />
-            ) : (
-              <TrailLanguageLogo language={activeCourse.language} className="h-7 w-7" />
-            )}
+            <TrailLanguageLogo language={activeCourse.language} className="h-7 w-7" />
           </span>
-          <span
-            className={`${variant === 'compact' ? 'hidden sm:inline' : ''} truncate text-xs font-black text-dd-text`}
-          >
+          <span className="truncate text-xs font-black text-dd-text">
             {formatXp(activeCourse.xp)}
           </span>
         </Menu.Trigger>
@@ -161,15 +147,16 @@ export function TrailCourseSelector({
             side="bottom"
             align="start"
             sideOffset={10}
+            collisionPadding={12}
             className="z-[100] outline-none"
           >
             <Menu.Popup
               aria-labelledby={menuLabelId}
-              className="w-[min(310px,calc(100vw-24px))] origin-[var(--transform-origin)] overflow-hidden rounded-2xl border border-dd-border bg-dd-surface text-dd-text shadow-[0_24px_70px_-24px_rgba(0,0,0,0.95)] outline-none transition-[transform,opacity] duration-150 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0"
+              className="w-[min(320px,calc(100vw-24px))] origin-[var(--transform-origin)] overflow-hidden rounded-[22px] border-2 border-dd-border bg-dd-sidebar-bg text-dd-text shadow-[0_26px_80px_-28px_rgba(0,0,0,0.95)] outline-none transition-[transform,opacity] duration-150 data-[ending-style]:scale-95 data-[ending-style]:opacity-0 data-[starting-style]:scale-95 data-[starting-style]:opacity-0"
             >
               <div
                 id={menuLabelId}
-                className="border-b border-dd-border px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-dd-muted"
+                className="border-b border-dd-border px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-dd-muted bg-dd-sidebar-bg"
               >
                 {view === 'courses' ? 'Meus cursos' : 'Adicionar curso'}
               </div>
@@ -182,11 +169,11 @@ export function TrailCourseSelector({
                         key={course.language}
                         value={course.language}
                         closeOnClick
-                        className="flex min-h-16 cursor-pointer items-center gap-3 border-b border-dd-border/70 px-4 py-2.5 outline-none transition-colors data-[checked]:bg-blue-500/10 data-[highlighted]:bg-blue-500/10"
+                        className="flex min-h-16 cursor-pointer items-center gap-3 border-b border-dd-border/70 px-4 py-2.5 outline-none transition-colors data-[checked]:bg-dd-surface data-[highlighted]:bg-dd-surface hover:bg-dd-surface"
                       >
                         <CourseRow course={course} active={course.language === activeLanguage} />
                         <Check
-                          className={`h-4 w-4 shrink-0 text-blue-400 ${
+                          className={`h-4 w-4 shrink-0 text-blue-500 dark:text-blue-400 ${
                             course.language === activeLanguage ? 'opacity-100' : 'opacity-0'
                           }`}
                         />
@@ -198,9 +185,9 @@ export function TrailCourseSelector({
                     <Menu.Item
                       closeOnClick={false}
                       onClick={() => setView('add')}
-                      className="flex min-h-14 cursor-pointer items-center gap-3 px-4 py-2.5 outline-none transition-colors data-[highlighted]:bg-blue-500/10"
+                      className="flex min-h-14 cursor-pointer items-center gap-3 px-4 py-2.5 outline-none transition-colors data-[highlighted]:bg-dd-surface hover:bg-dd-surface"
                     >
-                      <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-dd-border bg-dd-bg text-dd-muted">
+                      <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-dd-border bg-dd-surface text-dd-muted">
                         <Plus className="h-5 w-5" />
                       </span>
                       <span className="text-sm font-black text-dd-text">Adicionar curso</span>
@@ -212,7 +199,7 @@ export function TrailCourseSelector({
                   <Menu.Item
                     closeOnClick={false}
                     onClick={() => setView('courses')}
-                    className="flex min-h-12 cursor-pointer items-center gap-2 border-b border-dd-border/70 px-4 py-2 text-xs font-black text-blue-400 outline-none transition-colors data-[highlighted]:bg-blue-500/10"
+                    className="flex min-h-12 cursor-pointer items-center gap-2 border-b border-dd-border/70 px-4 py-2 text-xs font-black text-blue-500 dark:text-blue-400 outline-none transition-colors data-[highlighted]:bg-dd-surface hover:bg-dd-surface"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     Voltar para meus cursos
@@ -224,7 +211,7 @@ export function TrailCourseSelector({
                         key={course.language}
                         closeOnClick
                         onClick={() => handleCourseSelection(course.language)}
-                        className="flex min-h-16 cursor-pointer items-center border-b border-dd-border/70 px-4 py-2.5 outline-none transition-colors last:border-b-0 data-[highlighted]:bg-blue-500/10"
+                        className="flex min-h-16 cursor-pointer items-center border-b border-dd-border/70 px-4 py-2.5 outline-none transition-colors last:border-b-0 data-[highlighted]:bg-dd-surface hover:bg-dd-surface"
                       >
                         <CourseRow course={course} />
                       </Menu.Item>
