@@ -4,6 +4,8 @@ import { XpService } from './xp.service';
 import { findTrailQuestionById } from '@/lib/trailsData';
 import { NotificationService } from './notification.service';
 import { FALLBACK_QUIZZES, XP_QUIZ_CORRECT } from '@/lib/config';
+import { findCurriculumLessonStepById } from '@/lib/lessons/registry';
+import { parseTrailLessonStepId } from '@/app/trails/trailCurriculum';
 
 type QuizContent = {
   question: string;
@@ -77,6 +79,12 @@ export const QuizService = {
 
   async validateQuizAnswer(userId: string, quizId: string, selectedIndex: number) {
     const trailInfo = findTrailQuestionById(quizId);
+    const curriculumStep = findCurriculumLessonStepById(quizId);
+    const parsedCurriculumStep = parseTrailLessonStepId(quizId);
+    const correctAnswerXp =
+      parsedCurriculumStep?.kind === 'code'
+        ? (curriculumStep?.step.xp ?? XP_QUIZ_CORRECT)
+        : XP_QUIZ_CORRECT;
     let quiz = await prisma.quiz.findUnique({
       where: { id: quizId },
       include: {
@@ -88,17 +96,24 @@ export const QuizService = {
     let language: string | null = null;
 
     if (!quiz) {
-      if (!trailInfo) {
+      if (!trailInfo && !curriculumStep) {
         throw new Error('QUIZ_NOT_FOUND');
       }
+
+      const curriculumQuestion = curriculumStep?.step.question ?? curriculumStep?.step.instruction;
+      const question =
+        trailInfo?.question.question ?? curriculumQuestion ?? curriculumStep?.step.title;
+      const options = trailInfo?.question.options ?? curriculumStep?.step.options ?? ['Concluído'];
+      const generatedCorrectIndex =
+        trailInfo?.question.correctIndex ?? curriculumStep?.step.correctOptionIndex ?? 0;
 
       // Dynamically provision trail questions in the DB
       quiz = await prisma.quiz.create({
         data: {
           id: quizId,
-          question: trailInfo.question.question,
-          options: trailInfo.question.options,
-          correct_index: trailInfo.question.correctIndex,
+          question: question!,
+          options,
+          correct_index: generatedCorrectIndex,
           is_daily: false,
         },
         include: {
@@ -106,11 +121,12 @@ export const QuizService = {
         },
       });
 
-      correctIndex = trailInfo.question.correctIndex;
-      language = trailInfo.language;
+      correctIndex = generatedCorrectIndex;
+      language = trailInfo?.language ?? curriculumStep?.lesson.language ?? null;
     } else {
       correctIndex = quiz.correct_index;
-      language = quiz.post?.language ?? trailInfo?.language ?? null;
+      language =
+        quiz.post?.language ?? trailInfo?.language ?? curriculumStep?.lesson.language ?? null;
     }
 
     const selectedAnswerIsCorrect = selectedIndex === correctIndex;
@@ -130,10 +146,29 @@ export const QuizService = {
     let xpResult = null;
 
     if (existingAttempt) {
-      attempt = existingAttempt;
-      isCorrect = existingAttempt.is_correct;
+      if (!existingAttempt.is_correct && selectedAnswerIsCorrect) {
+        xpAmount = correctAnswerXp;
+        attempt = await prisma.quizAttempt.update({
+          where: {
+            user_id_quiz_id: {
+              user_id: userId,
+              quiz_id: quiz.id,
+            },
+          },
+          data: {
+            selected_index: selectedIndex,
+            is_correct: true,
+            xp_earned: xpAmount,
+          },
+        });
+        isCorrect = true;
+        xpResult = await XpService.awardXP(userId, language as any, xpAmount);
+      } else {
+        attempt = existingAttempt;
+        isCorrect = existingAttempt.is_correct;
+      }
     } else {
-      xpAmount = selectedAnswerIsCorrect ? XP_QUIZ_CORRECT : 0;
+      xpAmount = selectedAnswerIsCorrect ? correctAnswerXp : 0;
       attempt = await prisma.quizAttempt.create({
         data: {
           user_id: userId,

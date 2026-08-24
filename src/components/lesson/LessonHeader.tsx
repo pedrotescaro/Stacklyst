@@ -13,6 +13,40 @@ interface LessonHeaderProps {
   onExitClick: () => void;
 }
 
+function GameHeartIcon({ className = 'h-5 w-5' }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`${className} drop-shadow-[0_2px_6px_rgba(239,68,68,0.5)]`}
+    >
+      <defs>
+        <linearGradient id="heartGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ff4b4b" />
+          <stop offset="100%" stopColor="#d91b1b" />
+        </linearGradient>
+        <linearGradient id="heartShine" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
+          <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {/* Base Heart */}
+      <path
+        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+        fill="url(#heartGradient)"
+        stroke="#b31010"
+        strokeWidth="0.8"
+      />
+      {/* Top Glossy Highlight */}
+      <path
+        d="M7.5 4.5c-1.8 0-3.2 1.3-3.4 3.1.5-.8 1.4-1.4 2.5-1.5 1.5-.2 2.6.5 3.4 1.4.3.4.6.9.8 1.4-.4-1.8-1.5-3.4-3.3-4.4z"
+        fill="url(#heartShine)"
+      />
+    </svg>
+  );
+}
+
 export function LessonHeader({
   currentStepIndex,
   totalSteps,
@@ -51,7 +85,7 @@ export function LessonHeader({
         </div>
 
         {/* Stats Indicators: Hearts, Combo, XP */}
-        <div className="flex items-center gap-3 shrink-0">
+        <div className="flex items-center gap-2.5 shrink-0">
           {/* Combo Indicator */}
           {combo > 1 && (
             <motion.div
@@ -64,31 +98,27 @@ export function LessonHeader({
             </motion.div>
           )}
 
-          {/* Session XP */}
+          {/* Session XP (Blue Pill Badge) */}
           {earnedXp > 0 && (
-            <div className="flex items-center gap-1 rounded-full bg-yellow-500/10 px-2 py-1 text-xs font-black text-yellow-500">
+            <motion.div
+              initial={{ scale: 0.9 }}
+              animate={{ scale: 1 }}
+              className="flex items-center gap-1.5 rounded-full bg-blue-500/15 border border-blue-500/30 px-3 py-1 text-xs font-black text-blue-400 shadow-sm shadow-blue-500/10"
+            >
+              <Zap className="h-3.5 w-3.5 fill-blue-400 text-blue-400" />
               <span>+{earnedXp} XP</span>
-            </div>
+            </motion.div>
           )}
 
-          {/* Lives / Hearts (5 corações individuais) */}
+          {/* Lives / Hearts (Game Heart Icon Badge) */}
           <div
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-dd-surface/80 border border-dd-border/80 shadow-sm"
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/25 shadow-sm"
             aria-label={`${lives} de ${maxLives} vidas restantes`}
           >
-            {Array.from({ length: maxLives }).map((_, index) => {
-              const isAlive = index < lives;
-              return (
-                <Heart
-                  key={index}
-                  className={`h-4 w-4 transition-colors duration-200 ${
-                    isAlive
-                      ? 'fill-red-500 text-red-500'
-                      : 'fill-neutral-400 text-neutral-400 dark:fill-neutral-600 dark:text-neutral-600'
-                  }`}
-                />
-              );
-            })}
+            <GameHeartIcon className="h-5 w-5" />
+            <span className="text-sm font-black text-rose-500 dark:text-rose-400 tabular-nums leading-none">
+              {lives}
+            </span>
           </div>
         </div>
       </div>

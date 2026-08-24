@@ -2,6 +2,7 @@
 
 import { BookOpen, Sparkles, Lightbulb, Volume2 } from 'lucide-react';
 import type { LessonStep } from '@/lib/lessons/types';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { DuolingoText } from '../DuolingoText';
 
 interface ConceptStepProps {
@@ -10,6 +11,13 @@ interface ConceptStepProps {
 }
 
 export function ConceptStep({ step, language }: ConceptStepProps) {
+  const { speak, isSpeaking } = useTextToSpeech();
+
+  const handleSpeak = () => {
+    const textToSpeak = `${step.title}. ${step.conceptText || ''}`;
+    speak(textToSpeak);
+  };
+
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in font-sans select-none">
       <div className="space-y-1">
@@ -25,10 +33,13 @@ export function ConceptStep({ step, language }: ConceptStepProps) {
         <div className="flex items-start gap-4 rounded-3xl border-2 border-dd-border bg-dd-card/80 p-5 md:p-6 shadow-sm">
           <button
             type="button"
-            aria-label="Ouvir explicação"
-            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-md shadow-blue-500/20 hover:bg-blue-400 active:scale-95 transition-all cursor-pointer"
+            onClick={handleSpeak}
+            aria-label="Ouvir explicação do conceito"
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-500 text-white shadow-md shadow-blue-500/20 hover:bg-blue-400 active:scale-95 transition-all cursor-pointer ${
+              isSpeaking ? 'ring-4 ring-blue-400/40 scale-105 animate-pulse' : ''
+            }`}
           >
-            <Volume2 className="h-5 w-5" />
+            <Volume2 className="h-5 w-5 fill-current" />
           </button>
 
           <div className="space-y-2 pt-0.5 flex-1 min-w-0">

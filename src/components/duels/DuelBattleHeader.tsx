@@ -56,7 +56,7 @@ export function DuelBattleHeader({
       <div className="flex items-center justify-between border-b border-dd-border/60 pb-3">
         <div className="flex items-center gap-2">
           <LanguageTag language={language} size="sm" />
-          <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-xl border-2 border-b-[3px] border-amber-500/40 border-b-amber-600 bg-amber-500/15 text-amber-300">
+          <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-xl border-2 border-b-[3px] border-blue-500/40 border-b-blue-600 bg-blue-500/15 text-blue-500 dark:text-blue-400">
             {difficulty}
           </span>
         </div>
@@ -67,7 +67,7 @@ export function DuelBattleHeader({
             'flex items-center gap-1.5 px-3 py-1 rounded-xl border-2 border-b-[3px] font-mono font-black text-xs select-none transition-colors',
             timeLeft < 60
               ? 'border-rose-500/40 border-b-rose-600 bg-rose-500/15 text-rose-400 animate-pulse'
-              : 'border-blue-500/40 border-b-blue-600 bg-blue-500/15 text-blue-400'
+              : 'border-blue-500/40 border-b-blue-600 bg-blue-500/15 text-blue-500 dark:text-blue-400'
           )}
         >
           <Clock className="w-3.5 h-3.5" />
@@ -86,14 +86,14 @@ export function DuelBattleHeader({
                 avatar_url={me.avatar_url}
                 avatar_config={me.avatar_config}
                 size="md"
-                className="ring-2 ring-blue-500/60 ring-offset-2 ring-offset-black"
+                className="ring-2 ring-blue-500/60 ring-offset-2 ring-offset-dd-surface"
               />
               <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-blue-500 rounded-full border-2 border-black flex items-center justify-center text-[7px] font-black text-white">
                 ✓
               </span>
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-black text-white truncate flex items-center gap-1">
+              <p className="text-xs font-black text-dd-text truncate flex items-center gap-1">
                 {me.username}
                 <span className="text-[9px] font-bold text-blue-400">(Você)</span>
               </p>
@@ -104,7 +104,7 @@ export function DuelBattleHeader({
           </div>
 
           {/* Duolingo 3D Health/Test Battery Bar */}
-          <div className="w-full bg-slate-900 rounded-full h-3.5 border-2 border-slate-700/80 p-0.5 overflow-hidden shadow-inner">
+          <div className="w-full bg-dd-bg rounded-full h-3.5 border-2 border-dd-border p-0.5 overflow-hidden shadow-inner">
             <div
               className="h-full bg-gradient-to-r from-blue-500 to-sky-400 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(59,130,246,0.4)]"
               style={{ width: `${myProgress}%` }}
@@ -114,7 +114,7 @@ export function DuelBattleHeader({
 
         {/* Center: VS Badge */}
         <div className="flex flex-col items-center justify-center shrink-0">
-          <div className="w-10 h-10 rounded-2xl border-2 border-b-4 border-amber-500/40 border-b-amber-600 bg-amber-500/20 text-amber-300 flex items-center justify-center shadow-lg shadow-amber-500/10">
+          <div className="w-10 h-10 rounded-2xl border-2 border-b-4 border-blue-500/40 border-b-blue-600 bg-blue-500/20 text-blue-500 dark:text-blue-400 flex items-center justify-center shadow-lg shadow-blue-500/10">
             <Swords className="w-5 h-5" />
           </div>
         </div>
@@ -130,7 +130,7 @@ export function DuelBattleHeader({
                     avatar_url={opponent.avatar_url}
                     avatar_config={opponent.avatar_config}
                     size="md"
-                    className="ring-2 ring-blue-500/40 ring-offset-2 ring-offset-black"
+                    className="ring-2 ring-blue-500/40 ring-offset-2 ring-offset-dd-surface"
                   />
                   <span className="absolute -bottom-1 -left-1 w-3.5 h-3.5 bg-blue-500 rounded-full border-2 border-black" />
                 </>
@@ -141,7 +141,7 @@ export function DuelBattleHeader({
               )}
             </div>
             <div className="min-w-0">
-              <p className="text-xs font-black text-white truncate">
+              <p className="text-xs font-black text-dd-text truncate">
                 {opponent ? opponent.username : 'Aguardando oponente...'}
               </p>
               <p className="text-[10px] text-dd-muted font-semibold">
@@ -159,7 +159,7 @@ export function DuelBattleHeader({
           </div>
 
           {/* Duolingo 3D Health/Test Battery Bar for Opponent */}
-          <div className="w-full bg-slate-900 rounded-full h-3.5 border-2 border-slate-700/80 p-0.5 overflow-hidden shadow-inner">
+          <div className="w-full bg-dd-bg rounded-full h-3.5 border-2 border-dd-border p-0.5 overflow-hidden shadow-inner">
             <div
               className="h-full bg-gradient-to-r from-blue-500 to-sky-400 rounded-full transition-all duration-300 shadow-[0_0_10px_rgba(59,130,246,0.4)]"
               style={{ width: `${opponentProgress}%` }}

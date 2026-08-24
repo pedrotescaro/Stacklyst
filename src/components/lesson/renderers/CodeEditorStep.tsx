@@ -36,6 +36,40 @@ export function CodeEditorStep({
         )}
       </div>
 
+      {step.testCases && step.testCases.length > 0 && (
+        <section
+          aria-labelledby={`test-cases-${step.id}`}
+          className="rounded-2xl border border-neutral-800 bg-neutral-900/55 p-4"
+        >
+          <div className="flex items-center justify-between gap-3">
+            <h3
+              id={`test-cases-${step.id}`}
+              className="text-xs font-black uppercase tracking-[0.12em] text-neutral-200"
+            >
+              Casos de teste
+            </h3>
+            <span className="text-[11px] font-bold text-neutral-500">
+              {step.testCases.length}{' '}
+              {step.testCases.length === 1 ? 'caso visível' : 'casos visíveis'}
+            </span>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+            {step.testCases.map((testCase) => (
+              <div key={testCase.id} className="min-w-0 rounded-xl bg-black/35 p-3">
+                <p className="break-words text-xs font-semibold leading-relaxed text-neutral-300">
+                  {testCase.description}
+                </p>
+                {testCase.expectedOutput && (
+                  <p className="mt-2 break-words font-mono text-[11px] text-emerald-400">
+                    Saída: {testCase.expectedOutput}
+                  </p>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       {/* Editor Box */}
       <div className="rounded-2xl border-2 border-neutral-800 bg-[#0d1117] overflow-hidden shadow-xl">
         <div className="flex items-center justify-between px-4 py-2.5 bg-neutral-900/80 border-b border-neutral-800">

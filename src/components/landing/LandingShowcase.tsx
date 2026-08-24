@@ -1319,8 +1319,14 @@ export default function LandingShowcase({
                   </div>
                   <Swords size={22} className="text-slate-600" />
                   <div>
-                    <span className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-violet-500 text-lg font-bold">
-                      MK
+                    <span className="mx-auto flex size-16 items-center justify-center overflow-hidden rounded-2xl bg-violet-500">
+                      <NextImage
+                        src="/assets/duels/wizard-robot.png"
+                        alt="Robô mago"
+                        width={64}
+                        height={64}
+                        className="h-16 w-16 object-contain"
+                      />
                     </span>
                     <p className="mt-3 text-sm font-semibold">maya.kernel</p>
                     <p className="mt-1 text-[10px] text-violet-300">1.398 ELO</p>

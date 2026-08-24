@@ -306,8 +306,8 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="text-sm sm:text-base font-black text-white flex items-center gap-2 truncate">
-                  <Swords className="w-4 h-4 text-amber-400" />
+                <h1 className="text-sm sm:text-base font-black text-dd-text flex items-center gap-2 truncate">
+                  <Swords className="w-4 h-4 text-blue-500" />
                   {problem.title}
                 </h1>
                 <p className="text-[10px] sm:text-[11px] text-dd-muted font-bold">
@@ -332,7 +332,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                   <button
                     type="button"
                     onClick={startCountdown}
-                    className="dd-touch dd-focus-ring flex items-center gap-1.5 rounded-xl border-2 border-b-[3px] border-amber-600 border-b-amber-800 bg-amber-500 hover:bg-amber-400 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-slate-950 shadow-md shadow-amber-500/20 transition-all hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer animate-pulse"
+                    className="dd-touch dd-focus-ring flex items-center gap-1.5 rounded-xl border-2 border-b-[3px] border-blue-600 border-b-blue-800 bg-blue-500 hover:bg-blue-400 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-white shadow-md shadow-blue-500/20 transition-all hover:-translate-y-0.5 active:translate-y-0.5 cursor-pointer animate-pulse"
                   >
                     <span>Iniciar Duelo!</span>
                     <Flame className="w-3.5 h-3.5 fill-current" />
@@ -346,7 +346,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
           {duelPhase === 'countdown' && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md">
               <div className="text-center space-y-4 animate-bounce">
-                <div className="text-7xl sm:text-9xl font-black text-amber-400 drop-shadow-[0_0_35px_rgba(245,158,11,0.6)]">
+                <div className="text-7xl sm:text-9xl font-black text-blue-400 drop-shadow-[0_0_35px_rgba(59,130,246,0.6)]">
                   {countdownNumber}
                 </div>
                 <p className="text-xl sm:text-2xl font-black text-white uppercase tracking-widest">
@@ -376,11 +376,11 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
             <div className="rounded-[22px] border-2 border-b-4 border-dd-border bg-dd-surface/80 p-5 space-y-3 shadow-md">
               <div className="flex items-center gap-2 border-b border-dd-border/60 pb-2.5">
                 <Sparkles className="w-4 h-4 text-blue-400" />
-                <h3 className="text-xs font-black uppercase tracking-wider text-white">
+                <h3 className="text-xs font-black uppercase tracking-wider text-dd-text">
                   Objetivo do Desafio
                 </h3>
               </div>
-              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-sans">
+              <p className="text-xs sm:text-sm text-dd-muted leading-relaxed font-sans">
                 {problem.description}
               </p>
             </div>

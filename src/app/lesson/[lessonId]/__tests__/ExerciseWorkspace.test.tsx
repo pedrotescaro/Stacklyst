@@ -102,4 +102,67 @@ describe('ExerciseWorkspace', () => {
     expect(screen.getByText('Runs: 1')).toBeInTheDocument();
     expect(screen.getByText('Submissions: 0')).toBeInTheDocument();
   });
+
+  it('locks section jump challenges to Hard and persists the unlocked section', async () => {
+    const fetchMock = vi.fn(async (input: string | URL | Request) => {
+      const url = String(input);
+      if (url === '/api/trails/jump') {
+        return {
+          ok: true,
+          json: async () => ({ ok: true, sectionNumber: 3 }),
+        };
+      }
+
+      return {
+        ok: true,
+        json: async () => ({
+          ok: true,
+          passed: true,
+          passedTests: 4,
+          totalTests: 4,
+          tests: [],
+          consoleOutput: '',
+          executionMs: 48,
+          submissionCount: 1,
+          firstCompletion: false,
+        }),
+      };
+    });
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(
+      <ExerciseWorkspace
+        exercise={exercise}
+        jumpChallenge={{ sectionNumber: 3, pathSlug: 'frontend-react', language: 'JS' }}
+      />
+    );
+
+    expect(
+      screen.getByRole('heading', { name: 'Desafio para pular à Seção 3' })
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText(/Hard/)).toBeChecked();
+    expect(screen.getByLabelText(/Hard/)).toBeDisabled();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+
+    await waitFor(() =>
+      expect(screen.getByText('Desafio concluído. A Seção 3 foi liberada.')).toBeInTheDocument()
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/exercises/exercise-1/submit',
+      expect.objectContaining({
+        body: expect.stringContaining('SECTION_JUMP'),
+      })
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/trails/jump',
+      expect.objectContaining({
+        body: expect.stringContaining('frontend-react'),
+      })
+    );
+    expect(screen.getByRole('link', { name: 'Começar na seção' })).toHaveAttribute(
+      'href',
+      '/trails?view=trail&path=frontend-react&section=3'
+    );
+  });
 });

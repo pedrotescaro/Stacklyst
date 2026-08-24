@@ -1,4 +1,12 @@
-import { ArrowLeft, BookOpen, CheckCircle2, ChevronRight, Lock } from 'lucide-react';
+import {
+  ArrowLeft,
+  BookOpen,
+  CheckCircle2,
+  ChevronRight,
+  FastForward,
+  Lock,
+  Route,
+} from 'lucide-react';
 import type { TrailLevel } from '@/lib/trailsData';
 import { getSectionTheme } from './trailTheme';
 
@@ -6,6 +14,7 @@ export interface TrailSectionView {
   number: number;
   name: string;
   title: string;
+  description?: string;
   levels: TrailLevel[];
   completedUnits: number;
   completed: boolean;
@@ -69,6 +78,17 @@ interface TrailSectionNavigationProps {
   onOpenSections: () => void;
   onBack: () => void;
   onSelectSection: (sectionNumber: number) => void;
+  onRequestJump?: (sectionNumber: number) => void;
+  routes?: Array<{
+    id: string;
+    title: string;
+    description: string;
+    accentColor: string;
+    completedUnits: number;
+    totalUnits: number;
+  }>;
+  selectedRouteId?: string;
+  onSelectRoute?: (routeId: string) => void;
 }
 
 export function TrailSectionNavigation({
@@ -80,6 +100,10 @@ export function TrailSectionNavigation({
   onOpenSections,
   onBack,
   onSelectSection,
+  onRequestJump,
+  routes = [],
+  selectedRouteId,
+  onSelectRoute,
 }: TrailSectionNavigationProps) {
   const theme = getSectionTheme(sectionNumber);
 
@@ -103,9 +127,67 @@ export function TrailSectionNavigation({
             Seções e unidades
           </h1>
           <p className="mt-1 text-sm font-semibold text-dd-muted">
-            Entre em uma seção para estudar ou revisar suas unidades.
+            Escolha um rumo e entre em uma seção para estudar ou revisar suas unidades.
           </p>
         </div>
+
+        {routes.length > 0 && (
+          <div className="mb-6">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.14em] text-dd-muted">
+                  Rumo da trilha
+                </p>
+                <h2 className="mt-1 text-base font-black text-dd-text">O que você quer estudar?</h2>
+              </div>
+              <Route className="h-5 w-5 text-blue-400" aria-hidden="true" />
+            </div>
+
+            <div className="grid gap-2 sm:grid-cols-2">
+              {routes.map((route) => {
+                const selected = route.id === selectedRouteId;
+                const progress =
+                  route.totalUnits > 0
+                    ? Math.round((route.completedUnits / route.totalUnits) * 100)
+                    : 0;
+
+                return (
+                  <button
+                    key={route.id}
+                    type="button"
+                    aria-pressed={selected}
+                    onClick={() => onSelectRoute?.(route.id)}
+                    className={`dd-focus-ring rounded-2xl border p-4 text-left transition ${
+                      selected
+                        ? 'border-blue-500/70 bg-blue-500/10 shadow-sm'
+                        : 'border-dd-border bg-dd-surface/45 hover:border-dd-muted/60 hover:bg-dd-surface'
+                    }`}
+                  >
+                    <span className="flex items-start gap-3">
+                      <span
+                        aria-hidden="true"
+                        className="mt-1 h-3 w-3 shrink-0 rounded-full"
+                        style={{ backgroundColor: route.accentColor }}
+                      />
+                      <span className="min-w-0 flex-1">
+                        <span className="block text-sm font-black text-dd-text">{route.title}</span>
+                        <span className="mt-1 line-clamp-2 block text-[10px] font-semibold leading-relaxed text-dd-muted">
+                          {route.description}
+                        </span>
+                        <span className="mt-3 flex items-center justify-between gap-3 text-[10px] font-black tabular-nums">
+                          <span className={selected ? 'text-blue-400' : 'text-dd-muted'}>
+                            {route.completedUnits}/{route.totalUnits} atividades
+                          </span>
+                          <span style={{ color: route.accentColor }}>{progress}%</span>
+                        </span>
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="space-y-4">
           {sections.map((section) => {
@@ -116,7 +198,7 @@ export function TrailSectionNavigation({
                 ? isCurrent
                   ? 'Continuar'
                   : 'Abrir'
-                : 'Bloqueada';
+                : 'Pular para cá';
 
             return (
               <article
@@ -131,13 +213,30 @@ export function TrailSectionNavigation({
                   aria-hidden="true"
                   className="pointer-events-none absolute inset-0 opacity-20 [background:repeating-linear-gradient(135deg,transparent_0,transparent_74px,var(--color-dd-border)_74px,var(--color-dd-border)_142px)]"
                 />
-                <div className="relative flex items-center justify-between gap-4">
+                <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-[10px] font-black uppercase tracking-[0.1em] text-blue-400">
                       {section.name} · {section.levels.length} unidades
                     </p>
-                    <h2 className="mt-2 text-xl font-black text-dd-text">Seção {section.number}</h2>
-                    <p className="mt-1 truncate text-xs font-bold text-dd-muted">{section.title}</p>
+                    <h2 className="mt-2 text-xl font-black text-dd-text">
+                      Seção {section.number} · {section.title}
+                    </h2>
+                    {section.description && (
+                      <p className="mt-1 max-w-xl text-xs font-semibold leading-relaxed text-dd-muted">
+                        {section.description}
+                      </p>
+                    )}
+                    <ol className="mt-4 grid gap-x-5 gap-y-2 sm:grid-cols-2">
+                      {section.levels.map((level) => (
+                        <li
+                          key={level.levelNumber}
+                          className="flex min-w-0 items-center gap-2 text-xs font-bold text-dd-text"
+                        >
+                          <BookOpen aria-hidden="true" className="h-4 w-4 shrink-0 text-blue-400" />
+                          <span className="min-w-0 truncate">{level.title}</span>
+                        </li>
+                      ))}
+                    </ol>
                     <div
                       className={`mt-3 flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wide ${
                         section.completed
@@ -162,12 +261,20 @@ export function TrailSectionNavigation({
 
                   <button
                     type="button"
-                    disabled={!section.unlocked}
-                    onClick={() => onSelectSection(section.number)}
-                    className="dd-focus-ring flex min-w-[102px] cursor-pointer items-center justify-center gap-1 rounded-xl border-2 border-dd-border bg-dd-bg/80 px-4 py-3 text-xs font-black uppercase tracking-wide text-blue-400 shadow-[0_4px_0_var(--color-dd-border)] transition-all enabled:hover:border-blue-500/60 enabled:hover:bg-blue-500/10 enabled:active:translate-y-1 enabled:active:shadow-none disabled:cursor-not-allowed disabled:opacity-45"
+                    disabled={!section.unlocked && !onRequestJump}
+                    onClick={() =>
+                      section.unlocked
+                        ? onSelectSection(section.number)
+                        : onRequestJump?.(section.number)
+                    }
+                    className="dd-focus-ring flex w-full min-w-[128px] cursor-pointer items-center justify-center gap-1 rounded-xl border-2 border-dd-border bg-dd-bg/80 px-4 py-3 text-xs font-black uppercase tracking-wide text-blue-400 shadow-[0_4px_0_var(--color-dd-border)] transition-all enabled:hover:border-blue-500/60 enabled:hover:bg-blue-500/10 enabled:active:translate-y-1 enabled:active:shadow-none disabled:cursor-not-allowed disabled:opacity-45 sm:w-auto"
                   >
                     {actionLabel}
-                    {section.unlocked && <ChevronRight className="h-4 w-4" />}
+                    {section.unlocked ? (
+                      <ChevronRight className="h-4 w-4" />
+                    ) : (
+                      <FastForward className="h-4 w-4" fill="currentColor" strokeWidth={0} />
+                    )}
                   </button>
                 </div>
               </article>
@@ -198,6 +305,7 @@ export function TrailSectionNavigation({
 
         <button
           type="button"
+          aria-label="Abrir seções e unidades"
           onClick={onOpenSections}
           className="dd-focus-ring flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border-2 border-white/30 bg-black/15 px-4 py-2.5 text-xs font-black uppercase tracking-wide text-white shadow-[0_3px_0_rgba(0,0,0,0.2)] transition-all hover:bg-black/25 active:translate-y-[2px] active:shadow-none"
         >
