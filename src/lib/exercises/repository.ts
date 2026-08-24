@@ -8,6 +8,7 @@ import {
   calculateNodeMastery,
   deriveCompletedNodeStatus,
 } from '@/lib/exercises/progression';
+import { calculateGemBalance, calculateGemReward } from '@/lib/gamification/gems';
 import type { ExerciseWorkspaceData } from '@/lib/exercises/types';
 import type { KnowledgeProgressStatus } from '@/lib/learning/types';
 
@@ -302,9 +303,12 @@ export async function recordExerciseSubmission(input: {
       })),
     });
 
-    const [submissionCount, user] = await Promise.all([
+    const [submissionCount, firstCompletionCount, user] = await Promise.all([
       transaction.exerciseSubmission.count({
         where: { user_id: input.userId, exercise_id: input.exercise.id },
+      }),
+      transaction.exerciseSubmission.count({
+        where: { user_id: input.userId, first_completion: true },
       }),
       transaction.user.findUniqueOrThrow({
         where: { id: input.userId },
@@ -317,6 +321,8 @@ export async function recordExerciseSubmission(input: {
       submissionCount,
       firstCompletion,
       xpEarned,
+      gemsEarned: calculateGemReward(firstCompletion),
+      totalGems: calculateGemBalance(firstCompletionCount),
       mastery: progress.mastery,
       nodeStatus: progress.status,
       totalXp: user.total_xp,

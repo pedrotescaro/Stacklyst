@@ -53,6 +53,8 @@ export const POST = apiHandler(async (request, { session, params }) => {
       submissionCount: result.submissionCount,
       firstCompletion: result.firstCompletion,
       xpEarned: result.xpEarned,
+      gemsEarned: result.gemsEarned,
+      totalGems: result.totalGems,
       mastery: result.mastery,
       nodeStatus: result.nodeStatus,
       totalXp: result.totalXp,
