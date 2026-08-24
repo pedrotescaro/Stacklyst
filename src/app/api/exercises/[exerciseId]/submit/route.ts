@@ -10,13 +10,15 @@ import { rateLimit } from '@/lib/ratelimit';
 const submissionSchema = z.object({
   code: z.string().min(1).max(20_000),
   assistanceMode: z.enum(['GUIDED', 'STANDARD', 'HARD', 'NO_ASSIST']),
+  challenge: z.enum(['SECTION_JUMP']).optional(),
 });
 
 export const POST = apiHandler(async (request, { session, params }) => {
   if (!session) throw new UnauthorizedError();
 
   const { exerciseId } = await params;
-  const { code, assistanceMode } = submissionSchema.parse(await request.json());
+  const { code, assistanceMode, challenge } = submissionSchema.parse(await request.json());
+  const effectiveAssistanceMode = challenge === 'SECTION_JUMP' ? 'HARD' : assistanceMode;
 
   await rateLimit(`exercise-submit:${session.id}`, {
     ...RATE_LIMIT_CODE_RUN,
@@ -35,7 +37,7 @@ export const POST = apiHandler(async (request, { session, params }) => {
   const result = await recordExerciseSubmission({
     exercise,
     userId: session.id,
-    assistanceMode,
+    assistanceMode: effectiveAssistanceMode,
     code,
     evaluation,
   });

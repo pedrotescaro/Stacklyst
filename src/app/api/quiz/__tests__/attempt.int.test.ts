@@ -122,7 +122,7 @@ describe('POST /api/quiz/[id]/attempt integration', () => {
     expect(XpService.awardXP).toHaveBeenCalledWith('user-123', 'JS', 15);
   });
 
-  it('should not overwrite an existing quiz attempt', async () => {
+  it('should promote an incorrect attempt when the user retries successfully', async () => {
     const mockUser = { id: 'user-123', username: 'testuser', total_xp: 100 };
     vi.mocked(getAuthUser).mockResolvedValue(mockUser as any);
 
@@ -139,6 +139,15 @@ describe('POST /api/quiz/[id]/attempt integration', () => {
       is_correct: false,
       xp_earned: 0,
     } as any);
+    vi.mocked(prisma.quizAttempt.update).mockResolvedValue({
+      id: 'attempt-123',
+      user_id: 'user-123',
+      quiz_id: 'js-l1-q1',
+      selected_index: 1,
+      is_correct: true,
+      xp_earned: 15,
+    } as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ total_xp: 115 } as any);
 
     const request = new Request('http://localhost:3000/api/quiz/js-l1-q1/attempt', {
       method: 'POST',
@@ -149,9 +158,110 @@ describe('POST /api/quiz/[id]/attempt integration', () => {
     const json = await response.json();
 
     expect(response.status).toBe(200);
-    expect(json.is_correct).toBe(false);
-    expect(json.attempt.selected_index).toBe(0);
-    expect(prisma.quizAttempt.update).not.toHaveBeenCalled();
-    expect(XpService.awardXP).not.toHaveBeenCalled();
+    expect(json.is_correct).toBe(true);
+    expect(json.attempt.selected_index).toBe(1);
+    expect(prisma.quizAttempt.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ is_correct: true, xp_earned: 15 }),
+      })
+    );
+    expect(XpService.awardXP).toHaveBeenCalledWith('user-123', 'JS', 15);
+  });
+
+  it('provisions and records a curriculum activity with its route-specific identity', async () => {
+    const mockUser = { id: 'user-123', username: 'testuser', total_xp: 100 };
+    vi.mocked(getAuthUser).mockResolvedValue(mockUser as any);
+    vi.mocked(prisma.quiz.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.quiz.create).mockResolvedValue({
+      id: 'js-backend-data-s4-u2-s2',
+      question: 'Qual decisão técnica atende melhor ao objetivo de Chaves e restrições?',
+      options: ['correta', 'incorreta'],
+      correct_index: 0,
+      is_daily: false,
+      scheduled_for: null,
+      post_id: null,
+      created_at: new Date(),
+      post: null,
+    } as any);
+    vi.mocked(prisma.quizAttempt.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.quizAttempt.create).mockResolvedValue({
+      id: 'attempt-curriculum',
+      user_id: 'user-123',
+      quiz_id: 'js-backend-data-s4-u2-s2',
+      selected_index: 0,
+      is_correct: true,
+      xp_earned: 15,
+      created_at: new Date(),
+    } as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ total_xp: 115 } as any);
+
+    const request = new Request('http://localhost:3000/api/quiz/js-backend-data-s4-u2-s2/attempt', {
+      method: 'POST',
+      body: JSON.stringify({ selected_index: 0 }),
+    });
+
+    const response = await POST(request, {
+      params: Promise.resolve({ id: 'js-backend-data-s4-u2-s2' }),
+    });
+
+    expect(response.status).toBe(200);
+    expect(prisma.quiz.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        id: 'js-backend-data-s4-u2-s2',
+        question: expect.stringContaining('Chaves e restrições'),
+      }),
+      include: { post: true },
+    });
+    expect(XpService.awardXP).toHaveBeenCalledWith('user-123', 'JS', 15);
+  });
+
+  it('provisions an exclusive code-node activity and awards its own XP', async () => {
+    const quizId = 'js-algorithms-s3-u2-code-1-s1';
+    const mockUser = { id: 'user-123', username: 'testuser', total_xp: 100 };
+    vi.mocked(getAuthUser).mockResolvedValue(mockUser as any);
+    vi.mocked(prisma.quiz.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.quiz.create).mockResolvedValue({
+      id: quizId,
+      question: 'Retorne os índices dos dois valores cuja soma é o alvo.',
+      options: ['Concluído'],
+      correct_index: 0,
+      is_daily: false,
+      scheduled_for: null,
+      post_id: null,
+      created_at: new Date(),
+      post: null,
+    } as any);
+    vi.mocked(prisma.quizAttempt.findUnique).mockResolvedValue(null);
+    vi.mocked(prisma.quizAttempt.create).mockResolvedValue({
+      id: 'attempt-code-node',
+      user_id: 'user-123',
+      quiz_id: quizId,
+      selected_index: 0,
+      is_correct: true,
+      xp_earned: 35,
+      created_at: new Date(),
+    } as any);
+    vi.mocked(prisma.user.findUnique).mockResolvedValue({ total_xp: 135 } as any);
+
+    const request = new Request(`http://localhost:3000/api/quiz/${quizId}/attempt`, {
+      method: 'POST',
+      body: JSON.stringify({ selected_index: 0 }),
+    });
+
+    const response = await POST(request, { params: Promise.resolve({ id: quizId }) });
+
+    expect(response.status).toBe(200);
+    expect(prisma.quiz.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({
+        id: quizId,
+        question: expect.stringContaining('soma é o alvo'),
+        correct_index: 0,
+      }),
+      include: { post: true },
+    });
+    expect(prisma.quizAttempt.create).toHaveBeenCalledWith({
+      data: expect.objectContaining({ quiz_id: quizId, xp_earned: 35 }),
+    });
+    expect(XpService.awardXP).toHaveBeenCalledWith('user-123', 'JS', 35);
   });
 });

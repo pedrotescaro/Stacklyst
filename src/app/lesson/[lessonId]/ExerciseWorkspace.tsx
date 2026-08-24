@@ -20,6 +20,7 @@ import {
   Play,
   RotateCcw,
   Send,
+  ShieldCheck,
   Terminal,
 } from 'lucide-react';
 import { AssistanceControls } from '@/components/lesson/AssistanceControls';
@@ -33,6 +34,11 @@ import type {
 
 interface ExerciseWorkspaceProps {
   exercise: ExerciseWorkspaceData;
+  jumpChallenge?: {
+    sectionNumber: number;
+    pathSlug: string;
+    language: string;
+  };
 }
 
 interface EvaluationResponse {
@@ -48,6 +54,8 @@ interface EvaluationResponse {
   submissionCount?: number;
   firstCompletion?: boolean;
   xpEarned?: number;
+  gemsEarned?: number;
+  totalGems?: number;
   mastery?: number;
   nodeStatus?: string;
   totalXp?: number;
@@ -105,15 +113,21 @@ function TestResultRow({ test }: { test: ExerciseApiTestResult }) {
   );
 }
 
-export function ExerciseWorkspace({ exercise }: ExerciseWorkspaceProps) {
+export function ExerciseWorkspace({ exercise, jumpChallenge }: ExerciseWorkspaceProps) {
   const [code, setCode] = useState(exercise.starterCode);
-  const [assistanceMode, setAssistanceMode] = useState<AssistanceMode>('STANDARD');
+  const [assistanceMode, setAssistanceMode] = useState<AssistanceMode>(
+    jumpChallenge ? 'HARD' : 'STANDARD'
+  );
   const [runningAction, setRunningAction] = useState<'run' | 'submit' | null>(null);
+  const [lastEvaluatedAction, setLastEvaluatedAction] = useState<'run' | 'submit' | null>(null);
   const [evaluation, setEvaluation] = useState<EvaluationResponse | null>(null);
   const [runCount, setRunCount] = useState(exercise.activity.runs);
   const [submissionCount, setSubmissionCount] = useState(exercise.activity.submissions);
   const [revealedHints, setRevealedHints] = useState(0);
   const [detailsOpen, setDetailsOpen] = useState(true);
+  const [jumpUnlockState, setJumpUnlockState] = useState<'idle' | 'saving' | 'saved' | 'error'>(
+    'idle'
+  );
 
   const canUseAutocomplete = assistanceMode === 'GUIDED' || assistanceMode === 'STANDARD';
   const canUseDocumentation = assistanceMode !== 'NO_ASSIST';
@@ -139,20 +153,49 @@ export function ExerciseWorkspace({ exercise }: ExerciseWorkspaceProps) {
   };
 
   const changeAssistanceMode = (mode: AssistanceMode) => {
+    if (jumpChallenge) return;
     setAssistanceMode(mode);
     if (mode !== 'GUIDED') setRevealedHints(0);
+  };
+
+  const recordJumpUnlock = async () => {
+    if (!jumpChallenge) return;
+    setJumpUnlockState('saving');
+
+    try {
+      const response = await fetch('/api/trails/jump', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          pathSlug: jumpChallenge.pathSlug,
+          language: jumpChallenge.language,
+          sectionNumber: jumpChallenge.sectionNumber,
+          exerciseId: exercise.id,
+        }),
+      });
+      if (!response.ok) throw new Error('Não foi possível salvar o salto.');
+      setJumpUnlockState('saved');
+    } catch {
+      setJumpUnlockState('error');
+    }
   };
 
   const evaluate = async (action: 'run' | 'submit') => {
     if (busy || !code.trim()) return;
     setRunningAction(action);
+    setLastEvaluatedAction(action);
     setEvaluation(null);
+    if (action === 'submit' && jumpChallenge) setJumpUnlockState('idle');
 
     try {
       const response = await fetch(`/api/exercises/${exercise.id}/${action}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ code, assistanceMode }),
+        body: JSON.stringify({
+          code,
+          assistanceMode,
+          ...(action === 'submit' && jumpChallenge ? { challenge: 'SECTION_JUMP' } : {}),
+        }),
       });
       const data = (await response.json()) as EvaluationResponse;
       setEvaluation({
@@ -169,6 +212,9 @@ export function ExerciseWorkspace({ exercise }: ExerciseWorkspaceProps) {
 
       if (typeof data.runCount === 'number') setRunCount(data.runCount);
       if (typeof data.submissionCount === 'number') setSubmissionCount(data.submissionCount);
+      if (action === 'submit' && data.passed && jumpChallenge) {
+        await recordJumpUnlock();
+      }
     } catch {
       setEvaluation({
         ok: false,
@@ -190,7 +236,11 @@ export function ExerciseWorkspace({ exercise }: ExerciseWorkspaceProps) {
       <header className="sticky top-0 z-30 border-b border-dd-border bg-dd-bg/95 backdrop-blur-md">
         <div className="flex min-h-16 items-center gap-3 px-4 sm:px-6">
           <Link
-            href="/trails"
+            href={
+              jumpChallenge
+                ? `/trails?view=trail&path=${encodeURIComponent(jumpChallenge.pathSlug)}`
+                : '/trails'
+            }
             aria-label="Voltar ao mapa de conhecimento"
             className="dd-focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-xl border border-dd-border bg-dd-card text-dd-muted transition hover:text-dd-text"
           >
@@ -226,11 +276,28 @@ export function ExerciseWorkspace({ exercise }: ExerciseWorkspaceProps) {
           </div>
         </div>
 
+        {jumpChallenge && (
+          <section className="mb-4 rounded-2xl border border-blue-500/30 bg-blue-500/[0.07] p-4">
+            <div className="flex items-start gap-3">
+              <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-blue-500" aria-hidden="true" />
+              <div>
+                <h2 className="text-sm font-black text-dd-text">
+                  Desafio para pular à Seção {jumpChallenge.sectionNumber}
+                </h2>
+                <p className="mt-1 text-xs leading-relaxed text-dd-muted">
+                  O modo Difícil está fixado: sem autocomplete e sem dicas. Para liberar a seção,
+                  sua solução precisa passar também pelos testes ocultos do Submit.
+                </p>
+              </div>
+            </div>
+          </section>
+        )}
+
         <section className="mb-4 rounded-2xl border border-dd-border bg-dd-card p-4">
           <AssistanceControls
             value={assistanceMode}
             onChange={changeAssistanceMode}
-            disabled={busy}
+            disabled={busy || Boolean(jumpChallenge)}
           />
         </section>
 
@@ -457,9 +524,51 @@ export function ExerciseWorkspace({ exercise }: ExerciseWorkspaceProps) {
             <div className="border-t border-emerald-500/20 bg-emerald-500/[0.06] px-4 py-3">
               <p className="flex items-center gap-2 text-sm font-black text-emerald-600 dark:text-emerald-400">
                 <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                Conhecimento demonstrado: +{evaluation.xpEarned ?? 0} XP e Mastery{' '}
+                Conhecimento demonstrado: +{evaluation.xpEarned ?? 0} XP, +
+                {evaluation.gemsEarned ?? 0} joias e domínio{' '}
                 {evaluation.mastery ?? exercise.knowledge.mastery}%
               </p>
+            </div>
+          )}
+
+          {jumpChallenge && evaluation?.passed && lastEvaluatedAction === 'submit' && (
+            <div className="border-t border-blue-500/20 bg-blue-500/[0.06] px-4 py-4">
+              {jumpUnlockState === 'saving' && (
+                <p className="flex items-center gap-2 text-sm font-black text-blue-500">
+                  <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
+                  Salvando a liberação da seção…
+                </p>
+              )}
+
+              {jumpUnlockState === 'error' && (
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="text-sm font-bold text-red-500">
+                    Você passou, mas não foi possível salvar a liberação. Tente novamente.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={() => void recordJumpUnlock()}
+                    className="dd-focus-ring shrink-0 rounded-xl border border-red-500/30 px-4 py-2.5 text-xs font-black text-red-500 transition hover:bg-red-500/10"
+                  >
+                    Salvar novamente
+                  </button>
+                </div>
+              )}
+
+              {jumpUnlockState === 'saved' && (
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <p className="flex items-center gap-2 text-sm font-black text-emerald-600 dark:text-emerald-400">
+                    <ShieldCheck className="h-4 w-4 shrink-0" aria-hidden="true" />
+                    Desafio concluído. A Seção {jumpChallenge.sectionNumber} foi liberada.
+                  </p>
+                  <Link
+                    href={`/trails?view=trail&path=${encodeURIComponent(jumpChallenge.pathSlug)}&section=${jumpChallenge.sectionNumber}`}
+                    className="dd-focus-ring shrink-0 rounded-xl bg-blue-500 px-4 py-2.5 text-center text-xs font-black text-white transition hover:bg-blue-600"
+                  >
+                    Começar na seção
+                  </Link>
+                </div>
+              )}
             </div>
           )}
         </section>
