@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Trophy, Zap, Flame, Target, CheckCircle2, ArrowRight, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Lesson, LessonSessionState } from '@/lib/lessons/types';
@@ -16,15 +17,22 @@ export function LessonSummary({ lesson, sessionState, onFinish }: LessonSummaryP
     totalAttempts > 0 ? Math.round((sessionState.correctAnswersCount / totalAttempts) * 100) : 100;
 
   return (
-    <div className="w-full max-w-lg mx-auto py-10 px-4 text-center font-sans space-y-8 animate-fade-in">
-      {/* Trophy Card */}
+    <div className="w-full max-w-lg mx-auto py-8 px-4 text-center font-sans space-y-7 animate-fade-in select-none">
+      {/* Mascote com Troféu de Vitória */}
       <motion.div
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: 'spring', damping: 25, stiffness: 350 }}
-        className="mx-auto flex h-24 w-24 items-center justify-center rounded-3xl border-2 border-b-4 border-amber-500/40 border-b-amber-500 bg-amber-500/15 text-amber-400 shadow-xl shadow-amber-500/20"
+        initial={{ scale: 0.7, opacity: 0, y: 15 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+        className="relative mx-auto h-48 w-48 drop-shadow-2xl"
       >
-        <Trophy className="h-12 w-12 text-amber-400 fill-amber-400/20 stroke-[2.2]" />
+        <Image
+          src="/assets/trails/devdeck-robot-victory.png"
+          alt="Mascote Comemorando com Troféu"
+          fill
+          sizes="192px"
+          className="object-contain drop-shadow-[0_10px_25px_rgba(59,130,246,0.3)]"
+          priority
+        />
       </motion.div>
 
       {/* Title & XP */}

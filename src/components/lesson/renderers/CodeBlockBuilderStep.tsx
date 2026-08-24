@@ -1,8 +1,9 @@
 'use client';
 
 import Image from 'next/image';
-import { Volume2, Sparkles, Code2 } from 'lucide-react';
+import { Volume2, VolumeX, Sparkles, Code2 } from 'lucide-react';
 import type { LessonStep } from '@/lib/lessons/types';
+import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { DuolingoText } from '../DuolingoText';
 
 interface CodeBlockBuilderStepProps {
@@ -19,6 +20,12 @@ export function CodeBlockBuilderStep({
   disabled = false,
 }: CodeBlockBuilderStepProps) {
   const allTokens = step.blockTokens || [];
+  const { speak, isSpeaking } = useTextToSpeech();
+
+  const handleSpeak = () => {
+    const textToSpeak = step.instruction || step.title;
+    speak(textToSpeak);
+  };
 
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in font-sans select-none">
@@ -28,45 +35,42 @@ export function CodeBlockBuilderStep({
       </h2>
 
       {/* Mascote Robô com Balão de Fala estilo Duolingo */}
-      <div className="flex items-start gap-4">
-        <div className="relative h-20 w-20 shrink-0">
+      <div className="flex items-center gap-4">
+        <div className="relative h-24 w-20 shrink-0">
           <Image
-            src="/assets/trails/blue-devdeck-robot.png"
+            src="/assets/trails/devdeck-robot-lesson.png"
             alt="Mascote Stacklyst"
             fill
             sizes="80px"
-            className="object-contain drop-shadow-md"
+            className={`object-contain drop-shadow-md transition-transform duration-200 ${
+              isSpeaking ? 'scale-105' : ''
+            }`}
+            priority
           />
         </div>
 
-        <div className="relative flex-1 rounded-3xl border-2 border-dd-border bg-dd-card p-5 shadow-sm">
+        <div className="relative flex-1 rounded-2xl border-2 border-dd-border bg-dd-card px-5 py-4 shadow-sm flex items-center gap-3.5">
           {/* Seta do balão */}
           <span
             aria-hidden="true"
-            className="absolute -left-2.5 top-6 h-4 w-4 rotate-45 border-b-2 border-l-2 border-dd-border bg-dd-card"
+            className="absolute -left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 rotate-45 border-b-2 border-l-2 border-dd-border bg-dd-card"
           />
 
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                aria-label="Ouvir instrução"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-blue-500 text-white shadow-sm shadow-blue-500/20 hover:bg-blue-400 active:scale-95 transition-all cursor-pointer"
-              >
-                <Volume2 className="h-4 w-4" />
-              </button>
-              <span className="text-xs font-bold uppercase tracking-wider text-blue-500">
-                Instrução
-              </span>
-            </div>
+          <button
+            type="button"
+            onClick={handleSpeak}
+            aria-label="Ouvir enunciado da questão"
+            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500 text-white shadow-sm shadow-blue-500/20 hover:bg-blue-400 active:scale-95 transition-all cursor-pointer ${
+              isSpeaking ? 'ring-4 ring-blue-400/40 scale-105 animate-pulse' : ''
+            }`}
+          >
+            <Volume2 className="h-5 w-5 fill-current" />
+          </button>
 
-            <div className="pt-1">
-              <DuolingoText
-                text={step.instruction || step.title}
-                className="text-sm md:text-base font-semibold"
-              />
-            </div>
-          </div>
+          <DuolingoText
+            text={step.instruction || step.title}
+            className="text-sm md:text-base font-bold text-dd-text dark:text-neutral-100"
+          />
         </div>
       </div>
 

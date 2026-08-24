@@ -19,6 +19,7 @@ import { DebugStep } from '@/components/lesson/renderers/DebugStep';
 import { OutputPredictionStep } from '@/components/lesson/renderers/OutputPredictionStep';
 import { TerminalStep } from '@/components/lesson/renderers/TerminalStep';
 import { CodeBlockBuilderStep } from '@/components/lesson/renderers/CodeBlockBuilderStep';
+import { parseTrailLessonId } from '@/app/trails/trailCurriculum';
 
 import {
   evaluateMultipleChoice,
@@ -33,6 +34,7 @@ import {
 
 interface LessonClientProps {
   lesson: Lesson;
+  returnTo?: string;
   user: {
     id: string;
     username: string;
@@ -41,7 +43,7 @@ interface LessonClientProps {
   };
 }
 
-export function LessonClient({ lesson, user }: LessonClientProps) {
+export function LessonClient({ lesson, returnTo }: LessonClientProps) {
   const router = useRouter();
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -198,27 +200,23 @@ export function LessonClient({ lesson, user }: LessonClientProps) {
   };
 
   // Envia a pontuação de XP para a API do Stacklyst
-  const persistProgress = useCallback(
-    async (stepXp: number, isAnswerCorrect: boolean) => {
-      if (!currentStep) return;
+  const persistProgress = useCallback(async () => {
+    if (!currentStep) return;
 
-      try {
-        // Usa o endpoint de quiz / attempt para conceder XP e atualizar streak & trails
-        await fetch(`/api/quiz/${currentStep.id}/attempt`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            selectedIndex: selectedOption ?? 0,
-            isCorrect: isAnswerCorrect,
-            xpEarned: stepXp,
-          }),
-        });
-      } catch (e) {
-        console.warn('Could not persist attempt', e);
-      }
-    },
-    [currentStep, selectedOption]
-  );
+    try {
+      // Usa o endpoint de quiz / attempt para conceder XP e atualizar streak & trails
+      const response = await fetch(`/api/quiz/${currentStep.id}/attempt`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          selected_index: selectedOption ?? currentStep.correctOptionIndex ?? 0,
+        }),
+      });
+      if (!response.ok) throw new Error('Não foi possível salvar o progresso da atividade.');
+    } catch (e) {
+      console.warn('Could not persist attempt', e);
+    }
+  }, [currentStep, selectedOption]);
 
   // Processa a verificação da resposta
   const handleVerify = async () => {
@@ -293,7 +291,7 @@ export function LessonClient({ lesson, user }: LessonClientProps) {
         correctAnswersCount: prev.correctAnswersCount + 1,
       }));
 
-      void persistProgress(stepXp, true);
+      await persistProgress();
     } else {
       playSound('quiz_incorrect');
       setSessionState((prev) => ({
@@ -303,21 +301,59 @@ export function LessonClient({ lesson, user }: LessonClientProps) {
         wrongAnswersCount: prev.wrongAnswersCount + 1,
       }));
 
-      void persistProgress(0, false);
+      if (currentStep.type === 'multiple_choice' || currentStep.type === 'output_prediction') {
+        await persistProgress();
+      }
     }
 
     setIsVerifying(false);
   };
 
   // Avança para a próxima etapa ou conclui a lição
-  const handleContinue = () => {
+  const handleContinue = async () => {
+    if (currentStep?.type === 'concept_explanation' && !answered) {
+      setIsVerifying(true);
+      const newCombo = sessionState.combo + 1;
+      const bonusXp = Math.floor(newCombo * 1.5);
+      const stepXp = currentStep.xp + bonusXp;
+      setSessionState((prev) => ({
+        ...prev,
+        earnedXp: prev.earnedXp + stepXp,
+        combo: newCombo,
+        maxCombo: Math.max(prev.maxCombo, newCombo),
+        correctAnswersCount: prev.correctAnswersCount + 1,
+      }));
+      await persistProgress();
+      setIsVerifying(false);
+    }
+
     if (sessionState.currentStepIndex + 1 < lesson.steps.length) {
       setSessionState((prev) => ({
         ...prev,
         currentStepIndex: prev.currentStepIndex + 1,
       }));
     } else {
-      playSound('quiz_correct');
+      playSound('lesson_completed');
+      try {
+        const saved = JSON.parse(localStorage.getItem('stacklyst-completed-lessons') || '[]');
+        if (Array.isArray(saved)) {
+          if (!saved.includes(lesson.id)) saved.push(lesson.id);
+          if (!parseTrailLessonId(lesson.id)) {
+            if (
+              lesson.levelNumber &&
+              !saved.includes(`${lesson.language.toLowerCase()}-l${lesson.levelNumber}`)
+            ) {
+              saved.push(`${lesson.language.toLowerCase()}-l${lesson.levelNumber}`);
+            }
+            if (lesson.title && !saved.includes(lesson.title)) {
+              saved.push(lesson.title);
+            }
+          }
+          localStorage.setItem('stacklyst-completed-lessons', JSON.stringify(saved));
+        }
+      } catch {
+        // ignore
+      }
       setIsCompleted(true);
     }
   };
@@ -328,13 +364,31 @@ export function LessonClient({ lesson, user }: LessonClientProps) {
     setIsCorrect(false);
   };
 
+  // Retorna para a trilha respeitando a preferência de visualização do usuário (Trilha ou Mapa)
+  const handleReturnToTrails = () => {
+    if (returnTo) {
+      router.push(returnTo);
+      return;
+    }
+    try {
+      const savedMode = localStorage.getItem('stacklyst-trail-view-mode');
+      if (savedMode === 'trail') {
+        router.push('/trails?view=trail');
+        return;
+      }
+    } catch {
+      // ignore
+    }
+    router.push('/trails');
+  };
+
   if (isCompleted) {
     return (
       <div className="min-h-screen bg-dd-bg flex flex-col justify-center items-center p-4">
         <LessonSummary
           lesson={lesson}
           sessionState={sessionState}
-          onFinish={() => router.push('/trails')}
+          onFinish={handleReturnToTrails}
         />
       </div>
     );
@@ -478,7 +532,7 @@ export function LessonClient({ lesson, user }: LessonClientProps) {
       {/* Modal de Confirmação de Saída */}
       <ExitConfirmModal
         isOpen={exitModalOpen}
-        onConfirm={() => router.push('/trails')}
+        onConfirm={handleReturnToTrails}
         onCancel={() => setExitModalOpen(false)}
       />
     </div>
