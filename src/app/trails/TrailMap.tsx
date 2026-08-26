@@ -549,7 +549,7 @@ function TrailMapCameraController({
     const el = document.getElementById(elementId);
     if (el) {
       try {
-        zoomToElement(el, 1.0, 300, 'easeOut');
+        zoomToElement(el, 1.45, 300, 'easeOut');
       } catch {
         // ignore in environments without layout engines
       }
@@ -571,7 +571,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
     const el = document.getElementById(elementId);
     if (el) {
       try {
-        zoomToElement(el, 1.0, 250, 'easeOut');
+        zoomToElement(el, 1.45, 250, 'easeOut');
       } catch {
         resetTransform();
       }
@@ -587,7 +587,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
     >
       <button
         type="button"
-        onClick={() => zoomIn(0.1)}
+        onClick={() => zoomIn(0.12)}
         aria-label="Aumentar zoom"
         title="Aumentar zoom"
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
@@ -596,7 +596,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
       </button>
       <button
         type="button"
-        onClick={() => zoomOut(0.1)}
+        onClick={() => zoomOut(0.12)}
         aria-label="Diminuir zoom"
         title="Diminuir zoom"
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
@@ -701,9 +701,9 @@ export function TrailMap({
         data-testid="knowledge-map-graph"
       >
         <TransformWrapper
-          initialScale={1.0}
+          initialScale={1.45}
           minScale={0.45}
-          maxScale={1.0}
+          maxScale={1.45}
           centerOnInit
           limitToBounds={false}
           smooth={true}
