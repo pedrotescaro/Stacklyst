@@ -24,12 +24,7 @@ import {
   Target,
   Wrench,
 } from 'lucide-react';
-import {
-  TransformWrapper,
-  TransformComponent,
-  useControls,
-  useTransformEffect,
-} from 'react-zoom-pan-pinch';
+import { TransformWrapper, TransformComponent, useControls } from 'react-zoom-pan-pinch';
 import { TrailMapLessonPopover } from '@/app/trails/TrailMapLessonPopover';
 import { cn } from '@/lib/cn';
 import { getTrailSectorAccent, getTrailSectorRegionLabel } from '@/app/trails/trailSectorVisuals';
@@ -536,38 +531,6 @@ function MobilePath({
   );
 }
 
-function TrailMapLessonPopoverWrapper({
-  placement,
-  onClose,
-}: {
-  placement: PlacedNode;
-  onClose: () => void;
-}) {
-  const [scale, setScale] = useState(1.35);
-
-  useTransformEffect(({ state }) => {
-    if (state && typeof state.scale === 'number' && Math.abs(state.scale - scale) > 0.005) {
-      setScale(state.scale);
-    }
-  });
-
-  const inverseScale = 1 / Math.max(0.5, Math.min(2.5, scale));
-
-  return (
-    <div
-      className="absolute pointer-events-auto z-50 transition-transform duration-75"
-      style={{
-        left: `${(placement.point.x / GRAPH_WIDTH) * 100}%`,
-        top: `${(placement.point.y / GRAPH_HEIGHT) * 100}%`,
-        transform: `scale(${inverseScale})`,
-        transformOrigin: placement.point.y < 230 ? 'top center' : 'bottom center',
-      }}
-    >
-      <TrailMapLessonPopover placement={placement} onClose={onClose} />
-    </div>
-  );
-}
-
 function TrailMapCameraController({
   targetPlacement,
 }: {
@@ -586,7 +549,7 @@ function TrailMapCameraController({
     const el = document.getElementById(elementId);
     if (el) {
       try {
-        zoomToElement(el, 1.35, 300, 'easeOut');
+        zoomToElement(el, 1.0, 300, 'easeOut');
       } catch {
         // ignore in environments without layout engines
       }
@@ -608,7 +571,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
     const el = document.getElementById(elementId);
     if (el) {
       try {
-        zoomToElement(el, 1.35, 250, 'easeOut');
+        zoomToElement(el, 1.0, 250, 'easeOut');
       } catch {
         resetTransform();
       }
@@ -624,7 +587,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
     >
       <button
         type="button"
-        onClick={() => zoomIn(0.15)}
+        onClick={() => zoomIn(0.1)}
         aria-label="Aumentar zoom"
         title="Aumentar zoom"
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
@@ -633,7 +596,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
       </button>
       <button
         type="button"
-        onClick={() => zoomOut(0.15)}
+        onClick={() => zoomOut(0.1)}
         aria-label="Diminuir zoom"
         title="Diminuir zoom"
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
@@ -738,9 +701,9 @@ export function TrailMap({
         data-testid="knowledge-map-graph"
       >
         <TransformWrapper
-          initialScale={1.35}
-          minScale={0.5}
-          maxScale={2.2}
+          initialScale={1.0}
+          minScale={0.45}
+          maxScale={1.0}
           centerOnInit
           limitToBounds={false}
           smooth={true}
@@ -827,10 +790,18 @@ export function TrailMap({
         ))}
 
         {activePlacement && isPopoverOpen && (
-          <TrailMapLessonPopoverWrapper
-            placement={activePlacement}
-            onClose={() => setIsPopoverOpen(false)}
-          />
+          <div
+            className="absolute pointer-events-auto z-50"
+            style={{
+              left: `${(activePlacement.point.x / GRAPH_WIDTH) * 100}%`,
+              top: `${(activePlacement.point.y / GRAPH_HEIGHT) * 100}%`,
+            }}
+          >
+            <TrailMapLessonPopover
+              placement={activePlacement}
+              onClose={() => setIsPopoverOpen(false)}
+            />
+          </div>
         )}
 
         {visualSectors.map((sector) => {
