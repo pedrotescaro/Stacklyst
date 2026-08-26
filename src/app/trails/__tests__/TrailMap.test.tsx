@@ -160,7 +160,7 @@ describe('TrailMap', () => {
     }
   });
 
-  it('shows the real tasks for every interactive milestone', () => {
+  it('selects milestone node when clicked and handles selection correctly', () => {
     const onSelectNode = vi.fn();
 
     render(
@@ -180,45 +180,8 @@ describe('TrailMap', () => {
     });
 
     expect(foundationNodes).toHaveLength(2);
-    expect(screen.getAllByText('Normalizador de identificadores')).toHaveLength(17);
-    expect(foundationNodes[0]).toHaveAttribute('aria-describedby');
-
     fireEvent.click(foundationNodes[0]);
     expect(onSelectNode).toHaveBeenCalledWith('foundations');
-  });
-
-  it('hands desktop hover and focus to an external node popover', () => {
-    const onPreviewNode = vi.fn();
-    const onDismissNodePreview = vi.fn();
-
-    render(
-      <TrailMap
-        nodes={nodes}
-        edges={[]}
-        paths={[path]}
-        selectedNodeId="foundations"
-        selectedPathId="frontend-path"
-        onSelectNode={vi.fn()}
-        onSelectPath={vi.fn()}
-        onPreviewNode={onPreviewNode}
-        onDismissNodePreview={onDismissNodePreview}
-      />
-    );
-
-    const foundationNodes = screen.getAllByRole('button', {
-      name: /^Fundamentos\. Concluído\. 1 tarefa\.$/,
-    });
-    const desktopFoundationNode = foundationNodes.find(
-      (button) => !button.getAttribute('data-testid')?.includes('-mobile-')
-    );
-    expect(desktopFoundationNode).toBeDefined();
-    expect(desktopFoundationNode).not.toHaveAttribute('aria-describedby');
-    expect(screen.getAllByText('Normalizador de identificadores')).toHaveLength(1);
-
-    fireEvent.mouseEnter(desktopFoundationNode!);
-    expect(onPreviewNode).toHaveBeenCalledWith('foundations');
-    fireEvent.mouseLeave(desktopFoundationNode!);
-    expect(onDismissNodePreview).toHaveBeenCalledOnce();
   });
 
   it('keeps shared skills visible in every sector that uses them', () => {

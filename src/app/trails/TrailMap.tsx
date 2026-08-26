@@ -341,107 +341,15 @@ function buildSectorConnections(placements: PlacedNode[]) {
   });
 }
 
-function SkillTooltip({
-  node,
-  accent,
-  point,
-  tooltipId,
-  stageLabel,
-  mobile = false,
-}: {
-  node: KnowledgeMapNode;
-  accent: string;
-  point: Point;
-  tooltipId: string;
-  stageLabel: string;
-  mobile?: boolean;
-}) {
-  const showBelow = !mobile && point.y < 155;
-  const horizontalAlignment =
-    mobile || (point.x > 180 && point.x < GRAPH_WIDTH - 180)
-      ? 'left-1/2 -translate-x-1/2'
-      : point.x <= 180
-        ? 'left-0'
-        : 'right-0';
-
-  return (
-    <span
-      id={tooltipId}
-      role="tooltip"
-      className={cn(
-        'pointer-events-none invisible absolute z-50 w-[240px] rounded-lg border border-dd-border bg-dd-card p-3 text-left opacity-0 shadow-xl transition duration-150',
-        'group-hover:visible group-hover:opacity-100 group-focus-visible:visible group-focus-visible:opacity-100',
-        showBelow ? 'top-[calc(100%+12px)]' : 'bottom-[calc(100%+12px)]',
-        horizontalAlignment
-      )}
-    >
-      <span className="flex items-start gap-2.5">
-        <span
-          className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border"
-          style={{ borderColor: `${accent}80`, backgroundColor: `${accent}1f`, color: accent }}
-        >
-          <ListTodo className="h-3.5 w-3.5" aria-hidden="true" />
-        </span>
-        <span className="min-w-0">
-          <span className="block text-[9px] font-medium text-dd-muted">
-            {stageLabel === 'Habilidade' ? 'Tarefas da habilidade' : `Etapa · ${stageLabel}`}
-          </span>
-          <span className="mt-0.5 block text-xs font-semibold leading-tight text-dd-text">
-            {node.title}
-          </span>
-        </span>
-      </span>
-
-      {node.exercises.length > 0 ? (
-        <span className="mt-2.5 grid gap-2">
-          {node.exercises.map((exercise) => (
-            <span key={exercise.id} className="flex items-start gap-2">
-              <span
-                className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-                style={{ backgroundColor: accent }}
-              />
-              <span className="min-w-0">
-                <span className="block text-[11px] font-medium leading-snug text-dd-text">
-                  {exercise.title}
-                </span>
-                <span className="mt-0.5 block text-[9px] text-dd-muted">
-                  Dificuldade {exercise.difficulty}/5 · {exercise.baseXp} XP
-                </span>
-              </span>
-            </span>
-          ))}
-        </span>
-      ) : (
-        <span className="mt-2.5 block text-[10px] font-semibold leading-relaxed text-dd-muted">
-          Nenhuma tarefa foi publicada para esta habilidade ainda.
-        </span>
-      )}
-
-      <span
-        className={cn(
-          'absolute left-1/2 h-2.5 w-2.5 -translate-x-1/2 rotate-45 border-dd-border bg-dd-card',
-          showBelow ? '-top-1.5 border-l border-t' : '-bottom-1.5 border-b border-r'
-        )}
-      />
-    </span>
-  );
-}
-
 function GamifiedSkillNode({
   placement,
   selected,
   onSelect,
-  onPreview,
-  onDismissPreview,
-  showInlineTooltip = true,
   mobile = false,
 }: {
   placement: PlacedNode;
   selected: boolean;
   onSelect: () => void;
-  onPreview?: () => void;
-  onDismissPreview?: () => void;
-  showInlineTooltip?: boolean;
   mobile?: boolean;
 }) {
   const { node, sectorId, point, accent, nodeIndex, stageIndex, primary, stageLabel, StageIcon } =
@@ -453,7 +361,6 @@ function GamifiedSkillNode({
   const locked =
     node.status === 'NOT_STARTED' || (!completed && effectiveStageIndex > unlockedStageLimit);
   const taskCount = node.exercises.length;
-  const tooltipId = `skill-${sectorId}-${node.slug}-${nodeIndex}-${stageIndex}-tasks`;
   const darkerAccent = `color-mix(in srgb, ${accent} 62%, black)`;
   const accessibleStatus = locked ? 'Bloqueado' : STATUS_LABEL[node.status];
   const accessibleLabel = primary
@@ -465,13 +372,8 @@ function GamifiedSkillNode({
       type="button"
       data-testid={`knowledge-skill-node-${sectorId}-${node.slug}-${stageIndex}`}
       aria-label={accessibleLabel}
-      aria-describedby={showInlineTooltip ? tooltipId : undefined}
       aria-pressed={selected}
       onClick={onSelect}
-      onMouseEnter={onPreview}
-      onMouseLeave={onDismissPreview}
-      onFocus={onPreview}
-      onBlur={onDismissPreview}
       className={cn(
         'dd-focus-ring group z-30 flex items-center justify-center rounded-full border text-white shadow-sm transition duration-150 hover:z-50 focus-visible:z-50',
         mobile
@@ -535,17 +437,6 @@ function GamifiedSkillNode({
         >
           {node.title}
         </span>
-      )}
-
-      {showInlineTooltip && (
-        <SkillTooltip
-          node={node}
-          accent={accent}
-          point={point}
-          tooltipId={tooltipId}
-          stageLabel={stageLabel}
-          mobile={mobile}
-        />
       )}
     </button>
   );
@@ -819,9 +710,6 @@ export function TrailMap({
               onSelectPath(placement.path.id);
               onSelectNode(placement.node.id);
             }}
-            onPreview={() => onPreviewNode?.(placement.node.id)}
-            onDismissPreview={onDismissNodePreview}
-            showInlineTooltip={!onPreviewNode}
           />
         ))}
 
