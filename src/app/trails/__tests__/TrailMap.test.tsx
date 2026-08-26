@@ -281,4 +281,34 @@ describe('TrailMap', () => {
     expect(screen.queryByText('Setor Noroeste')).not.toBeInTheDocument();
     expect(screen.queryByText('Setor Sudeste')).not.toBeInTheDocument();
   });
+
+  it('renders pan-zoom controls for zooming in, out, and resetting view', () => {
+    render(
+      <TrailMap
+        nodes={nodes}
+        edges={[]}
+        paths={[path]}
+        selectedNodeId="foundations"
+        selectedPathId="frontend-path"
+        onSelectNode={vi.fn()}
+        onSelectPath={vi.fn()}
+      />
+    );
+
+    const controls = screen.getByTestId('trail-map-controls');
+    expect(controls).toBeInTheDocument();
+
+    const zoomInBtn = screen.getByRole('button', { name: /Aumentar zoom/i });
+    const zoomOutBtn = screen.getByRole('button', { name: /Diminuir zoom/i });
+    const resetBtn = screen.getByRole('button', { name: /Centralizar visualização/i });
+
+    expect(zoomInBtn).toBeInTheDocument();
+    expect(zoomOutBtn).toBeInTheDocument();
+    expect(resetBtn).toBeInTheDocument();
+
+    fireEvent.click(zoomInBtn);
+    fireEvent.click(zoomOutBtn);
+    fireEvent.click(resetBtn);
+  });
 });
+
