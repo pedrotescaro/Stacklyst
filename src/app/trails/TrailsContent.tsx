@@ -337,9 +337,21 @@ export function TrailsContent({
   completedLessonIds = [],
 }: TrailsContentProps) {
   const router = useRouter();
+  const [viewMode, setViewMode] = useState<'map' | 'trail'>(initialViewMode);
+  const responsiveViewMode = useResponsiveTrailViewMode(viewMode);
+
+  const handleViewModeChange = (mode: 'map' | 'trail') => {
+    setViewMode(mode);
+    try {
+      localStorage.setItem('stacklyst-trail-view-mode', mode);
+      document.cookie = `stacklyst_trail_view_mode=${mode}; path=/; max-age=31536000; SameSite=Lax`;
+    } catch {
+      // ignore
+    }
+  };
+
   const [courses, setCourses] = useState(initialCourses);
   const [activeLanguage, setActiveLanguage] = useState<TrailLanguageCode>(initialActiveLanguage);
-  const { viewMode, setViewMode } = useResponsiveTrailViewMode(initialViewMode);
   const [selectedPathId, setSelectedPathId] = useState(
     knowledgeMap.paths.find((path) => (initialPathSlug ? path.slug === initialPathSlug : path.featured))
       ?.id ??
@@ -456,9 +468,17 @@ export function TrailsContent({
             <div className="pointer-events-auto flex w-full flex-col items-stretch gap-2 lg:w-auto lg:items-end">
               <div className="w-full xl:hidden">
                 <TrailResourceBar
-                  gems={gems}
+                  activeLanguage={activeLanguage}
+                  courses={courses}
+                  onSelectCourse={selectCourse}
                   streak={user.streak}
                   totalXp={user.total_xp}
+                  gems={gems}
+                />
+              </div>
+
+              {responsiveViewMode === 'map' && selectedPath && (
+                <div className="flex min-w-[240px] items-center gap-3 px-1 py-0.5">
                   <div className="min-w-0 flex-1">
                     <p className="text-[9px] font-semibold uppercase tracking-wider text-dd-muted">
                       Setor ativo
@@ -531,14 +551,6 @@ export function TrailsContent({
                   <NodeDetail node={selectedNode} onSelectNode={setSelectedNodeId} />
                 )}
               </div>
-
-              {previewedNode && (
-                <FloatingNodeDetail
-                  node={previewedNode}
-                  onMouseEnter={cancelPreviewDismiss}
-                  onMouseLeave={() => schedulePreviewDismiss(140)}
-                />
-              )}
             </>
           )}
         </main>
