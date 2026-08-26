@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TrailMap } from '@/app/trails/TrailMap';
 import type { KnowledgeMapNode, LearningPathSummary } from '@/lib/learning/types';
@@ -273,5 +273,53 @@ describe('TrailMap', () => {
     fireEvent.click(zoomOutBtn);
     fireEvent.click(resetBtn);
   });
+
+  it('opens Duolingo-style lesson popover when a node is clicked and dismisses on close button, escape key, or canvas click', () => {
+    const onSelectNode = vi.fn();
+    const onSelectPath = vi.fn();
+
+    render(
+      <TrailMap
+        nodes={nodes}
+        edges={[]}
+        paths={[path]}
+        selectedNodeId="foundations"
+        selectedPathId="frontend-path"
+        onSelectNode={onSelectNode}
+        onSelectPath={onSelectPath}
+      />
+    );
+
+    // Initial state: popover is not open
+    expect(screen.queryByTestId('trail-map-lesson-popover')).not.toBeInTheDocument();
+
+    // Click a desktop node to open popover
+    const desktopNodes = screen
+      .getAllByRole('button', {
+        name: /^Fundamentos\. Concluído\. 1 tarefa\.$/,
+      })
+      .filter((button) => !button.getAttribute('data-testid')?.includes('-mobile-'));
+    expect(desktopNodes.length).toBeGreaterThan(0);
+    fireEvent.click(desktopNodes[0]);
+
+    // Popover is displayed
+    const popover = screen.getByTestId('trail-map-lesson-popover');
+    expect(popover).toBeInTheDocument();
+    expect(within(popover).getByText('Frontend React')).toBeInTheDocument();
+    expect(within(popover).getByText('+120 XP')).toBeInTheDocument();
+    expect(within(popover).getByRole('button', { name: /Revisar \+120 XP/i })).toBeInTheDocument();
+
+    // Dismiss with close button
+    const closeBtn = screen.getByRole('button', { name: /Fechar resumo da lição/i });
+    fireEvent.click(closeBtn);
+    expect(screen.queryByTestId('trail-map-lesson-popover')).not.toBeInTheDocument();
+
+    // Re-open and dismiss with Escape key
+    fireEvent.click(desktopNodes[0]);
+    expect(screen.getByTestId('trail-map-lesson-popover')).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByTestId('trail-map-lesson-popover')).not.toBeInTheDocument();
+  });
 });
+
 

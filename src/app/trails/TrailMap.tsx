@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -24,6 +25,7 @@ import {
   Wrench,
 } from 'lucide-react';
 import { TransformWrapper, TransformComponent, useControls } from 'react-zoom-pan-pinch';
+import { TrailMapLessonPopover } from '@/app/trails/TrailMapLessonPopover';
 import { cn } from '@/lib/cn';
 import { getTrailSectorAccent, getTrailSectorRegionLabel } from '@/app/trails/trailSectorVisuals';
 import type {
@@ -373,7 +375,10 @@ function GamifiedSkillNode({
       data-testid={`knowledge-skill-node-${sectorId}-${node.slug}-${stageIndex}`}
       aria-label={accessibleLabel}
       aria-pressed={selected}
-      onClick={onSelect}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect();
+      }}
       className={cn(
         'dd-focus-ring group z-30 flex items-center justify-center rounded-full border text-white shadow-sm transition duration-150 hover:z-50 focus-visible:z-50',
         mobile
@@ -597,6 +602,16 @@ export function TrailMap({
     }
   }
   const selectedPath = paths.find((path) => path.id === selectedPathId) ?? paths[0];
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const activePlacement =
+    placements.find(
+      (placement) =>
+        placement.primary &&
+        placement.node.id === selectedNodeId &&
+        placement.path.id === selectedPathId
+    ) ??
+    placements.find((placement) => placement.node.id === selectedNodeId);
+
   const nextNode =
     nodes.find(
       (node) =>
@@ -646,7 +661,10 @@ export function TrailMap({
             wrapperClass="!w-full !h-full select-none"
             contentClass="!w-[1400px] !h-[800px] relative"
           >
-            <div className="relative h-[800px] w-[1400px]">
+            <div
+              className="relative h-[800px] w-[1400px]"
+              onClick={() => setIsPopoverOpen(false)}
+            >
         <svg
           className="pointer-events-none absolute inset-0 h-full w-full"
           viewBox={`0 0 ${GRAPH_WIDTH} ${GRAPH_HEIGHT}`}
@@ -709,9 +727,25 @@ export function TrailMap({
             onSelect={() => {
               onSelectPath(placement.path.id);
               onSelectNode(placement.node.id);
+              setIsPopoverOpen(true);
             }}
           />
         ))}
+
+        {activePlacement && isPopoverOpen && (
+          <div
+            className="absolute pointer-events-auto z-50"
+            style={{
+              left: `${(activePlacement.point.x / GRAPH_WIDTH) * 100}%`,
+              top: `${(activePlacement.point.y / GRAPH_HEIGHT) * 100}%`,
+            }}
+          >
+            <TrailMapLessonPopover
+              placement={activePlacement}
+              onClose={() => setIsPopoverOpen(false)}
+            />
+          </div>
+        )}
 
         {visualSectors.map((sector) => {
           const { path } = sector;
@@ -828,7 +862,13 @@ export function TrailMap({
           <button
             type="button"
             aria-label="Início da jornada. Ir para a próxima habilidade disponível"
-            onClick={() => nextNode && onSelectNode(nextNode.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (nextNode) {
+                onSelectNode(nextNode.id);
+                setIsPopoverOpen(true);
+              }
+            }}
             className="dd-focus-ring pointer-events-auto flex h-16 w-16 items-center justify-center rounded-[22px] border-2 border-b-[6px] border-amber-200 border-b-amber-700 bg-amber-400 text-white shadow-[0_12px_28px_-12px_rgba(250,204,21,0.72)] transition hover:-translate-y-0.5 active:translate-y-0.5"
           >
             <Crown
