@@ -269,8 +269,12 @@ describe('TrailMap', () => {
     expect(zoomOutBtn).toBeInTheDocument();
     expect(resetBtn).toBeInTheDocument();
 
+    const focusBtn = screen.getByRole('button', { name: /Focar na lição atual/i });
+    expect(focusBtn).toBeInTheDocument();
+
     fireEvent.click(zoomInBtn);
     fireEvent.click(zoomOutBtn);
+    fireEvent.click(focusBtn);
     fireEvent.click(resetBtn);
   });
 
@@ -319,6 +323,67 @@ describe('TrailMap', () => {
     expect(screen.getByTestId('trail-map-lesson-popover')).toBeInTheDocument();
     fireEvent.keyDown(window, { key: 'Escape' });
     expect(screen.queryByTestId('trail-map-lesson-popover')).not.toBeInTheDocument();
+  });
+
+  it('renders locked prerequisites state in popover for locked node', () => {
+    const lockedNode: KnowledgeMapNode = {
+      id: 'advanced-patterns',
+      slug: 'advanced-patterns',
+      title: 'Padrões Avançados',
+      description: 'Arquitetura avançada',
+      type: 'ARCHITECTURE',
+      category: 'Frontend',
+      language: 'TS',
+      difficulty: 5,
+      xpReward: 300,
+      estimatedMinutes: 60,
+      position: { x: 500, y: 300 },
+      status: 'NOT_STARTED',
+      mastery: 0,
+      completedExercises: 0,
+      exercises: [],
+      prerequisites: [
+        {
+          nodeId: 'foundations',
+          title: 'Fundamentos',
+          relation: 'REQUIRED',
+          status: 'NOT_STARTED',
+          completed: false,
+        },
+      ],
+    };
+
+    const advancedPath: LearningPathSummary = {
+      ...path,
+      id: 'advanced-path',
+      nodeIds: ['advanced-patterns'],
+    };
+
+    render(
+      <TrailMap
+        nodes={[lockedNode]}
+        edges={[]}
+        paths={[advancedPath]}
+        selectedNodeId="advanced-patterns"
+        selectedPathId="advanced-path"
+        onSelectNode={vi.fn()}
+        onSelectPath={vi.fn()}
+      />
+    );
+
+    const desktopNodes = screen
+      .getAllByRole('button', {
+        name: /^Padrões Avançados\. Bloqueado\. 0 tarefas\.$/,
+      })
+      .filter((button) => !button.getAttribute('data-testid')?.includes('-mobile-'));
+    expect(desktopNodes.length).toBeGreaterThan(0);
+    fireEvent.click(desktopNodes[0]);
+
+    const popover = screen.getByTestId('trail-map-lesson-popover');
+    expect(popover).toBeInTheDocument();
+    expect(within(popover).getByText(/Requisito pendente: Fundamentos/i)).toBeInTheDocument();
+    const actionBtn = within(popover).getByRole('button', { name: /Bloqueado/i });
+    expect(actionBtn).toBeDisabled();
   });
 });
 
