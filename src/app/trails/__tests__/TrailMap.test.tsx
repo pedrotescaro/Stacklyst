@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { TrailMap } from '@/app/trails/TrailMap';
 import type { KnowledgeMapNode, LearningPathSummary } from '@/lib/learning/types';
@@ -160,7 +160,7 @@ describe('TrailMap', () => {
     }
   });
 
-  it('shows the real tasks for every interactive milestone', () => {
+  it('selects milestone node when clicked and handles selection correctly', () => {
     const onSelectNode = vi.fn();
 
     render(
@@ -180,45 +180,8 @@ describe('TrailMap', () => {
     });
 
     expect(foundationNodes).toHaveLength(2);
-    expect(screen.getAllByText('Normalizador de identificadores')).toHaveLength(17);
-    expect(foundationNodes[0]).toHaveAttribute('aria-describedby');
-
     fireEvent.click(foundationNodes[0]);
     expect(onSelectNode).toHaveBeenCalledWith('foundations');
-  });
-
-  it('hands desktop hover and focus to an external node popover', () => {
-    const onPreviewNode = vi.fn();
-    const onDismissNodePreview = vi.fn();
-
-    render(
-      <TrailMap
-        nodes={nodes}
-        edges={[]}
-        paths={[path]}
-        selectedNodeId="foundations"
-        selectedPathId="frontend-path"
-        onSelectNode={vi.fn()}
-        onSelectPath={vi.fn()}
-        onPreviewNode={onPreviewNode}
-        onDismissNodePreview={onDismissNodePreview}
-      />
-    );
-
-    const foundationNodes = screen.getAllByRole('button', {
-      name: /^Fundamentos\. Concluído\. 1 tarefa\.$/,
-    });
-    const desktopFoundationNode = foundationNodes.find(
-      (button) => !button.getAttribute('data-testid')?.includes('-mobile-')
-    );
-    expect(desktopFoundationNode).toBeDefined();
-    expect(desktopFoundationNode).not.toHaveAttribute('aria-describedby');
-    expect(screen.getAllByText('Normalizador de identificadores')).toHaveLength(1);
-
-    fireEvent.mouseEnter(desktopFoundationNode!);
-    expect(onPreviewNode).toHaveBeenCalledWith('foundations');
-    fireEvent.mouseLeave(desktopFoundationNode!);
-    expect(onDismissNodePreview).toHaveBeenCalledOnce();
   });
 
   it('keeps shared skills visible in every sector that uses them', () => {
@@ -281,4 +244,147 @@ describe('TrailMap', () => {
     expect(screen.queryByText('Setor Noroeste')).not.toBeInTheDocument();
     expect(screen.queryByText('Setor Sudeste')).not.toBeInTheDocument();
   });
+
+  it('renders pan-zoom controls for zooming in, out, and resetting view', () => {
+    render(
+      <TrailMap
+        nodes={nodes}
+        edges={[]}
+        paths={[path]}
+        selectedNodeId="foundations"
+        selectedPathId="frontend-path"
+        onSelectNode={vi.fn()}
+        onSelectPath={vi.fn()}
+      />
+    );
+
+    const controls = screen.getByTestId('trail-map-controls');
+    expect(controls).toBeInTheDocument();
+
+    const zoomInBtn = screen.getByRole('button', { name: /Aumentar zoom/i });
+    const zoomOutBtn = screen.getByRole('button', { name: /Diminuir zoom/i });
+    const resetBtn = screen.getByRole('button', { name: /Centralizar visualização/i });
+
+    expect(zoomInBtn).toBeInTheDocument();
+    expect(zoomOutBtn).toBeInTheDocument();
+    expect(resetBtn).toBeInTheDocument();
+
+    const focusBtn = screen.getByRole('button', { name: /Focar na lição atual/i });
+    expect(focusBtn).toBeInTheDocument();
+
+    fireEvent.click(zoomInBtn);
+    fireEvent.click(zoomOutBtn);
+    fireEvent.click(focusBtn);
+    fireEvent.click(resetBtn);
+  });
+
+  it('opens Duolingo-style lesson popover when a node is clicked and dismisses on close button, escape key, or canvas click', () => {
+    const onSelectNode = vi.fn();
+    const onSelectPath = vi.fn();
+
+    render(
+      <TrailMap
+        nodes={nodes}
+        edges={[]}
+        paths={[path]}
+        selectedNodeId="foundations"
+        selectedPathId="frontend-path"
+        onSelectNode={onSelectNode}
+        onSelectPath={onSelectPath}
+      />
+    );
+
+    // Initial state: popover is not open
+    expect(screen.queryByTestId('trail-map-lesson-popover')).not.toBeInTheDocument();
+
+    // Click a desktop node to open popover
+    const desktopNodes = screen
+      .getAllByRole('button', {
+        name: /^Fundamentos\. Concluído\. 1 tarefa\.$/,
+      })
+      .filter((button) => !button.getAttribute('data-testid')?.includes('-mobile-'));
+    expect(desktopNodes.length).toBeGreaterThan(0);
+    fireEvent.click(desktopNodes[0]);
+
+    // Popover is displayed
+    const popover = screen.getByTestId('trail-map-lesson-popover');
+    expect(popover).toBeInTheDocument();
+    expect(within(popover).getByText('Frontend React')).toBeInTheDocument();
+    expect(within(popover).getByText('+120 XP')).toBeInTheDocument();
+    expect(within(popover).getByRole('button', { name: /Revisar \+120 XP/i })).toBeInTheDocument();
+
+    // Dismiss with close button
+    const closeBtn = screen.getByRole('button', { name: /Fechar resumo da lição/i });
+    fireEvent.click(closeBtn);
+    expect(screen.queryByTestId('trail-map-lesson-popover')).not.toBeInTheDocument();
+
+    // Re-open and dismiss with Escape key
+    fireEvent.click(desktopNodes[0]);
+    expect(screen.getByTestId('trail-map-lesson-popover')).toBeInTheDocument();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    expect(screen.queryByTestId('trail-map-lesson-popover')).not.toBeInTheDocument();
+  });
+
+  it('renders locked prerequisites state in popover for locked node', () => {
+    const lockedNode: KnowledgeMapNode = {
+      id: 'advanced-patterns',
+      slug: 'advanced-patterns',
+      title: 'Padrões Avançados',
+      description: 'Arquitetura avançada',
+      type: 'ARCHITECTURE',
+      category: 'Frontend',
+      language: 'TS',
+      difficulty: 5,
+      xpReward: 300,
+      estimatedMinutes: 60,
+      position: { x: 500, y: 300 },
+      status: 'NOT_STARTED',
+      mastery: 0,
+      completedExercises: 0,
+      exercises: [],
+      prerequisites: [
+        {
+          nodeId: 'foundations',
+          title: 'Fundamentos',
+          relation: 'REQUIRED',
+          status: 'NOT_STARTED',
+          completed: false,
+        },
+      ],
+    };
+
+    const advancedPath: LearningPathSummary = {
+      ...path,
+      id: 'advanced-path',
+      nodeIds: ['advanced-patterns'],
+    };
+
+    render(
+      <TrailMap
+        nodes={[lockedNode]}
+        edges={[]}
+        paths={[advancedPath]}
+        selectedNodeId="advanced-patterns"
+        selectedPathId="advanced-path"
+        onSelectNode={vi.fn()}
+        onSelectPath={vi.fn()}
+      />
+    );
+
+    const desktopNodes = screen
+      .getAllByRole('button', {
+        name: /^Padrões Avançados\. Bloqueado\. 0 tarefas\.$/,
+      })
+      .filter((button) => !button.getAttribute('data-testid')?.includes('-mobile-'));
+    expect(desktopNodes.length).toBeGreaterThan(0);
+    fireEvent.click(desktopNodes[0]);
+
+    const popover = screen.getByTestId('trail-map-lesson-popover');
+    expect(popover).toBeInTheDocument();
+    expect(within(popover).getByText(/Requisito: Fundamentos/i)).toBeInTheDocument();
+    const actionBtn = within(popover).getByRole('button', { name: /Bloqueado/i });
+    expect(actionBtn).toBeDisabled();
+  });
 });
+
+

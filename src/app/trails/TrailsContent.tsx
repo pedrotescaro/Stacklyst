@@ -321,77 +321,6 @@ function NodeDetail({
   );
 }
 
-function FloatingNodeDetail({
-  node,
-  onMouseEnter,
-  onMouseLeave,
-}: {
-  node: KnowledgeMapNode;
-  onMouseEnter: () => void;
-  onMouseLeave: () => void;
-}) {
-  const missingRequired = node.prerequisites.some(
-    (prerequisite) => prerequisite.relation === 'REQUIRED' && !prerequisite.completed
-  );
-  const firstExercise = node.exercises[0];
-
-  return (
-    <aside
-      role="dialog"
-      aria-modal="false"
-      aria-labelledby="floating-knowledge-title"
-      data-testid="trail-node-popover"
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
-      onFocus={onMouseEnter}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) onMouseLeave();
-      }}
-      className="absolute right-4 top-[51%] z-[70] hidden w-[232px] -translate-y-1/2 rounded-xl border border-dd-border bg-dd-card p-4 text-dd-text shadow-[0_18px_42px_-18px_rgba(0,0,0,0.5)] 2xl:block"
-    >
-      <h2 id="floating-knowledge-title" className="text-sm font-bold leading-tight text-dd-text">
-        {node.title}
-      </h2>
-      <p className="mt-2 line-clamp-4 text-[10px] leading-relaxed text-dd-muted">
-        {node.description}
-      </p>
-
-      <div className="mt-3 border-t border-dd-border pt-3">
-        <p className="text-[9px] font-semibold text-dd-muted">Exercício prático</p>
-        {firstExercise ? (
-          <div className="mt-2 flex items-start gap-2">
-            <span className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-blue-500" />
-            <div>
-              <p className="text-[10px] font-semibold leading-snug text-dd-text">
-                {firstExercise.title}
-              </p>
-              <p className="mt-0.5 text-[9px] text-dd-muted">
-                {firstExercise.baseXp} XP · Dificuldade {firstExercise.difficulty}/5
-              </p>
-            </div>
-          </div>
-        ) : (
-          <p className="mt-2 text-[10px] text-dd-muted">Exercício em preparação.</p>
-        )}
-      </div>
-
-      {firstExercise && !missingRequired ? (
-        <Link
-          href={`/lesson/${firstExercise.slug}`}
-          className="dd-focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-lg bg-blue-600 px-3 py-2.5 text-[11px] font-semibold text-white transition hover:bg-blue-500"
-        >
-          Aprender habilidade
-          <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
-        </Link>
-      ) : (
-        <div className="mt-4 rounded-lg bg-dd-surface px-3 py-2.5 text-center text-[10px] font-semibold text-dd-muted">
-          {missingRequired ? 'Conclua os requisitos anteriores' : 'Em preparação'}
-        </div>
-      )}
-    </aside>
-  );
-}
-
 export function TrailsContent({
   user,
   knowledgeMap,
@@ -421,51 +350,25 @@ export function TrailsContent({
     }
   };
 
-  const [activeLanguage, setActiveLanguage] = useState(initialActiveLanguage);
   const [courses, setCourses] = useState(initialCourses);
-  const initialCourseNodes = getCourseKnowledgeNodes(knowledgeMap.nodes, initialActiveLanguage);
-  const initialCoursePaths = getCourseLearningPaths(knowledgeMap.paths, initialCourseNodes);
-  const initialPath =
-    initialCoursePaths.find(
-      (path) => path.slug === initialPathSlug || path.id === initialPathSlug
-    ) ??
-    initialCoursePaths.find((path) => path.featured) ??
-    initialCoursePaths[0];
-  const [selectedPathId, setSelectedPathId] = useState(initialPath?.id ?? '');
+  const [activeLanguage, setActiveLanguage] = useState<TrailLanguageCode>(initialActiveLanguage);
+  const [selectedPathId, setSelectedPathId] = useState(
+    knowledgeMap.paths.find((path) => (initialPathSlug ? path.slug === initialPathSlug : path.featured))
+      ?.id ??
+      knowledgeMap.paths[0]?.id ??
+      ''
+  );
+  const initialCourseNodes = useMemo(
+    () => getCourseKnowledgeNodes(knowledgeMap.nodes, initialActiveLanguage),
+    [initialActiveLanguage, knowledgeMap.nodes]
+  );
   const initialNodeId =
-    initialPath?.nextRecommendedNodeId ??
-    initialPath?.nodeIds[0] ??
+    initialCourseNodes.find(
+      (node) => node.status === 'RECOMMENDED' || node.status === 'AVAILABLE'
+    )?.id ??
     initialCourseNodes[0]?.id ??
     '';
   const [selectedNodeId, setSelectedNodeId] = useState(initialNodeId);
-  const [previewedNodeId, setPreviewedNodeId] = useState<string | null>(null);
-  const previewDismissTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  const cancelPreviewDismiss = () => {
-    if (!previewDismissTimer.current) return;
-    clearTimeout(previewDismissTimer.current);
-    previewDismissTimer.current = null;
-  };
-
-  const showNodePreview = (nodeId: string) => {
-    cancelPreviewDismiss();
-    setPreviewedNodeId(nodeId);
-  };
-
-  const schedulePreviewDismiss = (delay = 850) => {
-    cancelPreviewDismiss();
-    previewDismissTimer.current = setTimeout(() => {
-      setPreviewedNodeId(null);
-      previewDismissTimer.current = null;
-    }, delay);
-  };
-
-  useEffect(
-    () => () => {
-      if (previewDismissTimer.current) clearTimeout(previewDismissTimer.current);
-    },
-    []
-  );
 
   const courseNodes = useMemo(
     () => getCourseKnowledgeNodes(knowledgeMap.nodes, activeLanguage),
@@ -480,9 +383,6 @@ export function TrailsContent({
     coursePaths.find((path) => path.featured) ??
     coursePaths[0];
   const selectedNode = courseNodes.find((node) => node.id === selectedNodeId) ?? courseNodes[0];
-  const previewedNode = previewedNodeId
-    ? (courseNodes.find((node) => node.id === previewedNodeId) ?? null)
-    : null;
 
   const courseNodeIds = useMemo(() => new Set(courseNodes.map((node) => node.id)), [courseNodes]);
   const courseEdges = useMemo(
@@ -496,36 +396,38 @@ export function TrailsContent({
   const selectPath = (path: LearningPathSummary) => {
     setSelectedPathId(path.id);
     const nextNodeId =
-      (path.nextRecommendedNodeId && courseNodeIds.has(path.nextRecommendedNodeId)
-        ? path.nextRecommendedNodeId
-        : path.nodeIds.find((nodeId) => courseNodeIds.has(nodeId))) ?? selectedNodeId;
-    setSelectedNodeId(nextNodeId);
+      path.nodeIds.find((nodeId) => {
+        const node = courseNodes.find((candidate) => candidate.id === nodeId);
+        return node?.status === 'RECOMMENDED' || node?.status === 'AVAILABLE';
+      }) ??
+      path.nodeIds[0] ??
+      '';
+    if (nextNodeId) setSelectedNodeId(nextNodeId);
   };
 
   const selectCourse = (language: TrailLanguageCode) => {
+    setActiveLanguage(language);
     const nextCourseNodes = getCourseKnowledgeNodes(knowledgeMap.nodes, language);
     const nextCoursePaths = getCourseLearningPaths(knowledgeMap.paths, nextCourseNodes);
-    const nextPath = nextCoursePaths.find((path) => path.featured) ?? nextCoursePaths[0];
-    const nextNodeIds = new Set(nextCourseNodes.map((node) => node.id));
+    const nextSelectedPath = nextCoursePaths.find((path) => path.featured) ?? nextCoursePaths[0];
     const nextNodeId =
-      (nextPath?.nextRecommendedNodeId && nextNodeIds.has(nextPath.nextRecommendedNodeId)
-        ? nextPath.nextRecommendedNodeId
-        : nextPath?.nodeIds.find((nodeId) => nextNodeIds.has(nodeId))) ??
+      nextCourseNodes.find(
+        (node) => node.status === 'RECOMMENDED' || node.status === 'AVAILABLE'
+      )?.id ??
       nextCourseNodes[0]?.id ??
       '';
-    const startedLanguages = Array.from(
-      new Set([
-        ...courses.filter((course) => course.started).map((course) => course.language),
-        language,
-      ])
-    );
 
-    setActiveLanguage(language);
-    setSelectedPathId(nextPath?.id ?? '');
+    setSelectedPathId(nextSelectedPath?.id ?? '');
     setSelectedNodeId(nextNodeId);
-    setPreviewedNodeId(null);
-    setCourses((currentCourses) =>
-      currentCourses.map((course) =>
+
+    const startedLanguages = courses
+      .map((course) => course.language)
+      .concat(
+        courses.some((course) => course.language === language) ? [] : [language]
+      );
+
+    setCourses((previousCourses) =>
+      previousCourses.map((course) =>
         course.language === language ? { ...course, started: true } : course
       )
     );
@@ -549,8 +451,6 @@ export function TrailsContent({
         const path = coursePaths.find((candidate) => candidate.id === pathId);
         if (path) selectPath(path);
       }}
-      onPreviewNode={showNodePreview}
-      onDismissNodePreview={() => schedulePreviewDismiss()}
     />
   );
 
@@ -562,7 +462,7 @@ export function TrailsContent({
         <main className="relative min-h-screen min-w-0 flex-1 pb-24 md:h-screen md:min-h-0 md:pb-0">
           <header className="relative z-[80] flex flex-col justify-between gap-2 p-3 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 lg:flex-row lg:items-start">
             <div className="pointer-events-auto hidden md:block">
-              <CourseOverviewCard viewMode={viewMode} onViewModeChange={handleViewModeChange} />
+              <CourseOverviewCard viewMode={viewMode} onViewModeChange={setViewMode} />
             </div>
 
             <div className="pointer-events-auto flex w-full flex-col items-stretch gap-2 lg:w-auto lg:items-end">
@@ -651,14 +551,6 @@ export function TrailsContent({
                   <NodeDetail node={selectedNode} onSelectNode={setSelectedNodeId} />
                 )}
               </div>
-
-              {previewedNode && (
-                <FloatingNodeDetail
-                  node={previewedNode}
-                  onMouseEnter={cancelPreviewDismiss}
-                  onMouseLeave={() => schedulePreviewDismiss(140)}
-                />
-              )}
             </>
           )}
         </main>

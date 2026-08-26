@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -13,13 +14,18 @@ import {
   Layers3,
   ListTodo,
   LockKeyhole,
+  Minus,
   Network,
+  Plus,
+  RotateCcw,
   Route,
   ShieldCheck,
   Sparkles,
   Target,
   Wrench,
 } from 'lucide-react';
+import { TransformWrapper, TransformComponent, useControls } from 'react-zoom-pan-pinch';
+import { TrailMapLessonPopover } from '@/app/trails/TrailMapLessonPopover';
 import { cn } from '@/lib/cn';
 import { getTrailSectorAccent, getTrailSectorRegionLabel } from '@/app/trails/trailSectorVisuals';
 import type {
@@ -43,12 +49,12 @@ interface TrailMapProps {
   onDismissNodePreview?: () => void;
 }
 
-interface Point {
+export interface Point {
   x: number;
   y: number;
 }
 
-interface PlacedNode {
+export interface PlacedNode {
   node: KnowledgeMapNode;
   path: LearningPathSummary;
   sectorId: string;
@@ -337,107 +343,15 @@ function buildSectorConnections(placements: PlacedNode[]) {
   });
 }
 
-function SkillTooltip({
-  node,
-  accent,
-  point,
-  tooltipId,
-  stageLabel,
-  mobile = false,
-}: {
-  node: KnowledgeMapNode;
-  accent: string;
-  point: Point;
-  tooltipId: string;
-  stageLabel: string;
-  mobile?: boolean;
-}) {
-  const showBelow = !mobile && point.y < 155;
-  const horizontalAlignment =
-    mobile || (point.x > 180 && point.x < GRAPH_WIDTH - 180)
-      ? 'left-1/2 -translate-x-1/2'
-      : point.x <= 180
-        ? 'left-0'
-        : 'right-0';
-
-  return (
-    <span
-      id={tooltipId}
-      role="tooltip"
-      className={cn(
-        'pointer-events-none invisible absolute z-50 w-[240px] rounded-lg border border-dd-border bg-dd-card p-3 text-left opacity-0 shadow-xl transition duration-150',
-        'group-hover:visible group-hover:opacity-100 group-focus-visible:visible group-focus-visible:opacity-100',
-        showBelow ? 'top-[calc(100%+12px)]' : 'bottom-[calc(100%+12px)]',
-        horizontalAlignment
-      )}
-    >
-      <span className="flex items-start gap-2.5">
-        <span
-          className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-md border"
-          style={{ borderColor: `${accent}80`, backgroundColor: `${accent}1f`, color: accent }}
-        >
-          <ListTodo className="h-3.5 w-3.5" aria-hidden="true" />
-        </span>
-        <span className="min-w-0">
-          <span className="block text-[9px] font-medium text-dd-muted">
-            {stageLabel === 'Habilidade' ? 'Tarefas da habilidade' : `Etapa · ${stageLabel}`}
-          </span>
-          <span className="mt-0.5 block text-xs font-semibold leading-tight text-dd-text">
-            {node.title}
-          </span>
-        </span>
-      </span>
-
-      {node.exercises.length > 0 ? (
-        <span className="mt-2.5 grid gap-2">
-          {node.exercises.map((exercise) => (
-            <span key={exercise.id} className="flex items-start gap-2">
-              <span
-                className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full"
-                style={{ backgroundColor: accent }}
-              />
-              <span className="min-w-0">
-                <span className="block text-[11px] font-medium leading-snug text-dd-text">
-                  {exercise.title}
-                </span>
-                <span className="mt-0.5 block text-[9px] text-dd-muted">
-                  Dificuldade {exercise.difficulty}/5 · {exercise.baseXp} XP
-                </span>
-              </span>
-            </span>
-          ))}
-        </span>
-      ) : (
-        <span className="mt-2.5 block text-[10px] font-semibold leading-relaxed text-dd-muted">
-          Nenhuma tarefa foi publicada para esta habilidade ainda.
-        </span>
-      )}
-
-      <span
-        className={cn(
-          'absolute left-1/2 h-2.5 w-2.5 -translate-x-1/2 rotate-45 border-dd-border bg-dd-card',
-          showBelow ? '-top-1.5 border-l border-t' : '-bottom-1.5 border-b border-r'
-        )}
-      />
-    </span>
-  );
-}
-
 function GamifiedSkillNode({
   placement,
   selected,
   onSelect,
-  onPreview,
-  onDismissPreview,
-  showInlineTooltip = true,
   mobile = false,
 }: {
   placement: PlacedNode;
   selected: boolean;
   onSelect: () => void;
-  onPreview?: () => void;
-  onDismissPreview?: () => void;
-  showInlineTooltip?: boolean;
   mobile?: boolean;
 }) {
   const { node, sectorId, point, accent, nodeIndex, stageIndex, primary, stageLabel, StageIcon } =
@@ -449,7 +363,6 @@ function GamifiedSkillNode({
   const locked =
     node.status === 'NOT_STARTED' || (!completed && effectiveStageIndex > unlockedStageLimit);
   const taskCount = node.exercises.length;
-  const tooltipId = `skill-${sectorId}-${node.slug}-${nodeIndex}-${stageIndex}-tasks`;
   const darkerAccent = `color-mix(in srgb, ${accent} 62%, black)`;
   const accessibleStatus = locked ? 'Bloqueado' : STATUS_LABEL[node.status];
   const accessibleLabel = primary
@@ -459,15 +372,14 @@ function GamifiedSkillNode({
   return (
     <button
       type="button"
+      id={`skill-node-btn-${sectorId}-${node.slug}-${stageIndex}`}
       data-testid={`knowledge-skill-node-${sectorId}-${node.slug}-${stageIndex}`}
       aria-label={accessibleLabel}
-      aria-describedby={showInlineTooltip ? tooltipId : undefined}
       aria-pressed={selected}
-      onClick={onSelect}
-      onMouseEnter={onPreview}
-      onMouseLeave={onDismissPreview}
-      onFocus={onPreview}
-      onBlur={onDismissPreview}
+      onClick={(e) => {
+        e.stopPropagation();
+        onSelect();
+      }}
       className={cn(
         'dd-focus-ring group z-30 flex items-center justify-center rounded-full border text-white shadow-sm transition duration-150 hover:z-50 focus-visible:z-50',
         mobile
@@ -531,17 +443,6 @@ function GamifiedSkillNode({
         >
           {node.title}
         </span>
-      )}
-
-      {showInlineTooltip && (
-        <SkillTooltip
-          node={node}
-          accent={accent}
-          point={point}
-          tooltipId={tooltipId}
-          stageLabel={stageLabel}
-          mobile={mobile}
-        />
       )}
     </button>
   );
@@ -630,6 +531,101 @@ function MobilePath({
   );
 }
 
+function TrailMapCameraController({
+  targetPlacement,
+}: {
+  targetPlacement?: PlacedNode;
+}) {
+  const { zoomToElement } = useControls();
+  const lastTargetKey = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!targetPlacement) return;
+    const key = `${targetPlacement.sectorId}-${targetPlacement.node.id}`;
+    if (lastTargetKey.current === key) return;
+    lastTargetKey.current = key;
+
+    const elementId = `skill-node-btn-${targetPlacement.sectorId}-${targetPlacement.node.slug}-${targetPlacement.stageIndex}`;
+    const el = document.getElementById(elementId);
+    if (el) {
+      try {
+        zoomToElement(el, 1.45, 300, 'easeOut');
+      } catch {
+        // ignore in environments without layout engines
+      }
+    }
+  }, [targetPlacement, zoomToElement]);
+
+  return null;
+}
+
+function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode }) {
+  const { zoomIn, zoomOut, resetTransform, zoomToElement } = useControls();
+
+  const handleFocusActiveNode = () => {
+    if (!activePlacement) {
+      resetTransform();
+      return;
+    }
+    const elementId = `skill-node-btn-${activePlacement.sectorId}-${activePlacement.node.slug}-${activePlacement.stageIndex}`;
+    const el = document.getElementById(elementId);
+    if (el) {
+      try {
+        zoomToElement(el, 1.45, 250, 'easeOut');
+      } catch {
+        resetTransform();
+      }
+    } else {
+      resetTransform();
+    }
+  };
+
+  return (
+    <div
+      data-testid="trail-map-controls"
+      className="absolute bottom-4 right-4 z-40 flex items-center gap-1 rounded-2xl border border-dd-border/80 bg-dd-card/95 p-1.5 shadow-lg backdrop-blur-md"
+    >
+      <button
+        type="button"
+        onClick={() => zoomIn(0.12)}
+        aria-label="Aumentar zoom"
+        title="Aumentar zoom"
+        className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
+      >
+        <Plus className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        onClick={() => zoomOut(0.12)}
+        aria-label="Diminuir zoom"
+        title="Diminuir zoom"
+        className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
+      >
+        <Minus className="h-4 w-4" />
+      </button>
+      <div className="h-4 w-px bg-dd-border mx-0.5" />
+      <button
+        type="button"
+        onClick={handleFocusActiveNode}
+        aria-label="Focar na lição atual"
+        title="Focar na lição atual"
+        className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
+      >
+        <Target className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        onClick={() => resetTransform()}
+        aria-label="Centralizar visualização"
+        title="Centralizar visualização"
+        className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
+      >
+        <RotateCcw className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
 export function TrailMap({
   nodes,
   edges,
@@ -662,6 +658,16 @@ export function TrailMap({
     }
   }
   const selectedPath = paths.find((path) => path.id === selectedPathId) ?? paths[0];
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const activePlacement =
+    placements.find(
+      (placement) =>
+        placement.primary &&
+        placement.node.id === selectedNodeId &&
+        placement.path.id === selectedPathId
+    ) ??
+    placements.find((placement) => placement.node.id === selectedNodeId);
+
   const nextNode =
     nodes.find(
       (node) =>
@@ -694,6 +700,28 @@ export function TrailMap({
         className="relative hidden h-full min-h-[560px] w-full min-w-0 overflow-hidden bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.05),transparent_60%)] md:block"
         data-testid="knowledge-map-graph"
       >
+        <TransformWrapper
+          initialScale={1.45}
+          minScale={0.45}
+          maxScale={1.45}
+          centerOnInit
+          limitToBounds={false}
+          smooth={true}
+          wheel={{ step: 0.05 }}
+          pinch={{ step: 3 }}
+          doubleClick={{ disabled: true }}
+          panning={{ velocityDisabled: false }}
+        >
+          <TrailMapCameraController targetPlacement={activePlacement} />
+          <TrailMapControls activePlacement={activePlacement} />
+          <TransformComponent
+            wrapperClass="!w-full !h-full select-none"
+            contentClass="!w-[1400px] !h-[800px] relative"
+          >
+            <div
+              className="relative h-[800px] w-[1400px]"
+              onClick={() => setIsPopoverOpen(false)}
+            >
         <svg
           className="pointer-events-none absolute inset-0 h-full w-full"
           viewBox={`0 0 ${GRAPH_WIDTH} ${GRAPH_HEIGHT}`}
@@ -756,12 +784,25 @@ export function TrailMap({
             onSelect={() => {
               onSelectPath(placement.path.id);
               onSelectNode(placement.node.id);
+              setIsPopoverOpen(true);
             }}
-            onPreview={() => onPreviewNode?.(placement.node.id)}
-            onDismissPreview={onDismissNodePreview}
-            showInlineTooltip={!onPreviewNode}
           />
         ))}
+
+        {activePlacement && isPopoverOpen && (
+          <div
+            className="absolute pointer-events-auto z-50"
+            style={{
+              left: `${(activePlacement.point.x / GRAPH_WIDTH) * 100}%`,
+              top: `${(activePlacement.point.y / GRAPH_HEIGHT) * 100}%`,
+            }}
+          >
+            <TrailMapLessonPopover
+              placement={activePlacement}
+              onClose={() => setIsPopoverOpen(false)}
+            />
+          </div>
+        )}
 
         {visualSectors.map((sector) => {
           const { path } = sector;
@@ -878,7 +919,13 @@ export function TrailMap({
           <button
             type="button"
             aria-label="Início da jornada. Ir para a próxima habilidade disponível"
-            onClick={() => nextNode && onSelectNode(nextNode.id)}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (nextNode) {
+                onSelectNode(nextNode.id);
+                setIsPopoverOpen(true);
+              }
+            }}
             className="dd-focus-ring pointer-events-auto flex h-16 w-16 items-center justify-center rounded-[22px] border-2 border-b-[6px] border-amber-200 border-b-amber-700 bg-amber-400 text-white shadow-[0_12px_28px_-12px_rgba(250,204,21,0.72)] transition hover:-translate-y-0.5 active:translate-y-0.5"
           >
             <Crown
@@ -896,8 +943,11 @@ export function TrailMap({
             </p>
           </div>
         </div>
+      </div>
+    </TransformComponent>
+  </TransformWrapper>
 
-        <div className="absolute bottom-3 left-3 z-20 pointer-events-none select-none">
+  <div className="absolute bottom-3 left-3 z-20 pointer-events-none select-none">
           <div className="relative inline-block">
             {/* Mascot Leaning on top of Legenda */}
             <div className="absolute bottom-[calc(100%-10px)] left-0 z-0 w-24 drop-shadow-md">
