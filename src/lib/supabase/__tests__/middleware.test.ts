@@ -141,4 +141,13 @@ describe('Supabase session proxy', () => {
     expect(response.headers.get('cache-control')).toBe('private, no-store');
     expect(response.headers.get('pragma')).toBe('no-cache');
   });
+
+  it('allows access to /trails/demo without authentication', async () => {
+    getClaims.mockResolvedValue({ data: null, error: null });
+
+    const response = await updateSession(new NextRequest('https://stacklyst.test/trails/demo'));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('location')).toBeNull();
+  });
 });
