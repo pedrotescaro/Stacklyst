@@ -35,7 +35,7 @@
     "@supabase/supabase-js": "^2.108.2",
     "@tabler/icons-react": "^3.46.0",
     "@tiptap/core": "^3.27.0",
-    "@tiptap/extension-bubble-menu": "^3.27.0",
+    "@tiptap/extension-bubble-menu": "^3.30.2",
     "@tiptap/extension-code-block": "^3.27.0",
     "@tiptap/extension-link": "^3.27.0",
     "@tiptap/extension-placeholder": "^3.27.0",
