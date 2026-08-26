@@ -24,7 +24,12 @@ import {
   Target,
   Wrench,
 } from 'lucide-react';
-import { TransformWrapper, TransformComponent, useControls } from 'react-zoom-pan-pinch';
+import {
+  TransformWrapper,
+  TransformComponent,
+  useControls,
+  useTransformEffect,
+} from 'react-zoom-pan-pinch';
 import { TrailMapLessonPopover } from '@/app/trails/TrailMapLessonPopover';
 import { cn } from '@/lib/cn';
 import { getTrailSectorAccent, getTrailSectorRegionLabel } from '@/app/trails/trailSectorVisuals';
@@ -531,6 +536,38 @@ function MobilePath({
   );
 }
 
+function TrailMapLessonPopoverWrapper({
+  placement,
+  onClose,
+}: {
+  placement: PlacedNode;
+  onClose: () => void;
+}) {
+  const [scale, setScale] = useState(1);
+
+  useTransformEffect(({ state }) => {
+    if (state && typeof state.scale === 'number' && Math.abs(state.scale - scale) > 0.005) {
+      setScale(state.scale);
+    }
+  });
+
+  const inverseScale = 1 / Math.max(0.65, Math.min(1.3, scale));
+
+  return (
+    <div
+      className="absolute pointer-events-auto z-50 transition-transform duration-75"
+      style={{
+        left: `${(placement.point.x / GRAPH_WIDTH) * 100}%`,
+        top: `${(placement.point.y / GRAPH_HEIGHT) * 100}%`,
+        transform: `scale(${inverseScale})`,
+        transformOrigin: placement.point.y < 230 ? 'top center' : 'bottom center',
+      }}
+    >
+      <TrailMapLessonPopover placement={placement} onClose={onClose} />
+    </div>
+  );
+}
+
 function TrailMapCameraController({
   targetPlacement,
 }: {
@@ -549,7 +586,7 @@ function TrailMapCameraController({
     const el = document.getElementById(elementId);
     if (el) {
       try {
-        zoomToElement(el, 1.1, 350, 'easeOut');
+        zoomToElement(el, 1.05, 300, 'easeOut');
       } catch {
         // ignore in environments without layout engines
       }
@@ -571,7 +608,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
     const el = document.getElementById(elementId);
     if (el) {
       try {
-        zoomToElement(el, 1.15, 300, 'easeOut');
+        zoomToElement(el, 1.05, 250, 'easeOut');
       } catch {
         resetTransform();
       }
@@ -587,7 +624,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
     >
       <button
         type="button"
-        onClick={() => zoomIn(0.25)}
+        onClick={() => zoomIn(0.08)}
         aria-label="Aumentar zoom"
         title="Aumentar zoom"
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
@@ -596,7 +633,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
       </button>
       <button
         type="button"
-        onClick={() => zoomOut(0.25)}
+        onClick={() => zoomOut(0.08)}
         aria-label="Diminuir zoom"
         title="Diminuir zoom"
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
@@ -702,14 +739,14 @@ export function TrailMap({
       >
         <TransformWrapper
           initialScale={1}
-          minScale={0.45}
-          maxScale={2.2}
+          minScale={0.7}
+          maxScale={1.25}
           centerOnInit
           limitToBounds={false}
-          smooth
-          wheel={{ step: 0.08 }}
-          pinch={{ step: 5 }}
-          doubleClick={{ disabled: false, mode: 'zoomIn' }}
+          smooth={true}
+          wheel={{ step: 0.04 }}
+          pinch={{ step: 2 }}
+          doubleClick={{ disabled: true }}
           panning={{ velocityDisabled: false }}
         >
           <TrailMapCameraController targetPlacement={activePlacement} />
@@ -790,18 +827,10 @@ export function TrailMap({
         ))}
 
         {activePlacement && isPopoverOpen && (
-          <div
-            className="absolute pointer-events-auto z-50"
-            style={{
-              left: `${(activePlacement.point.x / GRAPH_WIDTH) * 100}%`,
-              top: `${(activePlacement.point.y / GRAPH_HEIGHT) * 100}%`,
-            }}
-          >
-            <TrailMapLessonPopover
-              placement={activePlacement}
-              onClose={() => setIsPopoverOpen(false)}
-            />
-          </div>
+          <TrailMapLessonPopoverWrapper
+            placement={activePlacement}
+            onClose={() => setIsPopoverOpen(false)}
+          />
         )}
 
         {visualSectors.map((sector) => {

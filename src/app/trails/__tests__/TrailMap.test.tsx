@@ -381,7 +381,7 @@ describe('TrailMap', () => {
 
     const popover = screen.getByTestId('trail-map-lesson-popover');
     expect(popover).toBeInTheDocument();
-    expect(within(popover).getByText(/Requisito pendente: Fundamentos/i)).toBeInTheDocument();
+    expect(within(popover).getByText(/Requisito: Fundamentos/i)).toBeInTheDocument();
     const actionBtn = within(popover).getByRole('button', { name: /Bloqueado/i });
     expect(actionBtn).toBeDisabled();
   });
