@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import type { LucideIcon } from 'lucide-react';
 import {
@@ -372,6 +372,7 @@ function GamifiedSkillNode({
   return (
     <button
       type="button"
+      id={`skill-node-btn-${sectorId}-${node.slug}-${stageIndex}`}
       data-testid={`knowledge-skill-node-${sectorId}-${node.slug}-${stageIndex}`}
       aria-label={accessibleLabel}
       aria-pressed={selected}
@@ -530,8 +531,54 @@ function MobilePath({
   );
 }
 
-function TrailMapControls() {
-  const { zoomIn, zoomOut, resetTransform } = useControls();
+function TrailMapCameraController({
+  targetPlacement,
+}: {
+  targetPlacement?: PlacedNode;
+}) {
+  const { zoomToElement } = useControls();
+  const lastTargetKey = useRef<string | null>(null);
+
+  useEffect(() => {
+    if (!targetPlacement) return;
+    const key = `${targetPlacement.sectorId}-${targetPlacement.node.id}`;
+    if (lastTargetKey.current === key) return;
+    lastTargetKey.current = key;
+
+    const elementId = `skill-node-btn-${targetPlacement.sectorId}-${targetPlacement.node.slug}-${targetPlacement.stageIndex}`;
+    const el = document.getElementById(elementId);
+    if (el) {
+      try {
+        zoomToElement(el, 1.1, 350, 'easeOut');
+      } catch {
+        // ignore in environments without layout engines
+      }
+    }
+  }, [targetPlacement, zoomToElement]);
+
+  return null;
+}
+
+function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode }) {
+  const { zoomIn, zoomOut, resetTransform, zoomToElement } = useControls();
+
+  const handleFocusActiveNode = () => {
+    if (!activePlacement) {
+      resetTransform();
+      return;
+    }
+    const elementId = `skill-node-btn-${activePlacement.sectorId}-${activePlacement.node.slug}-${activePlacement.stageIndex}`;
+    const el = document.getElementById(elementId);
+    if (el) {
+      try {
+        zoomToElement(el, 1.15, 300, 'easeOut');
+      } catch {
+        resetTransform();
+      }
+    } else {
+      resetTransform();
+    }
+  };
 
   return (
     <div
@@ -557,6 +604,15 @@ function TrailMapControls() {
         <Minus className="h-4 w-4" />
       </button>
       <div className="h-4 w-px bg-dd-border mx-0.5" />
+      <button
+        type="button"
+        onClick={handleFocusActiveNode}
+        aria-label="Focar na lição atual"
+        title="Focar na lição atual"
+        className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
+      >
+        <Target className="h-4 w-4" />
+      </button>
       <button
         type="button"
         onClick={() => resetTransform()}
@@ -656,7 +712,8 @@ export function TrailMap({
           doubleClick={{ disabled: false, mode: 'zoomIn' }}
           panning={{ velocityDisabled: false }}
         >
-          <TrailMapControls />
+          <TrailMapCameraController targetPlacement={activePlacement} />
+          <TrailMapControls activePlacement={activePlacement} />
           <TransformComponent
             wrapperClass="!w-full !h-full select-none"
             contentClass="!w-[1400px] !h-[800px] relative"
