@@ -47,12 +47,12 @@ interface TrailMapProps {
   onDismissNodePreview?: () => void;
 }
 
-interface Point {
+export interface Point {
   x: number;
   y: number;
 }
 
-interface PlacedNode {
+export interface PlacedNode {
   node: KnowledgeMapNode;
   path: LearningPathSummary;
   sectorId: string;
