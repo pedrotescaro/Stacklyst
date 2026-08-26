@@ -26,11 +26,6 @@ const PROTECTED_ROUTE_PREFIXES = [
   '/trails',
 ] as const;
 
-const PUBLIC_ROUTE_EXCEPTIONS = [
-  '/trails/demo',
-  '/demo',
-] as const;
-
 function copySessionState(source: NextResponse, target: NextResponse) {
   source.cookies.getAll().forEach((cookie) => target.cookies.set(cookie));
 
@@ -45,14 +40,9 @@ function copySessionState(source: NextResponse, target: NextResponse) {
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({ request });
   const pathname = request.nextUrl.pathname;
-  const isPublicException = PUBLIC_ROUTE_EXCEPTIONS.some(
-    (route) => pathname === route || pathname.startsWith(`${route}/`)
+  const isProtectedRoute = PROTECTED_ROUTE_PREFIXES.some(
+    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
   );
-  const isProtectedRoute =
-    !isPublicException &&
-    PROTECTED_ROUTE_PREFIXES.some(
-      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`)
-    );
 
   // Keep public pages available so login/register can show their configuration
   // guidance. Protected routes remain closed when Auth is not configured.
