@@ -13,13 +13,17 @@ import {
   Layers3,
   ListTodo,
   LockKeyhole,
+  Minus,
   Network,
+  Plus,
+  RotateCcw,
   Route,
   ShieldCheck,
   Sparkles,
   Target,
   Wrench,
 } from 'lucide-react';
+import { TransformWrapper, TransformComponent, useControls } from 'react-zoom-pan-pinch';
 import { cn } from '@/lib/cn';
 import { getTrailSectorAccent, getTrailSectorRegionLabel } from '@/app/trails/trailSectorVisuals';
 import type {
@@ -630,6 +634,46 @@ function MobilePath({
   );
 }
 
+function TrailMapControls() {
+  const { zoomIn, zoomOut, resetTransform } = useControls();
+
+  return (
+    <div
+      data-testid="trail-map-controls"
+      className="absolute bottom-4 right-4 z-40 flex items-center gap-1 rounded-2xl border border-dd-border/80 bg-dd-card/95 p-1.5 shadow-lg backdrop-blur-md"
+    >
+      <button
+        type="button"
+        onClick={() => zoomIn(0.25)}
+        aria-label="Aumentar zoom"
+        title="Aumentar zoom"
+        className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
+      >
+        <Plus className="h-4 w-4" />
+      </button>
+      <button
+        type="button"
+        onClick={() => zoomOut(0.25)}
+        aria-label="Diminuir zoom"
+        title="Diminuir zoom"
+        className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
+      >
+        <Minus className="h-4 w-4" />
+      </button>
+      <div className="h-4 w-px bg-dd-border mx-0.5" />
+      <button
+        type="button"
+        onClick={() => resetTransform()}
+        aria-label="Centralizar visualização"
+        title="Centralizar visualização"
+        className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
+      >
+        <RotateCcw className="h-4 w-4" />
+      </button>
+    </div>
+  );
+}
+
 export function TrailMap({
   nodes,
   edges,
@@ -694,6 +738,24 @@ export function TrailMap({
         className="relative hidden h-full min-h-[560px] w-full min-w-0 overflow-hidden bg-[radial-gradient(circle_at_50%_50%,rgba(14,165,233,0.05),transparent_60%)] md:block"
         data-testid="knowledge-map-graph"
       >
+        <TransformWrapper
+          initialScale={1}
+          minScale={0.45}
+          maxScale={2.2}
+          centerOnInit
+          limitToBounds={false}
+          smooth
+          wheel={{ step: 0.08 }}
+          pinch={{ step: 5 }}
+          doubleClick={{ disabled: false, mode: 'zoomIn' }}
+          panning={{ velocityDisabled: false }}
+        >
+          <TrailMapControls />
+          <TransformComponent
+            wrapperClass="!w-full !h-full select-none"
+            contentClass="!w-[1400px] !h-[800px] relative"
+          >
+            <div className="relative h-[800px] w-[1400px]">
         <svg
           className="pointer-events-none absolute inset-0 h-full w-full"
           viewBox={`0 0 ${GRAPH_WIDTH} ${GRAPH_HEIGHT}`}
@@ -896,8 +958,11 @@ export function TrailMap({
             </p>
           </div>
         </div>
+      </div>
+    </TransformComponent>
+  </TransformWrapper>
 
-        <div className="absolute bottom-3 left-3 z-20 pointer-events-none select-none">
+  <div className="absolute bottom-3 left-3 z-20 pointer-events-none select-none">
           <div className="relative inline-block">
             {/* Mascot Leaning on top of Legenda */}
             <div className="absolute bottom-[calc(100%-10px)] left-0 z-0 w-24 drop-shadow-md">
