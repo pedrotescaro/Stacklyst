@@ -543,7 +543,7 @@ function TrailMapLessonPopoverWrapper({
   placement: PlacedNode;
   onClose: () => void;
 }) {
-  const [scale, setScale] = useState(1);
+  const [scale, setScale] = useState(1.35);
 
   useTransformEffect(({ state }) => {
     if (state && typeof state.scale === 'number' && Math.abs(state.scale - scale) > 0.005) {
@@ -551,7 +551,7 @@ function TrailMapLessonPopoverWrapper({
     }
   });
 
-  const inverseScale = 1 / Math.max(0.65, Math.min(1.3, scale));
+  const inverseScale = 1 / Math.max(0.5, Math.min(2.5, scale));
 
   return (
     <div
@@ -586,7 +586,7 @@ function TrailMapCameraController({
     const el = document.getElementById(elementId);
     if (el) {
       try {
-        zoomToElement(el, 1.05, 300, 'easeOut');
+        zoomToElement(el, 1.35, 300, 'easeOut');
       } catch {
         // ignore in environments without layout engines
       }
@@ -608,7 +608,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
     const el = document.getElementById(elementId);
     if (el) {
       try {
-        zoomToElement(el, 1.05, 250, 'easeOut');
+        zoomToElement(el, 1.35, 250, 'easeOut');
       } catch {
         resetTransform();
       }
@@ -624,7 +624,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
     >
       <button
         type="button"
-        onClick={() => zoomIn(0.08)}
+        onClick={() => zoomIn(0.15)}
         aria-label="Aumentar zoom"
         title="Aumentar zoom"
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
@@ -633,7 +633,7 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
       </button>
       <button
         type="button"
-        onClick={() => zoomOut(0.08)}
+        onClick={() => zoomOut(0.15)}
         aria-label="Diminuir zoom"
         title="Diminuir zoom"
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
@@ -738,14 +738,14 @@ export function TrailMap({
         data-testid="knowledge-map-graph"
       >
         <TransformWrapper
-          initialScale={1}
-          minScale={0.7}
-          maxScale={1.25}
+          initialScale={1.35}
+          minScale={0.5}
+          maxScale={2.2}
           centerOnInit
           limitToBounds={false}
           smooth={true}
-          wheel={{ step: 0.04 }}
-          pinch={{ step: 2 }}
+          wheel={{ step: 0.05 }}
+          pinch={{ step: 3 }}
           doubleClick={{ disabled: true }}
           panning={{ velocityDisabled: false }}
         >
