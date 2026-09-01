@@ -21,6 +21,7 @@ import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { cn } from '@/lib/cn';
 import Link from 'next/link';
 import { parseProblemFromJson, type DuelProblem } from '@/lib/duel-problems';
+import { getDuelListingExpiryAt, isDuelVisibleInListing } from '@/lib/duels/listing';
 
 interface DuelsContentProps {
   user: {
@@ -42,6 +43,7 @@ const AVAILABLE_LANGUAGES: { key: Language; label: string }[] = [
 export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
   const router = useRouter();
   const [duels, setDuels] = useState<any[]>(initialDuels);
+  const [listingNow, setListingNow] = useState(() => Date.now());
   const [selectedLang, setSelectedLang] = useState<Language>('TS');
   const [filterLang, setFilterLang] = useState<string>('ALL');
   const [isMatchmaking, setIsMatchmaking] = useState(false);
@@ -158,6 +160,18 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
     }
   };
 
+  useEffect(() => {
+    const nextExpiry = duels.reduce<number | null>((nearest, duel) => {
+      const expiry = getDuelListingExpiryAt(duel);
+      if (expiry === null || expiry <= Date.now()) return nearest;
+      return nearest === null ? expiry : Math.min(nearest, expiry);
+    }, null);
+    if (nextExpiry === null) return;
+
+    const timer = window.setTimeout(() => setListingNow(Date.now()), nextExpiry - Date.now());
+    return () => window.clearTimeout(timer);
+  }, [duels, listingNow]);
+
   const handleQuickMatch = async () => {
     setIsMatchmaking(true);
     setCooldownAlert(null);
@@ -262,6 +276,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
   };
 
   const filteredDuels = duels.filter((d) => {
+    if (!isDuelVisibleInListing(d, listingNow)) return false;
     if (filterLang === 'ALL') return true;
     return d.language === filterLang;
   });

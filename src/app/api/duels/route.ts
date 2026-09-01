@@ -5,6 +5,7 @@ import { getAuthUser } from '@/lib/auth';
 import { createDuelSchema } from '@/lib/validators';
 import { getRandomDuelProblem } from '@/lib/duel-problems';
 import { DUEL_TIME_LIMIT_SECONDS } from '@/lib/duels/constants';
+import { getDuelListingWhere } from '@/lib/duels/listing';
 import { isSupportedDuelLanguage } from '@/lib/duels/judge';
 import {
   findTrustedDuelProblemByTitle,
@@ -23,6 +24,7 @@ export async function GET(request: Request) {
     const requestedLimit = Number.parseInt(searchParams.get('limit') || '50', 10);
     const limit = Number.isFinite(requestedLimit) ? Math.min(100, Math.max(1, requestedLimit)) : 50;
     const duels = await prisma.duel.findMany({
+      where: getDuelListingWhere(),
       orderBy: { created_at: 'desc' },
       take: limit,
       include: {

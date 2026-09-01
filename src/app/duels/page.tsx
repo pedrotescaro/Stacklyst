@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 import { DuelsContent } from './DuelsContent';
 import { runDuelMaintenance } from '@/lib/duels/lifecycle';
+import { getDuelListingWhere } from '@/lib/duels/listing';
 
 export const revalidate = 0; // Desabilitar cache para dados dinâmicos de duelos
 
@@ -17,8 +18,9 @@ export default async function DuelsPage() {
     console.error('Error running duel maintenance:', error);
   });
 
-  // Buscar todos os duelos
+  // Only open duels and very recent results belong in the community arena.
   const duels = await prisma.duel.findMany({
+    where: getDuelListingWhere(),
     orderBy: { created_at: 'desc' },
     include: {
       challenger: {
