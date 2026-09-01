@@ -6,6 +6,7 @@ import {
   getRandomDuelProblem,
   buildTestHarness,
 } from '../duel-problems';
+import { CHALLENGE_LIBRARY } from '../duel-challenge-generator';
 
 describe('duel-problems', () => {
   it('has valid problem presets with test cases', () => {
@@ -104,7 +105,35 @@ describe('duel-problems', () => {
 
     expect(harness).toContain('__contestant_globals_');
     expect(harness).toContain('__safe_exec_');
+    expect(harness).toContain('from __future__ import annotations');
     expect(harness).toContain(JSON.stringify(userCode));
     expect(harness).not.toContain(`\n${userCode}\n`);
+  });
+
+  it('supports modern Python annotations on the Python 3.8 judge', () => {
+    const problem = CHALLENGE_LIBRARY.find((challenge) => challenge.id === 'binary-search-array');
+    expect(problem).toBeDefined();
+    if (!problem) throw new Error('Desafio de busca binária não encontrado');
+    const userCode = `def binary_search(nums: list[int], target: int) -> int:
+    left = 0
+    right = len(nums) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if nums[mid] == target:
+            return mid
+        if nums[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1`;
+    const harness = buildTestHarness(userCode, problem, 'PYTHON', {
+      start: '__PYTHON_38_START__',
+      end: '__PYTHON_38_END__',
+    });
+
+    expect(harness).toMatch(/^\s*from __future__ import annotations/);
+    expect(harness).toContain(JSON.stringify(userCode));
+    expect(harness).not.toContain('"__import__"');
+    expect(harness).not.toContain('list =');
   });
 });

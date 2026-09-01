@@ -309,6 +309,7 @@ except BaseException as __test_error_${isolationId}:
       .join('\n');
 
     return `
+from __future__ import annotations
 import json as __json_${isolationId}
 
 __safe_eval_${isolationId} = eval
