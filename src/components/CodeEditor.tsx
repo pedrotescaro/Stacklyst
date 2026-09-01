@@ -19,6 +19,7 @@ interface CodeEditorProps {
   height?: string;
   readOnly?: boolean;
   autocompletion?: boolean;
+  ariaLabel?: string;
 }
 
 export function CodeEditor({
@@ -28,6 +29,7 @@ export function CodeEditor({
   height = '300px',
   readOnly = false,
   autocompletion = false,
+  ariaLabel = 'Editor de código',
 }: CodeEditorProps) {
   return (
     <CodeEditorInner
@@ -37,6 +39,7 @@ export function CodeEditor({
       height={height}
       readOnly={readOnly}
       autocompletion={autocompletion}
+      ariaLabel={ariaLabel}
     />
   );
 }
@@ -49,6 +52,7 @@ function CodeEditorInner({
   height = '300px',
   readOnly = false,
   autocompletion = false,
+  ariaLabel = 'Editor de código',
 }: CodeEditorProps) {
   const [extensions, setExtensions] = useState<import('@codemirror/state').Extension[]>([]);
   const [darkTheme, setDarkTheme] = useState<import('@codemirror/state').Extension | null>(null);
@@ -111,6 +115,7 @@ function CodeEditorInner({
       theme={activeTheme}
       extensions={extensions}
       placeholder="Escreva seu código aqui..."
+      aria-label={ariaLabel}
       basicSetup={{
         lineNumbers: true,
         foldGutter: false,

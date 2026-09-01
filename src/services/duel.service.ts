@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { DuelRequestStatus, DuelStatus, Language } from '@prisma/client';
+import { Language } from '@prisma/client';
 import { getRandomDuelProblem } from '@/lib/duel-problems';
 import { NotificationService } from './notification.service';
 
@@ -24,7 +24,7 @@ export const DuelService = {
   /**
    * Find compatible opponent for matchmaking with progressive tier expansion.
    */
-  async findMatchmakingOpponent(userId: string, language: Language = 'TS') {
+  async findMatchmakingOpponent(userId: string, _language: Language = 'TS') {
     const challenger = await prisma.user.findUnique({
       where: { id: userId },
     });
@@ -226,6 +226,7 @@ export const DuelService = {
         opponent_id: receiverId,
         problem_title: problem.title,
         problem_body: problem.description,
+        problem_id: problem.id,
         language: request.language,
         status: 'ACTIVE',
         time_limit_seconds: 900, // 15 minutos

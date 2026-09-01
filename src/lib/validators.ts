@@ -123,6 +123,7 @@ export const quizAttemptSchema = z.object({
 });
 
 export const createDuelSchema = z.object({
+  problem_id: z.string().min(1).max(120).optional(),
   problem_title: z.string().min(5, 'O título deve ter pelo menos 5 caracteres'),
   problem_body: z.string().min(10, 'A descrição deve ter pelo menos 10 caracteres'),
   language: z.nativeEnum(Language, {

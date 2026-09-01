@@ -3,11 +3,10 @@ import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { DuelService } from '@/services/duel.service';
 import { z } from 'zod';
-import { Language } from '@prisma/client';
 
 const requestSchema = z.object({
   receiver_id: z.string().optional(),
-  language: z.nativeEnum(Language).default('TS'),
+  language: z.enum(['TS', 'JS', 'PYTHON']).default('TS'),
   auto_match: z.boolean().default(false),
 });
 

@@ -20,7 +20,7 @@ import { LanguageTag } from '@/components/LanguageTag';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { cn } from '@/lib/cn';
 import Link from 'next/link';
-import type { DuelProblem } from '@/lib/duel-problems';
+import { parseProblemFromJson, type DuelProblem } from '@/lib/duel-problems';
 
 interface DuelsContentProps {
   user: {
@@ -37,9 +37,6 @@ const AVAILABLE_LANGUAGES: { key: Language; label: string }[] = [
   { key: 'TS', label: 'TypeScript' },
   { key: 'PYTHON', label: 'Python' },
   { key: 'JS', label: 'JavaScript' },
-  { key: 'RUST', label: 'Rust' },
-  { key: 'GO', label: 'Go' },
-  { key: 'CPP', label: 'C++' },
 ];
 
 export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
@@ -61,7 +58,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
   const [cooldownAlert, setCooldownAlert] = useState<string | null>(null);
 
   // Procedural challenge generator state
-  const [showGeneratorConfig, setShowGeneratorConfig] = useState(false);
+  const [showGeneratorConfig, setShowGeneratorConfig] = useState(true);
   const [generatorDifficulty, setGeneratorDifficulty] = useState<'easy' | 'medium' | 'hard'>(
     'medium'
   );
@@ -166,20 +163,18 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
     setCooldownAlert(null);
 
     try {
-      const res = await fetch('/api/duels/request', {
+      const res = await fetch('/api/duels', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          auto_match: true,
+          isQuickMatch: true,
           language: selectedLang,
         }),
       });
 
       const data = await res.json();
       if (res.ok) {
-        if (data.request?.id) {
-          alert('Desafio enviado! Aguardando oponente aceitar...');
-        }
+        if (data.duel?.id) router.push(`/duels/${data.duel.id}`);
       } else {
         setCooldownAlert(data.error || 'Erro ao iniciar matchmaking.');
       }
@@ -192,18 +187,20 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
 
   const handleCreateCustomDuel = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!generatedProblem) {
+      setGeneratorError('Monte um desafio verificável antes de publicar.');
+      return;
+    }
     setCreating(true);
 
     try {
-      // Generated problems carry the full executable definition in problem_body.
-      const problemBody = generatedProblem ? JSON.stringify(generatedProblem) : duelBody;
-
       const res = await fetch('/api/duels', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          problem_title: duelTitle,
-          problem_body: problemBody,
+          problem_id: generatedProblem.id,
+          problem_title: generatedProblem.title,
+          problem_body: generatedProblem.description,
           language: duelLanguage,
         }),
       });
@@ -214,7 +211,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
         setDuelBody('');
         setGeneratedProblem(null);
         setShowDuelForm(false);
-        setShowGeneratorConfig(false);
+        setShowGeneratorConfig(true);
         if (data.duel?.id) {
           router.push(`/duels/${data.duel.id}`);
           return;
@@ -442,19 +439,13 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                   <button
                     type="button"
                     onClick={() => {
-                      setShowGeneratorConfig(!showGeneratorConfig);
                       setGeneratedProblem(null);
                       setGeneratorError(null);
                     }}
-                    className={cn(
-                      'dd-touch dd-focus-ring flex items-center gap-1.5 rounded-xl border-2 border-b-[3px] px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer',
-                      showGeneratorConfig
-                        ? 'border-blue-500 border-b-blue-700 bg-blue-500 text-white shadow-md shadow-blue-500/20'
-                        : 'border-blue-500/40 border-b-blue-600 bg-blue-500/15 text-blue-400 hover:bg-blue-500/25'
-                    )}
+                    className="dd-focus-ring flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-[10px] font-black uppercase tracking-wider text-blue-400 transition hover:bg-blue-500/15"
                   >
                     <Wand2 className="w-3 h-3" />
-                    {showGeneratorConfig ? 'Modo Manual' : 'Gerador Automático'}
+                    Novo desafio
                   </button>
                 </div>
 
@@ -671,9 +662,6 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           <option value="TS">TypeScript</option>
                           <option value="JS">JavaScript</option>
                           <option value="PYTHON">Python</option>
-                          <option value="RUST">Rust</option>
-                          <option value="GO">Go</option>
-                          <option value="CPP">C++</option>
                         </select>
                       </div>
                     </div>
@@ -798,7 +786,10 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           {duel.problem_title}
                         </h4>
 
-                        <p className="text-xs text-dd-muted line-clamp-1">{duel.problem_body}</p>
+                        <p className="text-xs text-dd-muted line-clamp-1">
+                          {parseProblemFromJson(duel.problem_body)?.description ??
+                            duel.problem_body}
+                        </p>
                       </div>
 
                       {/* Right: Combatants & Enter Button */}

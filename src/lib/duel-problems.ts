@@ -16,6 +16,7 @@ export interface DuelProblem {
   difficulty: 'Fácil' | 'Médio' | 'Difícil';
   description: string;
   functionName: string;
+  constraints?: string[];
   starters: {
     TS: string;
     JS: string;
@@ -267,63 +268,122 @@ export function getRandomDuelProblem(): DuelProblem {
   return DUEL_PROBLEMS[index];
 }
 
-export function buildTestHarness(userCode: string, problem: DuelProblem, language: string): string {
+export interface DuelHarnessMarkers {
+  start: string;
+  end: string;
+}
+
+const DEFAULT_HARNESS_MARKERS: DuelHarnessMarkers = {
+  start: '###TEST_RESULTS_START###',
+  end: '###TEST_RESULTS_END###',
+};
+
+export function buildTestHarness(
+  userCode: string,
+  problem: DuelProblem,
+  language: string,
+  markers: DuelHarnessMarkers = DEFAULT_HARNESS_MARKERS
+): string {
   const langKey =
     language.toUpperCase() === 'PYTHON' ? 'PYTHON' : language.toUpperCase() === 'JS' ? 'JS' : 'TS';
+  const isolationId = markers.start.replace(/[^a-zA-Z0-9]/g, '').slice(-32) || 'stacklyst';
 
   if (langKey === 'PYTHON') {
+    const pythonFunctionName = problem.functionName.replace(
+      /[A-Z]/g,
+      (letter) => `_${letter.toLowerCase()}`
+    );
     const checks = problem.testCases
       .map((tc) => {
         const expr = tc.testExpression.PYTHON;
         return `
 try:
-    if (${expr}):
-        results.append({"id": "${tc.id}", "passed": True, "desc": "${tc.description}"})
+    if bool(__safe_eval_${isolationId}(${JSON.stringify(expr)}, __test_globals_${isolationId})):
+        __test_results_${isolationId}.append({"id": ${JSON.stringify(tc.id)}, "passed": True, "desc": ${JSON.stringify(tc.description)}})
     else:
-        results.append({"id": "${tc.id}", "passed": False, "desc": "${tc.description}"})
-except Exception as e:
-    results.append({"id": "${tc.id}", "passed": False, "desc": "${tc.description}", "error": str(e)})
+        __test_results_${isolationId}.append({"id": ${JSON.stringify(tc.id)}, "passed": False, "desc": ${JSON.stringify(tc.description)}})
+except BaseException as __test_error_${isolationId}:
+    __test_results_${isolationId}.append({"id": ${JSON.stringify(tc.id)}, "passed": False, "desc": ${JSON.stringify(tc.description)}, "error": __safe_str_${isolationId}(__test_error_${isolationId})})
 `;
       })
       .join('\n');
 
     return `
-import json
+import json as __json_${isolationId}
 
-${userCode}
-
-results = []
+__safe_eval_${isolationId} = eval
+__safe_exec_${isolationId} = exec
+__safe_str_${isolationId} = str
+__safe_write_${isolationId} = __import__('sys').stdout.write
+__safe_dumps_${isolationId} = __json_${isolationId}.dumps
+__contestant_builtins_${isolationId} = {
+    "abs": abs, "all": all, "any": any, "bool": bool, "dict": dict,
+    "enumerate": enumerate, "filter": filter, "float": float, "int": int,
+    "len": len, "list": list, "map": map, "max": max, "min": min,
+    "range": range, "reversed": reversed, "round": round, "set": set,
+    "sorted": sorted, "str": str, "sum": sum, "tuple": tuple, "zip": zip,
+    "Exception": Exception, "ValueError": ValueError, "TypeError": TypeError,
+}
+__contestant_globals_${isolationId} = {"__builtins__": __contestant_builtins_${isolationId}}
+__safe_exec_${isolationId}(${JSON.stringify(userCode)}, __contestant_globals_${isolationId})
+__solution_${isolationId} = __contestant_globals_${isolationId}.get(${JSON.stringify(pythonFunctionName)})
+__test_globals_${isolationId} = {
+    "__builtins__": __contestant_builtins_${isolationId}.copy(),
+    ${JSON.stringify(pythonFunctionName)}: __solution_${isolationId},
+}
+__test_results_${isolationId} = []
 ${checks}
 
-print("###TEST_RESULTS_START###" + json.dumps(results) + "###TEST_RESULTS_END###")
+__safe_write_${isolationId}(${JSON.stringify(markers.start)} + __safe_dumps_${isolationId}(__test_results_${isolationId}) + ${JSON.stringify(markers.end)})
 `;
   }
 
-  // JS and TS harness
+  const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const functionPattern = new RegExp(`\\b${escapeRegExp(problem.functionName)}\\b`, 'g');
+  const solutionName = `__solution_${isolationId}`;
+  const safeJsonName = `__safe_json_${isolationId}`;
+
+  // JavaScript executes contestant code in a capability-free VM context. The
+  // trusted reporter and random result markers stay in the parent context.
   const checks = problem.testCases
     .map((tc) => {
-      const expr = tc.testExpression[langKey] || tc.testExpression.TS;
+      const rawExpression = tc.testExpression[langKey] || tc.testExpression.TS;
+      const expr = rawExpression
+        .replace(functionPattern, solutionName)
+        .replace(/\bJSON\.stringify\b/g, safeJsonName);
       return `
 try {
-  if (Boolean(${expr})) {
-    __testResults.push({ id: "${tc.id}", passed: true, desc: "${tc.description}" });
-  } else {
-    __testResults.push({ id: "${tc.id}", passed: false, desc: "${tc.description}" });
-  }
+  const __passed = Boolean(__vm_${isolationId}.runInContext(${JSON.stringify(
+    `Boolean(${expr})`
+  )}, __context_${isolationId}, { timeout: 3000 }));
+  __testResults_${isolationId}.push({ id: ${JSON.stringify(tc.id)}, passed: __passed, desc: ${JSON.stringify(tc.description)} });
 } catch (err) {
-  __testResults.push({ id: "${tc.id}", passed: false, desc: "${tc.description}", error: String(err) });
+  __testResults_${isolationId}.push({ id: ${JSON.stringify(tc.id)}, passed: false, desc: ${JSON.stringify(tc.description)}, error: String(err) });
 }
 `;
     })
     .join('\n');
 
   return `
-${userCode}
+const __vm_${isolationId} = eval('require')('node:vm');
+const __context_${isolationId} = __vm_${isolationId}.createContext(Object.create(null), {
+  codeGeneration: { strings: false, wasm: false },
+});
+const __contestant_source_${isolationId} = ${JSON.stringify(userCode)};
+const __bootstrap_${isolationId} = [
+  '"use strict";',
+  'const ${safeJsonName} = JSON.stringify.bind(JSON);',
+  'for (const ctor of [Object, Array, String, Number, Boolean, RegExp, Map, Set]) { Object.freeze(ctor.prototype); Object.freeze(ctor); }',
+  'Object.freeze(JSON);',
+  __contestant_source_${isolationId},
+  'const ${solutionName} = typeof ${problem.functionName} === "function" ? ${problem.functionName} : null;',
+].join('\\n');
+__vm_${isolationId}.runInContext(__bootstrap_${isolationId}, __context_${isolationId}, { timeout: 3000 });
 
-const __testResults = [];
+const __testResults_${isolationId} = [];
 ${checks}
 
-console.log("###TEST_RESULTS_START###" + JSON.stringify(__testResults) + "###TEST_RESULTS_END###");
+process.stdout.write(${JSON.stringify(markers.start)} + JSON.stringify(__testResults_${isolationId}) + ${JSON.stringify(markers.end)});
 `;
 }
 

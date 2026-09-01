@@ -1,4 +1,5 @@
 import { describe, it, expect } from 'vitest';
+import { execFileSync } from 'node:child_process';
 import {
   DUEL_PROBLEMS,
   getDuelProblemById,
@@ -55,5 +56,55 @@ describe('duel-problems', () => {
     expect(harness).toContain('###TEST_RESULTS_START###');
     expect(harness).toContain('###TEST_RESULTS_END###');
     expect(harness).toContain('reverse_string');
+  });
+
+  it('uses per-execution result markers supplied by the server judge', () => {
+    const problem = getDuelProblemById('reverse-string');
+    const harness = buildTestHarness('function reverseString() { return ""; }', problem, 'JS', {
+      start: '__PRIVATE_START__',
+      end: '__PRIVATE_END__',
+    });
+
+    expect(harness).toContain('__PRIVATE_START__');
+    expect(harness).toContain('__PRIVATE_END__');
+    expect(harness).not.toContain('###TEST_RESULTS_START###');
+  });
+
+  it('keeps JavaScript result reporting outside contestant-controlled globals', () => {
+    const problem = getDuelProblemById('reverse-string');
+    const harness = buildTestHarness(
+      `function reverseString() {
+        globalThis.JSON = { stringify: () => '"tsylkcats"' };
+        globalThis.process = { stdout: { write: () => undefined } };
+        return 'forged';
+      }`,
+      problem,
+      'JS',
+      { start: '__SERVER_ONLY_START__', end: '__SERVER_ONLY_END__' }
+    );
+
+    const output = execFileSync(process.execPath, ['-e', harness], { encoding: 'utf8' });
+    const payload = output.slice(
+      output.lastIndexOf('__SERVER_ONLY_START__') + '__SERVER_ONLY_START__'.length,
+      output.indexOf('__SERVER_ONLY_END__')
+    );
+    const results = JSON.parse(payload) as Array<{ passed: boolean }>;
+
+    expect(results).toHaveLength(problem.testCases.length);
+    expect(results.every((result) => !result.passed)).toBe(true);
+  });
+
+  it('executes Python contestant code in a separate restricted namespace', () => {
+    const problem = getDuelProblemById('reverse-string');
+    const userCode = 'def reverse_string(s):\n    return "forged"';
+    const harness = buildTestHarness(userCode, problem, 'PYTHON', {
+      start: '__PYTHON_PRIVATE_START__',
+      end: '__PYTHON_PRIVATE_END__',
+    });
+
+    expect(harness).toContain('__contestant_globals_');
+    expect(harness).toContain('__safe_exec_');
+    expect(harness).toContain(JSON.stringify(userCode));
+    expect(harness).not.toContain(`\n${userCode}\n`);
   });
 });

@@ -81,7 +81,9 @@ enum UserRole {
 enum DuelStatus {
   PENDING
   ACTIVE
+  REVIEW_PENDING
   CLOSED
+  EXPIRED
 }
 
 enum DuelRequestStatus {
@@ -95,6 +97,15 @@ enum EvaluationType {
   AUTOMATIC
   AI_SUGGESTED
   HUMAN_EVALUATED
+}
+
+enum DuelSubmissionStatus {
+  ACCEPTED
+  WRONG_ANSWER
+  COMPILE_ERROR
+  RUNTIME_ERROR
+  TIME_LIMIT_EXCEEDED
+  JUDGE_UNAVAILABLE
 }
 
 enum EvaluatorStatus {
@@ -190,7 +201,9 @@ model User {
   badges                 UserBadge[]
   duels_as_challenger    Duel[]                 @relation("challenger")
   duels_as_opponent      Duel[]                 @relation("opponent")
+  duels_won              Duel[]                 @relation("duel_winner")
   duel_solutions         DuelSolution[]
+  duel_submissions       DuelSubmission[]
   duel_votes             DuelVote[]
   post_votes             PostVote[]
   answer_votes           AnswerVote[]
@@ -652,32 +665,66 @@ model Duel {
   opponent_id        String?
   problem_title      String
   problem_body       String
+  problem_id         String?
   language           Language
   status             DuelStatus @default(PENDING)
   time_limit_seconds Int        @default(900)
+  match_deadline     DateTime?
   started_at         DateTime?
   finished_at        DateTime?
   winner_id          String?
+  closed_reason      String?
+  xp_awarded_at      DateTime?
   created_at         DateTime   @default(now())
 
   challenger  User             @relation("challenger", fields: [challenger_id], references: [id], onDelete: Cascade)
   opponent    User?            @relation("opponent", fields: [opponent_id], references: [id], onDelete: SetNull)
+  winner      User?            @relation("duel_winner", fields: [winner_id], references: [id], onDelete: SetNull)
   solutions   DuelSolution[]
+  submissions DuelSubmission[]
   votes       DuelVote[]
   evaluations DuelEvaluation[]
+
+  @@index([status, match_deadline])
+  @@index([language, status, created_at])
 }
 
 model DuelSolution {
-  id         String @id @default(uuid())
-  duel_id    String
-  user_id    String
-  code       String
-  vote_count Int    @default(0)
+  id           String   @id @default(uuid())
+  duel_id      String
+  user_id      String
+  code         String
+  vote_count   Int      @default(0)
+  score        Int      @default(0)
+  runtime_ms   Int?
+  complexity   String?
+  submitted_at DateTime @default(now())
 
   duel Duel @relation(fields: [duel_id], references: [id], onDelete: Cascade)
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@unique([duel_id, user_id])
+}
+
+model DuelSubmission {
+  id               String               @id @default(uuid())
+  duel_id          String
+  user_id          String
+  code             String
+  status           DuelSubmissionStatus
+  passed_tests     Int                  @default(0)
+  total_tests      Int                  @default(0)
+  runtime_ms       Int?
+  complexity       String?
+  complexity_score Int                  @default(0)
+  score            Int                  @default(0)
+  public_result    Json?
+  created_at       DateTime             @default(now())
+
+  duel Duel @relation(fields: [duel_id], references: [id], onDelete: Cascade)
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@index([duel_id, user_id, created_at(sort: Desc)])
 }
 
 model DuelVote {
@@ -694,17 +741,17 @@ model DuelVote {
 }
 
 model DuelEvaluation {
-  id             String         @id @default(uuid())
-  duel_id        String
-  evaluator_id   String?
-  type           EvaluationType @default(AUTOMATIC)
-  score_player1  Int            @default(0)
-  score_player2  Int            @default(0)
-  ai_analysis    Json?
-  human_feedback String?
-  strengths      String[]
-  improvements   String[]
-  created_at     DateTime       @default(now())
+  id              String         @id @default(uuid())
+  duel_id         String
+  evaluator_id    String?
+  type            EvaluationType @default(AUTOMATIC)
+  score_player1   Int            @default(0)
+  score_player2   Int            @default(0)
+  system_analysis Json?
+  human_feedback  String?
+  strengths       String[]
+  improvements    String[]
+  created_at      DateTime       @default(now())
 
   duel      Duel  @relation(fields: [duel_id], references: [id], onDelete: Cascade)
   evaluator User? @relation(fields: [evaluator_id], references: [id], onDelete: SetNull)
