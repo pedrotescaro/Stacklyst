@@ -11,7 +11,7 @@ Este diretório reúne a documentação produzida para a disciplina de Laborató
 
 ## Capturas atuais dos casos de uso
 
-As capturas antigas do documento de casos de uso foram substituídas em 22/08/2026 por imagens das rotas internas autenticadas do localhost atual: perfil, trilhas, duelos, ranking, assistência Async e feed. As capturas foram realizadas sem publicar conteúdo, iniciar duelos ou alterar o progresso da conta utilizada para validação.
+As capturas antigas do documento de casos de uso foram substituídas em 22/08/2026 por imagens das rotas internas autenticadas do localhost atual: perfil, trilhas, duelos, ranking e feed. As capturas foram realizadas sem publicar conteúdo, iniciar duelos ou alterar o progresso da conta utilizada para validação.
 
 Os arquivos-fonte estão em `prototipos/atuais/`. A captura autenticada pode ser reproduzida com `tools/capture_authenticated_use_case_screenshots.cjs`, usando a credencial somente por variável de ambiente, e a atualização que preserva a estrutura existente do Word pode ser reproduzida com `tools/refresh_use_case_screenshots.py`.
 

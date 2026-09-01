@@ -22,7 +22,7 @@ Stacklyst combina uma comunidade social para programadores com um mapa compartil
 
 ## Operating Context
 
-- A experiência autenticada reúne Feed, Trilhas, Notificações, Ranking, Duelos, Bate-papo, Async, Itens salvos e Perfil em uma navegação compartilhada.
+- A experiência autenticada reúne Feed, Trilhas, Notificações, Ranking, Duelos, Bate-papo, Itens salvos e Perfil em uma navegação compartilhada.
 - Trilhas permitem trocar o curso de linguagem, explorar setores de conhecimento, inspecionar tarefas em cada nó, iniciar exercícios e acompanhar XP, ofensiva, energia e joias.
 - O mapa prioriza exploração em desktop e mantém uma experiência navegável em dispositivos móveis.
 - Exercícios práticos diferenciam executar testes públicos de submeter uma solução avaliada com testes públicos e ocultos.

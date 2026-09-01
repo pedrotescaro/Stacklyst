@@ -49,6 +49,7 @@ next-env.d.ts
 .agents/
 /.codex/
 /scratch/
+/.impeccable/
 
 # uploads
 /public/uploads/

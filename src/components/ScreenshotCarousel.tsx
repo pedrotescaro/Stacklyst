@@ -32,13 +32,6 @@ export function ScreenshotCarousel() {
         'Progresso ativo por linguagem. Acompanhe seu XP em TypeScript, Python, Rust, Go e suba de nível.',
     },
     {
-      name: 'async',
-      title: 'ASYNC — Copiloto de Código',
-      url: 'stacklyst.com/async',
-      description:
-        'Nosso assistente com IA. Debugue e comente linhas de código diretamente no editor integrado.',
-    },
-    {
       name: 'duels',
       title: 'Duelos de Performance',
       url: 'stacklyst.com/duels',

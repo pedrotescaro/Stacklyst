@@ -9,7 +9,6 @@ import { logger } from '@/lib/logger';
 import { getSupabasePublicConfig, isSupabasePublicConfigured } from '@/lib/supabase/env';
 
 const PROTECTED_ROUTE_PREFIXES = [
-  '/async',
   '/bookmarks',
   '/duels',
   '/explore',

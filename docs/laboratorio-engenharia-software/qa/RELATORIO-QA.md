@@ -15,7 +15,7 @@ Os quatro arquivos DOCX foram exportados pelo Microsoft Word para PDF e todas as
 
 Total inspecionado: 98 páginas. Não foram observadas páginas vazias indevidas, conteúdo cortado, tabelas divididas de forma ilegível, títulos órfãos ou diagramas fora da área útil.
 
-No documento de casos de uso, as páginas 11, 13, 17, 19, 21, 24, 26, 28 e 30 foram revisadas individualmente após a substituição das capturas em 22/08/2026. As imagens atuais foram obtidas nas rotas internas autenticadas de perfil, trilhas, duelos, ranking, assistência Async e feed; o feed foi capturado somente depois do carregamento das publicações, sem placeholders de skeleton.
+No documento de casos de uso, as páginas 11, 13, 17, 19, 21, 24, 26, 28 e 30 foram revisadas individualmente após a substituição das capturas em 22/08/2026. As imagens atuais foram obtidas nas rotas internas autenticadas de perfil, trilhas, duelos, ranking e feed; o feed foi capturado somente depois do carregamento das publicações, sem placeholders de skeleton.
 
 ## Resultado estrutural
 

@@ -9,10 +9,7 @@ This document details the architecture, design choices, folder structure, and da
 1. **Next.js 16 (App Router):** The core framework. Uses Node.js runtime and Next.js 16's custom route protection via `src/proxy.ts` (exporting a custom `proxy` function) instead of the deprecated `middleware.ts`.
 2. **Prisma ORM:** Database client used for schema modeling, seeding, and database transactions (e.g. atomic XP awards).
 3. **Supabase (PostgreSQL):** Relational database hosting with native Full-Text Search (using `to_tsvector` and `plainto_tsquery` on a GIN index).
-4. **Upstash Redis:** Distributed rate limiting for key API endpoints, including the ASYNC chat and repository analysis routes.
-5. **Optional AI provider:** Powers the authenticated ASYNC assistant on demand. Feed posts, daily quizzes, and duel generation do not require an AI provider.
-
-AI usage is bounded in two layers: per-user hourly quotas and a shared hourly platform ceiling. Chat context is restricted to the eight most recent messages with up to 4,000 characters each; repository analysis has a lower dedicated quota. Distributed ceilings require Upstash Redis in production.
+4. **Upstash Redis:** Distributed rate limiting for key API endpoints such as registration, posts, messages and code execution.
 
 ---
 

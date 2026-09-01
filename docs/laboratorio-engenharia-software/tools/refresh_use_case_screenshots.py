@@ -24,7 +24,6 @@ CAPTURES = {
     "UC008": CAPTURE_DIR / "uc008-uc009-duelos-atual.png",
     "UC009": CAPTURE_DIR / "uc008-uc009-duelos-atual.png",
     "UC011": CAPTURE_DIR / "uc011-ranking-atual.png",
-    "UC012": CAPTURE_DIR / "uc012-assistencia-acesso-atual.png",
     "UC013": CAPTURE_DIR / "uc013-uc014-feed-atual.png",
     "UC014": CAPTURE_DIR / "uc013-uc014-feed-atual.png",
 }
@@ -36,7 +35,6 @@ ALT_TEXT = {
     "UC008": "Captura atual da arena autenticada de duelos do Stacklyst com fila rápida e duelos abertos.",
     "UC009": "Captura atual da arena autenticada de duelos com seleção de linguagem e procura de oponente.",
     "UC011": "Captura atual do ranking autenticado do Stacklyst com classificação global, XP e marco de divisão.",
-    "UC012": "Captura atual da assistência Async autenticada com novo chat, histórico e campo de solicitação.",
     "UC013": "Captura atual do feed autenticado do Stacklyst com compositor e publicações da comunidade.",
     "UC014": "Captura atual do feed autenticado do Stacklyst com controles de resposta, reação, salvamento e compartilhamento.",
 }

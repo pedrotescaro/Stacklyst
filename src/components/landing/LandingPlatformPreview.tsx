@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Swords, Route, Trophy, User, MessageSquare } from 'lucide-react';
+import { Home, Swords, Route, Trophy, User } from 'lucide-react';
 
 const SCREENSHOTS = [
   {
@@ -49,15 +49,6 @@ const SCREENSHOTS = [
     title: 'Sua competência é sua identidade',
     description:
       'Seu perfil exibe seu progresso por linguagem, suas conquistas (badges), ofensivas de dias ativos e histórico de duelos. Suas linhas de código viram seu portfólio.',
-  },
-  {
-    id: 'async',
-    label: 'ASYNC Debugger',
-    icon: MessageSquare,
-    src: '/screenshots/async_dark.png',
-    title: 'Seu parceiro de código inteligente',
-    description:
-      'Use a ASYNC para analisar stack traces, tirar dúvidas ou obter dicas sobre desafios sem sair da arena de desenvolvimento.',
   },
 ];
 

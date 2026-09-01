@@ -13,9 +13,6 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "ai:pull": "ollama pull qwen3:8b",
-    "ai:create": "ollama create async -f Modelfile",
-    "ai:run": "ollama run async",
     "prepare": "husky"
   },
   "dependencies": {

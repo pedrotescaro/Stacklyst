@@ -32,7 +32,6 @@ const captures = [
   { route: '/trails', file: 'uc004-trilhas-atual.png' },
   { route: '/duels', file: 'uc008-uc009-duelos-atual.png' },
   { route: '/ranking', file: 'uc011-ranking-atual.png' },
-  { route: '/async', file: 'uc012-assistencia-acesso-atual.png' },
   {
     route: '/feed',
     file: 'uc013-uc014-feed-atual.png',
