@@ -22,7 +22,8 @@ describe('FeedEngagementCard', () => {
     expect(screen.getByLabelText('Atividade semanal')).toBeInTheDocument();
     expect(screen.getByLabelText('domingo: 1 atividade concluída')).toBeInTheDocument();
     expect(screen.getByLabelText('terça-feira: 3 atividades concluídas, hoje')).toBeInTheDocument();
-    expect(screen.getByText('Ofensiva garantida por hoje. Continue assim!')).toBeInTheDocument();
+    expect(screen.getByText('Ofensiva garantida por hoje.')).toBeInTheDocument();
+    expect(screen.getByText('Continue assim!')).toHaveClass('block', 'whitespace-nowrap');
     expect(screen.getByText('Ritmo Stacklyst')).toHaveClass('bg-blue-500');
     expect(screen.getByTestId('feed-streak-flame')).toHaveClass(
       'bg-orange-500/15',
@@ -72,6 +73,7 @@ describe('FeedEngagementCard', () => {
     );
 
     expect(screen.getAllByLabelText(/dia da ofensiva/)).toHaveLength(7);
-    expect(screen.getByText('Ofensiva garantida por hoje. Continue assim!')).toBeInTheDocument();
+    expect(screen.getByText('Ofensiva garantida por hoje.')).toBeInTheDocument();
+    expect(screen.getByText('Continue assim!')).toHaveClass('block', 'whitespace-nowrap');
   });
 });

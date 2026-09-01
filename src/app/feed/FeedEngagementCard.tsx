@@ -64,9 +64,14 @@ export function FeedEngagementCard({
       </div>
 
       <p className="mt-4 max-w-[280px] text-sm font-bold leading-6 text-dd-text">
-        {hasActivityToday
-          ? 'Ofensiva garantida por hoje. Continue assim!'
-          : 'Faça uma atividade hoje pra aumentar a sua ofensiva!'}
+        {hasActivityToday ? (
+          <>
+            <span>Ofensiva garantida por hoje. </span>
+            <span className="block whitespace-nowrap">Continue assim!</span>
+          </>
+        ) : (
+          'Faça uma atividade hoje pra aumentar a sua ofensiva!'
+        )}
       </p>
 
       <div className="mt-5 rounded-2xl bg-dd-surface p-3.5">
