@@ -1,5 +1,5 @@
 import { prisma } from '@/lib/prisma';
-import { Language } from '@prisma/client';
+import { Language, type Prisma } from '@prisma/client';
 import { calculateNextStreak } from '@/lib/streak';
 
 // Mapeamento de níveis baseado nas faixas de XP do seed do banco de dados
@@ -66,92 +66,103 @@ export async function awardXP(
     };
   }
 
-  return await prisma.$transaction(async (tx) => {
-    // Buscar usuário primeiro para calcular a ofensiva geral
-    const user = await tx.user.findUnique({
-      where: { id: userId },
-      select: { streak_days: true, last_active_at: true },
-    });
+  return prisma.$transaction((tx) => awardXPInTransaction(tx, userId, language, amount));
+}
 
-    const now = new Date();
-    const newStreakDays = calculateNextStreak(user?.streak_days ?? 0, user?.last_active_at, now);
-
-    // 1. Atualizar o total_xp, streak_days, last_active_at do usuário
-    await tx.user.update({
-      where: { id: userId },
-      data: {
-        total_xp: {
-          increment: amount,
-        },
-        streak_days: newStreakDays,
-        last_active_at: now,
-      },
-    });
-
-    // 2. Buscar ou criar a trilha da linguagem
-    const trail = await tx.languageTrail.findUnique({
-      where: {
-        user_id_language: { user_id: userId, language },
-      },
-    });
-
-    let newXp = amount;
-    let newLevel = 1;
-    let newStreak = 1;
-
-    if (trail) {
-      newXp = trail.xp + amount;
-      newLevel = calculateLevel(newXp).level;
-
-      newStreak = calculateNextStreak(trail.streak, trail.last_activity_at, now);
-
-      // Atualizar trilha existente
-      await tx.languageTrail.update({
-        where: { id: trail.id },
-        data: {
-          xp: newXp,
-          level: newLevel,
-          streak: newStreak,
-          last_activity_at: now,
-        },
-      });
-    } else {
-      // Criar nova trilha
-      newLevel = calculateLevel(newXp).level;
-      await tx.languageTrail.create({
-        data: {
-          user_id: userId,
-          language,
-          xp: newXp,
-          level: newLevel,
-          streak: newStreak,
-          last_activity_at: now,
-        },
-      });
-    }
-
-    // 3. Checar elegibilidade de badges
-    await checkBadgeEligibility(tx, userId, Math.max(newStreak, newStreakDays));
-
-    return {
-      xpEarned: amount,
-      language,
-      newXp,
-      newLevel,
-      newStreak,
-    };
+export async function awardXPInTransaction(
+  tx: Prisma.TransactionClient,
+  userId: string,
+  language: Language,
+  amount: number
+) {
+  // Buscar usuário primeiro para calcular a ofensiva geral
+  const user = await tx.user.findUnique({
+    where: { id: userId },
+    select: { streak_days: true, last_active_at: true },
   });
+
+  const now = new Date();
+  const newStreakDays = calculateNextStreak(user?.streak_days ?? 0, user?.last_active_at, now);
+
+  // 1. Atualizar o total_xp, streak_days, last_active_at do usuário
+  await tx.user.update({
+    where: { id: userId },
+    data: {
+      total_xp: {
+        increment: amount,
+      },
+      streak_days: newStreakDays,
+      last_active_at: now,
+    },
+  });
+
+  // 2. Buscar ou criar a trilha da linguagem
+  const trail = await tx.languageTrail.findUnique({
+    where: {
+      user_id_language: { user_id: userId, language },
+    },
+  });
+
+  let newXp = amount;
+  let newLevel = 1;
+  let newStreak = 1;
+
+  if (trail) {
+    newXp = trail.xp + amount;
+    newLevel = calculateLevel(newXp).level;
+
+    newStreak = calculateNextStreak(trail.streak, trail.last_activity_at, now);
+
+    // Atualizar trilha existente
+    await tx.languageTrail.update({
+      where: { id: trail.id },
+      data: {
+        xp: newXp,
+        level: newLevel,
+        streak: newStreak,
+        last_activity_at: now,
+      },
+    });
+  } else {
+    // Criar nova trilha
+    newLevel = calculateLevel(newXp).level;
+    await tx.languageTrail.create({
+      data: {
+        user_id: userId,
+        language,
+        xp: newXp,
+        level: newLevel,
+        streak: newStreak,
+        last_activity_at: now,
+      },
+    });
+  }
+
+  // 3. Checar elegibilidade de badges
+  await checkBadgeEligibility(tx, userId, Math.max(newStreak, newStreakDays));
+
+  return {
+    xpEarned: amount,
+    language,
+    newXp,
+    newLevel,
+    newStreak,
+  };
 }
 
 // Verifica e concede badges
-async function checkBadgeEligibility(tx: any, userId: string, currentStreak: number) {
+async function checkBadgeEligibility(
+  tx: Prisma.TransactionClient,
+  userId: string,
+  currentStreak: number
+) {
   // Buscar todas as conquistas do usuário
   const userBadges = await tx.userBadge.findMany({
     where: { user_id: userId },
     include: { badge: true },
   });
 
-  const earnedSlugs = new Set<string>(userBadges.map((ub: any) => ub.badge.slug));
+  const earnedSlugs = new Set<string>(userBadges.map((userBadge) => userBadge.badge.slug));
 
   const badgesToAward: string[] = [];
 

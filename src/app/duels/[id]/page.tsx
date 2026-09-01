@@ -1,46 +1,87 @@
-import { redirect, notFound } from 'next/navigation';
-import { prisma } from '@/lib/prisma';
+import { notFound, redirect } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth';
+import { prisma } from '@/lib/prisma';
+import { resolveDuelAtDeadline } from '@/lib/duels/resolution';
 import { DuelDetailContent } from './DuelDetailContent';
 
-export const revalidate = 0; // Desabilitar cache para dados dinâmicos de duelos em tempo real
+export const revalidate = 0;
 
 export default async function DuelDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [user, { id }] = await Promise.all([getAuthUser(), params]);
+  if (!user) redirect('/login');
 
-  if (!user) {
-    redirect('/login');
+  const current = await prisma.duel.findUnique({
+    where: { id },
+    select: { status: true, started_at: true, time_limit_seconds: true },
+  });
+  if (!current) notFound();
+
+  if (
+    current.status === 'ACTIVE' &&
+    current.started_at &&
+    current.started_at.getTime() + current.time_limit_seconds * 1000 <= Date.now()
+  ) {
+    await resolveDuelAtDeadline(id);
   }
 
-  // Buscar duelo específico
   const duel = await prisma.duel.findUnique({
     where: { id },
     include: {
-      challenger: {
-        select: { username: true, avatar_url: true },
-      },
-      opponent: {
-        select: { username: true, avatar_url: true },
-      },
+      challenger: { select: { id: true, username: true, avatar_url: true } },
+      opponent: { select: { id: true, username: true, avatar_url: true } },
+      winner: { select: { id: true, username: true } },
       solutions: {
+        where: { user_id: user.id },
         select: {
           id: true,
           user_id: true,
           code: true,
-          vote_count: true,
+          score: true,
+          runtime_ms: true,
+          complexity: true,
+          submitted_at: true,
+        },
+      },
+      submissions: {
+        where: { user_id: user.id },
+        orderBy: { created_at: 'desc' },
+        take: 20,
+        select: {
+          id: true,
+          status: true,
+          passed_tests: true,
+          total_tests: true,
+          runtime_ms: true,
+          complexity: true,
+          complexity_score: true,
+          score: true,
+          created_at: true,
+        },
+      },
+      evaluations: {
+        orderBy: { created_at: 'desc' },
+        take: 1,
+        select: {
+          type: true,
+          score_player1: true,
+          score_player2: true,
+          human_feedback: true,
+          created_at: true,
         },
       },
     },
   });
+  if (!duel) notFound();
 
-  if (!duel) {
-    notFound();
+  const isParticipant = duel.challenger_id === user.id || duel.opponent_id === user.id;
+  if (
+    duel.status === 'ACTIVE' &&
+    !isParticipant &&
+    user.role !== 'EVALUATOR' &&
+    user.role !== 'ADMIN'
+  ) {
+    redirect('/duels');
   }
-
-  const serializedDuel = {
-    ...duel,
-    created_at: duel.created_at.toISOString(),
-  };
 
   return (
     <DuelDetailContent
@@ -50,7 +91,25 @@ export default async function DuelDetailPage({ params }: { params: Promise<{ id:
         avatar_url: user.avatar_url,
         total_xp: user.total_xp,
       }}
-      initialDuel={serializedDuel}
+      initialDuel={{
+        ...duel,
+        created_at: duel.created_at.toISOString(),
+        match_deadline: duel.match_deadline?.toISOString() ?? null,
+        started_at: duel.started_at?.toISOString() ?? null,
+        finished_at: duel.finished_at?.toISOString() ?? null,
+        solutions: duel.solutions.map((solution) => ({
+          ...solution,
+          submitted_at: solution.submitted_at.toISOString(),
+        })),
+        submissions: duel.submissions.map((submission) => ({
+          ...submission,
+          created_at: submission.created_at.toISOString(),
+        })),
+        evaluations: duel.evaluations.map((evaluation) => ({
+          ...evaluation,
+          created_at: evaluation.created_at.toISOString(),
+        })),
+      }}
     />
   );
 }

@@ -87,7 +87,11 @@ async function runOnJudge0(
     const stderr = cleanJvmWarnings((data.stderr as string | undefined)?.trim() ?? '');
     const compileOutput = (data.compile_output as string | undefined)?.trim() ?? '';
     const statusId = data.status?.id;
-    const executionMs = Math.max(0, Math.round(performance.now() - startedAt));
+    const reportedSeconds = Number(data.time);
+    const executionMs =
+      Number.isFinite(reportedSeconds) && reportedSeconds >= 0
+        ? Math.max(0, Math.round(reportedSeconds * 1000))
+        : Math.max(0, Math.round(performance.now() - startedAt));
 
     if (statusId === 3) {
       return {

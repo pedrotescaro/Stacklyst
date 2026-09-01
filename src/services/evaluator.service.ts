@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { NotificationService } from './notification.service';
 import { TRAILS_DATA } from '@/lib/trailsData';
+import { awardXPInTransaction } from '@/lib/xp';
 
 export const EvaluatorService = {
   /**
@@ -197,11 +198,10 @@ export const EvaluatorService = {
     evaluatorId: string;
     scorePlayer1: number;
     scorePlayer2: number;
-    winnerId?: string;
+    winnerId: string;
     humanFeedback: string;
     strengths: string[];
     improvements: string[];
-    aiAnalysis?: any;
   }) {
     const {
       duelId,
@@ -212,7 +212,6 @@ export const EvaluatorService = {
       humanFeedback,
       strengths,
       improvements,
-      aiAnalysis,
     } = params;
 
     const duel = await prisma.duel.findUnique({
@@ -220,39 +219,50 @@ export const EvaluatorService = {
       include: { challenger: true, opponent: true },
     });
 
-    if (!duel) {
-      throw new Error('Duelo não encontrado.');
+    if (!duel) throw new Error('Duelo não encontrado.');
+    if (duel.status !== 'REVIEW_PENDING') {
+      throw new Error('Este duelo não está aguardando desempate humano.');
+    }
+    if (duel.challenger_id === evaluatorId || duel.opponent_id === evaluatorId) {
+      throw new Error('Participantes não podem avaliar o próprio duelo.');
+    }
+    if (winnerId !== duel.challenger_id && winnerId !== duel.opponent_id) {
+      throw new Error('O vencedor deve ser um dos participantes do duelo.');
     }
 
-    // Save or update evaluation
-    const evaluation = await prisma.duelEvaluation.create({
-      data: {
-        duel_id: duelId,
-        evaluator_id: evaluatorId,
-        type: 'HUMAN_EVALUATED',
-        score_player1: scorePlayer1,
-        score_player2: scorePlayer2,
-        ai_analysis: aiAnalysis || undefined,
-        human_feedback: humanFeedback,
-        strengths,
-        improvements,
-      },
-      include: {
-        evaluator: {
-          select: { id: true, username: true, avatar_url: true },
+    const evaluation = await prisma.$transaction(async (tx) => {
+      const claim = await tx.duel.updateMany({
+        where: { id: duelId, status: 'REVIEW_PENDING' },
+        data: {
+          status: 'CLOSED',
+          winner_id: winnerId,
+          finished_at: new Date(),
+          closed_reason: 'human_tiebreak',
+          xp_awarded_at: new Date(),
         },
-      },
-    });
+      });
+      if (claim.count !== 1) throw new Error('Este duelo já foi avaliado por outra pessoa.');
 
-    // Update duel status and winner
-    await prisma.duel.update({
-      where: { id: duelId },
-      data: {
-        status: 'CLOSED',
-        winner_id:
-          winnerId ?? (scorePlayer1 > scorePlayer2 ? duel.challenger_id : duel.opponent_id),
-        finished_at: new Date(),
-      },
+      await awardXPInTransaction(tx, winnerId, duel.language, 50);
+
+      return tx.duelEvaluation.create({
+        data: {
+          duel_id: duelId,
+          evaluator_id: evaluatorId,
+          type: 'HUMAN_EVALUATED',
+          score_player1: scorePlayer1,
+          score_player2: scorePlayer2,
+          system_analysis: { reason: 'human_tiebreak' },
+          human_feedback: humanFeedback,
+          strengths,
+          improvements,
+        },
+        include: {
+          evaluator: {
+            select: { id: true, username: true, avatar_url: true },
+          },
+        },
+      });
     });
 
     // Increment evaluations count for the evaluator

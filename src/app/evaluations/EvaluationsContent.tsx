@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, Clock, ShieldCheck, FileCode } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
+import { parseProblemFromJson } from '@/lib/duel-problems';
 
 interface DuelSolutionItem {
   id: string;
@@ -20,7 +21,7 @@ interface DuelToEvaluate {
   challenger: { id: string; username: string; avatar_url: string | null; total_xp: number };
   opponent: { id: string; username: string; avatar_url: string | null; total_xp: number } | null;
   solutions: DuelSolutionItem[];
-  evaluations: any[];
+  evaluations: Array<{ type: string; score_player1: number; score_player2: number }>;
 }
 
 export function EvaluationsContent({ user }: { user: any }) {
@@ -29,8 +30,9 @@ export function EvaluationsContent({ user }: { user: any }) {
   const [selectedDuel, setSelectedDuel] = useState<DuelToEvaluate | null>(null);
 
   // Review Form state
-  const [scoreP1, setScoreP1] = useState(80);
-  const [scoreP2, setScoreP2] = useState(80);
+  const [scoreP1, setScoreP1] = useState(800);
+  const [scoreP2, setScoreP2] = useState(800);
+  const [winnerId, setWinnerId] = useState('');
   const [feedback, setFeedback] = useState('');
   const [strengths, setStrengths] = useState('');
   const [improvements, setImprovements] = useState('');
@@ -40,6 +42,16 @@ export function EvaluationsContent({ user }: { user: any }) {
   useEffect(() => {
     loadDuels();
   }, []);
+
+  useEffect(() => {
+    setWinnerId('');
+    const automatic = selectedDuel?.evaluations.find(
+      (evaluation) => evaluation.type === 'AUTOMATIC'
+    );
+    if (!automatic) return;
+    setScoreP1(automatic.score_player1);
+    setScoreP2(automatic.score_player2);
+  }, [selectedDuel]);
 
   const loadDuels = async () => {
     setLoading(true);
@@ -59,7 +71,7 @@ export function EvaluationsContent({ user }: { user: any }) {
 
   const handleSubmitEvaluation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedDuel) return;
+    if (!selectedDuel || !winnerId) return;
 
     setSubmitting(true);
     try {
@@ -70,7 +82,7 @@ export function EvaluationsContent({ user }: { user: any }) {
           duel_id: selectedDuel.id,
           score_player1: Number(scoreP1),
           score_player2: Number(scoreP2),
-          winner_id: scoreP1 >= scoreP2 ? selectedDuel.challenger.id : selectedDuel.opponent?.id,
+          winner_id: winnerId,
           human_feedback: feedback,
           strengths: strengths
             .split(',')
@@ -80,11 +92,6 @@ export function EvaluationsContent({ user }: { user: any }) {
             .split(',')
             .map((s) => s.trim())
             .filter(Boolean),
-          ai_analysis: {
-            readability: 'Código bem estruturado',
-            time_complexity: 'O(N)',
-            space_complexity: 'O(1)',
-          },
         }),
       });
 
@@ -94,6 +101,7 @@ export function EvaluationsContent({ user }: { user: any }) {
         setFeedback('');
         setStrengths('');
         setImprovements('');
+        setWinnerId('');
         setTimeout(() => setSuccessMessage(null), 4000);
       }
     } catch (err) {
@@ -189,7 +197,8 @@ export function EvaluationsContent({ user }: { user: any }) {
               <div className="p-5 rounded-2xl bg-dd-surface border border-dd-border space-y-2">
                 <h3 className="text-base font-black text-dd-text">{selectedDuel.problem_title}</h3>
                 <p className="text-xs text-dd-muted font-medium whitespace-pre-wrap">
-                  {selectedDuel.problem_body}
+                  {parseProblemFromJson(selectedDuel.problem_body)?.description ??
+                    selectedDuel.problem_body}
                 </p>
               </div>
 
@@ -241,12 +250,12 @@ export function EvaluationsContent({ user }: { user: any }) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-dd-text mb-1">
-                      Nota Jogador 1 (@{selectedDuel.challenger.username}) [0 - 100]
+                      Nota Jogador 1 (@{selectedDuel.challenger.username}) [0 - 1000]
                     </label>
                     <input
                       type="number"
                       min={0}
-                      max={100}
+                      max={1000}
                       value={scoreP1}
                       onChange={(e) => setScoreP1(Number(e.target.value))}
                       className="w-full bg-dd-bg border border-dd-border rounded-xl p-2.5 text-xs font-bold text-dd-text outline-none focus:border-blue-500"
@@ -255,18 +264,55 @@ export function EvaluationsContent({ user }: { user: any }) {
 
                   <div>
                     <label className="block text-xs font-bold text-dd-text mb-1">
-                      Nota Jogador 2 (@{selectedDuel.opponent?.username || 'Oponente'}) [0 - 100]
+                      Nota Jogador 2 (@{selectedDuel.opponent?.username || 'Oponente'}) [0 - 1000]
                     </label>
                     <input
                       type="number"
                       min={0}
-                      max={100}
+                      max={1000}
                       value={scoreP2}
                       onChange={(e) => setScoreP2(Number(e.target.value))}
                       className="w-full bg-dd-bg border border-dd-border rounded-xl p-2.5 text-xs font-bold text-dd-text outline-none focus:border-blue-500"
                     />
                   </div>
                 </div>
+
+                <fieldset className="space-y-2">
+                  <legend className="text-xs font-bold text-dd-text mb-1">
+                    Vencedor do desempate
+                  </legend>
+                  <p className="text-[11px] text-dd-muted">
+                    A decisão é explícita e não será inferida automaticamente pelas notas.
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className="flex items-center gap-3 rounded-xl border border-dd-border bg-dd-bg p-3 text-xs font-bold text-dd-text cursor-pointer has-[:checked]:border-blue-500 has-[:checked]:bg-blue-500/10">
+                      <input
+                        type="radio"
+                        name="duel-winner"
+                        value={selectedDuel.challenger.id}
+                        checked={winnerId === selectedDuel.challenger.id}
+                        onChange={(event) => setWinnerId(event.target.value)}
+                        className="accent-blue-500"
+                        required
+                      />
+                      @{selectedDuel.challenger.username}
+                    </label>
+                    {selectedDuel.opponent && (
+                      <label className="flex items-center gap-3 rounded-xl border border-dd-border bg-dd-bg p-3 text-xs font-bold text-dd-text cursor-pointer has-[:checked]:border-orange-500 has-[:checked]:bg-orange-500/10">
+                        <input
+                          type="radio"
+                          name="duel-winner"
+                          value={selectedDuel.opponent.id}
+                          checked={winnerId === selectedDuel.opponent.id}
+                          onChange={(event) => setWinnerId(event.target.value)}
+                          className="accent-orange-500"
+                          required
+                        />
+                        @{selectedDuel.opponent.username}
+                      </label>
+                    )}
+                  </div>
+                </fieldset>
 
                 <div>
                   <label className="block text-xs font-bold text-dd-text mb-1">
@@ -312,7 +358,7 @@ export function EvaluationsContent({ user }: { user: any }) {
 
                 <button
                   type="submit"
-                  disabled={submitting}
+                  disabled={submitting || !winnerId}
                   className="w-full py-3 rounded-2xl bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white font-black text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-[0.99] cursor-pointer"
                 >
                   {submitting ? 'Homologando Avaliação...' : 'Homologar Avaliação e Concluir Duelo'}

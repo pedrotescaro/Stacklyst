@@ -7,22 +7,23 @@ import { z } from 'zod';
 
 const evaluationSchema = z.object({
   duel_id: z.string(),
-  score_player1: z.number().min(0).max(100),
-  score_player2: z.number().min(0).max(100),
-  winner_id: z.string().optional(),
+  score_player1: z.number().min(0).max(1000),
+  score_player2: z.number().min(0).max(1000),
+  winner_id: z.string().min(1),
   human_feedback: z.string().min(5, 'Adicione um feedback explicativo'),
   strengths: z.array(z.string()).default([]),
   improvements: z.array(z.string()).default([]),
-  ai_analysis: z.any().optional(),
 });
 
 // GET /api/evaluations: List duels awaiting evaluation or recently evaluated
 export const GET = apiHandler(async () => {
-  await requireEvaluator();
+  const evaluator = await requireEvaluator();
 
   const pendingDuels = await prisma.duel.findMany({
     where: {
-      status: { in: ['ACTIVE', 'PENDING'] },
+      status: 'REVIEW_PENDING',
+      challenger_id: { not: evaluator.id },
+      opponent_id: { not: evaluator.id },
       solutions: { some: {} },
     },
     orderBy: { created_at: 'desc' },
@@ -61,7 +62,6 @@ export const POST = apiHandler(async (req) => {
     humanFeedback: parsed.human_feedback,
     strengths: parsed.strengths,
     improvements: parsed.improvements,
-    aiAnalysis: parsed.ai_analysis,
   });
 
   return NextResponse.json({

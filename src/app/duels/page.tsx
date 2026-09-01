@@ -2,6 +2,8 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 import { DuelsContent } from './DuelsContent';
+import { runDuelMaintenance } from '@/lib/duels/lifecycle';
+import { getDuelListingWhere } from '@/lib/duels/listing';
 
 export const revalidate = 0; // Desabilitar cache para dados dinâmicos de duelos
 
@@ -12,15 +14,20 @@ export default async function DuelsPage() {
     redirect('/login');
   }
 
-  // Buscar todos os duelos
+  await runDuelMaintenance().catch((error) => {
+    console.error('Error running duel maintenance:', error);
+  });
+
+  // Only open duels and very recent results belong in the community arena.
   const duels = await prisma.duel.findMany({
+    where: getDuelListingWhere(),
     orderBy: { created_at: 'desc' },
     include: {
       challenger: {
-        select: { username: true, avatar_url: true },
+        select: { id: true, username: true, avatar_url: true },
       },
       opponent: {
-        select: { username: true, avatar_url: true },
+        select: { id: true, username: true, avatar_url: true },
       },
       solutions: {
         select: {
@@ -34,6 +41,10 @@ export default async function DuelsPage() {
   const serializedDuels = duels.map((duel) => ({
     ...duel,
     created_at: duel.created_at.toISOString(),
+    match_deadline: duel.match_deadline?.toISOString() ?? null,
+    started_at: duel.started_at?.toISOString() ?? null,
+    finished_at: duel.finished_at?.toISOString() ?? null,
+    xp_awarded_at: duel.xp_awarded_at?.toISOString() ?? null,
   }));
 
   return (

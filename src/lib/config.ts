@@ -72,6 +72,10 @@ export interface WandboxLanguageConfig {
 }
 
 export const WANDBOX_LANGUAGES: Record<string, WandboxLanguageConfig> = {
+  javascript: { compiler: 'nodejs-20.17.0' },
+  js: { compiler: 'nodejs-20.17.0' },
+  typescript: { compiler: 'typescript-5.6.2' },
+  ts: { compiler: 'typescript-5.6.2' },
   python: { compiler: 'cpython-3.12.7' },
   rust: { compiler: 'rust-1.82.0' },
   go: { compiler: 'go-1.23.2' },
