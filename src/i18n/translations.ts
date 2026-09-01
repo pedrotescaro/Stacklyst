@@ -92,7 +92,6 @@ export interface Translations {
         notifications: string;
         learn: string;
         chat: string;
-        async: string;
         bookmarks: string;
         profile: string;
         more: string;
@@ -282,7 +281,6 @@ export const translations: Record<Language, Translations> = {
           notifications: 'Notificações',
           learn: 'Aprender com Stacklyst',
           chat: 'Chat',
-          async: 'ASYNC',
           bookmarks: 'Salvos',
           profile: 'Perfil',
           more: 'Mais',
@@ -474,7 +472,6 @@ export const translations: Record<Language, Translations> = {
           notifications: 'Notifications',
           learn: 'Learn with Stacklyst',
           chat: 'Chat',
-          async: 'ASYNC',
           bookmarks: 'Bookmarks',
           profile: 'Profile',
           more: 'More',

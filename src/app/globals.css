@@ -198,25 +198,6 @@ body {
   scrollbar-width: none;
 }
 
-/* Styled scrollbar for Ducky chat (subtle, on-brand) */
-.scrollbar-ducky {
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--color-dd-accent) 45%, transparent) transparent;
-}
-.scrollbar-ducky::-webkit-scrollbar {
-  width: 6px;
-}
-.scrollbar-ducky::-webkit-scrollbar-track {
-  background: transparent;
-}
-.scrollbar-ducky::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--color-dd-accent) 35%, transparent);
-  border-radius: 9999px;
-}
-.scrollbar-ducky::-webkit-scrollbar-thumb:hover {
-  background: color-mix(in srgb, var(--color-dd-accent) 60%, transparent);
-}
-
 .dd-focus-ring {
   outline: none;
 }

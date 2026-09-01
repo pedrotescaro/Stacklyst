@@ -4,7 +4,6 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
-import { AsyncLogo } from '@/components/AsyncLogo';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   BookOpen,
@@ -57,6 +56,7 @@ interface SidebarUser {
   streak?: number;
   streak_days?: number;
   total_xp?: number;
+  role?: 'USER' | 'EVALUATOR' | 'ADMIN' | 'RECRUITER';
 }
 
 interface SidebarProps {
@@ -378,7 +378,6 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
     icon: any;
     active?: boolean;
     badge?: 'dot';
-    isAsync?: boolean;
   }> = [
     {
       label: 'Página Inicial',
@@ -418,13 +417,6 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
       active: pathname.startsWith('/messages'),
     },
     {
-      label: 'Async',
-      href: '/async',
-      icon: AsyncLogo,
-      isAsync: true,
-      active: pathname.startsWith('/async') || pathname.startsWith('/ducky'),
-    },
-    {
       label: 'Itens salvos',
       href: '/bookmarks',
       icon: Bookmark,
@@ -438,6 +430,8 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
     },
   ];
 
+  const isAdmin = activeUser?.role === 'ADMIN';
+
   const moreMenuIsActive = [
     '/jobs',
     '/recruiter',
@@ -445,7 +439,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
     '/events',
     '/evaluations',
     '/evaluators',
-    '/admin',
+    ...(isAdmin ? ['/admin'] : []),
     '/settings',
   ].some((route) => pathname.startsWith(route));
 
@@ -558,9 +552,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
 
               const iconEl = (
                 <div className="relative flex items-center justify-center w-6 h-6 shrink-0">
-                  {item.isAsync ? (
-                    <AsyncLogo width={24} height={24} className="h-6 w-6 object-contain" />
-                  ) : item.label === 'Notificações' ? (
+                  {item.label === 'Notificações' ? (
                     <NotificationBellIcon unreadCount={unreadCount} active={item.active} />
                   ) : (
                     <Icon
@@ -656,15 +648,17 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                     <Code2 className="h-5.5 w-5.5 shrink-0 text-dd-text" />
                     <span>Avaliação de Código</span>
                   </Link>
-                  <Link
-                    href="/admin"
-                    role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                    onClick={() => setMoreMenuOpen(false)}
-                  >
-                    <ShieldAlert className="h-5.5 w-5.5 shrink-0 text-dd-text" />
-                    <span>Painel Administrativo</span>
-                  </Link>
+                  {isAdmin && (
+                    <Link
+                      href="/admin"
+                      role="menuitem"
+                      className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                      onClick={() => setMoreMenuOpen(false)}
+                    >
+                      <ShieldAlert className="h-5.5 w-5.5 shrink-0 text-dd-text" />
+                      <span>Painel Administrativo</span>
+                    </Link>
+                  )}
                   <Link
                     href="/settings"
                     role="menuitem"
@@ -872,15 +866,17 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                         <Code2 className="h-5 w-5 shrink-0 text-dd-text" />
                         <span>Avaliação de Código</span>
                       </Link>
-                      <Link
-                        href="/admin"
-                        role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <ShieldAlert className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>Painel Admin</span>
-                      </Link>
+                      {isAdmin && (
+                        <Link
+                          href="/admin"
+                          role="menuitem"
+                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <ShieldAlert className="h-5 w-5 shrink-0 text-dd-text" />
+                          <span>Painel Admin</span>
+                        </Link>
+                      )}
                       <Link
                         href="/settings"
                         role="menuitem"
@@ -1115,7 +1111,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-blue-500 text-lg">✓</span>
-                <span>Assistente ASYNC com uso controlado para dúvidas pontuais</span>
+                <span>Recursos avançados para evoluir seu perfil técnico</span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-blue-500 text-lg">✓</span>
