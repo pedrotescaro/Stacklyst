@@ -27,7 +27,6 @@ Create your environment variables on Vercel. Ensure to supply:
 | `SUPABASE_SECRET_KEY`                  | Supabase server-only key (secure API access)       | `sb_secret_...`                                        |
 | `UPSTASH_REDIS_REST_URL`               | Upstash Redis REST endpoint for rate limiting      | `https://xxxx.upstash.io`                              |
 | `UPSTASH_REDIS_REST_TOKEN`             | Upstash Redis authorization token                  | `<redis_token>`                                        |
-| `OPENAI_API_KEY`                       | Optional API key for the on-demand ASYNC assistant | `sk-proj-xxxx`                                         |
 | `CRON_SECRET`                          | Authorization header token for daily cron requests | `super-secret-guid`                                    |
 | `SEED_DEFAULT_PASSWORD`                | Fallback user password for database seeding        | `ChangeMe123!`                                         |
 
@@ -41,13 +40,19 @@ mode (port 5432): serverless instances can exhaust its client limit. Use the
 transaction pooler on port 6543 and keep `DATABASE_POOL_MAX=1` unless capacity
 testing justifies a larger value.
 
-Configure Upstash in production to enforce the shared ASYNC usage ceiling across
-all serverless instances. Without it, the application falls back to an in-memory
+Configure Upstash in production to enforce shared request limits across all
+serverless instances. Without it, the application falls back to an in-memory
 limiter that only protects each running instance.
 
 ---
 
 ## 3. Deployment Steps
+
+The repository includes `vercel.json` with Fluid Compute enabled and the
+single Hobby function region set to `gru1` (Sao Paulo). Keep the Supabase
+project in `sa-east-1` so authenticated requests do not cross continents
+between the application and the database. Static assets remain globally
+distributed by Vercel's CDN.
 
 ### Step 1: Initialize Database Schema
 
@@ -69,13 +74,14 @@ npx prisma db seed
 
 ### Step 3: Deploy to Vercel
 
-1. Link your repository to Vercel.
-2. Configure the Build Command:
-   ```bash
-   npx prisma generate && next build
-   ```
-3. Set the Environment Variables.
-4. Click **Deploy**.
+1. Link the repository to the canonical Vercel project, `stacklyst`.
+2. Keep the framework preset as **Next.js** and the Node.js runtime on 22 or
+   newer. The current project uses Node.js 24.
+3. Keep the default build command, `npm run build`. The `postinstall` script
+   already runs `prisma generate` before the build.
+4. Set the Environment Variables for Production and Preview.
+5. Deploy the `main` branch to Production. The canonical Hobby URL is
+   `https://stacklyst.vercel.app`.
 
 ---
 

@@ -1,0 +1,14 @@
+# Local tooling and documentation are not required by the production build.
+.agents/
+.codex/
+.impeccable/
+coverage/
+docs/
+scratch/
+
+# User-generated local uploads are stored outside the deployment artifact.
+public/uploads/
+
+# Test sources are validated before deploy but are not needed at runtime.
+**/*.test.ts
+**/*.test.tsx
