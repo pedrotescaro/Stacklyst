@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
@@ -25,6 +25,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { CodeEditor } from '@/components/CodeEditor';
 import { cn } from '@/lib/cn';
 import { DUEL_PROBLEMS, parseProblemFromJson, type DuelProblem } from '@/lib/duel-problems';
+import { ACTIVE_DUEL_POLL_INTERVAL_MS, PENDING_DUEL_POLL_INTERVAL_MS } from '@/lib/duels/constants';
 
 type DuelStatus = 'PENDING' | 'ACTIVE' | 'REVIEW_PENDING' | 'CLOSED' | 'EXPIRED';
 type SubmissionStatus =
@@ -161,6 +162,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
   const [joining, setJoining] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [now, setNow] = useState(Date.now());
+  const refreshInFlight = useRef(false);
 
   const problem = useMemo<DuelProblem>(() => {
     const parsed = parseProblemFromJson(duel.problem_body);
@@ -224,24 +226,50 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
   }, [code, duel.id, editable, user.id]);
 
   const refreshState = useCallback(async () => {
-    const response = await fetch(`/api/duels/${duel.id}`, { cache: 'no-store' });
-    if (!response.ok) return;
-    const data = await response.json();
-    setDuel((current) => ({
-      ...current,
-      ...data,
-      started_at: data.started_at ?? current.started_at,
-      finished_at: data.finished_at ?? current.finished_at,
-      opponent: data.opponent ?? current.opponent,
-      submissions: data.submissions ?? current.submissions,
-      evaluations: data.evaluations ?? current.evaluations,
-    }));
+    if (refreshInFlight.current) return;
+    refreshInFlight.current = true;
+
+    try {
+      const response = await fetch(`/api/duels/${duel.id}`, {
+        cache: 'no-store',
+        headers: { 'Cache-Control': 'no-cache' },
+      });
+      if (!response.ok) return;
+      const data = await response.json();
+      setDuel((current) => ({
+        ...current,
+        ...data,
+        started_at: data.started_at ?? current.started_at,
+        finished_at: data.finished_at ?? current.finished_at,
+        opponent: data.opponent ?? current.opponent,
+        submissions: data.submissions ?? current.submissions,
+        evaluations: data.evaluations ?? current.evaluations,
+      }));
+    } catch {
+      // A transient polling failure must not interrupt the waiting room. The
+      // next interval retries while the local draft and countdown stay intact.
+    } finally {
+      refreshInFlight.current = false;
+    }
   }, [duel.id]);
 
   useEffect(() => {
-    if (duel.status !== 'ACTIVE' && duel.status !== 'REVIEW_PENDING') return;
-    const timer = window.setInterval(() => void refreshState(), 4000);
-    return () => window.clearInterval(timer);
+    if (!['PENDING', 'ACTIVE', 'REVIEW_PENDING'].includes(duel.status)) return;
+
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === 'visible') void refreshState();
+    };
+    refreshWhenVisible();
+
+    const interval =
+      duel.status === 'PENDING' ? PENDING_DUEL_POLL_INTERVAL_MS : ACTIVE_DUEL_POLL_INTERVAL_MS;
+    const timer = window.setInterval(refreshWhenVisible, interval);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
+
+    return () => {
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', refreshWhenVisible);
+    };
   }, [duel.status, refreshState]);
 
   const evaluate = async (action: 'run' | 'submit') => {
@@ -353,9 +381,22 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
               {duel.status === 'EXPIRED'
                 ? 'Nenhum jogador compatível foi encontrado em 24 horas. O duelo não será iniciado.'
                 : ownPending
-                  ? 'A arena procura um jogador compatível. Se ninguém entrar, o sistema tenta o pareamento automático ao fim de 24 horas e encerra a sala quando não houver candidato.'
+                  ? 'A arena procura um jogador compatível e abrirá o desafio automaticamente assim que alguém entrar. Depois do início, vocês terão 2 horas para responder.'
                   : 'Entre agora para assumir a segunda vaga e iniciar o cronômetro do desafio.'}
             </p>
+            {duel.status === 'PENDING' && ownPending && (
+              <div
+                className="mt-5 flex items-center gap-2 text-xs font-bold text-blue-600 dark:text-blue-400"
+                role="status"
+                aria-live="polite"
+              >
+                <span
+                  className="h-2 w-2 rounded-full bg-blue-500 animate-pulse motion-reduce:animate-none"
+                  aria-hidden="true"
+                />
+                Sala sincronizada — você não precisa atualizar a página
+              </div>
+            )}
             {duel.status === 'PENDING' && (
               <div className="mt-6 flex items-center gap-3 rounded-xl border border-dd-border bg-dd-surface px-4 py-3">
                 <Clock3 className="h-5 w-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />

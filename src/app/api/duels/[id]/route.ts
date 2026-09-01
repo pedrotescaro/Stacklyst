@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { getAuthUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { resolveDuelAtDeadline } from '@/lib/duels/resolution';
+import { DUEL_TIME_LIMIT_SECONDS } from '@/lib/duels/constants';
 
 const actionSchema = z.object({ action: z.literal('join') });
 
@@ -77,7 +78,9 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     return NextResponse.json({ error: 'Você não é participante deste duelo' }, { status: 403 });
   }
 
-  return NextResponse.json(duel);
+  return NextResponse.json(duel, {
+    headers: { 'Cache-Control': 'private, no-store, max-age=0' },
+  });
 }
 
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -105,7 +108,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const startedAt = new Date();
   const claim = await prisma.duel.updateMany({
     where: { id, status: 'PENDING', opponent_id: null },
-    data: { opponent_id: user.id, status: 'ACTIVE', started_at: startedAt },
+    data: {
+      opponent_id: user.id,
+      status: 'ACTIVE',
+      started_at: startedAt,
+      time_limit_seconds: DUEL_TIME_LIMIT_SECONDS,
+    },
   });
   if (claim.count !== 1) {
     return NextResponse.json(

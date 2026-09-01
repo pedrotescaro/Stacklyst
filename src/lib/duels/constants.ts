@@ -1,0 +1,3 @@
+export const DUEL_TIME_LIMIT_SECONDS = 2 * 60 * 60;
+export const PENDING_DUEL_POLL_INTERVAL_MS = 1_500;
+export const ACTIVE_DUEL_POLL_INTERVAL_MS = 4_000;

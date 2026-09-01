@@ -668,7 +668,7 @@ model Duel {
   problem_id         String?
   language           Language
   status             DuelStatus @default(PENDING)
-  time_limit_seconds Int        @default(900)
+  time_limit_seconds Int        @default(7200)
   match_deadline     DateTime?
   started_at         DateTime?
   finished_at        DateTime?

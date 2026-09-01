@@ -2,6 +2,7 @@ import 'server-only';
 
 import { prisma } from '@/lib/prisma';
 import { resolveDuelAtDeadline } from '@/lib/duels/resolution';
+import { DUEL_TIME_LIMIT_SECONDS } from '@/lib/duels/constants';
 
 const ACTIVE_CANDIDATE_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 const MAINTENANCE_BATCH_SIZE = 100;
@@ -56,6 +57,7 @@ export async function runDuelMaintenance(now = new Date()): Promise<DuelMaintena
             opponent_id: candidate.id,
             status: 'ACTIVE',
             started_at: now,
+            time_limit_seconds: DUEL_TIME_LIMIT_SECONDS,
             closed_reason: null,
           },
         });

@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 import { createDuelSchema } from '@/lib/validators';
 import { getRandomDuelProblem } from '@/lib/duel-problems';
+import { DUEL_TIME_LIMIT_SECONDS } from '@/lib/duels/constants';
 import { isSupportedDuelLanguage } from '@/lib/duels/judge';
 import {
   findTrustedDuelProblemByTitle,
@@ -92,6 +93,7 @@ export async function POST(request: Request) {
         problem_id: trustedProblem.id,
         language: parsed.data.language,
         status: 'PENDING',
+        time_limit_seconds: DUEL_TIME_LIMIT_SECONDS,
         match_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000),
       },
       include: { challenger: { select: { id: true, username: true, avatar_url: true } } },
@@ -119,6 +121,7 @@ async function matchOrCreateDuel(userId: string, language: 'TS' | 'JS' | 'PYTHON
       problem_id: problem.id,
       language,
       status: 'PENDING',
+      time_limit_seconds: DUEL_TIME_LIMIT_SECONDS,
       match_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000),
     },
     include: { challenger: { select: { id: true, username: true, avatar_url: true } } },
@@ -145,7 +148,12 @@ async function claimPendingDuel(userId: string, language: 'TS' | 'JS' | 'PYTHON'
     const startedAt = new Date();
     const claim = await prisma.duel.updateMany({
       where: { id: candidate.id, status: 'PENDING', opponent_id: null },
-      data: { opponent_id: userId, status: 'ACTIVE', started_at: startedAt },
+      data: {
+        opponent_id: userId,
+        status: 'ACTIVE',
+        started_at: startedAt,
+        time_limit_seconds: DUEL_TIME_LIMIT_SECONDS,
+      },
     });
     if (claim.count !== 1) continue;
 
