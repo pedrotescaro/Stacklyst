@@ -83,8 +83,8 @@ export default function LandingNav({ initialUser }: LandingNavProps) {
           <LanguageToggle />
         </div>
 
-        {/* ── Center links (hidden on mobile, perfectly centered) ── */}
-        <div className="hidden items-center gap-7 lg:flex absolute left-1/2 -translate-x-1/2">
+        {/* ── Center links (hidden on mobile) ── */}
+        <div className={styles.centerLinks}>
           {navLinks.map((link) => (
             <a key={link.href} href={link.href} className="lp-nav-link">
               {link.label}
