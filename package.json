@@ -31,16 +31,16 @@
     "@supabase/ssr": "^0.12.0",
     "@supabase/supabase-js": "^2.108.2",
     "@tabler/icons-react": "^3.46.0",
-    "@tiptap/core": "^3.27.0",
-    "@tiptap/extension-bubble-menu": "^3.27.0",
-    "@tiptap/extension-code-block": "^3.27.0",
-    "@tiptap/extension-link": "^3.27.0",
-    "@tiptap/extension-placeholder": "^3.27.0",
-    "@tiptap/html": "^3.27.0",
-    "@tiptap/pm": "^3.27.0",
-    "@tiptap/react": "^3.27.0",
-    "@tiptap/starter-kit": "^3.27.0",
-    "@tiptap/suggestion": "^3.27.0",
+    "@tiptap/core": "^3.31.3",
+    "@tiptap/extension-bubble-menu": "^3.31.3",
+    "@tiptap/extension-code-block": "^3.31.3",
+    "@tiptap/extension-link": "^3.31.3",
+    "@tiptap/extension-placeholder": "^3.31.3",
+    "@tiptap/html": "^3.31.3",
+    "@tiptap/pm": "^3.31.3",
+    "@tiptap/react": "^3.31.3",
+    "@tiptap/starter-kit": "^3.31.3",
+    "@tiptap/suggestion": "^3.31.3",
     "@tsparticles/engine": "^4.3.2",
     "@tsparticles/react": "^4.3.2",
     "@tsparticles/slim": "^4.3.2",
@@ -104,7 +104,11 @@
   "overrides": {
     "@prisma/config": {
       "deepmerge-ts": "8.0.2"
-    }
+    },
+    "browserslist": "4.28.9",
+    "fast-uri": "3.1.6",
+    "mysql2": "3.23.1",
+    "qs": "6.16.0"
   },
   "prisma": {
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
