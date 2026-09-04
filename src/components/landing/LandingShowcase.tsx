@@ -11,6 +11,8 @@ import {
   Calendar,
   Check,
   CheckCircle2,
+  Clock,
+  Columns2,
   Crown,
   Flame,
   Flag,
@@ -45,7 +47,6 @@ import Aurora from '@/components/Aurora';
 import { BentoGrid } from '@/components/ui/bento-grid';
 import { BorderBeam } from '@/components/ui/border-beam';
 import { ParticleCard, GlobalSpotlight, useMobileDetection } from '@/components/ui/MagicBento';
-import { Compare } from '@/components/ui/compare';
 import { cn } from '@/lib/utils';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { RetweetIcon } from '@/components/motion/RepostMenu';
@@ -58,34 +59,43 @@ interface LandingShowcaseProps {
 }
 
 const cardClass =
-  'relative overflow-hidden rounded-[28px] border border-white/10 bg-[#080808] shadow-[0_28px_100px_-55px_rgba(0,0,0,0.9)]';
+  'relative overflow-hidden rounded-[26px] border-2 border-b-4 border-white/10 bg-[#0d0d0f] shadow-[0_24px_60px_-25px_rgba(0,0,0,0.85)] transition-all duration-200 hover:border-white/20';
 
 function SectionHeading({
-  index,
-  eyebrow,
+  badge,
+  badgeIcon: BadgeIcon,
   title,
   description,
+  nowrap = true,
 }: {
-  index: string;
-  eyebrow: string;
+  badge?: string;
+  badgeIcon?: LucideIcon;
   title: ReactNode;
   description: string;
+  nowrap?: boolean;
 }) {
   return (
     <div
       data-reveal
-      className="mx-auto mb-14 flex max-w-4xl flex-col items-center text-center gap-6 px-1 sm:mb-16 sm:px-0 lg:mb-20"
+      className="mx-auto mb-12 flex max-w-5xl flex-col items-center text-center gap-5 px-1 sm:mb-16 sm:px-0 lg:mb-20"
     >
-      <div className="flex items-center justify-center gap-3 font-mono text-[11px] font-semibold uppercase tracking-[0.24em] text-blue-400">
-        <span className="flex size-7 items-center justify-center rounded-full border border-blue-400/30 bg-blue-400/10 text-[9px]">
-          {index}
-        </span>
-        {eyebrow}
-      </div>
-      <h2 className="font-sans text-4xl font-semibold leading-[1.05] tracking-[-0.045em] text-white sm:text-5xl lg:text-6xl">
+      {badge && (
+        <div className="inline-flex items-center gap-2 rounded-xl border-2 border-b-[3px] border-blue-500/40 border-b-blue-600 bg-blue-500/15 px-3.5 py-1.5 text-xs font-black uppercase tracking-wider text-blue-400 shadow-sm transition-transform hover:scale-105">
+          {BadgeIcon && <BadgeIcon className="size-3.5 shrink-0" />}
+          <span>{badge}</span>
+        </div>
+      )}
+      <h2
+        className={cn(
+          'font-black text-2xl sm:text-4xl md:text-5xl lg:text-[50px] xl:text-[54px] tracking-[-0.03em] leading-tight text-white',
+          nowrap && 'md:whitespace-nowrap'
+        )}
+      >
         {title}
       </h2>
-      <p className="max-w-3xl pt-1 text-base leading-8 text-slate-400 sm:text-lg">{description}</p>
+      <p className="max-w-2xl pt-1 text-base sm:text-lg leading-relaxed text-zinc-300 font-normal">
+        {description}
+      </p>
     </div>
   );
 }
@@ -278,11 +288,13 @@ function FeatureCard({
       <div className="h-full w-full">
         <div className="absolute inset-0 opacity-90">{preview}</div>
         <div className="absolute inset-x-0 bottom-0 z-10 bg-gradient-to-t from-[#080808] via-[#080808]/95 to-transparent px-6 pb-6 pt-24 sm:px-7">
-          <div className="mb-3 flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.18em] text-blue-400">
-            <Icon size={13} /> {label}
+          <div className="mb-3 inline-flex items-center gap-1.5 rounded-lg border-2 border-b-[2.5px] border-blue-500/30 border-b-blue-600 bg-blue-500/15 px-2.5 py-1 text-[10px] font-black uppercase tracking-wider text-blue-400">
+            <Icon size={12} /> {label}
           </div>
-          <h3 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">{title}</h3>
-          <p className="mt-2 max-w-lg text-sm leading-6 text-slate-400">{description}</p>
+          <h3 className="text-xl font-black tracking-tight text-white sm:text-2xl">{title}</h3>
+          <p className="mt-2 max-w-lg text-sm leading-relaxed text-zinc-300 font-normal">
+            {description}
+          </p>
         </div>
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.06),transparent_45%)] opacity-60 transition-opacity duration-500 group-hover:opacity-100" />
         {beam && (
@@ -978,44 +990,95 @@ const trails = [
   { language: 'Rust', level: 8, progress: 44, modules: '11 / 25', color: '#e87945' },
 ];
 
+const trailGlowMap: Record<string, string> = {
+  TypeScript: '0, 131, 254',
+  Python: '245, 197, 66',
+  Rust: '232, 121, 69',
+};
+
 function TrailCard({ trail, index }: { trail: (typeof trails)[number]; index: number }) {
   const { t } = useLanguage();
+  const isMobile = useMobileDetection();
+  const glow = trailGlowMap[trail.language] || '0, 131, 254';
+
   return (
-    <article data-reveal className={cn(cardClass, 'group p-6 sm:p-7')}>
-      <div className="flex items-start justify-between">
+    <ParticleCard
+      data-reveal=""
+      disableAnimations={isMobile}
+      particleCount={14}
+      glowColor={glow}
+      enableTilt={true}
+      clickEffect={true}
+      enableMagnetism={true}
+      className={cn(
+        cardClass,
+        'magic-bento-card magic-bento-card--border-glow group p-6 sm:p-7 flex flex-col justify-between min-h-[20rem]'
+      )}
+      style={
+        {
+          backgroundColor: '#080808',
+          '--glow-color': glow,
+        } as React.CSSProperties
+      }
+    >
+      <div className="relative z-10 flex h-full flex-col justify-between">
         <div>
-          <p className="font-mono text-[9px] uppercase tracking-[0.2em] text-slate-500">
-            {t.showcase.tracks.trackPrefix} 0{index + 1}
-          </p>
-          <h3 className="mt-3 text-2xl font-semibold text-white">{trail.language}</h3>
+          <div className="flex items-start justify-between">
+            <div>
+              <span className="inline-flex items-center gap-1.5 rounded-lg border-2 border-b-[2.5px] border-white/10 border-b-white/20 bg-white/5 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-zinc-400">
+                {t.showcase.tracks.trackPrefix} {index + 1}
+              </span>
+              <h3 className="mt-3 text-2xl font-black text-white tracking-tight">
+                {trail.language}
+              </h3>
+            </div>
+            <span
+              className="flex size-12 items-center justify-center rounded-2xl border-2 border-b-[3px] font-black text-xs shadow-md transition-transform group-hover:scale-105"
+              style={{
+                borderColor: `${trail.color}60`,
+                borderBottomColor: trail.color,
+                backgroundColor: `${trail.color}15`,
+                color: trail.color,
+              }}
+            >
+              L{trail.level}
+            </span>
+          </div>
+          <div className="mt-10">
+            <div className="mb-3 flex items-center justify-between text-xs font-bold uppercase tracking-wider text-zinc-400">
+              <span>
+                {trail.modules} {t.showcase.tracks.modules}
+              </span>
+              <span className="font-black text-sm" style={{ color: trail.color }}>
+                {trail.progress}%
+              </span>
+            </div>
+            <div className="h-2.5 overflow-hidden rounded-full border border-white/10 bg-white/5 p-0.5">
+              <div
+                className="h-full rounded-full transition-[width] duration-700"
+                style={{
+                  width: `${trail.progress}%`,
+                  backgroundColor: trail.color,
+                  boxShadow: `0 0 16px ${trail.color}80`,
+                }}
+              />
+            </div>
+          </div>
         </div>
-        <span className="flex size-12 items-center justify-center rounded-2xl border border-white/10 bg-white/[0.04] font-mono text-xs text-white">
-          L{trail.level}
-        </span>
-      </div>
-      <div className="mt-12">
-        <div className="mb-3 flex items-center justify-between font-mono text-[9px] uppercase tracking-[0.14em] text-slate-500">
-          <span>
-            {trail.modules} {t.showcase.tracks.modules}
-          </span>
-          <span style={{ color: trail.color }}>{trail.progress}%</span>
-        </div>
-        <div className="h-1.5 overflow-hidden rounded-full bg-white/8">
-          <div
-            className="h-full rounded-full transition-[width] duration-700 group-hover:brightness-125"
-            style={{
-              width: `${trail.progress}%`,
-              backgroundColor: trail.color,
-              boxShadow: `0 0 20px ${trail.color}`,
-            }}
-          />
+        <div className="mt-7 flex items-center justify-between border-t border-white/10 pt-4 text-xs font-bold text-zinc-400">
+          <span>{t.showcase.tracks.nextTopic}</span>
+          <ArrowRight size={16} style={{ color: trail.color }} />
         </div>
       </div>
-      <div className="mt-7 flex items-center justify-between border-t border-white/8 pt-5 text-xs">
-        <span className="text-slate-500">{t.showcase.tracks.nextTopic}</span>
-        <ArrowRight size={15} style={{ color: trail.color }} />
-      </div>
-    </article>
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.06),transparent_45%)] opacity-60 transition-opacity duration-500 group-hover:opacity-100" />
+      <BorderBeam
+        duration={10 + index * 2}
+        size={130}
+        borderWidth={1.2}
+        colorFrom={trail.color}
+        colorTo={trail.color}
+      />
+    </ParticleCard>
   );
 }
 
@@ -1029,12 +1092,571 @@ function MetricCard({
   label: string;
 }) {
   return (
-    <div data-reveal className="rounded-2xl border border-white/8 bg-white/[0.025] p-5">
-      <Icon size={18} className="text-blue-400" />
-      <p className="mt-6 text-3xl font-semibold tracking-tight text-white">{value}</p>
-      <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.16em] text-slate-500">
-        {label}
-      </p>
+    <div
+      data-reveal
+      className="rounded-2xl border-2 border-b-4 border-white/10 bg-[#0d0d0f] p-5 transition-all hover:-translate-y-0.5"
+    >
+      <div className="flex size-9 items-center justify-center rounded-xl bg-blue-500/15 text-blue-400 border border-blue-500/20">
+        <Icon size={18} />
+      </div>
+      <p className="mt-4 text-2xl sm:text-3xl font-black tracking-tight text-white">{value}</p>
+      <p className="mt-1 text-[11px] font-bold uppercase tracking-wider text-zinc-400">{label}</p>
+    </div>
+  );
+}
+
+const duelCodeUserLines = [
+  { n: 1, text: '// O(n) Hash Map — Solução Otimizada' },
+  { n: 2, text: 'function twoSum(nums: number[], target: number): number[] {' },
+  { n: 3, text: '  const map = new Map<number, number>();' },
+  { n: 4, text: '  ' },
+  { n: 5, text: '  for (let i = 0; i < nums.length; i++) {' },
+  { n: 6, text: '    const diff = target - nums[i];' },
+  { n: 7, text: '    if (map.has(diff)) {' },
+  { n: 8, text: '      return [map.get(diff)!, i];' },
+  { n: 9, text: '    }' },
+  { n: 10, text: '    map.set(nums[i], i);' },
+  { n: 11, text: '  }' },
+  { n: 12, text: '  return [];' },
+  { n: 13, text: '}' },
+];
+
+const duelCodeOpponentLines = [
+  { n: 1, text: '// O(n²) Força Bruta — Oponente digitando...' },
+  { n: 2, text: 'function twoSum(nums: number[], target: number): number[] {' },
+  { n: 3, text: '  for (let i = 0; i < nums.length; i++) {' },
+  { n: 4, text: '    for (let j = i + 1; j < nums.length; j++) {' },
+  { n: 5, text: '      if (nums[i] + nums[j] === target) {' },
+  { n: 6, text: '        return [i, j];' },
+  { n: 7, text: '      }' },
+  { n: 8, text: '    }' },
+  { n: 9, text: '  }' },
+  { n: 10, text: '  // Otimizando para evitar timeout... █' },
+  { n: 11, text: '  return [];' },
+  { n: 12, text: '}' },
+];
+
+function highlightDuelCodeLine(text: string) {
+  if (text.trim().startsWith('//')) {
+    const hasCursor = text.includes('█');
+    const cleanText = text.replace('█', '');
+    return (
+      <span className="text-zinc-500 italic">
+        {cleanText}
+        {hasCursor && (
+          <span className="inline-block h-3.5 w-1.5 bg-violet-400 animate-pulse ml-0.5 align-middle" />
+        )}
+      </span>
+    );
+  }
+
+  const tokens = text.split(
+    /(\bfunction\b|\bconst\b|\blet\b|\bfor\b|\bif\b|\breturn\b|\bnew\b|\bnumber\b|twoSum|Map|has|get|set|target|diff|nums|map|[0-9]+|[{}();,.<>!=+\-*\[\]])/g
+  );
+
+  return (
+    <span>
+      {tokens.map((token, i) => {
+        if (!token) return null;
+        if (['function', 'const', 'let', 'for', 'if', 'return', 'new'].includes(token)) {
+          return (
+            <span key={i} className="text-fuchsia-400 font-bold">
+              {token}
+            </span>
+          );
+        }
+        if (['number'].includes(token)) {
+          return (
+            <span key={i} className="text-amber-300 font-semibold">
+              {token}
+            </span>
+          );
+        }
+        if (['twoSum', 'Map', 'has', 'get', 'set'].includes(token)) {
+          return (
+            <span key={i} className="text-sky-300 font-bold">
+              {token}
+            </span>
+          );
+        }
+        if (['target', 'diff', 'nums', 'map', 'i', 'j'].includes(token)) {
+          return (
+            <span key={i} className="text-blue-100 font-medium">
+              {token}
+            </span>
+          );
+        }
+        if (/^[0-9]+$/.test(token)) {
+          return (
+            <span key={i} className="text-emerald-300 font-mono">
+              {token}
+            </span>
+          );
+        }
+        if (
+          [
+            '(',
+            ')',
+            '{',
+            '}',
+            '[',
+            ']',
+            ';',
+            ',',
+            ':',
+            '!',
+            '+',
+            '-',
+            '=',
+            '<',
+            '>',
+            '.',
+            '===',
+            '++',
+          ].includes(token)
+        ) {
+          return (
+            <span key={i} className="text-zinc-400 font-medium">
+              {token}
+            </span>
+          );
+        }
+        return (
+          <span key={i} className="text-zinc-300">
+            {token}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+function CodeEditorWindow({
+  title,
+  badgeText,
+  badgeType,
+  lines,
+  footerText,
+  footerStatus,
+  accentColor = 'blue',
+}: {
+  title: string;
+  badgeText: string;
+  badgeType: 'success' | 'warning';
+  lines: Array<{ n: number; text: string }>;
+  footerText: string;
+  footerStatus?: string;
+  accentColor?: 'blue' | 'violet';
+}) {
+  return (
+    <div
+      className={cn(
+        'relative flex flex-col justify-between overflow-hidden rounded-2xl border-2 border-b-4 bg-[#08080a] shadow-lg transition-all',
+        accentColor === 'blue'
+          ? 'border-blue-500/30 border-b-blue-600/80 hover:border-blue-500/50'
+          : 'border-violet-500/30 border-b-violet-600/80 hover:border-violet-500/50'
+      )}
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between border-b border-white/10 bg-[#0d0d10] px-3.5 py-2.5">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
+            <span className="size-2.5 rounded-full bg-rose-500/80" />
+            <span className="size-2.5 rounded-full bg-amber-500/80" />
+            <span className="size-2.5 rounded-full bg-emerald-500/80" />
+          </div>
+          <span className="ml-1 text-[11px] font-black text-white tracking-wide">{title}</span>
+        </div>
+        <div
+          className={cn(
+            'inline-flex items-center gap-1.5 rounded-lg border-2 border-b-[2px] px-2 py-0.5 text-[10px] font-black uppercase tracking-wider',
+            badgeType === 'success'
+              ? 'border-emerald-500/40 border-b-emerald-600 bg-emerald-500/15 text-emerald-400'
+              : 'border-amber-500/40 border-b-amber-600 bg-amber-500/15 text-amber-300'
+          )}
+        >
+          {badgeType === 'success' ? (
+            <Check size={11} className="stroke-[3]" />
+          ) : (
+            <Clock size={11} />
+          )}
+          <span>{badgeText}</span>
+        </div>
+      </div>
+
+      {/* Code Body */}
+      <div className="overflow-x-auto p-3 font-mono text-[11px] leading-[1.65] selection:bg-blue-500/30">
+        {lines.map((line) => (
+          <div
+            key={line.n}
+            className="flex items-start gap-3 hover:bg-white/[0.02] rounded px-1 -mx-1"
+          >
+            <span className="w-5 shrink-0 select-none text-right text-[10px] font-mono text-zinc-600">
+              {line.n}
+            </span>
+            <div className="min-w-0 flex-1 whitespace-pre">{highlightDuelCodeLine(line.text)}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between border-t border-white/10 bg-[#0b0b0e] px-3.5 py-2 text-[10px] font-mono">
+        <span className="font-bold text-zinc-400">{footerText}</span>
+        {footerStatus && (
+          <span
+            className={cn(
+              'inline-flex items-center gap-1 font-black',
+              badgeType === 'success' ? 'text-emerald-400' : 'text-amber-400'
+            )}
+          >
+            {badgeType === 'success' ? (
+              <Check size={10} className="stroke-[3]" />
+            ) : (
+              <Clock size={10} />
+            )}
+            <span>{footerStatus}</span>
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function DuelArenaMockup() {
+  const { t } = useLanguage();
+  const [activeView, setActiveView] = useState<'both' | 'user' | 'opponent'>('both');
+  const [isRunningTests, setIsRunningTests] = useState(false);
+  const [victoryToast, setVictoryToast] = useState(false);
+
+  const handleRunTests = () => {
+    if (isRunningTests) return;
+    setIsRunningTests(true);
+    setTimeout(() => {
+      setIsRunningTests(false);
+    }, 600);
+  };
+
+  const handleSubmit = () => {
+    setVictoryToast(true);
+    setTimeout(() => {
+      setVictoryToast(false);
+    }, 3800);
+  };
+
+  return (
+    <div
+      data-reveal
+      className={cn(cardClass, 'grid lg:grid-cols-[370px_1fr] relative overflow-hidden')}
+    >
+      {/* ================= LEFT COLUMN: MATCHUP & STAKES ================= */}
+      <div className="flex flex-col justify-between border-b border-white/8 p-6 lg:border-b-0 lg:border-r sm:p-7 xl:p-8">
+        <div>
+          {/* Top header: Round + 3D Timer */}
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1.5 rounded-xl border-2 border-b-[3px] border-rose-500/35 border-b-rose-600 bg-rose-500/15 px-3 py-1 text-[10px] font-black uppercase tracking-wider text-rose-300">
+              <span className="size-2 rounded-full bg-rose-400 animate-pulse" />
+              {t.showcase.duels.finalRound}
+            </span>
+            <div className="flex items-center gap-1.5 rounded-xl border-2 border-b-[3px] border-blue-500/40 border-b-blue-600 bg-blue-500/15 px-3 py-1 font-mono text-xs font-black text-white">
+              <Clock size={13} className="text-blue-400" />
+              <span>02:14</span>
+            </div>
+          </div>
+
+          {/* Versus Grid: Player 1 vs Player 2 with XP & Battery Bars */}
+          <div className="mt-8 grid grid-cols-[1fr_auto_1fr] items-start gap-3 text-center">
+            {/* Player 1 (Você) */}
+            <div className="flex flex-col items-center">
+              <div className="relative">
+                <span className="mx-auto flex size-16 items-center justify-center rounded-2xl border-2 border-b-4 border-blue-600 border-b-blue-800 bg-blue-500 text-lg font-black text-white shadow-lg shadow-blue-500/25">
+                  US
+                </span>
+                <span className="absolute -bottom-1 -right-1 size-4 rounded-full border-2 border-black bg-blue-500 flex items-center justify-center text-[8px] font-black text-white">
+                  ✓
+                </span>
+              </div>
+
+              {/* XP BADGE (Onde estava user.dev) */}
+              <div className="mt-3 inline-flex items-center gap-1.5 rounded-xl border-2 border-b-[3px] border-emerald-500/40 border-b-emerald-600 bg-emerald-500/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-emerald-400 shadow-sm">
+                <Zap size={13} className="fill-emerald-400" />
+                <span>+150 XP</span>
+              </div>
+              <p className="mt-1 text-[11px] font-black text-blue-400 tracking-wide">1.420 ELO</p>
+
+              {/* 3D Duolingo Battery Bar */}
+              <div className="mt-3 w-full">
+                <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400 mb-1">
+                  <span className="text-emerald-400 font-black flex items-center gap-1">
+                    <Check size={11} className="stroke-[3]" /> 4/4
+                  </span>
+                  <span className="font-black text-white">100%</span>
+                </div>
+                <div className="h-2.5 w-full overflow-hidden rounded-full border-2 border-white/10 bg-white/5 p-0.5">
+                  <div className="h-full rounded-full bg-gradient-to-r from-blue-500 to-emerald-400 shadow-[0_0_12px_rgba(52,211,153,0.5)] w-full transition-all duration-500" />
+                </div>
+              </div>
+            </div>
+
+            {/* Swords in center */}
+            <div className="flex flex-col items-center justify-center pt-3">
+              <div className="flex size-10 items-center justify-center rounded-2xl border-2 border-b-4 border-blue-500/40 border-b-blue-600 bg-blue-500/20 text-blue-400 shadow-lg shadow-blue-500/15">
+                <Swords size={18} />
+              </div>
+              <span className="mt-2 font-mono text-[9px] font-black uppercase tracking-widest text-zinc-500">
+                VS
+              </span>
+            </div>
+
+            {/* Player 2 (Oponente) */}
+            <div className="flex flex-col items-center">
+              <div className="relative">
+                <span className="mx-auto flex size-16 items-center justify-center rounded-2xl border-2 border-b-4 border-violet-600 border-b-violet-800 bg-violet-500 text-lg font-black text-white shadow-lg shadow-violet-500/25">
+                  MK
+                </span>
+                <span className="absolute -bottom-1 -left-1 size-3.5 rounded-full border-2 border-black bg-violet-400" />
+              </div>
+
+              {/* XP BADGE (Onde estava maya.kernel) */}
+              <div className="mt-3 inline-flex items-center gap-1.5 rounded-xl border-2 border-b-[3px] border-violet-500/40 border-b-violet-600 bg-violet-500/15 px-3 py-1 text-xs font-black uppercase tracking-wider text-violet-300 shadow-sm">
+                <Zap size={13} className="fill-violet-400" />
+                <span>+150 XP</span>
+              </div>
+              <p className="mt-1 text-[11px] font-black text-violet-400 tracking-wide">1.398 ELO</p>
+
+              {/* 3D Duolingo Battery Bar */}
+              <div className="mt-3 w-full">
+                <div className="flex items-center justify-between text-[10px] font-bold text-zinc-400 mb-1">
+                  <span className="text-violet-300 font-black flex items-center gap-1">
+                    <Clock size={11} /> 2/4
+                  </span>
+                  <span className="font-black text-violet-400">50%</span>
+                </div>
+                <div className="h-2.5 w-full overflow-hidden rounded-full border-2 border-white/10 bg-white/5 p-0.5">
+                  <div className="h-full rounded-full bg-gradient-to-r from-violet-600 to-purple-400 shadow-[0_0_12px_rgba(168,85,247,0.4)] w-1/2 transition-all duration-500" />
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Challenge Goal box */}
+        <div className="mt-6 space-y-3">
+          <div className="rounded-2xl border-2 border-b-4 border-blue-500/30 border-b-blue-600 bg-blue-500/10 p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-black uppercase tracking-wider text-blue-400 flex items-center gap-1.5">
+                <Terminal size={12} /> {t.showcase.duels.challenge}
+              </span>
+              <span className="text-[10px] font-mono font-bold text-zinc-400 bg-black/40 px-2 py-0.5 rounded-md border border-white/10">
+                Two Sum • O(n)
+              </span>
+            </div>
+            <p className="text-xs font-bold leading-relaxed text-zinc-200">
+              {t.showcase.duels.challengeDesc}
+            </p>
+            <div className="mt-2.5 rounded-xl border border-white/10 bg-black/50 p-2 font-mono text-[10px] text-zinc-400 leading-snug">
+              <span className="text-blue-400 font-bold">Input:</span> nums = [2, 7, 11, 15], target
+              = 9<br />
+              <span className="text-emerald-400 font-bold">Output:</span> [0, 1]
+            </div>
+          </div>
+
+          <div className="flex items-center justify-between rounded-xl border-2 border-b-[3px] border-emerald-500/30 border-b-emerald-600 bg-emerald-500/10 px-3.5 py-2">
+            <div className="flex items-center gap-2">
+              <Trophy size={14} className="text-emerald-400" />
+              <span className="text-xs font-black text-white">Você está liderando!</span>
+            </div>
+            <span className="text-[10px] font-mono font-black text-emerald-400">
+              +150 XP em disputa
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* ================= RIGHT COLUMN: TWO CODES & TEST RUNNER ================= */}
+      <div className="flex min-w-0 flex-col justify-between bg-black p-4 sm:p-6 lg:p-7">
+        <div>
+          {/* Controls Bar: View mode switcher */}
+          <div className="mb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="size-2 rounded-full bg-emerald-500 animate-ping" />
+              <span className="text-xs font-black uppercase tracking-wider text-white">
+                Arena de Código ao Vivo
+              </span>
+              <span className="rounded-lg border border-blue-500/30 bg-blue-500/15 px-2 py-0.5 text-[10px] font-black uppercase text-blue-400">
+                TypeScript
+              </span>
+            </div>
+
+            {/* Tabs (3D Buttons with Real Lucide Icons) */}
+            <div className="inline-flex items-center rounded-xl border-2 border-b-[3px] border-white/10 bg-[#0d0d10] p-1 gap-1">
+              <button
+                type="button"
+                onClick={() => setActiveView('both')}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer',
+                  activeView === 'both'
+                    ? 'border-b-2 border-blue-700 bg-blue-500 text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-white'
+                )}
+              >
+                <Columns2 size={12} className="stroke-[2.5]" />
+                <span>Lado a Lado</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveView('user')}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer',
+                  activeView === 'user'
+                    ? 'border-b-2 border-emerald-700 bg-emerald-500 text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-white'
+                )}
+              >
+                <User size={12} className="stroke-[2.5]" />
+                <span>Você (4/4)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveView('opponent')}
+                className={cn(
+                  'inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer',
+                  activeView === 'opponent'
+                    ? 'border-b-2 border-violet-700 bg-violet-500 text-white shadow-sm'
+                    : 'text-zinc-400 hover:text-white'
+                )}
+              >
+                <Users2 size={12} className="stroke-[2.5]" />
+                <span>Oponente (2/4)</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Dual Code View Area */}
+          <div
+            className={cn(
+              'grid gap-3.5',
+              activeView === 'both' ? 'grid-cols-1 xl:grid-cols-2' : 'grid-cols-1'
+            )}
+          >
+            {/* CODE 1: PLAYER 1 (Você) */}
+            {(activeView === 'both' || activeView === 'user') && (
+              <CodeEditorWindow
+                title="Seu Código (Você)"
+                badgeText="4/4 Testes (100%)"
+                badgeType="success"
+                lines={duelCodeUserLines}
+                footerText="TypeScript • Solução O(n)"
+                footerStatus="38ms"
+                accentColor="blue"
+              />
+            )}
+
+            {/* CODE 2: PLAYER 2 (Oponente) */}
+            {(activeView === 'both' || activeView === 'opponent') && (
+              <CodeEditorWindow
+                title="Oponente (maya.kernel)"
+                badgeText="2/4 Testes (50%)"
+                badgeType="warning"
+                lines={duelCodeOpponentLines}
+                footerText="TypeScript • Força Bruta O(n²)"
+                footerStatus="142ms"
+                accentColor="violet"
+              />
+            )}
+          </div>
+        </div>
+
+        {/* Test Runner and Execution Bar (Duolingo 3D) */}
+        <div className="mt-5 space-y-3">
+          <div className="rounded-2xl border-2 border-b-4 border-white/10 bg-[#0c0c0f] p-3.5 sm:p-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <Sparkles size={14} className="text-blue-400" />
+                <span className="text-xs font-black uppercase tracking-wider text-white">
+                  Bateria de Testes:
+                </span>
+                <span className="rounded-md border border-emerald-500/40 bg-emerald-500/15 px-2 py-0.5 font-mono text-[10px] font-black text-emerald-300">
+                  {isRunningTests ? 'Executando...' : '4/4 Aprovados'}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 font-mono text-[10px] text-zinc-400">
+                <span>
+                  CPU: <strong className="text-emerald-400 font-bold">38ms</strong>
+                </span>
+                <span>•</span>
+                <span>
+                  Memória: <strong className="text-white font-bold">42.1MB</strong>
+                </span>
+              </div>
+            </div>
+
+            {/* Test Cards List */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-3">
+              {[
+                { id: 1, label: 'Caso 1', io: '[2,7,11,15], 9' },
+                { id: 2, label: 'Caso 2', io: '[3,2,4], 6' },
+                { id: 3, label: 'Caso 3', io: '[3,3], 6' },
+                { id: 4, label: 'Carga 10k', io: '10.000 itens' },
+              ].map((tc) => (
+                <div
+                  key={tc.id}
+                  className="flex items-center gap-2 rounded-xl border-2 border-b-[2.5px] border-emerald-500/30 border-b-emerald-600 bg-emerald-500/[0.08] px-2.5 py-1.5 text-[10px]"
+                >
+                  <span className="flex size-4 shrink-0 items-center justify-center rounded-md bg-emerald-500 text-white font-black text-[9px]">
+                    ✓
+                  </span>
+                  <div className="min-w-0">
+                    <p className="font-black text-white truncate">{tc.label}</p>
+                    <p className="text-[9px] font-mono text-emerald-300 truncate">{tc.io}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Interactive Action Buttons */}
+            <div className="mt-3.5 flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-white/10 pt-3">
+              <span className="text-[11px] font-bold text-zinc-400 text-center sm:text-left">
+                Clique para simular a execução e envio do desafio ao vivo
+              </span>
+
+              <div className="flex items-center gap-2.5 w-full sm:w-auto">
+                <button
+                  type="button"
+                  onClick={handleRunTests}
+                  disabled={isRunningTests}
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-xl border-2 border-b-4 border-white/20 border-b-white/40 bg-white/10 px-4 py-2 text-xs font-black uppercase tracking-wider text-white hover:bg-white/15 active:border-b-2 active:translate-y-0.5 transition-all cursor-pointer"
+                >
+                  <Play size={12} className={cn('fill-white', isRunningTests && 'animate-spin')} />
+                  <span>{isRunningTests ? 'Executando...' : 'Executar Testes'}</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleSubmit}
+                  className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 rounded-xl border-2 border-b-4 border-blue-600 border-b-blue-800 bg-blue-500 px-5 py-2 text-xs font-black uppercase tracking-wider text-white shadow-lg shadow-blue-500/25 hover:bg-blue-400 active:border-b-2 active:translate-y-0.5 transition-all cursor-pointer"
+                >
+                  <Trophy size={13} className="fill-white/20" />
+                  <span>Enviar Solução</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Victory Toast Notification */}
+          {victoryToast && (
+            <div className="flex items-center justify-between rounded-xl border-2 border-b-[3px] border-emerald-500/40 border-b-emerald-600 bg-gradient-to-r from-emerald-500/25 via-blue-500/20 to-emerald-500/25 px-4 py-3 text-xs font-black text-white shadow-xl animate-fade-in">
+              <div className="flex items-center gap-2.5">
+                <Trophy size={16} className="text-amber-400 shrink-0" />
+                <span>Vitória Épica! Você resolveu o desafio em primeiro lugar!</span>
+              </div>
+              <span className="flex items-center gap-1 font-mono text-emerald-400 font-black">
+                <Zap size={14} className="fill-current" /> +150 XP • +35 ELO
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+      <BorderBeam duration={8} size={150} colorFrom="#0083fe" colorTo="#60a5fa" />
     </div>
   );
 }
@@ -1044,8 +1666,10 @@ export default function LandingShowcase({
   forceMotion = false,
 }: LandingShowcaseProps) {
   const { t } = useLanguage();
+  const isMobile = useMobileDetection();
   const rootRef = useRef<HTMLDivElement>(null);
   const howGridRef = useRef<HTMLDivElement>(null);
+  const trailsGridRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const root = rootRef.current;
@@ -1086,41 +1710,19 @@ export default function LandingShowcase({
   return (
     <div ref={rootRef} className="relative overflow-hidden bg-black text-white">
       <section
-        className="relative border-y border-white/8 bg-black px-6 py-5"
-        aria-label="Platform activity"
-      >
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-center gap-x-8 gap-y-3 font-mono text-[9px] uppercase tracking-[0.16em] text-slate-500 sm:justify-between">
-          {[
-            [t.showcase.activity.live, t.showcase.activity.devs],
-            [t.showcase.activity.postsToday, '+1,247'],
-            [t.showcase.activity.xpDistributed, '84,290'],
-            [t.showcase.activity.activeDuels, '38'],
-          ].map(([label, value], index) => (
-            <div key={label} className="flex items-center gap-3">
-              {index === 0 && (
-                <span className="size-1.5 rounded-full bg-emerald-400 shadow-[0_0_12px_#34d399]" />
-              )}
-              <span>{label}</span>
-              <strong className="font-semibold text-slate-200">{value}</strong>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section
         id="how"
         data-anime-section
         className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-28 lg:py-36 bento-section"
       >
         <GlobalSpotlight gridRef={howGridRef} glowColor="0, 131, 254" spotlightRadius={300} />
         <SectionHeading
-          index="01"
-          eyebrow={t.showcase.howItWorks.eyebrow}
+          badge={t.showcase.howItWorks.eyebrow}
+          badgeIcon={GitBranch}
           title={
-            <span className="block whitespace-nowrap text-[clamp(1.75rem,4.17vw,3.75rem)]">
+            <>
               {t.showcase.howItWorks.titlePart1}
               <span className="text-blue-400">{t.showcase.howItWorks.titleProof}</span>
-            </span>
+            </>
           }
           description={t.showcase.howItWorks.description}
         />
@@ -1170,8 +1772,8 @@ export default function LandingShowcase({
       >
         <div className="mx-auto max-w-7xl">
           <SectionHeading
-            index="02"
-            eyebrow={t.showcase.platform.eyebrow}
+            badge={t.showcase.platform.eyebrow}
+            badgeIcon={Sparkles}
             title={
               <>
                 {t.showcase.platform.titlePart1}
@@ -1222,11 +1824,12 @@ export default function LandingShowcase({
       <section
         id="trails"
         data-anime-section
-        className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-28 lg:py-36"
+        className="relative mx-auto max-w-7xl px-4 py-24 sm:px-6 sm:py-28 lg:py-36 bento-section"
       >
+        <GlobalSpotlight gridRef={trailsGridRef} glowColor="0, 131, 254" spotlightRadius={300} />
         <SectionHeading
-          index="03"
-          eyebrow={t.showcase.tracks.eyebrow}
+          badge={t.showcase.tracks.eyebrow}
+          badgeIcon={BookOpen}
           title={
             <>
               {t.showcase.tracks.titlePart1}
@@ -1235,51 +1838,78 @@ export default function LandingShowcase({
           }
           description={t.showcase.tracks.description}
         />
-        <div className="grid gap-4 lg:grid-cols-3">
-          {trails.map((trail, index) => (
-            <TrailCard key={trail.language} trail={trail} index={index} />
-          ))}
-        </div>
+        <div ref={trailsGridRef} className="bento-section space-y-4">
+          <div className="grid gap-4 lg:grid-cols-3">
+            {trails.map((trail, index) => (
+              <TrailCard key={trail.language} trail={trail} index={index} />
+            ))}
+          </div>
 
-        <div
-          id="gamify"
-          data-reveal
-          className={cn(cardClass, 'mt-4 grid gap-6 p-6 sm:p-8 lg:grid-cols-[1.1fr_1fr] lg:p-10')}
-        >
-          <div className="flex flex-col justify-between">
-            <div>
-              <div className="flex items-center gap-2 font-mono text-[9px] uppercase tracking-[0.2em] text-orange-300">
-                <Flame size={14} /> {t.showcase.tracks.gamifyBadge}
+          <ParticleCard
+            data-reveal=""
+            disableAnimations={isMobile}
+            particleCount={14}
+            glowColor="249, 115, 22"
+            enableTilt={true}
+            clickEffect={true}
+            enableMagnetism={true}
+            className={cn(
+              cardClass,
+              'magic-bento-card magic-bento-card--border-glow group grid gap-6 p-6 sm:p-8 lg:grid-cols-[1.1fr_1fr] lg:p-10'
+            )}
+            style={
+              {
+                backgroundColor: '#080808',
+                '--glow-color': '249, 115, 22',
+              } as React.CSSProperties
+            }
+          >
+            <div className="relative z-10 flex flex-col justify-between">
+              <div>
+                <div className="inline-flex items-center gap-2 rounded-xl border-2 border-b-[3px] border-orange-500/35 border-b-orange-600 bg-orange-500/10 px-3.5 py-1.5 text-xs font-black uppercase tracking-wider text-orange-400">
+                  <Flame size={14} className="fill-orange-400" /> {t.showcase.tracks.gamifyBadge}
+                </div>
+                <h3 className="mt-5 max-w-lg text-2xl sm:text-4xl font-black tracking-tight text-white">
+                  {t.showcase.tracks.gamifyTitle}
+                </h3>
+                <p className="mt-3 max-w-xl text-sm sm:text-base leading-relaxed text-zinc-300 font-normal">
+                  {t.showcase.tracks.gamifyDesc}
+                </p>
               </div>
-              <h3 className="mt-5 max-w-lg text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                {t.showcase.tracks.gamifyTitle}
-              </h3>
-              <p className="mt-4 max-w-xl text-sm leading-7 text-slate-400">
-                {t.showcase.tracks.gamifyDesc}
-              </p>
+              <div className="mt-8 flex flex-wrap gap-2 text-xs font-black uppercase tracking-wider text-zinc-300">
+                {[
+                  t.showcase.tracks.streakBadge,
+                  t.showcase.tracks.leagueBadge,
+                  t.showcase.tracks.achievementsBadge,
+                ].map((item) => (
+                  <span
+                    key={item}
+                    className="rounded-xl border-2 border-b-[3px] border-white/10 border-b-white/20 bg-white/[0.04] px-4 py-2"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
             </div>
-            <div className="mt-8 flex flex-wrap gap-2 font-mono text-[9px] uppercase tracking-[0.14em] text-slate-400">
-              {[
-                t.showcase.tracks.streakBadge,
-                t.showcase.tracks.leagueBadge,
-                t.showcase.tracks.achievementsBadge,
-              ].map((item) => (
-                <span
-                  key={item}
-                  className="rounded-full border border-white/10 bg-white/[0.03] px-4 py-2"
-                >
-                  {item}
-                </span>
-              ))}
+            <div className="relative z-10 grid grid-cols-2 gap-3">
+              <MetricCard icon={Flame} value="12" label={t.showcase.tracks.dayStreakMetric} />
+              <MetricCard icon={Trophy} value="#24" label={t.showcase.tracks.globalRankingMetric} />
+              <MetricCard
+                icon={BadgeCheck}
+                value="18"
+                label={t.showcase.tracks.achievementsMetric}
+              />
+              <MetricCard icon={Zap} value="8.4k" label={t.showcase.tracks.totalXpMetric} />
             </div>
-          </div>
-          <div className="grid grid-cols-2 gap-3">
-            <MetricCard icon={Flame} value="12" label={t.showcase.tracks.dayStreakMetric} />
-            <MetricCard icon={Trophy} value="#24" label={t.showcase.tracks.globalRankingMetric} />
-            <MetricCard icon={BadgeCheck} value="18" label={t.showcase.tracks.achievementsMetric} />
-            <MetricCard icon={Zap} value="8.4k" label={t.showcase.tracks.totalXpMetric} />
-          </div>
-          <BorderBeam duration={11} size={150} colorFrom="#0083fe" colorTo="#60a5fa" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(255,255,255,0.06),transparent_45%)] opacity-60 transition-opacity duration-500 group-hover:opacity-100" />
+            <BorderBeam
+              duration={11}
+              size={160}
+              borderWidth={1.2}
+              colorFrom="#f97316"
+              colorTo="#fbbf24"
+            />
+          </ParticleCard>
         </div>
       </section>
 
@@ -1290,8 +1920,8 @@ export default function LandingShowcase({
       >
         <div className="mx-auto max-w-7xl">
           <SectionHeading
-            index="04"
-            eyebrow={t.showcase.duels.eyebrow}
+            badge={t.showcase.duels.eyebrow}
+            badgeIcon={Swords}
             title={
               <>
                 {t.showcase.duels.titlePart1}
@@ -1300,74 +1930,7 @@ export default function LandingShowcase({
             }
             description={t.showcase.duels.description}
           />
-          <div data-reveal className={cn(cardClass, 'grid lg:grid-cols-[0.78fr_1.22fr]')}>
-            <div className="flex flex-col justify-between border-b border-white/8 p-7 lg:border-b-0 lg:border-r lg:p-10">
-              <div>
-                <div className="flex items-center justify-between">
-                  <span className="rounded-full bg-rose-400/10 px-3 py-1.5 font-mono text-[9px] uppercase tracking-[0.16em] text-rose-300">
-                    {t.showcase.duels.finalRound}
-                  </span>
-                  <span className="font-mono text-sm text-white">02:14</span>
-                </div>
-                <div className="mt-10 grid grid-cols-[1fr_auto_1fr] items-center gap-4 text-center">
-                  <div>
-                    <span className="mx-auto flex size-16 items-center justify-center rounded-2xl bg-blue-500 text-lg font-bold">
-                      US
-                    </span>
-                    <p className="mt-3 text-sm font-semibold">user.dev</p>
-                    <p className="mt-1 text-[10px] text-blue-300">1.420 ELO</p>
-                  </div>
-                  <Swords size={22} className="text-slate-600" />
-                  <div>
-                    <span className="mx-auto flex size-16 items-center justify-center overflow-hidden rounded-2xl bg-violet-500">
-                      <NextImage
-                        src="/assets/duels/wizard-robot.png"
-                        alt="Robô mago"
-                        width={64}
-                        height={64}
-                        className="h-16 w-16 object-contain"
-                      />
-                    </span>
-                    <p className="mt-3 text-sm font-semibold">maya.kernel</p>
-                    <p className="mt-1 text-[10px] text-violet-300">1.398 ELO</p>
-                  </div>
-                </div>
-              </div>
-              <div className="mt-10 rounded-2xl border border-blue-400/20 bg-blue-400/[0.06] p-5">
-                <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-blue-300">
-                  {t.showcase.duels.challenge}
-                </p>
-                <p className="mt-3 text-sm leading-6 text-slate-300">
-                  {t.showcase.duels.challengeDesc}
-                </p>
-              </div>
-            </div>
-
-            <div className="min-w-0 bg-black p-4 sm:p-6 flex flex-col justify-between">
-              <div className="w-full mb-3 flex items-center justify-end">
-                <span className="font-mono text-[9px] uppercase tracking-[0.14em] text-slate-400">
-                  {t.showcase.duels.compareHover}
-                </span>
-              </div>
-              <div className="w-full flex justify-center overflow-hidden rounded-2xl bg-black">
-                <Compare
-                  firstImage="https://assets.aceternity.com/code-problem.png"
-                  secondImage="https://assets.aceternity.com/code-solution.png"
-                  firstImageClassName="object-cover object-left-top rounded-2xl"
-                  secondImageClassname="object-cover object-left-top rounded-2xl"
-                  className="h-[250px] w-full md:h-[380px] bg-black"
-                  slideMode="hover"
-                />
-              </div>
-              <div className="mt-3 w-full flex items-center justify-between rounded-xl border border-emerald-400/15 bg-emerald-400/[0.05] px-4 py-2.5 text-xs">
-                <span className="flex items-center gap-2 text-emerald-300">
-                  <Check size={14} /> {t.showcase.duels.testsPassed}
-                </span>
-                <span className="font-mono text-[9px] text-slate-500">38ms</span>
-              </div>
-            </div>
-            <BorderBeam duration={8} size={130} colorFrom="#0083fe" colorTo="#60a5fa" />
-          </div>
+          <DuelArenaMockup />
         </div>
       </section>
 
@@ -1378,7 +1941,7 @@ export default function LandingShowcase({
       >
         <div
           data-reveal
-          className="relative mx-auto max-w-7xl overflow-hidden rounded-[34px] border border-blue-300/15 bg-black px-5 py-16 text-center sm:px-10 sm:py-20 lg:py-28"
+          className="relative mx-auto max-w-7xl overflow-hidden rounded-[34px] border-2 border-b-4 border-blue-500/30 border-b-blue-600 bg-black px-5 py-16 text-center sm:px-10 sm:py-20 lg:py-28"
         >
           <div className="absolute inset-0 opacity-30">
             <Aurora
@@ -1390,27 +1953,27 @@ export default function LandingShowcase({
           </div>
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_48%,rgba(0,0,0,0.45),rgba(0,0,0,0.94)_70%)]" />
           <div className="relative z-10 mx-auto max-w-3xl">
-            <div className="mx-auto flex w-fit items-center gap-2 rounded-full border border-white/10 bg-black/20 px-4 py-2 font-mono text-[9px] uppercase tracking-[0.18em] text-blue-200">
-              <Terminal size={13} /> {t.showcase.cta.badge}
+            <div className="mx-auto flex w-fit items-center gap-2 rounded-xl border-2 border-b-[3px] border-blue-400/40 border-b-blue-500 bg-blue-500/20 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-blue-300 shadow-sm">
+              <Terminal size={14} /> {t.showcase.cta.badge}
             </div>
-            <h2 className="mt-7 font-sans text-4xl font-semibold leading-[1.05] tracking-[-0.05em] text-white sm:text-6xl lg:text-7xl">
+            <h2 className="mt-6 text-3xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.06] text-white">
               {t.showcase.cta.titlePart1}
-              <span className="text-blue-300">{t.showcase.cta.titleShowIt}</span>
+              <span className="text-blue-400">{t.showcase.cta.titleShowIt}</span>
             </h2>
-            <p className="mx-auto mt-6 max-w-2xl text-base leading-7 text-blue-50/65">
+            <p className="mx-auto mt-5 max-w-2xl text-base sm:text-lg leading-relaxed text-zinc-300 font-normal">
               {t.showcase.cta.subtitle}
             </p>
             <div className="mt-9 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
                 href={initialUser ? '/feed' : '/register'}
-                className="inline-flex min-h-12 items-center justify-center gap-3 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-[#04101f] transition-transform hover:-translate-y-0.5"
+                className="dd-touch inline-flex min-h-13 cursor-pointer items-center justify-center gap-2.5 rounded-2xl border-2 border-b-4 border-blue-600 border-b-blue-800 bg-blue-500 px-7 py-3.5 text-sm font-black uppercase tracking-wider text-white shadow-xl shadow-blue-500/30 transition-all hover:-translate-y-0.5 hover:bg-blue-400 active:translate-y-0.5 active:border-b-2"
               >
                 {initialUser ? t.showcase.cta.goToFeed : t.showcase.cta.createProfile}
                 <ArrowRight size={16} />
               </Link>
               <a
                 href="#how"
-                className="inline-flex min-h-12 items-center justify-center rounded-xl border border-white/15 bg-white/[0.04] px-6 py-3 text-sm font-medium text-white hover:bg-white/[0.08]"
+                className="dd-touch inline-flex min-h-13 cursor-pointer items-center justify-center rounded-2xl border-2 border-b-4 border-white/10 border-b-white/20 bg-white/[0.05] px-7 py-3.5 text-sm font-black uppercase tracking-wider text-white transition-all hover:-translate-y-0.5 hover:bg-white/10 active:translate-y-0.5 active:border-b-2"
               >
                 {t.showcase.cta.reviewHowItWorks}
               </a>

@@ -161,6 +161,12 @@ export default function LandingHero({ initialUser, isReady = true }: LandingHero
           </motion.div>
         </motion.div>
       </div>
+
+      {/* Seamless smooth gradient transition from Hero to black section */}
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-44 sm:h-64 bg-gradient-to-b from-transparent via-black/60 to-black"
+        aria-hidden="true"
+      />
     </section>
   );
 }
