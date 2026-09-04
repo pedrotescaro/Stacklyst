@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabasePublicConfigured } from '@/lib/supabase/env';
 import { OAUTH_PROVIDER_LABELS, type OAuthProvider } from '@/lib/supabase/oauth';
-import { Eye, EyeOff } from 'lucide-react';
+import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import AuthHero from '@/components/auth/AuthHero';
 import { DiscordIcon, GitHubIcon, GoogleIcon } from '@/components/auth/OAuthProviderIcons';
 import styles from './login.module.css';
@@ -116,9 +116,19 @@ export default function LoginPage() {
         <section
           className={[
             styles.formPanel,
-            'flex min-h-svh items-start justify-center px-5 py-10 sm:px-12 lg:py-[11vh] lg:px-[clamp(3rem,5.4vw,4rem)]',
+            'relative flex min-h-svh items-start justify-center px-5 py-10 sm:px-12 lg:py-[11vh] lg:px-[clamp(3rem,5.4vw,4rem)]',
           ].join(' ')}
         >
+          {/* Seta para voltar para a landing page */}
+          <Link
+            href="/"
+            aria-label="Voltar para a página inicial"
+            title="Voltar para a página inicial"
+            className="group absolute left-5 top-5 sm:left-8 sm:top-8 flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-[#1a1a1a] text-zinc-400 transition-all duration-200 hover:border-white/20 hover:bg-[#222] hover:text-white"
+          >
+            <ArrowLeft className="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-0.5" />
+          </Link>
+
           <div className="w-full max-w-[466px]">
             <Link href="/" className="mb-10 inline-flex items-center gap-3 lg:hidden">
               <Image
@@ -137,7 +147,7 @@ export default function LoginPage() {
               <h2 className="text-[28px] font-semibold leading-tight tracking-[-0.045em] text-white">
                 Log in to your account
               </h2>
-              <p className="mt-4 text-[15px] leading-6 text-[#9cb6df]">
+              <p className="mt-4 text-[15px] leading-6 text-zinc-300">
                 Continue your journey in the community
               </p>
             </header>
@@ -188,7 +198,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-white/[0.08]" />
               </div>
               <div className="relative flex justify-center">
-                <span className="bg-[#111] px-4 text-[11px] font-medium uppercase tracking-[-0.025em] text-[#8ea1bf]">
+                <span className="bg-[#111] px-4 text-[11px] font-medium uppercase tracking-[-0.025em] text-zinc-400">
                   or continue with email
                 </span>
               </div>
@@ -206,7 +216,7 @@ export default function LoginPage() {
                   onChange={(event) => setEmail(event.target.value)}
                   required
                   autoComplete="email"
-                  className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 text-sm text-white outline-none transition-colors placeholder:text-[#9db0cf] hover:border-white/10 focus:border-[#469cff]"
+                  className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
                   placeholder="you@email.com"
                 />
               </div>
@@ -223,7 +233,7 @@ export default function LoginPage() {
                     onChange={(event) => setPassword(event.target.value)}
                     required
                     autoComplete="current-password"
-                    className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 pr-12 text-sm text-white outline-none transition-colors placeholder:text-[#9db0cf] hover:border-white/10 focus:border-[#469cff]"
+                    className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 pr-12 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
                     placeholder="Enter your password"
                   />
                   <button
@@ -231,7 +241,7 @@ export default function LoginPage() {
                     onClick={() => setShowPassword((current) => !current)}
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                     aria-pressed={showPassword}
-                    className="absolute right-2 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-[#8c94a4] transition-colors hover:bg-white/5 hover:text-white"
+                    className="absolute right-2 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
                   >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
@@ -247,7 +257,7 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <p className="mt-8 text-center text-xs text-[#a7b8d5]">
+            <p className="mt-8 text-center text-xs text-zinc-300">
               Don&apos;t have an account yet?{' '}
               <Link href="/register" className="font-semibold text-white hover:underline">
                 Create your account

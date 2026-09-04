@@ -1,3 +1,7 @@
+.centerLinks {
+  display: none;
+}
+
 .signUpButton {
   display: inline-flex;
   height: 2.5rem;
@@ -49,6 +53,24 @@
 @media (min-width: 640px) {
   .loginLink {
     display: inline-flex;
+  }
+}
+
+@media (min-width: 1024px) {
+  .centerLinks {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    width: 28rem;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    align-items: center;
+    transform: translate(-50%, -50%);
+  }
+
+  .centerLinks > a {
+    justify-self: center;
+    white-space: nowrap;
   }
 }
 
