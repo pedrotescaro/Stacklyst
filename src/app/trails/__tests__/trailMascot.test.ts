@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { MASCOT_SPRITE_FRAMES } from '@/app/trails/mascotSprites';
+import { getTrailMascotProgressKey } from '@/app/trails/trailMascotProgress';
 import { createSmoothTrailPath } from '@/app/trails/trailPath';
-import { chooseMascotDirection } from '@/app/trails/useTrailMascot';
+import { chooseMascotDirection, resolveMascotMovementRange } from '@/app/trails/useTrailMascot';
 
 describe('trail mascot animation primitives', () => {
   it('keeps the direction-specific sprite frame counts', () => {
@@ -33,5 +34,19 @@ describe('trail mascot animation primitives', () => {
     expect(chooseMascotDirection(10, 13, 'direita')).toBe('baixo');
     expect(chooseMascotDirection(-13, 10, 'baixo')).toBe('esquerda');
     expect(chooseMascotDirection(0, -8, 'baixo')).toBe('cima');
+  });
+
+  it('derives the same progress key when returning from a lesson', () => {
+    expect(
+      getTrailMascotProgressKey('/trails?view=trail&path=frontend-react&section=2&language=JS')
+    ).toBe('js:frontend-react');
+    expect(getTrailMascotProgressKey('/feed?path=frontend-react&language=JS')).toBeNull();
+  });
+
+  it('replays the approach to the current node when returning without new progress', () => {
+    expect(resolveMascotMovementRange(['node-1', 'node-2'], 'node-2', 'node-2', true)).toEqual({
+      fromIndex: 0,
+      targetIndex: 1,
+    });
   });
 });

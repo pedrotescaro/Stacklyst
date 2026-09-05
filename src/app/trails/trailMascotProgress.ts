@@ -7,6 +7,31 @@ export interface PendingMascotMovement {
   startedAt: number;
 }
 
+export function getTrailMascotProgressKey(returnHref: string | undefined) {
+  if (!returnHref) return null;
+
+  try {
+    const url = new URL(returnHref, 'https://stacklyst.local');
+    const path = url.searchParams.get('path');
+    const language = url.searchParams.get('language');
+
+    if (
+      url.origin !== 'https://stacklyst.local' ||
+      url.pathname !== '/trails' ||
+      !path ||
+      !/^[a-z0-9-]+$/.test(path) ||
+      !language ||
+      !/^(JS|TS|PYTHON|RUST|GO|JAVA)$/.test(language)
+    ) {
+      return null;
+    }
+
+    return `${language.toLowerCase()}:${path}`;
+  } catch {
+    return null;
+  }
+}
+
 export function rememberTrailMascotDeparture(progressKey: string, fromNodeKey: string) {
   if (typeof window === 'undefined' || !fromNodeKey) return;
 
@@ -20,6 +45,11 @@ export function rememberTrailMascotDeparture(progressKey: string, fromNodeKey: s
   } catch {
     // Storage may be unavailable in private browsing or embedded contexts.
   }
+}
+
+export function rememberTrailMascotReturn(returnHref: string | undefined, fromNodeKey: string) {
+  const progressKey = getTrailMascotProgressKey(returnHref);
+  if (progressKey) rememberTrailMascotDeparture(progressKey, fromNodeKey);
 }
 
 export function readPendingTrailMascotMovement(progressKey: string) {

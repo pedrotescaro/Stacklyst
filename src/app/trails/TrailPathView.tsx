@@ -819,7 +819,7 @@ export function TrailPathView({
     if (!firstQuestion) return;
 
     setActiveActivity(null);
-    rememberTrailMascotDeparture(mascotProgressKey, currentMascotNodeKey);
+    rememberTrailMascotDeparture(mascotProgressKey, firstQuestion.id);
     const returnParams = new URLSearchParams({
       view: 'trail',
       path: activePath.slug,

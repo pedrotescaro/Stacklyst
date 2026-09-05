@@ -42,6 +42,7 @@ describe('LessonClient trail progress', () => {
     pushMock.mockClear();
     playSoundMock.mockClear();
     localStorage.clear();
+    sessionStorage.clear();
   });
 
   it('persists a concept activity and returns to the exact trail context', async () => {
@@ -76,5 +77,11 @@ describe('LessonClient trail progress', () => {
     expect(pushMock).toHaveBeenCalledWith(
       '/trails?view=trail&path=frontend-react&section=1&language=JS'
     );
+    expect(
+      JSON.parse(sessionStorage.getItem('stacklyst-trail-mascot-pending') ?? '{}')
+    ).toMatchObject({
+      progressKey: 'js:frontend-react',
+      fromNodeKey: lesson.id,
+    });
   });
 });
