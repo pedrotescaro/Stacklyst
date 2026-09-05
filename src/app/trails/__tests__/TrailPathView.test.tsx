@@ -77,6 +77,8 @@ const paths = [
 describe('TrailPathView', () => {
   beforeEach(() => {
     pushMock.mockClear();
+    localStorage.clear();
+    sessionStorage.clear();
   });
 
   it('restores the long section-and-unit trail without a connector line', () => {
@@ -101,6 +103,8 @@ describe('TrailPathView', () => {
     expect(screen.getAllByRole('button', { name: /Baú da trilha/ })).toHaveLength(8);
     expect(screen.getAllByTestId('trail-robot')).toHaveLength(8);
     expect(screen.getAllByTestId('trail-robot-gaming')).toHaveLength(8);
+    expect(screen.getByTestId('trail-moving-mascot')).toBeInTheDocument();
+    expect(trail.querySelectorAll('[data-trail-mascot-node]')).toHaveLength(32);
     for (const robot of screen.getAllByTestId('trail-robot')) {
       expect(robot).not.toHaveClass('hidden');
       expect(robot).toHaveClass('right-0', 'h-[92px]', 'w-[92px]', 'sm:h-28', 'sm:w-28');
@@ -204,6 +208,12 @@ describe('TrailPathView', () => {
       'js-javascript-systems-s1-u1',
       '/trails?view=trail&path=javascript-systems&section=1&language=JS'
     );
+    expect(
+      JSON.parse(sessionStorage.getItem('stacklyst-trail-mascot-pending') ?? '{}')
+    ).toMatchObject({
+      progressKey: 'js:javascript-systems',
+      fromNodeKey: 'js-javascript-systems-s1-u1',
+    });
 
     const lockedUnit = screen.getByRole('button', {
       name: /Seção 5, unidade 1: Conceito: Promises compostas/,
