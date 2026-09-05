@@ -34,6 +34,7 @@ import type {
   KnowledgeRelation,
   LearningPathSummary,
 } from '@/lib/learning/types';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface TrailsContentProps {
   user: {
@@ -81,6 +82,7 @@ function CourseOverviewCard({
   viewMode: 'map' | 'trail';
   onViewModeChange: (mode: 'map' | 'trail') => void;
 }) {
+  const { text } = useLocalizedText();
   return (
     <div className="flex flex-wrap items-center gap-3">
       <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl shadow-[0_4px_20px_rgba(14,165,233,0.25)]">
@@ -96,7 +98,9 @@ function CourseOverviewCard({
 
       <div>
         <h1 id="overall-progress-title" className="text-base font-bold text-dd-text tracking-tight">
-          {viewMode === 'map' ? 'Mapa de Conhecimento' : 'Trilha'}
+          {viewMode === 'map'
+            ? text('Mapa de Conhecimento', 'Knowledge map')
+            : text('Trilha', 'Trail')}
         </h1>
         <div className="mt-1 flex items-center rounded-xl bg-dd-surface/90 p-0.5 border border-dd-border shadow-xs">
           <button
@@ -110,7 +114,7 @@ function CourseOverviewCard({
             )}
           >
             <Network className="h-3.5 w-3.5" />
-            <span>Mapa</span>
+            <span>{text('Mapa', 'Map')}</span>
           </button>
           <button
             type="button"
@@ -123,7 +127,7 @@ function CourseOverviewCard({
             )}
           >
             <Route className="h-3.5 w-3.5" />
-            <span>Trilha</span>
+            <span>{text('Trilha', 'Trail')}</span>
           </button>
         </div>
       </div>
@@ -138,6 +142,7 @@ function NodeDetail({
   node: KnowledgeMapNode;
   onSelectNode: (nodeId: string) => void;
 }) {
+  const { text } = useLocalizedText();
   const missingRequired = node.prerequisites.filter(
     (prerequisite) => prerequisite.relation === 'REQUIRED' && !prerequisite.completed
   );
@@ -155,7 +160,19 @@ function NodeDetail({
         <span className="rounded-full bg-blue-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-blue-500">
           {node.category}
         </span>
-        <span className="text-xs font-bold text-dd-muted">{STATUS_LABEL[node.status]}</span>
+        <span className="text-xs font-bold text-dd-muted">
+          {text(
+            STATUS_LABEL[node.status],
+            {
+              NOT_STARTED: 'Prerequisite pending',
+              AVAILABLE: 'Available',
+              RECOMMENDED: 'Recommended now',
+              IN_PROGRESS: 'In progress',
+              COMPLETED: 'Completed',
+              MASTERED: 'Mastered',
+            }[node.status]
+          )}
+        </span>
       </div>
 
       <h2 id="selected-knowledge-title" className="mt-4 text-xl font-black text-dd-text">
@@ -166,13 +183,13 @@ function NodeDetail({
       <div className="mt-5 grid grid-cols-2 gap-2">
         <div className="rounded-xl bg-dd-surface p-3">
           <p className="text-[10px] font-black uppercase tracking-[0.12em] text-dd-muted">
-            Domínio
+            {text('Domínio', 'Mastery')}
           </p>
           <p className="mt-1 text-lg font-black text-dd-text">{node.mastery}%</p>
         </div>
         <div className="rounded-xl bg-dd-surface p-3">
           <p className="text-[10px] font-black uppercase tracking-[0.12em] text-dd-muted">
-            Dificuldade
+            {text('Dificuldade', 'Difficulty')}
           </p>
           <p className="mt-1 text-lg font-black text-dd-text">{node.difficulty}/5</p>
         </div>
@@ -180,10 +197,12 @@ function NodeDetail({
 
       <div className="mt-5">
         <h3 className="text-xs font-black uppercase tracking-[0.12em] text-dd-muted">
-          Conexões anteriores
+          {text('Conexões anteriores', 'Previous connections')}
         </h3>
         {node.prerequisites.length === 0 ? (
-          <p className="mt-2 text-sm text-dd-muted">Este conhecimento inicia o mapa.</p>
+          <p className="mt-2 text-sm text-dd-muted">
+            {text('Este conhecimento inicia o mapa.', 'This knowledge starts the map.')}
+          </p>
         ) : (
           <ul className="mt-2 space-y-2">
             {node.prerequisites.map((prerequisite) => (
@@ -204,7 +223,16 @@ function NodeDetail({
                     {prerequisite.title}
                   </span>
                   <span className="text-[9px] font-black uppercase tracking-wide text-dd-muted">
-                    {RELATION_LABEL[prerequisite.relation]}
+                    {text(
+                      RELATION_LABEL[prerequisite.relation],
+                      {
+                        REQUIRED: 'Required',
+                        RECOMMENDED: 'Recommended',
+                        RELATED: 'Related',
+                        BUILDS_ON: 'Builds on',
+                        COMBINES: 'Combines',
+                      }[prerequisite.relation]
+                    )}
                   </span>
                 </button>
               </li>
@@ -218,10 +246,14 @@ function NodeDetail({
           <div className="flex gap-2">
             <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
             <div>
-              <p className="text-xs font-black text-dd-text">Conhecimento necessário</p>
+              <p className="text-xs font-black text-dd-text">
+                {text('Conhecimento necessário', 'Required knowledge')}
+              </p>
               <p className="mt-1 text-xs leading-relaxed text-dd-muted">
-                Este é um dos poucos vínculos obrigatórios porque o exercício usa esse contrato
-                diretamente.
+                {text(
+                  'Este é um dos poucos vínculos obrigatórios porque o exercício usa esse contrato diretamente.',
+                  'This is one of the few required links because the exercise relies on this contract directly.'
+                )}
               </p>
             </div>
           </div>
@@ -230,7 +262,7 @@ function NodeDetail({
             onClick={() => onSelectNode(missingRequired[0].nodeId)}
             className="dd-focus-ring mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-dd-text px-3 py-2.5 text-xs font-black text-dd-bg"
           >
-            Estudar requisito
+            {text('Estudar requisito', 'Study prerequisite')}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </button>
         </div>
@@ -241,10 +273,15 @@ function NodeDetail({
           <div className="flex gap-2">
             <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" aria-hidden="true" />
             <div>
-              <p className="text-xs font-black text-dd-text">Recomendação, não bloqueio</p>
+              <p className="text-xs font-black text-dd-text">
+                {text('Recomendação, não bloqueio', 'Recommendation, not a blocker')}
+              </p>
               <p className="mt-1 text-xs leading-relaxed text-dd-muted">
-                {missingRecommended.map((item) => item.title).join(', ')} pode facilitar este
-                conhecimento, mas você decide o caminho.
+                {missingRecommended.map((item) => item.title).join(', ')}{' '}
+                {text(
+                  'pode facilitar este conhecimento, mas você decide o caminho.',
+                  'may help with this knowledge, but you choose the path.'
+                )}
               </p>
             </div>
           </div>
@@ -253,7 +290,7 @@ function NodeDetail({
             onClick={() => onSelectNode(missingRecommended[0].nodeId)}
             className="dd-focus-ring mt-3 w-full rounded-xl border border-blue-500/30 px-3 py-2.5 text-xs font-black text-blue-500 transition hover:bg-blue-500/10"
           >
-            Estudar conhecimento recomendado
+            {text('Estudar conhecimento recomendado', 'Study recommended knowledge')}
           </button>
         </div>
       )}
@@ -261,14 +298,17 @@ function NodeDetail({
       <div className="mt-5 border-t border-dd-border pt-5">
         <div className="flex items-center justify-between gap-3">
           <h3 className="text-xs font-black uppercase tracking-[0.12em] text-dd-muted">
-            Exercícios práticos
+            {text('Exercícios práticos', 'Practical exercises')}
           </h3>
           <span className="text-xs font-bold text-dd-muted">{node.exercises.length}</span>
         </div>
 
         {node.exercises.length === 0 ? (
           <div className="mt-3 rounded-2xl border border-dashed border-dd-border p-4 text-sm text-dd-muted">
-            Este conhecimento ainda não foi publicado porque não possui exercício avaliável.
+            {text(
+              'Este conhecimento ainda não foi publicado porque não possui exercício avaliável.',
+              'This knowledge is not published yet because it has no evaluable exercise.'
+            )}
           </div>
         ) : (
           <ul className="mt-3 space-y-2">
@@ -295,7 +335,8 @@ function NodeDetail({
                       {exercise.title}
                     </span>
                     <span className="mt-0.5 block text-[10px] font-semibold text-dd-muted">
-                      Dificuldade {exercise.difficulty}/5 · {exercise.baseXp} XP base
+                      {text('Dificuldade', 'Difficulty')} {exercise.difficulty}/5 ·{' '}
+                      {exercise.baseXp} XP {text('base', 'base')}
                     </span>
                   </span>
                   {index === 0 && missingRequired.length === 0 && (
@@ -312,7 +353,9 @@ function NodeDetail({
             href={`/lesson/${firstExercise.slug}`}
             className="dd-focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-500 px-4 py-3 text-sm font-black text-white shadow-sm shadow-blue-500/20 transition hover:bg-blue-600"
           >
-            {missingRecommended.length > 0 ? 'Começar mesmo assim' : 'Começar exercício'}
+            {missingRecommended.length > 0
+              ? text('Começar mesmo assim', 'Start anyway')
+              : text('Começar exercício', 'Start exercise')}
             <ArrowRight className="h-4 w-4" aria-hidden="true" />
           </Link>
         )}
@@ -337,6 +380,7 @@ export function TrailsContent({
   completedLessonIds = [],
 }: TrailsContentProps) {
   const router = useRouter();
+  const { text } = useLocalizedText();
   const [viewMode, setViewMode] = useState<'map' | 'trail'>(initialViewMode);
   const responsiveViewMode = useResponsiveTrailViewMode(viewMode);
 
@@ -353,8 +397,9 @@ export function TrailsContent({
   const [courses, setCourses] = useState(initialCourses);
   const [activeLanguage, setActiveLanguage] = useState<TrailLanguageCode>(initialActiveLanguage);
   const [selectedPathId, setSelectedPathId] = useState(
-    knowledgeMap.paths.find((path) => (initialPathSlug ? path.slug === initialPathSlug : path.featured))
-      ?.id ??
+    knowledgeMap.paths.find((path) =>
+      initialPathSlug ? path.slug === initialPathSlug : path.featured
+    )?.id ??
       knowledgeMap.paths[0]?.id ??
       ''
   );
@@ -363,9 +408,8 @@ export function TrailsContent({
     [initialActiveLanguage, knowledgeMap.nodes]
   );
   const initialNodeId =
-    initialCourseNodes.find(
-      (node) => node.status === 'RECOMMENDED' || node.status === 'AVAILABLE'
-    )?.id ??
+    initialCourseNodes.find((node) => node.status === 'RECOMMENDED' || node.status === 'AVAILABLE')
+      ?.id ??
     initialCourseNodes[0]?.id ??
     '';
   const [selectedNodeId, setSelectedNodeId] = useState(initialNodeId);
@@ -411,9 +455,8 @@ export function TrailsContent({
     const nextCoursePaths = getCourseLearningPaths(knowledgeMap.paths, nextCourseNodes);
     const nextSelectedPath = nextCoursePaths.find((path) => path.featured) ?? nextCoursePaths[0];
     const nextNodeId =
-      nextCourseNodes.find(
-        (node) => node.status === 'RECOMMENDED' || node.status === 'AVAILABLE'
-      )?.id ??
+      nextCourseNodes.find((node) => node.status === 'RECOMMENDED' || node.status === 'AVAILABLE')
+        ?.id ??
       nextCourseNodes[0]?.id ??
       '';
 
@@ -422,9 +465,7 @@ export function TrailsContent({
 
     const startedLanguages = courses
       .map((course) => course.language)
-      .concat(
-        courses.some((course) => course.language === language) ? [] : [language]
-      );
+      .concat(courses.some((course) => course.language === language) ? [] : [language]);
 
     setCourses((previousCourses) =>
       previousCourses.map((course) =>
@@ -534,11 +575,16 @@ export function TrailsContent({
             <section className="relative z-20 mx-3 mt-3 rounded-3xl border border-dashed border-dd-border bg-dd-card p-10 text-center md:absolute md:left-1/2 md:top-1/2 md:m-0 md:w-[520px] md:-translate-x-1/2 md:-translate-y-1/2">
               <MapPinned className="mx-auto h-8 w-8 text-dd-muted" aria-hidden="true" />
               <h2 className="mt-4 text-lg font-black text-dd-text">
-                Curso de {getTrailLanguageMetadata(activeLanguage).label} em preparação
+                {text(
+                  `Curso de ${getTrailLanguageMetadata(activeLanguage).label} em preparação`,
+                  `${getTrailLanguageMetadata(activeLanguage).label} course in preparation`
+                )}
               </h2>
               <p className="mx-auto mt-2 max-w-md text-sm text-dd-muted">
-                Este curso já foi adicionado aos seus cursos, mas ainda não possui conhecimentos
-                publicados neste mapa. Você pode trocar de linguagem no seletor acima.
+                {text(
+                  'Este curso já foi adicionado aos seus cursos, mas ainda não possui conhecimentos publicados neste mapa. Você pode trocar de linguagem no seletor acima.',
+                  'This course has been added to your courses, but it has no published knowledge in this map yet. You can switch languages using the selector above.'
+                )}
               </p>
             </section>
           ) : (

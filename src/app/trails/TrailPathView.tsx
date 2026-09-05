@@ -21,6 +21,7 @@ import {
 import type { TrailLevel } from '@/lib/trailsData';
 import type { KnowledgeMapNode, LearningPathSummary } from '@/lib/learning/types';
 import { getHighestJumpedSection } from '@/lib/trails/jump';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import {
   buildTrailCodeLessonId,
   buildTrailLessonId,
@@ -170,7 +171,8 @@ function TrailActivityPopup({
   onStart: () => void;
   align?: 'center' | 'start' | 'end';
 }) {
-  const actionLabel = level.completed ? 'Revisar' : 'Praticar';
+  const { text } = useLocalizedText();
+  const actionLabel = level.completed ? text('Revisar', 'Review') : text('Praticar', 'Practice');
   const popupPositionClass =
     align === 'start'
       ? '-left-2 sm:left-0'
@@ -232,7 +234,7 @@ function TrailActivityPopup({
         )}
         <span className="flex items-center gap-1.5">
           <Gauge className="h-4 w-4" aria-hidden="true" />
-          Nível {level.difficulty}/5
+          {text('Nível', 'Level')} {level.difficulty}/5
         </span>
       </div>
 
@@ -529,6 +531,7 @@ export function TrailPathView({
   completedLessonIds = EMPTY_COMPLETED_LESSON_IDS,
 }: TrailPathViewProps) {
   const router = useRouter();
+  const { text } = useLocalizedText();
   const rootRef = useRef<HTMLDivElement>(null);
   const initialSection = Math.min(8, Math.max(1, Math.trunc(initialSectionNumber)));
   const previousPathIdRef = useRef(selectedPathId);
@@ -896,7 +899,9 @@ export function TrailPathView({
     return (
       <section className="mx-auto max-w-xl rounded-2xl border border-dashed border-dd-border bg-dd-card p-8 text-center">
         <Trophy className="mx-auto h-8 w-8 text-dd-muted" aria-hidden="true" />
-        <h2 className="mt-4 text-lg font-black text-dd-text">Trilha em preparação</h2>
+        <h2 className="mt-4 text-lg font-black text-dd-text">
+          {text('Trilha em preparação', 'Trail in preparation')}
+        </h2>
         <p className="mt-2 text-sm leading-relaxed text-dd-muted">
           O curso de {activeLanguage} ainda não possui um rumo publicado.
         </p>
@@ -999,13 +1004,13 @@ export function TrailPathView({
                 {/* Robot Mascot 1 (Top Right) */}
                 <div
                   data-testid="trail-robot"
-                  className="pointer-events-none absolute -right-4 top-[35px] z-[3] hidden h-[115px] w-[115px] select-none transition-all sm:-right-10 sm:block md:-right-16 md:h-[125px] md:w-[125px] lg:-right-24"
+                  className="pointer-events-none absolute right-0 top-[35px] z-[3] h-[92px] w-[92px] select-none transition-all sm:-right-4 sm:h-28 sm:w-28 md:-right-8 md:h-[115px] md:w-[115px] lg:-right-12"
                 >
                   <Image
                     src="/assets/trails/blue-devdeck-robot.png"
                     alt="Robô mascote digitando"
                     fill
-                    sizes="125px"
+                    sizes="(min-width: 768px) 115px, (min-width: 640px) 112px, 92px"
                     className="object-contain drop-shadow-md"
                     style={{ filter: chestTintFilter(theme.primaryHex) }}
                     priority={unitNumber === firstUnitNumber}
@@ -1015,13 +1020,13 @@ export function TrailPathView({
                 {/* Robot Mascot 2 (Middle Left - Gaming/Typing pose) */}
                 <div
                   data-testid="trail-robot-gaming"
-                  className="pointer-events-none absolute -left-4 top-[40%] z-[3] hidden h-[115px] w-[115px] select-none transition-all sm:-left-10 sm:block md:-left-16 md:h-[125px] md:w-[125px] lg:-left-24"
+                  className="pointer-events-none absolute left-0 top-[37%] z-[3] h-20 w-20 select-none transition-all sm:-left-4 sm:h-28 sm:w-28 md:-left-8 md:h-[115px] md:w-[115px] lg:-left-12"
                 >
                   <Image
                     src="/assets/trails/blue-devdeck-robot-gaming.png"
                     alt="Robô mascote com headset"
                     fill
-                    sizes="125px"
+                    sizes="(min-width: 768px) 115px, (min-width: 640px) 112px, 80px"
                     className="object-contain drop-shadow-md"
                     style={{ filter: chestTintFilter(theme.primaryHex) }}
                   />

@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import type { TrailLevel } from '@/lib/trailsData';
 import { getSectionTheme } from './trailTheme';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 export interface TrailSectionView {
   number: number;
@@ -105,6 +106,7 @@ export function TrailSectionNavigation({
   selectedRouteId,
   onSelectRoute,
 }: TrailSectionNavigationProps) {
+  const { text } = useLocalizedText();
   const theme = getSectionTheme(sectionNumber);
 
   if (view === 'sections') {
@@ -116,18 +118,21 @@ export function TrailSectionNavigation({
           className="dd-focus-ring mb-5 flex cursor-pointer items-center gap-2 rounded-lg px-1 py-1 text-sm font-black text-dd-muted transition-colors hover:text-dd-text"
         >
           <ArrowLeft className="h-5 w-5" />
-          Voltar
+          {text('Voltar', 'Back')}
         </button>
 
         <div className="mb-5 border-b border-dd-border pb-5">
           <p className="text-[10px] font-black uppercase tracking-[0.14em] text-blue-400">
-            Guia do curso
+            {text('Guia do curso', 'Course guide')}
           </p>
           <h1 id="trail-sections-title" className="mt-1 text-2xl font-black text-dd-text">
-            Seções e unidades
+            {text('Seções e unidades', 'Sections and units')}
           </h1>
           <p className="mt-1 text-sm font-semibold text-dd-muted">
-            Escolha um rumo e entre em uma seção para estudar ou revisar suas unidades.
+            {text(
+              'Escolha um rumo e entre em uma seção para estudar ou revisar suas unidades.',
+              'Choose a path and enter a section to study or review its units.'
+            )}
           </p>
         </div>
 
@@ -136,9 +141,11 @@ export function TrailSectionNavigation({
             <div className="mb-3 flex items-center justify-between gap-3">
               <div>
                 <p className="text-[10px] font-black uppercase tracking-[0.14em] text-dd-muted">
-                  Rumo da trilha
+                  {text('Rumo da trilha', 'Trail path')}
                 </p>
-                <h2 className="mt-1 text-base font-black text-dd-text">O que você quer estudar?</h2>
+                <h2 className="mt-1 text-base font-black text-dd-text">
+                  {text('O que você quer estudar?', 'What do you want to study?')}
+                </h2>
               </div>
               <Route className="h-5 w-5 text-blue-400" aria-hidden="true" />
             </div>
@@ -176,7 +183,8 @@ export function TrailSectionNavigation({
                         </span>
                         <span className="mt-3 flex items-center justify-between gap-3 text-[10px] font-black tabular-nums">
                           <span className={selected ? 'text-blue-400' : 'text-dd-muted'}>
-                            {route.completedUnits}/{route.totalUnits} atividades
+                            {route.completedUnits}/{route.totalUnits}{' '}
+                            {text('atividades', 'activities')}
                           </span>
                           <span style={{ color: route.accentColor }}>{progress}%</span>
                         </span>
@@ -193,12 +201,12 @@ export function TrailSectionNavigation({
           {sections.map((section) => {
             const isCurrent = section.number === sectionNumber;
             const actionLabel = section.completed
-              ? 'Revisar'
+              ? text('Revisar', 'Review')
               : section.unlocked
                 ? isCurrent
-                  ? 'Continuar'
-                  : 'Abrir'
-                : 'Pular para cá';
+                  ? text('Continuar', 'Continue')
+                  : text('Abrir', 'Open')
+                : text('Pular para cá', 'Jump here');
 
             return (
               <article
@@ -219,7 +227,7 @@ export function TrailSectionNavigation({
                       {section.name} · {section.levels.length} unidades
                     </p>
                     <h2 className="mt-2 text-xl font-black text-dd-text">
-                      Seção {section.number} · {section.title}
+                      {text('Seção', 'Section')} {section.number} · {section.title}
                     </h2>
                     {section.description && (
                       <p className="mt-1 max-w-xl text-xs font-semibold leading-relaxed text-dd-muted">
@@ -254,8 +262,8 @@ export function TrailSectionNavigation({
                         <Lock className="h-4 w-4" />
                       )}
                       {section.completed
-                        ? 'Concluída'
-                        : `${section.completedUnits} de ${section.levels.length} unidades`}
+                        ? text('Concluída', 'Completed')
+                        : `${section.completedUnits} ${text('de', 'of')} ${section.levels.length} ${text('unidades', 'units')}`}
                     </div>
                   </div>
 
@@ -293,7 +301,7 @@ export function TrailSectionNavigation({
       <div className="relative flex items-center justify-between gap-4">
         <div className="min-w-0">
           <p className="text-[11px] font-black uppercase tracking-[0.08em] text-white/90 sm:text-xs">
-            Seção {sectionNumber}, Unidade {unitNumber}
+            {text('Seção', 'Section')} {sectionNumber}, {text('Unidade', 'Unit')} {unitNumber}
           </p>
           <h1
             id="active-trail-unit-title"
@@ -305,12 +313,12 @@ export function TrailSectionNavigation({
 
         <button
           type="button"
-          aria-label="Abrir seções e unidades"
+          aria-label={text('Abrir seções e unidades', 'Open sections and units')}
           onClick={onOpenSections}
           className="dd-focus-ring flex shrink-0 cursor-pointer items-center gap-2 rounded-xl border-2 border-white/30 bg-black/15 px-4 py-2.5 text-xs font-black uppercase tracking-wide text-white shadow-[0_3px_0_rgba(0,0,0,0.2)] transition-all hover:bg-black/25 active:translate-y-[2px] active:shadow-none"
         >
           <BookOpen className="h-4 w-4" />
-          <span className="hidden sm:inline">Seções</span>
+          <span className="hidden sm:inline">{text('Seções', 'Sections')}</span>
         </button>
       </div>
     </section>

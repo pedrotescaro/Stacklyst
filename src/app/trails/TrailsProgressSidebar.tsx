@@ -6,6 +6,7 @@ import { TrailCourseSelector } from '@/app/trails/TrailCourseSelector';
 import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
 import type { TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
 import { StreakPopover } from '@/components/StreakPopover';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 export interface TrailDailyProgress {
   xpEarned: number;
@@ -30,8 +31,8 @@ interface TrailsProgressSidebarProps {
   allowAddingCourses?: boolean;
 }
 
-function formatMetric(value: number) {
-  return Math.max(0, value).toLocaleString('pt-BR');
+function formatMetric(value: number, locale = 'pt-BR') {
+  return Math.max(0, value).toLocaleString(locale);
 }
 
 function clampProgress(value: number, goal: number) {
@@ -109,17 +110,23 @@ export function TrailsProgressSidebar({
   variant = 'trails',
   allowAddingCourses = true,
 }: TrailsProgressSidebarProps) {
+  const { locale, text } = useLocalizedText();
   const initials = username.slice(0, 2).toUpperCase();
   const rankMessage =
     globalRank <= 3
-      ? 'Continue assim para ficar no pódio!'
-      : `Faltam ${globalRank - 3} ${globalRank - 3 === 1 ? 'posição' : 'posições'} para o pódio.`;
+      ? text('Continue assim para ficar no pódio!', 'Keep it up to reach the podium!')
+      : text(
+          `Faltam ${globalRank - 3} ${globalRank - 3 === 1 ? 'posição' : 'posições'} para o pódio.`,
+          `${globalRank - 3} ${globalRank - 3 === 1 ? 'place' : 'places'} away from the podium.`
+        );
 
   return (
     <aside
       data-testid={variant === 'profile' ? 'profile-progress-sidebar' : 'trails-progress-sidebar'}
       aria-label={
-        variant === 'profile' ? 'Progresso e missões do perfil' : 'Progresso e missões da trilha'
+        variant === 'profile'
+          ? text('Progresso e missões do perfil', 'Profile progress and missions')
+          : text('Progresso e missões da trilha', 'Trail progress and missions')
       }
       className={[
         'sticky top-0 hidden h-screen w-[380px] shrink-0 flex-col gap-4 overflow-y-auto p-5 scrollbar-none xl:flex',
@@ -151,7 +158,7 @@ export function TrailsProgressSidebar({
         </StreakPopover>
 
         <div
-          title={`${formatMetric(totalXp)} XP total`}
+          title={`${formatMetric(totalXp, locale)} ${text('XP total', 'total XP')}`}
           className="flex min-w-0 items-center justify-center gap-1.5"
         >
           <Image
@@ -165,7 +172,7 @@ export function TrailsProgressSidebar({
         </div>
 
         <div
-          title={`${formatMetric(gems)} gemas`}
+          title={`${formatMetric(gems, locale)} ${text('gemas', 'gems')}`}
           className="flex min-w-0 items-center justify-center gap-1"
         >
           <Gem
@@ -177,7 +184,7 @@ export function TrailsProgressSidebar({
         </div>
 
         <div
-          title={`Perfil de @${username}`}
+          title={text(`Perfil de @${username}`, `@${username}'s profile`)}
           className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-blue-500/25 bg-blue-500/10 text-[10px] font-black text-blue-300"
         >
           {avatarUrl ? (
@@ -202,14 +209,14 @@ export function TrailsProgressSidebar({
         <div className="flex items-start justify-between gap-5">
           <div className="min-w-0 pt-1">
             <span className="inline-flex rounded-lg bg-blue-500 px-3 py-2 text-[10px] font-black uppercase leading-4 tracking-wide text-white">
-              Classificação
+              {text('Classificação', 'Ranking')}
             </span>
 
             <h2
               id="trail-ranking-title"
               className="mt-5 text-[22px] font-black leading-tight text-dd-text"
             >
-              {globalRank}º lugar
+              {text(`${globalRank}º lugar`, `Rank ${globalRank}`)}
             </h2>
           </div>
 
@@ -227,18 +234,20 @@ export function TrailsProgressSidebar({
           <div className="flex items-center justify-between gap-3">
             <div className="min-w-0">
               <p className="text-xs font-black text-dd-text">
-                Sua posição: <span className="text-blue-400">{globalRank}º</span>
+                {text('Sua posição:', 'Your position:')}{' '}
+                <span className="text-blue-400">{globalRank}º</span>
               </p>
               <p className="mt-1 text-[9px] font-black uppercase tracking-wider text-dd-muted">
-                {globalRank} de {Math.max(totalParticipants, globalRank)} desenvolvedores
+                {globalRank} {text('de', 'of')} {Math.max(totalParticipants, globalRank)}{' '}
+                {text('desenvolvedores', 'developers')}
               </p>
             </div>
             <Link
               href="/ranking"
-              aria-label="Ver ranking"
+              aria-label={text('Ver ranking', 'View ranking')}
               className="flex items-center gap-0.5 text-[10px] font-black uppercase tracking-wide text-blue-400 transition-colors hover:text-blue-300"
             >
-              Ver ranking
+              {text('Ver ranking', 'View ranking')}
               <ChevronRight className="h-3.5 w-3.5" />
             </Link>
           </div>
@@ -253,14 +262,14 @@ export function TrailsProgressSidebar({
         <div className="flex items-start justify-between gap-5">
           <div className="min-w-0 pt-1">
             <span className="inline-flex rounded-lg bg-blue-500 px-3 py-2 text-[10px] font-black uppercase leading-4 tracking-wide text-white">
-              Missões do dia
+              {text('Missões do dia', 'Daily missions')}
             </span>
 
             <h2
               id="daily-missions-title"
               className="mt-5 text-[22px] font-black leading-tight text-dd-text"
             >
-              Desafios diários
+              {text('Desafios diários', 'Daily challenges')}
             </h2>
           </div>
 
@@ -273,13 +282,16 @@ export function TrailsProgressSidebar({
         </div>
 
         <p className="mt-4 max-w-[260px] text-sm font-bold leading-6 text-dd-text">
-          Complete as missões abaixo para ganhar XP bônus!
+          {text(
+            'Complete as missões abaixo para ganhar XP bônus!',
+            'Complete the missions below to earn bonus XP!'
+          )}
         </p>
 
         <div className="mt-5 rounded-2xl bg-dd-surface p-3.5">
           <div className="divide-y divide-dd-border/50">
             <MissionProgress
-              label="Ganhe 30 XP em trilhas"
+              label={text('Ganhe 30 XP em trilhas', 'Earn 30 XP in trails')}
               progress={dailyProgress.xpEarned}
               goal={30}
               icon={
@@ -288,14 +300,14 @@ export function TrailsProgressSidebar({
               barClass="bg-yellow-400"
             />
             <MissionProgress
-              label="Acerte 3 exercícios"
+              label={text('Acerte 3 exercícios', 'Get 3 exercises right')}
               progress={dailyProgress.correctAnswers}
               goal={3}
               icon={<Target className="h-8 w-8 text-emerald-400" strokeWidth={2.5} />}
               barClass="bg-emerald-400"
             />
             <MissionProgress
-              label="Responda 1 exercício da trilha"
+              label={text('Responda 1 exercício da trilha', 'Complete 1 trail exercise')}
               progress={dailyProgress.trailActivities}
               goal={1}
               icon={

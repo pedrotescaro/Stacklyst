@@ -10,6 +10,7 @@ import {
   TrailLanguageLogo,
 } from '@/app/trails/TrailLanguageLogo';
 import type { TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 export interface TrailCourseOption {
   language: TrailLanguageCode;
@@ -58,6 +59,7 @@ export function TrailCourseSelector({
   variant = 'rail',
   allowAddingCourses = true,
 }: TrailCourseSelectorProps) {
+  const { text } = useLocalizedText();
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<'courses' | 'add'>('courses');
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -119,7 +121,10 @@ export function TrailCourseSelector({
         <Menu.Trigger
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          aria-label={`Trocar curso. ${activeMetadata.label}, ${formatXp(activeCourse.xp)} XP`}
+          aria-label={text(
+            `Trocar curso. ${activeMetadata.label}, ${formatXp(activeCourse.xp)} XP`,
+            `Switch course. ${activeMetadata.label}, ${formatXp(activeCourse.xp)} XP`
+          )}
           data-testid={`course-selector-trigger-${variant}`}
           className={
             variant === 'rail'
@@ -158,7 +163,9 @@ export function TrailCourseSelector({
                 id={menuLabelId}
                 className="border-b border-dd-border px-4 py-3 text-[10px] font-black uppercase tracking-[0.12em] text-dd-muted bg-dd-sidebar-bg"
               >
-                {view === 'courses' ? 'Meus cursos' : 'Adicionar curso'}
+                {view === 'courses'
+                  ? text('Meus cursos', 'My courses')
+                  : text('Adicionar curso', 'Add course')}
               </div>
 
               {view === 'courses' ? (
@@ -190,7 +197,9 @@ export function TrailCourseSelector({
                       <span className="flex h-9 w-9 items-center justify-center rounded-xl border border-dd-border bg-dd-surface text-dd-muted">
                         <Plus className="h-5 w-5" />
                       </span>
-                      <span className="text-sm font-black text-dd-text">Adicionar curso</span>
+                      <span className="text-sm font-black text-dd-text">
+                        {text('Adicionar curso', 'Add course')}
+                      </span>
                     </Menu.Item>
                   )}
                 </>
@@ -202,7 +211,7 @@ export function TrailCourseSelector({
                     className="flex min-h-12 cursor-pointer items-center gap-2 border-b border-dd-border/70 px-4 py-2 text-xs font-black text-blue-500 dark:text-blue-400 outline-none transition-colors data-[highlighted]:bg-dd-surface hover:bg-dd-surface"
                   >
                     <ArrowLeft className="h-4 w-4" />
-                    Voltar para meus cursos
+                    {text('Voltar para meus cursos', 'Back to my courses')}
                   </Menu.Item>
 
                   {availableCourses.length > 0 ? (
@@ -218,7 +227,10 @@ export function TrailCourseSelector({
                     ))
                   ) : (
                     <p className="px-4 py-5 text-center text-xs font-semibold text-dd-muted">
-                      Todos os cursos disponíveis já foram iniciados.
+                      {text(
+                        'Todos os cursos disponíveis já foram iniciados.',
+                        'All available courses have already been started.'
+                      )}
                     </p>
                   )}
                 </>

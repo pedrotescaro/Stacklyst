@@ -101,6 +101,14 @@ describe('TrailPathView', () => {
     expect(screen.getAllByRole('button', { name: /Baú da trilha/ })).toHaveLength(8);
     expect(screen.getAllByTestId('trail-robot')).toHaveLength(8);
     expect(screen.getAllByTestId('trail-robot-gaming')).toHaveLength(8);
+    for (const robot of screen.getAllByTestId('trail-robot')) {
+      expect(robot).not.toHaveClass('hidden');
+      expect(robot).toHaveClass('right-0', 'h-[92px]', 'w-[92px]', 'sm:h-28', 'sm:w-28');
+    }
+    for (const robot of screen.getAllByTestId('trail-robot-gaming')) {
+      expect(robot).not.toHaveClass('hidden');
+      expect(robot).toHaveClass('left-0', 'top-[37%]', 'md:-left-8', 'lg:-left-12');
+    }
     expect(screen.getAllByTestId('trail-book-icon').length).toBeGreaterThan(0);
     expect(screen.queryByText(/^\{[1-8]\}$/)).not.toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /Pular para a seção/ })).toHaveLength(7);
