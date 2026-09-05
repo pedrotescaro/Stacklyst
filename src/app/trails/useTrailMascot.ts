@@ -159,6 +159,22 @@ function isHorizontal(direction: MascotDirection) {
   return direction === 'direita' || direction === 'esquerda';
 }
 
+export function resolveMascotMovementRange(
+  nodeKeys: readonly string[],
+  requestedFromKey: string,
+  targetKey: string,
+  replaySameNode: boolean
+) {
+  let fromIndex = nodeKeys.indexOf(requestedFromKey);
+  const targetIndex = nodeKeys.indexOf(targetKey);
+
+  if (replaySameNode && fromIndex === targetIndex && targetIndex > 0) {
+    fromIndex = targetIndex - 1;
+  }
+
+  return { fromIndex, targetIndex };
+}
+
 export function chooseMascotDirection(
   dx: number,
   dy: number,
@@ -270,14 +286,26 @@ export function useTrailMascot({
 
     const pending = readPendingTrailMascotMovement(progressKey);
     const previousSettledKey = settledNodeKeyRef.current;
-    const fromKey =
+    let fromKey =
       pending?.fromNodeKey && layout.nodeByKey.has(pending.fromNodeKey)
         ? pending.fromNodeKey
         : previousSettledKey && layout.nodeByKey.has(previousSettledKey)
           ? previousSettledKey
           : targetKey;
-    const fromIndex = layout.nodes.findIndex((node) => node.key === fromKey);
-    const targetIndex = layout.nodes.findIndex((node) => node.key === targetKey);
+    const movementRange = resolveMascotMovementRange(
+      layout.nodes.map((node) => node.key),
+      fromKey,
+      targetKey,
+      Boolean(pending)
+    );
+    const { fromIndex, targetIndex } = movementRange;
+
+    // Returning without completing a lesson keeps the same current node. Replay the
+    // approach from the preceding node so every return still shows visible movement.
+    if (fromKey !== layout.nodes[fromIndex]?.key && fromIndex >= 0) {
+      fromKey = layout.nodes[fromIndex]!.key;
+    }
+
     const shouldAnimate = fromIndex >= 0 && targetIndex > fromIndex;
     const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 

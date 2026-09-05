@@ -20,6 +20,7 @@ import { OutputPredictionStep } from '@/components/lesson/renderers/OutputPredic
 import { TerminalStep } from '@/components/lesson/renderers/TerminalStep';
 import { CodeBlockBuilderStep } from '@/components/lesson/renderers/CodeBlockBuilderStep';
 import { parseTrailLessonId } from '@/app/trails/trailCurriculum';
+import { rememberTrailMascotReturn } from '@/app/trails/trailMascotProgress';
 
 import {
   evaluateMultipleChoice,
@@ -367,6 +368,7 @@ export function LessonClient({ lesson, returnTo }: LessonClientProps) {
   // Retorna para a trilha respeitando a preferência de visualização do usuário (Trilha ou Mapa)
   const handleReturnToTrails = () => {
     if (returnTo) {
+      rememberTrailMascotReturn(returnTo, lesson.id);
       router.push(returnTo);
       return;
     }
