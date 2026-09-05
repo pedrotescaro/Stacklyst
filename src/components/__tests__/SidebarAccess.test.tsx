@@ -2,6 +2,7 @@ import type { ComponentProps } from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Sidebar } from '@/components/Sidebar';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 
 const getCurrentUser = vi.fn();
 
@@ -37,6 +38,7 @@ const regularUser = {
 describe('Sidebar role-aware navigation', () => {
   beforeEach(() => {
     sessionStorage.clear();
+    localStorage.clear();
     getCurrentUser.mockReset();
     window.matchMedia = vi.fn().mockImplementation((query: string) => ({
       matches: false,
@@ -54,6 +56,7 @@ describe('Sidebar role-aware navigation', () => {
     getCurrentUser.mockResolvedValue(regularUser);
     render(<Sidebar user={regularUser} />);
 
+    await waitFor(() => expect(getCurrentUser).toHaveBeenCalled());
     fireEvent.click(screen.getByRole('button', { name: 'Mais' }));
 
     expect(screen.getByRole('menuitem', { name: 'Avaliação de Código' })).toBeInTheDocument();
@@ -75,5 +78,22 @@ describe('Sidebar role-aware navigation', () => {
       'href',
       '/admin'
     );
+  });
+
+  it('uses the selected English locale for the primary platform navigation', async () => {
+    localStorage.setItem('site-language', 'en');
+    getCurrentUser.mockResolvedValue(regularUser);
+
+    render(
+      <LanguageProvider>
+        <Sidebar user={regularUser} />
+      </LanguageProvider>
+    );
+
+    await waitFor(() => expect(getCurrentUser).toHaveBeenCalled());
+    expect(await screen.findAllByRole('link', { name: 'Home' })).toHaveLength(2);
+    expect(screen.getAllByRole('link', { name: 'Notifications' })).toHaveLength(2);
+    expect(screen.getByRole('link', { name: 'Bookmarks' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument();
   });
 });

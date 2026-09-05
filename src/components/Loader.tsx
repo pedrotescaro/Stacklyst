@@ -3,6 +3,7 @@
 import type { HTMLAttributes } from 'react';
 import { LazyMotion, domAnimation, m, useReducedMotion } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface LoaderProps extends HTMLAttributes<HTMLDivElement> {
   title?: string;
@@ -36,15 +37,18 @@ const sizeConfig = {
 
 const infinite = Number.POSITIVE_INFINITY;
 
-export default function Loader({
-  title = 'Preparando sua experiência...',
-  subtitle = 'Aguarde enquanto deixamos tudo pronto para você',
-  size = 'md',
-  className,
-  ...props
-}: LoaderProps) {
+export default function Loader({ title, subtitle, size = 'md', className, ...props }: LoaderProps) {
+  const { text } = useLocalizedText();
   const reduceMotion = useReducedMotion();
   const config = sizeConfig[size];
+  const resolvedTitle =
+    title ?? text('Preparando sua experiência...', 'Preparing your experience...');
+  const resolvedSubtitle =
+    subtitle ??
+    text(
+      'Aguarde enquanto deixamos tudo pronto para você',
+      'Please wait while we get everything ready'
+    );
 
   return (
     <LazyMotion features={domAnimation} strict>
@@ -136,7 +140,7 @@ export default function Loader({
               animate={reduceMotion ? undefined : { opacity: [0.9, 0.7, 0.9] }}
               transition={{ duration: 3, repeat: infinite, ease: [0.4, 0, 0.6, 1] }}
             >
-              {title}
+              {resolvedTitle}
             </m.span>
           </m.h1>
 
@@ -153,7 +157,7 @@ export default function Loader({
               animate={reduceMotion ? undefined : { opacity: [0.6, 0.4, 0.6] }}
               transition={{ duration: 4, repeat: infinite, ease: [0.4, 0, 0.6, 1] }}
             >
-              {subtitle}
+              {resolvedSubtitle}
             </m.span>
           </m.p>
         </m.div>

@@ -16,6 +16,7 @@ import {
 import { Sidebar } from '@/components/Sidebar';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { StreakPopover } from '@/components/StreakPopover';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface LeaderboardRow {
   rank: number;
@@ -74,8 +75,8 @@ const QUICK_SCOPES: Array<{
 
 const XP_MILESTONES = [100, 500, 1_000, 2_500, 5_000] as const;
 
-function formatXp(value: number) {
-  return Math.max(0, value).toLocaleString('pt-BR');
+function formatXp(value: number, locale = 'pt-BR') {
+  return Math.max(0, value).toLocaleString(locale);
 }
 
 function medalClasses(rank: number) {
@@ -85,6 +86,7 @@ function medalClasses(rank: number) {
 }
 
 function XpMilestoneStrip({ totalXp }: { totalXp: number }) {
+  const { locale, text } = useLocalizedText();
   const activeIndex = XP_MILESTONES.reduce<number>(
     (current, milestone, index) => (totalXp >= milestone ? index : current),
     0
@@ -92,7 +94,7 @@ function XpMilestoneStrip({ totalXp }: { totalXp: number }) {
 
   return (
     <div
-      aria-label="Marcos de XP"
+      aria-label={text('Marcos de XP', 'XP milestones')}
       className="flex min-h-[104px] items-end justify-center gap-3 sm:gap-4"
     >
       {XP_MILESTONES.map((milestone, index) => {
@@ -110,8 +112,8 @@ function XpMilestoneStrip({ totalXp }: { totalXp: number }) {
               role="img"
               aria-label={
                 isCurrent
-                  ? `${isReached ? 'Marco atual' : 'Próximo marco'}: ${formatXp(milestone)} XP`
-                  : `${formatXp(milestone)} XP ${isReached ? 'alcançado' : 'bloqueado'}`
+                  ? `${isReached ? text('Marco atual', 'Current milestone') : text('Próximo marco', 'Next milestone')}: ${formatXp(milestone, locale)} XP`
+                  : `${formatXp(milestone, locale)} XP ${isReached ? text('alcançado', 'reached') : text('bloqueado', 'locked')}`
               }
               className={`relative flex items-center justify-center border-2 border-b-[6px] shadow-lg ${
                 isCurrent
@@ -141,7 +143,7 @@ function XpMilestoneStrip({ totalXp }: { totalXp: number }) {
                 isCurrent ? 'text-blue-400' : 'text-dd-muted'
               }`}
             >
-              {formatXp(milestone)} XP
+              {formatXp(milestone, locale)} XP
             </span>
           </div>
         );
@@ -151,12 +153,16 @@ function XpMilestoneStrip({ totalXp }: { totalXp: number }) {
 }
 
 function RankingRow({ row, isViewer }: { row: LeaderboardRow; isViewer: boolean }) {
+  const { locale, text } = useLocalizedText();
   const isPodium = row.rank <= 3;
 
   return (
     <Link
       href={`/profile/${encodeURIComponent(row.username)}`}
-      aria-label={`${row.rank}º lugar, ${row.username}, ${formatXp(row.xp)} XP`}
+      aria-label={text(
+        `${row.rank}º lugar, ${row.username}, ${formatXp(row.xp, locale)} XP`,
+        `Rank ${row.rank}, ${row.username}, ${formatXp(row.xp, locale)} XP`
+      )}
       className={`group grid min-h-[72px] grid-cols-[42px_48px_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl px-3 py-2.5 transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70 sm:grid-cols-[48px_52px_minmax(0,1fr)_110px] sm:px-4 ${
         isViewer ? 'bg-blue-500/10 ring-1 ring-inset ring-blue-500/20' : 'hover:bg-dd-surface/70'
       }`}
@@ -171,7 +177,7 @@ function RankingRow({ row, isViewer }: { row: LeaderboardRow; isViewer: boolean 
             {row.rank === 1 && (
               <Image
                 src="/assets/medals/rank-1.png"
-                alt="1º lugar"
+                alt={text('1º lugar', '1st place')}
                 width={24}
                 height={24}
                 className="h-6 w-6 object-contain [image-rendering:pixelated]"
@@ -180,7 +186,7 @@ function RankingRow({ row, isViewer }: { row: LeaderboardRow; isViewer: boolean 
             {row.rank === 2 && (
               <Image
                 src="/assets/medals/rank-2.png"
-                alt="2º lugar"
+                alt={text('2º lugar', '2nd place')}
                 width={24}
                 height={24}
                 className="h-6 w-6 object-contain [image-rendering:pixelated]"
@@ -189,7 +195,7 @@ function RankingRow({ row, isViewer }: { row: LeaderboardRow; isViewer: boolean 
             {row.rank === 3 && (
               <Image
                 src="/assets/medals/rank-3.png"
-                alt="3º lugar"
+                alt={text('3º lugar', '3rd place')}
                 width={24}
                 height={24}
                 className="h-6 w-6 object-contain [image-rendering:pixelated]"
@@ -219,11 +225,13 @@ function RankingRow({ row, isViewer }: { row: LeaderboardRow; isViewer: boolean 
           </p>
           {isViewer && (
             <span className="shrink-0 rounded-full bg-blue-500 px-2 py-0.5 text-[8px] font-black uppercase tracking-wide text-white">
-              Você
+              {text('Você', 'You')}
             </span>
           )}
         </div>
-        <p className="mt-1 text-[10px] font-bold text-dd-muted">Nível {row.level}</p>
+        <p className="mt-1 text-[10px] font-bold text-dd-muted">
+          {text('Nível', 'Level')} {row.level}
+        </p>
       </div>
 
       <span
@@ -238,13 +246,14 @@ function RankingRow({ row, isViewer }: { row: LeaderboardRow; isViewer: boolean 
           height={18}
           className="h-4 w-4 shrink-0 object-contain drop-shadow-[0_2px_6px_rgba(250,204,21,0.4)]"
         />
-        <span>{formatXp(row.xp)} XP</span>
+        <span>{formatXp(row.xp, locale)} XP</span>
       </span>
     </Link>
   );
 }
 
 export function LeaderboardClient({ initialUser, initialLeaderboard }: LeaderboardClientProps) {
+  const { locale, text } = useLocalizedText();
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>(initialLeaderboard);
   const [scope, setScope] = useState<RankingScope>('GLOBAL');
   const [loading, setLoading] = useState(false);
@@ -265,7 +274,10 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
           signal: controller.signal,
         });
 
-        if (!response.ok) throw new Error('Não foi possível carregar o ranking.');
+        if (!response.ok)
+          throw new Error(
+            text('Não foi possível carregar o ranking.', 'Could not load the ranking.')
+          );
         const data = await response.json().catch(() => []);
         if (!controller.signal.aborted) {
           setLeaderboard(Array.isArray(data) ? data : []);
@@ -282,7 +294,7 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
 
     fetchLeaderboard();
     return () => controller.abort();
-  }, [initialLeaderboard, scope]);
+  }, [initialLeaderboard, scope, text]);
 
   const scopeLabel = RANKING_OPTIONS.find((option) => option.value === scope)?.label ?? 'Global';
   const viewerRow = initialUser
@@ -304,10 +316,13 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
 
             <div className="mt-4 text-center">
               <h1 className="text-2xl font-black tracking-tight text-dd-text sm:text-[28px]">
-                Ranking de XP
+                {text('Ranking de XP', 'XP Ranking')}
               </h1>
               <p className="mx-auto mt-2 max-w-[480px] text-sm font-bold leading-6 text-dd-text sm:text-base">
-                Veja os desenvolvedores com mais experiência no Stacklyst.
+                {text(
+                  'Veja os desenvolvedores com mais experiência no Stacklyst.',
+                  'See the developers with the most experience on Stacklyst.'
+                )}
               </p>
               <p className="mt-1.5 flex items-center justify-center gap-1.5 text-xs font-black text-yellow-400">
                 <Image
@@ -319,8 +334,11 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
                 />
                 <span>
                   {nextMilestone
-                    ? `Próximo marco: ${formatXp(nextMilestone)} XP`
-                    : 'Todos os marcos de XP foram alcançados!'}
+                    ? text(
+                        `Próximo marco: ${formatXp(nextMilestone, locale)} XP`,
+                        `Next milestone: ${formatXp(nextMilestone, locale)} XP`
+                      )
+                    : text('Todos os marcos de XP foram alcançados!', 'All XP milestones reached!')}
                 </span>
               </p>
             </div>
@@ -328,9 +346,11 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
             <div className="mt-6 border-b border-dd-border" />
 
             <label className="relative mt-4 block xl:hidden">
-              <span className="sr-only">Filtrar ranking por linguagem</span>
+              <span className="sr-only">
+                {text('Filtrar ranking por linguagem', 'Filter ranking by language')}
+              </span>
               <select
-                aria-label="Filtrar ranking por linguagem"
+                aria-label={text('Filtrar ranking por linguagem', 'Filter ranking by language')}
                 value={scope}
                 onChange={(event) => setScope(event.target.value as RankingScope)}
                 className="min-h-11 w-full appearance-none rounded-2xl border border-dd-border bg-dd-surface px-4 pr-10 text-sm font-black text-dd-text outline-none focus-visible:ring-2 focus-visible:ring-blue-500/70"
@@ -349,13 +369,15 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
           </header>
 
           <section
-            aria-label={`Classificação ${scopeLabel}`}
+            aria-label={text(`Classificação ${scopeLabel}`, `${scopeLabel} ranking`)}
             aria-busy={loading}
             className="px-3 pb-6 sm:px-6"
           >
             {loading ? (
               <div className="space-y-2 py-2" aria-live="polite">
-                <p className="sr-only">Carregando classificação...</p>
+                <p className="sr-only">
+                  {text('Carregando classificação...', 'Loading ranking...')}
+                </p>
                 {Array.from({ length: 7 }, (_, index) => (
                   <div
                     key={index}
@@ -378,10 +400,16 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
               <div className="rounded-2xl border border-dashed border-dd-border px-6 py-14 text-center">
                 <Trophy aria-hidden="true" className="mx-auto h-9 w-9 text-dd-muted" />
                 <p className="mt-3 text-sm font-black text-dd-text">
-                  Ainda não há perfis neste ranking.
+                  {text(
+                    'Ainda não há perfis neste ranking.',
+                    'There are no profiles in this ranking yet.'
+                  )}
                 </p>
                 <p className="mt-1 text-xs font-semibold text-dd-muted">
-                  Inicie uma trilha de {scopeLabel} para aparecer aqui.
+                  {text(
+                    `Inicie uma trilha de ${scopeLabel} para aparecer aqui.`,
+                    `Start a ${scopeLabel} trail to appear here.`
+                  )}
                 </p>
               </div>
             )}
@@ -412,7 +440,10 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
               />
               <span className="font-mono text-[11px] font-black">{initialUser?.streak ?? 0}</span>
             </StreakPopover>
-            <div className="flex items-center justify-center gap-1.5 text-dd-text" title="Posição">
+            <div
+              className="flex items-center justify-center gap-1.5 text-dd-text"
+              title={text('Posição', 'Position')}
+            >
               <Trophy aria-hidden="true" className="h-4 w-4 text-blue-400" />
               <span className="font-mono text-[11px] font-black">{viewerRow?.rank ?? '—'}</span>
             </div>
@@ -439,7 +470,7 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
           >
             <div className="flex items-center justify-between gap-3">
               <h2 id="ranking-picker-title" className="text-sm font-black text-dd-text">
-                Escolha o ranking
+                {text('Escolha o ranking', 'Choose a ranking')}
               </h2>
               <span className="text-[10px] font-black uppercase tracking-wide text-blue-400">
                 {scopeLabel}
@@ -466,7 +497,12 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
                   @{initialUser.username}
                 </Link>
                 <p className="mt-1 flex items-center justify-center gap-1 text-[10px] font-bold text-dd-muted">
-                  <span>{viewerRow ? `${viewerRow.rank}º lugar` : 'Fora do top 10'}</span> ·{' '}
+                  <span>
+                    {viewerRow
+                      ? text(`${viewerRow.rank}º lugar`, `Rank ${viewerRow.rank}`)
+                      : text('Fora do top 10', 'Outside the top 10')}
+                  </span>{' '}
+                  ·{' '}
                   <Image
                     src="/assets/trails/trail-lightning.png"
                     alt=""
@@ -479,7 +515,10 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
               </div>
             )}
 
-            <div className="mt-5 grid grid-cols-4 gap-2" aria-label="Atalhos de ranking">
+            <div
+              className="mt-5 grid grid-cols-4 gap-2"
+              aria-label={text('Atalhos de ranking', 'Ranking shortcuts')}
+            >
               {QUICK_SCOPES.map((option) => {
                 const Icon = option.icon;
                 const selected = scope === option.value;
@@ -509,10 +548,10 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
 
             <label className="relative mt-4 block">
               <span className="mb-2 block text-[9px] font-black uppercase tracking-wider text-dd-muted">
-                Todas as linguagens
+                {text('Todas as linguagens', 'All languages')}
               </span>
               <select
-                aria-label="Selecionar ranking por linguagem"
+                aria-label={text('Selecionar ranking por linguagem', 'Select ranking by language')}
                 value={scope}
                 onChange={(event) => setScope(event.target.value as RankingScope)}
                 className="min-h-11 w-full appearance-none rounded-xl border border-dd-border bg-dd-bg px-3 pr-9 text-xs font-black text-dd-text outline-none transition-colors hover:border-blue-500/35 focus-visible:ring-2 focus-visible:ring-blue-500/70"
@@ -531,31 +570,31 @@ export function LeaderboardClient({ initialUser, initialLeaderboard }: Leaderboa
           </section>
 
           <nav
-            aria-label="Links relacionados ao ranking"
+            aria-label={text('Links relacionados ao ranking', 'Ranking related links')}
             className="mt-6 flex flex-wrap justify-center gap-x-4 gap-y-3 px-3 text-[9px] font-black uppercase tracking-wide text-dd-muted"
           >
             <Link href="/feed" className="hover:text-blue-400">
               Feed
             </Link>
             <Link href="/trails" className="hover:text-blue-400">
-              Trilhas
+              {text('Trilhas', 'Trails')}
             </Link>
             <Link href="/duels" className="hover:text-blue-400">
-              Duelos
+              {text('Duelos', 'Duels')}
             </Link>
             <Link href="/guilds" className="hover:text-blue-400">
-              Comunidades
+              {text('Comunidades', 'Communities')}
             </Link>
             {initialUser && (
               <Link
                 href={`/profile/${encodeURIComponent(initialUser.username)}`}
                 className="hover:text-blue-400"
               >
-                Meu perfil
+                {text('Meu perfil', 'My profile')}
               </Link>
             )}
             <Link href="/settings" className="hover:text-blue-400">
-              Configurações
+              {text('Configurações', 'Settings')}
             </Link>
           </nav>
         </aside>

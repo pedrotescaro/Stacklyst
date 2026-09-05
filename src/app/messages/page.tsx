@@ -29,6 +29,7 @@ import {
 import { cn } from '@/lib/cn';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { getCurrentUser } from '@/lib/client/current-user';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 function useClickOutside(
   ref: React.RefObject<HTMLElement | null>,
@@ -93,6 +94,7 @@ interface UserListItem {
 }
 
 export default function MessagesPage() {
+  const { text } = useLocalizedText();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
 
@@ -478,7 +480,7 @@ export default function MessagesPage() {
         }),
       });
       if (res.ok) {
-        setToastMessage('Mensagem encaminhada!');
+        setToastMessage(text('Mensagem encaminhada!', 'Message forwarded!'));
         setTimeout(() => setToastMessage(null), 2500);
 
         // Refetch active chats to update list/order
@@ -663,8 +665,8 @@ export default function MessagesPage() {
       return `${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
     }
     const diffDays = Math.floor(diffHours / 24);
-    if (diffDays === 1) return 'Ontem';
-    if (diffDays < 7) return `Há ${diffDays}d`;
+    if (diffDays === 1) return text('Ontem', 'Yesterday');
+    if (diffDays < 7) return text(`Há ${diffDays}d`, `${diffDays}d ago`);
     return `${date.getDate()}/${date.getMonth() + 1}`;
   };
 
@@ -711,7 +713,7 @@ export default function MessagesPage() {
                 <Search className="absolute left-4.5 top-1/2 -translate-y-1/2 w-4 h-4 text-dd-muted" />
                 <input
                   type="text"
-                  placeholder="Buscar conversas"
+                  placeholder={text('Buscar conversas', 'Search conversations')}
                   value={chatSearchQuery}
                   onChange={(e) => setChatSearchQuery(e.target.value)}
                   className="w-full rounded-full bg-dd-surface/80 border border-transparent focus:border-blue-500/50 focus:bg-dd-bg py-2 pl-11 pr-4 text-xs font-semibold text-dd-text placeholder-dd-muted/70 focus:outline-none transition-colors"
@@ -724,16 +726,20 @@ export default function MessagesPage() {
               {loadingChats ? (
                 <div className="flex flex-col items-center py-10 gap-2">
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                  <p className="text-[10px] text-dd-muted">Buscando chats...</p>
+                  <p className="text-[10px] text-dd-muted">
+                    {text('Buscando chats...', 'Searching chats...')}
+                  </p>
                 </div>
               ) : filteredChats.length === 0 ? (
                 <div className="p-8 text-center space-y-2">
-                  <p className="text-xs text-dd-muted font-bold">Nenhum bate-papo iniciado</p>
+                  <p className="text-xs text-dd-muted font-bold">
+                    {text('Nenhum bate-papo iniciado', 'No chats started')}
+                  </p>
                   <button
                     onClick={handleOpenNewChatModal}
                     className="text-xs text-blue-400 font-extrabold hover:underline"
                   >
-                    Iniciar nova conversa
+                    {text('Iniciar nova conversa', 'Start a new conversation')}
                   </button>
                 </div>
               ) : (
@@ -778,9 +784,10 @@ export default function MessagesPage() {
                         </div>
                         <p className="text-xs text-dd-muted truncate leading-relaxed">
                           {chat.lastSenderId === user?.id && (
-                            <span className="text-blue-400/80 mr-0.5">Você:</span>
+                            <span className="text-blue-400/80 mr-0.5">{text('Você:', 'You:')}</span>
                           )}
-                          {chat.lastMessage || 'Nenhuma mensagem enviada.'}
+                          {chat.lastMessage ||
+                            text('Nenhuma mensagem enviada.', 'No message sent.')}
                         </p>
                       </div>
                     </button>
@@ -840,7 +847,9 @@ export default function MessagesPage() {
                   {loadingMessages ? (
                     <div className="flex flex-col items-center justify-center h-full gap-2 text-dd-muted">
                       <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                      <p className="text-[10px]">Buscando mensagens...</p>
+                      <p className="text-[10px]">
+                        {text('Buscando mensagens...', 'Searching messages...')}
+                      </p>
                     </div>
                   ) : (
                     <>
@@ -1075,7 +1084,7 @@ export default function MessagesPage() {
                                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-dd-text hover:bg-dd-surface-hover/80 transition-colors text-left font-semibold cursor-pointer"
                                       >
                                         <Reply className="w-3.5 h-3.5 text-dd-muted" />
-                                        <span>Responder</span>
+                                        <span>{text('Responder', 'Reply')}</span>
                                       </button>
                                       <button
                                         type="button"
@@ -1099,7 +1108,7 @@ export default function MessagesPage() {
                                           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-dd-text hover:bg-dd-surface-hover/80 transition-colors text-left font-semibold cursor-pointer"
                                         >
                                           <Pencil className="w-3.5 h-3.5 text-dd-muted" />
-                                          <span>Editar mensagem</span>
+                                          <span>{text('Editar mensagem', 'Edit message')}</span>
                                         </button>
                                       )}
                                       <button
@@ -1124,7 +1133,7 @@ export default function MessagesPage() {
                                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-dd-text hover:bg-dd-surface-hover/80 transition-colors text-left font-semibold cursor-pointer"
                                       >
                                         <Info className="w-3.5 h-3.5 text-dd-muted" />
-                                        <span>Informações</span>
+                                        <span>{text('Informações', 'Info')}</span>
                                       </button>
                                       <button
                                         type="button"
@@ -1132,14 +1141,19 @@ export default function MessagesPage() {
                                           setMessages((prev) =>
                                             prev.filter((m) => m.id !== msg.id)
                                           );
-                                          setToastMessage('Mensagem excluída para você');
+                                          setToastMessage(
+                                            text(
+                                              'Mensagem excluída para você',
+                                              'Message deleted for you'
+                                            )
+                                          );
                                           setTimeout(() => setToastMessage(null), 2000);
                                           setActiveMenuMessageId(null);
                                         }}
                                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors text-left font-semibold cursor-pointer"
                                       >
                                         <Trash2 className="w-3.5 h-3.5 text-red-500" />
-                                        <span>Excluir para mim</span>
+                                        <span>{text('Excluir para mim', 'Delete for me')}</span>
                                       </button>
                                       {isCurrentUser && (
                                         <button
@@ -1151,7 +1165,9 @@ export default function MessagesPage() {
                                           className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-red-500 hover:bg-red-500/10 transition-colors text-left font-semibold cursor-pointer"
                                         >
                                           <Trash2 className="w-3.5 h-3.5 text-red-500" />
-                                          <span>Excluir para todos</span>
+                                          <span>
+                                            {text('Excluir para todos', 'Delete for everyone')}
+                                          </span>
                                         </button>
                                       )}
                                     </motion.div>
@@ -1184,10 +1200,12 @@ export default function MessagesPage() {
                                 acc[r.emoji].count += 1;
                                 if (r.user?.username) {
                                   acc[r.emoji].userNames.push(
-                                    r.user_id === user?.id ? 'Você' : `@${r.user.username}`
+                                    r.user_id === user?.id
+                                      ? text('Você', 'You')
+                                      : `@${r.user.username}`
                                   );
                                 } else if (r.user_id === user?.id) {
-                                  acc[r.emoji].userNames.push('Você');
+                                  acc[r.emoji].userNames.push(text('Você', 'You'));
                                 }
                                 if (r.user_id === user?.id) {
                                   acc[r.emoji].hasReacted = true;
@@ -1208,7 +1226,7 @@ export default function MessagesPage() {
                                     const tooltipText =
                                       item.userNames.length > 0
                                         ? item.userNames.join(', ')
-                                        : 'Reação';
+                                        : text('Reação', 'Reaction');
                                     return (
                                       <button
                                         key={item.emoji}
@@ -1377,7 +1395,7 @@ export default function MessagesPage() {
                       <input
                         ref={messageInputRef}
                         type="text"
-                        placeholder="Enviar uma mensagem..."
+                        placeholder={text('Enviar uma mensagem...', 'Send a message...')}
                         value={newMessageText}
                         onChange={(e) => setNewMessageText(e.target.value)}
                         className="flex-1 rounded-full bg-dd-surface/80 border border-transparent focus:border-blue-500/50 focus:bg-dd-bg py-2.5 px-4 text-xs font-semibold text-dd-text placeholder-dd-muted/65 focus:outline-none transition-colors"
@@ -1421,7 +1439,9 @@ export default function MessagesPage() {
           <div className="relative w-full max-w-md bg-dd-surface border border-dd-border rounded-2xl shadow-2xl overflow-hidden z-10 animate-scale-up font-sans flex flex-col max-h-[80vh]">
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-dd-border">
-              <h3 className="font-extrabold text-sm text-dd-text">Iniciar conversa</h3>
+              <h3 className="font-extrabold text-sm text-dd-text">
+                {text('Iniciar conversa', 'Start a conversation')}
+              </h3>
               <button
                 onClick={() => setNewChatModalOpen(false)}
                 className="p-1 text-dd-muted hover:text-dd-text rounded-md transition-colors"
@@ -1436,7 +1456,7 @@ export default function MessagesPage() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-dd-muted" />
                 <input
                   type="text"
-                  placeholder="Pesquisar pessoas"
+                  placeholder={text('Pesquisar pessoas', 'Search people')}
                   value={usersSearchQuery}
                   onChange={(e) => handleSearchUsers(e.target.value)}
                   className="w-full rounded-full bg-dd-bg border border-dd-border py-2 pl-11 pr-4 text-xs font-semibold text-dd-text focus:border-blue-500/50 focus:outline-none"
@@ -1449,11 +1469,13 @@ export default function MessagesPage() {
               {loadingUsers ? (
                 <div className="flex items-center justify-center py-10 gap-2 text-dd-muted">
                   <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
-                  <p className="text-xs">Buscando desenvolvedores...</p>
+                  <p className="text-xs">
+                    {text('Buscando desenvolvedores...', 'Searching developers...')}
+                  </p>
                 </div>
               ) : allUsers.length === 0 ? (
                 <div className="text-center py-10 text-xs text-dd-muted font-semibold">
-                  Nenhum desenvolvedor encontrado.
+                  {text('Nenhum desenvolvedor encontrado.', 'No developers found.')}
                 </div>
               ) : (
                 allUsers.map((item) => (
@@ -1510,13 +1532,13 @@ export default function MessagesPage() {
               aria-labelledby="edit-modal-title"
             >
               <h3 id="edit-modal-title" className="text-sm font-black text-dd-text mb-3">
-                Editar mensagem
+                {text('Editar mensagem', 'Edit message')}
               </h3>
               <textarea
                 value={editContent}
                 onChange={(e) => setEditContent(e.target.value)}
                 className="w-full bg-dd-bg border border-dd-border/80 focus:border-blue-500 rounded-xl p-3 text-xs font-semibold text-dd-text outline-none resize-none min-h-[100px]"
-                placeholder="Edite sua mensagem..."
+                placeholder={text('Edite sua mensagem...', 'Edit your message...')}
                 autoFocus
               />
               <div className="flex justify-end gap-2.5 mt-4">
@@ -1525,7 +1547,7 @@ export default function MessagesPage() {
                   onClick={() => setEditingMessage(null)}
                   className="px-4 py-2 rounded-xl text-xs font-bold text-dd-muted hover:bg-dd-surface-hover hover:text-dd-text transition-colors cursor-pointer"
                 >
-                  Cancelar
+                  {text('Cancelar', 'Cancel')}
                 </button>
                 <button
                   type="button"
@@ -1533,7 +1555,7 @@ export default function MessagesPage() {
                   disabled={!editContent.trim()}
                   className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-50 transition-colors cursor-pointer"
                 >
-                  Salvar
+                  {text('Salvar', 'Save')}
                 </button>
               </div>
             </motion.div>
@@ -1562,10 +1584,13 @@ export default function MessagesPage() {
               aria-labelledby="delete-modal-title"
             >
               <h3 id="delete-modal-title" className="text-sm font-black text-dd-text mb-2">
-                Excluir mensagem
+                {text('Excluir mensagem', 'Delete message')}
               </h3>
               <p className="text-xs font-semibold text-dd-muted mb-4">
-                Tem certeza que deseja excluir esta mensagem? Esta ação não pode ser desfeita.
+                {text(
+                  'Tem certeza que deseja excluir esta mensagem? Esta ação não pode ser desfeita.',
+                  'Are you sure you want to delete this message? This action cannot be undone.'
+                )}
               </p>
               <div className="flex justify-end gap-2.5">
                 <button
@@ -1573,14 +1598,14 @@ export default function MessagesPage() {
                   onClick={() => setDeletingMessageId(null)}
                   className="px-4 py-2 rounded-xl text-xs font-bold text-dd-muted hover:bg-dd-surface-hover hover:text-dd-text transition-colors cursor-pointer"
                 >
-                  Cancelar
+                  {text('Cancelar', 'Cancel')}
                 </button>
                 <button
                   type="button"
                   onClick={() => handleDeleteMessage(deletingMessageId)}
                   className="px-4 py-2 rounded-xl text-xs font-bold bg-red-500 hover:bg-red-600 text-white transition-colors cursor-pointer"
                 >
-                  Excluir
+                  {text('Excluir', 'Delete')}
                 </button>
               </div>
             </motion.div>
@@ -1614,7 +1639,10 @@ export default function MessagesPage() {
             <div className="flex-1 overflow-y-auto divide-y divide-dd-border/30 p-2">
               {chats.length <= 1 ? (
                 <div className="text-center py-8 text-xs text-dd-muted font-semibold">
-                  Nenhuma outra conversa ativa para encaminhar.
+                  {text(
+                    'Nenhuma outra conversa ativa para encaminhar.',
+                    'No other active conversation to forward to.'
+                  )}
                 </div>
               ) : (
                 chats
@@ -1660,13 +1688,17 @@ export default function MessagesPage() {
           />
 
           <div className="relative w-full max-w-xs bg-dd-surface border border-dd-border rounded-2xl p-5 shadow-2xl z-10 font-sans">
-            <h3 className="text-sm font-black text-dd-text mb-4">Informações da Mensagem</h3>
+            <h3 className="text-sm font-black text-dd-text mb-4">
+              {text('Informações da mensagem', 'Message info')}
+            </h3>
 
             <div className="space-y-3.5 text-xs">
               <div className="flex justify-between border-b border-dd-border/40 pb-2">
                 <span className="text-dd-muted font-semibold">Enviada por:</span>
                 <span className="text-dd-text font-bold">
-                  {infoMessage.sender_id === user?.id ? 'Você' : `@${activeChat?.partner.username}`}
+                  {infoMessage.sender_id === user?.id
+                    ? text('Você', 'You')
+                    : `@${activeChat?.partner.username}`}
                 </span>
               </div>
 
@@ -1680,7 +1712,7 @@ export default function MessagesPage() {
               <div className="flex justify-between border-b border-dd-border/40 pb-2">
                 <span className="text-dd-muted font-semibold">Editada:</span>
                 <span className="text-dd-text font-bold">
-                  {infoMessage.is_edited ? 'Sim' : 'Não'}
+                  {infoMessage.is_edited ? text('Sim', 'Yes') : text('Não', 'No')}
                 </span>
               </div>
 

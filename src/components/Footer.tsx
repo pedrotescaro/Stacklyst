@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { ThemeLogo } from '@/components/ThemeLogo';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 const footerLinks = [
   { label: 'Feed', href: '/feed' },
@@ -43,6 +44,23 @@ const socialLinks = [
 ];
 
 export function Footer() {
+  const { text } = useLocalizedText();
+  const localizedLinks = footerLinks.map((link) => ({
+    ...link,
+    label: text(
+      link.label,
+      (
+        {
+          Feed: 'Feed',
+          Trilhas: 'Trails',
+          Duelos: 'Duels',
+          Sobre: 'About',
+          Privacidade: 'Privacy',
+          Termos: 'Terms',
+        } as Record<string, string>
+      )[link.label] ?? link.label
+    ),
+  }));
   return (
     <footer className="border-t border-dd-border bg-dd-bg mt-auto">
       {/* Top section — logo + nav links */}
@@ -62,7 +80,7 @@ export function Footer() {
 
         {/* Nav links row */}
         <nav className="flex flex-wrap items-center justify-center gap-x-6 gap-y-2">
-          {footerLinks.map((link) => (
+          {localizedLinks.map((link) => (
             <Link
               key={link.label}
               href={link.href}
@@ -89,7 +107,8 @@ export function Footer() {
       {/* Bottom bar — copyright + socials */}
       <div className="mx-auto max-w-5xl px-4 py-5 flex flex-col-reverse sm:flex-row items-center justify-between gap-3">
         <span className="text-dd-muted text-[11px]">
-          © {new Date().getFullYear()} Stacklyst. Todos os direitos reservados.
+          © {new Date().getFullYear()} Stacklyst.{' '}
+          {text('Todos os direitos reservados.', 'All rights reserved.')}
         </span>
 
         <div className="flex items-center gap-3">

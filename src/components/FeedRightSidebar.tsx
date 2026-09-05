@@ -9,6 +9,7 @@ import { AchievementShowcase } from '@/components/AchievementShowcase';
 import { XPProgressBar } from '@/components/motion/XPProgressBar';
 import { LanguageTag } from '@/components/LanguageTag';
 import { cn } from '@/lib/cn';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 function RailSectionHeading({
   title,
@@ -93,6 +94,7 @@ export function FeedRightSidebar({
   className,
 }: FeedRightSidebarProps) {
   const router = useRouter();
+  const { text } = useLocalizedText();
   const [internalSearchQuery, setInternalSearchQuery] = useState('');
   const [internalDuels, setInternalDuels] = useState<any[]>([]);
   const [internalDuelsLoading, setInternalDuelsLoading] = useState(false);
@@ -198,7 +200,8 @@ export function FeedRightSidebar({
         </div>
         <input
           type="text"
-          placeholder="Buscar"
+          placeholder={text('Buscar', 'Search')}
+          aria-label={text('Buscar', 'Search')}
           value={currentSearchQuery}
           onChange={(e) => handleSearchChange(e.target.value)}
           onKeyDown={handleSearchKeyDown}
@@ -208,8 +211,11 @@ export function FeedRightSidebar({
       {currentSearchQuery.trim() && (
         <div className="rounded-xl border border-dd-border bg-dd-surface/70 p-3 text-xs text-dd-muted">
           {loadingSearch
-            ? 'Filtrando o feed em tempo real...'
-            : `Termo ativo: "${currentSearchQuery}".`}
+            ? text('Filtrando o feed em tempo real...', 'Filtering the feed in real time...')
+            : text(
+                `Termo ativo: "${currentSearchQuery}".`,
+                `Active search: "${currentSearchQuery}".`
+              )}
         </div>
       )}
 
@@ -237,14 +243,14 @@ export function FeedRightSidebar({
       {/* Language Trail Progress bar */}
       <section className="space-y-5 rounded-[22px] border-2 border-b-4 border-dd-border bg-dd-sidebar-bg p-5">
         <RailSectionHeading
-          title="Minhas Trilhas"
-          description="Seu progresso por linguagem"
+          title={text('Minhas Trilhas', 'My Trails')}
+          description={text('Seu progresso por linguagem', 'Your progress by language')}
           icon={Sparkles}
         />
 
         {startedTrails.length === 0 ? (
           <p className="rounded-2xl bg-dd-surface p-4 text-xs font-bold text-dd-muted">
-            Nenhuma trilha ativa ainda.
+            {text('Nenhuma trilha ativa ainda.', 'No active trails yet.')}
           </p>
         ) : (
           <div className="space-y-2.5">
@@ -303,19 +309,25 @@ export function FeedRightSidebar({
       {/* Featured Duels (votar em resoluções) */}
       <section className="space-y-5 rounded-[22px] border-2 border-b-4 border-dd-border bg-dd-sidebar-bg p-5">
         <RailSectionHeading
-          title="Duelos em Destaque"
-          description="Resolva, vote e suba no ranking"
+          title={text('Duelos em Destaque', 'Featured Duels')}
+          description={text(
+            'Resolva, vote e suba no ranking',
+            'Solve, vote, and climb the ranking'
+          )}
           icon={Swords}
         />
 
         {duelsLoading ? (
-          <div className="space-y-3" aria-label="Carregando duelos em destaque">
+          <div
+            className="space-y-3"
+            aria-label={text('Carregando duelos em destaque', 'Loading featured duels')}
+          >
             <div className="dd-skeleton-post dd-skeleton h-20 rounded-lg" />
             <div className="dd-skeleton-post dd-skeleton h-20 rounded-lg" />
           </div>
         ) : activeDuels.length === 0 ? (
           <p className="rounded-2xl bg-dd-surface p-4 text-xs font-bold text-dd-muted">
-            Nenhum duelo ativo no momento.
+            {text('Nenhum duelo ativo no momento.', 'No active duels right now.')}
           </p>
         ) : (
           <div className="space-y-3.5">
@@ -326,7 +338,7 @@ export function FeedRightSidebar({
               >
                 <div className="flex items-center justify-between gap-2 text-[10px]">
                   <span className="rounded-lg bg-blue-500/15 px-2 py-1 font-black tracking-wide text-blue-400">
-                    DUELO DE CÓDIGO
+                    {text('DUELO DE CÓDIGO', 'CODE DUEL')}
                   </span>
                   {duel.language && <LanguageTag language={duel.language} size="sm" />}
                 </div>
@@ -341,7 +353,7 @@ export function FeedRightSidebar({
                     href={`/duels/${duel.id}`}
                     className="flex shrink-0 items-center rounded-xl border-b-[3px] border-blue-700 bg-blue-500 px-3 py-2 text-[11px] font-black text-white transition-transform hover:-translate-y-0.5 hover:bg-blue-400"
                   >
-                    Votar
+                    {text('Votar', 'Vote')}
                     <ChevronRight className="w-3 h-3 ml-0.5" />
                   </Link>
                 </div>
@@ -355,16 +367,16 @@ export function FeedRightSidebar({
       <footer className="px-3 py-2 text-[11px] font-medium text-dd-muted/70 leading-relaxed">
         <div className="flex flex-wrap gap-x-2.5 gap-y-1">
           <Link href="/terms" className="hover:text-dd-text hover:underline transition-colors">
-            Termos de Serviço
+            {text('Termos de Serviço', 'Terms of Service')}
           </Link>
           <Link href="/privacy" className="hover:text-dd-text hover:underline transition-colors">
-            Privacidade
+            {text('Privacidade', 'Privacy')}
           </Link>
           <Link href="/guidelines" className="hover:text-dd-text hover:underline transition-colors">
-            Diretrizes
+            {text('Diretrizes', 'Guidelines')}
           </Link>
           <Link href="/about" className="hover:text-dd-text hover:underline transition-colors">
-            Sobre
+            {text('Sobre', 'About')}
           </Link>
           <span>© 2026 Stacklyst</span>
         </div>

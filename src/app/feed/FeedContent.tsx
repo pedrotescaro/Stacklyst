@@ -56,13 +56,14 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 const MarkdownEditor = dynamic(
   () => import('@/components/MarkdownEditor').then((module) => module.MarkdownEditor),
   {
     ssr: false,
     loading: () => (
-      <div className="dd-skeleton-post space-y-2 py-2" aria-label="Carregando editor">
+      <div className="dd-skeleton-post space-y-2 py-2" aria-label="Loading editor">
         <div className="dd-skeleton h-3.5 w-4/5 rounded-full" />
         <div className="dd-skeleton h-3.5 w-2/5 rounded-full" />
       </div>
@@ -190,6 +191,7 @@ export function FeedContent({
   initialNextCursor,
   initialBookmarks = {},
 }: FeedContentProps) {
+  const { text } = useLocalizedText();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'feed' | 'quizzes' | 'duels' | 'ranking'>('feed');
   const [feedFilter, setFeedFilter] = useState<'for-you' | 'following'>('for-you');
@@ -370,7 +372,7 @@ export function FeedContent({
           setSelectedReportPostId(null);
         }, 1500);
       } else {
-        alert('Falha ao enviar denúncia.');
+        alert(text('Falha ao enviar denúncia.', 'Could not send report.'));
       }
     } catch (err) {
       console.error(err);
@@ -407,7 +409,12 @@ export function FeedContent({
       } catch (err) {
         if (controller.signal.aborted) return;
         console.error('Search posts error:', err);
-        setFeedError('Não foi possível atualizar a busca agora.');
+        setFeedError(
+          text(
+            'Não foi possível atualizar a busca agora.',
+            'Could not update the search right now.'
+          )
+        );
       } finally {
         if (!controller.signal.aborted) setLoadingSearch(false);
       }
@@ -416,7 +423,7 @@ export function FeedContent({
       clearTimeout(delayDebounce);
       controller.abort();
     };
-  }, [searchQuery]);
+  }, [searchQuery, text]);
 
   // Carregar posts quando o filtro (Para você / Seguindo) muda
   useEffect(() => {
@@ -581,12 +588,23 @@ export function FeedContent({
       window.scrollTo({ top: 0, behavior: 'smooth' });
     } catch (err) {
       if (isAbortedRequest(err)) {
-        setFeedError('A atualização demorou mais que o esperado. O feed atual foi mantido.');
+        setFeedError(
+          text(
+            'A atualização demorou mais que o esperado. O feed atual foi mantido.',
+            'The update took longer than expected. The current feed was kept.'
+          )
+        );
       } else {
         setFeedError(
           navigator.onLine
-            ? 'Não foi possível conectar ao servidor. O feed atual foi mantido; tente novamente em instantes.'
-            : 'Você está sem conexão. O feed atual continuará disponível até a internet voltar.'
+            ? text(
+                'Não foi possível conectar ao servidor. O feed atual foi mantido; tente novamente em instantes.',
+                'Could not connect to the server. The current feed was kept; try again shortly.'
+              )
+            : text(
+                'Você está sem conexão. O feed atual continuará disponível até a internet voltar.',
+                'You are offline. The current feed will remain available until the connection returns.'
+              )
         );
       }
     } finally {
@@ -594,7 +612,7 @@ export function FeedContent({
       if (refreshRequestRef.current === controller) refreshRequestRef.current = null;
       setRefreshingPosts(false);
     }
-  }, [firstPageUrl]);
+  }, [firstPageUrl, text]);
 
   useEffect(() => {
     return () => refreshRequestRef.current?.abort();
@@ -887,7 +905,12 @@ export function FeedContent({
 
     // Client-side validation
     if (postBody.trim().length < 10) {
-      setPostError('O conteúdo deve ter pelo menos 10 caracteres');
+      setPostError(
+        text(
+          'O conteúdo deve ter pelo menos 10 caracteres',
+          'Content must be at least 10 characters long'
+        )
+      );
       setTimeout(() => setPostError(null), 4000);
       return;
     }
@@ -1268,7 +1291,7 @@ export function FeedContent({
                     : 'text-dd-muted hover:text-dd-text hover:bg-dd-surface/30'
                 }`}
               >
-                Para você
+                {text('Para você', 'For you')}
               </button>
               <div className="relative flex flex-1">
                 <button
@@ -1356,8 +1379,8 @@ export function FeedContent({
               disabled={
                 refreshingPosts || loadingSearch || activeTab !== 'feed' || !!searchQuery.trim()
               }
-              aria-label="Atualizar publicações"
-              title="Atualizar publicações"
+              aria-label={text('Atualizar publicações', 'Refresh posts')}
+              title={text('Atualizar publicações', 'Refresh posts')}
               className="dd-focus-ring dd-touch flex w-12 shrink-0 items-center justify-center text-dd-muted transition-colors hover:bg-dd-surface/40 hover:text-blue-500 disabled:cursor-wait disabled:opacity-60"
             >
               <RefreshCw className={cn('h-4 w-4', refreshingPosts && 'animate-spin')} />
@@ -1402,7 +1425,10 @@ export function FeedContent({
                             ? '3.5rem'
                             : '1.75rem'
                         }
-                        placeholder="O que você está construindo hoje?"
+                        placeholder={text(
+                          'O que você está construindo hoje?',
+                          'What are you building today?'
+                        )}
                         className="feed-composer-editor"
                       />
                       {(composeFocused || postBody.trim().length > 0) && (
@@ -1617,7 +1643,11 @@ export function FeedContent({
                   </AnimatePresence>
                 )}
                 {loadingMore && (
-                  <PostSkeletonList count={2} variant="feed" label="Carregando mais publicações" />
+                  <PostSkeletonList
+                    count={2}
+                    variant="feed"
+                    label={text('Carregando mais publicações', 'Loading more posts')}
+                  />
                 )}
                 {!searchQuery.trim() && hasMore && (
                   <div ref={scrollSentinelRef} className="h-1" aria-hidden />
@@ -1640,7 +1670,10 @@ export function FeedContent({
                   🧩 Stacklyst Quizzes
                 </h2>
                 <p className="text-dd-muted text-xs mt-1">
-                  Responda ao quiz diário curado para ganhar bônus de +15 XP.
+                  {text(
+                    'Responda ao quiz diário curado para ganhar bônus de +15 XP.',
+                    'Complete the daily quiz to earn a +15 XP bonus.'
+                  )}
                 </p>
               </div>
 
@@ -1653,11 +1686,12 @@ export function FeedContent({
                         Oficial
                       </span>
                       <span className="text-xs font-bold text-dd-text">
-                        Quiz Diário do Dia (+15 XP)
+                        {text('Quiz Diário do Dia (+15 XP)', 'Daily Quiz (+15 XP)')}
                       </span>
                     </div>
                     <span className="text-[10px] text-dd-muted flex items-center gap-1 font-semibold">
-                      <Calendar className="w-3.5 h-3.5 text-blue-500" /> Rotativo Diário
+                      <Calendar className="w-3.5 h-3.5 text-blue-500" />{' '}
+                      {text('Rotativo Diário', 'Daily rotation')}
                     </span>
                   </div>
                   <QuizWidget
@@ -1705,13 +1739,17 @@ export function FeedContent({
                   className="bg-blue-500 text-white font-bold py-2.5 px-5 rounded-lg text-xs transition-colors hover:bg-blue-600 whitespace-nowrap cursor-pointer shadow-[0_0_15px_rgba(0, 131, 254,0.15)] flex items-center gap-1.5 self-start sm:self-auto"
                 >
                   <Plus className="w-4 h-4" />
-                  {showDuelForm ? 'Fechar Formulário' : 'Criar Novo Duelo'}
+                  {showDuelForm
+                    ? text('Fechar formulário', 'Close form')
+                    : text('Criar novo duelo', 'Create new duel')}
                 </button>
               </div>
 
               {showDuelForm && (
                 <div className="rounded-xl border border-dd-border bg-dd-surface p-5 backdrop-blur-sm shadow-sm">
-                  <h3 className="font-bold text-sm text-dd-text mb-4">Lançar Novo Desafio</h3>
+                  <h3 className="font-bold text-sm text-dd-text mb-4">
+                    {text('Lançar novo desafio', 'Launch a new challenge')}
+                  </h3>
                   <form onSubmit={handleCreateDuel} className="space-y-4">
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="sm:col-span-2">
@@ -1720,7 +1758,10 @@ export function FeedContent({
                           value={duelTitle}
                           onChange={(e) => setDuelTitle(e.target.value)}
                           required
-                          placeholder="Título do problema (Ex: Inverter String sem Built-ins)..."
+                          placeholder={text(
+                            'Título do problema (Ex: Inverter String sem Built-ins)...',
+                            'Problem title (e.g. Reverse a string without built-ins)...'
+                          )}
                           className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg/80 px-4 py-2.5 text-dd-text placeholder-slate-600 focus:border-blue-500/60 focus:outline-none"
                         />
                       </div>
@@ -1745,7 +1786,10 @@ export function FeedContent({
                         onChange={(e) => setDuelBody(e.target.value)}
                         required
                         rows={4}
-                        placeholder="Descreva o problema de algoritmo, formatos de entradas/saídas e exemplos..."
+                        placeholder={text(
+                          'Descreva o problema de algoritmo, formatos de entradas/saídas e exemplos...',
+                          'Describe the algorithm problem, input/output formats, and examples...'
+                        )}
                         className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg/80 px-4 py-2.5 text-dd-text placeholder-slate-600 focus:border-blue-500/60 focus:outline-none resize-none"
                       />
                     </div>
@@ -1770,7 +1814,10 @@ export function FeedContent({
                   </div>
                 ) : duels.length === 0 ? (
                   <div className="col-span-2 rounded-xl border border-dd-border bg-dd-surface/10 p-12 text-center text-dd-muted text-sm">
-                    Nenhum duelo de código ocorrendo no momento. Inicie um novo duelo acima!
+                    {text(
+                      'Nenhum duelo de código ocorrendo no momento. Inicie um novo duelo acima!',
+                      'No code duels are happening right now. Start a new duel above!'
+                    )}
                   </div>
                 ) : (
                   duels.map((duel) => <DuelCard key={duel.id} duel={duel} />)
@@ -1786,10 +1833,13 @@ export function FeedContent({
                 <div>
                   <h2 className="font-bold text-lg text-dd-text flex items-center gap-2">
                     <Trophy className="w-5 h-5 text-blue-500" />
-                    🏆 Quadro de Líderes
+                    {text('Quadro de líderes', 'Leaderboard')}
                   </h2>
                   <p className="text-dd-muted text-xs mt-1">
-                    Os desenvolvedores lendários com maior XP na comunidade Stacklyst.
+                    {text(
+                      'Os desenvolvedores lendários com maior XP na comunidade Stacklyst.',
+                      'The developers with the most XP in the Stacklyst community.'
+                    )}
                   </p>
                 </div>
                 <div>
@@ -1818,7 +1868,7 @@ export function FeedContent({
                     <tr className="border-b border-dd-border bg-dd-surface text-dd-muted font-bold uppercase tracking-wider">
                       <th className="py-4 px-6 text-center w-20">Rank</th>
                       <th className="py-4 px-6">Desenvolvedor</th>
-                      <th className="py-4 px-6 text-center">Nível</th>
+                      <th className="py-4 px-6 text-center">{text('Nível', 'Level')}</th>
                       <th className="py-4 px-6 text-right">XP Acumulado</th>
                     </tr>
                   </thead>
@@ -1826,7 +1876,7 @@ export function FeedContent({
                     {leaderboard.length === 0 ? (
                       <tr>
                         <td colSpan={4} className="py-12 text-center text-dd-muted font-medium">
-                          Carregando ranking de líderes...
+                          {text('Carregando ranking de líderes...', 'Loading leaderboard...')}
                         </td>
                       </tr>
                     ) : (
@@ -1909,21 +1959,28 @@ export function FeedContent({
             className="w-full max-w-md bg-dd-surface border border-dd-border rounded-2xl p-5 space-y-4 text-left relative z-10"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-sm font-black text-dd-text">Denunciar Postagem</h3>
+            <h3 className="text-sm font-black text-dd-text">
+              {text('Denunciar postagem', 'Report post')}
+            </h3>
             <p className="text-xs text-dd-muted font-semibold leading-relaxed">
-              Ajude-nos a entender o que há de errado com esta postagem. Ela viola alguma de nossas
-              diretrizes de comunidade?
+              {text(
+                'Ajude-nos a entender o que há de errado com esta postagem. Ela viola alguma de nossas diretrizes de comunidade?',
+                'Help us understand what is wrong with this post. Does it violate our community guidelines?'
+              )}
             </p>
 
             {reported ? (
               <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold p-3 rounded-lg text-center animate-pulse">
-                Denúncia enviada com sucesso. Obrigado por ajudar!
+                {text(
+                  'Denúncia enviada com sucesso. Obrigado por ajudar!',
+                  'Report sent. Thanks for helping!'
+                )}
               </div>
             ) : (
               <form onSubmit={handleReportSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-[10px] text-dd-muted font-bold uppercase tracking-wider block">
-                    Motivo da denúncia
+                    {text('Motivo da denúncia', 'Report reason')}
                   </label>
                   <select
                     value={reportReason}
@@ -1952,7 +2009,7 @@ export function FeedContent({
                     }}
                     className="text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
                   >
-                    Cancelar
+                    {text('Cancelar', 'Cancel')}
                   </button>
                   <button
                     type="submit"
@@ -1960,7 +2017,7 @@ export function FeedContent({
                     disabled={reporting || !reportReason}
                     className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                   >
-                    {reporting ? 'Enviando...' : 'Denunciar'}
+                    {reporting ? text('Enviando...', 'Sending...') : text('Denunciar', 'Report')}
                   </button>
                 </div>
               </form>

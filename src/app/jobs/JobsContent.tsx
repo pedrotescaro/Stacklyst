@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 export type JobLevel = 'ESTAGIO' | 'JUNIOR' | 'PLENO' | 'SENIOR' | 'ESPECIALISTA';
 export type JobModality = 'REMOTE' | 'HYBRID' | 'ONSITE';
@@ -270,6 +271,7 @@ function JobFiltersPanel({
   onToggleContract: (value: JobContract) => void;
   onClear: () => void;
 }) {
+  const { text } = useLocalizedText();
   return (
     <div className="rounded-2xl border border-dd-border bg-dd-surface p-5">
       <div className="flex items-center justify-between gap-3">
@@ -311,7 +313,7 @@ function JobFiltersPanel({
         />
         <FilterTextField
           id="jobs-location"
-          label="Localização"
+          label={text('Localização', 'Location')}
           placeholder="Cidade ou estado"
           value={filters.location}
           onChange={(value) => onChange('location', value)}
@@ -328,7 +330,7 @@ function JobFiltersPanel({
           onToggle={onToggleModality}
         />
         <CheckboxGroup
-          legend="Nível"
+          legend={text('Nível', 'Level')}
           name="level"
           options={LEVEL_OPTIONS}
           selected={filters.levels}
@@ -436,8 +438,13 @@ function JobCard({ job }: { job: JobItem }) {
 }
 
 function LoadingJobs() {
+  const { text } = useLocalizedText();
   return (
-    <div aria-label="Carregando vagas abertas" aria-busy="true" className="space-y-3">
+    <div
+      aria-label={text('Carregando vagas abertas', 'Loading open jobs')}
+      aria-busy="true"
+      className="space-y-3"
+    >
       {[0, 1, 2, 3].map((item) => (
         <div key={item} className="rounded-2xl border border-dd-border bg-dd-surface p-5">
           <div className="flex gap-4">
@@ -459,6 +466,7 @@ function LoadingJobs() {
 }
 
 export function JobsContent({ user }: { user: any }) {
+  const { text } = useLocalizedText();
   const [jobs, setJobs] = useState<JobItem[]>([]);
   const [filters, setFilters] = useState<JobFilters>(EMPTY_FILTERS);
   const [loading, setLoading] = useState(true);
@@ -539,7 +547,7 @@ export function JobsContent({ user }: { user: any }) {
           <header className="flex flex-col gap-5 border-b border-dd-border pb-6 sm:flex-row sm:items-end sm:justify-between">
             <div className="max-w-2xl">
               <h1 className="text-3xl font-black tracking-[-0.025em] text-dd-text md:text-4xl">
-                Vagas
+                {text('Vagas', 'Jobs')}
               </h1>
               <p className="mt-2 max-w-[68ch] text-sm font-medium leading-6 text-dd-muted">
                 Encontre oportunidades em tecnologia com etapas práticas que valorizam o que você
@@ -572,7 +580,7 @@ export function JobsContent({ user }: { user: any }) {
               >
                 <span className="inline-flex items-center gap-2">
                   <SlidersHorizontal aria-hidden="true" className="h-4 w-4 text-dd-accent" />
-                  Filtrar oportunidades
+                  {text('Filtrar oportunidades', 'Filter opportunities')}
                   {activeFilterCount > 0 && (
                     <span className="rounded-full bg-dd-accent px-2 py-0.5 text-[10px] font-black text-white tabular-nums">
                       {activeFilterCount}

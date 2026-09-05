@@ -1,4 +1,7 @@
+'use client';
+
 import { cn } from '@/lib/cn';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface PostSkeletonProps {
   variant?: 'feed' | 'card';
@@ -53,19 +56,17 @@ interface PostSkeletonListProps {
   label?: string;
 }
 
-export function PostSkeletonList({
-  count = 3,
-  variant = 'card',
-  label = 'Carregando publicações',
-}: PostSkeletonListProps) {
+export function PostSkeletonList({ count = 3, variant = 'card', label }: PostSkeletonListProps) {
+  const { text } = useLocalizedText();
+  const accessibleLabel = label ?? text('Carregando publicações', 'Loading posts');
   return (
     <div
       role="status"
       aria-live="polite"
-      aria-label={label}
+      aria-label={accessibleLabel}
       className={variant === 'card' ? 'space-y-4' : undefined}
     >
-      <span className="sr-only">{label}</span>
+      <span className="sr-only">{accessibleLabel}</span>
       {Array.from({ length: count }).map((_, index) => (
         <PostSkeleton key={index} variant={variant} index={index} />
       ))}

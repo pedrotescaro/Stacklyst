@@ -4,6 +4,7 @@ import { useRef, useState, type ReactNode } from 'react';
 import { Popover } from '@base-ui/react/popover';
 import { Check, Flame, X } from 'lucide-react';
 import { getRecentStreakDayIndexes } from '@/lib/streak';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 const WEEK_DAYS = [
   { index: 0, label: 'D', name: 'domingo' },
@@ -42,6 +43,7 @@ export function StreakPopover({
   side = 'bottom',
   align = 'end',
 }: StreakPopoverProps) {
+  const { isEnglish, text } = useLocalizedText();
   const [open, setOpen] = useState(false);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -66,7 +68,13 @@ export function StreakPopover({
   const streakDayIndexes = getRecentStreakDayIndexes(normalizedStreak, lastActivity, now);
   const hasActivityToday =
     (weeklyActivity?.get(todayIndex) ?? 0) > 0 || streakDayIndexes.has(todayIndex);
-  const dayLabel = normalizedStreak === 1 ? 'dia' : 'dias';
+  const dayLabel = isEnglish
+    ? normalizedStreak === 1
+      ? 'day'
+      : 'days'
+    : normalizedStreak === 1
+      ? 'dia'
+      : 'dias';
 
   return (
     <div className="relative inline-block">
@@ -74,7 +82,10 @@ export function StreakPopover({
         <Popover.Trigger
           onMouseEnter={handleMouseEnter}
           onMouseLeave={handleMouseLeave}
-          aria-label={`Abrir detalhes da ofensiva: ${normalizedStreak} ${dayLabel}`}
+          aria-label={text(
+            `Abrir detalhes da ofensiva: ${normalizedStreak} ${dayLabel}`,
+            `Open streak details: ${normalizedStreak} ${dayLabel}`
+          )}
           className={triggerClassName}
         >
           {children}
@@ -98,7 +109,7 @@ export function StreakPopover({
                       Ritmo Stacklyst
                     </span>
                     <Popover.Title className="mt-5 text-[24px] font-black leading-tight text-dd-text">
-                      {normalizedStreak} {dayLabel} de ofensiva
+                      {normalizedStreak} {dayLabel} {text('de ofensiva', 'streak')}
                     </Popover.Title>
                   </div>
 
@@ -114,7 +125,7 @@ export function StreakPopover({
                   </div>
 
                   <Popover.Close
-                    aria-label="Fechar detalhes da ofensiva"
+                    aria-label={text('Fechar detalhes da ofensiva', 'Close streak details')}
                     className="dd-focus-ring absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-dd-muted transition-colors hover:bg-dd-surface hover:text-dd-text"
                   >
                     <X className="h-4 w-4" />
@@ -124,21 +135,35 @@ export function StreakPopover({
                 <Popover.Description className="mt-4 max-w-[280px] text-sm font-bold leading-6 text-dd-text">
                   {hasActivityToday
                     ? 'Ofensiva garantida por hoje. Continue assim!'
-                    : 'Faça uma atividade hoje pra aumentar a sua ofensiva!'}
+                    : text(
+                        'Faça uma atividade hoje pra aumentar a sua ofensiva!',
+                        'Complete an activity today to extend your streak!'
+                      )}
                 </Popover.Description>
 
                 <div className="mt-5 rounded-2xl bg-dd-surface p-3.5">
                   <div className="grid grid-cols-7 gap-2" aria-label="Atividade semanal">
                     {WEEK_DAYS.map((day) => {
+                      const dayName = isEnglish
+                        ? [
+                            'Sunday',
+                            'Monday',
+                            'Tuesday',
+                            'Wednesday',
+                            'Thursday',
+                            'Friday',
+                            'Saturday',
+                          ][day.index]
+                        : day.name;
                       const activityCount = weeklyActivity?.get(day.index) ?? 0;
                       const isStreakDay = streakDayIndexes.has(day.index);
                       const isActive = activityCount > 0 || isStreakDay;
                       const isToday = todayIndex === day.index;
                       const activityLabel =
                         activityCount > 0
-                          ? `${activityCount} ${activityCount === 1 ? 'atividade concluída' : 'atividades concluídas'}`
+                          ? `${activityCount} ${activityCount === 1 ? text('atividade concluída', 'activity completed') : text('atividades concluídas', 'activities completed')}`
                           : isStreakDay
-                            ? 'dia da ofensiva'
+                            ? text('dia da ofensiva', 'streak day')
                             : 'sem atividade';
 
                       return (
@@ -153,7 +178,7 @@ export function StreakPopover({
 
                           <div
                             role="img"
-                            aria-label={`${day.name}: ${activityLabel}${isToday ? ', hoje' : ''}`}
+                            aria-label={`${dayName}: ${activityLabel}${isToday ? `, ${text('hoje', 'today')}` : ''}`}
                             className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors ${
                               isActive
                                 ? 'border-blue-300 bg-blue-500 text-white shadow-[0_3px_0_#0866c9]'

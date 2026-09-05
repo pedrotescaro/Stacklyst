@@ -6,6 +6,7 @@ import { Bookmark } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface BookmarkButtonProps {
   isSaved: boolean;
@@ -15,6 +16,7 @@ interface BookmarkButtonProps {
 }
 
 export function BookmarkButton({ isSaved, onToggle, className, onViewAll }: BookmarkButtonProps) {
+  const { text } = useLocalizedText();
   const reduced = useReducedMotion();
   const [saved, setSaved] = useState(isSaved);
   const [showToast, setShowToast] = useState(false);
@@ -63,7 +65,7 @@ export function BookmarkButton({ isSaved, onToggle, className, onViewAll }: Book
         )}
         whileTap={reduced ? undefined : { scale: [1, 1.2, 1] }}
         transition={{ duration: 0.3 }}
-        title={saved ? 'Remover dos salvos' : 'Salvar'}
+        title={saved ? text('Remover dos salvos', 'Remove from bookmarks') : text('Salvar', 'Save')}
       >
         <Bookmark className={cn('w-[18px] h-[18px]', saved && 'fill-current')} />
       </motion.button>

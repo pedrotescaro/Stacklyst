@@ -13,6 +13,7 @@ import { getCurrentUser } from '@/lib/client/current-user';
 import { Bell, MessageCircle, Sparkles, Swords, Settings, Heart, X } from 'lucide-react';
 import Link from 'next/link';
 import { FeedRightSidebar } from '@/components/FeedRightSidebar';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface UpvoterUser {
   username: string;
@@ -31,10 +32,12 @@ interface NotificationItem {
   postTitle?: string;
   postBody?: string;
   upvoters?: UpvoterUser[];
+  actor?: { username: string } | null;
 }
 
 export default function NotificationsPage() {
   const router = useRouter();
+  const { isEnglish, text } = useLocalizedText();
   const [user, setUser] = useState<any>(null);
   const [notifications, setNotifications] = useState<NotificationItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -119,10 +122,29 @@ export default function NotificationsPage() {
     const diffHours = Math.floor(diffMins / 60);
     const diffDays = Math.floor(diffHours / 24);
 
-    if (diffMins < 1) return 'Agora mesmo';
-    if (diffMins < 60) return `Há ${diffMins} min`;
-    if (diffHours < 24) return `Há ${diffHours} h`;
-    return `Há ${diffDays} dias`;
+    if (diffMins < 1) return text('Agora mesmo', 'Just now');
+    if (diffMins < 60) return text(`Há ${diffMins} min`, `${diffMins}m ago`);
+    if (diffHours < 24) return text(`Há ${diffHours} h`, `${diffHours}h ago`);
+    return text(`Há ${diffDays} dias`, `${diffDays}d ago`);
+  };
+
+  const localizedNotification = (item: NotificationItem) => {
+    if (!isEnglish) return { title: item.title, content: item.content };
+    const actor = item.actor ? `@${item.actor.username}` : 'Someone';
+    switch (item.type) {
+      case 'LIKE':
+        return { title: 'New upvote', content: `${actor} upvoted your post.` };
+      case 'ANSWER':
+        return item.link === '/messages'
+          ? { title: 'New message', content: `${actor} sent you a message in Chat.` }
+          : { title: 'New reply', content: `${actor} replied to your question.` };
+      case 'XP':
+        return { title: 'XP achievement', content: 'You reached a new XP milestone.' };
+      case 'DUEL':
+        return { title: 'Duel update', content: 'A duel has a new update for you.' };
+      default:
+        return { title: 'Stacklyst notification', content: 'You received a notification.' };
+    }
   };
 
   // Filter notifications based on tab
@@ -191,8 +213,13 @@ export default function NotificationsPage() {
           {/* Header (Matching image 3 style) */}
           <div className="sticky top-0 z-30 bg-dd-bg/95 backdrop-blur-md border-b border-dd-border/60">
             <div className="flex items-center justify-between px-4 py-3">
-              <h1 className="text-lg font-black tracking-tight text-dd-text">Notificações</h1>
-              <button className="p-2 text-dd-text hover:bg-dd-surface/60 rounded-full transition-colors">
+              <h1 className="text-lg font-black tracking-tight text-dd-text">
+                {text('Notificações', 'Notifications')}
+              </h1>
+              <button
+                aria-label={text('Configurações de notificações', 'Notification settings')}
+                className="p-2 text-dd-text hover:bg-dd-surface/60 rounded-full transition-colors"
+              >
                 <Settings className="w-5 h-5" />
               </button>
             </div>
@@ -210,7 +237,11 @@ export default function NotificationsPage() {
                       activeTab === tab ? 'text-dd-text font-black' : 'text-dd-muted font-bold'
                     }
                   >
-                    {tab === 'tudo' ? 'Tudo' : tab === 'prioridade' ? 'Prioridade' : 'Menções'}
+                    {tab === 'tudo'
+                      ? text('Tudo', 'All')
+                      : tab === 'prioridade'
+                        ? text('Prioridade', 'Priority')
+                        : text('Menções', 'Mentions')}
                   </span>
                 </button>
               ))}
@@ -287,10 +318,12 @@ export default function NotificationsPage() {
                           {otherCount > 0 && (
                             <>
                               {' '}
-                              e mais <span className="font-extrabold">{otherCount}</span>
+                              {text('e mais', 'and')}{' '}
+                              <span className="font-extrabold">{otherCount}</span>{' '}
+                              {text('', 'more')}
                             </>
                           )}{' '}
-                          curtiram seu post{' '}
+                          {text('curtiram seu post', 'liked your post')}{' '}
                           <span className="text-dd-muted font-normal">
                             · {formatTimeAgo(item.created_at)}
                           </span>
@@ -311,6 +344,7 @@ export default function NotificationsPage() {
                 }
 
                 // Standard notification layout (for XP, Answer, Duel, System)
+                const localized = localizedNotification(item);
                 return (
                   <motion.div
                     key={item.id}
@@ -322,13 +356,13 @@ export default function NotificationsPage() {
                     {/* Right text details */}
                     <div className="flex-1 space-y-1">
                       <div className="flex items-center justify-between gap-2">
-                        <p className="text-xs font-bold text-dd-text">{item.title}</p>
+                        <p className="text-xs font-bold text-dd-text">{localized.title}</p>
                         <span className="text-[9.5px] text-dd-muted font-medium shrink-0">
                           {formatTimeAgo(item.created_at)}
                         </span>
                       </div>
 
-                      <p className="text-xs text-dd-muted leading-relaxed">{item.content}</p>
+                      <p className="text-xs text-dd-muted leading-relaxed">{localized.content}</p>
 
                       {item.link && (
                         <div className="pt-1.5">
@@ -336,7 +370,7 @@ export default function NotificationsPage() {
                             href={item.link}
                             className="text-[10px] font-black text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-0.5"
                           >
-                            Ir para atividade →
+                            {text('Ir para atividade', 'View activity')} →
                           </Link>
                         </div>
                       )}
@@ -356,19 +390,28 @@ export default function NotificationsPage() {
               >
                 <X className="w-4 h-4" />
               </button>
-              <h4 className="text-sm font-black text-dd-text">Notificações por push</h4>
+              <h4 className="text-sm font-black text-dd-text">
+                {text('Notificações por push', 'Push notifications')}
+              </h4>
               <p className="text-xs text-dd-muted leading-relaxed max-w-md">
-                Ative as notificações por push para não perder nunca o que está acontecendo no
-                Stacklyst.
+                {text(
+                  'Ative as notificações por push para não perder nunca o que está acontecendo no Stacklyst.',
+                  'Turn on push notifications to keep up with everything happening on Stacklyst.'
+                )}
               </p>
               <button
                 onClick={() => {
-                  alert('Notificações por push ativadas com sucesso!');
+                  alert(
+                    text(
+                      'Notificações por push ativadas com sucesso!',
+                      'Push notifications enabled!'
+                    )
+                  );
                   setShowPushBanner(false);
                 }}
                 className="bg-white hover:bg-slate-100 text-black text-xs font-black py-2 px-4 rounded-full transition-all"
               >
-                Ativar Notificações
+                {text('Ativar notificações', 'Enable notifications')}
               </button>
             </div>
           )}

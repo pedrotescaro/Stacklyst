@@ -6,8 +6,23 @@ export interface Translations {
     platform: string;
     tracks: string;
     duels: string;
+    home: string;
     feed: string;
     ranking: string;
+    notifications: string;
+    chat: string;
+    bookmarks: string;
+    profile: string;
+    more: string;
+    post: string;
+    createPost: string;
+    openProfileMenu: string;
+    jobs: string;
+    jobsRecruiting: string;
+    events: string;
+    eventsHackathons: string;
+    codeEvaluation: string;
+    adminPanel: string;
     login: string;
     signUp: string;
     goToFeed: string;
@@ -183,6 +198,73 @@ export interface Translations {
     privacy: string;
     terms: string;
   };
+  settings: {
+    title: string;
+    searchPlaceholder: string;
+    noResults: string;
+    loading: string;
+    tabs: {
+      account: { title: string; description: string };
+      appearance: { title: string; description: string };
+      sounds: { title: string; description: string };
+      language: { title: string; description: string };
+      actions: { title: string; description: string };
+    };
+    account: {
+      heading: string;
+      description: string;
+      username: string;
+      institution: string;
+      githubUsername: string;
+      discordUsername: string;
+      pronouns: string;
+      birthday: string;
+      bannerImage: string;
+      bannerPreview: string;
+      noBanner: string;
+      uploadBanner: string;
+      uploadingBanner: string;
+      bio: string;
+      bioPlaceholder: string;
+      saved: string;
+      saving: string;
+      saveChanges: string;
+      updateError: string;
+      internalError: string;
+    };
+    appearance: {
+      heading: string;
+      description: string;
+      darkTitle: string;
+      darkDescription: string;
+      lightTitle: string;
+      lightDescription: string;
+    };
+    sounds: {
+      heading: string;
+      description: string;
+      platformEffects: string;
+      on: string;
+      off: string;
+      enabledFeedback: string;
+      disabledFeedback: string;
+    };
+    language: {
+      heading: string;
+      description: string;
+      portuguese: string;
+      portugueseDescription: string;
+      english: string;
+      englishDescription: string;
+      selected: string;
+    };
+    actions: {
+      heading: string;
+      description: string;
+      notice: string;
+      signOut: string;
+    };
+  };
 }
 
 export const translations: Record<Language, Translations> = {
@@ -192,8 +274,23 @@ export const translations: Record<Language, Translations> = {
       platform: 'Plataforma',
       tracks: 'Trilhas',
       duels: 'Duelos',
+      home: 'Página Inicial',
       feed: 'Feed',
       ranking: 'Ranking',
+      notifications: 'Notificações',
+      chat: 'Bate-papo',
+      bookmarks: 'Itens salvos',
+      profile: 'Perfil',
+      more: 'Mais',
+      post: 'Postar',
+      createPost: 'Criar publicação',
+      openProfileMenu: 'Abrir menu do perfil',
+      jobs: 'Vagas',
+      jobsRecruiting: 'Vagas & Recrutamento',
+      events: 'Eventos',
+      eventsHackathons: 'Eventos & Hackathons',
+      codeEvaluation: 'Avaliação de Código',
+      adminPanel: 'Painel Administrativo',
       login: 'Entrar',
       signUp: 'Criar conta',
       goToFeed: 'Ir para o Feed',
@@ -376,6 +473,90 @@ export const translations: Record<Language, Translations> = {
       privacy: 'Privacidade',
       terms: 'Termos de Uso',
     },
+    settings: {
+      title: 'Configurações',
+      searchPlaceholder: 'Buscar configuração',
+      noResults: 'Nenhuma configuração encontrada',
+      loading: 'Carregando configurações...',
+      tabs: {
+        account: {
+          title: 'Sua conta',
+          description: 'Veja informações sobre seu perfil público, biografia e redes sociais.',
+        },
+        appearance: {
+          title: 'Aparência',
+          description: 'Personalize a exibição visual da plataforma (Modo Claro vs Modo Escuro).',
+        },
+        sounds: {
+          title: 'Efeitos sonoros',
+          description: 'Ative ou desative os efeitos sonoros das interações da plataforma.',
+        },
+        language: {
+          title: 'Idioma',
+          description: 'Escolha o idioma usado na experiência Stacklyst.',
+        },
+        actions: {
+          title: 'Ações da conta',
+          description: 'Encerre sua sessão de desenvolvimento ativa ou faça logout.',
+        },
+      },
+      account: {
+        heading: 'Informações públicas',
+        description:
+          'Atualize os dados públicos do seu perfil, como biografia, instituição de ensino/trabalho e redes sociais.',
+        username: 'Nome de usuário (não pode ser alterado)',
+        institution: 'Instituição / Empresa',
+        githubUsername: 'Nome de usuário do GitHub',
+        discordUsername: 'Nome de usuário do Discord',
+        pronouns: 'Pronomes',
+        birthday: 'Data de nascimento',
+        bannerImage: 'Imagem de banner do perfil',
+        bannerPreview: 'Prévia do banner',
+        noBanner: 'Nenhuma imagem de banner',
+        uploadBanner: 'Alterar imagem de banner',
+        uploadingBanner: 'Enviando...',
+        bio: 'Biografia / Sobre mim',
+        bioPlaceholder: 'Fale um pouco sobre você, tecnologias favoritas...',
+        saved: 'Perfil atualizado com sucesso!',
+        saving: 'Salvando...',
+        saveChanges: 'Salvar alterações',
+        updateError: 'Erro ao atualizar dados.',
+        internalError: 'Erro interno no servidor.',
+      },
+      appearance: {
+        heading: 'Aparência da plataforma',
+        description: 'Escolha a sua preferência de exibição visual para navegar na rede.',
+        darkTitle: 'Modo escuro',
+        darkDescription: 'Foco no código e menor fadiga ocular.',
+        lightTitle: 'Modo claro',
+        lightDescription: 'Estilo limpo e alto contraste de leitura.',
+      },
+      sounds: {
+        heading: 'Efeitos sonoros',
+        description:
+          'Ative ou desative os sons de interações, como curtidas, notificações e recompensas.',
+        platformEffects: 'Efeitos sonoros da plataforma',
+        on: 'Ligado',
+        off: 'Desligado',
+        enabledFeedback: 'Som de demonstração reproduzido. Os efeitos sonoros estão ligados.',
+        disabledFeedback: 'Som de demonstração reproduzido. Os efeitos sonoros estão desligados.',
+      },
+      language: {
+        heading: 'Idioma da experiência',
+        description: 'Escolha o idioma da interface. Sua preferência fica salva neste dispositivo.',
+        portuguese: 'Português (Brasil)',
+        portugueseDescription: 'Use o Stacklyst em português brasileiro.',
+        english: 'English',
+        englishDescription: 'Use Stacklyst in English.',
+        selected: 'Selecionado',
+      },
+      actions: {
+        heading: 'Ações da conta',
+        description: 'Encerre sua sessão de desenvolvimento atual no dispositivo.',
+        notice: 'Para trocar de conta ou sair do Stacklyst, utilize o botão abaixo.',
+        signOut: 'Sair da conta',
+      },
+    },
   },
   en: {
     nav: {
@@ -383,8 +564,23 @@ export const translations: Record<Language, Translations> = {
       platform: 'Platform',
       tracks: 'Tracks',
       duels: 'Duels',
+      home: 'Home',
       feed: 'Feed',
       ranking: 'Ranking',
+      notifications: 'Notifications',
+      chat: 'Chat',
+      bookmarks: 'Bookmarks',
+      profile: 'Profile',
+      more: 'More',
+      post: 'Post',
+      createPost: 'Create post',
+      openProfileMenu: 'Open profile menu',
+      jobs: 'Jobs',
+      jobsRecruiting: 'Jobs & recruiting',
+      events: 'Events',
+      eventsHackathons: 'Events & hackathons',
+      codeEvaluation: 'Code evaluation',
+      adminPanel: 'Admin panel',
       login: 'Log in',
       signUp: 'Sign up',
       goToFeed: 'Go to Feed',
@@ -565,6 +761,89 @@ export const translations: Record<Language, Translations> = {
       legal: 'Legal',
       privacy: 'Privacy',
       terms: 'Terms of Service',
+    },
+    settings: {
+      title: 'Settings',
+      searchPlaceholder: 'Search settings',
+      noResults: 'No settings found',
+      loading: 'Loading settings...',
+      tabs: {
+        account: {
+          title: 'Your account',
+          description: 'View information about your public profile, bio, and social accounts.',
+        },
+        appearance: {
+          title: 'Appearance',
+          description: 'Personalize the platform visual experience (Light Mode vs Dark Mode).',
+        },
+        sounds: {
+          title: 'Sound effects',
+          description: 'Turn the platform interaction sound effects on or off.',
+        },
+        language: {
+          title: 'Language',
+          description: 'Choose the language used in the Stacklyst experience.',
+        },
+        actions: {
+          title: 'Account actions',
+          description: 'End your active development session or sign out.',
+        },
+      },
+      account: {
+        heading: 'Public information',
+        description:
+          'Update your public profile details, including your bio, school or workplace, and social accounts.',
+        username: 'Username (cannot be changed)',
+        institution: 'School / Company',
+        githubUsername: 'GitHub username',
+        discordUsername: 'Discord username',
+        pronouns: 'Pronouns',
+        birthday: 'Date of birth',
+        bannerImage: 'Profile banner image',
+        bannerPreview: 'Banner preview',
+        noBanner: 'No banner image',
+        uploadBanner: 'Change banner image',
+        uploadingBanner: 'Uploading...',
+        bio: 'Bio / About me',
+        bioPlaceholder: 'Tell us a little about yourself and your favorite technologies...',
+        saved: 'Profile updated successfully!',
+        saving: 'Saving...',
+        saveChanges: 'Save changes',
+        updateError: 'Could not update your details.',
+        internalError: 'An internal server error occurred.',
+      },
+      appearance: {
+        heading: 'Platform appearance',
+        description: 'Choose the visual preference you want while browsing the community.',
+        darkTitle: 'Dark mode',
+        darkDescription: 'Focus on code with less eye strain.',
+        lightTitle: 'Light mode',
+        lightDescription: 'A clean style with strong reading contrast.',
+      },
+      sounds: {
+        heading: 'Sound effects',
+        description: 'Turn interaction sounds such as likes, notifications, and rewards on or off.',
+        platformEffects: 'Platform sound effects',
+        on: 'On',
+        off: 'Off',
+        enabledFeedback: 'A demo sound played. Sound effects are on.',
+        disabledFeedback: 'A demo sound played. Sound effects are off.',
+      },
+      language: {
+        heading: 'Experience language',
+        description: 'Choose the interface language. Your preference is saved on this device.',
+        portuguese: 'Português (Brasil)',
+        portugueseDescription: 'Use Stacklyst in Brazilian Portuguese.',
+        english: 'English',
+        englishDescription: 'Use Stacklyst in English.',
+        selected: 'Selected',
+      },
+      actions: {
+        heading: 'Account actions',
+        description: 'End your active development session on this device.',
+        notice: 'Use the button below to switch accounts or sign out of Stacklyst.',
+        signOut: 'Sign out',
+      },
     },
   },
 };

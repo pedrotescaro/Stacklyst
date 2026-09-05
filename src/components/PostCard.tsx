@@ -33,6 +33,7 @@ import { CharCounter } from '@/components/motion/CharCounter';
 import { POST_CHAR_LIMIT } from '@/lib/motion';
 import { parsePostExtras } from '@/lib/post-composer';
 import { prismaLanguageToEditor } from '@/lib/editor/languages';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface PostAuthor {
   name?: string | null;
@@ -87,6 +88,7 @@ export function PostCard({
   onBookmarkToggle,
 }: PostCardProps) {
   const router = useRouter();
+  const { text } = useLocalizedText();
   const [reportModalOpen, setReportModalOpen] = useState(false);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
@@ -253,7 +255,7 @@ export function PostCard({
           setReportReason('');
         }, 1500);
       } else {
-        alert('Falha ao enviar denúncia.');
+        alert(text('Falha ao enviar denúncia.', 'Could not send report.'));
       }
     } catch (err) {
       console.error(err);
@@ -358,7 +360,7 @@ export function PostCard({
             </div>
             <span className="text-dd-muted text-[10px] block mt-0.5 font-medium">
               {isRelative && relativeTime === 'agora'
-                ? 'Postado há pouco'
+                ? text('Postado há pouco', 'Posted just now')
                 : `Postado ${relativeTime}`}
             </span>
           </div>
@@ -409,7 +411,7 @@ export function PostCard({
           <Link
             href={`/post/${post.id}`}
             className="flex items-center gap-1 text-dd-muted hover:text-blue-400 transition-colors group/comment -ml-1 py-1 px-1"
-            title="Responder"
+            title={text('Responder', 'Reply')}
           >
             <div className="w-8 h-8 rounded-full flex items-center justify-center group-hover/comment:bg-blue-500/10 transition-colors shrink-0">
               <MessageCircle className="w-[18px] h-[18px] text-dd-muted group-hover/comment:text-blue-400" />
@@ -434,7 +436,7 @@ export function PostCard({
             count={likesCount}
             isActive={liked}
             onToggle={handleLikeToggle}
-            title="Curtir post"
+            title={text('Curtir post', 'Like post')}
           />
 
           {/* Right cluster: Bookmark, Share, More (...) */}
@@ -474,7 +476,7 @@ export function PostCard({
                   }
                 }}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-dd-muted hover:text-blue-400 hover:bg-blue-500/10 transition-colors cursor-pointer shrink-0"
-                title="Compartilhar post"
+                title={text('Compartilhar post', 'Share post')}
               >
                 {shareCopied ? (
                   <Check className="w-[18px] h-[18px] text-emerald-400" />
@@ -499,7 +501,7 @@ export function PostCard({
                   setMenuOpen(!menuOpen);
                 }}
                 className="w-8 h-8 rounded-full flex items-center justify-center text-dd-muted hover:text-blue-400 hover:bg-blue-500/10 transition-colors cursor-pointer shrink-0"
-                title="Mais opções"
+                title={text('Mais opções', 'More options')}
               >
                 <MoreHorizontal className="w-[18px] h-[18px]" />
               </button>
@@ -524,7 +526,7 @@ export function PostCard({
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
                       >
                         <Pencil className="w-4 h-4 text-dd-muted" />
-                        <span>Editar</span>
+                        <span>{text('Editar', 'Edit')}</span>
                       </button>
                       <button
                         onClick={(e) => {
@@ -536,7 +538,7 @@ export function PostCard({
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer text-left"
                       >
                         <Trash2 className="w-4 h-4 text-red-400" />
-                        <span>Excluir</span>
+                        <span>{text('Excluir', 'Delete')}</span>
                       </button>
                     </>
                   ) : (
@@ -577,22 +579,27 @@ export function PostCard({
             onClick={(e) => e.stopPropagation()}
           >
             <h3 id={`report-post-title-${post.id}`} className="text-sm font-black text-dd-text">
-              Denunciar Postagem
+              {text('Denunciar postagem', 'Report post')}
             </h3>
             <p className="text-xs text-dd-muted font-semibold leading-relaxed">
-              Ajude-nos a entender o que há de errado com esta postagem. Ela viola alguma de nossas
-              diretrizes de comunidade?
+              {text(
+                'Ajude-nos a entender o que há de errado com esta postagem. Ela viola alguma de nossas diretrizes de comunidade?',
+                'Help us understand what is wrong with this post. Does it violate our community guidelines?'
+              )}
             </p>
 
             {reported ? (
               <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold p-3 rounded-lg text-center animate-pulse">
-                Denúncia enviada com sucesso. Obrigado por ajudar!
+                {text(
+                  'Denúncia enviada com sucesso. Obrigado por ajudar!',
+                  'Report sent. Thanks for helping!'
+                )}
               </div>
             ) : (
               <form onSubmit={handleReportSubmit} className="space-y-4">
                 <div className="space-y-2">
                   <label className="text-[10px] text-dd-muted font-bold uppercase tracking-wider block">
-                    Motivo da denúncia
+                    {text('Motivo da denúncia', 'Report reason')}
                   </label>
                   <select
                     value={reportReason}
@@ -621,7 +628,7 @@ export function PostCard({
                     }}
                     className="text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
                   >
-                    Cancelar
+                    {text('Cancelar', 'Cancel')}
                   </button>
                   <button
                     type="submit"
@@ -629,7 +636,7 @@ export function PostCard({
                     disabled={reporting || !reportReason}
                     className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
                   >
-                    {reporting ? 'Enviando...' : 'Denunciar'}
+                    {reporting ? text('Enviando...', 'Sending...') : text('Denunciar', 'Report')}
                   </button>
                 </div>
               </form>
@@ -655,10 +662,13 @@ export function PostCard({
             onClick={(e) => e.stopPropagation()}
           >
             <h3 id={`delete-post-title-${post.id}`} className="text-sm font-black text-dd-text">
-              Deletar Postagem
+              {text('Deletar postagem', 'Delete post')}
             </h3>
             <p className="text-xs text-dd-muted font-semibold leading-relaxed">
-              Tem certeza que deseja deletar esta postagem? Esta ação não pode ser desfeita.
+              {text(
+                'Tem certeza que deseja deletar esta postagem? Esta ação não pode ser desfeita.',
+                'Are you sure you want to delete this post? This action cannot be undone.'
+              )}
             </p>
 
             <div className="flex justify-end gap-2 pt-2 border-t border-dd-border">
@@ -671,7 +681,7 @@ export function PostCard({
                 }}
                 className="text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
               >
-                Cancelar
+                {text('Cancelar', 'Cancel')}
               </button>
               <button
                 type="button"
@@ -683,7 +693,7 @@ export function PostCard({
                 disabled={deleting}
                 className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
               >
-                {deleting ? 'Deletando...' : 'Deletar'}
+                {deleting ? text('Deletando...', 'Deleting...') : text('Deletar', 'Delete')}
               </button>
             </div>
           </div>
@@ -710,14 +720,16 @@ export function PostCard({
             />
 
             <div className="flex-grow min-w-0 space-y-3 relative">
-              <h3 className="text-sm font-black text-dd-text">Editar Publicação</h3>
+              <h3 className="text-sm font-black text-dd-text">
+                {text('Editar publicação', 'Edit post')}
+              </h3>
               <MarkdownEditor
                 ref={editBodyEditorRef}
                 value={editBody}
                 onChange={(val) => setEditBody(val)}
                 maxLength={POST_CHAR_LIMIT}
                 minHeight="8rem"
-                placeholder="Editar conteúdo..."
+                placeholder={text('Editar conteúdo...', 'Edit content...')}
               />
               <div className="flex justify-end">
                 <CharCounter text={editBody} limit={POST_CHAR_LIMIT} />
@@ -735,7 +747,7 @@ export function PostCard({
               }}
               className="text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
             >
-              Cancelar
+              {text('Cancelar', 'Cancel')}
             </button>
             <button
               type="submit"
@@ -743,7 +755,7 @@ export function PostCard({
               disabled={saving || !editBody.trim() || editBody.length >= POST_CHAR_LIMIT}
               className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors cursor-pointer"
             >
-              {saving ? 'Salvando...' : 'Salvar'}
+              {saving ? text('Salvando...', 'Saving...') : text('Salvar', 'Save')}
             </button>
           </div>
         </form>

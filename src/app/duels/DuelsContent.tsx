@@ -22,6 +22,7 @@ import { cn } from '@/lib/cn';
 import Link from 'next/link';
 import { parseProblemFromJson, type DuelProblem } from '@/lib/duel-problems';
 import { getDuelListingExpiryAt, isDuelVisibleInListing } from '@/lib/duels/listing';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface DuelsContentProps {
   user: {
@@ -41,6 +42,7 @@ const AVAILABLE_LANGUAGES: { key: Language; label: string }[] = [
 ];
 
 export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
+  const { text } = useLocalizedText();
   const router = useRouter();
   const [duels, setDuels] = useState<any[]>(initialDuels);
   const [listingNow, setListingNow] = useState(() => Date.now());
@@ -304,7 +306,10 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                   Arena de Duelos 1v1
                 </h1>
                 <p className="text-[11px] text-dd-muted font-bold">
-                  Batalhas de código em tempo real estilo arcade
+                  {text(
+                    'Batalhas de código em tempo real estilo arcade',
+                    'Arcade-style real-time code battles'
+                  )}
                 </p>
               </div>
             </div>
@@ -337,10 +342,11 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
 
                 <div>
                   <span className="text-[10px] font-black uppercase text-blue-400 bg-blue-500/15 px-3 py-1 rounded-full border border-blue-500/30">
-                    Desafio Recebido!
+                    {text('Desafio recebido!', 'Challenge received!')}
                   </span>
                   <h3 className="text-xl font-black text-dd-text mt-2">
-                    @{incomingRequest.sender.username} desafiou você para um duelo!
+                    @{incomingRequest.sender.username}{' '}
+                    {text('desafiou você para um duelo!', 'challenged you to a duel!')}
                   </h3>
                   <p className="text-xs text-dd-muted font-medium mt-1">
                     Linguagem: <strong>{incomingRequest.language}</strong> • Oponente com{' '}
@@ -384,7 +390,8 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="space-y-1.5">
                   <span className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-wider text-blue-500 dark:text-blue-400 bg-blue-500/15 px-2.5 py-1 rounded-xl border border-blue-500/30">
-                    <Zap className="w-3 h-3 fill-current" /> Fila Rápida 1v1
+                    <Zap className="w-3 h-3 fill-current" />{' '}
+                    {text('Fila rápida 1v1', 'Quick 1v1 queue')}
                   </span>
                   <h2 className="text-xl sm:text-2xl font-black text-dd-text">
                     Enfrente um Desenvolvedor Agora
@@ -437,7 +444,9 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                 className="dd-touch dd-focus-ring w-full flex items-center justify-center gap-2.5 rounded-2xl border-2 border-b-4 border-blue-600 border-b-blue-800 bg-blue-500 hover:bg-blue-400 py-4 text-sm font-black uppercase tracking-wider text-white shadow-xl shadow-blue-500/25 transition-all hover:-translate-y-0.5 active:translate-y-0.5 active:border-b-2 cursor-pointer disabled:opacity-60"
               >
                 <Play className={cn('w-5 h-5 fill-current', isMatchmaking && 'animate-spin')} />
-                {isMatchmaking ? 'Buscando Oponente na Arena...' : 'Entrar na Fila Rápida 1v1'}
+                {isMatchmaking
+                  ? text('Buscando oponente na arena...', 'Searching for an opponent...')
+                  : text('Entrar na fila rápida 1v1', 'Join quick 1v1 queue')}
               </button>
             </div>
 
@@ -448,7 +457,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                   <div className="flex items-center gap-2">
                     <Sparkles className="w-4 h-4 text-blue-400" />
                     <h3 className="text-xs font-black uppercase tracking-wider text-dd-text">
-                      Configurar Desafio Customizado
+                      {text('Configurar desafio customizado', 'Configure custom challenge')}
                     </h3>
                   </div>
                   <button
@@ -542,12 +551,12 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                       {isGenerating ? (
                         <>
                           <Loader2 className="w-4 h-4 animate-spin" />
-                          Montando Desafio...
+                          {text('Montando desafio...', 'Building challenge...')}
                         </>
                       ) : (
                         <>
                           <Wand2 className="w-4 h-4" />
-                          Montar Desafio
+                          {text('Montar desafio', 'Build challenge')}
                         </>
                       )}
                     </button>
@@ -654,7 +663,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                       <div className="sm:col-span-2 space-y-1">
                         <label className="text-[10px] font-bold text-dd-muted uppercase">
-                          Título do Problema
+                          {text('Título do problema', 'Problem title')}
                         </label>
                         <input
                           type="text"
@@ -701,7 +710,9 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                         disabled={creating}
                         className="dd-touch dd-focus-ring rounded-xl border-2 border-b-[3px] border-blue-600 border-b-blue-800 bg-blue-500 hover:bg-blue-400 px-6 py-2.5 text-xs font-black uppercase tracking-wider text-white shadow-md transition-all hover:-translate-y-0.5 active:translate-y-0.5 active:border-b-2 cursor-pointer disabled:opacity-50"
                       >
-                        {creating ? 'Criando...' : 'Publicar Desafio'}
+                        {creating
+                          ? text('Criando...', 'Creating...')
+                          : text('Publicar desafio', 'Publish challenge')}
                       </button>
                     </div>
                   </form>
@@ -757,7 +768,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
               {filteredDuels.length === 0 ? (
                 <div className="rounded-[22px] border-2 border-dashed border-dd-border bg-dd-surface/30 p-12 text-center text-dd-muted space-y-2">
                   <p className="text-sm font-bold text-dd-text">
-                    Nenhum duelo aberto com esse filtro
+                    {text('Nenhum duelo aberto com esse filtro', 'No open duels match this filter')}
                   </p>
                   <p className="text-xs">
                     Clique em &quot;Entrar na Fila Rápida&quot; acima para iniciar um duelo

@@ -38,6 +38,7 @@ import { POST_CHAR_LIMIT } from '@/lib/motion';
 import { ThemeLogo } from '@/components/ThemeLogo';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { getCurrentUser, invalidateCurrentUser } from '@/lib/client/current-user';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const MarkdownEditor = dynamic(
   () => import('@/components/MarkdownEditor').then((module) => module.MarkdownEditor),
@@ -82,6 +83,7 @@ if (typeof window !== 'undefined') {
 export function Sidebar({ user, showDivider = true }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
+  const { t } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
 
@@ -373,6 +375,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
   };
 
   const navItems: Array<{
+    id: string;
     label: string;
     href: string;
     icon: any;
@@ -380,50 +383,58 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
     badge?: 'dot';
   }> = [
     {
-      label: 'Página Inicial',
+      id: 'home',
+      label: t.nav.home,
       href: '/feed',
       icon: Home,
       active: pathname === '/feed',
       badge: 'dot' as const,
     },
     {
-      label: 'Trilhas',
+      id: 'tracks',
+      label: t.nav.tracks,
       href: '/trails',
       icon: BookOpen,
       active: pathname.startsWith('/trails'),
     },
     {
-      label: 'Notificações',
+      id: 'notifications',
+      label: t.nav.notifications,
       href: '/notifications',
       icon: Bell,
       active: pathname === '/notifications',
     },
     {
-      label: 'Ranking',
+      id: 'ranking',
+      label: t.nav.ranking,
       href: '/ranking',
       icon: Trophy,
       active: pathname.startsWith('/ranking') || pathname.startsWith('/leaderboard'),
     },
     {
-      label: 'Duelos',
+      id: 'duels',
+      label: t.nav.duels,
       href: '/duels',
       icon: Swords,
       active: pathname.startsWith('/duels'),
     },
     {
-      label: 'Bate-papo',
+      id: 'chat',
+      label: t.nav.chat,
       href: '/messages',
       icon: MessageCircle,
       active: pathname.startsWith('/messages'),
     },
     {
-      label: 'Itens salvos',
+      id: 'bookmarks',
+      label: t.nav.bookmarks,
       href: '/bookmarks',
       icon: Bookmark,
       active: pathname.startsWith('/bookmarks'),
     },
     {
-      label: 'Perfil',
+      id: 'profile',
+      label: t.nav.profile,
       href: activeUser ? `/profile/${activeUser.username}` : '#',
       icon: UserIcon,
       active: activeUser ? pathname === `/profile/${activeUser.username}` : false,
@@ -445,26 +456,30 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
 
   const mobileNavItems = [
     {
-      label: 'Página Inicial',
+      id: 'home',
+      label: t.nav.home,
       href: '/feed',
       icon: Home,
       active: pathname === '/feed',
       badge: 'dot' as const,
     },
     {
-      label: 'Trilhas',
+      id: 'tracks',
+      label: t.nav.tracks,
       href: '/trails',
       icon: BookOpen,
       active: pathname.startsWith('/trails'),
     },
     {
-      label: 'Notificações',
+      id: 'notifications',
+      label: t.nav.notifications,
       href: '/notifications',
       icon: Bell,
       active: pathname === '/notifications',
     },
     {
-      label: 'Perfil',
+      id: 'profile',
+      label: t.nav.profile,
       href: activeUser ? `/profile/${activeUser.username}` : '#',
       icon: UserIcon,
       active: activeUser ? pathname === `/profile/${activeUser.username}` : false,
@@ -477,7 +492,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
 
     const iconEl = (
       <div className="relative flex items-center justify-center">
-        {item.label === 'Notificações' ? (
+        {item.id === 'notifications' ? (
           <NotificationBellIcon unreadCount={unreadCount} active={item.active} />
         ) : (
           <>
@@ -552,7 +567,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
 
               const iconEl = (
                 <div className="relative flex items-center justify-center w-6 h-6 shrink-0">
-                  {item.label === 'Notificações' ? (
+                  {item.id === 'notifications' ? (
                     <NotificationBellIcon unreadCount={unreadCount} active={item.active} />
                   ) : (
                     <Icon
@@ -603,12 +618,12 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                   ? 'font-black text-dd-text dark:text-white'
                   : 'font-bold text-dd-text dark:text-white'
               } transition-colors duration-150 hover:bg-black/[0.06] dark:hover:bg-white/10 group`}
-              aria-label="Mais"
+              aria-label={t.nav.more}
             >
               <div className="flex h-6 w-6 shrink-0 items-center justify-center">
                 <MoreHorizontal className="h-6 w-6 text-dd-text dark:text-white stroke-[2.2] transition-transform duration-150 group-hover:scale-105" />
               </div>
-              <span className="hidden text-dd-text dark:text-white xl:inline">Mais</span>
+              <span className="hidden text-dd-text dark:text-white xl:inline">{t.nav.more}</span>
             </button>
 
             {moreMenuOpen && (
@@ -628,7 +643,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                     onClick={() => setMoreMenuOpen(false)}
                   >
                     <Briefcase className="h-5.5 w-5.5 shrink-0 text-dd-text" />
-                    <span>Vagas & Recrutamento</span>
+                    <span>{t.nav.jobsRecruiting}</span>
                   </Link>
                   <Link
                     href="/events"
@@ -637,7 +652,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                     onClick={() => setMoreMenuOpen(false)}
                   >
                     <Calendar className="h-5.5 w-5.5 shrink-0 text-dd-text" />
-                    <span>Eventos & Hackathons</span>
+                    <span>{t.nav.eventsHackathons}</span>
                   </Link>
                   <Link
                     href="/evaluations"
@@ -646,7 +661,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                     onClick={() => setMoreMenuOpen(false)}
                   >
                     <Code2 className="h-5.5 w-5.5 shrink-0 text-dd-text" />
-                    <span>Avaliação de Código</span>
+                    <span>{t.nav.codeEvaluation}</span>
                   </Link>
                   {isAdmin && (
                     <Link
@@ -656,7 +671,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                       onClick={() => setMoreMenuOpen(false)}
                     >
                       <ShieldAlert className="h-5.5 w-5.5 shrink-0 text-dd-text" />
-                      <span>Painel Administrativo</span>
+                      <span>{t.nav.adminPanel}</span>
                     </Link>
                   )}
                   <Link
@@ -666,7 +681,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                     onClick={() => setMoreMenuOpen(false)}
                   >
                     <SettingsIcon className="h-5.5 w-5.5 shrink-0 text-dd-text" />
-                    <span>Configurações</span>
+                    <span>{t.nav.settings}</span>
                   </Link>
                 </div>
               </>
@@ -678,10 +693,10 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
             <button
               onClick={() => setModalOpen(true)}
               className="mt-3 flex h-12 w-12 self-center cursor-pointer items-center justify-center rounded-full bg-blue-500 p-0 text-center text-[16px] font-bold text-white shadow-md shadow-blue-500/20 transition-all duration-150 hover:bg-blue-600 active:scale-[0.98] xl:h-auto xl:w-full xl:px-5 xl:py-3"
-              aria-label="Criar publicação"
+              aria-label={t.nav.createPost}
             >
               <SquarePen className="h-6 w-6 xl:hidden" />
-              <span className="hidden xl:inline">Postar</span>
+              <span className="hidden xl:inline">{t.nav.post}</span>
             </button>
           )}
         </div>
@@ -698,7 +713,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
               aria-expanded={dropdownOpen}
               aria-haspopup="menu"
               className="group mx-auto flex w-fit min-w-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-left transition-colors duration-150 hover:bg-black/[0.06] focus-visible:bg-black/[0.06] focus-visible:outline-none dark:hover:bg-white/10 dark:focus-visible:bg-white/10 xl:w-full xl:justify-start xl:gap-3 xl:p-2.5"
-              aria-label="Abrir menu do perfil"
+              aria-label={t.nav.openProfileMenu}
             >
               <AuthorAvatar
                 username={activeUser.username}
@@ -742,7 +757,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                     onClick={() => setDropdownOpen(false)}
                   >
                     <UserIcon className="h-5.5 w-5.5 shrink-0 text-dd-text" />
-                    <span>Meu Perfil</span>
+                    <span>{t.nav.myProfile}</span>
                   </Link>
                   <Link
                     href="/settings"
@@ -751,7 +766,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                     onClick={() => setDropdownOpen(false)}
                   >
                     <SettingsIcon className="h-5.5 w-5.5 shrink-0 text-dd-text" />
-                    <span>Configurações</span>
+                    <span>{t.nav.settings}</span>
                   </Link>
                   <button
                     type="button"
@@ -763,7 +778,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                     className="flex w-full cursor-pointer items-center gap-4 rounded-xl px-4 py-3.5 text-left text-[15px] font-extrabold leading-none text-red-500 transition-colors hover:bg-red-500/10 focus-visible:bg-red-500/10 focus-visible:outline-none"
                   >
                     <LogOut className="h-5.5 w-5.5 shrink-0" />
-                    <span>Sair da Conta</span>
+                    <span>{t.nav.signOut}</span>
                   </button>
                 </div>
               </>
@@ -819,7 +834,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                         onClick={() => setDropdownOpen(false)}
                       >
                         <UserIcon className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>Meu Perfil</span>
+                        <span>{t.nav.myProfile}</span>
                       </Link>
                       <Link
                         href="/ranking"
@@ -828,7 +843,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                         onClick={() => setDropdownOpen(false)}
                       >
                         <Trophy className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>Ranking</span>
+                        <span>{t.nav.ranking}</span>
                       </Link>
                       <Link
                         href="/jobs"
@@ -837,7 +852,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                         onClick={() => setDropdownOpen(false)}
                       >
                         <Briefcase className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>Vagas</span>
+                        <span>{t.nav.jobs}</span>
                       </Link>
                       <Link
                         href="/events"
@@ -846,7 +861,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                         onClick={() => setDropdownOpen(false)}
                       >
                         <Calendar className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>Eventos</span>
+                        <span>{t.nav.events}</span>
                       </Link>
                       <Link
                         href="/duels"
@@ -855,7 +870,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                         onClick={() => setDropdownOpen(false)}
                       >
                         <Swords className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>Duelos</span>
+                        <span>{t.nav.duels}</span>
                       </Link>
                       <Link
                         href="/evaluations"
@@ -864,7 +879,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                         onClick={() => setDropdownOpen(false)}
                       >
                         <Code2 className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>Avaliação de Código</span>
+                        <span>{t.nav.codeEvaluation}</span>
                       </Link>
                       {isAdmin && (
                         <Link
@@ -874,7 +889,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                           onClick={() => setDropdownOpen(false)}
                         >
                           <ShieldAlert className="h-5 w-5 shrink-0 text-dd-text" />
-                          <span>Painel Admin</span>
+                          <span>{t.nav.adminPanel}</span>
                         </Link>
                       )}
                       <Link
@@ -884,7 +899,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                         onClick={() => setDropdownOpen(false)}
                       >
                         <SettingsIcon className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>Configurações</span>
+                        <span>{t.nav.settings}</span>
                       </Link>
                       <button
                         type="button"
@@ -896,7 +911,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
                         className="flex w-full cursor-pointer items-center gap-3.5 rounded-xl px-3.5 py-3 text-left text-sm font-extrabold leading-none text-red-500 transition-colors hover:bg-red-500/10 focus-visible:bg-red-500/10 focus-visible:outline-none"
                       >
                         <LogOut className="h-5 w-5 shrink-0" />
-                        <span>Sair</span>
+                        <span>{t.nav.signOut}</span>
                       </button>
                     </div>
                   </>
@@ -914,7 +929,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
             <button
               onClick={() => setModalOpen(true)}
               className="absolute -top-14 right-4 bg-blue-500 text-white rounded-full p-3.5 shadow-lg shadow-blue-500/25 active:scale-95 transition-all w-12 h-12 flex items-center justify-center cursor-pointer"
-              aria-label="Postar"
+              aria-label={t.nav.post}
             >
               <Plus className="w-5.5 h-5.5" />
             </button>

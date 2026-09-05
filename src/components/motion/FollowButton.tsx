@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import { Check } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface FollowButtonProps {
   isFollowing: boolean;
@@ -14,6 +15,7 @@ interface FollowButtonProps {
 }
 
 export function FollowButton({ isFollowing, onToggle, size = 'md', className }: FollowButtonProps) {
+  const { text } = useLocalizedText();
   const reduced = useReducedMotion();
   const [optimistic, setOptimistic] = useState(isFollowing);
   const [hovered, setHovered] = useState(false);
@@ -35,7 +37,11 @@ export function FollowButton({ isFollowing, onToggle, size = 'md', className }: 
     }
   };
 
-  const label = following ? (hovered ? 'Deixar de seguir' : 'Seguindo') : 'Seguir';
+  const label = following
+    ? hovered
+      ? text('Deixar de seguir', 'Unfollow')
+      : text('Seguindo', 'Following')
+    : text('Seguir', 'Follow');
 
   return (
     <motion.button

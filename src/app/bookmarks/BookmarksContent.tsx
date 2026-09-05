@@ -7,6 +7,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { PostCard } from '@/components/PostCard';
 import { springGentle } from '@/lib/motion';
 import { ArrowLeft, Search, Bookmark } from 'lucide-react';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface BookmarksContentProps {
   user: {
@@ -20,6 +21,7 @@ interface BookmarksContentProps {
 
 export function BookmarksContent({ user, initialPosts }: BookmarksContentProps) {
   const router = useRouter();
+  const { text } = useLocalizedText();
   const [posts, setPosts] = useState<any[]>(initialPosts);
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -65,14 +67,20 @@ export function BookmarksContent({ user, initialPosts }: BookmarksContentProps) 
             <button
               onClick={() => router.back()}
               className="p-2 hover:bg-dd-surface rounded-full transition-colors text-dd-text cursor-pointer"
-              title="Voltar"
+              title={text('Voltar', 'Back')}
+              aria-label={text('Voltar', 'Back')}
             >
               <ArrowLeft className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-dd-text text-base font-extrabold tracking-tight">Itens salvos</h1>
+              <h1 className="text-dd-text text-base font-extrabold tracking-tight">
+                {text('Itens salvos', 'Bookmarks')}
+              </h1>
               <p className="text-dd-muted text-[10px] uppercase font-bold tracking-wider">
-                {posts.length} {posts.length === 1 ? 'publicação salva' : 'publicações salvas'}
+                {posts.length}{' '}
+                {posts.length === 1
+                  ? text('publicação salva', 'saved post')
+                  : text('publicações salvas', 'saved posts')}
               </p>
             </div>
           </div>
@@ -85,7 +93,7 @@ export function BookmarksContent({ user, initialPosts }: BookmarksContentProps) 
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Buscar Itens salvos"
+                placeholder={text('Buscar itens salvos', 'Search bookmarks')}
                 className="w-full pl-11 pr-4 py-2.5 bg-dd-surface/40 hover:bg-dd-surface/60 focus:bg-dd-surface/80 border border-dd-border/60 focus:border-blue-500/50 rounded-full text-xs text-dd-text placeholder-dd-muted outline-0 transition-all shadow-inner"
               />
             </div>
@@ -101,13 +109,19 @@ export function BookmarksContent({ user, initialPosts }: BookmarksContentProps) 
                 <div className="space-y-1">
                   <h3 className="text-sm font-bold text-dd-text">
                     {searchQuery.trim()
-                      ? 'Nenhum resultado encontrado'
-                      : 'Salvar publicações para depois'}
+                      ? text('Nenhum resultado encontrado', 'No results found')
+                      : text('Salvar publicações para depois', 'Save posts for later')}
                   </h3>
                   <p className="text-[11px] text-dd-muted leading-relaxed">
                     {searchQuery.trim()
-                      ? 'Experimente buscar por outros termos de título, tags ou conteúdo.'
-                      : 'Não deixe posts interessantes passarem! Salve-os em sua barra de ações para ler ou estudar com calma mais tarde.'}
+                      ? text(
+                          'Experimente buscar por outros termos de título, tags ou conteúdo.',
+                          'Try searching for different titles, tags, or content.'
+                        )
+                      : text(
+                          'Não deixe posts interessantes passarem! Salve-os em sua barra de ações para ler ou estudar com calma mais tarde.',
+                          'Keep interesting posts close. Save them from the action bar to read or study later.'
+                        )}
                   </p>
                 </div>
               </div>
