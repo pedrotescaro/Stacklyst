@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { X, Camera, Loader2, Check, Sparkles, AlertCircle } from 'lucide-react';
 import { AVATAR_BACKGROUNDS, normalizeAvatarConfig } from '@/lib/avatar';
 import { cn } from '@/lib/cn';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface EditProfileModalProps {
   open: boolean;
@@ -23,11 +24,13 @@ interface EditProfileModalProps {
     banner_url?: string | null;
     pronouns?: string | null;
     birthday?: string | null;
+    username_changed_at?: string | null;
   };
   onSaved: (updatedFields: Record<string, any>) => void;
 }
 
 export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditProfileModalProps) {
+  const { language, text } = useLocalizedText();
   const initialName =
     profileUser.name ||
     (profileUser.avatar_config as any)?.name ||
@@ -55,6 +58,8 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
   const [saving, setSaving] = useState(false);
   const [uploadingBanner, setUploadingBanner] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [usernameConfirmOpen, setUsernameConfirmOpen] = useState(false);
+  const [usernameChangeAvailableAt, setUsernameChangeAvailableAt] = useState<string | null>(null);
 
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
@@ -79,6 +84,13 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
       const avatar = normalizeAvatarConfig(profileUser.avatar_config, profileUser.username);
       setSelectedBg(avatar.background);
       setError(null);
+      setUsernameConfirmOpen(false);
+      const availableAt = profileUser.username_changed_at
+        ? new Date(profileUser.username_changed_at).getTime() + 7 * 24 * 60 * 60 * 1000
+        : 0;
+      setUsernameChangeAvailableAt(
+        availableAt > Date.now() ? new Date(availableAt).toISOString() : null
+      );
     }
   }, [open, profileUser]);
 
@@ -114,7 +126,7 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
     }
   };
 
-  const handleSave = async () => {
+  const performSave = async () => {
     const cleanName = name.trim() || username.trim();
     const cleanUsername = username.trim().toLowerCase();
     if (!cleanUsername) {
@@ -154,6 +166,9 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
       const data = await res.json();
 
       if (!res.ok) {
+        if (res.status === 429) {
+          setUsernameChangeAvailableAt(data.usernameChangeAvailableAt || null);
+        }
         setError(data.error || 'Erro ao salvar perfil.');
         return;
       }
@@ -168,6 +183,11 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
         banner_url: bannerUrl,
         pronouns,
         birthday: birthday || null,
+        username_changed_at:
+          data.username_changed_at ||
+          (cleanUsername !== profileUser.username.toLowerCase()
+            ? new Date().toISOString()
+            : profileUser.username_changed_at || null),
         avatar_config: data.avatar_config || updatedConfig,
       });
       onClose();
@@ -177,6 +197,29 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleSave = async () => {
+    const cleanUsername = username.trim().toLowerCase();
+    const cooldownEndsAt = profileUser.username_changed_at
+      ? new Date(profileUser.username_changed_at).getTime() + 7 * 24 * 60 * 60 * 1000
+      : 0;
+    if (cleanUsername !== profileUser.username.toLowerCase() && cooldownEndsAt > Date.now()) {
+      setUsernameChangeAvailableAt(new Date(cooldownEndsAt).toISOString());
+      setError(
+        text(
+          'Você só poderá mudar o username novamente após 7 dias.',
+          'You can change your username again after 7 days.'
+        )
+      );
+      return;
+    }
+    if (cleanUsername !== profileUser.username.toLowerCase()) {
+      setError(null);
+      setUsernameConfirmOpen(true);
+      return;
+    }
+    await performSave();
   };
 
   const currentBgColor = AVATAR_BACKGROUNDS[selectedBg] || AVATAR_BACKGROUNDS[0];
@@ -371,6 +414,15 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
                   <span className="absolute bottom-2.5 right-3 text-[10px] text-dd-muted font-mono">
                     {username.length}/30
                   </span>
+                  {usernameChangeAvailableAt && (
+                    <p className="mt-2 text-[11px] text-amber-300">
+                      {text('Username bloqueado até', 'Username locked until')}{' '}
+                      {new Date(usernameChangeAvailableAt).toLocaleDateString(
+                        language === 'en' ? 'en-US' : 'pt-BR'
+                      )}
+                      .
+                    </p>
+                  )}
                 </div>
 
                 {/* Bio */}
@@ -464,6 +516,66 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
               </div>
             </div>
           </motion.div>
+
+          <AnimatePresence>
+            {usernameConfirmOpen && (
+              <motion.div
+                className="fixed inset-0 z-[120] flex items-center justify-center p-4"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="username-confirm-title"
+              >
+                <button
+                  type="button"
+                  aria-label={text('Fechar confirmação', 'Close confirmation')}
+                  className="absolute inset-0 bg-black/70 backdrop-blur-sm"
+                  onClick={() => setUsernameConfirmOpen(false)}
+                />
+                <motion.div
+                  className="relative w-full max-w-sm rounded-2xl border border-dd-border bg-dd-bg p-5 shadow-2xl"
+                  initial={{ scale: 0.95, y: 12 }}
+                  animate={{ scale: 1, y: 0 }}
+                  exit={{ scale: 0.95, y: 12 }}
+                >
+                  <h3 id="username-confirm-title" className="text-base font-extrabold text-dd-text">
+                    {text('Alterar username?', 'Change username?')}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-dd-muted">
+                    {text(
+                      `Você deseja mudar seu username para @${username.trim().toLowerCase()}?`,
+                      `Do you want to change your username to @${username.trim().toLowerCase()}?`
+                    )}{' '}
+                    {text(
+                      'Essa alteração só poderá ser feita novamente após 7 dias.',
+                      'You can change it again after 7 days.'
+                    )}
+                  </p>
+                  <div className="mt-5 flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setUsernameConfirmOpen(false)}
+                      className="rounded-full border border-dd-border px-4 py-2 text-xs font-bold text-dd-muted hover:text-dd-text"
+                    >
+                      {text('Cancelar', 'Cancel')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setUsernameConfirmOpen(false);
+                        void performSave();
+                      }}
+                      className="rounded-full bg-blue-500 px-4 py-2 text-xs font-bold text-white hover:bg-blue-600"
+                    >
+                      {text('Confirmar alteração', 'Confirm change')}
+                    </button>
+                  </div>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>

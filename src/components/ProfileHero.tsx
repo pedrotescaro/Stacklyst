@@ -8,6 +8,7 @@ import { LevelBadge, getLevelFromTotalXp } from '@/components/LevelBadge';
 import { getTrailLanguageMetadata, TrailLanguageLogo } from '@/app/trails/TrailLanguageLogo';
 import { AVATAR_BACKGROUNDS, normalizeAvatarConfig } from '@/lib/avatar';
 import { StreakPopover } from '@/components/StreakPopover';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface ProfileHeroProps {
   currentUserId: string;
@@ -28,6 +29,7 @@ interface ProfileHeroProps {
     avatar_config?: unknown;
   };
   trails: Array<{ language: string; xp: number; level: number }>;
+  stats?: { answers_count: number; accuracy: number; accepted_count: number };
   following: boolean;
   followers: number;
   followingCount: number;
@@ -39,17 +41,8 @@ interface ProfileHeroProps {
 }
 
 const Github = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-    <path d="M9 18c-4.51 2-5-2-7-2" />
+  <svg viewBox="0 0 24 24" fill="currentColor" {...props}>
+    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.084-.73.084-.73 1.205.085 1.84 1.237 1.84 1.237 1.07 1.835 2.807 1.305 3.492.998.108-.776.418-1.305.762-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.985-.4 3.005-.405 1.02.005 2.045.138 3.005.405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.435.375.81 1.096.81 2.21 0 1.595-.015 2.875-.015 3.265 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
   </svg>
 );
 
@@ -62,15 +55,16 @@ const languageColors: Record<string, string> = {
   GO: '#2fc5d4',
 };
 
-function joinedLabel(value: string) {
+function joinedLabel(value: string, locale: string, prefix: string) {
   const date = new Date(value);
-  return `Por aqui desde ${date.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })}`;
+  return `${prefix} ${date.toLocaleDateString(locale, { month: 'long', year: 'numeric' })}`;
 }
 
 export function ProfileHero({
   currentUserId,
   profile,
   trails,
+  stats,
   following,
   followers,
   followingCount,
@@ -80,6 +74,7 @@ export function ProfileHero({
   onShowFollowers,
   onShowFollowing,
 }: ProfileHeroProps) {
+  const { locale, text } = useLocalizedText();
   const isOwner = currentUserId === profile.id;
   const startedTrails = trails.filter((trail) => trail.xp > 0);
   const topTrails = startedTrails.slice(0, 3);
@@ -102,7 +97,7 @@ export function ProfileHero({
         {profile.banner_url && (
           <Image
             src={profile.banner_url}
-            alt="Banner"
+            alt={text('Banner do perfil', 'Profile banner')}
             fill
             sizes="100%"
             className="object-cover"
@@ -113,14 +108,18 @@ export function ProfileHero({
           {profile.avatar_url ? (
             <Image
               src={profile.avatar_url}
-              alt={`Foto de ${profile.username}`}
+              alt={text(`Foto de ${profile.username}`, `${profile.username}'s profile picture`)}
               width={220}
               height={220}
               className="h-full w-full object-cover"
               priority
             />
           ) : (
-            <span aria-label={`Iniciais de ${profile.username}`}>{initials}</span>
+            <span
+              aria-label={text(`Iniciais de ${profile.username}`, `${profile.username}'s initials`)}
+            >
+              {initials}
+            </span>
           )}
         </div>
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-16 bg-gradient-to-t from-black/18 to-transparent" />
@@ -137,7 +136,7 @@ export function ProfileHero({
           <p className="mt-1 text-sm font-bold text-dd-muted">@{profile.username}</p>
           <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-dd-muted">
             <Calendar className="h-4 w-4 text-sky-400" />
-            {joinedLabel(profile.created_at)}
+            {joinedLabel(profile.created_at, locale, text('Por aqui desde', 'Joined'))}
           </p>
         </div>
 
@@ -149,7 +148,7 @@ export function ProfileHero({
               className="dd-focus-ring inline-flex min-h-12 items-center gap-2 rounded-2xl border-2 border-b-4 border-dd-border bg-dd-surface px-4 text-xs font-black uppercase text-dd-text transition-transform hover:-translate-y-0.5"
             >
               <Edit3 className="h-4 w-4" />
-              Editar perfil
+              {text('Editar perfil', 'Edit profile')}
             </button>
           ) : (
             <FollowButton isFollowing={following} onToggle={onFollowToggle} />
@@ -160,7 +159,10 @@ export function ProfileHero({
       <div className="mt-5 space-y-3">
         <p className="max-w-2xl text-sm font-semibold leading-6 text-dd-text">
           {profile.bio ||
-            'Aprendendo, praticando e compartilhando código com a comunidade Stacklyst.'}
+            text(
+              'Aprendendo, praticando e compartilhando código com a comunidade Stacklyst.',
+              'Learning, practicing, and sharing code with the Stacklyst community.'
+            )}
         </p>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-bold text-dd-muted">
@@ -183,16 +185,18 @@ export function ProfileHero({
             )}
             {profile.pronouns && <span>{profile.pronouns}</span>}
             <button type="button" onClick={onShowFollowing} className="hover:text-sky-400">
-              <strong className="text-dd-text">{followingCount}</strong> seguindo
+              <strong className="text-dd-text">{followingCount}</strong>{' '}
+              {text('seguindo', 'following')}
             </button>
             <button type="button" onClick={onShowFollowers} className="hover:text-sky-400">
-              <strong className="text-dd-text">{followers}</strong> seguidores
+              <strong className="text-dd-text">{followers}</strong>{' '}
+              {text('seguidores', 'followers')}
             </button>
           </div>
 
           {languageLogos.length > 0 && (
             <div
-              aria-label="Linguagens das trilhas iniciadas"
+              aria-label={text('Linguagens das trilhas iniciadas', 'Started trail languages')}
               className="flex flex-wrap items-center gap-2.5 sm:justify-end"
             >
               {languageLogos.map((trail) => {
@@ -201,8 +205,8 @@ export function ProfileHero({
                   <span
                     key={trail.language}
                     role="img"
-                    aria-label={`${metadata.label}, nível ${trail.level}`}
-                    title={`${metadata.label} · Nível ${trail.level} · ${trail.xp} XP`}
+                    aria-label={`${metadata.label}, ${text('nível', 'level')} ${trail.level}`}
+                    title={`${metadata.label} · ${text('Nível', 'Level')} ${trail.level} · ${trail.xp} XP`}
                     className="flex h-10 w-10 items-center justify-center rounded-xl border-2 border-b-[3px] border-dd-border bg-dd-sidebar-bg"
                   >
                     <TrailLanguageLogo language={trail.language} className="h-7 w-7" />
@@ -214,8 +218,14 @@ export function ProfileHero({
         </div>
       </div>
 
-      <h2 className="mt-8 text-xl font-black text-dd-text">Estatísticas</h2>
-      <div className="mt-3 grid gap-3 sm:grid-cols-3">
+      <h2 className="mt-8 text-xl font-black text-dd-text">{text('Estatísticas', 'Stats')}</h2>
+      <p className="mt-1 max-w-2xl text-xs font-semibold text-dd-muted">
+        {text(
+          'Um resumo verificável da prática e do domínio técnico deste perfil.',
+          'A verifiable snapshot of this profile’s practice and technical mastery.'
+        )}
+      </p>
+      <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StreakPopover
           streak={profile.streak_days ?? 0}
           weeklyActivity={weeklyActivity}
@@ -233,7 +243,9 @@ export function ProfileHero({
             <span className="block truncate text-xl font-black text-dd-text">
               {profile.streak_days ?? 0}
             </span>
-            <span className="block text-xs font-bold text-dd-muted">Dias de ofensiva</span>
+            <span className="block text-xs font-bold text-dd-muted">
+              {text('Dias de ofensiva', 'Streak days')}
+            </span>
           </span>
         </StreakPopover>
         <div className="flex min-h-24 items-center gap-3 rounded-[22px] border-2 border-b-4 border-dd-border bg-dd-sidebar-bg p-4">
@@ -246,26 +258,53 @@ export function ProfileHero({
           />
           <div className="min-w-0">
             <p className="truncate text-xl font-black text-dd-text">
-              {profile.total_xp.toLocaleString('pt-BR')}
+              {profile.total_xp.toLocaleString(locale)}
             </p>
-            <p className="text-xs font-bold text-dd-muted">Total de XP</p>
+            <p className="text-xs font-bold text-dd-muted">{text('Total de XP', 'Total XP')}</p>
           </div>
         </div>
         <StatCard
           icon={Trophy}
           color="#58cc02"
-          value={`Nível ${getLevelFromTotalXp(profile.total_xp)}`}
-          label="Nível global"
+          value={`${text('Nível', 'Level')} ${getLevelFromTotalXp(profile.total_xp)}`}
+          label={text('Nível global', 'Global level')}
+        />
+        <StatCard
+          icon={GraduationCap}
+          color="#1cb0f6"
+          value={`${stats?.accuracy ?? 0}%`}
+          label={text('Precisão', 'Accuracy')}
         />
       </div>
 
+      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+        <div className="flex items-center justify-between rounded-[22px] border-2 border-dd-border bg-dd-sidebar-bg px-4 py-3">
+          <span className="text-xs font-bold text-dd-muted">
+            {text('Respostas enviadas', 'Answers submitted')}
+          </span>
+          <span className="font-mono text-lg font-black text-dd-text">
+            {stats?.answers_count ?? 0}
+          </span>
+        </div>
+        <div className="flex items-center justify-between rounded-[22px] border-2 border-dd-border bg-dd-sidebar-bg px-4 py-3">
+          <span className="text-xs font-bold text-dd-muted">
+            {text('Respostas aceitas', 'Accepted answers')}
+          </span>
+          <span className="font-mono text-lg font-black text-dd-text">
+            {stats?.accepted_count ?? 0}
+          </span>
+        </div>
+      </div>
+
       <div className="mt-8 flex items-center justify-between gap-3">
-        <h2 className="text-xl font-black text-dd-text">Trilhas de aprendizagem</h2>
+        <h2 className="text-xl font-black text-dd-text">
+          {text('Trilhas de aprendizagem', 'Learning trails')}
+        </h2>
         <Link
           href="/trails"
           className="text-xs font-black uppercase tracking-wide text-sky-400 hover:text-sky-300"
         >
-          Ver trilhas
+          {text('Ver trilhas', 'View trails')}
         </Link>
       </div>
       {topTrails.length > 0 ? (
@@ -289,7 +328,7 @@ export function ProfileHero({
                   >
                     <div
                       role="img"
-                      aria-label={`Logo ${metadata.label}`}
+                      aria-label={text(`Logo ${metadata.label}`, `${metadata.label} logo`)}
                       className="flex h-10 w-10 items-center justify-center rounded-full bg-dd-sidebar-bg"
                     >
                       <TrailLanguageLogo language={trail.language} className="h-7 w-7" />
@@ -299,7 +338,9 @@ export function ProfileHero({
                     <p className="truncate text-sm font-black capitalize text-dd-text">
                       {trail.language.toLowerCase()}
                     </p>
-                    <p className="text-xs font-bold text-dd-muted">Nível {trail.level}</p>
+                    <p className="text-xs font-bold text-dd-muted">
+                      {text('Nível', 'Level')} {trail.level}
+                    </p>
                     <p className="mt-1 text-sm font-black" style={{ color }}>
                       {percent}%
                     </p>
@@ -311,8 +352,11 @@ export function ProfileHero({
         </div>
       ) : (
         <div className="mt-3 flex items-center gap-3 rounded-[22px] border-2 border-b-4 border-dd-border bg-dd-sidebar-bg p-5 text-sm font-bold text-dd-muted">
-          <Sparkles className="h-6 w-6 text-sky-400" /> Comece uma trilha para exibir seu progresso
-          aqui.
+          <Sparkles className="h-6 w-6 text-sky-400" />{' '}
+          {text(
+            'Comece uma trilha para exibir seu progresso aqui.',
+            'Start a trail to show your progress here.'
+          )}
         </div>
       )}
     </section>

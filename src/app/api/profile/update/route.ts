@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 
+const USERNAME_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+
 export async function POST(request: Request) {
   try {
     const user = await getAuthUser();
@@ -23,6 +25,7 @@ export async function POST(request: Request) {
     } = await request.json();
 
     let newUsername = undefined;
+    let usernameChangedAt: Date | undefined;
     if (username && typeof username === 'string') {
       const cleanUsername = username.trim().toLowerCase();
       if (cleanUsername.length < 2 || cleanUsername.length > 30) {
@@ -39,6 +42,20 @@ export async function POST(request: Request) {
       }
 
       if (cleanUsername !== user.username.toLowerCase()) {
+        const availableAt = user.username_changed_at
+          ? new Date(user.username_changed_at).getTime() + USERNAME_COOLDOWN_MS
+          : 0;
+        if (availableAt > Date.now()) {
+          return NextResponse.json(
+            {
+              error: `Você poderá mudar seu username novamente em ${new Date(availableAt).toLocaleDateString('pt-BR')}.`,
+              code: 'USERNAME_COOLDOWN',
+              usernameChangeAvailableAt: new Date(availableAt).toISOString(),
+            },
+            { status: 429 }
+          );
+        }
+
         const existing = await prisma.user.findFirst({
           where: {
             username: { equals: cleanUsername, mode: 'insensitive' },
@@ -53,6 +70,7 @@ export async function POST(request: Request) {
           );
         }
         newUsername = cleanUsername;
+        usernameChangedAt = new Date();
       }
     }
 
@@ -77,6 +95,7 @@ export async function POST(request: Request) {
       where: { id: user.id },
       data: {
         username: newUsername !== undefined ? newUsername : undefined,
+        username_changed_at: usernameChangedAt,
         bio: bio !== undefined ? bio : undefined,
         institution: institution !== undefined ? institution : undefined,
         github_username: github_username !== undefined ? github_username : undefined,

@@ -186,6 +186,7 @@ model User {
   banner_url             String?
   pronouns               String?
   birthday               DateTime?
+  username_changed_at    DateTime?
   total_xp               Int       @default(0)
   streak_days            Int       @default(0)
   role                   UserRole  @default(USER)

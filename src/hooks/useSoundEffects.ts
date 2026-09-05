@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect } from 'react';
+import { useCallback } from 'react';
 
 export type SoundType =
   | 'post'
@@ -156,38 +156,47 @@ function getPreloadedAudio(file: string): HTMLAudioElement {
   return audio;
 }
 
+/**
+ * Plays a short, explicit confirmation sound regardless of the saved sound
+ * preference. Settings uses this from the same click that changes the setting,
+ * so people can hear what enabling or disabling platform effects means.
+ */
+export function playSoundPreview(type: SoundType = 'notification') {
+  if (typeof window === 'undefined') return;
+
+  if (type === 'quiz_correct') {
+    playInstantCorrectChime();
+    return;
+  }
+
+  if (type === 'quiz_incorrect') {
+    playInstantIncorrectBuzz();
+    return;
+  }
+
+  const file = SOUND_FILES[type];
+  if (!file) return;
+
+  const played = playInstantBuffer(file);
+  if (played) return;
+
+  try {
+    const audio = getPreloadedAudio(file);
+    audio.currentTime = 0;
+    void audio.play().catch(() => {
+      // The browser can reject playback in restrictive embedded contexts.
+    });
+  } catch {
+    // Keep the setting itself functional even if the browser cannot create audio.
+  }
+}
+
 export function useSoundEffects(enabled: boolean = false) {
   const playSound = useCallback(
     (type: SoundType) => {
       if (!enabled) return;
 
-      // Para quiz_correct e quiz_incorrect, toca instantaneamente sem qualquer delay via Web Audio API
-      if (type === 'quiz_correct') {
-        playInstantCorrectChime();
-        return;
-      }
-
-      if (type === 'quiz_incorrect') {
-        playInstantIncorrectBuzz();
-        return;
-      }
-
-      const file = SOUND_FILES[type];
-      if (file) {
-        // Tenta tocar diretamente do AudioBuffer em memória com latência 0ms
-        const played = playInstantBuffer(file);
-        if (!played) {
-          try {
-            const audio = getPreloadedAudio(file);
-            audio.currentTime = 0;
-            audio.play().catch((err) => {
-              console.log('Erro ao tocar áudio:', err);
-            });
-          } catch (err) {
-            console.log('Erro ao executar som:', err);
-          }
-        }
-      }
+      playSoundPreview(type);
     },
     [enabled]
   );

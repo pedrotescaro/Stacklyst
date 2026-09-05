@@ -13,6 +13,7 @@ import { EditProfileModal } from '@/components/EditProfileModal';
 import { BookOpen, Award, Check, Calendar } from 'lucide-react';
 import { TrailsProgressSidebar, type TrailDailyProgress } from '@/app/trails/TrailsProgressSidebar';
 import { TRAIL_LANGUAGE_CODES, type TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface ProfileContentProps {
   user: {
@@ -76,6 +77,7 @@ export function ProfileContent({
   initialTab = 'posts',
 }: ProfileContentProps) {
   const router = useRouter();
+  const { isEnglish, text } = useLocalizedText();
   const [weeklyActivity, setWeeklyActivity] = useState<Map<number, number>>(new Map());
   const [posts, setPosts] = useState<{ tab: string; items: any[] }>({ tab: 'posts', items: [] });
   const [nextCursor, setNextCursor] = useState<string | null>(null);
@@ -268,6 +270,7 @@ export function ProfileContent({
                 currentUserId={user.id}
                 profile={localProfileUser}
                 trails={trails}
+                stats={stats}
                 following={following}
                 followers={followers}
                 followingCount={followingCount}
@@ -280,12 +283,12 @@ export function ProfileContent({
 
               <div className="mx-4 mb-4 grid grid-cols-3 gap-1 rounded-2xl border-2 border-dd-border bg-dd-sidebar-bg p-1.5 sm:mx-7 sm:grid-cols-6">
                 {[
-                  { id: 'posts', label: 'Postagens' },
-                  { id: 'replies', label: 'Respostas' },
-                  { id: 'likes', label: 'Curtidas' },
-                  { id: 'stats', label: 'Estatísticas' },
-                  { id: 'trails', label: 'Trilhas' },
-                  { id: 'badges', label: 'Conquistas' },
+                  { id: 'posts', label: text('Postagens', 'Posts') },
+                  { id: 'replies', label: text('Respostas', 'Replies') },
+                  { id: 'likes', label: text('Curtidas', 'Likes') },
+                  { id: 'stats', label: text('Estatísticas', 'Stats') },
+                  { id: 'trails', label: text('Trilhas', 'Trails') },
+                  { id: 'badges', label: text('Conquistas', 'Achievements') },
                 ].map((tab) => {
                   const isSelected = activeTab === tab.id;
                   return (
@@ -311,10 +314,10 @@ export function ProfileContent({
                     {itemsToRender.length === 0 && !loading ? (
                       <p className="text-xs text-dd-muted italic py-12 text-center border-b border-dd-border/40">
                         {activeTab === 'likes'
-                          ? 'Nenhuma curtida encontrada.'
+                          ? text('Nenhuma curtida encontrada.', 'No liked posts found.')
                           : activeTab === 'replies'
-                            ? 'Nenhuma resposta encontrada.'
-                            : 'Nenhuma publicação encontrada.'}
+                            ? text('Nenhuma resposta encontrada.', 'No replies found.')
+                            : text('Nenhuma publicação encontrada.', 'No posts found.')}
                       </p>
                     ) : (
                       itemsToRender.map((item) => {
@@ -360,7 +363,7 @@ export function ProfileContent({
                     {loading && (
                       <div className="text-center py-6 border-b border-dd-border/40">
                         <span className="text-xs text-dd-muted animate-pulse font-semibold">
-                          Carregando...
+                          {text('Carregando...', 'Loading...')}
                         </span>
                       </div>
                     )}
@@ -371,7 +374,7 @@ export function ProfileContent({
                           onClick={loadMorePosts}
                           className="px-5 py-2.5 bg-dd-surface hover:bg-dd-border border border-dd-border text-dd-text rounded-full text-xs font-bold transition-all cursor-pointer hover:border-blue-500/20 active:scale-95"
                         >
-                          Carregar Mais
+                          {text('Carregar mais', 'Load more')}
                         </button>
                       </div>
                     )}
@@ -387,7 +390,7 @@ export function ProfileContent({
                         </div>
                         <div className="text-dd-muted text-[10px] uppercase font-bold tracking-wider mt-1.5 flex items-center justify-center gap-1.5">
                           <BookOpen className="w-3.5 h-3.5 text-blue-500" />
-                          <span>Respostas</span>
+                          <span>{text('Respostas', 'Replies')}</span>
                         </div>
                       </div>
                       <div className="bg-dd-surface/40 border border-dd-border/60 rounded-2xl p-5 text-center shadow-sm">
@@ -396,7 +399,7 @@ export function ProfileContent({
                         </div>
                         <div className="text-dd-muted text-[10px] uppercase font-bold tracking-wider mt-1.5 flex items-center justify-center gap-1.5">
                           <Award className="w-3.5 h-3.5 text-blue-500" />
-                          <span>Precisão</span>
+                          <span>{text('Precisão', 'Accuracy')}</span>
                         </div>
                       </div>
                       <div className="bg-dd-surface/40 border border-dd-border/60 rounded-2xl p-5 text-center shadow-sm">
@@ -405,7 +408,7 @@ export function ProfileContent({
                         </div>
                         <div className="text-dd-muted text-[10px] uppercase font-bold tracking-wider mt-1.5 flex items-center justify-center gap-1.5">
                           <Check className="w-3.5 h-3.5 text-blue-500" />
-                          <span>Aceitas</span>
+                          <span>{text('Aceitas', 'Accepted')}</span>
                         </div>
                       </div>
                     </div>
@@ -415,16 +418,19 @@ export function ProfileContent({
                       <div className="flex items-center justify-between mb-4">
                         <span className="text-[10px] font-bold uppercase tracking-wider text-dd-muted flex items-center gap-1.5">
                           <Calendar className="w-3.5 h-3.5 text-blue-500" />
-                          Atividade Semanal (Quizzes)
+                          {text('Atividade semanal (quizzes)', 'Weekly activity (quizzes)')}
                         </span>
                       </div>
                       <div className="flex items-center justify-between px-1">
-                        {['S', 'T', 'Q', 'Q', 'S', 'S', 'D'].map((day, index) => {
+                        {(isEnglish
+                          ? ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+                          : ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
+                        ).map((day, index) => {
                           const count = weeklyActivity.get(index) || 0;
                           const isActive = count > 0;
                           const tooltipText = isActive
-                            ? `${count} ${count === 1 ? 'quiz respondido' : 'quizzes respondidos'}`
-                            : 'Nenhum quiz respondido';
+                            ? `${count} ${count === 1 ? text('quiz respondido', 'quiz completed') : text('quizzes respondidos', 'quizzes completed')}`
+                            : text('Nenhum quiz respondido', 'No quizzes completed');
                           return (
                             <div key={index} className="flex flex-col items-center gap-1.5 group">
                               <span className="text-[9px] font-bold text-dd-muted">{day}</span>
@@ -450,7 +456,7 @@ export function ProfileContent({
                   <div className="p-6 space-y-4 animate-fade-in">
                     {mappedTrails.length === 0 ? (
                       <p className="text-xs text-dd-muted italic text-center py-6">
-                        Nenhuma trilha iniciada.
+                        {text('Nenhuma trilha iniciada.', 'No trails started.')}
                       </p>
                     ) : (
                       <div className="space-y-4">
@@ -501,7 +507,11 @@ export function ProfileContent({
         userId={profileUser.id}
         currentUserId={user.id}
         type={modalType}
-        title={modalType === 'followers' ? 'Seguidores' : 'Seguindo'}
+        title={
+          modalType === 'followers'
+            ? text('Seguidores', 'Followers')
+            : text('Seguindo', 'Following')
+        }
       />
 
       <EditProfileModal
