@@ -30,6 +30,8 @@ import {
   type TrailActivityKind,
 } from './trailCurriculum';
 import { getSectionTheme, type TrailSectionTheme } from './trailTheme';
+import { TrailMascot } from './TrailMascot';
+import { rememberTrailMascotDeparture } from './trailMascotProgress';
 import { TrailSectionNavigation, type TrailSectionView } from './TrailSectionNavigation';
 
 /** Topo do primeiro nó de nível de cada unidade (abaixo da linha divisória). */
@@ -533,6 +535,7 @@ export function TrailPathView({
   const router = useRouter();
   const { text } = useLocalizedText();
   const rootRef = useRef<HTMLDivElement>(null);
+  const trailMapRef = useRef<HTMLDivElement>(null);
   const initialSection = Math.min(8, Math.max(1, Math.trunc(initialSectionNumber)));
   const previousPathIdRef = useRef(selectedPathId);
   const [activeSectionView, setActiveSectionView] = useState<'trail' | 'sections'>('trail');
@@ -710,6 +713,11 @@ export function TrailPathView({
   }, [allLevels]);
 
   const firstUnitNumber = units[0]?.unitNumber ?? 1;
+  const currentMascotNodeKey =
+    allLevels.find((level) => !level.completed)?.questions[0]?.id ??
+    allLevels.at(-1)?.questions[0]?.id ??
+    '';
+  const mascotProgressKey = `${activeLanguage.toLowerCase()}:${activePath.slug}`;
   const currentSection = sections.find((s) => s.number === selectedSectionNumber) ?? sections[0];
   const currentUnit = currentSection?.levels[selectedUnitNumber - 1];
   const jumpTargetSection = sections.find((section) => section.number === jumpTargetSectionNumber);
@@ -811,6 +819,7 @@ export function TrailPathView({
     if (!firstQuestion) return;
 
     setActiveActivity(null);
+    rememberTrailMascotDeparture(mascotProgressKey, currentMascotNodeKey);
     const returnParams = new URLSearchParams({
       view: 'trail',
       path: activePath.slug,
@@ -953,7 +962,7 @@ export function TrailPathView({
       )}
 
       {activeSectionView === 'trail' && (
-        <div data-testid="trail-path-map" className="relative w-full">
+        <div ref={trailMapRef} data-testid="trail-path-map" className="relative w-full">
           {units.map((unit) => {
             const { unitNumber, theme, levels, height, checkpointTop } = unit;
             const levelCount = levels.length;
@@ -1115,6 +1124,9 @@ export function TrailPathView({
                         <button
                           type="button"
                           data-testid="trail-main-node"
+                          data-trail-waypoint="true"
+                          data-trail-mascot-node={level.questions[0]?.id}
+                          data-trail-mascot-completed={completed ? 'true' : 'false'}
                           disabled={!accessible}
                           onClick={() => handleLevelClick(level, accessible, mainAnchorId)}
                           aria-label={`Seção ${unitNumber}, unidade ${i + 1}: ${level.activityKind}: ${level.title}`}
@@ -1180,6 +1192,7 @@ export function TrailPathView({
                             >
                               <button
                                 type="button"
+                                data-trail-waypoint="true"
                                 disabled={claimingChestId === chestId}
                                 onClick={() =>
                                   void handleOpenChestReward(
@@ -1234,6 +1247,7 @@ export function TrailPathView({
                               <button
                                 type="button"
                                 data-testid="trail-intermediate-node"
+                                data-trail-waypoint="true"
                                 disabled={!codeOneAccessible}
                                 onClick={() =>
                                   handleLevelClick(
@@ -1293,6 +1307,7 @@ export function TrailPathView({
                             <button
                               type="button"
                               data-testid="trail-intermediate-node"
+                              data-trail-waypoint="true"
                               disabled={!codeTwoAccessible}
                               onClick={() =>
                                 handleLevelClick(
@@ -1343,6 +1358,7 @@ export function TrailPathView({
                   >
                     <button
                       type="button"
+                      data-trail-waypoint="true"
                       disabled={claimingChestId === chestId}
                       onClick={() =>
                         void handleOpenChestReward(chestId, chestUnlocked, theme, unitNumber)
@@ -1395,6 +1411,7 @@ export function TrailPathView({
                     <button
                       type="button"
                       data-testid="trail-intermediate-node"
+                      data-trail-waypoint="true"
                       disabled={!finalCodeAccessible}
                       onClick={() =>
                         handleLevelClick(finalCodeChallenge, finalCodeAccessible, finalCodeAnchorId)
@@ -1435,6 +1452,7 @@ export function TrailPathView({
                   <LessonStars level={lastLevel} />
                   <button
                     type="button"
+                    data-trail-waypoint="true"
                     disabled={!checkpointCompleted}
                     onClick={() => handleCheckpointClick(unitNumber)}
                     aria-label={`Checkpoint da seção ${unitNumber}`}
@@ -1454,6 +1472,11 @@ export function TrailPathView({
               </div>
             );
           })}
+          <TrailMascot
+            containerRef={trailMapRef}
+            progressKey={mascotProgressKey}
+            currentNodeKey={currentMascotNodeKey}
+          />
         </div>
       )}
 
