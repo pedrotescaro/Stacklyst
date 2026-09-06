@@ -1,0 +1,25 @@
+@startuml
+title AN06 Consultar ajuda durante a prática
+skinparam monochrome true
+skinparam shadowing false
+|Estudante|
+start
+:Abrir exercício publicado;
+:Selecionar modo de assistência;
+if (Modo permite ajuda solicitada?) then (sim)
+  :Abrir dica ou documentação;
+  |Stacklyst|
+  :Exibir material editorial disponível;
+  :Registrar LearningEvent no workspace;
+  |Estudante|
+  :Aplicar orientação e testar o código;
+else (não)
+  :Continuar prática ou trocar modo;
+endif
+stop
+note right
+  Este fluxo descreve ajuda editorial.
+  Não existe chamada a tutor de IA
+  na API atual inventariada.
+end note
+@enduml

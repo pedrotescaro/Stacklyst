@@ -1,0 +1,34 @@
+@startuml
+title Duelos e avaliação
+left to right direction
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam nodesep 12
+skinparam ranksep 35
+actor "Usuário autenticado" as Usuario
+actor Avaliador
+actor Administrador
+actor "Executor de código" as Runner
+rectangle Stacklyst {
+  usecase "UC029 Executar código\ne testes" as UC029
+  usecase "UC008 Convidar para duelo" as UC008
+  usecase "UC009 Entrar na arena" as UC009
+  usecase "UC010 Submeter solução de duelo" as UC010
+  usecase "UC016 Avaliar empate técnico" as UC016
+  usecase "UC024 Solicitar função de avaliador" as UC024
+  usecase "UC027 Decidir candidatura de avaliador" as UC027
+}
+Usuario -- UC008
+Usuario -- UC009
+Usuario -- UC010
+Usuario -- UC024
+Runner -- UC029
+Avaliador -- UC016
+Administrador -- UC016
+Administrador -- UC027
+Avaliador --|> Usuario
+Administrador --|> Usuario
+UC010 ..> UC029 : <<include>>
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+title AN08 Publicar vaga e acompanhar candidatura
+skinparam monochrome true
+skinparam shadowing false
+|Usuário autenticado|
+start
+:Cadastrar empresa;
+|Stacklyst|
+:Criar empresa e promover USER para RECRUITER;
+|Recrutador|
+:Redigir vaga;
+|Stacklyst|
+:Validar papel e dados da vaga;
+if (Autorizado e válido?) then (não)
+  :Recusar operação;
+  stop
+endif
+:Publicar vaga e etapas;
+|Candidato|
+:Consultar vaga e candidatar-se;
+|Stacklyst|
+:Verificar vaga aberta e candidatura anterior;
+if (Candidatura permitida?) then (sim)
+  :Criar JobApplication;
+else (não)
+  :Informar impedimento;
+  stop
+endif
+|Recrutador|
+:Analisar candidatura e atualizar etapa;
+|Stacklyst|
+:Autorizar responsável e persistir mudança;
+:Notificar candidato;
+stop
+@enduml

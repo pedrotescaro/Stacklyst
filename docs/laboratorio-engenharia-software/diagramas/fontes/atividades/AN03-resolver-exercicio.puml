@@ -1,0 +1,31 @@
+@startuml
+title AN03 Resolver exercício de código
+skinparam monochrome true
+skinparam shadowing false
+|Estudante|
+start
+:Enviar código e ação executar ou submeter;
+|API Stacklyst|
+:Autenticar, limitar chamadas e validar contrato;
+:Verificar atividade e pré-requisitos;
+if (Acesso permitido?) then (não)
+  :Responder erro sem alterar progresso;
+  stop
+endif
+:Preparar testes públicos para executar\nou todos os testes para submeter;
+|Executor isolado|
+:Compilar ou interpretar e executar;
+|API Stacklyst|
+if (Serviço disponível?) then (não)
+  :Responder indisponibilidade;
+  stop
+endif
+:Comparar saídas aos testes;
+if (Ação submeter?) then (sim)
+  :Registrar resultado e recompensa elegível\nem transação com lock por usuário;
+endif
+:Devolver feedback sem soluções\ne sem conteúdo dos testes ocultos;
+|Estudante|
+:Ler resultado e revisar código se necessário;
+stop
+@enduml

@@ -1,0 +1,42 @@
+@startuml
+title Conta e aprendizado
+left to right direction
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam nodesep 12
+skinparam ranksep 35
+actor Visitante
+actor "Usuário autenticado" as Usuario
+actor "Provedor de identidade" as Auth
+actor "Executor de código" as Runner
+rectangle Stacklyst {
+  usecase "UC001 Cadastrar conta" as UC001
+  usecase "UC002 Autenticar" as UC002
+  usecase "UC003 Editar perfil" as UC003
+  usecase "UC004 Selecionar trilha" as UC004
+  usecase "UC005 Estudar lição" as UC005
+  usecase "UC006 Resolver exercício" as UC006
+  usecase "UC007 Consultar progresso" as UC007
+  usecase "UC011 Consultar ranking de XP" as UC011
+  usecase "UC012 Consultar ajuda editorial" as UC012
+  usecase "UC028 Avaliar resposta" as UC028
+  usecase "UC029 Executar código\ne testes" as UC029
+}
+Visitante -- UC001
+Visitante -- UC002
+Auth -- UC001
+Auth -- UC002
+Usuario -- UC003
+Usuario -- UC004
+Usuario -- UC005
+Usuario -- UC006
+Usuario -- UC007
+Usuario -- UC011
+Usuario -- UC012
+Runner -- UC029
+UC006 ..> UC028 : <<include>>
+UC029 ..> UC028 : <<extend>>\n[atividade de código]
+UC012 ..> UC006 : <<extend>>\n[solicita ajuda e modo permite]
+@enduml

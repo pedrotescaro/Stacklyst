@@ -1,54 +1,51 @@
-# Documentação acadêmica do Stacklyst
+# Engenharia de software — Stacklyst
 
-Este diretório reúne a documentação produzida para a disciplina de Laboratório de Engenharia de Software. Os quatro documentos oficiais foram preenchidos a partir dos templates fornecidos, preservando a organização acadêmica e marcando como pendente tudo o que não pôde ser confirmado no projeto ou no código.
+Revisão técnica de 05/09/2026, baseada no código do workspace. Distingue implementação, limites operacionais e propostas futuras; não representa homologação completa do produto.
 
-## Entregáveis
+## Documentos
 
-- `entregaveis/01-documento-de-visao-stacklyst.docx`
-- `entregaveis/02-atividades-do-negocio-stacklyst.docx`
-- `entregaveis/03-requisitos-do-sistema-stacklyst.docx`
-- `entregaveis/04-casos-de-uso-stacklyst.docx`
+- [Documento de visão](entregaveis/01-documento-de-visao-stacklyst.docx)
+- [Atividades do negócio](entregaveis/02-atividades-do-negocio-stacklyst.docx)
+- [Requisitos do sistema](entregaveis/03-requisitos-do-sistema-stacklyst.docx)
+- [Casos de uso e modelos técnicos UML](entregaveis/04-casos-de-uso-stacklyst.docx)
+- [Revisão técnica, catálogo e testes](REVISAO-2026-09-05.md)
+- [Qualidade documental](qa/RELATORIO-QA.md)
 
-## Capturas atuais dos casos de uso
+São 9 atividades, 49 requisitos funcionais, 25 não funcionais, 28 regras de negócio e 29 casos de uso, incluindo dois comportamentos reutilizados de avaliação e execução. Dados acadêmicos não fornecidos permanecem explicitamente pendentes.
 
-As capturas antigas do documento de casos de uso foram substituídas em 22/08/2026 por imagens das rotas internas autenticadas do localhost atual: perfil, trilhas, duelos, ranking e feed. As capturas foram realizadas sem publicar conteúdo, iniciar duelos ou alterar o progresso da conta utilizada para validação.
+## UML editável
 
-Os arquivos-fonte estão em `prototipos/atuais/`. A captura autenticada pode ser reproduzida com `tools/capture_authenticated_use_case_screenshots.cjs`, usando a credencial somente por variável de ambiente, e a atualização que preserva a estrutura existente do Word pode ser reproduzida com `tools/refresh_use_case_screenshots.py`.
+As fontes atuais são PlantUML em `diagramas/fontes/`. Há 18 diagramas em PNG e SVG: 9 atividades, 1 panorama de casos de uso, 4 vistas por área e 4 modelos técnicos (componentes, classes, estados e sequência).
 
-Os documentos incluem sumário automático, cabeçalho, rodapé, numeração de páginas, tabelas formatadas, anotações de decisão e evidências de implementação. A autoria, a data acadêmica, os integrantes, o orçamento e as métricas não informadas continuam explicitamente pendentes.
+- [Panorama — SVG para zoom](diagramas/imagens/casos-de-uso-stacklyst.svg)
+- [Conta e aprendizado](diagramas/imagens/casos-aprendizado.svg)
+- [Duelos e avaliação](diagramas/imagens/casos-duelos.svg)
+- [Comunidade e administração](diagramas/imagens/casos-comunidade.svg)
+- [Vagas e empresas](diagramas/imagens/casos-recrutamento.svg)
 
-## Diagramas
+| Relação | Significado |
+| --- | --- |
+| Avaliador / Administrador / Recrutador → Usuário autenticado | Generalização: linha contínua e triângulo vazado voltado ao ator geral. Os papéis herdam suas participações. |
+| UC006 → UC028 `«include»` | Resolver exercício exige avaliar a resposta. |
+| UC010 → UC029 `«include»` | Submeter solução de duelo exige executar código e testes. |
+| UC029 → UC028 `«extend»` | Execução ocorre no ponto “avaliar código”, quando a atividade exige código. |
+| UC012 → UC006 `«extend»` | Ajuda ocorre no ponto “consultar ajuda”, sob solicitação e quando o modo permite. |
 
-As nove atividades do negócio têm código Mermaid versionado em `diagramas/fontes/atividades/` e imagem PNG correspondente em `diagramas/imagens/`. O diagrama completo de casos de uso possui fonte PlantUML em `diagramas/fontes/casos-de-uso-stacklyst.puml` e imagem em `diagramas/imagens/casos-de-uso-stacklyst.png`.
+`include` aponta para o comportamento incluído; `extend` aponta para o caso base. Autenticação é pré-condição dos casos protegidos, não um include repetido em cada interação. Associações ator–caso não indicam sequência. Sistemas externos não são subclasses do usuário.
 
-Os diagramas de atividades também estão organizados no [quadro FigJam do Stacklyst](https://www.figma.com/board/kCKbpkIxJiQHmcprLH3Tfd).
+Os arquivos Mermaid anteriores e o [FigJam histórico](https://www.figma.com/board/kCKbpkIxJiQHmcprLH3Tfd) não foram atualizados nesta revisão e não são a fonte dos diagramas atuais.
 
-## Correspondência com a programação
+## Reprodução
 
-A documentação foi comparada com o repositório em 21 de agosto de 2026. Cada módulo relevante informa o estado encontrado e aponta arquivos, rotas, serviços ou modelos que servem como evidência. A revisão distingue:
+1. Executar `tools/split_use_cases.py` para derivar as quatro vistas do panorama.
+2. Executar `tools/render_uml.ps1 -PlantUmlJar <jar> -Java <java>` para validar sintaxe e gerar PNG/SVG.
+3. Executar `tools/build_stacklyst_docs.py` com Python, python-docx e Pillow. Usa templates convertidos quando disponíveis ou os documentos existentes como base de estilos. Antes de reconstruir, faça cópias de segurança dos entregáveis.
+4. No Windows com Word, executar `tools/export_word.ps1` para atualizar sumários/paginação e exportar PDFs de QA. O runtime disponível não inclui LibreOffice; esta revisão utiliza Word para conversão.
+5. Executar `tools/render_word_pdf.py --renderer <render_docx.py da skill documental> --output <diretório de PDFs>` com Poppler no PATH. Usa o renderizador canônico com conversão já realizada pelo Word.
+6. Executar `tools/verify_stacklyst_docs.py` e revisar as páginas renderizadas. Após atualizar campos, recalcular o manifesto com `build_stacklyst_docs.write_manifest()`, sem reconstruir documentos.
 
-- implementado no escopo auditado;
-- implementado parcialmente;
-- planejado ou sem evidência localizada;
-- regra existente no código, mas ainda dependente de validação acadêmica ou da equipe.
+Conteúdo em `build_stacklyst_docs.py` e correções versionadas em `current_baseline.py`. Os `.doc` originais não são alterados. O manifesto registra hashes das fontes e entregáveis.
 
-Entre as pendências registradas estão recuperação de acesso, aplicativo mobile, push mobile, personalização persistente por IA, efeito competitivo completo dos duelos e a divergência entre o fallback atual do matchmaking e a regra proposta.
+## Evidências e limites
 
-## Conteúdo rastreável
-
-- 9 atividades do negócio: AN01 a AN09;
-- 49 requisitos funcionais: RF001 a RF049;
-- 25 requisitos não funcionais: RNF001 a RNF025;
-- 28 regras de negócio: RN001 a RN028;
-- 25 casos de uso: UC001 a UC025;
-- matriz RF × RN;
-- matriz de rastreabilidade geral AN × RF × RN × UC;
-- revisão final de consistência com a programação.
-
-## Regeneração e verificação
-
-O gerador principal está em `tools/build_stacklyst_docs.py`. Ele usa cópias de trabalho dos templates convertidas para DOCX, monta o conteúdo, insere os diagramas e grava o manifesto de integridade. O script `tools/make_contact_sheets.py` cria folhas de contato para revisão visual e `tools/verify_stacklyst_docs.py` verifica os identificadores, os fontes dos diagramas, as imagens e a ausência de placeholders antigos.
-
-No ambiente usado para esta entrega, a atualização dos campos de sumário e a exportação para PDF foram feitas pelo Microsoft Word. O relatório de revisão está em `qa/RELATORIO-QA.md`.
-
-Os `.doc` originais não foram alterados nem copiados para o repositório. Seus hashes SHA-256 e os hashes dos resultados estão registrados em `manifesto-de-integridade.json`.
+As capturas de interface incorporadas são de **22/08/2026**, com data nas legendas. Não comprovam validação visual em setembro. Os diagramas foram regenerados nesta revisão. Não houve publicação no FigJam nem deploy.

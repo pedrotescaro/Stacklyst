@@ -18,7 +18,7 @@ EXPECTED = {
     "RF": {f"RF{i:03d}" for i in range(1, 50)},
     "RNF": {f"RNF{i:03d}" for i in range(1, 26)},
     "RN": {f"RN{i:03d}" for i in range(1, 29)},
-    "UC": {f"UC{i:03d}" for i in range(1, 26)},
+    "UC": {f"UC{i:03d}" for i in range(1, 30)},
 }
 
 PATTERNS = {
@@ -80,16 +80,16 @@ def main() -> int:
             errors,
         )
 
-    activity_sources = sorted(ACTIVITY_SOURCES.glob("AN*.mmd"))
+    activity_sources = sorted(ACTIVITY_SOURCES.glob("AN*.puml"))
     activity_images = sorted(DIAGRAM_IMAGES.glob("AN*.png"))
-    require(len(activity_sources) == 9, "Devem existir nove fontes Mermaid.", errors)
+    require(len(activity_sources) == 9, "Devem existir nove fontes UML de atividades.", errors)
     require(len(activity_images) == 9, "Devem existir nove imagens de atividades.", errors)
 
     for index in range(1, 10):
         prefix = f"AN{index:02d}"
         require(
             any(path.name.startswith(prefix) for path in activity_sources),
-            f"Fonte Mermaid ausente para {prefix}.",
+            f"Fonte UML ausente para {prefix}.",
             errors,
         )
         require(
@@ -104,12 +104,33 @@ def main() -> int:
 
     if USE_CASE_SOURCE.exists():
         plantuml = USE_CASE_SOURCE.read_text(encoding="utf-8")
+        definitions = re.findall(r'usecase "UC\d{3} .*?" as (UC\d{3})', plantuml)
+        require(len(definitions) == len(set(definitions)) == 29, 'O panorama deve definir 29 casos únicos.', errors)
+        for relation in [
+            'UC006 ..> UC028 : <<include>>',
+            'UC010 ..> UC029 : <<include>>',
+            'UC029 ..> UC028 : <<extend>>',
+            'UC012 ..> UC006 : <<extend>>',
+            'Avaliador --|> Usuario',
+            'Administrador --|> Usuario',
+            'Recrutador --|> Usuario',
+        ]:
+            require(relation in plantuml, f'Relação UML ausente ou invertida: {relation}', errors)
         found_use_cases = set(PATTERNS["UC"].findall(plantuml))
         require(
             EXPECTED["UC"] <= found_use_cases,
             f"Casos de uso ausentes no PlantUML: {sorted(EXPECTED['UC'] - found_use_cases)}",
             errors,
         )
+        diagram_sources = sorted(USE_CASE_SOURCE.parent.rglob('*.puml'))
+        require(len(diagram_sources) == 18, 'Devem existir 18 fontes UML atuais.', errors)
+        view_ids = set()
+        for source in diagram_sources:
+            for extension in ['png', 'svg']:
+                require((DIAGRAM_IMAGES / f'{source.stem}.{extension}').exists(), f'Exportação ausente: {source.stem}.{extension}', errors)
+            if source.stem in {'casos-aprendizado', 'casos-duelos', 'casos-comunidade', 'casos-recrutamento'}:
+                view_ids.update(re.findall(r'usecase "UC\d{3} .*?" as (UC\d{3})', source.read_text(encoding='utf-8')))
+        require(view_ids == EXPECTED['UC'], 'As vistas devem cobrir exatamente os casos do panorama.', errors)
 
     if errors:
         print("Falha na verificação:")
@@ -118,7 +139,7 @@ def main() -> int:
         return 1
 
     print("Verificação concluída com sucesso.")
-    print("4 DOCX; 9 atividades; 49 RF; 25 RNF; 28 RN; 25 UC; 10 imagens de diagramas.")
+    print("4 DOCX; 9 atividades; 49 RF; 25 RNF; 28 RN; 29 UC; 18 diagramas UML em PNG/SVG.")
     return 0
 
 

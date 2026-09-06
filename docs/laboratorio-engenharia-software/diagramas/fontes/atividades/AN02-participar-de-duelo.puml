@@ -1,0 +1,47 @@
+@startuml
+title AN02 Participar de duelo
+skinparam monochrome true
+skinparam shadowing false
+|Participante|
+start
+:Escolher convite ou entrada na arena;
+|Stacklyst|
+:Autenticar e validar elegibilidade;
+if (Modo de entrada?) then (convite)
+  :Criar DuelRequest com expiração;
+  |Oponente|
+  :Responder convite;
+  |Stacklyst|
+  if (Aceito dentro do prazo?) then (sim)
+    :Criar duelo ACTIVE;
+  else (não)
+    :Registrar rejeição ou expiração;
+    stop
+  endif
+else (arena)
+  :Tentar ocupar duelo PENDING\ncom atualização condicional;
+  if (Encontrou oponente?) then (sim)
+    :Ativar duelo;
+  else (não)
+    :Criar duelo PENDING;
+    :Aguardar oponente ou expiração;
+    stop
+  endif
+endif
+|Participante|
+:Escrever e enviar código;
+|Stacklyst|
+:Validar participante, estado e prazo;
+:Executar testes e gravar DuelSubmission;
+:Resolver quando houver resultados\nou ao atingir o prazo;
+if (Empate técnico?) then (sim)
+  :Mudar para REVIEW_PENDING;
+  |Avaliador autorizado|
+  :Comparar soluções e enviar parecer;
+  |Stacklyst|
+  :Registrar avaliação humana;
+endif
+:Fechar duelo com resultado persistido;
+:Conceder 50 XP ao vencedor uma única vez;
+stop
+@enduml
