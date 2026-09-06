@@ -21,6 +21,7 @@ export type KnowledgeProgressStatus =
   | 'MASTERED';
 
 export interface KnowledgeExerciseSummary {
+  completed?: boolean;
   id: string;
   slug: string;
   title: string;
@@ -40,6 +41,9 @@ export interface KnowledgePrerequisite {
 }
 
 export interface KnowledgeMapNode {
+  lessonId?: string;
+  unitNumber?: number;
+  activityKind?: 'lesson' | 'review' | 'project';
   id: string;
   slug: string;
   title: string;
