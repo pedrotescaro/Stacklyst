@@ -13,6 +13,8 @@ import { calculateGemBalance } from '@/lib/gamification/gems';
 import { getKnowledgeMapForUser } from '@/lib/learning/repository';
 import { prisma } from '@/lib/prisma';
 import { TrailsContent } from '@/app/trails/TrailsContent';
+import { buildLearningMap, mergeLearningMaps, LEARNING_LESSONS } from '@/lib/learning/catalog';
+import { usersAheadWhere } from '@/lib/learning/rewards';
 
 export const revalidate = 0;
 
@@ -63,7 +65,7 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
         exercise: { select: { language: true } },
       },
     }),
-    prisma.user.count({ where: { total_xp: { gt: user.total_xp } } }),
+    prisma.user.count({ where: usersAheadWhere(user) }),
     prisma.user.count(),
     prisma.exerciseSubmission.findMany({
       where: { user_id: user.id, created_at: { gte: todayStart } },
@@ -74,8 +76,8 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
       select: { quiz_id: true, is_correct: true, xp_earned: true },
     }),
     prisma.quizAttempt.findMany({
-      where: { user_id: user.id, is_correct: true },
-      select: { quiz_id: true },
+      where: { user_id: user.id },
+      select: { quiz_id: true, is_correct: true },
     }),
     prisma.quizAttempt.findMany({
       where: { user_id: user.id, quiz_id: { startsWith: 'trail-jump-' }, is_correct: true },
@@ -83,8 +85,15 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
     }),
   ]);
 
+  const unifiedMap = mergeLearningMaps(
+    buildLearningMap(
+      completedTrailStepAttempts.filter((a) => a.is_correct).map((a) => a.quiz_id),
+      completedTrailStepAttempts.map((a) => a.quiz_id)
+    ),
+    knowledgeMap
+  );
   const publishedLanguages = new Set<TrailLanguageCode>();
-  for (const node of knowledgeMap.nodes) {
+  for (const node of unifiedMap.nodes) {
     if (node.language && TRAIL_LANGUAGE_CODES.includes(node.language as TrailLanguageCode)) {
       publishedLanguages.add(node.language as TrailLanguageCode);
     }
@@ -143,8 +152,16 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
   }));
 
   const dailyProgress = calculateTrailDailyProgress(todaySubmissions, todayQuizAttempts);
+  const authoredExerciseIds = new Set(
+    [...LEARNING_LESSONS.values()].flatMap((lesson) =>
+      lesson.steps.filter((step) => step.type !== 'concept_explanation').map((step) => step.id)
+    )
+  );
+  const lessonCompletions = completedTrailStepAttempts.filter(
+    (attempt) => attempt.is_correct && authoredExerciseIds.has(attempt.quiz_id)
+  ).length;
   const completedLessonIds = getCompletedTrailLessonIds(
-    completedTrailStepAttempts.map((attempt) => attempt.quiz_id)
+    completedTrailStepAttempts.filter((a) => a.is_correct).map((attempt) => attempt.quiz_id)
   );
 
   const savedViewModeCookie = cookieStore.get('stacklyst_trail_view_mode')?.value;
@@ -164,10 +181,10 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
         total_xp: user.total_xp,
         streak: user.streak_days,
       }}
-      knowledgeMap={knowledgeMap}
+      knowledgeMap={unifiedMap}
       initialCourses={courses}
       initialActiveLanguage={initialActiveLanguage}
-      gems={calculateGemBalance(firstCompletions.length)}
+      gems={calculateGemBalance(firstCompletions.length + lessonCompletions)}
       globalRank={usersAhead + 1}
       totalParticipants={totalParticipants}
       dailyProgress={dailyProgress}
