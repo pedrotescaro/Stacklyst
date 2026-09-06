@@ -66,7 +66,7 @@ describe('ExerciseWorkspace', () => {
 
     fireEvent.click(screen.getByLabelText(/No Assist/));
     expect(screen.queryByRole('link', { name: /Documentação oficial/ })).not.toBeInTheDocument();
-    expect(screen.getAllByText('150% XP')).toHaveLength(2);
+    expect(screen.getAllByText('100% XP')).toHaveLength(4);
   });
 
   it('records Run separately and shows public test feedback', async () => {

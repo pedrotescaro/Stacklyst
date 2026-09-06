@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 
 vi.mock('@/lib/prisma', () => {
   const mockPrisma = {
+    $executeRaw: vi.fn(async () => 1),
     user: {
       update: vi.fn(),
       findUnique: vi.fn(),
