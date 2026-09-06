@@ -203,7 +203,8 @@ async function runOnWandbox(code: string, compiler: string): Promise<ServerExecu
 }
 
 export async function executeCode(code: string, language: string): Promise<ServerExecutionResult> {
-  const normalized = language.toLowerCase();
+  const aliases: Record<string, string> = { js: 'javascript', ts: 'typescript', py: 'python' };
+  const normalized = aliases[language.toLowerCase()] ?? language.toLowerCase();
   const judge0LanguageId = JUDGE0_LANGUAGES[normalized];
   const wandboxLanguage = WANDBOX_LANGUAGES[normalized];
 

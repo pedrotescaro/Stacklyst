@@ -3,6 +3,7 @@ import { AsyncLocalStorage } from 'node:async_hooks';
 import { AppError } from './errors';
 import { logger } from './logger';
 import { getAuthUser } from './auth';
+import { ZodError } from 'zod';
 
 export interface RateLimitStore {
   limit?: number;
@@ -52,7 +53,13 @@ export function apiHandler(handler: (req: Request, ctx: ApiContext) => Promise<R
           message: 'Internal server error',
         };
 
-        if (e instanceof AppError) {
+        if (e instanceof ZodError) {
+          statusCode = 400;
+          responsePayload = {
+            error: 'VALIDATION_ERROR',
+            message: 'Confira os dados enviados e tente novamente.',
+          };
+        } else if (e instanceof AppError) {
           statusCode = e.statusCode;
           responsePayload = {
             error: e.code,

@@ -8,7 +8,7 @@ import {
   parseTrailLessonStepId,
 } from '@/app/trails/trailCurriculum';
 import type { LearningPathSummary } from '@/lib/learning/types';
-import { evaluateCodeEditor } from '@/lib/lessons/evaluators';
+import vm from 'node:vm';
 import { findCurriculumLessonStepById, getLessonById } from '@/lib/lessons/registry';
 
 function createPath(slug: string, title: string): LearningPathSummary {
@@ -150,13 +150,21 @@ describe('trailCurriculum', () => {
     const invalidSolutions: string[] = [];
     for (const lesson of lessons) {
       const step = lesson!.steps[0]!;
-      const outcome = await evaluateCodeEditor(
-        step.solutionCode ?? '',
-        lesson!.language,
-        step.checkCode,
-        step.expectedOutput
-      );
-      if (!outcome.isCorrect) invalidSolutions.push(lesson!.id);
+      // Validate repository-owned fixtures locally; production execution uses /api/run.
+      const logs: string[] = [];
+      try {
+        vm.runInNewContext(
+          `${step.solutionCode ?? ''}\n${step.checkCode ?? ''}`,
+          {
+            console: { log: (...args: unknown[]) => logs.push(args.join(' ')) },
+          },
+          { timeout: 1000 }
+        );
+        if (logs.join('\n').trim() !== step.expectedOutput?.trim())
+          invalidSolutions.push(lesson!.id);
+      } catch {
+        invalidSolutions.push(lesson!.id);
+      }
     }
     expect(invalidSolutions).toEqual([]);
   });
