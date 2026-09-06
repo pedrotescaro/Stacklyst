@@ -1,0 +1,36 @@
+@startuml
+title AN07 Credenciamento e avaliação humana
+skinparam monochrome true
+skinparam shadowing false
+|Candidato|
+start
+:Solicitar função de avaliador;
+|Stacklyst|
+:Verificar critérios e candidatura pendente;
+if (Elegível?) then (não)
+  :Informar impedimento;
+  stop
+endif
+:Registrar candidatura;
+|Administrador|
+:Analisar e decidir candidatura;
+|Stacklyst|
+if (Aprovada?) then (não)
+  :Registrar rejeição;
+  stop
+endif
+:Atribuir papel EVALUATOR;
+|Avaliador|
+:Consultar fila REVIEW_PENDING;
+:Selecionar duelo e enviar parecer;
+|Stacklyst|
+:Validar papel e impedimentos;
+:Reivindicar fechamento condicional\ndentro da transação;
+if (Duelo ainda pendente?) then (sim)
+  :Registrar DuelEvaluation e fechar duelo;
+  :Processar recompensa e notificações previstas;
+else (não)
+  :Recusar decisão concorrente;
+endif
+stop
+@enduml

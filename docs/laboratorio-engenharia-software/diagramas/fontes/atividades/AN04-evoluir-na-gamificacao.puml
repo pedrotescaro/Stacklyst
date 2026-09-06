@@ -1,0 +1,32 @@
+@startuml
+title AN04 Registrar XP de aprendizado
+skinparam monochrome true
+skinparam shadowing false
+start
+:Receber avaliação do servidor;
+:Abrir transação PostgreSQL;
+:Obter advisory lock do usuário;
+:Consultar recibo da atividade;
+if (Primeiro acerto?) then (sim)
+  :Salvar recibo com XP definido no servidor;
+  :Incrementar XP global e agregado aplicável;
+else (não)
+  :Preservar recibo e conceder zero XP;
+endif
+:Persistir progresso confirmado;
+if (Transação íntegra?) then (sim)
+  :COMMIT;
+else (não)
+  :ROLLBACK;
+  :Informar falha de persistência;
+  stop
+endif
+:Derivar nível e faixa por XP;
+:Ordenar ranking por XP decrescente,\nusername e id crescentes;
+note right
+  Faixas não são rating Elo.
+  Repetições e revisões da mesma
+  atividade não geram novo XP.
+end note
+stop
+@enduml

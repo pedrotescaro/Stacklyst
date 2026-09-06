@@ -26,20 +26,94 @@
   "deliverables": [
     {
       "path": "docs\\laboratorio-engenharia-software\\entregaveis\\01-documento-de-visao-stacklyst.docx",
-      "sha256": "5CCBD8257F2D04ED55037D75C5D6D2F5430481B1735A1C192682257F2773A9A9"
+      "sha256": "A812F2ABBBAABC7094E85BCF5031C2D011E66E580FED83BA45CD7B9E825BEC8B"
     },
     {
       "path": "docs\\laboratorio-engenharia-software\\entregaveis\\02-atividades-do-negocio-stacklyst.docx",
-      "sha256": "7A423BBD008795F38ED09F10D9F60CF7B924A6875391267899E9AE9A929F84A3"
+      "sha256": "043FE47C4098279D55DF028CBC96798C8A752DBE0F65A07E7FD6B2853B1E6683"
     },
     {
       "path": "docs\\laboratorio-engenharia-software\\entregaveis\\03-requisitos-do-sistema-stacklyst.docx",
-      "sha256": "6A8AE8A8E92F549CB8C52FC1C7F29521F04A76B23A7A225A5D53671DEEA9C6DE"
+      "sha256": "2242FDC8D6EDAC0B189809A0895B0C80DBC31B077893C86FA2BD7E64B539E73A"
     },
     {
       "path": "docs\\laboratorio-engenharia-software\\entregaveis\\04-casos-de-uso-stacklyst.docx",
-      "sha256": "B54BDA5AECABDFE7587655A0FFE5039A52815E174D3F0DAFB6125CD7DEC020B7"
+      "sha256": "C278ACA14BB8BFD4A54BA922660E15A0CC3B6AD346DCD82C85A062EE9ECB3572"
     }
   ],
-  "figjam": "https://www.figma.com/board/kCKbpkIxJiQHmcprLH3Tfd"
+  "revision": "2026-09-05",
+  "diagram_sources": [
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\atividades\\AN01-aprendizado-por-trilha.puml",
+      "sha256": "40275B41BA54EA6B6FB10FA583D767063AD0327291E4A472F751E47FEA35D399"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\atividades\\AN02-participar-de-duelo.puml",
+      "sha256": "DAD89E6B460BFC1FC50C9F6F65B55CFD479C1F335CB66A159E18FC8B21BB17CD"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\atividades\\AN03-resolver-exercicio.puml",
+      "sha256": "C8EF4BE78BAD4586B1B97451837B0D565429EAC31A93708F8CA69D2378D7CA39"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\atividades\\AN04-evoluir-na-gamificacao.puml",
+      "sha256": "35467B0A69D6E1239F915796BF66D8D00BF60BA47ED6E529F48D9FD940E93413"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\atividades\\AN05-interagir-com-comunidade.puml",
+      "sha256": "4F84C4222B2F51274A9F4A0B332E97F5D9AC0D5E4400D177013AC8520C3E3F35"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\atividades\\AN06-consultar-ajuda.puml",
+      "sha256": "3C97B9715E2CA9AD3E8BEBB151BA187DBC48AFCA193EDC6DED3A719B7512A584"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\atividades\\AN07-atuar-como-avaliador.puml",
+      "sha256": "17E370D3D240E35B666C946EE0FFDBF2696413ADA6818A078F0ADFDCC64B69E3"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\atividades\\AN08-empresa-divulgar-vaga.puml",
+      "sha256": "1A2EB8B33E90A08A7D2552B607BADC9C14E9023CD8A7C6A2229FD16B5E148C1E"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\atividades\\AN09-administrar-plataforma.puml",
+      "sha256": "18891ACF0C79AACF20C7A11175FFB9AF1983C15C47BBD5985169C753D1A6E5D8"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\casos-aprendizado.puml",
+      "sha256": "862F1893662E8706F8A23210AD8F270463EB3F64CA9CD7D17D32D4B40F6442F1"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\casos-comunidade.puml",
+      "sha256": "5E076C451BEA3E282DFF2B045A15A79454413582BA68DF4C547B76DF9991C81D"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\casos-de-uso-stacklyst.puml",
+      "sha256": "E642AF54184142247D4333D37D407F0BA69622F3D194C2FC34655A8E23A19EA2"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\casos-duelos.puml",
+      "sha256": "6A28BADADE4086AB4EF12DC26891CCE896380A3C6D8E26A43BEEA85D402E3F99"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\casos-recrutamento.puml",
+      "sha256": "83ADC9AD9E534264B6431A4A572A8F045011AB42BD6547B2615234C8873F7B2F"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\classes-aprendizado.puml",
+      "sha256": "F77C44D1C3E775163B1197F6FF1D1868BE39FB859D3E886547B898A9CCA48698"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\componentes-stacklyst.puml",
+      "sha256": "5606FE7A97454830EB49AB4CBF419721F0975A0CB0BD5FAB21FC926990109D52"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\estados-aprendizado.puml",
+      "sha256": "AA4A1AD71A6CF426354E27D9FC77683E2AD1476437F6532AC2186F1A2B751327"
+    },
+    {
+      "path": "docs\\laboratorio-engenharia-software\\diagramas\\fontes\\sequencia-conclusao-licao.puml",
+      "sha256": "D9D23F1A9DF0332A889A4E80EE627E27442FD76D4BA977EC55AA171E79A31E61"
+    }
+  ]
 }

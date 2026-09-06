@@ -1,62 +1,63 @@
 @startuml
+title Casos de uso implementados do Stacklyst
 left to right direction
-skinparam packageStyle rectangle
+skinparam monochrome true
 skinparam shadowing false
-skinparam actorStyle awesome
-
-actor "Usuário / Estudante /\nDesenvolvedor" as Usuario
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam nodesep 18
+skinparam ranksep 35
+actor Visitante
+actor "Usuário autenticado" as Usuario
 actor Avaliador
 actor Administrador
-actor "Empresa / Recrutador" as Empresa
-actor "Serviço de IA" as IA
-
+actor Recrutador
+actor "Provedor de identidade" as Auth
+actor "Executor de código" as Runner
 rectangle Stacklyst {
-  package "Conta e perfil" {
-    usecase "UC001\nCadastrar usuário" as UC001
-    usecase "UC002\nRealizar login" as UC002
-    usecase "UC003\nGerenciar perfil" as UC003
-  }
-
-  package "Aprendizado e gamificação" {
-    usecase "UC004\nIniciar trilha" as UC004
-    usecase "UC005\nAcessar lição" as UC005
-    usecase "UC006\nResolver exercício" as UC006
-    usecase "UC007\nConsultar progresso" as UC007
-    usecase "UC011\nConsultar ranking" as UC011
-    usecase "UC012\nUtilizar assistência da IA" as UC012
-  }
-
-  package "Duelos e avaliação" {
-    usecase "UC008\nParticipar de duelo" as UC008
-    usecase "UC009\nRealizar matchmaking" as UC009
-    usecase "UC010\nAvaliar desafio" as UC010
-    usecase "UC016\nAvaliar solução como avaliador" as UC016
-    usecase "UC024\nSolicitar função de avaliador" as UC024
-  }
-
-  package "Comunidade e eventos" {
-    usecase "UC013\nCriar publicação" as UC013
-    usecase "UC014\nInteragir com publicação" as UC014
-    usecase "UC015\nGerenciar evento" as UC015
-    usecase "UC023\nParticipar de evento" as UC023
-    usecase "UC020\nGerenciar denúncias" as UC020
-  }
-
-  package "Vagas e empresas" {
-    usecase "UC017\nPublicar vaga" as UC017
-    usecase "UC018\nConsultar vagas" as UC018
-    usecase "UC022\nCandidatar-se a vaga" as UC022
-    usecase "UC025\nCadastrar empresa" as UC025
-  }
-
-  package "Administração e comunicação" {
-    usecase "UC019\nAdministrar usuários" as UC019
-    usecase "UC021\nVisualizar notificações" as UC021
-  }
+ package "Conta e aprendizado" {
+  usecase "UC001 Cadastrar conta" as UC001
+  usecase "UC002 Autenticar" as UC002
+  usecase "UC003 Editar perfil" as UC003
+  usecase "UC004 Selecionar trilha" as UC004
+  usecase "UC005 Estudar lição" as UC005
+  usecase "UC006 Resolver exercício" as UC006
+  usecase "UC007 Consultar progresso" as UC007
+  usecase "UC011 Consultar ranking de XP" as UC011
+  usecase "UC012 Consultar ajuda editorial" as UC012
+  usecase "UC028 Avaliar resposta" as UC028
+  usecase "UC029 Executar código\ne testes" as UC029
+ }
+ package "Duelos e avaliação" {
+  usecase "UC008 Convidar para duelo" as UC008
+  usecase "UC009 Entrar na arena" as UC009
+  usecase "UC010 Submeter solução de duelo" as UC010
+  usecase "UC016 Avaliar empate técnico" as UC016
+  usecase "UC024 Solicitar função de avaliador" as UC024
+  usecase "UC027 Decidir candidatura de avaliador" as UC027
+ }
+ package "Comunidade e administração" {
+  usecase "UC013 Criar publicação" as UC013
+  usecase "UC014 Interagir com publicação" as UC014
+  usecase "UC015 Criar evento" as UC015
+  usecase "UC023 Participar de evento" as UC023
+  usecase "UC019 Administrar papéis" as UC019
+  usecase "UC020 Tratar denúncias" as UC020
+  usecase "UC021 Consultar notificações" as UC021
+ }
+ package "Vagas e empresas" {
+  usecase "UC017 Publicar vaga" as UC017
+  usecase "UC018 Consultar vagas" as UC018
+  usecase "UC022 Candidatar-se a vaga" as UC022
+  usecase "UC025 Cadastrar empresa" as UC025
+  usecase "UC026 Gerenciar candidatura" as UC026
+ }
 }
-
-Usuario -- UC001
-Usuario -- UC002
+Visitante -- UC001
+Visitante -- UC002
+Auth -- UC001
+Auth -- UC002
 Usuario -- UC003
 Usuario -- UC004
 Usuario -- UC005
@@ -64,6 +65,7 @@ Usuario -- UC006
 Usuario -- UC007
 Usuario -- UC008
 Usuario -- UC009
+Usuario -- UC010
 Usuario -- UC011
 Usuario -- UC012
 Usuario -- UC013
@@ -73,34 +75,30 @@ Usuario -- UC021
 Usuario -- UC022
 Usuario -- UC023
 Usuario -- UC024
-
-Avaliador -- UC002
+Runner -- UC029
 Avaliador -- UC016
-Avaliador -- UC021
-
-Administrador -- UC002
-Administrador -- UC010
+Administrador -- UC016
 Administrador -- UC015
+Administrador -- UC017
 Administrador -- UC019
 Administrador -- UC020
-Administrador -- UC021
-Administrador -- UC024
-
-Empresa -- UC002
-Empresa -- UC017
-Empresa -- UC018
-Empresa -- UC021
-Empresa -- UC025
-
-IA -- UC012
-IA -- UC010
-
-UC004 ..> UC005 : <<include>>
-UC006 ..> UC005 : <<extend>>
-UC012 ..> UC005 : <<extend>>
-UC012 ..> UC006 : <<extend>>
-UC008 ..> UC009 : <<include>>
-UC008 ..> UC010 : <<include>>
-UC016 ..> UC010 : <<extend>>
-UC022 ..> UC018 : <<extend>>
+Administrador -- UC027
+Recrutador -- UC015
+Recrutador -- UC017
+Usuario -- UC025
+Recrutador -- UC026
+Avaliador --|> Usuario
+Administrador --|> Usuario
+Recrutador --|> Usuario
+UC006 ..> UC028 : <<include>>
+UC010 ..> UC029 : <<include>>
+UC029 ..> UC028 : <<extend>>\n[atividade de código]
+UC012 ..> UC006 : <<extend>>\n[solicita ajuda e modo permite]
+legend bottom
+  Generalização: o triângulo vazado aponta para o ator geral.
+  <<include>>: obrigatório; a seta aponta para o comportamento incluído.
+  <<extend>>: condicionado; a seta aponta para o caso base.
+  Pontos de extensão: UC006 consultar ajuda; UC028 avaliar código.
+  Autenticação é pré-condição dos casos protegidos, não um include.
+endlegend
 @enduml

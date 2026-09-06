@@ -1,0 +1,23 @@
+@startuml
+title Estados derivados de uma lição
+skinparam monochrome true
+skinparam shadowing false
+state "Bloqueada\nNOT_STARTED" as Locked
+state "Disponível\nAVAILABLE" as Available
+state "Em andamento\nIN_PROGRESS" as Progress
+state "Concluída\nCOMPLETED" as Complete
+[*] --> Locked : carregar [há pré-requisito pendente]
+[*] --> Available : carregar [pré-requisitos cumpridos]
+[*] --> Progress : carregar [há tentativa e acesso permitido]
+[*] --> Complete : carregar [todos os exercícios salvos]
+Locked --> Available : recarregar [pré-requisitos concluídos]
+Available --> Progress : salvar primeira tentativa
+Progress --> Progress : salvar tentativa [ainda há exercícios]
+Progress --> Complete : salvar acerto [último exercício]
+Complete --> Complete : revisar / zero XP adicional
+note right of Complete
+  Não é um estado MASTERED.
+  Leitura de explicação não conta
+  como exercício concluído.
+end note
+@enduml

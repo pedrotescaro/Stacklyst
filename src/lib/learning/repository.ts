@@ -13,6 +13,11 @@ import type {
 } from '@/lib/learning/types';
 
 export async function getKnowledgeMapForUser(userId: string): Promise<KnowledgeMapData> {
+  const completions = await prisma.exerciseSubmission.findMany({
+    where: { user_id: userId, first_completion: true },
+    select: { exercise_id: true },
+  });
+  const completedExerciseIds = new Set(completions.map((row) => row.exercise_id));
   const [databaseNodes, databasePaths, databaseProgress] = await Promise.all([
     prisma.knowledgeNode.findMany({
       where: { is_published: true },
@@ -128,8 +133,10 @@ export async function getKnowledgeMapForUser(userId: string): Promise<KnowledgeM
       position: { x: node.position_x, y: node.position_y },
       status,
       mastery: progress?.mastery ?? 0,
-      completedExercises: progress?.completed_exercises ?? 0,
+      completedExercises: node.exercises.filter((exercise) => completedExerciseIds.has(exercise.id))
+        .length,
       exercises: node.exercises.map((exercise) => ({
+        completed: completedExerciseIds.has(exercise.id),
         id: exercise.id,
         slug: exercise.slug,
         title: exercise.title,

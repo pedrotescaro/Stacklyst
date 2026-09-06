@@ -1,0 +1,56 @@
+@startuml
+title Submissão e recompensa de uma atividade
+skinparam monochrome true
+skinparam shadowing false
+autonumber
+actor Estudante
+boundary LessonClient
+control "POST lessons/:id/attempt" as API
+control "assessLessonStep" as Avaliador
+participant "Executor remoto" as Executor
+control "saveLessonAssessment" as Progresso
+database PostgreSQL
+Estudante -> LessonClient : verificar resposta
+LessonClient -> API : stepId, resposta, action=submit
+API -> API : sessão do apiHandler / rateLimit / Zod
+API -> PostgreSQL : ler pré-requisitos confirmados
+alt acesso negado
+  API --> LessonClient : 403 sem alteração
+else acesso permitido
+  API -> Avaliador : conteúdo canônico + resposta
+  opt atividade de código
+    Avaliador -> Executor : código + testes
+    Executor --> Avaliador : saída ou falha
+  end
+  alt executor indisponível
+    API --> LessonClient : 503 sem novo acerto
+  else avaliação disponível
+    Avaliador --> API : resultado
+    API -> Progresso : resultado validado
+    group transação atômica
+      Progresso -> PostgreSQL : BEGIN e lock learning:userId
+      Progresso -> PostgreSQL : ler QuizAttempt único
+      alt primeiro acerto
+        Progresso -> PostgreSQL : criar/atualizar recibo e XP
+      else primeira resposta incorreta
+        Progresso -> PostgreSQL : registrar tentativa sem XP
+      else repetição
+        Progresso -> PostgreSQL : preservar XP já concedido
+      end
+      Progresso -> Progresso : derivar passos concluídos do recibo salvo
+      alt gravação concluída dentro de 20 s
+        Progresso -> PostgreSQL : COMMIT
+      else timeout ou conflito
+        Progresso -> PostgreSQL : ROLLBACK
+        Progresso --> API : falha controlada de persistência
+        API --> LessonClient : 503 PROGRESS_SAVE_UNAVAILABLE
+      end
+    end
+    opt transação confirmada
+      Progresso --> API : XP ganho e progresso salvo
+      API --> LessonClient : resultado e lessonCompleted
+    end
+    LessonClient --> Estudante : feedback e próxima ação
+  end
+end
+@enduml

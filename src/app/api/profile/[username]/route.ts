@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getUserLanguageXp } from '@/lib/learning/language-xp';
 
 export async function GET(request: Request, { params }: { params: Promise<{ username: string }> }) {
   try {
@@ -137,7 +138,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
         accuracy,
         accepted_count: acceptedCount,
       },
-      trails: user.trails,
+      trails: (await getUserLanguageXp(user.id)).map((trail) => ({
+        ...user.trails.find((t) => t.language === trail.language),
+        ...trail,
+      })),
       posts: {
         items,
         nextCursor,

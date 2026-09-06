@@ -1,0 +1,31 @@
+@startuml
+title AN05 Publicar e interagir na comunidade
+skinparam monochrome true
+skinparam shadowing false
+|Autor|
+start
+:Redigir publicação;
+|Stacklyst|
+:Autenticar e validar conteúdo;
+if (Conteúdo válido?) then (não)
+  :Informar erro;
+  stop
+endif
+:Persistir publicação;
+|Leitor|
+:Consultar feed;
+:Selecionar interação;
+|Stacklyst|
+:Verificar alvo e autorização;
+if (Denúncia?) then (sim)
+  :Registrar Report para análise;
+  |Administrador|
+  :Consultar denúncia e decidir ação suportada;
+  |Stacklyst|
+  :Aplicar decisão autorizada;
+else (não)
+  :Persistir resposta, reação, voto ou favorito;
+  :Criar notificação quando prevista;
+endif
+stop
+@enduml

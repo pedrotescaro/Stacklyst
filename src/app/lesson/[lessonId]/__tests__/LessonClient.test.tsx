@@ -9,7 +9,7 @@ const { pushMock, playSoundMock } = vi.hoisted(() => ({
 }));
 
 vi.mock('next/navigation', () => ({
-  useRouter: () => ({ push: pushMock }),
+  useRouter: () => ({ push: pushMock, refresh: vi.fn() }),
 }));
 
 vi.mock('@/hooks/useSoundEffects', () => ({
@@ -46,7 +46,17 @@ describe('LessonClient trail progress', () => {
   });
 
   it('persists a concept activity and returns to the exact trail context', async () => {
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValue({
+        ok: true,
+        json: async () => ({
+          isCorrect: true,
+          xpEarned: 0,
+          lessonCompleted: true,
+          message: 'Resposta validada.',
+        }),
+      });
     vi.stubGlobal('fetch', fetchMock);
 
     render(
@@ -63,15 +73,17 @@ describe('LessonClient trail progress', () => {
       expect(screen.getByRole('heading', { name: 'Lição Concluída!' })).toBeInTheDocument()
     );
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/quiz/js-frontend-react-s1-u1-s1/attempt',
+      '/api/lessons/js-frontend-react-s1-u1/attempt',
       expect.objectContaining({
         method: 'POST',
-        body: JSON.stringify({ selected_index: 0 }),
+        body: expect.any(String),
       })
     );
-    expect(JSON.parse(localStorage.getItem('stacklyst-completed-lessons') ?? '[]')).toEqual([
-      lesson.id,
-    ]);
+    expect(JSON.parse(fetchMock.mock.calls[0][1].body)).toMatchObject({
+      stepId: lesson.steps[0].id,
+      action: 'submit',
+    });
+    expect(localStorage.getItem('stacklyst-completed-lessons')).toBeNull();
 
     fireEvent.click(screen.getByRole('button', { name: 'Voltar para a Trilha' }));
     expect(pushMock).toHaveBeenCalledWith(

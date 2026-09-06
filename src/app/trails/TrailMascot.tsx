@@ -27,7 +27,7 @@ export function TrailMascot({ containerRef, progressKey, currentNodeKey }: Trail
       ref={positionRef}
       data-testid="trail-moving-mascot"
       aria-hidden="true"
-      className="pointer-events-none absolute left-0 top-0 z-[25] h-[clamp(64px,8vw,92px)] w-[clamp(64px,8vw,92px)] select-none opacity-0 [contain:layout_style_paint]"
+      className="pointer-events-none absolute left-0 top-0 z-[15] h-[clamp(56px,7vw,76px)] w-[clamp(56px,7vw,76px)] select-none opacity-0 [contain:layout_style_paint]"
       style={{ transform: 'translate3d(0, 0, 0) translate(-50%, -88%)' }}
     >
       {/* A plain img lets the animation swap already-preloaded frames without React renders. */}

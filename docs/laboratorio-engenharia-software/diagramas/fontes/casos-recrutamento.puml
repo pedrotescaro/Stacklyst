@@ -1,0 +1,28 @@
+@startuml
+title Vagas e empresas
+left to right direction
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam nodesep 12
+skinparam ranksep 35
+actor "Usuário autenticado" as Usuario
+actor Administrador
+actor Recrutador
+rectangle Stacklyst {
+  usecase "UC017 Publicar vaga" as UC017
+  usecase "UC018 Consultar vagas" as UC018
+  usecase "UC022 Candidatar-se a vaga" as UC022
+  usecase "UC025 Cadastrar empresa" as UC025
+  usecase "UC026 Gerenciar candidatura" as UC026
+}
+Usuario -- UC018
+Usuario -- UC022
+Administrador -- UC017
+Recrutador -- UC017
+Usuario -- UC025
+Recrutador -- UC026
+Administrador --|> Usuario
+Recrutador --|> Usuario
+@enduml

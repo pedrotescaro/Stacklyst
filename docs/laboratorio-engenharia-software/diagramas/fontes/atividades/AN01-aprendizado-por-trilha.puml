@@ -1,0 +1,39 @@
+@startuml
+title AN01 Aprender em uma trilha
+skinparam monochrome true
+skinparam shadowing false
+|Estudante|
+start
+:Selecionar linguagem e caminho;
+|Stacklyst|
+:Ler catálogo e tentativas salvas;
+:Derivar os mesmos nós para mapa e lista;
+|Estudante|
+:Selecionar uma lição;
+|Stacklyst|
+if (Pré-requisitos cumpridos\nou lição já concluída?) then (sim)
+  :Carregar conteúdo público e progresso;
+else (não)
+  :Informar pré-requisitos ausentes;
+  stop
+endif
+|Estudante|
+:Estudar explicação e exemplo;
+repeat
+  :Responder atividade pendente;
+  |Stacklyst|
+  :Avaliar no servidor;
+  if (Executor indisponível?) then (sim)
+    :Informar indisponibilidade sem salvar acerto;
+  else (não)
+    :Persistir tentativa e primeira recompensa\nna mesma transação;
+    :Apresentar feedback;
+  endif
+  |Estudante|
+repeat while (Há atividades pendentes?) is (sim) not (não)
+:Retornar à trilha;
+|Stacklyst|
+:Reconsultar progresso e pré-requisitos;
+:Atualizar mapa, lista e próxima ação;
+stop
+@enduml

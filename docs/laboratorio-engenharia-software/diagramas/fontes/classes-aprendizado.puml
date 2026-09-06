@@ -1,0 +1,66 @@
+@startuml
+title Modelo de classes do aprendizado
+skinparam monochrome true
+skinparam shadowing false
+hide empty methods
+class LearningCourse <<TypeScript>> {
+  id : string
+  language : string
+}
+class LearningLesson <<TypeScript>> {
+  id : string
+  unitNumber : number
+  kind : lesson | review | project
+  prerequisites : string[]
+}
+class LessonStep <<TypeScript>> {
+  id : string
+  type : ExerciseType
+  xp : number
+  evaluation : contrato privado
+}
+LearningCourse "0..*" o-- "1..*" LearningLesson : lessons
+LearningLesson "1" *-- "1..*" LessonStep : steps
+LearningLesson "0..*" --> "0..*" LearningLesson : pré-requisito
+class User <<Prisma>> {
+  id : UUID
+}
+class Quiz <<Prisma>> {
+  id : string
+}
+class QuizAttempt <<Prisma>> {
+  user_id : UUID
+  quiz_id : string
+  is_correct : boolean
+  xp_earned : integer
+}
+User "1" -- "0..*" QuizAttempt
+Quiz "1" -- "0..*" QuizAttempt
+LessonStep ..> Quiz : materializado pelo id
+note bottom of QuizAttempt
+  unique(user_id, quiz_id)
+  Preserva primeiro acerto e XP.
+end note
+class KnowledgeNode <<Prisma>> {
+  id : UUID
+}
+class Exercise <<Prisma>> {
+  id : UUID
+}
+class ExerciseSubmission <<Prisma>> {
+  first_completion : boolean
+  xp_earned : integer
+}
+class UserNodeProgress <<Prisma>> {
+  status : KnowledgeProgressStatus
+}
+KnowledgeNode "1" -- "0..*" Exercise
+Exercise "1" -- "0..*" ExerciseSubmission
+User "1" -- "0..*" ExerciseSubmission
+User "1" -- "0..*" UserNodeProgress
+KnowledgeNode "1" -- "0..*" UserNodeProgress
+note bottom of ExerciseSubmission
+  Índice único parcial por usuário e exercício
+  WHERE first_completion = true
+end note
+@enduml

@@ -59,6 +59,11 @@ export interface LessonStep {
   testCases?: TestCase[];
   checkCode?: string;
   expectedOutput?: string;
+  // Server-only assessment contract. Removed before serializing a lesson to the browser.
+  evaluation?: {
+    functionName: string;
+    cases: { input: unknown[]; expected: unknown; hidden?: boolean; invocation?: string }[];
+  };
 
   // For code_completion
   blanks?: BlankSlot[];
@@ -82,6 +87,7 @@ export interface LessonStep {
 }
 
 export interface Lesson {
+  project?: { objective: string; requirements: string[]; stages: string[]; completion: string[] };
   id: string;
   title: string;
   description: string;

@@ -41,7 +41,7 @@ export function LessonSummary({ lesson, sessionState, onFinish }: LessonSummaryP
           Lição Concluída!
         </h1>
         <p className="text-sm font-semibold text-dd-muted dark:text-neutral-400">
-          Você dominou os conceitos de <span className="text-blue-500">{lesson.title}</span>.
+          Você concluiu as atividades de <span className="text-blue-500">{lesson.title}</span>.
         </p>
 
         <motion.div

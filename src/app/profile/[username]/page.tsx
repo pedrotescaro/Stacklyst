@@ -1,5 +1,7 @@
 import { redirect, notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { usersAheadWhere } from '@/lib/learning/rewards';
+import { getUserLanguageXp } from '@/lib/learning/language-xp';
 import { getAuthUser } from '@/lib/auth';
 import { ProfileContent } from './ProfileContent';
 
@@ -80,7 +82,7 @@ export default async function ProfilePage({
     }),
     prisma.follow.count({ where: { followingId: profileId } }),
     prisma.follow.count({ where: { followerId: profileId } }),
-    prisma.user.count({ where: { total_xp: { gt: profileUser.total_xp } } }),
+    prisma.user.count({ where: usersAheadWhere(profileUser) }),
     prisma.user.count(),
     prisma.quizAttempt.findMany({
       where: {
@@ -124,11 +126,7 @@ export default async function ProfilePage({
     })),
   };
 
-  const serializedTrails = profileUser.trails.map((t) => ({
-    language: t.language,
-    xp: t.xp,
-    level: t.level,
-  }));
+  const serializedTrails = await getUserLanguageXp(profileUser.id);
 
   const serializedAllBadges = allBadges.map((b) => ({
     slug: b.slug,

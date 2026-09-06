@@ -1,0 +1,32 @@
+@startuml
+title Comunidade e administração
+left to right direction
+skinparam monochrome true
+skinparam shadowing false
+skinparam defaultFontName Arial
+skinparam defaultFontSize 16
+skinparam nodesep 12
+skinparam ranksep 35
+actor "Usuário autenticado" as Usuario
+actor Administrador
+actor Recrutador
+rectangle Stacklyst {
+  usecase "UC013 Criar publicação" as UC013
+  usecase "UC014 Interagir com publicação" as UC014
+  usecase "UC015 Criar evento" as UC015
+  usecase "UC023 Participar de evento" as UC023
+  usecase "UC019 Administrar papéis" as UC019
+  usecase "UC020 Tratar denúncias" as UC020
+  usecase "UC021 Consultar notificações" as UC021
+}
+Usuario -- UC013
+Usuario -- UC014
+Usuario -- UC021
+Usuario -- UC023
+Administrador -- UC015
+Administrador -- UC019
+Administrador -- UC020
+Recrutador -- UC015
+Administrador --|> Usuario
+Recrutador --|> Usuario
+@enduml

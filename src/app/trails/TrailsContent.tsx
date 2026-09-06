@@ -1,40 +1,16 @@
 'use client';
 
-import Image from 'next/image';
-import Link from 'next/link';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import {
-  ArrowRight,
-  BookOpen,
-  Check,
-  ChevronRight,
-  CircleAlert,
-  Code2,
-  GitBranch,
-  LockKeyhole,
-  MapPinned,
-  Network,
-  Route,
-} from 'lucide-react';
+import { Network, List, MapPinned } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
-import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
-import { getTrailLanguageMetadata, type TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
-import { TrailMap } from '@/app/trails/TrailMap';
-import { TrailPathView } from '@/app/trails/TrailPathView';
-import { TrailResourceBar } from '@/app/trails/TrailResourceBar';
-import { TrailsProgressSidebar, type TrailDailyProgress } from '@/app/trails/TrailsProgressSidebar';
-import { getCourseKnowledgeNodes, getCourseLearningPaths } from '@/app/trails/trailCourseKnowledge';
-import { useResponsiveTrailViewMode } from '@/app/trails/useResponsiveTrailViewMode';
-import { cn } from '@/lib/cn';
-import type {
-  KnowledgeMapData,
-  KnowledgeMapNode,
-  KnowledgeProgressStatus,
-  KnowledgeRelation,
-  LearningPathSummary,
-} from '@/lib/learning/types';
-import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { TrailResourceBar } from './TrailResourceBar';
+import { TrailsProgressSidebar, type TrailDailyProgress } from './TrailsProgressSidebar';
+import type { TrailCourseOption } from './TrailCourseSelector';
+import type { TrailLanguageCode } from './TrailLanguageLogo';
+import { getCourseKnowledgeNodes, getCourseLearningPaths } from './trailCourseKnowledge';
+import type { KnowledgeMapData } from '@/lib/learning/types';
+import { LearningJourney } from './LearningJourney';
 
 interface TrailsContentProps {
   user: {
@@ -57,313 +33,6 @@ interface TrailsContentProps {
   jumpUnlockIds?: readonly string[];
   completedLessonIds?: readonly string[];
 }
-
-const STATUS_LABEL: Record<KnowledgeProgressStatus, string> = {
-  NOT_STARTED: 'Requisito pendente',
-  AVAILABLE: 'Disponível',
-  RECOMMENDED: 'Recomendado agora',
-  IN_PROGRESS: 'Em andamento',
-  COMPLETED: 'Concluído',
-  MASTERED: 'Dominado',
-};
-
-const RELATION_LABEL: Record<KnowledgeRelation, string> = {
-  REQUIRED: 'Obrigatório',
-  RECOMMENDED: 'Recomendado',
-  RELATED: 'Relacionado',
-  BUILDS_ON: 'Aprofunda',
-  COMBINES: 'Combina',
-};
-
-function CourseOverviewCard({
-  viewMode,
-  onViewModeChange,
-}: {
-  viewMode: 'map' | 'trail';
-  onViewModeChange: (mode: 'map' | 'trail') => void;
-}) {
-  const { text } = useLocalizedText();
-  return (
-    <div className="flex flex-wrap items-center gap-3">
-      <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl shadow-[0_4px_20px_rgba(14,165,233,0.25)]">
-        <Image
-          src="/assets/trails/devdeck-mascot-card.png"
-          alt="Mascote da Stacklyst"
-          width={56}
-          height={56}
-          priority
-          className="h-full w-full object-cover"
-        />
-      </div>
-
-      <div>
-        <h1 id="overall-progress-title" className="text-base font-bold text-dd-text tracking-tight">
-          {viewMode === 'map'
-            ? text('Mapa de Conhecimento', 'Knowledge map')
-            : text('Trilha', 'Trail')}
-        </h1>
-        <div className="mt-1 flex items-center rounded-xl bg-dd-surface/90 p-0.5 border border-dd-border shadow-xs">
-          <button
-            type="button"
-            onClick={() => onViewModeChange('map')}
-            className={cn(
-              'flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-black transition-all cursor-pointer select-none',
-              viewMode === 'map'
-                ? 'bg-blue-500 text-white shadow-xs'
-                : 'text-dd-muted hover:text-dd-text'
-            )}
-          >
-            <Network className="h-3.5 w-3.5" />
-            <span>{text('Mapa', 'Map')}</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => onViewModeChange('trail')}
-            className={cn(
-              'flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-[11px] font-black transition-all cursor-pointer select-none',
-              viewMode === 'trail'
-                ? 'bg-blue-500 text-white shadow-xs'
-                : 'text-dd-muted hover:text-dd-text'
-            )}
-          >
-            <Route className="h-3.5 w-3.5" />
-            <span>{text('Trilha', 'Trail')}</span>
-          </button>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function NodeDetail({
-  node,
-  onSelectNode,
-}: {
-  node: KnowledgeMapNode;
-  onSelectNode: (nodeId: string) => void;
-}) {
-  const { text } = useLocalizedText();
-  const missingRequired = node.prerequisites.filter(
-    (prerequisite) => prerequisite.relation === 'REQUIRED' && !prerequisite.completed
-  );
-  const missingRecommended = node.prerequisites.filter(
-    (prerequisite) => prerequisite.relation !== 'REQUIRED' && !prerequisite.completed
-  );
-  const firstExercise = node.exercises[0];
-
-  return (
-    <aside
-      aria-labelledby="selected-knowledge-title"
-      className="rounded-3xl border border-dd-border bg-dd-card p-5 shadow-sm"
-    >
-      <div className="flex items-start justify-between gap-3">
-        <span className="rounded-full bg-blue-500/10 px-3 py-1 text-[10px] font-black uppercase tracking-[0.12em] text-blue-500">
-          {node.category}
-        </span>
-        <span className="text-xs font-bold text-dd-muted">
-          {text(
-            STATUS_LABEL[node.status],
-            {
-              NOT_STARTED: 'Prerequisite pending',
-              AVAILABLE: 'Available',
-              RECOMMENDED: 'Recommended now',
-              IN_PROGRESS: 'In progress',
-              COMPLETED: 'Completed',
-              MASTERED: 'Mastered',
-            }[node.status]
-          )}
-        </span>
-      </div>
-
-      <h2 id="selected-knowledge-title" className="mt-4 text-xl font-black text-dd-text">
-        {node.title}
-      </h2>
-      <p className="mt-2 text-sm leading-relaxed text-dd-muted">{node.description}</p>
-
-      <div className="mt-5 grid grid-cols-2 gap-2">
-        <div className="rounded-xl bg-dd-surface p-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-dd-muted">
-            {text('Domínio', 'Mastery')}
-          </p>
-          <p className="mt-1 text-lg font-black text-dd-text">{node.mastery}%</p>
-        </div>
-        <div className="rounded-xl bg-dd-surface p-3">
-          <p className="text-[10px] font-black uppercase tracking-[0.12em] text-dd-muted">
-            {text('Dificuldade', 'Difficulty')}
-          </p>
-          <p className="mt-1 text-lg font-black text-dd-text">{node.difficulty}/5</p>
-        </div>
-      </div>
-
-      <div className="mt-5">
-        <h3 className="text-xs font-black uppercase tracking-[0.12em] text-dd-muted">
-          {text('Conexões anteriores', 'Previous connections')}
-        </h3>
-        {node.prerequisites.length === 0 ? (
-          <p className="mt-2 text-sm text-dd-muted">
-            {text('Este conhecimento inicia o mapa.', 'This knowledge starts the map.')}
-          </p>
-        ) : (
-          <ul className="mt-2 space-y-2">
-            {node.prerequisites.map((prerequisite) => (
-              <li key={`${prerequisite.nodeId}-${prerequisite.relation}`}>
-                <button
-                  type="button"
-                  onClick={() => onSelectNode(prerequisite.nodeId)}
-                  className="dd-focus-ring flex w-full items-center gap-2 rounded-xl bg-dd-surface px-3 py-2 text-left transition hover:bg-blue-500/10"
-                >
-                  {prerequisite.completed ? (
-                    <Check className="h-4 w-4 shrink-0 text-emerald-500" aria-hidden="true" />
-                  ) : prerequisite.relation === 'REQUIRED' ? (
-                    <LockKeyhole className="h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
-                  ) : (
-                    <GitBranch className="h-4 w-4 shrink-0 text-blue-500" aria-hidden="true" />
-                  )}
-                  <span className="min-w-0 flex-1 truncate text-xs font-bold text-dd-text">
-                    {prerequisite.title}
-                  </span>
-                  <span className="text-[9px] font-black uppercase tracking-wide text-dd-muted">
-                    {text(
-                      RELATION_LABEL[prerequisite.relation],
-                      {
-                        REQUIRED: 'Required',
-                        RECOMMENDED: 'Recommended',
-                        RELATED: 'Related',
-                        BUILDS_ON: 'Builds on',
-                        COMBINES: 'Combines',
-                      }[prerequisite.relation]
-                    )}
-                  </span>
-                </button>
-              </li>
-            ))}
-          </ul>
-        )}
-      </div>
-
-      {missingRequired.length > 0 && (
-        <div className="mt-5 rounded-2xl border border-slate-400/30 bg-slate-500/[0.06] p-4">
-          <div className="flex gap-2">
-            <CircleAlert className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" aria-hidden="true" />
-            <div>
-              <p className="text-xs font-black text-dd-text">
-                {text('Conhecimento necessário', 'Required knowledge')}
-              </p>
-              <p className="mt-1 text-xs leading-relaxed text-dd-muted">
-                {text(
-                  'Este é um dos poucos vínculos obrigatórios porque o exercício usa esse contrato diretamente.',
-                  'This is one of the few required links because the exercise relies on this contract directly.'
-                )}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => onSelectNode(missingRequired[0].nodeId)}
-            className="dd-focus-ring mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-dd-text px-3 py-2.5 text-xs font-black text-dd-bg"
-          >
-            {text('Estudar requisito', 'Study prerequisite')}
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </button>
-        </div>
-      )}
-
-      {missingRequired.length === 0 && missingRecommended.length > 0 && (
-        <div className="mt-5 rounded-2xl border border-blue-500/25 bg-blue-500/[0.06] p-4">
-          <div className="flex gap-2">
-            <BookOpen className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" aria-hidden="true" />
-            <div>
-              <p className="text-xs font-black text-dd-text">
-                {text('Recomendação, não bloqueio', 'Recommendation, not a blocker')}
-              </p>
-              <p className="mt-1 text-xs leading-relaxed text-dd-muted">
-                {missingRecommended.map((item) => item.title).join(', ')}{' '}
-                {text(
-                  'pode facilitar este conhecimento, mas você decide o caminho.',
-                  'may help with this knowledge, but you choose the path.'
-                )}
-              </p>
-            </div>
-          </div>
-          <button
-            type="button"
-            onClick={() => onSelectNode(missingRecommended[0].nodeId)}
-            className="dd-focus-ring mt-3 w-full rounded-xl border border-blue-500/30 px-3 py-2.5 text-xs font-black text-blue-500 transition hover:bg-blue-500/10"
-          >
-            {text('Estudar conhecimento recomendado', 'Study recommended knowledge')}
-          </button>
-        </div>
-      )}
-
-      <div className="mt-5 border-t border-dd-border pt-5">
-        <div className="flex items-center justify-between gap-3">
-          <h3 className="text-xs font-black uppercase tracking-[0.12em] text-dd-muted">
-            {text('Exercícios práticos', 'Practical exercises')}
-          </h3>
-          <span className="text-xs font-bold text-dd-muted">{node.exercises.length}</span>
-        </div>
-
-        {node.exercises.length === 0 ? (
-          <div className="mt-3 rounded-2xl border border-dashed border-dd-border p-4 text-sm text-dd-muted">
-            {text(
-              'Este conhecimento ainda não foi publicado porque não possui exercício avaliável.',
-              'This knowledge is not published yet because it has no evaluable exercise.'
-            )}
-          </div>
-        ) : (
-          <ul className="mt-3 space-y-2">
-            {node.exercises.map((exercise, index) => (
-              <li key={exercise.id}>
-                <Link
-                  href={missingRequired.length > 0 ? '#' : `/lesson/${exercise.slug}`}
-                  aria-disabled={missingRequired.length > 0}
-                  onClick={(event) => {
-                    if (missingRequired.length > 0) event.preventDefault();
-                  }}
-                  className={cn(
-                    'dd-focus-ring flex items-center gap-3 rounded-2xl border border-dd-border p-3 transition',
-                    missingRequired.length > 0
-                      ? 'cursor-not-allowed opacity-50'
-                      : 'hover:border-blue-500/50 hover:bg-blue-500/[0.04]'
-                  )}
-                >
-                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500/10 text-blue-500">
-                    <Code2 className="h-4 w-4" aria-hidden="true" />
-                  </span>
-                  <span className="min-w-0 flex-1">
-                    <span className="block truncate text-xs font-black text-dd-text">
-                      {exercise.title}
-                    </span>
-                    <span className="mt-0.5 block text-[10px] font-semibold text-dd-muted">
-                      {text('Dificuldade', 'Difficulty')} {exercise.difficulty}/5 ·{' '}
-                      {exercise.baseXp} XP {text('base', 'base')}
-                    </span>
-                  </span>
-                  {index === 0 && missingRequired.length === 0 && (
-                    <ChevronRight className="h-4 w-4 text-blue-500" aria-hidden="true" />
-                  )}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {firstExercise && missingRequired.length === 0 && (
-          <Link
-            href={`/lesson/${firstExercise.slug}`}
-            className="dd-focus-ring mt-4 flex w-full items-center justify-center gap-2 rounded-xl bg-blue-500 px-4 py-3 text-sm font-black text-white shadow-sm shadow-blue-500/20 transition hover:bg-blue-600"
-          >
-            {missingRecommended.length > 0
-              ? text('Começar mesmo assim', 'Start anyway')
-              : text('Começar exercício', 'Start exercise')}
-            <ArrowRight className="h-4 w-4" aria-hidden="true" />
-          </Link>
-        )}
-      </div>
-    </aside>
-  );
-}
-
 export function TrailsContent({
   user,
   knowledgeMap,
@@ -375,235 +44,135 @@ export function TrailsContent({
   dailyProgress,
   initialViewMode = 'map',
   initialPathSlug,
-  initialSectionNumber = 1,
-  jumpUnlockIds = [],
-  completedLessonIds = [],
 }: TrailsContentProps) {
   const router = useRouter();
-  const { text } = useLocalizedText();
-  const [viewMode, setViewMode] = useState<'map' | 'trail'>(initialViewMode);
-  const responsiveViewMode = useResponsiveTrailViewMode(viewMode);
-
-  const handleViewModeChange = (mode: 'map' | 'trail') => {
-    setViewMode(mode);
-    try {
-      localStorage.setItem('stacklyst-trail-view-mode', mode);
-      document.cookie = `stacklyst_trail_view_mode=${mode}; path=/; max-age=31536000; SameSite=Lax`;
-    } catch {
-      // ignore
-    }
-  };
-
-  const [courses, setCourses] = useState(initialCourses);
-  const [activeLanguage, setActiveLanguage] = useState<TrailLanguageCode>(initialActiveLanguage);
-  const [selectedPathId, setSelectedPathId] = useState(
-    knowledgeMap.paths.find((path) =>
-      initialPathSlug ? path.slug === initialPathSlug : path.featured
-    )?.id ??
-      knowledgeMap.paths[0]?.id ??
-      ''
-  );
-  const initialCourseNodes = useMemo(
-    () => getCourseKnowledgeNodes(knowledgeMap.nodes, initialActiveLanguage),
-    [initialActiveLanguage, knowledgeMap.nodes]
-  );
-  const initialNodeId =
-    initialCourseNodes.find((node) => node.status === 'RECOMMENDED' || node.status === 'AVAILABLE')
-      ?.id ??
-    initialCourseNodes[0]?.id ??
-    '';
-  const [selectedNodeId, setSelectedNodeId] = useState(initialNodeId);
-
-  const courseNodes = useMemo(
+  const [viewMode, setViewMode] = useState(initialViewMode);
+  const [activeLanguage, setActiveLanguage] = useState(initialActiveLanguage);
+  const [pathId, setPathId] = useState(initialPathSlug ?? '');
+  const nodes = useMemo(
     () => getCourseKnowledgeNodes(knowledgeMap.nodes, activeLanguage),
-    [activeLanguage, knowledgeMap.nodes]
+    [knowledgeMap.nodes, activeLanguage]
   );
-  const coursePaths = useMemo(
-    () => getCourseLearningPaths(knowledgeMap.paths, courseNodes),
-    [courseNodes, knowledgeMap.paths]
+  const paths = useMemo(
+    () => getCourseLearningPaths(knowledgeMap.paths, nodes),
+    [knowledgeMap.paths, nodes]
   );
-  const selectedPath =
-    coursePaths.find((path) => path.id === selectedPathId) ??
-    coursePaths.find((path) => path.featured) ??
-    coursePaths[0];
-  const selectedNode = courseNodes.find((node) => node.id === selectedNodeId) ?? courseNodes[0];
-
-  const courseNodeIds = useMemo(() => new Set(courseNodes.map((node) => node.id)), [courseNodes]);
-  const courseEdges = useMemo(
-    () =>
-      knowledgeMap.edges.filter(
-        (edge) => courseNodeIds.has(edge.sourceNodeId) && courseNodeIds.has(edge.targetNodeId)
-      ),
-    [courseNodeIds, knowledgeMap.edges]
-  );
-
-  const selectPath = (path: LearningPathSummary) => {
-    setSelectedPathId(path.id);
-    const nextNodeId =
-      path.nodeIds.find((nodeId) => {
-        const node = courseNodes.find((candidate) => candidate.id === nodeId);
-        return node?.status === 'RECOMMENDED' || node?.status === 'AVAILABLE';
-      }) ??
-      path.nodeIds[0] ??
-      '';
-    if (nextNodeId) setSelectedNodeId(nextNodeId);
-  };
-
-  const selectCourse = (language: TrailLanguageCode) => {
+  const path =
+    paths.find((p) => p.id === pathId || p.slug === pathId) ??
+    paths.find((p) => p.id === `foundations-${activeLanguage.toLowerCase()}`) ??
+    paths[0];
+  // Fresh server state on return and when another device has changed progress.
+  useEffect(() => {
+    const refresh = () => {
+      if (document.visibilityState === 'visible') router.refresh();
+    };
+    window.addEventListener('focus', refresh);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      window.removeEventListener('focus', refresh);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, [router]);
+  function changeMode(mode: 'map' | 'trail') {
+    setViewMode(mode);
+    document.cookie = `stacklyst_trail_view_mode=${mode}; path=/; max-age=31536000; SameSite=Lax`;
+    localStorage.setItem('stacklyst-trail-view-mode', mode);
+  }
+  function selectCourse(language: TrailLanguageCode) {
     setActiveLanguage(language);
-    const nextCourseNodes = getCourseKnowledgeNodes(knowledgeMap.nodes, language);
-    const nextCoursePaths = getCourseLearningPaths(knowledgeMap.paths, nextCourseNodes);
-    const nextSelectedPath = nextCoursePaths.find((path) => path.featured) ?? nextCoursePaths[0];
-    const nextNodeId =
-      nextCourseNodes.find((node) => node.status === 'RECOMMENDED' || node.status === 'AVAILABLE')
-        ?.id ??
-      nextCourseNodes[0]?.id ??
-      '';
-
-    setSelectedPathId(nextSelectedPath?.id ?? '');
-    setSelectedNodeId(nextNodeId);
-
-    const startedLanguages = courses
-      .map((course) => course.language)
-      .concat(courses.some((course) => course.language === language) ? [] : [language]);
-
-    setCourses((previousCourses) =>
-      previousCourses.map((course) =>
-        course.language === language ? { ...course, started: true } : course
-      )
-    );
-
+    setPathId(`foundations-${language.toLowerCase()}`);
     void fetch('/api/trails/course-preferences', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ activeLanguage: language, startedLanguages }),
-    }).catch((error) => console.error('Erro ao salvar preferência da trilha:', error));
-  };
-
-  const renderTrailMap = () => (
-    <TrailMap
-      nodes={courseNodes}
-      edges={courseEdges}
-      paths={coursePaths}
-      selectedNodeId={selectedNode?.id ?? ''}
-      selectedPathId={selectedPath?.id ?? ''}
-      onSelectNode={setSelectedNodeId}
-      onSelectPath={(pathId) => {
-        const path = coursePaths.find((candidate) => candidate.id === pathId);
-        if (path) selectPath(path);
-      }}
-    />
-  );
-
+      body: JSON.stringify({
+        activeLanguage: language,
+        startedLanguages: [
+          ...new Set(
+            initialCourses
+              .filter((c) => c.started)
+              .map((c) => c.language)
+              .concat(language)
+          ),
+        ],
+      }),
+    });
+  }
   return (
-    <div className="dd-platform-shell dd-platform-shell--fullscreen relative min-h-screen overflow-x-clip bg-dd-bg md:h-screen md:min-h-0 md:overflow-hidden">
+    <div className="dd-platform-shell relative min-h-screen bg-dd-bg">
       <Sidebar user={user} />
-
-      <div className="mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px] xl:justify-start">
-        <main className="relative min-h-screen min-w-0 flex-1 pb-24 md:h-screen md:min-h-0 md:pb-0">
-          <header className="relative z-[80] flex flex-col justify-between gap-2 p-3 md:pointer-events-none md:absolute md:inset-x-0 md:top-0 lg:flex-row lg:items-start">
-            <div className="pointer-events-auto hidden md:block">
-              <CourseOverviewCard viewMode={viewMode} onViewModeChange={setViewMode} />
-            </div>
-
-            <div className="pointer-events-auto flex w-full flex-col items-stretch gap-2 lg:w-auto lg:items-end">
-              <div className="w-full xl:hidden">
+      <div className="mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
+        <main className="min-w-0 flex-1 pb-20">
+          <header className="sticky top-0 z-30 border-b border-dd-border bg-dd-bg px-4 py-3">
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div
+                role="group"
+                aria-label="Visualização do aprendizado"
+                className="flex rounded-xl border border-dd-border p-1"
+              >
+                {(
+                  [
+                    { id: 'map', label: 'Mapa', Icon: Network },
+                    { id: 'trail', label: 'Trilha', Icon: List },
+                  ] as const
+                ).map(({ id, label, Icon }) => (
+                  <button
+                    key={id}
+                    type="button"
+                    aria-pressed={viewMode === id}
+                    onClick={() => changeMode(id)}
+                    className={`dd-focus-ring flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-semibold ${viewMode === id ? 'bg-blue-500 text-white' : 'text-dd-muted hover:text-dd-text'}`}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <div className="xl:hidden">
                 <TrailResourceBar
                   activeLanguage={activeLanguage}
-                  courses={courses}
+                  courses={initialCourses}
                   onSelectCourse={selectCourse}
                   streak={user.streak}
                   totalXp={user.total_xp}
                   gems={gems}
                 />
               </div>
-
-              {responsiveViewMode === 'map' && selectedPath && (
-                <div className="flex min-w-[240px] items-center gap-3 px-1 py-0.5">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[9px] font-semibold uppercase tracking-wider text-dd-muted">
-                      Setor ativo
-                    </p>
-                    <p className="mt-0.5 truncate text-xs font-bold text-dd-text">
-                      {selectedPath.title}
-                    </p>
-                  </div>
-                  <div className="w-20">
-                    <div className="h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-white/[0.08]">
-                      <div
-                        className="h-full rounded-full transition-[width] duration-300 motion-reduce:transition-none"
-                        style={{
-                          width: `${selectedPath.progressPercent}%`,
-                          backgroundColor: selectedPath.accentColor,
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <span className="text-[11px] font-bold tabular-nums text-dd-muted">
-                    {selectedPath.progressPercent}%
-                  </span>
-                </div>
-              )}
             </div>
+            <label className="mt-3 flex items-center gap-3 text-sm text-dd-muted">
+              Caminho
+              <select
+                aria-label="Caminho de aprendizado"
+                value={path?.id ?? ''}
+                onChange={(event) => setPathId(event.target.value)}
+                className="dd-focus-ring min-h-11 min-w-0 flex-1 rounded-lg border border-dd-border bg-dd-bg px-3 text-dd-text"
+              >
+                {paths.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.title} · {p.completedNodes}/{p.totalNodes} lições
+                  </option>
+                ))}
+              </select>
+            </label>
           </header>
-
-          {responsiveViewMode === 'trail' ? (
-            <div
-              data-testid="trail-scroll-container"
-              className="scrollbar-none relative z-10 w-full overflow-y-visible px-2 pb-20 pt-4 sm:px-4 md:h-full md:overflow-y-auto md:pt-28 lg:pt-24"
-            >
-              <TrailPathView
-                activeLanguage={activeLanguage}
-                nodes={courseNodes}
-                paths={coursePaths}
-                selectedNodeId={selectedNode?.id ?? ''}
-                selectedPathId={selectedPath?.id ?? ''}
-                onSelectNode={setSelectedNodeId}
-                onSelectPath={(pathId) => {
-                  const path = coursePaths.find((candidate) => candidate.id === pathId);
-                  if (path) selectPath(path);
-                }}
-                onSelectExercise={(lessonId, returnTo) =>
-                  router.push(`/lesson/${lessonId}?returnTo=${encodeURIComponent(returnTo)}`)
-                }
-                initialSectionNumber={initialSectionNumber}
-                jumpUnlockIds={jumpUnlockIds}
-                completedLessonIds={completedLessonIds}
-              />
-            </div>
-          ) : courseNodes.length === 0 ? (
-            <section className="relative z-20 mx-3 mt-3 rounded-3xl border border-dashed border-dd-border bg-dd-card p-10 text-center md:absolute md:left-1/2 md:top-1/2 md:m-0 md:w-[520px] md:-translate-x-1/2 md:-translate-y-1/2">
-              <MapPinned className="mx-auto h-8 w-8 text-dd-muted" aria-hidden="true" />
-              <h2 className="mt-4 text-lg font-black text-dd-text">
-                {text(
-                  `Curso de ${getTrailLanguageMetadata(activeLanguage).label} em preparação`,
-                  `${getTrailLanguageMetadata(activeLanguage).label} course in preparation`
-                )}
-              </h2>
-              <p className="mx-auto mt-2 max-w-md text-sm text-dd-muted">
-                {text(
-                  'Este curso já foi adicionado aos seus cursos, mas ainda não possui conhecimentos publicados neste mapa. Você pode trocar de linguagem no seletor acima.',
-                  'This course has been added to your courses, but it has no published knowledge in this map yet. You can switch languages using the selector above.'
-                )}
-              </p>
-            </section>
+          {path ? (
+            <LearningJourney
+              key={`${user.id}:${path.id}`}
+              userId={user.id}
+              nodes={nodes}
+              path={path}
+              language={activeLanguage}
+              mode={viewMode}
+            />
           ) : (
-            <>
-              <div className="absolute inset-0 hidden md:block">{renderTrailMap()}</div>
-
-              <div className="relative z-20 space-y-4 px-3 md:hidden">
-                {renderTrailMap()}
-                {selectedNode && (
-                  <NodeDetail node={selectedNode} onSelectNode={setSelectedNodeId} />
-                )}
-              </div>
-            </>
+            <div className="p-8 text-dd-muted">
+              <MapPinned className="mb-3" />
+              <p>Nenhum conteúdo publicado nesta linguagem.</p>
+            </div>
           )}
         </main>
-
         <TrailsProgressSidebar
           activeLanguage={activeLanguage}
-          courses={courses}
+          courses={initialCourses}
           onSelectCourse={selectCourse}
           totalXp={user.total_xp}
           gems={gems}

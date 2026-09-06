@@ -23,6 +23,8 @@ export function calculateTrailDailyProgress(
   const lessonAttempts = quizAttempts.filter(
     (attempt) =>
       LEGACY_TRAIL_ACTIVITY_ID_PATTERN.test(attempt.quiz_id) ||
+      (/^learn-[a-z]+-.+-step-\d+$/.test(attempt.quiz_id) &&
+        !attempt.quiz_id.endsWith('-step-1')) ||
       Boolean(parseTrailLessonStepId(attempt.quiz_id))
   );
   const chestRewards = quizAttempts.filter((attempt) =>

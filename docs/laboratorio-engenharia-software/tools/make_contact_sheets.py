@@ -5,9 +5,9 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 
-ROOT = Path(r"C:\Users\PEDRO\Documents\DevDeck\docs\laboratorio-engenharia-software\qa")
-SOURCE = ROOT / "rendered-approved"
-OUTPUT = ROOT / "contact-sheets-approved"
+ROOT = Path(__file__).resolve().parents[1] / 'qa'
+SOURCE = ROOT / "rendered-20260905"
+OUTPUT = ROOT / "contact-sheets-20260905"
 
 COLS = 2
 ROWS = 2
@@ -31,7 +31,8 @@ def main() -> None:
             continue
 
         with Image.open(pages[0]) as first:
-            page_width, page_height = first.size
+            page_width = 460
+            page_height = round(first.height * page_width / first.width)
         sheet_width = COLS * page_width + (COLS + 1) * GAP
         sheet_height = ROWS * (page_height + LABEL_HEIGHT) + (ROWS + 1) * GAP
 
@@ -46,8 +47,8 @@ def main() -> None:
                 x = GAP + col * (page_width + GAP)
                 y = GAP + row * (page_height + LABEL_HEIGHT + GAP)
                 with Image.open(page_path) as page:
-                    canvas.paste(page.convert("RGB"), (x, y))
-                label = f"{document_dir.name} — página {natural_key(page_path)[0]}"
+                    canvas.paste(page.convert("RGB").resize((page_width, page_height)), (x, y))
+                label = f"{document_dir.name[:2]} — página {natural_key(page_path)[0]}"
                 draw.text((x, y + page_height + 6), label, fill="#111827", font=font)
 
             end = start + len(batch)

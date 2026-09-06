@@ -1,36 +1,10 @@
-import { prisma } from '@/lib/prisma';
 import { Language, type Prisma } from '@prisma/client';
 import { calculateNextStreak } from '@/lib/streak';
+import { learningTransaction } from '@/lib/learning/transaction';
 
 // Mapeamento de níveis baseado nas faixas de XP do seed do banco de dados
-export function calculateLevel(xp: number): {
-  level: number;
-  nextLevelXp: number;
-  prevLevelXp: number;
-} {
-  if (xp < 500) return { level: 1, nextLevelXp: 500, prevLevelXp: 0 };
-  if (xp < 800) return { level: 2, nextLevelXp: 800, prevLevelXp: 500 };
-  if (xp < 1100) return { level: 3, nextLevelXp: 1100, prevLevelXp: 800 };
-  if (xp < 1500) return { level: 4, nextLevelXp: 1500, prevLevelXp: 1100 };
-  if (xp < 2000) return { level: 5, nextLevelXp: 2000, prevLevelXp: 1500 };
-
-  // Níveis acima do 6 incrementam com passos crescentes
-  let level = 6;
-  let currentThreshold = 2000;
-  let nextIncrement = 600;
-
-  while (xp >= currentThreshold + nextIncrement) {
-    currentThreshold += nextIncrement;
-    level++;
-    nextIncrement += 100;
-  }
-
-  return {
-    level,
-    nextLevelXp: currentThreshold + nextIncrement,
-    prevLevelXp: currentThreshold,
-  };
-}
+export { calculateLevel } from '@/lib/learning/rewards';
+import { calculateLevel } from '@/lib/learning/rewards';
 
 // Função para conceder XP e atualizar dados de gamificação
 export async function awardXP(
@@ -38,43 +12,17 @@ export async function awardXP(
   language: Language | null | undefined,
   amount: number
 ) {
-  if (!language) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { streak_days: true, last_active_at: true },
-    });
-
-    const now = new Date();
-    const newStreakDays = calculateNextStreak(user?.streak_days ?? 0, user?.last_active_at, now);
-
-    const updatedUser = await prisma.user.update({
-      where: { id: userId },
-      data: {
-        total_xp: {
-          increment: amount,
-        },
-        streak_days: newStreakDays,
-        last_active_at: now,
-      },
-    });
-    return {
-      xpEarned: amount,
-      language: null,
-      newXp: updatedUser.total_xp,
-      newLevel: calculateLevel(updatedUser.total_xp).level,
-      newStreak: newStreakDays,
-    };
-  }
-
-  return prisma.$transaction((tx) => awardXPInTransaction(tx, userId, language, amount));
+  return learningTransaction((tx) => awardXPInTransaction(tx, userId, language, amount));
 }
 
 export async function awardXPInTransaction(
   tx: Prisma.TransactionClient,
   userId: string,
-  language: Language,
+  language: Language | null | undefined,
   amount: number
 ) {
+  if (!Number.isSafeInteger(amount) || amount < 0) throw new Error('INVALID_XP_AMOUNT');
+  await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`learning:${userId}`}))`;
   // Buscar usuário primeiro para calcular a ofensiva geral
   const user = await tx.user.findUnique({
     where: { id: userId },
@@ -85,7 +33,7 @@ export async function awardXPInTransaction(
   const newStreakDays = calculateNextStreak(user?.streak_days ?? 0, user?.last_active_at, now);
 
   // 1. Atualizar o total_xp, streak_days, last_active_at do usuário
-  await tx.user.update({
+  const updatedUser = await tx.user.update({
     where: { id: userId },
     data: {
       total_xp: {
@@ -95,6 +43,16 @@ export async function awardXPInTransaction(
       last_active_at: now,
     },
   });
+
+  if (!language)
+    return {
+      xpEarned: amount,
+      language: null,
+      newXp: updatedUser.total_xp,
+      newLevel: calculateLevel(updatedUser.total_xp).level,
+      newStreak: newStreakDays,
+      totalXp: updatedUser.total_xp,
+    };
 
   // 2. Buscar ou criar a trilha da linguagem
   const trail = await tx.languageTrail.findUnique({
@@ -147,6 +105,7 @@ export async function awardXPInTransaction(
     newXp,
     newLevel,
     newStreak,
+    totalXp: updatedUser.total_xp,
   };
 }
 
@@ -213,7 +172,8 @@ async function checkBadgeEligibility(
     });
 
     if (badge) {
-      await tx.userBadge.create({
+      await tx.userBadge.createMany({
+        skipDuplicates: true,
         data: {
           user_id: userId,
           badge_id: badge.id,

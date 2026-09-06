@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { MASCOT_SPRITE_FRAMES } from '@/app/trails/mascotSprites';
+import { MASCOT_IDLE_FRAMES, MASCOT_SPRITE_FRAMES } from '@/app/trails/mascotSprites';
 import { getTrailMascotProgressKey } from '@/app/trails/trailMascotProgress';
 import { createSmoothTrailPath } from '@/app/trails/trailPath';
 import { chooseMascotDirection, resolveMascotMovementRange } from '@/app/trails/useTrailMascot';
@@ -10,6 +10,13 @@ describe('trail mascot animation primitives', () => {
     expect(MASCOT_SPRITE_FRAMES.esquerda).toHaveLength(3);
     expect(MASCOT_SPRITE_FRAMES.cima).toHaveLength(4);
     expect(MASCOT_SPRITE_FRAMES.baixo).toHaveLength(4);
+  });
+
+  it('keeps four transparent idle frames for every direction', () => {
+    for (const frames of Object.values(MASCOT_IDLE_FRAMES)) {
+      expect(frames).toHaveLength(4);
+      expect(frames.every((source) => source.includes('/sprites/robot/idle/'))).toBe(true);
+    }
   });
 
   it('builds a distance-addressable smooth path through the trail waypoints', () => {

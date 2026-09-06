@@ -283,8 +283,8 @@ export function TrailsProgressSidebar({
 
         <p className="mt-4 max-w-[260px] text-sm font-bold leading-6 text-dd-text">
           {text(
-            'Complete as missões abaixo para ganhar XP bônus!',
-            'Complete the missions below to earn bonus XP!'
+            'Acompanhe sua prática de hoje. O XP vem das atividades concluídas.',
+            'Track today’s practice. XP comes from completed activities.'
           )}
         </p>
 

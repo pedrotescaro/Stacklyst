@@ -11,6 +11,36 @@ import {
 import { calculateGemBalance, calculateGemReward } from '@/lib/gamification/gems';
 import type { ExerciseWorkspaceData } from '@/lib/exercises/types';
 import type { KnowledgeProgressStatus } from '@/lib/learning/types';
+import { AppError } from '@/lib/errors';
+import { learningTransaction } from '@/lib/learning/transaction';
+
+export async function requireExerciseAccess(userId: string, knowledgeNodeId: string) {
+  const edges = await prisma.knowledgeEdge.findMany({
+    where: { target_node_id: knowledgeNodeId, relation: 'REQUIRED' },
+    select: { source_node_id: true, source_node: { select: { title: true } } },
+  });
+  if (!edges.length) return;
+  const progress = await prisma.userNodeProgress.findMany({
+    where: {
+      user_id: userId,
+      knowledge_node_id: { in: [knowledgeNodeId, ...edges.map((e) => e.source_node_id)] },
+    },
+    select: { knowledge_node_id: true, status: true },
+  });
+  const complete = new Set(
+    progress
+      .filter((p) => p.status === 'COMPLETED' || p.status === 'MASTERED')
+      .map((p) => p.knowledge_node_id)
+  );
+  if (complete.has(knowledgeNodeId)) return;
+  const missing = edges.filter((e) => !complete.has(e.source_node_id));
+  if (missing.length)
+    throw new AppError(
+      'EXERCISE_LOCKED',
+      `Conclua primeiro: ${missing.map((e) => e.source_node.title).join(', ')}.`,
+      403
+    );
+}
 
 export async function getExerciseForEvaluation(identifier: string, includeHidden: boolean) {
   const exercise = await prisma.exercise.findFirst({
@@ -189,9 +219,9 @@ export async function recordExerciseSubmission(input: {
   code: string;
   evaluation: ExerciseEvaluation;
 }) {
-  const lockKey = `${input.userId}:${input.exercise.id}`;
+  const lockKey = `learning:${input.userId}`;
 
-  return prisma.$transaction(async (transaction) => {
+  return learningTransaction(async (transaction) => {
     await transaction.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${lockKey}))`;
 
     const previousCompletion = await transaction.exerciseSubmission.findFirst({
@@ -202,7 +232,11 @@ export async function recordExerciseSubmission(input: {
       },
       select: { id: true },
     });
-    const firstCompletion = input.evaluation.passed && !previousCompletion;
+    const firstCompletion =
+      input.evaluation.ok &&
+      input.evaluation.totalTests > 0 &&
+      input.evaluation.passed &&
+      !previousCompletion;
     const xpEarned = firstCompletion
       ? calculateExerciseXp(input.exercise.base_xp, input.assistanceMode)
       : 0;
@@ -255,7 +289,7 @@ export async function recordExerciseSubmission(input: {
           where: {
             user_id: input.userId,
             first_completion: true,
-            exercise: { knowledge_node_id: input.exercise.knowledge_node_id },
+            exercise: { knowledge_node_id: input.exercise.knowledge_node_id, is_published: true },
           },
         }),
       ]);

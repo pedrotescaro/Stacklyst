@@ -1,0 +1,37 @@
+@startuml
+title Componentes implementados do Stacklyst
+skinparam monochrome true
+skinparam shadowing false
+skinparam componentStyle uml2
+package "Navegador" {
+  [LearningJourney\nmapa e lista] as Journey
+  [LessonClient / ExerciseWorkspace] as Client
+  [Comunidade, duelos, perfil e vagas] as UI
+}
+package "Aplicação Next.js" {
+  [Server Components] as Pages
+  [Route Handlers] as API
+  [Auth / RBAC / validação] as Auth
+  [Catálogo versionado] as Catalog
+  [Avaliação e progresso] as Learning
+  [Serviços de domínio] as Services
+  [Prisma] as Prisma
+}
+database "PostgreSQL\nSupabase" as DB
+cloud "Supabase Auth" as Provider
+cloud "Judge0 / Wandbox" as Runner
+Journey ..> Pages : DTO de progresso
+Client ..> API : HTTPS
+UI ..> API : HTTPS
+Pages ..> Catalog
+Pages ..> Prisma
+API ..> Auth
+Auth ..> Provider : sessão
+API ..> Learning
+API ..> Services
+Learning ..> Catalog
+Learning ..> Runner : execução isolada
+Learning ..> Prisma
+Services ..> Prisma
+Prisma --> DB : SQL e transações
+@enduml

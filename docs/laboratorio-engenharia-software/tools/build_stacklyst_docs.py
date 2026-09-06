@@ -3,11 +3,14 @@ from __future__ import annotations
 import hashlib
 import json
 import shutil
+import tempfile
+import os
 from pathlib import Path
 from typing import Iterable
 
 from docx import Document
 from docx.enum.section import WD_ORIENT
+from docx.enum.style import WD_STYLE_TYPE
 from docx.enum.table import WD_CELL_VERTICAL_ALIGNMENT, WD_TABLE_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from docx.oxml import OxmlElement
@@ -16,7 +19,7 @@ from docx.shared import Cm, Inches, Pt, RGBColor
 from PIL import Image
 
 
-REPO = Path(r"C:\Users\PEDRO\Documents\DevDeck")
+REPO = Path(__file__).resolve().parents[3]
 ROOT = REPO / "docs" / "laboratorio-engenharia-software"
 OUTPUT = ROOT / "entregaveis"
 DIAGRAMS = ROOT / "diagramas"
@@ -58,6 +61,17 @@ def sha256(path: Path) -> str:
         for chunk in iter(lambda: stream.read(1024 * 1024), b""):
             digest.update(chunk)
     return digest.hexdigest().upper()
+
+
+def save_document(document: Document, target: Path) -> None:
+    # Write completely before replacing the deliverable, preserving the old file on failure.
+    with tempfile.NamedTemporaryFile(suffix='.docx', dir=target.parent, delete=False) as handle:
+        temporary = Path(handle.name)
+    try:
+        document.save(temporary)
+        os.replace(temporary, target)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def set_cell_shading(cell, fill: str) -> None:
@@ -136,6 +150,8 @@ def clear_body(document: Document) -> None:
 
 
 def configure_styles(document: Document) -> None:
+    if 'Title' not in document.styles:
+        document.styles.add_style('Title', WD_STYLE_TYPE.PARAGRAPH)
     normal = document.styles["Normal"]
     normal.font.name = "Arial"
     normal._element.rPr.rFonts.set(qn("w:eastAsia"), "Arial")
@@ -150,7 +166,7 @@ def configure_styles(document: Document) -> None:
         style._element.rPr.rFonts.set(qn("w:eastAsia"), "Arial")
         style.font.size = Pt(size)
         style.font.bold = True
-        style.font.color.rgb = RGBColor.from_string("111827")
+        style.font.color.rgb = RGBColor.from_string("000000")
         style.paragraph_format.space_before = Pt(10 if level == 1 else 7)
         style.paragraph_format.space_after = Pt(5)
         style.paragraph_format.keep_with_next = True
@@ -217,7 +233,7 @@ def set_header_footer(document: Document, document_title: str) -> None:
     set_cell_width(footer_table.cell(0, 0), 3.6)
     set_cell_width(footer_table.cell(0, 1), 3.25)
     p_left = footer_table.cell(0, 0).paragraphs[0]
-    p_left.add_run("Versão do documento: 1.0")
+    p_left.add_run("Versão 2.0 | Revisão técnica 05/09/2026")
     p_right = footer_table.cell(0, 1).paragraphs[0]
     p_right.alignment = WD_ALIGN_PARAGRAPH.RIGHT
     p_right.add_run("Página ")
@@ -234,13 +250,13 @@ def set_header_footer(document: Document, document_title: str) -> None:
 def add_cover(document: Document, subtitle: str) -> None:
     for _ in range(7):
         document.add_paragraph()
-    title = document.add_paragraph()
+    title = document.add_paragraph(style="Title")
     title.alignment = WD_ALIGN_PARAGRAPH.CENTER
     run = title.add_run("Stacklyst")
     run.bold = True
     run.font.name = "Arial"
     run.font.size = Pt(30)
-    run.font.color.rgb = RGBColor.from_string(BLUE)
+    run.font.color.rgb = RGBColor.from_string("000000")
     title.paragraph_format.space_after = Pt(14)
     sub = document.add_paragraph()
     sub.alignment = WD_ALIGN_PARAGRAPH.CENTER
@@ -398,9 +414,12 @@ def new_from_template(key: str, title: str, subtitle: str) -> Document:
     source = TEMPLATES[key]
     target = FINAL_FILES[key]
     if not source.exists():
-        raise FileNotFoundError(f"Template convertido não encontrado: {source}")
+        source = target
+    if not source.exists():
+        raise FileNotFoundError(f"Template ou documento anterior não encontrado: {source}")
     OUTPUT.mkdir(parents=True, exist_ok=True)
-    shutil.copy2(source, target)
+    if source != target:
+        shutil.copy2(source, target)
     document = Document(target)
     clear_body(document)
     configure_styles(document)
@@ -563,7 +582,7 @@ def build_vision() -> None:
     add_note(document, "[ANOTAÇÃO — ORÇAMENTO A VALIDAR]", "Nenhum valor financeiro foi fornecido; todos os totais dependem de levantamento real e orientação acadêmica.", "yellow")
     add_table(document, ["Categoria", "Item", "Valor", "Observação"], [list(r) for r in budget], [1.1, 2.35, 1.45, 1.85], 7.0)
 
-    document.save(FINAL_FILES["vision"])
+    save_document(document, FINAL_FILES["vision"])
 
 
 ACTIVITIES = [
@@ -671,7 +690,7 @@ def build_activities() -> None:
     document.add_heading("2. Objetivo", level=1)
     document.add_paragraph(
         "Este documento identifica as principais atividades de negócio do Stacklyst, seus participantes, decisões, exceções e resultados. "
-        "Cada fluxo textual corresponde ao diagrama Mermaid apresentado na mesma subseção."
+        "Cada fluxo textual corresponde a um diagrama UML de atividades, com partições por responsável, ações, decisões e nós inicial e final."
     )
     document.add_heading("3. Atividades do Negócio", level=1)
     document.add_paragraph(
@@ -693,10 +712,7 @@ def build_activities() -> None:
         document.add_heading(f"3.{index}.2 Diagrama de Atividades", level=3)
         image = DIAGRAMS / "imagens" / f"{activity['diagram']}.png"
         add_figure(document, image, f"Figura {index} — {activity['id']} {activity['name']}.")
-        document.add_page_break()
-        document.add_heading(f"3.{index}.3 Código Mermaid", level=3)
-        source = (DIAGRAMS / "fontes" / "atividades" / f"{activity['diagram']}.mmd").read_text(encoding="utf-8")
-        add_code_block(document, source)
+        document.add_paragraph(f"Fonte editável: diagramas/fontes/atividades/{activity['diagram']}.puml")
         if index != len(ACTIVITIES):
             document.add_page_break()
 
@@ -707,8 +723,8 @@ def build_activities() -> None:
          a["evidence"]]
         for a in ACTIVITIES
     ], [2.1, 1.25, 3.4], 7.7)
-    add_note(document, "[ANOTAÇÃO — VALIDAR COM A PROFESSORA]", "Confirmar se os diagramas Mermaid podem ser aceitos como notação de apoio ao UML de atividades no formato exigido pela disciplina.", "yellow")
-    document.save(FINAL_FILES["activities"])
+    document.add_paragraph("As fontes PlantUML e as exportações PNG/SVG acompanham esta versão. Os arquivos Mermaid anteriores são históricos e não geram os diagramas deste documento.")
+    save_document(document, FINAL_FILES["activities"])
 
 
 def make_rf(
@@ -884,7 +900,11 @@ def add_requirement_table(document: Document, requirement: dict[str, str]) -> No
         ["Saídas", requirement["outputs"]],
         ["Restrições", requirement["constraints"]],
     ]
-    add_table(document, [f"{requirement['id']} — Especificação", "Conteúdo"], rows, [1.7, 5.05], 7.4)
+    add_table(document, [f"{requirement['id']} — Especificação", "Conteúdo"], rows, [1.7, 5.05], 8.5)
+    for row in document.tables[-1].rows[:-1]:
+        for cell in row.cells:
+            for paragraph in cell.paragraphs:
+                paragraph.paragraph_format.keep_with_next = True
 
 
 def build_requirements() -> None:
@@ -925,7 +945,7 @@ def build_requirements() -> None:
 
     document.add_heading("7. Matriz de relacionamento Requisitos Funcionais × Regras de Negócio", level=1)
     add_table(document, ["Requisito Funcional", "Regra(s) de Negócio Relacionada(s)"], [[f"{r['id']} — {r['name']}", r["rules"]] for r in all_requirements], [4.55, 2.2], 8)
-    document.save(FINAL_FILES["requirements"])
+    save_document(document, FINAL_FILES["requirements"])
 
 
 def make_uc(
@@ -1121,10 +1141,13 @@ TRACEABILITY = [
 
 
 def prototype_for(document: Document, prototype: str, use_case_id: str) -> None:
+    if use_case_id in {"UC028", "UC029"}:
+        document.add_paragraph("Sem tela própria: comportamento reutilizado pelo caso chamador; o resultado é apresentado no editor ou no feedback da atividade.")
+        return
     current_prototype = CURRENT_PROTOTYPES / prototype
     legacy_prototype = SCREENSHOTS / prototype
     if prototype.endswith(".png") and current_prototype.exists():
-        caption = f"Protótipo de interface relacionado ao {use_case_id} — captura atual da plataforma autenticada em 22/08/2026."
+        caption = f"Referência visual do {use_case_id} — captura de 22/08/2026; a especificação textual descreve a revisão de 05/09/2026."
         add_figure(document, current_prototype, caption, 6.2, 4.4)
     elif prototype.endswith(".png") and legacy_prototype.exists():
         add_figure(document, legacy_prototype, f"Protótipo de interface relacionado ao {use_case_id} — captura existente no repositório.", 6.2, 4.4)
@@ -1140,27 +1163,36 @@ def build_use_cases() -> None:
     )
     document.add_heading("3. Atores do Sistema", level=1)
     actor_rows = [
+        ["Visitante", "Ator humano", "Cadastra conta ou autentica-se antes de acessar os casos protegidos."],
         ["Usuário / Estudante / Desenvolvedor", "Ator humano", "Usa trilhas, lições, exercícios, desafios, comunidade, gamificação, eventos, vagas e notificações próprias."],
         ["Avaliador", "Ator humano especializado", "Analisa soluções que exigem avaliação humana após elegibilidade e aprovação administrativa."],
         ["Administrador", "Ator humano privilegiado", "Gerencia usuários, papéis, denúncias, avaliadores, eventos e configurações suportadas."],
-        ["Empresa / Recrutador", "Ator humano/organizacional", "Cadastra empresa, publica vagas/eventos e acessa somente informações permitidas."],
-        ["Serviço de IA", "Sistema externo/secundário", "Auxilia em orientação, geração de conteúdo e análise; não é autoridade final."],
+        ["Recrutador", "Ator humano especializado", "Publica vagas/eventos e gerencia candidaturas autorizadas. O cadastro de empresa é iniciado pelo usuário autenticado."],
+        ["Provedor de identidade", "Sistema externo", "Valida identidade e sessão via Supabase Auth."],
         ["Executor de código", "Sistema externo/secundário", "Executa código com limites e retorna saída/testes; sua indisponibilidade deve ser tratada."],
     ]
     add_table(document, ["Ator", "Natureza", "Permissões e responsabilidades"], actor_rows, [2.0, 1.25, 3.5], 8)
 
     document.add_heading("4. Diagrama de Casos de Uso", level=1)
-    add_figure(document, DIAGRAMS / "imagens" / "casos-de-uso-stacklyst.png", "Figura 1 — Diagrama completo de casos de uso do Stacklyst.", 6.55, 8.2)
-    document.add_page_break()
-    document.add_heading("4.1 Código PlantUML", level=2)
-    add_code_block(document, (DIAGRAMS / "fontes" / "casos-de-uso-stacklyst.puml").read_text(encoding="utf-8"))
+    document.add_paragraph("As quatro vistas abaixo organizam 29 casos de uso, incluindo dois comportamentos compartilhados de avaliação e execução. Uma associação representa participação, não ordem de execução. Autenticação é pré-condição dos casos protegidos. O panorama completo permanece disponível em SVG para consulta com zoom.")
+    document.add_paragraph("Avaliador, Administrador e Recrutador especializam Usuário autenticado; o triângulo vazado aponta para o ator geral. UC006 inclui obrigatoriamente UC028 Avaliar resposta. UC010 inclui UC029 Executar código e testes. UC029 estende UC028 no ponto avaliar código, sob a condição de atividade de programação. UC012 estende UC006 quando o estudante solicita ajuda permitida pelo modo. Nas dependências tracejadas, include aponta para o comportamento incluído e extend aponta para o caso base.")
+    for index, (slug, title) in enumerate([
+        ("casos-aprendizado", "Conta e aprendizado"),
+        ("casos-duelos", "Duelos e avaliação"),
+        ("casos-comunidade", "Comunidade e administração"),
+        ("casos-recrutamento", "Vagas e empresas"),
+    ], 1):
+        document.add_heading(f"4.{index} {title}", level=2)
+        add_figure(document, DIAGRAMS / "imagens" / f"{slug}.png", f"Figura {index} — {title}.", 6.55, 7.0)
+        document.add_paragraph(f"Fonte editável: diagramas/fontes/{slug}.puml")
+        document.add_page_break()
 
     document.add_heading("5. Especificação dos Casos de Uso", level=1)
     for index, use_case in enumerate(USE_CASES, 1):
         document.add_heading(f"5.{index} Caso de Uso {use_case['id']} — {use_case['name']}", level=2)
         add_labeled(document, "Descrição", str(use_case["description"]))
         add_labeled(document, "Tipo", str(use_case["type"]))
-        add_labeled(document, "Atores que iniciam", str(use_case["initiators"]))
+        add_labeled(document, "Ator iniciador ou caso chamador", str(use_case["initiators"]))
         add_labeled(document, "Atores secundários", str(use_case["secondary"]))
         add_labeled(document, "Pré-condições", str(use_case["preconditions"]))
         add_labeled(document, "Pós-condições", str(use_case["postconditions"]))
@@ -1181,8 +1213,7 @@ def build_use_cases() -> None:
     for text in [
         "Definir o recorte oficial do MVP e separar mobile, recomendação por IA e recrutamento analítico em fases.",
         "Resolver a divergência do matchmaking: código atual amplia para ±1.000 XP e depois qualquer usuário; a proposta inicial menciona faixa superior.",
-        "Definir resultado server-side quando convite ou desafio expirar e quando somente um participante enviar solução.",
-        "Definir fórmula de efeito do duelo no ranking, empate, abandono, fraude, anulação e recurso.",
+        "Avaliar regras de fraude, anulação e recurso; a resolução automática e a recompensa única do vencedor já possuem implementação.",
         "Definir campos públicos/privados, consentimento e auditoria do acesso de empresas aos indicadores.",
         "Definir critérios de publicação e revisão de exercícios/recomendações gerados por IA.",
         "Definir política de moderação, sanções, prazo de análise e recurso do usuário.",
@@ -1197,7 +1228,7 @@ def build_use_cases() -> None:
         "Confirmar técnicas de elicitação realmente utilizadas e os registros que comprovam sua realização.",
         "Definir métricas de desempenho, disponibilidade, acessibilidade, carga e navegadores suportados.",
         "Validar ações administrativas completas de conteúdo, eventos, auditoria e notificações aos envolvidos.",
-        "Revisar com a professora se Mermaid é aceito como representação dos diagramas de atividades.",
+        "Validar os requisitos acadêmicos usando as vistas UML e os identificadores rastreáveis desta revisão.",
     ]:
         add_note(document, "🟡 [VALIDAR]", text, "yellow")
     document.add_heading("6.3 🔵 Sugestões futuras", level=2)
@@ -1220,8 +1251,8 @@ def build_use_cases() -> None:
         ["Recuperação de acesso", "Planejado", "Nenhum fluxo completo localizado"],
         ["Trilhas/lições/exercícios", "Implementado", "src/app/trails; src/app/lesson; src/lib/lessons"],
         ["XP/níveis/conquistas", "Implementado com regras a validar", "src/services/xp.service.ts; src/lib/streak.ts"],
-        ["Ranking/divisões", "Parcial", "leaderboard implementado; divisões usadas no duelo; integração competitiva incompleta"],
-        ["Duelos/matchmaking", "Parcial", "convite e busca existem; fila temporal, expiração server-side e efeito no ranking pendentes"],
+        ["Ranking/faixas", "Implementado", "rewards.ts e language-xp.ts; XP decrescente, username e id crescentes; faixas de XP sem rating Elo"],
+        ["Duelos/matchmaking", "Implementado com limites", "arena PENDING, resolução e manutenção em src/lib/duels; precisão de expiração depende da execução da manutenção"],
         ["Avaliação humana", "Implementado", "evaluator applications, RBAC e DuelEvaluation"],
         ["IA educacional", "Parcial e opcional", "chat/análise existem; personalização persistente e recomendações não"],
         ["Comunidade", "Implementado", "feed, posts, respostas, reações, votos, favoritos, denúncias e mensagens"],
@@ -1235,7 +1266,19 @@ def build_use_cases() -> None:
     document.add_paragraph(
         "Conclusão da revisão: os quatro documentos usam os mesmos atores, identificadores e regras. Diferenças entre a proposta e o código foram tratadas como decisões/validações, sem transformar funcionalidade planejada em implementação concluída."
     )
-    document.save(FINAL_FILES["use_cases"])
+    document.add_heading("9. Modelos técnicos do aprendizado", level=1)
+    for index, (slug, title) in enumerate([
+        ("componentes-stacklyst", "Componentes e dependências"),
+        ("classes-aprendizado", "Classes e persistência"),
+        ("estados-aprendizado", "Estados derivados de progresso"),
+        ("sequencia-conclusao-licao", "Submissão e gravação transacional"),
+    ], 1):
+        document.add_heading(f"9.{index} {title}", level=2)
+        add_figure(document, DIAGRAMS / "imagens" / f"{slug}.png", f"Modelo UML — {title}.", 6.55, 7.0)
+        document.add_paragraph(f"Fonte editável: diagramas/fontes/{slug}.puml")
+        if index < 4:
+            document.add_page_break()
+    save_document(document, FINAL_FILES["use_cases"])
 
 
 def write_manifest() -> None:
@@ -1249,20 +1292,20 @@ def write_manifest() -> None:
         "project": "Stacklyst",
         "date": "[ANOTAÇÃO — DATA A DEFINIR]",
         "original_templates": [
-            {"path": str(path), "sha256": sha256(path), "preserved": True} for path in originals
+            {"path": str(path), "sha256": sha256(path) if path.exists() else None, "preserved": path.exists()} for path in originals
         ],
         "deliverables": [
             {"path": str(path.relative_to(REPO)), "sha256": sha256(path)} for path in FINAL_FILES.values()
         ],
-        "figjam": "https://www.figma.com/board/kCKbpkIxJiQHmcprLH3Tfd",
+        "revision": "2026-09-05",
+        "diagram_sources": [{"path": str(p.relative_to(REPO)), "sha256": sha256(p)} for p in sorted((DIAGRAMS / "fontes").rglob("*.puml"))],
     }
     (ROOT / "manifesto-de-integridade.json").write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
 
 def main() -> None:
-    for key, path in TEMPLATES.items():
-        if not path.exists():
-            raise FileNotFoundError(f"Cópia de trabalho do template {key} não encontrada: {path}")
+    from current_baseline import apply_current_baseline
+    apply_current_baseline(globals())
     build_vision()
     build_activities()
     build_requirements()

@@ -184,7 +184,7 @@ export async function evaluateExerciseCode(input: {
 
   return {
     ok: true,
-    passed: passedTests === tests.length,
+    passed: tests.length > 0 && passedTests === tests.length,
     passedTests,
     totalTests: tests.length,
     tests,

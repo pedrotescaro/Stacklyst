@@ -1,0 +1,31 @@
+@startuml
+title AN09 Executar operação administrativa
+skinparam monochrome true
+skinparam shadowing false
+|Administrador|
+start
+:Abrir painel e selecionar operação;
+|Stacklyst|
+:Validar sessão e papel ADMIN;
+if (Autorizado?) then (não)
+  :Responder acesso negado;
+  stop
+endif
+:Carregar recurso selecionado;
+|Administrador|
+:Enviar alteração de papel, decisão\nde denúncia ou candidatura de avaliador;
+|Stacklyst|
+:Validar contrato e estado do recurso;
+if (Operação válida?) then (sim)
+  :Executar operação do serviço correspondente;
+  :Retornar estado atualizado;
+else (não)
+  :Informar conflito ou dados inválidos;
+endif
+stop
+note right
+  Não presume um log universal de auditoria.
+  A rastreabilidade depende dos registros
+  que cada serviço efetivamente persiste.
+end note
+@enduml
