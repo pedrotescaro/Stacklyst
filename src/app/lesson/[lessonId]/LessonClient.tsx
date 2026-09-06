@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import type { Lesson, LessonSessionState, OrderItem } from '@/lib/lessons/types';
@@ -19,23 +19,12 @@ import { DebugStep } from '@/components/lesson/renderers/DebugStep';
 import { OutputPredictionStep } from '@/components/lesson/renderers/OutputPredictionStep';
 import { TerminalStep } from '@/components/lesson/renderers/TerminalStep';
 import { CodeBlockBuilderStep } from '@/components/lesson/renderers/CodeBlockBuilderStep';
-import { parseTrailLessonId } from '@/app/trails/trailCurriculum';
 import { rememberTrailMascotReturn } from '@/app/trails/trailMascotProgress';
-
-import {
-  evaluateMultipleChoice,
-  evaluateCodeCompletion,
-  evaluateOrdering,
-  evaluateMatching,
-  evaluateTerminal,
-  evaluateCodeEditor,
-  evaluateBlockBuilder,
-  type EvaluationOutcome,
-} from '@/lib/lessons/evaluators';
 
 interface LessonClientProps {
   lesson: Lesson;
   returnTo?: string;
+  completedStepIds?: string[];
   user: {
     id: string;
     username: string;
@@ -44,7 +33,7 @@ interface LessonClientProps {
   };
 }
 
-export function LessonClient({ lesson, returnTo }: LessonClientProps) {
+export function LessonClient({ lesson, returnTo, completedStepIds = [] }: LessonClientProps) {
   const router = useRouter();
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -56,7 +45,10 @@ export function LessonClient({ lesson, returnTo }: LessonClientProps) {
 
   // Estado da Sessão da Lição
   const [sessionState, setSessionState] = useState<LessonSessionState>({
-    currentStepIndex: 0,
+    currentStepIndex: Math.max(
+      0,
+      lesson.steps.findIndex((step) => !completedStepIds.includes(step.id))
+    ),
     lives: 5,
     maxLives: 5,
     earnedXp: 0,
@@ -174,188 +166,111 @@ export function LessonClient({ lesson, returnTo }: LessonClientProps) {
     selectedTokenIndices,
   ]);
 
-  // Executa código no editor
+  const [savedComplete, setSavedComplete] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  async function sendAnswer(action: 'run' | 'submit') {
+    const response = await fetch(`/api/lessons/${encodeURIComponent(lesson.id)}/attempt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        stepId: currentStep.id,
+        action,
+        selectedOption,
+        code: editorCode,
+        blanks: blankValues,
+        order: currentOrder.map((item) => item.id),
+        pairs: matchedPairs,
+        command: terminalCommand,
+        tokens: selectedTokenIndices.map((i) => currentStep.blockTokens?.[i] ?? ''),
+      }),
+    });
+    const data = await response.json();
+    if (!response.ok)
+      throw new Error(
+        typeof data.message === 'string'
+          ? data.message
+          : (data.error?.message ?? 'Não foi possível salvar. Tente novamente.')
+      );
+    return data as {
+      isCorrect: boolean;
+      message: string;
+      details?: string;
+      output?: string;
+      xpEarned: number;
+      lessonCompleted?: boolean;
+    };
+  }
+
   const handleRunCode = async () => {
     if (!currentStep || isRunningCode) return;
     setIsRunningCode(true);
-    setRunOutput(null);
     setRunError(null);
-
     try {
-      const outcome = await evaluateCodeEditor(
-        editorCode,
-        lesson.language,
-        currentStep.checkCode,
-        currentStep.expectedOutput
-      );
-
-      setRunOutput(outcome.output || (outcome.isCorrect ? '✓ Testes executados com sucesso' : ''));
-      if (!outcome.isCorrect && outcome.details) {
-        setRunError(outcome.details);
-      }
-    } catch (err: any) {
-      setRunError(err.message || 'Erro ao executar o código.');
+      const result = await sendAnswer('run');
+      setRunOutput(result.output ?? '');
+      if (!result.isCorrect) setRunError(result.details ?? result.message);
+    } catch (error) {
+      setRunError(error instanceof Error ? error.message : 'Falha na execução.');
     } finally {
       setIsRunningCode(false);
     }
   };
 
-  // Envia a pontuação de XP para a API do Stacklyst
-  const persistProgress = useCallback(async () => {
-    if (!currentStep) return;
-
-    try {
-      // Usa o endpoint de quiz / attempt para conceder XP e atualizar streak & trails
-      const response = await fetch(`/api/quiz/${currentStep.id}/attempt`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          selected_index: selectedOption ?? currentStep.correctOptionIndex ?? 0,
-        }),
-      });
-      if (!response.ok) throw new Error('Não foi possível salvar o progresso da atividade.');
-    } catch (e) {
-      console.warn('Could not persist attempt', e);
-    }
-  }, [currentStep, selectedOption]);
-
-  // Processa a verificação da resposta
   const handleVerify = async () => {
     if (!currentStep || isVerifying) return;
     setIsVerifying(true);
-
-    let outcome: EvaluationOutcome = { isCorrect: false };
-
-    switch (currentStep.type) {
-      case 'concept_explanation':
-        outcome = { isCorrect: true, message: 'Conceito compreendido!' };
-        break;
-
-      case 'multiple_choice':
-      case 'output_prediction':
-        outcome = evaluateMultipleChoice(selectedOption, currentStep.correctOptionIndex ?? 0);
-        break;
-
-      case 'code_completion':
-        outcome = evaluateCodeCompletion(blankValues, currentStep.blanks || []);
-        break;
-
-      case 'ordering':
-        outcome = evaluateOrdering(currentOrder);
-        break;
-
-      case 'drag_drop': {
-        const tokens = currentStep.blockTokens || [];
-        const selectedTokens = selectedTokenIndices.map((i) => tokens[i]);
-        outcome = evaluateBlockBuilder(selectedTokens, currentStep.expectedBlockTokens || []);
-        break;
+    setSaveError(null);
+    try {
+      const result = await sendAnswer('submit');
+      setAnswered(true);
+      setIsCorrect(result.isCorrect);
+      setFeedbackMessage(result.message);
+      setFeedbackDetails(result.details);
+      setSavedComplete(Boolean(result.lessonCompleted));
+      if (result.isCorrect && currentStep.type !== 'concept_explanation') {
+        playSound('quiz_correct');
+        setSessionState((prev) => ({
+          ...prev,
+          earnedXp: prev.earnedXp + result.xpEarned,
+          combo: prev.combo + 1,
+          maxCombo: Math.max(prev.maxCombo, prev.combo + 1),
+          correctAnswersCount: prev.correctAnswersCount + 1,
+        }));
+      } else if (!result.isCorrect) {
+        playSound('quiz_incorrect');
+        setSessionState((prev) => ({
+          ...prev,
+          combo: 0,
+          wrongAnswersCount: prev.wrongAnswersCount + 1,
+        }));
       }
-
-      case 'matching':
-        outcome = evaluateMatching(matchedPairs, currentStep.matchingPairs || []);
-        break;
-
-      case 'terminal':
-        outcome = evaluateTerminal(terminalCommand, currentStep.terminalExpected);
-        break;
-
-      case 'code_editor':
-      case 'debug':
-      case 'boss_challenge':
-        outcome = await evaluateCodeEditor(
-          editorCode,
-          lesson.language,
-          currentStep.checkCode,
-          currentStep.expectedOutput
-        );
-        break;
-    }
-
-    setAnswered(true);
-    setIsCorrect(outcome.isCorrect);
-    setFeedbackMessage(outcome.message || (outcome.isCorrect ? 'Resposta correta!' : 'Incorreto.'));
-    setFeedbackDetails(
-      outcome.details || (outcome.isCorrect ? undefined : currentStep.explanation)
-    );
-
-    if (outcome.isCorrect) {
-      playSound('quiz_correct');
-      const newCombo = sessionState.combo + 1;
-      const bonusXp = Math.floor(newCombo * 1.5);
-      const stepXp = currentStep.xp + bonusXp;
-
-      setSessionState((prev) => ({
-        ...prev,
-        earnedXp: prev.earnedXp + stepXp,
-        combo: newCombo,
-        maxCombo: Math.max(prev.maxCombo, newCombo),
-        correctAnswersCount: prev.correctAnswersCount + 1,
-      }));
-
-      await persistProgress();
-    } else {
-      playSound('quiz_incorrect');
-      setSessionState((prev) => ({
-        ...prev,
-        lives: Math.max(0, prev.lives - 1),
-        combo: 0,
-        wrongAnswersCount: prev.wrongAnswersCount + 1,
-      }));
-
-      if (currentStep.type === 'multiple_choice' || currentStep.type === 'output_prediction') {
-        await persistProgress();
-      }
-    }
-
-    setIsVerifying(false);
-  };
-
-  // Avança para a próxima etapa ou conclui a lição
-  const handleContinue = async () => {
-    if (currentStep?.type === 'concept_explanation' && !answered) {
-      setIsVerifying(true);
-      const newCombo = sessionState.combo + 1;
-      const bonusXp = Math.floor(newCombo * 1.5);
-      const stepXp = currentStep.xp + bonusXp;
-      setSessionState((prev) => ({
-        ...prev,
-        earnedXp: prev.earnedXp + stepXp,
-        combo: newCombo,
-        maxCombo: Math.max(prev.maxCombo, newCombo),
-        correctAnswersCount: prev.correctAnswersCount + 1,
-      }));
-      await persistProgress();
+      return result;
+    } catch (error) {
+      setSaveError(
+        error instanceof Error ? error.message : 'Não foi possível salvar. Tente novamente.'
+      );
+      return undefined;
+    } finally {
       setIsVerifying(false);
     }
+  };
 
+  const handleContinue = async () => {
+    let complete = savedComplete;
+    if (currentStep?.type === 'concept_explanation' && !answered) {
+      const result = await handleVerify();
+      if (!result?.isCorrect) return;
+      complete = Boolean(result.lessonCompleted);
+    } else if (!isCorrect) return;
     if (sessionState.currentStepIndex + 1 < lesson.steps.length) {
-      setSessionState((prev) => ({
-        ...prev,
-        currentStepIndex: prev.currentStepIndex + 1,
-      }));
-    } else {
+      setSessionState((prev) => ({ ...prev, currentStepIndex: prev.currentStepIndex + 1 }));
+    } else if (complete) {
       playSound('lesson_completed');
-      try {
-        const saved = JSON.parse(localStorage.getItem('stacklyst-completed-lessons') || '[]');
-        if (Array.isArray(saved)) {
-          if (!saved.includes(lesson.id)) saved.push(lesson.id);
-          if (!parseTrailLessonId(lesson.id)) {
-            if (
-              lesson.levelNumber &&
-              !saved.includes(`${lesson.language.toLowerCase()}-l${lesson.levelNumber}`)
-            ) {
-              saved.push(`${lesson.language.toLowerCase()}-l${lesson.levelNumber}`);
-            }
-            if (lesson.title && !saved.includes(lesson.title)) {
-              saved.push(lesson.title);
-            }
-          }
-          localStorage.setItem('stacklyst-completed-lessons', JSON.stringify(saved));
-        }
-      } catch {
-        // ignore
-      }
       setIsCompleted(true);
+      router.refresh();
+    } else {
+      setSaveError('Há exercícios pendentes nesta lição. Reabra a lição para retomá-los.');
     }
   };
 
@@ -413,12 +328,40 @@ export function LessonClient({ lesson, returnTo }: LessonClientProps) {
       <main className="flex-1 flex items-center justify-center px-4 py-8 md:py-12 w-full max-w-4xl mx-auto">
         {currentStep && (
           <div className="w-full">
+            {lesson.project && currentStep.type === 'concept_explanation' && (
+              <section
+                className="mx-auto mb-8 max-w-2xl border-b border-dd-border pb-6"
+                aria-label="Plano do projeto"
+              >
+                <h2 className="text-xl font-bold text-dd-text">Seu projeto</h2>
+                <p className="mt-2 text-dd-muted">{lesson.project.objective}</p>
+                <h3 className="mt-4 font-semibold text-dd-text">Requisitos</h3>
+                <ul className="mt-2 list-disc space-y-2 pl-5 text-dd-muted">
+                  {lesson.project.requirements.map((text) => (
+                    <li key={text}>{text}</li>
+                  ))}
+                </ul>
+                <h3 className="mt-4 font-semibold text-dd-text">Etapas</h3>
+                <ol className="mt-2 list-decimal space-y-2 pl-5 text-dd-muted">
+                  {lesson.project.stages.map((text) => (
+                    <li key={text}>{text}</li>
+                  ))}
+                </ol>
+                <h3 className="mt-4 font-semibold text-dd-text">Critérios de conclusão</h3>
+                <ul className="mt-2 list-disc space-y-2 pl-5 text-dd-muted">
+                  {lesson.project.completion.map((text) => (
+                    <li key={text}>{text}</li>
+                  ))}
+                </ul>
+              </section>
+            )}
             {currentStep.type === 'concept_explanation' && (
               <ConceptStep step={currentStep} language={lesson.language} />
             )}
 
             {currentStep.type === 'multiple_choice' && (
               <MultipleChoiceStep
+                answerCorrect={isCorrect}
                 step={currentStep}
                 selectedOption={selectedOption}
                 onSelectOption={setSelectedOption}
@@ -465,6 +408,7 @@ export function LessonClient({ lesson, returnTo }: LessonClientProps) {
 
             {currentStep.type === 'output_prediction' && (
               <OutputPredictionStep
+                answerCorrect={isCorrect}
                 step={currentStep}
                 selectedOption={selectedOption}
                 onSelectOption={setSelectedOption}
@@ -515,6 +459,14 @@ export function LessonClient({ lesson, returnTo }: LessonClientProps) {
       </main>
 
       {/* Footer de Ação & Feedback */}
+      {saveError && (
+        <p
+          role="alert"
+          className="fixed bottom-32 left-1/2 z-50 w-[min(90vw,40rem)] -translate-x-1/2 rounded-xl border border-red-500 bg-dd-bg p-4 text-sm text-red-400"
+        >
+          {saveError}
+        </p>
+      )}
       <LessonFooter
         isConceptOnly={currentStep?.type === 'concept_explanation'}
         answered={answered}

@@ -4,6 +4,10 @@ import { getExerciseWorkspaceForUser } from '@/lib/exercises/repository';
 import { getLessonById } from '@/lib/lessons/registry';
 import { ExerciseWorkspace } from './ExerciseWorkspace';
 import { LessonClient } from './LessonClient';
+import { publicLesson } from '@/lib/learning/assessment';
+import { getLessonProgress, requireLessonAccess } from '@/lib/learning/lesson-progress';
+import { AppError } from '@/lib/errors';
+import Link from 'next/link';
 
 interface LessonPageProps {
   params: Promise<{ lessonId: string }>;
@@ -55,9 +59,25 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
   if (!isExplicitWorkspace) {
     const lesson = getLessonById(lessonId);
     if (lesson) {
+      try {
+        await requireLessonAccess(user.id, lesson);
+      } catch (error) {
+        if (!(error instanceof AppError) || error.code !== 'LESSON_LOCKED') throw error;
+        return (
+          <main className="mx-auto max-w-xl p-8 text-dd-text">
+            <h1 className="text-2xl font-bold">Prepare o próximo passo</h1>
+            <p className="my-4">{error.message}</p>
+            <Link href={returnTo ?? '/trails'} className="dd-focus-ring text-blue-500">
+              Voltar à trilha
+            </Link>
+          </main>
+        );
+      }
+      const completedStepIds = await getLessonProgress(user.id, lesson);
       return (
         <LessonClient
-          lesson={lesson}
+          lesson={publicLesson(lesson)}
+          completedStepIds={completedStepIds}
           returnTo={returnTo}
           user={{
             id: user.id,
@@ -92,7 +112,7 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
   if (lessonFallback) {
     return (
       <LessonClient
-        lesson={lessonFallback}
+        lesson={publicLesson(lessonFallback)}
         returnTo={returnTo}
         user={{
           id: user.id,

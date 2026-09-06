@@ -11,6 +11,7 @@ interface MultipleChoiceStepProps {
   onSelectOption: (index: number) => void;
   disabled?: boolean;
   answered?: boolean;
+  answerCorrect?: boolean;
 }
 
 export function MultipleChoiceStep({
@@ -19,6 +20,7 @@ export function MultipleChoiceStep({
   onSelectOption,
   disabled = false,
   answered = false,
+  answerCorrect = false,
 }: MultipleChoiceStepProps) {
   const options = step.options || [];
   const { speak, isSpeaking } = useTextToSpeech();
@@ -78,8 +80,8 @@ export function MultipleChoiceStep({
       <div className="grid grid-cols-1 gap-3.5 pt-1">
         {options.map((option, index) => {
           const isSelected = selectedOption === index;
-          const isCorrect = answered && index === step.correctOptionIndex;
-          const isWrong = answered && isSelected && index !== step.correctOptionIndex;
+          const isCorrect = answered && isSelected && answerCorrect;
+          const isWrong = answered && isSelected && !answerCorrect;
 
           let btnClasses =
             'group relative flex items-center justify-between rounded-2xl border-2 border-b-4 p-4 text-left font-bold text-sm md:text-base transition-all duration-100 cursor-pointer active:translate-y-[2px] active:border-b-2 ';
@@ -120,7 +122,7 @@ export function MultipleChoiceStep({
                 >
                   {index + 1}
                 </span>
-                <span className="truncate">{option}</span>
+                <span className="whitespace-pre-wrap break-words">{option}</span>
               </div>
 
               {isSelected && (
