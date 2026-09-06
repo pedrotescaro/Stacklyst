@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Language } from '@prisma/client';
+import { calculateLevel, XP_RANK_ORDER } from '@/lib/learning/rewards';
+import { getLanguageLeaderboard } from '@/lib/learning/language-xp';
 
 export async function GET(request: Request) {
   try {
@@ -8,35 +10,24 @@ export async function GET(request: Request) {
     const language = searchParams.get('language');
 
     if (language) {
+      if (!Object.values(Language).includes(language as Language))
+        return NextResponse.json({ error: 'Linguagem inválida' }, { status: 400 });
       // Leaderboard filtrado por linguagem
-      const leaders = await prisma.languageTrail.findMany({
-        where: { language: language as Language },
-        orderBy: { xp: 'desc' },
-        take: 10,
-        include: {
-          user: {
-            select: {
-              username: true,
-              avatar_url: true,
-              total_xp: true,
-            },
-          },
-        },
-      });
+      const leaders = await getLanguageLeaderboard(language as Language);
 
       const formatted = leaders.map((leader, index) => ({
         rank: index + 1,
-        username: leader.user.username,
-        avatar_url: leader.user.avatar_url,
+        username: leader.username,
+        avatar_url: leader.avatar_url,
         xp: leader.xp,
-        level: leader.level,
+        level: calculateLevel(leader.xp).level,
       }));
 
       return NextResponse.json(formatted);
     } else {
       // Leaderboard global baseado no total_xp do usuário
       const leaders = await prisma.user.findMany({
-        orderBy: { total_xp: 'desc' },
+        orderBy: XP_RANK_ORDER,
         take: 10,
         select: {
           username: true,
@@ -50,7 +41,7 @@ export async function GET(request: Request) {
         username: leader.username,
         avatar_url: leader.avatar_url,
         xp: leader.total_xp,
-        level: Math.max(1, Math.floor(leader.total_xp / 1000) + 1), // Nível global dinâmico
+        level: calculateLevel(leader.total_xp).level,
       }));
 
       return NextResponse.json(formatted);

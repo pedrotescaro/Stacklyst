@@ -3,6 +3,7 @@ import { logger } from '@/lib/logger';
 import { Language } from '@prisma/client';
 import { getRandomDuelProblem } from '@/lib/duel-problems';
 import { NotificationService } from './notification.service';
+import { getXpBand } from '@/lib/learning/rewards';
 
 export const MAX_DUEL_REJECTIONS = 3;
 export const DUEL_COOLDOWN_MINUTES = 5;
@@ -13,11 +14,8 @@ export function getUserRankTier(totalXp: number): {
   level: number;
   label: string;
 } {
-  if (totalXp >= 5000) return { tier: 'DIAMOND', level: 5, label: 'Diamante' };
-  if (totalXp >= 2500) return { tier: 'PLATINUM', level: 4, label: 'Platina' };
-  if (totalXp >= 1200) return { tier: 'GOLD', level: 3, label: 'Ouro' };
-  if (totalXp >= 500) return { tier: 'SILVER', level: 2, label: 'Prata' };
-  return { tier: 'BRONZE', level: 1, label: 'Bronze' };
+  const { tier, level, label } = getXpBand(totalXp);
+  return { tier, level, label };
 }
 
 export const DuelService = {

@@ -1,274 +1,36 @@
 import { prisma } from '@/lib/prisma';
 import { Language } from '@prisma/client';
-import { logger } from '@/lib/logger';
+import { awardXP } from '@/lib/xp';
+import { calculateLevel } from '@/lib/learning/rewards';
 import { NotificationService } from './notification.service';
-import { calculateNextStreak } from '@/lib/streak';
-import {
-  XP_LEVEL_THRESHOLDS,
-  XP_LEVEL_6_BASE,
-  XP_LEVEL_6_INCREMENT,
-  XP_LEVEL_INCREMENT_GROWTH,
-  BADGE_STREAK_7_DAYS,
-  BADGE_STREAK_30_DAYS,
-  BADGE_ACCEPTED_ANSWERS,
-  BADGE_QUIZ_MASTER_CORRECT,
-} from '@/lib/config';
+import { logger } from '@/lib/logger';
+export { calculateLevel } from '@/lib/learning/rewards';
 
-export function calculateLevel(xp: number): {
-  level: number;
-  nextLevelXp: number;
-  prevLevelXp: number;
-} {
-  for (const threshold of XP_LEVEL_THRESHOLDS) {
-    if (xp < threshold.nextLevelXp) {
-      return {
-        level: threshold.level,
-        nextLevelXp: threshold.nextLevelXp,
-        prevLevelXp: threshold.minXp,
-      };
-    }
-  }
-
-  let level = 6;
-  let currentThreshold = XP_LEVEL_6_BASE;
-  let nextIncrement = XP_LEVEL_6_INCREMENT;
-
-  while (xp >= currentThreshold + nextIncrement) {
-    currentThreshold += nextIncrement;
-    level++;
-    nextIncrement += XP_LEVEL_INCREMENT_GROWTH;
-  }
-
-  return {
-    level,
-    nextLevelXp: currentThreshold + nextIncrement,
-    prevLevelXp: currentThreshold,
-  };
-}
-
+// All consumers share one atomic XP calculation and persistence path.
 export const XpService = {
   async awardXP(userId: string, language: Language | null | undefined, amount: number) {
-    const userBefore = await prisma.user.findUnique({
+    const before = await prisma.user.findUnique({
       where: { id: userId },
-      select: { total_xp: true, streak_days: true, last_active_at: true },
+      select: { total_xp: true },
     });
-    const oldUserLevel = calculateLevel(userBefore?.total_xp ?? 0).level;
-
-    if (!language) {
-      const now = new Date();
-      const newStreakDays = calculateNextStreak(
-        userBefore?.streak_days ?? 0,
-        userBefore?.last_active_at,
-        now
-      );
-
-      const updatedUser = await prisma.user.update({
-        where: { id: userId },
-        data: {
-          total_xp: {
-            increment: amount,
-          },
-          streak_days: newStreakDays,
-          last_active_at: now,
-        },
-      });
-
-      const newUserLevel = calculateLevel(updatedUser.total_xp).level;
-      if (newUserLevel > oldUserLevel) {
-        try {
-          await NotificationService.create({
-            userId,
-            type: 'LEVEL_UP',
-            title: `Subiu de Nível! 🎉`,
-            content: `Parabéns! Você alcançou o nível ${newUserLevel} no Stacklyst!`,
-            link: `/profile`,
-          });
-          logger.info('Level up notification triggered', {
-            userId,
-            oldLevel: oldUserLevel,
-            newLevel: newUserLevel,
-          });
-        } catch (err) {
-          logger.error('Failed to create level up notification', { error: String(err) });
-        }
+    const result = await awardXP(userId, language, amount);
+    const after = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { total_xp: true },
+    });
+    if (calculateLevel(after?.total_xp ?? 0).level > calculateLevel(before?.total_xp ?? 0).level) {
+      try {
+        await NotificationService.create({
+          userId,
+          type: 'LEVEL_UP',
+          title: 'Subiu de nível!',
+          content: 'Sua prática avançou mais um nível.',
+          link: '/profile',
+        });
+      } catch (error) {
+        logger.error('Failed to notify level up', { error: String(error) });
       }
-
-      logger.info('XP awarded generally', { userId, amount, totalXp: updatedUser.total_xp });
-
-      return {
-        xpEarned: amount,
-        language: null,
-        newXp: updatedUser.total_xp,
-        newLevel: newUserLevel,
-        newStreak: newStreakDays,
-      };
     }
-
-    return await prisma.$transaction(async (tx) => {
-      // Fetch user stats inside transaction to be safe and accurate
-      const user = await tx.user.findUnique({
-        where: { id: userId },
-        select: { streak_days: true, last_active_at: true },
-      });
-
-      const now = new Date();
-      const newStreakDays = calculateNextStreak(user?.streak_days ?? 0, user?.last_active_at, now);
-
-      // 1. Update user total XP, streak_days, last_active_at
-      const updatedUser = await tx.user.update({
-        where: { id: userId },
-        data: {
-          total_xp: {
-            increment: amount,
-          },
-          streak_days: newStreakDays,
-          last_active_at: now,
-        },
-      });
-
-      // 2. Fetch or create language trail
-      const trail = await tx.languageTrail.findUnique({
-        where: {
-          user_id_language: { user_id: userId, language },
-        },
-      });
-
-      let newXp = amount;
-      let newLevel = 1;
-      let newStreak = 1;
-      let oldTrailLevel = 0;
-
-      if (trail) {
-        oldTrailLevel = trail.level;
-        newXp = trail.xp + amount;
-        newLevel = calculateLevel(newXp).level;
-
-        newStreak = calculateNextStreak(trail.streak, trail.last_activity_at, now);
-
-        await tx.languageTrail.update({
-          where: { id: trail.id },
-          data: {
-            xp: newXp,
-            level: newLevel,
-            streak: newStreak,
-            last_activity_at: now,
-          },
-        });
-      } else {
-        newLevel = calculateLevel(newXp).level;
-        await tx.languageTrail.create({
-          data: {
-            user_id: userId,
-            language,
-            xp: newXp,
-            level: newLevel,
-            streak: newStreak,
-            last_activity_at: now,
-          },
-        });
-      }
-
-      // Check badge eligibility using the higher of the streaks (trail vs global user streak)
-      await checkBadgeEligibility(tx, userId, Math.max(newStreak, newStreakDays));
-
-      // Trigger notifications for level ups
-      const newUserLevel = calculateLevel(updatedUser.total_xp).level;
-      if (newUserLevel > oldUserLevel) {
-        await tx.notification.create({
-          data: {
-            userId,
-            type: 'LEVEL_UP',
-            read: false,
-            createdAt: now,
-          },
-        });
-      }
-
-      if (trail && newLevel > oldTrailLevel) {
-        await tx.notification.create({
-          data: {
-            userId,
-            type: 'XP_MILESTONE',
-            read: false,
-            createdAt: now,
-          },
-        });
-      }
-
-      logger.info('XP awarded for language trail', {
-        userId,
-        language,
-        amount,
-        trailXp: newXp,
-        trailLevel: newLevel,
-        streak: newStreak,
-      });
-
-      return {
-        xpEarned: amount,
-        language,
-        newXp,
-        newLevel,
-        newStreak,
-      };
-    });
+    return result;
   },
 };
-
-async function checkBadgeEligibility(tx: any, userId: string, currentStreak: number) {
-  const userBadges = await tx.userBadge.findMany({
-    where: { user_id: userId },
-    include: { badge: true },
-  });
-
-  const earnedSlugs = new Set<string>(userBadges.map((ub: any) => ub.badge.slug));
-  const badgesToAward: string[] = [];
-
-  if (currentStreak >= BADGE_STREAK_7_DAYS && !earnedSlugs.has('streak_7')) {
-    badgesToAward.push('streak_7');
-  }
-  if (currentStreak >= BADGE_STREAK_30_DAYS && !earnedSlugs.has('streak_30')) {
-    badgesToAward.push('streak_30');
-  }
-
-  if (!earnedSlugs.has('first_answer')) {
-    const answerCount = await tx.answer.count({
-      where: { author_id: userId },
-    });
-    if (answerCount > 0) {
-      badgesToAward.push('first_answer');
-    }
-  }
-
-  if (!earnedSlugs.has('accepted_5')) {
-    const acceptedCount = await tx.answer.count({
-      where: { author_id: userId, is_accepted: true },
-    });
-    if (acceptedCount >= BADGE_ACCEPTED_ANSWERS) {
-      badgesToAward.push('accepted_5');
-    }
-  }
-
-  if (!earnedSlugs.has('quiz_master')) {
-    const correctAttempts = await tx.quizAttempt.count({
-      where: { user_id: userId, is_correct: true },
-    });
-    if (correctAttempts >= BADGE_QUIZ_MASTER_CORRECT) {
-      badgesToAward.push('quiz_master');
-    }
-  }
-
-  for (const slug of badgesToAward) {
-    const badge = await tx.badge.findUnique({
-      where: { slug },
-    });
-    if (badge) {
-      await tx.userBadge.create({
-        data: {
-          user_id: userId,
-          badge_id: badge.id,
-        },
-      });
-    }
-  }
-}

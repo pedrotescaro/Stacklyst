@@ -4,7 +4,11 @@ import { apiHandler } from '@/lib/api-handler';
 import { RATE_LIMIT_CODE_RUN } from '@/lib/config';
 import { NotFoundError, UnauthorizedError } from '@/lib/errors';
 import { evaluateExerciseCode } from '@/lib/exercises/evaluator';
-import { getExerciseForEvaluation, recordExerciseSubmission } from '@/lib/exercises/repository';
+import {
+  getExerciseForEvaluation,
+  recordExerciseSubmission,
+  requireExerciseAccess,
+} from '@/lib/exercises/repository';
 import { rateLimit } from '@/lib/ratelimit';
 
 const submissionSchema = z.object({
@@ -27,6 +31,7 @@ export const POST = apiHandler(async (request, { session, params }) => {
 
   const exercise = await getExerciseForEvaluation(exerciseId, true);
   if (!exercise) throw new NotFoundError('EXERCISE_NOT_FOUND', 'Exercício não encontrado.');
+  await requireExerciseAccess(session.id, exercise.knowledge_node_id);
 
   const evaluation = await evaluateExerciseCode({
     code,

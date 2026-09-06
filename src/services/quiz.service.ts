@@ -1,11 +1,12 @@
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { XpService } from './xp.service';
+import { saveLessonAssessment, requireLessonAccess } from '@/lib/learning/lesson-progress';
+import { LEARNING_LESSONS } from '@/lib/learning/catalog';
+import { AppError } from '@/lib/errors';
+import type { Lesson, LessonStep } from '@/lib/lessons/types';
 import { findTrailQuestionById } from '@/lib/trailsData';
-import { NotificationService } from './notification.service';
 import { FALLBACK_QUIZZES, XP_QUIZ_CORRECT } from '@/lib/config';
 import { findCurriculumLessonStepById } from '@/lib/lessons/registry';
-import { parseTrailLessonStepId } from '@/app/trails/trailCurriculum';
 
 type QuizContent = {
   question: string;
@@ -78,136 +79,69 @@ export const QuizService = {
   },
 
   async validateQuizAnswer(userId: string, quizId: string, selectedIndex: number) {
-    const trailInfo = findTrailQuestionById(quizId);
-    const curriculumStep = findCurriculumLessonStepById(quizId);
-    const parsedCurriculumStep = parseTrailLessonStepId(quizId);
-    const correctAnswerXp =
-      parsedCurriculumStep?.kind === 'code'
-        ? (curriculumStep?.step.xp ?? XP_QUIZ_CORRECT)
-        : XP_QUIZ_CORRECT;
-    let quiz = await prisma.quiz.findUnique({
-      where: { id: quizId },
-      include: {
-        post: true,
-      },
-    });
-
-    let correctIndex = 0;
-    let language: string | null = null;
-
-    if (!quiz) {
-      if (!trailInfo && !curriculumStep) {
-        throw new Error('QUIZ_NOT_FOUND');
-      }
-
-      const curriculumQuestion = curriculumStep?.step.question ?? curriculumStep?.step.instruction;
-      const question =
-        trailInfo?.question.question ?? curriculumQuestion ?? curriculumStep?.step.title;
-      const options = trailInfo?.question.options ?? curriculumStep?.step.options ?? ['Concluído'];
-      const generatedCorrectIndex =
-        trailInfo?.question.correctIndex ?? curriculumStep?.step.correctOptionIndex ?? 0;
-
-      // Dynamically provision trail questions in the DB
-      quiz = await prisma.quiz.create({
-        data: {
-          id: quizId,
-          question: question!,
-          options,
-          correct_index: generatedCorrectIndex,
-          is_daily: false,
-        },
-        include: {
-          post: true,
-        },
-      });
-
-      correctIndex = generatedCorrectIndex;
-      language = trailInfo?.language ?? curriculumStep?.lesson.language ?? null;
-    } else {
-      correctIndex = quiz.correct_index;
-      language =
-        quiz.post?.language ?? trailInfo?.language ?? curriculumStep?.lesson.language ?? null;
+    const trail = findTrailQuestionById(quizId);
+    const curriculum = findCurriculumLessonStepById(quizId);
+    const learning = [...LEARNING_LESSONS.values()].find((l) =>
+      l.steps.some((s) => s.id === quizId)
+    );
+    if (curriculum && !['multiple_choice', 'output_prediction'].includes(curriculum.step.type)) {
+      throw new AppError(
+        'ASSESSMENT_REQUIRED',
+        'Envie a resposta completa pelo avaliador da lição.',
+        400
+      );
     }
-
-    const selectedAnswerIsCorrect = selectedIndex === correctIndex;
-    let isCorrect = selectedAnswerIsCorrect;
-
-    const existingAttempt = await prisma.quizAttempt.findUnique({
-      where: {
-        user_id_quiz_id: {
-          user_id: userId,
-          quiz_id: quiz.id,
-        },
-      },
-    });
-
-    let attempt;
-    let xpAmount = 0;
-    let xpResult = null;
-
-    if (existingAttempt) {
-      if (!existingAttempt.is_correct && selectedAnswerIsCorrect) {
-        xpAmount = correctAnswerXp;
-        attempt = await prisma.quizAttempt.update({
-          where: {
-            user_id_quiz_id: {
-              user_id: userId,
-              quiz_id: quiz.id,
-            },
-          },
-          data: {
-            selected_index: selectedIndex,
-            is_correct: true,
-            xp_earned: xpAmount,
-          },
-        });
-        isCorrect = true;
-        xpResult = await XpService.awardXP(userId, language as any, xpAmount);
-      } else {
-        attempt = existingAttempt;
-        isCorrect = existingAttempt.is_correct;
-      }
-    } else {
-      xpAmount = selectedAnswerIsCorrect ? correctAnswerXp : 0;
-      attempt = await prisma.quizAttempt.create({
-        data: {
-          user_id: userId,
-          quiz_id: quiz.id,
-          selected_index: selectedIndex,
-          is_correct: selectedAnswerIsCorrect,
-          xp_earned: xpAmount,
-        },
-      });
-      if (selectedAnswerIsCorrect) {
-        xpResult = await XpService.awardXP(userId, language as any, xpAmount);
-      }
+    const quiz = await prisma.quiz.findUnique({ where: { id: quizId }, include: { post: true } });
+    // Reward receipts are not answerable quizzes, even if a receipt exists in the legacy table.
+    if (
+      /^(trail-chest-|trail-jump-)|checkpoint/.test(quizId) ||
+      (quiz?.options && Array.isArray(quiz.options) && quiz.options.length < 2)
+    ) {
+      throw new AppError(
+        'ASSESSMENT_REQUIRED',
+        'Esta recompensa depende da conclusão das atividades.',
+        400
+      );
     }
-
-    if (xpAmount > 0) {
-      try {
-        await NotificationService.create({
-          userId,
-          type: 'QUIZ_CORRECT',
-          resourceId: quiz.id,
-          resourceType: 'QUIZ',
-        });
-      } catch (err) {
-        logger.error('Failed to dispatch quiz correct notification', { error: String(err) });
-      }
-    }
-
-    logger.info('Quiz answered', {
-      userId,
-      quizId: quiz.id,
-      isCorrect,
-      xpAwarded: xpAmount,
+    if (!quiz && !trail && !curriculum && !learning)
+      throw new AppError('QUIZ_NOT_FOUND', 'Quiz não encontrado.', 404);
+    const learnedStep = learning?.steps.find((s) => s.id === quizId);
+    const correctIndex =
+      learnedStep?.correctOptionIndex ??
+      trail?.question.correctIndex ??
+      curriculum?.step.correctOptionIndex ??
+      quiz!.correct_index;
+    const step: LessonStep = learnedStep ??
+      curriculum?.step ?? {
+        id: quizId,
+        type: 'multiple_choice',
+        title: trail?.question.question ?? quiz!.question,
+        question: trail?.question.question ?? quiz!.question,
+        options: trail?.question.options ?? (quiz!.options as string[]),
+        correctOptionIndex: correctIndex,
+        xp: XP_QUIZ_CORRECT,
+      };
+    if (!['multiple_choice', 'output_prediction'].includes(step.type))
+      throw new AppError('ASSESSMENT_REQUIRED', 'Resposta completa obrigatória.', 400);
+    const lesson: Lesson = learning ??
+      curriculum?.lesson ?? {
+        id: quizId,
+        title: step.title,
+        description: 'Quiz',
+        language: trail?.language ?? quiz?.post?.language ?? '',
+        unitNumber: 1,
+        levelNumber: 1,
+        xpReward: step.xp,
+        difficulty: 'iniciante',
+        estimatedTime: '2 min',
+        steps: [step],
+      };
+    if (learning) await requireLessonAccess(userId, lesson);
+    const isCorrect = selectedIndex === correctIndex;
+    const result = await saveLessonAssessment(userId, lesson, step, isCorrect, selectedIndex);
+    const attempt = await prisma.quizAttempt.findUniqueOrThrow({
+      where: { user_id_quiz_id: { user_id: userId, quiz_id: quizId } },
     });
-
-    return {
-      attempt,
-      correctIndex,
-      isCorrect,
-      xpResult,
-    };
+    return { attempt, correctIndex, isCorrect, xpResult: result.xpResult };
   },
 };
