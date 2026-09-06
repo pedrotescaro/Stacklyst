@@ -1,7 +1,12 @@
 'use client';
 
 import { useEffect, useRef, type RefObject } from 'react';
-import { MASCOT_SPRITE_FRAMES, preloadMascotSprites, type MascotDirection } from './mascotSprites';
+import {
+  MASCOT_IDLE_FRAMES,
+  MASCOT_SPRITE_FRAMES,
+  preloadMascotSprites,
+  type MascotDirection,
+} from './mascotSprites';
 import {
   clearPendingTrailMascotMovement,
   readPendingTrailMascotMovement,
@@ -15,6 +20,8 @@ const LOOK_AHEAD_DISTANCE = 10;
 const DIRECTION_THRESHOLD = 1.2;
 const CAMERA_UPDATE_INTERVAL_MS = 190;
 const MAX_DELTA_SECONDS = 0.05;
+const IDLE_FRAME_DURATION_MS = 180;
+const IDLE_SEQUENCE = [0, 1, 2, 3, 2, 1] as const;
 
 interface TrailNodeLayout {
   element: HTMLElement;
@@ -46,9 +53,18 @@ interface UseTrailMascotOptions {
 
 function centerInContainer(element: HTMLElement, containerRect: DOMRect): TrailPoint {
   const rect = element.getBoundingClientRect();
+  const mascot = element
+    .closest('[data-testid="learning-journey"]')
+    ?.querySelector<HTMLElement>('[data-testid="trail-moving-mascot"]');
+  const spriteHeight = mascot?.getBoundingClientRect().height ?? 76;
+  const gap =
+    Number.parseFloat(getComputedStyle(element).getPropertyValue('--trail-mascot-gap')) || 8;
   return {
     x: rect.left - containerRect.left + rect.width / 2,
-    y: rect.top - containerRect.top + rect.height / 2,
+    // The transform uses the mascot's foot anchor (`-88%`). Keep the feet
+    // just above the node; the mascot remains pointer-transparent so the
+    // underlying node stays clickable even while the sprite is in front.
+    y: rect.top - containerRect.top - gap + spriteHeight * 0.88,
   };
 }
 
@@ -87,29 +103,9 @@ function readTrailLayout(container: HTMLElement): TrailLayout {
   };
 }
 
-function readLocallyCompletedLessons() {
-  const completed = new Set<string>();
-
-  try {
-    const saved = JSON.parse(window.localStorage.getItem('stacklyst-completed-lessons') || '[]');
-    if (Array.isArray(saved)) {
-      saved.forEach((value) => {
-        if (typeof value === 'string') completed.add(value);
-      });
-    }
-  } catch {
-    // The server-derived completion markers remain the source of truth.
-  }
-
-  return completed;
-}
-
 function resolveCurrentNodeKey(layout: TrailLayout, fallbackKey: string) {
-  const locallyCompleted = readLocallyCompletedLessons();
-  const current = layout.nodes.find(
-    (node) =>
-      node.element.dataset.trailMascotCompleted !== 'true' && !locallyCompleted.has(node.key)
-  );
+  if (layout.nodeByKey.has(fallbackKey)) return fallbackKey;
+  const current = layout.nodes.find((node) => node.element.dataset.trailMascotCompleted !== 'true');
   return current?.key ?? layout.nodes.at(-1)?.key ?? fallbackKey;
 }
 
@@ -151,6 +147,12 @@ function applyPosition(element: HTMLElement, point: TrailPoint) {
 
 function setSprite(image: HTMLImageElement, direction: MascotDirection, frameIndex: number) {
   const frames = MASCOT_SPRITE_FRAMES[direction];
+  const source = frames[frameIndex % frames.length]!;
+  if (!image.src.endsWith(source)) image.src = source;
+}
+
+function setIdleSprite(image: HTMLImageElement, direction: MascotDirection, frameIndex: number) {
+  const frames = MASCOT_IDLE_FRAMES[direction];
   const source = frames[frameIndex % frames.length]!;
   if (!image.src.endsWith(source)) image.src = source;
 }
@@ -257,15 +259,48 @@ export function useTrailMascot({
 
     let cancelled = false;
     let animationFrame = 0;
+    let idleInterval: number | null = null;
     let layoutDirty = false;
     let moving = false;
+
+    const stopIdleAnimation = () => {
+      if (idleInterval !== null) {
+        window.clearInterval(idleInterval);
+        idleInterval = null;
+      }
+    };
+
+    const startIdleAnimation = (direction: MascotDirection, reduceMotion: boolean) => {
+      stopIdleAnimation();
+      setIdleSprite(image, direction, 0);
+      if (reduceMotion) return;
+
+      let sequenceIndex = 0;
+      idleInterval = window.setInterval(() => {
+        if (cancelled || moving) return;
+        if (
+          document.hidden ||
+          document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')
+        ) {
+          positionElement.style.visibility = 'hidden';
+          return;
+        }
+        positionElement.style.visibility = 'visible';
+        sequenceIndex = (sequenceIndex + 1) % IDLE_SEQUENCE.length;
+        setIdleSprite(image, direction, IDLE_SEQUENCE[sequenceIndex]!);
+      }, IDLE_FRAME_DURATION_MS);
+    };
+
     const resizeObserver = new ResizeObserver(() => {
       layoutDirty = true;
       if (!moving) {
         const layout = readTrailLayout(container);
         const targetKey = resolveCurrentNodeKey(layout, currentNodeKey);
         const target = layout.nodeByKey.get(targetKey);
-        if (target) applyPosition(positionElement, target.point);
+        if (target) {
+          applyPosition(positionElement, target.point);
+          positionElement.style.visibility = 'visible';
+        }
       }
     });
     resizeObserver.observe(container);
@@ -285,7 +320,19 @@ export function useTrailMascot({
     }
 
     const pending = readPendingTrailMascotMovement(progressKey);
-    const previousSettledKey = settledNodeKeyRef.current;
+    let previousSettledKey = settledNodeKeyRef.current;
+    try {
+      previousSettledKey ??= sessionStorage.getItem(`mascot-position:${progressKey}`);
+    } catch {
+      /* Animation storage is optional, never learning state. */
+    }
+    const rememberPosition = () => {
+      try {
+        sessionStorage.setItem(`mascot-position:${progressKey}`, targetKey);
+      } catch {
+        /* Optional. */
+      }
+    };
     let fromKey =
       pending?.fromNodeKey && layout.nodeByKey.has(pending.fromNodeKey)
         ? pending.fromNodeKey
@@ -296,12 +343,11 @@ export function useTrailMascot({
       layout.nodes.map((node) => node.key),
       fromKey,
       targetKey,
-      Boolean(pending)
+      false
     );
     const { fromIndex, targetIndex } = movementRange;
 
-    // Returning without completing a lesson keeps the same current node. Replay the
-    // approach from the preceding node so every return still shows visible movement.
+    // Replay only a real advance reported by the server, never a same-node return.
     if (fromKey !== layout.nodes[fromIndex]?.key && fromIndex >= 0) {
       fromKey = layout.nodes[fromIndex]!.key;
     }
@@ -313,10 +359,13 @@ export function useTrailMascot({
       applyPosition(positionElement, target.point);
       positionElement.style.opacity = '1';
       positionElement.style.willChange = 'auto';
-      setSprite(image, 'baixo', 0);
+      positionElement.style.visibility = 'visible';
+      startIdleAnimation('baixo', reduceMotion);
       settledNodeKeyRef.current = targetKey;
+      rememberPosition();
       if (pending) clearPendingTrailMascotMovement();
     } else {
+      stopIdleAnimation();
       const start = layout.nodeByKey.get(fromKey)!;
       applyPosition(positionElement, start.point);
       positionElement.style.opacity = '1';
@@ -347,8 +396,10 @@ export function useTrailMascot({
         }
         moving = false;
         positionElement.style.willChange = 'auto';
-        setSprite(image, direction, 0);
+        positionElement.style.visibility = 'visible';
+        startIdleAnimation(direction, reduceMotion);
         settledNodeKeyRef.current = targetKey;
+        rememberPosition();
         clearPendingTrailMascotMovement();
       };
 
@@ -368,6 +419,16 @@ export function useTrailMascot({
 
       const animate = (time: number) => {
         if (cancelled || !leg) return;
+        if (
+          document.hidden ||
+          document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')
+        ) {
+          lastTime = time;
+          positionElement.style.visibility = 'hidden';
+          animationFrame = requestAnimationFrame(animate);
+          return;
+        }
+        positionElement.style.visibility = 'visible';
         moving = true;
         if (lastTime === 0) lastTime = time;
         const deltaMs = time - lastTime;
@@ -427,6 +488,7 @@ export function useTrailMascot({
       cancelled = true;
       moving = false;
       if (animationFrame) cancelAnimationFrame(animationFrame);
+      stopIdleAnimation();
       resizeObserver.disconnect();
       window.removeEventListener('resize', handleWindowResize);
     };
