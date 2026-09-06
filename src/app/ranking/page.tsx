@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 import { LeaderboardClient } from '@/app/leaderboard/LeaderboardClient';
+import { calculateLevel, XP_RANK_ORDER } from '@/lib/learning/rewards';
 
 export const revalidate = 0;
 
@@ -18,7 +19,7 @@ export default async function RankedPage() {
 
   const [leaders, trails] = await Promise.all([
     prisma.user.findMany({
-      orderBy: [{ total_xp: 'desc' }, { username: 'asc' }],
+      orderBy: XP_RANK_ORDER,
       take: 10,
       select: {
         username: true,
@@ -37,7 +38,7 @@ export default async function RankedPage() {
     username: leader.username,
     avatar_url: leader.avatar_url,
     xp: leader.total_xp,
-    level: Math.max(1, Math.floor(leader.total_xp / 1_000) + 1),
+    level: calculateLevel(leader.total_xp).level,
   }));
 
   return (
