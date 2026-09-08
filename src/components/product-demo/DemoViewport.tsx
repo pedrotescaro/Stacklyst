@@ -68,24 +68,24 @@ export function DemoViewport({
   reduced: boolean;
 }) {
   const mobile = width < 640;
-  const base = mobile ? 640 : 1280;
+  // Keep the same desktop canvas at every breakpoint. Mobile only scales the
+  // web frame down; it never swaps to a narrow, phone-shaped composition.
+  const base = 1280;
+  const height = 760;
   const scene = chapters[active]?.id ?? 'feed';
   return (
-    <div
-      className="demo-viewport"
-      style={{ height: width ? (width / base) * (mobile ? 820 : 760) : undefined }}
-    >
+    <div className="demo-viewport" style={{ height: width ? (width / base) * height : undefined }}>
       <div
         className="demo-fit"
         style={{
           width: base,
-          height: mobile ? 820 : 760,
+          height,
           transform: `scale(${width ? width / base : 1})`,
         }}
       >
         <DemoCamera time={time} mobile={mobile}>
           <div className="demo-browser" inert aria-hidden="true">
-            <div className={`demo-app ${mobile ? 'demo-app-mobile' : ''}`}>
+            <div className="demo-app">
               <aside className="demo-sidebar">
                 <div className="demo-brand">
                   <Image src="/logo.svg" alt="" width={28} height={25} />
@@ -131,7 +131,7 @@ export function DemoViewport({
                 <SceneLayer id="ranking" time={time}>
                   <RankingScene time={time} />
                 </SceneLayer>
-                {!reduced && <DemoCursor time={time} contentWidth={mobile ? 578 : 760} />}
+                {!reduced && <DemoCursor time={time} contentWidth={760} />}
               </div>
               <DemoRightRail scene={scene} />
             </div>

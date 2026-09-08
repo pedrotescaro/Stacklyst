@@ -340,36 +340,13 @@
 .product-demo[data-playing='false'] .demo-app * {
   animation-play-state: paused !important;
 }
-.demo-app-mobile {
-  grid-template-columns: 62px minmax(0, 1fr);
-}
-.demo-app-mobile .demo-right {
-  display: none;
-}
-.demo-app-mobile .demo-sidebar {
-  padding: 22px 10px;
-}
-.demo-app-mobile .demo-brand strong,
-.demo-app-mobile .demo-nav span,
-.demo-app-mobile .demo-sidebar-bottom {
-  display: none;
-}
-.demo-app-mobile .demo-nav > div {
-  padding: 14px 10px;
-}
-.demo-app-mobile .demo-brand {
-  justify-content: center;
-}
-.demo-app-mobile .demo-content {
-  border: 0;
-}
 @media (max-width: 767px) {
   .product-demo {
     width: calc(100% - 24px);
     padding: 40px 0 55px;
   }
   .demo-viewport {
-    aspect-ratio: 640/820;
+    aspect-ratio: 1280/760;
   }
   .demo-label {
     display: none;
