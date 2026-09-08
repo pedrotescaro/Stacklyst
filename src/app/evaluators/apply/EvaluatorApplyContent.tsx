@@ -108,8 +108,8 @@ export function EvaluatorApplyContent({ user }: { user: any }) {
             Torne-se um Avaliador de Código
           </h1>
           <p className="text-sm text-dd-muted font-medium mt-1">
-            Ajude a comunidade avaliando soluções técnicas em duelos. Sua
-            expertise e critérios objetivos garantem a validação humana.
+            Ajude a comunidade avaliando soluções técnicas em duelos. Sua expertise e critérios
+            objetivos garantem a validação humana.
           </p>
         </div>
 

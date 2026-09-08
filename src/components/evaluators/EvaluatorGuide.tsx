@@ -5,7 +5,10 @@ const criteria = [
   ['Aderência aos requisitos', 'Compare a solução com o enunciado, suas entradas e restrições.'],
   ['Legibilidade', 'Observe nomes, organização e clareza do código para quem precisa mantê-lo.'],
   ['Desempenho', 'Analise o uso de tempo e memória considerando as restrições do desafio.'],
-  ['Tratamento de erros', 'Verifique como o código lida com falhas e entradas previstas no enunciado.'],
+  [
+    'Tratamento de erros',
+    'Verifique como o código lida com falhas e entradas previstas no enunciado.',
+  ],
 ];
 
 const checklist = [
@@ -31,15 +34,17 @@ export function EvaluatorGuide({ context }: { context: 'application' | 'evaluati
             os códigos, justificar a decisão e ajudar os participantes a melhorar.
           </p>
           <p className="text-xs text-dd-muted font-medium leading-relaxed">
-            Atue nas tecnologias que domina e mantenha a imparcialidade: use os mesmos critérios para
-            ambos os participantes, sem favorecer amizades, reputação ou preferências pessoais.
+            Atue nas tecnologias que domina e mantenha a imparcialidade: use os mesmos critérios
+            para ambos os participantes, sem favorecer amizades, reputação ou preferências pessoais.
             Avalie o código com respeito e reconheça os limites da sua análise.
           </p>
         </div>
 
         <div className="space-y-2">
           <h3 className="text-sm font-bold text-dd-text">
-            {context === 'application' ? 'Como atuar após a aprovação' : 'A revisão humana do duelo'}
+            {context === 'application'
+              ? 'Como atuar após a aprovação'
+              : 'A revisão humana do duelo'}
           </h3>
           <p className="text-xs text-dd-muted font-medium leading-relaxed">
             {context === 'application'

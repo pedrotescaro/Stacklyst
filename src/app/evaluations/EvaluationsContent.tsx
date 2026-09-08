@@ -132,8 +132,8 @@ export function EvaluationsContent({ user }: { user: any }) {
               Central de Avaliação Técnica
             </h1>
             <p className="text-sm text-dd-muted font-medium mt-1">
-              Revise soluções de duelos que aguardam desempate técnico, com critérios objetivos
-              e decisão humana fundamentada no código.
+              Revise soluções de duelos que aguardam desempate técnico, com critérios objetivos e
+              decisão humana fundamentada no código.
             </p>
           </div>
         </div>
