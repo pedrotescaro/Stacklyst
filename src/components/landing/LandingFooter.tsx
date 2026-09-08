@@ -47,9 +47,7 @@ export default function LandingFooter() {
   const { t, isEnglish } = useLanguage();
 
   const footerLinks = [
-    { label: t.nav.platform, href: '#platform' },
-    { label: t.nav.tracks, href: '#trails' },
-    { label: t.nav.duels, href: '#duels' },
+    { label: isEnglish ? 'Demonstration' : 'Demonstração', href: '#platform' },
     { label: t.footer.privacy, href: '#' },
     { label: t.footer.terms, href: '#' },
   ];

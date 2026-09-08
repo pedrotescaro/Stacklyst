@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -15,16 +15,6 @@ interface LandingNavProps {
 export default function LandingNav({ initialUser }: LandingNavProps) {
   const { t } = useLanguage();
   const [isScrolled, setIsScrolled] = useState(false);
-
-  const navLinks = useMemo(
-    () => [
-      { label: t.nav.howItWorks, href: '#how' },
-      { label: t.nav.platform, href: '#platform' },
-      { label: t.nav.tracks, href: '#trails' },
-      { label: t.nav.duels, href: '#duels' },
-    ],
-    [t.nav]
-  );
 
   useEffect(() => {
     let animationFrame = 0;
@@ -81,15 +71,6 @@ export default function LandingNav({ initialUser }: LandingNavProps) {
           </Link>
 
           <LanguageToggle />
-        </div>
-
-        {/* ── Center links (hidden on mobile) ── */}
-        <div className={styles.centerLinks}>
-          {navLinks.map((link) => (
-            <a key={link.href} href={link.href} className="lp-nav-link">
-              {link.label}
-            </a>
-          ))}
         </div>
 
         {/* ── Right side ── */}
