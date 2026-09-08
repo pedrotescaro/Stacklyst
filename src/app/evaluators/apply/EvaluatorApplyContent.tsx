@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Clock, ArrowRight, ShieldCheck, BookOpen, Zap } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
+import { EvaluatorGuide } from '@/components/evaluators/EvaluatorGuide';
 
 interface EligibilityData {
   eligible: boolean;
@@ -107,8 +108,8 @@ export function EvaluatorApplyContent({ user }: { user: any }) {
             Torne-se um Avaliador de Código
           </h1>
           <p className="text-sm text-dd-muted font-medium mt-1">
-            Ajude a comunidade avaliando soluções técnicas em duelos e processos seletivos. Sua
-            expertise e critérios objetivos garantem a validação humana.
+            Ajude a comunidade avaliando soluções técnicas em duelos. Sua expertise e critérios
+            objetivos garantem a validação humana.
           </p>
         </div>
 
@@ -129,6 +130,8 @@ export function EvaluatorApplyContent({ user }: { user: any }) {
           </div>
         )}
 
+        <EvaluatorGuide context="application" />
+
         {/* Eligibility Requirements Box */}
         {eligibility && (
           <div className="p-6 rounded-3xl bg-dd-surface border border-dd-border space-y-4">
@@ -136,6 +139,11 @@ export function EvaluatorApplyContent({ user }: { user: any }) {
               <ShieldCheck className="w-5 h-5 text-blue-400" />
               Critérios Mínimos de Elegibilidade
             </h2>
+            <p className="text-xs text-dd-muted font-medium leading-relaxed">
+              Para se candidatar, basta cumprir uma das condições: concluir uma trilha completa{' '}
+              <strong className="text-dd-text">OU</strong> possuir pelo menos 1.000 XP. A atuação
+              como avaliador depende da aprovação administrativa da candidatura.
+            </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div

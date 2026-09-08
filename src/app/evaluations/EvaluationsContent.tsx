@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { CheckCircle, Clock, ShieldCheck, FileCode } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
+import { EvaluatorGuide } from '@/components/evaluators/EvaluatorGuide';
 import { parseProblemFromJson } from '@/lib/duel-problems';
 
 interface DuelSolutionItem {
@@ -131,8 +132,8 @@ export function EvaluationsContent({ user }: { user: any }) {
               Central de Avaliação Técnica
             </h1>
             <p className="text-sm text-dd-muted font-medium mt-1">
-              Revise o código de participantes em duelos e processos seletivos com critérios
-              objetivos e decisão humana.
+              Revise soluções de duelos que aguardam desempate técnico, com critérios objetivos e
+              decisão humana fundamentada no código.
             </p>
           </div>
         </div>
@@ -143,6 +144,8 @@ export function EvaluationsContent({ user }: { user: any }) {
             <span>{successMessage}</span>
           </div>
         )}
+
+        <EvaluatorGuide context="evaluation" />
 
         {/* Two-column layout: Duels List & Review Workspace */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
