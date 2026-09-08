@@ -131,7 +131,7 @@ export function DemoViewport({
                 <SceneLayer id="ranking" time={time}>
                   <RankingScene time={time} />
                 </SceneLayer>
-                {!reduced && <DemoCursor time={time} contentWidth={760} />}
+                {!reduced && !mobile && <DemoCursor time={time} contentWidth={760} />}
               </div>
               <DemoRightRail scene={scene} />
             </div>
