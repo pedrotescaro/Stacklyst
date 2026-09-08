@@ -4,7 +4,7 @@
 
 /* === Landing Page Color Tokens === */
 :root {
-  --lp-bg: #0A0A0A;
+  --lp-bg: #000000;
   --lp-bg-card: #141414;
   --lp-bg-card-hover: #1C1C1C;
   --lp-fg: #F5F5F5;

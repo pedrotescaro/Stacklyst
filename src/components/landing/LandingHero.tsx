@@ -41,7 +41,7 @@ interface LandingHeroProps {
 }
 
 export default function LandingHero({ initialUser, isReady = true }: LandingHeroProps) {
-  const { t } = useLanguage();
+  const { t, isEnglish } = useLanguage();
 
   return (
     <section
@@ -156,7 +156,7 @@ export default function LandingHero({ initialUser, isReady = true }: LandingHero
               href="#platform"
               className="inline-flex items-center justify-center text-sm font-medium text-white/80 transition-colors hover:text-white"
             >
-              <span>{t.hero.viewRealPost}</span>
+              <span>{isEnglish ? 'Watch the demo' : 'Ver demonstração'}</span>
             </a>
           </motion.div>
         </motion.div>
@@ -164,7 +164,7 @@ export default function LandingHero({ initialUser, isReady = true }: LandingHero
 
       {/* Seamless smooth gradient transition from Hero to black section */}
       <div
-        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-44 sm:h-64 bg-gradient-to-b from-transparent via-black/60 to-black"
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-56 sm:h-80 bg-gradient-to-b from-transparent via-black/60 to-black to-90%"
         aria-hidden="true"
       />
     </section>

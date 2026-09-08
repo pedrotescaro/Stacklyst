@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import LandingNav from '@/components/landing/LandingNav';
 import LandingHero from '@/components/landing/LandingHero';
-import LandingShowcase from '@/components/landing/LandingShowcase';
+import ProductDemo from '@/components/product-demo/ProductDemo';
 import LandingFooter from '@/components/landing/LandingFooter';
 import SiteEntryLoader from '@/components/landing/SiteEntryLoader';
 
@@ -44,7 +44,7 @@ export default function HomeClient({ initialUser }: HomeClientProps) {
 
       {/* Redesigned product experience */}
       <main className="relative z-10">
-        <LandingShowcase forceMotion initialUser={initialUser} />
+        <ProductDemo />
       </main>
 
       {/* Footer */}
