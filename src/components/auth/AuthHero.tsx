@@ -5,12 +5,14 @@ import dynamic from 'next/dynamic';
 import Image from 'next/image';
 import Link from 'next/link';
 import styles from './AuthHero.module.css';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 const RippleDistortion = dynamic(() => import('@/components/RippleDistortion'), {
   ssr: false,
 });
 
 export default function AuthHero() {
+  const { isEnglish } = useLanguage();
   const [canRenderRipple, setCanRenderRipple] = useState(false);
 
   useEffect(() => {
@@ -67,12 +69,16 @@ export default function AuthHero() {
         <h1
           className={`${styles.brandText} mt-8 max-w-[560px] text-[32px] font-semibold leading-[1.14] tracking-[-0.045em] text-white xl:text-[36px]`}
         >
-          Unlock the best of Stacklyst. Access to the future community.
+          {isEnglish
+            ? 'Unlock the best of Stacklyst. Access to the future community.'
+            : 'Desbloqueie o melhor do Stacklyst. Acesse a comunidade do futuro.'}
         </h1>
         <p
           className={`${styles.brandText} mt-7 text-[17px] font-medium tracking-[-0.025em] text-white/85`}
         >
-          Developers creating amazing experiences.
+          {isEnglish
+            ? 'Developers creating amazing experiences.'
+            : 'Desenvolvedores criando experiências incríveis.'}
         </p>
       </div>
     </aside>
