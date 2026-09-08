@@ -10,10 +10,64 @@ import { OAUTH_PROVIDER_LABELS, type OAuthProvider } from '@/lib/supabase/oauth'
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import AuthHero from '@/components/auth/AuthHero';
 import { DiscordIcon, GitHubIcon, GoogleIcon } from '@/components/auth/OAuthProviderIcons';
+import LanguageToggle from '@/components/LanguageToggle';
+import { useLanguage } from '@/contexts/LanguageContext';
 import styles from './login.module.css';
 
 export default function LoginPage() {
   const router = useRouter();
+  const { isEnglish } = useLanguage();
+  const copy = isEnglish
+    ? {
+        backHome: 'Back to home',
+        heading: 'Log in to your account',
+        subtitle: 'Continue your journey in the community',
+        google: 'Sign in with Google',
+        github: 'Sign in with GitHub',
+        discord: 'Sign in with Discord',
+        emailContinue: 'or continue with email',
+        email: 'Email address',
+        emailPlaceholder: 'you@email.com',
+        password: 'Password',
+        passwordPlaceholder: 'Enter your password',
+        hidePassword: 'Hide password',
+        showPassword: 'Show password',
+        signingIn: 'Signing in...',
+        signIn: 'Sign in',
+        noAccount: "Don't have an account yet?",
+        createAccount: 'Create your account',
+        configError:
+          'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to enable authentication.',
+        oauthError: (provider: string) =>
+          `Could not authenticate with ${provider}. Please try again.`,
+        invalidCredentials: 'Invalid email or password.',
+        signInError: 'An error occurred while signing in. Please try again.',
+      }
+    : {
+        backHome: 'Voltar para a página inicial',
+        heading: 'Entre na sua conta',
+        subtitle: 'Continue sua jornada na comunidade',
+        google: 'Entrar com Google',
+        github: 'Entrar com GitHub',
+        discord: 'Entrar com Discord',
+        emailContinue: 'ou continue com e-mail',
+        email: 'Endereço de e-mail',
+        emailPlaceholder: 'voce@email.com',
+        password: 'Senha',
+        passwordPlaceholder: 'Digite sua senha',
+        hidePassword: 'Ocultar senha',
+        showPassword: 'Mostrar senha',
+        signingIn: 'Entrando...',
+        signIn: 'Entrar',
+        noAccount: 'Ainda não tem uma conta?',
+        createAccount: 'Crie sua conta',
+        configError:
+          'Defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY para habilitar a autenticação.',
+        oauthError: (provider: string) =>
+          `Não foi possível autenticar com ${provider}. Tente novamente.`,
+        invalidCredentials: 'E-mail ou senha inválidos.',
+        signInError: 'Ocorreu um erro ao entrar. Tente novamente.',
+      };
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -44,9 +98,7 @@ export default function LoginPage() {
 
   const checkSupabaseConfig = () => {
     if (!isSupabasePublicConfigured()) {
-      setError(
-        'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to enable authentication.'
-      );
+      setError(copy.configError);
       return false;
     }
     return true;
@@ -70,7 +122,7 @@ export default function LoginPage() {
       }
     } catch (err) {
       console.error(err);
-      setError(`Could not authenticate with ${OAUTH_PROVIDER_LABELS[provider]}. Please try again.`);
+      setError(copy.oauthError(OAUTH_PROVIDER_LABELS[provider]));
     }
   };
 
@@ -92,7 +144,7 @@ export default function LoginPage() {
       if (loginError) {
         setError(
           loginError.message === 'Invalid login credentials'
-            ? 'Invalid email or password.'
+            ? copy.invalidCredentials
             : loginError.message
         );
         setLoading(false);
@@ -103,13 +155,13 @@ export default function LoginPage() {
       router.refresh();
     } catch (err) {
       console.error(err);
-      setError('An error occurred while signing in. Please try again.');
+      setError(copy.signInError);
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-svh bg-[#111] font-sans text-white antialiased">
+    <main className="min-h-svh bg-black font-sans text-white antialiased">
       <div className="grid min-h-svh w-full lg:grid-cols-[53%_47%]">
         <AuthHero />
 
@@ -122,12 +174,15 @@ export default function LoginPage() {
           {/* Seta para voltar para a landing page */}
           <Link
             href="/"
-            aria-label="Voltar para a página inicial"
-            title="Voltar para a página inicial"
+            aria-label={copy.backHome}
+            title={copy.backHome}
             className="group absolute left-5 top-5 sm:left-8 sm:top-8 flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-[#1a1a1a] text-zinc-400 transition-all duration-200 hover:border-white/20 hover:bg-[#222] hover:text-white"
           >
             <ArrowLeft className="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-0.5" />
           </Link>
+          <div className="absolute right-5 top-5 z-10 sm:right-8 sm:top-8">
+            <LanguageToggle />
+          </div>
 
           <div className="w-full max-w-[466px]">
             <Link href="/" className="mb-10 inline-flex items-center gap-3 lg:hidden">
@@ -145,11 +200,9 @@ export default function LoginPage() {
 
             <header className="text-center">
               <h2 className="text-[28px] font-semibold leading-tight tracking-[-0.045em] text-white">
-                Log in to your account
+                {copy.heading}
               </h2>
-              <p className="mt-4 text-[15px] leading-6 text-zinc-300">
-                Continue your journey in the community
-              </p>
+              <p className="mt-4 text-[15px] leading-6 text-zinc-300">{copy.subtitle}</p>
             </header>
 
             {error && (
@@ -164,32 +217,32 @@ export default function LoginPage() {
             <div className="mt-12 grid grid-cols-3 gap-2.5">
               <button
                 type="button"
-                aria-label="Sign in with Google"
+                aria-label={copy.google}
                 onClick={() => handleOAuthLogin('google')}
                 className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-white/[0.06] bg-[#1a1a1a] px-1.5 text-[9px] font-medium whitespace-nowrap sm:gap-2 sm:px-2 sm:text-[10px] text-white/85 transition-colors hover:border-[#4285F4]/45 hover:bg-[#202020] cursor-pointer"
               >
                 <GoogleIcon className="h-3.5 w-3.5 shrink-0" />
-                <span>Sign in with Google</span>
+                <span>{copy.google}</span>
               </button>
 
               <button
                 type="button"
-                aria-label="Sign in with GitHub"
+                aria-label={copy.github}
                 onClick={() => handleOAuthLogin('github')}
                 className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-white/[0.06] bg-[#1a1a1a] px-1.5 text-[9px] font-medium whitespace-nowrap sm:gap-2 sm:px-2 sm:text-[10px] text-white/85 transition-colors hover:border-white/20 hover:bg-[#202020] cursor-pointer"
               >
                 <GitHubIcon className="h-3.5 w-3.5 shrink-0" />
-                <span>Sign in with GitHub</span>
+                <span>{copy.github}</span>
               </button>
 
               <button
                 type="button"
-                aria-label="Sign in with Discord"
+                aria-label={copy.discord}
                 onClick={() => handleOAuthLogin('discord')}
                 className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-white/[0.06] bg-[#1a1a1a] px-1.5 text-[9px] font-medium whitespace-nowrap sm:gap-2 sm:px-2 sm:text-[10px] text-white/85 transition-colors hover:border-[#5865F2]/45 hover:bg-[#202020] cursor-pointer"
               >
                 <DiscordIcon className="h-3.5 w-4 shrink-0 text-[#5865F2]" />
-                <span>Sign in with Discord</span>
+                <span>{copy.discord}</span>
               </button>
             </div>
 
@@ -199,7 +252,7 @@ export default function LoginPage() {
               </div>
               <div className="relative flex justify-center">
                 <span className="bg-[#111] px-4 text-[11px] font-medium uppercase tracking-[-0.025em] text-zinc-400">
-                  or continue with email
+                  {copy.emailContinue}
                 </span>
               </div>
             </div>
@@ -207,7 +260,7 @@ export default function LoginPage() {
             <form onSubmit={handleLogin} className="space-y-5">
               <div>
                 <label className="mb-2 block text-[13px] font-medium text-white" htmlFor="email">
-                  Email address
+                  {copy.email}
                 </label>
                 <input
                   id="email"
@@ -217,13 +270,13 @@ export default function LoginPage() {
                   required
                   autoComplete="email"
                   className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
-                  placeholder="you@email.com"
+                  placeholder={copy.emailPlaceholder}
                 />
               </div>
 
               <div>
                 <label className="mb-2 block text-[13px] font-medium text-white" htmlFor="password">
-                  Password
+                  {copy.password}
                 </label>
                 <div className="relative">
                   <input
@@ -234,12 +287,12 @@ export default function LoginPage() {
                     required
                     autoComplete="current-password"
                     className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 pr-12 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
-                    placeholder="Enter your password"
+                    placeholder={copy.passwordPlaceholder}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((current) => !current)}
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                    aria-label={showPassword ? copy.hidePassword : copy.showPassword}
                     aria-pressed={showPassword}
                     className="absolute right-2 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
                   >
@@ -253,14 +306,14 @@ export default function LoginPage() {
                 disabled={loading}
                 className="flex h-[49px] w-full items-center justify-center rounded-md bg-[#f1f1f3] text-sm font-semibold text-black transition-colors hover:bg-white disabled:cursor-wait disabled:opacity-60 cursor-pointer"
               >
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? copy.signingIn : copy.signIn}
               </button>
             </form>
 
             <p className="mt-8 text-center text-xs text-zinc-300">
-              Don&apos;t have an account yet?{' '}
+              {copy.noAccount}{' '}
               <Link href="/register" className="font-semibold text-white hover:underline">
-                Create your account
+                {copy.createAccount}
               </Link>
             </p>
           </div>

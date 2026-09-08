@@ -1,5 +1,5 @@
 .formPanel {
-  background: #111;
+  background: #000;
 }
 
 .brandLogo {
@@ -12,6 +12,6 @@
 
 @media (max-width: 1023px) {
   .formPanel {
-    background: radial-gradient(circle at 50% 0%, rgba(0, 120, 255, 0.12), transparent 32%), #111;
+    background: radial-gradient(circle at 50% 0%, rgba(0, 120, 255, 0.12), transparent 32%), #000;
   }
 }

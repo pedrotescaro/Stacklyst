@@ -11,10 +11,88 @@ import { ArrowLeft, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import AuthHero from '@/components/auth/AuthHero';
 import { DiscordIcon, GitHubIcon, GoogleIcon } from '@/components/auth/OAuthProviderIcons';
 import Loader from '@/components/Loader';
+import LanguageToggle from '@/components/LanguageToggle';
+import { useLanguage } from '@/contexts/LanguageContext';
 import styles from '../login/login.module.css';
 
 export default function RegisterPage() {
   const router = useRouter();
+  const { isEnglish } = useLanguage();
+  const copy = isEnglish
+    ? {
+        backHome: 'Back to home',
+        heading: 'Create your account',
+        subtitle: 'Join the community today',
+        google: 'Sign up with Google',
+        github: 'Sign up with GitHub',
+        discord: 'Sign up with Discord',
+        emailContinue: 'or continue with email',
+        username: 'Username',
+        usernamePlaceholder: 'your_username',
+        email: 'Email address',
+        emailPlaceholder: 'you@email.com',
+        password: 'Password',
+        passwordPlaceholder: 'At least 6 characters',
+        confirmPassword: 'Confirm password',
+        confirmPasswordPlaceholder: 'Repeat your password',
+        hidePassword: 'Hide password',
+        showPassword: 'Show password',
+        hideConfirmation: 'Hide confirmation',
+        showConfirmation: 'Show confirmation',
+        passwordsMatch: 'Passwords match',
+        creating: 'Creating account...',
+        create: 'Create account',
+        hasAccount: 'Already have an account?',
+        signIn: 'Sign in',
+        configError:
+          'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to enable authentication.',
+        oauthError: (provider: string) =>
+          `Could not authenticate with ${provider}. Please try again.`,
+        passwordMismatch: 'Passwords do not match. Enter the same password in both fields.',
+        accountError: 'Could not create your account.',
+        automaticSignInError:
+          'Your account was created, but automatic sign-in failed. Please sign in manually.',
+        serverError: 'A server error occurred. Please try again.',
+        loadingTitle: 'Creating your account...',
+        loadingSubtitle: 'We’re preparing your Stacklyst profile',
+      }
+    : {
+        backHome: 'Voltar para a página inicial',
+        heading: 'Crie sua conta',
+        subtitle: 'Junte-se à comunidade hoje',
+        google: 'Cadastrar com Google',
+        github: 'Cadastrar com GitHub',
+        discord: 'Cadastrar com Discord',
+        emailContinue: 'ou continue com e-mail',
+        username: 'Nome de usuário',
+        usernamePlaceholder: 'seu_usuario',
+        email: 'Endereço de e-mail',
+        emailPlaceholder: 'voce@email.com',
+        password: 'Senha',
+        passwordPlaceholder: 'Pelo menos 6 caracteres',
+        confirmPassword: 'Confirmar senha',
+        confirmPasswordPlaceholder: 'Repita sua senha',
+        hidePassword: 'Ocultar senha',
+        showPassword: 'Mostrar senha',
+        hideConfirmation: 'Ocultar confirmação',
+        showConfirmation: 'Mostrar confirmação',
+        passwordsMatch: 'As senhas coincidem',
+        creating: 'Criando conta...',
+        create: 'Criar conta',
+        hasAccount: 'Já tem uma conta?',
+        signIn: 'Entrar',
+        configError:
+          'Defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY para habilitar a autenticação.',
+        oauthError: (provider: string) =>
+          `Não foi possível autenticar com ${provider}. Tente novamente.`,
+        passwordMismatch: 'As senhas não coincidem. Digite a mesma senha nos dois campos.',
+        accountError: 'Não foi possível criar sua conta.',
+        automaticSignInError:
+          'Sua conta foi criada, mas a entrada automática falhou. Entre manualmente.',
+        serverError: 'Ocorreu um erro no servidor. Tente novamente.',
+        loadingTitle: 'Criando sua conta...',
+        loadingSubtitle: 'Estamos preparando seu perfil no Stacklyst',
+      };
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -33,9 +111,7 @@ export default function RegisterPage() {
 
   const checkSupabaseConfig = () => {
     if (!isSupabasePublicConfigured()) {
-      setError(
-        'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to enable authentication.'
-      );
+      setError(copy.configError);
       return false;
     }
     return true;
@@ -59,7 +135,7 @@ export default function RegisterPage() {
       }
     } catch (err) {
       console.error(err);
-      setError(`Could not authenticate with ${OAUTH_PROVIDER_LABELS[provider]}. Please try again.`);
+      setError(copy.oauthError(OAUTH_PROVIDER_LABELS[provider]));
     }
   };
 
@@ -68,7 +144,7 @@ export default function RegisterPage() {
     setError(null);
 
     if (password !== confirmPassword) {
-      setError('Passwords do not match. Enter the same password in both fields.');
+      setError(copy.passwordMismatch);
       return;
     }
 
@@ -93,7 +169,7 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || 'Could not create your account.');
+        setError(data.error || copy.accountError);
         setLoading(false);
         return;
       }
@@ -106,9 +182,7 @@ export default function RegisterPage() {
       });
 
       if (loginError) {
-        setError(
-          'Your account was created, but automatic sign-in failed. Please sign in manually.'
-        );
+        setError(copy.automaticSignInError);
         setLoading(false);
         router.push('/login');
         return;
@@ -118,13 +192,13 @@ export default function RegisterPage() {
       router.refresh();
     } catch (err) {
       console.error(err);
-      setError('A server error occurred. Please try again.');
+      setError(copy.serverError);
       setLoading(false);
     }
   };
 
   return (
-    <main className="min-h-svh bg-[#111] font-sans text-white antialiased">
+    <main className="min-h-svh bg-black font-sans text-white antialiased">
       <div className="grid min-h-svh w-full lg:grid-cols-[53%_47%]">
         <AuthHero />
 
@@ -137,12 +211,15 @@ export default function RegisterPage() {
           {/* Seta para voltar para a landing page */}
           <Link
             href="/"
-            aria-label="Voltar para a página inicial"
-            title="Voltar para a página inicial"
+            aria-label={copy.backHome}
+            title={copy.backHome}
             className="group absolute left-5 top-5 sm:left-8 sm:top-8 flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-[#1a1a1a] text-zinc-400 transition-all duration-200 hover:border-white/20 hover:bg-[#222] hover:text-white"
           >
             <ArrowLeft className="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-0.5" />
           </Link>
+          <div className="absolute right-5 top-5 z-10 sm:right-8 sm:top-8">
+            <LanguageToggle />
+          </div>
 
           <div className="w-full max-w-[466px]">
             <Link href="/" className="mb-8 inline-flex items-center gap-3 lg:hidden">
@@ -162,8 +239,8 @@ export default function RegisterPage() {
 
             {loading ? (
               <Loader
-                title="Creating your account..."
-                subtitle="We’re preparing your Stacklyst profile"
+                title={copy.loadingTitle}
+                subtitle={copy.loadingSubtitle}
                 size="md"
                 className="min-h-[520px] px-0"
               />
@@ -171,11 +248,9 @@ export default function RegisterPage() {
               <>
                 <header className="text-center">
                   <h2 className="text-[28px] font-semibold leading-tight tracking-[-0.045em] text-white">
-                    Create your account
+                    {copy.heading}
                   </h2>
-                  <p className="mt-4 text-[15px] leading-6 text-zinc-300">
-                    Join the community today
-                  </p>
+                  <p className="mt-4 text-[15px] leading-6 text-zinc-300">{copy.subtitle}</p>
                 </header>
 
                 {error && (
@@ -190,7 +265,7 @@ export default function RegisterPage() {
                 <div className="mt-8 grid grid-cols-3 gap-2.5">
                   <button
                     type="button"
-                    aria-label="Sign up with Google"
+                    aria-label={copy.google}
                     onClick={() => handleOAuthLogin('google')}
                     className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-white/[0.06] bg-[#1a1a1a] px-1.5 text-[9px] font-medium whitespace-nowrap text-white/85 transition-colors hover:border-[#4285F4]/45 hover:bg-[#202020] sm:gap-2 sm:px-2 sm:text-[10px] cursor-pointer"
                   >
@@ -200,7 +275,7 @@ export default function RegisterPage() {
 
                   <button
                     type="button"
-                    aria-label="Sign up with GitHub"
+                    aria-label={copy.github}
                     onClick={() => handleOAuthLogin('github')}
                     className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-white/[0.06] bg-[#1a1a1a] px-1.5 text-[9px] font-medium whitespace-nowrap text-white/85 transition-colors hover:border-white/20 hover:bg-[#202020] sm:gap-2 sm:px-2 sm:text-[10px] cursor-pointer"
                   >
@@ -210,7 +285,7 @@ export default function RegisterPage() {
 
                   <button
                     type="button"
-                    aria-label="Sign up with Discord"
+                    aria-label={copy.discord}
                     onClick={() => handleOAuthLogin('discord')}
                     className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-white/[0.06] bg-[#1a1a1a] px-1.5 text-[9px] font-medium whitespace-nowrap text-white/85 transition-colors hover:border-[#5865F2]/45 hover:bg-[#202020] sm:gap-2 sm:px-2 sm:text-[10px] cursor-pointer"
                   >
@@ -225,7 +300,7 @@ export default function RegisterPage() {
                   </div>
                   <div className="relative flex justify-center">
                     <span className="bg-[#111] px-4 text-[11px] font-medium uppercase tracking-[-0.025em] text-zinc-400">
-                      or continue with email
+                      {copy.emailContinue}
                     </span>
                   </div>
                 </div>
@@ -236,7 +311,7 @@ export default function RegisterPage() {
                       className="mb-2 block text-[13px] font-medium text-white"
                       htmlFor="username"
                     >
-                      Username
+                      {copy.username}
                     </label>
                     <input
                       id="username"
@@ -246,7 +321,7 @@ export default function RegisterPage() {
                       required
                       autoComplete="username"
                       className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
-                      placeholder="your_username"
+                      placeholder={copy.usernamePlaceholder}
                     />
                   </div>
 
@@ -255,7 +330,7 @@ export default function RegisterPage() {
                       className="mb-2 block text-[13px] font-medium text-white"
                       htmlFor="email"
                     >
-                      Email address
+                      {copy.email}
                     </label>
                     <input
                       id="email"
@@ -265,7 +340,7 @@ export default function RegisterPage() {
                       required
                       autoComplete="email"
                       className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
-                      placeholder="you@email.com"
+                      placeholder={copy.emailPlaceholder}
                     />
                   </div>
 
@@ -275,7 +350,7 @@ export default function RegisterPage() {
                         className="mb-2 block text-[13px] font-medium text-white"
                         htmlFor="password"
                       >
-                        Password
+                        {copy.password}
                       </label>
                       <div className="relative">
                         <input
@@ -287,12 +362,12 @@ export default function RegisterPage() {
                           minLength={6}
                           autoComplete="new-password"
                           className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 pr-11 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
-                          placeholder="At least 6 characters"
+                          placeholder={copy.passwordPlaceholder}
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword((current) => !current)}
-                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                          aria-label={showPassword ? copy.hidePassword : copy.showPassword}
                           aria-pressed={showPassword}
                           className="absolute right-1.5 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
                         >
@@ -306,7 +381,7 @@ export default function RegisterPage() {
                         className="mb-2 block text-[13px] font-medium text-white"
                         htmlFor="confirmPassword"
                       >
-                        Confirm password
+                        {copy.confirmPassword}
                       </label>
                       <div className="relative">
                         <input
@@ -318,13 +393,13 @@ export default function RegisterPage() {
                           minLength={6}
                           autoComplete="new-password"
                           className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 pr-11 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
-                          placeholder="Repeat your password"
+                          placeholder={copy.confirmPasswordPlaceholder}
                         />
                         <button
                           type="button"
                           onClick={() => setShowConfirmPassword((current) => !current)}
                           aria-label={
-                            showConfirmPassword ? 'Hide confirmation' : 'Show confirmation'
+                            showConfirmPassword ? copy.hideConfirmation : copy.showConfirmation
                           }
                           aria-pressed={showConfirmPassword}
                           className="absolute right-1.5 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
@@ -337,7 +412,7 @@ export default function RegisterPage() {
 
                   {confirmPassword && password === confirmPassword && (
                     <p className="flex items-center gap-1.5 text-[11px] text-emerald-400">
-                      <CheckCircle2 size={13} /> Passwords match
+                      <CheckCircle2 size={13} /> {copy.passwordsMatch}
                     </p>
                   )}
 
@@ -346,14 +421,14 @@ export default function RegisterPage() {
                     disabled={loading}
                     className="flex h-[49px] w-full items-center justify-center rounded-md bg-[#f1f1f3] text-sm font-semibold text-black transition-colors hover:bg-white disabled:cursor-wait disabled:opacity-60 cursor-pointer"
                   >
-                    {loading ? 'Creating account...' : 'Create account'}
+                    {loading ? copy.creating : copy.create}
                   </button>
                 </form>
 
                 <p className="mt-6 text-center text-xs text-zinc-300">
-                  Already have an account?{' '}
+                  {copy.hasAccount}{' '}
                   <Link href="/login" className="font-semibold text-white hover:underline">
-                    Sign in
+                    {copy.signIn}
                   </Link>
                 </p>
               </>
