@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { CheckCircle, XCircle, Clock, ArrowRight, ShieldCheck, BookOpen, Zap } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
 import { EvaluatorGuide } from '@/components/evaluators/EvaluatorGuide';
+import { EVALUATOR_MIN_MOTIVATION_LENGTH } from '@/lib/evaluators/policy';
 
 interface EligibilityData {
   eligible: boolean;
@@ -35,6 +36,9 @@ export function EvaluatorApplyContent({ user }: { user: any }) {
     'Rust',
     'Go',
     'Java',
+    'Kotlin',
+    'Swift',
+    'C++',
     'React',
     'Node.js',
   ];
@@ -84,7 +88,10 @@ export function EvaluatorApplyContent({ user }: { user: any }) {
         });
         loadEligibility();
       } else {
-        setFeedbackMsg({ type: 'error', message: data.error || 'Erro ao submeter candidatura.' });
+        setFeedbackMsg({
+          type: 'error',
+          message: data.message || data.error || 'Erro ao submeter candidatura.',
+        });
       }
     } catch (err: any) {
       setFeedbackMsg({ type: 'error', message: err.message || 'Erro de conexão.' });
@@ -222,10 +229,14 @@ export function EvaluatorApplyContent({ user }: { user: any }) {
                   rows={4}
                   required
                   value={motivation}
+                  minLength={EVALUATOR_MIN_MOTIVATION_LENGTH}
                   onChange={(e) => setMotivation(e.target.value)}
                   placeholder="Conte um pouco sobre sua experiência técnica, seus pontos fortes e por que deseja revisar soluções de outros desenvolvedores..."
                   className="w-full bg-dd-bg border border-dd-border rounded-xl p-3 text-xs font-medium text-dd-text outline-none focus:border-blue-500 resize-none"
                 />
+                <p className="mt-1 text-[11px] text-dd-muted">
+                  {motivation.trim().length}/{EVALUATOR_MIN_MOTIVATION_LENGTH} caracteres mínimos.
+                </p>
               </div>
 
               <div>
@@ -255,7 +266,11 @@ export function EvaluatorApplyContent({ user }: { user: any }) {
 
               <button
                 type="submit"
-                disabled={submitting || selectedTechs.length === 0}
+                disabled={
+                  submitting ||
+                  selectedTechs.length === 0 ||
+                  motivation.trim().length < EVALUATOR_MIN_MOTIVATION_LENGTH
+                }
                 className="w-full py-3.5 rounded-2xl bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white font-black text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
               >
                 <span>

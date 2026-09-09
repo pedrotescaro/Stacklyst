@@ -4,10 +4,13 @@ import { Language } from '@prisma/client';
 import { getRandomDuelProblem } from '@/lib/duel-problems';
 import { NotificationService } from './notification.service';
 import { getXpBand } from '@/lib/learning/rewards';
+import { serializePublicDuelProblem } from '@/lib/duels/problems';
+import { DUEL_REQUEST_TIMEOUT_SECONDS, DUEL_TIME_LIMIT_SECONDS } from '@/lib/duels/constants';
+import { expireDuelInvitations } from '@/lib/duels/invitations';
+import { getDuelCooldownMessage } from '@/lib/duels/participation-policy';
+import { ValidationError } from '@/lib/errors';
 
-export const MAX_DUEL_REJECTIONS = 3;
-export const DUEL_COOLDOWN_MINUTES = 5;
-export const DUEL_REQUEST_TIMEOUT_SECONDS = 30;
+export { DUEL_REQUEST_TIMEOUT_SECONDS } from '@/lib/duels/constants';
 
 export function getUserRankTier(totalXp: number): {
   tier: 'BRONZE' | 'SILVER' | 'GOLD' | 'PLATINUM' | 'DIAMOND';
@@ -27,17 +30,12 @@ export const DuelService = {
       where: { id: userId },
     });
 
-    if (!challenger) throw new Error('Usuário não encontrado.');
-
-    // Check if challenger is on cooldown
-    if (challenger.duel_cooldown_until && challenger.duel_cooldown_until > new Date()) {
-      const remainingMinutes = Math.ceil(
-        (challenger.duel_cooldown_until.getTime() - Date.now()) / 60000
-      );
-      throw new Error(
-        `Você está em cooldown temporário por rejeições consecutivas. Aguarde ${remainingMinutes} minuto(s).`
-      );
+    if (!challenger) {
+      throw new ValidationError('DUEL_USER_NOT_FOUND', 'Usuário não encontrado.');
     }
+
+    const cooldownMessage = getDuelCooldownMessage(challenger.duel_cooldown_until);
+    if (cooldownMessage) throw new ValidationError('DUEL_COOLDOWN', cooldownMessage);
 
     const challengerRank = getUserRankTier(challenger.total_xp);
 
@@ -98,28 +96,61 @@ export const DuelService = {
   },
 
   /**
-   * Create a 30-second direct duel request to a specific player.
+   * Create a 72-hour direct duel request to a specific player.
    */
-  async createDuelRequest(senderId: string, receiverId: string, language: Language = 'TS') {
-    const sender = await prisma.user.findUnique({ where: { id: senderId } });
-    if (sender?.duel_cooldown_until && sender.duel_cooldown_until > new Date()) {
-      throw new Error('Você está em cooldown temporário.');
+  async createDuelRequest(
+    senderId: string,
+    receiverId: string,
+    language: Language = 'TS',
+    publishOnExpiry = false
+  ) {
+    if (senderId === receiverId) {
+      throw new ValidationError('SELF_DUEL', 'Você não pode desafiar a si mesmo.');
     }
 
-    const expiresAt = new Date(Date.now() + DUEL_REQUEST_TIMEOUT_SECONDS * 1000);
+    const [sender, receiver] = await Promise.all([
+      prisma.user.findUnique({ where: { id: senderId } }),
+      prisma.user.findUnique({ where: { id: receiverId }, select: { id: true } }),
+    ]);
+    if (!sender || !receiver) {
+      throw new ValidationError('DUEL_USER_NOT_FOUND', 'Perfil desafiado não encontrado.');
+    }
+    const cooldownMessage = getDuelCooldownMessage(sender.duel_cooldown_until);
+    if (cooldownMessage) throw new ValidationError('DUEL_COOLDOWN', cooldownMessage);
 
-    const duelRequest = await prisma.duelRequest.create({
-      data: {
-        sender_id: senderId,
-        receiver_id: receiverId,
-        language,
-        status: 'PENDING',
-        expires_at: expiresAt,
-      },
-      include: {
-        sender: { select: { id: true, username: true, avatar_url: true, total_xp: true } },
-        receiver: { select: { id: true, username: true, avatar_url: true, total_xp: true } },
-      },
+    await expireDuelInvitations(new Date(), { receiverId });
+    const expiresAt = new Date(Date.now() + DUEL_REQUEST_TIMEOUT_SECONDS * 1000);
+    const problem = getRandomDuelProblem();
+    const duelRequest = await prisma.$transaction(async (tx) => {
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`duel-request:${senderId}:${receiverId}`}))`;
+      const duplicate = await tx.duelRequest.findFirst({
+        where: { sender_id: senderId, receiver_id: receiverId, status: 'PENDING' },
+        select: { id: true },
+      });
+      if (duplicate) {
+        throw new ValidationError(
+          'DUPLICATE_DUEL_REQUEST',
+          'Já existe um convite pendente para este perfil.'
+        );
+      }
+
+      return tx.duelRequest.create({
+        data: {
+          sender_id: senderId,
+          receiver_id: receiverId,
+          language,
+          status: 'PENDING',
+          publish_on_expiry: publishOnExpiry,
+          problem_id: problem.id,
+          problem_title: problem.title,
+          problem_body: serializePublicDuelProblem(problem),
+          expires_at: expiresAt,
+        },
+        include: {
+          sender: { select: { id: true, username: true, avatar_url: true, total_xp: true } },
+          receiver: { select: { id: true, username: true, avatar_url: true, total_xp: true } },
+        },
+      });
     });
 
     try {
@@ -147,45 +178,35 @@ export const DuelService = {
     });
 
     if (!request || request.receiver_id !== receiverId) {
-      throw new Error('Convite de duelo não encontrado.');
+      throw new ValidationError('DUEL_REQUEST_NOT_FOUND', 'Convite de duelo não encontrado.');
     }
 
     if (request.status !== 'PENDING') {
-      throw new Error('Este convite já foi processado ou expirou.');
+      throw new ValidationError(
+        'DUEL_REQUEST_ALREADY_HANDLED',
+        'Este convite já foi processado ou expirou.'
+      );
     }
 
-    if (request.expires_at < new Date()) {
-      await prisma.duelRequest.update({
-        where: { id: requestId },
-        data: { status: 'EXPIRED' },
-      });
-      throw new Error('O tempo limite de 30 segundos para aceitar este duelo expirou.');
+    if (request.expires_at <= new Date()) {
+      await expireDuelInvitations(new Date(), { requestId });
+      throw new ValidationError(
+        'DUEL_REQUEST_EXPIRED',
+        'O prazo de 72 horas para aceitar este duelo expirou.'
+      );
     }
 
     if (action === 'REJECT') {
-      // Increment consecutive rejections
-      const updatedUser = await prisma.user.update({
-        where: { id: receiverId },
-        data: { consecutive_rejections: { increment: 1 } },
-      });
-
-      let cooldownApplied = false;
-      if (updatedUser.consecutive_rejections >= MAX_DUEL_REJECTIONS) {
-        // Apply cooldown
-        await prisma.user.update({
-          where: { id: receiverId },
-          data: {
-            consecutive_rejections: 0,
-            duel_cooldown_until: new Date(Date.now() + DUEL_COOLDOWN_MINUTES * 60 * 1000),
-          },
-        });
-        cooldownApplied = true;
-      }
-
-      await prisma.duelRequest.update({
-        where: { id: requestId },
+      const claim = await prisma.duelRequest.updateMany({
+        where: { id: requestId, receiver_id: receiverId, status: 'PENDING' },
         data: { status: 'REJECTED' },
       });
+      if (claim.count !== 1) {
+        throw new ValidationError(
+          'DUEL_REQUEST_ALREADY_HANDLED',
+          'Este convite já foi processado.'
+        );
+      }
 
       try {
         await NotificationService.create({
@@ -201,39 +222,41 @@ export const DuelService = {
 
       return {
         status: 'REJECTED',
-        consecutiveRejections: updatedUser.consecutive_rejections,
-        cooldownApplied,
+        xpPenalty: 0,
+        cooldownApplied: false,
       };
     }
 
-    // ACCEPT: Reset consecutive rejections and create active Duel
-    await prisma.user.update({
-      where: { id: receiverId },
-      data: { consecutive_rejections: 0 },
-    });
+    const fallbackProblem = getRandomDuelProblem();
+    const duel = await prisma.$transaction(async (tx) => {
+      const claim = await tx.duelRequest.updateMany({
+        where: { id: requestId, receiver_id: receiverId, status: 'PENDING' },
+        data: { status: 'ACCEPTED' },
+      });
+      if (claim.count !== 1) {
+        throw new ValidationError(
+          'DUEL_REQUEST_ALREADY_HANDLED',
+          'Este convite já foi processado.'
+        );
+      }
 
-    await prisma.duelRequest.update({
-      where: { id: requestId },
-      data: { status: 'ACCEPTED' },
-    });
-
-    const problem = getRandomDuelProblem();
-    const duel = await prisma.duel.create({
-      data: {
-        challenger_id: request.sender_id,
-        opponent_id: receiverId,
-        problem_title: problem.title,
-        problem_body: problem.description,
-        problem_id: problem.id,
-        language: request.language,
-        status: 'ACTIVE',
-        time_limit_seconds: 900, // 15 minutos
-        started_at: new Date(),
-      },
-      include: {
-        challenger: { select: { id: true, username: true, avatar_url: true } },
-        opponent: { select: { id: true, username: true, avatar_url: true } },
-      },
+      return tx.duel.create({
+        data: {
+          challenger_id: request.sender_id,
+          opponent_id: receiverId,
+          problem_title: request.problem_title ?? fallbackProblem.title,
+          problem_body: request.problem_body ?? serializePublicDuelProblem(fallbackProblem),
+          problem_id: request.problem_id ?? fallbackProblem.id,
+          language: request.language,
+          status: 'ACTIVE',
+          time_limit_seconds: DUEL_TIME_LIMIT_SECONDS,
+          started_at: new Date(),
+        },
+        include: {
+          challenger: { select: { id: true, username: true, avatar_url: true } },
+          opponent: { select: { id: true, username: true, avatar_url: true } },
+        },
+      });
     });
 
     try {

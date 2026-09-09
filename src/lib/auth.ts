@@ -64,6 +64,7 @@ async function fetchUserViaRest(userId: string, supabaseAdmin: SupabaseAdminClie
     ...user,
     created_at: user.created_at ? new Date(user.created_at) : new Date(),
     last_active_at: user.last_active_at ? new Date(user.last_active_at) : null,
+    duel_cooldown_until: user.duel_cooldown_until ? new Date(user.duel_cooldown_until) : null,
     birthday: user.birthday ? new Date(user.birthday) : null,
     badges: (badgesRes.data || []).map((userBadge: any) => ({
       ...userBadge,

@@ -6,7 +6,7 @@
   "crons": [
     {
       "path": "/api/admin/duels/maintain",
-      "schedule": "0 3 * * *"
+      "schedule": "0 * * * *"
     }
   ]
 }

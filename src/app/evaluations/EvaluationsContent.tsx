@@ -5,6 +5,7 @@ import { CheckCircle, Clock, ShieldCheck, FileCode } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
 import { EvaluatorGuide } from '@/components/evaluators/EvaluatorGuide';
 import { parseProblemFromJson } from '@/lib/duel-problems';
+import { getEvaluatorLevel } from '@/lib/evaluators/policy';
 
 interface DuelSolutionItem {
   id: string;
@@ -39,6 +40,13 @@ export function EvaluationsContent({ user }: { user: any }) {
   const [improvements, setImprovements] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [evaluatorProfile, setEvaluatorProfile] = useState<{
+    reputation: number;
+    evaluations_count: number;
+    tech_stack: string[];
+    status: string;
+  } | null>(null);
 
   useEffect(() => {
     loadDuels();
@@ -56,12 +64,23 @@ export function EvaluationsContent({ user }: { user: any }) {
 
   const loadDuels = async () => {
     setLoading(true);
+    setErrorMessage(null);
     try {
-      const res = await fetch('/api/evaluations');
+      const [res, profileRes] = await Promise.all([
+        fetch('/api/evaluations'),
+        fetch('/api/evaluators/eligibility'),
+      ]);
       if (res.ok) {
         const data = await res.json();
         setDuels(data);
         if (data.length > 0) setSelectedDuel(data[0]);
+      } else {
+        const data = await res.json();
+        setErrorMessage(data.message || data.error || 'Não foi possível carregar a fila.');
+      }
+      if (profileRes.ok) {
+        const profileData = await profileRes.json();
+        setEvaluatorProfile(profileData.evaluatorProfile || null);
       }
     } catch (err) {
       console.error('Error loading evaluations:', err);
@@ -104,6 +123,9 @@ export function EvaluationsContent({ user }: { user: any }) {
         setImprovements('');
         setWinnerId('');
         setTimeout(() => setSuccessMessage(null), 4000);
+      } else {
+        const data = await res.json();
+        setErrorMessage(data.message || data.error || 'Não foi possível enviar a avaliação.');
       }
     } catch (err) {
       console.error(err);
@@ -142,6 +164,39 @@ export function EvaluationsContent({ user }: { user: any }) {
           <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-sm flex items-center gap-3 animate-fade-in">
             <CheckCircle className="w-5 h-5 shrink-0" />
             <span>{successMessage}</span>
+          </div>
+        )}
+
+        {errorMessage && (
+          <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 font-bold text-sm">
+            {errorMessage}
+          </div>
+        )}
+
+        {evaluatorProfile && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 rounded-2xl bg-dd-surface border border-dd-border text-xs">
+            <div>
+              <p className="text-dd-muted">Nível</p>
+              <p className="font-black text-dd-text">
+                {getEvaluatorLevel(evaluatorProfile.evaluations_count, evaluatorProfile.reputation)}
+              </p>
+            </div>
+            <div>
+              <p className="text-dd-muted">Reputação</p>
+              <p className="font-black text-dd-text">{evaluatorProfile.reputation}/100</p>
+            </div>
+            <div>
+              <p className="text-dd-muted">Avaliações</p>
+              <p className="font-black text-dd-text">{evaluatorProfile.evaluations_count}</p>
+            </div>
+            <div>
+              <p className="text-dd-muted">Status</p>
+              <p className="font-black text-dd-text">{evaluatorProfile.status}</p>
+            </div>
+            <p className="col-span-2 md:col-span-4 text-dd-muted">
+              Especialidades: {evaluatorProfile.tech_stack.join(', ') || 'nenhuma cadastrada'} · +10
+              XP por avaliação concluída.
+            </p>
           </div>
         )}
 

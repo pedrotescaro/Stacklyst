@@ -41,6 +41,16 @@ const AVAILABLE_LANGUAGES: { key: Language; label: string }[] = [
   { key: 'JS', label: 'JavaScript' },
 ];
 
+function formatInvitationTime(totalSeconds: number) {
+  const days = Math.floor(totalSeconds / 86_400);
+  const hours = Math.floor((totalSeconds % 86_400) / 3_600);
+  const minutes = Math.floor((totalSeconds % 3_600) / 60);
+  const seconds = totalSeconds % 60;
+  return `${days}d ${hours.toString().padStart(2, '0')}h ${minutes
+    .toString()
+    .padStart(2, '0')}m ${seconds.toString().padStart(2, '0')}s`;
+}
+
 export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
   const { text } = useLocalizedText();
   const router = useRouter();
@@ -57,7 +67,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
 
   // Incoming duel challenge state
   const [incomingRequest, setIncomingRequest] = useState<any | null>(null);
-  const [requestTimeLeft, setRequestTimeLeft] = useState<number>(30);
+  const [requestTimeLeft, setRequestTimeLeft] = useState<number>(0);
   const [respondingToRequest, setRespondingToRequest] = useState(false);
   const [cooldownAlert, setCooldownAlert] = useState<string | null>(null);
 
@@ -135,12 +145,6 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
         setIncomingRequest(null);
         if (action === 'ACCEPT' && data.duel?.id) {
           router.push(`/duels/${data.duel.id}`);
-        } else if (action === 'REJECT') {
-          if (data.cooldownApplied) {
-            setCooldownAlert(
-              'Você atingiu 3 rejeições consecutivas. Cooldown de 5 minutos ativado.'
-            );
-          }
         }
       }
     } catch (err) {
@@ -332,7 +336,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
             </div>
           )}
 
-          {/* 30-Second Challenge Popup Modal */}
+          {/* Direct challenge popup */}
           {incomingRequest && (
             <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
               <div className="w-full max-w-md p-6 rounded-3xl bg-dd-surface border-2 border-blue-500/50 shadow-2xl space-y-5 text-center">
@@ -359,8 +363,11 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                     Tempo restante para responder:
                   </span>
                   <span className="text-3xl font-mono font-black text-blue-400">
-                    00:{requestTimeLeft.toString().padStart(2, '0')}
+                    {formatInvitationTime(requestTimeLeft)}
                   </span>
+                  <p className="mt-2 text-[11px] text-dd-muted">
+                    Recusar ou deixar expirar não reduz XP e não gera cooldown.
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 pt-2">

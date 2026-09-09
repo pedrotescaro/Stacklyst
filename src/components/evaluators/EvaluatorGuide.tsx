@@ -54,6 +54,10 @@ export function EvaluatorGuide({ context }: { context: 'application' | 'evaluati
           <p className="text-xs text-dd-muted font-medium leading-relaxed">
             Ao homologar, você conclui o duelo e os participantes são notificados do resultado.
           </p>
+          <p className="text-xs text-dd-muted font-medium leading-relaxed">
+            Cada avaliação concluída rende 10 XP. Os níveis são Iniciante, Confiável (10 avaliações
+            e reputação 80+) e Especialista (50 avaliações e reputação 90+).
+          </p>
         </div>
       </div>
 
@@ -80,6 +84,24 @@ export function EvaluatorGuide({ context }: { context: 'application' | 'evaluati
             Exemplo de melhoria: “Jogador 1: a validação da entrada está repetida em duas funções
             (observação), o que dificulta manter as regras consistentes (impacto). Extraia essa
             validação para uma função compartilhada (melhoria).”
+          </p>
+        </div>
+      </details>
+
+      <details className="rounded-2xl bg-dd-bg border border-dd-border/60 p-4">
+        <summary className="text-sm font-bold text-dd-text cursor-pointer rounded focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-4">
+          Como manter — ou perder — a função
+        </summary>
+        <div className="mt-4 space-y-2 text-xs text-dd-muted font-medium leading-relaxed">
+          <p>
+            A reputação começa em 100. Advertências administrativas, sempre acompanhadas de uma
+            justificativa, retiram 10 pontos. Entre 60 e 79 pontos o perfil fica em observação;
+            abaixo de 60, fica suspenso e não pode avaliar.
+          </p>
+          <p>
+            Avalie apenas as tecnologias aprovadas no seu perfil, mantenha decisões imparciais e
+            feedbacks fundamentados. Violações graves podem causar suspensão imediata ou revogação.
+            Um administrador pode reintegrar o perfil após registrar a correção necessária.
           </p>
         </div>
       </details>
