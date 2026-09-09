@@ -3,6 +3,16 @@ import { logger } from '@/lib/logger';
 import { NotificationService } from './notification.service';
 import { TRAILS_DATA } from '@/lib/trailsData';
 import { awardXPInTransaction } from '@/lib/xp';
+import {
+  EVALUATOR_MIN_MOTIVATION_LENGTH,
+  EVALUATOR_MIN_XP,
+  EVALUATOR_REVIEW_XP_REWARD,
+  evaluatorCanReviewLanguage,
+  getApplicationRubric,
+  getEvaluatorStanding,
+  hasReviewableTechnology,
+} from '@/lib/evaluators/policy';
+import { ForbiddenError, ValidationError } from '@/lib/errors';
 
 export const EvaluatorService = {
   /**
@@ -43,7 +53,7 @@ export const EvaluatorService = {
     }
 
     const hasTrail = completedTrails.length >= 1;
-    const hasSufficientXp = user.total_xp >= 1000;
+    const hasSufficientXp = user.total_xp >= EVALUATOR_MIN_XP;
     const eligible = hasTrail || hasSufficientXp;
 
     const latestApplication = user.evaluator_applications[0] || null;
@@ -55,6 +65,7 @@ export const EvaluatorService = {
       isAlreadyEvaluator: user.role === 'EVALUATOR' || user.role === 'ADMIN',
       hasPendingApplication: latestApplication?.status === 'PENDING',
       latestApplication,
+      evaluatorProfile: user.evaluator_profile,
       requirements: {
         hasCompletedTrail: hasTrail,
         hasSufficientXp,
@@ -68,24 +79,46 @@ export const EvaluatorService = {
   async applyForEvaluator(userId: string, motivation: string, techStack: string[]) {
     const eligibility = await this.checkEligibility(userId);
     if (!eligibility.eligible) {
-      throw new Error(
+      throw new ValidationError(
+        'EVALUATOR_NOT_ELIGIBLE',
         'Você ainda não cumpre os requisitos mínimos (concluir 1 trilha completa ou possuir 1.000+ XP).'
       );
     }
 
     if (eligibility.isAlreadyEvaluator) {
-      throw new Error('Você já possui a função de Avaliador de Código.');
+      throw new ValidationError(
+        'ALREADY_EVALUATOR',
+        'Você já possui a função de Avaliador de Código.'
+      );
     }
 
     if (eligibility.hasPendingApplication) {
-      throw new Error('Você já possui uma candidatura em análise.');
+      throw new ValidationError(
+        'EVALUATOR_APPLICATION_PENDING',
+        'Você já possui uma candidatura em análise.'
+      );
+    }
+
+    const normalizedMotivation = motivation.trim();
+    const normalizedTechStack = [...new Set(techStack.map((tech) => tech.trim()).filter(Boolean))];
+    if (normalizedMotivation.length < EVALUATOR_MIN_MOTIVATION_LENGTH) {
+      throw new ValidationError(
+        'EVALUATOR_MOTIVATION_TOO_SHORT',
+        `Explique sua motivação em pelo menos ${EVALUATOR_MIN_MOTIVATION_LENGTH} caracteres.`
+      );
+    }
+    if (!hasReviewableTechnology(normalizedTechStack)) {
+      throw new ValidationError(
+        'EVALUATOR_TECH_NOT_SUPPORTED',
+        'Selecione ao menos uma tecnologia disponível nos duelos.'
+      );
     }
 
     const application = await prisma.evaluatorApplication.create({
       data: {
         user_id: userId,
-        motivation,
-        tech_stack: techStack,
+        motivation: normalizedMotivation,
+        tech_stack: normalizedTechStack,
         status: 'PENDING',
       },
     });
@@ -110,6 +143,7 @@ export const EvaluatorService = {
             total_xp: true,
             streak_days: true,
             role: true,
+            evaluator_profile: true,
           },
         },
       },
@@ -123,7 +157,7 @@ export const EvaluatorService = {
     applicationId: string,
     adminId: string,
     decision: 'APPROVED' | 'REJECTED',
-    notes?: string
+    notes: string
   ) {
     const application = await prisma.evaluatorApplication.findUnique({
       where: { id: applicationId },
@@ -131,36 +165,79 @@ export const EvaluatorService = {
     });
 
     if (!application) {
-      throw new Error('Candidatura não encontrada.');
+      throw new ValidationError('APPLICATION_NOT_FOUND', 'Candidatura não encontrada.');
+    }
+    if (application.status !== 'PENDING') {
+      throw new ValidationError(
+        'APPLICATION_ALREADY_REVIEWED',
+        'Esta candidatura já foi analisada.'
+      );
+    }
+    if (notes.trim().length < 20) {
+      throw new ValidationError(
+        'REVIEW_NOTES_REQUIRED',
+        'Registre uma justificativa objetiva com pelo menos 20 caracteres.'
+      );
     }
 
-    const updated = await prisma.evaluatorApplication.update({
-      where: { id: applicationId },
-      data: {
-        status: decision,
-        reviewed_by_id: adminId,
-        reviewer_notes: notes,
-        reviewed_at: new Date(),
-      },
+    if (decision === 'APPROVED') {
+      const eligibility = await this.checkEligibility(application.user_id);
+      const rubric = getApplicationRubric({
+        eligible: eligibility.eligible,
+        motivation: application.motivation,
+        techStack: application.tech_stack,
+      });
+      if (!rubric.approved) {
+        throw new ValidationError(
+          'EVALUATOR_RUBRIC_NOT_MET',
+          'A candidatura não atende a todos os critérios objetivos para aprovação.',
+          rubric.checks
+        );
+      }
+    }
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const claim = await tx.evaluatorApplication.updateMany({
+        where: { id: applicationId, status: 'PENDING' },
+        data: {
+          status: decision,
+          reviewed_by_id: adminId,
+          reviewer_notes: notes.trim(),
+          reviewed_at: new Date(),
+        },
+      });
+      if (claim.count !== 1) {
+        throw new ValidationError(
+          'APPLICATION_ALREADY_REVIEWED',
+          'Esta candidatura já foi analisada.'
+        );
+      }
+
+      if (decision === 'APPROVED') {
+        await tx.user.update({
+          where: { id: application.user_id },
+          data: { role: 'EVALUATOR' },
+        });
+        await tx.evaluatorProfile.upsert({
+          where: { user_id: application.user_id },
+          update: {
+            tech_stack: application.tech_stack,
+            status: 'ACTIVE',
+            sanction_reason: null,
+          },
+          create: {
+            user_id: application.user_id,
+            reputation: 100,
+            evaluations_count: 0,
+            tech_stack: application.tech_stack,
+            status: 'ACTIVE',
+          },
+        });
+      }
+      return tx.evaluatorApplication.findUniqueOrThrow({ where: { id: applicationId } });
     });
 
     if (decision === 'APPROVED') {
-      // Update user role to EVALUATOR and create evaluator profile
-      await prisma.user.update({
-        where: { id: application.user_id },
-        data: { role: 'EVALUATOR' },
-      });
-
-      await prisma.evaluatorProfile.upsert({
-        where: { user_id: application.user_id },
-        update: {},
-        create: {
-          user_id: application.user_id,
-          reputation: 100,
-          evaluations_count: 0,
-        },
-      });
-
       try {
         await NotificationService.create({
           userId: application.user_id,
@@ -187,6 +264,76 @@ export const EvaluatorService = {
     }
 
     logger.info('Evaluator application reviewed', { applicationId, decision, adminId });
+    return updated;
+  },
+
+  async moderateEvaluator(
+    evaluatorId: string,
+    action: 'WARN' | 'SUSPEND' | 'REINSTATE' | 'REVOKE',
+    notes: string
+  ) {
+    if (notes.trim().length < 20) {
+      throw new ValidationError(
+        'MODERATION_NOTES_REQUIRED',
+        'Registre o motivo da medida com pelo menos 20 caracteres.'
+      );
+    }
+    const profile = await prisma.evaluatorProfile.findUnique({
+      where: { user_id: evaluatorId },
+    });
+    if (!profile) {
+      throw new ValidationError('EVALUATOR_NOT_FOUND', 'Perfil de avaliador não encontrado.');
+    }
+    if (profile.status === 'REVOKED' && action !== 'REINSTATE') {
+      throw new ValidationError(
+        'EVALUATOR_ALREADY_REVOKED',
+        'Este perfil foi revogado; somente a reintegração pode alterar seu estado.'
+      );
+    }
+    if (profile.status === 'SUSPENDED' && action === 'WARN') {
+      throw new ValidationError(
+        'EVALUATOR_SUSPENDED',
+        'Reintegre o perfil antes de aplicar uma nova advertência.'
+      );
+    }
+
+    const updated = await prisma.$transaction(async (tx) => {
+      if (action === 'REVOKE') {
+        await tx.user.update({ where: { id: evaluatorId }, data: { role: 'USER' } });
+        return tx.evaluatorProfile.update({
+          where: { user_id: evaluatorId },
+          data: { status: 'REVOKED', sanction_reason: notes.trim() },
+        });
+      }
+      if (action === 'SUSPEND') {
+        return tx.evaluatorProfile.update({
+          where: { user_id: evaluatorId },
+          data: { status: 'SUSPENDED', sanction_reason: notes.trim() },
+        });
+      }
+      if (action === 'REINSTATE') {
+        await tx.user.update({ where: { id: evaluatorId }, data: { role: 'EVALUATOR' } });
+        return tx.evaluatorProfile.update({
+          where: { user_id: evaluatorId },
+          data: {
+            reputation: Math.max(profile.reputation, 80),
+            status: 'ACTIVE',
+            sanction_reason: null,
+          },
+        });
+      }
+
+      const reputation = Math.max(0, profile.reputation - 10);
+      return tx.evaluatorProfile.update({
+        where: { user_id: evaluatorId },
+        data: {
+          reputation,
+          status: getEvaluatorStanding(reputation),
+          sanction_reason: notes.trim(),
+        },
+      });
+    });
+    logger.info('Evaluator profile moderated', { evaluatorId, action });
     return updated;
   },
 
@@ -230,6 +377,29 @@ export const EvaluatorService = {
       throw new Error('O vencedor deve ser um dos participantes do duelo.');
     }
 
+    const evaluator = await prisma.user.findUnique({
+      where: { id: evaluatorId },
+      include: { evaluator_profile: true },
+    });
+    if (!evaluator || (evaluator.role !== 'ADMIN' && evaluator.role !== 'EVALUATOR')) {
+      throw new ForbiddenError('EVALUATOR_REQUIRED', 'Função de avaliador necessária.');
+    }
+    if (evaluator.role !== 'ADMIN') {
+      const profile = evaluator.evaluator_profile;
+      if (!profile || !['ACTIVE', 'PROBATION'].includes(profile.status)) {
+        throw new ForbiddenError(
+          'EVALUATOR_INACTIVE',
+          'Seu perfil de avaliador está suspenso ou revogado.'
+        );
+      }
+      if (!evaluatorCanReviewLanguage(profile.tech_stack, duel.language)) {
+        throw new ForbiddenError(
+          'EVALUATOR_SPECIALTY_MISMATCH',
+          'Este duelo não pertence às tecnologias aprovadas no seu perfil.'
+        );
+      }
+    }
+
     const evaluation = await prisma.$transaction(async (tx) => {
       const claim = await tx.duel.updateMany({
         where: { id: duelId, status: 'REVIEW_PENDING' },
@@ -243,7 +413,20 @@ export const EvaluatorService = {
       });
       if (claim.count !== 1) throw new Error('Este duelo já foi avaliado por outra pessoa.');
 
-      await awardXPInTransaction(tx, winnerId, duel.language, 50);
+      const rewards = [{ userId: winnerId, amount: 50 }];
+      if (evaluator.evaluator_profile) {
+        rewards.push({ userId: evaluatorId, amount: EVALUATOR_REVIEW_XP_REWARD });
+      }
+      rewards.sort((left, right) => left.userId.localeCompare(right.userId));
+      for (const reward of rewards) {
+        await awardXPInTransaction(tx, reward.userId, duel.language, reward.amount);
+      }
+      if (evaluator.evaluator_profile) {
+        await tx.evaluatorProfile.update({
+          where: { user_id: evaluatorId },
+          data: { evaluations_count: { increment: 1 } },
+        });
+      }
 
       return tx.duelEvaluation.create({
         data: {
@@ -263,12 +446,6 @@ export const EvaluatorService = {
           },
         },
       });
-    });
-
-    // Increment evaluations count for the evaluator
-    await prisma.evaluatorProfile.updateMany({
-      where: { user_id: evaluatorId },
-      data: { evaluations_count: { increment: 1 } },
     });
 
     // Notify duel participants

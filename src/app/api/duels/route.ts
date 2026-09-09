@@ -4,7 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 import { createDuelSchema } from '@/lib/validators';
 import { getRandomDuelProblem } from '@/lib/duel-problems';
-import { DUEL_TIME_LIMIT_SECONDS } from '@/lib/duels/constants';
+import { DUEL_TIME_LIMIT_SECONDS, PUBLIC_DUEL_MATCH_WINDOW_SECONDS } from '@/lib/duels/constants';
 import { getDuelListingWhere } from '@/lib/duels/listing';
 import { isSupportedDuelLanguage } from '@/lib/duels/judge';
 import {
@@ -12,6 +12,7 @@ import {
   getTrustedDuelProblem,
   serializePublicDuelProblem,
 } from '@/lib/duels/problems';
+import { getDuelCooldownMessage } from '@/lib/duels/participation-policy';
 
 const quickMatchSchema = z.object({
   isQuickMatch: z.literal(true),
@@ -45,6 +46,8 @@ export async function POST(request: Request) {
   try {
     const user = await getAuthUser();
     if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+    const cooldownMessage = getDuelCooldownMessage(user.duel_cooldown_until);
+    if (cooldownMessage) return NextResponse.json({ error: cooldownMessage }, { status: 429 });
 
     const body = await request.json();
     if (body?.isQuickMatch === true) {
@@ -96,7 +99,7 @@ export async function POST(request: Request) {
         language: parsed.data.language,
         status: 'PENDING',
         time_limit_seconds: DUEL_TIME_LIMIT_SECONDS,
-        match_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000),
+        match_deadline: new Date(Date.now() + PUBLIC_DUEL_MATCH_WINDOW_SECONDS * 1000),
       },
       include: { challenger: { select: { id: true, username: true, avatar_url: true } } },
     });
@@ -124,7 +127,7 @@ async function matchOrCreateDuel(userId: string, language: 'TS' | 'JS' | 'PYTHON
       language,
       status: 'PENDING',
       time_limit_seconds: DUEL_TIME_LIMIT_SECONDS,
-      match_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000),
+      match_deadline: new Date(Date.now() + PUBLIC_DUEL_MATCH_WINDOW_SECONDS * 1000),
     },
     include: { challenger: { select: { id: true, username: true, avatar_url: true } } },
   });

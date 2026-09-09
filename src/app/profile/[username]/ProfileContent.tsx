@@ -92,6 +92,12 @@ export function ProfileContent({
   >(initialTab);
   const itemsToRender = posts.tab === activeTab ? posts.items : [];
   const [editModalOpen, setEditModalOpen] = useState(false);
+  const [challengeOpen, setChallengeOpen] = useState(false);
+  const [challengeLanguage, setChallengeLanguage] = useState<'TS' | 'JS' | 'PYTHON'>('TS');
+  const [publishOnExpiry, setPublishOnExpiry] = useState(false);
+  const [challengeSubmitting, setChallengeSubmitting] = useState(false);
+  const [challengeFeedback, setChallengeFeedback] = useState<string | null>(null);
+  const [challengeSent, setChallengeSent] = useState(false);
   const [localProfileUser, setLocalProfileUser] = useState(profileUser);
   const profileRailCourses = TRAIL_LANGUAGE_CODES.map((language) => {
     const trail = trails.find((item) => item.language.toUpperCase() === language);
@@ -116,6 +122,34 @@ export function ProfileContent({
   const showFollowingModal = () => {
     setModalType('following');
     setModalOpen(true);
+  };
+
+  const handleChallenge = async () => {
+    setChallengeSubmitting(true);
+    setChallengeFeedback(null);
+    setChallengeSent(false);
+    try {
+      const response = await fetch('/api/duels/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          receiver_id: profileUser.id,
+          language: challengeLanguage,
+          publish_on_expiry: publishOnExpiry,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setChallengeFeedback(data.message || data.error || 'Não foi possível enviar o desafio.');
+        return;
+      }
+      setChallengeFeedback(data.message);
+      setChallengeSent(true);
+    } catch {
+      setChallengeFeedback('Erro de conexão ao enviar o desafio.');
+    } finally {
+      setChallengeSubmitting(false);
+    }
   };
 
   const handleFollowToggle = async () => {
@@ -277,6 +311,11 @@ export function ProfileContent({
                 weeklyActivity={weeklyActivity}
                 onEdit={() => setEditModalOpen(true)}
                 onFollowToggle={handleFollowToggle}
+                onChallenge={() => {
+                  setChallengeFeedback(null);
+                  setChallengeSent(false);
+                  setChallengeOpen(true);
+                }}
                 onShowFollowers={showFollowersModal}
                 onShowFollowing={showFollowingModal}
               />
@@ -525,6 +564,83 @@ export function ProfileContent({
           }
         }}
       />
+
+      {challengeOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="challenge-title"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 p-4"
+        >
+          <div className="w-full max-w-md space-y-4 rounded-3xl border border-dd-border bg-dd-surface p-6 shadow-2xl">
+            <div>
+              <h2 id="challenge-title" className="text-lg font-black text-dd-text">
+                Desafiar @{profileUser.username}
+              </h2>
+              <p className="mt-1 text-xs font-medium text-dd-muted">
+                O convite ficará disponível por 72 horas. Ignorar ou recusar não remove XP nem gera
+                punição.
+              </p>
+            </div>
+
+            <label className="block text-xs font-bold text-dd-text">
+              Linguagem
+              <select
+                value={challengeLanguage}
+                onChange={(event) =>
+                  setChallengeLanguage(event.target.value as 'TS' | 'JS' | 'PYTHON')
+                }
+                className="mt-2 w-full rounded-xl border border-dd-border bg-dd-bg p-3 text-dd-text"
+              >
+                <option value="TS">TypeScript</option>
+                <option value="JS">JavaScript</option>
+                <option value="PYTHON">Python</option>
+              </select>
+            </label>
+
+            <label className="flex items-start gap-3 rounded-xl border border-dd-border bg-dd-bg p-3 text-xs text-dd-muted">
+              <input
+                type="checkbox"
+                checked={publishOnExpiry}
+                onChange={(event) => setPublishOnExpiry(event.target.checked)}
+                className="mt-0.5"
+              />
+              <span>
+                Se o convite expirar, publicar o desafio na arena por mais 24 horas para outro
+                perfil entrar.
+              </span>
+            </label>
+
+            {challengeFeedback && (
+              <p className="rounded-xl bg-dd-bg p-3 text-xs font-bold text-dd-text">
+                {challengeFeedback}
+              </p>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setChallengeOpen(false);
+                  setChallengeFeedback(null);
+                  setChallengeSent(false);
+                }}
+                className="rounded-xl border border-dd-border px-4 py-2 text-xs font-bold text-dd-muted"
+              >
+                Fechar
+              </button>
+              <button
+                type="button"
+                disabled={challengeSubmitting || challengeSent}
+                onClick={handleChallenge}
+                className="rounded-xl bg-purple-500 px-4 py-2 text-xs font-black text-white disabled:opacity-50"
+              >
+                {challengeSubmitting ? 'Enviando...' : 'Enviar desafio'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

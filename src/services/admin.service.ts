@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { UserRole } from '@prisma/client';
+import { ValidationError } from '@/lib/errors';
 
 export const AdminService = {
   /**
@@ -141,22 +142,57 @@ export const AdminService = {
    * Update a user's role (USER, EVALUATOR, ADMIN, RECRUITER).
    */
   async updateUserRole(userId: string, newRole: UserRole) {
-    const updated = await prisma.user.update({
-      where: { id: userId },
-      data: { role: newRole },
-    });
-
+    let approvedApplication: { tech_stack: string[] } | null = null;
     if (newRole === 'EVALUATOR') {
-      await prisma.evaluatorProfile.upsert({
-        where: { user_id: userId },
-        update: {},
-        create: {
-          user_id: userId,
-          reputation: 100,
-          evaluations_count: 0,
-        },
-      });
+      const [application, evaluatorProfile] = await Promise.all([
+        prisma.evaluatorApplication.findFirst({
+          where: { user_id: userId, status: 'APPROVED' },
+          orderBy: [{ reviewed_at: 'desc' }, { created_at: 'desc' }],
+          select: { tech_stack: true },
+        }),
+        prisma.evaluatorProfile.findUnique({
+          where: { user_id: userId },
+          select: { status: true },
+        }),
+      ]);
+      approvedApplication = application;
+      if (!approvedApplication) {
+        throw new ValidationError(
+          'APPROVED_APPLICATION_REQUIRED',
+          'A promoção para avaliador exige uma candidatura aprovada pela rubrica.'
+        );
+      }
+      if (evaluatorProfile && ['SUSPENDED', 'REVOKED'].includes(evaluatorProfile.status)) {
+        throw new ValidationError(
+          'EVALUATOR_REINSTATEMENT_REQUIRED',
+          'Use a reintegração justificada no painel de avaliadores para restaurar este perfil.'
+        );
+      }
     }
+
+    const updated = await prisma.$transaction(async (tx) => {
+      const changedUser = await tx.user.update({
+        where: { id: userId },
+        data: { role: newRole },
+      });
+
+      if (newRole === 'EVALUATOR') {
+        await tx.evaluatorProfile.upsert({
+          where: { user_id: userId },
+          update: {
+            tech_stack: approvedApplication?.tech_stack ?? [],
+          },
+          create: {
+            user_id: userId,
+            reputation: 100,
+            evaluations_count: 0,
+            tech_stack: approvedApplication?.tech_stack ?? [],
+            status: 'ACTIVE',
+          },
+        });
+      }
+      return changedUser;
+    });
 
     logger.info('User role updated by admin', { userId, newRole });
     return updated;

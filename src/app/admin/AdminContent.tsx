@@ -9,12 +9,9 @@ import {
   Calendar,
   AlertTriangle,
   CheckCircle,
-  XCircle,
   Search,
   Check,
   X,
-  TrendingUp,
-  Award,
 } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
 
@@ -50,6 +47,12 @@ interface EvaluatorApp {
     total_xp: number;
     streak_days: number;
     role: string;
+    evaluator_profile: {
+      reputation: number;
+      evaluations_count: number;
+      status: 'ACTIVE' | 'PROBATION' | 'SUSPENDED' | 'REVOKED';
+      sanction_reason: string | null;
+    } | null;
   };
 }
 
@@ -69,16 +72,15 @@ export function AdminContent({ user }: { user: any }) {
   const [evaluatorApps, setEvaluatorApps] = useState<EvaluatorApp[]>([]);
   const [usersList, setUsersList] = useState<AdminUser[]>([]);
   const [reportsList, setReportsList] = useState<ReportItem[]>([]);
-  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [actionMessage, setActionMessage] = useState<string | null>(null);
+  const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
 
   useEffect(() => {
     loadData();
   }, []);
 
   const loadData = async () => {
-    setLoading(true);
     try {
       const [mRes, eRes, uRes, rRes] = await Promise.all([
         fetch('/api/admin/metrics'),
@@ -96,8 +98,6 @@ export function AdminContent({ user }: { user: any }) {
       if (rRes.ok) setReportsList(await rRes.json());
     } catch (err) {
       console.error('Error loading admin data:', err);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -109,7 +109,11 @@ export function AdminContent({ user }: { user: any }) {
       const res = await fetch('/api/admin/evaluators', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ application_id: applicationId, decision }),
+        body: JSON.stringify({
+          application_id: applicationId,
+          decision,
+          notes: reviewNotes[applicationId] || '',
+        }),
       });
 
       if (res.ok) {
@@ -118,7 +122,36 @@ export function AdminContent({ user }: { user: any }) {
         );
         loadData();
         setTimeout(() => setActionMessage(null), 4000);
+      } else {
+        const data = await res.json();
+        setActionMessage(data.message || 'Não foi possível analisar a candidatura.');
       }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleModerateEvaluator = async (
+    evaluatorId: string,
+    applicationId: string,
+    action: 'WARN' | 'SUSPEND' | 'REINSTATE' | 'REVOKE'
+  ) => {
+    try {
+      const res = await fetch('/api/admin/evaluators', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          evaluator_id: evaluatorId,
+          action,
+          notes: reviewNotes[applicationId] || '',
+        }),
+      });
+      const data = await res.json();
+      setActionMessage(
+        res.ok ? 'Medida aplicada ao perfil de avaliador.' : data.message || 'Ação recusada.'
+      );
+      if (res.ok) loadData();
+      setTimeout(() => setActionMessage(null), 4000);
     } catch (err) {
       console.error(err);
     }
@@ -136,6 +169,9 @@ export function AdminContent({ user }: { user: any }) {
         setActionMessage(`Papel do usuário atualizado para ${newRole}.`);
         loadData();
         setTimeout(() => setActionMessage(null), 4000);
+      } else {
+        const data = await res.json();
+        setActionMessage(data.message || 'Não foi possível alterar o papel.');
       }
     } catch (err) {
       console.error(err);
@@ -384,24 +420,103 @@ export function AdminContent({ user }: { user: any }) {
                           </span>
                         ))}
                       </div>
+                      <div className="text-[11px] text-dd-muted space-y-1">
+                        <p>
+                          Rubrica: experiência (trilha completa ou 1.000 XP), motivação com 80+
+                          caracteres e ao menos uma tecnologia avaliável. A aprovação é bloqueada no
+                          servidor se algum item falhar.
+                        </p>
+                        {app.user.evaluator_profile && (
+                          <p className="font-bold text-dd-text">
+                            Reputação {app.user.evaluator_profile.reputation} ·{' '}
+                            {app.user.evaluator_profile.evaluations_count} avaliações ·{' '}
+                            {app.user.evaluator_profile.status}
+                          </p>
+                        )}
+                      </div>
                     </div>
 
-                    {app.status === 'PENDING' && (
-                      <div className="flex items-center gap-2 shrink-0">
-                        <button
-                          onClick={() => handleReviewEvaluator(app.id, 'APPROVED')}
-                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-xs transition-all shadow-md active:scale-95 cursor-pointer"
-                        >
-                          <Check className="w-4 h-4" />
-                          Aprovar Avaliador
-                        </button>
-                        <button
-                          onClick={() => handleReviewEvaluator(app.id, 'REJECTED')}
-                          className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-400 font-bold text-xs border border-red-500/30 transition-all active:scale-95 cursor-pointer"
-                        >
-                          <X className="w-4 h-4" />
-                          Rejeitar
-                        </button>
+                    {(app.status === 'PENDING' || app.user.evaluator_profile) && (
+                      <div className="space-y-2 shrink-0 w-full md:w-80">
+                        <textarea
+                          rows={3}
+                          value={reviewNotes[app.id] || ''}
+                          onChange={(event) =>
+                            setReviewNotes((current) => ({
+                              ...current,
+                              [app.id]: event.target.value,
+                            }))
+                          }
+                          placeholder="Justificativa objetiva (mínimo de 20 caracteres)"
+                          className="w-full bg-dd-bg border border-dd-border rounded-xl p-2.5 text-xs text-dd-text outline-none focus:border-blue-500 resize-none"
+                        />
+                        {app.status === 'PENDING' ? (
+                          <div className="flex flex-wrap items-center gap-2">
+                            <button
+                              disabled={(reviewNotes[app.id] || '').trim().length < 20}
+                              onClick={() => handleReviewEvaluator(app.id, 'APPROVED')}
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-40 text-white font-bold text-xs transition-all shadow-md active:scale-95 cursor-pointer"
+                            >
+                              <Check className="w-4 h-4" />
+                              Aprovar
+                            </button>
+                            <button
+                              disabled={(reviewNotes[app.id] || '').trim().length < 20}
+                              onClick={() => handleReviewEvaluator(app.id, 'REJECTED')}
+                              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 disabled:opacity-40 text-red-400 font-bold text-xs border border-red-500/30 transition-all active:scale-95 cursor-pointer"
+                            >
+                              <X className="w-4 h-4" />
+                              Rejeitar
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex flex-wrap items-center gap-2">
+                            {app.user.evaluator_profile?.status === 'SUSPENDED' ||
+                            app.user.evaluator_profile?.status === 'REVOKED' ? (
+                              <button
+                                disabled={(reviewNotes[app.id] || '').trim().length < 20}
+                                onClick={() =>
+                                  handleModerateEvaluator(app.user_id, app.id, 'REINSTATE')
+                                }
+                                className="px-3 py-2 rounded-xl bg-emerald-500 text-white font-bold text-xs disabled:opacity-40"
+                              >
+                                Reintegrar
+                              </button>
+                            ) : (
+                              <>
+                                <button
+                                  disabled={(reviewNotes[app.id] || '').trim().length < 20}
+                                  onClick={() =>
+                                    handleModerateEvaluator(app.user_id, app.id, 'WARN')
+                                  }
+                                  className="px-3 py-2 rounded-xl bg-orange-500/15 text-orange-400 border border-orange-500/30 font-bold text-xs disabled:opacity-40"
+                                >
+                                  Advertir (-10)
+                                </button>
+                                <button
+                                  disabled={(reviewNotes[app.id] || '').trim().length < 20}
+                                  onClick={() =>
+                                    handleModerateEvaluator(app.user_id, app.id, 'SUSPEND')
+                                  }
+                                  className="px-3 py-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/30 font-bold text-xs disabled:opacity-40"
+                                >
+                                  Suspender
+                                </button>
+                              </>
+                            )}
+                            {app.user.evaluator_profile?.status !== 'REVOKED' && (
+                              <button
+                                disabled={(reviewNotes[app.id] || '').trim().length < 20}
+                                onClick={() =>
+                                  handleModerateEvaluator(app.user_id, app.id, 'REVOKE')
+                                }
+                                className="px-3 py-2 rounded-xl text-red-400 font-bold text-xs disabled:opacity-40"
+                              >
+                                Revogar
+                              </button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -427,6 +542,11 @@ export function AdminContent({ user }: { user: any }) {
                 />
               </div>
             </div>
+
+            <p className="text-xs text-dd-muted">
+              A função EVALUATOR só é concedida pelo fluxo de candidaturas. Esta tabela não ignora a
+              rubrica nem a aprovação registrada.
+            </p>
 
             <div className="overflow-x-auto rounded-2xl border border-dd-border bg-dd-surface">
               <table className="w-full text-left text-xs">
@@ -475,7 +595,9 @@ export function AdminContent({ user }: { user: any }) {
                             className="bg-dd-bg border border-dd-border rounded-lg px-2 py-1 text-xs font-bold text-dd-text outline-none cursor-pointer"
                           >
                             <option value="USER">USER (Desenvolvedor)</option>
-                            <option value="EVALUATOR">EVALUATOR (Avaliador)</option>
+                            {u.role === 'EVALUATOR' && (
+                              <option value="EVALUATOR">EVALUATOR (Avaliador)</option>
+                            )}
                             <option value="RECRUITER">RECRUITER (Empresa)</option>
                             <option value="ADMIN">ADMIN (Administrador)</option>
                           </select>

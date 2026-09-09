@@ -4,6 +4,7 @@ import { getAuthUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { resolveDuelAtDeadline } from '@/lib/duels/resolution';
 import { DUEL_TIME_LIMIT_SECONDS } from '@/lib/duels/constants';
+import { getDuelCooldownMessage } from '@/lib/duels/participation-policy';
 
 const actionSchema = z.object({ action: z.literal('join') });
 
@@ -86,6 +87,8 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
 export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   const user = await getAuthUser();
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
+  const cooldownMessage = getDuelCooldownMessage(user.duel_cooldown_until);
+  if (cooldownMessage) return NextResponse.json({ error: cooldownMessage }, { status: 429 });
   const parsed = actionSchema.safeParse(await request.json());
   if (!parsed.success) return NextResponse.json({ error: 'Ação inválida' }, { status: 400 });
   const { id } = await params;

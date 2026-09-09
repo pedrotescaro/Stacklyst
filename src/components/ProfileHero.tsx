@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Calendar, Edit3, GraduationCap, Sparkles, Trophy } from 'lucide-react';
+import { Calendar, Edit3, GraduationCap, Sparkles, Swords, Trophy } from 'lucide-react';
 import { FollowButton } from '@/components/motion/FollowButton';
 import { LevelBadge, getLevelFromTotalXp } from '@/components/LevelBadge';
 import { getTrailLanguageMetadata, TrailLanguageLogo } from '@/app/trails/TrailLanguageLogo';
@@ -36,6 +36,7 @@ interface ProfileHeroProps {
   weeklyActivity?: ReadonlyMap<number, number>;
   onEdit: () => void;
   onFollowToggle: () => Promise<void>;
+  onChallenge?: () => void;
   onShowFollowers: () => void;
   onShowFollowing: () => void;
 }
@@ -71,6 +72,7 @@ export function ProfileHero({
   weeklyActivity,
   onEdit,
   onFollowToggle,
+  onChallenge,
   onShowFollowers,
   onShowFollowing,
 }: ProfileHeroProps) {
@@ -151,7 +153,19 @@ export function ProfileHero({
               {text('Editar perfil', 'Edit profile')}
             </button>
           ) : (
-            <FollowButton isFollowing={following} onToggle={onFollowToggle} />
+            <>
+              <FollowButton isFollowing={following} onToggle={onFollowToggle} />
+              {onChallenge && (
+                <button
+                  type="button"
+                  onClick={onChallenge}
+                  className="dd-focus-ring inline-flex min-h-12 items-center gap-2 rounded-2xl border-2 border-b-4 border-purple-700 bg-purple-500 px-4 text-xs font-black uppercase text-white transition-transform hover:-translate-y-0.5"
+                >
+                  <Swords className="h-4 w-4" />
+                  {text('Desafiar', 'Challenge')}
+                </button>
+              )}
+            </>
           )}
         </div>
       </div>

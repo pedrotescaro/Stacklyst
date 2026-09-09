@@ -4,6 +4,8 @@ import { requireEvaluator } from '@/lib/auth';
 import { EvaluatorService } from '@/services/evaluator.service';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
+import { getReviewableLanguages } from '@/lib/evaluators/policy';
+import { ForbiddenError } from '@/lib/errors';
 
 const evaluationSchema = z.object({
   duel_id: z.string(),
@@ -18,6 +20,19 @@ const evaluationSchema = z.object({
 // GET /api/evaluations: List duels awaiting evaluation or recently evaluated
 export const GET = apiHandler(async () => {
   const evaluator = await requireEvaluator();
+  const profile = await prisma.evaluatorProfile.findUnique({
+    where: { user_id: evaluator.id },
+  });
+  const reviewableLanguages = profile ? getReviewableLanguages(profile.tech_stack) : [];
+  if (
+    evaluator.role !== 'ADMIN' &&
+    (!profile || !['ACTIVE', 'PROBATION'].includes(profile.status))
+  ) {
+    throw new ForbiddenError(
+      'EVALUATOR_INACTIVE',
+      'Seu perfil de avaliador está suspenso ou revogado.'
+    );
+  }
 
   const pendingDuels = await prisma.duel.findMany({
     where: {
@@ -25,6 +40,7 @@ export const GET = apiHandler(async () => {
       challenger_id: { not: evaluator.id },
       opponent_id: { not: evaluator.id },
       solutions: { some: {} },
+      language: evaluator.role === 'ADMIN' ? undefined : { in: reviewableLanguages },
     },
     orderBy: { created_at: 'desc' },
     take: 20,

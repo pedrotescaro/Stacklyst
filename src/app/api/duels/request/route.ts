@@ -8,6 +8,7 @@ const requestSchema = z.object({
   receiver_id: z.string().optional(),
   language: z.enum(['TS', 'JS', 'PYTHON']).default('TS'),
   auto_match: z.boolean().default(false),
+  publish_on_expiry: z.boolean().default(false),
 });
 
 export const POST = apiHandler(async (req) => {
@@ -28,11 +29,18 @@ export const POST = apiHandler(async (req) => {
     targetUserId = opponent.id;
   }
 
-  const duelRequest = await DuelService.createDuelRequest(user.id, targetUserId, parsed.language);
+  const duelRequest = await DuelService.createDuelRequest(
+    user.id,
+    targetUserId,
+    parsed.language,
+    parsed.publish_on_expiry
+  );
 
   return NextResponse.json({
     success: true,
-    message: 'Desafio enviado! O oponente tem 30 segundos para aceitar.',
+    message: parsed.publish_on_expiry
+      ? 'Desafio enviado! O oponente tem 72 horas para aceitar; depois ele irá para a arena pública.'
+      : 'Desafio enviado! O oponente tem 72 horas para aceitar.',
     request: duelRequest,
   });
 });
