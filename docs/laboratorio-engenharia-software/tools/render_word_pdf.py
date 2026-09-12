@@ -10,12 +10,13 @@ from pathlib import Path
 parser = argparse.ArgumentParser()
 parser.add_argument('--renderer', type=Path, required=True)
 parser.add_argument('--output', type=Path, required=True)
+parser.add_argument('--document-name', default='*.docx')
 args = parser.parse_args()
 spec = importlib.util.spec_from_file_location('canonical_renderer', args.renderer)
 renderer = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(renderer)
 root = Path(__file__).resolve().parents[1]
-for document in sorted((root / 'entregaveis').glob('*.docx')):
+for document in sorted((root / 'entregaveis').glob(args.document_name)):
     destination = args.output.resolve() / document.stem
     exported_pdf = destination / f'{document.stem}.pdf'
     if not exported_pdf.exists() or exported_pdf.stat().st_mtime < document.stat().st_mtime:

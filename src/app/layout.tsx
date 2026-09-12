@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Space_Grotesk, JetBrains_Mono, Bebas_Neue } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import './landing.css';
 import ConnectionBanner from '@/components/ConnectionBanner';
@@ -71,14 +72,10 @@ export default function RootLayout({
       className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${bebasNeue.variable} h-full antialiased`}
       suppressHydrationWarning
     >
-      <head>
-        <script
-          id="theme-script"
-          dangerouslySetInnerHTML={{ __html: themeScript }}
-          suppressHydrationWarning
-        />
-      </head>
       <body className="bg-dd-bg text-dd-text min-h-screen font-sans" suppressHydrationWarning>
+        <Script id="theme-script" strategy="beforeInteractive">
+          {themeScript}
+        </Script>
         <LanguageProvider>
           {children}
           <ConnectionBanner />

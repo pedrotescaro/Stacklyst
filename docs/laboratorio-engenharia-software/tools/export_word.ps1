@@ -1,6 +1,7 @@
 param(
   [string]$OutputRoot = (Join-Path $PSScriptRoot '../qa/rendered-20260905'),
-  [string]$DocumentName = '*.docx'
+  [string]$DocumentName = '*.docx',
+  [switch]$SkipUpdates
 )
 $ErrorActionPreference = 'Stop'
 $outputPath = [IO.Path]::GetFullPath($OutputRoot)
@@ -10,14 +11,19 @@ $word.Visible = $false
 $word.DisplayAlerts = 0
 try {
   foreach ($file in Get-ChildItem -LiteralPath (Join-Path $PSScriptRoot '../entregaveis') -Filter $DocumentName) {
-    $document = $word.Documents.Open($file.FullName, $false, $false)
+    Write-Output "$($file.Name): abrindo"
+    $document = $word.Documents.Open($file.FullName, $false, $SkipUpdates.IsPresent)
     try {
-      $document.Fields.Update() | Out-Null
-      foreach ($toc in $document.TablesOfContents) { $toc.Update() }
-      $document.Repaginate()
-      $document.Save()
+      Write-Output "$($file.Name): aberto"
+      if (-not $SkipUpdates) {
+        $document.Fields.Update() | Out-Null
+        foreach ($toc in $document.TablesOfContents) { $toc.Update() }
+        $document.Repaginate()
+      }
+      if (-not $SkipUpdates) { $document.Save() }
       $destination = Join-Path $outputPath $file.BaseName
       New-Item -ItemType Directory -Force -Path $destination | Out-Null
+      Write-Output "$($file.Name): exportando PDF"
       $document.ExportAsFixedFormat((Join-Path $destination ($file.BaseName + '.pdf')), 17)
       Write-Output "$($file.Name): $($document.ComputeStatistics(2)) pages"
     } finally { $document.Close(0) }
