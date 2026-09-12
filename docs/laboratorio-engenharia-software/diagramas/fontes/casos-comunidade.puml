@@ -15,7 +15,7 @@ rectangle Stacklyst {
   usecase "UC014 Interagir com publicação" as UC014
   usecase "UC015 Criar evento" as UC015
   usecase "UC023 Participar de evento" as UC023
-  usecase "UC019 Administrar papéis" as UC019
+  usecase "UC019 Gerenciar permissões de usuários" as UC019
   usecase "UC020 Tratar denúncias" as UC020
   usecase "UC021 Consultar notificações" as UC021
 }

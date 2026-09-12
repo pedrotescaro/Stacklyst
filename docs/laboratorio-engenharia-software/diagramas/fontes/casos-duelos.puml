@@ -13,12 +13,12 @@ actor Administrador
 actor "Executor de código" as Runner
 rectangle Stacklyst {
   usecase "UC029 Executar código\ne testes" as UC029
-  usecase "UC008 Convidar para duelo" as UC008
-  usecase "UC009 Entrar na arena" as UC009
-  usecase "UC010 Submeter solução de duelo" as UC010
+  usecase "UC008 Criar duelo aberto" as UC008
+  usecase "UC009 Entrar em duelo" as UC009
+  usecase "UC010 Enviar solução de duelo" as UC010
   usecase "UC016 Avaliar empate técnico" as UC016
-  usecase "UC024 Solicitar função de avaliador" as UC024
-  usecase "UC027 Decidir candidatura de avaliador" as UC027
+  usecase "UC024 Candidatar-se a avaliador" as UC024
+  usecase "UC027 Aprovar ou rejeitar candidatura de avaliador" as UC027
 }
 Usuario -- UC008
 Usuario -- UC009

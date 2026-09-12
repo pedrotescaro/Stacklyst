@@ -22,7 +22,7 @@ def apply_current_baseline(ns):
         flow=['Receber resultado avaliado pelo servidor.', 'Abrir transação e adquirir lock por usuário.', 'Consultar o recibo da atividade e identificar primeiro acerto.', 'Conceder a recompensa definida no servidor somente no primeiro acerto; revisões recebem zero XP adicional.', 'Confirmar gravação de tentativa e recompensa juntas ou desfazer a operação.', 'Derivar nível e faixa de XP.', 'Ordenar ranking por XP decrescente, username e id crescentes.'],
         evidence='src/lib/learning/rewards.ts; lesson-progress.ts; language-xp.ts; src/lib/xp.ts')
     activities.append(dict(
-        id='AN06', name='Consultar ajuda editorial', objective='Apoiar a prática com dicas e documentação publicadas.',
+        id='AN06', name='Consultar ajuda do exercício', objective='Apoiar a prática com orientações, dicas e documentação técnica do exercício.',
         participants='Estudante; Stacklyst.', preconditions='Exercício publicado e modo de assistência selecionado.',
         flow=['Abrir um exercício e selecionar o modo de assistência.', 'Verificar se o modo permite a ajuda solicitada.', 'Abrir dica ou documentação editorial.', 'Registrar LearningEvent quando a ação ocorrer no workspace.', 'Aplicar a orientação e testar o código.'],
         decisions='Modo permite ajuda? Material disponível?', exceptions='Material ausente ou modo sem assistência; é possível trocar o modo.',
@@ -110,7 +110,7 @@ def apply_current_baseline(ns):
     names = {id: name.replace('\\n', ' ') for name, id in re.findall(r'usecase "UC\d{3} (.*?)" as (UC\d{3})', source)}
     for case in ns['USE_CASES']:
         case['name'] = names[case['id']]
-    ns['TRACEABILITY'][5] = ['AN06 — Consultar ajuda editorial', 'RF022; RF023–RF025 planejados', 'RN013, RN024', 'UC012']
+    ns['TRACEABILITY'][5] = ['AN06 — Consultar ajuda do exercício', 'RF022; RF023–RF025 planejados', 'RN013, RN024', 'UC012']
     ns['TRACEABILITY'][2][-1] = 'UC006, UC028, UC029'
     ns['TRACEABILITY'][6][-1] = 'UC016, UC024, UC027'
     ns['TRACEABILITY'][7][-1] = 'UC017, UC018, UC022, UC025, UC026'

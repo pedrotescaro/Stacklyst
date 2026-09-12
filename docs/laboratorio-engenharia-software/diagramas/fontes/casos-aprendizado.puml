@@ -13,14 +13,14 @@ actor "Provedor de identidade" as Auth
 actor "Executor de código" as Runner
 rectangle Stacklyst {
   usecase "UC001 Cadastrar conta" as UC001
-  usecase "UC002 Autenticar" as UC002
+  usecase "UC002 Fazer login" as UC002
   usecase "UC003 Editar perfil" as UC003
   usecase "UC004 Selecionar trilha" as UC004
   usecase "UC005 Estudar lição" as UC005
   usecase "UC006 Resolver exercício" as UC006
   usecase "UC007 Consultar progresso" as UC007
   usecase "UC011 Consultar ranking de XP" as UC011
-  usecase "UC012 Consultar ajuda editorial" as UC012
+  usecase "UC012 Consultar ajuda do exercício" as UC012
   usecase "UC028 Avaliar resposta" as UC028
   usecase "UC029 Executar código\ne testes" as UC029
 }

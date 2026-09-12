@@ -15,7 +15,7 @@ rectangle Stacklyst {
   usecase "UC018 Consultar vagas" as UC018
   usecase "UC022 Candidatar-se a vaga" as UC022
   usecase "UC025 Cadastrar empresa" as UC025
-  usecase "UC026 Gerenciar candidatura" as UC026
+  usecase "UC026 Atualizar etapa de candidatura" as UC026
 }
 Usuario -- UC018
 Usuario -- UC022
