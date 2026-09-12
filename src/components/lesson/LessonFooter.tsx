@@ -119,8 +119,12 @@ export function LessonFooter({
             </div>
           </motion.div>
         ) : (
-          <div
+          <motion.div
             key="normal-footer"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.15 }}
             className="w-full border-t border-dd-border/80 bg-dd-bg/95 backdrop-blur-md p-4 md:p-5"
           >
             <div className="max-w-4xl mx-auto flex items-center justify-between gap-4">
@@ -153,7 +157,7 @@ export function LessonFooter({
                 <ArrowRight className="h-4 w-4" />
               </button>
             </div>
-          </div>
+          </motion.div>
         )}
       </AnimatePresence>
     </footer>

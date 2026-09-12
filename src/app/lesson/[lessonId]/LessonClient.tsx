@@ -218,7 +218,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
   };
 
   const handleVerify = async () => {
-    if (!currentStep || isVerifying) return;
+    if (!currentStep || isVerifying || currentStep.type === 'concept_explanation') return;
     setIsVerifying(true);
     setSaveError(null);
     try {
@@ -228,7 +228,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
       setFeedbackMessage(result.message);
       setFeedbackDetails(result.details);
       setSavedComplete(Boolean(result.lessonCompleted));
-      if (result.isCorrect && currentStep.type !== 'concept_explanation') {
+      if (result.isCorrect) {
         playSound('quiz_correct');
         setSessionState((prev) => ({
           ...prev,
@@ -237,7 +237,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
           maxCombo: Math.max(prev.maxCombo, prev.combo + 1),
           correctAnswersCount: prev.correctAnswersCount + 1,
         }));
-      } else if (!result.isCorrect) {
+      } else {
         playSound('quiz_incorrect');
         setSessionState((prev) => ({
           ...prev,
@@ -257,15 +257,46 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
   };
 
   const handleContinue = async () => {
-    let complete = savedComplete;
-    if (currentStep?.type === 'concept_explanation' && !answered) {
-      const result = await handleVerify();
-      if (!result?.isCorrect) return;
-      complete = Boolean(result.lessonCompleted);
-    } else if (!isCorrect) return;
+    if (currentStep?.type === 'concept_explanation') {
+      if (isVerifying) return;
+      setIsVerifying(true);
+      setSaveError(null);
+      try {
+        const result = await sendAnswer('submit');
+        setSavedComplete(Boolean(result.lessonCompleted));
+        setAnswered(false);
+        setIsCorrect(false);
+        setFeedbackMessage('');
+        setFeedbackDetails(undefined);
+        if (sessionState.currentStepIndex + 1 < lesson.steps.length) {
+          setSessionState((prev) => ({ ...prev, currentStepIndex: prev.currentStepIndex + 1 }));
+        } else if (result.lessonCompleted) {
+          playSound('lesson_completed');
+          setIsCompleted(true);
+          router.refresh();
+        } else {
+          setSaveError('Há exercícios pendentes nesta lição. Reabra a lição para retomá-los.');
+        }
+      } catch (error) {
+        setSaveError(
+          error instanceof Error ? error.message : 'Não foi possível salvar. Tente novamente.'
+        );
+      } finally {
+        setIsVerifying(false);
+      }
+      return;
+    }
+
+    if (!isCorrect) return;
+
+    setAnswered(false);
+    setIsCorrect(false);
+    setFeedbackMessage('');
+    setFeedbackDetails(undefined);
+
     if (sessionState.currentStepIndex + 1 < lesson.steps.length) {
       setSessionState((prev) => ({ ...prev, currentStepIndex: prev.currentStepIndex + 1 }));
-    } else if (complete) {
+    } else if (savedComplete) {
       playSound('lesson_completed');
       setIsCompleted(true);
       router.refresh();
