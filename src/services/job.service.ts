@@ -20,12 +20,18 @@ export const JobService = {
     modality?: JobModality;
     contract?: JobContract;
     technology?: string;
-    status?: JobStatus;
+    status?: JobStatus | 'ALL';
+    companyId?: string;
   }) {
-    const where: any = {
-      status: filters?.status || 'OPEN',
-    };
+    const where: any = {};
 
+    if (filters?.status && filters.status !== 'ALL') {
+      where.status = filters.status;
+    } else if (!filters?.status) {
+      where.status = 'OPEN';
+    }
+
+    if (filters?.companyId) where.company_id = filters.companyId;
     if (filters?.level) where.level = filters.level;
     if (filters?.modality) where.modality = filters.modality;
     if (filters?.contract) where.contract_type = filters.contract;
@@ -60,6 +66,43 @@ export const JobService = {
         _count: {
           select: { applications: true },
         },
+      },
+    });
+  },
+
+  /**
+   * Get all applications for a specific job with applicant user and stage info.
+   * Only accessible by Recruiter or Admin.
+   */
+  async getJobApplications(jobId: string, currentUserId: string, userRole: string) {
+    const job = await prisma.job.findUnique({
+      where: { id: jobId },
+      include: { company: true },
+    });
+
+    if (!job) {
+      throw new Error('Vaga não encontrada.');
+    }
+
+    if (userRole !== 'ADMIN' && userRole !== 'RECRUITER') {
+      throw new Error('Acesso não autorizado às candidaturas desta vaga.');
+    }
+
+    return prisma.jobApplication.findMany({
+      where: { job_id: jobId },
+      orderBy: { created_at: 'desc' },
+      include: {
+        user: {
+          select: {
+            id: true,
+            username: true,
+            avatar_url: true,
+            total_xp: true,
+            bio: true,
+            github_username: true,
+          },
+        },
+        stage: true,
       },
     });
   },

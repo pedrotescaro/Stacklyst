@@ -1,4 +1,7 @@
-import { BookOpen } from 'lucide-react';
+'use client';
+
+import { useState } from 'react';
+import { BookOpen, ChevronDown, ChevronUp, CheckCircle2 } from 'lucide-react';
 
 const criteria = [
   ['Correção', 'Confira se a solução produz o resultado esperado, inclusive nos casos limite.'],
@@ -18,81 +21,156 @@ const checklist = [
   'Identifiquei a qual participante cada observação se refere e revisei a clareza do feedback.',
 ];
 
-export function EvaluatorGuide({ context }: { context: 'application' | 'evaluation' }) {
+export interface EvaluatorGuideProps {
+  context: 'application' | 'evaluation';
+  defaultExpanded?: boolean;
+}
+
+export function EvaluatorGuide({ context, defaultExpanded }: EvaluatorGuideProps) {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded ?? context === 'application');
+
   return (
-    <section className="p-6 rounded-3xl bg-dd-surface border border-dd-border space-y-4">
-      <h2 className="text-base font-black text-dd-text flex items-center gap-2">
-        <BookOpen aria-hidden="true" className="w-5 h-5 shrink-0 text-blue-400" />
-        Guia do Avaliador
-      </h2>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <h3 className="text-sm font-bold text-dd-text">Seu papel e suas responsabilidades</h3>
-          <p className="text-xs text-dd-muted font-medium leading-relaxed">
-            Revise soluções de duelos que aguardam desempate humano. Sua responsabilidade é comparar
-            os códigos, justificar a decisão e ajudar os participantes a melhorar.
-          </p>
-          <p className="text-xs text-dd-muted font-medium leading-relaxed">
-            Atue nas tecnologias que domina e mantenha a imparcialidade: use os mesmos critérios
-            para ambos os participantes, sem favorecer amizades, reputação ou preferências pessoais.
-            Avalie o código com respeito e reconheça os limites da sua análise.
-          </p>
+    <section className="rounded-2xl sm:rounded-3xl bg-dd-surface border border-dd-border transition-all overflow-hidden">
+      {/* Header bar / Toggle */}
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setIsExpanded((prev) => !prev)}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            setIsExpanded((prev) => !prev);
+          }
+        }}
+        aria-expanded={isExpanded}
+        className="p-4 sm:p-5 flex items-center justify-between gap-3 cursor-pointer select-none hover:bg-dd-bg/40 transition-colors"
+      >
+        <div className="flex items-center gap-3 min-w-0">
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 shrink-0 items-center justify-center rounded-xl sm:rounded-2xl bg-blue-500/15 border border-blue-500/30 text-blue-400">
+            <BookOpen aria-hidden="true" className="w-4 h-4 sm:w-5 sm:h-5" />
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h2 className="text-sm sm:text-base font-black text-dd-text">Guia do Avaliador</h2>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25">
+                5 critérios técnicos
+              </span>
+            </div>
+            <p className="text-[11px] sm:text-xs text-dd-muted font-medium truncate mt-0.5">
+              Critérios de qualidade, boas práticas de feedback e checklist de homologação
+            </p>
+          </div>
         </div>
 
-        <div className="space-y-2">
-          <h3 className="text-sm font-bold text-dd-text">
-            {context === 'application'
-              ? 'Como atuar após a aprovação'
-              : 'A revisão humana do duelo'}
-          </h3>
-          <p className="text-xs text-dd-muted font-medium leading-relaxed">
-            {context === 'application'
-              ? 'Após a aprovação administrativa, acesse a Central de Avaliação Técnica e selecione um duelo pendente. Leia o enunciado, compare as soluções e registre notas, vencedor e feedback.'
-              : 'A Central reúne duelos encaminhados para desempate técnico. Confira as soluções e fundamente a escolha do vencedor; as notas automáticas disponíveis são um apoio à sua análise.'}
-          </p>
-          <p className="text-xs text-dd-muted font-medium leading-relaxed">
-            Ao homologar, você conclui o duelo e os participantes são notificados do resultado.
-          </p>
-        </div>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded((prev) => !prev);
+          }}
+          aria-expanded={isExpanded}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-dd-border bg-dd-bg hover:bg-dd-surface text-xs font-bold text-dd-text transition-all shrink-0 cursor-pointer"
+        >
+          <span className="hidden sm:inline">{isExpanded ? 'Ocultar Guia' : 'Ver Guia'}</span>
+          {isExpanded ? (
+            <ChevronUp className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronDown className="w-3.5 h-3.5" />
+          )}
+        </button>
       </div>
 
-      <details className="rounded-2xl bg-dd-bg border border-dd-border/60 p-4" open>
-        <summary className="text-sm font-bold text-dd-text cursor-pointer rounded focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-4">
-          Critérios e boas práticas de avaliação
-        </summary>
-        <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-4">
-          {criteria.map(([title, description]) => (
-            <div key={title} className="space-y-1">
-              <dt className="text-xs font-bold text-dd-text">{title}</dt>
-              <dd className="text-xs text-dd-muted font-medium leading-relaxed">{description}</dd>
+      {/* Expanded Guide Content */}
+      {isExpanded && (
+        <div className="px-4 pb-5 sm:px-6 sm:pb-6 pt-2 space-y-4 sm:space-y-5 border-t border-dd-border/60 animate-fade-in">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-1.5 p-3.5 sm:p-4 rounded-2xl bg-dd-bg/60 border border-dd-border/40">
+              <h3 className="text-xs sm:text-sm font-bold text-dd-text">
+                Seu papel e suas responsabilidades
+              </h3>
+              <p className="text-xs text-dd-muted font-medium leading-relaxed">
+                Revise soluções de duelos que aguardam desempate humano. Sua responsabilidade é
+                comparar os códigos, justificar a decisão e ajudar os participantes a melhorar.
+              </p>
+              <p className="text-xs text-dd-muted font-medium leading-relaxed">
+                Atue nas tecnologias que domina e mantenha a imparcialidade: use os mesmos critérios
+                para ambos os participantes, sem favorecer amizades ou preferências pessoais.
+              </p>
             </div>
-          ))}
-        </dl>
-        <div className="mt-4 pt-4 border-t border-dd-border/60 space-y-2">
-          <h3 className="text-sm font-bold text-dd-text">Como escrever um feedback útil</h3>
-          <p className="text-xs text-dd-muted font-medium leading-relaxed">
-            Relacione observação, impacto e melhoria: cite um trecho ou comportamento do código,
-            explique seu efeito e sugira uma ação concreta. Identifique o participante, reconheça
-            pontos fortes e fundamente as notas e a escolha do vencedor com essas evidências.
-          </p>
-          <p className="text-xs text-dd-muted font-medium leading-relaxed">
-            Exemplo de melhoria: “Jogador 1: a validação da entrada está repetida em duas funções
-            (observação), o que dificulta manter as regras consistentes (impacto). Extraia essa
-            validação para uma função compartilhada (melhoria).”
-          </p>
-        </div>
-      </details>
 
-      {context === 'evaluation' && (
-        <div className="p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 space-y-2">
-          <h3 className="text-sm font-bold text-dd-text">Checklist antes de homologar</h3>
-          <p className="text-xs text-dd-muted font-medium">Use como apoio à sua revisão final:</p>
-          <ul className="list-disc pl-5 space-y-2 text-xs text-dd-muted font-medium leading-relaxed">
-            {checklist.map((item) => (
-              <li key={item}>{item}</li>
-            ))}
-          </ul>
+            <div className="space-y-1.5 p-3.5 sm:p-4 rounded-2xl bg-dd-bg/60 border border-dd-border/40">
+              <h3 className="text-xs sm:text-sm font-bold text-dd-text">
+                {context === 'application'
+                  ? 'Como atuar após a aprovação'
+                  : 'A revisão humana do duelo'}
+              </h3>
+              <p className="text-xs text-dd-muted font-medium leading-relaxed">
+                {context === 'application'
+                  ? 'Após a aprovação administrativa, acesse a Central de Avaliação Técnica e selecione um duelo pendente. Leia o enunciado, compare as soluções e registre notas, vencedor e feedback.'
+                  : 'A Central reúne duelos encaminhados para desempate técnico. Confira as soluções e fundamente a escolha do vencedor; as notas automáticas disponíveis são um apoio à sua análise.'}
+              </p>
+              <p className="text-xs text-dd-muted font-medium leading-relaxed">
+                Ao homologar, você conclui o duelo e os participantes são notificados do resultado.
+              </p>
+            </div>
+          </div>
+
+          <details className="rounded-2xl bg-dd-bg border border-dd-border/60 p-3.5 sm:p-4" open>
+            <summary className="text-xs sm:text-sm font-bold text-dd-text cursor-pointer rounded focus-visible:outline-2 focus-visible:outline-blue-500 focus-visible:outline-offset-4 select-none">
+              Critérios e boas práticas de avaliação
+            </summary>
+            <dl className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 mt-4">
+              {criteria.map(([title, description]) => (
+                <div
+                  key={title}
+                  className="space-y-1 p-2.5 rounded-xl bg-dd-surface/50 border border-dd-border/30"
+                >
+                  <dt className="text-xs font-bold text-dd-text flex items-center gap-1.5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-blue-400 shrink-0" />
+                    {title}
+                  </dt>
+                  <dd className="text-[11px] text-dd-muted font-medium leading-relaxed">
+                    {description}
+                  </dd>
+                </div>
+              ))}
+            </dl>
+            <div className="mt-4 pt-4 border-t border-dd-border/60 space-y-2">
+              <h4 className="text-xs sm:text-sm font-bold text-dd-text">
+                Como escrever um feedback útil
+              </h4>
+              <p className="text-xs text-dd-muted font-medium leading-relaxed">
+                Relacione observação, impacto e melhoria: cite um trecho ou comportamento do código,
+                explique seu efeito e sugira uma ação concreta. Identifique o participante,
+                reconheça pontos fortes e fundamente as notas e a escolha do vencedor com essas
+                evidências.
+              </p>
+              <p className="text-[11px] text-dd-muted font-mono bg-dd-surface/70 p-2.5 rounded-xl border border-dd-border/40">
+                Exemplo: “Jogador 1: a validação da entrada está repetida em duas funções
+                (observação), o que dificulta manter as regras consistentes (impacto). Extraia essa
+                validação para uma função compartilhada (melhoria).”
+              </p>
+            </div>
+          </details>
+
+          {context === 'evaluation' && (
+            <div className="p-3.5 sm:p-4 rounded-2xl bg-blue-500/10 border border-blue-500/30 space-y-2">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-blue-400 shrink-0" />
+                <h3 className="text-xs sm:text-sm font-bold text-dd-text">
+                  Checklist antes de homologar
+                </h3>
+              </div>
+              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-dd-muted font-medium leading-relaxed pt-1">
+                {checklist.map((item) => (
+                  <li key={item} className="flex items-start gap-2">
+                    <span className="text-blue-400 font-black shrink-0">•</span>
+                    <span>{item}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </div>
       )}
     </section>

@@ -45,7 +45,9 @@ export const GET = apiHandler(async (req) => {
   const modality = (searchParams.get('modality') as JobModality) || undefined;
   const contract = (searchParams.get('contract') as JobContract) || undefined;
   const technology = searchParams.get('technology') || undefined;
-  const status = (searchParams.get('status') as JobStatus) || 'OPEN';
+  const statusParam = searchParams.get('status');
+  const status = statusParam === 'ALL' ? 'ALL' : (statusParam as JobStatus) || 'OPEN';
+  const companyId = searchParams.get('company_id') || undefined;
 
   const jobs = await JobService.listJobs({
     search,
@@ -54,6 +56,7 @@ export const GET = apiHandler(async (req) => {
     contract,
     technology,
     status,
+    companyId,
   });
 
   return NextResponse.json(jobs);
