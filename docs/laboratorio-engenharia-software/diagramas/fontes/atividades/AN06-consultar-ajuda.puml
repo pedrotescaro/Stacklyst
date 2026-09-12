@@ -18,8 +18,7 @@ else (não)
 endif
 stop
 note right
-  Este fluxo descreve ajuda editorial.
-  Não existe chamada a tutor de IA
-  na API atual inventariada.
+  Este fluxo usa conteúdo editorial
+  versionado no próprio Stacklyst.
 end note
 @enduml
