@@ -4,21 +4,32 @@
 
 .signUpButton {
   display: inline-flex;
-  height: 2.5rem;
-  padding-inline: 1.25rem;
+  height: 2.125rem;
+  padding-inline: 0.875rem;
   align-items: center;
   justify-content: center;
   border: 0;
   border-radius: 800px;
   background: #fff;
   color: #000;
-  font-size: 0.875rem;
-  font-weight: 500;
-  line-height: 1.25rem;
-  letter-spacing: -0.02em;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  line-height: 1rem;
+  letter-spacing: -0.01em;
   white-space: nowrap;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.07);
-  transition: letter-spacing 900ms cubic-bezier(0.16, 1, 0.3, 1);
+  transition: letter-spacing 900ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease;
+}
+
+@media (min-width: 640px) {
+  .signUpButton {
+    height: 2.5rem;
+    padding-inline: 1.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.25rem;
+    letter-spacing: -0.02em;
+  }
 }
 
 .signUpButton:hover,

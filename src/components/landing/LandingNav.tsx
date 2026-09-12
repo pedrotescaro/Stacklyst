@@ -43,45 +43,42 @@ export default function LandingNav({ initialUser }: LandingNavProps) {
       data-force-motion="true"
       className={`fixed inset-x-0 z-50 mx-auto overflow-visible border font-sans transition-[top,width,max-width,background-color,border-color,border-radius,box-shadow,backdrop-filter] duration-500 ease-out ${
         isScrolled
-          ? 'top-4 w-[calc(100%_-_3rem)] max-w-6xl rounded-2xl border-white/10 bg-black/90 shadow-2xl backdrop-blur-2xl'
-          : 'top-3 w-[calc(100%_-_1.5rem)] max-w-[1536px] rounded-none border-transparent bg-transparent shadow-none backdrop-blur-none'
+          ? 'top-3 sm:top-4 w-[calc(100%_-_1.25rem)] sm:w-[calc(100%_-_3rem)] max-w-6xl rounded-2xl border-white/10 bg-black/90 shadow-2xl backdrop-blur-2xl'
+          : 'top-2 sm:top-3 w-[calc(100%_-_1.25rem)] sm:w-[calc(100%_-_1.5rem)] max-w-[1536px] rounded-none border-transparent bg-transparent shadow-none backdrop-blur-none'
       }`}
     >
       <div
         className={`relative flex w-full items-center justify-between transition-[padding] duration-500 ease-out ${
-          isScrolled ? 'px-4 py-3 sm:px-6' : 'px-4 py-5 sm:px-10'
+          isScrolled ? 'px-3 py-2 sm:px-6 sm:py-3' : 'px-3 py-3 sm:px-10 sm:py-5'
         }`}
       >
-        {/* ── Logo & Language Toggle ── */}
-        <div className="flex items-center gap-3 sm:gap-4">
-          <Link href="/" className="flex items-center gap-3 group">
-            <Image
-              src="/logo.svg"
-              alt="Stacklyst Logo"
-              width={366}
-              height={283}
-              className="h-auto w-8 object-contain"
-            />
-            <span
-              className="font-sans text-xl font-extrabold tracking-tight"
-              style={{ color: 'var(--lp-fg)' }}
-            >
-              Stacklyst
-            </span>
-          </Link>
+        {/* ── Logo ── */}
+        <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+          <Image
+            src="/logo.svg"
+            alt="Stacklyst Logo"
+            width={366}
+            height={283}
+            className="h-6 w-auto sm:h-7 sm:w-auto object-contain"
+          />
+          <span
+            className="font-sans text-base sm:text-xl font-extrabold tracking-tight"
+            style={{ color: 'var(--lp-fg)' }}
+          >
+            Stacklyst
+          </span>
+        </Link>
 
+        {/* ── Right side (Language Toggle & Auth) ── */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <LanguageToggle />
-        </div>
 
-        {/* ── Right side ── */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* Auth links or CTA */}
           {initialUser ? (
             <Link href="/feed" className={styles.signUpButton} data-force-motion="true">
               {t.nav.goToFeed}
             </Link>
           ) : (
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 sm:gap-3">
               <Link href="/login" className={styles.loginLink} data-force-motion="true">
                 {t.nav.login}
               </Link>

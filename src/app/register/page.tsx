@@ -205,38 +205,47 @@ export default function RegisterPage() {
         <section
           className={[
             styles.formPanel,
-            'relative flex min-h-svh items-start justify-center px-5 py-8 sm:px-12 lg:py-[8vh] lg:px-[clamp(3rem,5.4vw,4rem)]',
+            'relative flex min-h-svh flex-col items-center justify-start px-4 py-4 sm:px-8 sm:py-6 lg:justify-center lg:py-[8vh] lg:px-[clamp(3rem,5.4vw,4rem)]',
           ].join(' ')}
         >
-          {/* Seta para voltar para a landing page */}
-          <Link
-            href="/"
-            aria-label={copy.backHome}
-            title={copy.backHome}
-            className="group absolute left-5 top-5 sm:left-8 sm:top-8 flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-[#1a1a1a] text-zinc-400 transition-all duration-200 hover:border-white/20 hover:bg-[#222] hover:text-white"
-          >
-            <ArrowLeft className="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-0.5" />
-          </Link>
-          <div className="absolute right-5 top-5 z-10 sm:right-8 sm:top-8">
-            <LanguageToggle />
-          </div>
-
-          <div className="w-full max-w-[466px]">
-            <Link href="/" className="mb-8 inline-flex items-center gap-3 lg:hidden">
-              <Image
-                src="/logo.svg"
-                alt="Stacklyst logo"
-                width={38}
-                height={38}
-                className={[styles.brandLogo, 'h-[38px] w-[38px] object-contain'].join(' ')}
-              />
-              <span
-                className={[styles.brandText, 'text-2xl font-bold tracking-[-0.04em]'].join(' ')}
-              >
-                Stacklyst
-              </span>
+          {/* Top navigation bar */}
+          <header className="relative flex w-full max-w-[466px] lg:max-w-none items-center justify-between mb-4 sm:mb-6 lg:absolute lg:top-8 lg:inset-x-0 lg:px-8 lg:mb-0 lg:pointer-events-none">
+            {/* Seta para voltar para a landing page */}
+            <Link
+              href="/"
+              aria-label={copy.backHome}
+              title={copy.backHome}
+              className="group z-10 flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-[#1a1a1a] text-zinc-400 transition-all duration-200 hover:border-white/20 hover:bg-[#222] hover:text-white lg:pointer-events-auto"
+            >
+              <ArrowLeft className="h-5 w-5 transition-transform duration-200 group-hover:-translate-x-0.5" />
             </Link>
 
+            {/* Logo centralizado no mobile e tablet (< lg) */}
+            <div className="absolute inset-x-0 flex items-center justify-center pointer-events-none lg:hidden">
+              <Link
+                href="/"
+                className="pointer-events-auto inline-flex items-center gap-2.5 transition-opacity hover:opacity-85"
+              >
+                <Image
+                  src="/logo.svg"
+                  alt="Stacklyst logo"
+                  width={28}
+                  height={28}
+                  className="h-7 w-7 object-contain"
+                />
+                <span className="font-sans text-xl font-extrabold tracking-tight text-white">
+                  Stacklyst
+                </span>
+              </Link>
+            </div>
+
+            {/* Seletor de idioma */}
+            <div className="z-10 flex items-center lg:pointer-events-auto">
+              <LanguageToggle />
+            </div>
+          </header>
+
+          <div className="w-full max-w-[466px] my-auto lg:my-0 pb-6 lg:pb-0">
             {loading ? (
               <Loader
                 title={copy.loadingTitle}
@@ -247,10 +256,12 @@ export default function RegisterPage() {
             ) : (
               <>
                 <header className="text-center">
-                  <h2 className="text-[28px] font-semibold leading-tight tracking-[-0.045em] text-white">
+                  <h2 className="text-2xl sm:text-[28px] font-semibold leading-tight tracking-[-0.045em] text-white">
                     {copy.heading}
                   </h2>
-                  <p className="mt-4 text-[15px] leading-6 text-zinc-300">{copy.subtitle}</p>
+                  <p className="mt-2 sm:mt-3 text-sm sm:text-[15px] leading-6 text-zinc-300">
+                    {copy.subtitle}
+                  </p>
                 </header>
 
                 {error && (
@@ -262,53 +273,53 @@ export default function RegisterPage() {
                   </div>
                 )}
 
-                <div className="mt-8 grid grid-cols-3 gap-2.5">
+                <div className="mt-6 sm:mt-8 grid grid-cols-3 gap-2.5 sm:gap-3">
                   <button
                     type="button"
                     aria-label={copy.google}
                     onClick={() => handleOAuthLogin('google')}
-                    className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-white/[0.06] bg-[#1a1a1a] px-1.5 text-[9px] font-medium whitespace-nowrap text-white/85 transition-colors hover:border-[#4285F4]/45 hover:bg-[#202020] sm:gap-2 sm:px-2 sm:text-[10px] cursor-pointer"
+                    className="flex h-10 items-center justify-center gap-2 rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-2 text-xs font-medium text-white/90 transition-all hover:border-[#4285F4]/50 hover:bg-[#222] cursor-pointer"
                   >
-                    <GoogleIcon className="h-3.5 w-3.5 shrink-0" />
-                    <span>Google</span>
+                    <GoogleIcon className="h-4 w-4 shrink-0" />
+                    <span className="truncate">Google</span>
                   </button>
 
                   <button
                     type="button"
                     aria-label={copy.github}
                     onClick={() => handleOAuthLogin('github')}
-                    className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-white/[0.06] bg-[#1a1a1a] px-1.5 text-[9px] font-medium whitespace-nowrap text-white/85 transition-colors hover:border-white/20 hover:bg-[#202020] sm:gap-2 sm:px-2 sm:text-[10px] cursor-pointer"
+                    className="flex h-10 items-center justify-center gap-2 rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-2 text-xs font-medium text-white/90 transition-all hover:border-white/25 hover:bg-[#222] cursor-pointer"
                   >
-                    <GitHubIcon className="h-3.5 w-3.5 shrink-0" />
-                    <span>GitHub</span>
+                    <GitHubIcon className="h-4 w-4 shrink-0" />
+                    <span className="truncate">GitHub</span>
                   </button>
 
                   <button
                     type="button"
                     aria-label={copy.discord}
                     onClick={() => handleOAuthLogin('discord')}
-                    className="flex h-9 items-center justify-center gap-1.5 rounded-md border border-white/[0.06] bg-[#1a1a1a] px-1.5 text-[9px] font-medium whitespace-nowrap text-white/85 transition-colors hover:border-[#5865F2]/45 hover:bg-[#202020] sm:gap-2 sm:px-2 sm:text-[10px] cursor-pointer"
+                    className="flex h-10 items-center justify-center gap-2 rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-2 text-xs font-medium text-white/90 transition-all hover:border-[#5865F2]/50 hover:bg-[#222] cursor-pointer"
                   >
-                    <DiscordIcon className="h-3.5 w-4 shrink-0 text-[#5865F2]" />
-                    <span>Discord</span>
+                    <DiscordIcon className="h-4 w-4 shrink-0 text-[#5865F2]" />
+                    <span className="truncate">Discord</span>
                   </button>
                 </div>
 
-                <div className="relative my-6">
+                <div className="relative my-5 sm:my-6">
                   <div className="absolute inset-0 flex items-center">
                     <div className="w-full border-t border-white/[0.08]" />
                   </div>
                   <div className="relative flex justify-center">
-                    <span className="bg-[#111] px-4 text-[11px] font-medium uppercase tracking-[-0.025em] text-zinc-400">
+                    <span className="bg-black px-4 text-[11px] font-medium uppercase tracking-wider text-zinc-400">
                       {copy.emailContinue}
                     </span>
                   </div>
                 </div>
 
-                <form onSubmit={handleRegister} className="space-y-4">
+                <form onSubmit={handleRegister} className="space-y-3.5 sm:space-y-4">
                   <div>
                     <label
-                      className="mb-2 block text-[13px] font-medium text-white"
+                      className="mb-1.5 block text-xs sm:text-[13px] font-medium text-white"
                       htmlFor="username"
                     >
                       {copy.username}
@@ -320,14 +331,14 @@ export default function RegisterPage() {
                       onChange={(event) => setUsername(event.target.value)}
                       required
                       autoComplete="username"
-                      className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
+                      className="h-11 sm:h-[49px] w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 text-sm text-white outline-none transition-colors placeholder:text-zinc-500 hover:border-white/15 focus:border-[#469cff]"
                       placeholder={copy.usernamePlaceholder}
                     />
                   </div>
 
                   <div>
                     <label
-                      className="mb-2 block text-[13px] font-medium text-white"
+                      className="mb-1.5 block text-xs sm:text-[13px] font-medium text-white"
                       htmlFor="email"
                     >
                       {copy.email}
@@ -339,7 +350,7 @@ export default function RegisterPage() {
                       onChange={(event) => setEmail(event.target.value)}
                       required
                       autoComplete="email"
-                      className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
+                      className="h-11 sm:h-[49px] w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 text-sm text-white outline-none transition-colors placeholder:text-zinc-500 hover:border-white/15 focus:border-[#469cff]"
                       placeholder={copy.emailPlaceholder}
                     />
                   </div>
@@ -347,7 +358,7 @@ export default function RegisterPage() {
                   <div className="grid gap-3 sm:grid-cols-2">
                     <div>
                       <label
-                        className="mb-2 block text-[13px] font-medium text-white"
+                        className="mb-1.5 block text-xs sm:text-[13px] font-medium text-white"
                         htmlFor="password"
                       >
                         {copy.password}
@@ -361,7 +372,7 @@ export default function RegisterPage() {
                           required
                           minLength={6}
                           autoComplete="new-password"
-                          className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 pr-11 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
+                          className="h-11 sm:h-[49px] w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 pr-11 text-sm text-white outline-none transition-colors placeholder:text-zinc-500 hover:border-white/15 focus:border-[#469cff]"
                           placeholder={copy.passwordPlaceholder}
                         />
                         <button
@@ -369,7 +380,7 @@ export default function RegisterPage() {
                           onClick={() => setShowPassword((current) => !current)}
                           aria-label={showPassword ? copy.hidePassword : copy.showPassword}
                           aria-pressed={showPassword}
-                          className="absolute right-1.5 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+                          className="absolute right-1.5 top-1/2 flex size-8 sm:size-9 -translate-y-1/2 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
                         >
                           {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                         </button>
@@ -378,7 +389,7 @@ export default function RegisterPage() {
 
                     <div>
                       <label
-                        className="mb-2 block text-[13px] font-medium text-white"
+                        className="mb-1.5 block text-xs sm:text-[13px] font-medium text-white"
                         htmlFor="confirmPassword"
                       >
                         {copy.confirmPassword}
@@ -392,7 +403,7 @@ export default function RegisterPage() {
                           required
                           minLength={6}
                           autoComplete="new-password"
-                          className="h-[49px] w-full rounded-md border border-white/[0.06] bg-[#1a1a1a] px-4 pr-11 text-sm text-white outline-none transition-colors placeholder:text-zinc-400 hover:border-white/10 focus:border-[#469cff]"
+                          className="h-11 sm:h-[49px] w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 pr-11 text-sm text-white outline-none transition-colors placeholder:text-zinc-500 hover:border-white/15 focus:border-[#469cff]"
                           placeholder={copy.confirmPasswordPlaceholder}
                         />
                         <button
@@ -402,7 +413,7 @@ export default function RegisterPage() {
                             showConfirmPassword ? copy.hideConfirmation : copy.showConfirmation
                           }
                           aria-pressed={showConfirmPassword}
-                          className="absolute right-1.5 top-1/2 flex size-9 -translate-y-1/2 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
+                          className="absolute right-1.5 top-1/2 flex size-8 sm:size-9 -translate-y-1/2 items-center justify-center rounded-md text-zinc-400 transition-colors hover:bg-white/5 hover:text-white"
                         >
                           {showConfirmPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                         </button>
@@ -419,13 +430,13 @@ export default function RegisterPage() {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="flex h-[49px] w-full items-center justify-center rounded-md bg-[#f1f1f3] text-sm font-semibold text-black transition-colors hover:bg-white disabled:cursor-wait disabled:opacity-60 cursor-pointer"
+                    className="flex h-11 sm:h-[49px] w-full items-center justify-center rounded-lg bg-[#f1f1f3] text-sm font-semibold text-black transition-colors hover:bg-white disabled:cursor-wait disabled:opacity-60 cursor-pointer"
                   >
                     {loading ? copy.creating : copy.create}
                   </button>
                 </form>
 
-                <p className="mt-6 text-center text-xs text-zinc-300">
+                <p className="mt-5 sm:mt-6 text-center text-xs text-zinc-300">
                   {copy.hasAccount}{' '}
                   <Link href="/login" className="font-semibold text-white hover:underline">
                     {copy.signIn}
