@@ -15,3 +15,15 @@ export const POST = apiHandler(async (_req, { params }) => {
     participant,
   });
 });
+
+export const DELETE = apiHandler(async (_req, { params }) => {
+  const user = await requireAuth();
+  const { id: eventId } = await params;
+
+  await EventService.cancelParticipation(user.id, eventId);
+
+  return NextResponse.json({
+    success: true,
+    message: 'Inscrição cancelada com sucesso.',
+  });
+});

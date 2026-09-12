@@ -144,4 +144,46 @@ describe('EventsContent', () => {
     expect(await screen.findByText('1 evento encontrado')).toBeVisible();
     expect(screen.getByRole('heading', { name: 'Hackathon Front-end' })).toBeVisible();
   });
+
+  it('permite abrir o modal de criação de evento e realizar inscrição', async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(eventsResponse(events)) // Initial load
+      .mockResolvedValueOnce(eventsResponse({ success: true, participant: { id: 'p1' } })) // Participate
+      .mockResolvedValueOnce(eventsResponse([{ ...events[0], is_joined: true }])); // Reload after join
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    render(<EventsContent user={{ id: 'member-1', role: 'ADMIN', username: 'pedro' }} />);
+
+    await screen.findByText('3 eventos encontrados');
+
+    // Test opening the Create Event Modal
+    const createBtn = screen.getByRole('button', { name: /Criar Evento/ });
+    expect(createBtn).toBeVisible();
+    await user.click(createBtn);
+
+    expect(await screen.findByText('Criar Novo Evento')).toBeVisible();
+    expect(screen.getByPlaceholderText(/Hackathon de Inteligência Artificial/)).toBeVisible();
+
+    // Close the modal
+    const cancelBtn = screen.getByRole('button', { name: 'Cancelar' });
+    await user.click(cancelBtn);
+    await waitFor(() => {
+      expect(screen.queryByText('Criar Novo Evento')).toBeNull();
+    });
+
+    // Test participating in the first event
+    const joinButtons = screen.getAllByRole('button', { name: /Inscrever-se no evento/ });
+    expect(joinButtons.length).toBeGreaterThan(0);
+    await user.click(joinButtons[0]);
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/events/hackathon-1/participate',
+        expect.objectContaining({ method: 'POST' })
+      );
+    });
+  });
 });

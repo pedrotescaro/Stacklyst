@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { apiHandler } from '@/lib/api-handler';
-import { requireAuth, requireRole } from '@/lib/auth';
+import { getAuthUser, requireAuth } from '@/lib/auth';
 import { EventService } from '@/services/event.service';
 import { z } from 'zod';
 import { EventStatus, EventType } from '@prisma/client';
@@ -21,13 +21,14 @@ const createEventSchema = z.object({
 export const GET = apiHandler(async (req) => {
   const { searchParams } = new URL(req.url);
   const status = (searchParams.get('status') as EventStatus) || undefined;
+  const user = await getAuthUser();
 
-  const events = await EventService.listEvents(status);
+  const events = await EventService.listEvents(status, user?.id);
   return NextResponse.json(events);
 });
 
 export const POST = apiHandler(async (req) => {
-  const user = await requireRole(['ADMIN', 'RECRUITER']);
+  const user = await requireAuth();
   const body = await req.json();
   const parsed = createEventSchema.parse(body);
 
