@@ -2,6 +2,7 @@ import { redirect, notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { usersAheadWhere } from '@/lib/learning/rewards';
 import { getUserLanguageXp } from '@/lib/learning/language-xp';
+import { getEffectiveStreak } from '@/lib/streak';
 import { getAuthUser } from '@/lib/auth';
 import { ProfileContent } from './ProfileContent';
 
@@ -119,7 +120,8 @@ export default async function ProfilePage({
     birthday: profileUser.birthday ? profileUser.birthday.toISOString() : null,
     created_at: profileUser.created_at.toISOString(),
     total_xp: profileUser.total_xp,
-    streak_days: profileUser.streak_days,
+    streak_days: getEffectiveStreak(profileUser.streak_days, profileUser.last_active_at),
+    last_active_at: profileUser.last_active_at ? profileUser.last_active_at.toISOString() : null,
     badges: profileUser.badges.map((ub) => ({
       slug: ub.badge.slug,
       earned_at: ub.earned_at.toISOString(),
@@ -159,6 +161,7 @@ export default async function ProfilePage({
         avatar_config: user.avatar_config,
         total_xp: user.total_xp,
         streak_days: user.streak_days,
+        last_active_at: user.last_active_at ? user.last_active_at.toISOString() : null,
       }}
       profileUser={serializedProfileUser}
       stats={{

@@ -58,7 +58,9 @@ describe('TrailsProgressSidebar', () => {
 
     expect(screen.getByRole('heading', { name: '9 dias de ofensiva' })).toBeInTheDocument();
     expect(screen.getByLabelText('Atividade semanal')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Fechar detalhes da ofensiva' })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Fechar detalhes da ofensiva' })
+    ).not.toBeInTheDocument();
   });
 
   it('exposes accessible mission progress and clamps it to each goal', () => {

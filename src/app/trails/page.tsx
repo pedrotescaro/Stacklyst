@@ -180,6 +180,7 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
         avatar_url: user.avatar_url,
         total_xp: user.total_xp,
         streak: user.streak_days,
+        last_active_at: user.last_active_at ? user.last_active_at.toISOString() : null,
       }}
       knowledgeMap={unifiedMap}
       initialCourses={courses}

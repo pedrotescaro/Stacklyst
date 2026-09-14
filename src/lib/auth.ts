@@ -208,6 +208,26 @@ function syncUserStreaks(dbUser: any) {
     needsUpdate = true;
   }
 
+  const expiredTrailIds: string[] = [];
+  for (const trail of dbUser.trails || []) {
+    const eff = getEffectiveStreak(trail.streak, trail.last_activity_at, now);
+    if (eff === 0 && trail.streak > 0) {
+      trail.streak = 0;
+      if (trail.id) expiredTrailIds.push(trail.id);
+    }
+  }
+
+  if (expiredTrailIds.length > 0 && hasDatabaseConnection()) {
+    void prisma.languageTrail
+      .updateMany({
+        where: { id: { in: expiredTrailIds } },
+        data: { streak: 0 },
+      })
+      .catch((err) =>
+        logger.warn('Failed to auto-heal expired trail streaks', getErrorSummary(err))
+      );
+  }
+
   if (needsUpdate) {
     const updateViaRest = async () => {
       const supabaseAdmin = getSupabaseAdminClient();

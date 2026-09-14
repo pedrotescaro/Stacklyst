@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { Language } from '@prisma/client';
 import { calculateLevel, XP_RANK_ORDER } from '@/lib/learning/rewards';
 import { getLanguageLeaderboard } from '@/lib/learning/language-xp';
+import { getEffectiveStreak } from '@/lib/streak';
 
 export async function GET(request: Request) {
   try {
@@ -13,7 +14,7 @@ export async function GET(request: Request) {
       if (!Object.values(Language).includes(language as Language))
         return NextResponse.json({ error: 'Linguagem inválida' }, { status: 400 });
       // Leaderboard filtrado por linguagem
-      const leaders = await getLanguageLeaderboard(language as Language);
+      const leaders = await getLanguageLeaderboard(language as Language, 50);
 
       const formatted = leaders.map((leader, index) => ({
         rank: index + 1,
@@ -21,6 +22,8 @@ export async function GET(request: Request) {
         avatar_url: leader.avatar_url,
         xp: leader.xp,
         level: calculateLevel(leader.xp).level,
+        streak: getEffectiveStreak(leader.streak_days ?? 0, leader.last_active_at),
+        created_at: leader.created_at ? leader.created_at.toISOString() : null,
       }));
 
       return NextResponse.json(formatted);
@@ -28,11 +31,14 @@ export async function GET(request: Request) {
       // Leaderboard global baseado no total_xp do usuário
       const leaders = await prisma.user.findMany({
         orderBy: XP_RANK_ORDER,
-        take: 10,
+        take: 50,
         select: {
           username: true,
           avatar_url: true,
           total_xp: true,
+          streak_days: true,
+          last_active_at: true,
+          created_at: true,
         },
       });
 
@@ -42,6 +48,8 @@ export async function GET(request: Request) {
         avatar_url: leader.avatar_url,
         xp: leader.total_xp,
         level: calculateLevel(leader.total_xp).level,
+        streak: getEffectiveStreak(leader.streak_days ?? 0, leader.last_active_at),
+        created_at: leader.created_at ? leader.created_at.toISOString() : null,
       }));
 
       return NextResponse.json(formatted);

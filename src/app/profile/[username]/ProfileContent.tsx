@@ -23,6 +23,7 @@ interface ProfileContentProps {
     avatar_config?: unknown;
     total_xp: number;
     streak_days?: number;
+    last_active_at?: string | null;
   };
   profileUser: {
     id: string;
@@ -40,6 +41,7 @@ interface ProfileContentProps {
     created_at: string;
     total_xp: number;
     streak_days?: number;
+    last_active_at?: string | null;
     badges: any[];
   };
   stats: {
@@ -488,6 +490,7 @@ export function ProfileContent({
               onSelectCourse={setProfileRailLanguage}
               totalXp={localProfileUser.total_xp}
               streak={localProfileUser.streak_days ?? 0}
+              lastActiveAt={localProfileUser.last_active_at}
               globalRank={globalRank}
               totalParticipants={totalParticipants}
               username={localProfileUser.username}

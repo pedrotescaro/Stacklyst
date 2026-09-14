@@ -17,8 +17,17 @@ export async function getUserLanguageXp(userId: string) {
   return rows.map((row) => ({ ...row, level: calculateLevel(row.xp).level }));
 }
 
-export async function getLanguageLeaderboard(language: Language) {
-  return prisma.$queryRaw<{ username: string; avatar_url: string | null; xp: number }[]>`
+export async function getLanguageLeaderboard(language: Language, limit = 50) {
+  return prisma.$queryRaw<
+    {
+      username: string;
+      avatar_url: string | null;
+      xp: number;
+      streak_days?: number;
+      last_active_at?: Date | null;
+      created_at?: Date;
+    }[]
+  >`
     WITH rewards AS (
       SELECT user_id, xp FROM "LanguageTrail" WHERE language=${language}::"Language"
       UNION ALL
@@ -26,6 +35,6 @@ export async function getLanguageLeaderboard(language: Language) {
       JOIN exercises e ON e.id=s.exercise_id
       WHERE e.language=${language}::"Language" AND s.first_completion=true
     ), totals AS (SELECT user_id, SUM(xp)::integer AS xp FROM rewards GROUP BY user_id)
-    SELECT u.username,u.avatar_url,t.xp FROM totals t JOIN "User" u ON u.id=t.user_id
-    ORDER BY t.xp DESC,u.username ASC,u.id ASC LIMIT 10`;
+    SELECT u.username, u.avatar_url, t.xp, u.streak_days, u.last_active_at, u.created_at FROM totals t JOIN "User" u ON u.id=t.user_id
+    ORDER BY t.xp DESC, u.username ASC, u.id ASC LIMIT ${limit}`;
 }
