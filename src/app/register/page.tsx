@@ -152,6 +152,9 @@ export default function RegisterPage() {
 
     setLoading(true);
 
+    const trimmedUsername = username.trim();
+    const trimmedEmail = email.trim().toLowerCase();
+
     try {
       // 1. Chamar nossa API customizada de cadastro
       const res = await fetch('/api/auth/register', {
@@ -160,8 +163,8 @@ export default function RegisterPage() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username,
-          email,
+          username: trimmedUsername,
+          email: trimmedEmail,
           password,
         }),
       });
@@ -169,17 +172,41 @@ export default function RegisterPage() {
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data.error || copy.accountError);
+        setError(data.message || data.error || copy.accountError);
         setLoading(false);
         return;
       }
 
       // 2. Realizar login automático no Supabase
       const supabase = createClient();
-      const { error: loginError } = await supabase.auth.signInWithPassword({
-        email,
+      let { error: loginError } = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
         password,
       });
+
+      if (
+        loginError &&
+        (loginError.message?.toLowerCase().includes('email not confirmed') ||
+          (loginError as any).code === 'email_not_confirmed')
+      ) {
+        try {
+          const confirmRes = await fetch('/api/auth/confirm-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: trimmedEmail }),
+          });
+
+          if (confirmRes.ok) {
+            const retryRes = await supabase.auth.signInWithPassword({
+              email: trimmedEmail,
+              password,
+            });
+            loginError = retryRes.error;
+          }
+        } catch {
+          // Continua para o tratamento de erro padrão
+        }
+      }
 
       if (loginError) {
         setError(copy.automaticSignInError);
