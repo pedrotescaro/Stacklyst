@@ -1,6 +1,8 @@
 import 'server-only';
 
+import ts from 'typescript';
 import { JUDGE0_API_URL, JUDGE0_LANGUAGES, WANDBOX_API_URL, WANDBOX_LANGUAGES } from '@/lib/config';
+import { runJavaScriptInSandbox } from '@/lib/code-execution/javascript-sandbox';
 
 export interface ServerExecutionResult {
   ok: boolean;
@@ -215,6 +217,22 @@ export async function executeCode(code: string, language: string): Promise<Serve
       error: `Linguagem "${language}" não suportada.`,
       executionMs: 0,
     };
+  }
+
+  if (normalized === 'javascript' || normalized === 'typescript') {
+    const executableCode =
+      normalized === 'typescript'
+        ? ts.transpileModule(code, {
+            compilerOptions: {
+              target: ts.ScriptTarget.ES2020,
+              module: ts.ModuleKind.None,
+              strict: false,
+            },
+            reportDiagnostics: false,
+          }).outputText
+        : code;
+    const localResult = await runJavaScriptInSandbox(executableCode);
+    if (localResult) return localResult;
   }
 
   if (judge0LanguageId) {
