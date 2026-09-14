@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev --webpack",
     "build": "next build",
+    "postbuild": "node scripts/check-code-execution-build.mjs",
     "start": "next start",
     "postinstall": "prisma generate",
     "lint": "eslint",

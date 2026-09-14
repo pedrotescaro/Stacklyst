@@ -22,7 +22,7 @@ export const POST = apiHandler(async (request) => {
   const normalized = language.toLowerCase();
 
   const result = await executeCode(code, normalized);
-  const status = result.error?.startsWith('Linguagem') ? 400 : result.executionMs === 0 ? 502 : 200;
+  const status = result.error?.startsWith('Linguagem') ? 400 : result.unavailable ? 502 : 200;
 
   return NextResponse.json(result, { status });
 });

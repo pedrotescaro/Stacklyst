@@ -8,6 +8,7 @@ export interface ServerExecutionResult {
   ok: boolean;
   output: string;
   error?: string;
+  unavailable?: boolean;
   executionMs: number;
 }
 
@@ -252,6 +253,7 @@ export async function executeCode(code: string, language: string): Promise<Serve
     ok: false,
     output: '',
     error: 'Serviço de execução indisponível no momento. Tente novamente em instantes.',
+    unavailable: true,
     executionMs: 0,
   };
 }

@@ -9,6 +9,7 @@ import {
   type QuickJSRuntime,
 } from 'quickjs-emscripten-core';
 import type { ServerExecutionResult } from '@/lib/code-execution/server';
+import { logger } from '@/lib/logger';
 
 const JAVASCRIPT_TIMEOUT_MS = 5_000;
 const JAVASCRIPT_MEMORY_LIMIT_BYTES = 32 * 1024 * 1024;
@@ -23,7 +24,11 @@ interface SandboxOutput {
 let quickJsModulePromise: ReturnType<typeof newQuickJSWASMModuleFromVariant> | undefined;
 
 function getQuickJsModule() {
-  quickJsModulePromise ??= newQuickJSWASMModuleFromVariant(releaseVariant);
+  quickJsModulePromise ??= newQuickJSWASMModuleFromVariant(releaseVariant).catch((error) => {
+    // A failed cold start must not poison every later request in this process.
+    quickJsModulePromise = undefined;
+    throw error;
+  });
   return quickJsModulePromise;
 }
 
@@ -137,7 +142,10 @@ export async function runJavaScriptInSandbox(
     runtime.setMemoryLimit(JAVASCRIPT_MEMORY_LIMIT_BYTES);
     runtime.setMaxStackSize(JAVASCRIPT_STACK_LIMIT_BYTES);
     vm = runtime.newContext();
-  } catch {
+  } catch (error) {
+    logger.error('JavaScript sandbox initialization failed', {
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     disposeSafely(vm);
     disposeSafely(runtime);
     return null;
@@ -147,7 +155,10 @@ export async function runJavaScriptInSandbox(
   try {
     exposeOutputApi(vm, output);
     runtime.setInterruptHandler(shouldInterruptAfterDeadline(Date.now() + timeoutMs));
-  } catch {
+  } catch (error) {
+    logger.error('JavaScript sandbox output setup failed', {
+      errorMessage: error instanceof Error ? error.message : String(error),
+    });
     disposeSafely(vm);
     disposeSafely(runtime);
     return null;

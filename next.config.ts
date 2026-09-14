@@ -47,6 +47,12 @@ const securityHeaders = [
 const ALLOWED_ORIGINS = [process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'];
 
 const nextConfig: NextConfig = {
+  // Keep the embedded WASM bytes intact. Turbopack can rewrite the single-file
+  // QuickJS payload into invalid JavaScript when it bundles this dependency.
+  serverExternalPackages: [
+    '@jitl/quickjs-singlefile-browser-release-sync',
+    'quickjs-emscripten-core',
+  ],
   // Vercel manages output tracing through its adapter. Keep the standalone
   // server bundle for local, Docker, and other self-hosted deployments.
   output: process.env.VERCEL ? undefined : 'standalone',

@@ -55,4 +55,36 @@ describe('POST /api/run', () => {
     expect(response.status).toBe(401);
     expect(executeCode).not.toHaveBeenCalled();
   });
+
+  it.each([
+    { result: { ok: true, output: '42', executionMs: 0 }, status: 200 },
+    {
+      result: { ok: false, output: '', error: 'Erro de compilação.', executionMs: 0 },
+      status: 200,
+    },
+    {
+      result: {
+        ok: false,
+        output: '',
+        error: 'Serviço de execução indisponível no momento. Tente novamente em instantes.',
+        unavailable: true,
+        executionMs: 0,
+      },
+      status: 502,
+    },
+  ])(
+    'uses status $status for an execution rounded to zero milliseconds: $result',
+    async ({ result, status }) => {
+      vi.mocked(executeCode).mockResolvedValueOnce(result);
+      const response = await POST(
+        new Request('http://localhost:3000/api/run', {
+          method: 'POST',
+          body: JSON.stringify({ code: 'console.log(42)', language: 'js' }),
+        }),
+        { params: Promise.resolve({}) }
+      );
+      expect(response.status).toBe(status);
+      expect(await response.json()).toMatchObject(result);
+    }
+  );
 });
