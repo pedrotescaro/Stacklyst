@@ -344,8 +344,9 @@ __safe_write_${isolationId}(${JSON.stringify(markers.start)} + __safe_dumps_${is
   const solutionName = `__solution_${isolationId}`;
   const safeJsonName = `__safe_json_${isolationId}`;
 
-  // JavaScript executes contestant code in a capability-free VM context. The
-  // trusted reporter and random result markers stay in the parent context.
+  // Keep trusted references and randomly named state outside the contestant's
+  // function scope. The complete harness runs inside the isolated execution
+  // provider, so it is portable across QuickJS and external Node.js runners.
   const checks = problem.testCases
     .map((tc) => {
       const rawExpression = tc.testExpression[langKey] || tc.testExpression.TS;
@@ -354,37 +355,34 @@ __safe_write_${isolationId}(${JSON.stringify(markers.start)} + __safe_dumps_${is
         .replace(/\bJSON\.stringify\b/g, safeJsonName);
       return `
 try {
-  const __passed = Boolean(__vm_${isolationId}.runInContext(${JSON.stringify(
-    `Boolean(${expr})`
-  )}, __context_${isolationId}, { timeout: 3000 }));
+  const __passed = Boolean(${expr});
   __testResults_${isolationId}.push({ id: ${JSON.stringify(tc.id)}, passed: __passed, desc: ${JSON.stringify(tc.description)} });
 } catch (err) {
-  __testResults_${isolationId}.push({ id: ${JSON.stringify(tc.id)}, passed: false, desc: ${JSON.stringify(tc.description)}, error: String(err) });
+  __testResults_${isolationId}.push({ id: ${JSON.stringify(tc.id)}, passed: false, desc: ${JSON.stringify(tc.description)}, error: __safe_string_${isolationId}(err) });
 }
 `;
     })
     .join('\n');
 
   return `
-const __vm_${isolationId} = eval('require')('node:vm');
-const __context_${isolationId} = __vm_${isolationId}.createContext(Object.create(null), {
-  codeGeneration: { strings: false, wasm: false },
-});
-const __contestant_source_${isolationId} = ${JSON.stringify(userCode)};
-const __bootstrap_${isolationId} = [
-  '"use strict";',
-  'const ${safeJsonName} = JSON.stringify.bind(JSON);',
-  'for (const ctor of [Object, Array, String, Number, Boolean, RegExp, Map, Set]) { Object.freeze(ctor.prototype); Object.freeze(ctor); }',
-  'Object.freeze(JSON);',
-  __contestant_source_${isolationId},
-  'const ${solutionName} = typeof ${problem.functionName} === "function" ? ${problem.functionName} : null;',
-].join('\\n');
-__vm_${isolationId}.runInContext(__bootstrap_${isolationId}, __context_${isolationId}, { timeout: 3000 });
+const ${safeJsonName} = JSON.stringify.bind(JSON);
+const __safe_write_${isolationId} = process.stdout.write.bind(process.stdout);
+const __safe_string_${isolationId} = String;
+for (const __ctor_${isolationId} of [Object, Array, String, Number, Boolean, RegExp, Map, Set]) {
+  Object.freeze(__ctor_${isolationId}.prototype);
+  Object.freeze(__ctor_${isolationId});
+}
+Object.freeze(JSON);
+const ${solutionName} = (() => {
+  "use strict";
+${userCode}
+  return typeof ${problem.functionName} === "function" ? ${problem.functionName} : null;
+})();
 
 const __testResults_${isolationId} = [];
 ${checks}
 
-process.stdout.write(${JSON.stringify(markers.start)} + JSON.stringify(__testResults_${isolationId}) + ${JSON.stringify(markers.end)});
+__safe_write_${isolationId}(${JSON.stringify(markers.start)} + ${safeJsonName}(__testResults_${isolationId}) + ${JSON.stringify(markers.end)});
 `;
 }
 
