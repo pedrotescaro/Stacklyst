@@ -14,6 +14,7 @@ import { Bell, MessageCircle, Sparkles, Swords, Settings, Heart, X } from 'lucid
 import Link from 'next/link';
 import { FeedRightSidebar } from '@/components/FeedRightSidebar';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { parseMentions } from '@/lib/mentions';
 
 interface UpvoterUser {
   username: string;
@@ -362,7 +363,9 @@ export default function NotificationsPage() {
                         </span>
                       </div>
 
-                      <p className="text-xs text-dd-muted leading-relaxed">{localized.content}</p>
+                      <p className="text-xs text-dd-muted leading-relaxed">
+                        {parseMentions(localized.content)}
+                      </p>
 
                       {item.link && (
                         <div className="pt-1.5">
