@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import type { EventType } from '@/app/events/EventsContent';
+import { EventChallengesSection } from '@/components/events/EventChallengesSection';
 
 interface EventParticipantItem {
   id: string;
@@ -428,6 +429,8 @@ export function EventDetailsModal({
                         </div>
                       </div>
                     </div>
+
+                    <EventChallengesSection eventId={event.id} />
 
                     {/* Leaderboard / Participants List */}
                     <div>

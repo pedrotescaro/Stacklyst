@@ -780,8 +780,27 @@ model Event {
   creator      User               @relation(fields: [creator_id], references: [id], onDelete: Cascade)
   company      Company?           @relation(fields: [company_id], references: [id], onDelete: SetNull)
   participants EventParticipant[]
+  challenges   EventChallenge[]
 
   @@index([status, start_date])
+}
+
+model EventChallenge {
+  id              String   @id @default(uuid())
+  event_id        String
+  position        Int
+  title           String
+  statement       String
+  language        Language
+  expected_answer String
+  examples        Json
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  event Event @relation(fields: [event_id], references: [id], onDelete: Cascade)
+
+  @@unique([event_id, position])
+  @@index([event_id])
 }
 
 model EventParticipant {
