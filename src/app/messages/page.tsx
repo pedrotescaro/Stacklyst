@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { EMOJI_CATEGORIES, insertAtCursor } from '@/lib/post-composer';
 import { Sidebar } from '@/components/Sidebar';
 import { EmptyState } from '@/components/motion/EmptyState';
@@ -107,7 +108,7 @@ export default function MessagesPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [loadingChats, setLoadingChats] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
-  const [showTypingPreview, setShowTypingPreview] = useState(false);
+  const [isPartnerTyping, setIsPartnerTyping] = useState(false);
 
   // Search/Filter states
   const [chatSearchQuery, setChatSearchQuery] = useState('');
@@ -140,6 +141,9 @@ export default function MessagesPage() {
   const messageMenuRef = useRef<HTMLDivElement | null>(null);
   const reactionBarRef = useRef<HTMLDivElement | null>(null);
   const reactionPickerRef = useRef<HTMLDivElement | null>(null);
+  const typingChannelRef = useRef<RealtimeChannel | null>(null);
+  const typingIdleTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const partnerTypingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useClickOutside(emojiPickerRef, () => setEmojiPanelOpen(false), emojiPanelOpen);
   useClickOutside(messageMenuRef, () => setActiveMenuMessageId(null), activeMenuMessageId !== null);
@@ -232,11 +236,74 @@ export default function MessagesPage() {
   }, [activeChat]);
 
   useEffect(() => {
-    if (!activeChat) return;
-    setShowTypingPreview(true);
-    const timer = setTimeout(() => setShowTypingPreview(false), 1200);
-    return () => clearTimeout(timer);
-  }, [activeChat]);
+    setIsPartnerTyping(false);
+    if (!user || !activeChat) return;
+
+    const supabase = createClient();
+    const [firstUserId, secondUserId] = [user.id, activeChat.partnerId].sort();
+    const channel = supabase
+      .channel(`chat-typing:${firstUserId}:${secondUserId}`)
+      .on('broadcast', { event: 'typing' }, (event) => {
+        const payload = event.payload as {
+          senderId?: string;
+          receiverId?: string;
+          isTyping?: boolean;
+        };
+
+        if (payload.senderId !== activeChat.partnerId || payload.receiverId !== user.id) return;
+
+        if (partnerTypingTimerRef.current) {
+          clearTimeout(partnerTypingTimerRef.current);
+        }
+
+        setIsPartnerTyping(payload.isTyping === true);
+        if (payload.isTyping) {
+          partnerTypingTimerRef.current = setTimeout(() => setIsPartnerTyping(false), 2000);
+        }
+      })
+      .subscribe();
+
+    typingChannelRef.current = channel;
+
+    return () => {
+      if (typingIdleTimerRef.current) clearTimeout(typingIdleTimerRef.current);
+      if (partnerTypingTimerRef.current) clearTimeout(partnerTypingTimerRef.current);
+      typingChannelRef.current = null;
+      setIsPartnerTyping(false);
+      void supabase.removeChannel(channel);
+    };
+  }, [user, activeChat]);
+
+  useEffect(() => {
+    const channel = typingChannelRef.current;
+    if (!channel || !user || !activeChat) return;
+
+    const sendTypingState = (isTyping: boolean) =>
+      channel.send({
+        type: 'broadcast',
+        event: 'typing',
+        payload: {
+          senderId: user.id,
+          receiverId: activeChat.partnerId,
+          isTyping,
+        },
+      });
+
+    if (typingIdleTimerRef.current) clearTimeout(typingIdleTimerRef.current);
+
+    const hasDraft = newMessageText.trim().length > 0;
+    void sendTypingState(hasDraft);
+
+    if (hasDraft) {
+      typingIdleTimerRef.current = setTimeout(() => {
+        void sendTypingState(false);
+      }, 1200);
+    }
+
+    return () => {
+      if (typingIdleTimerRef.current) clearTimeout(typingIdleTimerRef.current);
+    };
+  }, [newMessageText, user, activeChat]);
 
   // Scroll messages to bottom
   useEffect(() => {
@@ -1257,7 +1324,7 @@ export default function MessagesPage() {
                           </motion.div>
                         );
                       })}
-                      {showTypingPreview && (
+                      {isPartnerTyping && (
                         <TypingIndicator username={activeChat.partner.username} />
                       )}
                     </>

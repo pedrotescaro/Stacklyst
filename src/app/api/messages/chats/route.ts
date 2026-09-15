@@ -9,56 +9,6 @@ export async function GET() {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Check if the user has any messages
-    const messageCount = await prisma.message.count({
-      where: {
-        OR: [{ sender_id: user.id }, { receiver_id: user.id }],
-      },
-    });
-
-    if (messageCount === 0) {
-      // Find other users in the platform to start a conversation with
-      const otherUsers = await prisma.user.findMany({
-        where: {
-          NOT: { id: user.id },
-        },
-        take: 3,
-      });
-
-      if (otherUsers.length > 0) {
-        // Seed some initial friendly chat messages
-        const initialMessages = [];
-
-        if (otherUsers[0]) {
-          initialMessages.push({
-            sender_id: otherUsers[0].id,
-            receiver_id: user.id,
-            content:
-              'E aí! Curti muito o seu post sobre desenvolvimento. Bora marcar um pareamento qualquer dia?',
-          });
-        }
-        if (otherUsers[1]) {
-          initialMessages.push({
-            sender_id: otherUsers[1].id,
-            receiver_id: user.id,
-            content:
-              'Oi! Vi que você está resolvendo a trilha de Python. Teve alguma dificuldade com o borrow checker no Rust?',
-          });
-        }
-        if (otherUsers[2]) {
-          initialMessages.push({
-            sender_id: user.id, // sent by current user
-            receiver_id: otherUsers[2].id,
-            content: 'Ei, achei massa seu perfil! Depois dá uma olhada nos meus duelos de código.',
-          });
-        }
-
-        await prisma.message.createMany({
-          data: initialMessages,
-        });
-      }
-    }
-
     // Fetch all messages involving the user (limited to last 200 for performance)
     const messages = await prisma.message.findMany({
       where: {
