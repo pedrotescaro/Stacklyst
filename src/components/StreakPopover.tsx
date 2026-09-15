@@ -1,9 +1,9 @@
 'use client';
 
-import { useRef, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import { Popover } from '@base-ui/react/popover';
-import { Check, Flame, X } from 'lucide-react';
-import { getRecentStreakDayIndexes } from '@/lib/streak';
+import { Check, Flame } from 'lucide-react';
+import { getCalendarDayDifference, getRecentStreakDayIndexes } from '@/lib/streak';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 const WEEK_DAYS = [
@@ -27,7 +27,7 @@ interface StreakPopoverProps {
   align?: 'start' | 'center' | 'end';
 }
 
-function safeDate(value: string | null | undefined, fallback: Date) {
+function safeDate<T extends Date | null>(value: string | null | undefined, fallback: T): Date | T {
   if (!value) return fallback;
   const parsed = new Date(value);
   return Number.isNaN(parsed.getTime()) ? fallback : parsed;
@@ -44,30 +44,17 @@ export function StreakPopover({
   align = 'end',
 }: StreakPopoverProps) {
   const { isEnglish, text } = useLocalizedText();
-  const [open, setOpen] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const handleMouseEnter = () => {
-    if (process.env.NODE_ENV === 'test') return;
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    setOpen(true);
-  };
-
-  const handleMouseLeave = () => {
-    if (process.env.NODE_ENV === 'test') return;
-    if (timeoutRef.current) clearTimeout(timeoutRef.current);
-    timeoutRef.current = setTimeout(() => {
-      setOpen(false);
-    }, 150);
-  };
 
   const normalizedStreak = Math.max(0, streak);
-  const now = safeDate(currentDate, new Date());
-  const lastActivity = safeDate(lastActiveAt, now);
+  const now = safeDate(currentDate, new Date()) ?? new Date();
+  const lastActivity = safeDate(lastActiveAt, null);
   const todayIndex = now.getUTCDay();
   const streakDayIndexes = getRecentStreakDayIndexes(normalizedStreak, lastActivity, now);
-  const hasActivityToday =
-    (weeklyActivity?.get(todayIndex) ?? 0) > 0 || streakDayIndexes.has(todayIndex);
+  const isLastActivityToday =
+    lastActivity !== null &&
+    normalizedStreak > 0 &&
+    getCalendarDayDifference(lastActivity, now) === 0;
+  const hasActivityToday = (weeklyActivity?.get(todayIndex) ?? 0) > 0 || isLastActivityToday;
   const dayLabel = isEnglish
     ? normalizedStreak === 1
       ? 'day'
@@ -78,10 +65,11 @@ export function StreakPopover({
 
   return (
     <div className="relative inline-block">
-      <Popover.Root open={open} onOpenChange={setOpen} modal={false}>
+      <Popover.Root modal={false}>
         <Popover.Trigger
-          onMouseEnter={handleMouseEnter}
-          onMouseLeave={handleMouseLeave}
+          openOnHover
+          delay={60}
+          closeDelay={200}
           aria-label={text(
             `Abrir detalhes da ofensiva: ${normalizedStreak} ${dayLabel}`,
             `Open streak details: ${normalizedStreak} ${dayLabel}`
@@ -93,8 +81,6 @@ export function StreakPopover({
 
         <Popover.Portal>
           <Popover.Positioner
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
             side={side}
             align={align}
             sideOffset={10}
@@ -123,13 +109,6 @@ export function StreakPopover({
                   >
                     <Flame className="h-14 w-14 fill-current" strokeWidth={2.4} />
                   </div>
-
-                  <Popover.Close
-                    aria-label={text('Fechar detalhes da ofensiva', 'Close streak details')}
-                    className="dd-focus-ring absolute right-3 top-3 flex h-8 w-8 items-center justify-center rounded-full text-dd-muted transition-colors hover:bg-dd-surface hover:text-dd-text"
-                  >
-                    <X className="h-4 w-4" />
-                  </Popover.Close>
                 </div>
 
                 <Popover.Description className="mt-4 max-w-[280px] text-sm font-bold leading-6 text-dd-text">

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import Image from 'next/image';
+import { LeaderboardMedal } from '@/components/LeaderboardMedal';
 import { Check, LockKeyhole, Shield } from 'lucide-react';
 import { motion, useTransform, type MotionValue } from 'framer-motion';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
@@ -17,12 +18,6 @@ const XP_MILESTONES = [100, 500, 1_000, 2_500, 5_000] as const;
 
 function formatXp(value: number, locale = 'pt-BR') {
   return Math.max(0, value).toLocaleString(locale);
-}
-
-function medalClasses(rank: number) {
-  if (rank === 1) return 'border-yellow-300 bg-yellow-400 text-amber-950 shadow-yellow-500/20';
-  if (rank === 2) return 'border-slate-200 bg-slate-300 text-slate-800 shadow-slate-300/15';
-  return 'border-orange-300 bg-orange-400 text-orange-950 shadow-orange-500/20';
 }
 
 function XpMilestoneStrip({ totalXp }: { totalXp: number }) {
@@ -109,39 +104,10 @@ function RankingRow({ row, isViewer }: { row: LeaderboardRow; isViewer: boolean 
     >
       <div className="flex items-center justify-center">
         {isPodium ? (
-          <span
-            className={`relative flex h-9 w-9 items-center justify-center rounded-xl border border-b-[4px] shadow-md ${medalClasses(
-              row.rank
-            )}`}
-          >
-            {row.rank === 1 && (
-              <Image
-                src="/assets/medals/rank-1.png"
-                alt={text('1º lugar', '1st place')}
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain [image-rendering:pixelated]"
-              />
-            )}
-            {row.rank === 2 && (
-              <Image
-                src="/assets/medals/rank-2.png"
-                alt={text('2º lugar', '2nd place')}
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain [image-rendering:pixelated]"
-              />
-            )}
-            {row.rank === 3 && (
-              <Image
-                src="/assets/medals/rank-3.png"
-                alt={text('3º lugar', '3rd place')}
-                width={24}
-                height={24}
-                className="h-6 w-6 object-contain [image-rendering:pixelated]"
-              />
-            )}
-          </span>
+          <LeaderboardMedal
+            rank={row.rank}
+            className="h-9 w-9 transition-transform group-hover:scale-110"
+          />
         ) : (
           <span className="font-mono text-sm font-black text-blue-400">{row.rank}</span>
         )}

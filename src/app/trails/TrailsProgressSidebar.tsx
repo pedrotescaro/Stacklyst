@@ -21,6 +21,7 @@ interface TrailsProgressSidebarProps {
   totalXp: number;
   gems?: number;
   streak: number;
+  lastActiveAt?: string | null;
   globalRank: number;
   totalParticipants: number;
   username: string;
@@ -101,6 +102,7 @@ export function TrailsProgressSidebar({
   totalXp,
   gems = 0,
   streak,
+  lastActiveAt,
   globalRank,
   totalParticipants,
   username,
@@ -143,6 +145,7 @@ export function TrailsProgressSidebar({
 
         <StreakPopover
           streak={streak}
+          lastActiveAt={lastActiveAt}
           weeklyActivity={weeklyActivity}
           triggerClassName="dd-focus-ring flex min-w-0 items-center justify-center gap-1.5 rounded-xl p-1 transition-colors hover:bg-blue-500/10"
         >

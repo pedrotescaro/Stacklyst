@@ -25,6 +25,7 @@ interface ProfileHeroProps {
     created_at: string;
     total_xp: number;
     streak_days?: number;
+    last_active_at?: string | null;
     avatar_url?: string | null;
     avatar_config?: unknown;
   };
@@ -228,6 +229,7 @@ export function ProfileHero({
       <div className="mt-3 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <StreakPopover
           streak={profile.streak_days ?? 0}
+          lastActiveAt={profile.last_active_at}
           weeklyActivity={weeklyActivity}
           align="start"
           triggerClassName="dd-focus-ring flex min-h-24 w-full items-center gap-3 rounded-[22px] border-2 border-b-4 border-dd-border bg-dd-sidebar-bg p-4 text-left transition-transform hover:-translate-y-0.5"

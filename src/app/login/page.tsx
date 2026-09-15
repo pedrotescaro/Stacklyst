@@ -41,6 +41,7 @@ export default function LoginPage() {
         oauthError: (provider: string) =>
           `Could not authenticate with ${provider}. Please try again.`,
         invalidCredentials: 'Invalid email or password.',
+        emailNotConfirmed: 'Email address not confirmed. Please try again.',
         signInError: 'An error occurred while signing in. Please try again.',
       }
     : {
@@ -66,6 +67,7 @@ export default function LoginPage() {
         oauthError: (provider: string) =>
           `Não foi possível autenticar com ${provider}. Tente novamente.`,
         invalidCredentials: 'E-mail ou senha inválidos.',
+        emailNotConfirmed: 'Endereço de e-mail não confirmado. Tente novamente.',
         signInError: 'Ocorreu um erro ao entrar. Tente novamente.',
       };
   const [email, setEmail] = useState('');
@@ -134,19 +136,48 @@ export default function LoginPage() {
 
     setLoading(true);
 
+    const trimmedEmail = email.trim().toLowerCase();
+
     try {
       const supabase = createClient();
-      const { error: loginError } = await supabase.auth.signInWithPassword({
-        email,
+      let { error: loginError } = await supabase.auth.signInWithPassword({
+        email: trimmedEmail,
         password,
       });
 
+      // Se o erro for de e-mail não confirmado, auto-confirmamos via API e tentamos novamente
+      if (
+        loginError &&
+        (loginError.message?.toLowerCase().includes('email not confirmed') ||
+          (loginError as any).code === 'email_not_confirmed')
+      ) {
+        try {
+          const confirmRes = await fetch('/api/auth/confirm-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: trimmedEmail }),
+          });
+
+          if (confirmRes.ok) {
+            const retryRes = await supabase.auth.signInWithPassword({
+              email: trimmedEmail,
+              password,
+            });
+            loginError = retryRes.error;
+          }
+        } catch {
+          // Continua para o tratamento de erro padrão
+        }
+      }
+
       if (loginError) {
-        setError(
-          loginError.message === 'Invalid login credentials'
-            ? copy.invalidCredentials
-            : loginError.message
-        );
+        let displayError = loginError.message;
+        if (loginError.message === 'Invalid login credentials') {
+          displayError = copy.invalidCredentials;
+        } else if (loginError.message?.toLowerCase().includes('email not confirmed')) {
+          displayError = copy.emailNotConfirmed;
+        }
+        setError(displayError);
         setLoading(false);
         return;
       }

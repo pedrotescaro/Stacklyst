@@ -138,14 +138,14 @@ export const duelVoteSchema = z.object({
 export const registerSchema = z.object({
   username: z
     .string()
-    .min(3, 'Username must be at least 3 characters long')
-    .max(20, 'Username must be at most 20 characters long')
-    .regex(/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'),
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters long'),
+    .min(3, 'Nome de usuário deve ter pelo menos 3 caracteres')
+    .max(20, 'Nome de usuário deve ter no máximo 20 caracteres')
+    .regex(/^[a-zA-Z0-9_]+$/, 'Nome de usuário pode conter apenas letras, números e underline (_)'),
+  email: z.string().email('Endereço de e-mail inválido'),
+  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
 });
 
 export const loginSchema = z.object({
-  email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters long'),
+  email: z.string().email('Endereço de e-mail inválido'),
+  password: z.string().min(6, 'A senha deve ter pelo menos 6 caracteres'),
 });

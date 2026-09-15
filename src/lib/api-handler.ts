@@ -55,9 +55,14 @@ export function apiHandler(handler: (req: Request, ctx: ApiContext) => Promise<R
 
         if (e instanceof ZodError) {
           statusCode = 400;
+          const firstMessage =
+            e.issues?.[0]?.message ||
+            (e as any).errors?.[0]?.message ||
+            'Confira os dados enviados e tente novamente.';
           responsePayload = {
             error: 'VALIDATION_ERROR',
-            message: 'Confira os dados enviados e tente novamente.',
+            message: firstMessage,
+            details: e.issues || (e as any).errors,
           };
         } else if (e instanceof AppError) {
           statusCode = e.statusCode;

@@ -3,7 +3,12 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 import { LeaderboardClient } from '@/app/leaderboard/LeaderboardClient';
-import { calculateLevel, XP_RANK_ORDER } from '@/lib/learning/rewards';
+import { calculateLevel } from '@/lib/learning/rewards';
+import { getEffectiveStreak } from '@/lib/streak';
+import { getUserLanguageXp, getLanguageLeaderboard } from '@/lib/learning/language-xp';
+import { TRAIL_LANGUAGE_CODES, type TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
+import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
+import type { Language } from '@prisma/client';
 
 export const revalidate = 0;
 
@@ -17,42 +22,64 @@ export default async function RankedPage() {
 
   if (!user) redirect('/login');
 
-  const [leaders, trails] = await Promise.all([
-    prisma.user.findMany({
-      orderBy: XP_RANK_ORDER,
-      take: 10,
-      select: {
-        username: true,
-        avatar_url: true,
-        total_xp: true,
-      },
-    }),
+  const [userLanguageXp, trails] = await Promise.all([
+    getUserLanguageXp(user.id),
     prisma.languageTrail.findMany({
       where: { user_id: user.id },
-      select: { streak: true },
+      select: { streak: true, language: true, xp: true },
     }),
   ]);
+
+  // Cursos iniciados ou com XP pelo usuário
+  const enrolledTrailCodes = trails.map((t) => t.language as unknown as TrailLanguageCode);
+  const enrolledWithXp = userLanguageXp
+    .filter((item) => item.xp > 0)
+    .map((item) => item.language as unknown as TrailLanguageCode);
+  const allEnrolledSet = new Set([...enrolledTrailCodes, ...enrolledWithXp]);
+
+  // Linguagem ativa: a de maior XP inscrita, ou a primeira inscrita, ou JS como fallback
+  const activeLanguage = (userLanguageXp.find((item) =>
+    allEnrolledSet.has(item.language as unknown as TrailLanguageCode)
+  )?.language ??
+    (allEnrolledSet.size > 0 ? Array.from(allEnrolledSet)[0] : 'JS')) as TrailLanguageCode;
+
+  // Montar lista de cursos para o TrailCourseSelector
+  const userCourses: TrailCourseOption[] = TRAIL_LANGUAGE_CODES.map((code) => {
+    const xpFound = userLanguageXp.find((item) => (item.language as string) === code);
+    const xp = xpFound?.xp ?? 0;
+    const isStarted = allEnrolledSet.has(code) || code === activeLanguage;
+    return {
+      language: code,
+      xp,
+      started: isStarted,
+    };
+  });
+
+  // Buscar o ranking específico da linguagem ativa
+  const leaders = await getLanguageLeaderboard(activeLanguage as unknown as Language, 50);
 
   const initialLeaderboard = leaders.map((leader, index) => ({
     rank: index + 1,
     username: leader.username,
     avatar_url: leader.avatar_url,
-    xp: leader.total_xp,
-    level: calculateLevel(leader.total_xp).level,
+    xp: leader.xp,
+    level: calculateLevel(leader.xp).level,
+    streak: getEffectiveStreak(leader.streak_days ?? 0, leader.last_active_at),
+    created_at: leader.created_at ? leader.created_at.toISOString() : null,
   }));
 
   return (
     <LeaderboardClient
       initialLeaderboard={initialLeaderboard}
+      initialLanguage={activeLanguage}
+      courses={userCourses}
       initialUser={{
         id: user.id,
         username: user.username,
         avatar_url: user.avatar_url,
         total_xp: user.total_xp,
-        streak: Math.max(
-          user.streak_days,
-          trails.reduce((maximum, trail) => Math.max(maximum, trail.streak), 0)
-        ),
+        streak: user.streak_days,
+        last_active_at: user.last_active_at ? user.last_active_at.toISOString() : null,
       }}
     />
   );

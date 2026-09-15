@@ -46,7 +46,8 @@ describe('LeaderboardClient', () => {
       '/profile/carol'
     );
     expect(screen.queryByText('Alexa miliano')).not.toBeInTheDocument();
-    expect(screen.queryByText(/\bRP\b|divisão|temporada|liga/i)).not.toBeInTheDocument();
+    expect(screen.getByText('Divisão Ouro')).toBeInTheDocument();
+    expect(screen.queryByText(/\bRP\b/i)).not.toBeInTheDocument();
   });
 
   it('troca para o XP da linguagem sem refazer a requisição em loop', async () => {
@@ -57,13 +58,73 @@ describe('LeaderboardClient', () => {
     });
     vi.stubGlobal('fetch', fetchMock);
 
-    render(<LeaderboardClient initialUser={viewer} initialLeaderboard={leaderboard} />);
-    await user.selectOptions(screen.getByLabelText('Filtrar ranking por linguagem'), 'PYTHON');
+    render(
+      <LeaderboardClient
+        initialUser={viewer}
+        initialLeaderboard={leaderboard}
+        initialLanguage="JS"
+        courses={[
+          { language: 'JS', xp: 720, started: true },
+          { language: 'PYTHON', xp: 420, started: true },
+        ]}
+      />
+    );
+
+    await user.click(screen.getByTestId('course-selector-trigger-rail'));
+    await user.click(await screen.findByRole('menuitemradio', { name: /Python/i }));
 
     expect(await screen.findByText('420 XP')).toBeInTheDocument();
     await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(1));
     expect(fetchMock).toHaveBeenCalledWith('/api/leaderboard?language=PYTHON', {
       signal: expect.any(AbortSignal),
     });
+  });
+
+  it('renderiza classes que suportam temas claro e escuro sem texto branco invisível', () => {
+    render(<LeaderboardClient initialUser={viewer} initialLeaderboard={leaderboard} />);
+
+    // Título da divisão usa text-dd-text (visível tanto no claro quanto no escuro)
+    const divisionHeading = screen.getByRole('heading', { level: 2, name: 'Divisão Ouro' });
+    expect(divisionHeading).toHaveClass('text-dd-text');
+    expect(divisionHeading).not.toHaveClass('text-white');
+
+    // Seção de status com suporte claro/escuro
+    const statusSection = screen.getByRole('region', { name: /escolha o seu status/i });
+    expect(statusSection).toHaveClass('bg-white');
+    expect(statusSection).toHaveClass('dark:bg-black');
+
+    // Linha do espectador com destaque azul tanto no claro quanto no escuro
+    const viewerRow = screen.getByRole('link', { name: /pedro/i });
+    expect(viewerRow.className).toContain('bg-blue-500/[0.08]');
+    expect(viewerRow.className).toContain('dark:bg-[#121c2e]');
+  });
+
+  it('renderiza ZONA DE PROMOÇÃO em azul e ZONA DE REBAIXAMENTO em vermelho com a fonte em caixa alta', () => {
+    // Cria lista com 14 participantes (como no banco real)
+    const longLeaderboard = Array.from({ length: 14 }, (_, i) => ({
+      rank: i + 1,
+      username: `user_${i + 1}`,
+      avatar_url: null,
+      xp: 1000 - i * 50,
+      level: 1,
+    }));
+
+    render(<LeaderboardClient initialUser={viewer} initialLeaderboard={longLeaderboard} />);
+
+    const promoElement = screen.getByText('ZONA DE PROMOÇÃO');
+    expect(promoElement).toBeInTheDocument();
+    const promoContainer = promoElement.parentElement;
+    expect(promoContainer?.className).toContain('text-blue-500');
+    expect(promoContainer?.className).toContain('font-black');
+    expect(promoContainer?.className).toContain('uppercase');
+    expect(promoContainer?.className).toContain('tracking-wider');
+
+    const relegElement = screen.getByText('ZONA DE REBAIXAMENTO');
+    expect(relegElement).toBeInTheDocument();
+    const relegContainer = relegElement.parentElement;
+    expect(relegContainer?.className).toContain('text-red-500');
+    expect(relegContainer?.className).toContain('font-black');
+    expect(relegContainer?.className).toContain('uppercase');
+    expect(relegContainer?.className).toContain('tracking-wider');
   });
 });

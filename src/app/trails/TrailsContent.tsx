@@ -19,6 +19,7 @@ interface TrailsContentProps {
     avatar_url: string | null;
     total_xp: number;
     streak: number;
+    last_active_at?: string | null;
   };
   knowledgeMap: KnowledgeMapData;
   initialCourses: TrailCourseOption[];
@@ -133,6 +134,7 @@ export function TrailsContent({
                   courses={initialCourses}
                   onSelectCourse={selectCourse}
                   streak={user.streak}
+                  lastActiveAt={user.last_active_at}
                   totalXp={user.total_xp}
                   gems={gems}
                 />
@@ -177,6 +179,7 @@ export function TrailsContent({
           totalXp={user.total_xp}
           gems={gems}
           streak={user.streak}
+          lastActiveAt={user.last_active_at}
           globalRank={globalRank}
           totalParticipants={totalParticipants}
           username={user.username}

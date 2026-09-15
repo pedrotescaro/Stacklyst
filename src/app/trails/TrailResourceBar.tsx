@@ -12,6 +12,7 @@ interface TrailResourceBarProps {
   courses: TrailCourseOption[];
   onSelectCourse: (language: TrailLanguageCode) => void;
   streak: number;
+  lastActiveAt?: string | null;
   totalXp: number;
   gems: number;
 }
@@ -25,6 +26,7 @@ export function TrailResourceBar({
   courses,
   onSelectCourse,
   streak,
+  lastActiveAt,
   totalXp,
   gems,
 }: TrailResourceBarProps) {
@@ -43,6 +45,7 @@ export function TrailResourceBar({
 
       <StreakPopover
         streak={streak}
+        lastActiveAt={lastActiveAt}
         triggerClassName="dd-focus-ring flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-1.5 transition hover:bg-orange-500/[0.08]"
       >
         <Image
