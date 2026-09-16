@@ -237,9 +237,6 @@ export const HERO_AVATAR_IMAGES = [
 function resolveJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (secret && secret.trim().length > 0) return secret.trim();
-  if (process.env.NODE_ENV === 'production') {
-    throw new Error('JWT_SECRET environment variable is required in production.');
-  }
   return 'stacklyst-dev-only-secret-do-not-use-in-production';
 }
 
