@@ -206,6 +206,60 @@ body {
   outline-offset: 2px;
 }
 
+/* ── Themed <select> dropdowns ──
+   Override native browser chrome so every <select> + <option>
+   matches the dd-* design-token palette.                         */
+select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-color: var(--color-dd-bg);
+  color: var(--color-dd-text);
+  border: 1px solid var(--color-dd-border);
+  border-radius: 0.5rem;
+  padding: 0.5rem 2.25rem 0.5rem 0.75rem;
+  font-size: 0.8125rem;
+  line-height: 1.25rem;
+  cursor: pointer;
+  outline: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+
+  /* Custom chevron — a thin ∨ in dd-muted */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%2371767b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m2 4 4 4 4-4'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.625rem center;
+  background-size: 0.75rem 0.75rem;
+}
+
+/* In dark mode, tell the browser to render native option list in dark */
+:root.dark select {
+  color-scheme: dark;
+}
+
+select:hover {
+  border-color: var(--color-dd-accent);
+}
+
+select:focus,
+select:focus-visible {
+  border-color: var(--color-dd-accent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-dd-accent) 25%, transparent);
+  outline: none;
+}
+
+/* Style option list (supported in Chromium + Firefox) */
+select option {
+  background-color: var(--color-dd-surface);
+  color: var(--color-dd-text);
+  padding: 0.5rem 0.75rem;
+}
+
+select option:checked {
+  background-color: var(--color-dd-accent);
+  color: #ffffff;
+}
+
 .dd-touch {
   min-height: 2.75rem;
   min-width: 2.75rem;
