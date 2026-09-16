@@ -19,6 +19,23 @@ describe('trail mascot animation primitives', () => {
     }
   });
 
+  it('ensures walking sprite frames match the 320x320 canvas dimensions of the idle frames', async () => {
+    const fs = await import('fs');
+    const path = await import('path');
+    const allFrames = [
+      ...Object.values(MASCOT_SPRITE_FRAMES).flat(),
+      ...Object.values(MASCOT_IDLE_FRAMES).flat(),
+    ];
+    for (const frame of allFrames) {
+      const filePath = path.join(process.cwd(), 'public', frame);
+      const buf = fs.readFileSync(filePath);
+      const width = buf.readUInt32BE(16);
+      const height = buf.readUInt32BE(20);
+      expect(width).toBe(320);
+      expect(height).toBe(320);
+    }
+  });
+
   it('builds a distance-addressable smooth path through the trail waypoints', () => {
     const path = createSmoothTrailPath([
       { x: 100, y: 50 },
