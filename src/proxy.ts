@@ -23,10 +23,11 @@ export async function proxy(request: NextRequest) {
   // Handle hybrid app / tracking actions from browser extensions to prevent console errors and 500s
   if (pathname.startsWith('/hybridaction/')) {
     const callback = request.nextUrl.searchParams.get('__callback__');
-    if (callback) {
+    if (callback && /^[a-zA-Z0-9_$.]{1,64}$/.test(callback)) {
       return new NextResponse(`${callback}({});`, {
         headers: {
           'Content-Type': 'application/javascript; charset=utf-8',
+          'X-Content-Type-Options': 'nosniff',
         },
         status: 200,
       });

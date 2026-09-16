@@ -1,58 +1,52 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { apiHandler } from '@/lib/api-handler';
-import { getSupabaseAdminClient } from '@/lib/supabase/admin';
+import { createClient } from '@/lib/supabase/server';
 import { logger } from '@/lib/logger';
 
 const confirmEmailSchema = z.object({
   email: z.string().email('Endereço de e-mail inválido'),
+  token: z.string().min(1).optional(),
+  token_hash: z.string().min(1).optional(),
+  action: z.enum(['verify', 'resend']).default('verify'),
 });
 
 export const POST = apiHandler(async (request) => {
   const body = await request.json();
-  const { email } = confirmEmailSchema.parse(body);
+  const { email, token, token_hash, action } = confirmEmailSchema.parse(body);
 
-  const supabaseAdmin = getSupabaseAdminClient();
-  if (!supabaseAdmin) {
+  // Verification requires either token (OTP) or token_hash
+  if (action === 'verify' && !token && !token_hash) {
     return NextResponse.json(
-      { error: 'Serviço de confirmação indisponível neste ambiente.' },
-      { status: 503 }
+      { error: 'Token ou código de confirmação é obrigatório.' },
+      { status: 400 }
     );
   }
 
+  const supabase = await createClient();
+
   try {
-    const { data, error } = await supabaseAdmin.auth.admin.listUsers();
-    if (error) {
-      logger.error('Failed to list users in confirm-email', { error: error.message });
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
-
-    const targetUser = data.users.find(
-      (u) => u.email?.toLowerCase() === email.trim().toLowerCase()
-    );
-
-    if (!targetUser) {
-      return NextResponse.json({ error: 'Usuário não encontrado.' }, { status: 404 });
-    }
-
-    if (!targetUser.email_confirmed_at) {
-      const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(targetUser.id, {
-        email_confirm: true,
-      });
-
-      if (updateError) {
-        logger.error('Failed to auto-confirm user email', {
-          userId: targetUser.id,
-          error: updateError.message,
+    const { data, error } = token_hash
+      ? await supabase.auth.verifyOtp({
+          token_hash,
+          type: 'email',
+        })
+      : await supabase.auth.verifyOtp({
+          email: email.trim().toLowerCase(),
+          token: token!,
+          type: 'signup',
         });
-        return NextResponse.json({ error: updateError.message }, { status: 500 });
-      }
 
-      logger.info('User email successfully confirmed', { userId: targetUser.id, email });
-      return NextResponse.json({ success: true, confirmed: true });
+    if (error) {
+      logger.error('Failed to verify confirmation token', { error: error.message });
+      return NextResponse.json(
+        { error: 'Token de confirmação inválido ou expirado.' },
+        { status: 400 }
+      );
     }
 
-    return NextResponse.json({ success: true, confirmed: true, alreadyConfirmed: true });
+    logger.info('User email verified successfully', { userId: data.user?.id, email });
+    return NextResponse.json({ success: true, confirmed: true });
   } catch (err: any) {
     logger.error('Unexpected error in confirm-email route', {
       error: err?.message || String(err),

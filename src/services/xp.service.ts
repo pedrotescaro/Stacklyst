@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma';
-import { Language } from '@prisma/client';
-import { awardXP } from '@/lib/xp';
+import { Language, type Prisma } from '@prisma/client';
+import { awardXP, awardXPInTransaction } from '@/lib/xp';
 import { calculateLevel } from '@/lib/learning/rewards';
 import { NotificationService } from './notification.service';
 import { logger } from '@/lib/logger';
@@ -32,5 +32,14 @@ export const XpService = {
       }
     }
     return result;
+  },
+
+  async awardXPInTransaction(
+    tx: Prisma.TransactionClient,
+    userId: string,
+    language: Language | null | undefined,
+    amount: number
+  ) {
+    return awardXPInTransaction(tx, userId, language, amount);
   },
 };

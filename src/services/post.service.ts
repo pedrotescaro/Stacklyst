@@ -2,14 +2,25 @@ import { prisma } from '@/lib/prisma';
 import { Language } from '@prisma/client';
 import { CreatePostInput } from '@/lib/validators';
 import { encodeCursor, buildCursorWhere } from '@/lib/pagination';
-import { XpService } from './xp.service';
+import { XpService, calculateLevel } from './xp.service';
+import { NotificationService } from './notification.service';
 import { logger } from '@/lib/logger';
 
 export const PostService = {
-  async create(userId: string, data: CreatePostInput) {
+  async create(userId: string, data: CreatePostInput, clientId?: string) {
     const { title, body, language, code, image_url, type } = data;
 
-    // Use transaction to ensure atomicity
+    // Idempotency check: if client_id already exists for this user, return existing post
+    if (clientId) {
+      const existing = await prisma.post.findFirst({
+        where: { author_id: userId, client_id: clientId },
+      });
+      if (existing) {
+        return { post: existing, xpResult: null };
+      }
+    }
+
+    let leveledUp = false;
     const result = await prisma.$transaction(async (tx) => {
       // 1. Create Post
       const post = await tx.post.create({
@@ -20,12 +31,22 @@ export const PostService = {
           language: language || null,
           code_snippet: code || null,
           image_url: image_url || null,
+          client_id: clientId || null,
         },
       });
 
-      // 2. Award XP
+      // 2. Award XP directly using the SAME transaction tx!
       const xpAmount = language ? 10 : 5;
-      const xpResult = await XpService.awardXP(userId, language, xpAmount);
+      const beforeUser = await tx.user.findUnique({
+        where: { id: userId },
+        select: { total_xp: true },
+      });
+
+      const xpResult = await XpService.awardXPInTransaction(tx, userId, language, xpAmount);
+
+      if (calculateLevel(xpResult.newXp).level > calculateLevel(beforeUser?.total_xp ?? 0).level) {
+        leveledUp = true;
+      }
 
       // 3. Mentions Parsing & Notifications
       const usernames = Array.from(
@@ -71,6 +92,20 @@ export const PostService = {
 
       return { post, xpResult };
     });
+
+    if (leveledUp) {
+      try {
+        await NotificationService.create({
+          userId,
+          type: 'LEVEL_UP',
+          title: 'Subiu de nível!',
+          content: 'Sua prática avançou mais um nível.',
+          link: '/profile',
+        });
+      } catch (err) {
+        logger.error('Failed to notify level up', { error: String(err) });
+      }
+    }
 
     return result;
   },

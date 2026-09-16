@@ -42,5 +42,16 @@ export const GET = apiHandler(async (_req) => {
     },
   });
 
-  return NextResponse.json({ quiz, attempt });
+  const sanitizedQuiz = attempt
+    ? quiz
+    : {
+        id: quiz.id,
+        post_id: quiz.post_id,
+        question: quiz.question,
+        options: quiz.options,
+        is_daily: quiz.is_daily,
+        scheduled_for: quiz.scheduled_for,
+      };
+
+  return NextResponse.json({ quiz: sanitizedQuiz, attempt });
 });
