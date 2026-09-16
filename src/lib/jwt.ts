@@ -107,6 +107,12 @@ export async function getJwtUser(): Promise<JwtPayload | null> {
 }
 
 function getEncodedJwtSecret() {
+  if (
+    process.env.NODE_ENV === 'production' &&
+    JWT_SECRET === 'stacklyst-dev-only-secret-do-not-use-in-production'
+  ) {
+    throw new Error('JWT_SECRET must be configured in production.');
+  }
   return new TextEncoder().encode(JWT_SECRET);
 }
 
