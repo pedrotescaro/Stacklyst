@@ -11,6 +11,13 @@ import type { TrailLanguageCode } from './TrailLanguageLogo';
 import { getCourseKnowledgeNodes, getCourseLearningPaths } from './trailCourseKnowledge';
 import type { KnowledgeMapData } from '@/lib/learning/types';
 import { LearningJourney } from './LearningJourney';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface TrailsContentProps {
   user: {
@@ -140,21 +147,54 @@ export function TrailsContent({
                 />
               </div>
             </div>
-            <label className="mt-3 flex items-center gap-3 text-sm text-dd-muted">
-              Caminho
-              <select
-                aria-label="Caminho de aprendizado"
-                value={path?.id ?? ''}
-                onChange={(event) => setPathId(event.target.value)}
-                className="dd-focus-ring min-h-11 min-w-0 flex-1 rounded-lg border border-dd-border bg-dd-bg px-3 text-dd-text"
-              >
-                {paths.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.title} · {p.completedNodes}/{p.totalNodes} lições
-                  </option>
-                ))}
-              </select>
-            </label>
+            <div className="mt-3 flex items-center gap-3 text-sm text-dd-muted">
+              <span className="shrink-0 font-medium text-dd-muted">Caminho</span>
+              <div className="min-w-0 flex-1">
+                <Select
+                  value={path?.id ?? ''}
+                  onValueChange={(val) => {
+                    if (typeof val === 'string' && val) setPathId(val);
+                  }}
+                >
+                  <SelectTrigger
+                    aria-label="Caminho de aprendizado"
+                    className="min-h-11 min-w-0 w-full rounded-xl border border-dd-border bg-dd-bg px-3.5 text-sm text-dd-text transition-colors hover:border-dd-accent/60"
+                  >
+                    <SelectValue placeholder="Selecione um caminho...">
+                      {path ? (
+                        <div className="flex min-w-0 flex-1 items-center gap-2">
+                          <span className="min-w-0 truncate font-semibold text-dd-text">
+                            {path.title}
+                          </span>
+                          <span className="shrink-0 text-xs text-dd-muted">
+                            · {path.completedNodes}/{path.totalNodes} lições
+                          </span>
+                        </div>
+                      ) : null}
+                    </SelectValue>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {paths.map((p) => (
+                      <SelectItem
+                        key={p.id}
+                        value={p.id}
+                        label={`${p.title} · ${p.completedNodes}/${p.totalNodes} lições`}
+                        className="min-h-12"
+                      >
+                        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                          <span className="min-w-0 break-words font-semibold text-dd-text">
+                            {p.title}
+                          </span>
+                          <span className="shrink-0 text-xs tabular-nums text-dd-muted">
+                            {p.completedNodes}/{p.totalNodes} lições
+                          </span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
           </header>
           {path ? (
             <LearningJourney
