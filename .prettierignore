@@ -1,0 +1,5 @@
+apps/mobile/android/
+apps/mobile/ios/
+apps/mobile/dist/
+apps/mobile/src/editor/document.generated.ts
+.tmp/

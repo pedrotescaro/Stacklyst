@@ -1,8 +1,24 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
+import { verifyBearerIdentity } from '@/lib/supabase/bearer';
+import { AppError } from '@/lib/errors';
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  if (pathname.startsWith('/api/') && request.headers.has('authorization')) {
+    try {
+      await verifyBearerIdentity(request.headers.get('authorization')!);
+      return NextResponse.next();
+    } catch (error) {
+      return NextResponse.json(
+        {
+          error: error instanceof AppError ? error.code : 'AUTH_UNAVAILABLE',
+          message: error instanceof AppError ? error.message : 'Autenticação indisponível.',
+        },
+        { status: error instanceof AppError ? error.statusCode : 503 }
+      );
+    }
+  }
 
   // Handle hybrid app / tracking actions from browser extensions to prevent console errors and 500s
   if (pathname.startsWith('/hybridaction/')) {

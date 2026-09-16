@@ -5,6 +5,25 @@ on:
     branches: [main]
 
 jobs:
+  mobile:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: apps/mobile/package-lock.json
+      - name: Install mobile dependencies
+        run: npm ci --prefix apps/mobile
+      - name: Audit mobile dependencies
+        run: npm audit --prefix apps/mobile --audit-level=high
+      - name: Check mobile types and lint
+        run: npm --prefix apps/mobile run typecheck && npm --prefix apps/mobile run lint
+      - name: Bundle Android and iOS
+        working-directory: apps/mobile
+        run: npm run export -- --max-workers 2
+
   build-and-test:
     runs-on: ubuntu-latest
 

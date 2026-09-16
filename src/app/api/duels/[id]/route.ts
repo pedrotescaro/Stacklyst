@@ -29,6 +29,10 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     select: {
       id: true,
       status: true,
+      problem_title: true,
+      problem_body: true,
+      language: true,
+      challenger: { select: { id: true, username: true, avatar_url: true } },
       challenger_id: true,
       opponent_id: true,
       winner_id: true,

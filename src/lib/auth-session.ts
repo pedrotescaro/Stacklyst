@@ -1,4 +1,6 @@
 import { cache } from 'react';
+import { headers } from 'next/headers';
+import { verifyBearerIdentity } from '@/lib/supabase/bearer';
 import { createClient } from '@/lib/supabase/server';
 import { ConnectionError } from '@/lib/errors';
 import { getJwtUser } from '@/lib/jwt';
@@ -9,6 +11,8 @@ import { isSupabasePublicConfigured } from '@/lib/supabase/env';
 
 /** Resolve a verified Supabase user ID without loading application data. */
 export const getAuthUserId = cache(async () => {
+  const authorization = (await headers()).get('authorization');
+  if (authorization !== null) return verifyBearerIdentity(authorization);
   const supabase = await createClient();
   const { data, error } = await supabase.auth.getClaims();
   let userId = typeof data?.claims?.sub === 'string' ? data.claims.sub : null;

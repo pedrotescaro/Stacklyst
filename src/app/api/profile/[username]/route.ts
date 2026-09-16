@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { getAuthUserId } from '@/lib/auth-session';
 import { getUserLanguageXp } from '@/lib/learning/language-xp';
 
 export async function GET(request: Request, { params }: { params: Promise<{ username: string }> }) {
@@ -110,7 +111,15 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
     }
 
     return NextResponse.json({
+      followers: await prisma.follow.count({ where: { followingId: user.id } }),
+      following: await prisma.follow.count({ where: { followerId: user.id } }),
+      isFollowing: Boolean(
+        await prisma.follow.findFirst({
+          where: { followerId: (await getAuthUserId()) ?? '', followingId: user.id },
+        })
+      ),
       user: {
+        id: user.id,
         username: user.username,
         avatar_url: user.avatar_url,
         avatar_config: user.avatar_config,

@@ -17,6 +17,7 @@ vi.mock('@/lib/prisma', () => ({
     },
     company: {
       create: vi.fn(),
+      findUnique: vi.fn(),
     },
     user: {
       updateMany: vi.fn(),
@@ -67,7 +68,12 @@ describe('JobService', () => {
     it('returns applications when requester is RECRUITER', async () => {
       vi.mocked(prisma.job.findUnique).mockResolvedValueOnce({
         id: 'job-1',
+        company_id: 'company-1',
         company: { owner_id: 'user-recruiter' },
+      } as any);
+      vi.mocked(prisma.company.findUnique).mockResolvedValueOnce({
+        id: 'company-1',
+        owner_id: 'user-recruiter',
       } as any);
 
       vi.mocked(prisma.jobApplication.findMany).mockResolvedValueOnce([
