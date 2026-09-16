@@ -60,9 +60,9 @@ export function CodeEditorStep({
                   {testCase.description}
                 </p>
                 {testCase.expectedOutput && (
-                  <p className="mt-2 break-words font-mono text-[11px] text-emerald-400">
-                    Saída: {testCase.expectedOutput}
-                  </p>
+                  <div className="mt-2 break-words font-mono text-[11px] text-emerald-400 whitespace-pre-wrap leading-relaxed">
+                    {testCase.expectedOutput}
+                  </div>
                 )}
               </div>
             ))}
