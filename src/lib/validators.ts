@@ -1,58 +1,62 @@
 import { z } from 'zod';
 import { Language } from '@prisma/client';
 
+function isPrivateIpOrHost(hostname: string): boolean {
+  const lower = hostname.toLowerCase();
+  if (lower === 'localhost' || lower.endsWith('.local') || lower.endsWith('.internal')) {
+    return true;
+  }
+  // IPv4 check
+  const ipv4Match = /^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/.exec(lower);
+  if (ipv4Match) {
+    const [_, o1, o2] = ipv4Match.map(Number);
+    if (o1 === 127 || o1 === 10 || o1 === 0) return true;
+    if (o1 === 172 && o2 >= 16 && o2 <= 31) return true;
+    if (o1 === 192 && o2 === 168) return true;
+    if (o1 === 169 && o2 === 254) return true;
+    return false;
+  }
+  // IPv6 check (e.g. ::1, fe80::, fc00::)
+  if (
+    lower === '::1' ||
+    lower.startsWith('fe80:') ||
+    lower.startsWith('fc00:') ||
+    lower.startsWith('fd00:')
+  ) {
+    return true;
+  }
+  return false;
+}
+
 const imageUrlSchema = z
   .string()
   .refine(
     (val) => {
       if (!val) return true;
-      if (val.startsWith('https://')) return true;
-      if (val.startsWith('/uploads/')) return true;
-      if (
-        val.startsWith('http://localhost/') ||
-        val.startsWith('http://localhost') ||
-        val.startsWith('http://127.0.0.1/') ||
-        val.startsWith('http://127.0.0.1')
-      ) {
-        return true;
-      }
-      return false;
-    },
-    {
-      message: 'Apenas URLs HTTPS ou caminhos locais autorizados são permitidos',
-    }
-  )
-  .refine(
-    (val) => {
-      if (!val) return true;
-      const blocked = ['javascript:', 'data:', 'file:', 'vbscript:'];
-      return !blocked.some((proto) => val.toLowerCase().startsWith(proto));
-    },
-    { message: 'Protocolo não permitido' }
-  )
-  .refine(
-    async (val) => {
-      if (!val) return true;
-      if (val.startsWith('/')) return true;
+      if (val.startsWith('/uploads/') || val.startsWith('/assets/')) return true;
+
       try {
-        const controller = new AbortController();
-        const id = setTimeout(() => controller.abort(), 3000);
-        const res = await fetch(val, {
-          method: 'HEAD',
-          signal: controller.signal,
-        });
-        clearTimeout(id);
-        const contentType = res.headers.get('content-type');
-        if (res.ok && contentType && !contentType.startsWith('image/')) {
+        const url = new URL(val);
+        if (
+          url.protocol !== 'https:' &&
+          (process.env.NODE_ENV === 'production' || url.protocol !== 'http:')
+        ) {
+          return false;
+        }
+        if (url.username || url.password) {
+          return false;
+        }
+        if (process.env.NODE_ENV === 'production' && isPrivateIpOrHost(url.hostname)) {
           return false;
         }
         return true;
       } catch {
-        // Degrade gracefully on timeout or network issues
-        return true;
+        return false;
       }
     },
-    { message: 'A URL deve apontar para uma imagem válida' }
+    {
+      message: 'A URL deve ser um endereço HTTPS válido ou um caminho de upload local autorizado.',
+    }
   )
   .optional()
   .nullable();
@@ -88,9 +92,9 @@ export const createPostSchema = z
       }),
     body: z
       .string()
+      .trim()
       .min(10, 'O conteúdo deve ter pelo menos 10 caracteres')
       .max(5000)
-      .trim()
       .pipe(mentionSchema),
     language: z.nativeEnum(Language).optional().nullable(),
     code: z.string().max(10000).optional().nullable(),
@@ -110,9 +114,9 @@ export type CreatePostInput = z.infer<typeof createPostSchema>;
 export const createAnswerSchema = z.object({
   body: z
     .string()
+    .trim()
     .min(5, 'A resposta deve ter pelo menos 5 caracteres')
     .max(5000)
-    .trim()
     .pipe(mentionSchema),
   code_snippet: z.string().optional().nullable(),
   parent_answer_id: z.string().uuid().optional().nullable(),

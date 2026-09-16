@@ -63,8 +63,12 @@ export const POST = apiHandler(async (req) => {
 
   const body = await req.json();
   const parsed = await createPostSchema.parseAsync(body);
+  const clientId =
+    req.headers.get('x-idempotency-key') ||
+    req.headers.get('idempotency-key') ||
+    (body && typeof body === 'object' && body.client_id ? String(body.client_id) : undefined);
 
-  const result = await PostService.create(user.id, parsed);
+  const result = await PostService.create(user.id, parsed, clientId);
 
   return NextResponse.json(result, { status: 201 });
 });

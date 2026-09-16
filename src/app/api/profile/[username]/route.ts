@@ -59,6 +59,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
       }
     }
 
+    const viewerId = await getAuthUserId();
+
     const postWhereClause: any = { author_id: user.id };
     if (cursorTime && cursorId) {
       postWhereClause.OR = [
@@ -83,8 +85,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
         _count: {
           select: { answers: true },
         },
-        votes: { where: { user_id: user.id } },
-        bookmarks: { where: { user_id: user.id } },
+        votes: viewerId ? { where: { user_id: viewerId } } : false,
+        bookmarks: viewerId ? { where: { user_id: viewerId } } : false,
       },
     });
 
@@ -114,9 +116,10 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
       followers: await prisma.follow.count({ where: { followingId: user.id } }),
       following: await prisma.follow.count({ where: { followerId: user.id } }),
       isFollowing: Boolean(
-        await prisma.follow.findFirst({
-          where: { followerId: (await getAuthUserId()) ?? '', followingId: user.id },
-        })
+        viewerId &&
+        (await prisma.follow.findFirst({
+          where: { followerId: viewerId, followingId: user.id },
+        }))
       ),
       user: {
         id: user.id,
@@ -129,7 +132,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
         discord_username: user.discord_username,
         banner_url: user.banner_url,
         pronouns: user.pronouns,
-        birthday: user.birthday,
+        birthday: viewerId === user.id ? user.birthday : null,
         total_xp: user.total_xp,
         streak_days: user.streak_days,
         created_at: user.created_at,

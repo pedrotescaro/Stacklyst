@@ -583,6 +583,7 @@ model Post {
   created_at   DateTime  @default(now())
   view_count   Int       @default(0)
   upvotes      Int       @default(0)
+  client_id    String?
 
   author    User       @relation(fields: [author_id], references: [id], onDelete: Cascade)
   answers   Answer[]
@@ -592,6 +593,7 @@ model Post {
   reports   Report[]
   reactions Reaction[]
 
+  @@unique([author_id, client_id])
   @@index([created_at(sort: Desc), id(sort: Desc)])
 }
 

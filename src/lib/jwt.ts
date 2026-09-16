@@ -50,6 +50,13 @@ export async function signJwt(payload: {
  */
 export async function verifyJwt(token: string): Promise<JwtPayload | null> {
   try {
+    if (
+      process.env.NODE_ENV === 'production' &&
+      JWT_SECRET === 'stacklyst-dev-only-secret-do-not-use-in-production'
+    ) {
+      logger.error('JWT verification refused: dev-only secret in production');
+      return null;
+    }
     const { payload } = await jwtVerify(token, getEncodedJwtSecret(), {
       algorithms: ['HS256'],
     });

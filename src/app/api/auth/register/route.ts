@@ -66,47 +66,10 @@ export const POST = apiHandler(async (request) => {
 
     if (adminError) {
       const errMsg = adminError.message.toLowerCase();
-      // Se o usuário já existe no Auth mas não no banco (ex: tentativa anterior interrompida)
       if (errMsg.includes('already been registered') || errMsg.includes('already exists')) {
-        const { data: listData } = await supabaseAdmin.auth.admin.listUsers();
-        const existingAuthUser = listData?.users?.find(
-          (u) => u.email?.toLowerCase() === email.toLowerCase()
-        );
-
-        if (existingAuthUser) {
-          const dbUserCheck = await prisma.user.findUnique({
-            where: { id: existingAuthUser.id },
-          });
-
-          if (!dbUserCheck) {
-            // Conta órfã no Auth: atualizamos senha e confirmamos o email
-            const { data: updatedData, error: updateErr } =
-              await supabaseAdmin.auth.admin.updateUserById(existingAuthUser.id, {
-                password,
-                email_confirm: true,
-                user_metadata: { username },
-              });
-
-            if (!updateErr && updatedData.user) {
-              authUser = updatedData.user;
-            } else {
-              return NextResponse.json(
-                { error: 'Endereço de e-mail já está em uso.' },
-                { status: 400 }
-              );
-            }
-          } else {
-            return NextResponse.json(
-              { error: 'Endereço de e-mail já está em uso.' },
-              { status: 400 }
-            );
-          }
-        } else {
-          return NextResponse.json({ error: adminError.message }, { status: 400 });
-        }
-      } else {
-        return NextResponse.json({ error: adminError.message }, { status: 400 });
+        return NextResponse.json({ error: 'Endereço de e-mail já está em uso.' }, { status: 409 });
       }
+      return NextResponse.json({ error: adminError.message }, { status: 400 });
     } else {
       authUser = adminData.user;
       isNewlyCreatedAuthUser = true;
@@ -145,28 +108,31 @@ export const POST = apiHandler(async (request) => {
 
   const avatarBaseUrl = AVATAR_API_URL;
 
-  // 2. Criar registro no banco via Prisma
+  // 2. Criar registro no banco e trilhas padrão em uma única transação consistente
   try {
-    const dbUser = await prisma.user.create({
-      data: {
-        id: authUser.id,
-        username,
-        email,
-        avatar_url: `${avatarBaseUrl}?seed=${username}`,
-        bio: 'New developer on Stacklyst! 🚀',
-        total_xp: 0,
-      },
-    });
+    const dbUser = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          id: authUser.id,
+          username,
+          email,
+          avatar_url: `${avatarBaseUrl}?seed=${username}`,
+          bio: 'New developer on Stacklyst! 🚀',
+          total_xp: 0,
+        },
+      });
 
-    // 3. Inicializar trilhas padrão para o novo usuário
-    await prisma.languageTrail.createMany({
-      data: DEFAULT_LANGUAGE_TRAILS.map((lang) => ({
-        user_id: dbUser.id,
-        language: lang as any,
-        xp: 0,
-        level: 1,
-        streak: 0,
-      })),
+      await tx.languageTrail.createMany({
+        data: DEFAULT_LANGUAGE_TRAILS.map((lang) => ({
+          user_id: user.id,
+          language: lang as any,
+          xp: 0,
+          level: 1,
+          streak: 0,
+        })),
+      });
+
+      return user;
     });
 
     // 4. Emitir JWT para camada secundária

@@ -25,7 +25,12 @@ export function apiHandler(handler: (req: Request, ctx: ApiContext) => Promise<R
 
     return rateLimitStorage.run(store, async () => {
       try {
-        const session = await getAuthUser();
+        let session = null;
+        try {
+          session = await getAuthUser();
+        } catch {
+          session = null;
+        }
 
         // Execute the actual route logic
         const response = await handler(req, {
