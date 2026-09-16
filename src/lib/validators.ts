@@ -37,19 +37,27 @@ const imageUrlSchema = z
 
       try {
         const url = new URL(val);
-        if (
-          url.protocol !== 'https:' &&
-          (process.env.NODE_ENV === 'production' || url.protocol !== 'http:')
-        ) {
-          return false;
-        }
         if (url.username || url.password) {
           return false;
         }
-        if (process.env.NODE_ENV === 'production' && isPrivateIpOrHost(url.hostname)) {
-          return false;
+
+        if (url.protocol === 'https:') {
+          if (process.env.NODE_ENV === 'production' && isPrivateIpOrHost(url.hostname)) {
+            return false;
+          }
+          return true;
         }
-        return true;
+
+        if (url.protocol === 'http:') {
+          // http is only permitted in non-production for localhost or 127.0.0.1
+          if (process.env.NODE_ENV === 'production') {
+            return false;
+          }
+          const lowerHost = url.hostname.toLowerCase();
+          return lowerHost === 'localhost' || lowerHost === '127.0.0.1';
+        }
+
+        return false;
       } catch {
         return false;
       }
