@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { sendMobilePush } from '@/lib/mobile/push';
 import { NotificationType } from '@prisma/client';
 import { encodeCursor, buildCursorWhere } from '@/lib/pagination';
 
@@ -104,7 +105,7 @@ function getNotificationLink({
 
 export const NotificationService = {
   async create(data: CreateNotificationInput) {
-    return await prisma.notification.create({
+    const notification = await prisma.notification.create({
       data: {
         userId: data.userId,
         type: data.type,
@@ -124,6 +125,8 @@ export const NotificationService = {
         },
       },
     });
+    await sendMobilePush(data.userId, notification.id).catch(() => undefined);
+    return notification;
   },
 
   async getUserNotifications(userId: string, cursor?: string, limit = 10, useCursor = true) {
@@ -134,7 +137,7 @@ export const NotificationService = {
 
     const takeVal = useCursor ? limit + 1 : undefined;
 
-    let notifications = await prisma.notification.findMany({
+    const notifications = await prisma.notification.findMany({
       where,
       orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
       take: takeVal,
@@ -149,52 +152,6 @@ export const NotificationService = {
         },
       },
     });
-
-    if (notifications.length === 0 && !cursor) {
-      const user = await prisma.user.findUnique({ where: { id: userId } });
-
-      if (user) {
-        await prisma.notification.createMany({
-          data: [
-            {
-              userId,
-              type: 'XP_MILESTONE',
-              resourceType: 'FEED',
-              read: false,
-            },
-            {
-              userId,
-              type: 'XP_MILESTONE',
-              resourceId: user.id,
-              resourceType: 'PROFILE',
-              read: false,
-            },
-            {
-              userId,
-              type: 'DUEL_CHALLENGE',
-              resourceType: 'DUEL',
-              read: false,
-            },
-          ],
-        });
-
-        notifications = await prisma.notification.findMany({
-          where: { userId },
-          orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
-          take: takeVal,
-          include: {
-            actor: {
-              select: {
-                id: true,
-                username: true,
-                avatar_url: true,
-                total_xp: true,
-              },
-            },
-          },
-        });
-      }
-    }
 
     const enhancedNotifications = await Promise.all(
       notifications.map(async (notif) => {

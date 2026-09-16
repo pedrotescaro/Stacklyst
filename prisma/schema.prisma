@@ -174,6 +174,8 @@ enum EventStatus {
 }
 
 model User {
+  mobile_state MobileState[]
+  mobile_devices MobileDevice[]
   id                     String    @id @default(uuid())
   username               String    @unique
   email                  String    @unique
@@ -868,6 +870,7 @@ model AnswerVote {
 }
 
 model Message {
+  client_id String?
   id          String    @id @default(uuid())
   sender_id   String
   receiver_id String
@@ -881,7 +884,28 @@ model Message {
   receiver  User              @relation("received_messages", fields: [receiver_id], references: [id], onDelete: Cascade)
   reactions MessageReaction[]
 
+  @@unique([sender_id, client_id])
+
   @@index([created_at])
+}
+
+model MobileState {
+  user_id String
+  key String
+  value Json
+  version Int @default(1)
+  updated_at DateTime @updatedAt
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  @@id([user_id, key])
+}
+
+model MobileDevice {
+  token String @id
+  user_id String
+  enabled Boolean @default(true)
+  updated_at DateTime @updatedAt
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  @@index([user_id, enabled])
 }
 
 model MessageReaction {

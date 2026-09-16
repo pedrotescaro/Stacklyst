@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { requireCompanyAccess } from '@/lib/mobile/company-access';
 import { logger } from '@/lib/logger';
 import {
   ApplicationStatus,
@@ -83,10 +84,10 @@ export const JobService = {
     if (!job) {
       throw new Error('Vaga não encontrada.');
     }
-
     if (userRole !== 'ADMIN' && userRole !== 'RECRUITER') {
       throw new Error('Acesso não autorizado às candidaturas desta vaga.');
     }
+    await requireCompanyAccess(job.company_id, { id: currentUserId, role: userRole });
 
     return prisma.jobApplication.findMany({
       where: { job_id: jobId },

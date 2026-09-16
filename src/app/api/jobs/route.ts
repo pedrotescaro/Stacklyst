@@ -3,6 +3,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { getAuthUser, requireRole } from '@/lib/auth';
 import { JobService } from '@/services/job.service';
 import { z } from 'zod';
+import { requireCompanyAccess } from '@/lib/mobile/company-access';
 import {
   JobContract,
   JobLevel,
@@ -64,9 +65,10 @@ export const GET = apiHandler(async (req) => {
 
 // POST /api/jobs: Create new job (Recruiter or Admin)
 export const POST = apiHandler(async (req) => {
-  await requireRole(['RECRUITER', 'ADMIN']);
+  const user = await requireRole(['RECRUITER', 'ADMIN']);
   const body = await req.json();
   const parsed = createJobSchema.parse(body);
+  await requireCompanyAccess(parsed.company_id, user);
 
   const job = await JobService.createJob({
     companyId: parsed.company_id,

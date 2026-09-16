@@ -1,0 +1,36 @@
+{
+  "expo": {
+    "name": "Stacklyst",
+    "slug": "stacklyst-mobile",
+    "version": "0.1.0",
+    "scheme": "stacklyst",
+    "orientation": "default",
+    "userInterfaceStyle": "dark",
+    "icon": "./assets/app-icon.png",
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.stacklyst.mobile"
+    },
+    "android": {
+      "package": "com.stacklyst.mobile",
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/app-icon.png",
+        "backgroundColor": "#000000"
+      }
+    },
+    "plugins": [
+      "expo-router",
+      "expo-secure-store",
+      "expo-notifications",
+      "expo-font",
+      "expo-web-browser"
+    ],
+    "web": {
+      "bundler": "metro",
+      "output": "single"
+    },
+    "experiments": {
+      "typedRoutes": false
+    }
+  }
+}
