@@ -69,6 +69,13 @@ describe('EvaluationsContent Responsive Page', () => {
         writeText: vi.fn().mockResolvedValue(undefined),
       },
     });
+    vi.spyOn(global, 'fetch').mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      if (url.includes('/api/evaluators/eligibility')) {
+        return { ok: true, json: async () => ({ evaluatorProfile: null }) } as Response;
+      }
+      return { ok: true, json: async () => [] } as Response;
+    });
   });
 
   afterEach(() => {
@@ -77,11 +84,6 @@ describe('EvaluationsContent Responsive Page', () => {
   });
 
   it('renders the responsive empty state when there are no duels pending', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
-      ok: true,
-      json: async () => [],
-    } as Response);
-
     render(<EvaluationsContent user={mockUser} />);
 
     expect(screen.getByText(/carregando duelos pendentes/i)).toBeInTheDocument();
@@ -97,10 +99,13 @@ describe('EvaluationsContent Responsive Page', () => {
   });
 
   it('renders duels queue, code comparison, and allows switching view mode tabs', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
-      ok: true,
-      json: async () => [mockDuel],
-    } as Response);
+    vi.spyOn(global, 'fetch').mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      if (url.includes('/api/evaluators/eligibility')) {
+        return { ok: true, json: async () => ({ evaluatorProfile: null }) } as Response;
+      }
+      return { ok: true, json: async () => [mockDuel] } as Response;
+    });
 
     render(<EvaluationsContent user={mockUser} />);
 
@@ -134,10 +139,13 @@ describe('EvaluationsContent Responsive Page', () => {
   });
 
   it('copies solution code when copy button is clicked', async () => {
-    vi.spyOn(global, 'fetch').mockResolvedValueOnce({
-      ok: true,
-      json: async () => [mockDuel],
-    } as Response);
+    vi.spyOn(global, 'fetch').mockImplementation(async (input: RequestInfo | URL) => {
+      const url = typeof input === 'string' ? input : input.toString();
+      if (url.includes('/api/evaluators/eligibility')) {
+        return { ok: true, json: async () => ({ evaluatorProfile: null }) } as Response;
+      }
+      return { ok: true, json: async () => [mockDuel] } as Response;
+    });
 
     render(<EvaluationsContent user={mockUser} />);
 
@@ -158,20 +166,23 @@ describe('EvaluationsContent Responsive Page', () => {
   });
 
   it('submits evaluation form and sends correct payload', async () => {
+    let getCallCount = 0;
     const fetchMock = vi
       .spyOn(global, 'fetch')
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => [mockDuel],
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => ({ success: true }),
-      } as Response)
-      .mockResolvedValueOnce({
-        ok: true,
-        json: async () => [],
-      } as Response);
+      .mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = typeof input === 'string' ? input : input.toString();
+        if (url.includes('/api/evaluators/eligibility')) {
+          return { ok: true, json: async () => ({ evaluatorProfile: null }) } as Response;
+        }
+        if (init?.method === 'POST') {
+          return { ok: true, json: async () => ({ success: true }) } as Response;
+        }
+        getCallCount++;
+        return {
+          ok: true,
+          json: async () => (getCallCount === 1 ? [mockDuel] : []),
+        } as Response;
+      });
 
     render(<EvaluationsContent user={mockUser} />);
 

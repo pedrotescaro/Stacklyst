@@ -13,7 +13,7 @@ if (Elegível?) then (não)
 endif
 :Registrar candidatura;
 |Administrador|
-:Analisar e decidir candidatura;
+:Aplicar rubrica objetiva e registrar justificativa;
 |Stacklyst|
 if (Aprovada?) then (não)
   :Registrar rejeição;
@@ -21,14 +21,14 @@ if (Aprovada?) then (não)
 endif
 :Atribuir papel EVALUATOR;
 |Avaliador|
-:Consultar fila REVIEW_PENDING;
+:Consultar fila REVIEW_PENDING\nfiltrada por especialidade;
 :Selecionar duelo e enviar parecer;
 |Stacklyst|
 :Validar papel e impedimentos;
 :Reivindicar fechamento condicional\ndentro da transação;
 if (Duelo ainda pendente?) then (sim)
   :Registrar DuelEvaluation e fechar duelo;
-  :Processar recompensa e notificações previstas;
+  :Conceder 10 XP, atualizar nível\ne enviar notificações;
 else (não)
   :Recusar decisão concorrente;
 endif

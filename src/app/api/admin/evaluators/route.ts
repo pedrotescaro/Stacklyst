@@ -7,7 +7,13 @@ import { z } from 'zod';
 const reviewSchema = z.object({
   application_id: z.string(),
   decision: z.enum(['APPROVED', 'REJECTED']),
-  notes: z.string().optional(),
+  notes: z.string().trim().min(20, 'A justificativa deve ter pelo menos 20 caracteres'),
+});
+
+const moderationSchema = z.object({
+  evaluator_id: z.string(),
+  action: z.enum(['WARN', 'SUSPEND', 'REINSTATE', 'REVOKE']),
+  notes: z.string().trim().min(20, 'O motivo deve ter pelo menos 20 caracteres'),
 });
 
 export const GET = apiHandler(async (req) => {
@@ -35,5 +41,21 @@ export const POST = apiHandler(async (req) => {
     success: true,
     message: `Candidatura ${parsed.decision === 'APPROVED' ? 'aprovada' : 'rejeitada'} com sucesso.`,
     application: updated,
+  });
+});
+
+export const PATCH = apiHandler(async (req) => {
+  await requireAdmin();
+  const parsed = moderationSchema.parse(await req.json());
+  const profile = await EvaluatorService.moderateEvaluator(
+    parsed.evaluator_id,
+    parsed.action,
+    parsed.notes
+  );
+
+  return NextResponse.json({
+    success: true,
+    message: 'Medida aplicada ao perfil de avaliador.',
+    profile,
   });
 });

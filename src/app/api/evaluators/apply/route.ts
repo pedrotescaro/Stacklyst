@@ -3,9 +3,16 @@ import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { EvaluatorService } from '@/services/evaluator.service';
 import { z } from 'zod';
+import { EVALUATOR_MIN_MOTIVATION_LENGTH } from '@/lib/evaluators/policy';
 
 const applySchema = z.object({
-  motivation: z.string().min(10, 'A motivação deve conter pelo menos 10 caracteres'),
+  motivation: z
+    .string()
+    .trim()
+    .min(
+      EVALUATOR_MIN_MOTIVATION_LENGTH,
+      `A motivação deve conter pelo menos ${EVALUATOR_MIN_MOTIVATION_LENGTH} caracteres`
+    ),
   tech_stack: z.array(z.string()).min(1, 'Selecione pelo menos uma tecnologia'),
 });
 

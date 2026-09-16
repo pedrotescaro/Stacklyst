@@ -114,6 +114,13 @@ enum EvaluatorStatus {
   REJECTED
 }
 
+enum EvaluatorProfileStatus {
+  ACTIVE
+  PROBATION
+  SUSPENDED
+  REVOKED
+}
+
 enum JobLevel {
   ESTAGIO
   JUNIOR
@@ -174,28 +181,28 @@ enum EventStatus {
 }
 
 model User {
-  mobile_state MobileState[]
-  mobile_devices MobileDevice[]
-  id                     String    @id @default(uuid())
-  username               String    @unique
-  email                  String    @unique
-  avatar_url             String?
-  avatar_config          Json?
-  bio                    String?
-  institution            String?
-  github_username        String?
-  discord_username       String?
-  banner_url             String?
-  pronouns               String?
-  birthday               DateTime?
-  username_changed_at    DateTime?
-  total_xp               Int       @default(0)
-  streak_days            Int       @default(0)
-  role                   UserRole  @default(USER)
-  consecutive_rejections Int       @default(0)
-  duel_cooldown_until    DateTime?
-  last_active_at         DateTime?
-  created_at             DateTime  @default(now())
+  mobile_state              MobileState[]
+  mobile_devices            MobileDevice[]
+  id                        String    @id @default(uuid())
+  username                  String    @unique
+  email                     String    @unique
+  avatar_url                String?
+  avatar_config             Json?
+  bio                       String?
+  institution               String?
+  github_username           String?
+  discord_username          String?
+  banner_url                String?
+  pronouns                  String?
+  birthday                  DateTime?
+  username_changed_at       DateTime?
+  total_xp                  Int       @default(0)
+  streak_days               Int       @default(0)
+  role                      UserRole  @default(USER)
+  consecutive_duel_abandons Int       @default(0)
+  duel_cooldown_until       DateTime?
+  last_active_at            DateTime?
+  created_at                DateTime  @default(now())
 
   trails                 LanguageTrail[]
   posts                  Post[]
@@ -257,11 +264,15 @@ model EvaluatorApplication {
 }
 
 model EvaluatorProfile {
-  id                String   @id @default(uuid())
-  user_id           String   @unique
-  reputation        Int      @default(100)
-  evaluations_count Int      @default(0)
-  approved_at       DateTime @default(now())
+  id                String                 @id @default(uuid())
+  user_id           String                 @unique
+  reputation        Int                    @default(100)
+  evaluations_count Int                    @default(0)
+  tech_stack        String[]               @default([])
+  status            EvaluatorProfileStatus @default(ACTIVE)
+  sanction_reason   String?
+  approved_at       DateTime               @default(now())
+  updated_at        DateTime               @updatedAt
 
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
 }
@@ -650,18 +661,25 @@ model QuizAttempt {
 }
 
 model DuelRequest {
-  id          String            @id @default(uuid())
-  sender_id   String
-  receiver_id String
-  language    Language          @default(TS)
-  status      DuelRequestStatus @default(PENDING)
-  expires_at  DateTime
-  created_at  DateTime          @default(now())
+  id                String            @id @default(uuid())
+  sender_id         String
+  receiver_id       String
+  language          Language          @default(TS)
+  status            DuelRequestStatus @default(PENDING)
+  publish_on_expiry Boolean           @default(false)
+  problem_id        String?
+  problem_title     String?
+  problem_body      String?
+  published_duel_id String?           @unique
+  expires_at        DateTime
+  created_at        DateTime          @default(now())
 
-  sender   User @relation("duel_requests_sent", fields: [sender_id], references: [id], onDelete: Cascade)
-  receiver User @relation("duel_requests_recv", fields: [receiver_id], references: [id], onDelete: Cascade)
+  sender         User  @relation("duel_requests_sent", fields: [sender_id], references: [id], onDelete: Cascade)
+  receiver       User  @relation("duel_requests_recv", fields: [receiver_id], references: [id], onDelete: Cascade)
+  published_duel Duel? @relation("PublishedDuelFromRequest", fields: [published_duel_id], references: [id], onDelete: SetNull)
 
   @@index([receiver_id, status])
+  @@index([status, expires_at])
 }
 
 model Duel {
@@ -682,13 +700,14 @@ model Duel {
   xp_awarded_at      DateTime?
   created_at         DateTime   @default(now())
 
-  challenger  User             @relation("challenger", fields: [challenger_id], references: [id], onDelete: Cascade)
-  opponent    User?            @relation("opponent", fields: [opponent_id], references: [id], onDelete: SetNull)
-  winner      User?            @relation("duel_winner", fields: [winner_id], references: [id], onDelete: SetNull)
-  solutions   DuelSolution[]
-  submissions DuelSubmission[]
-  votes       DuelVote[]
-  evaluations DuelEvaluation[]
+  challenger     User             @relation("challenger", fields: [challenger_id], references: [id], onDelete: Cascade)
+  opponent       User?            @relation("opponent", fields: [opponent_id], references: [id], onDelete: SetNull)
+  winner         User?            @relation("duel_winner", fields: [winner_id], references: [id], onDelete: SetNull)
+  solutions      DuelSolution[]
+  submissions    DuelSubmission[]
+  votes          DuelVote[]
+  evaluations    DuelEvaluation[]
+  source_request DuelRequest?     @relation("PublishedDuelFromRequest")
 
   @@index([status, match_deadline])
   @@index([language, status, created_at])

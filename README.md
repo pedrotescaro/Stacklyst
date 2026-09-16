@@ -35,6 +35,7 @@ Explore as especificações detalhadas do projeto e guias de infraestrutura:
 - **[Arquitetura do Sistema](docs/ARCHITECTURE.md):** Visão geral da organização de diretórios, escolhas técnicas e fluxo de dados.
 - **[Modelagem de Banco de Dados](docs/DATABASE.md):** Diagramas ER, indexações de Full-Text Search e dicionário de modelos.
 - **[Guia de Implantação e Deploy](docs/DEPLOYMENT.md):** Passo a passo detalhado para colocar a plataforma em produção via Vercel e Supabase.
+- **[Regras de Avaliadores e Duelos](docs/RULES.md):** Critérios de candidatura, progressão, convites, prazos e consequências.
 
 ---
 
@@ -54,6 +55,8 @@ Explore as especificações detalhadas do projeto e guias de infraestrutura:
       <h4>⚔️ Duelos de Código 1v1</h4>
       <ul>
         <li>Matchmaking dinâmico para disputas de algoritmo.</li>
+        <li>Convites diretos de 72 horas, com publicação opcional na arena após a expiração.</li>
+        <li>Recusar ou ignorar não reduz XP; cooldown só ocorre após abandonos repetidos de duelos aceitos.</li>
         <li>Editor de código integrado alimentado por <b>CodeMirror</b>.</li>
         <li>Votação aberta para a comunidade escolher a melhor solução de forma justa.</li>
       </ul>
