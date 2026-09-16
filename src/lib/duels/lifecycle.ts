@@ -3,18 +3,28 @@ import 'server-only';
 import { prisma } from '@/lib/prisma';
 import { resolveDuelAtDeadline } from '@/lib/duels/resolution';
 import { DUEL_TIME_LIMIT_SECONDS } from '@/lib/duels/constants';
+import { expireDuelInvitations } from '@/lib/duels/invitations';
 
 const ACTIVE_CANDIDATE_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 const MAINTENANCE_BATCH_SIZE = 100;
 
 export interface DuelMaintenanceResult {
+  expiredInvitations: number;
+  publishedInvitations: number;
   matched: number;
   expired: number;
   resolved: number;
 }
 
 export async function runDuelMaintenance(now = new Date()): Promise<DuelMaintenanceResult> {
-  const result: DuelMaintenanceResult = { matched: 0, expired: 0, resolved: 0 };
+  const invitationResult = await expireDuelInvitations(now);
+  const result: DuelMaintenanceResult = {
+    expiredInvitations: invitationResult.expired,
+    publishedInvitations: invitationResult.published,
+    matched: 0,
+    expired: 0,
+    resolved: 0,
+  };
   const pendingResult = await prisma.$transaction(async (tx) => {
     // One maintenance worker at a time may choose opponents. This keeps the
     // candidate check and duel claim in the same serialized critical section.
@@ -43,6 +53,7 @@ export async function runDuelMaintenance(now = new Date()): Promise<DuelMaintena
         where: {
           id: { not: duel.challenger_id },
           last_active_at: { gte: new Date(now.getTime() - ACTIVE_CANDIDATE_WINDOW_MS) },
+          OR: [{ duel_cooldown_until: null }, { duel_cooldown_until: { lte: now } }],
           duels_as_challenger: { none: { status: 'ACTIVE' } },
           duels_as_opponent: { none: { status: 'ACTIVE' } },
         },

@@ -8,14 +8,14 @@ start
 |Stacklyst|
 :Autenticar e validar elegibilidade;
 if (Modo de entrada?) then (convite)
-  :Criar DuelRequest com expiração;
+  :Criar DuelRequest com prazo de 72 horas\ne publicação opcional na arena;
   |Oponente|
   :Responder convite;
   |Stacklyst|
   if (Aceito dentro do prazo?) then (sim)
     :Criar duelo ACTIVE;
   else (não)
-    :Registrar rejeição ou expiração;
+    :Registrar rejeição sem punição\nou expirar e publicar se autorizado;
     stop
   endif
 else (arena)
@@ -43,5 +43,6 @@ if (Empate técnico?) then (sim)
 endif
 :Fechar duelo com resultado persistido;
 :Conceder 50 XP ao vencedor uma única vez;
+:Aplicar cooldown somente após\n3 abandonos de duelos aceitos;
 stop
 @enduml

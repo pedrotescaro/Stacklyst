@@ -6,6 +6,7 @@ import { prisma } from '@/lib/prisma';
 import { judgeDuelCode } from '@/lib/duels/judge';
 import { findTrustedDuelProblemByTitle } from '@/lib/duels/problems';
 import { rateLimit } from '@/lib/ratelimit';
+import { resolveDuelAtDeadline } from '@/lib/duels/resolution';
 
 const runSchema = z.object({ code: z.string().trim().min(1).max(20_000) });
 
@@ -31,6 +32,10 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   }
   if (duel.status !== 'ACTIVE') {
     return NextResponse.json({ error: 'O duelo não está em andamento.' }, { status: 409 });
+  }
+  if (duel.started_at && duel.started_at.getTime() + duel.time_limit_seconds * 1000 <= Date.now()) {
+    await resolveDuelAtDeadline(duelId);
+    return NextResponse.json({ error: 'O tempo do duelo terminou.' }, { status: 409 });
   }
 
   const problemId = duel.problem_id ?? findTrustedDuelProblemByTitle(duel.problem_title)?.id;

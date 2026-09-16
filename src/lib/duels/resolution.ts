@@ -9,6 +9,7 @@ import {
   type ComparableSubmission,
   type DuelResolutionDecision,
 } from '@/lib/duels/resolution-policy';
+import { getAbandonmentUpdate } from '@/lib/duels/participation-policy';
 
 export { chooseBestDuelSubmission, decideDuelResolution } from '@/lib/duels/resolution-policy';
 
@@ -55,14 +56,15 @@ async function persistResolution(
   decision: DuelResolutionDecision
 ) {
   const targetStatus = decision.kind === 'review' ? 'REVIEW_PENDING' : 'CLOSED';
-  const xpAwardedAt = decision.kind === 'closed' && decision.winnerId ? new Date() : null;
+  const finishedAt = new Date();
+  const xpAwardedAt = decision.kind === 'closed' && decision.winnerId ? finishedAt : null;
   const committed = await prisma.$transaction(async (tx) => {
     const claim = await tx.duel.updateMany({
       where: { id: duel.id, status: 'ACTIVE' },
       data: {
         status: targetStatus,
         winner_id: decision.winnerId,
-        finished_at: new Date(),
+        finished_at: finishedAt,
         closed_reason: decision.reason,
         xp_awarded_at: xpAwardedAt,
       },
@@ -112,6 +114,31 @@ async function persistResolution(
 
     if (decision.kind === 'closed' && decision.winnerId) {
       await awardXPInTransaction(tx, decision.winnerId, duel.language, 50);
+    }
+
+    const participation = [
+      { userId: duel.challenger_id, submitted: Boolean(first) },
+      { userId: duel.opponent_id, submitted: Boolean(second) },
+    ];
+    for (const participant of participation) {
+      if (!participant.userId) continue;
+      if (participant.submitted) {
+        await tx.user.update({
+          where: { id: participant.userId },
+          data: { consecutive_duel_abandons: 0 },
+        });
+        continue;
+      }
+
+      const user = await tx.user.findUnique({
+        where: { id: participant.userId },
+        select: { consecutive_duel_abandons: true },
+      });
+      if (!user) continue;
+      await tx.user.update({
+        where: { id: participant.userId },
+        data: getAbandonmentUpdate(user.consecutive_duel_abandons, finishedAt),
+      });
     }
 
     return true;

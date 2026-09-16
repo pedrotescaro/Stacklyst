@@ -21,6 +21,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { EvaluatorGuide } from '@/components/evaluators/EvaluatorGuide';
 import { parseProblemFromJson } from '@/lib/duel-problems';
+import { getEvaluatorLevel } from '@/lib/evaluators/policy';
 
 interface DuelSolutionItem {
   id: string;
@@ -56,10 +57,15 @@ export function EvaluationsContent({ user }: { user: any }) {
   const [submitting, setSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-
   // Responsive code view mode: 'both' | 'p1' | 'p2'
   const [codeViewMode, setCodeViewMode] = useState<'both' | 'p1' | 'p2'>('both');
   const [copiedPlayer, setCopiedPlayer] = useState<'p1' | 'p2' | null>(null);
+  const [evaluatorProfile, setEvaluatorProfile] = useState<{
+    reputation: number;
+    evaluations_count: number;
+    tech_stack: string[];
+    status: string;
+  } | null>(null);
 
   useEffect(() => {
     loadDuels();
@@ -80,8 +86,11 @@ export function EvaluationsContent({ user }: { user: any }) {
     setLoading(true);
     setErrorMessage(null);
     try {
-      const res = await fetch('/api/evaluations');
-      if (res.ok) {
+      const [res, profileRes] = await Promise.all([
+        fetch('/api/evaluations'),
+        fetch('/api/evaluators/eligibility').catch(() => null),
+      ]);
+      if (res && 'ok' in res && res.ok) {
         const data = await res.json();
         setDuels(data);
         if (data.length > 0) {
@@ -93,8 +102,17 @@ export function EvaluationsContent({ user }: { user: any }) {
         } else {
           setSelectedDuel(null);
         }
-      } else {
-        setErrorMessage('Não foi possível carregar a fila de avaliações.');
+      } else if (res && 'ok' in res) {
+        const errorData = await res.json().catch(() => null);
+        setErrorMessage(
+          errorData?.message ||
+            errorData?.error ||
+            'Não foi possível carregar a fila de avaliações.'
+        );
+      }
+      if (profileRes && 'ok' in profileRes && profileRes.ok) {
+        const profileData = await profileRes.json().catch(() => null);
+        setEvaluatorProfile(profileData?.evaluatorProfile || null);
       }
     } catch (err) {
       console.error('Error loading evaluations:', err);
@@ -152,8 +170,8 @@ export function EvaluationsContent({ user }: { user: any }) {
         setWinnerId('');
         setTimeout(() => setSuccessMessage(null), 4000);
       } else {
-        const errorData = await res.json().catch(() => null);
-        setErrorMessage(errorData?.error || 'Erro ao homologar avaliação. Tente novamente.');
+        const data = await res.json().catch(() => null);
+        setErrorMessage(data?.message || data?.error || 'Não foi possível enviar a avaliação.');
       }
     } catch (err) {
       console.error(err);
@@ -222,6 +240,33 @@ export function EvaluationsContent({ user }: { user: any }) {
           <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 font-bold text-xs sm:text-sm flex items-center gap-3 animate-fade-in shadow-sm">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span>{errorMessage}</span>
+          </div>
+        )}
+
+        {evaluatorProfile && (
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 rounded-2xl bg-dd-surface border border-dd-border text-xs">
+            <div>
+              <p className="text-dd-muted">Nível</p>
+              <p className="font-black text-dd-text">
+                {getEvaluatorLevel(evaluatorProfile.evaluations_count, evaluatorProfile.reputation)}
+              </p>
+            </div>
+            <div>
+              <p className="text-dd-muted">Reputação</p>
+              <p className="font-black text-dd-text">{evaluatorProfile.reputation}/100</p>
+            </div>
+            <div>
+              <p className="text-dd-muted">Avaliações</p>
+              <p className="font-black text-dd-text">{evaluatorProfile.evaluations_count}</p>
+            </div>
+            <div>
+              <p className="text-dd-muted">Status</p>
+              <p className="font-black text-dd-text">{evaluatorProfile.status}</p>
+            </div>
+            <p className="col-span-2 md:col-span-4 text-dd-muted">
+              Especialidades: {evaluatorProfile.tech_stack.join(', ') || 'nenhuma cadastrada'} · +10
+              XP por avaliação concluída.
+            </p>
           </div>
         )}
 

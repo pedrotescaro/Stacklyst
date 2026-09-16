@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { ProfileHero } from '../ProfileHero';
 
 const profile = {
@@ -11,6 +11,22 @@ const profile = {
   total_xp: 415,
   streak_days: 7,
 };
+
+beforeAll(() => {
+  Object.defineProperty(window, 'matchMedia', {
+    writable: true,
+    value: vi.fn().mockImplementation((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    })),
+  });
+});
 
 describe('ProfileHero', () => {
   it('mostra logos apenas das trilhas que o perfil iniciou', async () => {
@@ -47,5 +63,28 @@ describe('ProfileHero', () => {
 
     await user.click(screen.getByRole('button', { name: 'Abrir detalhes da ofensiva: 7 dias' }));
     expect(screen.getByRole('heading', { name: '7 dias de ofensiva' })).toBeInTheDocument();
+  });
+
+  it('permite desafiar outro perfil', async () => {
+    const user = userEvent.setup();
+    const onChallenge = vi.fn();
+    render(
+      <ProfileHero
+        currentUserId="viewer-1"
+        profile={profile}
+        trails={[]}
+        following={false}
+        followers={0}
+        followingCount={0}
+        onEdit={vi.fn()}
+        onFollowToggle={vi.fn()}
+        onChallenge={onChallenge}
+        onShowFollowers={vi.fn()}
+        onShowFollowing={vi.fn()}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Desafiar' }));
+    expect(onChallenge).toHaveBeenCalledOnce();
   });
 });
