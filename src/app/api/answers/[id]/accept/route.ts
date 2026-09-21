@@ -1,7 +1,8 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
-import { awardXP } from '@/lib/xp';
+import { awardXPInTransaction } from '@/lib/xp';
+import { learningTransaction } from '@/lib/learning/transaction';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -37,16 +38,21 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: 'Resposta já foi aceita' }, { status: 400 });
     }
 
-    // Atualizar status de aceita da resposta
-    const updatedAnswer = await prisma.answer.update({
-      where: { id: answerId },
-      data: { is_accepted: true },
+    // Claim and reward must commit together, including concurrent requests.
+    const result = await learningTransaction(async (tx) => {
+      const claim = await tx.answer.updateMany({
+        where: { id: answerId, is_accepted: false, post: { author_id: user.id } },
+        data: { is_accepted: true },
+      });
+      if (claim.count !== 1) return null;
+      const xpResult = await awardXPInTransaction(tx, answer.author_id, answer.post.language, 50);
+      const updatedAnswer = await tx.answer.findUniqueOrThrow({ where: { id: answerId } });
+      return { answer: updatedAnswer, xpResult };
     });
-
-    // Conceder XP (+50 XP por ter resposta aceita)
-    const xpResult = await awardXP(answer.author_id, answer.post.language, 50);
-
-    return NextResponse.json({ answer: updatedAnswer, xpResult });
+    if (!result) {
+      return NextResponse.json({ error: 'Resposta já foi aceita' }, { status: 400 });
+    }
+    return NextResponse.json(result);
   } catch (error) {
     console.error('Error accepting answer:', error);
     return NextResponse.json({ error: 'Erro ao aceitar resposta' }, { status: 500 });
