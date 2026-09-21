@@ -6,18 +6,23 @@ import { z } from 'zod';
 import { EventStatus, EventType } from '@prisma/client';
 import { requireCompanyAccess } from '@/lib/mobile/company-access';
 
-const createEventSchema = z.object({
-  title: z.string().min(3, 'Título é obrigatório'),
-  description: z.string().min(10, 'Descrição detalhada é obrigatória'),
-  type: z.nativeEnum(EventType).default('CHALLENGE'),
-  company_id: z.string().optional(),
-  banner_url: z.string().optional(),
-  min_level: z.number().default(1),
-  max_participants: z.number().optional(),
-  xp_reward: z.number().default(250),
-  start_date: z.string(),
-  end_date: z.string(),
-});
+const createEventSchema = z
+  .object({
+    title: z.string().min(3, 'Título é obrigatório').max(200),
+    description: z.string().min(10, 'Descrição detalhada é obrigatória').max(10000),
+    type: z.nativeEnum(EventType).default('CHALLENGE'),
+    company_id: z.string().optional(),
+    banner_url: z.string().optional(),
+    min_level: z.number().int().min(1).max(1000).default(1),
+    max_participants: z.number().int().positive().max(1000000).optional(),
+    xp_reward: z.number().int().min(0).max(1000000).default(250),
+    start_date: z.string().refine((value) => Number.isFinite(Date.parse(value)), 'Data inválida'),
+    end_date: z.string().refine((value) => Number.isFinite(Date.parse(value)), 'Data inválida'),
+  })
+  .refine((data) => Date.parse(data.end_date) > Date.parse(data.start_date), {
+    message: 'O encerramento deve ser posterior ao início.',
+    path: ['end_date'],
+  });
 
 export const GET = apiHandler(async (req) => {
   const { searchParams } = new URL(req.url);

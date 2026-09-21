@@ -9,6 +9,18 @@ vi.mock('@/lib/prisma', () => ({ prisma: { company: { findUnique: vi.fn() } } })
 vi.mock('@/services/event.service', () => ({ EventService: { createEvent: vi.fn() } }));
 
 describe('event company attribution', () => {
+  it.each([
+    { min_level: -1 }, { max_participants: 0 }, { max_participants: 1.5 },
+    { xp_reward: -1 }, { start_date: 'invalid' }, { end_date: '2020-01-01' },
+  ])('rejects invalid event rules: %j', async (invalid) => {
+    vi.mocked(requireAuth).mockResolvedValue({ id: 'user', role: 'USER' } as never);
+    const response = await POST(new Request('https://stacklyst.test/api/events', {
+      method: 'POST', body: JSON.stringify({ title: 'Event', description: 'Community event',
+        start_date: '2026-10-01', end_date: '2026-10-02', ...invalid }),
+    }), { params: Promise.resolve({}) });
+    expect(response.status).toBe(400);
+    expect(EventService.createEvent).not.toHaveBeenCalled();
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(prisma.company.findUnique).mockResolvedValue({ owner_id: 'owner' } as never);

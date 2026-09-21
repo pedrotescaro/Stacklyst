@@ -1,6 +1,8 @@
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { EventStatus, EventType } from '@prisma/client';
+import { calculateLevel } from '@/lib/learning/rewards';
+import { AppError } from '@/lib/errors';
 
 export const EventService = {
   /**
@@ -155,7 +157,7 @@ export const EventService = {
         banner_url: params.bannerUrl,
         min_level: params.minLevel || 1,
         max_participants: params.maxParticipants,
-        xp_reward: params.xpReward || 250,
+        xp_reward: params.xpReward ?? 250,
         start_date: params.startDate,
         end_date: params.endDate,
         status: 'UPCOMING',
@@ -170,46 +172,57 @@ export const EventService = {
    * Join an event as a participant.
    */
   async participate(userId: string, eventId: string) {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { id: true, total_xp: true },
-    });
-    const event = await prisma.event.findUnique({
-      where: { id: eventId },
-      include: { _count: { select: { participants: true } } },
-    });
+    return prisma.$transaction(async (tx) => {
+      // Capacity is shared by every participant, so serialize joins for the event.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`event-participation:${eventId}`}))`;
+      const user = await tx.user.findUnique({
+        where: { id: userId },
+        select: { id: true, total_xp: true },
+      });
+      const event = await tx.event.findUnique({
+        where: { id: eventId },
+        include: { _count: { select: { participants: true } } },
+      });
 
-    if (!user) throw new Error('Usuário não encontrado.');
-    if (!event) throw new Error('Evento não encontrado.');
-    if (event.status === 'COMPLETED') throw new Error('Este evento já foi encerrado.');
-    if (event.max_participants && event._count.participants >= event.max_participants) {
-      throw new Error('Limite máximo de participantes atingido.');
-    }
+      if (!user) throw new AppError('USER_NOT_FOUND', 'Usuário não encontrado.', 404);
+      if (!event) throw new AppError('EVENT_NOT_FOUND', 'Evento não encontrado.', 404);
+      const existing = await tx.eventParticipant.findUnique({
+        where: { event_id_user_id: { event_id: eventId, user_id: userId } },
+      });
+      if (existing) return existing;
+      if (event.status === 'COMPLETED' || event.end_date <= new Date())
+        throw new AppError('EVENT_CLOSED', 'Este evento já foi encerrado.', 409);
+      if (event.max_participants && event._count.participants >= event.max_participants) {
+        throw new AppError('EVENT_FULL', 'Limite máximo de participantes atingido.', 409);
+      }
 
-    const userLevel = Math.max(1, Math.floor((user.total_xp || 0) / 300) + 1);
-    if (event.min_level > 1 && userLevel < event.min_level) {
-      throw new Error(
-        `Nível mínimo necessário (${event.min_level}) não atingido. Seu nível atual é ${userLevel}.`
-      );
-    }
+      const userLevel = calculateLevel(user.total_xp).level;
+      if (event.min_level > 1 && userLevel < event.min_level) {
+        throw new AppError(
+          'EVENT_LEVEL_REQUIRED',
+          `Nível mínimo necessário (${event.min_level}) não atingido. Seu nível atual é ${userLevel}.`,
+          403
+        );
+      }
 
-    const participant = await prisma.eventParticipant.upsert({
-      where: {
-        event_id_user_id: {
+      const participant = await tx.eventParticipant.upsert({
+        where: {
+          event_id_user_id: {
+            event_id: eventId,
+            user_id: userId,
+          },
+        },
+        update: {},
+        create: {
           event_id: eventId,
           user_id: userId,
+          score: 0,
         },
-      },
-      update: {},
-      create: {
-        event_id: eventId,
-        user_id: userId,
-        score: 0,
-      },
-    });
+      });
 
-    logger.info('User joined event', { userId, eventId });
-    return participant;
+      logger.info('User joined event', { userId, eventId });
+      return participant;
+    });
   },
 
   /**
