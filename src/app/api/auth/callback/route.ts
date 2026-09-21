@@ -10,6 +10,16 @@ export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   const code = searchParams.get('code');
   const next = searchParams.get('next') ?? '/feed';
+  // Accept only local absolute paths, never authority/credential URL syntax.
+  const destination = new URL('/feed', origin);
+  if (next.startsWith('/') && !next.startsWith('//') && !/[\\\u0000-\u001f\u007f]/.test(next)) {
+    const candidate = new URL(next, origin);
+    if (candidate.origin === origin) {
+      destination.pathname = candidate.pathname;
+      destination.search = candidate.search;
+      destination.hash = candidate.hash;
+    }
+  }
 
   if (code && !hasDatabaseConnection()) {
     const message = 'The application database is not configured in this environment.';
@@ -113,5 +123,5 @@ export async function GET(request: Request) {
   }
 
   // Redirecionar para o destino
-  return NextResponse.redirect(`${origin}${next}`);
+  return NextResponse.redirect(destination);
 }

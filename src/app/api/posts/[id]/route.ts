@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 import { extractPostMetadata } from '@/lib/editor/extract-metadata';
+import { publicQuiz } from '@/lib/quiz-public';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -78,7 +79,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Post não encontrado' }, { status: 404 });
     }
 
-    return NextResponse.json(post);
+    return NextResponse.json({ ...post, quizzes: post.quizzes.map(publicQuiz) });
   } catch (error) {
     console.error('Error fetching post details:', error);
     return NextResponse.json({ error: 'Erro ao buscar detalhes do post' }, { status: 500 });
@@ -139,7 +140,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       },
     });
 
-    return NextResponse.json(updatedPost);
+    return NextResponse.json({ ...updatedPost, quizzes: updatedPost.quizzes.map(publicQuiz) });
   } catch (error) {
     console.error('Error updating post:', error);
     return NextResponse.json({ error: 'Erro ao editar post' }, { status: 500 });

@@ -9,7 +9,7 @@ interface Quiz {
   id: string;
   question: string;
   options: string[];
-  correct_index: number;
+  correct_index?: number;
 }
 
 interface QuizWidgetProps {
@@ -28,6 +28,7 @@ export function QuizWidget({
   userAnswer,
   onAttemptSuccess,
 }: QuizWidgetProps) {
+  const [correctIndex, setCorrectIndex] = useState(quiz.correct_index);
   const [state, setState] = useState<QuizState>(
     attempted ? (userAnswer === quiz.correct_index ? 'correct' : 'incorrect') : 'unanswered'
   );
@@ -74,7 +75,8 @@ export function QuizWidget({
       }
 
       const data = await res.json();
-      const isCorrect = index === quiz.correct_index;
+      const isCorrect = data.is_correct === true;
+      setCorrectIndex(data.correct_index);
       setState(isCorrect ? 'correct' : 'incorrect');
       playSound(isCorrect ? 'quiz_correct' : 'quiz_incorrect');
       if (onAttemptSuccess) {
@@ -102,7 +104,7 @@ export function QuizWidget({
     }
 
     // After answering
-    if (index === quiz.correct_index) {
+    if (index === correctIndex) {
       return `${base} border-emerald-600 bg-emerald-500/20 text-emerald-300 font-black shadow-lg shadow-emerald-500/10`;
     }
     if (index === selectedIndex && state === 'incorrect') {
@@ -161,7 +163,7 @@ export function QuizWidget({
                   'w-8 h-8 rounded-xl border-2 border-b-[3px] flex items-center justify-center font-black text-xs shrink-0 transition-colors',
                   state === 'unanswered'
                     ? 'border-dd-border bg-dd-bg/80 text-dd-muted'
-                    : index === quiz.correct_index
+                    : index === correctIndex
                       ? 'border-emerald-500 bg-emerald-500 text-white shadow-sm'
                       : index === selectedIndex && state === 'incorrect'
                         ? 'border-rose-500 bg-rose-500 text-white shadow-sm'
@@ -174,7 +176,7 @@ export function QuizWidget({
             </div>
 
             {/* Right side feedback icons */}
-            {state !== 'unanswered' && index === quiz.correct_index && (
+            {state !== 'unanswered' && index === correctIndex && (
               <div className="w-7 h-7 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-sm">
                 <Check className="w-4 h-4 stroke-[3]" />
               </div>
@@ -226,7 +228,7 @@ export function QuizWidget({
               <p className="text-xs font-bold text-rose-300">
                 A resposta certa era a opção{' '}
                 <span className="underline font-black">
-                  {String.fromCharCode(65 + quiz.correct_index)}
+                  {correctIndex === undefined ? '—' : String.fromCharCode(65 + correctIndex)}
                 </span>
                 .
               </p>

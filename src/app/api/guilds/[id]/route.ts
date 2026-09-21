@@ -28,6 +28,9 @@ export const GET = apiHandler(async (req, { params }) => {
   }
 
   const userMembership = guild.members.find((m) => m.user_id === user.id);
+  if (!guild.is_public && !userMembership && guild.owner_id !== user.id) {
+    throw new AppError('GUILD_NOT_FOUND', 'Guilda não encontrada', 404);
+  }
 
   return NextResponse.json({
     id: guild.id,

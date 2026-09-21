@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { publicQuiz } from '@/lib/quiz-public';
 import { getAuthUser } from '@/lib/auth';
 import { PostDetailContent } from './PostDetailContent';
 
@@ -114,7 +115,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
       created_at: answer.created_at.toISOString(),
     })),
     quizzes: post.quizzes.map((quiz) => ({
-      ...quiz,
+      ...publicQuiz(quiz),
       created_at: quiz.created_at.toISOString(),
     })),
   };
