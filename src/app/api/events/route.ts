@@ -4,6 +4,7 @@ import { getAuthUser, requireAuth } from '@/lib/auth';
 import { EventService } from '@/services/event.service';
 import { z } from 'zod';
 import { EventStatus, EventType } from '@prisma/client';
+import { requireCompanyAccess } from '@/lib/mobile/company-access';
 
 const createEventSchema = z.object({
   title: z.string().min(3, 'Título é obrigatório'),
@@ -31,6 +32,7 @@ export const POST = apiHandler(async (req) => {
   const user = await requireAuth();
   const body = await req.json();
   const parsed = createEventSchema.parse(body);
+  if (parsed.company_id) await requireCompanyAccess(parsed.company_id, user);
 
   const event = await EventService.createEvent({
     creatorId: user.id,
