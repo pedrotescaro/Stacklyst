@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { NotFoundError } from '@/lib/errors';
-import { XpService } from './xp.service';
-import { Language } from '@prisma/client';
+import { awardXPInTransaction } from '@/lib/xp';
+import { calculateLevel } from '@/lib/learning/rewards';
 import { logger } from '@/lib/logger';
 
 const VALID_REACTIONS = ['FIRE', 'HEART', 'LAUGH', 'CLAP', 'BULB'];
@@ -13,6 +13,8 @@ export const ReactionService = {
     }
 
     return await prisma.$transaction(async (tx) => {
+      // Serialize reaction transitions with all XP writes for this user.
+      await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext(${`learning:${userId}`}))`;
       // 1. Verify post exists
       const post = await tx.post.findUnique({
         where: { id: postId },
@@ -44,8 +46,25 @@ export const ReactionService = {
             },
           });
 
-          // Deduct 2 XP
-          await XpService.awardXP(userId, post.language as Language | null, -2);
+          // Reverse the reaction reward in this transaction. The general award
+          // helper intentionally rejects negative amounts.
+          const user = await tx.user.findUniqueOrThrow({ where: { id: userId } });
+          await tx.user.update({
+            where: { id: userId },
+            data: { total_xp: { decrement: Math.min(2, Math.max(0, user.total_xp)) } },
+          });
+          if (post.language) {
+            const trail = await tx.languageTrail.findUnique({
+              where: { user_id_language: { user_id: userId, language: post.language } },
+            });
+            if (trail) {
+              const xp = Math.max(0, trail.xp - 2);
+              await tx.languageTrail.update({
+                where: { id: trail.id },
+                data: { xp, level: calculateLevel(xp).level },
+              });
+            }
+          }
           logger.info('Reaction removed', { userId, postId, oldType: existingReaction.type });
           return null;
         }
@@ -87,7 +106,7 @@ export const ReactionService = {
         });
 
         // Award 2 XP
-        await XpService.awardXP(userId, post.language as Language | null, 2);
+        await awardXPInTransaction(tx, userId, post.language, 2);
 
         // Notify post author if reaction is by another user
         if (post.author_id !== userId) {
