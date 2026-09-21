@@ -86,7 +86,7 @@ export async function assessLessonStep(lesson: Lesson, step: LessonStep, answer:
             result.error ?? `${result.passedTests}/${result.totalTests} testes passaram.`
           ),
           output: result.consoleOutput,
-          unavailable: !result.ok && result.executionMs === 0,
+          unavailable: result.unavailable === true,
         };
       }
       const result = await executeCode(
@@ -105,7 +105,7 @@ export async function assessLessonStep(lesson: Lesson, step: LessonStep, answer:
               : undefined)
         ),
         output: result.output,
-        unavailable: !result.ok && result.executionMs === 0,
+        unavailable: result.unavailable === true,
       };
     }
   }

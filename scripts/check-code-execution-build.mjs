@@ -10,6 +10,7 @@ const executionRoutes = [
   'server/app/api/run/route.js',
   'server/app/api/duels/[id]/run/route.js',
   'server/app/api/duels/[id]/solution/route.js',
+  'server/app/api/lessons/[lessonId]/attempt/route.js',
 ];
 for (const route of executionRoutes) {
   const trace = JSON.parse(readFileSync(path.join(buildDir, `${route}.nft.json`), 'utf8'));
@@ -63,12 +64,39 @@ const judgeDuelSubmission = await builtExport(
   'server/app/api/duels/[id]/solution/route.js',
   'judgeDuelSubmission'
 );
+const assessLessonStep = await builtExport(
+  'server/app/api/lessons/[lessonId]/attempt/route.js',
+  'assessLessonStep'
+);
 
 for (const language of ['javascript', 'typescript']) {
   const source = language === 'typescript' ? 'const answer: number = 42;' : 'const answer = 42;';
   const result = await executeCode(`${source} console.log(answer);`, language);
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(result.output, '42');
+}
+
+const lessonStep = {
+  id: 'first-output',
+  type: 'code_editor',
+  expectedOutput: 'Stacklyst\nMeu primeiro programa',
+};
+for (const action of ['run', 'submit']) {
+  for (const [code, isCorrect] of [
+    ['console.log("Stacklyst");\nconsole.log("Meu primeiro programa");', true],
+    ['print("Stacklyst")\nprint("Meu primeiro programa")', false],
+    ['console.log(', false],
+  ]) {
+    const result = await assessLessonStep({ language: 'JS' }, lessonStep, {
+      stepId: lessonStep.id,
+      action,
+      code,
+    });
+    assert.equal(result.isCorrect, isCorrect, JSON.stringify(result));
+    assert.equal(result.unavailable, false, JSON.stringify(result));
+    if (isCorrect) assert.equal(result.output, lessonStep.expectedOutput);
+    else assert.ok(result.details, 'Lesson code errors must remain visible to the learner.');
+  }
 }
 
 const input = {
@@ -96,5 +124,5 @@ assert.equal(wrong.status, 'WRONG_ANSWER', JSON.stringify(wrong));
 assert.equal(wrong.passedTests, 3);
 assert.equal(externalRequests, 0, 'The bundled judge fell back to an external execution provider.');
 console.log(
-  'Production judge smoke passed: JS, TS, public/hidden duel tests, and wrong-answer handling; no external requests.'
+  'Production judge smoke passed: JS, TS, lesson run/submit and code errors, public/hidden duel tests, and wrong-answer handling; no external requests.'
 );

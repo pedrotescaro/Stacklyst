@@ -32,6 +32,7 @@ export interface ExerciseEvaluation {
   consoleOutput: string;
   error?: string;
   executionMs: number;
+  unavailable?: boolean;
 }
 
 interface HarnessResult {
@@ -161,6 +162,7 @@ export async function evaluateExerciseCode(input: {
       consoleOutput: stripHarnessOutput(execution.output, marker),
       error: execution.error ?? 'A execução não produziu resultados de teste válidos.',
       executionMs: execution.executionMs,
+      unavailable: execution.unavailable === true,
     };
   }
 
