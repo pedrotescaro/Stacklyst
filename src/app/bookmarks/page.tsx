@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 import { BookmarksContent } from './BookmarksContent';
+import { publicQuiz } from '@/lib/quiz-public';
 
 export const revalidate = 0; // Desabilitar cache para refletir itens salvos instantaneamente
 
@@ -47,6 +48,7 @@ export default async function BookmarksPage() {
   // Mapear posts salvos
   const serializedPosts = bookmarks.map((b) => ({
     ...b.post,
+    quizzes: b.post.quizzes.map(publicQuiz),
     created_at: b.post.created_at.toISOString(),
     bookmarks: [{ id: b.id }], // Garante que a postagem seja identificada como salva no feed de bookmarks
   }));

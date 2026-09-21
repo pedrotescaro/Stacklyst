@@ -5,6 +5,7 @@ import { encodeCursor, buildCursorWhere } from '@/lib/pagination';
 import { XpService, calculateLevel } from './xp.service';
 import { NotificationService } from './notification.service';
 import { logger } from '@/lib/logger';
+import { publicQuiz } from '@/lib/quiz-public';
 
 export const PostService = {
   async create(userId: string, data: CreatePostInput, clientId?: string) {
@@ -212,7 +213,7 @@ export const PostService = {
     }
 
     return {
-      items,
+      items: items.map((post) => ({ ...post, quizzes: post.quizzes.map(publicQuiz) })),
       nextCursor,
     };
   },
