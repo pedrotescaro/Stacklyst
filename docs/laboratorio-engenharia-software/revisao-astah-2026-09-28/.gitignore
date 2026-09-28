@@ -1,0 +1,15 @@
+# Local runtimes, editor backups and generated review intermediates.
+*.bak
+~$*
+__pycache__/
+tools/runtime/
+tools/*.log
+tools/error.txt
+tools/*-log.txt
+tools/api*.txt
+tools/*.api-dump
+tools/paragraphs-*.txt
+tools/prova-*.asta
+qa-word*/
+qa-rendered*/
+*.zip

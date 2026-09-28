@@ -1,0 +1,16 @@
+Entrega revisada do Stacklyst — Astah UML
+
+ATUALIZAÇÃO: a entrega atual está em entrega-final/, com quatro documentos
+formatados e Stacklyst-revisado-atualizado.asta. Consulte README.md para as fontes.
+As informações abaixo descrevem o pacote anterior, preservado como histórico.
+
+Arquivos principais:
+- Stacklyst-revisado-simplificado.asta: projeto editável no Astah UML, com as vistas gerais enxutas.
+- entrega/02-atividades-do-negocio-stacklyst-astah.docx: atividades de negócio com fluxos humanos e diagramas nativos exportados.
+- entrega/04-casos-de-uso-stacklyst-astah.docx: panorama UC00 com 56 casos, recortes por domínio, especificações UC031–UC056, classes, serviços e modelo relacional.
+
+O DER foi representado no Astah UML como classes estereotipadas «table», com nomes físicos, PK, FK, UQ, cardinalidades e opcionalidade. Isso mantém o modelo editável na edição UML instalada.
+
+As vistas gerais mostram apenas os conceitos centrais. UC00 contém 13 casos de uso principais; os 56 casos completos permanecem organizados nos 12 quadros funcionais detalhados. As vistas de classes e DER mostram 12 elementos centrais; os detalhes completos permanecem nos diagramas por domínio.
+
+Imagens exportadas ficam em diagramas/final/Stacklyst-revisado. As pastas qa-word e qa-rendered são apenas evidências da conferência de paginação.

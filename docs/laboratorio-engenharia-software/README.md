@@ -1,5 +1,18 @@
 # Engenharia de software — Stacklyst
 
+## Entrega atual — 28/09/2026
+
+Os quatro documentos com tipografia revisada e o projeto Astah enviado em 28/09 estão em [entrega-final](revisao-astah-2026-09-28/entrega-final/):
+
+- [Documento de visão](revisao-astah-2026-09-28/entrega-final/01-documento-de-visao-stacklyst.docx)
+- [Atividades do negócio](revisao-astah-2026-09-28/entrega-final/02-atividades-do-negocio-stacklyst.docx)
+- [Requisitos do sistema](revisao-astah-2026-09-28/entrega-final/03-requisitos-do-sistema-stacklyst.docx)
+- [Casos de uso e modelos técnicos UML](revisao-astah-2026-09-28/entrega-final/04-casos-de-uso-stacklyst.docx)
+- [Projeto Astah atualizado](revisao-astah-2026-09-28/entrega-final/Stacklyst-revisado-atualizado.asta)
+- [Origem dos arquivos e critérios da revisão](revisao-astah-2026-09-28/README.md)
+
+## Histórico da revisão de setembro
+
 Revisão técnica de 05/09/2026, baseada no código do workspace. Distingue implementação, limites operacionais e propostas futuras; não representa homologação completa do produto.
 
 ## Documentos

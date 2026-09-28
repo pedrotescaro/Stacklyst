@@ -1,0 +1,845 @@
+
+
+
+
+
+
+
+Stacklyst
+Documento de Requisitos do Sistema
+Laboratório de Engenharia de Software
+Projeto acadêmico
+Revisão textual: 27/09/2026 | Base técnica: 12/09/2026
+
+1. Índice
+2. Objetivo
+Este documento identifica, organiza e formaliza os requisitos funcionais, os requisitos não funcionais e as regras de negócio do Stacklyst. Também registra prioridade, atores, entradas, processamento, saídas, restrições, estado de implementação e evidências no repositório.
+3. Técnicas Utilizadas na Elicitação de Requisitos
+A documentação registra as seguintes técnicas de elicitação e revisão dos requisitos:
+
+
+
+
+
+
+A base documental reúne necessidades discutidas pela equipe, protótipos, modelos acadêmicos e referências ao repositório registradas em 12/09/2026. As orientações da professora constituem insumos de revisão e não evidência de aprovação de todos os modelos.
+4. Requisitos Funcionais
+Os requisitos estão agrupados por módulo. Os estados de implementação referem-se ao inventário técnico de 12/09/2026 e não substituem testes de aceitação. O fluxo vigente de duelos usa vagas abertas; RF018, RN008 e RN009 são mantidos apenas como histórico, sem aplicação ao fluxo atual.
+4.1 Grupo 1 — Autenticação e Usuários
+4.1.1 RF001 — Cadastrar usuário
+
+4.1.2 RF002 — Fazer login
+
+4.1.3 RF003 — Encerrar sessão
+
+4.1.4 RF004 — Gerenciar perfil
+
+4.2 Grupo 2 — Aprendizado
+4.2.1 RF005 — Visualizar trilhas
+
+4.2.2 RF006 — Iniciar trilha
+
+4.2.3 RF007 — Acessar lição
+
+4.2.4 RF008 — Resolver exercício
+
+4.2.5 RF009 — Registrar progresso
+
+4.2.6 RF010 — Consultar histórico
+
+4.3 Grupo 3 — Gamificação
+4.3.1 RF011 — Atribuir XP
+
+4.3.2 RF012 — Atualizar nível
+
+4.3.3 RF013 — Gerenciar conquistas
+
+4.3.4 RF014 — Consultar ranking
+
+4.3.5 RF015 — Derivar faixa de XP
+
+4.4 Grupo 4 — Duelos
+4.4.1 RF016 — Criar duelo aberto
+
+4.4.2 RF017 — Entrar em duelo
+
+4.4.3 RF018 — Aceitar ou rejeitar convite de duelo legado
+
+4.4.4 RF019 — Enviar solução de duelo
+
+4.4.5 RF020 — Avaliar resultado
+
+4.4.6 RF021 — Atualizar classificação após duelo
+
+4.5 Grupo 5 — Assistência Editorial
+4.5.1 RF022 — Consultar ajuda do exercício
+
+4.5.2 RF023 — Selecionar modo de assistência
+
+4.5.3 RF024 — Consultar documentação
+
+4.5.4 RF025 — Utilizar sugestões do editor
+
+4.6 Grupo 6 — Avaliação Humana
+4.6.1 RF026 — Candidatar-se a avaliador
+
+4.6.2 RF027 — Receber avaliações pendentes
+
+4.6.3 RF028 — Avaliar solução
+
+4.6.4 RF029 — Registrar decisão de avaliação
+
+4.7 Grupo 7 — Comunidade
+4.7.1 RF030 — Criar publicação
+
+4.7.2 RF031 — Visualizar feed
+
+4.7.3 RF032 — Interagir com publicação
+
+4.7.4 RF033 — Denunciar conteúdo
+
+4.8 Grupo 8 — Vagas e Empresas
+4.8.1 RF034 — Cadastrar empresa
+
+4.8.2 RF035 — Publicar vaga
+
+4.8.3 RF036 — Consultar vagas
+
+4.8.4 RF037 — Visualizar perfil público de desenvolvedor
+
+4.8.5 RF038 — Consultar indicadores permitidos do usuário
+
+4.8.6 RF047 — Candidatar-se a vaga
+
+4.8.7 RF048 — Atualizar etapa de candidatura
+
+4.9 Grupo 9 — Administração
+4.9.1 RF039 — Gerenciar usuários
+
+4.9.2 RF040 — Gerenciar conteúdo
+
+4.9.3 RF041 — Criar e gerenciar eventos
+
+4.9.4 RF042 — Gerenciar permissões de usuários
+
+4.9.5 RF043 — Tratar denúncias
+
+4.10 Grupo 10 — Notificações
+4.10.1 RF044 — Gerar notificação
+
+4.10.2 RF045 — Consultar notificações
+
+4.10.3 RF046 — Atualizar leitura de notificações
+
+4.11 Grupo 11 — Eventos
+4.11.1 RF049 — Participar de evento
+
+5. Requisitos Não Funcionais
+Os critérios abaixo formam a referência de aceitação adotada para a versão acadêmica. A medição deve ser registrada durante a homologação.
+
+6. Regras de Negócio
+
+
+7. Matriz de relacionamento Requisitos Funcionais × Regras de Negócio
+
+Brainstorming da equipe para definir módulos, atores e regras do produto.
+Análise comparativa de plataformas de aprendizagem, comunidades técnicas e gamificação.
+Prototipação evolutiva das telas, comprovada pelas interfaces e capturas versionadas.
+Revisões da equipe durante as entregas da disciplina.
+Revisão acadêmica do formato dos documentos, da posição dos protótipos e da adequação dos modelos, a partir dos comentários da professora.
+Análise das necessidades de estudantes, desenvolvedores, avaliadores, administradores e recrutadores.
+RF001 — Especificação | Conteúdo
+Nome | Cadastrar usuário
+Identificador | RF001
+Prioridade | Alta
+Descrição | Criar uma conta de usuário com identidade única e perfil inicial.
+Atores envolvidos | Visitante
+Regra de negócio relacionada | RN017, RN025
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/register; src/app/api/auth/register.
+Entradas | Nome de usuário, e-mail, senha e dados opcionais permitidos.
+Processamento | Validar dados, criar identidade no provedor e registro local sem duplicidade.
+Saídas | Conta criada e sessão/encaminhamento de acesso.
+Restrições | E-mail e username únicos; senha tratada pelo provedor; limites de cadastro.
+RF002 — Especificação | Conteúdo
+Nome | Fazer login
+Identificador | RF002
+Prioridade | Alta
+Descrição | Permitir login e criação de sessão segura para acesso às funções protegidas.
+Atores envolvidos | Visitante; Provedor de identidade
+Regra de negócio relacionada | RN017, RN025
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/login; src/lib/auth.ts; src/lib/supabase.
+Entradas | Credencial e, quando escolhido, provedor OAuth.
+Processamento | Verificar identidade, emitir sessão/cookies e carregar papel autorizado.
+Saídas | Sessão autenticada ou mensagem de erro.
+Restrições | Credenciais não podem ser expostas; autorização deve ser revalidada no servidor.
+RF003 — Especificação | Conteúdo
+Nome | Encerrar sessão
+Identificador | RF003
+Prioridade | Alta
+Descrição | Encerrar a sessão autenticada com segurança.
+Atores envolvidos | Usuário, Avaliador, Administrador, Recrutador
+Regra de negócio relacionada | RN017, RN025
+Estado e referências de implementação | Estado: Implementado. Evidência: src/components/LogoutButton.tsx; Supabase Auth.
+Entradas | Sessão atual.
+Processamento | Solicitar encerramento ao provedor, remover estado local e redirecionar para a área pública.
+Saídas | Sessão encerrada.
+Restrições | A sessão não deve permanecer utilizável após o logout.
+RF004 — Especificação | Conteúdo
+Nome | Gerenciar perfil
+Identificador | RF004
+Prioridade | Alta
+Descrição | Consultar e atualizar dados permitidos do perfil.
+Atores envolvidos | Usuário autenticado
+Regra de negócio relacionada | RN017, RN027
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/profile/[username]; src/app/api/profile/update.
+Entradas | Bio, avatar, banner, pronomes e demais campos permitidos.
+Processamento | Validar propriedade, sanitizar e persistir alterações.
+Saídas | Perfil atualizado e visualização pública/privada coerente.
+Restrições | Titular autenticado; mudança de username confirmada e bloqueada por sete dias após alteração, validada no servidor.
+RF005 — Especificação | Conteúdo
+Nome | Visualizar trilhas
+Identificador | RF005
+Prioridade | Alta
+Descrição | Listar trilhas disponíveis e o progresso do usuário.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN025, RN029
+Estado e referências de implementação | Implementado: src/lib/learning/catalog.ts; src/app/trails/LearningJourney.tsx.
+Entradas | Idioma/tecnologia e preferências de curso.
+Processamento | Derivar unidades, lições e exercícios do catálogo e consultar o progresso salvo. Mapa e lista usam o mesmo conjunto e a mesma ordenação.
+Saídas | Mapa de trilha com estado das etapas.
+Restrições | Não expor conteúdo não publicado e manter mapa e lista sincronizados.
+RF006 — Especificação | Conteúdo
+Nome | Iniciar trilha
+Identificador | RF006
+Prioridade | Alta
+Descrição | Iniciar ou retomar uma trilha selecionada.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN025, RN029
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/trails; src/app/api/trails/course-preferences.
+Entradas | Trilha e nível/etapa selecionados.
+Processamento | Registrar preferência e direcionar à lição elegível.
+Saídas | Trilha ativa e próxima ação.
+Restrições | Pré-requisitos devem ser respeitados e validados.
+RF007 — Especificação | Conteúdo
+Nome | Acessar lição
+Identificador | RF007
+Prioridade | Alta
+Descrição | Exibir uma lição em página própria com etapas interativas.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN025, RN029
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/lesson/[lessonId]; src/lib/lessons/registry.ts.
+Entradas | Identificador da lição.
+Processamento | Resolver conteúdo cadastrado/dinâmico e verificar disponibilidade.
+Saídas | Conteúdo, progresso da sessão e exercícios.
+Restrições | Lição inexistente deve gerar resposta controlada; o conteúdo da lição é editorial.
+RF008 — Especificação | Conteúdo
+Nome | Resolver exercício
+Identificador | RF008
+Prioridade | Alta
+Descrição | Receber e avaliar respostas em diferentes tipos de interação.
+Atores envolvidos | Usuário; Executor de código
+Regra de negócio relacionada | RN001, RN002, RN024, RN025, RN029
+Estado e referências de implementação | Implementado: src/lib/learning/assessment.ts; src/app/api/lessons/[lessonId]/attempt/route.ts.
+Entradas | Resposta, código, ordem, pares, lacunas ou comando.
+Processamento | Validar resposta no servidor. Código usa executor externo; testes privados e soluções não são serializados ao cliente.
+Saídas | Acerto/erro, feedback, saída e XP elegível.
+Restrições | Entrada inválida retorna 400. Falha do executor ou da gravação não confirma avanço; a interface permite tentar novamente.
+RF009 — Especificação | Conteúdo
+Nome | Registrar progresso
+Identificador | RF009
+Prioridade | Alta
+Descrição | Persistir respostas e derivar conclusão e desbloqueio de lições.
+Atores externos e acionamento | Usuário beneficiário; acionamento interno após atividade elegível.
+Regra de negócio relacionada | RN001, RN002, RN028, RN029
+Estado e referências de implementação | Implementado: lesson-progress.ts, transaction.ts, QuizAttempt e ExerciseSubmission.
+Entradas | Atividade concluída e identidade do usuário.
+Processamento | Lock por usuário; gravação atômica de tentativa e primeira recompensa. Transação de banco limitada a 20 s, com até 10 s para adquirir conexão.
+Saídas | Progresso consolidado.
+Restrições | QuizAttempt é único por usuário/atividade. Submissões possuem índice parcial para primeiro acerto. Revisões não duplicam recompensa.
+RF010 — Especificação | Conteúdo
+Nome | Consultar histórico
+Identificador | RF010
+Prioridade | Média
+Descrição | Apresentar histórico de evolução e atividade recente.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN027
+Estado e referências de implementação | Estado: Implementado parcialmente. Evidência: src/app/api/quiz/weekly-activity; perfil e trilhas.
+Entradas | Período, usuário e trilha.
+Processamento | Consolidar tentativas, XP e sequência dentro das permissões.
+Saídas | Linha do tempo/resumo de progresso.
+Restrições | O histórico apresenta as tentativas e os resultados autorizados do próprio usuário.
+RF011 — Especificação | Conteúdo
+Nome | Atribuir XP
+Identificador | RF011
+Prioridade | Alta
+Descrição | Conceder XP apenas a atividades válidas e elegíveis.
+Atores externos e acionamento | Usuário beneficiário; acionamento interno após atividade elegível.
+Regra de negócio relacionada | RN001, RN002, RN028
+Estado e referências de implementação | Estado: Implementado. Evidência: src/services/xp.service.ts.
+Entradas | Usuário, linguagem, atividade e quantidade configurada.
+Processamento | Validar elegibilidade e incrementar total/trilha atomicamente.
+Saídas | Novo XP total e por linguagem.
+Restrições | Idempotência por atividade; quantidade não deve vir livremente do cliente.
+RF012 — Especificação | Conteúdo
+Nome | Atualizar nível
+Identificador | RF012
+Prioridade | Alta
+Descrição | Recalcular o nível após mudança de XP.
+Atores externos e acionamento | Usuário beneficiário; acionamento interno após atividade elegível.
+Regra de negócio relacionada | RN003
+Estado e referências de implementação | Implementado: src/lib/learning/rewards.ts; src/lib/xp.ts.
+Entradas | XP atualizado.
+Processamento | Aplicar faixas de nível configuradas e detectar subida.
+Saídas | Nível, faixa anterior/próxima e notificação.
+Restrições | Nível é derivado de XP e é distinto da faixa Bronze a Diamante.
+RF013 — Especificação | Conteúdo
+Nome | Gerenciar conquistas
+Identificador | RF013
+Prioridade | Média
+Descrição | Conceder e listar conquistas por critérios verificáveis.
+Atores externos e acionamento | Usuário; concessão automática conforme os critérios de atividade.
+Regra de negócio relacionada | RN004
+Estado e referências de implementação | Estado: Implementado. Evidência: Badge, UserBadge; src/services/xp.service.ts.
+Entradas | Eventos de progresso e critérios.
+Processamento | Verificar conquistas já obtidas e registrar novas sem duplicidade.
+Saídas | Lista de badges e data de obtenção.
+Restrições | Critérios devem ser versionados e não retroagir sem decisão.
+RF014 — Especificação | Conteúdo
+Nome | Consultar ranking
+Identificador | RF014
+Prioridade | Alta
+Descrição | Exibir classificação global ou por linguagem.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN005, RN006, RN028
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/leaderboard; src/app/api/leaderboard.
+Entradas | Filtro de linguagem opcional.
+Processamento | Ordenar XP decrescente, depois username e id crescentes. Por linguagem, somar LanguageTrail e recompensas históricas de exercícios.
+Saídas | Ranking com posição, usuário, XP e nível.
+Restrições | Desempates determinísticos. A API de leaderboard retorna top 10; não equivale à posição completa de todos os usuários.
+RF015 — Especificação | Conteúdo
+Nome | Derivar faixa de XP
+Identificador | RF015
+Prioridade | Média
+Descrição | Classificar XP acumulado nas cinco faixas.
+Atores externos e acionamento | Usuário beneficiário; acionamento interno após atividade elegível.
+Regra de negócio relacionada | RN005, RN006
+Estado e referências de implementação | Estado: Implementado parcialmente. Evidência: getUserRankTier em src/services/duel.service.ts.
+Entradas | XP total do usuário.
+Processamento | Aplicar limites de faixa e informar divisão.
+Saídas | Faixa de XP Bronze, Prata, Ouro, Platina ou Diamante.
+Restrições | Não é rating Elo. Sem perda de XP por derrota e sem rebaixamento automático por derrota.
+RF016 — Especificação | Conteúdo
+Nome | Criar duelo aberto
+Identificador | RF016
+Prioridade | Alta
+Descrição | Criar uma vaga de duelo aberta na arena, aguardando oponente voluntário para a mesma tecnologia.
+Atores envolvidos | Usuário autenticado
+Regra de negócio relacionada | RN007, RN010, RN025, RN028
+Estado e referências de implementação | Fluxo vigente documentado em UC008. Referências: src/app/api/duels/route.ts; src/lib/duels/lifecycle.ts; src/lib/duels/constants.ts.
+Entradas | Linguagem e desafio do catálogo; usuário identificado pela sessão. Não há destinatário selecionado.
+Processamento | Procurar vaga pendente de outro usuário na mesma linguagem. Se houver, ocupar a vaga e iniciar o confronto com o desafio existente; caso contrário, criar duelo aberto com espera de até 24 horas.
+Saídas | Duelo pendente sem oponente ou confronto iniciado em vaga compatível, com prazo de duas horas.
+Restrições | Uma vaga não pode ser ocupada por dois oponentes. O usuário não pode entrar no próprio duelo. Convite direto, faixa de XP e cooldown por rejeição não se aplicam.
+RF017 — Especificação | Conteúdo
+Nome | Entrar em duelo
+Identificador | RF017
+Prioridade | Alta
+Descrição | Entrar em um duelo aberto disponível na arena ou aguardar participante.
+Atores envolvidos | Usuário autenticado
+Regra de negócio relacionada | RN007, RN010, RN025, RN028
+Estado e referências de implementação | Implementado: src/app/api/duels/route.ts; src/lib/duels/lifecycle.ts.
+Entradas | Duelo escolhido para entrada direta ou linguagem selecionada na fila rápida; identidade da sessão.
+Processamento | Na entrada direta, ocupar vaga disponível de outro usuário. Na fila rápida, buscar o duelo pendente mais antigo da mesma linguagem; sem vaga, criar espera de até 24 horas. O início do confronto define o prazo de duas horas.
+Saídas | Duelo ativo ou confirmação de espera por oponente.
+Restrições | Não selecionar destinatário nem filtrar por XP. Recusar vaga ocupada, expirada ou do próprio usuário; impedir ocupação concorrente.
+RF018 — Especificação | Conteúdo
+Nome | Aceitar ou rejeitar convite de duelo legado
+Identificador | RF018
+Prioridade | Não aplicável à versão vigente
+Descrição | Registro histórico da resposta a convite direto. Esse comportamento foi excluído do fluxo vigente de duelos abertos.
+Atores envolvidos | Usuário autenticado
+Regra de negócio relacionada | RN008, RN009
+Estado e referências de implementação | Histórico, fora do escopo vigente. Referências anteriores: src/app/api/duels/respond; DuelService.respondDuelRequest.
+Entradas | No fluxo legado: convite e decisão de aceite ou rejeição.
+Processamento | No fluxo legado: verificar destinatário e prazo e registrar a decisão. Não executar essa etapa na entrada em duelo aberto.
+Saídas | No fluxo legado: convite aceito ou rejeitado.
+Restrições | RF018, RN008 e RN009 são preservados para histórico; não regem UC008 nem UC009.
+RF019 — Especificação | Conteúdo
+Nome | Enviar solução de duelo
+Identificador | RF019
+Prioridade | Alta
+Descrição | Submeter código com resolução do desafio dentro do prazo estipulado para avaliação de testes e pontuação.
+Atores envolvidos | Participante do duelo; Executor de código
+Regra de negócio relacionada | RN010, RN011
+Estado e referências de implementação | Implementado: src/app/api/duels/[id]/submit; src/lib/duels/judge.ts; lifecycle.ts.
+Entradas | Código e identificador do duelo.
+Processamento | Validar participante, estado e prazo; armazenar uma solução por usuário.
+Saídas | Soluções registradas e estado para avaliação.
+Restrições | Participante autenticado, duelo ativo e envio dentro das duas horas do confronto. A manutenção resolve duelos vencidos. Testes ocultos não são expostos ao cliente.
+RF020 — Especificação | Conteúdo
+Nome | Avaliar resultado
+Identificador | RF020
+Prioridade | Alta
+Descrição | Avaliar soluções de duelo por testes e pontuação automática; encaminhar empate técnico para parecer humano autorizado.
+Atores externos e acionamento | Avaliador ou Administrador na revisão humana; avaliação automática acionada internamente.
+Regra de negócio relacionada | RN011, RN012, RN016, RN024, RN028
+Estado e referências de implementação | Implementado parcialmente no inventário: testes e resolução automática, com revisão humana de empate técnico. Referências: src/lib/duels/resolution-policy.ts; src/app/api/evaluations; DuelEvaluation.
+Entradas | Soluções, testes, pontuações e, na revisão humana, vencedor e feedback.
+Processamento | Comparar os resultados automáticos conforme RN012. Em empate técnico, aguardar decisão de avaliador ou administrador que não participou do duelo. Votação comunitária não integra a decisão do fluxo vigente.
+Saídas | Pontuações, feedback, vencedor e justificativas.
+Restrições | A estimativa estática de complexidade é heurística, não prova formal. Revisão humana fecha pendência por transição condicional.
+RF021 — Especificação | Conteúdo
+Nome | Atualizar classificação após duelo
+Identificador | RF021
+Prioridade | Média
+Descrição | Recompensar o vencedor de duelo fechado com 50 XP uma única vez.
+Atores externos e acionamento | Usuário beneficiário; acionamento interno após atividade elegível.
+Regra de negócio relacionada | RN006, RN028
+Estado e referências de implementação | Implementado: src/lib/duels/resolution.ts; xp_awarded_at.
+Entradas | Duelo fechado e resultado aprovado.
+Processamento | Reivindicar recompensa por atualização condicional e gravar XP na transação.
+Saídas | Ranking/divisão e notificações atualizados.
+Restrições | Não há rating Elo ajustado à força relativa. Derrota não reduz XP.
+RF022 — Especificação | Conteúdo
+Nome | Consultar ajuda do exercício
+Identificador | RF022
+Prioridade | Média
+Descrição | Exibir dicas e documentação técnica permitidas pelo modo de assistência do exercício.
+Atores envolvidos | Usuário autenticado
+Regra de negócio relacionada | RN013
+Estado e referências de implementação | Estado: Implementado. Evidência: AssistanceControls; LearningEvent.
+Entradas | Exercício e modo de assistência.
+Processamento | Verificar disponibilidade e registrar consulta no workspace.
+Saídas | Dica ou documentação.
+Restrições | Ajuda não aumenta nem reduz XP.
+RF023 — Especificação | Conteúdo
+Nome | Selecionar modo de assistência
+Identificador | RF023
+Prioridade | Média
+Descrição | Permitir escolher entre Guided, Standard, Hard e No Assist.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN013
+Estado e referências de implementação | Estado: Implementado. Evidência: src/components/lesson/AssistanceControls.tsx.
+Entradas | Modo escolhido.
+Processamento | Aplicar as opções de dica, documentação e autocomplete definidas pelo modo.
+Saídas | Configuração de assistência ativa.
+Restrições | A escolha não altera o valor de XP da atividade.
+RF024 — Especificação | Conteúdo
+Nome | Consultar documentação
+Identificador | RF024
+Prioridade | Média
+Descrição | Exibir documentação editorial durante a prática quando o modo permitir.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN013
+Estado e referências de implementação | Estado: Implementado. Evidência: AssistanceControls; ExerciseWorkspace.
+Entradas | Exercício e modo de assistência.
+Processamento | Verificar permissão do modo e abrir o material publicado.
+Saídas | Documentação exibida.
+Restrições | No Assist não disponibiliza documentação.
+RF025 — Especificação | Conteúdo
+Nome | Utilizar sugestões do editor
+Identificador | RF025
+Prioridade | Baixa
+Descrição | Disponibilizar dicas ou autocomplete conforme o modo selecionado.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN013
+Estado e referências de implementação | Estado: Implementado. Evidência: AssistanceControls; editor de exercícios.
+Entradas | Código, exercício e modo.
+Processamento | Aplicar os recursos editoriais habilitados sem alterar a correção no servidor.
+Saídas | Auxílio no editor.
+Restrições | A avaliação final continua baseada no contrato canônico da atividade.
+RF026 — Especificação | Conteúdo
+Nome | Candidatar-se a avaliador
+Identificador | RF026
+Prioridade | Média
+Descrição | Permitir que o usuário elegível envie candidatura com motivação e tecnologias para avaliação administrativa.
+Atores envolvidos | Usuário autenticado; Administrador
+Regra de negócio relacionada | RN014, RN015
+Estado e referências de implementação | Estado: Implementado. Evidência: src/services/evaluator.service.ts.
+Entradas | Usuário, motivação e tecnologias.
+Processamento | Verificar trilha concluída/XP, duplicidade e registrar candidatura.
+Saídas | Elegibilidade e candidatura pendente.
+Restrições | Critérios atuais seguem a regra implementada; aprovação administrativa é obrigatória.
+RF027 — Especificação | Conteúdo
+Nome | Receber avaliações pendentes
+Identificador | RF027
+Prioridade | Média
+Descrição | Listar desafios com solução que necessitam revisão.
+Atores envolvidos | Avaliador; Administrador
+Regra de negócio relacionada | RN012, RN016, RN017
+Estado e referências de implementação | Estado: Implementado. Evidência: GET src/app/api/evaluations.
+Entradas | Sessão do avaliador.
+Processamento | Autorizar papel e carregar duelos pendentes.
+Saídas | Fila de avaliações com soluções e contexto.
+Restrições | Somente EVALUATOR ou ADMIN; dados devem ser minimizados.
+RF028 — Especificação | Conteúdo
+Nome | Avaliar solução
+Identificador | RF028
+Prioridade | Média
+Descrição | Permitir análise comparativa e parecer humano.
+Atores envolvidos | Avaliador; Administrador
+Regra de negócio relacionada | RN012, RN016, RN017, RN028
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/evaluations; POST src/app/api/evaluations.
+Entradas | Pontuações de 0 a 1.000, vencedor obrigatório, feedback com pelo menos 5 caracteres, pontos fortes e melhorias.
+Processamento | Validar limites, autorização e duelo; registrar avaliação humana.
+Saídas | Parecer e resultado do duelo.
+Restrições | Somente avaliador autorizado ou administrador que não participou do duelo pode decidir. Duelo deve estar pendente de revisão; impedir decisão duplicada ou conflitante.
+RF029 — Especificação | Conteúdo
+Nome | Registrar decisão de avaliação
+Identificador | RF029
+Prioridade | Alta
+Descrição | Persistir avaliação, fechar o duelo e notificar participantes.
+Atores envolvidos | Avaliador; Administrador
+Regra de negócio relacionada | RN016, RN022, RN028
+Estado e referências de implementação | Estado: Implementado. Evidência: EvaluatorService.submitDuelEvaluation.
+Entradas | Avaliação humana validada.
+Processamento | Criar DuelEvaluation, definir vencedor, fechar duelo e atualizar contador.
+Saídas | Decisão auditável e notificações.
+Restrições | Evitar avaliações conflitantes; política de reavaliação precisa ser definida.
+RF030 — Especificação | Conteúdo
+Nome | Criar publicação
+Identificador | RF030
+Prioridade | Alta
+Descrição | Publicar conteúdo técnico no feed.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN018, RN019
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/feed; src/app/api/posts.
+Entradas | Título, corpo, linguagem, código e imagem opcional.
+Processamento | Validar, sanitizar, aplicar limite e persistir.
+Saídas | Publicação exibida no feed.
+Restrições | Autenticação, limite de conteúdo, rate limit e moderação.
+RF031 — Especificação | Conteúdo
+Nome | Visualizar feed
+Identificador | RF031
+Prioridade | Alta
+Descrição | Exibir publicações paginadas e ordenadas.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN018, RN027
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/feed; PostService; paginação por cursor.
+Entradas | Filtro, limite e cursor.
+Processamento | Buscar página e relacionamentos permitidos.
+Saídas | Itens e próximo cursor.
+Restrições | Paginação deve evitar duplicidade e carga excessiva.
+RF032 — Especificação | Conteúdo
+Nome | Interagir com publicação
+Identificador | RF032
+Prioridade | Média
+Descrição | Reagir, votar, responder, salvar e seguir conforme a ação.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN018, RN022
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/api/posts/[id]; reactions, answers, bookmarks.
+Entradas | Publicação, tipo de interação e conteúdo quando aplicável.
+Processamento | Validar alvo, evitar duplicidade e registrar interação.
+Saídas | Contadores, resposta e notificação.
+Restrições | Ação própria indevida e abuso devem ser bloqueados.
+RF033 — Especificação | Conteúdo
+Nome | Denunciar conteúdo
+Identificador | RF033
+Prioridade | Alta
+Descrição | Registrar denúncia para análise administrativa.
+Atores envolvidos | Usuário; Administrador
+Regra de negócio relacionada | RN019
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/api/posts/[id]/report; src/app/api/admin/reports.
+Entradas | Publicação e motivo.
+Processamento | Validar usuário/alvo, impedir duplicidade e criar denúncia.
+Saídas | Confirmação e item na fila administrativa.
+Restrições | Denúncia não remove conteúdo automaticamente sem política definida.
+RF034 — Especificação | Conteúdo
+Nome | Cadastrar empresa
+Identificador | RF034
+Prioridade | Média
+Descrição | Criar empresa vinculada ao responsável autorizado.
+Atores envolvidos | Usuário autenticado (promovido a Recrutador)
+Regra de negócio relacionada | RN017, RN020, RN027
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/api/companies; Company.
+Entradas | Nome, slug, descrição, localização, site e imagem opcionais.
+Processamento | Validar sessão e dados; criar empresa com o usuário como proprietário e promover USER a RECRUITER.
+Saídas | Empresa cadastrada.
+Restrições | Não exige papel RECRUITER prévio. Verificação oficial da empresa não deve ser presumida.
+RF035 — Especificação | Conteúdo
+Nome | Publicar vaga
+Identificador | RF035
+Prioridade | Média
+Descrição | Criar oportunidade com requisitos e etapas.
+Atores envolvidos | Recrutador; Administrador
+Regra de negócio relacionada | RN020, RN026
+Estado e referências de implementação | Implementado parcialmente: publicação disponível; validação de propriedade da empresa pendente, conforme limitação registrada em POST src/app/api/jobs e JobService.createJob.
+Entradas | Empresa, título, descrição, nível, tecnologias, modalidade, contrato e etapas.
+Processamento | Validar papel e dados, criar vaga e etapas.
+Saídas | Vaga aberta e consultável.
+Restrições | Comportamento exigido: permitir publicação apenas a RECRUITER/ADMIN autorizado para a empresa. Limitação registrada: o POST não verifica a propriedade de company_id; essa validação permanece pendente.
+RF036 — Especificação | Conteúdo
+Nome | Consultar vagas
+Identificador | RF036
+Prioridade | Média
+Descrição | Listar e filtrar oportunidades abertas.
+Atores envolvidos | Usuário; Empresa / Recrutador
+Regra de negócio relacionada | RN020, RN026
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/jobs; GET src/app/api/jobs.
+Entradas | Busca, nível, modalidade, contrato e tecnologia.
+Processamento | Aplicar filtros e carregar empresa/etapas permitidas.
+Saídas | Lista e detalhes das vagas.
+Restrições | Vagas encerradas não devem aceitar candidatura.
+RF037 — Especificação | Conteúdo
+Nome | Visualizar perfil público de desenvolvedor
+Identificador | RF037
+Prioridade | Média
+Descrição | Exibir perfil público conforme configuração e autorização.
+Atores envolvidos | Empresa / Recrutador; Usuário
+Regra de negócio relacionada | RN021, RN027
+Estado e referências de implementação | Estado: Implementado parcialmente. Evidência: src/app/profile/[username].
+Entradas | Username do desenvolvedor.
+Processamento | Carregar apenas campos públicos e evidências permitidas.
+Saídas | Perfil e indicadores públicos.
+Restrições | Não expor e-mail, dados privados ou decisões automatizadas.
+RF038 — Especificação | Conteúdo
+Nome | Consultar indicadores permitidos do usuário
+Identificador | RF038
+Prioridade | Baixa
+Descrição | Apresentar trilhas, desafios e atividade pública como indicadores auxiliares.
+Atores envolvidos | Empresa / Recrutador
+Regra de negócio relacionada | RN021, RN027
+Estado e referências de implementação | Estado: Implementado parcialmente. Evidência: perfil público e modelos de progresso; não há painel analítico completo.
+Entradas | Usuário e permissão/consentimento aplicável.
+Processamento | Selecionar indicadores públicos e registrar acesso quando necessário.
+Saídas | Resumo de evidências sem decisão automática.
+Restrições | Limitar a consulta aos campos públicos definidos pela aplicação. Qualquer ampliação para dados privados exige política de visibilidade e autorização específica, fora do escopo vigente.
+RF047 — Especificação | Conteúdo
+Nome | Candidatar-se a vaga
+Identificador | RF047
+Prioridade | Média
+Descrição | Registrar interesse de usuário em vaga aberta.
+Atores envolvidos | Usuário
+Regra de negócio relacionada | RN026
+Estado e referências de implementação | Estado: Implementado. Evidência: POST src/app/api/jobs/[id]/apply.
+Entradas | Identificador da vaga e sessão.
+Processamento | Verificar vaga aberta e candidatura prévia; criar aplicação.
+Saídas | Candidatura com status inicial.
+Restrições | Uma candidatura por usuário/vaga.
+RF048 — Especificação | Conteúdo
+Nome | Atualizar etapa de candidatura
+Identificador | RF048
+Prioridade | Média
+Descrição | Atualizar a etapa do processo seletivo do candidato vinculado à vaga e registrar o andamento.
+Atores envolvidos | Recrutador responsável; Candidato
+Regra de negócio relacionada | RN020, RN021, RN026
+Estado e referências de implementação | Estado: Implementado. Evidência: PATCH src/app/api/jobs/[id]; JobService.updateApplicationStage.
+Entradas | Candidatura, etapa, status, feedback e nota opcional.
+Processamento | Autorizar responsável e atualizar processo; notificar candidato.
+Saídas | Candidatura atualizada.
+Restrições | A nota técnica deve ser informada pelo recrutador responsável e validada dentro do intervalo permitido.
+RF039 — Especificação | Conteúdo
+Nome | Gerenciar usuários
+Identificador | RF039
+Prioridade | Alta
+Descrição | Listar usuários e alterar papéis autorizados.
+Atores envolvidos | Administrador
+Regra de negócio relacionada | RN017, RN025
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/api/admin/users; AdminService.
+Entradas | Busca, página, papel e alteração solicitada.
+Processamento | Autorizar administrador, validar papel e persistir.
+Saídas | Lista ou usuário atualizado.
+Restrições | Mudança de papel deve ser auditada; impedir escalada indevida.
+RF040 — Especificação | Conteúdo
+Nome | Gerenciar conteúdo
+Identificador | RF040
+Prioridade | Média
+Descrição | Revisar conteúdo e parâmetros editoriais administráveis.
+Atores envolvidos | Administrador
+Regra de negócio relacionada | RN017, RN019
+Estado e referências de implementação | Estado: Implementado parcialmente. Evidência: admin possui denúncias e geração de quiz; CRUD editorial completo não foi localizado.
+Entradas | Conteúdo, decisão e justificativa.
+Processamento | Validar permissão e aplicar ação suportada.
+Saídas | Conteúdo atualizado/ocultado ou ação recusada.
+Restrições | A moderação vigente permite analisar denúncias e remover publicações quando cabível. O cadastro, a edição e a exclusão completos do catálogo editorial não estão comprovados pelo inventário; os conteúdos de aprendizagem permanecem versionados.
+RF041 — Especificação | Conteúdo
+Nome | Criar e gerenciar eventos
+Identificador | RF041
+Prioridade | Média
+Descrição | Permitir criação de evento por qualquer usuário autenticado e exclusão pelo criador ou administrador autorizado.
+Atores envolvidos | Usuário autenticado (como organizador); Administrador
+Regra de negócio relacionada | RN017, RN023
+Estado e referências de implementação | Estado: Implementado parcialmente. Evidência: src/app/api/events; EventService.
+Entradas | Título, descrição, tipo, datas, nível e limite.
+Processamento | Validar sessão e dados, criar evento vinculado ao usuário e permitir exclusão somente pelo criador ou administrador.
+Saídas | Evento publicado e participável.
+Restrições | Criação não exige papel de Administrador ou Recrutador. Edição do evento não integra o escopo vigente; UC015 descreve a criação.
+RF042 — Especificação | Conteúdo
+Nome | Gerenciar permissões de usuários
+Identificador | RF042
+Prioridade | Alta
+Descrição | Visualizar e atualizar papéis de usuários do sistema de forma controlada.
+Atores envolvidos | Administrador
+Regra de negócio relacionada | RN015, RN017
+Estado e referências de implementação | Implementado com limites: gestão de papéis disponível; cobertura integral de auditoria depende de RNF024 e RNF025. Referências: UserRole; requireRole; admin users/evaluators.
+Entradas | Usuário, papel e decisão.
+Processamento | Validar administrador, aplicar papel e registrar decisão.
+Saídas | Permissão atualizada.
+Restrições | Aplicar menor privilégio e impedir remoção do último administrador. A auditoria completa é requisito de aceitação; sua cobertura não está comprovada pelo inventário.
+RF043 — Especificação | Conteúdo
+Nome | Tratar denúncias
+Identificador | RF043
+Prioridade | Alta
+Descrição | Listar e decidir denúncias da comunidade.
+Atores envolvidos | Administrador
+Regra de negócio relacionada | RN019
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/api/admin/reports.
+Entradas | Denúncia e decisão.
+Processamento | Carregar contexto, aplicar ação permitida e registrar resultado.
+Saídas | Denúncia tratada e eventual alteração de conteúdo.
+Restrições | Política de sanções e recurso ainda precisa ser definida.
+RF044 — Especificação | Conteúdo
+Nome | Gerar notificação
+Identificador | RF044
+Prioridade | Média
+Descrição | Criar notificação para eventos relevantes.
+Atores externos e acionamento | Usuário destinatário; acionamento interno por evento relevante da aplicação.
+Regra de negócio relacionada | RN022
+Estado e referências de implementação | Estado: Implementado. Evidência: NotificationService; NotificationType.
+Entradas | Destinatário, tipo, ator e recurso.
+Processamento | Validar dados e persistir de forma resiliente.
+Saídas | Notificação registrada.
+Restrições | Falha de notificação não deve corromper a operação principal.
+RF045 — Especificação | Conteúdo
+Nome | Consultar notificações
+Identificador | RF045
+Prioridade | Média
+Descrição | Listar, contar e marcar notificações web como lidas.
+Atores envolvidos | Usuário autenticado
+Regra de negócio relacionada | RN022, RN027
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/notifications; src/app/api/notifications.
+Entradas | Sessão, cursor/limite e ação de leitura.
+Processamento | Buscar notificações do próprio usuário e atualizar leitura.
+Saídas | Lista, próximo cursor e contagem não lida.
+Restrições | Usuário não pode consultar notificações alheias.
+RF046 — Especificação | Conteúdo
+Nome | Atualizar leitura de notificações
+Identificador | RF046
+Prioridade | Média
+Descrição | Marcar uma ou todas as notificações web como lidas.
+Atores envolvidos | Usuário, Avaliador, Administrador, Recrutador
+Regra de negócio relacionada | RN022, RN027
+Estado e referências de implementação | Estado: Implementado. Evidência: src/app/api/notifications/read; src/app/notifications.
+Entradas | Notificação ou ação de marcar todas.
+Processamento | Autorizar o titular e atualizar read_at somente em seus registros.
+Saídas | Estado de leitura e contagem atualizados.
+Restrições | Um usuário não pode alterar notificações de outra conta.
+RF049 — Especificação | Conteúdo
+Nome | Participar de evento
+Identificador | RF049
+Prioridade | Média
+Descrição | Permitir inscrição de usuário elegível e retirada da própria inscrição antes do encerramento do evento.
+Atores envolvidos | Usuário autenticado
+Regra de negócio relacionada | RN023
+Estado e referências de implementação | Estado: Implementado. Evidência: POST src/app/api/events/[id]/participate; EventService.participate.
+Entradas | Evento, identidade da sessão e ação de inscrever-se ou retirar a inscrição.
+Processamento | Na inscrição, verificar evento não encerrado, nível, capacidade e unicidade. Na retirada, verificar titularidade e evento não encerrado e remover a participação.
+Saídas | Inscrição confirmada, participação existente ou retirada confirmada.
+Restrições | Uma inscrição ativa por usuário/evento. Retirada permitida antes do encerramento; após esse momento, recusar a retirada.
+Identificador | Nome | Prioridade | Categoria | Descrição | Critério verificável de aceitação
+RNF001 | Autenticação protegida | Alta | Segurança | Rotas privadas devem exigir sessão verificada no servidor. | Teste automatizado deve comprovar 401 sem sessão válida e acesso com sessão válida.
+RNF002 | Autorização por papel | Alta | Segurança | Operações administrativas, de avaliador e recrutador devem aplicar RBAC. | Testes devem comprovar 403 para papel não autorizado e sucesso para papel permitido.
+RNF003 | Proteção de entrada e abuso | Alta | Segurança | Entradas devem ser validadas e endpoints críticos devem limitar frequência. | Schemas rejeitam payload inválido e testes verificam limite configurado sem expor segredo.
+RNF004 | Segredos somente no servidor | Alta | Segurança | Credenciais de banco, autenticação e serviços externos não podem ser enviadas ao cliente. | Build e auditoria estática não contêm segredos em variáveis NEXT_PUBLIC nem no bundle cliente.
+RNF005 | Separação público/privado | Alta | Privacidade | Perfil e recrutamento devem retornar apenas campos autorizados. | Teste com usuário/empresa confirma ausência de e-mail, token e dados privados nas respostas públicas.
+RNF006 | Privacidade no recrutamento | Alta | Privacidade | Indicadores consultados por empresas devem limitar-se aos campos públicos definidos pela aplicação. | Testes comprovam ausência de e-mail, tokens e demais campos privados nas respostas de perfil e recrutamento.
+RNF007 | Tempo de resposta das APIs | Média | Desempenho | APIs interativas devem responder com rapidez sob carga acadêmica representativa. | P95 de até 2 segundos com 20 usuários simultâneos, exceto execução externa de código.
+RNF008 | Carregamento de página | Média | Desempenho | Páginas principais devem carregar sem bloquear a ação essencial. | LCP de até 2,5 segundos em desktop e 4 segundos em viewport móvel com rede 4G simulada.
+RNF009 | Execução limitada | Alta | Desempenho | A execução de código deve possuir timeout e limite de payload. | Teste de timeout confirma resposta controlada sem marcar acerto nem bloquear o servidor além do limite.
+RNF010 | Responsividade | Alta | Usabilidade | Fluxos principais devem funcionar em desktop e na web móvel. | Validação visual em 360 × 800, 768 × 1024 e 1440 × 900 sem perda de ação essencial.
+RNF011 | Acessibilidade básica | Média | Usabilidade | Controles devem possuir nome acessível, foco e suporte a teclado. | Lighthouse Accessibility igual ou superior a 90 e roteiro manual sem bloqueador crítico.
+RNF012 | Degradação de serviço externo | Alta | Disponibilidade | Falhas em serviços essenciais não devem confirmar operações incompletas. A notificação é acessória: sua falha não desfaz uma operação principal já concluída, conforme RN022. | Simular falhas de gravação e execução sem confirmação de sucesso; simular falha de notificação e comprovar preservação da operação principal e possibilidade de consultar seu resultado.
+RNF013 | Meta de disponibilidade | Média | Disponibilidade | A plataforma deve possuir meta mensal e monitoramento de falhas críticas. | Disponibilidade mensal mínima de 99,5% no ambiente de produção.
+RNF014 | Consistência de XP | Alta | Confiabilidade | XP e progresso devem ser atualizados atomicamente e sem duplicidade. | Teste concorrente comprova uma recompensa por atividade e rollback integral em falha.
+RNF015 | Consistência de duelo e avaliação | Alta | Confiabilidade | Estados de duelo aberto e avaliação devem impedir transições inválidas e resultados duplicados. | Testes cobrem espera de 24 horas expirada, prazo de duas horas do confronto, dupla ocupação da vaga, envio fora do prazo e fechamento conflitante.
+RNF016 | Crescimento de listas | Média | Escalabilidade | Feed, notificações e históricos devem usar paginação e índices. | Teste com 10.000 registros mantém o P95 dentro da meta RNF007.
+RNF017 | Navegadores suportados | Média | Compatibilidade | A aplicação web deve funcionar nos navegadores modernos suportados pelo framework. | Chrome e Edge 111+, Firefox 111+ e Safari 16.4+, com os fluxos principais aprovados.
+RNF018 | Compatibilidade com web móvel | Média | Compatibilidade | A interface deve preservar navegação e ações em telas pequenas. | Os viewports definidos no RNF010 não apresentam rolagem horizontal indevida nem controles inacessíveis.
+RNF019 | Modularização | Média | Manutenibilidade | Domínio, APIs, UI e integrações externas devem permanecer separados. | Lint, typecheck e testes passam; revisão não identifica dependência circular crítica.
+RNF020 | Cobertura de qualidade | Média | Manutenibilidade | Mudanças em regras críticas devem incluir testes e documentação. | CI executa typecheck, lint e testes; cobertura de linhas mínima de 70% nos módulos críticos.
+RNF021 | Conteúdo editorial confiável | Alta | Qualidade | Lições, dicas e respostas canônicas devem ser versionadas e revisáveis. | Toda atividade publicada referencia um contrato canônico válido e não depende de geração em tempo de execução.
+RNF022 | Privacidade na execução de código | Alta | Segurança | O executor externo deve receber somente o código, a linguagem e os testes necessários. | Auditoria do payload comprova ausência de credenciais, dados do perfil e testes ocultos na resposta ao cliente.
+RNF023 | Disponibilidade do executor | Alta | Disponibilidade | Falha ou timeout do executor deve produzir resultado controlado. | O sistema não concede XP nem vitória e mantém a resposta disponível para nova tentativa.
+RNF024 | Auditoria de ações sensíveis | Alta | Auditoria | Alterações de papel, avaliações e ações administrativas devem ser rastreáveis. | Registro contém ator, ação, alvo, instante e resultado para 100% das operações definidas.
+RNF025 | Retenção de auditoria | Média | Auditoria | Logs de ações sensíveis devem possuir prazo e acesso controlados. | Reter logs administrativos por 90 dias, acessíveis apenas a administradores autorizados.
+ID | Regra | Descrição | Situação | Evidência
+RN001 | Elegibilidade de XP | XP somente é concedido após atividade válida e confirmada; repetir a mesma tentativa não gera nova recompensa. | Implementado | QuizAttempt e XpService
+RN002 | Valores de XP | No catálogo: explicação 0, prática conceitual 10, atividade guiada explicitamente configurada 15, código 25 e projeto 40. Atividades legadas preservam valores já ganhos. Checkpoint/baú não concedem XP livre pelo cliente. | Implementado | learning/rewards.ts; catalog-types.ts; trails/checkpoint e chest
+RN003 | Níveis | Níveis usam os limiares de 500, 800, 1.100, 1.500 e 2.000 XP; após o nível 6 o incremento cresce em 100 XP por nível. | Implementado | src/lib/learning/rewards.ts
+RN004 | Sequência e conquistas | Atividade em dias consecutivos atualiza a sequência; conquistas não podem ser duplicadas e incluem critérios de 7 e 30 dias. | Implementado | src/lib/streak.ts; src/services/xp.service.ts
+RN005 | Faixas de XP | Bronze 0–499; Prata 500–1199; Ouro 1200–2499; Platina 2500–4999; Diamante a partir de 5000. Promoção por XP acumulado; derrota não rebaixa. Não é Elo. | Implementado | learning/rewards.ts
+RN006 | Ordenação do ranking | XP decrescente, username e id crescentes. Por linguagem, agregar LanguageTrail e primeiro acerto de ExerciseSubmission, sem migrar nem somar novamente o histórico global. | Implementado | learning/rewards.ts; language-xp.ts
+RN007 | Entrada em duelos | Na fila rápida, procurar a vaga pendente mais antiga de outro usuário na mesma linguagem. Sem vaga, criar espera de até 24 horas. Entrada direta exige vaga disponível de outro usuário. O fluxo vigente não usa convite, destinatário ou faixa de XP. | Regra vigente documentada | UC008; UC009; src/app/api/duels; src/lib/duels/lifecycle.ts
+RN008 | Prazo do convite legado | No fluxo legado, o convite expirava em 30 segundos. Regra histórica, sem aplicação aos duelos abertos vigentes. | Histórica, fora do escopo vigente | DUEL_REQUEST_TIMEOUT_SECONDS
+RN009 | Rejeição e cooldown legados | No fluxo legado, três rejeições consecutivas aplicavam cooldown de 5 minutos. Regra histórica, sem aplicação aos duelos abertos vigentes. | Histórica, fora do escopo vigente | MAX_DUEL_REJECTIONS; DUEL_COOLDOWN_MINUTES
+RN010 | Tempo do desafio | O confronto dura duas horas a partir da entrada do segundo participante. A espera por oponente, antes do confronto, é de até 24 horas. O registro de expiração depende da manutenção, sem prorrogar a elegibilidade após o prazo. | Regra vigente documentada | UC008; UC009; seção 6.2 dos casos de uso; src/lib/duels/constants.ts
+RN011 | Prazo e resultado do duelo | Na resolução por prazo, sem envios fecha sem vencedor; um envio elegível pode vencer; dois envios são comparados. A manutenção efetiva depende de acionamento. | Implementado com limite operacional | duels/resolution.ts; resolution-policy.ts; lifecycle.ts
+RN012 | Avaliação de duelo | Testes e pontuação automática; diferença de score até 5 e runtime até 5% (ou ausente) encaminha empate técnico a REVIEW_PENDING. Vitória recebe 50 XP uma única vez. | Implementado | duels/resolution-policy.ts; resolution.ts
+RN013 | Assistência editorial | Dicas, documentação e autocomplete dependem do modo escolhido; a consulta não altera o XP. | Implementado | AssistanceControls; ExerciseWorkspace
+RN014 | Elegibilidade de avaliador | O usuário deve concluir ao menos uma trilha completa ou possuir 1.000 XP antes de se candidatar. | Implementado | EvaluatorService.checkEligibility
+RN015 | Aprovação de avaliador | A elegibilidade permite candidatura, mas somente o administrador atribui o papel EVALUATOR. | Implementado | EvaluatorService.reviewApplication
+RN016 | Parecer humano | As pontuações variam de 0 a 1.000, exigem vencedor e feedback com pelo menos 5 caracteres. | Implementado | evaluationSchema; EvaluatorService.submitDuelEvaluation
+RN017 | Controle por papel | Usuário autenticado usa as funções gerais e pode criar e participar de eventos; Avaliador avalia duelos autorizados; Administrador gerencia permissões e pode avaliar; Recrutador gerencia empresas e vagas autorizadas. Criador ou Administrador pode excluir evento. | Implementado | UserRole; requireRole
+RN018 | Publicação comunitária | Publicação exige autenticação, validação e limite de corpo de até 5.000 caracteres. | Implementado | src/lib/config.ts; posts API
+RN019 | Moderação | Denúncia deve ser registrada uma vez por usuário/publicação e analisada por administrador; sanções e recurso ainda dependem de política. | Parcial | Report; admin reports
+RN020 | Publicação de vaga | Somente RECRUITER ou ADMIN publica vaga em empresa autorizada; responsabilidade pela empresa deve ser verificada. | Implementado parcialmente | jobs API; companies API
+RN021 | Acesso de empresas | Empresas consultam somente informações públicas do perfil; decisões de contratação permanecem sob responsabilidade humana. | Regra adotada | perfil público; JobService
+RN022 | Notificações | Eventos relevantes geram notificação ao destinatário; falha de notificação não desfaz a operação principal. | Implementado na web | NotificationService
+RN023 | Participação em evento | Usuário participa uma vez por evento, respeitando evento não encerrado, nível mínimo e capacidade. Pode retirar a própria inscrição antes do encerramento. | Implementado | EventService.participate
+RN024 | Falha do executor | Timeout, indisponibilidade ou resposta inválida do executor não confirma acerto, XP ou vitória. | Implementado | src/lib/code-runner.ts; learning/assessment.ts; duels/judge.ts
+RN025 | Identidade e sessão | E-mail e username são únicos; rotas protegidas exigem sessão verificada. | Implementado | User; auth/register; requireAuth
+RN026 | Candidatura a vaga | Usuário pode candidatar-se uma vez a vaga aberta; empresa atualiza etapa/status e o candidato é notificado. | Implementado | JobApplication; JobService
+RN027 | Privacidade do perfil | Perfis públicos não expõem e-mail, tokens ou dados de sessão; rotas de edição exigem o titular autenticado. | Implementado | src/app/api/profile/[username]; src/app/api/profile/update
+RN028 | Integridade competitiva | XP, ranking, duelo e avaliação devem rejeitar duplicidade, manipulação pelo cliente e transições inválidas. | Parcial | transações/uniques existentes; auditoria a ampliar
+RN029 | Pré-requisitos de aprendizagem | Uma lição pode ser iniciada quando seus pré-requisitos estiverem cumpridos. Lições já concluídas podem ser revisitadas; a revisão não duplica a recompensa da mesma atividade. | Regra documentada | RF005–RF009; UC004–UC006
+Os estados de implementação preservam o inventário de 12/09/2026. As regras vigentes consolidam o comportamento esperado nesta edição; regras históricas não constituem critérios de aceitação. A conformidade deve ser comprovada em homologação.
+Requisito Funcional | Regra(s) de Negócio Relacionada(s)
+RF001 — Cadastrar usuário | RN017, RN025
+RF002 — Fazer login | RN017, RN025
+RF003 — Encerrar sessão | RN017, RN025
+RF004 — Gerenciar perfil | RN017, RN027
+RF005 — Visualizar trilhas | RN025, RN029
+RF006 — Iniciar trilha | RN025, RN029
+RF007 — Acessar lição | RN025, RN029
+RF008 — Resolver exercício | RN001, RN002, RN024, RN025, RN029
+RF009 — Registrar progresso | RN001, RN002, RN028, RN029
+RF010 — Consultar histórico | RN027
+RF011 — Atribuir XP | RN001, RN002, RN028
+RF012 — Atualizar nível | RN003
+RF013 — Gerenciar conquistas | RN004
+RF014 — Consultar ranking | RN005, RN006, RN028
+RF015 — Derivar faixa de XP | RN005, RN006
+RF016 — Criar duelo aberto | RN007, RN010, RN025, RN028
+RF017 — Entrar em duelo | RN007, RN010, RN025, RN028
+RF018 — Aceitar ou rejeitar convite de duelo legado | RN008, RN009 — históricas, fora do escopo vigente
+RF019 — Enviar solução de duelo | RN010, RN011
+RF020 — Avaliar resultado | RN011, RN012, RN016, RN024, RN028
+RF021 — Atualizar classificação após duelo | RN006, RN028
+RF022 — Consultar ajuda do exercício | RN013
+RF023 — Selecionar modo de assistência | RN013
+RF024 — Consultar documentação | RN013
+RF025 — Utilizar sugestões do editor | RN013
+RF026 — Candidatar-se a avaliador | RN014, RN015
+RF027 — Receber avaliações pendentes | RN012, RN016, RN017
+RF028 — Avaliar solução | RN012, RN016, RN017, RN028
+RF029 — Registrar decisão de avaliação | RN016, RN022, RN028
+RF030 — Criar publicação | RN018, RN019
+RF031 — Visualizar feed | RN018, RN027
+RF032 — Interagir com publicação | RN018, RN022
+RF033 — Denunciar conteúdo | RN019
+RF034 — Cadastrar empresa | RN017, RN020, RN027
+RF035 — Publicar vaga | RN020, RN026
+RF036 — Consultar vagas | RN020, RN026
+RF037 — Visualizar perfil público de desenvolvedor | RN021, RN027
+RF038 — Consultar indicadores permitidos do usuário | RN021, RN027
+RF047 — Candidatar-se a vaga | RN026
+RF048 — Atualizar etapa de candidatura | RN020, RN021, RN026
+RF039 — Gerenciar usuários | RN017, RN025
+RF040 — Gerenciar conteúdo | RN017, RN019
+RF041 — Criar e gerenciar eventos | RN017, RN023
+RF042 — Gerenciar permissões de usuários | RN015, RN017
+RF043 — Tratar denúncias | RN019
+RF044 — Gerar notificação | RN022
+RF045 — Consultar notificações | RN022, RN027
+RF046 — Atualizar leitura de notificações | RN022, RN027
+RF049 — Participar de evento | RN023

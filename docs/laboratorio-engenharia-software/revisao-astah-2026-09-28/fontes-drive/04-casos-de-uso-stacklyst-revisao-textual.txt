@@ -1,0 +1,835 @@
+
+
+
+
+
+
+
+Stacklyst
+Especificação de Casos de Uso do Sistema
+Laboratório de Engenharia de Software
+Projeto acadêmico
+Revisão textual: 27/09/2026 | Base técnica: 12/09/2026
+
+1. Índice
+2. Objetivo
+Este documento especifica 30 casos de uso do Stacklyst, com atores, pré-condições, resultados, fluxos e referências de interface. A revisão textual consolida as regras de duelos abertos e inclui UC030 Encerrar sessão, correspondente a RF003. As oito vistas gráficas anteriores permanecem preservadas; UC030 deverá ser incorporado na revisão gráfica.
+3. Atores do Sistema
+
+4. Diagramas de Casos de Uso
+As oito vistas gráficas preservadas representam UC001 a UC029. UC030 está especificado textualmente na seção 5.30. Os atores ficam fora da fronteira Stacklyst; as linhas contínuas representam participação e não ordem de execução.
+Avaliador, Administrador e Recrutador são especializações de Usuário autenticado e herdam suas participações. O triângulo vazado aponta para o ator geral. Organizador, participante de duelo e candidato são responsabilidades contextuais de um usuário, não contas ou papéis adicionais.
+Nas relações tracejadas, «include» aponta para o comportamento incluído e «extend» para o caso base. UC006 inclui UC028; UC010 inclui UC029. Os pontos de extensão são consultar ajuda em UC006 e avaliar código em UC028. A pré-condição dos casos protegidos é possuir sessão válida; não é necessário executar o login novamente a cada caso.
+4.1 Conta e perfil
+O visitante cadastra a conta e faz login com apoio do provedor de identidade. O usuário autenticado edita o próprio perfil.
+
+Figura 1 — Conta e perfil.
+4.2 Trilhas lições e progresso
+O usuário seleciona uma trilha, estuda as lições liberadas e consulta seu progresso e o ranking de XP. A conclusão das atividades segue as regras descritas em UC006.
+
+Figura 2 — Trilhas, lições e progresso.
+4.3 Resolução e avaliação de exercícios
+UC006 inclui UC028 ao submeter uma resposta válida. UC012 estende UC006 no ponto consultar ajuda quando o usuário solicita material permitido pelo modo. UC029 estende UC028 no ponto avaliar código para atividades de programação; a avaliação de respostas conceituais é completa sem essa extensão. Para atividades de código, a execução é necessária para determinar o resultado.
+
+Figura 3 — Resolução e avaliação de exercícios.
+4.4 Criação e participação em duelos
+O usuário cria uma vaga de duelo aberta ou entra em uma vaga disponível. Não há escolha de destinatário nem aceite de convite nesse fluxo. Somente os participantes do duelo ativo enviam soluções; UC010 inclui UC029.
+
+Figura 4 — Criação e participação em duelos.
+4.5 Candidatura e avaliação de duelos
+O usuário envia a candidatura a avaliador. O administrador decide sobre a candidatura. Avaliador e administrador podem analisar empates técnicos, conforme as permissões do sistema, e herdam as participações do usuário autenticado.
+
+Figura 5 — Candidatura e avaliação de duelos.
+4.6 Comunidade e eventos
+Qualquer usuário autenticado pode criar um evento e torna-se seu organizador. A associação direta a UC015 explicita essa responsabilidade. A participação em UC023 depende dos requisitos do evento. Administradores e recrutadores também possuem essas permissões como usuários autenticados.
+
+Figura 6 — Comunidade e eventos.
+4.7 Permissões, denúncias e notificações
+O administrador gerencia permissões e trata denúncias. Cada usuário consulta suas próprias notificações. A generalização permite ao administrador participar também dos casos atribuídos ao usuário autenticado.
+
+Figura 7 — Permissões, denúncias e notificações.
+4.8 Vagas e empresas
+O usuário consulta vagas, candidata-se e cadastra uma empresa. Recrutadores e administradores publicam vagas conforme a autorização aplicável. O recrutador responsável atualiza as etapas das candidaturas da empresa sob sua gestão.
+
+Figura 8 — Vagas e empresas.
+5. Especificação dos Casos de Uso
+5.1 Caso de Uso UC001 — Cadastrar conta
+Protótipo de Interface
+
+Referência visual de UC001. Captura de 07/09/2026.
+
+Descrição: Criar uma conta individual para acessar funções autenticadas.
+Tipo: Condução
+Ator iniciador ou caso chamador: Visitante
+Atores secundários: Provedor de identidade
+Pré-condições: Visitante sem sessão autenticada. A disponibilidade do e-mail e do nome de usuário é verificada durante o fluxo.
+Pós-condições: Identidade e perfil inicial criados; o usuário pode fazer login.
+Entradas: Username, e-mail, senha e campos opcionais permitidos.
+Saídas: Confirmação de cadastro ou erros por campo.
+Fluxo Principal
+1. O visitante abre a tela de cadastro e informa os dados solicitados.
+2. O Stacklyst valida formato, força da senha e unicidade.
+3. O sistema solicita ao serviço de autenticação a criação da identidade.
+4. Após confirmação, o Stacklyst cria o registro local e perfil inicial.
+5. O sistema confirma o cadastro e direciona o usuário ao acesso apropriado.
+Fluxos Alternativos
+• A1 — Dado inválido: o sistema destaca o campo sem criar a conta.
+• A2 — E-mail ou username existente: o sistema recusa duplicidade.
+• A3 — Serviço indisponível: o sistema informa falha temporária sem expor detalhes.
+5.2 Caso de Uso UC002 — Fazer login
+Protótipo de Interface
+
+Referência visual de UC002. Captura de 07/09/2026.
+
+Descrição: Permitir que o visitante faça login e inicie uma sessão com as permissões da sua conta.
+Tipo: Condução
+Ator iniciador ou caso chamador: Visitante
+Atores secundários: Provedor de identidade
+Pré-condições: Conta existente e não bloqueada.
+Pós-condições: Sessão válida criada; rotas autorizadas ficam disponíveis.
+Entradas: Credencial ou provedor OAuth.
+Saídas: Sessão, perfil básico e redirecionamento.
+Fluxo Principal
+1. O visitante abre a tela de login e informa suas credenciais ou seleciona um provedor de identidade.
+2. O Stacklyst envia a solicitação ao serviço de autenticação.
+3. O serviço verifica a identidade e retorna o resultado.
+4. O Stacklyst cria/atualiza cookies de sessão e carrega o papel.
+5. O sistema redireciona para a área permitida.
+Fluxos Alternativos
+• A1 — Credencial inválida: o sistema mantém a sessão encerrada.
+• A2 — Provedor OAuth não configurado: o sistema informa indisponibilidade.
+• A3 — Conexão temporária: o sistema permite nova tentativa sem revelar segredo.
+5.3 Caso de Uso UC003 — Editar perfil
+Protótipo de Interface
+
+Referência visual de UC003. Captura de 12/09/2026.
+
+Descrição: Consultar e atualizar dados permitidos do próprio perfil.
+Tipo: Configuração
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Nenhum.
+Pré-condições: Usuário autenticado.
+Pós-condições: Campos válidos persistidos e perfil público atualizado.
+Entradas: Bio, avatar, banner, pronomes e demais campos suportados.
+Saídas: Perfil atualizado ou erros de validação.
+Fluxo Principal
+1. O usuário acessa o próprio perfil ou as configurações.
+2. O Stacklyst exibe os dados editáveis e a visualização atual.
+3. O usuário altera campos e confirma.
+4. O sistema valida propriedade, formato e limites e persiste os dados.
+5. O Stacklyst recarrega o perfil e confirma a atualização.
+Fluxos Alternativos
+• A1 — Usuário sem permissão: o sistema nega alteração em perfil alheio.
+• A2 — Campo inválido: o sistema preserva dados anteriores.
+• A3 — Upload indisponível: o sistema mantém a imagem anterior.
+5.4 Caso de Uso UC004 — Selecionar trilha
+Protótipo de Interface
+
+Referência visual de UC004. Captura de 12/09/2026.
+
+Descrição: Selecionar uma trilha e iniciar ou retomar o percurso.
+Tipo: Condução
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Nenhum.
+Pré-condições: Usuário autenticado; trilha disponível.
+Pós-condições: Preferência registrada e lição elegível apresentada.
+Entradas: Linguagem/trilha e etapa selecionada.
+Saídas: Mapa atualizado e acesso à próxima lição.
+Fluxo Principal
+1. O usuário abre Trilhas e consulta as opções.
+2. O Stacklyst carrega progresso, níveis e bloqueios.
+3. O usuário seleciona a trilha desejada.
+4. O sistema registra a preferência e determina a etapa elegível.
+5. O Stacklyst abre a lição ou apresenta o próximo passo.
+Fluxos Alternativos
+• A1 — Trilha indisponível: o sistema impede o início e informa o motivo.
+• A2 — Pré-requisito não cumprido: o sistema mantém a etapa bloqueada.
+• A3 — Progresso não carregado: o sistema não sobrescreve dados existentes.
+5.5 Caso de Uso UC005 — Estudar lição
+Protótipo de Interface
+
+Referência visual de UC005. Captura de 07/09/2026.
+
+Descrição: Exibir conteúdo e etapas interativas de uma lição.
+Tipo: Condução
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Nenhum.
+Pré-condições: Usuário autenticado; lição existente e elegível.
+Pós-condições: Sessão de lição iniciada; exercícios podem ser realizados.
+Entradas: Identificador da lição.
+Saídas: Conteúdo, etapas e progresso da sessão.
+Fluxo Principal
+1. O usuário escolhe uma lição liberada na trilha.
+2. O Stacklyst resolve o identificador no registro de lições.
+3. O sistema verifica conteúdo e estado da etapa.
+4. A página apresenta explicação, exemplos e interação correspondente.
+5. O usuário navega pelas etapas e decide resolver o exercício ou pedir ajuda opcional.
+Fluxos Alternativos
+• A1 — Lição inexistente: o sistema apresenta estado de não encontrada.
+• A2 — Lição bloqueada: o sistema orienta o pré-requisito.
+• A3 — Falha ao consultar progresso: informar indisponibilidade sem confirmar conclusão.
+5.6 Caso de Uso UC006 — Resolver exercício
+Protótipo de Interface
+
+Referência visual de UC006. Captura de 07/09/2026.
+
+Descrição: Elaborar e submeter uma solução, incluindo UC028 Avaliar resposta. Ponto de extensão consultar ajuda: durante a elaboração, UC012 pode ser executado se o usuário solicitar ajuda permitida pelo modo.
+Tipo: Condução
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Executor de código, por meio de UC029 quando a atividade exigir programação.
+Pré-condições: Exercício disponível, pré-requisitos atendidos e usuário autenticado para registrar a tentativa.
+Pós-condições: Tentativa e feedback registrados quando a gravação for concluída; XP e progresso atualizados somente se elegíveis. Em falha técnica, nenhum novo acerto é confirmado.
+Entradas: Resposta, código, pares, ordem, lacunas, comando ou blocos.
+Saídas: Resultado, feedback, saída e XP quando aplicável.
+Fluxo Principal
+1. O usuário elabora a solução. Durante esta etapa, pode consultar ajuda pelo ponto de extensão consultar ajuda.
+2. O usuário submete a resposta; o Stacklyst verifica completude, acesso e pré-requisitos.
+3. O Stacklyst executa UC028 Avaliar resposta, que trata o tipo da atividade e retorna o resultado.
+4. O sistema registra a tentativa e, em acerto inédito elegível, a recompensa e o progresso na mesma operação.
+5. O Stacklyst apresenta feedback e progresso confirmado; o usuário decide prosseguir ou realizar nova tentativa.
+Fluxos Alternativos
+• A1 — Dado inválido: o sistema solicita correção antes da avaliação.
+• A2 — Executor indisponível ou timeout: o sistema não marca acerto nem concede XP.
+• A3 — Resposta incorreta: o sistema exibe feedback e permite nova tentativa.
+• A4 — Falha ao salvar: o sistema informa indisponibilidade, preserva a solução e permite reenvio sem duplicar recompensa.
+5.7 Caso de Uso UC007 — Consultar progresso
+Protótipo de Interface
+
+Referência visual de UC007. Captura de 12/09/2026.
+
+Descrição: Apresentar XP, nível, sequência, trilhas, tentativas e conquistas permitidas.
+Tipo: Análise
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Nenhum.
+Pré-condições: Sessão válida para consultar o próprio progresso. A consulta do progresso de outro usuário limita-se às informações de seu perfil público.
+Pós-condições: Nenhuma alteração obrigatória; visão consolidada exibida.
+Entradas: Usuário, período e trilha opcionais.
+Saídas: Indicadores e histórico permitido.
+Fluxo Principal
+1. O usuário abre perfil, trilha ou visão de atividade.
+2. O Stacklyst identifica o titular e as permissões de visualização.
+3. O sistema consulta XP, trilhas, sequência, tentativas e badges.
+4. Os dados são consolidados sem expor campos privados.
+5. O Stacklyst apresenta evolução atual e próximos marcos.
+Fluxos Alternativos
+• A1 — Perfil privado ou dado não permitido: o sistema oculta o campo.
+• A2 — Histórico indisponível: o sistema mostra o último estado confirmado.
+• A3 — Período sem atividade: o sistema retorna estado vazio claro.
+5.8 Caso de Uso UC008 — Criar duelo aberto
+Protótipo de Interface
+
+Referência visual de UC008. Captura de 12/09/2026.
+
+Descrição: Disponibilizar um duelo aberto com uma linguagem e um desafio do catálogo, aguardando a entrada de outro usuário. Se já houver uma vaga compatível, o sistema pode iniciar o confronto nessa vaga.
+Tipo: Condução
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Nenhum. O segundo participante entra no duelo por meio de UC009.
+Pré-condições: Usuário autenticado; linguagem suportada e desafio verificável do catálogo.
+Pós-condições: Duelo aberto no estado PENDING, vinculado ao criador e sem oponente, ou duelo compatível iniciado no estado ACTIVE.
+Entradas: Linguagem e desafio do catálogo. Não há destinatário a selecionar.
+Saídas: Identificador do duelo, estado e prazo de espera por participante.
+Fluxo Principal
+1. O usuário abre a área de duelos, solicita criar um duelo e escolhe linguagem e desafio.
+2. O sistema verifica a sessão, a linguagem suportada e a existência do desafio no catálogo.
+3. O sistema consulta se há uma vaga aberta de outro usuário na mesma linguagem; se houver, segue a alternativa A1.
+4. Sem vaga compatível, o sistema registra o usuário como criador de um duelo PENDING, sem oponente, com prazo de espera de até 24 horas.
+5. O sistema exibe o duelo aberto. O confronto começa quando outro usuário ocupa a vaga por UC009, com duração de duas horas.
+Fluxos Alternativos
+• A1 — Vaga compatível encontrada: o sistema reserva a vaga, registra o usuário como oponente e inicia o duelo existente, utilizando o desafio dessa vaga.
+• A2 — Dados ou desafio inválidos: o sistema informa o erro e solicita correção antes de criar o duelo.
+• A3 — Sessão ausente ou expirada: o usuário precisa fazer login para concluir a solicitação.
+• A4 — Espera expirada: a vaga deixa de ser elegível para pareamento; a manutenção atualiza o estado do duelo conforme sua execução.
+5.9 Caso de Uso UC009 — Entrar em duelo
+Protótipo de Interface
+
+Referência visual de UC009. Captura de 12/09/2026.
+
+Descrição: Entrar voluntariamente em um duelo aberto ou usar a fila rápida para localizar uma vaga na linguagem selecionada.
+Tipo: Condução
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Usuário autenticado que criou o duelo, no contexto de outro participante.
+Pré-condições: Usuário autenticado; para entrada direta, duelo pendente com vaga de oponente disponível e criado por outro usuário.
+Pós-condições: Vaga ocupada uma única vez e duelo ACTIVE, ou nova espera PENDING quando a fila rápida não encontra oponente.
+Entradas: Duelo escolhido na entrada direta ou linguagem selecionada na fila rápida.
+Saídas: Duelo ativo com participantes e prazo, ou confirmação de espera por oponente.
+Fluxo Principal
+1. O usuário seleciona um duelo aberto e solicita entrar.
+2. O sistema verifica a sessão e confirma que o usuário não é o criador desse duelo.
+3. O sistema verifica se o duelo continua pendente e com a vaga de oponente disponível.
+4. O sistema reserva a vaga de forma condicional para impedir que dois usuários a ocupem ao mesmo tempo.
+5. O sistema registra o oponente, ativa o duelo e apresenta o desafio e o prazo de duas horas aos participantes.
+Fluxos Alternativos
+• A1 — Fila rápida: o usuário escolhe JavaScript, TypeScript ou Python; o sistema busca a vaga pendente mais antiga e disponível na mesma linguagem, criada por outro usuário. Se não houver vaga, cria uma espera com desafio do catálogo e prazo de até 24 horas.
+• A2 — Vaga ocupada ou duelo indisponível: o sistema informa que a entrada não pode ser concluída. Na fila rápida, pode buscar outra vaga ou criar uma espera.
+• A3 — Próprio duelo, sessão ausente ou linguagem não suportada: o sistema recusa a entrada e informa a condição a corrigir.
+5.10 Caso de Uso UC010 — Enviar solução de duelo
+Protótipo de Interface
+
+Referência visual de UC010. Captura de 07/09/2026.
+
+Descrição: Executar e registrar solução para resolução do duelo.
+Tipo: Condução
+Ator iniciador ou caso chamador: Participante do duelo
+Atores secundários: Executor de código
+Pré-condições: Participante autenticado, duelo ativo e dentro do prazo.
+Pós-condições: Solução registrada e resolução do duelo processada quando houver elementos suficientes; empate técnico permanece pendente de avaliação humana.
+Entradas: Código e duelo.
+Saídas: Resultados de testes e estado do duelo.
+Fluxo Principal
+1. Enviar código.
+2. Verificar sessão, participante, estado e prazo.
+3. O Stacklyst executa UC029 Executar código e testes com os testes públicos e privados do desafio.
+4. Salvar submissão e aplicar política de resolução.
+5. Retornar resultado sem revelar testes privados.
+Fluxos Alternativos
+• A1 — Fora do prazo ou não participante: negar submissão.
+• A2 — Executor indisponível: não conceder vitória.
+• A3 — Empate técnico: encaminhar para revisão humana.
+5.11 Caso de Uso UC011 — Consultar ranking de XP
+Protótipo de Interface
+
+Referência visual de UC011. Captura de 22/08/2026.
+
+Descrição: Exibir classificação global ou por linguagem.
+Tipo: Análise
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Nenhum.
+Pré-condições: Dados de XP disponíveis.
+Pós-condições: Ranking exibido sem alterar pontuação.
+Entradas: Filtro de linguagem opcional.
+Saídas: Posição, usuário, XP, nível e divisão quando aplicável.
+Fluxo Principal
+1. O usuário abre o ranking.
+2. O Stacklyst recebe o filtro global ou por linguagem.
+3. O sistema consulta os maiores valores de XP no escopo.
+4. A posição e o nível exibido são calculados.
+5. O Stacklyst apresenta a classificação e a posição disponível.
+Fluxos Alternativos
+• A1 — Filtro inválido: o sistema usa opção válida ou informa erro.
+• A2 — Ranking vazio: o sistema exibe estado sem participantes.
+• A3 — Empate em XP: ordenar por username e id crescentes.
+5.12 Caso de Uso UC012 — Consultar ajuda do exercício
+Protótipo de Interface
+
+Referência visual de UC012. Captura de 07/09/2026.
+
+Descrição: Consultar material de apoio durante UC006, no ponto de extensão consultar ajuda, quando houver solicitação do usuário e o modo permitir.
+Tipo: Análise
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Nenhum.
+Pré-condições: Exercício carregado.
+Pós-condições: Material exibido sem recompensa adicional.
+Entradas: Modo e tipo de ajuda.
+Saídas: Dica ou documentação.
+Fluxo Principal
+1. Abrir um exercício e selecionar o modo de assistência.
+2. Verificar se o modo permite a ajuda solicitada.
+3. Abrir dica ou documentação editorial.
+4. O Stacklyst apresenta o material editorial correspondente à solicitação.
+5. O usuário interpreta a orientação e retorna à elaboração da solução em UC006.
+Fluxos Alternativos
+• A1 — Modo bloqueia ajuda: trocar modo ou continuar sem ajuda.
+5.13 Caso de Uso UC013 — Criar publicação
+Protótipo de Interface
+
+Referência visual de UC013. Captura de 12/09/2026.
+
+Descrição: Publicar dúvida, conteúdo ou código no feed.
+Tipo: Condução
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Nenhum.
+Pré-condições: Usuário autenticado e dentro do limite de publicação.
+Pós-condições: Publicação persistida e exibida no feed.
+Entradas: Título, corpo, linguagem, código e imagem opcional.
+Saídas: Publicação criada ou erros de validação.
+Fluxo Principal
+1. O usuário abre o compositor do feed.
+2. O usuário informa o conteúdo e confirma a publicação.
+3. O Stacklyst valida autenticação, tamanho, formato e limite.
+4. O sistema persiste a publicação e seus metadados.
+5. O feed é atualizado e a publicação fica disponível para interação.
+Fluxos Alternativos
+• A1 — Conteúdo inválido ou vazio: o sistema solicita correção.
+• A2 — Limite excedido: o sistema recusa temporariamente.
+• A3 — Upload falha: o usuário pode corrigir ou publicar sem a mídia, se permitido.
+5.14 Caso de Uso UC014 — Interagir com publicação
+Protótipo de Interface
+
+Referência visual de UC014. Captura de 12/09/2026.
+
+Descrição: Reagir, votar, responder, salvar ou denunciar uma publicação.
+Tipo: Condução
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Autor da publicação
+Pré-condições: Usuário autenticado; publicação existente.
+Pós-condições: Interação registrada e contadores/notificações atualizados.
+Entradas: Publicação, ação, reação ou resposta.
+Saídas: Novo estado da interação e eventual notificação.
+Fluxo Principal
+1. O usuário seleciona uma publicação no feed.
+2. O usuário escolhe a interação permitida e informa dados adicionais quando necessário.
+3. O Stacklyst valida alvo, sessão e duplicidade.
+4. O sistema registra ou alterna a interação e atualiza contadores.
+5. O autor recebe notificação quando a regra prevê.
+Fluxos Alternativos
+• A1 — Publicação removida: o sistema interrompe a ação.
+• A2 — Ação duplicada: o sistema mantém unicidade ou alterna o estado.
+• A3 — Conteúdo denunciado: o sistema cria item para moderação.
+5.15 Caso de Uso UC015 — Criar evento
+Protótipo de Interface
+
+Referência visual de UC015. Captura de 12/09/2026.
+
+Descrição: Permitir que qualquer usuário autenticado crie um evento comunitário com descrição, período e requisitos de participação, tornando-se o organizador responsável pelo cadastro.
+Tipo: Configuração
+Ator iniciador ou caso chamador: Usuário autenticado, no contexto de organizador do evento.
+Atores secundários: Nenhum.
+Pré-condições: Usuário autenticado e dados obrigatórios do evento preenchidos. A criação não exige o papel de Administrador ou Recrutador.
+Pós-condições: Evento criado no estado UPCOMING e vinculado à conta que o cadastrou como criadora.
+Entradas: Título, descrição, tipo, datas de início e término, nível mínimo, capacidade opcional, recompensa de XP e imagem opcional.
+Saídas: Confirmação de criação e evento disponível na listagem com seu estado e requisitos.
+Fluxo Principal
+1. O usuário acessa Eventos e seleciona Criar evento.
+2. O sistema verifica se há uma sessão válida e apresenta o formulário.
+3. O usuário preenche a descrição, o tipo, o período e os requisitos de participação.
+4. O formulário verifica os dados obrigatórios e a ordem das datas; o servidor valida os dados recebidos para a criação.
+5. O sistema registra o evento com o usuário como criador, define o estado inicial UPCOMING e confirma a criação.
+Fluxos Alternativos
+• A1 — Sessão ausente ou expirada: o sistema solicita que o usuário faça login antes de concluir a criação.
+• A2 — Campos obrigatórios ou datas inválidos no formulário: o sistema solicita a correção e mantém os dados para nova tentativa.
+• A3 — Falha ao salvar o evento: o sistema informa a falha e não apresenta confirmação de criação.
+5.16 Caso de Uso UC016 — Avaliar empate técnico
+Protótipo de Interface
+
+Referência visual de UC016. Captura de 12/09/2026.
+
+Descrição: Emitir parecer humano sobre soluções de duelo.
+Tipo: Análise
+Ator iniciador ou caso chamador: Avaliador ou Administrador.
+Atores secundários: Nenhum.
+Pré-condições: Avaliador aprovado ou Administrador autenticado, que não participou do duelo; duelo no estado REVIEW_PENDING, com soluções disponíveis para análise.
+Pós-condições: Parecer registrado e duelo concluído; a notificação é solicitada. Falha de notificação não desfaz a decisão, conforme RN022.
+Entradas: Pontuações de 0 a 1.000, vencedor obrigatório, feedback com pelo menos 5 caracteres, pontos fortes e melhorias.
+Saídas: Parecer persistido e resultado.
+Fluxo Principal
+1. O avaliador ou administrador abre a fila de avaliações pendentes.
+2. O Stacklyst autoriza o papel e apresenta as soluções.
+3. O avaliador compara código e resultados dos testes.
+4. O avaliador informa pontuações e feedback explicativo.
+5. O sistema valida, registra o parecer, fecha o duelo e notifica.
+Fluxos Alternativos
+• A1 — Papel ausente ou tentativa de avaliar o próprio duelo: o sistema nega a avaliação.
+• A2 — Duelo já fechado: o sistema impede nova decisão conflitante.
+• A3 — Feedback/pontuação inválidos: o sistema solicita correção.
+5.17 Caso de Uso UC017 — Publicar vaga
+Protótipo de Interface
+
+Referência visual de UC017. Captura de 12/09/2026.
+
+Descrição: Criar uma oportunidade vinculada a empresa autorizada.
+Tipo: Configuração
+Ator iniciador ou caso chamador: Recrutador; Administrador
+Atores secundários: Nenhum.
+Pré-condições: Ator com papel RECRUITER/ADMIN e autorização para a empresa. A verificação desse vínculo permanece uma limitação de implementação registrada em RF035.
+Pós-condições: Vaga aberta com etapas de recrutamento.
+Entradas: Empresa, título, descrição, nível, tecnologias, modalidade, contrato e etapas.
+Saídas: Vaga publicada ou erros por campo.
+Fluxo Principal
+1. O recrutador seleciona a empresa sob sua responsabilidade.
+2. O ator informa dados da vaga e etapas.
+3. O Stacklyst valida papel, empresa e campos obrigatórios.
+4. O sistema cria a vaga e as etapas em ordem.
+5. A oportunidade é disponibilizada para consulta e candidatura.
+Fluxos Alternativos
+• A1 — Sem papel ou vínculo autorizado: a operação deve ser negada. Limitação registrada: a versão inventariada verifica o papel, mas ainda não aplica a verificação de propriedade da empresa.
+• A2 — Vaga inválida: o sistema destaca campos e não publica.
+• A3 — Salário omitido: o sistema aplica a política definida sem inventar valor.
+5.18 Caso de Uso UC018 — Consultar vagas
+Protótipo de Interface
+
+Referência visual de UC018. Captura de 12/09/2026.
+
+Descrição: Listar e detalhar oportunidades disponíveis.
+Tipo: Análise
+Ator iniciador ou caso chamador: Usuário autenticado; Recrutador
+Atores secundários: Nenhum.
+Pré-condições: Acesso ao módulo; vagas cadastradas.
+Pós-condições: Lista/detalhe exibido sem alteração obrigatória.
+Entradas: Busca, tecnologia, nível, modalidade e contrato.
+Saídas: Vagas filtradas, empresa, requisitos e etapas.
+Fluxo Principal
+1. O ator abre a listagem de vagas.
+2. O Stacklyst carrega vagas abertas e filtros.
+3. O ator informa critérios ou seleciona uma oportunidade.
+4. O sistema aplica filtros e carrega os detalhes permitidos.
+5. A vaga, empresa e opção de candidatura são apresentadas.
+Fluxos Alternativos
+• A1 — Nenhuma vaga: o sistema exibe estado vazio.
+• A2 — Vaga encerrada: o sistema exibe status e desabilita candidatura.
+• A3 — Filtro inválido: o sistema solicita correção.
+5.19 Caso de Uso UC019 — Gerenciar permissões de usuários
+Protótipo de Interface
+
+Referência visual de UC019. Captura de 12/09/2026.
+
+Descrição: Pesquisar usuários e alterar papéis autorizados.
+Tipo: Configuração
+Ator iniciador ou caso chamador: Administrador
+Atores secundários: Nenhum.
+Pré-condições: Administrador autenticado.
+Pós-condições: Papel atualizado ou operação recusada; o serviço registra log da alteração.
+Entradas: Busca, paginação, usuário e novo papel.
+Saídas: Lista de usuários ou registro atualizado.
+Fluxo Principal
+1. O administrador abre o painel de usuários.
+2. O Stacklyst valida a sessão administrativa e lista os registros.
+3. O administrador pesquisa e seleciona o usuário.
+4. O administrador escolhe o novo papel e confirma.
+5. O sistema valida a transição, atualiza e registra a ação.
+Fluxos Alternativos
+• A1 — Sem permissão: o sistema nega acesso.
+• A2 — Papel inválido: o sistema não altera o usuário.
+• A3 — Alteração que removeria o último administrador: recusar a operação.
+5.20 Caso de Uso UC020 — Tratar denúncias
+Protótipo de Interface
+
+Referência visual de UC020. Captura de 12/09/2026.
+
+Descrição: Analisar denúncia e aplicar ação de moderação permitida.
+Tipo: Análise
+Ator iniciador ou caso chamador: Administrador
+Atores secundários: Usuário denunciante; Autor do conteúdo
+Pré-condições: Administrador autenticado; denúncia registrada.
+Pós-condições: Denúncia tratada e ação registrada.
+Entradas: Denúncia, conteúdo, contexto, decisão e justificativa.
+Saídas: Resultado de moderação e eventual notificação.
+Fluxo Principal
+1. O administrador abre a fila de denúncias.
+2. O Stacklyst apresenta denúncia, conteúdo e dados mínimos necessários.
+3. O administrador analisa motivo e contexto.
+4. O administrador seleciona decisão permitida e registra justificativa.
+5. Aplicar a operação suportada e atualizar o registro da denúncia; não há trilha universal de auditoria.
+Fluxos Alternativos
+• A1 — Denúncia improcedente: o sistema encerra sem remover conteúdo.
+• A2 — Conteúdo já removido: o sistema registra o estado encontrado.
+• A3 — Sanção adicional ou recurso: fora do fluxo atual; registrar a solicitação para tratamento administrativo.
+5.21 Caso de Uso UC021 — Consultar notificações
+Protótipo de Interface
+
+Referência visual de UC021. Captura de 07/09/2026.
+
+Descrição: Consultar notificações destinadas à própria conta e marcá-las como lidas.
+Tipo: Análise
+Ator iniciador ou caso chamador: Usuário autenticado, incluindo Avaliador, Administrador e Recrutador.
+Atores secundários: Nenhum.
+Pré-condições: Ator autenticado.
+Pós-condições: Notificações exibidas; estado de leitura atualizado apenas quando solicitado.
+Entradas: Cursor, limite e ação de leitura.
+Saídas: Lista, próximo cursor e contagem não lida.
+Fluxo Principal
+1. O ator abre a central de notificações.
+2. O Stacklyst identifica o usuário da sessão.
+3. O sistema busca somente notificações do destinatário com paginação.
+4. O ator abre itens ou solicita marcar como lidos.
+5. O Stacklyst atualiza leitura e a contagem não lida.
+Fluxos Alternativos
+• A1 — Conexão indisponível: o sistema preserva o estado e permite nova tentativa.
+• A2 — Notificação removida: o sistema ignora o item sem acessar recurso inexistente.
+• A3 — Fora da aplicação web: o usuário deve acessar a central de notificações pelo navegador.
+5.22 Caso de Uso UC022 — Candidatar-se a vaga
+Protótipo de Interface
+
+Referência visual de UC022. Captura de 12/09/2026.
+
+Descrição: Registrar candidatura de usuário em vaga aberta.
+Tipo: Condução
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Recrutador
+Pré-condições: Usuário autenticado e vaga identificada. A abertura da vaga e a ausência de candidatura anterior são verificadas durante o fluxo.
+Pós-condições: Candidatura criada no status inicial.
+Entradas: Identificador da vaga e sessão.
+Saídas: Confirmação e situação da candidatura.
+Fluxo Principal
+1. O usuário consulta o detalhe de uma vaga aberta.
+2. O usuário seleciona a opção de candidatura.
+3. O Stacklyst verifica sessão, status da vaga e duplicidade.
+4. O sistema cria a candidatura vinculada ao usuário e à vaga.
+5. O Stacklyst confirma e passa a exibir a situação no processo.
+Fluxos Alternativos
+• A1 — Vaga encerrada: o sistema recusa candidatura.
+• A2 — Candidatura duplicada: o sistema informa o registro existente.
+• A3 — Perfil incompleto: permitir candidatura com os dados obrigatórios da vaga e indicar os campos públicos ausentes.
+5.23 Caso de Uso UC023 — Participar de evento
+Protótipo de Interface
+
+Referência visual de UC023. Captura de 12/09/2026.
+
+Descrição: Registrar a inscrição do usuário em um evento elegível e permitir a consulta do estado de sua participação.
+Tipo: Condução
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Nenhum.
+Pré-condições: Usuário autenticado e evento identificado. Encerramento, capacidade, nível e participação prévia são verificados durante o fluxo.
+Pós-condições: Participação registrada uma única vez.
+Entradas: Identificador do evento.
+Saídas: Confirmação, regras e estado da inscrição.
+Fluxo Principal
+1. O usuário abre a listagem e seleciona um evento.
+2. O Stacklyst apresenta período, nível e capacidade.
+3. O usuário solicita participação.
+4. O sistema verifica se o evento não está encerrado, confere nível e capacidade e mantém a unicidade da participação.
+5. O Stacklyst registra o participante e confirma a inscrição.
+Fluxos Alternativos
+• A1 — Nível insuficiente: o sistema informa o requisito.
+• A2 — Evento lotado ou encerrado: o sistema recusa a inscrição.
+• A3 — Inscrição já registrada: o sistema não cria duplicidade; apresenta a participação existente quando o evento continua elegível.
+• A4 — Cancelar participação: antes do encerramento do evento, o usuário pode retirar a própria inscrição; o sistema remove o vínculo e atualiza o estado exibido.
+5.24 Caso de Uso UC024 — Candidatar-se a avaliador
+Protótipo de Interface
+
+Referência visual de UC024. Captura de 07/09/2026.
+
+Descrição: Verificar elegibilidade e enviar candidatura para papel de avaliador.
+Tipo: Condução
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Administrador
+Pré-condições: Usuário autenticado. Elegibilidade, papel atual e existência de candidatura pendente são verificados durante o fluxo.
+Pós-condições: Candidatura pendente criada ou inelegibilidade informada.
+Entradas: Motivação e tecnologias de domínio.
+Saídas: Elegibilidade e status da candidatura.
+Fluxo Principal
+1. O usuário abre a área de candidatura a avaliador.
+2. O Stacklyst calcula trilhas completas e XP.
+3. Se elegível, o usuário informa motivação e tecnologias.
+4. O sistema valida e registra a candidatura pendente.
+5. O administrador passa a visualizar a candidatura para decisão.
+Fluxos Alternativos
+• A1 — Critério não atendido: o sistema mostra requisitos atuais.
+• A2 — Candidatura já pendente: o sistema não duplica.
+• A3 — Usuário já é avaliador/administrador: o sistema informa o papel existente.
+5.25 Caso de Uso UC025 — Cadastrar empresa
+Protótipo de Interface
+
+Referência visual de UC025. Captura de 12/09/2026.
+
+Descrição: Criar perfil de empresa vinculado a responsável autorizado.
+Tipo: Configuração
+Ator iniciador ou caso chamador: Usuário autenticado
+Atores secundários: Nenhum.
+Pré-condições: Usuário autenticado; dados da empresa disponíveis para preenchimento e validação.
+Pós-condições: Empresa criada e vinculada ao responsável; conta USER passa a RECRUITER. A criação de eventos já é permitida a qualquer usuário autenticado.
+Entradas: Nome, slug, descrição, localização, site e imagens opcionais.
+Saídas: Cadastro da empresa.
+Fluxo Principal
+1. O usuário abre o cadastro de empresa e informa os dados solicitados.
+2. O Stacklyst valida a sessão, os campos obrigatórios e a unicidade aplicável.
+3. O sistema cria a empresa e vincula o usuário como proprietário.
+4. O sistema atribui o papel RECRUITER à conta USER, preservando os demais papéis existentes.
+5. O Stacklyst confirma o cadastro e apresenta a empresa ao responsável.
+Fluxos Alternativos
+• A1 — Sem permissão: o sistema nega o cadastro.
+• A2 — Slug/nome conflitante: o sistema solicita alteração.
+• A3 — Verificação oficial: não disponível; a empresa permanece com is_verified=false.
+5.26 Caso de Uso UC026 — Atualizar etapa de candidatura
+Protótipo de Interface
+
+Referência visual de UC026. Captura de 12/09/2026.
+
+Descrição: Atualizar etapa da candidatura.
+Tipo: Configuração
+Ator iniciador ou caso chamador: Recrutador responsável
+Atores secundários: Candidato
+Pré-condições: Candidatura existente e responsável autorizado.
+Pós-condições: Etapa persistida e notificação tentada.
+Entradas: Candidatura e etapa.
+Saídas: Novo estado.
+Fluxo Principal
+1. O recrutador seleciona a candidatura e informa a etapa desejada.
+2. O Stacklyst verifica a responsabilidade do recrutador sobre a vaga.
+3. O sistema valida a etapa de destino e os dados informados.
+4. O sistema salva a alteração, confirma o resultado e solicita a notificação ao candidato.
+Fluxos Alternativos
+• A1 — Sem vínculo ou etapa inválida: recusar.
+• A2 — Notificação falha: registrar erro; a etapa permanece salva.
+5.27 Caso de Uso UC027 — Aprovar ou rejeitar candidatura de avaliador
+Protótipo de Interface
+
+Referência visual de UC027. Captura de 12/09/2026.
+
+Descrição: Aprovar ou rejeitar candidatura.
+Tipo: Configuração
+Ator iniciador ou caso chamador: Administrador
+Atores secundários: Candidato
+Pré-condições: Administrador autenticado; candidatura pendente.
+Pós-condições: Decisão registrada; aprovação atribui papel.
+Entradas: Candidatura e decisão.
+Saídas: Status.
+Fluxo Principal
+1. O administrador seleciona uma candidatura pendente.
+2. O administrador analisa os critérios de elegibilidade e as informações do candidato.
+3. O administrador informa a aprovação ou rejeição.
+4. O Stacklyst valida a autorização e o estado da candidatura, registra a decisão e atribui o papel de avaliador quando aprovada.
+Fluxos Alternativos
+• A1 — Candidatura já decidida: informar estado.
+• A2 — Sem papel ADMIN: negar.
+5.28 Caso de Uso UC028 — Avaliar resposta
+Descrição: Avaliar a resposta conforme o conteúdo e os critérios canônicos da atividade. A comparação de respostas conceituais é completa por si. O ponto de extensão avaliar código é alcançado quando o tipo exige execução de programa.
+Tipo: Análise; comportamento reutilizado por UC006.
+Ator iniciador ou caso chamador: UC006 Resolver exercício
+Atores secundários: Executor de código, por meio de UC029 nas atividades de programação.
+Pré-condições: Resposta válida e acesso autorizado.
+Pós-condições: Resultado da avaliação e feedback retornados, ou falha técnica informada sem aprovação. O caso chamador é responsável pela gravação.
+Entradas: Resposta e atividade canônica.
+Saídas: Avaliação e feedback.
+Fluxo Principal
+1. O Stacklyst identifica o tipo da atividade e os critérios de avaliação aplicáveis.
+2. Para respostas conceituais, compara a escolha, as lacunas, a ordem, os pares, os blocos ou o comando com o conteúdo canônico.
+3. Para atividades de programação, no ponto avaliar código, executa UC029 e utiliza os resultados dos testes para determinar acerto ou erro. Falha técnica não equivale a resposta correta.
+4. O Stacklyst retorna a avaliação e o feedback a UC006, sem conceder XP diretamente.
+Fluxos Alternativos
+• A1 — Configuração de avaliação ausente: não aprovar.
+• A2 — Executor indisponível: retornar falha controlada.
+Protótipo de Interface
+Sem tela própria: comportamento reutilizado pelo caso chamador; o resultado é apresentado no editor ou no feedback da atividade.
+5.29 Caso de Uso UC029 — Executar código e testes
+Descrição: Executar código no provedor remoto com os testes definidos no servidor.
+Tipo: Análise; comportamento reutilizado por UC010 e UC028.
+Ator iniciador ou caso chamador: UC010, por inclusão; UC028, pela extensão no ponto avaliar código.
+Atores secundários: Executor de código
+Pré-condições: Código e linguagem suportados; contrato de teste carregado.
+Pós-condições: Saída e resultado de execução retornados.
+Entradas: Código, linguagem e testes aplicáveis.
+Saídas: Saída, erros e tempo de execução.
+Fluxo Principal
+1. Preparar código e testes.
+2. Enviar ao executor remoto.
+3. Tratar saída, compilação ou tempo limite.
+4. Retornar resultados sem expor testes ocultos.
+Fluxos Alternativos
+• A1 — Provedor indisponível: falhar sem confirmar acerto.
+• A2 — Código inválido: retornar erro de compilação ou execução.
+Protótipo de Interface
+Sem tela própria: comportamento reutilizado pelo caso chamador; o resultado é apresentado no editor ou no feedback da atividade.
+5.30 Caso de Uso UC030 — Encerrar sessão
+Descrição: Encerrar a sessão atual e retornar à área pública.
+Tipo: Condução
+Ator iniciador: Usuário autenticado, incluindo Avaliador, Administrador e Recrutador.
+Atores secundários: Provedor de identidade.
+Pré-condições: Usuário com sessão ativa.
+Pós-condições: Sessão encerrada e estado local de autenticação removido; novas operações protegidas exigem autenticação.
+Entradas: Solicitação de saída e sessão atual.
+Saídas: Confirmação de encerramento ou informação de falha.
+Fluxo Principal
+1. O usuário solicita sair da conta.
+2. O Stacklyst solicita o encerramento da sessão ao provedor de identidade.
+3. Após confirmação, o sistema remove o estado local de autenticação.
+4. O sistema apresenta a área pública e exige novo login para as funções protegidas.
+Fluxos Alternativos
+• A1 — Sessão já encerrada: o sistema apresenta a área pública.
+• A2 — Falha ao encerrar a sessão: o sistema informa a falha, sem confirmar sucesso, e permite nova tentativa.
+Rastreabilidade: RF003; RN017 e RN025. Referência de interface: ação Sair da conta já existente. Representação gráfica pendente.
+6. Decisões e Critérios do Stacklyst
+6.1 Decisões adotadas
+
+
+
+
+
+
+
+6.2 Critérios da versão atual
+
+
+
+
+
+
+
+6.3 Melhorias futuras
+
+
+
+
+
+
+7. Matriz de Rastreabilidade Geral
+
+Rastreabilidade dos duelos: RF016 e RF017 correspondem à criação e entrada em duelos abertos. RF018, RN008 e RN009 permanecem apenas como histórico de convites. RN007 e RN010 definem as regras vigentes. Eventos podem ser criados por qualquer usuário autenticado, conforme RF041 e UC015.
+8. Revisão de Consistência com a Programação
+
+A especificação textual abrange UC001 a UC030 e utiliza as regras vigentes dos demais documentos. As oito vistas gráficas preservadas abrangem UC001 a UC029 e serão revistas posteriormente. Os estados e referências técnicas desta seção correspondem ao inventário de 12/09/2026; cobertura funcional e conformidade dependem dos critérios de aceitação.
+9. Modelos técnicos do aprendizado
+9.1 Componentes e dependências
+
+Modelo UML — Componentes e dependências.
+Fonte editável: diagramas/fontes/componentes-stacklyst.puml
+
+9.2 Classes e persistência
+
+Modelo UML — Classes e persistência.
+Fonte editável: diagramas/fontes/classes-aprendizado.puml
+
+9.3 Estados derivados de progresso
+
+Modelo UML — Estados derivados de progresso.
+Fonte editável: diagramas/fontes/estados-aprendizado.puml
+
+9.4 Submissão e gravação transacional
+
+Modelo UML — Submissão e gravação transacional.
+Fonte editável: diagramas/fontes/sequencia-conclusao-licao.puml
+Ator | Natureza | Permissões e responsabilidades
+Visitante | Ator humano | Cadastra uma conta e faz login antes de acessar as funções protegidas.
+Usuário autenticado | Ator humano | Estudante ou desenvolvedor com sessão válida. Estuda, cria ou entra em duelos, interage na comunidade, cria eventos, participa de eventos, consulta vagas e suas notificações. Pode encerrar a própria sessão.
+Avaliador | Ator humano especializado | Analisa soluções que exigem avaliação humana após elegibilidade e aprovação administrativa.
+Administrador | Ator humano privilegiado | Gerencia permissões, denúncias e candidaturas de avaliador; pode avaliar duelos conforme as regras. Herda as funções do usuário autenticado e pode excluir eventos com autorização administrativa.
+Recrutador | Ator humano especializado | Publica vagas e atualiza candidaturas autorizadas. Herda a criação e a participação em eventos do usuário autenticado. O cadastro de empresa pode ser iniciado por qualquer usuário autenticado.
+Provedor de identidade | Sistema externo | Valida identidade e sessão via Supabase Auth.
+Executor de código | Sistema externo | Executa código com limites e retorna saída/testes; sua indisponibilidade deve ser tratada.
+Decisão adotada: O escopo atual abrange aplicação web, aprendizado, gamificação, comunidade, duelos, avaliação humana, eventos, vagas e administração.
+Decisão adotada: A fila atual procura um duelo pendente de outro usuário na mesma linguagem e com vaga disponível, priorizando o mais antigo. Se não houver vaga, cria uma espera. O fluxo atual não usa faixa de XP nem destinatário escolhido.
+Decisão adotada: Resultados duplicados são impedidos por transições condicionais e a recompensa do vencedor é concedida uma única vez; anulação manual exige ação administrativa fora do fluxo automático.
+Decisão adotada: Empresas consultam apenas informações públicas do perfil; e-mail, tokens e dados de sessão permanecem privados.
+Decisão adotada: Lições, exercícios, dicas e respostas canônicas são conteúdos editoriais versionados; não há geração por assistência automatizada externa na versão atual.
+Decisão adotada: O administrador analisa denúncias e pode remover a publicação denunciada; sanções adicionais e recursos não fazem parte da versão atual.
+Decisão adotada: A equipe é formada por Guilherme Alves de Campos, Paulo Henrique Leal dos Santos e Pedro Antonio Silvestre Tescaro; a própria equipe representa o cliente acadêmico do produto.
+Critério adotado: O duelo aberto aguarda oponente por até 24 horas. Após o início, o prazo para o confronto é de duas horas. A atualização dos estados expirados depende da execução da manutenção.
+Critério adotado: Faixas de XP e desempates seguem rewards.ts; sequência e conquistas seguem streak.ts e xp.service.ts.
+Critério adotado: Elegibilidade de avaliador: uma trilha completa ou 1.000 XP, seguida de aprovação administrativa.
+Critério adotado: Elicitação documentada por análise de código, análise de produtos similares, prototipação evolutiva e revisões da equipe.
+Critério adotado: Metas de desempenho, disponibilidade, acessibilidade, carga e navegadores estão definidas nos requisitos não funcionais.
+Critério adotado: A versão atual cobre usuários, papéis, denúncias, candidaturas de avaliador, métricas e notificações web; outras ações ficam fora do escopo.
+Critério adotado: UC001 a UC029 preservam seus identificadores nas vistas gráficas existentes. UC030 complementa a cobertura textual de RF003 e será incluído na revisão gráfica.
+Melhoria futura: Concluir testes de aceitação do núcleo educacional, comunidade, duelos, avaliações e vagas antes de ampliar o produto.
+Melhoria futura: Monitorar Supabase, Vercel e executor de código e manter tratamento de falha para cada integração.
+Melhoria futura: implementar a cobertura de auditoria de ações sensíveis prevista em RNF024 e a retenção de 90 dias prevista em RNF025, com acesso restrito a administradores autorizados.
+Melhoria futura: Publicar contratos das APIs consumidas pelas interfaces web.
+Melhoria futura: Executar testes de carga representativos para feed, ranking, matchmaking e notificações.
+Melhoria futura: Realizar avaliação de acessibilidade e usabilidade com estudantes/desenvolvedores.
+Atividade do Negócio | Requisito Funcional | Regra de Negócio | Caso de Uso
+AN01 — Aprender em uma trilha | RF005–RF010 | RN001–RN002, RN025, RN027–RN029 | UC004–UC007, UC028, UC029
+AN02 — Participar de duelo | RF016–RF017, RF019–RF021 | RN007, RN010–RN012, RN016–RN017, RN024–RN025, RN028 | UC008–UC010, UC016, UC029
+AN03 — Resolver exercício | RF008–RF009 | RN001–RN002, RN024–RN025, RN028–RN029 | UC006, UC028, UC029
+AN04 — Acompanhar a evolução no aprendizado | RF009–RF015 | RN001–RN006, RN027–RN029 | UC007, UC011
+AN05 — Interagir com a comunidade | RF030–RF033, RF043 | RN018–RN019, RN022 | UC013–UC014, UC020
+AN06 — Consultar ajuda do exercício | RF022–RF025 | RN013 | UC012
+AN07 — Atuar como avaliador | RF026–RF029, RF042 | RN012, RN014–RN017, RN022, RN028 | UC016, UC024, UC027
+AN08 — Empresa divulgar vaga | RF034–RF038, RF047–RF048 | RN017, RN020–RN021, RN026–RN027 | UC017, UC018, UC022, UC025, UC026
+AN09 — Administração da plataforma | RF026, RF039–RF040, RF042–RF043 | RN014–RN015, RN017, RN019 | UC019, UC020, UC027
+Eventos — criação e participação | RF041, RF049 | RN017, RN023 | UC015, UC023
+Acesso — cadastro, sessão e perfil | RF001–RF004 | RN017, RN025, RN027 | UC001–UC003, UC030
+Comunicação — notificações web | RF044–RF046 | RN022, RN027 | UC021; geração de avisos nos casos de origem
+Área | Estado | Evidência/limite
+Cadastro/login/perfil | Implementado | src/app/register; src/app/login; src/app/profile; src/app/api/auth/profile
+Encerramento de sessão | Implementado | LogoutButton e encerramento da sessão no Supabase Auth
+Trilhas/lições/exercícios | Implementado | src/app/trails; src/app/lesson; src/lib/lessons
+XP/níveis/conquistas | Implementado com regras a validar | src/services/xp.service.ts; src/lib/streak.ts
+Ranking/faixas | Implementado | rewards.ts e language-xp.ts; XP decrescente, username e id crescentes; faixas de XP sem rating Elo
+Duelos/matchmaking | Implementado com limites | Criação aberta, fila por linguagem e entrada voluntária em src/app/api/duels; duração em src/lib/duels/constants.ts. A atualização da expiração depende da manutenção.
+Avaliação humana | Implementado | evaluator applications, RBAC e DuelEvaluation
+Assistência editorial | Implementado | modos Guided, Standard, Hard e No Assist; dicas, documentação e autocomplete editoriais
+Comunidade | Implementado | feed, posts, respostas, reações, votos, favoritos, denúncias e mensagens
+Eventos | Implementado com limites | Criação por usuário autenticado, participação persistida, cancelamento de inscrição e exclusão pelo criador ou Administrador. A edição do evento não integra UC015.
+Vagas/empresas | Parcial | cadastro, vaga, candidatura e etapas existem; política de acesso a indicadores pendente
+Administração | Parcial | usuários, denúncias, avaliadores e métricas existem; auditoria abrangente pendente
+Notificações | Implementado na web | central e tipos de notificação; leitura e contagem disponíveis na central web
+Aplicação web responsiva | Implementado | aplicação Next.js responsiva; cliente móvel nativo fora do escopo

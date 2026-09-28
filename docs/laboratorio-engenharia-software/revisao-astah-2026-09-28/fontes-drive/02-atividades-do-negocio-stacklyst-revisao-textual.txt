@@ -1,0 +1,221 @@
+
+
+
+
+
+
+
+Stacklyst
+Documento de Atividades do Negócio
+Laboratório de Engenharia de Software
+Projeto acadêmico
+Revisão textual: 27/09/2026 | Base técnica: 12/09/2026
+
+1. Índice
+2. Objetivo
+Este documento descreve os processos humanos de aprendizagem, competição, colaboração, avaliação e recrutamento relacionados ao Stacklyst. Cada atividade identifica participantes, condições de início, decisões e resultados de negócio. Os procedimentos internos do software pertencem aos requisitos e às especificações técnicas.
+3. Atividades do Negócio
+Os fluxos textuais priorizam o trabalho e as decisões dos participantes. Os diagramas incorporados permanecem na versão anterior e ainda contêm ações técnicas; sua adequação ao recorte de negócio está pendente. As regras vigentes de duelos são as de vagas abertas, com espera de até 24 horas e confronto de duas horas.
+3.1 AN01 — Aprender em uma trilha
+Objetivo: Organizar o estudo de programação em um percurso compatível com os objetivos e conhecimentos do estudante.
+Participantes: Estudante ou desenvolvedor em formação.
+Pré-condições: Percurso de estudo disponível e objetivos de aprendizagem definidos pelo estudante.
+3.1.1 Fluxo principal
+1. O estudante identifica a linguagem e o percurso que deseja estudar.
+2. O estudante consulta as etapas do percurso e analisa seu histórico de aprendizagem.
+3. O estudante escolhe uma lição para a qual cumpre os pré-requisitos ou uma lição concluída que deseja revisar.
+4. O estudante estuda a explicação e os exemplos da lição.
+5. O estudante resolve os exercícios propostos, conforme AN03.
+6. O estudante analisa o feedback e revisa os conteúdos em que encontrou dificuldade.
+7. O estudante verifica as etapas concluídas e decide avançar, revisar ou encerrar a sessão de estudo.
+Decisões: Os pré-requisitos estão cumpridos? É necessário revisar o conteúdo? O estudante deseja continuar o percurso?
+Exceções: Se faltarem conhecimentos prévios, o estudante retoma as etapas anteriores. Se o material estiver indisponível, adia a etapa ou escolhe outro conteúdo disponível.
+Resultado final: Etapas estudadas, dificuldades identificadas e próximo objetivo de aprendizagem definido.
+Rastreabilidade: RF005–RF010; UC004–UC007. A pontuação e o registro automático de progresso são responsabilidades do sistema.
+3.1.2 Diagrama de Atividades
+
+Figura 1 — AN01 Aprender em uma trilha.
+Fonte editável: diagramas/fontes/atividades/AN01-aprendizado-por-trilha.puml
+3.2 AN02 — Participar de duelo
+Objetivo: Participar de um desafio de programação com outro participante e analisar o resultado competitivo e o feedback.
+Participantes: Participante que abre o duelo; oponente que ocupa a vaga; avaliador ou administrador autorizado, quando houver empate técnico.
+Pré-condições: Participantes interessados na mesma linguagem; desafio disponível; regras e prazos conhecidos.
+3.2.1 Fluxo principal
+1. O participante escolhe a linguagem e procura uma vaga de duelo aberta ou manifesta interesse em iniciar um novo duelo.
+2. Na ausência de oponente, o participante aguarda a entrada de outro interessado, por até 24 horas. O segundo participante entra voluntariamente.
+3. Com o confronto iniciado, os dois participantes leem o desafio e os critérios de avaliação; dispõem de duas horas para o confronto.
+4. Cada participante elabora e envia sua própria solução dentro do prazo.
+5. Os participantes consultam o resultado da avaliação das soluções ou aguardam a conclusão da análise.
+6. Em empate técnico, um avaliador ou administrador que não participou do duelo compara as soluções e emite parecer fundamentado.
+7. Os participantes tomam conhecimento do resultado e analisam o feedback para orientar a prática seguinte.
+Decisões: Há vaga ou oponente disponível? A solução foi entregue no prazo? O resultado exige parecer humano?
+Exceções: A espera pode encerrar sem oponente. Ao fim do confronto, sem envios não há vencedor; um envio elegível pode vencer. Em falha de avaliação, não se presume vitória.
+Resultado final: Duelo concluído com resultado conhecido ou encerrado sem vencedor. A recompensa de 50 XP, quando houver vencedor, é concedida pelo sistema uma única vez.
+Rastreabilidade: RF016–RF017, RF019–RF021; UC008–UC010 e UC016. Convites diretos e regras legadas de rejeição não compõem este processo.
+
+3.2.2 Diagrama de Atividades
+
+Figura 2 — AN02 Participar de duelo.
+Fonte editável: diagramas/fontes/atividades/AN02-participar-de-duelo.puml
+
+3.3 AN03 — Resolver exercício
+Objetivo: Praticar conhecimentos de programação, avaliar a própria solução e aprender com o feedback recebido.
+Participantes: Estudante ou desenvolvedor em formação.
+Pré-condições: Exercício disponível e conhecimentos prévios exigidos atendidos.
+3.3.1 Fluxo principal
+1. O estudante lê o enunciado, os exemplos e os critérios do exercício.
+2. O estudante interpreta o problema e planeja uma solução.
+3. O estudante elabora a resposta ou o código; quando necessário, consulta ajuda permitida, conforme AN06.
+4. O estudante testa a solução quando essa possibilidade está disponível e a submete para avaliação.
+5. O estudante analisa o feedback; em caso de erro, revisa a solução e realiza nova tentativa.
+6. Após o resultado, o estudante decide prosseguir, praticar novamente ou revisar o conteúdo.
+Decisões: O enunciado foi compreendido? É necessário consultar ajuda? A solução atende aos critérios? É preciso tentar novamente?
+Exceções: Dúvida conceitual leva à consulta de material de apoio. Em indisponibilidade da avaliação, o estudante preserva sua solução e tenta novamente, sem presumir aprovação.
+Resultado final: Solução analisada e aprendizado orientado pelo feedback; progresso confirmado quando os critérios da atividade forem atendidos.
+Rastreabilidade: RF008–RF009; UC006, UC028 e UC029. Avaliação automática, execução remota e persistência são detalhadas nos documentos de sistema.
+3.3.2 Diagrama de Atividades
+
+Figura 3 — AN03 Resolver exercício.
+Fonte editável: diagramas/fontes/atividades/AN03-resolver-exercicio.puml
+3.4 AN04 — Acompanhar a evolução no aprendizado
+Objetivo: Interpretar o histórico de aprendizagem e definir os próximos objetivos de estudo.
+Participantes: Estudante ou desenvolvedor em formação.
+Pré-condições: Histórico e indicadores de aprendizagem disponíveis para consulta.
+3.4.1 Fluxo principal
+1. O estudante consulta as atividades realizadas e os resultados obtidos.
+2. O estudante compara a evolução observada com seus objetivos de estudo.
+3. O estudante identifica conteúdos dominados e dificuldades recorrentes.
+4. O estudante consulta XP, nível, sequência e conquistas como indicadores complementares de participação.
+5. Quando desejar, o estudante consulta o ranking e interpreta sua posição sem equipará-la, isoladamente, ao domínio técnico.
+6. O estudante decide revisar conteúdos, repetir exercícios ou prosseguir na trilha.
+7. O estudante define o próximo objetivo e retoma a prática.
+Decisões: Os objetivos foram alcançados? Há dificuldade recorrente? É mais adequado revisar ou avançar?
+Exceções: Sem histórico suficiente, o estudante inicia atividades para conhecer seu desempenho. Se os indicadores estiverem indisponíveis, adia sua análise.
+Resultado final: Evolução compreendida e próximos objetivos de aprendizagem definidos. Repetições não geram recompensa adicional para a mesma atividade já pontuada.
+Rastreabilidade: RF009–RF015; UC007 e UC011. Cálculo de XP, nível e ranking permanece como responsabilidade automatizada do sistema.
+3.4.2 Diagrama de Atividades
+
+Figura 4 — AN04 na versão gráfica anterior, ainda centrada no registro de XP.
+Fonte editável: diagramas/fontes/atividades/AN04-evoluir-na-gamificacao.puml
+3.5 AN05 — Interagir com a comunidade
+Objetivo: Compartilhar conhecimentos, esclarecer dúvidas e tratar conteúdo inadequado na comunidade.
+Participantes: Autor da publicação; leitores da comunidade; administrador responsável pela moderação.
+Pré-condições: Participantes conhecem as regras da comunidade; conteúdo disponível para leitura e interação.
+3.5.1 Fluxo principal
+1. O autor prepara uma dúvida, explicação ou exemplo de código para compartilhar.
+2. O autor revisa o conteúdo e corrige informações incompletas ou inadequadas antes de publicá-lo.
+3. O autor publica o conteúdo para a comunidade.
+4. Os leitores analisam a publicação e decidem responder, reagir, votar, salvar ou apenas acompanhar.
+5. O autor e os leitores consultam as contribuições e dão continuidade à discussão quando pertinente.
+6. Ao identificar possível violação das regras, um leitor apresenta denúncia com o motivo.
+7. O administrador analisa a denúncia e decide manter ou remover a publicação, conforme a procedência e as ações disponíveis.
+Decisões: O conteúdo está adequado? O leitor deseja contribuir? Há motivo para denúncia? A denúncia é procedente?
+Exceções: Conteúdo incompleto deve ser corrigido pelo autor. Denúncia improcedente é encerrada sem remoção. Sanções adicionais e recursos dependem de política específica.
+Resultado final: Conhecimento compartilhado e interações realizadas; eventual denúncia analisada e decisão de moderação registrada.
+Rastreabilidade: RF030–RF033 e RF043; UC013, UC014 e UC020.
+3.5.2 Diagrama de Atividades
+
+Figura 5 — AN05 Interagir com a comunidade.
+Fonte editável: diagramas/fontes/atividades/AN05-interagir-com-comunidade.puml
+
+3.6 AN06 — Consultar ajuda do exercício
+Objetivo: Esclarecer uma dúvida durante a resolução de um exercício e retomar a prática com melhor compreensão.
+Participantes: Estudante ou desenvolvedor em formação.
+Pré-condições: Exercício em andamento e material de apoio disponível, respeitado o modo de assistência escolhido.
+3.6.1 Fluxo principal
+1. O estudante identifica uma dúvida ou dificuldade na resolução do exercício.
+2. O estudante decide consultar uma dica ou documentação permitida pelo modo de assistência.
+3. O estudante lê o material e relaciona a orientação ao problema que está resolvendo.
+4. O estudante revisa seu raciocínio e ajusta a solução quando necessário.
+5. O estudante retoma a prática e verifica se a orientação esclareceu a dúvida.
+Decisões: A ajuda está permitida e disponível? A orientação esclareceu a dúvida? É necessário revisar outro conteúdo?
+Exceções: No modo sem assistência, o estudante continua sem ajuda ou altera o modo quando permitido. Se o material não estiver disponível, consulta outro conteúdo ou adia a resolução.
+Resultado final: Material de apoio compreendido e prática retomada. A consulta de ajuda não modifica o valor de XP da atividade.
+Rastreabilidade: RF022–RF025; UC012 e ponto de extensão de ajuda em UC006.
+3.6.2 Diagrama de Atividades
+
+Figura 6 — AN06 Consultar ajuda do exercício.
+Fonte editável: diagramas/fontes/atividades/AN06-consultar-ajuda.puml
+
+3.7 AN07 — Atuar como avaliador
+Objetivo: Credenciar participantes elegíveis e realizar, em processo próprio, a avaliação humana de empates técnicos.
+Participantes: Candidato a avaliador; administrador; avaliador credenciado; participantes do duelo.
+Pré-condições: Para candidatura, uma trilha completa ou 1.000 XP e ausência de candidatura pendente. Para avaliação, credenciamento prévio ou função administrativa e ausência de participação no duelo.
+3.7.1 Fluxos de credenciamento e avaliação
+A1. Credenciamento: o candidato consulta os critérios de elegibilidade e apresenta sua motivação e tecnologias de domínio.
+A2. O administrador analisa a candidatura e as evidências de atendimento aos critérios.
+A3. O administrador aprova ou rejeita a candidatura e registra a decisão.
+A4. O candidato consulta a decisão; se aprovado, fica habilitado a atuar como avaliador. O credenciamento termina nessa etapa.
+B1. Avaliação de duelo: quando existe empate técnico pendente, um avaliador já autorizado seleciona o caso e verifica se está impedido de avaliá-lo.
+B2. O avaliador compara as soluções e os resultados dos testes, atribui pontuações e informa o vencedor com feedback fundamentado.
+B3. O avaliador apresenta o parecer; os participantes consultam a decisão. Uma nova avaliação inicia outro ciclo B, sem repetir o credenciamento.
+Decisões: O candidato atende aos critérios? A candidatura deve ser aprovada? O avaliador está impedido? O parecer está completo?
+Exceções: Candidato inelegível ou com candidatura pendente não apresenta nova solicitação. Avaliador que participou do duelo não emite parecer. Caso já decidido não recebe decisão conflitante.
+Resultado final: No processo A, candidatura decidida. No processo B, parecer fundamentado e resultado do duelo conhecidos. A aprovação não obriga a avaliação imediata de um duelo.
+Rastreabilidade: RF026–RF029 e RF042; UC024 e UC027 no credenciamento; UC016 na avaliação humana.
+
+3.7.2 Diagrama de Atividades
+
+Figura 7 — AN07 Atuar como avaliador.
+Fonte editável: diagramas/fontes/atividades/AN07-atuar-como-avaliador.puml
+
+3.8 AN08 — Empresa divulgar vaga
+Objetivo: Divulgar uma oportunidade profissional e acompanhar as candidaturas recebidas.
+Participantes: Representante da empresa ou recrutador responsável; candidato à vaga.
+Pré-condições: Empresa identificada, representante responsável e necessidade de recrutamento definida. A candidatura exige vaga aberta.
+3.8.1 Fluxo principal
+1. O representante identifica a empresa e, se necessário, fornece seus dados para cadastro.
+2. O recrutador define o perfil desejado, as condições da oportunidade e as etapas do processo seletivo.
+3. O recrutador redige a vaga e confere as informações antes da divulgação.
+4. O recrutador publica a oportunidade. A divulgação não exige que uma candidatura seja recebida imediatamente.
+5. Em um ciclo de candidatura, o interessado lê a vaga, avalia sua compatibilidade e decide se candidatar.
+6. O recrutador analisa a candidatura e as informações públicas pertinentes; a decisão de seleção permanece humana.
+7. O recrutador informa a etapa da candidatura e o candidato acompanha a situação. O ciclo se repete para cada candidatura recebida.
+Decisões: As informações da vaga estão completas? A vaga está aberta? O interessado deseja se candidatar? Qual etapa deve ser atribuída à candidatura?
+Exceções: Dados incompletos exigem correção. Vaga encerrada não recebe candidatura. Uma candidatura já enviada não deve ser duplicada. Dados privados não integram a análise pública.
+Resultado final: Vaga divulgada e candidaturas acompanhadas pelo responsável. Contratação, assinatura de contrato e pagamento estão fora do escopo.
+Rastreabilidade: RF034–RF038 e RF047–RF048; UC017, UC018, UC022, UC025 e UC026. Autorização de acesso e persistência são responsabilidades do sistema.
+
+3.8.2 Diagrama de Atividades
+
+Figura 8 — AN08 Empresa divulgar vaga.
+Fonte editável: diagramas/fontes/atividades/AN08-empresa-divulgar-vaga.puml
+
+3.9 AN09 — Administração da plataforma
+Objetivo: Analisar demandas administrativas e decidir ações de moderação, permissão e credenciamento dentro das responsabilidades do administrador.
+Participantes: Administrador; solicitante ou participante afetado, quando aplicável.
+Pré-condições: Demanda identificada, informações mínimas disponíveis e administrador responsável por sua análise.
+3.9.1 Fluxo principal
+1. O administrador identifica a demanda: denúncia, alteração de permissão ou candidatura a avaliador.
+2. O administrador reúne e examina as informações necessárias à decisão.
+3. O administrador identifica as regras aplicáveis e verifica sua competência para decidir.
+4. Em denúncia, analisa a procedência; em permissão, avalia a necessidade do papel; em candidatura, aplica os critérios de credenciamento da AN07.
+5. O administrador decide deferir, indeferir ou solicitar esclarecimentos, conforme o caso.
+6. O administrador registra a decisão e a justificativa pertinente e realiza a ação autorizada.
+7. O administrador verifica o resultado e comunica a decisão pelos meios disponíveis, encerrando a demanda.
+Decisões: Há informações suficientes? A solicitação é procedente? A ação está dentro da competência do administrador? É necessário pedir esclarecimentos?
+Exceções: Informação insuficiente leva a esclarecimento; demanda já decidida ou fora da competência deve ser tratada sem decisão duplicada ou ação não autorizada.
+Resultado final: Demanda administrativa decidida ou encaminhada para esclarecimento. A implementação da rastreabilidade completa permanece sujeita aos requisitos de auditoria.
+Rastreabilidade: RF026, RF039–RF040, RF042–RF043; UC019, UC020 e UC027. Criação de eventos pelo usuário é tratada em UC015.
+
+3.9.2 Diagrama de Atividades
+
+Figura 9 — AN09 Administração da plataforma.
+Fonte editável: diagramas/fontes/atividades/AN09-administrar-plataforma.puml
+4. Relação entre atividades e requisitos
+
+Os caminhos de fontes editáveis indicados junto às figuras identificam os arquivos da versão gráfica anterior. A correspondência entre esses diagramas e os fluxos textuais deverá ser revista na etapa de atualização gráfica.
+Regra do processo: participação em duelos abertos; espera de até 24 horas, confronto de duas horas e avaliação humana apenas quando necessária.
+Regra do processo: credenciamento e avaliação de duelo são processos distintos; uma avaliação exige autorização prévia e ausência de impedimento.
+Regra do processo: somente o responsável autorizado divulga a vaga e conduz a seleção; o candidato acompanha a própria candidatura.
+Regra do processo: decisões administrativas devem respeitar a competência do responsável e os critérios aplicáveis à demanda.
+Atividade | Requisitos relacionados | Apoio do sistema ao processo humano
+AN01 — Aprender em uma trilha | RF005–RF010 | Disponibilizar conteúdo, receber respostas e apresentar resultados e progresso.
+AN02 — Participar de duelo | RF016–RF017, RF019–RF021 | Disponibilizar vagas abertas, receber soluções e apresentar a decisão do confronto.
+AN03 — Resolver exercício | RF008–RF009 | Receber a solução, avaliar a resposta e apresentar feedback.
+AN04 — Acompanhar a evolução no aprendizado | RF009–RF015 | Consolidar histórico e indicadores para análise pelo estudante.
+AN05 — Interagir com a comunidade | RF030–RF033, RF043 | Disponibilizar publicações, interações e denúncias para análise.
+AN06 — Consultar ajuda do exercício | RF022–RF025 | Disponibilizar dicas e documentação conforme o modo de assistência.
+AN07 — Atuar como avaliador | RF026–RF029, RF042 | Apoiar candidatura, decisão administrativa e apresentação do parecer humano.
+AN08 — Empresa divulgar vaga | RF034–RF038, RF047–RF048 | Apoiar divulgação, candidatura e acompanhamento das etapas de seleção.
+AN09 — Administração da plataforma | RF026, RF039–RF040, RF042–RF043 | Apoiar a análise e o registro das decisões administrativas autorizadas.
