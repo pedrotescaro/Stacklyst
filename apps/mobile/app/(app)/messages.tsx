@@ -31,7 +31,7 @@ export default function Messages({ fromTab = false }: { fromTab?: boolean } = {}
     queryFn: () => api<ChatSummary[]>('/api/messages/chats'),
     refetchInterval: 10000,
   });
-  const newConversation = () => router.push('/explore?type=users');
+  const newConversation = () => router.push('/messages/new');
   return (
     <Screen
       title="Mensagens"
@@ -58,7 +58,14 @@ export default function Messages({ fromTab = false }: { fromTab?: boolean } = {}
                 accessibilityLabel={
                   'Conversa com ' + chat.partner.username + '. ' + chat.lastMessage
                 }
-                onPress={() => router.push(('/conversation/' + chat.partnerId) as never)}
+                onPress={() =>
+                  router.push(
+                    ('/conversation/' +
+                      chat.partnerId +
+                      '?username=' +
+                      encodeURIComponent(chat.partner.username)) as never
+                  )
+                }
                 style={({ pressed }) => ({
                   flexDirection: 'row',
                   alignItems: 'flex-start',

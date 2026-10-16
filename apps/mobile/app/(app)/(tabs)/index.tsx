@@ -12,7 +12,7 @@ import { queryClient } from '~/lib/query';
 import { useTheme } from '~/theme';
 
 const filters = [
-  { value: 'community', label: 'Comunidade' },
+  { value: 'community', label: 'Para você' },
   { value: 'following', label: 'Seguindo' },
 ];
 
@@ -35,7 +35,7 @@ export default function Feed() {
     setSince(new Date().toISOString());
   };
   return (
-    <Screen title="Stacklyst" scroll={false}>
+    <Screen title="Stacklyst" brand scroll={false}>
       <View style={{ flex: 1, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
         <View
           style={{

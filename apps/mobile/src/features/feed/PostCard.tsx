@@ -3,7 +3,7 @@ import { View, Text, Pressable, Share, Image, StyleSheet } from 'react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import { useRecyclingState } from '@shopify/flash-list';
-import { IconArrowUp, IconMessageCircle, IconBookmark, IconShare } from '~/components/icons';
+import { IconHeart, IconMessageCircle, IconBookmark, IconShare } from '~/components/icons';
 import { Post } from '../../lib/types';
 import { send, errorMessage } from '../../lib/api';
 import { queryClient } from '../../lib/query';
@@ -31,6 +31,7 @@ function PostAction({
   onPress,
   active = false,
   busy = false,
+  activeColor,
 }: {
   label: string;
   icon: ReactNode;
@@ -38,6 +39,7 @@ function PostAction({
   onPress: () => void;
   active?: boolean;
   busy?: boolean;
+  activeColor?: string;
 }) {
   const { colors } = useTheme();
   return (
@@ -61,7 +63,11 @@ function PostAction({
     >
       {icon}
       {count !== undefined && (
-        <Text style={{ color: active ? colors.primary : colors.muted, fontSize: 13 }}>{count}</Text>
+        <Text
+          style={{ color: active ? (activeColor ?? colors.primary) : colors.muted, fontSize: 13 }}
+        >
+          {count}
+        </Text>
       )}
     </Pressable>
   );
@@ -246,13 +252,19 @@ function PostContent({ post, detail }: { post: FeedPost; detail: boolean }) {
             icon={<IconMessageCircle size={20} strokeWidth={1.8} color={c.muted} />}
           />
           <PostAction
-            label={(vote === 1 ? 'Remover voto. ' : 'Votar. ') + score + ' votos'}
+            label={(vote === 1 ? 'Descurtir. ' : 'Curtir. ') + score + ' curtidas'}
             count={score}
             active={vote === 1}
+            activeColor={c.like}
             busy={m.isPending}
             onPress={() => m.mutate({ action: 'vote', value: vote === 1 ? 0 : 1 })}
             icon={
-              <IconArrowUp size={20} strokeWidth={1.8} color={vote === 1 ? c.primary : c.muted} />
+              <IconHeart
+                size={20}
+                strokeWidth={1.8}
+                color={vote === 1 ? c.like : c.muted}
+                fill={vote === 1 ? c.like : 'none'}
+              />
             }
           />
           <PostAction

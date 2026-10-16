@@ -18,11 +18,17 @@ interface Pending {
   content: string;
 }
 export default function Conversation() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, username } = useLocalSearchParams<{ id: string; username?: string }>();
   const { session, isPreview } = useSession();
-  return <ConversationContent key={`${isPreview ? 'preview' : session?.user.id}:${id}`} id={id} />;
+  return (
+    <ConversationContent
+      key={`${isPreview ? 'preview' : session?.user.id}:${id}`}
+      id={id}
+      username={username}
+    />
+  );
 }
-function ConversationContent({ id }: { id: string }) {
+function ConversationContent({ id, username }: { id: string; username?: string }) {
   const insets = useSafeAreaInsets();
   const styles = useUIStyles();
   const { colors: colors } = useTheme();
@@ -51,14 +57,8 @@ function ConversationContent({ id }: { id: string }) {
       .catch(() => {
         if (active) setLoaded(true);
       });
-    const timer = setInterval(() => {
-      void queryClient.invalidateQueries({
-        queryKey: ['list', '/api/mobile/messages?receiver_id=' + id],
-      });
-    }, 10000);
     return () => {
       active = false;
-      clearInterval(timer);
     };
   }, [key, id]);
   const m = useMutation({
@@ -85,10 +85,11 @@ function ConversationContent({ id }: { id: string }) {
     },
   });
   return (
-    <Screen title="Conversa" back scroll={false}>
+    <Screen title={username ? '@' + username : 'Conversa'} back scroll={false}>
       <RemoteList<Message>
         key={key}
         chronological
+        refetchInterval={5000}
         path={'/api/mobile/messages?receiver_id=' + id}
         render={(message) => (
           <View
@@ -176,7 +177,7 @@ function ConversationContent({ id }: { id: string }) {
             <Button
               label={pending ? 'Tentar enviar novamente' : 'Enviar'}
               busy={m.isPending}
-              disabled={!loaded || !draft.ready || (!pending && !draft.value.trim())}
+              disabled={isPreview || !loaded || !draft.ready || (!pending && !draft.value.trim())}
               onPress={() => m.mutate()}
             />
           </>

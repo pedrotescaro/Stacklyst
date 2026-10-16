@@ -31,6 +31,7 @@ import { useDrawer } from '../lib/navigation';
 import { useMe, useSession } from '../lib/session';
 import { errorMessage } from '../lib/api';
 import { config } from '../lib/config';
+import { BrandMark } from './BrandMark';
 
 function createStyles(c: Palette) {
   return StyleSheet.create({
@@ -98,6 +99,8 @@ export function Screen({
   actions,
   onRefresh,
   refreshing = false,
+  brand = false,
+  footer,
 }: {
   title: string;
   children: ReactNode;
@@ -106,6 +109,8 @@ export function Screen({
   actions?: ReactNode;
   onRefresh?: () => void;
   refreshing?: boolean;
+  brand?: boolean;
+  footer?: ReactNode;
 }) {
   const { colors: c } = useTheme();
   const s = useUIStyles();
@@ -152,20 +157,30 @@ export function Screen({
               <Avatar uri={me.data?.avatar_url} name={me.data?.username ?? 'S'} size={34} />
             </Pressable>
           ) : null}
-          <Text
-            accessibilityRole="header"
-            numberOfLines={1}
-            style={[
-              s.heading,
-              {
-                flex: 1,
-                textAlign: hasMenu && !actions ? 'center' : 'left',
-                marginRight: hasMenu && !actions ? 48 : 0,
-              },
-            ]}
-          >
-            {title}
-          </Text>
+          {brand ? (
+            <View
+              accessibilityRole="header"
+              accessibilityLabel={title}
+              style={{ flex: 1, alignItems: 'center', marginRight: hasMenu && !actions ? 48 : 0 }}
+            >
+              <BrandMark width={32} />
+            </View>
+          ) : (
+            <Text
+              accessibilityRole="header"
+              numberOfLines={1}
+              style={[
+                s.heading,
+                {
+                  flex: 1,
+                  textAlign: hasMenu && !actions ? 'center' : 'left',
+                  marginRight: hasMenu && !actions ? 48 : 0,
+                },
+              ]}
+            >
+              {title}
+            </Text>
+          )}
           {actions && <View style={s.row}>{actions}</View>}
         </View>
       </View>
@@ -219,6 +234,19 @@ export function Screen({
           </ScrollView>
         ) : (
           children
+        )}
+        {footer && (
+          <View
+            style={{
+              borderTopWidth: StyleSheet.hairlineWidth,
+              borderColor: c.border,
+              padding: 20,
+              paddingBottom: Math.max(20, insets.bottom + 12),
+              backgroundColor: c.background,
+            }}
+          >
+            {footer}
+          </View>
         )}
       </KeyboardAvoidingView>
     </SafeAreaView>

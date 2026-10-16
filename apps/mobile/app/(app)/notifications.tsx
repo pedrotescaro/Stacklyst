@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import {
-  IconArrowUp,
+  IconHeart,
   IconAt,
   IconBell,
   IconMessageCircle,
@@ -11,7 +11,7 @@ import {
 import { Screen, Avatar, Notice } from '~/components/ui';
 import { Action, RemoteList } from '~/components/remote';
 import { Person } from '~/lib/types';
-import { notificationRoute } from '~/lib/links';
+import { notificationDestination } from '~/lib/links';
 import { useTheme } from '~/theme';
 
 interface NotificationEntry {
@@ -38,9 +38,18 @@ function timestamp(value?: string) {
 function NotificationRow({ item }: { item: NotificationEntry }) {
   const { colors } = useTheme();
   const read = item.is_read ?? item.read ?? false;
+  const destination = notificationDestination(item);
+  const actorDestination = notificationDestination({ actor: item.actor });
+  const title = item.type === 'LIKE' ? 'Nova curtida' : item.title;
+  const content =
+    item.type === 'LIKE'
+      ? item.actor
+        ? `@${item.actor.username} curtiu sua publicação.`
+        : 'Sua publicação recebeu uma curtida.'
+      : item.content;
   const TypeIcon =
     item.type === 'LIKE'
-      ? IconArrowUp
+      ? IconHeart
       : item.type === 'ANSWER'
         ? IconMessageCircle
         : item.type === 'DUEL'
@@ -52,10 +61,10 @@ function NotificationRow({ item }: { item: NotificationEntry }) {
               : IconBell;
   return (
     <Pressable
-      accessibilityRole={item.link ? 'button' : undefined}
-      accessibilityLabel={(read ? '' : 'Não lida. ') + item.title + '. ' + item.content}
-      disabled={!item.link}
-      onPress={() => router.push(notificationRoute(item.link ?? undefined) as never)}
+      accessibilityRole={destination ? 'button' : undefined}
+      accessibilityLabel={(read ? '' : 'Não lida. ') + title + '. ' + content}
+      disabled={!destination}
+      onPress={() => destination && router.push(destination as never)}
       style={({ pressed }) => ({
         flexDirection: 'row',
         alignItems: 'flex-start',
@@ -70,7 +79,18 @@ function NotificationRow({ item }: { item: NotificationEntry }) {
     >
       <View style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>
         {item.actor ? (
-          <Avatar name={item.actor.username} uri={item.actor.avatar_url} size={44} />
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={'Abrir perfil de ' + item.actor.username}
+            disabled={!actorDestination}
+            style={{ minWidth: 48, minHeight: 48, alignItems: 'center', justifyContent: 'center' }}
+            onPress={(event) => {
+              event.stopPropagation();
+              if (actorDestination) router.push(actorDestination as never);
+            }}
+          >
+            <Avatar name={item.actor.username} uri={item.actor.avatar_url} size={44} />
+          </Pressable>
         ) : (
           <TypeIcon size={27} strokeWidth={1.8} color={read ? colors.muted : colors.primary} />
         )}
@@ -84,9 +104,9 @@ function NotificationRow({ item }: { item: NotificationEntry }) {
             fontWeight: read ? '600' : '700',
           }}
         >
-          {item.title}
+          {title}
         </Text>
-        <Text style={{ color: colors.muted, fontSize: 14, lineHeight: 21 }}>{item.content}</Text>
+        <Text style={{ color: colors.muted, fontSize: 14, lineHeight: 21 }}>{content}</Text>
         {!!timestamp(item.created_at ?? item.createdAt) && (
           <Text style={{ color: colors.muted, fontSize: 12, lineHeight: 18 }}>
             {timestamp(item.created_at ?? item.createdAt)}

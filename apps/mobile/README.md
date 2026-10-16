@@ -92,6 +92,7 @@ Os comandos abaixo são executados dentro de `apps/mobile`. Eles usam a conta Ex
    npm run test:notifications
    npm run test:auth
    npm run test:config
+   npm run test:interactions
    npm run check:release
    ```
 
@@ -114,13 +115,15 @@ O APK do perfil `preview` funciona sem Metro. Esse fluxo gera uma instalação i
 
 ## APK local de teste no Windows
 
-O APK corrigido é `artifacts/Stacklyst-0.1.1-arm64.apk` (versionCode 2, ARM64, assinatura local de teste, sem Metro). O arquivo anterior `Stacklyst-preview-arm64.apk` foi gerado com uma URL de emulador e não deve ser distribuído. Para reproduzir com Android Studio/SDK instalados:
+O APK atual é `artifacts/Stacklyst-0.1.2-arm64.apk` (versionCode 3, ARM64, assinatura local de teste, sem Metro). O arquivo antigo `Stacklyst-preview-arm64.apk` foi gerado com uma URL de emulador e não deve ser distribuído. Para reproduzir com Android Studio/SDK instalados:
 
 ```powershell
 npm run build:apk:windows
 ```
 
 O script valida o callback publicado, a rota de preparação da conta e as configurações públicas do Supabase antes do build. Define a API HTTPS explicitamente, atualiza o projeto nativo sem limpar alterações, força a geração do bundle e examina o JavaScript dentro do APK antes de copiá-lo para `artifacts/`. Se encontrar a URL do emulador ou um callback que ainda leva ao site, interrompe a distribuição. O binário local usa a chave Android de teste e não substitui a assinatura de distribuição do EAS. A sessão nativa precisa ser validada no aparelho.
+
+`test:interactions` usa React/DOM para verificar comportamento, sem afirmar validação visual Android. Esse teste também precisa das dependências de desenvolvimento da raiz do repositório (`npm ci` na raiz).
 
 ## Organização
 
@@ -156,6 +159,10 @@ Mantenha essa pasta dentro do repositório: tipos públicos de aprendizado e exe
 
 - A API da plataforma é reutilizada; não foi inventado outro backend. Feed, publicação, respostas, perfis, busca, favoritos, notificações, conversas, trilhas, exercícios e duelos possuem integrações existentes.
 - Perfil, prática, duelos, ranking, eventos, vagas e configurações ficam no drawer. Áreas de recrutamento, avaliação e administração dependem do papel da conta e continuam sujeitas à autorização do servidor.
+- O cabeçalho do início mostra somente o logo. Curtidas usam coração e o contrato existente de reação positiva. Notificações sem link abrem o perfil do autor; o avatar também tem ação própria.
+- A escolha claro/escuro/sistema fica somente em Configurações. Comunidades está desativada no aplicativo: seu atalho foi retirado e seu layout interrompe o acesso a lista, detalhes e criação. Eventos e vagas continuam ativos.
+- Lições têm alternativas maiores, dicas sob demanda, progresso e ação fixa de verificar/continuar. Avaliação e XP continuam no servidor. Exercícios mantêm editor, testes públicos e submissão com testes ocultos.
+- Mensagens têm busca de destinatários, atualização periódica da conversa e reenvio com identificador único. O backend requer a migração existente `20260916000000_mobile_state`; sua ausência causa erro ao consultar `Message.client_id`. Essa migração já foi aplicada no projeto publicado e seu checksum registrado no histórico Prisma.
 - A demonstração oferece exemplos de feed, detalhe, perfis, busca e conversas. Aprendizado, vagas, eventos e ranking não simulam progresso ou resultados reais. Escritas são recusadas antes de acessar a rede.
 - Uploads, execução de código, login social, progresso remoto, notificações push e integrações de recrutamento precisam ser verificados com conta real e backend configurado. Push também requer aparelho físico, APK e credenciais do serviço de push.
 - Não há promessa de funcionamento offline completo. Rascunhos locais e dados já carregados são preservados; publicação e sincronização exigem conexão.

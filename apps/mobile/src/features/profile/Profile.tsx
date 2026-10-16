@@ -107,7 +107,14 @@ export function Profile({ username, own = false }: { username: string; own?: boo
                   <Button
                     secondary
                     label="Enviar mensagem"
-                    onPress={() => router.push(('/conversation/' + user.id) as never)}
+                    onPress={() =>
+                      router.push(
+                        ('/conversation/' +
+                          user.id +
+                          '?username=' +
+                          encodeURIComponent(user.username)) as never
+                      )
+                    }
                   />
                   <Action
                     secondary

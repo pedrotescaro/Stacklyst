@@ -78,3 +78,6 @@ jobs:
 
       - name: Run tests
         run: npm test
+
+      - name: Check mobile lesson and notification interactions
+        run: npm --prefix apps/mobile run test:interactions

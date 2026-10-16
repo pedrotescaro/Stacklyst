@@ -1,49 +1,126 @@
 {
-  "schemaVersion": 1,
-  "surface": "apps/mobile",
-  "platform": "adaptive",
-  "mode": "operate",
-  "direction": "Stacklyst social native",
-  "source": "apps/mobile/src/theme.tsx",
-  "colors": {
-    "dark": {
-      "background": "#000000",
-      "surface": "#111316",
-      "elevated": "#1a1e23",
-      "ownMessage": "#0b2b48",
-      "successSurface": "#153c2b",
-      "text": "#f4f6f8",
-      "muted": "#9da7b3",
-      "primary": "#0078d4",
-      "onPrimary": "#ffffff",
-      "border": "#292d33"
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-16T17:13:03Z",
+  "title": "Design System: Stacklyst mobile",
+  "extensions": {
+    "typographyMeta": {
+      "lesson-title": {
+        "displayName": "Título de atividade",
+        "purpose": "Pergunta ou título da atividade atual, sem competir com a ação persistente."
+      }
     },
-    "light": {
-      "background": "#ffffff",
-      "surface": "#f7f9f9",
-      "elevated": "#eff3f4",
-      "ownMessage": "#e2f1ff",
-      "successSurface": "#e4f5eb",
-      "text": "#0f1419",
-      "muted": "#536471",
-      "primary": "#0074c8",
-      "onPrimary": "#ffffff",
-      "border": "#cfd9de"
+    "shadows": [],
+    "motion": [
+      {
+        "name": "drawer-open",
+        "value": "240ms cubic-out",
+        "purpose": "Entrada lateral do drawer; duração zero com redução de movimento."
+      },
+      {
+        "name": "drawer-close",
+        "value": "180ms",
+        "purpose": "Saída lateral do drawer; duração zero com redução de movimento."
+      },
+      {
+        "name": "lesson-progress",
+        "value": "220ms",
+        "purpose": "Interpolação da largura do progresso confirmado; duração zero com redução de movimento."
+      }
+    ],
+    "breakpoints": []
+  },
+  "components": [
+    {
+      "name": "Botão principal",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Representação HTML do Button nativo no tema escuro; ação social primária, altura mínima de 48 unidades.",
+      "html": "<button class=\"ds-primary\">Publicar</button>",
+      "css": ".ds-primary { min-height:48px; padding:12px 20px; border:0; border-radius:28px; background:#0078d4; color:#ffffff; font:700 16px system-ui; cursor:pointer; } .ds-primary:hover,.ds-primary:active { opacity:.7; } .ds-primary:focus-visible { outline:2px solid #0078d4; outline-offset:3px; } .ds-primary:disabled { opacity:.5; cursor:default; }"
+    },
+    {
+      "name": "Botão secundário",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ação secundária com superfície transparente e borda no Button compartilhado.",
+      "html": "<button class=\"ds-secondary\">Sincronizar rascunho</button>",
+      "css": ".ds-secondary { min-height:48px; padding:12px 20px; border:1px solid #292d33; border-radius:28px; background:transparent; color:#f4f6f8; font:700 16px system-ui; cursor:pointer; } .ds-secondary:hover,.ds-secondary:active { opacity:.7; } .ds-secondary:focus-visible { outline:2px solid #0078d4; outline-offset:3px; } .ds-secondary:disabled { opacity:.5; cursor:default; }"
+    },
+    {
+      "name": "Ação da lição",
+      "kind": "button",
+      "refersTo": "lesson-button",
+      "description": "LessonButton verde; a confirmação continua dependente do servidor.",
+      "html": "<button class=\"ds-lesson-button\">Verificar resposta</button>",
+      "css": ".ds-lesson-button { min-height:56px; padding:14px 24px; border:0; border-radius:16px; background:#63d99b; color:#002616; font:800 17px/24px system-ui; text-align:center; cursor:pointer; } .ds-lesson-button:hover,.ds-lesson-button:active { opacity:.7; } .ds-lesson-button:focus-visible { outline:2px solid #63d99b; outline-offset:3px; } .ds-lesson-button:disabled { background:#1a1e23; color:#9da7b3; cursor:default; }"
+    },
+    {
+      "name": "Campo",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Field com rótulo acessível, superfície e seleção temática.",
+      "html": "<label class=\"ds-field\">Mensagem<input class=\"ds-input\" placeholder=\"Escreva uma mensagem\"></label>",
+      "css": ".ds-field { display:grid; gap:8px; color:#f4f6f8; font:400 16px/24px system-ui; } .ds-input { min-height:52px; padding:14px; border:1px solid #292d33; border-radius:12px; background:#111316; color:#f4f6f8; font:400 16px system-ui; } .ds-input::placeholder { color:#9da7b3; } .ds-input::selection { background:#0078d4; } .ds-input:hover { border-color:#292d33; } .ds-input:focus-visible { outline:2px solid #0078d4; outline-offset:2px; }"
+    },
+    {
+      "name": "Abas de contexto",
+      "kind": "nav",
+      "description": "Choice nativo: rótulo, peso e sublinhado distinguem a aba selecionada.",
+      "html": "<nav class=\"ds-choice\" aria-label=\"Área do exercício\"><button class=\"ds-choice-tab\" aria-current=\"page\">Enunciado</button><button class=\"ds-choice-tab\">Código</button><button class=\"ds-choice-tab\">Resultado</button></nav>",
+      "css": ".ds-choice { display:flex; gap:8px; overflow-x:auto; } .ds-choice-tab { min-height:48px; padding:0 16px; border:0; border-bottom:3px solid transparent; background:transparent; color:#9da7b3; font:500 15px system-ui; cursor:pointer; } .ds-choice-tab[aria-current] { color:#f4f6f8; font-weight:700; border-bottom-color:#0078d4; } .ds-choice-tab:hover,.ds-choice-tab:active { background:#111316; } .ds-choice-tab:focus-visible { outline:2px solid #0078d4; outline-offset:-2px; }"
+    },
+    {
+      "name": "Painel compartilhado",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "Agrupamento tonal usado pelo painel compartilhado; mantém o feed como superfície contínua.",
+      "html": "<article class=\"ds-panel\"><strong>Enunciado</strong><span>Leia o objetivo antes de escrever seu código.</span></article>",
+      "css": ".ds-panel { display:grid; gap:12px; padding:16px; border-radius:12px; background:#111316; color:#f4f6f8; font:400 16px/24px system-ui; }"
+    },
+    {
+      "name": "Opção de atividade",
+      "kind": "custom",
+      "refersTo": "lesson-option",
+      "description": "LessonOption selecionada, com borda de 2 unidades, marcador e confirmação visual.",
+      "html": "<button class=\"ds-option\" aria-pressed=\"true\"><span class=\"ds-option-marker\">A</span><span>Uma atividade por vez</span><svg aria-hidden=\"true\" viewBox=\"0 0 24 24\" width=\"22\" height=\"22\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"m5 12 4 4L19 6\"/></svg></button>",
+      "css": ".ds-option { display:flex; align-items:center; gap:12px; min-height:60px; width:100%; padding:16px; border:2px solid #0078d4; border-radius:16px; background:#0b2b48; color:#f4f6f8; font:600 17px/25px system-ui; text-align:left; cursor:pointer; } .ds-option-marker { display:grid; place-items:center; min-width:30px; min-height:30px; border:1px solid #0078d4; border-radius:8px; color:#0078d4; font-weight:700; } .ds-option svg { margin-left:auto; flex-shrink:0; color:#0078d4; } .ds-option:hover,.ds-option:active { background:#0b2b48; } .ds-option:focus-visible { outline:2px solid #0078d4; outline-offset:3px; }"
+    },
+    {
+      "name": "Barra de progresso",
+      "kind": "custom",
+      "description": "LessonProgress mostra contagem e largura proporcionais aos passos confirmados; valores deste snippet são apenas ilustrativos.",
+      "html": "<div class=\"ds-progress-row\"><div class=\"ds-progress\" role=\"progressbar\" aria-label=\"Atividades concluídas\" aria-valuemin=\"0\" aria-valuemax=\"3\" aria-valuenow=\"1\"><span class=\"ds-progress-fill\"></span></div><span>1/3</span></div>",
+      "css": ".ds-progress-row { display:flex; align-items:center; gap:12px; color:#9da7b3; font:400 14px system-ui; font-variant-numeric:tabular-nums; } .ds-progress { flex:1; height:12px; border-radius:6px; overflow:hidden; background:#1a1e23; } .ds-progress-fill { display:block; width:33.3333%; height:12px; border-radius:6px; background:#63d99b; transition:width 220ms; } @media (prefers-reduced-motion:reduce) { .ds-progress-fill { transition:none; } }"
     }
-  },
-  "spacing": [4, 8, 12, 16, 24, 32],
-  "touchTarget": 48,
-  "typography": {
-    "title": [28, 34],
-    "heading": [20, 27],
-    "body": [16, 24],
-    "secondary": [14, 21],
-    "caption": [12, 17]
-  },
-  "icons": { "library": "Tabler React Native", "size": 24, "strokeWidth": 1.8 },
-  "navigation": {
-    "tabs": ["Início", "Explorar", "Aprender", "Notificações", "Mensagens"],
-    "drawer": "avatar header",
-    "fab": "create post"
+  ],
+  "narrative": {
+    "northStar": "Stacklyst social native",
+    "overview": "Interface nativa para leitura, participação e estudo, com estrutura social inspirada no X e identidade própria do Stacklyst. A referência orienta navegação e densidade; marca, logo e conteúdo pertencem ao projeto.\n\nA prática concentra uma atividade e uma próxima ação por vez: ler, responder, verificar no servidor, compreender o resultado e continuar. O contrato de direção está no comentário inicial de `src/features/learning/LessonSession.tsx`. Preservar o logo original e o mascote existente em `assets/robot.png`; esta superfície reutiliza esses ativos.",
+    "keyCharacteristics": [
+      "Fundo contínuo, divisórias discretas e hierarquia legível.",
+      "Azul para ações sociais; verde para ação e feedback de aprendizagem.",
+      "Uma atividade por vez, opções amplas e próxima ação persistente.",
+      "Estados acessíveis e confirmação do servidor para resultados reais."
+    ],
+    "rules": [
+      {
+        "name": "The Server Confirmation Rule",
+        "body": "Avaliação, progresso persistido e XP vêm do servidor; seleção local ou animação não comprovam conclusão.",
+        "section": "colors"
+      }
+    ],
+    "dos": [
+      "**Do** usar `useTheme` e os tokens semânticos nas duas paletas.",
+      "**Do** preservar o logo original, o robô existente e os rótulos acessíveis.",
+      "**Do** manter uma próxima ação clara, feedback legível e avaliação no servidor.",
+      "**Do** respeitar área segura, teclado, escala de fonte e redução de movimento.",
+      "**Do** conferir os estados nativos em dispositivo antes de marcar a aparência como verificada."
+    ],
+    "donts": [
+      "**Don't** criar progresso, XP, ator de notificação ou confirmação fictícios.",
+      "**Don't** trocar ícones vetoriais por emojis ou substituir os ativos existentes.",
+      "**Don't** reduzir fonte para acomodar código ou esconder o estado de erro.",
+      "**Don't** ativar demonstração automaticamente quando a API falhar."
+    ]
   }
 }

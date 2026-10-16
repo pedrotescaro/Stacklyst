@@ -1,4 +1,5 @@
 export function safeRoute(path: string | undefined) {
+  if (path === '/messages/new') return path;
   if (!path || !path.startsWith('/') || path.startsWith('//') || /[\\\u0000-\u001f]/.test(path))
     return '/';
   try {
@@ -17,4 +18,14 @@ export function notificationRoute(path?: string) {
   if (path === '/duels') return '/duels';
   if (path === '/trails') return '/learn';
   return safeRoute(path);
+}
+
+export function notificationDestination(item: {
+  link?: string | null;
+  actor?: { username: string } | null;
+}) {
+  if (item.link) return notificationRoute(item.link);
+  return item.actor?.username && /^[a-zA-Z0-9_-]+$/.test(item.actor.username)
+    ? '/profile/' + item.actor.username
+    : null;
 }
