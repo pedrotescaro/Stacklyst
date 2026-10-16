@@ -87,6 +87,8 @@ export function RemoteList<T extends { id: string }>({
   loadingVariant = 'list',
   empty,
   onRefreshed,
+  refetchInterval,
+  filter,
 }: {
   path: string;
   render: (item: T) => ReactNode;
@@ -96,11 +98,14 @@ export function RemoteList<T extends { id: string }>({
   loadingVariant?: 'list' | 'feed';
   empty?: ReactNode;
   onRefreshed?: () => void;
+  refetchInterval?: number;
+  filter?: (item: T) => boolean;
 }) {
   const { colors } = useTheme();
   const q = useInfiniteQuery({
     queryKey: ['list', path],
     initialPageParam: '',
+    refetchInterval,
     queryFn: ({ pageParam, signal }) =>
       api<Page<T>>(
         path + (path.includes('?') ? '&' : '?') + 'cursor=' + encodeURIComponent(pageParam),
@@ -108,7 +113,9 @@ export function RemoteList<T extends { id: string }>({
       ),
     getNextPageParam: (p) => p.nextCursor || undefined,
   });
-  const rows = [...new Map(q.data?.pages.flatMap((p) => p.items).map((i) => [i.id, i])).values()];
+  const rows = [
+    ...new Map(q.data?.pages.flatMap((p) => p.items).map((i) => [i.id, i])).values(),
+  ].filter((item) => !filter || filter(item));
   if (chronological) rows.reverse();
   const older = () => {
     if (q.hasNextPage && !q.isFetching) void q.fetchNextPage();

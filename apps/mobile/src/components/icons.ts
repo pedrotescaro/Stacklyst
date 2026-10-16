@@ -14,6 +14,8 @@ export { default as IconChevronRight } from '@tabler/icons-react-native/IconChev
 export { default as IconCode } from '@tabler/icons-react-native/IconCode';
 export { default as IconEdit } from '@tabler/icons-react-native/IconEdit';
 export { default as IconHome } from '@tabler/icons-react-native/IconHome';
+export { default as IconHeart } from '@tabler/icons-react-native/IconHeart';
+export { default as IconBulb } from '@tabler/icons-react-native/IconBulb';
 export { default as IconLetterT } from '@tabler/icons-react-native/IconLetterT';
 export { default as IconLock } from '@tabler/icons-react-native/IconLock';
 export { default as IconLogout } from '@tabler/icons-react-native/IconLogout';

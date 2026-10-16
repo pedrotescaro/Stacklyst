@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { IconBriefcase, IconCalendarEvent, IconUsers } from '~/components/icons';
+import { IconBriefcase, IconCalendarEvent } from '~/components/icons';
 import { Screen, Field, RowLink, Avatar, Notice } from '~/components/ui';
 import { RemoteList } from '~/components/remote';
 import { PostCard } from '~/features/feed/PostCard';
@@ -100,12 +100,7 @@ export default function Explore({ fromTab = false }: { fromTab?: boolean } = {})
         header={
           query.length < 2 ? (
             <View style={{ paddingHorizontal: 20 }}>
-              <RowLink
-                title="Comunidades"
-                subtitle="Pessoas com os mesmos interesses"
-                leading={<IconUsers color={colors.muted} size={24} />}
-                onPress={() => router.push('/communities')}
-              />
+              {/* Communities are disabled in mobile; events and jobs stay available. */}
               <RowLink
                 title="Eventos"
                 subtitle="Desafios e encontros da comunidade"

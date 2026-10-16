@@ -15,6 +15,9 @@ const dark = {
   border: '#292d33',
   success: '#63d99b',
   successSurface: '#153c2b',
+  onSuccess: '#002616',
+  dangerSurface: '#34191e',
+  like: '#ff678b',
   danger: '#ff8c95',
   warning: '#f2cb6d',
 };
@@ -31,6 +34,9 @@ const light: Palette = {
   border: '#cfd9de',
   success: '#087d48',
   successSurface: '#e4f5eb',
+  onSuccess: '#ffffff',
+  dangerSurface: '#ffebee',
+  like: '#c72250',
   danger: '#c32240',
   warning: '#826000',
 };

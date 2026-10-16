@@ -39,9 +39,15 @@ try {
 
     $taskArtifacts = Join-Path $taskMobileRoot 'artifacts'
     New-Item -ItemType Directory -Path $taskArtifacts -Force | Out-Null
-    $taskDestination = Join-Path $taskArtifacts 'Stacklyst-0.1.1-arm64.apk'
+    $taskVersion = (Get-Content -LiteralPath (Join-Path $taskMobileRoot 'app.json') -Raw | ConvertFrom-Json).expo.version
+    if ($taskVersion -notmatch '^\d+\.\d+\.\d+$') { throw 'Invalid APK version.' }
+    $taskDestination = Join-Path $taskArtifacts "Stacklyst-$taskVersion-arm64.apk"
     Copy-Item -LiteralPath $taskApk -Destination $taskDestination -Force
-    Get-FileHash -LiteralPath $taskDestination -Algorithm SHA256
+    $taskHasher = [System.Security.Cryptography.SHA256]::Create()
+    $taskFile = [System.IO.File]::OpenRead($taskDestination)
+    try { $taskHash = [System.BitConverter]::ToString($taskHasher.ComputeHash($taskFile)).Replace('-', '') }
+    finally { $taskFile.Dispose(); $taskHasher.Dispose() }
+    Write-Host "SHA256: $taskHash"
     Write-Host "APK verified: $taskDestination"
 } finally {
     $env:EXPO_PUBLIC_API_URL = $taskOriginalApi

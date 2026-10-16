@@ -25,8 +25,6 @@ import {
   IconLogout,
   IconShieldCheck,
   IconBuilding,
-  IconSun,
-  IconMoon,
 } from '~/components/icons';
 import { useTheme } from '../theme';
 import { useMe, useSession } from '../lib/session';
@@ -37,7 +35,7 @@ import { useReducedMotion } from '../lib/motion';
 import { Avatar, IconButton } from './ui';
 
 export function AppDrawer({ children }: { children: ReactNode }) {
-  const { colors: c, isDark, setMode } = useTheme();
+  const { colors: c } = useTheme();
   const { isPreview } = useSession();
   const me = useMe();
   const insets = useSafeAreaInsets();
@@ -188,44 +186,35 @@ export function AppDrawer({ children }: { children: ReactNode }) {
                   </Pressable>
                 ))}
               </View>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  borderTopWidth: StyleSheet.hairlineWidth,
-                  borderColor: c.border,
-                  marginTop: 16,
-                  paddingTop: 12,
-                }}
-              >
-                <IconButton
-                  label={isDark ? 'Ativar tema claro' : 'Ativar tema escuro'}
-                  onPress={() => setMode(isDark ? 'light' : 'dark')}
-                  icon={
-                    isDark ? (
-                      <IconSun color={c.text} size={24} />
-                    ) : (
-                      <IconMoon color={c.text} size={24} />
-                    )
-                  }
-                />
-                {isPreview && (
-                  <Pressable
-                    accessibilityRole="button"
-                    onPress={() => {
-                      closeDrawer();
-                      disablePreview();
-                      queryClient.clear();
-                      router.replace('/auth');
-                    }}
-                    style={{ minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 8 }}
-                  >
-                    <IconLogout color={c.primary} size={20} />
-                    <Text style={{ color: c.primary, fontWeight: '700' }}>Entrar na conta</Text>
-                  </Pressable>
-                )}
-              </View>
+              {isPreview && (
+                <View
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    borderTopWidth: StyleSheet.hairlineWidth,
+                    borderColor: c.border,
+                    marginTop: 16,
+                    paddingTop: 12,
+                  }}
+                >
+                  {isPreview && (
+                    <Pressable
+                      accessibilityRole="button"
+                      onPress={() => {
+                        closeDrawer();
+                        disablePreview();
+                        queryClient.clear();
+                        router.replace('/auth');
+                      }}
+                      style={{ minHeight: 48, flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                    >
+                      <IconLogout color={c.primary} size={20} />
+                      <Text style={{ color: c.primary, fontWeight: '700' }}>Entrar na conta</Text>
+                    </Pressable>
+                  )}
+                </View>
+              )}
             </ScrollView>
           </Animated.View>
         </View>
