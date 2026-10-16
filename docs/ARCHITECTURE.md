@@ -17,7 +17,7 @@ This document details the architecture, design choices, folder structure, and da
 
 ```text
 ├── .github/
-│   └── workflows/        # CI/CD and Daily Cron actions
+│   └── workflows/        # CI/CD actions
 ├── docs/                 # Architecture, database and deployment docs
 ├── prisma/
 │   ├── schema.prisma     # Relational database models
@@ -71,3 +71,9 @@ sequenceDiagram
     API-->>PostCard: Return success and new reaction type
     PostCard-->>User: Play sound and update Badge count
 ```
+
+### 3. Daily Quiz Without AI
+
+The authenticated `GET /api/quiz/daily` request creates the day's quiz on demand from a local catalog of reviewed programming questions. A question is selected only when a community post contains explanatory programming content that matches its topic; the resulting quiz links to that source post. This flow does not use an AI provider or require GitHub Actions secrets.
+
+If no eligible post matches a question, the endpoint returns no quiz for that day instead of selecting an unrelated question or reusing an older daily quiz. The protected `POST /api/admin/quiz/generate-daily` endpoint remains available for optional administrative scheduling.

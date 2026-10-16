@@ -18,7 +18,6 @@ erDiagram
     Post ||--o{ Reaction : "has"
     Post ||--o{ Bookmark : "has"
     Post ||--o{ Quiz : "optionally links to"
-    QuizLibrary ||--o{ Quiz : "instantiates"
 ```
 
 ---
@@ -47,9 +46,15 @@ erDiagram
 - **Fields:** `user_id` (UUID), `post_id` (UUID), `created_at` (DateTime).
 - **Indexes:** Primary key on `[user_id, post_id]`.
 
+### `Quiz`
+
+- Stores questions and answer options, with an optional source post and a unique daily scheduling date.
+- Daily quizzes use reviewed local questions matched to explanatory programming content in a source post, without AI. If no post is eligible, no daily quiz is created.
+- **Relevant fields:** `post_id` (UUID, optional), `question` (Text), `options` (JSON Array), `correct_index` (Int), `is_daily` (Boolean), `scheduled_for` (DateTime, unique and optional).
+
 ### `QuizLibrary`
 
-- Curated library of pre-configured tech quizzes used as the primary source for the daily quiz.
+- Legacy storage for pre-configured technical questions. Daily quiz generation uses the local reviewed catalog and does not require this table to be seeded.
 - **Fields:** `id` (UUID), `question` (Text), `options` (JSON Array), `correct_index` (Int), `tags` (Text Array).
 
 ---

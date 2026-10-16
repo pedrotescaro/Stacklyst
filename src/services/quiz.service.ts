@@ -1,82 +1,15 @@
 import { prisma } from '@/lib/prisma';
-import { logger } from '@/lib/logger';
 import { saveLessonAssessment, requireLessonAccess } from '@/lib/learning/lesson-progress';
 import { LEARNING_LESSONS } from '@/lib/learning/catalog';
 import { AppError } from '@/lib/errors';
 import type { Lesson, LessonStep } from '@/lib/lessons/types';
 import { findTrailQuestionById } from '@/lib/trailsData';
-import { FALLBACK_QUIZZES, XP_QUIZ_CORRECT } from '@/lib/config';
+import { XP_QUIZ_CORRECT } from '@/lib/config';
 import { findCurriculumLessonStepById } from '@/lib/lessons/registry';
-
-type QuizContent = {
-  question: string;
-  options: string[];
-  correct_index: number;
-};
+import { generateDailyQuiz } from './daily-quiz.service';
 
 export const QuizService = {
-  async generateDaily(scheduledFor: Date) {
-    const todayStr = new Date(scheduledFor.getTime());
-    todayStr.setUTCHours(0, 0, 0, 0);
-
-    // 1. Idempotent check
-    const existing = await prisma.quiz.findUnique({
-      where: { scheduled_for: todayStr },
-    });
-
-    if (existing) {
-      logger.info('Daily quiz already exists for date', { date: todayStr.toISOString() });
-      return existing;
-    }
-
-    let quizData: QuizContent | null = null;
-    let source: 'library' | 'built-in' = 'library';
-
-    // Daily quizzes come from curated content instead of a paid AI request.
-    const libraryCount = await prisma.quizLibrary.count();
-    if (libraryCount > 0) {
-      const randomIndex = Math.floor(Math.random() * libraryCount);
-      const libraryItems = await prisma.quizLibrary.findMany({
-        skip: randomIndex,
-        take: 1,
-      });
-
-      if (libraryItems.length > 0) {
-        const item = libraryItems[0];
-        quizData = {
-          question: item.question,
-          options: item.options as string[],
-          correct_index: item.correct_index,
-        };
-      }
-    }
-
-    // Keep the daily experience available even before the curated library is seeded.
-    if (!quizData) {
-      const builtInQuizzes = Object.values(FALLBACK_QUIZZES);
-      const dayIndex = Math.floor(todayStr.getTime() / 86_400_000);
-      quizData = builtInQuizzes[Math.abs(dayIndex) % builtInQuizzes.length];
-      source = 'built-in';
-    }
-
-    const createdQuiz = await prisma.quiz.create({
-      data: {
-        question: quizData.question,
-        options: quizData.options,
-        correct_index: quizData.correct_index,
-        is_daily: true,
-        scheduled_for: todayStr,
-      },
-    });
-
-    logger.info('Quiz generated successfully', {
-      source,
-      scheduledFor: todayStr.toISOString(),
-      quizId: createdQuiz.id,
-    });
-
-    return createdQuiz;
-  },
+  generateDaily: generateDailyQuiz,
 
   async validateQuizAnswer(userId: string, quizId: string, selectedIndex: number) {
     const trail = findTrailQuestionById(quizId);
