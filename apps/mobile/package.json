@@ -12,6 +12,7 @@
     "postinstall": "node scripts/build-editor.mjs",
     "test:preview": "node scripts/check-preview.mjs",
     "test:logout": "node scripts/check-logout.mjs",
+    "test:notifications": "node scripts/check-notifications.mjs",
     "eas-build-post-install": "npm run build:editor",
     "export": "npm run build:editor && expo export --platform all",
     "lint": "eslint ."

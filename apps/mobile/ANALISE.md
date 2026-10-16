@@ -84,6 +84,14 @@ O script `node scripts/check-preview.mjs` foi executado com sucesso. Ele exercit
 
 Esses resultados pertencem a esta revisão. A aprovação visual em aparelho não foi inferida de leitura de código ou de bundles gerados.
 
+### Correção da inicialização no Expo Go
+
+O teste em aparelho enviado pelo usuário revelou `Cannot find native module 'ExpoTopicSubscriptionModule'` ao avaliar a importação de `expo-notifications` no layout e em Configurações. Os avisos de rota sem export default e o erro de `ErrorBoundary` vieram após essa falha de importação; ambas as rotas possuem seus componentes default.
+
+O carregamento passou a ser opcional e sob demanda, com detecção específica de Expo Go por `isRunningInExpoGo()`. Nesse cliente e na web, o pacote não é avaliado. Em builds próprios, o módulo continua disponível para push, lembretes e abertura de notificações; se o binário estiver incompatível, sua ausência não derruba o app. A aba Notificações usa a API e independe desse módulo. Push e lembretes locais ficam reservados às versões próprias, inclusive para evitar a importação indireta do módulo ausente nos lembretes do Expo Go.
+
+`npm run test:notifications` exercita os ambientes com o módulo nativo ausente e presente, incluindo importação das rotas. Essa regressão é distinta da exportação de bundle: reproduz a falha durante avaliação JavaScript, sem afirmar nova execução visual em aparelho.
+
 Builds de bundle e verificações estáticas têm um escopo diferente de um APK executado no Android. Não foi afirmado funcionamento ao vivo de autenticação, backend, notificações ou serviços externos com base apenas nesses checks.
 
 Referências oficiais consultadas: [Expo Router SDK 57](https://docs.expo.dev/versions/v57.0.0/sdk/router/), [EAS APK](https://docs.expo.dev/build-reference/apk/), [ambientes EAS](https://docs.expo.dev/eas/environment-variables/), [Supabase Auth React Native](https://supabase.com/docs/guides/auth/quickstarts/react-native) e [changelog Supabase](https://supabase.com/changelog).

@@ -19,6 +19,8 @@ npx expo start
 
 Abra o QR code no Expo Go compatível com SDK 57. Com um emulador Android em execução, pressione `a`; para abrir a versão web de desenvolvimento, pressione `w`. `Ctrl+C` encerra o Metro. O projeto não exige um development client.
 
+Push e lembretes locais usam o módulo de notificações somente no APK próprio. No Expo Go, o app não importa esse módulo: a entrada do pacote SDK 57 tenta carregar `ExpoTopicSubscriptionModule`, ausente nesse cliente. A aba Notificações continua usando a API da plataforma. Após atualizar esse código, pare o Metro com `Ctrl+C` e execute `npx expo start --clear` para descartar o bundle antigo.
+
 Sem variáveis de ambiente, use **Explorar demonstração** na tela inicial. Esse modo usa exemplos locais identificados, somente leitura, nas mesmas telas do app. Ele não cria conta, autenticação, XP ou publicações. Não há troca automática para mocks se a API real falhar.
 
 Para desenvolvimento com código nativo, `npm run android` exige Android Studio/JDK/SDK configurados; `npm run ios` exige macOS e Xcode. O editor de exercícios usa CodeMirror numa WebView isolada. A navegação e as telas são React Native.
@@ -81,6 +83,7 @@ Os comandos abaixo são executados dentro de `apps/mobile`. Eles usam a conta Ex
    npx expo install --check
    npm run test:preview
    npm run test:logout
+   npm run test:notifications
    ```
 
 4. Gere o APK. Quando o EAS solicitar credenciais Android, selecione a keystore existente do app ou a geração de uma nova para a primeira distribuição:
@@ -123,6 +126,7 @@ apps/mobile/
     build-editor.mjs         Gera o HTML do editor
     check-preview.mjs        Verifica fixtures e bloqueio de rede/escrita na demo
     check-logout.mjs         Verifica saída local com falha/timeout de push
+    check-notifications.mjs  Verifica inicialização sem módulo nativo no Expo Go
   app.json                   Identidade e configuração nativa
   eas.json                   Perfis Android APK e produção
 ```

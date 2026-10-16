@@ -1,10 +1,12 @@
-import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { config } from './config';
 import { api, send } from './api';
+import { loadNotifications, notificationsUnavailableMessage } from './notification-runtime';
 export async function enablePush() {
+  const Notifications = await loadNotifications();
+  if (!Notifications) throw new Error(notificationsUnavailableMessage);
   if (Platform.OS === 'web' || !Device.isDevice)
     throw new Error('Push requer um aparelho físico e development build.');
   if (!config.projectId)
@@ -52,7 +54,8 @@ export async function clearNotificationsForLogout(timeoutMs = 1500) {
   }
 }
 export async function setReminder(hour: number, minute: number) {
-  if (Platform.OS === 'web') throw new Error('Lembretes estão disponíveis no app instalado.');
+  const Notifications = await loadNotifications();
+  if (!Notifications) throw new Error(notificationsUnavailableMessage);
   const p = await Notifications.requestPermissionsAsync();
   if (p.status !== 'granted') throw new Error('Permita notificações para criar o lembrete.');
   await Notifications.cancelAllScheduledNotificationsAsync();
@@ -66,5 +69,6 @@ export async function setReminder(hour: number, minute: number) {
   });
 }
 export async function cancelReminder() {
-  await Notifications.cancelAllScheduledNotificationsAsync();
+  const Notifications = await loadNotifications();
+  if (Notifications) await Notifications.cancelAllScheduledNotificationsAsync();
 }
