@@ -20,6 +20,8 @@ jobs:
         run: npm audit --prefix apps/mobile --audit-level=high
       - name: Check mobile types and lint
         run: npm --prefix apps/mobile run typecheck && npm --prefix apps/mobile run lint
+      - name: Check preview isolation and offline logout
+        run: npm --prefix apps/mobile run test:preview && npm --prefix apps/mobile run test:logout
       - name: Bundle Android and iOS
         working-directory: apps/mobile
         run: npm run export -- --max-workers 2
