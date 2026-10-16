@@ -1,145 +1,71 @@
-<p align="center">
-  <img src="public/logo.png" alt="Stacklyst Logo" width="128" height="128" />
-</p>
+# Stacklyst
 
-<h1 align="center">Stacklyst</h1>
+Plataforma para desenvolvedores compartilharem conhecimento, praticarem programação e acompanharem sua evolução.
 
-<p align="center">
-  <strong>A plataforma gamificada definitiva para desenvolvedores se conectarem, competirem e evoluírem.</strong>
-</p>
+## Recursos
 
-<div align="center">
+- **Comunidade:** feed, dúvidas técnicas, respostas, notificações, mensagens e perfis.
+- **Duelos de código:** desafios 1v1, matchmaking, convites diretos, editor CodeMirror e votação da comunidade.
+- **Aprendizado:** trilhas por linguagem, XP, quiz diário e ofensivas de atividade.
+- **Conquistas:** badges como Sobrevivente do Segfault, Mago do TypeScript e Git Push --force.
+- **Interface:** tema escuro, identidade visual em azul e navegação adaptada para dispositivos móveis.
 
-[![Next.js](https://img.shields.io/badge/Next.js-16-000000?style=flat-square&logo=nextdotjs&logoColor=white)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind](https://img.shields.io/badge/TailwindCSS-v4-38BDF8?style=flat-square&logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Prisma](https://img.shields.io/badge/Prisma-7.x-2D3748?style=flat-square&logo=prisma&logoColor=white)](https://www.prisma.io/)
-[![Supabase](https://img.shields.io/badge/Supabase-Auth%20%26%20DB-3ECF8E?style=flat-square&logo=supabase&logoColor=white)](https://supabase.com/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+Os convites para duelos duram 72 horas, com publicação opcional na arena após a expiração. Recusar ou ignorar um convite não reduz XP; o cooldown ocorre apenas após abandonos repetidos de duelos aceitos. Consulte as [regras de avaliadores e duelos](docs/RULES.md) para mais detalhes.
 
-</div>
+## Tecnologias
 
----
+Next.js 16, React 19, TypeScript, Tailwind CSS 4, Prisma 7, PostgreSQL e Supabase.
 
-## ⚡ Conecte-se. Codifique. Conquiste.
+## Executar localmente
 
-O **Stacklyst** transforma a interação social entre programadores em uma jornada interativa de aprendizado e diversão. Compartilhe suas dúvidas técnicas, ajude a comunidade, dispute duelos de código em tempo real e desbloqueie badges que provam sua senioridade (e senso de humor).
-
----
-
-## 📖 Documentação do Projeto
-
-Explore as especificações detalhadas do projeto e guias de infraestrutura:
-
-- **[Guia de Contribuição](CONTRIBUTING.md):** Saiba como reportar bugs, sugerir melhorias e enviar Pull Requests.
-- **[Arquitetura do Sistema](docs/ARCHITECTURE.md):** Visão geral da organização de diretórios, escolhas técnicas e fluxo de dados.
-- **[Modelagem de Banco de Dados](docs/DATABASE.md):** Diagramas ER, indexações de Full-Text Search e dicionário de modelos.
-- **[Guia de Implantação e Deploy](docs/DEPLOYMENT.md):** Passo a passo detalhado para colocar a plataforma em produção via Vercel e Supabase.
-- **[Regras de Avaliadores e Duelos](docs/RULES.md):** Critérios de candidatura, progressão, convites, prazos e consequências.
-
----
-
-## 📌 Experiência do Usuário (Destaques)
-
-<table width="100%">
-  <tr>
-    <td width="50%" valign="top">
-      <h4>🎨 Design Twitter/X OLED Black & Electric Blue</h4>
-      <ul>
-        <li>Interface super fluida com a identidade visual <b>Electric Blue (#0083fe)</b> e navegação focada em Feed, Trilhas, Notificações, Mensagens e Perfil.</li>
-        <li>Tema escuro nativo (OLED) para sessões de codificação noturnas saudáveis, configurável nas opções de Aparência.</li>
-        <li>Visual mobile minimalista com bottom navigation bar.</li>
-      </ul>
-    </td>
-    <td width="50%" valign="top">
-      <h4>⚔️ Duelos de Código 1v1</h4>
-      <ul>
-        <li>Matchmaking dinâmico para disputas de algoritmo.</li>
-        <li>Convites diretos de 72 horas, com publicação opcional na arena após a expiração.</li>
-        <li>Recusar ou ignorar não reduz XP; cooldown só ocorre após abandonos repetidos de duelos aceitos.</li>
-        <li>Editor de código integrado alimentado por <b>CodeMirror</b>.</li>
-        <li>Votação aberta para a comunidade escolher a melhor solução de forma justa.</li>
-      </ul>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" valign="top">
-      <h4>🎮 Motor de Gamificação</h4>
-      <ul>
-        <li>Trilhas de XP independentes para linguagens (TypeScript, Rust, Python, Go, C++, etc.).</li>
-        <li>Contadores de ofensiva (Streaks) para incentivar a consistência diária.</li>
-        <li><b>Quiz Diário</b> selecionado de uma biblioteca de questões técnicas revisadas.</li>
-      </ul>
-    </td>
-    <td width="50%" valign="top">
-      <h4>🎖️ Badges Exclusivos</h4>
-      <ul>
-        <li>Insígnias meméticas com designs geométricos sofisticados (Hexágonos, Escudos, Anéis concêntricos) inspirados no Credly.</li>
-        <li>Conquistas como <i>Sobrevivente do Segfault</i>, <i>Mago do TypeScript</i> e <i>Git Push --force</i>.</li>
-      </ul>
-    </td>
-  </tr>
-</table>
-
----
-
-## 🐳 Rodar com Docker (Recomendado)
-
-A forma mais simples de rodar o Stacklyst em **qualquer PC**. Você só precisa de [Docker](https://docs.docker.com/get-docker/) instalado.
-
-#### 1. Clone o repositório
+Clone o repositório na branch `main`:
 
 ```bash
-git clone https://github.com/pedrotescaro/Stacklyst.git
+git clone --branch main https://github.com/pedrotescaro/Stacklyst.git
 cd Stacklyst
-git checkout develop
 ```
 
-#### 2. Configure o ambiente
+### Com Docker
+
+Instale o [Docker](https://docs.docker.com/get-docker/) e copie o arquivo de ambiente:
 
 ```bash
 cp .env.docker.example .env.docker
 ```
 
-Edite o `.env.docker` e preencha com suas credenciais do Supabase (obrigatório para login/registro). Se quiser apenas ver as páginas públicas, pode pular este passo.
-
-#### 3. Suba os containers
+Preencha as credenciais do Supabase em `.env.docker` para habilitar login e registro. Para consultar apenas as páginas públicas, mantenha o arquivo de ambiente sem essas credenciais.
 
 ```bash
-# Modo desenvolvimento (com hot-reload)
+# Desenvolvimento com hot reload
 docker compose up
 
-# Modo produção (build otimizado)
+# Produção com build otimizado
 docker compose -f docker-compose.prod.yml up --build -d
 ```
 
-Abra [http://localhost:3000](http://localhost:3000) 🎉
+O PostgreSQL é criado pelo Docker. Na primeira execução em desenvolvimento, o container instala as dependências e aplica as migrations, o que pode levar alguns minutos.
 
-> [!NOTE]
-> O banco PostgreSQL é criado automaticamente no Docker. No primeiro start, o container instala dependências e roda migrations — pode levar 1-2 minutos.
+Para popular o banco com dados de teste, configure `SEED_DEFAULT_PASSWORD` em `.env.local` antes de executar:
 
-> [!TIP]
-> Para popular o banco com dados de teste (badges, quizzes, usuários), rode:
->
-> ```bash
-> docker compose exec web sh -c "npx prisma db seed"
-> ```
+```bash
+docker compose exec web sh -c "npx prisma db seed"
+```
 
----
+### Sem Docker
 
-## 🛠️ Primeiros Passos (Instalação Manual)
+Instale Node.js 20+ e tenha uma instância PostgreSQL 15+ disponível.
 
-Se preferir rodar **sem Docker**, instale Node.js 20+ e PostgreSQL 15+ na sua máquina:
-
-#### 1. Instalar as dependências do projeto
+**1. Instale as dependências.**
 
 ```bash
 npm install
 ```
 
-#### 2. Configurar o arquivo `.env.local`
+**2. Copie `.env.example` para `.env.local` e configure o ambiente.**
 
-Crie um arquivo chamado `.env.local` na raiz (copiando do `.env.example`) e configure com as conexões do seu banco de dados Supabase:
+```bash
+cp .env.example .env.local
+```
 
 ```env
 DATABASE_URL="postgresql://..."
@@ -147,85 +73,59 @@ DIRECT_URL="postgresql://..."
 NEXT_PUBLIC_SUPABASE_URL="https://..."
 NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY="sb_publishable_..."
 SUPABASE_SECRET_KEY="sb_secret_..."
+SEED_DEFAULT_PASSWORD="defina-uma-senha-com-pelo-menos-12-caracteres"
 ```
 
-> A URL e a chave publishable habilitam o Supabase Auth, mas não substituem a
-> conexão PostgreSQL. Registro, feed e demais dados do app exigem
-> `DIRECT_URL` ou `DATABASE_URL`. A secret key é server-only e também é usada
-> pelo seed e pelo fallback REST.
+A URL e a chave publishable habilitam o Supabase Auth. Registro, feed e demais dados também exigem uma conexão PostgreSQL por `DIRECT_URL` ou `DATABASE_URL`. A `SUPABASE_SECRET_KEY` é exclusiva do servidor e usada pelo seed e pelo fallback REST.
 
-#### 3. Sincronizar o Prisma e Popular o Banco (Seed)
+**3. Gere o cliente Prisma, sincronize o banco e insira os dados iniciais.**
 
 ```bash
-# Gerar o cliente Prisma
 npx prisma generate
-
-# Executar as migrations no banco
 npx prisma db push
-
-# Inserir badges, trilhas, quizzes iniciais e usuários de teste
 npx prisma db seed
 ```
 
-#### 4. Executar o Servidor Local
+**4. Inicie o servidor.**
 
 ```bash
 npm run dev
 ```
 
-Abra seu navegador em [http://localhost:3000](http://localhost:3000).
+Em ambos os modos, acesse [localhost:3000](http://localhost:3000).
 
----
+### Contas de teste
 
-## 🛠️ Desenvolvimento e Qualidade de Código
+O seed cria as contas abaixo. A senha é o valor definido em `SEED_DEFAULT_PASSWORD` no arquivo `.env.local` e deve ter pelo menos 12 caracteres.
 
-A plataforma possui ferramentas configuradas para garantir a padronização e a qualidade do código:
+| Nome   | E-mail                 | Especialidade           |
+| ------ | ---------------------- | ----------------------- |
+| Pedro  | `pedro@stacklyst.dev`  | TypeScript e JavaScript |
+| Ana    | `ana@stacklyst.dev`    | Python e Django         |
+| Carlos | `carlos@stacklyst.dev` | Rust e C++              |
 
-- **Typecheck:** Verifica os tipos TypeScript:
-  ```bash
-  npm run typecheck
-  ```
-- **Linter:** Analisa o código com ESLint para boas práticas:
-  ```bash
-  npm run lint
-  ```
-- **Format:** Formata o código automaticamente com Prettier (configuração de 2 espaços e aspas simples):
-  ```bash
-  npm run format
-  ```
-- **Testes (Vitest + Testing Library):**
-  - Executar todos os testes uma única vez:
-    ```bash
-    npm test
-    ```
-  - Executar testes no modo watch:
-    ```bash
-    npm run test:watch
-    ```
+Acesse `/login` com uma dessas contas e a senha configurada.
 
-### ⚓ Hooks de Pré-commit (Husky + lint-staged)
+## Desenvolvimento
 
-O **Husky** está configurado junto com o **lint-staged** para rodar verificações automáticas antes de cada commit. Quando você faz `git commit`, os arquivos TypeScript e JavaScript modificados serão automaticamente validados pelo ESLint (`eslint --fix`) e formatados pelo Prettier (`prettier --write`). Se houver algum erro de sintaxe ou lint impeditivo, o commit será bloqueado até que o problema seja resolvido.
+| Comando              | Descrição                                |
+| -------------------- | ---------------------------------------- |
+| `npm run typecheck`  | Verifica os tipos TypeScript.            |
+| `npm run lint`       | Executa o ESLint.                        |
+| `npm run format`     | Formata os arquivos com Prettier.        |
+| `npm test`           | Executa os testes com Vitest.            |
+| `npm run test:watch` | Executa os testes em modo de observação. |
 
----
+O Husky e o lint-staged executam ESLint e Prettier nos arquivos JavaScript e TypeScript preparados para commit. Erros de lint bloqueiam o commit até serem corrigidos.
 
-## 👥 Contas para Testes Rápidos
+## Documentação
 
-O seed cria três desenvolvedores com diferentes níveis de XP e trilhas de tecnologia. A senha dessas contas é definida por você no momento do seed através da variável de ambiente `SEED_DEFAULT_PASSWORD`.
+- [Contribuição](CONTRIBUTING.md): bugs, sugestões e pull requests.
+- [Arquitetura](docs/ARCHITECTURE.md): organização, escolhas técnicas e fluxo de dados.
+- [Banco de dados](docs/DATABASE.md): modelos, diagramas e índices de busca.
+- [Deploy](docs/DEPLOYMENT.md): implantação com Vercel e Supabase.
+- [Avaliadores e duelos](docs/RULES.md): candidaturas, progressão, convites e prazos.
 
-> [!IMPORTANT]
-> Defina `SEED_DEFAULT_PASSWORD` no seu `.env.local` **antes** de rodar `npx prisma db seed`.
+## Licença
 
-| Nome       | E-mail                 | Especialidade Principal |
-| :--------- | :--------------------- | :---------------------- |
-| **Pedro**  | `pedro@stacklyst.dev`  | TypeScript & JavaScript |
-| **Ana**    | `ana@stacklyst.dev`    | Python & Django         |
-| **Carlos** | `carlos@stacklyst.dev` | Rust & C++              |
-
-Acesse `/login` e utilize qualquer uma das contas acima com a senha que você configurou.
-
----
-
-<p align="center">
-  Desenvolvido com carinho para a comunidade dev. ☕✨
-</p>
+Distribuído sob a [licença MIT](LICENSE).
