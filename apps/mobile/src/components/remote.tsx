@@ -1,23 +1,103 @@
 import { ReactNode } from 'react';
 import { useInfiniteQuery, useMutation } from '@tanstack/react-query';
 import { FlashList } from '@shopify/flash-list';
-import { View, RefreshControl } from 'react-native';
+import { View, RefreshControl, StyleSheet } from 'react-native';
 import { api, send, errorMessage } from '../lib/api';
 import { Page } from '../lib/types';
 import { queryClient } from '../lib/query';
 import { Button, Label, Loading, Notice } from './ui';
-import { colors } from '../theme';
+import { useTheme } from '../theme';
+
+function ListSkeleton({ feed = false }: { feed?: boolean }) {
+  const { colors } = useTheme();
+  return (
+    <View
+      accessibilityRole="progressbar"
+      accessibilityLabel="Carregando conteúdo"
+      style={{ paddingTop: 4 }}
+    >
+      {[0, 1, 2, 3].map((item) => (
+        <View
+          key={item}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
+          style={{
+            flexDirection: 'row',
+            gap: 12,
+            paddingHorizontal: feed ? 16 : 0,
+            paddingVertical: 18,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            borderBottomColor: colors.border,
+          }}
+        >
+          <View
+            style={{ width: 44, height: 44, borderRadius: 22, backgroundColor: colors.elevated }}
+          />
+          <View style={{ flex: 1, gap: 10, paddingTop: 3 }}>
+            <View
+              style={{
+                width: '42%',
+                height: 13,
+                borderRadius: 4,
+                backgroundColor: colors.elevated,
+              }}
+            />
+            <View
+              style={{ width: '65%', height: 10, borderRadius: 4, backgroundColor: colors.surface }}
+            />
+            <View
+              style={{
+                width: '100%',
+                height: 13,
+                marginTop: 5,
+                borderRadius: 4,
+                backgroundColor: colors.elevated,
+              }}
+            />
+            <View
+              style={{
+                width: '90%',
+                height: 13,
+                borderRadius: 4,
+                backgroundColor: colors.elevated,
+              }}
+            />
+            {feed && (
+              <View
+                style={{
+                  width: '60%',
+                  height: 13,
+                  borderRadius: 4,
+                  backgroundColor: colors.elevated,
+                }}
+              />
+            )}
+          </View>
+        </View>
+      ))}
+    </View>
+  );
+}
 export function RemoteList<T extends { id: string }>({
   path,
   render,
   header,
   chronological = false,
+  edgeToEdge = false,
+  loadingVariant = 'list',
+  empty,
+  onRefreshed,
 }: {
   path: string;
   render: (item: T) => ReactNode;
   header?: ReactNode;
   chronological?: boolean;
+  edgeToEdge?: boolean;
+  loadingVariant?: 'list' | 'feed';
+  empty?: ReactNode;
+  onRefreshed?: () => void;
 }) {
+  const { colors } = useTheme();
   const q = useInfiniteQuery({
     queryKey: ['list', path],
     initialPageParam: '',
@@ -34,36 +114,56 @@ export function RemoteList<T extends { id: string }>({
     if (q.hasNextPage && !q.isFetching) void q.fetchNextPage();
   };
   return (
-    <FlashList
-      data={rows}
-      keyExtractor={(i) => i.id}
-      renderItem={({ item }) => <>{render(item)}</>}
-      ListHeaderComponent={
-        <>
-          {header}
-          {q.error && <Notice error={q.error} retry={() => q.refetch()} />}
-        </>
-      }
-      ListEmptyComponent={q.isPending ? <Loading /> : q.error ? null : <Notice />}
-      refreshControl={
-        <RefreshControl
-          tintColor={colors.primary}
-          refreshing={q.isRefetching}
-          onRefresh={() => q.refetch()}
-        />
-      }
-      onEndReached={chronological ? undefined : older}
-      onStartReached={chronological ? older : undefined}
-      onEndReachedThreshold={0.4}
-      onStartReachedThreshold={0.1}
-      maintainVisibleContentPosition={
-        chronological
-          ? { startRenderingFromBottom: true, autoscrollToBottomThreshold: 0.1 }
-          : undefined
-      }
-      ListFooterComponent={q.isFetchingNextPage ? <Loading /> : null}
-      contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 32 }}
-    />
+    <View style={{ flex: 1, width: '100%', maxWidth: 760, alignSelf: 'center' }}>
+      <FlashList
+        data={rows}
+        keyExtractor={(i) => i.id}
+        renderItem={({ item }) => <>{render(item)}</>}
+        ListHeaderComponent={
+          <>
+            {header}
+            {q.error && <Notice error={q.error} retry={() => q.refetch()} />}
+          </>
+        }
+        ListEmptyComponent={
+          <>
+            {q.isPending ? (
+              <ListSkeleton feed={loadingVariant === 'feed'} />
+            ) : q.error ? null : (
+              (empty ?? <Notice />)
+            )}
+          </>
+        }
+        refreshControl={
+          <RefreshControl
+            tintColor={colors.primary}
+            colors={[colors.primary]}
+            progressBackgroundColor={colors.surface}
+            refreshing={q.isRefetching && !q.isFetchingNextPage}
+            onRefresh={async () => {
+              const result = await q.refetch();
+              if (!result.isError) onRefreshed?.();
+            }}
+          />
+        }
+        onEndReached={chronological ? undefined : older}
+        onStartReached={chronological ? older : undefined}
+        onEndReachedThreshold={0.4}
+        onStartReachedThreshold={0.1}
+        maintainVisibleContentPosition={
+          chronological
+            ? { startRenderingFromBottom: true, autoscrollToBottomThreshold: 0.1 }
+            : undefined
+        }
+        ListFooterComponent={q.isFetchingNextPage ? <Loading /> : null}
+        contentContainerStyle={{
+          paddingHorizontal: edgeToEdge ? 0 : 16,
+          paddingBottom: edgeToEdge ? 104 : 32,
+        }}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
+      />
+    </View>
   );
 }
 export function Action({

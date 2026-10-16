@@ -1,5 +1,6 @@
 import { supabase } from './supabase';
 import { config } from './config';
+import { isPreviewEnabled, previewRequest, PreviewError } from './preview';
 export class ApiError extends Error {
   constructor(
     public status: number,
@@ -12,6 +13,16 @@ export class ApiError extends Error {
 let refresh: Promise<unknown> | null = null;
 export async function api<T>(path: string, init: RequestInit = {}, retry = true): Promise<T> {
   if (!path.startsWith('/api/')) throw new Error('Destino de API inválido.');
+  if (isPreviewEnabled()) {
+    try {
+      return await previewRequest<T>(path, init);
+    } catch (error) {
+      if (error instanceof PreviewError) throw new ApiError(error.status, error.message);
+      throw error;
+    }
+  }
+  if (!config.apiUrl || !config.supabaseUrl || !config.supabaseKey)
+    throw new ApiError(503, 'A conexão com o Stacklyst ainda não foi configurada.');
   const {
     data: { session },
   } = await supabase.auth.getSession();

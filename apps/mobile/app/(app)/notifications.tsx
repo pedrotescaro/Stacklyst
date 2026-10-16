@@ -1,21 +1,131 @@
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router } from 'expo-router';
-import { Screen, RowLink } from '~/components/ui';
+import {
+  IconArrowUp,
+  IconAt,
+  IconBell,
+  IconMessageCircle,
+  IconSwords,
+  IconTrophy,
+} from '~/components/icons';
+import { Screen, Avatar, Notice } from '~/components/ui';
 import { Action, RemoteList } from '~/components/remote';
-import { Notification } from '~/lib/types';
+import { Person } from '~/lib/types';
 import { notificationRoute } from '~/lib/links';
-export default function Notifications() {
+import { useTheme } from '~/theme';
+
+interface NotificationEntry {
+  id: string;
+  title: string;
+  content: string;
+  link?: string | null;
+  type?: string;
+  is_read?: boolean;
+  created_at?: string;
+  actor?: Person | null;
+  // Local demonstration fixtures also accept the former mobile representation.
+  read?: boolean;
+  createdAt?: string;
+}
+
+function timestamp(value?: string) {
+  if (!value) return '';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return '';
+  return date.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
+}
+
+function NotificationRow({ item }: { item: NotificationEntry }) {
+  const { colors } = useTheme();
+  const read = item.is_read ?? item.read ?? false;
+  const TypeIcon =
+    item.type === 'LIKE'
+      ? IconArrowUp
+      : item.type === 'ANSWER'
+        ? IconMessageCircle
+        : item.type === 'DUEL'
+          ? IconSwords
+          : item.type === 'XP' || item.type === 'QUIZ_CORRECT'
+            ? IconTrophy
+            : item.type === 'MENTION'
+              ? IconAt
+              : IconBell;
   return (
-    <Screen title="Notificações" back scroll={false}>
-      <RemoteList<Notification>
-        path="/api/notifications?useCursor=true&limit=20"
-        header={<Action secondary label="Marcar todas como lidas" path="/api/notifications" />}
-        render={(n) => (
-          <RowLink
-            title={(n.read ? '' : '• ') + n.title}
-            subtitle={n.content}
-            onPress={() => router.push(notificationRoute(n.link) as never)}
-          />
+    <Pressable
+      accessibilityRole={item.link ? 'button' : undefined}
+      accessibilityLabel={(read ? '' : 'Não lida. ') + item.title + '. ' + item.content}
+      disabled={!item.link}
+      onPress={() => router.push(notificationRoute(item.link ?? undefined) as never)}
+      style={({ pressed }) => ({
+        flexDirection: 'row',
+        alignItems: 'flex-start',
+        gap: 12,
+        minHeight: 96,
+        paddingHorizontal: 20,
+        paddingVertical: 16,
+        borderBottomWidth: StyleSheet.hairlineWidth,
+        borderBottomColor: colors.border,
+        backgroundColor: pressed ? colors.elevated : read ? 'transparent' : colors.surface,
+      })}
+    >
+      <View style={{ width: 48, height: 48, alignItems: 'center', justifyContent: 'center' }}>
+        {item.actor ? (
+          <Avatar name={item.actor.username} uri={item.actor.avatar_url} size={44} />
+        ) : (
+          <TypeIcon size={27} strokeWidth={1.8} color={read ? colors.muted : colors.primary} />
         )}
+      </View>
+      <View style={{ flex: 1, minWidth: 0, gap: 5 }}>
+        <Text
+          style={{
+            color: colors.text,
+            fontSize: 15,
+            lineHeight: 22,
+            fontWeight: read ? '600' : '700',
+          }}
+        >
+          {item.title}
+        </Text>
+        <Text style={{ color: colors.muted, fontSize: 14, lineHeight: 21 }}>{item.content}</Text>
+        {!!timestamp(item.created_at ?? item.createdAt) && (
+          <Text style={{ color: colors.muted, fontSize: 12, lineHeight: 18 }}>
+            {timestamp(item.created_at ?? item.createdAt)}
+          </Text>
+        )}
+      </View>
+      {!read && (
+        <View
+          style={{
+            width: 8,
+            height: 8,
+            marginTop: 7,
+            borderRadius: 4,
+            backgroundColor: colors.primary,
+          }}
+        />
+      )}
+    </Pressable>
+  );
+}
+
+export default function Notifications({ fromTab = false }: { fromTab?: boolean } = {}) {
+  return (
+    <Screen title="Notificações" back={!fromTab} scroll={false}>
+      <RemoteList<NotificationEntry>
+        path="/api/notifications?useCursor=true&limit=20"
+        edgeToEdge
+        header={
+          <View style={{ padding: 20, paddingBottom: 12 }}>
+            <Action secondary label="Marcar todas como lidas" path="/api/notifications" />
+          </View>
+        }
+        empty={
+          <Notice
+            title="Você está em dia"
+            description="Respostas, menções e novidades da sua comunidade aparecerão aqui."
+          />
+        }
+        render={(notification) => <NotificationRow item={notification} />}
       />
     </Screen>
   );

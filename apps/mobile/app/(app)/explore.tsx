@@ -1,63 +1,173 @@
 import { useState, useEffect } from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { Screen, Field, Choice, RowLink, Avatar } from '~/components/ui';
+import { IconBriefcase, IconCalendarEvent, IconUsers } from '~/components/icons';
+import { Screen, Field, RowLink, Avatar, Notice } from '~/components/ui';
 import { RemoteList } from '~/components/remote';
 import { PostCard } from '~/features/feed/PostCard';
 import { Person, Post } from '~/lib/types';
-export default function Explore() {
+import { useTheme } from '~/theme';
+
+export default function Explore({ fromTab = false }: { fromTab?: boolean } = {}) {
+  const { colors } = useTheme();
   const params = useLocalSearchParams<{ type?: string }>();
-  const [type, setType] = useState(params.type || 'posts'),
-    [text, setText] = useState(''),
-    [query, setQuery] = useState('');
+  const [type, setType] = useState(params.type === 'users' ? 'users' : 'posts');
+  const [text, setText] = useState('');
+  const [query, setQuery] = useState('');
   useEffect(() => {
-    const t = setTimeout(() => setQuery(text.trim()), 300);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setQuery(text.trim()), 300);
+    return () => clearTimeout(timer);
   }, [text]);
   return (
-    <Screen title="Explorar" back scroll={false}>
+    <Screen title="Explorar" back={!fromTab} scroll={false}>
+      <View
+        style={{
+          padding: 20,
+          paddingBottom: 12,
+          width: '100%',
+          maxWidth: 760,
+          alignSelf: 'center',
+        }}
+      >
+        <Field
+          label="Buscar pessoas ou publicações"
+          placeholder="Uma pessoa, uma linguagem, uma ideia"
+          value={text}
+          onChangeText={setText}
+          maxLength={100}
+          autoCorrect={false}
+          returnKeyType="search"
+          clearButtonMode="while-editing"
+          onSubmitEditing={() => setQuery(text.trim())}
+          style={{ borderRadius: 28, paddingHorizontal: 20 }}
+        />
+      </View>
+      <View
+        style={{
+          flexDirection: 'row',
+          width: '100%',
+          maxWidth: 760,
+          alignSelf: 'center',
+          borderBottomWidth: StyleSheet.hairlineWidth,
+          borderBottomColor: colors.border,
+        }}
+      >
+        {[
+          { value: 'posts', label: 'Publicações' },
+          { value: 'users', label: 'Pessoas' },
+        ].map((option) => (
+          <Pressable
+            key={option.value}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: type === option.value }}
+            onPress={() => setType(option.value)}
+            style={({ pressed }) => ({
+              flex: 1,
+              minHeight: 52,
+              alignItems: 'center',
+              justifyContent: 'center',
+              backgroundColor: pressed ? colors.surface : 'transparent',
+            })}
+          >
+            <Text
+              style={{
+                fontSize: 15,
+                fontWeight: type === option.value ? '700' : '500',
+                color: type === option.value ? colors.text : colors.muted,
+              }}
+            >
+              {option.label}
+            </Text>
+            {type === option.value && (
+              <View
+                style={{
+                  position: 'absolute',
+                  bottom: 0,
+                  width: 40,
+                  height: 3,
+                  borderRadius: 3,
+                  backgroundColor: colors.primary,
+                }}
+              />
+            )}
+          </Pressable>
+        ))}
+      </View>
       <RemoteList<Post | Person>
         path={'/api/search?type=' + type + '&q=' + encodeURIComponent(query)}
+        edgeToEdge
+        loadingVariant={type === 'posts' ? 'feed' : 'list'}
         header={
-          <>
-            <Field label="Buscar pessoas ou publicações" value={text} onChangeText={setText} />
-            <Choice
-              value={type}
-              onChange={setType}
-              options={[
-                { value: 'posts', label: 'Publicações' },
-                { value: 'users', label: 'Pessoas' },
-              ]}
-            />
-            <RowLink
-              title="Comunidades"
-              subtitle="Encontre pessoas com os mesmos interesses"
-              onPress={() => router.push('/communities')}
-            />
-            <RowLink
-              title="Eventos"
-              subtitle="Desafios e encontros da comunidade"
-              onPress={() => router.push('/events')}
-            />
-            <RowLink
-              title="Vagas"
-              subtitle="O próximo passo na sua carreira"
-              onPress={() => router.push('/jobs')}
-            />
-          </>
+          query.length < 2 ? (
+            <View style={{ paddingHorizontal: 20 }}>
+              <RowLink
+                title="Comunidades"
+                subtitle="Pessoas com os mesmos interesses"
+                leading={<IconUsers color={colors.muted} size={24} />}
+                onPress={() => router.push('/communities')}
+              />
+              <RowLink
+                title="Eventos"
+                subtitle="Desafios e encontros da comunidade"
+                leading={<IconCalendarEvent color={colors.muted} size={24} />}
+                onPress={() => router.push('/events')}
+              />
+              <RowLink
+                title="Vagas"
+                subtitle="O próximo passo na sua carreira"
+                leading={<IconBriefcase color={colors.muted} size={24} />}
+                onPress={() => router.push('/jobs')}
+              />
+            </View>
+          ) : null
         }
-        render={(item) =>
-          type === 'posts' ? (
-            <PostCard post={item as Post} />
-          ) : (
-            <RowLink
-              title={'@' + (item as Person).username}
-              leading={
-                <Avatar name={(item as Person).username} uri={(item as Person).avatar_url} />
-              }
-              onPress={() => router.push(('/profile/' + (item as Person).username) as never)}
-            />
-          )
+        empty={
+          <Notice
+            title={query.length < 2 ? 'Descubra novas conexões' : 'Nenhum resultado por aqui'}
+            description={
+              query.length < 2
+                ? 'Digite pelo menos 2 caracteres para encontrar pessoas e conversas sobre programação.'
+                : 'Tente outro nome ou termo. Você também pode alternar entre publicações e pessoas.'
+            }
+          />
         }
+        render={(item) => {
+          if (type === 'posts') return <PostCard post={item as Post} />;
+          const person = item as Person;
+          return (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={'Abrir perfil de ' + person.username}
+              onPress={() => router.push(('/profile/' + person.username) as never)}
+              style={({ pressed }) => ({
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 12,
+                padding: 16,
+                minHeight: 84,
+                borderBottomWidth: StyleSheet.hairlineWidth,
+                borderBottomColor: colors.border,
+                backgroundColor: pressed ? colors.surface : 'transparent',
+              })}
+            >
+              <Avatar name={person.username} uri={person.avatar_url} size={44} />
+              <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
+                <Text
+                  numberOfLines={1}
+                  style={{ fontSize: 16, lineHeight: 23, fontWeight: '700', color: colors.text }}
+                >
+                  {person.avatar_config?.displayName || person.username}
+                </Text>
+                <Text
+                  numberOfLines={1}
+                  style={{ fontSize: 14, lineHeight: 21, color: colors.muted }}
+                >
+                  @{person.username}
+                </Text>
+              </View>
+            </Pressable>
+          );
+        }}
       />
     </Screen>
   );

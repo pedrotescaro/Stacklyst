@@ -1,9 +1,7 @@
 import { useState } from 'react';
 import { Image, View, Text } from 'react-native';
 import { router } from 'expo-router';
-import IconCheck from '@tabler/icons-react-native/IconCheck';
-import IconLock from '@tabler/icons-react-native/IconLock';
-import IconCode from '@tabler/icons-react-native/IconCode';
+import { IconCheck, IconLock, IconCode } from '~/components/icons';
 import {
   Screen,
   AsyncState,
@@ -12,12 +10,14 @@ import {
   Button,
   Choice,
   RowLink,
-  styles,
+  useUIStyles,
 } from '~/components/ui';
 import { useLearning } from '~/features/learning/hooks';
 import { useMe } from '~/lib/session';
-import { colors as c } from '~/theme';
+import { useTheme } from '~/theme';
 export default function Learning() {
+  const styles = useUIStyles();
+  const { colors: c } = useTheme();
   const q = useLearning(),
     me = useMe();
   const [language, setLanguage] = useState('JS'),
@@ -108,7 +108,7 @@ export default function Learning() {
                     width: 48,
                     height: 48,
                     borderRadius: 24,
-                    backgroundColor: done ? '#153c2b' : c.elevated,
+                    backgroundColor: done ? c.successSurface : c.elevated,
                     alignItems: 'center',
                     justifyContent: 'center',
                   }}

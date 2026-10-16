@@ -7,6 +7,8 @@ import { supabase } from './supabase';
 import { queryClient } from './query';
 import { api } from './api';
 import type { Person } from './types';
+import { configured } from './config';
+import { usePreview } from './preview';
 const Context = createContext<{ session: Session | null; ready: boolean }>({
   session: null,
   ready: false,
@@ -14,10 +16,11 @@ const Context = createContext<{ session: Session | null; ready: boolean }>({
 export function SessionProvider({ children }: { children: ReactNode }) {
   const [state, setState] = useState<{ session: Session | null; ready: boolean }>({
     session: null,
-    ready: false,
+    ready: !configured,
   });
   const user = useRef<string | undefined>(undefined);
   useEffect(() => {
+    if (!configured) return;
     let active = true;
     let receivedAuthEvent = false;
     const apply = (session: Session | null) => {
@@ -63,12 +66,16 @@ export function SessionProvider({ children }: { children: ReactNode }) {
   }, []);
   return <Context.Provider value={state}>{children}</Context.Provider>;
 }
-export const useSession = () => useContext(Context);
+export function useSession() {
+  const state = useContext(Context);
+  const isPreview = usePreview();
+  return { ...state, session: isPreview ? null : state.session, isPreview };
+}
 export function useMe() {
-  const { session } = useSession();
+  const { session, isPreview } = useSession();
   return useQuery({
-    queryKey: ['me', session?.user.id],
+    queryKey: ['me', isPreview ? 'preview' : session?.user.id],
     queryFn: () => api<Person>('/api/users/me'),
-    enabled: !!session,
+    enabled: !!session || isPreview,
   });
 }

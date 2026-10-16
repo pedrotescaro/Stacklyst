@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "surface": "apps/mobile",
+  "platform": "adaptive",
+  "mode": "operate",
+  "direction": "Stacklyst social native",
+  "source": "apps/mobile/src/theme.tsx",
+  "colors": {
+    "dark": {
+      "background": "#000000",
+      "surface": "#111316",
+      "elevated": "#1a1e23",
+      "ownMessage": "#0b2b48",
+      "successSurface": "#153c2b",
+      "text": "#f4f6f8",
+      "muted": "#9da7b3",
+      "primary": "#0078d4",
+      "onPrimary": "#ffffff",
+      "border": "#292d33"
+    },
+    "light": {
+      "background": "#ffffff",
+      "surface": "#f7f9f9",
+      "elevated": "#eff3f4",
+      "ownMessage": "#e2f1ff",
+      "successSurface": "#e4f5eb",
+      "text": "#0f1419",
+      "muted": "#536471",
+      "primary": "#0074c8",
+      "onPrimary": "#ffffff",
+      "border": "#cfd9de"
+    }
+  },
+  "spacing": [4, 8, 12, 16, 24, 32],
+  "touchTarget": 48,
+  "typography": {
+    "title": [28, 34],
+    "heading": [20, 27],
+    "body": [16, 24],
+    "secondary": [14, 21],
+    "caption": [12, 17]
+  },
+  "icons": { "library": "Tabler React Native", "size": 24, "strokeWidth": 1.8 },
+  "navigation": {
+    "tabs": ["Início", "Explorar", "Aprender", "Notificações", "Mensagens"],
+    "drawer": "avatar header",
+    "fab": "create post"
+  }
+}

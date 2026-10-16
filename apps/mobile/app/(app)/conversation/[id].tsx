@@ -1,24 +1,32 @@
 import { useState, useEffect } from 'react';
 import { View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as Crypto from 'expo-crypto';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Screen, Field, Button, Label, styles } from '~/components/ui';
+import { Screen, Field, Button, Label, useUIStyles } from '~/components/ui';
 import { RemoteList, Action } from '~/components/remote';
 import { send, errorMessage } from '~/lib/api';
 import { useSession } from '~/lib/session';
 import { useDraft } from '~/lib/draft';
 import { Message } from '~/lib/types';
 import { queryClient } from '~/lib/query';
-import { colors } from '~/theme';
+import { useTheme } from '~/theme';
 interface Pending {
   client_id: string;
   content: string;
 }
 export default function Conversation() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const { session } = useSession();
+  const { session, isPreview } = useSession();
+  return <ConversationContent key={`${isPreview ? 'preview' : session?.user.id}:${id}`} id={id} />;
+}
+function ConversationContent({ id }: { id: string }) {
+  const insets = useSafeAreaInsets();
+  const styles = useUIStyles();
+  const { colors: colors } = useTheme();
+  const { session, isPreview } = useSession();
   const userId = session?.user.id;
   const draft = useDraft('message:' + id);
   const [pending, setPending] = useState<Pending | null>(null),
@@ -28,9 +36,6 @@ export default function Conversation() {
   const key = 'pending:' + userId + ':' + id;
   useEffect(() => {
     let active = true;
-    setPending(null);
-    setLoaded(false);
-    setEditing(null);
     AsyncStorage.getItem(key)
       .then((raw) => {
         if (!active) return;
@@ -97,7 +102,8 @@ export default function Conversation() {
                 styles.panel,
                 {
                   maxWidth: '90%',
-                  backgroundColor: message.sender_id === userId ? '#0b2b48' : colors.surface,
+                  backgroundColor:
+                    message.sender_id === userId ? colors.ownMessage : colors.surface,
                 },
               ]}
             >
@@ -127,7 +133,7 @@ export default function Conversation() {
           </View>
         )}
       />
-      <View style={{ padding: 12, gap: 8 }}>
+      <View style={{ padding: 12, paddingBottom: Math.max(insets.bottom, 12), gap: 8 }}>
         {editing ? (
           <>
             <Field
@@ -164,7 +170,9 @@ export default function Conversation() {
               maxLength={5000}
               style={{ minHeight: 64, maxHeight: 120 }}
             />
-            <Label muted>{draft.status}</Label>
+            <Label muted>
+              {isPreview ? 'Entre na sua conta para enviar mensagens.' : draft.status}
+            </Label>
             <Button
               label={pending ? 'Tentar enviar novamente' : 'Enviar'}
               busy={m.isPending}
