@@ -17,18 +17,18 @@ This guide details steps to deploy Stacklyst to Vercel (Front-end & API) and Sup
 
 Create your environment variables on Vercel. Ensure to supply:
 
-| Variable Name                          | Description                                        | Example / Recommended Value                            |
-| -------------------------------------- | -------------------------------------------------- | ------------------------------------------------------ |
-| `DATABASE_URL`                         | Supabase transaction connection string             | `postgres://postgres.xxx:6543/postgres?pgbouncer=true` |
-| `DIRECT_URL`                           | Supabase direct connection string                  | `postgres://postgres.xxx:5432/postgres`                |
-| `DATABASE_POOL_MAX`                    | Connections per serverless instance                | `1`                                                    |
-| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase project URL                               | `https://xxxx.supabase.co`                             |
-| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key                           | `sb_publishable_...`                                   |
-| `SUPABASE_SECRET_KEY`                  | Supabase server-only key (secure API access)       | `sb_secret_...`                                        |
-| `UPSTASH_REDIS_REST_URL`               | Upstash Redis REST endpoint for rate limiting      | `https://xxxx.upstash.io`                              |
-| `UPSTASH_REDIS_REST_TOKEN`             | Upstash Redis authorization token                  | `<redis_token>`                                        |
-| `CRON_SECRET`                          | Authorization header token for daily cron requests | `super-secret-guid`                                    |
-| `SEED_DEFAULT_PASSWORD`                | Fallback user password for database seeding        | `ChangeMe123!`                                         |
+| Variable Name                          | Description                                                     | Example / Recommended Value                            |
+| -------------------------------------- | --------------------------------------------------------------- | ------------------------------------------------------ |
+| `DATABASE_URL`                         | Supabase transaction connection string                          | `postgres://postgres.xxx:6543/postgres?pgbouncer=true` |
+| `DIRECT_URL`                           | Supabase direct connection string                               | `postgres://postgres.xxx:5432/postgres`                |
+| `DATABASE_POOL_MAX`                    | Connections per serverless instance                             | `1`                                                    |
+| `NEXT_PUBLIC_SUPABASE_URL`             | Supabase project URL                                            | `https://xxxx.supabase.co`                             |
+| `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | Supabase publishable key                                        | `sb_publishable_...`                                   |
+| `SUPABASE_SECRET_KEY`                  | Supabase server-only key (secure API access)                    | `sb_secret_...`                                        |
+| `UPSTASH_REDIS_REST_URL`               | Upstash Redis REST endpoint for rate limiting                   | `https://xxxx.upstash.io`                              |
+| `UPSTASH_REDIS_REST_TOKEN`             | Upstash Redis authorization token                               | `<redis_token>`                                        |
+| `CRON_SECRET`                          | Authorization token for optional protected admin cron endpoints | `super-secret-guid`                                    |
+| `SEED_DEFAULT_PASSWORD`                | Fallback user password for database seeding                     | `ChangeMe123!`                                         |
 
 Legacy projects can use `NEXT_PUBLIC_SUPABASE_ANON_KEY` and
 `SUPABASE_SERVICE_ROLE_KEY` instead. Never expose the secret/service-role key
@@ -66,7 +66,7 @@ This syncs the Prisma models (including `User`, `Post`, `Reaction`, `QuizLibrary
 
 ### Step 2: Seed Static Data
 
-Execute the seed script to populate 20 tech quizzes inside `QuizLibrary`:
+Execute the seed script to populate the static data, including the legacy `QuizLibrary` questions. The daily quiz does not depend on this seed:
 
 ```bash
 npx prisma db seed
@@ -85,12 +85,8 @@ npx prisma db seed
 
 ---
 
-## 4. Automating the Curated Daily Quiz
+## 4. Daily Quiz Without AI
 
-To publish a new quiz from `QuizLibrary` every day without an AI request:
+The authenticated `GET /api/quiz/daily` request creates the day's quiz on demand. It selects a question from the local reviewed catalog only when a community post contains matching explanatory programming content, and links the quiz to that post. Without an eligible post, the response contains no quiz for the day.
 
-1. The endpoint `/api/admin/quiz/generate-daily` processes daily generation requests.
-2. In production, configure a cron scheduler (such as Vercel Cron Jobs, GitHub Actions, or Upstash QStash) to send a POST request:
-   - **URL:** `https://your-domain.vercel.app/api/admin/quiz/generate-daily`
-   - **Headers:** `Authorization: Bearer <CRON_SECRET>`
-   - **Schedule:** `0 6 * * *` (Every day at 06:00 UTC)
+No AI credentials, GitHub Actions secrets, or daily quiz scheduler are required for this flow. The protected `POST /api/admin/quiz/generate-daily` endpoint remains available for optional administrative scheduling; callers must send `Authorization: Bearer <CRON_SECRET>`, with the same secret configured in the server environment. Duel maintenance scheduling is independent of this flow.
