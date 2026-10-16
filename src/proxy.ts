@@ -5,6 +5,18 @@ import { AppError } from '@/lib/errors';
 
 export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
+  if (
+    pathname === '/api/auth/callback' &&
+    request.nextUrl.searchParams.get('client') === 'mobile'
+  ) {
+    return NextResponse.next();
+  }
+  if (pathname === '/api/mobile/auth/bootstrap' && !request.headers.has('authorization')) {
+    return NextResponse.json(
+      { error: 'UNAUTHORIZED', message: 'Autenticação necessária' },
+      { status: 401, headers: { 'Cache-Control': 'no-store' } }
+    );
+  }
   if (pathname.startsWith('/api/') && request.headers.has('authorization')) {
     try {
       await verifyBearerIdentity(request.headers.get('authorization')!);

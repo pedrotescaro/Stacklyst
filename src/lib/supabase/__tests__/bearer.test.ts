@@ -10,7 +10,7 @@ vi.mock('@supabase/supabase-js', async (importOriginal) => ({
 vi.mock('@/lib/supabase/env', () => ({
   getSupabasePublicConfig: () => ({ url: 'https://example.supabase.co', key: 'publishable-key' }),
 }));
-import { verifyBearerIdentity } from '../bearer';
+import { verifyBearerIdentity, verifyBearerUser } from '../bearer';
 
 describe('verified native bearer identity', () => {
   beforeEach(() => {
@@ -25,6 +25,18 @@ describe('verified native bearer identity', () => {
     expect(mocks.createClient).toHaveBeenCalledWith(expect.any(String), 'publishable-key', {
       auth: { persistSession: false, autoRefreshToken: false, detectSessionInUrl: false },
     });
+  });
+
+  it('returns profile data only after Auth verifies the bearer token', async () => {
+    const user = {
+      id: 'native-user',
+      email: 'native@example.com',
+      app_metadata: { provider: 'google' },
+      user_metadata: { full_name: 'Native User' },
+    };
+    mocks.getUser.mockResolvedValue({ data: { user }, error: null });
+    await expect(verifyBearerUser('Bearer opaque-token')).resolves.toEqual(user);
+    expect(mocks.getUser).toHaveBeenCalledWith('opaque-token');
   });
 
   it.each(['', 'Basic secret', 'Bearer', 'Bearer token another', 'Bearer token\n'])(

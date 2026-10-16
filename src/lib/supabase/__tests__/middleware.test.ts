@@ -10,6 +10,9 @@ vi.mock('@supabase/ssr', () => ({
 vi.mock('@/lib/jwt', () => ({
   verifyJwt: vi.fn(),
 }));
+vi.mock('@/lib/supabase/bearer', () => ({
+  verifyBearerIdentity: vi.fn(),
+}));
 vi.mock('@/lib/logger', () => ({
   logger: {
     debug: vi.fn(),
@@ -22,6 +25,9 @@ vi.mock('@/lib/logger', () => ({
 import { createServerClient } from '@supabase/ssr';
 import { verifyJwt } from '@/lib/jwt';
 import { updateSession } from '@/lib/supabase/middleware';
+import { verifyBearerIdentity } from '@/lib/supabase/bearer';
+import { UnauthorizedError } from '@/lib/errors';
+import { proxy } from '@/proxy';
 
 const getClaims = vi.fn();
 let cookieMethods: any;
@@ -41,6 +47,82 @@ describe('Supabase session proxy', () => {
   afterEach(() => {
     vi.unstubAllEnvs();
   });
+
+  it('delivers native OAuth callbacks without reading or refreshing browser cookies', async () => {
+    const response = await proxy(
+      new NextRequest('https://stacklyst.test/api/auth/callback?client=mobile&code=one-time', {
+        headers: { cookie: 'sb-auth-token=browser-session' },
+      })
+    );
+    expect(response.status).toBe(200);
+    expect(response.headers.get('Set-Cookie')).toBeNull();
+    expect(createServerClient).not.toHaveBeenCalled();
+    expect(getClaims).not.toHaveBeenCalled();
+    expect(verifyJwt).not.toHaveBeenCalled();
+    expect(verifyBearerIdentity).not.toHaveBeenCalled();
+  });
+
+  it('rejects bootstrap without Authorization before inspecting any browser session cookies', async () => {
+    const response = await proxy(
+      new NextRequest('https://stacklyst.test/api/mobile/auth/bootstrap', {
+        method: 'POST',
+        headers: { cookie: 'stacklyst-jwt=valid-local-token; sb-auth-token=valid-browser-token' },
+      })
+    );
+    expect(response.status).toBe(401);
+    expect(await response.json()).toEqual({
+      error: 'UNAUTHORIZED',
+      message: 'Autenticação necessária',
+    });
+    expect(response.headers.get('Cache-Control')).toBe('no-store');
+    expect(response.headers.get('Set-Cookie')).toBeNull();
+    expect(createServerClient).not.toHaveBeenCalled();
+    expect(getClaims).not.toHaveBeenCalled();
+    expect(verifyJwt).not.toHaveBeenCalled();
+    expect(verifyBearerIdentity).not.toHaveBeenCalled();
+  });
+
+  it('verifies bootstrap bearer without consulting a browser session', async () => {
+    vi.mocked(verifyBearerIdentity).mockResolvedValueOnce('native-user');
+    const response = await proxy(
+      new NextRequest('https://stacklyst.test/api/mobile/auth/bootstrap', {
+        method: 'POST',
+        headers: { authorization: 'Bearer native-token', cookie: 'stacklyst-jwt=browser-user' },
+      })
+    );
+    expect(response.status).toBe(200);
+    expect(response.headers.get('x-middleware-next')).toBe('1');
+    expect(verifyBearerIdentity).toHaveBeenCalledExactlyOnceWith('Bearer native-token');
+    expect(createServerClient).not.toHaveBeenCalled();
+    expect(getClaims).not.toHaveBeenCalled();
+    expect(verifyJwt).not.toHaveBeenCalled();
+  });
+
+  it('never falls back to browser cookies after bootstrap bearer verification fails', async () => {
+    vi.mocked(verifyBearerIdentity).mockRejectedValueOnce(new UnauthorizedError('INVALID_TOKEN'));
+    const response = await proxy(
+      new NextRequest('https://stacklyst.test/api/mobile/auth/bootstrap', {
+        method: 'POST',
+        headers: { authorization: 'Bearer revoked', cookie: 'stacklyst-jwt=browser-user' },
+      })
+    );
+    expect(response.status).toBe(401);
+    expect(await response.json()).toMatchObject({ error: 'INVALID_TOKEN' });
+    expect(createServerClient).not.toHaveBeenCalled();
+    expect(verifyJwt).not.toHaveBeenCalled();
+  });
+
+  it.each(['/api/auth/register', '/api/mobile/auth/bootstrap/other', '/api/mobile/learning'])(
+    'preserves normal browser session processing outside the exact bootstrap path: %s',
+    async (pathname) => {
+      getClaims.mockResolvedValue({ data: { claims: null }, error: null });
+      const response = await proxy(new NextRequest(`https://stacklyst.test${pathname}`));
+      expect(response.status).toBe(200);
+      expect(createServerClient).toHaveBeenCalledOnce();
+      expect(getClaims).toHaveBeenCalledOnce();
+      expect(verifyBearerIdentity).not.toHaveBeenCalled();
+    }
+  );
 
   it('keeps public routes available when Supabase is not configured', async () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', '');
