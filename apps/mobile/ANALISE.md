@@ -105,3 +105,13 @@ O carregamento passou a ser opcional e sob demanda, com detecção específica d
 Builds de bundle e verificações estáticas têm um escopo diferente de um APK executado no Android. Não foi afirmado funcionamento ao vivo de autenticação, backend, notificações ou serviços externos com base apenas nesses checks.
 
 Referências oficiais consultadas: [Expo Router SDK 57](https://docs.expo.dev/versions/v57.0.0/sdk/router/), [EAS APK](https://docs.expo.dev/build-reference/apk/), [ambientes EAS](https://docs.expo.dev/eas/environment-variables/), [Supabase Auth React Native](https://supabase.com/docs/guides/auth/quickstarts/react-native) e [changelog Supabase](https://supabase.com/changelog).
+
+### Correção do endereço da API no APK (16/10/2026)
+
+A captura do aparelho identificou `CLEARTEXT communication to 10.0.2.2 not permitted`. O primeiro APK foi compilado com o `.env` de desenvolvimento. Esse endereço pertence ao emulador Android; não é a API publicada. O cadastro sequer chegava ao servidor. Não foi habilitado HTTP sem criptografia para contornar a falha.
+
+O release 0.1.1, versionCode 2, fixa `https://stacklyst.vercel.app` no código e nos perfis EAS. O override local fica restrito a `__DEV__`, e o callback OAuth sempre usa o endereço público permitido pelo Supabase. A regressão `test:config` compila a configuração de release com um `.env` de emulador e confirma que esse endereço é removido do código gerado. O script Windows também verifica o bundle dentro do APK e bloqueia sua distribuição quando as rotas publicadas ainda não atendem ao contrato nativo.
+
+Consulta real ao Supabase com a credencial de servidor confirmou cadastro habilitado e provedores e-mail, Google, GitHub e Discord ativos. O conector administrativo recusou acesso; nenhuma alteração de configuração do Supabase foi feita por ele. O teste HTTPS em produção criou uma conta temporária de QA em domínio `.invalid`, autenticou por senha, leu o perfil com Bearer e confirmou nove trilhas. Credenciais e tokens do teste não foram incluídos nos logs nem no app.
+
+A verificação inicial da produção encontrou callback mobile redirecionando para `/feed` e bootstrap retornando 404. As rotas correspondentes estão no PR #58; publicar esse backend é necessário para que o retorno social funcione. Autorizar Google/GitHub pode abrir a tela segura do provedor no navegador do sistema; a sessão resultante pertence ao aplicativo e não exige login na interface do site.

@@ -20,9 +20,7 @@ export const nativeOAuthMessage =
 export function getOAuthRedirectUrl() {
   // The allowed HTTPS callback only forwards a PKCE code to the fixed native URI.
   // It never logs into the website, sets a web cookie or exchanges tokens.
-  const target = new URL('/api/auth/callback', config.apiUrl);
-  target.searchParams.set('client', 'mobile');
-  return target.toString();
+  return config.authCallbackUrl;
 }
 
 export async function signInWithProvider(provider: OAuthProvider, returnTo?: string) {

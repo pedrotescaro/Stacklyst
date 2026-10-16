@@ -14,6 +14,9 @@
     "test:logout": "node scripts/check-logout.mjs",
     "test:notifications": "node scripts/check-notifications.mjs",
     "test:auth": "node scripts/check-auth.mjs",
+    "test:config": "node scripts/check-config.mjs",
+    "check:release": "node scripts/check-release.mjs",
+    "build:apk:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-apk.ps1",
     "eas-build-post-install": "npm run build:editor",
     "export": "npm run build:editor && expo export --platform all",
     "lint": "eslint ."

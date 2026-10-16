@@ -15,6 +15,9 @@
       "node": "24.14.0",
       "environment": "preview",
       "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://stacklyst.vercel.app"
+      },
       "android": {
         "buildType": "apk"
       }
@@ -22,6 +25,9 @@
     "production": {
       "node": "24.14.0",
       "environment": "production",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://stacklyst.vercel.app"
+      },
       "autoIncrement": true
     }
   },

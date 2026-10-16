@@ -25,7 +25,7 @@ jobs:
       - name: Check optional notifications in Expo Go
         run: npm --prefix apps/mobile run test:notifications
       - name: Check native authentication
-        run: npm --prefix apps/mobile run test:auth
+        run: npm --prefix apps/mobile run test:auth && npm --prefix apps/mobile run test:config
       - name: Bundle Android and iOS
         working-directory: apps/mobile
         run: npm run export -- --max-workers 2

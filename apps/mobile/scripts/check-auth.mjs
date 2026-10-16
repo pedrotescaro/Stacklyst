@@ -16,7 +16,8 @@ const stubs = {
   'react-native': 'export const Platform = { OS: "android" };',
   'expo-web-browser':
     'export const openAuthSessionAsync = async (...args) => { globalThis.__authCheck.browsers.push(args); return globalThis.__authCheck.browser; };',
-  './config': 'export const config = {apiUrl:"https://stacklyst.test"};',
+  './config':
+    'export const config = {apiUrl:"https://stacklyst.test",authCallbackUrl:"https://stacklyst.test/api/auth/callback?client=mobile"};',
   './supabase': `export const supabase = {auth: {
     signInWithOAuth: async (request) => { globalThis.__authCheck.providers.push(request); return {data:{url:"https://project.supabase.co/auth/v1/authorize"},error:null}; },
     exchangeCodeForSession: async (code) => { globalThis.__authCheck.exchanges.push(code); return { data: {user:{id:"user-a"},session:globalThis.__authCheck.session},error:null}; },

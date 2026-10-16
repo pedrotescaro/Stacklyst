@@ -2,7 +2,7 @@
   "expo": {
     "name": "Stacklyst",
     "slug": "stacklyst-mobile",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "scheme": "stacklyst",
     "orientation": "default",
     "userInterfaceStyle": "automatic",
@@ -14,6 +14,7 @@
     },
     "android": {
       "package": "com.stacklyst.mobile",
+      "versionCode": 2,
       "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": true,
       "adaptiveIcon": {

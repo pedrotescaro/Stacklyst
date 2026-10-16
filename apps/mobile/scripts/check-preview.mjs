@@ -24,6 +24,7 @@ try {
     bundle: true,
     platform: 'node',
     format: 'cjs',
+    define: { __DEV__: 'false' },
     outfile: output,
     plugins: [
       {

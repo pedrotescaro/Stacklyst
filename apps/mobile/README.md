@@ -44,11 +44,13 @@ EXPO_PUBLIC_EAS_PROJECT_ID=
 
 As variáveis `EXPO_PUBLIC_*` são incluídas no aplicativo. Use somente a chave pública publishable do Supabase, ou a chave anon pública já usada pelo projeto. Chaves `service_role`, segredos do banco e tokens administrativos ficam no servidor. `.env` permanece ignorado pelo Git.
 
-Para backend local, use `http://10.0.2.2:3000` no emulador Android. Em aparelho físico, use o IP da máquina na mesma rede e execute o backend acessível pela LAN. `localhost` no aparelho aponta para o próprio aparelho. Para um APK distribuído, prefira a URL HTTPS da plataforma.
+O APK de release usa sempre `https://stacklyst.vercel.app`, mesmo que o `.env` da máquina contenha um endereço local. Os perfis EAS `preview` e `production` também fixam essa URL. Não é necessário liberar HTTP sem criptografia no Android.
+
+Somente em desenvolvimento (`__DEV__`), `EXPO_PUBLIC_API_URL` pode apontar para `http://10.0.2.2:3000` no emulador Android. Em aparelho físico, use o IP da máquina na mesma rede e execute o backend acessível pela LAN. `localhost` no aparelho aponta para o próprio aparelho.
 
 O app autentica pelo Supabase e envia `Authorization: Bearer <access_token>` para as APIs existentes. A sessão nativa é persistida no SecureStore; na prévia web, fica apenas em memória. Há renovação da sessão e limpeza do cache ao trocar de usuário. Rascunhos usam armazenamento local por usuário e sincronização versionada quando há uma conta conectada.
 
-Login social usa PKCE e o callback HTTPS `${EXPO_PUBLIC_API_URL}/api/auth/callback?client=mobile`, já aceito pelo projeto Supabase da plataforma. Essa rota responde diretamente para `stacklyst://auth/callback` com o código temporário; não carrega a interface do site, não cria cookies web e não encaminha access/refresh tokens. O app troca o código uma única vez e chama `POST /api/mobile/auth/bootstrap`, autenticado com Bearer, para preparar o perfil e as trilhas sem exigir login no site.
+Login social usa PKCE e o callback HTTPS `https://stacklyst.vercel.app/api/auth/callback?client=mobile`, já aceito pelo projeto Supabase da plataforma. Essa rota responde diretamente para `stacklyst://auth/callback` com o código temporário; não carrega a interface do site, não cria cookies web e não encaminha access/refresh tokens. O app troca o código uma única vez e chama `POST /api/mobile/auth/bootstrap`, autenticado com Bearer, para preparar o perfil e as trilhas sem exigir login no site. A tela segura de autorização do Google/GitHub pode abrir no navegador do sistema; ao concluir, o destino é o aplicativo.
 
 Publique as duas rotas do backend desta revisão antes de distribuir o APK e mantenha o callback HTTPS em Supabase → Auth → URL Configuration. Google, GitHub e Discord precisam estar habilitados. O destino de navegação fica armazenado localmente, separado do redirect OAuth. O retorno também cobre recuperação e reenvio de confirmação. No Expo Go, login social fica desativado com orientação explícita: use e-mail/senha ou o APK próprio, pois esse cliente não registra o scheme do Stacklyst.
 
@@ -89,6 +91,8 @@ Os comandos abaixo são executados dentro de `apps/mobile`. Eles usam a conta Ex
    npm run test:logout
    npm run test:notifications
    npm run test:auth
+   npm run test:config
+   npm run check:release
    ```
 
 4. Gere o APK. Quando o EAS solicitar credenciais Android, selecione a keystore existente do app ou a geração de uma nova para a primeira distribuição:
@@ -110,19 +114,13 @@ O APK do perfil `preview` funciona sem Metro. Esse fluxo gera uma instalação i
 
 ## APK local de teste no Windows
 
-Foi gerado `artifacts/Stacklyst-preview-arm64.apk` (ARM64, assinatura local de teste, sem Metro). Para reproduzir com Android Studio/SDK instalados:
+O APK corrigido é `artifacts/Stacklyst-0.1.1-arm64.apk` (versionCode 2, ARM64, assinatura local de teste, sem Metro). O arquivo anterior `Stacklyst-preview-arm64.apk` foi gerado com uma URL de emulador e não deve ser distribuído. Para reproduzir com Android Studio/SDK instalados:
 
 ```powershell
-$env:JAVA_HOME = 'C:\Program Files\Android\Android Studio\jbr'
-$env:ANDROID_HOME = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
-$env:NODE_ENV = 'production'
-npm run build:editor
-npx expo prebuild --platform android --no-clean --no-install
-Set-Location android
-.\gradlew.bat :app:assembleRelease --console=plain --no-daemon --max-workers=2 '-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1536m' -PreactNativeArchitectures=arm64-v8a
+npm run build:apk:windows
 ```
 
-Saída: `android/app/build/outputs/apk/release/app-release.apk`. A compilação original com Metaspace de 512 MB falhou; o comando acima foi validado com o limite ampliado. O binário local usa a chave Android de teste e não substitui a assinatura de distribuição do EAS. Publicar o backend desta revisão é pré-requisito para testar o login social nesse APK; a sessão nativa precisa ser validada no aparelho.
+O script valida o callback publicado, a rota de preparação da conta e as configurações públicas do Supabase antes do build. Define a API HTTPS explicitamente, atualiza o projeto nativo sem limpar alterações, força a geração do bundle e examina o JavaScript dentro do APK antes de copiá-lo para `artifacts/`. Se encontrar a URL do emulador ou um callback que ainda leva ao site, interrompe a distribuição. O binário local usa a chave Android de teste e não substitui a assinatura de distribuição do EAS. A sessão nativa precisa ser validada no aparelho.
 
 ## Organização
 
