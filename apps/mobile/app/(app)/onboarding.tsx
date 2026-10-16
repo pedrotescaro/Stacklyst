@@ -1,12 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { router } from 'expo-router';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { Screen, Heading, Label, Field, Choice, Button } from '~/components/ui';
 import { api, send, errorMessage } from '~/lib/api';
 export default function Onboarding() {
-  const [language, setLanguage] = useState('JS'),
-    [goal, setGoal] = useState('learn'),
-    [minutes, setMinutes] = useState('15');
+  const [languageEdit, setLanguage] = useState<string | null>(null),
+    [goalEdit, setGoal] = useState<string | null>(null),
+    [minutesEdit, setMinutes] = useState<string | null>(null);
   const q = useQuery({
     queryKey: ['preferences'],
     queryFn: () =>
@@ -15,13 +15,9 @@ export default function Onboarding() {
         value: { language?: string; goal?: string; minutes?: number };
       } | null>('/api/mobile/state/preferences'),
   });
-  useEffect(() => {
-    if (q.data) {
-      setLanguage(q.data.value.language || 'JS');
-      setGoal(q.data.value.goal || 'learn');
-      setMinutes(String(q.data.value.minutes || 15));
-    }
-  }, [q.data]);
+  const language = languageEdit ?? q.data?.value.language ?? 'JS';
+  const goal = goalEdit ?? q.data?.value.goal ?? 'learn';
+  const minutes = minutesEdit ?? String(q.data?.value.minutes ?? 15);
   const m = useMutation({
     mutationFn: () =>
       send(

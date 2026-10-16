@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { View } from 'react-native';
-import { Screen, AsyncState, Field, Button, Label, styles, RowLink } from '~/components/ui';
+import { Screen, AsyncState, Field, Button, Label, useUIStyles, RowLink } from '~/components/ui';
 import { Action } from '~/components/remote';
 import { RichText } from '~/components/content';
 import { PostCard } from '~/features/feed/PostCard';
@@ -12,6 +12,7 @@ import { useMe } from '~/lib/session';
 import { queryClient } from '~/lib/query';
 import { useDraft } from '~/lib/draft';
 export default function Detail() {
+  const styles = useUIStyles();
   const { id } = useLocalSearchParams<{ id: string }>();
   const q = useQuery({ queryKey: ['post', id], queryFn: () => api<Post>('/api/posts/' + id) });
   const me = useMe();

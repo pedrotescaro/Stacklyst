@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { View, ScrollView, TextInput, Platform } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { editorHtml } from '../editor/document.generated';
-import { Button, Label, styles } from './ui';
-import { colors } from '../theme';
+import { Button, Label, useUIStyles } from './ui';
+import { useTheme } from '../theme';
 export function Editor({
   value,
   onChange,
@@ -15,15 +15,15 @@ export function Editor({
   language: string;
   editable?: boolean;
 }) {
+  const { colors } = useTheme();
+  const styles = useUIStyles();
   const ref = useRef<WebView>(null);
   const [ready, setReady] = useState(false),
     [failed, setFailed] = useState(false);
-  const latest = useRef({ value, language, editable, onChange });
-  latest.current = { value, language, editable, onChange };
-  const send = (data: unknown) => ref.current?.postMessage(JSON.stringify(data));
+  const send = useCallback((data: unknown) => ref.current?.postMessage(JSON.stringify(data)), []);
   useEffect(() => {
     if (ready) send({ type: 'init', code: value, language, editable });
-  }, [ready, value, language, editable]);
+  }, [ready, value, language, editable, send]);
   // Browser previews use a text field; installed Android/iOS builds use CodeMirror.
   if (Platform.OS === 'web')
     return (
@@ -110,21 +110,20 @@ export function Editor({
             if (!m || typeof m !== 'object') return;
             if (m.type === 'ready') {
               setReady(true);
-              const props = latest.current;
               send({
                 type: 'init',
-                code: props.value,
-                language: props.language,
-                editable: props.editable,
+                code: value,
+                language,
+                editable,
               });
             }
             if (
               m.type === 'change' &&
-              latest.current.editable &&
+              editable &&
               typeof m.code === 'string' &&
               m.code.length <= 20000
             )
-              latest.current.onChange(m.code);
+              onChange(m.code);
           } catch {
             /* Ignore malformed bridge events. */
           }

@@ -15,7 +15,7 @@ import { ResultView } from '~/features/learning/ResultView';
 function Arena({ duel }: { duel: Duel }) {
   const me = useMe();
   const draft = useDraft('duel:' + duel.id + ':' + duel.language);
-  const [now, setNow] = useState(Date.now()),
+  const [now, setNow] = useState(Date.now),
     [connection, setConnection] = useState('Conectando…'),
     [presence, setPresence] = useState(false),
     [area, setArea] = useState('problem'),

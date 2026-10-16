@@ -10,7 +10,7 @@ import { api, send, errorMessage } from '~/lib/api';
 import { PublicLesson, Result } from '~/lib/types';
 import { queryClient } from '~/lib/query';
 import { ResultView } from '~/features/learning/ResultView';
-import { colors } from '~/theme';
+import { useTheme } from '~/theme';
 type Lesson = PublicLesson & { completedStepIds: string[] };
 type Step = PublicLesson['steps'][number];
 function Activity({ step, lesson, next }: { step: Step; lesson: Lesson; next: () => void }) {
@@ -175,6 +175,7 @@ function Activity({ step, lesson, next }: { step: Step; lesson: Lesson; next: ()
   );
 }
 function Session({ lesson }: { lesson: Lesson }) {
+  const { colors: colors } = useTheme();
   const [index, setIndex] = useState(() => {
     const first = lesson.steps.findIndex((s) => !lesson.completedStepIds.includes(s.id));
     return first < 0 ? 0 : first;

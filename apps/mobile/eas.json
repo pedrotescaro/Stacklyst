@@ -1,16 +1,27 @@
 {
+  "cli": {
+    "appVersionSource": "local"
+  },
   "build": {
     "development": {
-      "developmentClient": true,
-      "distribution": "internal"
+      "node": "24.14.0",
+      "environment": "development",
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      }
     },
     "preview": {
+      "node": "24.14.0",
+      "environment": "preview",
       "distribution": "internal",
       "android": {
         "buildType": "apk"
       }
     },
     "production": {
+      "node": "24.14.0",
+      "environment": "production",
       "autoIncrement": true
     }
   },

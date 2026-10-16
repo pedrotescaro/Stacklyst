@@ -2,7 +2,16 @@ import { useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
 import { View } from 'react-native';
-import { Screen, AsyncState, Heading, Label, Choice, Field, styles, Notice } from '~/components/ui';
+import {
+  Screen,
+  AsyncState,
+  Heading,
+  Label,
+  Choice,
+  Field,
+  useUIStyles,
+  Notice,
+} from '~/components/ui';
 import { Action } from '~/components/remote';
 import { RoleGate } from '~/components/RoleGate';
 import { api } from '~/lib/api';
@@ -14,6 +23,7 @@ interface Application {
   feedback?: string;
 }
 function Candidate({ a, jobId }: { a: Application; jobId: string }) {
+  const styles = useUIStyles();
   const [status, setStatus] = useState(a.status),
     [feedback, setFeedback] = useState(a.feedback ?? '');
   return (

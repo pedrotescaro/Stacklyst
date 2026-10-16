@@ -9,7 +9,7 @@ import {
   Label,
   Button,
   RowLink,
-  styles,
+  useUIStyles,
 } from '../../components/ui';
 import { Action } from '../../components/remote';
 import { PostCard } from '../feed/PostCard';
@@ -26,6 +26,7 @@ interface ProfileData {
   nextCursor?: string;
 }
 export function Profile({ username, own = false }: { username: string; own?: boolean }) {
+  const styles = useUIStyles();
   const me = useMe();
   const q = useInfiniteQuery({
     queryKey: ['profile', username],

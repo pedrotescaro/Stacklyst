@@ -3,7 +3,7 @@ import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { config } from './config';
-import { send } from './api';
+import { api, send } from './api';
 export async function enablePush() {
   if (Platform.OS === 'web' || !Device.isDevice)
     throw new Error('Push requer um aparelho físico e development build.');
@@ -22,10 +22,34 @@ export async function enablePush() {
   await AsyncStorage.setItem('stacklyst-push-token', token);
   return token;
 }
-export async function disablePush() {
+export async function disablePush(signal?: AbortSignal) {
   const token = await AsyncStorage.getItem('stacklyst-push-token');
-  if (token) await send('/api/mobile/devices', { token }, 'DELETE');
+  if (signal?.aborted) return;
+  if (token)
+    await api('/api/mobile/devices', {
+      method: 'DELETE',
+      body: JSON.stringify({ token }),
+      signal,
+    });
   await AsyncStorage.removeItem('stacklyst-push-token');
+}
+/** Notification cleanup must never hold the local logout behind the network. */
+export async function clearNotificationsForLogout(timeoutMs = 1500) {
+  const controller = new AbortController();
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    await Promise.race([
+      Promise.allSettled([disablePush(controller.signal), cancelReminder()]),
+      new Promise<void>((resolve) => {
+        timer = setTimeout(() => {
+          controller.abort();
+          resolve();
+        }, timeoutMs);
+      }),
+    ]);
+  } finally {
+    clearTimeout(timer);
+  }
 }
 export async function setReminder(hour: number, minute: number) {
   if (Platform.OS === 'web') throw new Error('Lembretes estão disponíveis no app instalado.');

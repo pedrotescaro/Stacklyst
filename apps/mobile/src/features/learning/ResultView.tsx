@@ -1,8 +1,9 @@
 import { View } from 'react-native';
 import { Result } from '../../lib/types';
-import { Heading, Label, styles } from '../../components/ui';
+import { Heading, Label, useUIStyles } from '../../components/ui';
 import { CodeBlock } from '../../components/content';
 export function ResultView({ result, submitted }: { result: Result; submitted: boolean }) {
+  const styles = useUIStyles();
   const passed = result.isCorrect ?? result.passed;
   return (
     <View accessibilityLiveRegion="polite" style={styles.panel}>

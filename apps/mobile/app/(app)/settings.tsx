@@ -1,13 +1,24 @@
 import { useState } from 'react';
 import { Linking } from 'react-native';
 import { router } from 'expo-router';
-import { Screen, Field, Button, Label, Heading, confirm } from '~/components/ui';
+import { Screen, Field, Button, Label, Heading, Choice, confirm } from '~/components/ui';
+import { useTheme, type ThemeMode } from '~/theme';
+import { useSession } from '~/lib/session';
+import { disablePreview } from '~/lib/preview';
 import { useMutation } from '@tanstack/react-query';
 import { supabase } from '~/lib/supabase';
-import { disablePush, enablePush, setReminder, cancelReminder } from '~/lib/notifications';
+import {
+  disablePush,
+  enablePush,
+  setReminder,
+  cancelReminder,
+  clearNotificationsForLogout,
+} from '~/lib/notifications';
 import { queryClient } from '~/lib/query';
 import { config } from '~/lib/config';
 export default function Settings() {
+  const { mode, setMode } = useTheme();
+  const { isPreview } = useSession();
   const [hour, setHour] = useState('19:00'),
     [info, setInfo] = useState('');
   const action = useMutation({
@@ -17,16 +28,53 @@ export default function Settings() {
     },
   });
   const logout = async () => {
-    await disablePush();
-    await cancelReminder();
-    const { error } = await supabase.auth.signOut({ scope: 'local' });
-    if (error) throw error;
-    await queryClient.cancelQueries();
-    queryClient.clear();
+    await clearNotificationsForLogout();
+    try {
+      const { error } = await supabase.auth.signOut({ scope: 'local' });
+      if (error) throw error;
+    } finally {
+      await queryClient.cancelQueries().catch(() => undefined);
+      queryClient.clear();
+    }
     router.replace('/auth');
   };
+  const appearance = (
+    <>
+      <Heading>Aparência</Heading>
+      <Label muted>Escolha como o Stacklyst aparece neste aparelho.</Label>
+      <Choice
+        value={mode}
+        onChange={(value) => setMode(value as ThemeMode)}
+        options={[
+          { value: 'dark', label: 'Escuro' },
+          { value: 'light', label: 'Claro' },
+          { value: 'system', label: 'Sistema' },
+        ]}
+      />
+    </>
+  );
+  if (isPreview)
+    return (
+      <Screen title="Configurações" back>
+        {appearance}
+        <Heading>Explore sem uma conta</Heading>
+        <Label muted>
+          Esta demonstração usa dados ilustrativos. Publicações, mensagens, alterações de conta e
+          notificações reais ficam disponíveis após entrar.
+        </Label>
+        <Button
+          label="Entrar na minha conta"
+          onPress={() => {
+            disablePreview();
+            queryClient.clear();
+            router.replace('/auth');
+          }}
+        />
+      </Screen>
+    );
   return (
     <Screen title="Configurações" back>
+      {appearance}
       <Heading>Notificações</Heading>
       <Label muted>
         Receba avisos de atividade. O conteúdo de mensagens fica oculto na tela bloqueada.

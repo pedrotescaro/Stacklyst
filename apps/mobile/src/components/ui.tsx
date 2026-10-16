@@ -1,11 +1,14 @@
-import { ReactNode, useState } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import {
   ActivityIndicator,
+  AccessibilityInfo,
+  Animated,
   Alert,
   Image,
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  RefreshControl,
   ScrollView,
   StyleSheet,
   Text,
@@ -13,54 +16,76 @@ import {
   TextInputProps,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import IconArrowLeft from '@tabler/icons-react-native/IconArrowLeft';
-import IconChevronRight from '@tabler/icons-react-native/IconChevronRight';
-import IconWifiOff from '@tabler/icons-react-native/IconWifiOff';
+import {
+  IconArrowLeft,
+  IconChevronRight,
+  IconWifiOff,
+  IconMessageCircle,
+  IconAlertCircle,
+} from '~/components/icons';
 import { useNetInfo } from '@react-native-community/netinfo';
-import { colors as c } from '../theme';
+import { colors, useTheme, type Palette, type as typography } from '../theme';
+import { useDrawer } from '../lib/navigation';
+import { useMe, useSession } from '../lib/session';
 import { errorMessage } from '../lib/api';
 import { config } from '../lib/config';
-export const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: c.background },
-  content: {
-    width: '100%',
-    maxWidth: 760,
-    alignSelf: 'center',
-    padding: 16,
-    gap: 16,
-    paddingBottom: 32,
-  },
-  row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  between: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  text: { fontSize: 16, lineHeight: 24, color: c.text },
-  muted: { fontSize: 14, lineHeight: 21, color: c.muted },
-  title: { fontSize: 28, lineHeight: 34, fontWeight: '700', color: c.text },
-  heading: { fontSize: 20, lineHeight: 27, fontWeight: '700', color: c.text },
-  panel: { backgroundColor: c.surface, padding: 16, borderRadius: 16, gap: 12 },
-  input: {
-    minHeight: 52,
-    color: c.text,
-    fontSize: 16,
-    padding: 14,
-    borderColor: c.border,
-    borderWidth: 1,
-    borderRadius: 12,
-    backgroundColor: c.surface,
-  },
-  separator: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: c.border,
-    paddingVertical: 16,
-  },
-});
+
+function createStyles(c: Palette) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: c.background },
+    content: {
+      width: '100%',
+      maxWidth: 760,
+      alignSelf: 'center',
+      padding: 20,
+      gap: 20,
+      paddingBottom: 32,
+      flexGrow: 1,
+    },
+    row: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+    between: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      gap: 8,
+    },
+    text: { ...typography.body, color: c.text },
+    muted: { ...typography.secondary, color: c.muted },
+    title: { ...typography.title, color: c.text },
+    heading: { ...typography.heading, color: c.text },
+    panel: { backgroundColor: c.surface, padding: 16, borderRadius: 12, gap: 12 },
+    input: {
+      minHeight: 52,
+      color: c.text,
+      fontSize: 16,
+      padding: 14,
+      borderColor: c.border,
+      borderWidth: 1,
+      borderRadius: 12,
+      backgroundColor: c.surface,
+    },
+    separator: {
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: c.border,
+      paddingVertical: 16,
+    },
+  });
+}
+export const styles = createStyles(colors);
+export function useUIStyles() {
+  const { colors: c } = useTheme();
+  return useMemo(() => createStyles(c), [c]);
+}
 export function Label({ children, muted = false }: { children: ReactNode; muted?: boolean }) {
-  return <Text style={muted ? styles.muted : styles.text}>{children}</Text>;
+  const s = useUIStyles();
+  return <Text style={muted ? s.muted : s.text}>{children}</Text>;
 }
 export function Heading({ children }: { children: ReactNode }) {
+  const s = useUIStyles();
   return (
-    <Text accessibilityRole="header" style={styles.heading}>
+    <Text accessibilityRole="header" style={s.heading}>
       {children}
     </Text>
   );
@@ -71,45 +96,103 @@ export function Screen({
   scroll = true,
   back = false,
   actions,
+  onRefresh,
+  refreshing = false,
 }: {
   title: string;
   children: ReactNode;
   scroll?: boolean;
   back?: boolean;
   actions?: ReactNode;
+  onRefresh?: () => void;
+  refreshing?: boolean;
 }) {
+  const { colors: c } = useTheme();
+  const s = useUIStyles();
   const network = useNetInfo();
+  const insets = useSafeAreaInsets();
+  const { openDrawer } = useDrawer();
+  const { session, isPreview } = useSession();
+  const me = useMe();
+  const hasMenu = !back && (!!session || isPreview);
   return (
-    <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
-      <View
-        style={[
-          styles.between,
-          {
-            paddingHorizontal: 12,
-            paddingVertical: 8,
-            borderBottomColor: c.border,
-            borderBottomWidth: StyleSheet.hairlineWidth,
-          },
-        ]}
-      >
-        <View style={[styles.row, { flexShrink: 1 }]}>
-          {back && (
+    <SafeAreaView style={s.screen} edges={['top', 'left', 'right']}>
+      <View style={{ borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: c.border }}>
+        <View
+          style={[
+            s.between,
+            {
+              minHeight: 60,
+              paddingHorizontal: 12,
+              width: '100%',
+              maxWidth: 760,
+              alignSelf: 'center',
+            },
+          ]}
+        >
+          {back ? (
             <IconButton
               label="Voltar"
               onPress={() => (router.canGoBack() ? router.back() : router.replace('/'))}
-              icon={<IconArrowLeft color={c.text} />}
+              icon={<IconArrowLeft color={c.text} size={24} />}
             />
-          )}
-          <Text accessibilityRole="header" style={styles.heading}>
+          ) : hasMenu ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Abrir menu da conta"
+              onPress={openDrawer}
+              style={({ pressed }) => ({
+                minWidth: 48,
+                minHeight: 48,
+                justifyContent: 'center',
+                alignItems: 'center',
+                opacity: pressed ? 0.65 : 1,
+              })}
+            >
+              <Avatar uri={me.data?.avatar_url} name={me.data?.username ?? 'S'} size={34} />
+            </Pressable>
+          ) : null}
+          <Text
+            accessibilityRole="header"
+            numberOfLines={1}
+            style={[
+              s.heading,
+              {
+                flex: 1,
+                textAlign: hasMenu && !actions ? 'center' : 'left',
+                marginRight: hasMenu && !actions ? 48 : 0,
+              },
+            ]}
+          >
             {title}
           </Text>
+          {actions && <View style={s.row}>{actions}</View>}
         </View>
-        <View style={styles.row}>{actions}</View>
       </View>
+      {isPreview && (
+        <View
+          style={{
+            backgroundColor: c.surface,
+            borderBottomWidth: StyleSheet.hairlineWidth,
+            borderColor: c.border,
+            paddingHorizontal: 16,
+            paddingVertical: 8,
+          }}
+        >
+          <Text style={{ color: c.muted, fontSize: 12, textAlign: 'center' }}>
+            Demonstração · dados ilustrativos · somente leitura
+          </Text>
+        </View>
+      )}
       {network.isConnected === false && (
-        <View style={[styles.row, { padding: 12, backgroundColor: c.surface }]}>
+        <View
+          accessibilityLiveRegion="polite"
+          style={[s.row, { padding: 12, backgroundColor: c.surface }]}
+        >
           <IconWifiOff color={c.warning} size={20} />
-          <Label>Sem conexão. Exibindo os dados já carregados.</Label>
+          <Text style={[s.muted, { flex: 1 }]}>
+            Sem conexão. Os dados já carregados continuam disponíveis.
+          </Text>
         </View>
       )}
       <KeyboardAvoidingView
@@ -117,7 +200,21 @@ export function Screen({
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
         {scroll ? (
-          <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
+          <ScrollView
+            keyboardShouldPersistTaps="handled"
+            keyboardDismissMode="on-drag"
+            contentContainerStyle={[s.content, { paddingBottom: Math.max(32, insets.bottom + 16) }]}
+            refreshControl={
+              onRefresh ? (
+                <RefreshControl
+                  refreshing={refreshing}
+                  onRefresh={onRefresh}
+                  tintColor={c.primary}
+                  colors={[c.primary]}
+                />
+              ) : undefined
+            }
+          >
             {children}
           </ScrollView>
         ) : (
@@ -142,6 +239,8 @@ export function Button({
   disabled?: boolean;
   danger?: boolean;
 }) {
+  const { colors: c } = useTheme();
+  const ink = danger ? c.danger : secondary ? c.text : c.onPrimary;
   return (
     <Pressable
       accessibilityRole="button"
@@ -150,26 +249,21 @@ export function Button({
       onPress={onPress}
       style={({ pressed }) => ({
         minHeight: 48,
-        paddingHorizontal: 18,
+        paddingHorizontal: 20,
         paddingVertical: 12,
-        borderRadius: 12,
+        borderRadius: 28,
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: secondary ? c.elevated : c.primary,
-        opacity: disabled || busy?.valueOf() ? 0.55 : pressed ? 0.75 : 1,
+        backgroundColor: secondary ? 'transparent' : c.primary,
+        borderColor: c.border,
+        borderWidth: secondary ? 1 : 0,
+        opacity: disabled || busy ? 0.5 : pressed ? 0.7 : 1,
       })}
     >
       {busy ? (
-        <ActivityIndicator color={c.text} />
+        <ActivityIndicator color={ink} />
       ) : (
-        <Text
-          style={{
-            fontSize: 16,
-            fontWeight: '600',
-            color: danger ? c.danger : c.onPrimary,
-            textAlign: 'center',
-          }}
-        >
+        <Text style={{ fontSize: 16, fontWeight: '700', color: ink, textAlign: 'center' }}>
           {label}
         </Text>
       )}
@@ -180,22 +274,29 @@ export function IconButton({
   label,
   icon,
   onPress,
+  disabled = false,
 }: {
   label: string;
   icon: ReactNode;
   onPress: () => void;
+  disabled?: boolean;
 }) {
+  const { colors: c } = useTheme();
   return (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
       onPress={onPress}
       style={({ pressed }) => ({
         minHeight: 48,
         minWidth: 48,
+        borderRadius: 24,
         alignItems: 'center',
         justifyContent: 'center',
-        opacity: pressed ? 0.6 : 1,
+        backgroundColor: pressed ? c.elevated : 'transparent',
+        opacity: disabled ? 0.4 : 1,
       })}
     >
       {icon}
@@ -203,6 +304,8 @@ export function IconButton({
   );
 }
 export function Field({ label, ...props }: TextInputProps & { label: string }) {
+  const { colors: c } = useTheme();
+  const s = useUIStyles();
   return (
     <View style={{ gap: 8 }}>
       <Label>{label}</Label>
@@ -213,7 +316,7 @@ export function Field({ label, ...props }: TextInputProps & { label: string }) {
         autoCapitalize="none"
         {...props}
         style={[
-          styles.input,
+          s.input,
           props.multiline && { minHeight: 130, textAlignVertical: 'top' },
           props.style,
         ]}
@@ -221,22 +324,113 @@ export function Field({ label, ...props }: TextInputProps & { label: string }) {
     </View>
   );
 }
-export function Notice({ error, retry }: { error?: unknown; retry?: () => void }) {
+export function Notice({
+  error,
+  retry,
+  title,
+  description,
+}: {
+  error?: unknown;
+  retry?: () => void;
+  title?: string;
+  description?: string;
+}) {
+  const { colors: c } = useTheme();
   return (
-    <View accessibilityLiveRegion="polite" style={[styles.panel, { margin: 16 }]}>
-      <Heading>{error ? 'Não foi possível carregar' : 'Nada por aqui ainda'}</Heading>
+    <View
+      accessibilityLiveRegion="polite"
+      style={{
+        paddingHorizontal: 24,
+        paddingVertical: 40,
+        gap: 14,
+        alignItems: 'flex-start',
+        maxWidth: 520,
+        width: '100%',
+        alignSelf: 'center',
+      }}
+    >
+      {error ? (
+        <IconAlertCircle color={c.muted} size={32} />
+      ) : (
+        <IconMessageCircle color={c.muted} size={32} />
+      )}
+      <Heading>
+        {title ?? (error ? 'Não foi possível carregar' : 'A conversa começa com você')}
+      </Heading>
       <Label muted>
-        {error ? errorMessage(error) : 'Quando houver conteúdo, ele aparecerá aqui.'}
+        {description ??
+          (error
+            ? errorMessage(error)
+            : 'Quando houver conteúdo, ele aparecerá aqui. Explore a comunidade e encontre novos assuntos.')}
       </Label>
       {retry && <Button label="Tentar novamente" secondary onPress={retry} />}
     </View>
   );
 }
-export function Loading() {
+export function Skeleton({
+  width = '100%',
+  height = 16,
+  circle = false,
+}: {
+  width?: number | `${number}%`;
+  height?: number;
+  circle?: boolean;
+}) {
+  const { colors: c } = useTheme();
   return (
-    <View accessibilityLabel="Carregando" style={{ padding: 32 }}>
-      <ActivityIndicator size="large" color={c.primary} />
-    </View>
+    <View
+      style={{ width, height, borderRadius: circle ? height / 2 : 4, backgroundColor: c.elevated }}
+    />
+  );
+}
+export function Loading() {
+  const [opacity] = useState(() => new Animated.Value(1));
+  useEffect(() => {
+    let active = true;
+    let animation: Animated.CompositeAnimation | undefined;
+    void AccessibilityInfo.isReduceMotionEnabled()
+      .then((reduce) => {
+        if (!active || reduce) return;
+        animation = Animated.loop(
+          Animated.sequence([
+            Animated.timing(opacity, {
+              toValue: 0.45,
+              duration: 700,
+              useNativeDriver: Platform.OS !== 'web',
+            }),
+            Animated.timing(opacity, {
+              toValue: 1,
+              duration: 700,
+              useNativeDriver: Platform.OS !== 'web',
+            }),
+          ])
+        );
+        animation.start();
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+      animation?.stop();
+    };
+  }, [opacity]);
+  return (
+    <Animated.View
+      accessibilityLabel="Carregando conteúdo"
+      accessibilityRole="progressbar"
+      style={{ padding: 20, gap: 24, opacity }}
+    >
+      {[0, 1, 2].map((key) => (
+        <View key={key} style={{ flexDirection: 'row', gap: 12 }}>
+          <Skeleton width={44} height={44} circle />
+          <View style={{ flex: 1, gap: 10 }}>
+            <Skeleton width="55%" />
+            <Skeleton />
+            <Skeleton width="80%" />
+            <Skeleton width="65%" />
+          </View>
+        </View>
+      ))}
+    </Animated.View>
   );
 }
 export function AsyncState({
@@ -251,7 +445,8 @@ export function AsyncState({
     return <Notice error={query.error} retry={() => query.refetch()} />;
   return (
     <>
-      {query.error && <Notice error={query.error} retry={() => query.refetch()} />} {children}
+      {query.error && <Notice error={query.error} retry={() => query.refetch()} />}
+      {children}
     </>
   );
 }
@@ -266,15 +461,21 @@ export function RowLink({
   onPress: () => void;
   leading?: ReactNode;
 }) {
+  const { colors: c } = useTheme();
+  const s = useUIStyles();
   return (
     <Pressable
       accessibilityRole="button"
       onPress={onPress}
-      style={[styles.row, styles.separator, { minHeight: 64 }]}
+      style={({ pressed }) => [
+        s.row,
+        s.separator,
+        { minHeight: 72, backgroundColor: pressed ? c.surface : 'transparent' },
+      ]}
     >
       {leading}
       <View style={{ flex: 1, gap: 4 }}>
-        <Text style={[styles.text, { fontWeight: '600' }]}>{title}</Text>
+        <Text style={[s.text, { fontWeight: '600' }]}>{title}</Text>
         {subtitle && <Label muted>{subtitle}</Label>}
       </View>
       <IconChevronRight color={c.muted} size={20} />
@@ -284,22 +485,24 @@ export function RowLink({
 export function Avatar({
   uri,
   name,
-  size = 42,
+  size = 44,
 }: {
   uri?: string | null;
   name: string;
   size?: number;
 }) {
-  const [failed, setFailed] = useState(false);
-  return uri && !failed ? (
+  const { colors: c } = useTheme();
+  const [failedUri, setFailedUri] = useState<string | null>(null);
+  return uri && uri !== failedUri ? (
     <Image
       accessibilityLabel={'Avatar de ' + name}
       source={{ uri: uri.startsWith('/') ? config.apiUrl + uri : uri }}
-      onError={() => setFailed(true)}
+      onError={() => setFailedUri(uri)}
       style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: c.surface }}
     />
   ) : (
     <View
+      accessibilityLabel={'Avatar de ' + name}
       style={{
         width: size,
         height: size,
@@ -310,7 +513,7 @@ export function Avatar({
       }}
     >
       <Text style={{ color: c.text, fontSize: size / 2.3, fontWeight: '700' }}>
-        {name[0]?.toUpperCase()}
+        {name[0]?.toUpperCase() ?? 'S'}
       </Text>
     </View>
   );
@@ -324,28 +527,35 @@ export function Choice({
   value: string;
   onChange: (v: string) => void;
 }) {
+  const { colors: c } = useTheme();
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
+      style={{ flexGrow: 0 }}
       contentContainerStyle={{ gap: 8 }}
     >
       {options.map((o) => (
         <Pressable
           key={o.value}
-          accessibilityRole="button"
+          accessibilityRole="tab"
           accessibilityState={{ selected: value === o.value }}
           onPress={() => onChange(o.value)}
-          style={{
+          style={({ pressed }) => ({
             minHeight: 48,
             paddingHorizontal: 16,
             justifyContent: 'center',
-            borderBottomWidth: 2,
+            borderBottomWidth: 3,
             borderBottomColor: value === o.value ? c.primary : 'transparent',
-          }}
+            backgroundColor: pressed ? c.surface : 'transparent',
+          })}
         >
           <Text
-            style={{ fontSize: 15, fontWeight: '600', color: value === o.value ? c.text : c.muted }}
+            style={{
+              fontSize: 15,
+              fontWeight: value === o.value ? '700' : '500',
+              color: value === o.value ? c.text : c.muted,
+            }}
           >
             {o.label}
           </Text>
