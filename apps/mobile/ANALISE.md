@@ -55,6 +55,16 @@ Esse modo não fabrica uma sessão Supabase ou tokens. O estado fica em memória
 
 Não são simulados domínio de conteúdo, notas, XP, candidaturas, inscrições ou publicação. As listas desses domínios ficam vazias ou exibem o limite explícito da demonstração. Essa amostra serve para revisar navegação e interface; não constitui validação de autenticação, sincronização ou autorização em produção.
 
+## Correção de login e identidade visual
+
+O teste em aparelho revelou o retorno OAuth para a landing web. A verificação pública do Supabase confirmou provedores Google/GitHub/Discord habilitados, mas o scheme direto do app não é aceito na allowlist atual. O callback HTTPS da plataforma com `client=mobile` é aceito. A rota agora entrega somente o código temporário PKCE ao endereço nativo fixo, com cache e referrer desativados, sem renderizar a interface do site, sem consumir o código no servidor e sem transportar tokens de sessão. O proxy também evita cookies web nesse caminho.
+
+O app troca o código uma única vez mesmo quando Router e navegador recebem o retorno juntos. O perfil é preparado em `POST /api/mobile/auth/bootstrap`, com Bearer verificado, criação transacional e idempotente de usuário/trilhas, sem conceder permissões por metadata ou alterar contas existentes. Esse passo também é executado após login por senha. A API nova e o callback precisam estar publicados antes de distribuir o APK.
+
+O ícone foi regenerado a partir da marca original com fundo preto opaco. Foreground adaptativo e monochrome têm transparência e safe zone próprias; o splash usa fundo preto explícito. A tela de entrada usa SVG temático do Stacklyst e logos Google, GitHub e Discord. O Expo Go controla seu próprio carregamento e não registra o scheme do app; login social é identificado como disponível no aplicativo instalado, enquanto e-mail/senha e demonstração permanecem acessíveis.
+
+Testes do cliente cobrem provedores, cancelamento, retorno seguro, callback duplicado, falha/repetição de bootstrap e recuperação de senha sem rede real. Testes do backend cobrem entrega do código, ausência de cookies, Bearer, colisões de nomes, concorrência, rollback e preservação de contas. Nenhum login real de um usuário foi automatizado.
+
 ## O que permanece fora desta entrega
 
 - Reconstrução da landing institucional dentro do app; a entrada nativa prioriza acesso à comunidade.
@@ -77,10 +87,10 @@ O script `node scripts/check-preview.mjs` foi executado com sucesso. Ele exercit
 | `expo install --check`                   | Dependências compatíveis com Expo SDK 57                                                                                                                                                     |
 | `npm run export -- --max-workers 2`      | Bundles Android, iOS e web gerados                                                                                                                                                           |
 | Expo Doctor                              | 20 de 21 verificações aprovadas; aviso de biblioteca sem manutenção (`react-native-render-html`), mantida para renderizar publicações existentes                                             |
-| `npm audit` do mobile                    | 28 ocorrências: 18 altas e 10 moderadas; nenhuma crítica. O check de auditoria do CI continua bloqueando. As sugestões que rebaixam Expo/React Native não foram aplicadas                    |
+| `npm audit` do mobile                    | 29 ocorrências: 18 altas e 11 moderadas; nenhuma crítica. O check de auditoria do CI continua bloqueando. As sugestões que rebaixam Expo/React Native não foram aplicadas                    |
 | Revisão independente de código           | Contratos principais e bloqueio do preview revisados; corrigidos contraste de mensagens no tema claro e saída local quando a revogação de push falha                                         |
 | Inspeção visual do app em execução       | Pendente: o emulador disponível apresentou falhas de System UI; uma instância isolada não concluiu o boot. O controle de navegador local também ficou desabilitado nas configurações do Work |
-| APK e operações autenticadas em produção | Não executados; dependem de conta Expo, dispositivo e configuração real                                                                                                                      |
+| APK e operações autenticadas em produção | APK ARM64 compilado; assinatura v2 e scheme stacklyst verificados. Sessão em aparelho pendente                                                                                               |
 
 Esses resultados pertencem a esta revisão. A aprovação visual em aparelho não foi inferida de leitura de código ou de bundles gerados.
 

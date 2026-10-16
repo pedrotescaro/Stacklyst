@@ -231,6 +231,7 @@ export function Button({
   secondary = false,
   disabled = false,
   danger = false,
+  icon,
 }: {
   label: string;
   onPress: () => void;
@@ -238,6 +239,7 @@ export function Button({
   secondary?: boolean;
   disabled?: boolean;
   danger?: boolean;
+  icon?: ReactNode;
 }) {
   const { colors: c } = useTheme();
   const ink = danger ? c.danger : secondary ? c.text : c.onPrimary;
@@ -263,9 +265,22 @@ export function Button({
       {busy ? (
         <ActivityIndicator color={ink} />
       ) : (
-        <Text style={{ fontSize: 16, fontWeight: '700', color: ink, textAlign: 'center' }}>
-          {label}
-        </Text>
+        <View
+          style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 12 }}
+        >
+          {icon}
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: '700',
+              color: ink,
+              textAlign: 'center',
+              flexShrink: 1,
+            }}
+          >
+            {label}
+          </Text>
+        </View>
       )}
     </Pressable>
   );

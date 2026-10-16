@@ -48,7 +48,11 @@ Para backend local, use `http://10.0.2.2:3000` no emulador Android. Em aparelho 
 
 O app autentica pelo Supabase e envia `Authorization: Bearer <access_token>` para as APIs existentes. A sessão nativa é persistida no SecureStore; na prévia web, fica apenas em memória. Há renovação da sessão e limpeza do cache ao trocar de usuário. Rascunhos usam armazenamento local por usuário e sincronização versionada quando há uma conta conectada.
 
-Login social, confirmação de e-mail e recuperação de senha usam `stacklyst://auth/callback`; adicione esse destino aos redirects permitidos do Supabase e habilite os provedores desejados. Valide esses retornos no APK instalado, porque o Expo Go possui seu próprio esquema de links. Sem essa configuração, use login por e-mail e senha ou a demonstração.
+Login social usa PKCE e o callback HTTPS `${EXPO_PUBLIC_API_URL}/api/auth/callback?client=mobile`, já aceito pelo projeto Supabase da plataforma. Essa rota responde diretamente para `stacklyst://auth/callback` com o código temporário; não carrega a interface do site, não cria cookies web e não encaminha access/refresh tokens. O app troca o código uma única vez e chama `POST /api/mobile/auth/bootstrap`, autenticado com Bearer, para preparar o perfil e as trilhas sem exigir login no site.
+
+Publique as duas rotas do backend desta revisão antes de distribuir o APK e mantenha o callback HTTPS em Supabase → Auth → URL Configuration. Google, GitHub e Discord precisam estar habilitados. O destino de navegação fica armazenado localmente, separado do redirect OAuth. O retorno também cobre recuperação e reenvio de confirmação. No Expo Go, login social fica desativado com orientação explícita: use e-mail/senha ou o APK próprio, pois esse cliente não registra o scheme do Stacklyst.
+
+O ícone é opaco e escuro; o adaptive icon usa foreground separado com transparência. O splash nativo possui fundo preto configurado pelo plugin `expo-splash-screen`. Essas configurações exigem novo APK; o Expo Go mantém sua própria tela de carregamento.
 
 ## Gerar o APK com EAS Build
 
@@ -84,6 +88,7 @@ Os comandos abaixo são executados dentro de `apps/mobile`. Eles usam a conta Ex
    npm run test:preview
    npm run test:logout
    npm run test:notifications
+   npm run test:auth
    ```
 
 4. Gere o APK. Quando o EAS solicitar credenciais Android, selecione a keystore existente do app ou a geração de uma nova para a primeira distribuição:
@@ -102,6 +107,22 @@ Os comandos abaixo são executados dentro de `apps/mobile`. Eles usam a conta Ex
    ```
 
 O APK do perfil `preview` funciona sem Metro. Esse fluxo gera uma instalação interna; publicação nas lojas e um AAB de produção são etapas separadas. A compilação Android na nuvem depende da conta Expo, da fila e das credenciais fornecidas nesse procedimento.
+
+## APK local de teste no Windows
+
+Foi gerado `artifacts/Stacklyst-preview-arm64.apk` (ARM64, assinatura local de teste, sem Metro). Para reproduzir com Android Studio/SDK instalados:
+
+```powershell
+$env:JAVA_HOME = 'C:\Program Files\Android\Android Studio\jbr'
+$env:ANDROID_HOME = Join-Path $env:LOCALAPPDATA 'Android\Sdk'
+$env:NODE_ENV = 'production'
+npm run build:editor
+npx expo prebuild --platform android --no-clean --no-install
+Set-Location android
+.\gradlew.bat :app:assembleRelease --console=plain --no-daemon --max-workers=2 '-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1536m' -PreactNativeArchitectures=arm64-v8a
+```
+
+Saída: `android/app/build/outputs/apk/release/app-release.apk`. A compilação original com Metaspace de 512 MB falhou; o comando acima foi validado com o limite ampliado. O binário local usa a chave Android de teste e não substitui a assinatura de distribuição do EAS. Publicar o backend desta revisão é pré-requisito para testar o login social nesse APK; a sessão nativa precisa ser validada no aparelho.
 
 ## Organização
 
