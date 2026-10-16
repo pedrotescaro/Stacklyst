@@ -55,6 +55,16 @@ Esse modo não fabrica uma sessão Supabase ou tokens. O estado fica em memória
 
 Não são simulados domínio de conteúdo, notas, XP, candidaturas, inscrições ou publicação. As listas desses domínios ficam vazias ou exibem o limite explícito da demonstração. Essa amostra serve para revisar navegação e interface; não constitui validação de autenticação, sincronização ou autorização em produção.
 
+## Correção de login e identidade visual
+
+O teste em aparelho revelou o retorno OAuth para a landing web. A verificação pública do Supabase confirmou provedores Google/GitHub/Discord habilitados, mas o scheme direto do app não é aceito na allowlist atual. O callback HTTPS da plataforma com `client=mobile` é aceito. A rota agora entrega somente o código temporário PKCE ao endereço nativo fixo, com cache e referrer desativados, sem renderizar a interface do site, sem consumir o código no servidor e sem transportar tokens de sessão. O proxy também evita cookies web nesse caminho.
+
+O app troca o código uma única vez mesmo quando Router e navegador recebem o retorno juntos. O perfil é preparado em `POST /api/mobile/auth/bootstrap`, com Bearer verificado, criação transacional e idempotente de usuário/trilhas, sem conceder permissões por metadata ou alterar contas existentes. Esse passo também é executado após login por senha. A API nova e o callback precisam estar publicados antes de distribuir o APK.
+
+O ícone foi regenerado a partir da marca original com fundo preto opaco. Foreground adaptativo e monochrome têm transparência e safe zone próprias; o splash usa fundo preto explícito. A tela de entrada usa SVG temático do Stacklyst e logos Google, GitHub e Discord. O Expo Go controla seu próprio carregamento e não registra o scheme do app; login social é identificado como disponível no aplicativo instalado, enquanto e-mail/senha e demonstração permanecem acessíveis.
+
+Testes do cliente cobrem provedores, cancelamento, retorno seguro, callback duplicado, falha/repetição de bootstrap e recuperação de senha sem rede real. Testes do backend cobrem entrega do código, ausência de cookies, Bearer, colisões de nomes, concorrência, rollback e preservação de contas. Nenhum login real de um usuário foi automatizado.
+
 ## O que permanece fora desta entrega
 
 - Reconstrução da landing institucional dentro do app; a entrada nativa prioriza acesso à comunidade.
@@ -77,13 +87,31 @@ O script `node scripts/check-preview.mjs` foi executado com sucesso. Ele exercit
 | `expo install --check`                   | Dependências compatíveis com Expo SDK 57                                                                                                                                                     |
 | `npm run export -- --max-workers 2`      | Bundles Android, iOS e web gerados                                                                                                                                                           |
 | Expo Doctor                              | 20 de 21 verificações aprovadas; aviso de biblioteca sem manutenção (`react-native-render-html`), mantida para renderizar publicações existentes                                             |
-| `npm audit` do mobile                    | 28 ocorrências: 18 altas e 10 moderadas; nenhuma crítica. O check de auditoria do CI continua bloqueando. As sugestões que rebaixam Expo/React Native não foram aplicadas                    |
+| `npm audit` do mobile                    | 29 ocorrências: 18 altas e 11 moderadas; nenhuma crítica. O check de auditoria do CI continua bloqueando. As sugestões que rebaixam Expo/React Native não foram aplicadas                    |
 | Revisão independente de código           | Contratos principais e bloqueio do preview revisados; corrigidos contraste de mensagens no tema claro e saída local quando a revogação de push falha                                         |
 | Inspeção visual do app em execução       | Pendente: o emulador disponível apresentou falhas de System UI; uma instância isolada não concluiu o boot. O controle de navegador local também ficou desabilitado nas configurações do Work |
-| APK e operações autenticadas em produção | Não executados; dependem de conta Expo, dispositivo e configuração real                                                                                                                      |
+| APK e operações autenticadas em produção | APK ARM64 compilado; assinatura v2 e scheme stacklyst verificados. Sessão em aparelho pendente                                                                                               |
 
 Esses resultados pertencem a esta revisão. A aprovação visual em aparelho não foi inferida de leitura de código ou de bundles gerados.
+
+### Correção da inicialização no Expo Go
+
+O teste em aparelho enviado pelo usuário revelou `Cannot find native module 'ExpoTopicSubscriptionModule'` ao avaliar a importação de `expo-notifications` no layout e em Configurações. Os avisos de rota sem export default e o erro de `ErrorBoundary` vieram após essa falha de importação; ambas as rotas possuem seus componentes default.
+
+O carregamento passou a ser opcional e sob demanda, com detecção específica de Expo Go por `isRunningInExpoGo()`. Nesse cliente e na web, o pacote não é avaliado. Em builds próprios, o módulo continua disponível para push, lembretes e abertura de notificações; se o binário estiver incompatível, sua ausência não derruba o app. A aba Notificações usa a API e independe desse módulo. Push e lembretes locais ficam reservados às versões próprias, inclusive para evitar a importação indireta do módulo ausente nos lembretes do Expo Go.
+
+`npm run test:notifications` exercita os ambientes com o módulo nativo ausente e presente, incluindo importação das rotas. Essa regressão é distinta da exportação de bundle: reproduz a falha durante avaliação JavaScript, sem afirmar nova execução visual em aparelho.
 
 Builds de bundle e verificações estáticas têm um escopo diferente de um APK executado no Android. Não foi afirmado funcionamento ao vivo de autenticação, backend, notificações ou serviços externos com base apenas nesses checks.
 
 Referências oficiais consultadas: [Expo Router SDK 57](https://docs.expo.dev/versions/v57.0.0/sdk/router/), [EAS APK](https://docs.expo.dev/build-reference/apk/), [ambientes EAS](https://docs.expo.dev/eas/environment-variables/), [Supabase Auth React Native](https://supabase.com/docs/guides/auth/quickstarts/react-native) e [changelog Supabase](https://supabase.com/changelog).
+
+### Correção do endereço da API no APK (16/10/2026)
+
+A captura do aparelho identificou `CLEARTEXT communication to 10.0.2.2 not permitted`. O primeiro APK foi compilado com o `.env` de desenvolvimento. Esse endereço pertence ao emulador Android; não é a API publicada. O cadastro sequer chegava ao servidor. Não foi habilitado HTTP sem criptografia para contornar a falha.
+
+O release 0.1.1, versionCode 2, fixa `https://stacklyst.vercel.app` no código e nos perfis EAS. O override local fica restrito a `__DEV__`, e o callback OAuth sempre usa o endereço público permitido pelo Supabase. A regressão `test:config` compila a configuração de release com um `.env` de emulador e confirma que esse endereço é removido do código gerado. O script Windows também verifica o bundle dentro do APK e bloqueia sua distribuição quando as rotas publicadas ainda não atendem ao contrato nativo.
+
+Consulta real ao Supabase com a credencial de servidor confirmou cadastro habilitado e provedores e-mail, Google, GitHub e Discord ativos. O conector administrativo recusou acesso; nenhuma alteração de configuração do Supabase foi feita por ele. O teste HTTPS em produção criou uma conta temporária de QA em domínio `.invalid`, autenticou por senha, leu o perfil com Bearer e confirmou nove trilhas. Credenciais e tokens do teste não foram incluídos nos logs nem no app.
+
+A verificação inicial da produção encontrou callback mobile redirecionando para `/feed` e bootstrap retornando 404. As rotas correspondentes estão no PR #58; publicar esse backend é necessário para que o retorno social funcione. Autorizar Google/GitHub pode abrir a tela segura do provedor no navegador do sistema; a sessão resultante pertence ao aplicativo e não exige login na interface do site.

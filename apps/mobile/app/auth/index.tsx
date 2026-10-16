@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { Image, Text, View, Platform } from 'react-native';
+import { Text, View, Platform } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
-import * as WebBrowser from 'expo-web-browser';
 import { Screen, Field, Button, Label, Choice, useUIStyles } from '../../src/components/ui';
 import { supabase } from '../../src/lib/supabase';
 import { send, errorMessage } from '../../src/lib/api';
@@ -11,6 +10,15 @@ import { safeRoute } from '../../src/lib/links';
 import { disablePreview, enablePreview } from '../../src/lib/preview';
 import { queryClient } from '../../src/lib/query';
 import { useTheme } from '../../src/theme';
+import { BrandMark } from '../../src/components/BrandMark';
+import { ProviderIcon } from '../../src/components/ProviderIcon';
+import { bootstrapAccount } from '../../src/lib/auth-callback';
+import {
+  signInWithProvider,
+  getOAuthRedirectUrl,
+  nativeOAuthAvailable,
+  nativeOAuthMessage,
+} from '../../src/lib/oauth';
 
 type Mode = 'login' | 'register' | 'recover';
 export default function Auth() {
@@ -36,7 +44,7 @@ export default function Auth() {
       const address = email.trim();
       if (mode === 'recover') {
         const { error } = await supabase.auth.resetPasswordForEmail(address, {
-          redirectTo: 'stacklyst://auth/callback?type=recovery',
+          redirectTo: getOAuthRedirectUrl() + '&type=recovery',
         });
         if (error) throw error;
         setInfo('Confira seu e-mail para recuperar a senha.');
@@ -60,6 +68,7 @@ export default function Auth() {
         throw error;
       }
       setPassword('');
+      await bootstrapAccount();
       router.replace(registering ? '/onboarding' : (safeRoute(returnTo) as never));
     },
   });
@@ -67,21 +76,12 @@ export default function Auth() {
     mutationFn: async (provider: 'google' | 'github' | 'discord') => {
       if (!configured) throw new Error('A conexão com o Stacklyst ainda não está disponível.');
       await beginConnection();
-      const redirect =
-        'stacklyst://auth/callback?returnTo=' + encodeURIComponent(safeRoute(returnTo));
-      const { data, error } = await supabase.auth.signInWithOAuth({
-        provider,
-        options: { redirectTo: redirect, skipBrowserRedirect: true },
-      });
-      if (error) throw error;
-      if (!data.url) throw new Error('O provedor não retornou um endereço de acesso.');
-      const result = await WebBrowser.openAuthSessionAsync(data.url, 'stacklyst://auth/callback');
-      if (result.type !== 'success') {
+      const path = await signInWithProvider(provider, returnTo);
+      if (!path) {
         setInfo('Acesso cancelado. Você pode tentar novamente.');
         return;
       }
-      const url = new URL(result.url);
-      router.replace(('/auth/callback' + url.search + url.hash) as never);
+      router.replace(path as never);
     },
   });
   const resend = useMutation({
@@ -90,7 +90,7 @@ export default function Auth() {
       const { error } = await supabase.auth.resend({
         type: 'signup',
         email: email.trim(),
-        options: { emailRedirectTo: 'stacklyst://auth/callback' },
+        options: { emailRedirectTo: getOAuthRedirectUrl() },
       });
       if (error) throw error;
       setInfo('E-mail de confirmação solicitado. Confira também a caixa de spam.');
@@ -108,11 +108,7 @@ export default function Auth() {
   return (
     <Screen title="Stacklyst">
       <View style={{ paddingTop: 20, paddingBottom: 12, gap: 20 }}>
-        <Image
-          source={require('../../assets/logo.png')}
-          style={{ width: 44, height: 44 }}
-          accessibilityLabel="Stacklyst"
-        />
+        <BrandMark width={64} />
         <Text style={[styles.title, { fontSize: 32, lineHeight: 38, maxWidth: 360 }]}>
           Aprender fica melhor em comunidade.
         </Text>
@@ -196,14 +192,23 @@ export default function Auth() {
               <Button
                 key={provider}
                 secondary
+                icon={<ProviderIcon provider={provider} size={22} color={colors.text} />}
                 label={
                   'Continuar com ' +
                   { google: 'Google', github: 'GitHub', discord: 'Discord' }[provider]
                 }
-                disabled={busy}
+                busy={oauth.isPending && oauth.variables === provider}
+                disabled={busy || !nativeOAuthAvailable()}
                 onPress={() => oauth.mutate(provider)}
               />
             ))}
+          {mode === 'login' && Platform.OS !== 'web' && (
+            <Label muted>
+              {nativeOAuthAvailable()
+                ? 'Confirme o acesso no provedor e volte automaticamente para o aplicativo.'
+                : nativeOAuthMessage}
+            </Label>
+          )}
           {oauth.error && <Label>{oauth.error.message}</Label>}
           {mode === 'login' && (
             <Button

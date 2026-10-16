@@ -18,7 +18,10 @@ export interface ApiContext {
   params: Promise<any>;
 }
 
-export function apiHandler(handler: (req: Request, ctx: ApiContext) => Promise<Response>) {
+export function apiHandler(
+  handler: (req: Request, ctx: ApiContext) => Promise<Response>,
+  options: { resolveSession?: boolean } = {}
+) {
   return async (req: Request, segmentData: { params: Promise<any> }) => {
     const requestId = crypto.randomUUID();
     const store: RateLimitStore = {};
@@ -26,10 +29,12 @@ export function apiHandler(handler: (req: Request, ctx: ApiContext) => Promise<R
     return rateLimitStorage.run(store, async () => {
       try {
         let session = null;
-        try {
-          session = await getAuthUser();
-        } catch {
-          session = null;
+        if (options.resolveSession !== false) {
+          try {
+            session = await getAuthUser();
+          } catch {
+            session = null;
+          }
         }
 
         // Execute the actual route logic

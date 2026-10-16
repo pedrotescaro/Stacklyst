@@ -19,6 +19,8 @@ npx expo start
 
 Abra o QR code no Expo Go compatível com SDK 57. Com um emulador Android em execução, pressione `a`; para abrir a versão web de desenvolvimento, pressione `w`. `Ctrl+C` encerra o Metro. O projeto não exige um development client.
 
+Push e lembretes locais usam o módulo de notificações somente no APK próprio. No Expo Go, o app não importa esse módulo: a entrada do pacote SDK 57 tenta carregar `ExpoTopicSubscriptionModule`, ausente nesse cliente. A aba Notificações continua usando a API da plataforma. Após atualizar esse código, pare o Metro com `Ctrl+C` e execute `npx expo start --clear` para descartar o bundle antigo.
+
 Sem variáveis de ambiente, use **Explorar demonstração** na tela inicial. Esse modo usa exemplos locais identificados, somente leitura, nas mesmas telas do app. Ele não cria conta, autenticação, XP ou publicações. Não há troca automática para mocks se a API real falhar.
 
 Para desenvolvimento com código nativo, `npm run android` exige Android Studio/JDK/SDK configurados; `npm run ios` exige macOS e Xcode. O editor de exercícios usa CodeMirror numa WebView isolada. A navegação e as telas são React Native.
@@ -42,11 +44,17 @@ EXPO_PUBLIC_EAS_PROJECT_ID=
 
 As variáveis `EXPO_PUBLIC_*` são incluídas no aplicativo. Use somente a chave pública publishable do Supabase, ou a chave anon pública já usada pelo projeto. Chaves `service_role`, segredos do banco e tokens administrativos ficam no servidor. `.env` permanece ignorado pelo Git.
 
-Para backend local, use `http://10.0.2.2:3000` no emulador Android. Em aparelho físico, use o IP da máquina na mesma rede e execute o backend acessível pela LAN. `localhost` no aparelho aponta para o próprio aparelho. Para um APK distribuído, prefira a URL HTTPS da plataforma.
+O APK de release usa sempre `https://stacklyst.vercel.app`, mesmo que o `.env` da máquina contenha um endereço local. Os perfis EAS `preview` e `production` também fixam essa URL. Não é necessário liberar HTTP sem criptografia no Android.
+
+Somente em desenvolvimento (`__DEV__`), `EXPO_PUBLIC_API_URL` pode apontar para `http://10.0.2.2:3000` no emulador Android. Em aparelho físico, use o IP da máquina na mesma rede e execute o backend acessível pela LAN. `localhost` no aparelho aponta para o próprio aparelho.
 
 O app autentica pelo Supabase e envia `Authorization: Bearer <access_token>` para as APIs existentes. A sessão nativa é persistida no SecureStore; na prévia web, fica apenas em memória. Há renovação da sessão e limpeza do cache ao trocar de usuário. Rascunhos usam armazenamento local por usuário e sincronização versionada quando há uma conta conectada.
 
-Login social, confirmação de e-mail e recuperação de senha usam `stacklyst://auth/callback`; adicione esse destino aos redirects permitidos do Supabase e habilite os provedores desejados. Valide esses retornos no APK instalado, porque o Expo Go possui seu próprio esquema de links. Sem essa configuração, use login por e-mail e senha ou a demonstração.
+Login social usa PKCE e o callback HTTPS `https://stacklyst.vercel.app/api/auth/callback?client=mobile`, já aceito pelo projeto Supabase da plataforma. Essa rota responde diretamente para `stacklyst://auth/callback` com o código temporário; não carrega a interface do site, não cria cookies web e não encaminha access/refresh tokens. O app troca o código uma única vez e chama `POST /api/mobile/auth/bootstrap`, autenticado com Bearer, para preparar o perfil e as trilhas sem exigir login no site. A tela segura de autorização do Google/GitHub pode abrir no navegador do sistema; ao concluir, o destino é o aplicativo.
+
+Publique as duas rotas do backend desta revisão antes de distribuir o APK e mantenha o callback HTTPS em Supabase → Auth → URL Configuration. Google, GitHub e Discord precisam estar habilitados. O destino de navegação fica armazenado localmente, separado do redirect OAuth. O retorno também cobre recuperação e reenvio de confirmação. No Expo Go, login social fica desativado com orientação explícita: use e-mail/senha ou o APK próprio, pois esse cliente não registra o scheme do Stacklyst.
+
+O ícone é opaco e escuro; o adaptive icon usa foreground separado com transparência. O splash nativo possui fundo preto configurado pelo plugin `expo-splash-screen`. Essas configurações exigem novo APK; o Expo Go mantém sua própria tela de carregamento.
 
 ## Gerar o APK com EAS Build
 
@@ -81,6 +89,10 @@ Os comandos abaixo são executados dentro de `apps/mobile`. Eles usam a conta Ex
    npx expo install --check
    npm run test:preview
    npm run test:logout
+   npm run test:notifications
+   npm run test:auth
+   npm run test:config
+   npm run check:release
    ```
 
 4. Gere o APK. Quando o EAS solicitar credenciais Android, selecione a keystore existente do app ou a geração de uma nova para a primeira distribuição:
@@ -99,6 +111,16 @@ Os comandos abaixo são executados dentro de `apps/mobile`. Eles usam a conta Ex
    ```
 
 O APK do perfil `preview` funciona sem Metro. Esse fluxo gera uma instalação interna; publicação nas lojas e um AAB de produção são etapas separadas. A compilação Android na nuvem depende da conta Expo, da fila e das credenciais fornecidas nesse procedimento.
+
+## APK local de teste no Windows
+
+O APK corrigido é `artifacts/Stacklyst-0.1.1-arm64.apk` (versionCode 2, ARM64, assinatura local de teste, sem Metro). O arquivo anterior `Stacklyst-preview-arm64.apk` foi gerado com uma URL de emulador e não deve ser distribuído. Para reproduzir com Android Studio/SDK instalados:
+
+```powershell
+npm run build:apk:windows
+```
+
+O script valida o callback publicado, a rota de preparação da conta e as configurações públicas do Supabase antes do build. Define a API HTTPS explicitamente, atualiza o projeto nativo sem limpar alterações, força a geração do bundle e examina o JavaScript dentro do APK antes de copiá-lo para `artifacts/`. Se encontrar a URL do emulador ou um callback que ainda leva ao site, interrompe a distribuição. O binário local usa a chave Android de teste e não substitui a assinatura de distribuição do EAS. A sessão nativa precisa ser validada no aparelho.
 
 ## Organização
 
@@ -123,6 +145,7 @@ apps/mobile/
     build-editor.mjs         Gera o HTML do editor
     check-preview.mjs        Verifica fixtures e bloqueio de rede/escrita na demo
     check-logout.mjs         Verifica saída local com falha/timeout de push
+    check-notifications.mjs  Verifica inicialização sem módulo nativo no Expo Go
   app.json                   Identidade e configuração nativa
   eas.json                   Perfis Android APK e produção
 ```

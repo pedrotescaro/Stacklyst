@@ -5,6 +5,7 @@ vi.mock('../auth', () => ({ getAuthUser: vi.fn().mockResolvedValue(null) }));
 vi.mock('../logger', () => ({ logger: { warn: vi.fn(), error: vi.fn() } }));
 import { apiHandler } from '../api-handler';
 import { AppError } from '../errors';
+import { getAuthUser } from '../auth';
 
 describe('API error contract', () => {
   const request = new Request('http://localhost/api/test');
@@ -31,5 +32,17 @@ describe('API error contract', () => {
     })(request, context);
     expect(response.status).toBe(500);
     expect(await response.text()).not.toContain('private detail');
+  });
+  it('can skip browser/application session lookup for explicitly authenticated endpoints', async () => {
+    vi.mocked(getAuthUser).mockClear();
+    const response = await apiHandler(
+      async (_request, { session }) => {
+        expect(session).toBeNull();
+        return new Response('ok');
+      },
+      { resolveSession: false }
+    )(request, context);
+    expect(response.status).toBe(200);
+    expect(getAuthUser).not.toHaveBeenCalled();
   });
 });

@@ -22,6 +22,10 @@ jobs:
         run: npm --prefix apps/mobile run typecheck && npm --prefix apps/mobile run lint
       - name: Check preview isolation and offline logout
         run: npm --prefix apps/mobile run test:preview && npm --prefix apps/mobile run test:logout
+      - name: Check optional notifications in Expo Go
+        run: npm --prefix apps/mobile run test:notifications
+      - name: Check native authentication
+        run: npm --prefix apps/mobile run test:auth && npm --prefix apps/mobile run test:config
       - name: Bundle Android and iOS
         working-directory: apps/mobile
         run: npm run export -- --max-workers 2

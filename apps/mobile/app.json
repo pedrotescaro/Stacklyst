@@ -2,7 +2,7 @@
   "expo": {
     "name": "Stacklyst",
     "slug": "stacklyst-mobile",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "scheme": "stacklyst",
     "orientation": "default",
     "userInterfaceStyle": "automatic",
@@ -14,10 +14,12 @@
     },
     "android": {
       "package": "com.stacklyst.mobile",
+      "versionCode": 2,
       "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": true,
       "adaptiveIcon": {
-        "foregroundImage": "./assets/app-icon.png",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png",
         "backgroundColor": "#000000"
       }
     },
@@ -27,7 +29,20 @@
       "expo-notifications",
       "expo-font",
       "expo-web-browser",
-      "expo-status-bar"
+      "expo-status-bar",
+      [
+        "expo-splash-screen",
+        {
+          "backgroundColor": "#000000",
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 180,
+          "resizeMode": "contain",
+          "dark": {
+            "backgroundColor": "#000000",
+            "image": "./assets/splash-icon.png"
+          }
+        }
+      ]
     ],
     "web": {
       "bundler": "metro",

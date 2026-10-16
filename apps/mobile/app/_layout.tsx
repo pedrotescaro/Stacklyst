@@ -4,31 +4,32 @@ import { QueryClientProvider } from '@tanstack/react-query';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useRef, useState } from 'react';
-import { Platform } from 'react-native';
-import * as Notifications from 'expo-notifications';
 import { SessionProvider, useSession } from '../src/lib/session';
 import { queryClient } from '../src/lib/query';
 import { ThemeProvider, useTheme } from '../src/theme';
 import { AppDrawer } from '../src/components/AppDrawer';
 import { useReducedMotion } from '../src/lib/motion';
 import { notificationRoute } from '../src/lib/links';
+import { loadNotifications, type NotificationResponse } from '../src/lib/notification-runtime';
 function NotificationLinks() {
   const navigation = useRootNavigationState();
   const { ready } = useSession();
-  const [pending, setPending] = useState<Notifications.NotificationResponse | null>(null);
+  const [pending, setPending] = useState<NotificationResponse | null>(null);
   const handled = useRef(new Set<string>());
   useEffect(() => {
-    if (Platform.OS === 'web') return;
     let active = true;
-    void Notifications.getLastNotificationResponseAsync()
-      .then((response) => {
+    let sub: { remove: () => void } | undefined;
+    void loadNotifications()
+      .then(async (notifications) => {
+        if (!active || !notifications) return;
+        sub = notifications.addNotificationResponseReceivedListener(setPending);
+        const response = await notifications.getLastNotificationResponseAsync();
         if (active && response) setPending(response);
       })
       .catch(() => undefined);
-    const sub = Notifications.addNotificationResponseReceivedListener(setPending);
     return () => {
       active = false;
-      sub.remove();
+      sub?.remove();
     };
   }, []);
   useEffect(() => {
@@ -38,7 +39,9 @@ function NotificationLinks() {
     handled.current.add(identifier);
     const url = pending.notification.request.content.data?.url;
     router.push(notificationRoute(typeof url === 'string' ? url : undefined) as never);
-    void Notifications.clearLastNotificationResponseAsync().catch(() => undefined);
+    void loadNotifications()
+      .then((notifications) => notifications?.clearLastNotificationResponseAsync())
+      .catch(() => undefined);
     setPending(null);
   }, [ready, navigation?.key, pending]);
   return null;

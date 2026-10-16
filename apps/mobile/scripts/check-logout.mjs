@@ -16,6 +16,7 @@ const stubs = {
   'react/jsx-runtime':
     'export const jsx = (type, props) => ({ type, props }); export const jsxs = jsx; export const Fragment = "Fragment";',
   'react-native': 'export const Linking = {}; export const Platform = { OS: "android" };',
+  expo: 'export const isRunningInExpoGo = () => false;',
   'expo-router':
     'export const router = { replace: (path) => globalThis.__logoutCheck.events.push(["route", path]) };',
   '~/components/ui':

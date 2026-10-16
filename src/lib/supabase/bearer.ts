@@ -4,7 +4,7 @@ import { isTemporaryAuthFailure } from './auth-errors';
 import { ConnectionError, UnauthorizedError } from '@/lib/errors';
 
 /** Explicit authorization never falls back to the browser's cookies. */
-export async function verifyBearerIdentity(authorization: string) {
+export async function verifyBearerUser(authorization: string) {
   const match = /^Bearer ([^\s]+)$/i.exec(authorization);
   if (!match || match[0] !== authorization)
     throw new UnauthorizedError('INVALID_TOKEN', 'Sessão inválida. Entre novamente.');
@@ -33,5 +33,10 @@ export async function verifyBearerIdentity(authorization: string) {
   }
   if (error || !data.user)
     throw new UnauthorizedError('INVALID_TOKEN', 'Sessão expirada. Entre novamente.');
-  return data.user.id;
+  return data.user;
+}
+
+/** Existing consumers only need the verified subject, never unverified JWT contents. */
+export async function verifyBearerIdentity(authorization: string) {
+  return (await verifyBearerUser(authorization)).id;
 }
