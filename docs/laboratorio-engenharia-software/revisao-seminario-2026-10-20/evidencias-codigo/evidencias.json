@@ -1,0 +1,284 @@
+{
+  "commit": "bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa",
+  "items": [
+    {
+      "id": "SQ01-A",
+      "module": 1,
+      "title": "Receber e avaliar a resposta",
+      "responsible": "Controlador da lição",
+      "path": "src/app/api/lessons/[lessonId]/attempt/route.ts",
+      "ranges": [
+        [
+          17,
+          25
+        ]
+      ],
+      "meaning": "Validar resposta, localizar lição e etapa, verificar acesso e solicitar avaliação.",
+      "sequence_messages": [
+        "Validar resposta",
+        "Verificar acesso à lição",
+        "Avaliar etapa"
+      ],
+      "sha256": "d5de1f88c914ce2e26be4dde3aa77579ae109a0bab3215f5c153d7202bbdffd0",
+      "snippets": [
+        {
+          "start": 17,
+          "end": 25,
+          "text": "  const parsed = lessonAnswerSchema.safeParse(await request.json().catch(() => null));\n  if (!parsed.success)\n    throw new ValidationError('INVALID_ANSWER', 'Confira os dados da resposta e tente novamente.');\n  const answer = parsed.data;\n  const lesson = getLessonById(lessonId);\n  const step = lesson?.steps.find((s) => s.id === answer.stepId);\n  if (!lesson || !step) throw new AppError('LESSON_NOT_FOUND', 'Atividade não encontrada.', 404);\n  await requireLessonAccess(user.id, lesson);\n  const outcome = await assessLessonStep(lesson, step, answer);"
+        }
+      ],
+      "png": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\evidencias-codigo\\SQ01-A.png"
+    },
+    {
+      "id": "SQ01-B",
+      "module": 1,
+      "title": "Persistir conclusão e devolver o resultado",
+      "responsible": "Controlador da lição",
+      "path": "src/app/api/lessons/[lessonId]/attempt/route.ts",
+      "ranges": [
+        [
+          26,
+          40
+        ]
+      ],
+      "meaning": "Tratar indisponibilidade, separar teste de envio e persistir avaliação antes da resposta.",
+      "sequence_messages": [
+        "Tratar indisponibilidade",
+        "Salvar avaliação se envio definitivo",
+        "Devolver resultado e progresso"
+      ],
+      "sha256": "d5de1f88c914ce2e26be4dde3aa77579ae109a0bab3215f5c153d7202bbdffd0",
+      "snippets": [
+        {
+          "start": 26,
+          "end": 40,
+          "text": "  if ('unavailable' in outcome && outcome.unavailable)\n    throw new AppError(\n      'RUNNER_UNAVAILABLE',\n      'Serviço de execução indisponível. Seu progresso não foi alterado; tente novamente.',\n      503\n    );\n  if (answer.action === 'run') return NextResponse.json({ ...outcome, xpEarned: 0 });\n  const progress = await saveLessonAssessment(\n    user.id,\n    lesson,\n    step,\n    outcome.isCorrect,\n    answer.selectedOption ?? 0\n  );\n  return NextResponse.json({ ...outcome, ...progress });"
+        }
+      ],
+      "png": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\evidencias-codigo\\SQ01-B.png"
+    },
+    {
+      "id": "SQ01-C",
+      "module": 1,
+      "title": "Conceder XP somente na primeira conclusão",
+      "responsible": "Serviço de progresso",
+      "path": "src/lib/learning/lesson-progress.ts",
+      "ranges": [
+        [
+          55,
+          62
+        ],
+        [
+          75,
+          84
+        ]
+      ],
+      "meaning": "Localizar conclusão anterior e gravar a tentativa com XP calculado na transação.",
+      "sequence_messages": [
+        "Consultar tentativas",
+        "Calcular XP da primeira conclusão",
+        "Registrar tentativa"
+      ],
+      "sha256": "efe3b630e688b5f5b66084e696349ecde20aece61db7c483924ec65e89c4a84b",
+      "snippets": [
+        {
+          "start": 55,
+          "end": 62,
+          "text": "    const where = { user_id_quiz_id: { user_id: userId, quiz_id: step.id } };\n    const attempts = await tx.quizAttempt.findMany({\n      where: { user_id: userId, quiz_id: { in: lesson.steps.map((s) => s.id) } },\n      select: { quiz_id: true, is_correct: true },\n    });\n    const previous = attempts.find((attempt) => attempt.quiz_id === step.id);\n    const firstCompletion = isCorrect && !previous?.is_correct;\n    const xpEarned = firstCompletion ? Math.max(0, step.xp) : 0;"
+        },
+        {
+          "start": 75,
+          "end": 84,
+          "text": "    if (!previous)\n      await tx.quizAttempt.create({\n        data: {\n          user_id: userId,\n          quiz_id: step.id,\n          selected_index: selectedIndex,\n          is_correct: isCorrect,\n          xp_earned: xpEarned,\n        },\n      });"
+        }
+      ],
+      "png": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\evidencias-codigo\\SQ01-C.png"
+    },
+    {
+      "id": "SQ02-A",
+      "module": 2,
+      "title": "Autorizar a publicação da vaga",
+      "responsible": "Controlador de vagas",
+      "path": "src/app/api/jobs/route.ts",
+      "ranges": [
+        [
+          67,
+          78
+        ]
+      ],
+      "meaning": "Exigir recrutador ou administrador, validar dados e vínculo com a empresa.",
+      "sequence_messages": [
+        "Validar papel e dados",
+        "Verificar acesso à empresa",
+        "Solicitar criação de vaga"
+      ],
+      "sha256": "a4df2b58eda57062ae0e80ab8b4908c65aa006fe2b565a33bc63d25cdc25dfa4",
+      "snippets": [
+        {
+          "start": 67,
+          "end": 78,
+          "text": "export const POST = apiHandler(async (req) => {\n  const user = await requireRole(['RECRUITER', 'ADMIN']);\n  const body = await req.json();\n  const parsed = createJobSchema.parse(body);\n  await requireCompanyAccess(parsed.company_id, user);\n\n  const job = await JobService.createJob({\n    companyId: parsed.company_id,\n    title: parsed.title,\n    description: parsed.description,\n    level: parsed.level,\n    technologies: parsed.technologies,"
+        }
+      ],
+      "png": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\evidencias-codigo\\SQ02-A.png"
+    },
+    {
+      "id": "SQ02-B",
+      "module": 2,
+      "title": "Gravar a vaga e suas etapas",
+      "responsible": "Serviço de vagas",
+      "path": "src/services/job.service.ts",
+      "ranges": [
+        [
+          215,
+          222
+        ],
+        [
+          229,
+          238
+        ]
+      ],
+      "meaning": "Gravar vaga aberta e etapas do processo na mesma operação relacional.",
+      "sequence_messages": [
+        "Criar vaga aberta",
+        "Criar etapas associadas",
+        "Devolver vaga criada"
+      ],
+      "sha256": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e",
+      "snippets": [
+        {
+          "start": 215,
+          "end": 222,
+          "text": "    const job = await prisma.job.create({\n      data: {\n        company_id: companyId,\n        title,\n        description,\n        level,\n        technologies,\n        modality,"
+        },
+        {
+          "start": 229,
+          "end": 238,
+          "text": "        status: 'OPEN',\n        stages: {\n          create: defaultStages.map((st) => ({\n            title: st.title,\n            type: st.type,\n            order: st.order,\n            challenge_id: st.challengeId,\n            description: st.description,\n          })),\n        },"
+        }
+      ],
+      "png": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\evidencias-codigo\\SQ02-B.png"
+    },
+    {
+      "id": "SQ02-C",
+      "module": 2,
+      "title": "Confirmar a publicação na interface",
+      "responsible": "Painel do recrutador",
+      "path": "src/app/recruiter/RecruiterContent.tsx",
+      "ranges": [
+        [
+          294,
+          306
+        ]
+      ],
+      "meaning": "Depois do retorno da API, confirmar publicação e recarregar a listagem.",
+      "sequence_messages": [
+        "Receber resposta",
+        "Exibir confirmação",
+        "Atualizar listagem de vagas"
+      ],
+      "sha256": "329f6f1b96e199c6c9bf588c6859acf92ce100f3ee3eec4db97c505e84ceb9c4",
+      "snippets": [
+        {
+          "start": 294,
+          "end": 306,
+          "text": "      if (res.ok) {\n        setSuccessMsg('Vaga publicada com sucesso e vinculada às etapas de testes do Stacklyst!');\n        setJobTitle('');\n        setJobDescription('');\n        loadJobs(); // Instantly update jobs list\n        setTimeout(() => setSuccessMsg(null), 4000);\n      } else {\n        const errData = await res.json().catch(() => null);\n        setErrorMsg(errData?.error || 'Erro ao publicar vaga.');\n      }\n    } catch (err) {\n      console.error(err);\n      setErrorMsg('Erro de conexão ao publicar vaga.');"
+        }
+      ],
+      "png": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\evidencias-codigo\\SQ02-C.png"
+    },
+    {
+      "id": "SQ03-A",
+      "module": 3,
+      "title": "Criar candidatura na primeira etapa",
+      "responsible": "Serviço de candidaturas",
+      "path": "src/services/job.service.ts",
+      "ranges": [
+        [
+          275,
+          292
+        ]
+      ],
+      "meaning": "Aceitar apenas vaga aberta e relacionar candidatura ao usuário e à primeira etapa.",
+      "sequence_messages": [
+        "Verificar vaga aberta",
+        "Selecionar etapa inicial",
+        "Gravar candidatura"
+      ],
+      "sha256": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e",
+      "snippets": [
+        {
+          "start": 275,
+          "end": 292,
+          "text": "    if (!job || job.status !== 'OPEN') {\n      throw new Error('Esta vaga não está mais aceitando inscrições.');\n    }\n\n    const firstStage = job.stages[0];\n\n    const application = await prisma.jobApplication.create({\n      data: {\n        job_id: jobId,\n        user_id: userId,\n        stage_id: firstStage?.id,\n        status: 'APPLIED',\n      },\n      include: {\n        stage: true,\n        job: { include: { company: true } },\n      },\n    });"
+        }
+      ],
+      "png": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\evidencias-codigo\\SQ03-A.png"
+    },
+    {
+      "id": "SQ03-B",
+      "module": 3,
+      "title": "Conferir a candidatura e a etapa escolhida",
+      "responsible": "Controlador de candidaturas",
+      "path": "src/app/api/jobs/[id]/route.ts",
+      "ranges": [
+        [
+          30,
+          46
+        ]
+      ],
+      "meaning": "Autorizar a empresa e impedir candidatura ou etapa pertencente a outra vaga.",
+      "sequence_messages": [
+        "Autorizar empresa",
+        "Conferir candidatura da vaga",
+        "Conferir etapa da vaga"
+      ],
+      "sha256": "59b68ba56c09a7ec64f87c5500c1f6f3bf5e108573fde89602614a78e57ed459",
+      "snippets": [
+        {
+          "start": 30,
+          "end": 46,
+          "text": "export const PATCH = apiHandler(async (req, { params }) => {\n  const user = await requireRole(['RECRUITER', 'ADMIN']);\n  const { id } = await params;\n  const job = await prisma.job.findUniqueOrThrow({ where: { id } });\n  await requireCompanyAccess(job.company_id, user);\n  const body = await req.json();\n  const parsed = updateStageSchema.parse(body);\n  const application = await prisma.jobApplication.findFirst({\n    where: { id: parsed.application_id, job_id: id },\n  });\n  if (!application)\n    return NextResponse.json({ error: 'Candidatura não encontrada nesta vaga.' }, { status: 404 });\n  if (\n    parsed.stage_id &&\n    !(await prisma.jobRecruitmentStage.findFirst({ where: { id: parsed.stage_id, job_id: id } }))\n  )\n    return NextResponse.json({ error: 'Etapa inválida para esta vaga.' }, { status: 400 });"
+        }
+      ],
+      "png": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\evidencias-codigo\\SQ03-B.png"
+    },
+    {
+      "id": "SQ03-C",
+      "module": 3,
+      "title": "Atualizar a candidatura e avisar o candidato",
+      "responsible": "Serviço de candidaturas",
+      "path": "src/services/job.service.ts",
+      "ranges": [
+        [
+          310,
+          317
+        ],
+        [
+          324,
+          333
+        ]
+      ],
+      "meaning": "Persistir etapa e situação e depois solicitar notificação ao candidato. Falha do aviso é registrada e não desfaz a atualização.",
+      "sequence_messages": [
+        "Atualizar etapa e situação",
+        "Criar notificação do candidato",
+        "Registrar eventual falha de notificação"
+      ],
+      "sha256": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e",
+      "snippets": [
+        {
+          "start": 310,
+          "end": 317,
+          "text": "    const application = await prisma.jobApplication.update({\n      where: { id: applicationId },\n      data: {\n        stage_id: stageId,\n        status,\n        feedback,\n        technical_score: technicalScore,\n      },"
+        },
+        {
+          "start": 324,
+          "end": 333,
+          "text": "    try {\n      await NotificationService.create({\n        userId: application.user_id,\n        type: 'JOB_APPLICATION_UPDATE',\n        resourceId: application.job_id,\n        resourceType: 'JOB',\n      });\n    } catch (err) {\n      logger.error('Failed to notify job application update', { error: String(err) });\n    }"
+        }
+      ],
+      "png": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\evidencias-codigo\\SQ03-C.png"
+    }
+  ]
+}

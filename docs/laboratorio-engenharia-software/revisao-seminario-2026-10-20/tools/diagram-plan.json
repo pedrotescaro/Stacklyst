@@ -1,0 +1,1575 @@
+{
+  "models": [
+    {
+      "id": "User",
+      "name": "Usuário",
+      "fields": [
+        "PK identificador",
+        "nome de usuário",
+        "experiência total"
+      ],
+      "definition": "Mapeamento físico: User em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "EvaluatorApplication",
+      "name": "Solicitação de credenciamento",
+      "fields": [
+        "PK identificador",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: EvaluatorApplication em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "EvaluatorProfile",
+      "name": "Perfil de avaliador",
+      "fields": [
+        "PK identificador",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: EvaluatorProfile em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Company",
+      "name": "Empresa",
+      "fields": [
+        "PK identificador",
+        "FK id_responsável",
+        "nome",
+        "verificada"
+      ],
+      "definition": "Mapeamento físico: Company em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Job",
+      "name": "Vaga",
+      "fields": [
+        "PK identificador",
+        "FK id_empresa",
+        "título",
+        "situação"
+      ],
+      "definition": "Mapeamento físico: Job em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "JobRecruitmentStage",
+      "name": "Etapa de seleção",
+      "fields": [
+        "PK identificador",
+        "FK id_vaga",
+        "título",
+        "ordem"
+      ],
+      "definition": "Mapeamento físico: JobRecruitmentStage em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "JobApplication",
+      "name": "Candidatura",
+      "fields": [
+        "PK identificador",
+        "FK id_vaga",
+        "FK id_usuário",
+        "FK id_etapa (opcional)",
+        "situação",
+        "parecer"
+      ],
+      "definition": "Mapeamento físico: JobApplication em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "LanguageTrail",
+      "name": "Progresso na linguagem",
+      "fields": [
+        "PK identificador",
+        "FK id_usuário",
+        "linguagem",
+        "nível"
+      ],
+      "definition": "Mapeamento físico: LanguageTrail em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "KnowledgeNode",
+      "name": "Conteúdo de conhecimento",
+      "fields": [
+        "PK identificador",
+        "título",
+        "publicado"
+      ],
+      "definition": "Mapeamento físico: KnowledgeNode em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "KnowledgeEdge",
+      "name": "Relação de conhecimento",
+      "fields": [
+        "PK identificador",
+        "FK id_origem",
+        "FK id_destino"
+      ],
+      "definition": "Mapeamento físico: KnowledgeEdge em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "LearningPath",
+      "name": "Trilha de aprendizado",
+      "fields": [
+        "PK identificador"
+      ],
+      "definition": "Mapeamento físico: LearningPath em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "LearningPathNode",
+      "name": "Conteúdo da trilha",
+      "fields": [
+        "PK identificador",
+        "FK id_trilha",
+        "FK id_conteúdo"
+      ],
+      "definition": "Mapeamento físico: LearningPathNode em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Exercise",
+      "name": "Exercício",
+      "fields": [
+        "PK identificador",
+        "FK id_conteúdo",
+        "título",
+        "linguagem"
+      ],
+      "definition": "Mapeamento físico: Exercise em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "ExerciseTestCase",
+      "name": "Caso de teste",
+      "fields": [
+        "PK identificador",
+        "FK id_exercício"
+      ],
+      "definition": "Mapeamento físico: ExerciseTestCase em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "UserNodeProgress",
+      "name": "Progresso no conteúdo",
+      "fields": [
+        "PK identificador",
+        "FK id_usuário",
+        "FK id_conteúdo"
+      ],
+      "definition": "Mapeamento físico: UserNodeProgress em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "ExerciseRun",
+      "name": "Execução de exercício",
+      "fields": [
+        "PK identificador",
+        "FK id_exercício",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: ExerciseRun em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "ExerciseSubmission",
+      "name": "Submissão de exercício",
+      "fields": [
+        "PK identificador",
+        "FK id_exercício",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: ExerciseSubmission em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "LearningEvent",
+      "name": "Evento de aprendizado",
+      "fields": [
+        "PK identificador",
+        "FK id_usuário",
+        "FK id_exercício (opcional)"
+      ],
+      "definition": "Mapeamento físico: LearningEvent em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Post",
+      "name": "Publicação",
+      "fields": [
+        "PK identificador",
+        "FK id_autor",
+        "conteúdo",
+        "data de criação"
+      ],
+      "definition": "Mapeamento físico: Post em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Answer",
+      "name": "Resposta",
+      "fields": [
+        "PK identificador",
+        "FK id_publicação",
+        "FK id_autor",
+        "FK id_resposta_pai (opcional)"
+      ],
+      "definition": "Mapeamento físico: Answer em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Quiz",
+      "name": "Questão",
+      "fields": [
+        "PK identificador",
+        "FK id_publicação (opcional)",
+        "enunciado",
+        "alternativas"
+      ],
+      "definition": "Mapeamento físico: Quiz em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "QuizAttempt",
+      "name": "Tentativa de questão",
+      "fields": [
+        "PK identificador",
+        "FK id_usuário",
+        "FK id_questão",
+        "correta",
+        "experiência obtida"
+      ],
+      "definition": "Mapeamento físico: QuizAttempt em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "DuelRequest",
+      "name": "Convite de duelo",
+      "fields": [
+        "PK identificador",
+        "FK id_remetente",
+        "FK id_destinatário",
+        "FK id_duelo (opcional)"
+      ],
+      "definition": "Mapeamento físico: DuelRequest em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Duel",
+      "name": "Duelo",
+      "fields": [
+        "PK identificador",
+        "FK id_desafiante",
+        "FK id_oponente (opcional)",
+        "FK id_vencedor (opcional)",
+        "situação",
+        "linguagem"
+      ],
+      "definition": "Mapeamento físico: Duel em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "DuelSolution",
+      "name": "Solução de duelo",
+      "fields": [
+        "PK identificador",
+        "FK id_duelo",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: DuelSolution em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "DuelSubmission",
+      "name": "Submissão de duelo",
+      "fields": [
+        "PK identificador",
+        "FK id_duelo",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: DuelSubmission em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "DuelVote",
+      "name": "Voto em duelo",
+      "fields": [
+        "PK identificador",
+        "FK id_duelo",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: DuelVote em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "DuelEvaluation",
+      "name": "Avaliação de duelo",
+      "fields": [
+        "PK identificador",
+        "FK id_duelo",
+        "FK id_avaliador (opcional)"
+      ],
+      "definition": "Mapeamento físico: DuelEvaluation em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Event",
+      "name": "Evento",
+      "fields": [
+        "PK identificador",
+        "FK id_criador",
+        "FK id_empresa (opcional)",
+        "título",
+        "data de início"
+      ],
+      "definition": "Mapeamento físico: Event em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "EventChallenge",
+      "name": "Desafio do evento",
+      "fields": [
+        "PK identificador",
+        "FK id_evento"
+      ],
+      "definition": "Mapeamento físico: EventChallenge em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "EventParticipant",
+      "name": "Participação em evento",
+      "fields": [
+        "PK identificador",
+        "FK id_evento",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: EventParticipant em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Badge",
+      "name": "Conquista",
+      "fields": [
+        "PK identificador"
+      ],
+      "definition": "Mapeamento físico: Badge em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "UserBadge",
+      "name": "Conquista do usuário",
+      "fields": [
+        "PK identificador",
+        "FK id_usuário",
+        "FK id_conquista"
+      ],
+      "definition": "Mapeamento físico: UserBadge em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "PostVote",
+      "name": "Voto em publicação",
+      "fields": [
+        "PK identificador",
+        "FK id_publicação",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: PostVote em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "AnswerVote",
+      "name": "Voto em resposta",
+      "fields": [
+        "PK identificador",
+        "FK id_resposta",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: AnswerVote em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Message",
+      "name": "Mensagem",
+      "fields": [
+        "PK identificador",
+        "FK id_remetente",
+        "FK id_destinatário",
+        "conteúdo",
+        "lida"
+      ],
+      "definition": "Mapeamento físico: Message em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "MobileState",
+      "name": "Estado do aplicativo",
+      "fields": [
+        "PK (id_usuário, chave)",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: MobileState em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "MobileDevice",
+      "name": "Dispositivo móvel",
+      "fields": [
+        "PK token",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: MobileDevice em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "MessageReaction",
+      "name": "Reação à mensagem",
+      "fields": [
+        "PK identificador",
+        "FK id_mensagem",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: MessageReaction em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Bookmark",
+      "name": "Favorito",
+      "fields": [
+        "PK identificador",
+        "FK id_usuário",
+        "FK id_publicação"
+      ],
+      "definition": "Mapeamento físico: Bookmark em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Notification",
+      "name": "Notificação",
+      "fields": [
+        "PK identificador",
+        "FK id_usuário",
+        "FK id_autor_ação (opcional)",
+        "tipo",
+        "lida"
+      ],
+      "definition": "Mapeamento físico: Notification em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Report",
+      "name": "Denúncia",
+      "fields": [
+        "PK identificador",
+        "FK id_usuário",
+        "FK id_publicação"
+      ],
+      "definition": "Mapeamento físico: Report em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Follow",
+      "name": "Conexão entre usuários",
+      "fields": [
+        "PK (id_seguidor, id_seguido)",
+        "FK id_seguidor",
+        "FK id_seguido"
+      ],
+      "definition": "Mapeamento físico: Follow em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Reaction",
+      "name": "Reação à publicação",
+      "fields": [
+        "PK identificador",
+        "FK id_publicação",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: Reaction em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "Guild",
+      "name": "Comunidade",
+      "fields": [
+        "PK identificador",
+        "FK id_responsável"
+      ],
+      "definition": "Mapeamento físico: Guild em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "GuildMember",
+      "name": "Membro de comunidade",
+      "fields": [
+        "PK identificador",
+        "FK id_comunidade",
+        "FK id_usuário"
+      ],
+      "definition": "Mapeamento físico: GuildMember em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    },
+    {
+      "id": "QuizLibrary",
+      "name": "Banco de questões",
+      "fields": [
+        "PK identificador"
+      ],
+      "definition": "Mapeamento físico: QuizLibrary em prisma/schema.prisma. Atributos chave e selecionados para projeção."
+    }
+  ],
+  "relations": [
+    {
+      "from": "EvaluatorApplication",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "EvaluatorProfile",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "Company",
+      "to": "User",
+      "role": "id_responsável",
+      "optional": false
+    },
+    {
+      "from": "Job",
+      "to": "Company",
+      "role": "id_empresa",
+      "optional": false
+    },
+    {
+      "from": "JobRecruitmentStage",
+      "to": "Job",
+      "role": "id_vaga",
+      "optional": false
+    },
+    {
+      "from": "JobApplication",
+      "to": "Job",
+      "role": "id_vaga",
+      "optional": false
+    },
+    {
+      "from": "JobApplication",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "JobApplication",
+      "to": "JobRecruitmentStage",
+      "role": "id_etapa",
+      "optional": true
+    },
+    {
+      "from": "LanguageTrail",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "KnowledgeEdge",
+      "to": "KnowledgeNode",
+      "role": "id_origem",
+      "optional": false
+    },
+    {
+      "from": "KnowledgeEdge",
+      "to": "KnowledgeNode",
+      "role": "id_destino",
+      "optional": false
+    },
+    {
+      "from": "LearningPathNode",
+      "to": "LearningPath",
+      "role": "id_trilha",
+      "optional": false
+    },
+    {
+      "from": "LearningPathNode",
+      "to": "KnowledgeNode",
+      "role": "id_conteúdo",
+      "optional": false
+    },
+    {
+      "from": "Exercise",
+      "to": "KnowledgeNode",
+      "role": "id_conteúdo",
+      "optional": false
+    },
+    {
+      "from": "ExerciseTestCase",
+      "to": "Exercise",
+      "role": "id_exercício",
+      "optional": false
+    },
+    {
+      "from": "UserNodeProgress",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "UserNodeProgress",
+      "to": "KnowledgeNode",
+      "role": "id_conteúdo",
+      "optional": false
+    },
+    {
+      "from": "ExerciseRun",
+      "to": "Exercise",
+      "role": "id_exercício",
+      "optional": false
+    },
+    {
+      "from": "ExerciseRun",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "ExerciseSubmission",
+      "to": "Exercise",
+      "role": "id_exercício",
+      "optional": false
+    },
+    {
+      "from": "ExerciseSubmission",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "LearningEvent",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "LearningEvent",
+      "to": "Exercise",
+      "role": "id_exercício",
+      "optional": true
+    },
+    {
+      "from": "Post",
+      "to": "User",
+      "role": "id_autor",
+      "optional": false
+    },
+    {
+      "from": "Answer",
+      "to": "Post",
+      "role": "id_publicação",
+      "optional": false
+    },
+    {
+      "from": "Answer",
+      "to": "User",
+      "role": "id_autor",
+      "optional": false
+    },
+    {
+      "from": "Answer",
+      "to": "Answer",
+      "role": "id_resposta_pai",
+      "optional": true
+    },
+    {
+      "from": "Quiz",
+      "to": "Post",
+      "role": "id_publicação",
+      "optional": true
+    },
+    {
+      "from": "QuizAttempt",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "QuizAttempt",
+      "to": "Quiz",
+      "role": "id_questão",
+      "optional": false
+    },
+    {
+      "from": "DuelRequest",
+      "to": "User",
+      "role": "id_remetente",
+      "optional": false
+    },
+    {
+      "from": "DuelRequest",
+      "to": "User",
+      "role": "id_destinatário",
+      "optional": false
+    },
+    {
+      "from": "DuelRequest",
+      "to": "Duel",
+      "role": "id_duelo",
+      "optional": true
+    },
+    {
+      "from": "Duel",
+      "to": "User",
+      "role": "id_desafiante",
+      "optional": false
+    },
+    {
+      "from": "Duel",
+      "to": "User",
+      "role": "id_oponente",
+      "optional": true
+    },
+    {
+      "from": "Duel",
+      "to": "User",
+      "role": "id_vencedor",
+      "optional": true
+    },
+    {
+      "from": "DuelSolution",
+      "to": "Duel",
+      "role": "id_duelo",
+      "optional": false
+    },
+    {
+      "from": "DuelSolution",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "DuelSubmission",
+      "to": "Duel",
+      "role": "id_duelo",
+      "optional": false
+    },
+    {
+      "from": "DuelSubmission",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "DuelVote",
+      "to": "Duel",
+      "role": "id_duelo",
+      "optional": false
+    },
+    {
+      "from": "DuelVote",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "DuelEvaluation",
+      "to": "Duel",
+      "role": "id_duelo",
+      "optional": false
+    },
+    {
+      "from": "DuelEvaluation",
+      "to": "User",
+      "role": "id_avaliador",
+      "optional": true
+    },
+    {
+      "from": "Event",
+      "to": "User",
+      "role": "id_criador",
+      "optional": false
+    },
+    {
+      "from": "Event",
+      "to": "Company",
+      "role": "id_empresa",
+      "optional": true
+    },
+    {
+      "from": "EventChallenge",
+      "to": "Event",
+      "role": "id_evento",
+      "optional": false
+    },
+    {
+      "from": "EventParticipant",
+      "to": "Event",
+      "role": "id_evento",
+      "optional": false
+    },
+    {
+      "from": "EventParticipant",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "UserBadge",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "UserBadge",
+      "to": "Badge",
+      "role": "id_conquista",
+      "optional": false
+    },
+    {
+      "from": "PostVote",
+      "to": "Post",
+      "role": "id_publicação",
+      "optional": false
+    },
+    {
+      "from": "PostVote",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "AnswerVote",
+      "to": "Answer",
+      "role": "id_resposta",
+      "optional": false
+    },
+    {
+      "from": "AnswerVote",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "Message",
+      "to": "User",
+      "role": "id_remetente",
+      "optional": false
+    },
+    {
+      "from": "Message",
+      "to": "User",
+      "role": "id_destinatário",
+      "optional": false
+    },
+    {
+      "from": "MobileState",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "MobileDevice",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "MessageReaction",
+      "to": "Message",
+      "role": "id_mensagem",
+      "optional": false
+    },
+    {
+      "from": "MessageReaction",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "Bookmark",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "Bookmark",
+      "to": "Post",
+      "role": "id_publicação",
+      "optional": false
+    },
+    {
+      "from": "Notification",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "Notification",
+      "to": "User",
+      "role": "id_autor_ação",
+      "optional": true
+    },
+    {
+      "from": "Report",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "Report",
+      "to": "Post",
+      "role": "id_publicação",
+      "optional": false
+    },
+    {
+      "from": "Follow",
+      "to": "User",
+      "role": "id_seguidor",
+      "optional": false
+    },
+    {
+      "from": "Follow",
+      "to": "User",
+      "role": "id_seguido",
+      "optional": false
+    },
+    {
+      "from": "Reaction",
+      "to": "Post",
+      "role": "id_publicação",
+      "optional": false
+    },
+    {
+      "from": "Reaction",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    },
+    {
+      "from": "Guild",
+      "to": "User",
+      "role": "id_responsável",
+      "optional": false
+    },
+    {
+      "from": "GuildMember",
+      "to": "Guild",
+      "role": "id_comunidade",
+      "optional": false
+    },
+    {
+      "from": "GuildMember",
+      "to": "User",
+      "role": "id_usuário",
+      "optional": false
+    }
+  ],
+  "sequences": [
+    {
+      "id": "SQ01",
+      "title": "Concluir atividade de uma lição",
+      "participants": [
+        "Aluno",
+        "Tela da lição",
+        "Controlador\nda lição",
+        "Avaliação",
+        "Progresso\ne banco"
+      ],
+      "messages": [
+        [
+          0,
+          1,
+          "Enviar resposta"
+        ],
+        [
+          1,
+          2,
+          "Solicitar avaliação"
+        ],
+        [
+          2,
+          2,
+          "Validar acesso"
+        ],
+        [
+          2,
+          3,
+          "Avaliar etapa"
+        ],
+        [
+          3,
+          2,
+          "Resultado da avaliação",
+          "return"
+        ],
+        [
+          2,
+          4,
+          "Salvar avaliação"
+        ],
+        [
+          4,
+          4,
+          "Primeira conclusão"
+        ],
+        [
+          4,
+          4,
+          "Gravar tentativa e XP"
+        ],
+        [
+          4,
+          2,
+          "Progresso atualizado",
+          "return"
+        ],
+        [
+          2,
+          1,
+          "Resultado e progresso",
+          "return"
+        ],
+        [
+          1,
+          0,
+          "Exibir retorno",
+          "return"
+        ]
+      ],
+      "source": [
+        "src/app/api/lessons/[lessonId]/attempt/route.ts",
+        "src/lib/learning/lesson-progress.ts"
+      ],
+      "complete": true
+    },
+    {
+      "id": "SQ02",
+      "title": "Publicar uma vaga",
+      "participants": [
+        "Recrutador",
+        "Painel de vagas",
+        "Controlador\nde vagas",
+        "Serviço\nde vagas",
+        "Banco de dados"
+      ],
+      "messages": [
+        [
+          0,
+          1,
+          "Preencher e publicar vaga"
+        ],
+        [
+          1,
+          2,
+          "Enviar dados da vaga"
+        ],
+        [
+          2,
+          2,
+          "Validar papel e empresa"
+        ],
+        [
+          2,
+          3,
+          "Criar vaga"
+        ],
+        [
+          3,
+          4,
+          "Gravar vaga e etapas"
+        ],
+        [
+          4,
+          3,
+          "Vaga criada",
+          "return"
+        ],
+        [
+          3,
+          2,
+          "Dados da vaga",
+          "return"
+        ],
+        [
+          2,
+          1,
+          "Confirmar publicação",
+          "return"
+        ],
+        [
+          1,
+          1,
+          "Recarregar listagem"
+        ],
+        [
+          1,
+          0,
+          "Exibir vaga publicada",
+          "return"
+        ]
+      ],
+      "source": [
+        "src/app/api/jobs/route.ts",
+        "src/services/job.service.ts",
+        "src/app/recruiter/RecruiterContent.tsx"
+      ],
+      "complete": true
+    },
+    {
+      "id": "SQ03",
+      "title": "Candidatar-se a uma vaga",
+      "participants": [
+        "Candidato",
+        "Tela da vaga",
+        "Controlador\nde candidatura",
+        "Serviço\nde vagas",
+        "Banco de dados"
+      ],
+      "messages": [
+        [
+          0,
+          1,
+          "Confirmar candidatura"
+        ],
+        [
+          1,
+          2,
+          "Solicitar candidatura"
+        ],
+        [
+          2,
+          3,
+          "Candidatar usuário autenticado"
+        ],
+        [
+          3,
+          4,
+          "Consultar candidatura e vaga"
+        ],
+        [
+          4,
+          3,
+          "Vaga e etapas ordenadas",
+          "return"
+        ],
+        [
+          3,
+          3,
+          "Conferir vaga aberta"
+        ],
+        [
+          3,
+          4,
+          "Criar na primeira etapa"
+        ],
+        [
+          4,
+          3,
+          "Candidatura criada",
+          "return"
+        ],
+        [
+          3,
+          2,
+          "Candidatura e etapa",
+          "return"
+        ],
+        [
+          2,
+          1,
+          "Confirmar inscrição",
+          "return"
+        ],
+        [
+          1,
+          0,
+          "Exibir situação inicial",
+          "return"
+        ]
+      ],
+      "source": [
+        "src/app/api/jobs/[id]/apply/route.ts",
+        "src/services/job.service.ts"
+      ],
+      "complete": true
+    },
+    {
+      "id": "SQ04",
+      "title": "Atualizar etapa de candidatura",
+      "participants": [
+        "Recrutador",
+        "Painel de\ncandidaturas",
+        "Controlador\nde vagas",
+        "Serviço\nde vagas",
+        "Banco e\nnotificações"
+      ],
+      "messages": [
+        [
+          0,
+          1,
+          "Alterar situação"
+        ],
+        [
+          1,
+          2,
+          "Solicitar alteração"
+        ],
+        [
+          2,
+          4,
+          "Conferir empresa, vaga e etapa"
+        ],
+        [
+          4,
+          2,
+          "Vínculos válidos",
+          "return"
+        ],
+        [
+          2,
+          3,
+          "Atualizar candidatura"
+        ],
+        [
+          3,
+          4,
+          "Gravar etapa e situação"
+        ],
+        [
+          4,
+          3,
+          "Candidatura atualizada",
+          "return"
+        ],
+        [
+          3,
+          4,
+          "Solicitar notificação"
+        ],
+        [
+          3,
+          2,
+          "Dados atualizados",
+          "return"
+        ],
+        [
+          2,
+          1,
+          "Confirmar atualização",
+          "return"
+        ],
+        [
+          1,
+          0,
+          "Exibir nova situação",
+          "return"
+        ]
+      ],
+      "source": [
+        "src/app/api/jobs/[id]/route.ts",
+        "src/services/job.service.ts"
+      ],
+      "complete": true
+    },
+    {
+      "id": "SQ01-A",
+      "title": "Receber e avaliar resposta",
+      "participants": [
+        "Tela da lição",
+        "Controlador",
+        "Avaliação"
+      ],
+      "messages": [
+        [
+          0,
+          1,
+          "Enviar resposta"
+        ],
+        [
+          1,
+          1,
+          "Validar e localizar etapa"
+        ],
+        [
+          1,
+          1,
+          "Verificar acesso"
+        ],
+        [
+          1,
+          2,
+          "Avaliar etapa"
+        ]
+      ],
+      "source": "SQ01",
+      "complete": false
+    },
+    {
+      "id": "SQ01-B",
+      "title": "Salvar e devolver resultado",
+      "participants": [
+        "Controlador",
+        "Progresso",
+        "Tela da lição"
+      ],
+      "messages": [
+        [
+          0,
+          0,
+          "Verificar execução disponível"
+        ],
+        [
+          0,
+          0,
+          "Distinguir teste e envio"
+        ],
+        [
+          0,
+          1,
+          "Salvar avaliação no envio"
+        ],
+        [
+          0,
+          2,
+          "Devolver resultado e progresso"
+        ]
+      ],
+      "source": "SQ01",
+      "complete": false
+    },
+    {
+      "id": "SQ01-C",
+      "title": "Primeira conclusão e experiência",
+      "participants": [
+        "Progresso",
+        "Banco de dados"
+      ],
+      "messages": [
+        [
+          0,
+          1,
+          "Consultar tentativas"
+        ],
+        [
+          1,
+          0,
+          "Conclusões anteriores",
+          "return"
+        ],
+        [
+          0,
+          0,
+          "Calcular experiência inicial"
+        ],
+        [
+          0,
+          1,
+          "Registrar tentativa"
+        ]
+      ],
+      "source": "SQ01",
+      "complete": false
+    },
+    {
+      "id": "SQ02-A",
+      "title": "Autorizar publicação de vaga",
+      "participants": [
+        "Painel de vagas",
+        "Controlador",
+        "Serviço\\nde vagas"
+      ],
+      "messages": [
+        [
+          0,
+          1,
+          "Enviar dados"
+        ],
+        [
+          1,
+          1,
+          "Validar papel e dados"
+        ],
+        [
+          1,
+          1,
+          "Autorizar empresa"
+        ],
+        [
+          1,
+          2,
+          "Solicitar criação"
+        ]
+      ],
+      "source": "SQ02",
+      "complete": false
+    },
+    {
+      "id": "SQ02-B",
+      "title": "Persistir vaga e etapas",
+      "participants": [
+        "Serviço\\nde vagas",
+        "Banco de dados"
+      ],
+      "messages": [
+        [
+          0,
+          1,
+          "Criar vaga aberta e etapas"
+        ],
+        [
+          1,
+          0,
+          "Vaga com etapas",
+          "return"
+        ]
+      ],
+      "source": "SQ02",
+      "complete": false
+    },
+    {
+      "id": "SQ02-C",
+      "title": "Confirmar publicação na tela",
+      "participants": [
+        "Controlador",
+        "Painel de vagas",
+        "Recrutador"
+      ],
+      "messages": [
+        [
+          0,
+          1,
+          "Responder sucesso"
+        ],
+        [
+          1,
+          1,
+          "Exibir confirmação"
+        ],
+        [
+          1,
+          1,
+          "Recarregar listagem"
+        ],
+        [
+          1,
+          2,
+          "Mostrar vaga publicada"
+        ]
+      ],
+      "source": "SQ02",
+      "complete": false
+    },
+    {
+      "id": "SQ03-A",
+      "title": "Registrar candidatura",
+      "participants": [
+        "Serviço\\nde vagas",
+        "Banco de dados"
+      ],
+      "messages": [
+        [
+          0,
+          0,
+          "Conferir vaga aberta"
+        ],
+        [
+          0,
+          0,
+          "Selecionar etapa inicial"
+        ],
+        [
+          0,
+          1,
+          "Criar candidatura"
+        ],
+        [
+          1,
+          0,
+          "Candidatura na etapa inicial",
+          "return"
+        ]
+      ],
+      "source": "SQ03",
+      "complete": false
+    },
+    {
+      "id": "SQ03-B",
+      "title": "Autorizar alteração de etapa",
+      "participants": [
+        "Controlador",
+        "Banco de dados"
+      ],
+      "messages": [
+        [
+          0,
+          0,
+          "Autorizar acesso à empresa"
+        ],
+        [
+          0,
+          1,
+          "Conferir candidatura da vaga"
+        ],
+        [
+          0,
+          1,
+          "Conferir etapa da vaga"
+        ],
+        [
+          1,
+          0,
+          "Vínculos válidos",
+          "return"
+        ]
+      ],
+      "source": "SQ04",
+      "complete": false
+    },
+    {
+      "id": "SQ03-C",
+      "title": "Atualizar e notificar",
+      "participants": [
+        "Serviço\\nde vagas",
+        "Banco de dados",
+        "Notificações"
+      ],
+      "messages": [
+        [
+          0,
+          1,
+          "Atualizar etapa e situação"
+        ],
+        [
+          1,
+          0,
+          "Candidatura atualizada",
+          "return"
+        ],
+        [
+          0,
+          2,
+          "Criar notificação"
+        ],
+        [
+          0,
+          0,
+          "Registrar eventual falha do aviso"
+        ]
+      ],
+      "source": "SQ04",
+      "complete": false
+    }
+  ],
+  "mapping": {
+    "User": "Usuário",
+    "EvaluatorApplication": "Solicitação de credenciamento",
+    "EvaluatorProfile": "Perfil de avaliador",
+    "Company": "Empresa",
+    "Job": "Vaga",
+    "JobRecruitmentStage": "Etapa de seleção",
+    "JobApplication": "Candidatura",
+    "LanguageTrail": "Progresso na linguagem",
+    "KnowledgeNode": "Conteúdo de conhecimento",
+    "KnowledgeEdge": "Relação de conhecimento",
+    "LearningPath": "Trilha de aprendizado",
+    "LearningPathNode": "Conteúdo da trilha",
+    "Exercise": "Exercício",
+    "ExerciseTestCase": "Caso de teste",
+    "UserNodeProgress": "Progresso no conteúdo",
+    "ExerciseRun": "Execução de exercício",
+    "ExerciseSubmission": "Submissão de exercício",
+    "LearningEvent": "Evento de aprendizado",
+    "Post": "Publicação",
+    "Answer": "Resposta",
+    "Quiz": "Questão",
+    "QuizAttempt": "Tentativa de questão",
+    "DuelRequest": "Convite de duelo",
+    "Duel": "Duelo",
+    "DuelSolution": "Solução de duelo",
+    "DuelSubmission": "Submissão de duelo",
+    "DuelVote": "Voto em duelo",
+    "DuelEvaluation": "Avaliação de duelo",
+    "Event": "Evento",
+    "EventChallenge": "Desafio do evento",
+    "EventParticipant": "Participação em evento",
+    "Badge": "Conquista",
+    "UserBadge": "Conquista do usuário",
+    "PostVote": "Voto em publicação",
+    "AnswerVote": "Voto em resposta",
+    "Message": "Mensagem",
+    "MobileState": "Estado do aplicativo",
+    "MobileDevice": "Dispositivo móvel",
+    "MessageReaction": "Reação à mensagem",
+    "Bookmark": "Favorito",
+    "Notification": "Notificação",
+    "Report": "Denúncia",
+    "Follow": "Conexão entre usuários",
+    "Reaction": "Reação à publicação",
+    "Guild": "Comunidade",
+    "GuildMember": "Membro de comunidade",
+    "QuizLibrary": "Banco de questões"
+  }
+}

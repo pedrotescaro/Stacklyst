@@ -1,0 +1,1438 @@
+{
+  "filename": "02-atividades-do-negocio-stacklyst-astah.docx",
+  "paragraphs": [
+    {
+      "index": 0,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 1,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 2,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 3,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 4,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 5,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 6,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 7,
+      "text": "Stacklyst",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 8,
+      "text": "Documento de Atividades do Negócio",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 9,
+      "text": "Laboratório de Engenharia de SoftwareProjeto acadêmicoRevisão documental: 19/10/2026Modelos atuais: stacklyst-seminario.asta e seminário Astah",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 10,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 11,
+      "text": "1. Índice",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 12,
+      "text": "2. Objetivo4",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 13,
+      "text": "3. Atividades do Negócio4",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 14,
+      "text": "3.1 AN01 — Estudar programação4",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 15,
+      "text": "3.1.1 Fluxo principal4",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 16,
+      "text": "3.1.2 Diagrama de Atividades5",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 17,
+      "text": "3.2 AN02 — Praticar exercícios de programação✟6",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 18,
+      "text": "3.2.1 Fluxo principal✟6",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 19,
+      "text": "3.2.2 Diagrama de Atividades✟7",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 20,
+      "text": "AN02 — Praticar exercícios de programação✟7",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 21,
+      "text": "3.3 AN03 — Acompanhar a própria aprendizagem✟8",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 22,
+      "text": "3.3.1 Fluxo principal✟8",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 23,
+      "text": "3.3.2 Diagrama de Atividades✟9",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 24,
+      "text": "AN03 — Acompanhar a própria aprendizagem✟9",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 25,
+      "text": "3.4 AN04 — Buscar ajuda para uma dúvida✟10",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 26,
+      "text": "3.4.1 Fluxo principal✟10",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 27,
+      "text": "3.4.2 Diagrama de Atividades✟11",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 28,
+      "text": "AN04 — Buscar ajuda para uma dúvida✟11",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 29,
+      "text": "3.5 AN05 — Divulgar oportunidade e acompanhar a seleção✟12",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 30,
+      "text": "3.5.1 Fluxos de divulgação e candidatura✟12",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 31,
+      "text": "3.5.2 Diagrama de Atividades✟13",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 32,
+      "text": "AN05A — Divulgar oportunidade de trabalho✟13",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 33,
+      "text": "AN05B — Candidatar-se e acompanhar a seleção✟14",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 34,
+      "text": "3.6 AN06 — Descobrir e participar de um evento✟15",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 35,
+      "text": "3.6.1 Fluxo principal✟15",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 36,
+      "text": "3.6.2 Diagrama de Atividades✟16",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 37,
+      "text": "AN01 — Estudar programação5",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 38,
+      "text": "4. Relação entre atividades e requisitos26",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 39,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 40,
+      "text": "2. Objetivo",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 41,
+      "text": "Este documento descreve os processos humanos de estudo, prática, colaboração, avaliação, recrutamento e participação em eventos relacionados ao Stacklyst. Os diagramas do seminário retratam como as pessoas realizam essas atividades, inclusive com livros, portais, agendas e contatos externos. A relação com os requisitos indica o apoio oferecido pelo Stacklyst, sem atribuir ao software todas as ações do processo humano.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 42,
+      "text": "3. Atividades do Negócio",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 43,
+      "text": "AN01, AN02, AN03, AN04, AN05A, AN05B e AN06 foram atualizados com os diagramas apresentados no seminário. AN06 identifica agora a descoberta e participação em eventos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 44,
+      "text": "3.1 AN01 — Estudar programação",
+      "style": "Heading2",
+      "images": []
+    },
+    {
+      "index": 45,
+      "text": "Objetivo: Organizar o estudo de programação e verificar se o estudante consegue explicar e aplicar o conteúdo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 46,
+      "text": "Participantes: Estudante ou desenvolvedor em formação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 47,
+      "text": "Pré-condições: Interesse em aprender um assunto e disponibilidade de fontes de estudo e exercícios.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 48,
+      "text": "3.1.1 Fluxo principal",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 49,
+      "text": "1. O estudante define o assunto e o objetivo de estudo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 50,
+      "text": "2. O estudante organiza os horários e o cronograma.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 51,
+      "text": "3. O estudante pesquisa materiais no Google, no YouTube ou em uma ferramenta de IA.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 52,
+      "text": "4. O estudante assiste à aula ou lê o material selecionado.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 53,
+      "text": "5. O estudante procura exercícios e tenta resolvê-los, conforme AN02.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 54,
+      "text": "6. Se ainda não consegue explicar e aplicar o conteúdo, revise o material ou busque ajuda e retome a prática.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 55,
+      "text": "7. Quando compreende o assunto, anota o que aprendeu e planeja a revisão.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 56,
+      "text": "Decisões: O estudante conseguiu explicar e aplicar o conteúdo? Precisa revisar o material ou buscar ajuda?",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 57,
+      "text": "Exceções: Material insuficiente leva à busca de outra fonte ou de ajuda. A dificuldade na prática conduz à revisão, sem presumir aprendizagem concluída.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 58,
+      "text": "Resultado final: Conteúdo compreendido e aplicado, com registro do aprendizado e revisão planejada.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 59,
+      "text": "Rastreabilidade: RF005–RF010; UC004–UC007. O Stacklyst apoia o percurso com trilhas, lições, exercícios e progresso. Pesquisa externa, agenda pessoal e uso de IA no processo humano não constituem funcionalidades adicionais do sistema.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 60,
+      "text": "3.1.2 Diagrama de Atividades",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 61,
+      "text": "AN01 — Estudar programação",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 62,
+      "text": "",
+      "style": "",
+      "images": [
+        "rId7"
+      ]
+    },
+    {
+      "index": 63,
+      "text": "AN01 — Estudar programação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 64,
+      "text": "Fonte editável: stacklyst-seminario.asta / AN01 Estudar programação. Exportação atual do projeto do seminário.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 65,
+      "text": "3.2 AN02 — Praticar exercícios de programação",
+      "style": "Heading2",
+      "images": []
+    },
+    {
+      "index": 66,
+      "text": "Objetivo: Resolver problemas de programação, comparar os resultados e compreender os erros encontrados.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 67,
+      "text": "Participantes: Estudante ou desenvolvedor em formação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 68,
+      "text": "Pré-condições: Exercício disponível em livro ou site e conhecimentos iniciais para interpretar o enunciado.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 69,
+      "text": "3.2.1 Fluxo principal",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 70,
+      "text": "1. O estudante escolhe um exercício em um livro ou site.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 71,
+      "text": "2. O estudante lê o enunciado e identifica as entradas e os resultados esperados.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 72,
+      "text": "3. O estudante escreve a solução em papel ou editor.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 73,
+      "text": "4. O estudante testa exemplos e compara os resultados obtidos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 74,
+      "text": "5. Se o resultado estiver incorreto, investiga o erro, revisa a solução e repete os testes.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 75,
+      "text": "6. Quando obtém o resultado correto, explica a solução e registra as dúvidas restantes.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 76,
+      "text": "Decisões: O resultado está correto? É necessário investigar o erro e revisar a solução?",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 77,
+      "text": "Exceções: Enunciado pouco compreendido ou dúvida conceitual exige revisão ou ajuda. Um teste sem resultado conclusivo não confirma a solução.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 78,
+      "text": "Resultado final: Solução compreendida e verificada com os exemplos, com dúvidas registradas para estudo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 79,
+      "text": "Rastreabilidade: RF008–RF009; UC006, UC028, UC029 e UC052. No Stacklyst, testar código antes da submissão não conclui a atividade nem concede XP. Avaliação, execução isolada e registro do progresso pertencem ao comportamento do sistema.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 80,
+      "text": "3.2.2 Diagrama de Atividades",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 81,
+      "text": "AN02 — Praticar exercícios de programação",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 82,
+      "text": "",
+      "style": "",
+      "images": [
+        "rId8"
+      ]
+    },
+    {
+      "index": 83,
+      "text": "AN02 — Praticar exercícios de programação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 84,
+      "text": "Fonte editável: stacklyst-seminario.asta / AN02 Praticar exercícios de programação. Exportação atual do projeto do seminário.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 85,
+      "text": "",
+      "style": "Heading2",
+      "images": []
+    },
+    {
+      "index": 86,
+      "text": "3.3 AN03 — Acompanhar a própria aprendizagem",
+      "style": "Heading2",
+      "images": []
+    },
+    {
+      "index": 87,
+      "text": "Objetivo: Comparar os resultados do estudo com os objetivos e ajustar o planejamento de aprendizagem.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 88,
+      "text": "Participantes: Estudante ou desenvolvedor em formação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 89,
+      "text": "Pré-condições: Anotações, exercícios realizados e objetivos de estudo disponíveis para análise.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 90,
+      "text": "3.3.1 Fluxo principal",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 91,
+      "text": "1. O estudante reúne as anotações e os exercícios feitos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 92,
+      "text": "2. O estudante compara os resultados aos objetivos de estudo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 93,
+      "text": "3. O estudante identifica se existe dificuldade recorrente.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 94,
+      "text": "4. Se houver dificuldade recorrente, reserva um horário para revisão.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 95,
+      "text": "5. Se não houver dificuldade recorrente, define o próximo assunto de estudo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 96,
+      "text": "6. O estudante atualiza o cronograma em agenda ou planilha.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 97,
+      "text": "O planejamento revisto orienta o próximo ciclo de estudo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 98,
+      "text": "Decisões: Há dificuldade recorrente? Deve-se reservar horário para revisão ou definir o próximo assunto?",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 99,
+      "text": "Exceções: Sem registros suficientes, o estudante reúne mais evidências antes de avaliar a evolução. Uma dificuldade exige revisão do planejamento.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 100,
+      "text": "Resultado final: Cronograma atualizado conforme a necessidade de revisão ou o próximo assunto escolhido.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 101,
+      "text": "Rastreabilidade: RF009–RF015; UC007 e UC011. O Stacklyst fornece histórico e indicadores, incluindo XP e ranking, para apoiar a análise. A agenda ou planilha citada no processo é uma ferramenta pessoal, sem integração pressuposta.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 102,
+      "text": "3.3.2 Diagrama de Atividades",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 103,
+      "text": "AN03 — Acompanhar a própria aprendizagem",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 104,
+      "text": "",
+      "style": "",
+      "images": [
+        "rId9"
+      ]
+    },
+    {
+      "index": 105,
+      "text": "AN03 — Acompanhar a própria aprendizagem.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 106,
+      "text": "Fonte editável: stacklyst-seminario.asta / AN03 Acompanhar a própria aprendizagem. Exportação atual do projeto do seminário.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 107,
+      "text": "3.4 AN04 — Buscar ajuda para uma dúvida",
+      "style": "Heading2",
+      "images": []
+    },
+    {
+      "index": 108,
+      "text": "Objetivo: Esclarecer uma dúvida de programação e conferir a explicação por meio de um exemplo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 109,
+      "text": "Participantes: Estudante; colega ou professor, quando necessário.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 110,
+      "text": "Pré-condições: Dúvida identificada e tentativa inicial disponível para explicar o problema.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 111,
+      "text": "3.4.1 Fluxo principal",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 112,
+      "text": "1. O estudante descreve a dúvida e o que já tentou.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 113,
+      "text": "2. O estudante consulta documentação, vídeo ou ferramenta de IA.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 114,
+      "text": "3. O estudante verifica se a dúvida foi esclarecida.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 115,
+      "text": "4. Se a dúvida persistir, pede ajuda a um colega ou professor, apresentando o enunciado e a tentativa; a pessoa consultada analisa a dúvida e explica o raciocínio.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 116,
+      "text": "5. O estudante confere a explicação com um exemplo e retoma o estudo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 117,
+      "text": "Decisões: A dúvida foi esclarecida pela consulta inicial? É necessário pedir ajuda a outra pessoa?",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 118,
+      "text": "Exceções: Uma explicação insuficiente exige nova consulta ou esclarecimento. A resposta de uma ferramenta ou pessoa deve ser conferida em um exemplo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 119,
+      "text": "Resultado final: Dúvida esclarecida e explicação conferida na prática.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 120,
+      "text": "Rastreabilidade: RF022–RF025; UC012 e ponto de extensão de ajuda de UC006. O sistema oferece dicas, documentação e sugestões conforme o modo de assistência. A consulta externa a IA, colega ou professor descreve o processo humano e não implica um serviço de IA implementado no Stacklyst.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 121,
+      "text": "3.4.2 Diagrama de Atividades",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 122,
+      "text": "AN04 — Buscar ajuda para uma dúvida",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 123,
+      "text": "",
+      "style": "",
+      "images": [
+        "rId10"
+      ]
+    },
+    {
+      "index": 124,
+      "text": "AN04 — Buscar ajuda para uma dúvida.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 125,
+      "text": "Fonte editável: stacklyst-seminario.asta / AN04 Buscar ajuda para uma dúvida. Exportação atual do projeto do seminário.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 126,
+      "text": "3.5 AN05 — Divulgar oportunidade e acompanhar a seleção",
+      "style": "Heading2",
+      "images": []
+    },
+    {
+      "index": 127,
+      "text": "Objetivo: Divulgar uma oportunidade profissional e acompanhar a candidatura e o retorno da seleção.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 128,
+      "text": "Participantes: Representante da empresa; recrutador responsável; candidato.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 129,
+      "text": "Pré-condições: Empresa e responsável identificados para divulgar a vaga. Para candidatar-se, o interessado conhece os requisitos e o canal de envio.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 130,
+      "text": "3.5.1 Fluxos de divulgação e candidatura",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 131,
+      "text": "A1. O representante identifica a empresa e o responsável e define o perfil, as condições e os requisitos da vaga.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 132,
+      "text": "A2. O recrutador redige a oportunidade e confere as informações.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 133,
+      "text": "A3. Se houver erro, o recrutador corrige as informações e confere novamente.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 134,
+      "text": "A4. Com as informações corretas, divulga a vaga em portais, redes ou contatos e procura currículos ou contata candidatos. Esse processo pode terminar sem candidatura imediata.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 135,
+      "text": "B1. O candidato encontra uma vaga em portal, rede ou indicação, confere os requisitos e envia seu currículo pelo canal informado.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 136,
+      "text": "B2. O recrutador recebe e analisa o currículo e informa o retorno ou os próximos passos; o candidato acompanha o e-mail e os contatos recebidos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 137,
+      "text": "B3. Se houver próxima etapa, o candidato responde e a realiza, e o recrutador analisa o resultado. O ciclo se repete até não haver outra etapa, quando o candidato registra o resultado da candidatura.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 138,
+      "text": "Decisões: As informações da vaga estão corretas? Há uma próxima etapa da seleção?",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 139,
+      "text": "Exceções: Informações incorretas retornam à revisão. A ausência de retorno exige acompanhamento pelo candidato. No Stacklyst, vaga encerrada não recebe candidatura e a mesma candidatura não deve ser duplicada.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 140,
+      "text": "Resultado final: Oportunidade divulgada e resultado da candidatura acompanhado. Contato externo, entrevista, contratação e pagamento permanecem sob responsabilidade das pessoas envolvidas.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 141,
+      "text": "Rastreabilidade: RF034–RF038, RF044–RF048; UC017, UC018, UC022, UC025, UC026 e UC056. No Stacklyst, o responsável autorizado publica a vaga e consulta as candidaturas; o usuário envia sua candidatura e acompanha as etapas. UC026 gera notificação ao candidato da candidatura alterada, sem alerta geral por intenção de vaga ou garantia de envio de e-mail.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 142,
+      "text": "Regra do processo: somente o responsável autorizado divulga a vaga e conduz a seleção; o candidato acompanha a própria candidatura.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 143,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 144,
+      "text": "3.5.2 Diagrama de Atividades",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 145,
+      "text": "AN05A — Divulgar oportunidade de trabalho",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 146,
+      "text": "",
+      "style": "",
+      "images": [
+        "rId11"
+      ]
+    },
+    {
+      "index": 147,
+      "text": "AN05A — Divulgar oportunidade de trabalho.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 148,
+      "text": "Fonte editável: stacklyst-seminario.asta / AN05A Divulgar oportunidade de trabalho. Exportação atual do projeto do seminário.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 149,
+      "text": "AN05B — Candidatar-se e acompanhar a seleção",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 150,
+      "text": "",
+      "style": "",
+      "images": [
+        "rId12"
+      ]
+    },
+    {
+      "index": 151,
+      "text": "AN05B — Candidatar-se e acompanhar a seleção.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 152,
+      "text": "Fonte editável: stacklyst-seminario.asta / AN05B Candidatar-se e acompanhar a seleção. Exportação atual do projeto do seminário.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 153,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 154,
+      "text": "3.6 AN06 — Descobrir e participar de um evento",
+      "style": "Heading2",
+      "images": []
+    },
+    {
+      "index": 155,
+      "text": "Objetivo: Encontrar um evento compatível com os interesses e as condições da pessoa e organizar sua participação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 156,
+      "text": "Participantes: Pessoa interessada; organizador do evento.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 157,
+      "text": "Pré-condições: Evento divulgado com tema, data, local, condições e canal de inscrição informados.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 158,
+      "text": "3.6.1 Fluxo principal",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 159,
+      "text": "1. A pessoa interessada pesquisa eventos em redes, sites ou por indicação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 160,
+      "text": "2. A pessoa confere o tema, a data, o local e as condições de participação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 161,
+      "text": "3. Se não puder participar, encerre a busca por esse evento; se puder, inscreva-se pelo canal informado.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 162,
+      "text": "4. O organizador confirma a inscrição e envia as orientações.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 163,
+      "text": "5. A pessoa anota o compromisso na agenda e comparece ao evento.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 164,
+      "text": "Decisões: A pessoa pode participar conforme as datas e condições do evento?",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 165,
+      "text": "Exceções: A impossibilidade de participação encerra o processo sem inscrição. Se não houver confirmação, a pessoa verifica a situação com o organizador antes de considerar a inscrição concluída.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 166,
+      "text": "Resultado final: Inscrição confirmada e participação organizada, ou processo encerrado sem inscrição.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 167,
+      "text": "Rastreabilidade: RF041, RF049 e RF044–RF046; UC015, UC023 e UC046. No Stacklyst, UC023 permite inscrever-se e cancelar a própria inscrição antes do encerramento, respeitando o nível mínimo, a capacidade e a ausência de duplicidade. Agenda, comparecimento e comunicação externa do organizador não implicam funcionalidades adicionais de presença ou envio de e-mail.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 168,
+      "text": "3.6.2 Diagrama de Atividades",
+      "style": "Heading3",
+      "images": []
+    },
+    {
+      "index": 169,
+      "text": "",
+      "style": "",
+      "images": [
+        "rId13"
+      ]
+    },
+    {
+      "index": 170,
+      "text": "AN06 — Descobrir e participar de um evento.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 171,
+      "text": "Fonte editável: stacklyst-seminario.asta / AN06 Descobrir e participar de um evento. Exportação atual do projeto do seminário.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 172,
+      "text": "4. Relação entre atividades e requisitos",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 173,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 174,
+      "text": "Atividade",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 175,
+      "text": "Requisitos relacionados",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 176,
+      "text": "Apoio do sistema ao processo humano",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 177,
+      "text": "AN01 — Estudar programação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 178,
+      "text": "RF005–RF010",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 179,
+      "text": "Apoiar o estudo com trilhas, lições, exercícios, resultados e progresso.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 180,
+      "text": "AN02 — Praticar exercícios de programação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 181,
+      "text": "RF008–RF009",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 182,
+      "text": "Receber e avaliar respostas; testar código sem concluir atividade nem conceder XP.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 183,
+      "text": "AN03 — Acompanhar a própria aprendizagem",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 184,
+      "text": "RF009–RF015",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 185,
+      "text": "Disponibilizar histórico e indicadores para o planejamento do estudante.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 186,
+      "text": "AN04 — Buscar ajuda para uma dúvida",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 187,
+      "text": "RF022–RF025",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 188,
+      "text": "Disponibilizar dicas e documentação conforme o modo de assistência.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 189,
+      "text": "AN05A — Divulgar oportunidade de trabalho",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 190,
+      "text": "RF034–RF038",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 191,
+      "text": "Apoiar cadastro da empresa, publicação autorizada e consulta de vagas e perfis públicos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 192,
+      "text": "AN05B — Candidatar-se e acompanhar a seleção",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 193,
+      "text": "RF035–RF038, RF044–RF048",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 194,
+      "text": "Registrar candidatura, apresentar as etapas e notificar o candidato após atualização autorizada.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 195,
+      "text": "AN06 — Descobrir e participar de um evento",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 196,
+      "text": "RF041, RF049, RF044–RF046",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 197,
+      "text": "Disponibilizar eventos e permitir inscrição e cancelamento próprios, conforme as condições de participação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 198,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 199,
+      "text": "Fontes dos diagramas atualizados: exportações do projeto stacklyst-seminario.asta fornecidas nesta revisão e imagens correspondentes do seminário.",
+      "style": "",
+      "images": []
+    }
+  ],
+  "images": [
+    {
+      "paragraph": 62,
+      "rid": "rId7",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image5.jpg",
+      "sha256": "2911696e7043c96c7cc977fdd0db83d81f455cc1d933f3f50bf46bf7ea9aeecf",
+      "dimensions": [
+        1693,
+        980
+      ],
+      "context_before": [
+        "Exceções: Material insuficiente leva à busca de outra fonte ou de ajuda. A dificuldade na prática conduz à revisão, sem presumir aprendizagem concluída.",
+        "Resultado final: Conteúdo compreendido e aplicado, com registro do aprendizado e revisão planejada.",
+        "Rastreabilidade: RF005–RF010; UC004–UC007. O Stacklyst apoia o percurso com trilhas, lições, exercícios e progresso. Pesquisa externa, agenda pessoal e uso de IA no processo humano não constituem funcionalidades adicionais do sistema.",
+        "3.1.2 Diagrama de Atividades",
+        "AN01 — Estudar programação"
+      ],
+      "context_after": [
+        "AN01 — Estudar programação.",
+        "Fonte editável: stacklyst-seminario.asta / AN01 Estudar programação. Exportação atual do projeto do seminário.",
+        "3.2 AN02 — Praticar exercícios de programação",
+        "Objetivo: Resolver problemas de programação, comparar os resultados e compreender os erros encontrados.",
+        "Participantes: Estudante ou desenvolvedor em formação."
+      ]
+    },
+    {
+      "paragraph": 82,
+      "rid": "rId8",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image1.jpg",
+      "sha256": "0c636d9e5c6bbfb25ea230bb7ff952bb108a1d87ccd04768118514764d71a87a",
+      "dimensions": [
+        1693,
+        980
+      ],
+      "context_before": [
+        "Exceções: Enunciado pouco compreendido ou dúvida conceitual exige revisão ou ajuda. Um teste sem resultado conclusivo não confirma a solução.",
+        "Resultado final: Solução compreendida e verificada com os exemplos, com dúvidas registradas para estudo.",
+        "Rastreabilidade: RF008–RF009; UC006, UC028, UC029 e UC052. No Stacklyst, testar código antes da submissão não conclui a atividade nem concede XP. Avaliação, execução isolada e registro do progresso pertencem ao comportamento do sistema.",
+        "3.2.2 Diagrama de Atividades",
+        "AN02 — Praticar exercícios de programação"
+      ],
+      "context_after": [
+        "AN02 — Praticar exercícios de programação.",
+        "Fonte editável: stacklyst-seminario.asta / AN02 Praticar exercícios de programação. Exportação atual do projeto do seminário.",
+        "3.3 AN03 — Acompanhar a própria aprendizagem",
+        "Objetivo: Comparar os resultados do estudo com os objetivos e ajustar o planejamento de aprendizagem."
+      ]
+    },
+    {
+      "paragraph": 104,
+      "rid": "rId9",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image2.png",
+      "sha256": "2ee6a23251b4508ce273e206643c3d8c20d0a2b131d17fe5f901b404df139048",
+      "dimensions": [
+        1693,
+        980
+      ],
+      "context_before": [
+        "Exceções: Sem registros suficientes, o estudante reúne mais evidências antes de avaliar a evolução. Uma dificuldade exige revisão do planejamento.",
+        "Resultado final: Cronograma atualizado conforme a necessidade de revisão ou o próximo assunto escolhido.",
+        "Rastreabilidade: RF009–RF015; UC007 e UC011. O Stacklyst fornece histórico e indicadores, incluindo XP e ranking, para apoiar a análise. A agenda ou planilha citada no processo é uma ferramenta pessoal, sem integração pressuposta.",
+        "3.3.2 Diagrama de Atividades",
+        "AN03 — Acompanhar a própria aprendizagem"
+      ],
+      "context_after": [
+        "AN03 — Acompanhar a própria aprendizagem.",
+        "Fonte editável: stacklyst-seminario.asta / AN03 Acompanhar a própria aprendizagem. Exportação atual do projeto do seminário.",
+        "3.4 AN04 — Buscar ajuda para uma dúvida",
+        "Objetivo: Esclarecer uma dúvida de programação e conferir a explicação por meio de um exemplo.",
+        "Participantes: Estudante; colega ou professor, quando necessário."
+      ]
+    },
+    {
+      "paragraph": 123,
+      "rid": "rId10",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image3.jpg",
+      "sha256": "ab0bce25fdcf4a5c609e24401d1be74f060e2a60b2ef2218fdc6d40a248de29f",
+      "dimensions": [
+        1722,
+        1106
+      ],
+      "context_before": [
+        "Exceções: Uma explicação insuficiente exige nova consulta ou esclarecimento. A resposta de uma ferramenta ou pessoa deve ser conferida em um exemplo.",
+        "Resultado final: Dúvida esclarecida e explicação conferida na prática.",
+        "Rastreabilidade: RF022–RF025; UC012 e ponto de extensão de ajuda de UC006. O sistema oferece dicas, documentação e sugestões conforme o modo de assistência. A consulta externa a IA, colega ou professor descreve o processo humano e não implica um serviço de IA implementado no Stacklyst.",
+        "3.4.2 Diagrama de Atividades",
+        "AN04 — Buscar ajuda para uma dúvida"
+      ],
+      "context_after": [
+        "AN04 — Buscar ajuda para uma dúvida.",
+        "Fonte editável: stacklyst-seminario.asta / AN04 Buscar ajuda para uma dúvida. Exportação atual do projeto do seminário.",
+        "3.5 AN05 — Divulgar oportunidade e acompanhar a seleção",
+        "Objetivo: Divulgar uma oportunidade profissional e acompanhar a candidatura e o retorno da seleção.",
+        "Participantes: Representante da empresa; recrutador responsável; candidato."
+      ]
+    },
+    {
+      "paragraph": 146,
+      "rid": "rId11",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image6.jpg",
+      "sha256": "3ba39b01b229e9fa4526ee798771751bbbe3ded9ab3a7a473d63b58f514c28dd",
+      "dimensions": [
+        1744,
+        1073
+      ],
+      "context_before": [
+        "Rastreabilidade: RF034–RF038, RF044–RF048; UC017, UC018, UC022, UC025, UC026 e UC056. No Stacklyst, o responsável autorizado publica a vaga e consulta as candidaturas; o usuário envia sua candidatura e acompanha as etapas. UC026 gera notificação ao candidato da candidatura alterada, sem alerta geral por intenção de vaga ou garantia de envio de e-mail.",
+        "Regra do processo: somente o responsável autorizado divulga a vaga e conduz a seleção; o candidato acompanha a própria candidatura.",
+        "3.5.2 Diagrama de Atividades",
+        "AN05A — Divulgar oportunidade de trabalho"
+      ],
+      "context_after": [
+        "AN05A — Divulgar oportunidade de trabalho.",
+        "Fonte editável: stacklyst-seminario.asta / AN05A Divulgar oportunidade de trabalho. Exportação atual do projeto do seminário.",
+        "AN05B — Candidatar-se e acompanhar a seleção",
+        "AN05B — Candidatar-se e acompanhar a seleção."
+      ]
+    },
+    {
+      "paragraph": 150,
+      "rid": "rId12",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image7.jpg",
+      "sha256": "28a9069ba5e16560ab36519f9ed7c80dae8ce67715c6b0ba88543d07fe934c29",
+      "dimensions": [
+        2048,
+        991
+      ],
+      "context_before": [
+        "AN05A — Divulgar oportunidade de trabalho",
+        "AN05A — Divulgar oportunidade de trabalho.",
+        "Fonte editável: stacklyst-seminario.asta / AN05A Divulgar oportunidade de trabalho. Exportação atual do projeto do seminário.",
+        "AN05B — Candidatar-se e acompanhar a seleção"
+      ],
+      "context_after": [
+        "AN05B — Candidatar-se e acompanhar a seleção.",
+        "Fonte editável: stacklyst-seminario.asta / AN05B Candidatar-se e acompanhar a seleção. Exportação atual do projeto do seminário.",
+        "3.6 AN06 — Descobrir e participar de um evento",
+        "Objetivo: Encontrar um evento compatível com os interesses e as condições da pessoa e organizar sua participação."
+      ]
+    },
+    {
+      "paragraph": 169,
+      "rid": "rId13",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image4.jpg",
+      "sha256": "cf1ed9c5f5aa6bd69f06f888589594bb17b3499a3a6115677e141e96711a3323",
+      "dimensions": [
+        1693,
+        1073
+      ],
+      "context_before": [
+        "Decisões: A pessoa pode participar conforme as datas e condições do evento?",
+        "Exceções: A impossibilidade de participação encerra o processo sem inscrição. Se não houver confirmação, a pessoa verifica a situação com o organizador antes de considerar a inscrição concluída.",
+        "Resultado final: Inscrição confirmada e participação organizada, ou processo encerrado sem inscrição.",
+        "Rastreabilidade: RF041, RF049 e RF044–RF046; UC015, UC023 e UC046. No Stacklyst, UC023 permite inscrever-se e cancelar a própria inscrição antes do encerramento, respeitando o nível mínimo, a capacidade e a ausência de duplicidade. Agenda, comparecimento e comunicação externa do organizador não implicam funcionalidades adicionais de presença ou envio de e-mail.",
+        "3.6.2 Diagrama de Atividades"
+      ],
+      "context_after": [
+        "AN06 — Descobrir e participar de um evento.",
+        "Fonte editável: stacklyst-seminario.asta / AN06 Descobrir e participar de um evento. Exportação atual do projeto do seminário.",
+        "4. Relação entre atividades e requisitos",
+        "Atividade"
+      ]
+    }
+  ],
+  "tables": [
+    {
+      "table": 0,
+      "rows": [
+        [
+          "Regra do processo: somente o responsável autorizado divulga a vaga e conduz a seleção; o candidato acompanha a própria candidatura."
+        ]
+      ]
+    },
+    {
+      "table": 1,
+      "rows": [
+        [
+          "Atividade",
+          "Requisitos relacionados",
+          "Apoio do sistema ao processo humano"
+        ],
+        [
+          "AN01 — Estudar programação",
+          "RF005–RF010",
+          "Apoiar o estudo com trilhas, lições, exercícios, resultados e progresso."
+        ],
+        [
+          "AN02 — Praticar exercícios de programação",
+          "RF008–RF009",
+          "Receber e avaliar respostas; testar código sem concluir atividade nem conceder XP."
+        ],
+        [
+          "AN03 — Acompanhar a própria aprendizagem",
+          "RF009–RF015",
+          "Disponibilizar histórico e indicadores para o planejamento do estudante."
+        ],
+        [
+          "AN04 — Buscar ajuda para uma dúvida",
+          "RF022–RF025",
+          "Disponibilizar dicas e documentação conforme o modo de assistência."
+        ],
+        [
+          "AN05A — Divulgar oportunidade de trabalho",
+          "RF034–RF038",
+          "Apoiar cadastro da empresa, publicação autorizada e consulta de vagas e perfis públicos."
+        ],
+        [
+          "AN05B — Candidatar-se e acompanhar a seleção",
+          "RF035–RF038, RF044–RF048",
+          "Registrar candidatura, apresentar as etapas e notificar o candidato após atualização autorizada."
+        ],
+        [
+          "AN06 — Descobrir e participar de um evento",
+          "RF041, RF049, RF044–RF046",
+          "Disponibilizar eventos e permitir inscrição e cancelamento próprios, conforme as condições de participação."
+        ]
+      ]
+    }
+  ]
+}

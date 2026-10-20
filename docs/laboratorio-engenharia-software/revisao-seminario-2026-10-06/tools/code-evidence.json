@@ -1,0 +1,257 @@
+[
+  {
+    "id": "UC005",
+    "title": "Estudar lição",
+    "actor": "Usuário autenticado",
+    "path": "src/app/lesson/[lessonId]/page.tsx",
+    "ranges": [
+      [
+        59,
+        64
+      ],
+      [
+        76,
+        83
+      ]
+    ],
+    "meaning": "Carrega a lição, valida o acesso e entrega conteúdo e progresso à interface.",
+    "sha256": "75bc77e0c2665411ff864a86e34a5a5ac30b074f417c9666b09d64cab909688a",
+    "snippets": [
+      {
+        "start": 59,
+        "end": 64,
+        "text": "  if (!isExplicitWorkspace) {\n    const lesson = getLessonById(lessonId);\n    if (lesson) {\n      try {\n        await requireLessonAccess(user.id, lesson);\n      } catch (error) {"
+      },
+      {
+        "start": 76,
+        "end": 83,
+        "text": "      const completedStepIds = await getLessonProgress(user.id, lesson);\n      return (\n        <LessonClient\n          lesson={publicLesson(lesson)}\n          completedStepIds={completedStepIds}\n          returnTo={returnTo}\n          user={{\n            id: user.id,"
+      }
+    ]
+  },
+  {
+    "id": "UC006",
+    "title": "Resolver exercício",
+    "actor": "Usuário autenticado",
+    "path": "src/app/api/lessons/[lessonId]/attempt/route.ts",
+    "ranges": [
+      [
+        21,
+        40
+      ]
+    ],
+    "meaning": "Avalia a resposta no servidor. Testar código não concede XP nem conclui a etapa.",
+    "sha256": "d5de1f88c914ce2e26be4dde3aa77579ae109a0bab3215f5c153d7202bbdffd0",
+    "snippets": [
+      {
+        "start": 21,
+        "end": 40,
+        "text": "  const lesson = getLessonById(lessonId);\n  const step = lesson?.steps.find((s) => s.id === answer.stepId);\n  if (!lesson || !step) throw new AppError('LESSON_NOT_FOUND', 'Atividade não encontrada.', 404);\n  await requireLessonAccess(user.id, lesson);\n  const outcome = await assessLessonStep(lesson, step, answer);\n  if ('unavailable' in outcome && outcome.unavailable)\n    throw new AppError(\n      'RUNNER_UNAVAILABLE',\n      'Serviço de execução indisponível. Seu progresso não foi alterado; tente novamente.',\n      503\n    );\n  if (answer.action === 'run') return NextResponse.json({ ...outcome, xpEarned: 0 });\n  const progress = await saveLessonAssessment(\n    user.id,\n    lesson,\n    step,\n    outcome.isCorrect,\n    answer.selectedOption ?? 0\n  );\n  return NextResponse.json({ ...outcome, ...progress });"
+      }
+    ]
+  },
+  {
+    "id": "UC017",
+    "title": "Publicar vaga",
+    "actor": "Recrutador",
+    "path": "src/app/api/jobs/route.ts",
+    "ranges": [
+      [
+        67,
+        80
+      ],
+      [
+        89,
+        94
+      ]
+    ],
+    "meaning": "Exige papel de recrutador ou administrador e vínculo autorizado com a empresa.",
+    "sha256": "a4df2b58eda57062ae0e80ab8b4908c65aa006fe2b565a33bc63d25cdc25dfa4",
+    "snippets": [
+      {
+        "start": 67,
+        "end": 80,
+        "text": "export const POST = apiHandler(async (req) => {\n  const user = await requireRole(['RECRUITER', 'ADMIN']);\n  const body = await req.json();\n  const parsed = createJobSchema.parse(body);\n  await requireCompanyAccess(parsed.company_id, user);\n\n  const job = await JobService.createJob({\n    companyId: parsed.company_id,\n    title: parsed.title,\n    description: parsed.description,\n    level: parsed.level,\n    technologies: parsed.technologies,\n    modality: parsed.modality,\n    location: parsed.location,"
+      },
+      {
+        "start": 89,
+        "end": 94,
+        "text": "  return NextResponse.json({\n    success: true,\n    message: 'Vaga publicada com sucesso!',\n    job,\n  });\n});"
+      }
+    ]
+  },
+  {
+    "id": "UC022",
+    "title": "Candidatar-se a vaga",
+    "actor": "Usuário autenticado",
+    "path": "src/services/job.service.ts",
+    "ranges": [
+      [
+        269,
+        291
+      ]
+    ],
+    "meaning": "Verifica a vaga aberta e cria uma candidatura vinculada ao usuário e à etapa inicial.",
+    "sha256": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e",
+    "snippets": [
+      {
+        "start": 269,
+        "end": 291,
+        "text": "      include: {\n        stages: { orderBy: { order: 'asc' } },\n        company: true,\n      },\n    });\n\n    if (!job || job.status !== 'OPEN') {\n      throw new Error('Esta vaga não está mais aceitando inscrições.');\n    }\n\n    const firstStage = job.stages[0];\n\n    const application = await prisma.jobApplication.create({\n      data: {\n        job_id: jobId,\n        user_id: userId,\n        stage_id: firstStage?.id,\n        status: 'APPLIED',\n      },\n      include: {\n        stage: true,\n        job: { include: { company: true } },\n      },"
+      }
+    ]
+  },
+  {
+    "id": "UC023",
+    "title": "Inscrever-se ou cancelar participação em evento",
+    "actor": "Usuário autenticado",
+    "path": "src/app/api/events/[id]/participate/route.ts",
+    "ranges": [
+      [
+        6,
+        16
+      ],
+      [
+        19,
+        29
+      ]
+    ],
+    "meaning": "POST confirma a inscrição. DELETE cancela a participação do usuário autenticado.",
+    "sha256": "b4dbb39c5f06df94bfc913960cfee18082abb4bc2eb830f81d2b42a56404ad0c",
+    "snippets": [
+      {
+        "start": 6,
+        "end": 16,
+        "text": "export const POST = apiHandler(async (_req, { params }) => {\n  const user = await requireAuth();\n  const { id: eventId } = await params;\n\n  const participant = await EventService.participate(user.id, eventId);\n\n  return NextResponse.json({\n    success: true,\n    message: 'Inscrição no evento confirmada!',\n    participant,\n  });"
+      },
+      {
+        "start": 19,
+        "end": 29,
+        "text": "export const DELETE = apiHandler(async (_req, { params }) => {\n  const user = await requireAuth();\n  const { id: eventId } = await params;\n\n  await EventService.cancelParticipation(user.id, eventId);\n\n  return NextResponse.json({\n    success: true,\n    message: 'Inscrição cancelada com sucesso.',\n  });\n});"
+      }
+    ]
+  },
+  {
+    "id": "UC026",
+    "title": "Atualizar etapa de candidatura",
+    "actor": "Recrutador",
+    "path": "src/app/api/jobs/[id]/route.ts",
+    "ranges": [
+      [
+        30,
+        46
+      ],
+      [
+        48,
+        54
+      ]
+    ],
+    "meaning": "Confere a empresa, a candidatura e a etapa antes de atualizar o processo.",
+    "sha256": "59b68ba56c09a7ec64f87c5500c1f6f3bf5e108573fde89602614a78e57ed459",
+    "snippets": [
+      {
+        "start": 30,
+        "end": 46,
+        "text": "export const PATCH = apiHandler(async (req, { params }) => {\n  const user = await requireRole(['RECRUITER', 'ADMIN']);\n  const { id } = await params;\n  const job = await prisma.job.findUniqueOrThrow({ where: { id } });\n  await requireCompanyAccess(job.company_id, user);\n  const body = await req.json();\n  const parsed = updateStageSchema.parse(body);\n  const application = await prisma.jobApplication.findFirst({\n    where: { id: parsed.application_id, job_id: id },\n  });\n  if (!application)\n    return NextResponse.json({ error: 'Candidatura não encontrada nesta vaga.' }, { status: 404 });\n  if (\n    parsed.stage_id &&\n    !(await prisma.jobRecruitmentStage.findFirst({ where: { id: parsed.stage_id, job_id: id } }))\n  )\n    return NextResponse.json({ error: 'Etapa inválida para esta vaga.' }, { status: 400 });"
+      },
+      {
+        "start": 48,
+        "end": 54,
+        "text": "  const updatedApplication = await JobService.updateApplicationStage({\n    applicationId: parsed.application_id,\n    stageId: parsed.stage_id,\n    status: parsed.status,\n    feedback: parsed.feedback,\n    technicalScore: parsed.technical_score,\n  });"
+      }
+    ]
+  },
+  {
+    "id": "UC013",
+    "title": "Criar publicação",
+    "actor": "Usuário autenticado",
+    "path": "src/services/post.service.ts",
+    "ranges": [
+      [
+        25,
+        38
+      ],
+      [
+        40,
+        46
+      ]
+    ],
+    "meaning": "A criação grava a publicação e concede XP na mesma transação.",
+    "sha256": "08653fcee3f65c216d4d69af9360a479375e34ad8c3834bd800c1cd729ef069d",
+    "snippets": [
+      {
+        "start": 25,
+        "end": 38,
+        "text": "    const result = await prisma.$transaction(async (tx) => {\n      // 1. Create Post\n      const post = await tx.post.create({\n        data: {\n          author_id: userId,\n          title,\n          body,\n          language: language || null,\n          code_snippet: code || null,\n          image_url: image_url || null,\n          client_id: clientId || null,\n        },\n      });\n"
+      },
+      {
+        "start": 40,
+        "end": 46,
+        "text": "      const xpAmount = language ? 10 : 5;\n      const beforeUser = await tx.user.findUnique({\n        where: { id: userId },\n        select: { total_xp: true },\n      });\n\n      const xpResult = await XpService.awardXPInTransaction(tx, userId, language, xpAmount);"
+      }
+    ]
+  },
+  {
+    "id": "UC011",
+    "title": "Consultar ranking de XP",
+    "actor": "Usuário",
+    "path": "src/app/api/leaderboard/route.ts",
+    "ranges": [
+      [
+        31,
+        55
+      ]
+    ],
+    "meaning": "O servidor consulta e ordena os usuários. O caso de uso é consulta, sem manutenção manual do ranking.",
+    "sha256": "5c7acd03c3d2a62ecf7a164b26512b3f2e4ea3a6981108c93dbdb08163a609ca",
+    "snippets": [
+      {
+        "start": 31,
+        "end": 55,
+        "text": "      // Leaderboard global baseado no total_xp do usuário\n      const leaders = await prisma.user.findMany({\n        orderBy: XP_RANK_ORDER,\n        take: 50,\n        select: {\n          username: true,\n          avatar_url: true,\n          total_xp: true,\n          streak_days: true,\n          last_active_at: true,\n          created_at: true,\n        },\n      });\n\n      const formatted = leaders.map((leader, index) => ({\n        rank: index + 1,\n        username: leader.username,\n        avatar_url: leader.avatar_url,\n        xp: leader.total_xp,\n        level: calculateLevel(leader.total_xp).level,\n        streak: getEffectiveStreak(leader.streak_days ?? 0, leader.last_active_at),\n        created_at: leader.created_at ? leader.created_at.toISOString() : null,\n      }));\n\n      return NextResponse.json(formatted);"
+      }
+    ]
+  },
+  {
+    "id": "UC056",
+    "title": "Consultar candidaturas de uma vaga",
+    "actor": "Recrutador",
+    "path": "src/app/api/jobs/[id]/applications/route.ts",
+    "ranges": [
+      [
+        1,
+        13
+      ]
+    ],
+    "meaning": "A rota exige papel autorizado. JobService também valida a responsabilidade pela empresa.",
+    "sha256": "b88d9b4342046fc51ce2d226579907ee9ca02f2f93545a1d81e0ca986e62f469",
+    "snippets": [
+      {
+        "start": 1,
+        "end": 13,
+        "text": "import { NextResponse } from 'next/server';\nimport { apiHandler } from '@/lib/api-handler';\nimport { requireRole } from '@/lib/auth';\nimport { JobService } from '@/services/job.service';\n\nexport const GET = apiHandler(async (_req, { params }) => {\n  const user = await requireRole(['RECRUITER', 'ADMIN']);\n  const { id: jobId } = await params;\n\n  const applications = await JobService.getJobApplications(jobId, user.id, user.role);\n\n  return NextResponse.json(applications);\n});"
+      }
+    ]
+  },
+  {
+    "id": "AUTO01",
+    "title": "Notificação da candidatura",
+    "actor": "Comportamento automático",
+    "path": "src/services/job.service.ts",
+    "ranges": [
+      [
+        309,
+        333
+      ]
+    ],
+    "meaning": "A atualização avisa o candidato associado à candidatura. O código não envia um alerta geral por intenção de vaga.",
+    "sha256": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e",
+    "snippets": [
+      {
+        "start": 309,
+        "end": 333,
+        "text": "\n    const application = await prisma.jobApplication.update({\n      where: { id: applicationId },\n      data: {\n        stage_id: stageId,\n        status,\n        feedback,\n        technical_score: technicalScore,\n      },\n      include: {\n        job: { include: { company: true } },\n        user: true,\n      },\n    });\n\n    try {\n      await NotificationService.create({\n        userId: application.user_id,\n        type: 'JOB_APPLICATION_UPDATE',\n        resourceId: application.job_id,\n        resourceType: 'JOB',\n      });\n    } catch (err) {\n      logger.error('Failed to notify job application update', { error: String(err) });\n    }"
+      }
+    ]
+  }
+]

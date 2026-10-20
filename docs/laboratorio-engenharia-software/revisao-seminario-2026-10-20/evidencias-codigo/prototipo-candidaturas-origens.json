@@ -1,0 +1,63 @@
+{
+  "type": "Protótipo com dados de demonstração",
+  "source": "src/app/recruiter/RecruiterContent.tsx",
+  "lines": [
+    474,
+    716
+  ],
+  "source_sha256": "329f6f1b96e199c6c9bf588c6859acf92ce100f3ee3eec4db97c505e84ceb9c4",
+  "rendering": "JSX original extraído do cartão de vaga e painel expandido de candidatos, transformado com TypeScript e renderizado por ReactDOMServer. CSS compilado local do projeto. Handlers inertes. Link convertido em âncora. AuthorAvatar replica o ramo de iniciais para avatar nulo.",
+  "fixture": {
+    "job": {
+      "id": "vaga-demonstracao",
+      "title": "Estágio JavaScript - Seminário",
+      "description": "Oportunidade de demonstração do seminário.",
+      "level": "JUNIOR",
+      "modality": "REMOTE",
+      "contract_type": "ESTAGIO",
+      "status": "OPEN",
+      "technologies": [
+        "JavaScript",
+        "Git"
+      ],
+      "location": null,
+      "salary_min": null,
+      "salary_max": null,
+      "company": {
+        "name": "Empresa de demonstração",
+        "is_verified": false
+      },
+      "_count": {
+        "applications": 1
+      }
+    },
+    "applicants": [
+      {
+        "id": "candidatura-demonstracao",
+        "job_id": "vaga-demonstracao",
+        "user_id": "candidato-demonstracao",
+        "stage_id": "etapa-inscricao",
+        "status": "REVIEWING",
+        "created_at": "2026-10-20T15:00:00-03:00",
+        "user": {
+          "username": "Candidato de demonstração",
+          "avatar_url": null,
+          "total_xp": 140,
+          "github_username": null
+        },
+        "stage": {
+          "id": "etapa-inscricao",
+          "title": "Inscrição",
+          "type": "INSCRICAO",
+          "order": 1
+        }
+      }
+    ]
+  },
+  "network": "Nenhuma chamada ao backend. Não é evidência de execução autenticada, integração ou produção.",
+  "css_sources": [
+    ".next/static/chunks/17rs_l8kxq6ix.css",
+    ".next/static/chunks/26s9k6bk9d2a5.css",
+    ".next/static/chunks/3bq-ycysccs9y.css"
+  ]
+}

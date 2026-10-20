@@ -1,0 +1,27 @@
+{
+  "sourceCommit": "9256a4f",
+  "nativeAstah": true,
+  "diagramCount": 56,
+  "businessActivities": 7,
+  "classViewsWithMethods": 13,
+  "detailedUseCases": 52,
+  "overviewGroups": 16,
+  "codeCaptures": 10,
+  "codeHashesMatch": true,
+  "slideCount": 38,
+  "presentationPackageIntegrity": "pass",
+  "presentationLayoutFindings": 0,
+  "documentPages": {
+    "01-documento-de-visao-stacklyst.pdf": 10,
+    "02-atividades-do-negocio-stacklyst.pdf": 18,
+    "03-requisitos-do-sistema-stacklyst.pdf": 38,
+    "04-casos-de-uso-stacklyst.pdf": 96
+  },
+  "originalModelPreserved": true,
+  "slideDiagramsExportedByAstah": true,
+  "slideDiagramImages": 33,
+  "embeddedDiagramImageHashesMatch": true,
+  "embeddedCodeCapturesPreserved": true,
+  "presentationPdfPages": 38,
+  "presentationSha256": "2213c8a9a30c9616ae7995b27b624e46fe6b38a8f812fa5f9400a3360f89b4f9"
+}

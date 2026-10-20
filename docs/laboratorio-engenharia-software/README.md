@@ -1,6 +1,30 @@
 # Engenharia de software — Stacklyst
 
-## Entrega atual — 28/09/2026
+## Entrega atual — seminário e análise de 20/10/2026
+
+A [revisão de 20/10](revisao-seminario-2026-10-20/README.md) segue a ordem da lousa da professora, com a apresentação dos três integrantes, seis atividades de negócio, os modelos gerais e específicos em português, quatro sequências completas e nove recortes acompanhados do código.
+
+- [Apresentação com 51 slides](revisao-seminario-2026-10-20/apresentacao/Stacklyst-seminario-revisado-2026-10-20.pptx)
+- [Apresentação em PDF](revisao-seminario-2026-10-20/apresentacao/Stacklyst-seminario-revisado-2026-10-20.pdf)
+- [Projeto Astah editável](revisao-seminario-2026-10-20/Stacklyst-seminario-revisado.asta)
+- [Pacote completo com documentos e análise](revisao-seminario-2026-10-20/Stacklyst-seminario-revisado-completo-2026-10-20.zip)
+- [Análise de completude e evolução](revisao-seminario-2026-10-20/analise-sistema/RELATORIO-DE-EVOLUCAO.md)
+- [Matriz dos 49 RF](revisao-seminario-2026-10-20/analise-sistema/matriz-rf.json) e [matriz dos 25 RNF](revisao-seminario-2026-10-20/analise-sistema/matriz-rnf.json)
+- [Rastreabilidade dos slides e do código](revisao-seminario-2026-10-20/RASTREABILIDADE.md)
+- [Validação final dos arquivos](revisao-seminario-2026-10-20/validacao/VALIDACAO-FINAL.json)
+
+A análise registra as lacunas do código de referência e 35 testes locais aprovados. Ela não representa implementação das correções ou homologação em produção. Os documentos fornecidos e a apresentação de origem estão preservados em `fontes-originais/`.
+
+## Entrega anterior — seminário de 06/10/2026
+
+A [revisão do seminário](revisao-seminario-2026-10-06/README.md) contém o Astah editável, os quatro documentos atualizados, os diagramas exportados e a apresentação com casos de uso acompanhados do código correspondente.
+
+- [Projeto Astah](revisao-seminario-2026-10-06/Stacklyst-seminario.asta)
+- [Apresentação com 38 slides](revisao-seminario-2026-10-06/apresentacao/Stacklyst-seminario-Astah.pptx)
+- [Pacote completo](revisao-seminario-2026-10-06/Stacklyst-seminario-completo-Astah.zip)
+- [Rastreabilidade](revisao-seminario-2026-10-06/RASTREABILIDADE.md)
+
+## Entrega anterior — 28/09/2026
 
 Os quatro documentos com tipografia revisada e o projeto Astah enviado em 28/09 estão em [entrega-final](revisao-astah-2026-09-28/entrega-final/):
 
@@ -28,7 +52,7 @@ São 9 atividades, 49 requisitos funcionais, 25 não funcionais, 28 regras de ne
 
 ## UML editável
 
-As fontes atuais são PlantUML em `diagramas/fontes/`. Há 18 diagramas em PNG e SVG: 9 atividades, 1 panorama de casos de uso, 4 vistas por área e 4 modelos técnicos (componentes, classes, estados e sequência).
+As fontes desta revisão histórica são PlantUML em `diagramas/fontes/`. Há 18 diagramas em PNG e SVG: 9 atividades, 1 panorama de casos de uso, 4 vistas por área e 4 modelos técnicos (componentes, classes, estados e sequência).
 
 - [Panorama — SVG para zoom](diagramas/imagens/casos-de-uso-stacklyst.svg)
 - [Conta e aprendizado](diagramas/imagens/casos-aprendizado.svg)

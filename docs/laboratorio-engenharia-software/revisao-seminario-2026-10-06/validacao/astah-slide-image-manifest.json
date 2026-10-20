@@ -1,0 +1,530 @@
+[
+  {
+    "slide": 3,
+    "id": "UC00",
+    "file": "diagramas/Stacklyst-seminario/01 Casos de uso/UC00 Visao geral do sistema.png",
+    "sha256": "47cc36dfb4ac5960b0ff5d8aca1f7125d8012281168010a015cd92076eb2ffb3",
+    "originalSize": [
+      1837,
+      1304
+    ],
+    "placement": [
+      323.14072085889575,
+      160.00000000000006,
+      953.7185582822085,
+      676.9999999999999
+    ]
+  },
+  {
+    "slide": 4,
+    "id": "AN01",
+    "file": "diagramas/Stacklyst-seminario/04 Atividades do negocio/AN01 Estudar programação.png",
+    "sha256": "abff14d302598bb0192292792015b4d0c0783d4dd207dedaaadfc32f4190e6fd",
+    "originalSize": [
+      1693,
+      980
+    ],
+    "placement": [
+      215.22397959183672,
+      160,
+      1169.5520408163266,
+      677
+    ]
+  },
+  {
+    "slide": 5,
+    "id": "AN08A",
+    "file": "diagramas/Stacklyst-seminario/04 Atividades do negocio/AN08A Divulgar oportunidade de trabalho.png",
+    "sha256": "a6ec3b0676d3e172b155bbc748dab45f330b03e5cc1ac3d5c4330843b3ca5052",
+    "originalSize": [
+      1722,
+      1073
+    ],
+    "placement": [
+      256.75955265610435,
+      160,
+      1086.4808946877913,
+      677
+    ]
+  },
+  {
+    "slide": 6,
+    "id": "AN08B",
+    "file": "diagramas/Stacklyst-seminario/04 Atividades do negocio/AN08B Candidatar-se e acompanhar a seleção.png",
+    "sha256": "e418cc83447141eea196bf0ea98d58c995de870a632488e1858622c65cfb9213",
+    "originalSize": [
+      1693,
+      1073
+    ],
+    "placement": [
+      265.908201304753,
+      160,
+      1068.183597390494,
+      677
+    ]
+  },
+  {
+    "slide": 7,
+    "id": "AN09",
+    "file": "diagramas/Stacklyst-seminario/04 Atividades do negocio/AN09 Descobrir e participar de um evento.png",
+    "sha256": "18a35c3748ecbe0167807683654b4940c0afc3cf4885951fcb9d09b399829e7e",
+    "originalSize": [
+      1693,
+      1073
+    ],
+    "placement": [
+      265.908201304753,
+      160,
+      1068.183597390494,
+      677
+    ]
+  },
+  {
+    "slide": 8,
+    "id": "CL00",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL00 Classes e responsabilidades principais.png",
+    "sha256": "caa8f3c118f37ff09d137a731a3d23cac66b7474a646280e6a6dea7736dc696d",
+    "originalSize": [
+      1733,
+      1017
+    ],
+    "placement": [
+      223.18534906588002,
+      160,
+      1153.62930186824,
+      677
+    ]
+  },
+  {
+    "slide": 9,
+    "id": "CL03",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL03 Pratica e progresso.png",
+    "sha256": "f4c4c90aa1ba83c69dab739cb61d3103292662afbbcaddbd771b8745452eacaf",
+    "originalSize": [
+      2116,
+      2545
+    ],
+    "placement": [
+      518.5595284872298,
+      160,
+      562.8809430255403,
+      677
+    ]
+  },
+  {
+    "slide": 10,
+    "id": "CL08",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL08 Vagas e empresas.png",
+    "sha256": "a4214cb92b8611a5393e263dcf219689220e3295d13c6b531a6e842b63a13dfe",
+    "originalSize": [
+      3609,
+      1244
+    ],
+    "placement": [
+      54,
+      241.35840953172624,
+      1492,
+      514.2831809365475
+    ]
+  },
+  {
+    "slide": 11,
+    "id": "CL09",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL09 Eventos.png",
+    "sha256": "2003df37940ab1cdb484bc029e4d384a763834462405b322bd744c09ac20a390",
+    "originalSize": [
+      2862,
+      1354
+    ],
+    "placement": [
+      84.5,
+      160,
+      1431,
+      677
+    ]
+  },
+  {
+    "slide": 12,
+    "id": "MR00",
+    "file": "diagramas/Stacklyst-seminario/00 Vistas gerais simplificadas/Entidades centrais/MR00 Visao geral simplificada - entidades centrais.png",
+    "sha256": "79e4e43ff44a5f870aee931ab2617627f6591cee16d66e0a1f12a1148b857d38",
+    "originalSize": [
+      1780,
+      1890
+    ],
+    "placement": [
+      481.20105820105823,
+      160,
+      637.5978835978835,
+      677
+    ]
+  },
+  {
+    "slide": 13,
+    "id": "MR08",
+    "file": "diagramas/Stacklyst-seminario/03 Modelo relacional - entidades PK FK/MR08 Vagas e empresas.png",
+    "sha256": "f3a36d866baf690d8557360fee9b4135d06c5597c50e637a5813034af79f1f8e",
+    "originalSize": [
+      3609,
+      1304
+    ],
+    "placement": [
+      54,
+      228.95608201717926,
+      1492,
+      539.0878359656415
+    ]
+  },
+  {
+    "slide": 26,
+    "id": "CL01",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL01 Identidade e gamificacao.png",
+    "sha256": "6ef1f0538872800aa95818d5ef5a82616ae3cdb122687656d52966cb36a9cbc0",
+    "originalSize": [
+      1940,
+      2141
+    ],
+    "placement": [
+      493.27884166277437,
+      160,
+      613.4423166744513,
+      677
+    ]
+  },
+  {
+    "slide": 27,
+    "id": "CL02",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL02 Grafo de conhecimento.png",
+    "sha256": "0fb6e10fda9d09d48111975c92b25269ca49081f0f8f3b1e5b43e60dd85f2bbc",
+    "originalSize": [
+      1940,
+      1700
+    ],
+    "placement": [
+      413.71176470588233,
+      160,
+      772.5764705882353,
+      677
+    ]
+  },
+  {
+    "slide": 28,
+    "id": "CL04",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL04 Quiz e historico.png",
+    "sha256": "cbe2aee9ffe4f6b556cd42fcc7c1050f93d254f040fb71b0076e2008ea5967b0",
+    "originalSize": [
+      1940,
+      1718
+    ],
+    "placement": [
+      417.75902211874273,
+      160,
+      764.4819557625145,
+      677
+    ]
+  },
+  {
+    "slide": 29,
+    "id": "CL05",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL05 Duelos.png",
+    "sha256": "144538cbc0b1256311cb4cd2b9524e6d5147978658569761d7b385c001d6364e",
+    "originalSize": [
+      2116,
+      2505
+    ],
+    "placement": [
+      514.0654690618762,
+      160,
+      571.8690618762474,
+      677
+    ]
+  },
+  {
+    "slide": 30,
+    "id": "CL06",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL06 Publicacoes e moderacao.png",
+    "sha256": "aa81facd47a53d1130775b6579b235453af6761f860581b9deb95c38d5ae94f0",
+    "originalSize": [
+      2862,
+      2285
+    ],
+    "placement": [
+      376.02319474835883,
+      160,
+      847.9536105032823,
+      677
+    ]
+  },
+  {
+    "slide": 31,
+    "id": "CL07",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL07 Mensagens privadas.png",
+    "sha256": "6b5ccd1fbe3e9c66fa9658db299d9e9130153bd978b4b018bf0c476101d0c50e",
+    "originalSize": [
+      2116,
+      2150
+    ],
+    "placement": [
+      466.853023255814,
+      160,
+      666.293953488372,
+      677
+    ]
+  },
+  {
+    "slide": 32,
+    "id": "CL10",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL10 Suporte mobile.png",
+    "sha256": "f549ac529da71f867f0367913953fd7023422a202f3db2fe6d71b5644e90e5d2",
+    "originalSize": [
+      1686,
+      1274
+    ],
+    "placement": [
+      352.0321821036107,
+      160,
+      895.9356357927786,
+      677
+    ]
+  },
+  {
+    "slide": 33,
+    "id": "CL11",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL11 Catalogo e contratos TypeScript.png",
+    "sha256": "fa1533cec4fe474c2b546e0dbeeed51ed96d6a84e8a54ae6b26b7d085530829d",
+    "originalSize": [
+      1686,
+      1497
+    ],
+    "placement": [
+      418.7635270541082,
+      160,
+      762.4729458917836,
+      677
+    ]
+  },
+  {
+    "slide": 34,
+    "id": "CL12",
+    "file": "diagramas/Stacklyst-seminario/02 Classes de dominio/CL12 Servicos e operacoes reais.png",
+    "sha256": "ef0e2739000f0397431532279df035dc1ebe77f4decc45cd99fabfccdc124823",
+    "originalSize": [
+      1886,
+      2034
+    ],
+    "placement": [
+      486.13028515240904,
+      160,
+      627.7394296951819,
+      677
+    ]
+  },
+  {
+    "slide": 35,
+    "id": "AN03",
+    "file": "diagramas/Stacklyst-seminario/04 Atividades do negocio/AN03 Praticar exercícios de programação.png",
+    "sha256": "2e2753f354e6bcb7727ea36b1660189d045b029ee993687300c5d65fc2aea6f0",
+    "originalSize": [
+      1693,
+      980
+    ],
+    "placement": [
+      215.22397959183672,
+      160,
+      1169.5520408163266,
+      677
+    ]
+  },
+  {
+    "slide": 36,
+    "id": "AN04",
+    "file": "diagramas/Stacklyst-seminario/04 Atividades do negocio/AN04 Acompanhar a própria aprendizagem.png",
+    "sha256": "3e26fcdfd221bbd6e4a407fdefb8ef47dbed3e9dc0be8bcb551e67999ccc4bdf",
+    "originalSize": [
+      1693,
+      980
+    ],
+    "placement": [
+      215.22397959183672,
+      160,
+      1169.5520408163266,
+      677
+    ]
+  },
+  {
+    "slide": 37,
+    "id": "AN06",
+    "file": "diagramas/Stacklyst-seminario/04 Atividades do negocio/AN06 Buscar ajuda para uma dúvida.png",
+    "sha256": "56bd810616355e41a933255ea9418a758922aa0a923a0f63d80c1d4e0926bd02",
+    "originalSize": [
+      1722,
+      1106
+    ],
+    "placement": [
+      272.9683544303797,
+      160,
+      1054.0632911392406,
+      677
+    ]
+  },
+  {
+    "slide": 14,
+    "id": "EV-UC005",
+    "file": "diagramas/Stacklyst-seminario/06 Evidencias do seminario/EV-UC005 Estudar lição.png",
+    "sha256": "abe00758ce2c117d9d73be7c62f9b82bbdd91f02a0aa471fce49dec9ea942b25",
+    "originalSize": [
+      880,
+      666
+    ],
+    "placement": [
+      54,
+      252.48863636363635,
+      370,
+      280.0227272727273
+    ]
+  },
+  {
+    "slide": 15,
+    "id": "EV-UC006",
+    "file": "diagramas/Stacklyst-seminario/06 Evidencias do seminario/EV-UC006 Resolver exercício.png",
+    "sha256": "3555cfd0848f741cbd4726f457577821a2155b90bec39d338e778c1058fdcc14",
+    "originalSize": [
+      880,
+      666
+    ],
+    "placement": [
+      54,
+      252.48863636363635,
+      370,
+      280.0227272727273
+    ]
+  },
+  {
+    "slide": 16,
+    "id": "EV-UC017",
+    "file": "diagramas/Stacklyst-seminario/06 Evidencias do seminario/EV-UC017 Publicar vaga.png",
+    "sha256": "141a2b69ed325de50e77bcc452623a9fc5e13ecdcded1733e29f6eb1bade99ae",
+    "originalSize": [
+      880,
+      666
+    ],
+    "placement": [
+      54,
+      252.48863636363635,
+      370,
+      280.0227272727273
+    ]
+  },
+  {
+    "slide": 17,
+    "id": "EV-UC022",
+    "file": "diagramas/Stacklyst-seminario/06 Evidencias do seminario/EV-UC022 Candidatar-se a vaga.png",
+    "sha256": "6465a4a9b5b2986d63bdc9c722e4b14b1d0d5d3a17abf8d33d1ff820ad536ba5",
+    "originalSize": [
+      880,
+      666
+    ],
+    "placement": [
+      54,
+      252.48863636363635,
+      370,
+      280.0227272727273
+    ]
+  },
+  {
+    "slide": 18,
+    "id": "EV-UC023",
+    "file": "diagramas/Stacklyst-seminario/06 Evidencias do seminario/EV-UC023 Inscrever-se ou cancelar participação em evento.png",
+    "sha256": "20a87e42cb86e6f765b23e42f23cdbc658eac908c07b4edfaec10dc1b5ba0459",
+    "originalSize": [
+      880,
+      666
+    ],
+    "placement": [
+      54,
+      252.48863636363635,
+      370,
+      280.0227272727273
+    ]
+  },
+  {
+    "slide": 19,
+    "id": "EV-UC026",
+    "file": "diagramas/Stacklyst-seminario/06 Evidencias do seminario/EV-UC026 Atualizar etapa de candidatura.png",
+    "sha256": "8149994a7009d70dd6e1b179b223363516ce4c2f7c55fd45faeb18679bc23192",
+    "originalSize": [
+      880,
+      666
+    ],
+    "placement": [
+      54,
+      252.48863636363635,
+      370,
+      280.0227272727273
+    ]
+  },
+  {
+    "slide": 20,
+    "id": "EV-UC013",
+    "file": "diagramas/Stacklyst-seminario/06 Evidencias do seminario/EV-UC013 Criar publicação.png",
+    "sha256": "76030c839f7bbac5ce5dbe99b3576137f4a2039cfa3c362a049a424670b71f93",
+    "originalSize": [
+      880,
+      666
+    ],
+    "placement": [
+      54,
+      252.48863636363635,
+      370,
+      280.0227272727273
+    ]
+  },
+  {
+    "slide": 21,
+    "id": "EV-UC011",
+    "file": "diagramas/Stacklyst-seminario/06 Evidencias do seminario/EV-UC011 Consultar ranking de XP.png",
+    "sha256": "5f388539dfab4269841915821a3461a2be2f9e6d5abfe13b48741bb0599c7d7d",
+    "originalSize": [
+      880,
+      666
+    ],
+    "placement": [
+      54,
+      252.48863636363635,
+      370,
+      280.0227272727273
+    ]
+  },
+  {
+    "slide": 22,
+    "id": "EV-UC056",
+    "file": "diagramas/Stacklyst-seminario/06 Evidencias do seminario/EV-UC056 Consultar candidaturas de uma vaga.png",
+    "sha256": "274e4319241ea8a3e714742be8d1665acb15264105c409e15e16a8917fab0076",
+    "originalSize": [
+      880,
+      666
+    ],
+    "placement": [
+      54,
+      252.48863636363635,
+      370,
+      280.0227272727273
+    ]
+  },
+  {
+    "slide": 23,
+    "id": "EV-AUTO01",
+    "file": "diagramas/Stacklyst-seminario/06 Evidencias do seminario/EV-AUTO01 Notificacao automatica da candidatura.png",
+    "sha256": "5d15624b62e8d3b513a86b0fa9709545c20e81ea987dd509ca905072f1614ec7",
+    "originalSize": [
+      880,
+      666
+    ],
+    "placement": [
+      54,
+      252.48863636363635,
+      370,
+      280.0227272727273
+    ]
+  }
+]

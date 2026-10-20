@@ -1,0 +1,151 @@
+[
+  {
+    "id": "CL00",
+    "name": "CL00 Classes gerais do domínio",
+    "type": "classes"
+  },
+  {
+    "id": "CL01",
+    "name": "CL01 Classes de estudo e conclusão",
+    "type": "classes"
+  },
+  {
+    "id": "CL02",
+    "name": "CL02 Classes de publicação de vaga",
+    "type": "classes"
+  },
+  {
+    "id": "CL03",
+    "name": "CL03 Classes de candidatura e acompanhamento",
+    "type": "classes"
+  },
+  {
+    "id": "DER01",
+    "name": "DER01 Dados de estudo e conclusão",
+    "type": "classes"
+  },
+  {
+    "id": "DER02",
+    "name": "DER02 Dados de publicação de vaga",
+    "type": "classes"
+  },
+  {
+    "id": "DER03",
+    "name": "DER03 Dados de candidatura e notificação",
+    "type": "classes"
+  },
+  {
+    "id": "DER00",
+    "name": "DER00 Banco de dados completo - 47 entidades",
+    "type": "classes"
+  },
+  {
+    "id": "MER00",
+    "name": "MER00 Modelo entidade-relacionamento geral",
+    "type": "classes"
+  },
+  {
+    "id": "SQ01",
+    "name": "SQ01 Concluir atividade de uma lição",
+    "type": "sequência",
+    "complete": true,
+    "source": [
+      "src/app/api/lessons/[lessonId]/attempt/route.ts",
+      "src/lib/learning/lesson-progress.ts"
+    ]
+  },
+  {
+    "id": "SQ02",
+    "name": "SQ02 Publicar uma vaga",
+    "type": "sequência",
+    "complete": true,
+    "source": [
+      "src/app/api/jobs/route.ts",
+      "src/services/job.service.ts",
+      "src/app/recruiter/RecruiterContent.tsx"
+    ]
+  },
+  {
+    "id": "SQ03",
+    "name": "SQ03 Candidatar-se a uma vaga",
+    "type": "sequência",
+    "complete": true,
+    "source": [
+      "src/app/api/jobs/[id]/apply/route.ts",
+      "src/services/job.service.ts"
+    ]
+  },
+  {
+    "id": "SQ04",
+    "name": "SQ04 Atualizar etapa de candidatura",
+    "type": "sequência",
+    "complete": true,
+    "source": [
+      "src/app/api/jobs/[id]/route.ts",
+      "src/services/job.service.ts"
+    ]
+  },
+  {
+    "id": "SQ01-A",
+    "name": "SQ01-A Receber e avaliar resposta",
+    "type": "sequência",
+    "complete": false,
+    "source": "SQ01"
+  },
+  {
+    "id": "SQ01-B",
+    "name": "SQ01-B Salvar e devolver resultado",
+    "type": "sequência",
+    "complete": false,
+    "source": "SQ01"
+  },
+  {
+    "id": "SQ01-C",
+    "name": "SQ01-C Primeira conclusão e experiência",
+    "type": "sequência",
+    "complete": false,
+    "source": "SQ01"
+  },
+  {
+    "id": "SQ02-A",
+    "name": "SQ02-A Autorizar publicação de vaga",
+    "type": "sequência",
+    "complete": false,
+    "source": "SQ02"
+  },
+  {
+    "id": "SQ02-B",
+    "name": "SQ02-B Persistir vaga e etapas",
+    "type": "sequência",
+    "complete": false,
+    "source": "SQ02"
+  },
+  {
+    "id": "SQ02-C",
+    "name": "SQ02-C Confirmar publicação na tela",
+    "type": "sequência",
+    "complete": false,
+    "source": "SQ02"
+  },
+  {
+    "id": "SQ03-A",
+    "name": "SQ03-A Registrar candidatura",
+    "type": "sequência",
+    "complete": false,
+    "source": "SQ03"
+  },
+  {
+    "id": "SQ03-B",
+    "name": "SQ03-B Autorizar alteração de etapa",
+    "type": "sequência",
+    "complete": false,
+    "source": "SQ04"
+  },
+  {
+    "id": "SQ03-C",
+    "name": "SQ03-C Atualizar e notificar",
+    "type": "sequência",
+    "complete": false,
+    "source": "SQ04"
+  }
+]

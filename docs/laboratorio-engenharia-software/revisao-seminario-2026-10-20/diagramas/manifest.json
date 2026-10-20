@@ -1,0 +1,225 @@
+{
+  "CL00": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\CL00.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\01 Classes conceituais\\CL00 Modelo\\CL00 Classes gerais do domínio.png",
+    "name": "CL00 Classes gerais do domínio",
+    "dimensions": [
+      1793,
+      1330
+    ],
+    "sha256": "7ecc9f751666d52acbcd6c0a9456299a2da5534a551b48c32e987f6b917f3760"
+  },
+  "CL01": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\CL01.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\01 Classes conceituais\\CL01 Modelo\\CL01 Classes de estudo e conclusão.png",
+    "name": "CL01 Classes de estudo e conclusão",
+    "dimensions": [
+      1480,
+      744
+    ],
+    "sha256": "8e97908eec82b5dfca8d483db2d10231eba160dae8889faca1eaf0729a677e05"
+  },
+  "CL02": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\CL02.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\01 Classes conceituais\\CL02 Modelo\\CL02 Classes de publicação de vaga.png",
+    "name": "CL02 Classes de publicação de vaga",
+    "dimensions": [
+      1480,
+      810
+    ],
+    "sha256": "e695fa00d962d01d17edcbd3868bbb49496ec18467597cc78e30b0e656df4f11"
+  },
+  "CL03": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\CL03.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\01 Classes conceituais\\CL03 Modelo\\CL03 Classes de candidatura e acompanhamento.png",
+    "name": "CL03 Classes de candidatura e acompanhamento",
+    "dimensions": [
+      1480,
+      810
+    ],
+    "sha256": "2aa7365790951eaad5ea1cb691980258abb8f49dfc3073a08ffb5b8e99cd92f8"
+  },
+  "DER01": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\DER01.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\03 DER relacional\\DER01 Dados de estudo e conclusão.png",
+    "name": "DER01 Dados de estudo e conclusão",
+    "dimensions": [
+      1466,
+      864
+    ],
+    "sha256": "3a4edbdd6e78b941a12cd5ddea7f35d5318c3ed967b665bb332c042dae37e28e"
+  },
+  "DER02": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\DER02.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\03 DER relacional\\DER02 Dados de publicação de vaga.png",
+    "name": "DER02 Dados de publicação de vaga",
+    "dimensions": [
+      1466,
+      864
+    ],
+    "sha256": "c25a8af2fc6e980a6a7c10248d0a4e6aab9e76f75d4356dfe92beaeacb6c8395"
+  },
+  "DER03": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\DER03.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\03 DER relacional\\DER03 Dados de candidatura e notificação.png",
+    "name": "DER03 Dados de candidatura e notificação",
+    "dimensions": [
+      1466,
+      917
+    ],
+    "sha256": "fc02fbbd1eeebc092c5b8a0128ee25652b36ff88cd984639c9e55da9259326fd"
+  },
+  "DER00": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\DER00.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\03 DER relacional\\DER00 Banco de dados completo - 47 entidades.png",
+    "name": "DER00 Banco de dados completo - 47 entidades",
+    "dimensions": [
+      2786,
+      3370
+    ],
+    "sha256": "ed4f756b68a724983b029c5a06808079d8e5eb4cc7d4db9b1b9f378a22931cf3"
+  },
+  "MER00": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\MER00.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\02 MER conceitual\\MER00 Modelo\\MER00 Modelo entidade-relacionamento geral.png",
+    "name": "MER00 Modelo entidade-relacionamento geral",
+    "dimensions": [
+      1660,
+      1197
+    ],
+    "sha256": "38f0ba9c5a27b0bb4cdcafba1a5cc7d3391fead303134d9ed2a866c99fb98efc"
+  },
+  "SQ01": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ01.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ01 Concluir atividade de uma lição.png",
+    "name": "SQ01 Concluir atividade de uma lição",
+    "dimensions": [
+      1453,
+      836
+    ],
+    "sha256": "c98ece2d5b5b62cf95814ba31d29394d84c17a4608c6f5809d4cec3211c7aeb9"
+  },
+  "SQ02": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ02.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ02 Publicar uma vaga.png",
+    "name": "SQ02 Publicar uma vaga",
+    "dimensions": [
+      1353,
+      766
+    ],
+    "sha256": "8eb472aab846ed42a64c6781e71f9c17b47bc95b1d79053ecf8392820d67f06c"
+  },
+  "SQ03": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ03.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ03 Candidatar-se a uma vaga.png",
+    "name": "SQ03 Candidatar-se a uma vaga",
+    "dimensions": [
+      1353,
+      821
+    ],
+    "sha256": "c92fd95c9d5fe33b2f863577ea87c0204d7992751ff22dd9139e70c17bbdb637"
+  },
+  "SQ04": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ04.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ04 Atualizar etapa de candidatura.png",
+    "name": "SQ04 Atualizar etapa de candidatura",
+    "dimensions": [
+      1353,
+      836
+    ],
+    "sha256": "8f43ed7dfe7a4c71fc55cc4412b75d41ea3312d2aef6cfa984d6e4195f58825e"
+  },
+  "SQ01-A": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ01-A.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ01-A Receber e avaliar resposta.png",
+    "name": "SQ01-A Receber e avaliar resposta",
+    "dimensions": [
+      880,
+      686
+    ],
+    "sha256": "965b050d41b1a3f0266b96722e1d53bb6dccbb8908d6a13958753c4d311455ee"
+  },
+  "SQ01-B": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ01-B.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ01-B Salvar e devolver resultado.png",
+    "name": "SQ01-B Salvar e devolver resultado",
+    "dimensions": [
+      880,
+      686
+    ],
+    "sha256": "2c3bc4b0d8368111f6f66f0aa4483ba29f1e9ea53df24defe00d75c144c46c17"
+  },
+  "SQ01-C": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ01-C.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ01-C Primeira conclusão e experiência.png",
+    "name": "SQ01-C Primeira conclusão e experiência",
+    "dimensions": [
+      880,
+      686
+    ],
+    "sha256": "6486ea8d1d22a9f53966297af1766f72c0dc4090643a443126f2eb9ba9fdc6d6"
+  },
+  "SQ02-A": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ02-A.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ02-A Autorizar publicação de vaga.png",
+    "name": "SQ02-A Autorizar publicação de vaga",
+    "dimensions": [
+      880,
+      686
+    ],
+    "sha256": "fb7d08a06e858da3100d24d6619b301c70b00bd9f3d83e2245b468ba119ee3f5"
+  },
+  "SQ02-B": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ02-B.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ02-B Persistir vaga e etapas.png",
+    "name": "SQ02-B Persistir vaga e etapas",
+    "dimensions": [
+      880,
+      686
+    ],
+    "sha256": "bf4278da6dd56022b8f119913a06e820e866ffcfb8404b739e1451c2a75e6806",
+    "message_y_offset": 25
+  },
+  "SQ02-C": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ02-C.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ02-C Confirmar publicação na tela.png",
+    "name": "SQ02-C Confirmar publicação na tela",
+    "dimensions": [
+      880,
+      686
+    ],
+    "sha256": "171bab4de8f8a91a4c2a2c9d9eb1f1e5034894393b50b633e92646122c9df3a5"
+  },
+  "SQ03-A": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ03-A.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ03-A Registrar candidatura.png",
+    "name": "SQ03-A Registrar candidatura",
+    "dimensions": [
+      880,
+      686
+    ],
+    "sha256": "314ac4f7a96855a085333c49c7da5ca5e3a836bf733c0754fabd7ad3d8549f30",
+    "message_y_offset": 25
+  },
+  "SQ03-B": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ03-B.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ03-B Autorizar alteração de etapa.png",
+    "name": "SQ03-B Autorizar alteração de etapa",
+    "dimensions": [
+      880,
+      686
+    ],
+    "sha256": "8391ed8a8d4732cec25a43f79660b30140dc9255b183d1f31bc331cea383acf1"
+  },
+  "SQ03-C": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\diagramas\\SQ03-C.png",
+    "source": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\.build\\astah-export\\Stacklyst-seminario-revisado\\Seminário 20-10-2026 em português\\04 Sequências completas e recortes\\SQ03-C Atualizar e notificar.png",
+    "name": "SQ03-C Atualizar e notificar",
+    "dimensions": [
+      880,
+      686
+    ],
+    "sha256": "246bfbeae9bb8ca7d5800232ec1e688dd17094a9d13f33c0f84dfb79f6c27a92",
+    "message_y_offset": 25
+  }
+}

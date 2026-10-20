@@ -1,0 +1,309 @@
+{
+  "source_document": "C:/Users/PEDRO/Downloads/03-requisitos-do-sistema-stacklyst-revisao-textual.docx",
+  "status_note": "Estados são os declarados nas fontes. RNF são metas de aceitação e não devem ser apresentados como resultados de testes. A conferência do código e da execução deve ser registrada separadamente.",
+  "modules": [
+    {
+      "id": "aprendizagem",
+      "presenter": "Pedro Antonio Silvestre Tescaro",
+      "title": "Estudar uma lição e resolver exercício",
+      "usecases": [
+        "UC005",
+        "UC006"
+      ],
+      "RF": [
+        {
+          "id": "RF007",
+          "name": "Acessar lição",
+          "description": "Exibir a lição e suas etapas interativas.",
+          "status": "Implementado conforme documento",
+          "source_status": "Estado: Implementado. Evidência: src/app/lesson/[lessonId]; src/lib/lessons/registry.ts.",
+          "source_section": "4. Requisitos Funcionais",
+          "source_description": "Exibir uma lição em página própria com etapas interativas."
+        },
+        {
+          "id": "RF008",
+          "name": "Resolver exercício",
+          "description": "Avaliar a resposta no servidor. Testar código não conclui a atividade nem concede XP.",
+          "status": "Implementado conforme documento",
+          "source_status": "Implementado no inventário; fluxo atualizado por UC006 do seminário e conferência pontual de 19/10/2026 em src/lib/code-execution/server.ts. Referências: learning/assessment.ts; lessons/[lessonId]/attempt.",
+          "source_section": "4. Requisitos Funcionais",
+          "source_description": "Receber e avaliar respostas em diferentes tipos de interação, distinguindo o teste de código da submissão da atividade."
+        },
+        {
+          "id": "RF009",
+          "name": "Registrar progresso",
+          "description": "Gravar tentativa e progresso, sem duplicar a primeira recompensa.",
+          "status": "Implementado conforme documento",
+          "source_status": "Implementado: lesson-progress.ts, transaction.ts, QuizAttempt e ExerciseSubmission.",
+          "source_section": "4. Requisitos Funcionais",
+          "source_description": "Persistir respostas e derivar conclusão e desbloqueio de lições."
+        }
+      ],
+      "RNF": [
+        {
+          "id": "RNF009",
+          "name": "Execução limitada",
+          "description": "Limitar o tempo de execução e o tamanho do código recebido.",
+          "status": "Requisito de aceitação; conformidade a verificar",
+          "source_status": "A tabela de RNF não declara implantação ou homologação.",
+          "acceptance_criterion": "Teste de timeout confirma resposta controlada sem marcar acerto nem bloquear o servidor além do limite.",
+          "source_section": "5. Requisitos Não Funcionais",
+          "source_description": "A execução de código deve possuir timeout e limite de payload."
+        },
+        {
+          "id": "RNF014",
+          "name": "Consistência de XP",
+          "description": "Atualizar XP e progresso atomicamente, sem duplicidade.",
+          "status": "Requisito de aceitação; conformidade a verificar",
+          "source_status": "A tabela de RNF não declara implantação ou homologação.",
+          "acceptance_criterion": "Teste concorrente comprova uma recompensa por atividade e rollback integral em falha.",
+          "source_section": "5. Requisitos Não Funcionais",
+          "source_description": "XP e progresso devem ser atualizados atomicamente e sem duplicidade."
+        }
+      ],
+      "RN": [
+        {
+          "id": "RN001",
+          "name": "Elegibilidade de XP",
+          "description": "Conceder XP somente após atividade válida e confirmada, uma vez.",
+          "status": "Implementado",
+          "evidence": "QuizAttempt e XpService",
+          "source_section": "6. Regras de Negócio",
+          "source_description": "XP somente é concedido após atividade válida e confirmada; repetir a mesma tentativa não gera nova recompensa."
+        },
+        {
+          "id": "RN029",
+          "name": "Pré-requisitos de aprendizagem",
+          "description": "Exigir os pré-requisitos da lição. Revisitar conteúdo não duplica a recompensa.",
+          "status": "Regra documentada",
+          "evidence": "RF005–RF009; UC004–UC006",
+          "source_section": "6. Regras de Negócio",
+          "source_description": "Uma lição pode ser iniciada quando seus pré-requisitos estiverem cumpridos. Lições já concluídas podem ser revisitadas; a revisão não duplica a recompensa da mesma atividade."
+        }
+      ]
+    },
+    {
+      "id": "publicar-vaga",
+      "presenter": "Guilherme Alves de Campos",
+      "title": "Publicar uma vaga",
+      "usecases": [
+        "UC017"
+      ],
+      "RF": [
+        {
+          "id": "RF035",
+          "name": "Publicar vaga",
+          "description": "Criar vaga com requisitos e etapas para uma empresa autorizada.",
+          "status": "Implementado conforme documento",
+          "source_status": "Implementado; autorização reconferida em 19/10/2026 em POST src/app/api/jobs e src/lib/mobile/company-access.ts. A rota valida requireRole e requireCompanyAccess antes de JobService.createJob, conforme UC017 e slide 17.",
+          "source_section": "4. Requisitos Funcionais",
+          "source_description": "Criar oportunidade com requisitos e etapas para empresa sob responsabilidade autorizada."
+        },
+        {
+          "id": "RF036",
+          "name": "Consultar vagas",
+          "description": "Listar e filtrar oportunidades abertas.",
+          "status": "Implementado conforme documento",
+          "source_status": "Estado: Implementado. Evidência: src/app/jobs; GET src/app/api/jobs.",
+          "source_section": "4. Requisitos Funcionais",
+          "source_description": "Listar e filtrar oportunidades abertas."
+        }
+      ],
+      "RNF": [
+        {
+          "id": "RNF001",
+          "name": "Autenticação protegida",
+          "description": "Verificar a sessão no servidor antes de acessar rotas privadas.",
+          "status": "Requisito de aceitação; conformidade a verificar",
+          "source_status": "A tabela de RNF não declara implantação ou homologação.",
+          "acceptance_criterion": "Teste automatizado deve comprovar 401 sem sessão válida e acesso com sessão válida.",
+          "source_section": "5. Requisitos Não Funcionais",
+          "source_description": "Rotas privadas devem exigir sessão verificada no servidor."
+        },
+        {
+          "id": "RNF002",
+          "name": "Autorização por papel",
+          "description": "Validar o papel, o acesso à empresa e os vínculos dos recursos.",
+          "status": "Requisito de aceitação; conformidade a verificar",
+          "source_status": "A tabela de RNF não declara implantação ou homologação.",
+          "acceptance_criterion": "Testes comprovam 403 para papel ou empresa não autorizados e sucesso para acesso permitido; candidaturas e etapas de outra vaga são rejeitadas.",
+          "source_section": "5. Requisitos Não Funcionais",
+          "source_description": "Operações administrativas, de avaliador e recrutador devem aplicar RBAC; operações de vagas também devem validar acesso à empresa e aos recursos relacionados."
+        }
+      ],
+      "RN": [
+        {
+          "id": "RN020",
+          "name": "Publicação de vaga",
+          "description": "Permitir publicação somente a recrutador ou administrador com acesso à empresa.",
+          "status": "Implementado; vínculo reconferido em 19/10/2026",
+          "evidence": "UC017, UC026, UC056; jobs API; requireCompanyAccess; JobService.getJobApplications; slides 17, 20 e 23",
+          "source_section": "6. Regras de Negócio",
+          "source_description": "Somente RECRUITER ou ADMIN com acesso autorizado à empresa pode publicar vaga ou consultar suas candidaturas. A atualização de candidatura também exige vínculo com a empresa e consistência entre vaga, candidatura e etapa."
+        },
+        {
+          "id": "RN017",
+          "name": "Controle por papel",
+          "description": "Aplicar as permissões correspondentes ao papel do usuário.",
+          "status": "Implementado",
+          "evidence": "UserRole; requireRole",
+          "source_section": "6. Regras de Negócio",
+          "source_description": "Usuário autenticado usa as funções gerais e pode criar e participar de eventos; Avaliador avalia duelos autorizados; Administrador gerencia permissões e pode avaliar; Recrutador gerencia empresas e vagas autorizadas. Criador ou Administrador pode excluir evento."
+        }
+      ]
+    },
+    {
+      "id": "candidatura",
+      "presenter": "Paulo Henrique Leal dos Santos",
+      "title": "Candidatar-se e acompanhar a seleção",
+      "usecases": [
+        "UC022",
+        "UC026"
+      ],
+      "RF": [
+        {
+          "id": "RF047",
+          "name": "Candidatar-se a vaga",
+          "description": "Registrar uma candidatura do usuário a uma vaga aberta, na etapa inicial.",
+          "status": "Implementado conforme documento",
+          "source_status": "Estado: Implementado. Evidências: POST src/app/api/jobs/[id]/apply; UC022 e slide 18 do seminário.",
+          "source_section": "4. Requisitos Funcionais",
+          "source_description": "Efetivar a candidatura do usuário autenticado a uma vaga aberta."
+        },
+        {
+          "id": "RF048",
+          "name": "Atualizar etapa de candidatura",
+          "description": "Atualizar etapa, status e feedback e notificar o candidato associado.",
+          "status": "Fluxo documentado no seminário; código referenciado",
+          "source_status": "Fluxo apresentado em UC026 e nos slides 20 e 24 do seminário. Referências: PATCH src/app/api/jobs/[id]; JobService.updateApplicationStage; NotificationService.",
+          "source_section": "4. Requisitos Funcionais",
+          "source_description": "Atualizar a etapa, o status e o feedback da candidatura vinculada à vaga, com notificação automática ao candidato."
+        },
+        {
+          "id": "RF044",
+          "name": "Gerar notificação",
+          "description": "Gerar a notificação ao destinatário após a operação correspondente.",
+          "status": "Implementado conforme documento",
+          "source_status": "Estado: Implementado. Evidências: NotificationService; NotificationType; JobService.updateApplicationStage; slide 24 do seminário.",
+          "source_section": "4. Requisitos Funcionais",
+          "source_description": "Criar notificação para eventos relevantes da aplicação, incluindo a atualização de candidatura destinada ao próprio candidato."
+        }
+      ],
+      "RNF": [
+        {
+          "id": "RNF002",
+          "name": "Autorização por papel",
+          "description": "Validar o papel, o acesso à empresa e os vínculos dos recursos.",
+          "status": "Requisito de aceitação; conformidade a verificar",
+          "source_status": "A tabela de RNF não declara implantação ou homologação.",
+          "acceptance_criterion": "Testes comprovam 403 para papel ou empresa não autorizados e sucesso para acesso permitido; candidaturas e etapas de outra vaga são rejeitadas.",
+          "source_section": "5. Requisitos Não Funcionais",
+          "source_description": "Operações administrativas, de avaliador e recrutador devem aplicar RBAC; operações de vagas também devem validar acesso à empresa e aos recursos relacionados."
+        },
+        {
+          "id": "RNF005",
+          "name": "Separação público/privado",
+          "description": "Retornar somente campos autorizados no perfil e no recrutamento.",
+          "status": "Requisito de aceitação; conformidade a verificar",
+          "source_status": "A tabela de RNF não declara implantação ou homologação.",
+          "acceptance_criterion": "Teste com usuário/empresa confirma ausência de e-mail, token e dados privados nas respostas públicas.",
+          "source_section": "5. Requisitos Não Funcionais",
+          "source_description": "Perfil e recrutamento devem retornar apenas campos autorizados."
+        }
+      ],
+      "RN": [
+        {
+          "id": "RN026",
+          "name": "Candidatura a vaga",
+          "description": "Aceitar uma candidatura por usuário e vaga aberta. A atualização exige responsável autorizado.",
+          "status": "Implementado",
+          "evidence": "UC022, UC026; JobApplication; JobService; slides 18, 20 e 24",
+          "source_section": "6. Regras de Negócio",
+          "source_description": "Usuário pode candidatar-se uma vez a uma vaga aberta, com vínculo à etapa inicial. O responsável autorizado atualiza a etapa ou o status, após validar os vínculos, e o candidato associado recebe notificação automática."
+        },
+        {
+          "id": "RN022",
+          "name": "Notificações",
+          "description": "Notificar somente o candidato associado. Falha da notificação não desfaz a atualização.",
+          "status": "Implementado na web",
+          "evidence": "NotificationService; JobService.updateApplicationStage; slide 24",
+          "source_section": "6. Regras de Negócio",
+          "source_description": "Eventos relevantes geram notificação ao destinatário. A atualização de candidatura notifica automaticamente o usuário associado à candidatura. Falha de notificação não desfaz a operação principal."
+        }
+      ]
+    }
+  ],
+  "activities": [
+    {
+      "id": "AN01",
+      "name": "Estudar programação",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image5.jpg",
+      "old_id_inside_image": "AN01",
+      "title": "AN01 — Estudar programação",
+      "purpose": "Organizar o estudo e verificar se o conteúdo foi compreendido e aplicado.",
+      "image_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image5.jpg",
+      "crop_top_pixels_to_hide_old_id": 58
+    },
+    {
+      "id": "AN02",
+      "name": "Praticar exercícios de programação",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image1.jpg",
+      "old_id_inside_image": "AN03",
+      "title": "AN02 — Praticar exercícios de programação",
+      "purpose": "Resolver um problema, testar exemplos e compreender os erros encontrados.",
+      "image_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image1.jpg",
+      "crop_top_pixels_to_hide_old_id": 58
+    },
+    {
+      "id": "AN03",
+      "name": "Acompanhar a própria aprendizagem",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image2.png",
+      "old_id_inside_image": "AN04",
+      "title": "AN03 — Acompanhar a própria aprendizagem",
+      "purpose": "Comparar os resultados aos objetivos e ajustar o planejamento de estudo.",
+      "image_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image2.png",
+      "crop_top_pixels_to_hide_old_id": 58
+    },
+    {
+      "id": "AN04",
+      "name": "Buscar ajuda para uma dúvida",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image3.jpg",
+      "old_id_inside_image": "AN06",
+      "title": "AN04 — Buscar ajuda para uma dúvida",
+      "purpose": "Esclarecer uma dúvida e conferir a explicação em um exemplo.",
+      "image_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image3.jpg",
+      "crop_top_pixels_to_hide_old_id": 58
+    },
+    {
+      "id": "AN05A",
+      "name": "Divulgar oportunidade de trabalho",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image6.jpg",
+      "old_id_inside_image": "AN08A",
+      "title": "AN05A — Divulgar oportunidade de trabalho",
+      "purpose": "Definir e divulgar uma oportunidade profissional com informações conferidas.",
+      "image_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image6.jpg",
+      "crop_top_pixels_to_hide_old_id": 58
+    },
+    {
+      "id": "AN05B",
+      "name": "Candidatar-se e acompanhar a seleção",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image7.jpg",
+      "old_id_inside_image": "AN08B",
+      "title": "AN05B — Candidatar-se e acompanhar a seleção",
+      "purpose": "Enviar o currículo e acompanhar as etapas e o resultado da seleção.",
+      "image_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image7.jpg",
+      "crop_top_pixels_to_hide_old_id": 58
+    },
+    {
+      "id": "AN06",
+      "name": "Descobrir e participar de um evento",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image4.jpg",
+      "old_id_inside_image": "AN09",
+      "title": "AN06 — Descobrir e participar de um evento",
+      "purpose": "Encontrar um evento e organizar a inscrição e a participação.",
+      "image_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image4.jpg",
+      "crop_top_pixels_to_hide_old_id": 58
+    }
+  ],
+  "team_source": "C:/Users/PEDRO/Downloads/01-documento-de-visao-stacklyst-revisao-textual.docx, seção 5"
+}

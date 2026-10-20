@@ -1,0 +1,61 @@
+{
+  "commit": "bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa",
+  "images": 9,
+  "all_sources_match": true,
+  "items": [
+    {
+      "id": "SQ01-A",
+      "source_match": true,
+      "line_count": 9,
+      "image_valid": true
+    },
+    {
+      "id": "SQ01-B",
+      "source_match": true,
+      "line_count": 15,
+      "image_valid": true
+    },
+    {
+      "id": "SQ01-C",
+      "source_match": true,
+      "line_count": 18,
+      "image_valid": true
+    },
+    {
+      "id": "SQ02-A",
+      "source_match": true,
+      "line_count": 12,
+      "image_valid": true
+    },
+    {
+      "id": "SQ02-B",
+      "source_match": true,
+      "line_count": 18,
+      "image_valid": true
+    },
+    {
+      "id": "SQ02-C",
+      "source_match": true,
+      "line_count": 13,
+      "image_valid": true
+    },
+    {
+      "id": "SQ03-A",
+      "source_match": true,
+      "line_count": 18,
+      "image_valid": true
+    },
+    {
+      "id": "SQ03-B",
+      "source_match": true,
+      "line_count": 17,
+      "image_valid": true
+    },
+    {
+      "id": "SQ03-C",
+      "source_match": true,
+      "line_count": 18,
+      "image_valid": true
+    }
+  ]
+}

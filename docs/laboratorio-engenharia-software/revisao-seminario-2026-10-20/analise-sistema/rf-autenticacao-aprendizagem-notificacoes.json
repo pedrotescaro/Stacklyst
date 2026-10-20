@@ -1,0 +1,323 @@
+[
+  {
+    "id": "RF001",
+    "nome": "Cadastrar usuário",
+    "estado_documentado": "Estado: Implementado. Evidência: src/app/register; src/app/api/auth/register.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/app/api/auth/register/route.ts:24",
+      "src/app/api/auth/register/route.ts:113",
+      "src/app/register/page.tsx:193",
+      "src/app/api/auth/confirm-email/route.ts:19"
+    ],
+    "constatacao": "Cadastro possui validação, rate limit, unicidade, criação de identidade e perfil com trilhas.",
+    "lacuna": "Quando a conta depende de confirmação de e-mail, a interface envia somente e-mail para um endpoint que exige token ou token_hash. O fallback recebe 400. Implementar a confirmação e o reenvio na interface, preservando a verificação do token. A rota declara action=resend, mas não executa um ramo de reenvio.",
+    "prioridade_proposta": "P1",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF002",
+    "nome": "Fazer login",
+    "estado_documentado": "Estado: Implementado. Evidência: src/app/login; src/lib/auth.ts; src/lib/supabase.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/app/login/page.tsx:143",
+      "src/lib/auth-session.ts:17",
+      "src/lib/auth.ts:276",
+      "src/app/login/page.tsx:158",
+      "src/app/api/auth/confirm-email/route.ts:19"
+    ],
+    "constatacao": "Login por senha e OAuth, com identidade verificada no servidor e papel lido do banco.",
+    "lacuna": "O tratamento de e-mail não confirmado ainda tenta confirmação automática sem token e falha contra o contrato atual da API. Falta o percurso de confirmação/reenvio para essas contas; login de conta já confirmada tem implementação completa.",
+    "prioridade_proposta": "P1",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF003",
+    "nome": "Encerrar sessão",
+    "estado_documentado": "Estado: Implementado. Evidência: src/components/LogoutButton.tsx; Supabase Auth.",
+    "estado_verificado": "implementado",
+    "evidencia": [
+      "src/components/Sidebar.tsx:236",
+      "src/app/api/auth/logout/route.ts:7",
+      "src/app/api/auth/logout/route.ts:3"
+    ],
+    "constatacao": "Menu e configurações chamam logout; servidor solicita signOut e remove o cookie JWT secundário.",
+    "lacuna": "",
+    "prioridade_proposta": "P3",
+    "observacao": "A referência documental LogoutButton.tsx está desatualizada; os controles atuais estão em Sidebar, Navbar e settings. Revogação da sessão depende de validação em ambiente de homologação."
+  },
+  {
+    "id": "RF004",
+    "nome": "Gerenciar perfil",
+    "estado_documentado": "Estado: Implementado. Evidência: src/app/profile/[username]; src/app/api/profile/update.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/app/api/profile/update/route.ts:10",
+      "src/app/api/profile/update/route.ts:5",
+      "src/app/api/profile/update/route.ts:99",
+      "src/components/EditProfileModal.tsx:149"
+    ],
+    "constatacao": "Edição do próprio perfil, unicidade de username e bloqueio de sete dias estão implementados.",
+    "lacuna": "A validação no servidor concentra-se em username e nome. Os demais campos são copiados do JSON sem schema de tipos/limites, e birthday é convertido diretamente em Date. Unificar validação de bio, links, pronome, data e configuração de avatar para evitar valores inválidos e erros 500.",
+    "prioridade_proposta": "P2",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF005",
+    "nome": "Visualizar trilhas",
+    "estado_documentado": "Implementado: src/lib/learning/catalog.ts; src/app/trails/LearningJourney.tsx.",
+    "estado_verificado": "implementado",
+    "evidencia": [
+      "src/app/trails/page.tsx:88",
+      "src/lib/learning/repository.ts:23",
+      "src/app/trails/TrailsContent.tsx:200",
+      "src/app/trails/LearningJourney.tsx:119"
+    ],
+    "constatacao": "Mapa e lista usam o mesmo grafo combinado do catálogo editorial com entidades publicadas do banco.",
+    "lacuna": "",
+    "prioridade_proposta": "P3",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF006",
+    "nome": "Iniciar trilha",
+    "estado_documentado": "Estado: Implementado. Evidência: src/app/trails; src/app/api/trails/course-preferences.",
+    "estado_verificado": "implementado",
+    "evidencia": [
+      "src/app/trails/TrailsContent.tsx:92",
+      "src/app/api/trails/course-preferences/route.ts:24",
+      "src/lib/learning/lesson-progress.ts:17"
+    ],
+    "constatacao": "Seleção de curso é salva em preferência por usuário; o acesso à lição verifica pré-requisitos.",
+    "lacuna": "",
+    "prioridade_proposta": "P3",
+    "observacao": "Preferência de curso é persistida em cookie HTTP-only do navegador; progresso das atividades permanece no banco. Persistência de preferência entre dispositivos é uma evolução, não comprovadamente exigida pelo RF."
+  },
+  {
+    "id": "RF007",
+    "nome": "Acessar lição",
+    "estado_documentado": "Estado: Implementado. Evidência: src/app/lesson/[lessonId]; src/lib/lessons/registry.ts.",
+    "estado_verificado": "implementado",
+    "evidencia": [
+      "src/app/lesson/[lessonId]/page.tsx:63",
+      "src/app/lesson/[lessonId]/page.tsx:79",
+      "src/app/lesson/[lessonId]/page.tsx:127",
+      "src/lib/learning/assessment.ts:115"
+    ],
+    "constatacao": "Página de lição entrega conteúdo sanitizado, etapas e progresso, e trata lição inexistente ou bloqueada.",
+    "lacuna": "",
+    "prioridade_proposta": "P3",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF008",
+    "nome": "Resolver exercício",
+    "estado_documentado": "Implementado no inventário; fluxo atualizado por UC006 do seminário e conferência pontual de 19/10/2026 em src/lib/code-execution/server.ts. Referências: learning/assessment.ts; lessons/[lessonId]/attempt.",
+    "estado_verificado": "implementado",
+    "evidencia": [
+      "src/app/api/lessons/[lessonId]/attempt/route.ts:17",
+      "src/app/api/lessons/[lessonId]/attempt/route.ts:32",
+      "src/app/api/lessons/[lessonId]/attempt/route.ts:28",
+      "src/app/lesson/[lessonId]/LessonClient.tsx:225"
+    ],
+    "constatacao": "Servidor valida a resposta e tipos de atividade, distingue testar de submeter e recusa executor indisponível.",
+    "lacuna": "",
+    "prioridade_proposta": "P3",
+    "observacao": "Implementação funcional constatada. O tratamento de timeout nos provedores de execução precisa ser consolidado conforme a análise técnica de aprendizagem; inspeção estática não comprova disponibilidade operacional."
+  },
+  {
+    "id": "RF009",
+    "nome": "Registrar progresso",
+    "estado_documentado": "Implementado: lesson-progress.ts, transaction.ts, QuizAttempt e ExerciseSubmission.",
+    "estado_verificado": "implementado",
+    "evidencia": [
+      "src/lib/learning/lesson-progress.ts:52",
+      "src/lib/learning/lesson-progress.ts:61",
+      "src/lib/learning/lesson-progress.ts:85",
+      "prisma/schema.prisma:660"
+    ],
+    "constatacao": "Tentativa, XP inicial e progresso são gravados em transação com lock por usuário.",
+    "lacuna": "",
+    "prioridade_proposta": "P3",
+    "observacao": "O registro único por usuário/atividade e a primeira recompensa são o contrato documentado deste RF. A ausência de histórico de eventos individual é tratada em RF010, sem invalidar a persistência e o desbloqueio atuais."
+  },
+  {
+    "id": "RF010",
+    "nome": "Consultar histórico",
+    "estado_documentado": "Estado: Implementado parcialmente. Evidência: src/app/api/quiz/weekly-activity; perfil e trilhas.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/app/api/quiz/weekly-activity/route.ts:9",
+      "src/app/api/quiz/weekly-activity/route.ts:46",
+      "src/app/profile/[username]/ProfileContent.tsx:228",
+      "src/lib/learning/lesson-progress.ts:85"
+    ],
+    "constatacao": "Perfil exibe agregados de acurácia, ofensiva, contagem semanal e progresso de trilha.",
+    "lacuna": "Não há no fluxo inspecionado uma consulta navegável das tentativas e resultados individuais, somente agregados; as tentativas de lição sobrescrevem a primeira falha no acerto. A API semanal também aceita userId de outro usuário, comportamento usado pelo perfil. A política deve distinguir atividade pública de histórico privado autorizado.",
+    "prioridade_proposta": "P2",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF011",
+    "nome": "Atribuir XP",
+    "estado_documentado": "Estado: Implementado. Evidência: src/services/xp.service.ts.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/lib/learning/lesson-progress.ts:62",
+      "src/lib/xp.ts:25",
+      "src/lib/duels/resolution.ts:69",
+      "src/lib/duels/resolution-policy.ts:37"
+    ],
+    "constatacao": "XP é derivado no servidor e, nos exercícios, condicionado à primeira conclusão válida.",
+    "lacuna": "Há lacuna transversal nos duelos: a política pode escolher uma submissão JUDGE_UNAVAILABLE como vencedora no encerramento por prazo, permitindo a recompensa de vitória. Ver evidência offline da análise de domínios. A regra de não conceder XP em indisponibilidade precisa valer em todos os emissores.",
+    "prioridade_proposta": "P1",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF012",
+    "nome": "Atualizar nível",
+    "estado_documentado": "Implementado: src/lib/learning/rewards.ts; src/lib/xp.ts.",
+    "estado_verificado": "implementado",
+    "evidencia": [
+      "src/lib/learning/rewards.ts:13",
+      "src/lib/xp.ts:52",
+      "src/app/api/leaderboard/route.ts:24"
+    ],
+    "constatacao": "Cálculo de nível usa limiares crescentes centralizados em rewards.ts e é aplicado em XP, perfil e ranking.",
+    "lacuna": "",
+    "prioridade_proposta": "P3",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF013",
+    "nome": "Gerenciar conquistas",
+    "estado_documentado": "Estado: Implementado. Evidência: Badge, UserBadge; src/services/xp.service.ts.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/lib/xp.ts:113",
+      "src/lib/xp.ts:47",
+      "src/lib/xp.ts:100",
+      "prisma/schema.prisma:855",
+      "src/components/BadgeGrid.tsx:267"
+    ],
+    "constatacao": "Há badges persistidos, critérios de concessão e proteção de duplicidade, exibidos no perfil.",
+    "lacuna": "A rotina retorna antes de verificar conquistas quando a atividade concede XP sem linguagem; assim, critérios gerais como sequência ou respostas podem ser verificados somente numa atividade futura com linguagem. Critérios são condicionais em código, sem versão registrada na conquista. Consolidar a concessão para todas as atividades elegíveis e versionar os critérios.",
+    "prioridade_proposta": "P2",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF014",
+    "nome": "Consultar ranking",
+    "estado_documentado": "Estado: Implementado. Evidências: src/app/leaderboard; src/app/api/leaderboard; UC011 e slide 22 do seminário.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/app/api/leaderboard/route.ts:34",
+      "src/lib/learning/language-xp.ts:39",
+      "src/app/leaderboard/LeaderboardClient.tsx:456",
+      "src/app/leaderboard/LeaderboardClient.tsx:411",
+      "src/app/leaderboard/LeaderboardClient.tsx:534"
+    ],
+    "constatacao": "Ranking consulta XP real, aplica desempate determinístico e permite filtro por linguagem.",
+    "lacuna": "A tabela real é apresentada com liga/divisão estática, prazo fixo de seis dias e promessa de promoção dos dez primeiros sem o mecanismo correspondente. A API atual retorna até 50, divergindo do top 10 descrito no documento. A posição de quem está fora da lista não é carregada neste painel.",
+    "prioridade_proposta": "P2",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF015",
+    "nome": "Derivar faixa de XP",
+    "estado_documentado": "Estado: Implementado parcialmente. Evidência: getUserRankTier em src/services/duel.service.ts.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/lib/learning/rewards.ts:3",
+      "src/services/duel.service.ts:15",
+      "src/app/leaderboard/LeaderboardClient.tsx:65",
+      "src/app/leaderboard/LeaderboardClient.tsx:411"
+    ],
+    "constatacao": "O núcleo calcula cinco faixas de XP acumulado, mas a tela de ranking não usa esse cálculo.",
+    "lacuna": "O núcleo usa Bronze/Prata/Ouro/Platina/Diamante. A interface usa seis divisões com Safira/Rubi, desbloqueios constantes e Ouro inicial para todos. Escolher uma regra de produto e propagá-la do servidor à interface, sem apresentar promoção/rebaixamento inexistentes.",
+    "prioridade_proposta": "P2",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF037",
+    "nome": "Visualizar perfil público de desenvolvedor",
+    "estado_documentado": "Estado: Implementado parcialmente. Evidência: src/app/profile/[username].",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/app/api/profile/[username]/route.ts:124",
+      "src/app/api/profile/[username]/route.ts:135",
+      "src/app/profile/[username]/page.tsx:120",
+      "src/app/profile/[username]/page.tsx:166"
+    ],
+    "constatacao": "Perfil oferece dados e indicadores públicos e omite e-mail, com paginação de publicações.",
+    "lacuna": "A API mascara birthday para visitantes do perfil, mas a página de servidor envia a data completa de qualquer dono de perfil ao componente cliente. Unificar o objeto público sanitizado nos dois caminhos. Informações não exibidas visualmente ainda são serializadas no navegador.",
+    "prioridade_proposta": "P1",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF038",
+    "nome": "Consultar indicadores permitidos do usuário",
+    "estado_documentado": "Estado: Implementado parcialmente. Evidência: perfil público e modelos de progresso; não há painel analítico completo.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/app/profile/[username]/page.tsx:167",
+      "src/services/job.service.ts:78",
+      "src/services/job.service.ts:320",
+      "src/app/api/jobs/[id]/route.ts:59"
+    ],
+    "constatacao": "Perfil e lista de candidatos oferecem XP, respostas, acurácia e progresso permitido.",
+    "lacuna": "Consulta de candidaturas usa seleção pública, mas atualização devolve user:true, incluindo e-mail/data de nascimento e demais campos do usuário. Remover campos privados do retorno e centralizar seleção pública. Painel analítico além dos indicadores existentes continua uma evolução sem implementação completa.",
+    "prioridade_proposta": "P1",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF044",
+    "nome": "Gerar notificação",
+    "estado_documentado": "Estado: Implementado. Evidências: NotificationService; NotificationType; JobService.updateApplicationStage; slide 24 do seminário.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/services/notification.service.ts:107",
+      "src/services/job.service.ts:327",
+      "src/services/job.service.ts:332",
+      "src/services/notification.service.ts:67",
+      "src/services/notification.service.ts:19"
+    ],
+    "constatacao": "Notificações são persistidas para o destinatário; falha do aviso não reverte a atualização da candidatura.",
+    "lacuna": "JOB_APPLICATION_UPDATE e resourceType JOB não têm título, texto e link específicos no normalizador da web. A interface exibe aviso genérico e não leva à vaga/candidatura, embora o registro do evento exista. Campos title/content/link aceitos no input do serviço também não são persistidos.",
+    "prioridade_proposta": "P2",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF045",
+    "nome": "Consultar notificações",
+    "estado_documentado": "Estado: Implementado. Evidência: src/app/notifications; src/app/api/notifications.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/app/api/notifications/route.ts:14",
+      "src/services/notification.service.ts:132",
+      "src/services/notification.service.ts:138",
+      "src/app/notifications/page.tsx:56"
+    ],
+    "constatacao": "A API consulta somente notificações da identidade autenticada e calcula contagem não lida.",
+    "lacuna": "A tela usa a variante sem cursor, que omite take e carrega todas as notificações. Há paginação na API, mas falta integrá-la à interface e limitar parâmetros. Atualizações de candidatura também precisam de conteúdo/link próprios para serem compreensíveis.",
+    "prioridade_proposta": "P2",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  },
+  {
+    "id": "RF046",
+    "nome": "Atualizar leitura de notificações",
+    "estado_documentado": "Estado: Implementado. Evidência: src/app/api/notifications/read; src/app/notifications.",
+    "estado_verificado": "parcial",
+    "evidencia": [
+      "src/app/api/notifications/route.ts:24",
+      "src/services/notification.service.ts:242",
+      "src/app/notifications/page.tsx:94",
+      "src/app/notifications/page.tsx:113"
+    ],
+    "constatacao": "Marcar todas como lidas existe e restringe a gravação ao usuário autenticado.",
+    "lacuna": "RF046 prevê marcar uma ou todas. A API atual oferece apenas todas e a tela executa essa ação automaticamente após três segundos. Implementar leitura individual e atualizar contagem de forma previsível; a referência documental /notifications/read não corresponde a uma rota atual.",
+    "prioridade_proposta": "P2",
+    "observacao": "Inspeção estática do código atual. Não representa homologação ou teste de execução."
+  }
+]

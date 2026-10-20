@@ -1,0 +1,3194 @@
+{
+  "filename": "01-documento-de-visao-stacklyst-revisao-textual.docx",
+  "paragraphs": [
+    {
+      "index": 0,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 1,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 2,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 3,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 4,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 5,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 6,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 7,
+      "text": "Stacklyst",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 8,
+      "text": "Documento de Visão",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 9,
+      "text": "Laboratório de Engenharia de SoftwareProjeto acadêmicoRevisão textual: 27/09/2026 | Base técnica: 12/09/2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 10,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 11,
+      "text": "1. Índice",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 12,
+      "text": "1. Índice2",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 13,
+      "text": "2. Objetivo3",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 14,
+      "text": "3. Necessidade do Negócio3",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 15,
+      "text": "4. Descrição do Escopo3",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 16,
+      "text": "4.1 Dentro do escopo3",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 17,
+      "text": "4.2 Fora do escopo da primeira versão5",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 18,
+      "text": "5. Equipe5",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 19,
+      "text": "6. Especificações Técnicas6",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 20,
+      "text": "7. Riscos7",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 21,
+      "text": "8. Cronograma de Marcos Resumido8",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 22,
+      "text": "9. Orçamento Resumido9",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 23,
+      "text": "2. Objetivo",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 24,
+      "text": "O Stacklyst é uma plataforma acadêmica gamificada para ensino, prática e evolução em programação. O produto reúne trilhas, lições, exercícios, desafios, duelos, comunidade e acompanhamento de progresso em um ambiente integrado destinado principalmente a estudantes e desenvolvedores em formação ou aperfeiçoamento.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 25,
+      "text": "O problema central é a fragmentação entre aprender conceitos, praticar código, manter constância e demonstrar evolução. O objetivo educacional é favorecer prática ativa, feedback frequente e progressão observável; o objetivo da plataforma é conectar essas experiências a interações comunitárias e, quando autorizado, a oportunidades profissionais.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 26,
+      "text": "A gamificação utiliza XP, níveis, sequência de atividades, conquistas, rankings e faixas como mecanismos de engajamento. A ajuda durante os exercícios usa dicas, documentação e autocomplete definidos no próprio conteúdo. As decisões competitivas que exigem revisão são encaminhadas a um avaliador humano autorizado.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 27,
+      "text": "3. Necessidade do Negócio",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 28,
+      "text": "Para fins acadêmicos, a equipe do Stacklyst exerce o papel de cliente e proprietária do produto. O negócio oferece uma plataforma educacional voltada à aprendizagem prática de programação para estudantes e desenvolvedores em formação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 29,
+      "text": "O projeto busca atender dificuldades de estudantes e desenvolvedores em formação: fragmentação dos materiais, pouca prática, dificuldade de manter frequência nos estudos, interação limitada entre participantes e falta de clareza sobre a própria evolução. Essas necessidades orientam a proposta educacional e a integração com a comunidade e as oportunidades profissionais.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 30,
+      "text": "O Stacklyst pretende melhorar esse cenário com percursos organizados, atividades interativas, execução de código, feedback, desafios competitivos, avaliação humana quando necessária, progressão gamificada, espaços comunitários e um módulo de oportunidades. A solução mantém uma separação entre evidência educacional e decisão de recrutamento: desempenho público pode ser um indicador, mas não uma decisão automática.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 31,
+      "text": "4. Descrição do Escopo",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 32,
+      "text": "4.1 Dentro do escopo",
+      "style": "Heading2",
+      "images": []
+    },
+    {
+      "index": 33,
+      "text": "Módulo",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 34,
+      "text": "Descrição",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 35,
+      "text": "Estado registrado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 36,
+      "text": "Referência técnica",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 37,
+      "text": "Autenticação e usuários",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 38,
+      "text": "Cadastro, login, logout, sessão, OAuth e controle de papéis.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 39,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 40,
+      "text": "src/app/api/auth; src/lib/auth.ts; src/lib/supabase",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 41,
+      "text": "Perfil",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 42,
+      "text": "Dados públicos do desenvolvedor, histórico de publicações e indicadores de evolução.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 43,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 44,
+      "text": "src/app/profile/[username]; src/app/api/profile",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 45,
+      "text": "Trilhas",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 46,
+      "text": "Catálogo versionado com unidades, lições e exercícios; mapa e lista compartilham os nós e estados.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 47,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 48,
+      "text": "src/lib/learning/catalog.ts; src/app/trails/LearningJourney.tsx",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 49,
+      "text": "Lições",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 50,
+      "text": "Páginas próprias com conteúdo e etapas interativas.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 51,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 52,
+      "text": "src/app/lesson/[lessonId]; src/lib/lessons",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 53,
+      "text": "Exercícios",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 54,
+      "text": "Avaliação no servidor com respostas canônicas, ajuda do exercício e execução remota de código.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 55,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 56,
+      "text": "src/lib/learning/assessment.ts; src/lib/exercises/evaluator.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 57,
+      "text": "Desafios e execução de código",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 58,
+      "text": "Problemas de programação, envio de solução e execução em serviço externo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 59,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 60,
+      "text": "src/app/api/run; src/lib/code-runner.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 61,
+      "text": "Duelos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 62,
+      "text": "Criação e entrada em duelos abertos; espera de até 24 horas e confronto de duas horas, com avaliação automática e revisão humana de empate técnico.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 63,
+      "text": "Implementado parcialmente",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 64,
+      "text": "src/app/duels; src/services/duel.service.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 65,
+      "text": "Matchmaking",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 66,
+      "text": "Pareamento por linguagem: ocupar a vaga pendente mais antiga de outro usuário ou criar espera. Sem seleção de destinatário ou filtro por XP.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 67,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 68,
+      "text": "src/app/api/duels/route.ts; src/lib/duels/lifecycle.ts; src/lib/duels/constants.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 69,
+      "text": "Avaliações",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 70,
+      "text": "Avaliação automática e fluxo de avaliação humana para duelos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 71,
+      "text": "Implementado parcialmente",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 72,
+      "text": "src/app/api/evaluations; src/services/evaluator.service.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 73,
+      "text": "Avaliadores",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 74,
+      "text": "Elegibilidade, candidatura, aprovação administrativa e parecer técnico.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 75,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 76,
+      "text": "src/app/evaluators; src/app/evaluations; src/services/evaluator.service.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 77,
+      "text": "XP, níveis e sequência",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 78,
+      "text": "Pontuação transacional, níveis e ofensiva por atividade.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 79,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 80,
+      "text": "src/services/xp.service.ts; src/lib/streak.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 81,
+      "text": "Conquistas",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 82,
+      "text": "Badges por critérios de atividade e sequência.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 83,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 84,
+      "text": "prisma/schema.prisma; src/services/xp.service.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 85,
+      "text": "Ranking e divisões",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 86,
+      "text": "Ranking por XP e faixas Bronze a Diamante; não implementa rating Elo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 87,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 88,
+      "text": "src/lib/learning/rewards.ts; language-xp.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 89,
+      "text": "Comunidade",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 90,
+      "text": "Feed, publicações, respostas, reações, votos, favoritos, seguidores e mensagens.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 91,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 92,
+      "text": "src/app/feed; src/services/post.service.ts; src/app/api/posts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 93,
+      "text": "Eventos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 94,
+      "text": "Criação por usuário autenticado, inscrição, retirada da inscrição antes do encerramento e exclusão pelo criador ou administrador autorizado.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 95,
+      "text": "Implementado parcialmente",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 96,
+      "text": "src/app/events; src/services/event.service.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 97,
+      "text": "Notificações",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 98,
+      "text": "Central web e tipos de eventos da plataforma.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 99,
+      "text": "Implementado na web",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 100,
+      "text": "src/app/notifications; src/services/notification.service.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 101,
+      "text": "Vagas e empresas",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 102,
+      "text": "Cadastro de empresa por usuário autenticado, publicação de vagas, consulta e atualização de etapas de candidatura.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 103,
+      "text": "Implementado parcialmente",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 104,
+      "text": "src/app/jobs; src/app/recruiter; src/services/job.service.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 105,
+      "text": "Administração",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 106,
+      "text": "Usuários, papéis, denúncias, candidaturas de avaliador, métricas e quiz diário baseado em conteúdo curado.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 107,
+      "text": "Implementado parcialmente",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 108,
+      "text": "src/app/admin; src/app/api/admin",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 109,
+      "text": "Acompanhamento de progresso",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 110,
+      "text": "Tentativas, XP, níveis, ofensiva, checkpoints e atividade semanal.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 111,
+      "text": "Implementado",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 112,
+      "text": "QuizAttempt, LanguageTrail; src/app/api/quiz/weekly-activity",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 113,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 114,
+      "text": "4.2 Fora do escopo da primeira versão",
+      "style": "Heading2",
+      "images": []
+    },
+    {
+      "index": 115,
+      "text": "Marketplace de cursos, serviços ou produtos digitais.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 116,
+      "text": "Contratação, assinatura de contrato e pagamento dentro do Stacklyst.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 117,
+      "text": "IDE online completa equivalente a um ambiente desktop, com depurador e gerenciamento avançado de projetos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 118,
+      "text": "Sistema próprio de videoconferência.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 119,
+      "text": "Emissão de certificações oficiais reconhecidas por órgãos externos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 120,
+      "text": "Integração imediata com dezenas de plataformas externas.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 121,
+      "text": "Aplicativo móvel nativo; a versão atual é uma aplicação web responsiva.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 122,
+      "text": "Esses itens permanecem fora do escopo desta edição. O fluxo legado de convites diretos para duelos, com aceite, rejeição e busca por faixa de XP, também não integra o fluxo vigente de duelos abertos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 123,
+      "text": "5. Equipe",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 124,
+      "text": "Campo",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 125,
+      "text": "Preenchimento",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 126,
+      "text": "Nome",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 127,
+      "text": "Guilherme Alves de Campos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 128,
+      "text": "Formação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 129,
+      "text": "Graduando em Análise e Desenvolvimento de Sistemas",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 130,
+      "text": "Experiência",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 131,
+      "text": "Desenvolvimento backend e lógica de negócio no projeto Stacklyst.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 132,
+      "text": "Papel no projeto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 133,
+      "text": "Desenvolvimento backend e lógica de negócio",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 134,
+      "text": "Responsabilidades",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 135,
+      "text": "APIs, serviços, persistência de dados, regras de negócio e testes do backend.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 136,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 137,
+      "text": "Campo",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 138,
+      "text": "Preenchimento",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 139,
+      "text": "Nome",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 140,
+      "text": "Paulo Henrique Leal dos Santos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 141,
+      "text": "Formação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 142,
+      "text": "Graduando em Análise e Desenvolvimento de Sistemas",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 143,
+      "text": "Experiência",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 144,
+      "text": "Desenvolvimento backend e lógica de negócio no projeto Stacklyst.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 145,
+      "text": "Papel no projeto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 146,
+      "text": "Desenvolvimento backend e lógica de negócio",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 147,
+      "text": "Responsabilidades",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 148,
+      "text": "APIs, serviços, persistência de dados, regras de negócio e testes do backend.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 149,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 150,
+      "text": "Campo",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 151,
+      "text": "Preenchimento",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 152,
+      "text": "Nome",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 153,
+      "text": "Pedro Antonio Silvestre Tescaro",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 154,
+      "text": "Formação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 155,
+      "text": "Graduando em Análise e Desenvolvimento de Sistemas",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 156,
+      "text": "Experiência",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 157,
+      "text": "Design de interface e desenvolvimento frontend no projeto Stacklyst.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 158,
+      "text": "Papel no projeto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 159,
+      "text": "Design de interface e desenvolvimento frontend",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 160,
+      "text": "Responsabilidades",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 161,
+      "text": "Experiência do usuário, protótipos, componentes visuais, responsividade e integração das telas com as APIs.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 162,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 163,
+      "text": "6. Especificações Técnicas",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 164,
+      "text": "As tecnologias e referências abaixo correspondem ao inventário técnico de 12/09/2026. Os estados de implementação registrados neste documento não substituem a verificação dos critérios de aceitação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 165,
+      "text": "Camada",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 166,
+      "text": "Especificação registrada",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 167,
+      "text": "Evidência",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 168,
+      "text": "Frontend Web",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 169,
+      "text": "Next.js 16.3.2 (App Router), React 19.2.4, TypeScript 5, Tailwind CSS 4, CodeMirror e Tiptap.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 170,
+      "text": "package.json; src/app",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 171,
+      "text": "Backend",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 172,
+      "text": "Route Handlers do Next.js em runtime Node, serviços TypeScript, validação Zod e controles de taxa.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 173,
+      "text": "src/app/api; src/services; src/lib/api-handler.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 174,
+      "text": "Banco de Dados",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 175,
+      "text": "PostgreSQL hospedável no Supabase, modelado pelo Prisma ORM 7.9.1.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 176,
+      "text": "prisma/schema.prisma; docs/DATABASE.md",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 177,
+      "text": "Autenticação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 178,
+      "text": "Supabase Auth/SSR com sessão verificada e camada server-only de JWT da aplicação.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 179,
+      "text": "src/lib/supabase; src/lib/auth.ts; src/lib/jwt.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 180,
+      "text": "Infraestrutura",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 181,
+      "text": "Docker/Docker Compose; documentação de Vercel e Supabase; Upstash Redis opcional para rate limit distribuído.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 182,
+      "text": "Dockerfile; docker-compose*.yml; docs/DEPLOYMENT.md",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 183,
+      "text": "APIs",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 184,
+      "text": "REST/JSON internas; Supabase; execução de código por Wandbox/Judge0.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 185,
+      "text": "src/app/api; src/lib/code-runner.ts",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 186,
+      "text": "Controle de versão",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 187,
+      "text": "Git, GitHub, Conventional Commits, Husky, lint-staged e CI configurável.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 188,
+      "text": ".git; commitlint.config.js; .husky; package.json",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 189,
+      "text": "Arquitetura geral",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 190,
+      "text": "Aplicação web modular: UI e Server Components → API Routes → serviços/domínio → Prisma/PostgreSQL; integrações externas isoladas em bibliotecas.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 191,
+      "text": "docs/ARCHITECTURE.md; estrutura src",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 192,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 193,
+      "text": "A aplicação entregue é web responsiva. Um cliente móvel nativo exigiria um novo projeto e não integra o escopo atual.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 194,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 195,
+      "text": "7. Riscos",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 196,
+      "text": "Risco",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 197,
+      "text": "Categoria",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 198,
+      "text": "Prob.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 199,
+      "text": "Impacto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 200,
+      "text": "Nível",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 201,
+      "text": "Estratégia",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 202,
+      "text": "Contingência",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 203,
+      "text": "Atraso de desenvolvimento",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 204,
+      "text": "Gerencial",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 205,
+      "text": "Alta",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 206,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 207,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 208,
+      "text": "Planejar entregas incrementais e priorizar o MVP.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 209,
+      "text": "Reduzir itens de prioridade média/baixa e replanejar marcos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 210,
+      "text": "Mudança frequente de requisitos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 211,
+      "text": "Gerencial",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 212,
+      "text": "Alta",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 213,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 214,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 215,
+      "text": "Manter baseline versionado e registrar decisões.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 216,
+      "text": "Executar análise de impacto e nova validação acadêmica.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 217,
+      "text": "Escopo excessivo",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 218,
+      "text": "Gerencial",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 219,
+      "text": "Alta",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 220,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 221,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 222,
+      "text": "Separar MVP, expansão e itens fora do escopo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 223,
+      "text": "Congelar novas funcionalidades até concluir o núcleo.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 224,
+      "text": "Dependência de serviços externos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 225,
+      "text": "Técnico",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 226,
+      "text": "Média",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 227,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 228,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 229,
+      "text": "Definir timeout e tratamento de falhas para autenticação, banco e executor de código.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 230,
+      "text": "Manter mensagens de erro e impedir confirmação de progresso quando a operação externa falhar.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 231,
+      "text": "Indisponibilidade do executor de código",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 232,
+      "text": "Técnico",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 233,
+      "text": "Média",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 234,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 235,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 236,
+      "text": "Aplicar limites, testes definidos no servidor e tratamento de timeout.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 237,
+      "text": "Não aprovar a resposta nem conceder XP; manter o código disponível para nova tentativa.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 238,
+      "text": "Custo de infraestrutura",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 239,
+      "text": "Organizacional",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 240,
+      "text": "Média",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 241,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 242,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 243,
+      "text": "Monitorar uso e definir cotas por serviço.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 244,
+      "text": "Reduzir recursos opcionais e migrar para plano compatível.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 245,
+      "text": "Falha de segurança",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 246,
+      "text": "Técnico",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 247,
+      "text": "Média",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 248,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 249,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 250,
+      "text": "RBAC, validação, rate limit, segredo server-only e testes.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 251,
+      "text": "Revogar credenciais, conter acesso e corrigir vulnerabilidade.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 252,
+      "text": "Exposição indevida de dados",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 253,
+      "text": "Técnico",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 254,
+      "text": "Média",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 255,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 256,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 257,
+      "text": "Definir campos públicos e consentimento para recrutamento.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 258,
+      "text": "Restringir consultas, registrar incidente e revisar permissões.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 259,
+      "text": "Baixa adesão",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 260,
+      "text": "Externo",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 261,
+      "text": "Média",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 262,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 263,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 264,
+      "text": "Testar usabilidade e valor das trilhas com usuários.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 265,
+      "text": "Simplificar onboarding e ajustar mecânicas com feedback.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 266,
+      "text": "Complexidade do matchmaking",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 267,
+      "text": "Técnico",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 268,
+      "text": "Alta",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 269,
+      "text": "Médio",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 270,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 271,
+      "text": "Começar com regras determinísticas e métricas.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 272,
+      "text": "Permitir entrada voluntária em vaga aberta ou nova espera na linguagem selecionada.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 273,
+      "text": "Falha na avaliação automática de código",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 274,
+      "text": "Técnico",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 275,
+      "text": "Média",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 276,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 277,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 278,
+      "text": "Executor isolado, limite de tempo, testes confiáveis e tratamento de falhas; revisão humana de empates técnicos em duelos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 279,
+      "text": "Não confirmar acerto, XP ou vitória em falha técnica. Permitir nova tentativa; encaminhar apenas empates técnicos à avaliação humana.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 280,
+      "text": "Problemas de desempenho",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 281,
+      "text": "Técnico",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 282,
+      "text": "Média",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 283,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 284,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 285,
+      "text": "Paginação, índices, cache e testes de carga.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 286,
+      "text": "Reduzir consultas, limitar listas e escalar serviços críticos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 287,
+      "text": "Indisponibilidade dos integrantes",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 288,
+      "text": "Organizacional",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 289,
+      "text": "Média",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 290,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 291,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 292,
+      "text": "Distribuir conhecimento e registrar decisões.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 293,
+      "text": "Repriorizar entregas e redistribuir responsabilidades.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 294,
+      "text": "Incompatibilidade entre navegadores",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 295,
+      "text": "Técnico",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 296,
+      "text": "Média",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 297,
+      "text": "Médio",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 298,
+      "text": "Médio",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 299,
+      "text": "Testar Chrome, Edge, Firefox e Safari nas versões suportadas.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 300,
+      "text": "Corrigir o fluxo afetado e documentar limitação temporária.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 301,
+      "text": "Moderação insuficiente",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 302,
+      "text": "Gerencial",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 303,
+      "text": "Média",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 304,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 305,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 306,
+      "text": "Denúncia, fila, critérios e auditoria administrativa.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 307,
+      "text": "Analisar a denúncia e remover a publicação quando cabível; definir separadamente sanções adicionais e recursos.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 308,
+      "text": "Fraude em ranking ou duelo",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 309,
+      "text": "Técnico",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 310,
+      "text": "Alta",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 311,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 312,
+      "text": "Alto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 313,
+      "text": "Idempotência, validação server-side e registros de auditoria.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 314,
+      "text": "Investigar o resultado e encaminhar eventual anulação ou correção de pontuação para procedimento administrativo específico.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 315,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 316,
+      "text": "8. Cronograma de Marcos Resumido",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 317,
+      "text": "O cronograma abaixo preserva os marcos registrados na documentação de 12/09/2026. A revisão textual de 27/09/2026 consolida o escopo e as regras, sem alterar as datas históricas do projeto.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 318,
+      "text": "Marco",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 319,
+      "text": "Data",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 320,
+      "text": "Início do projeto",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 321,
+      "text": "16/06/2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 322,
+      "text": "Levantamento de requisitos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 323,
+      "text": "Junho a agosto de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 324,
+      "text": "Documento de visão",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 325,
+      "text": "21/08 a 12/09/2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 326,
+      "text": "Atividades do negócio",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 327,
+      "text": "21/08 a 12/09/2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 328,
+      "text": "Requisitos do sistema",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 329,
+      "text": "21/08 a 12/09/2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 330,
+      "text": "Casos de uso",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 331,
+      "text": "21/08 a 12/09/2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 332,
+      "text": "Prototipação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 333,
+      "text": "Junho a setembro de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 334,
+      "text": "Modelagem do banco",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 335,
+      "text": "Junho a agosto de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 336,
+      "text": "Definição de arquitetura",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 337,
+      "text": "Junho a agosto de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 338,
+      "text": "MVP",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 339,
+      "text": "Junho a agosto de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 340,
+      "text": "Módulo de autenticação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 341,
+      "text": "Junho a setembro de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 342,
+      "text": "Trilhas e lições",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 343,
+      "text": "Junho a setembro de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 344,
+      "text": "Gamificação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 345,
+      "text": "Junho a setembro de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 346,
+      "text": "Duelos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 347,
+      "text": "Junho a setembro de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 348,
+      "text": "Comunidade",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 349,
+      "text": "Junho a setembro de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 350,
+      "text": "Vagas e empresas",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 351,
+      "text": "Agosto a setembro de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 352,
+      "text": "Testes",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 353,
+      "text": "Junho a setembro de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 354,
+      "text": "Testes de aceitação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 355,
+      "text": "Setembro de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 356,
+      "text": "Correções",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 357,
+      "text": "Contínuo até a entrega",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 358,
+      "text": "Deploy",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 359,
+      "text": "Produção ativa em setembro de 2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 360,
+      "text": "Entrega final",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 361,
+      "text": "12/09/2026",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 362,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 363,
+      "text": "9. Orçamento Resumido",
+      "style": "Heading1",
+      "images": []
+    },
+    {
+      "index": 364,
+      "text": "Estimativa acadêmica de custo direto: R$ 0,00, considerando equipamentos próprios, trabalho da equipe e planos gratuitos atualmente utilizados.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 365,
+      "text": "",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 366,
+      "text": "Categoria",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 367,
+      "text": "Item",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 368,
+      "text": "Valor",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 369,
+      "text": "Observação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 370,
+      "text": "Custos fixos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 371,
+      "text": "Hardware",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 372,
+      "text": "R$ 0,00",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 373,
+      "text": "Equipamentos próprios da equipe.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 374,
+      "text": "Custos fixos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 375,
+      "text": "Licenças de software",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 376,
+      "text": "R$ 0,00",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 377,
+      "text": "Ferramentas e bibliotecas gratuitas ou de código aberto.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 378,
+      "text": "Custos fixos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 379,
+      "text": "Treinamentos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 380,
+      "text": "R$ 0,00",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 381,
+      "text": "Aprendizado realizado no contexto acadêmico.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 382,
+      "text": "Infraestrutura",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 383,
+      "text": "Hospedagem e domínio",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 384,
+      "text": "R$ 0,00",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 385,
+      "text": "Implantação atual no endereço gratuito stacklyst.vercel.app.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 386,
+      "text": "Infraestrutura",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 387,
+      "text": "Banco de dados e armazenamento",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 388,
+      "text": "R$ 0,00",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 389,
+      "text": "Uso acadêmico no plano gratuito do Supabase.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 390,
+      "text": "Infraestrutura",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 391,
+      "text": "APIs e execução de código",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 392,
+      "text": "R$ 0,00",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 393,
+      "text": "Uso atual dentro das cotas gratuitas disponíveis.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 394,
+      "text": "Infraestrutura",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 395,
+      "text": "Recursos de assistência editorial",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 396,
+      "text": "Não aplicável",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 397,
+      "text": "Os recursos de assistência editorial são executados pela própria aplicação, sem custo externo adicional.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 398,
+      "text": "Custos variáveis",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 399,
+      "text": "Desenvolvimento",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 400,
+      "text": "R$ 0,00",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 401,
+      "text": "Projeto acadêmico sem remuneração contabilizada.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 402,
+      "text": "Custos variáveis",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 403,
+      "text": "Pessoal de apoio",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 404,
+      "text": "R$ 0,00",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 405,
+      "text": "Sem contratação externa.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 406,
+      "text": "Custos variáveis",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 407,
+      "text": "Encargos e benefícios",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 408,
+      "text": "Não aplicável",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 409,
+      "text": "Não há vínculo empregatício no projeto acadêmico.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 410,
+      "text": "Custos variáveis",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 411,
+      "text": "Instalações, energia, materiais e rede",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 412,
+      "text": "R$ 0,00 adicional",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 413,
+      "text": "Recursos pessoais já disponíveis; consumo não segregado.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 414,
+      "text": "Qualidade",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 415,
+      "text": "Testes e homologação",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 416,
+      "text": "R$ 0,00",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 417,
+      "text": "Ferramentas automatizadas e validação acadêmica.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 418,
+      "text": "Riscos",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 419,
+      "text": "Margem de contingência",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 420,
+      "text": "R$ 0,00",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 421,
+      "text": "Sem desembolso previsto na versão acadêmica.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 422,
+      "text": "Financeiro",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 423,
+      "text": "Margem de lucro",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 424,
+      "text": "Não aplicável",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 425,
+      "text": "Projeto acadêmico sem comercialização nesta versão.",
+      "style": "",
+      "images": []
+    },
+    {
+      "index": 426,
+      "text": "",
+      "style": "",
+      "images": []
+    }
+  ],
+  "images": [],
+  "tables": [
+    {
+      "table": 0,
+      "rows": [
+        [
+          "Módulo",
+          "Descrição",
+          "Estado registrado",
+          "Referência técnica"
+        ],
+        [
+          "Autenticação e usuários",
+          "Cadastro, login, logout, sessão, OAuth e controle de papéis.",
+          "Implementado",
+          "src/app/api/auth; src/lib/auth.ts; src/lib/supabase"
+        ],
+        [
+          "Perfil",
+          "Dados públicos do desenvolvedor, histórico de publicações e indicadores de evolução.",
+          "Implementado",
+          "src/app/profile/[username]; src/app/api/profile"
+        ],
+        [
+          "Trilhas",
+          "Catálogo versionado com unidades, lições e exercícios; mapa e lista compartilham os nós e estados.",
+          "Implementado",
+          "src/lib/learning/catalog.ts; src/app/trails/LearningJourney.tsx"
+        ],
+        [
+          "Lições",
+          "Páginas próprias com conteúdo e etapas interativas.",
+          "Implementado",
+          "src/app/lesson/[lessonId]; src/lib/lessons"
+        ],
+        [
+          "Exercícios",
+          "Avaliação no servidor com respostas canônicas, ajuda do exercício e execução remota de código.",
+          "Implementado",
+          "src/lib/learning/assessment.ts; src/lib/exercises/evaluator.ts"
+        ],
+        [
+          "Desafios e execução de código",
+          "Problemas de programação, envio de solução e execução em serviço externo.",
+          "Implementado",
+          "src/app/api/run; src/lib/code-runner.ts"
+        ],
+        [
+          "Duelos",
+          "Criação e entrada em duelos abertos; espera de até 24 horas e confronto de duas horas, com avaliação automática e revisão humana de empate técnico.",
+          "Implementado parcialmente",
+          "src/app/duels; src/services/duel.service.ts"
+        ],
+        [
+          "Matchmaking",
+          "Pareamento por linguagem: ocupar a vaga pendente mais antiga de outro usuário ou criar espera. Sem seleção de destinatário ou filtro por XP.",
+          "Implementado",
+          "src/app/api/duels/route.ts; src/lib/duels/lifecycle.ts; src/lib/duels/constants.ts"
+        ],
+        [
+          "Avaliações",
+          "Avaliação automática e fluxo de avaliação humana para duelos.",
+          "Implementado parcialmente",
+          "src/app/api/evaluations; src/services/evaluator.service.ts"
+        ],
+        [
+          "Avaliadores",
+          "Elegibilidade, candidatura, aprovação administrativa e parecer técnico.",
+          "Implementado",
+          "src/app/evaluators; src/app/evaluations; src/services/evaluator.service.ts"
+        ],
+        [
+          "XP, níveis e sequência",
+          "Pontuação transacional, níveis e ofensiva por atividade.",
+          "Implementado",
+          "src/services/xp.service.ts; src/lib/streak.ts"
+        ],
+        [
+          "Conquistas",
+          "Badges por critérios de atividade e sequência.",
+          "Implementado",
+          "prisma/schema.prisma; src/services/xp.service.ts"
+        ],
+        [
+          "Ranking e divisões",
+          "Ranking por XP e faixas Bronze a Diamante; não implementa rating Elo.",
+          "Implementado",
+          "src/lib/learning/rewards.ts; language-xp.ts"
+        ],
+        [
+          "Comunidade",
+          "Feed, publicações, respostas, reações, votos, favoritos, seguidores e mensagens.",
+          "Implementado",
+          "src/app/feed; src/services/post.service.ts; src/app/api/posts"
+        ],
+        [
+          "Eventos",
+          "Criação por usuário autenticado, inscrição, retirada da inscrição antes do encerramento e exclusão pelo criador ou administrador autorizado.",
+          "Implementado parcialmente",
+          "src/app/events; src/services/event.service.ts"
+        ],
+        [
+          "Notificações",
+          "Central web e tipos de eventos da plataforma.",
+          "Implementado na web",
+          "src/app/notifications; src/services/notification.service.ts"
+        ],
+        [
+          "Vagas e empresas",
+          "Cadastro de empresa por usuário autenticado, publicação de vagas, consulta e atualização de etapas de candidatura.",
+          "Implementado parcialmente",
+          "src/app/jobs; src/app/recruiter; src/services/job.service.ts"
+        ],
+        [
+          "Administração",
+          "Usuários, papéis, denúncias, candidaturas de avaliador, métricas e quiz diário baseado em conteúdo curado.",
+          "Implementado parcialmente",
+          "src/app/admin; src/app/api/admin"
+        ],
+        [
+          "Acompanhamento de progresso",
+          "Tentativas, XP, níveis, ofensiva, checkpoints e atividade semanal.",
+          "Implementado",
+          "QuizAttempt, LanguageTrail; src/app/api/quiz/weekly-activity"
+        ]
+      ]
+    },
+    {
+      "table": 1,
+      "rows": [
+        [
+          "Campo",
+          "Preenchimento"
+        ],
+        [
+          "Nome",
+          "Guilherme Alves de Campos"
+        ],
+        [
+          "Formação",
+          "Graduando em Análise e Desenvolvimento de Sistemas"
+        ],
+        [
+          "Experiência",
+          "Desenvolvimento backend e lógica de negócio no projeto Stacklyst."
+        ],
+        [
+          "Papel no projeto",
+          "Desenvolvimento backend e lógica de negócio"
+        ],
+        [
+          "Responsabilidades",
+          "APIs, serviços, persistência de dados, regras de negócio e testes do backend."
+        ]
+      ]
+    },
+    {
+      "table": 2,
+      "rows": [
+        [
+          "Campo",
+          "Preenchimento"
+        ],
+        [
+          "Nome",
+          "Paulo Henrique Leal dos Santos"
+        ],
+        [
+          "Formação",
+          "Graduando em Análise e Desenvolvimento de Sistemas"
+        ],
+        [
+          "Experiência",
+          "Desenvolvimento backend e lógica de negócio no projeto Stacklyst."
+        ],
+        [
+          "Papel no projeto",
+          "Desenvolvimento backend e lógica de negócio"
+        ],
+        [
+          "Responsabilidades",
+          "APIs, serviços, persistência de dados, regras de negócio e testes do backend."
+        ]
+      ]
+    },
+    {
+      "table": 3,
+      "rows": [
+        [
+          "Campo",
+          "Preenchimento"
+        ],
+        [
+          "Nome",
+          "Pedro Antonio Silvestre Tescaro"
+        ],
+        [
+          "Formação",
+          "Graduando em Análise e Desenvolvimento de Sistemas"
+        ],
+        [
+          "Experiência",
+          "Design de interface e desenvolvimento frontend no projeto Stacklyst."
+        ],
+        [
+          "Papel no projeto",
+          "Design de interface e desenvolvimento frontend"
+        ],
+        [
+          "Responsabilidades",
+          "Experiência do usuário, protótipos, componentes visuais, responsividade e integração das telas com as APIs."
+        ]
+      ]
+    },
+    {
+      "table": 4,
+      "rows": [
+        [
+          "Camada",
+          "Especificação registrada",
+          "Evidência"
+        ],
+        [
+          "Frontend Web",
+          "Next.js 16.3.2 (App Router), React 19.2.4, TypeScript 5, Tailwind CSS 4, CodeMirror e Tiptap.",
+          "package.json; src/app"
+        ],
+        [
+          "Backend",
+          "Route Handlers do Next.js em runtime Node, serviços TypeScript, validação Zod e controles de taxa.",
+          "src/app/api; src/services; src/lib/api-handler.ts"
+        ],
+        [
+          "Banco de Dados",
+          "PostgreSQL hospedável no Supabase, modelado pelo Prisma ORM 7.9.1.",
+          "prisma/schema.prisma; docs/DATABASE.md"
+        ],
+        [
+          "Autenticação",
+          "Supabase Auth/SSR com sessão verificada e camada server-only de JWT da aplicação.",
+          "src/lib/supabase; src/lib/auth.ts; src/lib/jwt.ts"
+        ],
+        [
+          "Infraestrutura",
+          "Docker/Docker Compose; documentação de Vercel e Supabase; Upstash Redis opcional para rate limit distribuído.",
+          "Dockerfile; docker-compose*.yml; docs/DEPLOYMENT.md"
+        ],
+        [
+          "APIs",
+          "REST/JSON internas; Supabase; execução de código por Wandbox/Judge0.",
+          "src/app/api; src/lib/code-runner.ts"
+        ],
+        [
+          "Controle de versão",
+          "Git, GitHub, Conventional Commits, Husky, lint-staged e CI configurável.",
+          ".git; commitlint.config.js; .husky; package.json"
+        ],
+        [
+          "Arquitetura geral",
+          "Aplicação web modular: UI e Server Components → API Routes → serviços/domínio → Prisma/PostgreSQL; integrações externas isoladas em bibliotecas.",
+          "docs/ARCHITECTURE.md; estrutura src"
+        ]
+      ]
+    },
+    {
+      "table": 5,
+      "rows": [
+        [
+          "A aplicação entregue é web responsiva. Um cliente móvel nativo exigiria um novo projeto e não integra o escopo atual."
+        ]
+      ]
+    },
+    {
+      "table": 6,
+      "rows": [
+        [
+          "Risco",
+          "Categoria",
+          "Prob.",
+          "Impacto",
+          "Nível",
+          "Estratégia",
+          "Contingência"
+        ],
+        [
+          "Atraso de desenvolvimento",
+          "Gerencial",
+          "Alta",
+          "Alto",
+          "Alto",
+          "Planejar entregas incrementais e priorizar o MVP.",
+          "Reduzir itens de prioridade média/baixa e replanejar marcos."
+        ],
+        [
+          "Mudança frequente de requisitos",
+          "Gerencial",
+          "Alta",
+          "Alto",
+          "Alto",
+          "Manter baseline versionado e registrar decisões.",
+          "Executar análise de impacto e nova validação acadêmica."
+        ],
+        [
+          "Escopo excessivo",
+          "Gerencial",
+          "Alta",
+          "Alto",
+          "Alto",
+          "Separar MVP, expansão e itens fora do escopo.",
+          "Congelar novas funcionalidades até concluir o núcleo."
+        ],
+        [
+          "Dependência de serviços externos",
+          "Técnico",
+          "Média",
+          "Alto",
+          "Alto",
+          "Definir timeout e tratamento de falhas para autenticação, banco e executor de código.",
+          "Manter mensagens de erro e impedir confirmação de progresso quando a operação externa falhar."
+        ],
+        [
+          "Indisponibilidade do executor de código",
+          "Técnico",
+          "Média",
+          "Alto",
+          "Alto",
+          "Aplicar limites, testes definidos no servidor e tratamento de timeout.",
+          "Não aprovar a resposta nem conceder XP; manter o código disponível para nova tentativa."
+        ],
+        [
+          "Custo de infraestrutura",
+          "Organizacional",
+          "Média",
+          "Alto",
+          "Alto",
+          "Monitorar uso e definir cotas por serviço.",
+          "Reduzir recursos opcionais e migrar para plano compatível."
+        ],
+        [
+          "Falha de segurança",
+          "Técnico",
+          "Média",
+          "Alto",
+          "Alto",
+          "RBAC, validação, rate limit, segredo server-only e testes.",
+          "Revogar credenciais, conter acesso e corrigir vulnerabilidade."
+        ],
+        [
+          "Exposição indevida de dados",
+          "Técnico",
+          "Média",
+          "Alto",
+          "Alto",
+          "Definir campos públicos e consentimento para recrutamento.",
+          "Restringir consultas, registrar incidente e revisar permissões."
+        ],
+        [
+          "Baixa adesão",
+          "Externo",
+          "Média",
+          "Alto",
+          "Alto",
+          "Testar usabilidade e valor das trilhas com usuários.",
+          "Simplificar onboarding e ajustar mecânicas com feedback."
+        ],
+        [
+          "Complexidade do matchmaking",
+          "Técnico",
+          "Alta",
+          "Médio",
+          "Alto",
+          "Começar com regras determinísticas e métricas.",
+          "Permitir entrada voluntária em vaga aberta ou nova espera na linguagem selecionada."
+        ],
+        [
+          "Falha na avaliação automática de código",
+          "Técnico",
+          "Média",
+          "Alto",
+          "Alto",
+          "Executor isolado, limite de tempo, testes confiáveis e tratamento de falhas; revisão humana de empates técnicos em duelos.",
+          "Não confirmar acerto, XP ou vitória em falha técnica. Permitir nova tentativa; encaminhar apenas empates técnicos à avaliação humana."
+        ],
+        [
+          "Problemas de desempenho",
+          "Técnico",
+          "Média",
+          "Alto",
+          "Alto",
+          "Paginação, índices, cache e testes de carga.",
+          "Reduzir consultas, limitar listas e escalar serviços críticos."
+        ],
+        [
+          "Indisponibilidade dos integrantes",
+          "Organizacional",
+          "Média",
+          "Alto",
+          "Alto",
+          "Distribuir conhecimento e registrar decisões.",
+          "Repriorizar entregas e redistribuir responsabilidades."
+        ],
+        [
+          "Incompatibilidade entre navegadores",
+          "Técnico",
+          "Média",
+          "Médio",
+          "Médio",
+          "Testar Chrome, Edge, Firefox e Safari nas versões suportadas.",
+          "Corrigir o fluxo afetado e documentar limitação temporária."
+        ],
+        [
+          "Moderação insuficiente",
+          "Gerencial",
+          "Média",
+          "Alto",
+          "Alto",
+          "Denúncia, fila, critérios e auditoria administrativa.",
+          "Analisar a denúncia e remover a publicação quando cabível; definir separadamente sanções adicionais e recursos."
+        ],
+        [
+          "Fraude em ranking ou duelo",
+          "Técnico",
+          "Alta",
+          "Alto",
+          "Alto",
+          "Idempotência, validação server-side e registros de auditoria.",
+          "Investigar o resultado e encaminhar eventual anulação ou correção de pontuação para procedimento administrativo específico."
+        ]
+      ]
+    },
+    {
+      "table": 7,
+      "rows": [
+        [
+          "Marco",
+          "Data"
+        ],
+        [
+          "Início do projeto",
+          "16/06/2026"
+        ],
+        [
+          "Levantamento de requisitos",
+          "Junho a agosto de 2026"
+        ],
+        [
+          "Documento de visão",
+          "21/08 a 12/09/2026"
+        ],
+        [
+          "Atividades do negócio",
+          "21/08 a 12/09/2026"
+        ],
+        [
+          "Requisitos do sistema",
+          "21/08 a 12/09/2026"
+        ],
+        [
+          "Casos de uso",
+          "21/08 a 12/09/2026"
+        ],
+        [
+          "Prototipação",
+          "Junho a setembro de 2026"
+        ],
+        [
+          "Modelagem do banco",
+          "Junho a agosto de 2026"
+        ],
+        [
+          "Definição de arquitetura",
+          "Junho a agosto de 2026"
+        ],
+        [
+          "MVP",
+          "Junho a agosto de 2026"
+        ],
+        [
+          "Módulo de autenticação",
+          "Junho a setembro de 2026"
+        ],
+        [
+          "Trilhas e lições",
+          "Junho a setembro de 2026"
+        ],
+        [
+          "Gamificação",
+          "Junho a setembro de 2026"
+        ],
+        [
+          "Duelos",
+          "Junho a setembro de 2026"
+        ],
+        [
+          "Comunidade",
+          "Junho a setembro de 2026"
+        ],
+        [
+          "Vagas e empresas",
+          "Agosto a setembro de 2026"
+        ],
+        [
+          "Testes",
+          "Junho a setembro de 2026"
+        ],
+        [
+          "Testes de aceitação",
+          "Setembro de 2026"
+        ],
+        [
+          "Correções",
+          "Contínuo até a entrega"
+        ],
+        [
+          "Deploy",
+          "Produção ativa em setembro de 2026"
+        ],
+        [
+          "Entrega final",
+          "12/09/2026"
+        ]
+      ]
+    },
+    {
+      "table": 8,
+      "rows": [
+        [
+          "Estimativa acadêmica de custo direto: R$ 0,00, considerando equipamentos próprios, trabalho da equipe e planos gratuitos atualmente utilizados."
+        ]
+      ]
+    },
+    {
+      "table": 9,
+      "rows": [
+        [
+          "Categoria",
+          "Item",
+          "Valor",
+          "Observação"
+        ],
+        [
+          "Custos fixos",
+          "Hardware",
+          "R$ 0,00",
+          "Equipamentos próprios da equipe."
+        ],
+        [
+          "Custos fixos",
+          "Licenças de software",
+          "R$ 0,00",
+          "Ferramentas e bibliotecas gratuitas ou de código aberto."
+        ],
+        [
+          "Custos fixos",
+          "Treinamentos",
+          "R$ 0,00",
+          "Aprendizado realizado no contexto acadêmico."
+        ],
+        [
+          "Infraestrutura",
+          "Hospedagem e domínio",
+          "R$ 0,00",
+          "Implantação atual no endereço gratuito stacklyst.vercel.app."
+        ],
+        [
+          "Infraestrutura",
+          "Banco de dados e armazenamento",
+          "R$ 0,00",
+          "Uso acadêmico no plano gratuito do Supabase."
+        ],
+        [
+          "Infraestrutura",
+          "APIs e execução de código",
+          "R$ 0,00",
+          "Uso atual dentro das cotas gratuitas disponíveis."
+        ],
+        [
+          "Infraestrutura",
+          "Recursos de assistência editorial",
+          "Não aplicável",
+          "Os recursos de assistência editorial são executados pela própria aplicação, sem custo externo adicional."
+        ],
+        [
+          "Custos variáveis",
+          "Desenvolvimento",
+          "R$ 0,00",
+          "Projeto acadêmico sem remuneração contabilizada."
+        ],
+        [
+          "Custos variáveis",
+          "Pessoal de apoio",
+          "R$ 0,00",
+          "Sem contratação externa."
+        ],
+        [
+          "Custos variáveis",
+          "Encargos e benefícios",
+          "Não aplicável",
+          "Não há vínculo empregatício no projeto acadêmico."
+        ],
+        [
+          "Custos variáveis",
+          "Instalações, energia, materiais e rede",
+          "R$ 0,00 adicional",
+          "Recursos pessoais já disponíveis; consumo não segregado."
+        ],
+        [
+          "Qualidade",
+          "Testes e homologação",
+          "R$ 0,00",
+          "Ferramentas automatizadas e validação acadêmica."
+        ],
+        [
+          "Riscos",
+          "Margem de contingência",
+          "R$ 0,00",
+          "Sem desembolso previsto na versão acadêmica."
+        ],
+        [
+          "Financeiro",
+          "Margem de lucro",
+          "Não aplicável",
+          "Projeto acadêmico sem comercialização nesta versão."
+        ]
+      ]
+    }
+  ]
+}

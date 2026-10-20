@@ -1,0 +1,200 @@
+0000 []
+0001 []
+0002 []
+0003 []
+0004 []
+0005 []
+0006 []
+0007 [] Stacklyst
+0008 [] Documento de Atividades do Negócio
+0009 [] Laboratório de Engenharia de SoftwareProjeto acadêmicoRevisão documental: 19/10/2026Modelos atuais: stacklyst-seminario.asta e seminário Astah
+0010 []
+0011 [] 1. Índice
+0012 [] 2. Objetivo4
+0013 [] 3. Atividades do Negócio4
+0014 [] 3.1 AN01 — Estudar programação4
+0015 [] 3.1.1 Fluxo principal4
+0016 [] 3.1.2 Diagrama de Atividades5
+0017 [] 3.2 AN02 — Praticar exercícios de programação✟6
+0018 [] 3.2.1 Fluxo principal✟6
+0019 [] 3.2.2 Diagrama de Atividades✟7
+0020 [] AN02 — Praticar exercícios de programação✟7
+0021 [] 3.3 AN03 — Acompanhar a própria aprendizagem✟8
+0022 [] 3.3.1 Fluxo principal✟8
+0023 [] 3.3.2 Diagrama de Atividades✟9
+0024 [] AN03 — Acompanhar a própria aprendizagem✟9
+0025 [] 3.4 AN04 — Buscar ajuda para uma dúvida✟10
+0026 [] 3.4.1 Fluxo principal✟10
+0027 [] 3.4.2 Diagrama de Atividades✟11
+0028 [] AN04 — Buscar ajuda para uma dúvida✟11
+0029 [] 3.5 AN05 — Divulgar oportunidade e acompanhar a seleção✟12
+0030 [] 3.5.1 Fluxos de divulgação e candidatura✟12
+0031 [] 3.5.2 Diagrama de Atividades✟13
+0032 [] AN05A — Divulgar oportunidade de trabalho✟13
+0033 [] AN05B — Candidatar-se e acompanhar a seleção✟14
+0034 [] 3.6 AN06 — Descobrir e participar de um evento✟15
+0035 [] 3.6.1 Fluxo principal✟15
+0036 [] 3.6.2 Diagrama de Atividades✟16
+0037 [] AN01 — Estudar programação5
+0038 [] 4. Relação entre atividades e requisitos26
+0039 []
+0040 [Heading1] 2. Objetivo
+0041 [] Este documento descreve os processos humanos de estudo, prática, colaboração, avaliação, recrutamento e participação em eventos relacionados ao Stacklyst. Os diagramas do seminário retratam como as pessoas realizam essas atividades, inclusive com livros, portais, agendas e contatos externos. A relação com os requisitos indica o apoio oferecido pelo Stacklyst, sem atribuir ao software todas as ações do processo humano.
+0042 [Heading1] 3. Atividades do Negócio
+0043 [] AN01, AN02, AN03, AN04, AN05A, AN05B e AN06 foram atualizados com os diagramas apresentados no seminário. AN06 identifica agora a descoberta e participação em eventos.
+0044 [Heading2] 3.1 AN01 — Estudar programação
+0045 [] Objetivo: Organizar o estudo de programação e verificar se o estudante consegue explicar e aplicar o conteúdo.
+0046 [] Participantes: Estudante ou desenvolvedor em formação.
+0047 [] Pré-condições: Interesse em aprender um assunto e disponibilidade de fontes de estudo e exercícios.
+0048 [Heading3] 3.1.1 Fluxo principal
+0049 [] 1. O estudante define o assunto e o objetivo de estudo.
+0050 [] 2. O estudante organiza os horários e o cronograma.
+0051 [] 3. O estudante pesquisa materiais no Google, no YouTube ou em uma ferramenta de IA.
+0052 [] 4. O estudante assiste à aula ou lê o material selecionado.
+0053 [] 5. O estudante procura exercícios e tenta resolvê-los, conforme AN02.
+0054 [] 6. Se ainda não consegue explicar e aplicar o conteúdo, revise o material ou busque ajuda e retome a prática.
+0055 [] 7. Quando compreende o assunto, anota o que aprendeu e planeja a revisão.
+0056 [] Decisões: O estudante conseguiu explicar e aplicar o conteúdo? Precisa revisar o material ou buscar ajuda?
+0057 [] Exceções: Material insuficiente leva à busca de outra fonte ou de ajuda. A dificuldade na prática conduz à revisão, sem presumir aprendizagem concluída.
+0058 [] Resultado final: Conteúdo compreendido e aplicado, com registro do aprendizado e revisão planejada.
+0059 [] Rastreabilidade: RF005–RF010; UC004–UC007. O Stacklyst apoia o percurso com trilhas, lições, exercícios e progresso. Pesquisa externa, agenda pessoal e uso de IA no processo humano não constituem funcionalidades adicionais do sistema.
+0060 [Heading3] 3.1.2 Diagrama de Atividades
+0061 [Heading3] AN01 — Estudar programação
+0062 []  [IMAGEM rId7]
+0063 [] AN01 — Estudar programação.
+0064 [] Fonte editável: stacklyst-seminario.asta / AN01 Estudar programação. Exportação atual do projeto do seminário.
+0065 [Heading2] 3.2 AN02 — Praticar exercícios de programação
+0066 [] Objetivo: Resolver problemas de programação, comparar os resultados e compreender os erros encontrados.
+0067 [] Participantes: Estudante ou desenvolvedor em formação.
+0068 [] Pré-condições: Exercício disponível em livro ou site e conhecimentos iniciais para interpretar o enunciado.
+0069 [Heading3] 3.2.1 Fluxo principal
+0070 [] 1. O estudante escolhe um exercício em um livro ou site.
+0071 [] 2. O estudante lê o enunciado e identifica as entradas e os resultados esperados.
+0072 [] 3. O estudante escreve a solução em papel ou editor.
+0073 [] 4. O estudante testa exemplos e compara os resultados obtidos.
+0074 [] 5. Se o resultado estiver incorreto, investiga o erro, revisa a solução e repete os testes.
+0075 [] 6. Quando obtém o resultado correto, explica a solução e registra as dúvidas restantes.
+0076 [] Decisões: O resultado está correto? É necessário investigar o erro e revisar a solução?
+0077 [] Exceções: Enunciado pouco compreendido ou dúvida conceitual exige revisão ou ajuda. Um teste sem resultado conclusivo não confirma a solução.
+0078 [] Resultado final: Solução compreendida e verificada com os exemplos, com dúvidas registradas para estudo.
+0079 [] Rastreabilidade: RF008–RF009; UC006, UC028, UC029 e UC052. No Stacklyst, testar código antes da submissão não conclui a atividade nem concede XP. Avaliação, execução isolada e registro do progresso pertencem ao comportamento do sistema.
+0080 [Heading3] 3.2.2 Diagrama de Atividades
+0081 [Heading3] AN02 — Praticar exercícios de programação
+0082 []  [IMAGEM rId8]
+0083 [] AN02 — Praticar exercícios de programação.
+0084 [] Fonte editável: stacklyst-seminario.asta / AN02 Praticar exercícios de programação. Exportação atual do projeto do seminário.
+0085 [Heading2]
+0086 [Heading2] 3.3 AN03 — Acompanhar a própria aprendizagem
+0087 [] Objetivo: Comparar os resultados do estudo com os objetivos e ajustar o planejamento de aprendizagem.
+0088 [] Participantes: Estudante ou desenvolvedor em formação.
+0089 [] Pré-condições: Anotações, exercícios realizados e objetivos de estudo disponíveis para análise.
+0090 [Heading3] 3.3.1 Fluxo principal
+0091 [] 1. O estudante reúne as anotações e os exercícios feitos.
+0092 [] 2. O estudante compara os resultados aos objetivos de estudo.
+0093 [] 3. O estudante identifica se existe dificuldade recorrente.
+0094 [] 4. Se houver dificuldade recorrente, reserva um horário para revisão.
+0095 [] 5. Se não houver dificuldade recorrente, define o próximo assunto de estudo.
+0096 [] 6. O estudante atualiza o cronograma em agenda ou planilha.
+0097 [] O planejamento revisto orienta o próximo ciclo de estudo.
+0098 [] Decisões: Há dificuldade recorrente? Deve-se reservar horário para revisão ou definir o próximo assunto?
+0099 [] Exceções: Sem registros suficientes, o estudante reúne mais evidências antes de avaliar a evolução. Uma dificuldade exige revisão do planejamento.
+0100 [] Resultado final: Cronograma atualizado conforme a necessidade de revisão ou o próximo assunto escolhido.
+0101 [] Rastreabilidade: RF009–RF015; UC007 e UC011. O Stacklyst fornece histórico e indicadores, incluindo XP e ranking, para apoiar a análise. A agenda ou planilha citada no processo é uma ferramenta pessoal, sem integração pressuposta.
+0102 [Heading3] 3.3.2 Diagrama de Atividades
+0103 [Heading3] AN03 — Acompanhar a própria aprendizagem
+0104 []  [IMAGEM rId9]
+0105 [] AN03 — Acompanhar a própria aprendizagem.
+0106 [] Fonte editável: stacklyst-seminario.asta / AN03 Acompanhar a própria aprendizagem. Exportação atual do projeto do seminário.
+0107 [Heading2] 3.4 AN04 — Buscar ajuda para uma dúvida
+0108 [] Objetivo: Esclarecer uma dúvida de programação e conferir a explicação por meio de um exemplo.
+0109 [] Participantes: Estudante; colega ou professor, quando necessário.
+0110 [] Pré-condições: Dúvida identificada e tentativa inicial disponível para explicar o problema.
+0111 [Heading3] 3.4.1 Fluxo principal
+0112 [] 1. O estudante descreve a dúvida e o que já tentou.
+0113 [] 2. O estudante consulta documentação, vídeo ou ferramenta de IA.
+0114 [] 3. O estudante verifica se a dúvida foi esclarecida.
+0115 [] 4. Se a dúvida persistir, pede ajuda a um colega ou professor, apresentando o enunciado e a tentativa; a pessoa consultada analisa a dúvida e explica o raciocínio.
+0116 [] 5. O estudante confere a explicação com um exemplo e retoma o estudo.
+0117 [] Decisões: A dúvida foi esclarecida pela consulta inicial? É necessário pedir ajuda a outra pessoa?
+0118 [] Exceções: Uma explicação insuficiente exige nova consulta ou esclarecimento. A resposta de uma ferramenta ou pessoa deve ser conferida em um exemplo.
+0119 [] Resultado final: Dúvida esclarecida e explicação conferida na prática.
+0120 [] Rastreabilidade: RF022–RF025; UC012 e ponto de extensão de ajuda de UC006. O sistema oferece dicas, documentação e sugestões conforme o modo de assistência. A consulta externa a IA, colega ou professor descreve o processo humano e não implica um serviço de IA implementado no Stacklyst.
+0121 [Heading3] 3.4.2 Diagrama de Atividades
+0122 [Heading3] AN04 — Buscar ajuda para uma dúvida
+0123 []  [IMAGEM rId10]
+0124 [] AN04 — Buscar ajuda para uma dúvida.
+0125 [] Fonte editável: stacklyst-seminario.asta / AN04 Buscar ajuda para uma dúvida. Exportação atual do projeto do seminário.
+0126 [Heading2] 3.5 AN05 — Divulgar oportunidade e acompanhar a seleção
+0127 [] Objetivo: Divulgar uma oportunidade profissional e acompanhar a candidatura e o retorno da seleção.
+0128 [] Participantes: Representante da empresa; recrutador responsável; candidato.
+0129 [] Pré-condições: Empresa e responsável identificados para divulgar a vaga. Para candidatar-se, o interessado conhece os requisitos e o canal de envio.
+0130 [Heading3] 3.5.1 Fluxos de divulgação e candidatura
+0131 [] A1. O representante identifica a empresa e o responsável e define o perfil, as condições e os requisitos da vaga.
+0132 [] A2. O recrutador redige a oportunidade e confere as informações.
+0133 [] A3. Se houver erro, o recrutador corrige as informações e confere novamente.
+0134 [] A4. Com as informações corretas, divulga a vaga em portais, redes ou contatos e procura currículos ou contata candidatos. Esse processo pode terminar sem candidatura imediata.
+0135 [] B1. O candidato encontra uma vaga em portal, rede ou indicação, confere os requisitos e envia seu currículo pelo canal informado.
+0136 [] B2. O recrutador recebe e analisa o currículo e informa o retorno ou os próximos passos; o candidato acompanha o e-mail e os contatos recebidos.
+0137 [] B3. Se houver próxima etapa, o candidato responde e a realiza, e o recrutador analisa o resultado. O ciclo se repete até não haver outra etapa, quando o candidato registra o resultado da candidatura.
+0138 [] Decisões: As informações da vaga estão corretas? Há uma próxima etapa da seleção?
+0139 [] Exceções: Informações incorretas retornam à revisão. A ausência de retorno exige acompanhamento pelo candidato. No Stacklyst, vaga encerrada não recebe candidatura e a mesma candidatura não deve ser duplicada.
+0140 [] Resultado final: Oportunidade divulgada e resultado da candidatura acompanhado. Contato externo, entrevista, contratação e pagamento permanecem sob responsabilidade das pessoas envolvidas.
+0141 [] Rastreabilidade: RF034–RF038, RF044–RF048; UC017, UC018, UC022, UC025, UC026 e UC056. No Stacklyst, o responsável autorizado publica a vaga e consulta as candidaturas; o usuário envia sua candidatura e acompanha as etapas. UC026 gera notificação ao candidato da candidatura alterada, sem alerta geral por intenção de vaga ou garantia de envio de e-mail.
+0142 [] Regra do processo: somente o responsável autorizado divulga a vaga e conduz a seleção; o candidato acompanha a própria candidatura.
+0143 []
+0144 [Heading3] 3.5.2 Diagrama de Atividades
+0145 [Heading3] AN05A — Divulgar oportunidade de trabalho
+0146 []  [IMAGEM rId11]
+0147 [] AN05A — Divulgar oportunidade de trabalho.
+0148 [] Fonte editável: stacklyst-seminario.asta / AN05A Divulgar oportunidade de trabalho. Exportação atual do projeto do seminário.
+0149 [Heading3] AN05B — Candidatar-se e acompanhar a seleção
+0150 []  [IMAGEM rId12]
+0151 [] AN05B — Candidatar-se e acompanhar a seleção.
+0152 [] Fonte editável: stacklyst-seminario.asta / AN05B Candidatar-se e acompanhar a seleção. Exportação atual do projeto do seminário.
+0153 []
+0154 [Heading2] 3.6 AN06 — Descobrir e participar de um evento
+0155 [] Objetivo: Encontrar um evento compatível com os interesses e as condições da pessoa e organizar sua participação.
+0156 [] Participantes: Pessoa interessada; organizador do evento.
+0157 [] Pré-condições: Evento divulgado com tema, data, local, condições e canal de inscrição informados.
+0158 [Heading3] 3.6.1 Fluxo principal
+0159 [] 1. A pessoa interessada pesquisa eventos em redes, sites ou por indicação.
+0160 [] 2. A pessoa confere o tema, a data, o local e as condições de participação.
+0161 [] 3. Se não puder participar, encerre a busca por esse evento; se puder, inscreva-se pelo canal informado.
+0162 [] 4. O organizador confirma a inscrição e envia as orientações.
+0163 [] 5. A pessoa anota o compromisso na agenda e comparece ao evento.
+0164 [] Decisões: A pessoa pode participar conforme as datas e condições do evento?
+0165 [] Exceções: A impossibilidade de participação encerra o processo sem inscrição. Se não houver confirmação, a pessoa verifica a situação com o organizador antes de considerar a inscrição concluída.
+0166 [] Resultado final: Inscrição confirmada e participação organizada, ou processo encerrado sem inscrição.
+0167 [] Rastreabilidade: RF041, RF049 e RF044–RF046; UC015, UC023 e UC046. No Stacklyst, UC023 permite inscrever-se e cancelar a própria inscrição antes do encerramento, respeitando o nível mínimo, a capacidade e a ausência de duplicidade. Agenda, comparecimento e comunicação externa do organizador não implicam funcionalidades adicionais de presença ou envio de e-mail.
+0168 [Heading3] 3.6.2 Diagrama de Atividades
+0169 []  [IMAGEM rId13]
+0170 [] AN06 — Descobrir e participar de um evento.
+0171 [] Fonte editável: stacklyst-seminario.asta / AN06 Descobrir e participar de um evento. Exportação atual do projeto do seminário.
+0172 [Heading1] 4. Relação entre atividades e requisitos
+0173 []
+0174 [] Atividade
+0175 [] Requisitos relacionados
+0176 [] Apoio do sistema ao processo humano
+0177 [] AN01 — Estudar programação
+0178 [] RF005–RF010
+0179 [] Apoiar o estudo com trilhas, lições, exercícios, resultados e progresso.
+0180 [] AN02 — Praticar exercícios de programação
+0181 [] RF008–RF009
+0182 [] Receber e avaliar respostas; testar código sem concluir atividade nem conceder XP.
+0183 [] AN03 — Acompanhar a própria aprendizagem
+0184 [] RF009–RF015
+0185 [] Disponibilizar histórico e indicadores para o planejamento do estudante.
+0186 [] AN04 — Buscar ajuda para uma dúvida
+0187 [] RF022–RF025
+0188 [] Disponibilizar dicas e documentação conforme o modo de assistência.
+0189 [] AN05A — Divulgar oportunidade de trabalho
+0190 [] RF034–RF038
+0191 [] Apoiar cadastro da empresa, publicação autorizada e consulta de vagas e perfis públicos.
+0192 [] AN05B — Candidatar-se e acompanhar a seleção
+0193 [] RF035–RF038, RF044–RF048
+0194 [] Registrar candidatura, apresentar as etapas e notificar o candidato após atualização autorizada.
+0195 [] AN06 — Descobrir e participar de um evento
+0196 [] RF041, RF049, RF044–RF046
+0197 [] Disponibilizar eventos e permitir inscrição e cancelamento próprios, conforme as condições de participação.
+0198 []
+0199 [] Fontes dos diagramas atualizados: exportações do projeto stacklyst-seminario.asta fornecidas nesta revisão e imagens correspondentes do seminário.

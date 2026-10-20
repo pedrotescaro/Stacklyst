@@ -1,0 +1,395 @@
+[
+  {
+    "slide": 1,
+    "file": ".build\\fonte-slides\\Slide1.PNG",
+    "sha256": "27d013bfcd39e87a0fac5a7cc4afac46f877aaafdd4383e38de687727276bed8",
+    "crop": {
+      "left": 95,
+      "top": 105,
+      "width": 165,
+      "height": 140
+    },
+    "alt": "Logotipo original do Stacklyst"
+  },
+  {
+    "slide": 4,
+    "file": "fontes-extraidas\\02\\image5.jpg",
+    "sha256": "2911696e7043c96c7cc977fdd0db83d81f455cc1d933f3f50bf46bf7ea9aeecf",
+    "crop": {
+      "top": 58
+    },
+    "alt": "AN01 Estudar programação"
+  },
+  {
+    "slide": 5,
+    "file": "fontes-extraidas\\02\\image1.jpg",
+    "sha256": "0c636d9e5c6bbfb25ea230bb7ff952bb108a1d87ccd04768118514764d71a87a",
+    "crop": {
+      "top": 58
+    },
+    "alt": "AN02 Praticar exercícios de programação"
+  },
+  {
+    "slide": 6,
+    "file": "fontes-extraidas\\02\\image2.png",
+    "sha256": "2ee6a23251b4508ce273e206643c3d8c20d0a2b131d17fe5f901b404df139048",
+    "crop": {
+      "top": 58
+    },
+    "alt": "AN03 Acompanhar a própria aprendizagem"
+  },
+  {
+    "slide": 7,
+    "file": "fontes-extraidas\\02\\image3.jpg",
+    "sha256": "ab0bce25fdcf4a5c609e24401d1be74f060e2a60b2ef2218fdc6d40a248de29f",
+    "crop": {
+      "top": 58
+    },
+    "alt": "AN04 Buscar ajuda para uma dúvida"
+  },
+  {
+    "slide": 8,
+    "file": "fontes-extraidas\\02\\image6.jpg",
+    "sha256": "3ba39b01b229e9fa4526ee798771751bbbe3ded9ab3a7a473d63b58f514c28dd",
+    "crop": {
+      "top": 58
+    },
+    "alt": "AN05A Divulgar oportunidade de trabalho"
+  },
+  {
+    "slide": 9,
+    "file": "fontes-extraidas\\02\\image7.jpg",
+    "sha256": "28a9069ba5e16560ab36519f9ed7c80dae8ce67715c6b0ba88543d07fe934c29",
+    "crop": {
+      "top": 58
+    },
+    "alt": "AN05B Candidatar-se e acompanhar a seleção"
+  },
+  {
+    "slide": 10,
+    "file": "fontes-extraidas\\02\\image4.jpg",
+    "sha256": "cf1ed9c5f5aa6bd69f06f888589594bb17b3499a3a6115677e141e96711a3323",
+    "crop": {
+      "top": 58
+    },
+    "alt": "AN06 Descobrir e participar de um evento"
+  },
+  {
+    "slide": 11,
+    "file": "fontes-extraidas\\04\\image1.jpg",
+    "sha256": "125084bdf29ff57c223fe418f349cf408974c0f33bc332ba35a359537c311e8e",
+    "crop": null,
+    "alt": "Diagrama geral original completo, 18 elipses"
+  },
+  {
+    "slide": 12,
+    "file": "fontes-extraidas\\04\\image1.jpg",
+    "sha256": "125084bdf29ff57c223fe418f349cf408974c0f33bc332ba35a359537c311e8e",
+    "crop": {
+      "left": 70,
+      "top": 35,
+      "width": 1320,
+      "height": 795
+    },
+    "alt": "Ampliação superior do diagrama geral"
+  },
+  {
+    "slide": 13,
+    "file": "fontes-extraidas\\04\\image1.jpg",
+    "sha256": "125084bdf29ff57c223fe418f349cf408974c0f33bc332ba35a359537c311e8e",
+    "crop": {
+      "left": 70,
+      "top": 520,
+      "width": 1320,
+      "height": 570
+    },
+    "alt": "Ampliação inferior do diagrama geral"
+  },
+  {
+    "slide": 14,
+    "file": "fontes-extraidas\\04\\image27.png",
+    "sha256": "807c1d63b9dc6008358869e21ea533d7bdc78b3a744bf3712652781deee62a0c",
+    "crop": null,
+    "alt": "Protótipo UC005"
+  },
+  {
+    "slide": 15,
+    "file": "fontes-extraidas\\04\\image28.png",
+    "sha256": "70a0aa3f640bfa4c5b53f3bdd1137538e4250da9111df947a8927fd7260011f4",
+    "crop": null,
+    "alt": "Protótipo UC006"
+  },
+  {
+    "slide": 17,
+    "file": "diagramas\\CL00.png",
+    "sha256": "7ecc9f751666d52acbcd6c0a9456299a2da5534a551b48c32e987f6b917f3760",
+    "crop": null,
+    "alt": "CL00 Diagrama de classes geral"
+  },
+  {
+    "slide": 18,
+    "file": "diagramas\\MER00.png",
+    "sha256": "38f0ba9c5a27b0bb4cdcafba1a5cc7d3391fead303134d9ed2a866c99fb98efc",
+    "crop": null,
+    "alt": "MER00 Modelo de entidades e relacionamentos geral"
+  },
+  {
+    "slide": 19,
+    "file": "diagramas\\DER00.png",
+    "sha256": "ed4f756b68a724983b029c5a06808079d8e5eb4cc7d4db9b1b9f378a22931cf3",
+    "crop": null,
+    "alt": "DER00 Diagrama geral do banco de dados"
+  },
+  {
+    "slide": 20,
+    "file": "fontes-extraidas\\04\\image13.png",
+    "sha256": "abe00758ce2c117d9d73be7c62f9b82bbdd91f02a0aa471fce49dec9ea942b25",
+    "crop": null,
+    "alt": "Caso de uso UC005"
+  },
+  {
+    "slide": 20,
+    "file": "fontes-extraidas\\04\\image14.png",
+    "sha256": "3555cfd0848f741cbd4726f457577821a2155b90bec39d338e778c1058fdcc14",
+    "crop": null,
+    "alt": "Caso de uso UC006"
+  },
+  {
+    "slide": 21,
+    "file": "diagramas\\CL01.png",
+    "sha256": "8e97908eec82b5dfca8d483db2d10231eba160dae8889faca1eaf0729a677e05",
+    "crop": null,
+    "alt": "CL01 Classes da aprendizagem"
+  },
+  {
+    "slide": 22,
+    "file": "diagramas\\DER01.png",
+    "sha256": "3a4edbdd6e78b941a12cd5ddea7f35d5318c3ed967b665bb332c042dae37e28e",
+    "crop": null,
+    "alt": "DER01 Banco de dados da aprendizagem"
+  },
+  {
+    "slide": 23,
+    "file": "diagramas\\SQ01.png",
+    "sha256": "c98ece2d5b5b62cf95814ba31d29394d84c17a4608c6f5809d4cec3211c7aeb9",
+    "crop": null,
+    "alt": "SQ01 Sequência completa: resolver exercício"
+  },
+  {
+    "slide": 24,
+    "file": "diagramas\\SQ01-A.png",
+    "sha256": "965b050d41b1a3f0266b96722e1d53bb6dccbb8908d6a13958753c4d311455ee",
+    "crop": null,
+    "alt": "Recorte do diagrama de sequência SQ01-A"
+  },
+  {
+    "slide": 24,
+    "file": "evidencias-codigo\\SQ01-A.png",
+    "sha256": "f08e082951840b47ba25936601b0853e8ca4c9e47664e52c86aa936090c31cfa",
+    "crop": null,
+    "alt": "Código real src/app/api/lessons/[lessonId]/attempt/route.ts"
+  },
+  {
+    "slide": 25,
+    "file": "diagramas\\SQ01-B.png",
+    "sha256": "2c3bc4b0d8368111f6f66f0aa4483ba29f1e9ea53df24defe00d75c144c46c17",
+    "crop": null,
+    "alt": "Recorte do diagrama de sequência SQ01-B"
+  },
+  {
+    "slide": 25,
+    "file": "evidencias-codigo\\SQ01-B.png",
+    "sha256": "ba63af94c4e0a1ce072a9ec1b4c2c7e6fb642a2066922f1498b8f1086fa46299",
+    "crop": null,
+    "alt": "Código real src/app/api/lessons/[lessonId]/attempt/route.ts"
+  },
+  {
+    "slide": 26,
+    "file": "diagramas\\SQ01-C.png",
+    "sha256": "6486ea8d1d22a9f53966297af1766f72c0dc4090643a443126f2eb9ba9fdc6d6",
+    "crop": null,
+    "alt": "Recorte do diagrama de sequência SQ01-C"
+  },
+  {
+    "slide": 26,
+    "file": "evidencias-codigo\\SQ01-C.png",
+    "sha256": "96fa35cd2d31101e7f3466f4fde4519fe8fb999681cafecb18f377cedbe725ad",
+    "crop": null,
+    "alt": "Código real src/lib/learning/lesson-progress.ts"
+  },
+  {
+    "slide": 28,
+    "file": "fontes-extraidas\\04\\image39.png",
+    "sha256": "dacb66cff9ce3e2c7effedcb4ea9e50483ef03d9226b1cc79efb7815219bdfe4",
+    "crop": null,
+    "alt": "Protótipo UC017"
+  },
+  {
+    "slide": 30,
+    "file": "fontes-extraidas\\04\\image15.png",
+    "sha256": "141a2b69ed325de50e77bcc452623a9fc5e13ecdcded1733e29f6eb1bade99ae",
+    "crop": null,
+    "alt": "Caso de uso UC017"
+  },
+  {
+    "slide": 31,
+    "file": "diagramas\\CL02.png",
+    "sha256": "e695fa00d962d01d17edcbd3868bbb49496ec18467597cc78e30b0e656df4f11",
+    "crop": null,
+    "alt": "CL02 Classes da publicação de vaga"
+  },
+  {
+    "slide": 32,
+    "file": "diagramas\\DER02.png",
+    "sha256": "c25a8af2fc6e980a6a7c10248d0a4e6aab9e76f75d4356dfe92beaeacb6c8395",
+    "crop": null,
+    "alt": "DER02 Banco de dados da publicação"
+  },
+  {
+    "slide": 33,
+    "file": "diagramas\\SQ02.png",
+    "sha256": "8eb472aab846ed42a64c6781e71f9c17b47bc95b1d79053ecf8392820d67f06c",
+    "crop": null,
+    "alt": "SQ02 Sequência completa: publicar vaga"
+  },
+  {
+    "slide": 34,
+    "file": "diagramas\\SQ02-A.png",
+    "sha256": "fb7d08a06e858da3100d24d6619b301c70b00bd9f3d83e2245b468ba119ee3f5",
+    "crop": null,
+    "alt": "Recorte do diagrama de sequência SQ02-A"
+  },
+  {
+    "slide": 34,
+    "file": "evidencias-codigo\\SQ02-A.png",
+    "sha256": "ca622054eb7586dbb4f7fa922a9b3627addafc7db1d8c1b5cc0337d6892d6ff8",
+    "crop": null,
+    "alt": "Código real src/app/api/jobs/route.ts"
+  },
+  {
+    "slide": 35,
+    "file": "diagramas\\SQ02-B.png",
+    "sha256": "bf4278da6dd56022b8f119913a06e820e866ffcfb8404b739e1451c2a75e6806",
+    "crop": null,
+    "alt": "Recorte do diagrama de sequência SQ02-B"
+  },
+  {
+    "slide": 35,
+    "file": "evidencias-codigo\\SQ02-B.png",
+    "sha256": "68160cfee7398933e10159be87451afaba6671b6ca55081a9ffcb9077d6ebefa",
+    "crop": null,
+    "alt": "Código real src/services/job.service.ts"
+  },
+  {
+    "slide": 36,
+    "file": "diagramas\\SQ02-C.png",
+    "sha256": "171bab4de8f8a91a4c2a2c9d9eb1f1e5034894393b50b633e92646122c9df3a5",
+    "crop": null,
+    "alt": "Recorte do diagrama de sequência SQ02-C"
+  },
+  {
+    "slide": 36,
+    "file": "evidencias-codigo\\SQ02-C.png",
+    "sha256": "03c8f6829090d0d920bff9a0719b22cc1bb6721f06a4418a7766bf82ef53d9ea",
+    "crop": null,
+    "alt": "Código real src/app/recruiter/RecruiterContent.tsx"
+  },
+  {
+    "slide": 38,
+    "file": "fontes-extraidas\\04\\image44.png",
+    "sha256": "7becc24702e0d5655ffb5a24ec921453ed56a7f05814103b0c7d4ac40f3f91f6",
+    "crop": null,
+    "alt": "Protótipo UC022"
+  },
+  {
+    "slide": 39,
+    "file": "evidencias-codigo\\prototipo-candidaturas.png",
+    "sha256": "caaf710e25e29888ade6883ea9b8d3b6d3f4ce87df2e11da346ee7b9bbfa2947",
+    "crop": null,
+    "alt": "Protótipo UC026 com dados de demonstração"
+  },
+  {
+    "slide": 41,
+    "file": "fontes-extraidas\\04\\image16.png",
+    "sha256": "6465a4a9b5b2986d63bdc9c722e4b14b1d0d5d3a17abf8d33d1ff820ad536ba5",
+    "crop": null,
+    "alt": "Caso de uso UC022"
+  },
+  {
+    "slide": 41,
+    "file": "fontes-extraidas\\04\\image18.png",
+    "sha256": "8149994a7009d70dd6e1b179b223363516ce4c2f7c55fd45faeb18679bc23192",
+    "crop": null,
+    "alt": "Caso de uso UC026"
+  },
+  {
+    "slide": 42,
+    "file": "diagramas\\CL03.png",
+    "sha256": "2aa7365790951eaad5ea1cb691980258abb8f49dfc3073a08ffb5b8e99cd92f8",
+    "crop": null,
+    "alt": "CL03 Classes da candidatura e do retorno"
+  },
+  {
+    "slide": 43,
+    "file": "diagramas\\DER03.png",
+    "sha256": "fc02fbbd1eeebc092c5b8a0128ee25652b36ff88cd984639c9e55da9259326fd",
+    "crop": null,
+    "alt": "DER03 Banco de dados da candidatura"
+  },
+  {
+    "slide": 44,
+    "file": "diagramas\\SQ03.png",
+    "sha256": "c92fd95c9d5fe33b2f863577ea87c0204d7992751ff22dd9139e70c17bbdb637",
+    "crop": null,
+    "alt": "SQ03 Sequência completa: candidatar-se"
+  },
+  {
+    "slide": 45,
+    "file": "diagramas\\SQ04.png",
+    "sha256": "8f43ed7dfe7a4c71fc55cc4412b75d41ea3312d2aef6cfa984d6e4195f58825e",
+    "crop": null,
+    "alt": "SQ04 Sequência completa: atualizar candidatura"
+  },
+  {
+    "slide": 46,
+    "file": "diagramas\\SQ03-A.png",
+    "sha256": "314ac4f7a96855a085333c49c7da5ca5e3a836bf733c0754fabd7ad3d8549f30",
+    "crop": null,
+    "alt": "Recorte do diagrama de sequência SQ03-A"
+  },
+  {
+    "slide": 46,
+    "file": "evidencias-codigo\\SQ03-A.png",
+    "sha256": "a6f6d7ce428fb896539501c45b318be7124c80b14af089bd3ebb81b2fa1a54ef",
+    "crop": null,
+    "alt": "Código real src/services/job.service.ts"
+  },
+  {
+    "slide": 47,
+    "file": "diagramas\\SQ03-B.png",
+    "sha256": "8391ed8a8d4732cec25a43f79660b30140dc9255b183d1f31bc331cea383acf1",
+    "crop": null,
+    "alt": "Recorte do diagrama de sequência SQ03-B"
+  },
+  {
+    "slide": 47,
+    "file": "evidencias-codigo\\SQ03-B.png",
+    "sha256": "fcfdda735386a24d41acb8716be26c789421f9da36d377af0acf84ac9bf94286",
+    "crop": null,
+    "alt": "Código real src/app/api/jobs/[id]/route.ts"
+  },
+  {
+    "slide": 48,
+    "file": "diagramas\\SQ03-C.png",
+    "sha256": "246bfbeae9bb8ca7d5800232ec1e688dd17094a9d13f33c0f84dfb79f6c27a92",
+    "crop": null,
+    "alt": "Recorte do diagrama de sequência SQ03-C"
+  },
+  {
+    "slide": 48,
+    "file": "evidencias-codigo\\SQ03-C.png",
+    "sha256": "6b317f2008ac48bb593956c4ccc35f78fca29695237e66ec891afd0bbff89d0c",
+    "crop": null,
+    "alt": "Código real src/services/job.service.ts"
+  }
+]

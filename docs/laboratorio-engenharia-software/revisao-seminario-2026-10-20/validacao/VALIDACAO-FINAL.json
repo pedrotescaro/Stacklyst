@@ -1,0 +1,16 @@
+{
+  "slides": 51,
+  "pdf_pages": 51,
+  "code_captures_embedded": 9,
+  "zip_files": 61,
+  "zip_integrity": "pass",
+  "pptx_sha256": "82a2ba8da54fd84b27257dcb4c1f013ecdeb448b2d2b481d7f3b3a022052d364",
+  "package_sha256": "b83013e1b5e4eb76f2a47c01ef4d850fee5ef095f10965c3f2b35e2c1efca55e",
+  "outputs": [
+    "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\apresentacao\\Stacklyst-seminario-revisado-2026-10-20.pptx",
+    "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\apresentacao\\Stacklyst-seminario-revisado-2026-10-20.pdf",
+    "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\Stacklyst-seminario-revisado-completo-2026-10-20.zip",
+    "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\Stacklyst-seminario-revisado.asta"
+  ],
+  "demonstrations": "Roteirizadas; não executadas nesta revisão."
+}

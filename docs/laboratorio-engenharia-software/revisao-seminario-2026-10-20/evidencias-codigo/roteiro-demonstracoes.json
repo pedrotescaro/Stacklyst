@@ -1,0 +1,100 @@
+{
+  "status": "Roteiro de demonstração elaborado a partir do código atual. As demonstrações não foram executadas nesta revisão.",
+  "ordem_proposta": [
+    {
+      "ordem": 1,
+      "integrante": "Pedro Antonio Silvestre Tescaro",
+      "modulo": "Aprendizagem e conclusão de atividades da lição",
+      "duracao_minutos": 13,
+      "observacao": "O primeiro integrante também apresenta os diagramas gerais de classes e de banco de dados.",
+      "prototipos": ["fontes-extraidas/04/image27.png", "fontes-extraidas/04/image28.png"],
+      "preparar_antes": [
+        "Usar conta de demonstração com progresso conhecido e anotar o XP inicial.",
+        "Deixar aberta a lição de catálogo /lesson/js-l1, sem o parâmetro mode=workspace.",
+        "Para testar código rapidamente, deixar as etapas anteriores concluídas e o desafio de programação selecionado.",
+        "Conferir o serviço de execução antes do seminário e deixar a solução calcularDesconto preparada no editor."
+      ],
+      "executar": [
+        "Mostrar o enunciado e a resposta preparada da atividade da lição.",
+        "Acionar Testar e explicar que a resposta é avaliada no servidor sem conceder XP.",
+        "Acionar a verificação definitiva da solução e observar o resultado e o progresso.",
+        "Comparar o XP ao valor anterior e repetir a verificação para mostrar que a mesma conclusão não concede XP novamente."
+      ],
+      "resultado_esperado": [
+        "Ação run retorna xpEarned igual a zero.",
+        "A conclusão correta inédita pode conceder o XP da etapa.",
+        "Repetir uma conclusão já correta não concede XP adicional.",
+        "Se o serviço de execução estiver indisponível, a API retorna erro 503 e o progresso permanece inalterado."
+      ],
+      "apoio_codigo": ["SQ01-A", "SQ01-B", "SQ01-C"],
+      "saida_para_o_proximo": "O perfil do candidato já existe. A próxima demonstração cria a oportunidade que será consumida no último bloco."
+    },
+    {
+      "ordem": 2,
+      "integrante": "Guilherme Alves de Campos",
+      "modulo": "Publicação de vaga",
+      "duracao_minutos": 12,
+      "prototipos": ["fontes-extraidas/04/image39.png"],
+      "preparar_antes": [
+        "Deixar a conta de recrutador autenticada e vinculada à empresa de demonstração.",
+        "Usar /recruiter com empresa cadastrada previamente.",
+        "Preencher título, descrição, tecnologias e demais campos de uma vaga de teste, sem publicar antes da explicação.",
+        "Usar título identificável, por exemplo Estágio JavaScript - Seminário, com descrição de ao menos dez caracteres."
+      ],
+      "executar": [
+        "Identificar no protótipo a empresa e os dados obrigatórios da vaga.",
+        "Publicar a vaga e mostrar a confirmação na interface.",
+        "Localizar a vaga na listagem atualizada e observar as etapas associadas.",
+        "Abrir /jobs e a página da vaga para preparar a continuidade da demonstração."
+      ],
+      "resultado_esperado": [
+        "O servidor exige papel de recrutador ou administrador e acesso à empresa.",
+        "A vaga é persistida como aberta e recebe suas etapas de recrutamento.",
+        "A listagem é recarregada após a confirmação."
+      ],
+      "apoio_codigo": ["SQ02-A", "SQ02-B", "SQ02-C"],
+      "saida_para_o_proximo": "A vaga criada e sua primeira etapa já estão disponíveis para a candidatura do terceiro bloco."
+    },
+    {
+      "ordem": 3,
+      "integrante": "Paulo Henrique Leal dos Santos",
+      "modulo": "Candidatura, acompanhamento e retorno ao candidato",
+      "duracao_minutos": 14,
+      "prototipos": ["fontes-extraidas/04/image44.png", "fontes-extraidas/04/image48.png"],
+      "preparar_antes": [
+        "Usar a vaga criada no bloco anterior e uma conta de candidato que ainda não se candidatou a ela.",
+        "Manter duas sessões separadas, candidato e recrutador, para evitar pausas de autenticação.",
+        "Deixar o painel do recrutador aberto na mesma vaga e combinar a situação que será selecionada, por exemplo Em Análise.",
+        "Não apresentar o cadastro de empresa, o cadastro do candidato nem a criação das etapas novamente."
+      ],
+      "executar": [
+        "Na sessão do candidato, abrir a vaga e acionar Candidatar-se com Stacklyst.",
+        "Mostrar a confirmação da candidatura na etapa inicial.",
+        "Na sessão do recrutador, carregar as candidaturas da vaga e localizar o mesmo candidato.",
+        "No seletor da candidatura, alterar a situação de Inscrito para Em Análise e mostrar a confirmação.",
+        "Voltar à sessão do candidato, atualizar a consulta e localizar a notificação da atualização."
+      ],
+      "resultado_esperado": [
+        "A candidatura referencia a vaga e o candidato e começa na primeira etapa disponível.",
+        "Uma candidatura repetida é rejeitada e vagas fechadas não aceitam inscrição.",
+        "O painel atual altera a situação da candidatura. A API também suporta etapa, parecer e nota técnica, mas esses campos não possuem controles nessa tela.",
+        "A atualização é persistida e solicita uma notificação ao candidato. Uma falha no aviso é registrada e não desfaz a atualização."
+      ],
+      "apoio_codigo": ["SQ03-A", "SQ03-B", "SQ03-C"],
+      "saida_para_o_proximo": "Encerrar mostrando o percurso completo: estudar, disponibilizar uma oportunidade, candidatar-se e receber o retorno do processo."
+    }
+  ],
+  "tempos_comuns": {
+    "abertura_grupo_problema_atividades_e_casos_de_uso_minutos": 9,
+    "encerramento_e_perguntas_minutos": 7,
+    "total_planejado_minutos": 55,
+    "margem_ate_uma_hora_minutos": 5
+  },
+  "observacoes": [
+    "A divisão por integrante é uma proposta para o ensaio, fundamentada nas responsabilidades descritas no documento de visão.",
+    "Todos apresentam protótipo, requisitos, regras, classes e banco específicos, sequência completa, sequência com código e prática.",
+    "Os dados prévios são preparação do grupo para o seminário. Este arquivo não afirma que foram cadastrados nesta revisão.",
+    "O fluxo de lições documentado utiliza LessonClient e QuizAttempt. O modo ExerciseWorkspace é outro fluxo e não deve ser misturado nesta demonstração.",
+    "Na prática do painel de recrutador, demonstrar a alteração de situação. A alteração de stage_id e feedback é explicada como capacidade da API, não como controle presente na interface atual."
+  ]
+}

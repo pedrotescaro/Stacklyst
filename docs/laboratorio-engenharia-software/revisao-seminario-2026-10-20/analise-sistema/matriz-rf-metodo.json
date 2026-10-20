@@ -1,0 +1,17 @@
+{
+  "data": "2026-10-20",
+  "commit": "bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa",
+  "criterio": "Implementado significa mecanismo presente na inspeção estática; não homologação runtime. Parcial significa contrato, percurso de interface ou requisito documentado com lacuna concreta. Legado descreve classificação documental, podendo continuar ativo.",
+  "total": 49,
+  "estados": {
+    "implementado": 17,
+    "legado": 1,
+    "parcial": 31
+  },
+  "fontes": [
+    "fontes-extraidas/auditoria.json",
+    "analise-sistema/lacunas-dominios.json",
+    "analise-sistema/lacunas-fluxos.json"
+  ],
+  "validacao": "49 IDs únicos e todas as referências path:line validadas no conteúdo atual. Nenhum produto, slide, banco ou produção alterados."
+}

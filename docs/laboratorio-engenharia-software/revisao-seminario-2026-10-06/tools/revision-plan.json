@@ -1,0 +1,2079 @@
+{
+  "activities": [
+    {
+      "id": "AN01",
+      "name": "Estudar programação",
+      "purpose": "Compreender um assunto e aplicar o conteúdo sem depender do Stacklyst.",
+      "lanes": [
+        "Estudante"
+      ],
+      "nodes": [
+        [
+          "start",
+          "initial",
+          "",
+          55,
+          135,
+          20,
+          20,
+          0
+        ],
+        [
+          "goal",
+          "action",
+          "Definir assunto e\nobjetivo de estudo",
+          110,
+          112,
+          200,
+          65,
+          0
+        ],
+        [
+          "plan",
+          "action",
+          "Organizar horários\ne cronograma",
+          380,
+          112,
+          200,
+          65,
+          0
+        ],
+        [
+          "search",
+          "action",
+          "Pesquisar no Google,\nYouTube ou IA",
+          650,
+          112,
+          200,
+          65,
+          0
+        ],
+        [
+          "study",
+          "action",
+          "Assistir à aula ou\nler o material",
+          920,
+          112,
+          200,
+          65,
+          0
+        ],
+        [
+          "retry",
+          "merge",
+          "",
+          1000,
+          263,
+          26,
+          26,
+          0
+        ],
+        [
+          "practice",
+          "action",
+          "Procurar exercícios\ne tentar resolver",
+          920,
+          330,
+          200,
+          65,
+          0
+        ],
+        [
+          "ok",
+          "decision",
+          "Conseguiu explicar\ne aplicar?",
+          660,
+          340,
+          44,
+          44,
+          0
+        ],
+        [
+          "help",
+          "action",
+          "Revisar o material\nou buscar ajuda",
+          375,
+          330,
+          200,
+          65,
+          0
+        ],
+        [
+          "record",
+          "action",
+          "Anotar o aprendido\ne planejar revisão",
+          650,
+          525,
+          200,
+          65,
+          0
+        ],
+        [
+          "end",
+          "final",
+          "",
+          980,
+          547,
+          22,
+          22,
+          0
+        ]
+      ],
+      "edges": [
+        [
+          "start",
+          "goal"
+        ],
+        [
+          "goal",
+          "plan"
+        ],
+        [
+          "plan",
+          "search"
+        ],
+        [
+          "search",
+          "study"
+        ],
+        [
+          "study",
+          "retry"
+        ],
+        [
+          "retry",
+          "practice"
+        ],
+        [
+          "practice",
+          "ok"
+        ],
+        [
+          "ok",
+          "help",
+          "não"
+        ],
+        [
+          "help",
+          "retry",
+          "",
+          [
+            [
+              475,
+              290
+            ],
+            [
+              1013,
+              290
+            ]
+          ]
+        ],
+        [
+          "ok",
+          "record",
+          "sim"
+        ],
+        [
+          "record",
+          "end"
+        ]
+      ],
+      "difficulty": "Materiais dispersos e dificuldade para decidir o que estudar ou revisar.",
+      "result": "Conteúdo estudado e aplicação verificada pelo estudante."
+    },
+    {
+      "id": "AN03",
+      "name": "Praticar exercícios de programação",
+      "purpose": "Praticar a solução de um problema e conferir o resultado.",
+      "lanes": [
+        "Estudante"
+      ],
+      "nodes": [
+        [
+          "start",
+          "initial",
+          "",
+          55,
+          135,
+          20,
+          20,
+          0
+        ],
+        [
+          "choose",
+          "action",
+          "Escolher exercício\nem livro ou site",
+          110,
+          112,
+          200,
+          65,
+          0
+        ],
+        [
+          "read",
+          "action",
+          "Ler o enunciado\ne identificar entradas",
+          380,
+          112,
+          200,
+          65,
+          0
+        ],
+        [
+          "retry",
+          "merge",
+          "",
+          740,
+          130,
+          26,
+          26,
+          0
+        ],
+        [
+          "solve",
+          "action",
+          "Escrever a solução\nem papel ou editor",
+          900,
+          112,
+          200,
+          65,
+          0
+        ],
+        [
+          "test",
+          "action",
+          "Testar exemplos e\ncomparar resultados",
+          900,
+          330,
+          200,
+          65,
+          0
+        ],
+        [
+          "ok",
+          "decision",
+          "Resultado\ncorreto?",
+          660,
+          340,
+          44,
+          44,
+          0
+        ],
+        [
+          "fix",
+          "action",
+          "Investigar o erro\ne revisar a solução",
+          375,
+          330,
+          200,
+          65,
+          0
+        ],
+        [
+          "explain",
+          "action",
+          "Explicar a solução\ne registrar dúvidas",
+          650,
+          525,
+          200,
+          65,
+          0
+        ],
+        [
+          "end",
+          "final",
+          "",
+          980,
+          547,
+          22,
+          22,
+          0
+        ]
+      ],
+      "edges": [
+        [
+          "start",
+          "choose"
+        ],
+        [
+          "choose",
+          "read"
+        ],
+        [
+          "read",
+          "retry"
+        ],
+        [
+          "retry",
+          "solve"
+        ],
+        [
+          "solve",
+          "test"
+        ],
+        [
+          "test",
+          "ok"
+        ],
+        [
+          "ok",
+          "fix",
+          "não"
+        ],
+        [
+          "fix",
+          "retry",
+          "",
+          [
+            [
+              475,
+              260
+            ],
+            [
+              753,
+              260
+            ]
+          ]
+        ],
+        [
+          "ok",
+          "explain",
+          "sim"
+        ],
+        [
+          "explain",
+          "end"
+        ]
+      ],
+      "difficulty": "Correção manual e falta de retorno imediato sobre erros.",
+      "result": "Solução conferida e dúvidas identificadas."
+    },
+    {
+      "id": "AN04",
+      "name": "Acompanhar a própria aprendizagem",
+      "purpose": "Revisar registros de estudo e ajustar o planejamento.",
+      "lanes": [
+        "Estudante"
+      ],
+      "nodes": [
+        [
+          "start",
+          "initial",
+          "",
+          55,
+          135,
+          20,
+          20,
+          0
+        ],
+        [
+          "gather",
+          "action",
+          "Reunir anotações\ne exercícios feitos",
+          110,
+          112,
+          200,
+          65,
+          0
+        ],
+        [
+          "compare",
+          "action",
+          "Comparar resultados\ncom os objetivos",
+          380,
+          112,
+          200,
+          65,
+          0
+        ],
+        [
+          "gap",
+          "decision",
+          "Há dificuldade\nrecorrente?",
+          685,
+          122,
+          44,
+          44,
+          0
+        ],
+        [
+          "revise",
+          "action",
+          "Reservar horário\npara revisão",
+          900,
+          112,
+          200,
+          65,
+          0
+        ],
+        [
+          "advance",
+          "action",
+          "Definir o próximo\nassunto de estudo",
+          380,
+          340,
+          200,
+          65,
+          0
+        ],
+        [
+          "merge",
+          "merge",
+          "",
+          740,
+          360,
+          26,
+          26,
+          0
+        ],
+        [
+          "schedule",
+          "action",
+          "Atualizar cronograma\nem agenda ou planilha",
+          900,
+          340,
+          200,
+          65,
+          0
+        ],
+        [
+          "end",
+          "final",
+          "",
+          1000,
+          560,
+          22,
+          22,
+          0
+        ]
+      ],
+      "edges": [
+        [
+          "start",
+          "gather"
+        ],
+        [
+          "gather",
+          "compare"
+        ],
+        [
+          "compare",
+          "gap"
+        ],
+        [
+          "gap",
+          "revise",
+          "sim"
+        ],
+        [
+          "gap",
+          "advance",
+          "não",
+          [
+            [
+              707,
+              270
+            ],
+            [
+              480,
+              270
+            ]
+          ]
+        ],
+        [
+          "revise",
+          "merge"
+        ],
+        [
+          "advance",
+          "merge"
+        ],
+        [
+          "merge",
+          "schedule"
+        ],
+        [
+          "schedule",
+          "end"
+        ]
+      ],
+      "difficulty": "Registros incompletos e acompanhamento em ferramentas diferentes.",
+      "result": "Cronograma ajustado às dificuldades e aos objetivos."
+    },
+    {
+      "id": "AN06",
+      "name": "Buscar ajuda para uma dúvida",
+      "purpose": "Esclarecer uma dificuldade e conferir a resposta recebida.",
+      "lanes": [
+        "Estudante",
+        "Colega ou professor"
+      ],
+      "nodes": [
+        [
+          "start",
+          "initial",
+          "",
+          55,
+          145,
+          20,
+          20,
+          0
+        ],
+        [
+          "describe",
+          "action",
+          "Descrever a dúvida\ne o que já tentou",
+          110,
+          122,
+          200,
+          65,
+          0
+        ],
+        [
+          "research",
+          "action",
+          "Consultar documentação,\nvídeo ou IA",
+          380,
+          122,
+          200,
+          65,
+          0
+        ],
+        [
+          "solved",
+          "decision",
+          "Dúvida\nesclarecida?",
+          685,
+          132,
+          44,
+          44,
+          0
+        ],
+        [
+          "check",
+          "action",
+          "Conferir a explicação\ncom um exemplo",
+          915,
+          122,
+          200,
+          65,
+          0
+        ],
+        [
+          "end",
+          "final",
+          "",
+          1185,
+          145,
+          22,
+          22,
+          0
+        ],
+        [
+          "ask",
+          "action",
+          "Pedir ajuda com\nenunciado e tentativa",
+          380,
+          350,
+          200,
+          65,
+          0
+        ],
+        [
+          "explain",
+          "action",
+          "Analisar a dúvida\ne explicar o raciocínio",
+          680,
+          460,
+          200,
+          65,
+          1
+        ],
+        [
+          "merge",
+          "merge",
+          "",
+          985,
+          270,
+          26,
+          26,
+          0
+        ]
+      ],
+      "edges": [
+        [
+          "start",
+          "describe"
+        ],
+        [
+          "describe",
+          "research"
+        ],
+        [
+          "research",
+          "solved"
+        ],
+        [
+          "solved",
+          "check",
+          "sim"
+        ],
+        [
+          "solved",
+          "ask",
+          "não",
+          [
+            [
+              707,
+              300
+            ],
+            [
+              480,
+              300
+            ]
+          ]
+        ],
+        [
+          "ask",
+          "explain"
+        ],
+        [
+          "explain",
+          "merge",
+          "",
+          [
+            [
+              1010,
+              492
+            ]
+          ]
+        ],
+        [
+          "merge",
+          "check"
+        ],
+        [
+          "check",
+          "end"
+        ]
+      ],
+      "difficulty": "Respostas podem ser incompletas ou incorretas e precisam ser verificadas.",
+      "result": "Dúvida esclarecida com exemplo conferido."
+    },
+    {
+      "id": "AN08A",
+      "name": "Divulgar oportunidade de trabalho",
+      "purpose": "Descrever uma necessidade de contratação e iniciar a busca de candidatos.",
+      "lanes": [
+        "Representante da empresa",
+        "Recrutador responsável"
+      ],
+      "nodes": [
+        [
+          "start",
+          "initial",
+          "",
+          55,
+          145,
+          20,
+          20,
+          0
+        ],
+        [
+          "need",
+          "action",
+          "Identificar a empresa\ne o responsável",
+          110,
+          122,
+          200,
+          65,
+          0
+        ],
+        [
+          "profile",
+          "action",
+          "Definir perfil, condições\ne requisitos da vaga",
+          395,
+          122,
+          200,
+          65,
+          0
+        ],
+        [
+          "write",
+          "action",
+          "Redigir a oportunidade",
+          110,
+          410,
+          200,
+          65,
+          1
+        ],
+        [
+          "merge",
+          "merge",
+          "",
+          430,
+          430,
+          26,
+          26,
+          1
+        ],
+        [
+          "check",
+          "action",
+          "Conferir a vaga",
+          535,
+          410,
+          200,
+          65,
+          1
+        ],
+        [
+          "ok",
+          "decision",
+          "Informações\ncorretas?",
+          815,
+          420,
+          44,
+          44,
+          1
+        ],
+        [
+          "fix",
+          "action",
+          "Corrigir informações",
+          535,
+          565,
+          200,
+          65,
+          1
+        ],
+        [
+          "publish",
+          "action",
+          "Divulgar em portais,\nredes ou contatos",
+          960,
+          410,
+          200,
+          65,
+          1
+        ],
+        [
+          "search",
+          "action",
+          "Procurar currículos\ne contatar candidatos",
+          960,
+          565,
+          200,
+          65,
+          1
+        ],
+        [
+          "end",
+          "final",
+          "",
+          1185,
+          588,
+          22,
+          22,
+          1
+        ]
+      ],
+      "edges": [
+        [
+          "start",
+          "need"
+        ],
+        [
+          "need",
+          "profile"
+        ],
+        [
+          "profile",
+          "write",
+          "",
+          [
+            [
+              495,
+              275
+            ],
+            [
+              210,
+              275
+            ]
+          ]
+        ],
+        [
+          "write",
+          "merge"
+        ],
+        [
+          "merge",
+          "check"
+        ],
+        [
+          "check",
+          "ok"
+        ],
+        [
+          "ok",
+          "publish",
+          "sim"
+        ],
+        [
+          "ok",
+          "fix",
+          "não",
+          [
+            [
+              837,
+              598
+            ]
+          ]
+        ],
+        [
+          "fix",
+          "merge",
+          "",
+          [
+            [
+              443,
+              598
+            ]
+          ]
+        ],
+        [
+          "publish",
+          "search"
+        ],
+        [
+          "search",
+          "end"
+        ]
+      ],
+      "difficulty": "Divulgação em canais separados e busca manual de currículos.",
+      "result": "Oportunidade divulgada e candidatos contatados quando encontrados."
+    },
+    {
+      "id": "AN08B",
+      "name": "Candidatar-se e acompanhar a seleção",
+      "purpose": "Enviar uma candidatura e acompanhar a resposta do recrutador.",
+      "lanes": [
+        "Candidato",
+        "Recrutador responsável"
+      ],
+      "nodes": [
+        [
+          "start",
+          "initial",
+          "",
+          55,
+          145,
+          20,
+          20,
+          0
+        ],
+        [
+          "find",
+          "action",
+          "Encontrar vaga em\nportal, rede ou indicação",
+          110,
+          122,
+          200,
+          65,
+          0
+        ],
+        [
+          "send",
+          "action",
+          "Conferir requisitos\ne enviar currículo",
+          395,
+          122,
+          200,
+          65,
+          0
+        ],
+        [
+          "receive",
+          "action",
+          "Receber e analisar\no currículo",
+          680,
+          410,
+          200,
+          65,
+          1
+        ],
+        [
+          "contact",
+          "action",
+          "Informar retorno\nou próximos passos",
+          960,
+          410,
+          200,
+          65,
+          1
+        ],
+        [
+          "track",
+          "action",
+          "Acompanhar e-mail\ne contatos recebidos",
+          960,
+          122,
+          200,
+          65,
+          0
+        ],
+        [
+          "next",
+          "decision",
+          "Há próxima\netapa?",
+          685,
+          132,
+          44,
+          44,
+          0
+        ],
+        [
+          "attend",
+          "action",
+          "Responder e realizar\na etapa combinada",
+          395,
+          275,
+          200,
+          65,
+          0
+        ],
+        [
+          "finish",
+          "action",
+          "Registrar o resultado\nda candidatura",
+          680,
+          275,
+          200,
+          65,
+          0
+        ],
+        [
+          "end",
+          "final",
+          "",
+          995,
+          297,
+          22,
+          22,
+          0
+        ],
+        [
+          "merge",
+          "merge",
+          "",
+          775,
+          355,
+          26,
+          26,
+          1
+        ]
+      ],
+      "edges": [
+        [
+          "start",
+          "find"
+        ],
+        [
+          "find",
+          "send"
+        ],
+        [
+          "send",
+          "merge",
+          "",
+          [
+            [
+              780,
+              155
+            ]
+          ]
+        ],
+        [
+          "merge",
+          "receive"
+        ],
+        [
+          "receive",
+          "contact"
+        ],
+        [
+          "contact",
+          "track"
+        ],
+        [
+          "track",
+          "next"
+        ],
+        [
+          "next",
+          "attend",
+          "sim",
+          [
+            [
+              520,
+              154
+            ]
+          ]
+        ],
+        [
+          "attend",
+          "merge",
+          "",
+          [
+            [
+              495,
+              360
+            ]
+          ]
+        ],
+        [
+          "next",
+          "finish",
+          "não"
+        ],
+        [
+          "finish",
+          "end"
+        ]
+      ],
+      "difficulty": "O candidato acompanha respostas em canais dispersos e pode não receber retorno.",
+      "result": "Próxima etapa cumprida ou resultado registrado."
+    },
+    {
+      "id": "AN09",
+      "name": "Descobrir e participar de um evento",
+      "purpose": "Localizar um evento, conferir condições e organizar a participação.",
+      "lanes": [
+        "Pessoa interessada",
+        "Organizador do evento"
+      ],
+      "nodes": [
+        [
+          "start",
+          "initial",
+          "",
+          55,
+          145,
+          20,
+          20,
+          0
+        ],
+        [
+          "find",
+          "action",
+          "Pesquisar eventos em\nredes, sites ou indicação",
+          110,
+          122,
+          200,
+          65,
+          0
+        ],
+        [
+          "check",
+          "action",
+          "Conferir tema, data,\nlocal e condições",
+          395,
+          122,
+          200,
+          65,
+          0
+        ],
+        [
+          "can",
+          "decision",
+          "Pode\nparticipar?",
+          690,
+          132,
+          44,
+          44,
+          0
+        ],
+        [
+          "register",
+          "action",
+          "Inscrever-se no canal\ninformado pelo evento",
+          920,
+          122,
+          200,
+          65,
+          0
+        ],
+        [
+          "confirm",
+          "action",
+          "Confirmar inscrição\ne enviar orientações",
+          920,
+          440,
+          200,
+          65,
+          1
+        ],
+        [
+          "agenda",
+          "action",
+          "Anotar na agenda\ne comparecer",
+          640,
+          285,
+          200,
+          65,
+          0
+        ],
+        [
+          "end",
+          "final",
+          "",
+          410,
+          307,
+          22,
+          22,
+          0
+        ],
+        [
+          "decline",
+          "final",
+          "",
+          712,
+          224,
+          22,
+          22,
+          0
+        ]
+      ],
+      "edges": [
+        [
+          "start",
+          "find"
+        ],
+        [
+          "find",
+          "check"
+        ],
+        [
+          "check",
+          "can"
+        ],
+        [
+          "can",
+          "register",
+          "sim"
+        ],
+        [
+          "can",
+          "decline",
+          "não"
+        ],
+        [
+          "register",
+          "confirm"
+        ],
+        [
+          "confirm",
+          "agenda",
+          "",
+          [
+            [
+              740,
+              472
+            ]
+          ]
+        ],
+        [
+          "agenda",
+          "end"
+        ]
+      ],
+      "difficulty": "Datas e inscrições se perdem entre canais de divulgação e agendas pessoais.",
+      "result": "Participação organizada ou evento descartado."
+    }
+  ],
+  "services": [
+    {
+      "name": "JobService",
+      "path": "src/services/job.service.ts",
+      "ops": [
+        [
+          "listJobs",
+          "filters?: JobFilters",
+          "Promise"
+        ],
+        [
+          "getJobById",
+          "jobId: string, currentUserId?: string",
+          "Promise"
+        ],
+        [
+          "createJob",
+          "params: CreateJobParams",
+          "Promise"
+        ],
+        [
+          "applyForJob",
+          "userId: string, jobId: string",
+          "Promise"
+        ],
+        [
+          "updateApplicationStage",
+          "params: ApplicationUpdate",
+          "Promise"
+        ],
+        [
+          "getJobApplications",
+          "jobId: string, currentUserId: string, userRole: string",
+          "Promise"
+        ],
+        [
+          "createCompany",
+          "params: CompanyInput",
+          "Promise"
+        ]
+      ],
+      "entities": [
+        "Job",
+        "JobApplication",
+        "Company",
+        "JobRecruitmentStage"
+      ],
+      "diagrams": [
+        "CL08",
+        "CL12"
+      ],
+      "kind": "objeto TypeScript"
+    },
+    {
+      "name": "EventService",
+      "path": "src/services/event.service.ts",
+      "ops": [
+        [
+          "listEvents",
+          "status?: EventStatus, currentUserId?: string",
+          "Promise"
+        ],
+        [
+          "createEvent",
+          "params: CreateEventParams",
+          "Promise"
+        ],
+        [
+          "participate",
+          "userId: string, eventId: string",
+          "Promise"
+        ],
+        [
+          "cancelParticipation",
+          "userId: string, eventId: string",
+          "Promise"
+        ],
+        [
+          "deleteEvent",
+          "eventId: string, userId: string, isAdmin?: boolean",
+          "Promise"
+        ]
+      ],
+      "entities": [
+        "Event",
+        "EventParticipant"
+      ],
+      "diagrams": [
+        "CL09",
+        "CL12"
+      ],
+      "kind": "objeto TypeScript"
+    },
+    {
+      "name": "LessonProgress",
+      "path": "src/lib/learning/lesson-progress.ts",
+      "ops": [
+        [
+          "getLessonProgress",
+          "userId: string, lesson: Lesson",
+          "Promise"
+        ],
+        [
+          "requireLessonAccess",
+          "userId: string, lesson: Lesson",
+          "Promise<void>"
+        ],
+        [
+          "saveLessonAssessment",
+          "userId: string, lesson: Lesson, step: LessonStep, isCorrect: boolean, selectedIndex: number",
+          "Promise"
+        ]
+      ],
+      "entities": [
+        "Quiz",
+        "QuizAttempt",
+        "User",
+        "Lesson",
+        "LessonStep"
+      ],
+      "diagrams": [
+        "CL03",
+        "CL11",
+        "CL12"
+      ],
+      "kind": "módulo TypeScript"
+    },
+    {
+      "name": "LessonAssessment",
+      "path": "src/lib/learning/assessment.ts",
+      "ops": [
+        [
+          "assessLessonStep",
+          "lesson: Lesson, step: LessonStep, answer: LessonAnswer",
+          "Promise"
+        ],
+        [
+          "publicLesson",
+          "lesson: Lesson",
+          "Lesson"
+        ]
+      ],
+      "entities": [
+        "Lesson",
+        "LessonStep",
+        "Exercise"
+      ],
+      "diagrams": [
+        "CL03",
+        "CL11"
+      ],
+      "kind": "módulo TypeScript"
+    },
+    {
+      "name": "LearningRepository",
+      "path": "src/lib/learning/repository.ts",
+      "ops": [
+        [
+          "getKnowledgeMapForUser",
+          "userId: string",
+          "Promise<KnowledgeMapData>"
+        ]
+      ],
+      "entities": [
+        "LearningPath",
+        "KnowledgeNode",
+        "UserNodeProgress"
+      ],
+      "diagrams": [
+        "CL02"
+      ],
+      "kind": "módulo TypeScript"
+    },
+    {
+      "name": "XpService",
+      "path": "src/services/xp.service.ts",
+      "ops": [
+        [
+          "awardXP",
+          "userId: string, language: Language, amount: number",
+          "Promise"
+        ],
+        [
+          "awardXPInTransaction",
+          "tx: TransactionClient, userId: string, language: Language, amount: number",
+          "Promise"
+        ]
+      ],
+      "entities": [
+        "User",
+        "LanguageTrail",
+        "Badge",
+        "UserBadge"
+      ],
+      "diagrams": [
+        "CL01",
+        "CL12"
+      ],
+      "kind": "objeto TypeScript"
+    },
+    {
+      "name": "QuizService",
+      "path": "src/services/quiz.service.ts",
+      "ops": [
+        [
+          "generateDaily",
+          "scheduledFor: Date",
+          "Promise"
+        ],
+        [
+          "validateQuizAnswer",
+          "userId: string, quizId: string, selectedIndex: number",
+          "Promise"
+        ]
+      ],
+      "entities": [
+        "Quiz",
+        "QuizAttempt",
+        "QuizLibrary"
+      ],
+      "diagrams": [
+        "CL04"
+      ],
+      "kind": "objeto TypeScript"
+    },
+    {
+      "name": "DuelResolution",
+      "path": "src/lib/duels/resolution.ts",
+      "ops": [
+        [
+          "resolveDuelIfReady",
+          "duelId: string",
+          "Promise"
+        ],
+        [
+          "resolveDuelAtDeadline",
+          "duelId: string",
+          "Promise"
+        ],
+        [
+          "awardDuelWinnerXP",
+          "duelId: string, winnerId: string, language: Language",
+          "Promise"
+        ]
+      ],
+      "entities": [
+        "Duel",
+        "DuelSubmission",
+        "User"
+      ],
+      "diagrams": [
+        "CL05"
+      ],
+      "kind": "módulo TypeScript"
+    },
+    {
+      "name": "PostService",
+      "path": "src/services/post.service.ts",
+      "ops": [
+        [
+          "create",
+          "userId: string, data: CreatePostInput, clientId?: string",
+          "Promise"
+        ],
+        [
+          "getFeed",
+          "userId: string, params: FeedQuery",
+          "Promise"
+        ]
+      ],
+      "entities": [
+        "Post",
+        "User"
+      ],
+      "diagrams": [
+        "CL06",
+        "CL12"
+      ],
+      "kind": "objeto TypeScript"
+    },
+    {
+      "name": "MessagesRoute",
+      "path": "src/app/api/messages/route.ts",
+      "ops": [
+        [
+          "GET",
+          "req: Request",
+          "Promise<Response>"
+        ],
+        [
+          "POST",
+          "req: Request",
+          "Promise<Response>"
+        ]
+      ],
+      "entities": [
+        "Message",
+        "User"
+      ],
+      "diagrams": [
+        "CL07"
+      ],
+      "kind": "módulo de rotas"
+    },
+    {
+      "name": "MobilePush",
+      "path": "src/lib/mobile/push.ts",
+      "ops": [
+        [
+          "sendMobilePush",
+          "userId: string, notificationId: string",
+          "Promise"
+        ]
+      ],
+      "entities": [
+        "DeviceToken",
+        "Notification",
+        "User"
+      ],
+      "diagrams": [
+        "CL10"
+      ],
+      "kind": "módulo TypeScript"
+    },
+    {
+      "name": "NotificationService",
+      "path": "src/services/notification.service.ts",
+      "ops": [
+        [
+          "create",
+          "data: CreateNotificationInput",
+          "Promise"
+        ],
+        [
+          "getUserNotifications",
+          "userId: string, cursor?: string, limit?: number, useCursor?: boolean",
+          "Promise"
+        ],
+        [
+          "markAllAsRead",
+          "userId: string",
+          "Promise"
+        ],
+        [
+          "getUnreadCount",
+          "userId: string",
+          "Promise<number>"
+        ]
+      ],
+      "entities": [
+        "Notification",
+        "User"
+      ],
+      "diagrams": [
+        "CL08",
+        "CL12"
+      ],
+      "kind": "objeto TypeScript"
+    },
+    {
+      "name": "EventChallengeService",
+      "path": "src/services/event-challenge.service.ts",
+      "ops": [
+        [
+          "list",
+          "eventId: string, viewer?: EventChallengeViewer",
+          "Promise"
+        ],
+        [
+          "replaceSet",
+          "eventId: string, challengeIds: string[]",
+          "Promise"
+        ]
+      ],
+      "entities": [
+        "Event",
+        "EventChallenge",
+        "Challenge"
+      ],
+      "diagrams": [
+        "CL09"
+      ],
+      "kind": "objeto TypeScript"
+    }
+  ],
+  "uc": [
+    {
+      "id": "UC001",
+      "name": "Cadastrar conta"
+    },
+    {
+      "id": "UC002",
+      "name": "Fazer login"
+    },
+    {
+      "id": "UC003",
+      "name": "Editar perfil"
+    },
+    {
+      "id": "UC004",
+      "name": "Selecionar trilha"
+    },
+    {
+      "id": "UC005",
+      "name": "Estudar lição"
+    },
+    {
+      "id": "UC006",
+      "name": "Resolver exercício"
+    },
+    {
+      "id": "UC007",
+      "name": "Consultar progresso"
+    },
+    {
+      "id": "UC008",
+      "name": "Criar duelo aberto"
+    },
+    {
+      "id": "UC009",
+      "name": "Entrar em duelo"
+    },
+    {
+      "id": "UC010",
+      "name": "Enviar solução de duelo"
+    },
+    {
+      "id": "UC011",
+      "name": "Consultar ranking de XP"
+    },
+    {
+      "id": "UC012",
+      "name": "Consultar ajuda do exercício"
+    },
+    {
+      "id": "UC013",
+      "name": "Criar publicação"
+    },
+    {
+      "id": "UC014",
+      "name": "Interagir com publicação"
+    },
+    {
+      "id": "UC015",
+      "name": "Criar evento"
+    },
+    {
+      "id": "UC016",
+      "name": "Avaliar empate técnico"
+    },
+    {
+      "id": "UC017",
+      "name": "Publicar vaga"
+    },
+    {
+      "id": "UC018",
+      "name": "Consultar vagas"
+    },
+    {
+      "id": "UC019",
+      "name": "Gerenciar permissões de usuários"
+    },
+    {
+      "id": "UC020",
+      "name": "Tratar denúncias"
+    },
+    {
+      "id": "UC021",
+      "name": "Consultar notificações"
+    },
+    {
+      "id": "UC022",
+      "name": "Candidatar-se a vaga"
+    },
+    {
+      "id": "UC023",
+      "name": "Inscrever-se ou cancelar participação em evento"
+    },
+    {
+      "id": "UC024",
+      "name": "Candidatar-se a avaliador"
+    },
+    {
+      "id": "UC025",
+      "name": "Cadastrar empresa"
+    },
+    {
+      "id": "UC026",
+      "name": "Atualizar etapa de candidatura"
+    },
+    {
+      "id": "UC027",
+      "name": "Aprovar ou rejeitar candidatura de avaliador"
+    },
+    {
+      "id": "UC028",
+      "name": "Avaliar resposta"
+    },
+    {
+      "id": "UC029",
+      "name": "Executar código e testes"
+    },
+    {
+      "id": "UC030",
+      "name": "Encerrar sessão"
+    },
+    {
+      "id": "UC031",
+      "name": "Consultar e pesquisar feed",
+      "actor": "U",
+      "source": "src/app/feed; src/app/api/posts; src/app/api/search",
+      "rf": "RF031",
+      "flow": "Informar filtro ou termo; consultar publicações e abrir conteúdo de interesse.",
+      "guard": "Exibir somente o conteúdo autorizado."
+    },
+    {
+      "id": "UC032",
+      "name": "Consultar perfil público",
+      "actor": "U",
+      "source": "src/app/profile/[username]; src/app/api/profile/[username]",
+      "rf": "RF037, RF038",
+      "flow": "Selecionar usuário; consultar perfil e indicadores públicos.",
+      "guard": "Dados privados de conta não compõem a resposta pública."
+    },
+    {
+      "id": "UC033",
+      "name": "Seguir ou deixar de seguir usuário",
+      "actor": "U",
+      "source": "src/app/explore/page.tsx; src/app/api/users/[id]/follow",
+      "rf": "Ampliação: relações sociais",
+      "flow": "Selecionar usuário; alternar acompanhamento; confirmar estado.",
+      "guard": "A ação usa a identidade autenticada e as regras de FollowService."
+    },
+    {
+      "id": "UC034",
+      "name": "Consultar publicações salvas",
+      "actor": "U",
+      "source": "src/app/bookmarks/page.tsx; src/app/api/posts/[id]/bookmark",
+      "rf": "RF032",
+      "flow": "Abrir itens salvos; selecionar publicação; remover marcação se desejado.",
+      "guard": "A coleção pertence ao usuário autenticado."
+    },
+    {
+      "id": "UC035",
+      "name": "Editar ou excluir publicação própria",
+      "actor": "U",
+      "source": "src/app/api/posts/[id]/route.ts",
+      "rf": "Ampliação: manutenção de publicação",
+      "flow": "Selecionar publicação própria; solicitar edição ou exclusão; confirmar resultado.",
+      "guard": "O servidor valida author_id; edição exige conteúdo com pelo menos 10 caracteres."
+    },
+    {
+      "id": "UC036",
+      "name": "Aceitar resposta de uma publicação",
+      "actor": "U",
+      "source": "src/app/api/answers/[id]/accept/route.ts",
+      "rf": "Ampliação: resposta aceita",
+      "flow": "Autor seleciona resposta; confirma aceite; sistema registra aceite e recompensa elegível.",
+      "guard": "Somente autor da publicação; transação impede recompensa duplicada do mesmo aceite."
+    },
+    {
+      "id": "UC037",
+      "name": "Responder quiz diário",
+      "actor": "U",
+      "source": "src/app/api/quiz/daily; src/app/api/quiz/[id]/attempt",
+      "rf": "RF008, RF009, RF011",
+      "flow": "Consultar quiz disponível; selecionar resposta; enviar e analisar resultado.",
+      "guard": "A correção ocorre no servidor; repetição não duplica a primeira recompensa."
+    },
+    {
+      "id": "UC038",
+      "name": "Consultar conversas e mensagens",
+      "actor": "U",
+      "source": "src/app/messages/page.tsx; src/app/api/messages/chats; src/app/api/messages",
+      "rf": "Ampliação: mensagens",
+      "flow": "Abrir conversas; selecionar interlocutor; consultar histórico permitido.",
+      "guard": "O histórico envolve o usuário autenticado como remetente ou destinatário."
+    },
+    {
+      "id": "UC039",
+      "name": "Enviar mensagem privada",
+      "actor": "U",
+      "source": "src/app/messages/page.tsx; src/app/api/messages/route.ts",
+      "rf": "Ampliação: mensagens",
+      "flow": "Selecionar interlocutor; escrever texto ou anexar imagem; enviar e consultar retorno.",
+      "guard": "Sessão válida e destinatário informado; envio sujeito a limite de frequência."
+    },
+    {
+      "id": "UC040",
+      "name": "Editar ou excluir mensagem própria",
+      "actor": "U",
+      "source": "src/app/api/messages/[id]/route.ts",
+      "rf": "Ampliação: mensagens",
+      "flow": "Selecionar mensagem enviada; editar conteúdo ou excluir; atualizar conversa.",
+      "guard": "Somente remetente; edição não admite texto vazio."
+    },
+    {
+      "id": "UC041",
+      "name": "Reagir a mensagem",
+      "actor": "U",
+      "source": "src/app/api/messages/[id]/react/route.ts",
+      "rf": "Ampliação: mensagens",
+      "flow": "Selecionar mensagem; escolher emoji; adicionar ou remover reação.",
+      "guard": "Somente remetente ou destinatário da mensagem."
+    },
+    {
+      "id": "UC046",
+      "name": "Consultar eventos e desafios",
+      "actor": "U",
+      "source": "src/app/events; src/app/api/events; src/app/api/events/[id]/challenges",
+      "rf": "RF041, RF049",
+      "flow": "Consultar eventos; abrir detalhes e desafios; analisar datas e condições.",
+      "guard": "Respostas esperadas dos desafios ficam restritas ao gestor autorizado."
+    },
+    {
+      "id": "UC047",
+      "name": "Excluir evento sob responsabilidade",
+      "actor": "U",
+      "source": "src/app/api/events/[id]/route.ts; src/services/event.service.ts",
+      "rf": "RF041",
+      "flow": "Selecionar evento; solicitar exclusão; validar responsabilidade; confirmar remoção.",
+      "guard": "Somente criador ou Administrador, conforme regras de EventService."
+    },
+    {
+      "id": "UC048",
+      "name": "Gerenciar desafios de evento",
+      "actor": "U",
+      "source": "src/app/api/events/[id]/challenges; src/services/event-challenge.service.ts",
+      "rf": "Ampliação: desafios de evento",
+      "flow": "Criador define conjunto de desafios; valida dados; salva e consulta conjunto.",
+      "guard": "Criador ou Administrador; evento concluído não admite alteração; respostas privadas não são públicas."
+    },
+    {
+      "id": "UC049",
+      "name": "Consultar métricas administrativas",
+      "actor": "A",
+      "source": "src/app/api/admin/metrics/route.ts; src/services/admin.service.ts",
+      "rf": "Ampliação: indicadores administrativos",
+      "flow": "Abrir painel; solicitar métricas; analisar indicadores consolidados.",
+      "guard": "Exige Administrador; indicadores não equivalem a prova de segurança ou aceitação."
+    },
+    {
+      "id": "UC050",
+      "name": "Configurar preferências pessoais",
+      "actor": "U",
+      "source": "src/app/settings/page.tsx",
+      "rf": "Ampliação: preferências",
+      "flow": "Abrir configurações; alterar aparência, sons ou idioma suportado; aplicar preferência.",
+      "guard": "Preferências locais não representam mudança de permissão no servidor."
+    },
+    {
+      "id": "UC051",
+      "name": "Personalizar avatar",
+      "actor": "U",
+      "source": "src/app/avatar/AvatarCustomizer.tsx; src/app/api/avatar",
+      "rf": "RF004",
+      "flow": "Escolher características do avatar; salvar configuração; visualizar perfil atualizado.",
+      "guard": "A alteração pertence à própria conta."
+    },
+    {
+      "id": "UC052",
+      "name": "Testar código antes da submissão",
+      "actor": "U",
+      "source": "src/app/api/exercises/[exerciseId]/run; src/app/api/duels/[id]/run",
+      "rf": "RF008, RF019",
+      "flow": "Preparar código; solicitar execução de teste; analisar saída e ajustar solução.",
+      "guard": "Execução de teste não implica conclusão nem concessão de XP."
+    },
+    {
+      "id": "UC053",
+      "name": "Consultar resultado de duelo",
+      "actor": "U",
+      "source": "src/app/api/duels/[id]/route.ts; src/app/duels/[id]",
+      "rf": "RF020, RF021",
+      "flow": "Abrir duelo permitido; consultar estado, envios próprios e parecer disponível.",
+      "guard": "Duelo ativo restringe acesso a participantes, avaliadores e administradores."
+    },
+    {
+      "id": "UC054",
+      "name": "Excluir duelo elegível",
+      "actor": "U",
+      "source": "src/app/api/duels/[id]/route.ts",
+      "rf": "Ampliação: manutenção de duelo",
+      "flow": "Criador seleciona duelo; solicita exclusão; servidor valida estado e propriedade.",
+      "guard": "Somente criador ou Administrador. Estados permitidos: PENDING, EXPIRED e CLOSED."
+    },
+    {
+      "id": "UC055",
+      "name": "Marcar notificações como lidas",
+      "actor": "U",
+      "source": "src/app/api/notifications/route.ts",
+      "rf": "RF046",
+      "flow": "Abrir notificações; solicitar marcação; atualizar estado de leitura.",
+      "guard": "Operação afeta apenas as notificações do usuário autenticado."
+    },
+    {
+      "id": "UC056",
+      "name": "Consultar candidaturas de uma vaga",
+      "actor": "R",
+      "source": "src/app/api/jobs/[id]/applications; src/services/job.service.ts",
+      "rf": "RF035, RF038, RF048",
+      "flow": "Selecionar vaga sob gestão; listar candidaturas; analisar informações autorizadas.",
+      "guard": "Recrutador responsável ou Administrador; validar vínculo com a empresa."
+    }
+  ],
+  "overview": [
+    [
+      "G01",
+      "Conta e perfil",
+      [
+        1,
+        2,
+        3,
+        30,
+        50,
+        51
+      ],
+      "Usuário"
+    ],
+    [
+      "G02",
+      "Estudar lições e\nacompanhar progresso",
+      [
+        4,
+        5,
+        7,
+        37
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G03",
+      "Resolver exercícios\ne consultar ajuda",
+      [
+        6,
+        12,
+        28,
+        29,
+        52
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G04",
+      "Participar de duelos",
+      [
+        8,
+        9,
+        10,
+        53,
+        54
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G05",
+      "Consultar ranking",
+      [
+        11
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G06",
+      "Manter publicações\ne interagir no feed",
+      [
+        13,
+        14,
+        31,
+        34,
+        35,
+        36
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G07",
+      "Consultar perfis\ne seguir pessoas",
+      [
+        32,
+        33
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G08",
+      "Trocar mensagens",
+      [
+        38,
+        39,
+        40,
+        41
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G09",
+      "Consultar e participar\nde eventos",
+      [
+        23,
+        46
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G10",
+      "Consultar vagas\ne candidatar-se",
+      [
+        18,
+        22
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G11",
+      "Consultar notificações",
+      [
+        21,
+        55
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G12",
+      "Solicitar credenciamento\nde avaliador",
+      [
+        24
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G13",
+      "Gerenciar vagas, empresas\ne candidaturas",
+      [
+        17,
+        25,
+        26,
+        56
+      ],
+      "Recrutador"
+    ],
+    [
+      "G14",
+      "Organizar eventos\ne desafios",
+      [
+        15,
+        47,
+        48
+      ],
+      "Usuário autenticado"
+    ],
+    [
+      "G15",
+      "Avaliar empate técnico",
+      [
+        16
+      ],
+      "Avaliador"
+    ],
+    [
+      "G16",
+      "Administrar o sistema",
+      [
+        19,
+        20,
+        27,
+        49
+      ],
+      "Administrador"
+    ]
+  ],
+  "removedCases": [
+    "UC042",
+    "UC043",
+    "UC044",
+    "UC045",
+    "UC057",
+    "UC058",
+    "UC059"
+  ],
+  "sourceCommit": "9256a4f",
+  "date": "06/10/2026",
+  "sourceSha256": "58deca6ce22f9fbbf13a7cabd30371ccca58ddd4bb0d87246c281b8b005d2ea0"
+}

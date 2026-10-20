@@ -1,0 +1,427 @@
+0000 []
+0001 []
+0002 []
+0003 []
+0004 []
+0005 []
+0006 []
+0007 [] Stacklyst
+0008 [] Documento de Visão
+0009 [] Laboratório de Engenharia de SoftwareProjeto acadêmicoRevisão textual: 27/09/2026 | Base técnica: 12/09/2026
+0010 []
+0011 [Heading1] 1. Índice
+0012 [] 1. Índice2
+0013 [] 2. Objetivo3
+0014 [] 3. Necessidade do Negócio3
+0015 [] 4. Descrição do Escopo3
+0016 [] 4.1 Dentro do escopo3
+0017 [] 4.2 Fora do escopo da primeira versão5
+0018 [] 5. Equipe5
+0019 [] 6. Especificações Técnicas6
+0020 [] 7. Riscos7
+0021 [] 8. Cronograma de Marcos Resumido8
+0022 [] 9. Orçamento Resumido9
+0023 [Heading1] 2. Objetivo
+0024 [] O Stacklyst é uma plataforma acadêmica gamificada para ensino, prática e evolução em programação. O produto reúne trilhas, lições, exercícios, desafios, duelos, comunidade e acompanhamento de progresso em um ambiente integrado destinado principalmente a estudantes e desenvolvedores em formação ou aperfeiçoamento.
+0025 [] O problema central é a fragmentação entre aprender conceitos, praticar código, manter constância e demonstrar evolução. O objetivo educacional é favorecer prática ativa, feedback frequente e progressão observável; o objetivo da plataforma é conectar essas experiências a interações comunitárias e, quando autorizado, a oportunidades profissionais.
+0026 [] A gamificação utiliza XP, níveis, sequência de atividades, conquistas, rankings e faixas como mecanismos de engajamento. A ajuda durante os exercícios usa dicas, documentação e autocomplete definidos no próprio conteúdo. As decisões competitivas que exigem revisão são encaminhadas a um avaliador humano autorizado.
+0027 [Heading1] 3. Necessidade do Negócio
+0028 [] Para fins acadêmicos, a equipe do Stacklyst exerce o papel de cliente e proprietária do produto. O negócio oferece uma plataforma educacional voltada à aprendizagem prática de programação para estudantes e desenvolvedores em formação.
+0029 [] O projeto busca atender dificuldades de estudantes e desenvolvedores em formação: fragmentação dos materiais, pouca prática, dificuldade de manter frequência nos estudos, interação limitada entre participantes e falta de clareza sobre a própria evolução. Essas necessidades orientam a proposta educacional e a integração com a comunidade e as oportunidades profissionais.
+0030 [] O Stacklyst pretende melhorar esse cenário com percursos organizados, atividades interativas, execução de código, feedback, desafios competitivos, avaliação humana quando necessária, progressão gamificada, espaços comunitários e um módulo de oportunidades. A solução mantém uma separação entre evidência educacional e decisão de recrutamento: desempenho público pode ser um indicador, mas não uma decisão automática.
+0031 [Heading1] 4. Descrição do Escopo
+0032 [Heading2] 4.1 Dentro do escopo
+0033 [] Módulo
+0034 [] Descrição
+0035 [] Estado registrado
+0036 [] Referência técnica
+0037 [] Autenticação e usuários
+0038 [] Cadastro, login, logout, sessão, OAuth e controle de papéis.
+0039 [] Implementado
+0040 [] src/app/api/auth; src/lib/auth.ts; src/lib/supabase
+0041 [] Perfil
+0042 [] Dados públicos do desenvolvedor, histórico de publicações e indicadores de evolução.
+0043 [] Implementado
+0044 [] src/app/profile/[username]; src/app/api/profile
+0045 [] Trilhas
+0046 [] Catálogo versionado com unidades, lições e exercícios; mapa e lista compartilham os nós e estados.
+0047 [] Implementado
+0048 [] src/lib/learning/catalog.ts; src/app/trails/LearningJourney.tsx
+0049 [] Lições
+0050 [] Páginas próprias com conteúdo e etapas interativas.
+0051 [] Implementado
+0052 [] src/app/lesson/[lessonId]; src/lib/lessons
+0053 [] Exercícios
+0054 [] Avaliação no servidor com respostas canônicas, ajuda do exercício e execução remota de código.
+0055 [] Implementado
+0056 [] src/lib/learning/assessment.ts; src/lib/exercises/evaluator.ts
+0057 [] Desafios e execução de código
+0058 [] Problemas de programação, envio de solução e execução em serviço externo.
+0059 [] Implementado
+0060 [] src/app/api/run; src/lib/code-runner.ts
+0061 [] Duelos
+0062 [] Criação e entrada em duelos abertos; espera de até 24 horas e confronto de duas horas, com avaliação automática e revisão humana de empate técnico.
+0063 [] Implementado parcialmente
+0064 [] src/app/duels; src/services/duel.service.ts
+0065 [] Matchmaking
+0066 [] Pareamento por linguagem: ocupar a vaga pendente mais antiga de outro usuário ou criar espera. Sem seleção de destinatário ou filtro por XP.
+0067 [] Implementado
+0068 [] src/app/api/duels/route.ts; src/lib/duels/lifecycle.ts; src/lib/duels/constants.ts
+0069 [] Avaliações
+0070 [] Avaliação automática e fluxo de avaliação humana para duelos.
+0071 [] Implementado parcialmente
+0072 [] src/app/api/evaluations; src/services/evaluator.service.ts
+0073 [] Avaliadores
+0074 [] Elegibilidade, candidatura, aprovação administrativa e parecer técnico.
+0075 [] Implementado
+0076 [] src/app/evaluators; src/app/evaluations; src/services/evaluator.service.ts
+0077 [] XP, níveis e sequência
+0078 [] Pontuação transacional, níveis e ofensiva por atividade.
+0079 [] Implementado
+0080 [] src/services/xp.service.ts; src/lib/streak.ts
+0081 [] Conquistas
+0082 [] Badges por critérios de atividade e sequência.
+0083 [] Implementado
+0084 [] prisma/schema.prisma; src/services/xp.service.ts
+0085 [] Ranking e divisões
+0086 [] Ranking por XP e faixas Bronze a Diamante; não implementa rating Elo.
+0087 [] Implementado
+0088 [] src/lib/learning/rewards.ts; language-xp.ts
+0089 [] Comunidade
+0090 [] Feed, publicações, respostas, reações, votos, favoritos, seguidores e mensagens.
+0091 [] Implementado
+0092 [] src/app/feed; src/services/post.service.ts; src/app/api/posts
+0093 [] Eventos
+0094 [] Criação por usuário autenticado, inscrição, retirada da inscrição antes do encerramento e exclusão pelo criador ou administrador autorizado.
+0095 [] Implementado parcialmente
+0096 [] src/app/events; src/services/event.service.ts
+0097 [] Notificações
+0098 [] Central web e tipos de eventos da plataforma.
+0099 [] Implementado na web
+0100 [] src/app/notifications; src/services/notification.service.ts
+0101 [] Vagas e empresas
+0102 [] Cadastro de empresa por usuário autenticado, publicação de vagas, consulta e atualização de etapas de candidatura.
+0103 [] Implementado parcialmente
+0104 [] src/app/jobs; src/app/recruiter; src/services/job.service.ts
+0105 [] Administração
+0106 [] Usuários, papéis, denúncias, candidaturas de avaliador, métricas e quiz diário baseado em conteúdo curado.
+0107 [] Implementado parcialmente
+0108 [] src/app/admin; src/app/api/admin
+0109 [] Acompanhamento de progresso
+0110 [] Tentativas, XP, níveis, ofensiva, checkpoints e atividade semanal.
+0111 [] Implementado
+0112 [] QuizAttempt, LanguageTrail; src/app/api/quiz/weekly-activity
+0113 []
+0114 [Heading2] 4.2 Fora do escopo da primeira versão
+0115 [] Marketplace de cursos, serviços ou produtos digitais.
+0116 [] Contratação, assinatura de contrato e pagamento dentro do Stacklyst.
+0117 [] IDE online completa equivalente a um ambiente desktop, com depurador e gerenciamento avançado de projetos.
+0118 [] Sistema próprio de videoconferência.
+0119 [] Emissão de certificações oficiais reconhecidas por órgãos externos.
+0120 [] Integração imediata com dezenas de plataformas externas.
+0121 [] Aplicativo móvel nativo; a versão atual é uma aplicação web responsiva.
+0122 [] Esses itens permanecem fora do escopo desta edição. O fluxo legado de convites diretos para duelos, com aceite, rejeição e busca por faixa de XP, também não integra o fluxo vigente de duelos abertos.
+0123 [Heading1] 5. Equipe
+0124 [] Campo
+0125 [] Preenchimento
+0126 [] Nome
+0127 [] Guilherme Alves de Campos
+0128 [] Formação
+0129 [] Graduando em Análise e Desenvolvimento de Sistemas
+0130 [] Experiência
+0131 [] Desenvolvimento backend e lógica de negócio no projeto Stacklyst.
+0132 [] Papel no projeto
+0133 [] Desenvolvimento backend e lógica de negócio
+0134 [] Responsabilidades
+0135 [] APIs, serviços, persistência de dados, regras de negócio e testes do backend.
+0136 []
+0137 [] Campo
+0138 [] Preenchimento
+0139 [] Nome
+0140 [] Paulo Henrique Leal dos Santos
+0141 [] Formação
+0142 [] Graduando em Análise e Desenvolvimento de Sistemas
+0143 [] Experiência
+0144 [] Desenvolvimento backend e lógica de negócio no projeto Stacklyst.
+0145 [] Papel no projeto
+0146 [] Desenvolvimento backend e lógica de negócio
+0147 [] Responsabilidades
+0148 [] APIs, serviços, persistência de dados, regras de negócio e testes do backend.
+0149 []
+0150 [] Campo
+0151 [] Preenchimento
+0152 [] Nome
+0153 [] Pedro Antonio Silvestre Tescaro
+0154 [] Formação
+0155 [] Graduando em Análise e Desenvolvimento de Sistemas
+0156 [] Experiência
+0157 [] Design de interface e desenvolvimento frontend no projeto Stacklyst.
+0158 [] Papel no projeto
+0159 [] Design de interface e desenvolvimento frontend
+0160 [] Responsabilidades
+0161 [] Experiência do usuário, protótipos, componentes visuais, responsividade e integração das telas com as APIs.
+0162 []
+0163 [Heading1] 6. Especificações Técnicas
+0164 [] As tecnologias e referências abaixo correspondem ao inventário técnico de 12/09/2026. Os estados de implementação registrados neste documento não substituem a verificação dos critérios de aceitação.
+0165 [] Camada
+0166 [] Especificação registrada
+0167 [] Evidência
+0168 [] Frontend Web
+0169 [] Next.js 16.3.2 (App Router), React 19.2.4, TypeScript 5, Tailwind CSS 4, CodeMirror e Tiptap.
+0170 [] package.json; src/app
+0171 [] Backend
+0172 [] Route Handlers do Next.js em runtime Node, serviços TypeScript, validação Zod e controles de taxa.
+0173 [] src/app/api; src/services; src/lib/api-handler.ts
+0174 [] Banco de Dados
+0175 [] PostgreSQL hospedável no Supabase, modelado pelo Prisma ORM 7.9.1.
+0176 [] prisma/schema.prisma; docs/DATABASE.md
+0177 [] Autenticação
+0178 [] Supabase Auth/SSR com sessão verificada e camada server-only de JWT da aplicação.
+0179 [] src/lib/supabase; src/lib/auth.ts; src/lib/jwt.ts
+0180 [] Infraestrutura
+0181 [] Docker/Docker Compose; documentação de Vercel e Supabase; Upstash Redis opcional para rate limit distribuído.
+0182 [] Dockerfile; docker-compose*.yml; docs/DEPLOYMENT.md
+0183 [] APIs
+0184 [] REST/JSON internas; Supabase; execução de código por Wandbox/Judge0.
+0185 [] src/app/api; src/lib/code-runner.ts
+0186 [] Controle de versão
+0187 [] Git, GitHub, Conventional Commits, Husky, lint-staged e CI configurável.
+0188 [] .git; commitlint.config.js; .husky; package.json
+0189 [] Arquitetura geral
+0190 [] Aplicação web modular: UI e Server Components → API Routes → serviços/domínio → Prisma/PostgreSQL; integrações externas isoladas em bibliotecas.
+0191 [] docs/ARCHITECTURE.md; estrutura src
+0192 []
+0193 [] A aplicação entregue é web responsiva. Um cliente móvel nativo exigiria um novo projeto e não integra o escopo atual.
+0194 []
+0195 [Heading1] 7. Riscos
+0196 [] Risco
+0197 [] Categoria
+0198 [] Prob.
+0199 [] Impacto
+0200 [] Nível
+0201 [] Estratégia
+0202 [] Contingência
+0203 [] Atraso de desenvolvimento
+0204 [] Gerencial
+0205 [] Alta
+0206 [] Alto
+0207 [] Alto
+0208 [] Planejar entregas incrementais e priorizar o MVP.
+0209 [] Reduzir itens de prioridade média/baixa e replanejar marcos.
+0210 [] Mudança frequente de requisitos
+0211 [] Gerencial
+0212 [] Alta
+0213 [] Alto
+0214 [] Alto
+0215 [] Manter baseline versionado e registrar decisões.
+0216 [] Executar análise de impacto e nova validação acadêmica.
+0217 [] Escopo excessivo
+0218 [] Gerencial
+0219 [] Alta
+0220 [] Alto
+0221 [] Alto
+0222 [] Separar MVP, expansão e itens fora do escopo.
+0223 [] Congelar novas funcionalidades até concluir o núcleo.
+0224 [] Dependência de serviços externos
+0225 [] Técnico
+0226 [] Média
+0227 [] Alto
+0228 [] Alto
+0229 [] Definir timeout e tratamento de falhas para autenticação, banco e executor de código.
+0230 [] Manter mensagens de erro e impedir confirmação de progresso quando a operação externa falhar.
+0231 [] Indisponibilidade do executor de código
+0232 [] Técnico
+0233 [] Média
+0234 [] Alto
+0235 [] Alto
+0236 [] Aplicar limites, testes definidos no servidor e tratamento de timeout.
+0237 [] Não aprovar a resposta nem conceder XP; manter o código disponível para nova tentativa.
+0238 [] Custo de infraestrutura
+0239 [] Organizacional
+0240 [] Média
+0241 [] Alto
+0242 [] Alto
+0243 [] Monitorar uso e definir cotas por serviço.
+0244 [] Reduzir recursos opcionais e migrar para plano compatível.
+0245 [] Falha de segurança
+0246 [] Técnico
+0247 [] Média
+0248 [] Alto
+0249 [] Alto
+0250 [] RBAC, validação, rate limit, segredo server-only e testes.
+0251 [] Revogar credenciais, conter acesso e corrigir vulnerabilidade.
+0252 [] Exposição indevida de dados
+0253 [] Técnico
+0254 [] Média
+0255 [] Alto
+0256 [] Alto
+0257 [] Definir campos públicos e consentimento para recrutamento.
+0258 [] Restringir consultas, registrar incidente e revisar permissões.
+0259 [] Baixa adesão
+0260 [] Externo
+0261 [] Média
+0262 [] Alto
+0263 [] Alto
+0264 [] Testar usabilidade e valor das trilhas com usuários.
+0265 [] Simplificar onboarding e ajustar mecânicas com feedback.
+0266 [] Complexidade do matchmaking
+0267 [] Técnico
+0268 [] Alta
+0269 [] Médio
+0270 [] Alto
+0271 [] Começar com regras determinísticas e métricas.
+0272 [] Permitir entrada voluntária em vaga aberta ou nova espera na linguagem selecionada.
+0273 [] Falha na avaliação automática de código
+0274 [] Técnico
+0275 [] Média
+0276 [] Alto
+0277 [] Alto
+0278 [] Executor isolado, limite de tempo, testes confiáveis e tratamento de falhas; revisão humana de empates técnicos em duelos.
+0279 [] Não confirmar acerto, XP ou vitória em falha técnica. Permitir nova tentativa; encaminhar apenas empates técnicos à avaliação humana.
+0280 [] Problemas de desempenho
+0281 [] Técnico
+0282 [] Média
+0283 [] Alto
+0284 [] Alto
+0285 [] Paginação, índices, cache e testes de carga.
+0286 [] Reduzir consultas, limitar listas e escalar serviços críticos.
+0287 [] Indisponibilidade dos integrantes
+0288 [] Organizacional
+0289 [] Média
+0290 [] Alto
+0291 [] Alto
+0292 [] Distribuir conhecimento e registrar decisões.
+0293 [] Repriorizar entregas e redistribuir responsabilidades.
+0294 [] Incompatibilidade entre navegadores
+0295 [] Técnico
+0296 [] Média
+0297 [] Médio
+0298 [] Médio
+0299 [] Testar Chrome, Edge, Firefox e Safari nas versões suportadas.
+0300 [] Corrigir o fluxo afetado e documentar limitação temporária.
+0301 [] Moderação insuficiente
+0302 [] Gerencial
+0303 [] Média
+0304 [] Alto
+0305 [] Alto
+0306 [] Denúncia, fila, critérios e auditoria administrativa.
+0307 [] Analisar a denúncia e remover a publicação quando cabível; definir separadamente sanções adicionais e recursos.
+0308 [] Fraude em ranking ou duelo
+0309 [] Técnico
+0310 [] Alta
+0311 [] Alto
+0312 [] Alto
+0313 [] Idempotência, validação server-side e registros de auditoria.
+0314 [] Investigar o resultado e encaminhar eventual anulação ou correção de pontuação para procedimento administrativo específico.
+0315 []
+0316 [Heading1] 8. Cronograma de Marcos Resumido
+0317 [] O cronograma abaixo preserva os marcos registrados na documentação de 12/09/2026. A revisão textual de 27/09/2026 consolida o escopo e as regras, sem alterar as datas históricas do projeto.
+0318 [] Marco
+0319 [] Data
+0320 [] Início do projeto
+0321 [] 16/06/2026
+0322 [] Levantamento de requisitos
+0323 [] Junho a agosto de 2026
+0324 [] Documento de visão
+0325 [] 21/08 a 12/09/2026
+0326 [] Atividades do negócio
+0327 [] 21/08 a 12/09/2026
+0328 [] Requisitos do sistema
+0329 [] 21/08 a 12/09/2026
+0330 [] Casos de uso
+0331 [] 21/08 a 12/09/2026
+0332 [] Prototipação
+0333 [] Junho a setembro de 2026
+0334 [] Modelagem do banco
+0335 [] Junho a agosto de 2026
+0336 [] Definição de arquitetura
+0337 [] Junho a agosto de 2026
+0338 [] MVP
+0339 [] Junho a agosto de 2026
+0340 [] Módulo de autenticação
+0341 [] Junho a setembro de 2026
+0342 [] Trilhas e lições
+0343 [] Junho a setembro de 2026
+0344 [] Gamificação
+0345 [] Junho a setembro de 2026
+0346 [] Duelos
+0347 [] Junho a setembro de 2026
+0348 [] Comunidade
+0349 [] Junho a setembro de 2026
+0350 [] Vagas e empresas
+0351 [] Agosto a setembro de 2026
+0352 [] Testes
+0353 [] Junho a setembro de 2026
+0354 [] Testes de aceitação
+0355 [] Setembro de 2026
+0356 [] Correções
+0357 [] Contínuo até a entrega
+0358 [] Deploy
+0359 [] Produção ativa em setembro de 2026
+0360 [] Entrega final
+0361 [] 12/09/2026
+0362 []
+0363 [Heading1] 9. Orçamento Resumido
+0364 [] Estimativa acadêmica de custo direto: R$ 0,00, considerando equipamentos próprios, trabalho da equipe e planos gratuitos atualmente utilizados.
+0365 []
+0366 [] Categoria
+0367 [] Item
+0368 [] Valor
+0369 [] Observação
+0370 [] Custos fixos
+0371 [] Hardware
+0372 [] R$ 0,00
+0373 [] Equipamentos próprios da equipe.
+0374 [] Custos fixos
+0375 [] Licenças de software
+0376 [] R$ 0,00
+0377 [] Ferramentas e bibliotecas gratuitas ou de código aberto.
+0378 [] Custos fixos
+0379 [] Treinamentos
+0380 [] R$ 0,00
+0381 [] Aprendizado realizado no contexto acadêmico.
+0382 [] Infraestrutura
+0383 [] Hospedagem e domínio
+0384 [] R$ 0,00
+0385 [] Implantação atual no endereço gratuito stacklyst.vercel.app.
+0386 [] Infraestrutura
+0387 [] Banco de dados e armazenamento
+0388 [] R$ 0,00
+0389 [] Uso acadêmico no plano gratuito do Supabase.
+0390 [] Infraestrutura
+0391 [] APIs e execução de código
+0392 [] R$ 0,00
+0393 [] Uso atual dentro das cotas gratuitas disponíveis.
+0394 [] Infraestrutura
+0395 [] Recursos de assistência editorial
+0396 [] Não aplicável
+0397 [] Os recursos de assistência editorial são executados pela própria aplicação, sem custo externo adicional.
+0398 [] Custos variáveis
+0399 [] Desenvolvimento
+0400 [] R$ 0,00
+0401 [] Projeto acadêmico sem remuneração contabilizada.
+0402 [] Custos variáveis
+0403 [] Pessoal de apoio
+0404 [] R$ 0,00
+0405 [] Sem contratação externa.
+0406 [] Custos variáveis
+0407 [] Encargos e benefícios
+0408 [] Não aplicável
+0409 [] Não há vínculo empregatício no projeto acadêmico.
+0410 [] Custos variáveis
+0411 [] Instalações, energia, materiais e rede
+0412 [] R$ 0,00 adicional
+0413 [] Recursos pessoais já disponíveis; consumo não segregado.
+0414 [] Qualidade
+0415 [] Testes e homologação
+0416 [] R$ 0,00
+0417 [] Ferramentas automatizadas e validação acadêmica.
+0418 [] Riscos
+0419 [] Margem de contingência
+0420 [] R$ 0,00
+0421 [] Sem desembolso previsto na versão acadêmica.
+0422 [] Financeiro
+0423 [] Margem de lucro
+0424 [] Não aplicável
+0425 [] Projeto acadêmico sem comercialização nesta versão.
+0426 []

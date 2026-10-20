@@ -1,0 +1,433 @@
+[
+  {
+    "slide": 1,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide01-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide01-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide01-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide01-imagem03.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide01-imagem04.jpeg"
+    ],
+    "text": "01\nProcessos de negócio,\nmodelos UML e implementação\nLaboratório de Engenharia de Software\nStacklyst\nGuilherme Alves de Campos\nPaulo Henrique Leal dos Santos\nPedro Antonio Silvestre Tescaro"
+  },
+  {
+    "slide": 2,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide02-imagem00.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide02-imagem01.png"
+    ],
+    "text": "Objetivo do produto e necessidade do negócio\nProblema central\nEstudo disperso:\n Fragmentação entre teoria e prática de código.\nBaixa constância:\n Dificuldade em manter rotina de estudos.\nIsolamento:\n Interação limitada entre estudantes em formação.\nPouca visibilidade:\n Falta de clareza sobre a própria evolução.\nProposta do Stacklyst\nPrática ativa:\n Trilhas, lições interativas e execução remota.\nEngajamento:\n XP, níveis, ofensiva, conquistas e faixas.\nDuelos abertos:\n Revisão humana em empates técnicos.\nRecrutamento ético:\n Desempenho público separado da contratação."
+  },
+  {
+    "slide": 3,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide03-imagem00.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide03-imagem01.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide03-imagem02.png"
+    ],
+    "text": "Fronteiras do escopo da primeira versão\nNúcleo implementado\nAutenticação, trilhas, lições, exercícios, comunidade, ranking e matchmaking por linguagem.\nEscopo parcial\nDuelos abertos, avaliação humana, gestão de eventos, vagas e moderação administrativa.\nFora do escopo (V1)\nMarketplace, pagamentos, videoconferência, certificações externas e convites diretos."
+  },
+  {
+    "slide": 4,
+    "images": [],
+    "text": "Frente do Projeto\nEspecificação Registrada\nControle e Mitigação\nStack Web e Dados\nNext.js 16.3, React 19, TypeScript 5, Prisma 7.9 e PostgreSQL\nValidação Zod, JWT server-only e rate limit\nExecução de Código\nIntegração isolada via Wandbox / Judge0\nTimeout estrito sem conceder XP em falha externa\nRiscos de Jogo\nPrevenção de fraude em ranking e duelos\nIdempotência server-side e revisão humana de empates\nCronograma e Custo\nCiclo de 16/06 a 12/09/2026 com custo direto R$ 0,00\nCotas gratuitas na Vercel e Supabase\nArquitetura, gestão de riscos e viabilidade"
+  },
+  {
+    "slide": 5,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide05-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide05-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide05-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide05-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide05-imagem04.jpeg"
+    ],
+    "text": "Escopo do sistema apresentado\n02\n20 \ncasos de uso\nEstudo, exercícios, duelos, publicações, mensagens, eventos, vagas e administração.\nCandidatura à vaga e inscrição no evento são as operações implementadas. A notificação da candidatura acompanha a atualização feita pelo recrutador."
+  },
+  {
+    "slide": 6,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide06-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide06-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide06-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide06-imagem03.jpeg"
+    ],
+    "text": "Visão geral de casos de uso\nUC00  Agrupamentos das funcionalidades\n03"
+  },
+  {
+    "slide": 7,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide07-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide07-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide07-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide07-imagem03.jpeg"
+    ],
+    "text": "Estudar programação\nAN01  Processo atual e responsabilidades\n04"
+  },
+  {
+    "slide": 8,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide08-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide08-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide08-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide08-imagem03.png"
+    ],
+    "text": "Divulgar oportunidade de trabalho\nAN08A  Processo atual e responsabilidades\n05"
+  },
+  {
+    "slide": 9,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide09-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide09-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide09-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide09-imagem03.jpeg"
+    ],
+    "text": "Candidatar-se e acompanhar a seleção\nAN08B  Processo atual e responsabilidades\n06"
+  },
+  {
+    "slide": 10,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide10-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide10-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide10-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide10-imagem03.jpeg"
+    ],
+    "text": "Descobrir e participar de um evento\nAN09  Processo atual e responsabilidades\n07"
+  },
+  {
+    "slide": 11,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide11-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide11-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide11-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide11-imagem03.png"
+    ],
+    "text": "Classes e responsabilidades principais\nCL00  Operações e dados sob responsabilidade\n08"
+  },
+  {
+    "slide": 12,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide12-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide12-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide12-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide12-imagem03.jpeg"
+    ],
+    "text": "Pratica e progresso\nCL03  Operações e dados sob responsabilidade\n09"
+  },
+  {
+    "slide": 13,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide13-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide13-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide13-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide13-imagem03.jpeg"
+    ],
+    "text": "Vagas e empresas\nCL08  Operações e dados sob responsabilidade\n10"
+  },
+  {
+    "slide": 14,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide14-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide14-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide14-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide14-imagem03.jpeg"
+    ],
+    "text": "Eventos\nCL09  Operações e dados sob responsabilidade\n11"
+  },
+  {
+    "slide": 15,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide15-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide15-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide15-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide15-imagem03.png"
+    ],
+    "text": "DER do núcleo do Stacklyst\nMR00  Chaves e relacionamentos\n12"
+  },
+  {
+    "slide": 16,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide16-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide16-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide16-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide16-imagem03.jpeg"
+    ],
+    "text": "DER de vagas e candidaturas\nMR08  Chaves e relacionamentos\n13"
+  },
+  {
+    "slide": 17,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide17-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide17-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide17-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide17-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide17-imagem04.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide17-imagem05.png"
+    ],
+    "text": "Estudar lição\nUC005  Caso de uso e código correspondente\n14\nCarrega a lição, valida o acesso e entrega conteúdo e progresso à interface."
+  },
+  {
+    "slide": 18,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide18-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide18-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide18-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide18-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide18-imagem04.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide18-imagem05.png"
+    ],
+    "text": "Resolver exercício\nUC006  Caso de uso e código correspondente\n15\nAvalia a resposta no servidor. Testar código não concede XP nem conclui a etapa."
+  },
+  {
+    "slide": 19,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide19-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide19-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide19-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide19-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide19-imagem04.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide19-imagem05.png"
+    ],
+    "text": "Publicar vaga\nUC017  Caso de uso e código correspondente\n16\nExige papel de recrutador ou administrador e vínculo autorizado com a empresa."
+  },
+  {
+    "slide": 20,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide20-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide20-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide20-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide20-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide20-imagem04.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide20-imagem05.png"
+    ],
+    "text": "Candidatar-se a vaga\nUC022  Caso de uso e código correspondente\n17\nVerifica a vaga aberta e cria uma candidatura vinculada ao usuário e à etapa inicial."
+  },
+  {
+    "slide": 21,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide21-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide21-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide21-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide21-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide21-imagem04.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide21-imagem05.png"
+    ],
+    "text": "Inscrever-se ou cancelar participação em evento\nUC023  Caso de uso e código correspondente\n18\nPOST confirma a inscrição. DELETE cancela a participação do usuário autenticado."
+  },
+  {
+    "slide": 22,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide22-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide22-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide22-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide22-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide22-imagem04.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide22-imagem05.png"
+    ],
+    "text": "Atualizar etapa de candidatura\nUC026  Caso de uso e código correspondente\n19\nConfere a empresa, a candidatura e a etapa antes de atualizar o processo."
+  },
+  {
+    "slide": 23,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide23-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide23-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide23-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide23-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide23-imagem04.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide23-imagem05.png"
+    ],
+    "text": "Criar publicação\nUC013  Caso de uso e código correspondente\n20\nA criação grava a publicação e concede XP na mesma transação."
+  },
+  {
+    "slide": 24,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide24-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide24-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide24-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide24-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide24-imagem04.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide24-imagem05.png"
+    ],
+    "text": "Consultar ranking de XP\nUC011  Caso de uso e código correspondente\n21\nO servidor consulta e ordena os usuários. O caso de uso é consulta, sem manutenção manual do ranking."
+  },
+  {
+    "slide": 25,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide25-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide25-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide25-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide25-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide25-imagem04.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide25-imagem05.png"
+    ],
+    "text": "Consultar candidaturas de uma vaga\nUC056  Caso de uso e código correspondente\n22\nA rota exige papel autorizado. JobService também valida a responsabilidade pela empresa."
+  },
+  {
+    "slide": 26,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide26-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide26-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide26-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide26-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide26-imagem04.png",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide26-imagem05.png"
+    ],
+    "text": "Notificação automática da candidatura\nComportamento interno ligado a UC026\n23\nA atualização avisa o candidato associado à candidatura. O código não envia um alerta geral por intenção de vaga."
+  },
+  {
+    "slide": 27,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide27-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide27-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide27-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide27-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide27-imagem04.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide27-imagem05.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide27-imagem06.jpeg"
+    ],
+    "text": "Relação entre processo e implementação\n24\nProcesso de negócio\nA pessoa define o objetivo, pesquisa, pratica e acompanha o resultado.\nComportamento do sistema\nO caso de uso identifica a interação. O serviço executa a operação e registra o resultado.\nOs diagramas e as capturas usam os mesmos nomes e referências."
+  },
+  {
+    "slide": 28,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide28-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide28-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide28-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide28-imagem03.jpeg"
+    ],
+    "text": "Diagramas complementares\n25\nClasses por domínio e processos\ncomplementares de aprendizagem\nMaterial de apoio para discussão"
+  },
+  {
+    "slide": 29,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide29-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide29-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide29-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide29-imagem03.jpeg"
+    ],
+    "text": "Identidade e gamificação\nCL01  Operações e dados sob responsabilidade\n26"
+  },
+  {
+    "slide": 30,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide30-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide30-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide30-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide30-imagem03.jpeg"
+    ],
+    "text": "Grafo de conhecimento\nCL02  Operações e dados sob responsabilidade\n27"
+  },
+  {
+    "slide": 31,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide31-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide31-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide31-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide31-imagem03.jpeg"
+    ],
+    "text": "Quiz e histórico\nCL04  Operações e dados sob responsabilidade\n28"
+  },
+  {
+    "slide": 32,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide32-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide32-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide32-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide32-imagem03.jpeg"
+    ],
+    "text": "Duelos\nCL05  Operações e dados sob responsabilidade\n29"
+  },
+  {
+    "slide": 33,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide33-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide33-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide33-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide33-imagem03.jpeg"
+    ],
+    "text": "Publicações e moderação\nCL06  Operações e dados sob responsabilidade\n30"
+  },
+  {
+    "slide": 34,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide34-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide34-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide34-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide34-imagem03.jpeg"
+    ],
+    "text": "Mensagens privadas\nCL07  Operações e dados sob responsabilidade\n31"
+  },
+  {
+    "slide": 35,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide35-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide35-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide35-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide35-imagem03.jpeg"
+    ],
+    "text": "Suporte mobile\nCL10  Operações e dados sob responsabilidade\n32"
+  },
+  {
+    "slide": 36,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide36-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide36-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide36-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide36-imagem03.jpeg"
+    ],
+    "text": "Catalogo e contratos TypeScript\nCL11  Operações e dados sob responsabilidade\n33"
+  },
+  {
+    "slide": 37,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide37-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide37-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide37-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide37-imagem03.jpeg"
+    ],
+    "text": "Serviços e operações reais\nCL12  Operações e dados sob responsabilidade\n34"
+  },
+  {
+    "slide": 38,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide38-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide38-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide38-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide38-imagem03.png"
+    ],
+    "text": "Praticar exercícios de programação\nAN03  Processo atual e responsabilidades\n35"
+  },
+  {
+    "slide": 39,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide39-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide39-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide39-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide39-imagem03.jpeg"
+    ],
+    "text": "Acompanhar a própria aprendizagem\nAN04  Processo atual e responsabilidades\n36"
+  },
+  {
+    "slide": 40,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide40-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide40-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide40-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide40-imagem03.png"
+    ],
+    "text": "Buscar ajuda para uma dúvida\nAN06  Processo atual e responsabilidades\n37"
+  },
+  {
+    "slide": 41,
+    "images": [
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide41-imagem00.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide41-imagem01.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide41-imagem02.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide41-imagem03.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide41-imagem04.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide41-imagem05.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide41-imagem06.jpeg",
+      "docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-pptx\\slide41-imagem07.jpeg"
+    ],
+    "text": "Referências\n38\nOrientações da Profª Patrícia\nRevisão de 28 de setembro de 2026, consolidada no documento fornecido.\nGilleanes T. A. Guedes\nUML 2 Uma abordagem prática. Classes, decisões e partições de atividade.\nCódigo e modelos do Stacklyst\nCommit 9256a4f, schema Prisma e projeto Stacklyst-seminario.asta."
+  }
+]

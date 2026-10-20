@@ -1,0 +1,1519 @@
+0000 []
+0001 []
+0002 []
+0003 []
+0004 []
+0005 []
+0006 []
+0007 [] Stacklyst
+0008 [Ttulo] Especificação de Casos de Uso do Sistema
+0009 [] Laboratório de Engenharia de SoftwareProjeto acadêmicoRevisão documental: 19/10/2026 | Base técnica: 28/09/2026Modelos do seminário: commit 9256a4f
+0010 []
+0011 [] 1. Índice
+0012 [] Nenhuma entrada de sumário foi encontrada.
+0013 [Ttulo1] 2. Objetivo
+0014 [] Este documento especifica os 52 casos de uso numerados presentes no projeto stacklyst-seminario.asta, com atores, condições, resultados, fluxos e referências de implementação. Os identificadores UC001 a UC056 são preservados; UC042 a UC045, referentes a comunidades, permanecem como especificações textuais complementares da documentação anterior e não possuem elementos correspondentes no projeto atual. Os diagramas por domínio e as vistas detalhadas foram atualizados a partir desse arquivo Astah, mantendo a visão geral já adotada.
+0015 [Ttulo1] 3. Atores do Sistema
+0016 [] Ator
+0017 [] Natureza
+0018 [] Permissões e responsabilidades
+0019 [] Visitante
+0020 [] Ator humano
+0021 [] Cadastra uma conta e faz login antes de acessar as funções protegidas.
+0022 [] Usuário autenticado
+0023 [] Ator humano
+0024 [] Estudante ou desenvolvedor com sessão válida. Estuda, cria ou entra em duelos, interage na comunidade, cria eventos, participa de eventos, consulta vagas e suas notificações. Pode encerrar a própria sessão.
+0025 [] Avaliador
+0026 [] Ator humano especializado
+0027 [] Analisa soluções que exigem avaliação humana após elegibilidade e aprovação administrativa.
+0028 [] Administrador
+0029 [] Ator humano privilegiado
+0030 [] Gerencia permissões, denúncias e candidaturas de avaliador; pode avaliar duelos conforme as regras. Herda as funções do usuário autenticado e pode excluir eventos com autorização administrativa.
+0031 [] Recrutador
+0032 [] Ator humano especializado
+0033 [] Publica vagas e atualiza candidaturas autorizadas. Herda a criação e a participação em eventos do usuário autenticado. O cadastro de empresa pode ser iniciado por qualquer usuário autenticado.
+0034 [] Provedor de identidade
+0035 [] Sistema externo
+0036 [] Valida identidade e sessão via Supabase Auth.
+0037 [] Executor externo de código
+0038 [] Sistema externo
+0039 [] Participa quando executeCode aciona um provedor externo. A execução local em QuickJS é interna ao Stacklyst. Falha de programa difere de indisponibilidade do serviço.
+0040 []
+0041 [Ttulo1] 4. Diagramas de Casos de Uso
+0042 [] A especificação mantém os 56 casos de uso UC001 a UC056. A visão geral do seminário apresenta um recorte de 20 casos de uso, conforme o escopo da apresentação. Os 11 recortes gráficos atuais, nas seções 4.1 a 4.10 e 4.12, detalham o inventário por domínio; as comunidades mantêm cobertura textual complementar em 4.11 e nas especificações UC042–UC045. A seção 4.13 reúne os diagramas de evidência do projeto stacklyst-seminario.asta. Atores repetidos são apresentações do mesmo ator.
+0043 [] Avaliador, Administrador e Recrutador especializam Usuário autenticado. A generalização aponta para o ator geral. Associação contínua significa participação; não representa ordem de execução. Sessão válida é pré-condição das funções protegidas; cadastro e login são iniciados pelo Visitante e não exigem sessão prévia.
+0044 [] «include» aponta ao comportamento incluído; «extend» aponta ao caso base. UC006 inclui UC028; UC010 inclui UC029. UC012 estende UC006 quando há solicitação de ajuda permitida. UC029 estende UC028 em atividade de programação. O executor externo só participa quando acionado pela estratégia de execução.
+0045 [Ttulo2] 4.0 Visão geral do Stacklyst
+0046 []  [IMAGEM rId8]
+0047 [] Figura UC00 Visão geral da revisão Astah apresentada no slide 4, identificada como UC30 dentro da imagem.
+0048 [] Fonte: revisão Astah apresentada no seminário, slide 4. Imagem original preservada.
+0049 [] Nota de correspondência: os rótulos UC057 Notificar usuário, UC058 Manter intenção de vaga e UC059 Manter interesse em Evento pertencem à visão apresentada e não ampliam o inventário especificado. Nesta versão, UC022 registra a candidatura à vaga; UC023 inscreve ou cancela a participação em evento; UC026 gera automaticamente a notificação ao candidato quando a candidatura é atualizada. UC011 consulta o ranking. Cadastro e login não exigem sessão prévia.
+0050 [Ttulo2] 4.1 Conta e perfil
+0051 []  [IMAGEM rId9]
+0052 [] Figura UC01 — Conta e perfil.
+0053 [] Fonte editável: stacklyst-seminario.asta / UC01 Conta e perfil.
+0054 [Ttulo2] 4.2 Trilhas e progresso
+0055 []  [IMAGEM rId10]
+0056 [] Figura UC02 — Trilhas e progresso.
+0057 [] Fonte editável: stacklyst-seminario.asta / UC02 Trilhas e progresso.
+0058 [Ttulo2] 4.3 Exercício e avaliação
+0059 []  [IMAGEM rId11]
+0060 [] Figura UC03 — Exercício e avaliação.
+0061 [] Fonte editável: stacklyst-seminario.asta / UC03 Exercicio e avaliacao.
+0062 [Ttulo2] 4.4 Duelos abertos
+0063 []  [IMAGEM rId12]
+0064 [] Figura UC04 — Duelos abertos.
+0065 [] Fonte editável: stacklyst-seminario.asta / UC04 Duelos abertos.
+0066 [Ttulo2] 4.5 Credenciamento e parecer
+0067 []  [IMAGEM rId13]
+0068 [] Figura UC05 — Credenciamento e parecer.
+0069 [] Fonte editável: stacklyst-seminario.asta / UC05 Credenciamento e parecer.
+0070 [Ttulo2] 4.6 Publicações e interações
+0071 []  [IMAGEM rId14]
+0072 [] Figura UC06 — Publicações e interações.
+0073 [] Fonte editável: stacklyst-seminario.asta / UC06 Publicacoes e interacoes.
+0074 [Ttulo2] 4.7 Administração e notificações
+0075 []  [IMAGEM rId15]
+0076 [] Figura UC07 — Administração e notificações.
+0077 [] Fonte editável: stacklyst-seminario.asta / UC07 Administracao e notificacoes.
+0078 [Ttulo2] 4.8 Vagas e empresas
+0079 []  [IMAGEM rId16]
+0080 [] Figura UC08 — Vagas e empresas.
+0081 [] Fonte editável: stacklyst-seminario.asta / UC08 Vagas e empresas.
+0082 [Ttulo2] 4.9 Perfil e conexões
+0083 []  [IMAGEM rId17]
+0084 [] Figura UC09 — Perfil e conexões.
+0085 [] Fonte editável: stacklyst-seminario.asta / UC09 Perfil e conexoes.
+0086 [Ttulo2] 4.10 Mensagens privadas
+0087 []  [IMAGEM rId18]
+0088 [] Figura UC10 — Mensagens privadas.
+0089 [] Fonte editável: stacklyst-seminario.asta / UC10 Mensagens privadas.
+0090 [Ttulo2] 4.11 Comunidades cobertura textual complementar
+0091 [] O projeto atual não contém um recorte gráfico próprio para comunidades; UC042–UC045 permanecem especificados na seção 5.
+0092 [Ttulo2] 4.12 Eventos e desafios
+0093 []  [IMAGEM rId19]
+0094 [] Figura UC11 — Eventos e desafios.
+0095 [] Fonte editável: stacklyst-seminario.asta / UC11 Eventos e desafios.
+0096 [Ttulo2] 4.13 Recortes do seminário
+0097 [] As vistas seguintes apresentam os casos discutidos no seminário e sua correspondência com as especificações da seção 5. O comportamento de notificação ao candidato integra UC026 e não cria um novo caso de uso no inventário.
+0098 [Ttulo3] 4.13.1 UC005 Estudar lição
+0099 []  [IMAGEM rId20]
+0100 [] Figura Seminário 1 UC005 Estudar lição. Fonte editável: stacklyst-seminario.asta / EV-UC005 Estudar lição.
+0101 [] Carrega a lição, valida o acesso e entrega conteúdo e progresso à interface. Especificação: seção 5.5.
+0102 [Ttulo3] 4.13.2 UC006 Resolver exercício
+0103 []  [IMAGEM rId21]
+0104 [] Figura Seminário 2 UC006 Resolver exercício. Fonte editável: stacklyst-seminario.asta / EV-UC006 Resolver exercício.
+0105 [] A resposta é avaliada no servidor. O teste de código de UC052 não concede XP nem conclui a etapa. Especificação: seção 5.6.
+0106 [Ttulo3] 4.13.3 UC017 Publicar vaga
+0107 []  [IMAGEM rId22]
+0108 [] Figura Seminário 3 UC017 Publicar vaga. Fonte editável: stacklyst-seminario.asta / EV-UC017 Publicar vaga.
+0109 [] Exige papel de recrutador ou administrador e acesso autorizado à empresa. Especificação: seção 5.17.
+0110 [Ttulo3] 4.13.4 UC022 Candidatar-se a vaga
+0111 []  [IMAGEM rId23]
+0112 [] Figura Seminário 4 UC022 Candidatar-se a vaga. Fonte editável: stacklyst-seminario.asta / EV-UC022 Candidatar-se a vaga.
+0113 [] Verifica a vaga aberta e cria candidatura vinculada ao usuário e à etapa inicial. Especificação: seção 5.22.
+0114 [Ttulo3] 4.13.5 UC023 Inscrever-se ou cancelar participação em evento
+0115 []  [IMAGEM rId24]
+0116 [] Figura Seminário 5 UC023 Inscrever-se ou cancelar participação em evento. Fonte editável: stacklyst-seminario.asta / EV-UC023 Inscrever-se ou cancelar participação em evento.
+0117 [] A operação POST confirma a inscrição; DELETE cancela a participação do usuário autenticado. Especificação: seção 5.23.
+0118 [Ttulo3] 4.13.6 UC026 Atualizar etapa de candidatura
+0119 []  [IMAGEM rId25]
+0120 [] Figura Seminário 6 UC026 Atualizar etapa de candidatura. Fonte editável: stacklyst-seminario.asta / EV-UC026 Atualizar etapa de candidatura.
+0121 [] Confere empresa, candidatura e etapa antes de atualizar o processo. Especificação: seção 5.26.
+0122 [Ttulo3] 4.13.7 UC013 Criar publicação
+0123 []  [IMAGEM rId26]
+0124 [] Figura Seminário 7 UC013 Criar publicação. Fonte editável: stacklyst-seminario.asta / EV-UC013 Criar publicação.
+0125 [] A publicação e sua recompensa de XP são gravadas na mesma transação. Especificação: seção 5.13.
+0126 [Ttulo3] 4.13.8 UC011 Consultar ranking de XP
+0127 []  [IMAGEM rId27]
+0128 [] Figura Seminário 8 UC011 Consultar ranking de XP. Fonte editável: stacklyst-seminario.asta / EV-UC011 Consultar ranking de XP.
+0129 [] O servidor consulta e ordena os usuários; o caso de uso não prevê manutenção manual da classificação. Especificação: seção 5.11.
+0130 [Ttulo3] 4.13.9 UC056 Consultar candidaturas de uma vaga
+0131 []  [IMAGEM rId28]
+0132 [] Figura Seminário 9 UC056 Consultar candidaturas de uma vaga. Fonte editável: stacklyst-seminario.asta / EV-UC056 Consultar candidaturas de uma vaga.
+0133 [] A rota exige papel autorizado e JobService também valida a responsabilidade pela empresa. Especificação: seção 5.56.
+0134 [Ttulo3] 4.13.10 Notificação automática da candidatura
+0135 []  [IMAGEM rId29]
+0136 [] Figura Seminário 10 Notificação automática da candidatura. Fonte editável: stacklyst-seminario.asta / EV-AUTO01 Notificacao automatica da candidatura.
+0137 [] Dependência interna entre JobService e NotificationService: a atualização de UC026 avisa somente o candidato associado. Não representa um alerta geral por intenção de vaga.
+0138 [Ttulo1] 5. Especificação dos Casos de Uso
+0139 [Ttulo2] 5.1 Caso de Uso UC001 — Cadastrar conta
+0140 [] Protótipo de Interface
+0141 []  [IMAGEM rId30]
+0142 [] Referência visual de UC001. Captura de 07/09/2026.
+0143 []
+0144 [] Descrição: Criar uma conta individual para acessar funções autenticadas.
+0145 [] Tipo: Condução
+0146 [] Ator iniciador ou caso chamador: Visitante
+0147 [] Atores secundários: Provedor de identidade
+0148 [] Pré-condições: Visitante sem sessão autenticada. A disponibilidade do e-mail e do nome de usuário é verificada durante o fluxo.
+0149 [] Pós-condições: Identidade e perfil inicial criados; o usuário pode fazer login.
+0150 [] Entradas: Username, e-mail, senha e campos opcionais permitidos.
+0151 [] Saídas: Confirmação de cadastro ou erros por campo.
+0152 [] Fluxo Principal
+0153 [] 1. O visitante abre a tela de cadastro e informa os dados solicitados.
+0154 [] 2. O Stacklyst valida formato, força da senha e unicidade.
+0155 [] 3. O sistema solicita ao serviço de autenticação a criação da identidade.
+0156 [] 4. Após confirmação, o Stacklyst cria o registro local e perfil inicial.
+0157 [] 5. O sistema confirma o cadastro e direciona o usuário ao acesso apropriado.
+0158 [] Fluxos Alternativos
+0159 [] • A1 — Dado inválido: o sistema destaca o campo sem criar a conta.
+0160 [] • A2 — E-mail ou username existente: o sistema recusa duplicidade.
+0161 [] • A3 — Serviço indisponível: o sistema informa falha temporária sem expor detalhes.
+0162 [Ttulo2] 5.2 Caso de Uso UC002 — Fazer login
+0163 [] Protótipo de Interface
+0164 []  [IMAGEM rId31]
+0165 [] Referência visual de UC002. Captura de 07/09/2026.
+0166 []
+0167 [] Descrição: Permitir que o visitante faça login e inicie uma sessão com as permissões da sua conta.
+0168 [] Tipo: Condução
+0169 [] Ator iniciador ou caso chamador: Visitante
+0170 [] Atores secundários: Provedor de identidade
+0171 [] Pré-condições: Conta existente e não bloqueada.
+0172 [] Pós-condições: Sessão válida criada; rotas autorizadas ficam disponíveis.
+0173 [] Entradas: Credencial ou provedor OAuth.
+0174 [] Saídas: Sessão, perfil básico e redirecionamento.
+0175 [] Fluxo Principal
+0176 [] 1. O visitante abre a tela de login e informa suas credenciais ou seleciona um provedor de identidade.
+0177 [] 2. O Stacklyst envia a solicitação ao serviço de autenticação.
+0178 [] 3. O serviço verifica a identidade e retorna o resultado.
+0179 [] 4. O Stacklyst cria/atualiza cookies de sessão e carrega o papel.
+0180 [] 5. O sistema redireciona para a área permitida.
+0181 [] Fluxos Alternativos
+0182 [] • A1 — Credencial inválida: o sistema mantém a sessão encerrada.
+0183 [] • A2 — Provedor OAuth não configurado: o sistema informa indisponibilidade.
+0184 [] • A3 — Conexão temporária: o sistema permite nova tentativa sem revelar segredo.
+0185 [Ttulo2] 5.3 Caso de Uso UC003 — Editar perfil
+0186 [] Protótipo de Interface
+0187 []  [IMAGEM rId32]
+0188 [] Referência visual de UC003. Captura de 12/09/2026.
+0189 []
+0190 [] Descrição: Consultar e atualizar dados permitidos do próprio perfil.
+0191 [] Tipo: Configuração
+0192 [] Ator iniciador ou caso chamador: Usuário autenticado
+0193 [] Atores secundários: Nenhum.
+0194 [] Pré-condições: Usuário autenticado.
+0195 [] Pós-condições: Campos válidos persistidos e perfil público atualizado.
+0196 [] Entradas: Bio, avatar, banner, pronomes e demais campos suportados.
+0197 [] Saídas: Perfil atualizado ou erros de validação.
+0198 [] Fluxo Principal
+0199 [] 1. O usuário acessa o próprio perfil ou as configurações.
+0200 [] 2. O Stacklyst exibe os dados editáveis e a visualização atual.
+0201 [] 3. O usuário altera campos e confirma.
+0202 [] 4. O sistema valida propriedade, formato e limites e persiste os dados.
+0203 [] 5. O Stacklyst recarrega o perfil e confirma a atualização.
+0204 [] Fluxos Alternativos
+0205 [] • A1 — Usuário sem permissão: o sistema nega alteração em perfil alheio.
+0206 [] • A2 — Campo inválido: o sistema preserva dados anteriores.
+0207 [] • A3 — Upload indisponível: o sistema mantém a imagem anterior.
+0208 [Ttulo2] 5.4 Caso de Uso UC004 — Selecionar trilha
+0209 [] Protótipo de Interface
+0210 []  [IMAGEM rId33]
+0211 [] Referência visual de UC004. Captura de 12/09/2026.
+0212 []
+0213 [] Descrição: Selecionar uma trilha e iniciar ou retomar o percurso.
+0214 [] Tipo: Condução
+0215 [] Ator iniciador ou caso chamador: Usuário autenticado
+0216 [] Atores secundários: Nenhum.
+0217 [] Pré-condições: Usuário autenticado; trilha disponível.
+0218 [] Pós-condições: Preferência registrada e lição elegível apresentada.
+0219 [] Entradas: Linguagem/trilha e etapa selecionada.
+0220 [] Saídas: Mapa atualizado e acesso à próxima lição.
+0221 [] Fluxo Principal
+0222 [] 1. O usuário abre Trilhas e consulta as opções.
+0223 [] 2. O Stacklyst carrega progresso, níveis e bloqueios.
+0224 [] 3. O usuário seleciona a trilha desejada.
+0225 [] 4. O sistema registra a preferência e determina a etapa elegível.
+0226 [] 5. O Stacklyst abre a lição ou apresenta o próximo passo.
+0227 [] Fluxos Alternativos
+0228 [] • A1 — Trilha indisponível: o sistema impede o início e informa o motivo.
+0229 [] • A2 — Pré-requisito não cumprido: o sistema mantém a etapa bloqueada.
+0230 [] • A3 — Progresso não carregado: o sistema não sobrescreve dados existentes.
+0231 [Ttulo2] 5.5 Caso de Uso UC005 — Estudar lição
+0232 [] Protótipo de Interface
+0233 []  [IMAGEM rId34]
+0234 [] Referência visual de UC005. Captura de 07/09/2026.
+0235 []
+0236 [] Descrição: Carregar uma lição, validar o acesso e apresentar seu conteúdo, suas etapas interativas e o progresso à interface.
+0237 [] Tipo: Condução
+0238 [] Ator iniciador ou caso chamador: Usuário autenticado
+0239 [] Atores secundários: Nenhum.
+0240 [] Pré-condições: Usuário autenticado; lição existente e elegível.
+0241 [] Pós-condições: Conteúdo e progresso da lição apresentados após a validação do acesso; exercícios podem ser realizados.
+0242 [] Entradas: Identificador da lição.
+0243 [] Saídas: Conteúdo, etapas e progresso da sessão.
+0244 [] Fluxo Principal
+0245 [] 1. O usuário escolhe uma lição liberada na trilha.
+0246 [] 2. O Stacklyst resolve o identificador no registro de lições.
+0247 [] 3. O sistema verifica conteúdo e estado da etapa.
+0248 [] 4. A página apresenta explicação, exemplos e interação correspondente.
+0249 [] 5. O usuário navega pelas etapas e decide resolver o exercício ou pedir ajuda opcional.
+0250 [] Fluxos Alternativos
+0251 [] • A1 — Lição inexistente: o sistema apresenta estado de não encontrada.
+0252 [] • A2 — Lição bloqueada: o sistema orienta o pré-requisito.
+0253 [] • A3 — Falha ao consultar progresso: informar indisponibilidade sem confirmar conclusão.
+0254 [Ttulo2] 5.6 Caso de Uso UC006 — Resolver exercício
+0255 [] Protótipo de Interface
+0256 []  [IMAGEM rId35]
+0257 [] Referência visual de UC006. Captura de 07/09/2026.
+0258 []
+0259 [] Descrição: Elaborar e submeter uma solução para avaliação no servidor, incluindo UC028 Avaliar resposta. Ponto de extensão consultar ajuda: durante a elaboração, UC012 pode ser executado se o usuário solicitar ajuda permitida pelo modo. Testar código antes da submissão, em UC052, não concede XP nem conclui a etapa.
+0260 [] Tipo: Condução
+0261 [] Ator iniciador ou caso chamador: Usuário autenticado
+0262 [] Atores secundários: Executor de código, por meio de UC029 quando a atividade exigir programação.
+0263 [] Pré-condições: Exercício disponível, pré-requisitos atendidos e usuário autenticado para registrar a tentativa.
+0264 [] Pós-condições: Tentativa e feedback registrados quando a gravação for concluída; XP e progresso atualizados somente se elegíveis. Em falha técnica, nenhum novo acerto é confirmado.
+0265 [] Entradas: Resposta, código, pares, ordem, lacunas, comando ou blocos.
+0266 [] Saídas: Resultado, feedback, saída e XP quando aplicável.
+0267 [] Fluxo Principal
+0268 [] 1. O usuário elabora a solução. Durante esta etapa, pode consultar ajuda pelo ponto de extensão consultar ajuda.
+0269 [] 2. O usuário submete a resposta; o Stacklyst verifica completude, acesso e pré-requisitos.
+0270 [] 3. O Stacklyst executa UC028 Avaliar resposta, que trata o tipo da atividade e retorna o resultado.
+0271 [] 4. O sistema registra a tentativa e, em acerto inédito elegível, a recompensa e o progresso na mesma operação.
+0272 [] 5. O Stacklyst apresenta feedback e progresso confirmado; o usuário decide prosseguir ou realizar nova tentativa.
+0273 [] Fluxos Alternativos
+0274 [] • A1 — Dado inválido: o sistema solicita correção antes da avaliação.
+0275 [] • A2 — Executor indisponível ou timeout: o sistema não marca acerto nem concede XP.
+0276 [] • A3 — Resposta incorreta: o sistema exibe feedback e permite nova tentativa.
+0277 [] • A4 — Falha ao salvar: o sistema informa indisponibilidade, preserva a solução e permite reenvio sem duplicar recompensa.
+0278 [Ttulo2] 5.7 Caso de Uso UC007 — Consultar progresso
+0279 [] Protótipo de Interface
+0280 []  [IMAGEM rId36]
+0281 [] Referência visual de UC007. Captura de 12/09/2026.
+0282 []
+0283 [] Descrição: Apresentar XP, nível, sequência, trilhas, tentativas e conquistas permitidas.
+0284 [] Tipo: Análise
+0285 [] Ator iniciador ou caso chamador: Usuário autenticado
+0286 [] Atores secundários: Nenhum.
+0287 [] Pré-condições: Sessão válida para consultar o próprio progresso. A consulta do progresso de outro usuário limita-se às informações de seu perfil público.
+0288 [] Pós-condições: Nenhuma alteração obrigatória; visão consolidada exibida.
+0289 [] Entradas: Usuário, período e trilha opcionais.
+0290 [] Saídas: Indicadores e histórico permitido.
+0291 [] Fluxo Principal
+0292 [] 1. O usuário abre perfil, trilha ou visão de atividade.
+0293 [] 2. O Stacklyst identifica o titular e as permissões de visualização.
+0294 [] 3. O sistema consulta XP, trilhas, sequência, tentativas e badges.
+0295 [] 4. Os dados são consolidados sem expor campos privados.
+0296 [] 5. O Stacklyst apresenta evolução atual e próximos marcos.
+0297 [] Fluxos Alternativos
+0298 [] • A1 — Perfil privado ou dado não permitido: o sistema oculta o campo.
+0299 [] • A2 — Histórico indisponível: o sistema mostra o último estado confirmado.
+0300 [] • A3 — Período sem atividade: o sistema retorna estado vazio claro.
+0301 [Ttulo2] 5.8 Caso de Uso UC008 — Criar duelo aberto
+0302 [] Protótipo de Interface
+0303 []  [IMAGEM rId37]
+0304 [] Referência visual de UC008. Captura de 12/09/2026.
+0305 []
+0306 [] Descrição: Disponibilizar um duelo aberto com uma linguagem e um desafio do catálogo, aguardando a entrada de outro usuário. Se já houver uma vaga compatível, o sistema pode iniciar o confronto nessa vaga.
+0307 [] Tipo: Condução
+0308 [] Ator iniciador ou caso chamador: Usuário autenticado
+0309 [] Atores secundários: Nenhum. O segundo participante entra no duelo por meio de UC009.
+0310 [] Pré-condições: Usuário autenticado; linguagem suportada e desafio verificável do catálogo.
+0311 [] Pós-condições: Duelo aberto no estado PENDING, vinculado ao criador e sem oponente, ou duelo compatível iniciado no estado ACTIVE.
+0312 [] Entradas: Linguagem e desafio do catálogo. Não há destinatário a selecionar.
+0313 [] Saídas: Identificador do duelo, estado e prazo de espera por participante.
+0314 [] Fluxo Principal
+0315 [] 1. O usuário abre a área de duelos, solicita criar um duelo e escolhe linguagem e desafio.
+0316 [] 2. O sistema verifica a sessão, a linguagem suportada e a existência do desafio no catálogo.
+0317 [] 3. O sistema consulta se há uma vaga aberta de outro usuário na mesma linguagem; se houver, segue a alternativa A1.
+0318 [] 4. Sem vaga compatível, o sistema registra o usuário como criador de um duelo PENDING, sem oponente, com prazo de espera de até 24 horas.
+0319 [] 5. O sistema exibe o duelo aberto. O confronto começa quando outro usuário ocupa a vaga por UC009, com duração de duas horas.
+0320 [] Fluxos Alternativos
+0321 [] • A1 — Vaga compatível encontrada: o sistema reserva a vaga, registra o usuário como oponente e inicia o duelo existente, utilizando o desafio dessa vaga.
+0322 [] • A2 — Dados ou desafio inválidos: o sistema informa o erro e solicita correção antes de criar o duelo.
+0323 [] • A3 — Sessão ausente ou expirada: o usuário precisa fazer login para concluir a solicitação.
+0324 [] • A4 — Espera expirada: a vaga deixa de ser elegível para pareamento; a manutenção atualiza o estado do duelo conforme sua execução.
+0325 [Ttulo2] 5.9 Caso de Uso UC009 — Entrar em duelo
+0326 [] Protótipo de Interface
+0327 []  [IMAGEM rId38]
+0328 [] Referência visual de UC009. Captura de 12/09/2026.
+0329 []
+0330 [] Descrição: Entrar voluntariamente em um duelo aberto ou usar a fila rápida para localizar uma vaga na linguagem selecionada.
+0331 [] Tipo: Condução
+0332 [] Ator iniciador ou caso chamador: Usuário autenticado
+0333 [] Atores secundários: Usuário autenticado que criou o duelo, no contexto de outro participante.
+0334 [] Pré-condições: Usuário autenticado; para entrada direta, duelo pendente com vaga de oponente disponível e criado por outro usuário.
+0335 [] Pós-condições: Vaga ocupada uma única vez e duelo ACTIVE, ou nova espera PENDING quando a fila rápida não encontra oponente.
+0336 [] Entradas: Duelo escolhido na entrada direta ou linguagem selecionada na fila rápida.
+0337 [] Saídas: Duelo ativo com participantes e prazo, ou confirmação de espera por oponente.
+0338 [] Fluxo Principal
+0339 [] 1. O usuário seleciona um duelo aberto e solicita entrar.
+0340 [] 2. O sistema verifica a sessão e confirma que o usuário não é o criador desse duelo.
+0341 [] 3. O sistema verifica se o duelo continua pendente e com a vaga de oponente disponível.
+0342 [] 4. O sistema reserva a vaga de forma condicional para impedir que dois usuários a ocupem ao mesmo tempo.
+0343 [] 5. O sistema registra o oponente, ativa o duelo e apresenta o desafio e o prazo de duas horas aos participantes.
+0344 [] Fluxos Alternativos
+0345 [] • A1 — Fila rápida: o usuário escolhe JavaScript, TypeScript ou Python; o sistema busca a vaga pendente mais antiga e disponível na mesma linguagem, criada por outro usuário. Se não houver vaga, cria uma espera com desafio do catálogo e prazo de até 24 horas.
+0346 [] • A2 — Vaga ocupada ou duelo indisponível: o sistema informa que a entrada não pode ser concluída. Na fila rápida, pode buscar outra vaga ou criar uma espera.
+0347 [] • A3 — Próprio duelo, sessão ausente ou linguagem não suportada: o sistema recusa a entrada e informa a condição a corrigir.
+0348 [Ttulo2] 5.10 Caso de Uso UC010 — Enviar solução de duelo
+0349 [] Protótipo de Interface
+0350 []  [IMAGEM rId39]
+0351 [] Referência visual de UC010. Captura de 07/09/2026.
+0352 []
+0353 [] Descrição: Executar e registrar solução para resolução do duelo.
+0354 [] Tipo: Condução
+0355 [] Ator iniciador ou caso chamador: Participante do duelo
+0356 [] Atores secundários: Executor de código
+0357 [] Pré-condições: Participante autenticado, duelo ativo e dentro do prazo.
+0358 [] Pós-condições: Solução registrada e resolução do duelo processada quando houver elementos suficientes; empate técnico permanece pendente de avaliação humana.
+0359 [] Entradas: Código e duelo.
+0360 [] Saídas: Resultados de testes e estado do duelo.
+0361 [] Fluxo Principal
+0362 [] 1. Enviar código.
+0363 [] 2. Verificar sessão, participante, estado e prazo.
+0364 [] 3. O Stacklyst executa UC029 Executar código e testes com os testes públicos e privados do desafio.
+0365 [] 4. Salvar submissão e aplicar política de resolução.
+0366 [] 5. Retornar resultado sem revelar testes privados.
+0367 [] Fluxos Alternativos
+0368 [] • A1 — Fora do prazo ou não participante: negar submissão.
+0369 [] • A2 — Executor indisponível: não conceder vitória.
+0370 [] • A3 — Empate técnico: encaminhar para revisão humana.
+0371 [Ttulo2] 5.11 Caso de Uso UC011 — Consultar ranking de XP
+0372 [] Protótipo de Interface
+0373 []  [IMAGEM rId40]
+0374 [] Referência visual de UC011. Captura de 22/08/2026.
+0375 []
+0376 [] Descrição: Exibir classificação global ou por linguagem.
+0377 [] Tipo: Análise
+0378 [] Ator iniciador ou caso chamador: Usuário autenticado
+0379 [] Atores secundários: Nenhum.
+0380 [] Pré-condições: Dados de XP disponíveis.
+0381 [] Pós-condições: Ranking exibido sem alterar pontuação.
+0382 [] Entradas: Filtro de linguagem opcional.
+0383 [] Saídas: Posição, usuário, XP, nível e divisão quando aplicável.
+0384 [] Fluxo Principal
+0385 [] 1. O usuário abre o ranking.
+0386 [] 2. O Stacklyst recebe o filtro global ou por linguagem.
+0387 [] 3. O sistema consulta os maiores valores de XP no escopo.
+0388 [] 4. A posição e o nível exibido são calculados.
+0389 [] 5. O Stacklyst apresenta a classificação e a posição disponível.
+0390 [] Fluxos Alternativos
+0391 [] • A1 — Filtro inválido: o sistema usa opção válida ou informa erro.
+0392 [] • A2 — Ranking vazio: o sistema exibe estado sem participantes.
+0393 [] • A3 — Empate em XP: ordenar por username e id crescentes.
+0394 [Ttulo2] 5.12 Caso de Uso UC012 — Consultar ajuda do exercício
+0395 [] Protótipo de Interface
+0396 []  [IMAGEM rId41]
+0397 [] Referência visual de UC012. Captura de 07/09/2026.
+0398 []
+0399 [] Descrição: Consultar material de apoio durante UC006, no ponto de extensão consultar ajuda, quando houver solicitação do usuário e o modo permitir.
+0400 [] Tipo: Análise
+0401 [] Ator iniciador ou caso chamador: Usuário autenticado
+0402 [] Atores secundários: Nenhum.
+0403 [] Pré-condições: Exercício carregado.
+0404 [] Pós-condições: Material exibido sem recompensa adicional.
+0405 [] Entradas: Modo e tipo de ajuda.
+0406 [] Saídas: Dica ou documentação.
+0407 [] Fluxo Principal
+0408 [] 1. Abrir um exercício e selecionar o modo de assistência.
+0409 [] 2. Verificar se o modo permite a ajuda solicitada.
+0410 [] 3. Abrir dica ou documentação editorial.
+0411 [] 4. O Stacklyst apresenta o material editorial correspondente à solicitação.
+0412 [] 5. O usuário interpreta a orientação e retorna à elaboração da solução em UC006.
+0413 [] Fluxos Alternativos
+0414 [] • A1 — Modo bloqueia ajuda: trocar modo ou continuar sem ajuda.
+0415 [Ttulo2] 5.13 Caso de Uso UC013 — Criar publicação
+0416 [] Protótipo de Interface
+0417 []  [IMAGEM rId42]
+0418 [] Referência visual de UC013. Captura de 12/09/2026.
+0419 []
+0420 [] Descrição: Publicar dúvida, conteúdo ou código no feed, gravando a publicação e a recompensa de XP na mesma transação.
+0421 [] Tipo: Condução
+0422 [] Ator iniciador ou caso chamador: Usuário autenticado
+0423 [] Atores secundários: Nenhum.
+0424 [] Pré-condições: Usuário autenticado e dentro do limite de publicação.
+0425 [] Pós-condições: Publicação e recompensa de XP persistidas na mesma transação; publicação exibida no feed após a confirmação.
+0426 [] Entradas: Título, corpo, linguagem, código e imagem opcional.
+0427 [] Saídas: Publicação criada ou erros de validação.
+0428 [] Fluxo Principal
+0429 [] 1. O usuário abre o compositor do feed.
+0430 [] 2. O usuário informa o conteúdo e confirma a publicação.
+0431 [] 3. O Stacklyst valida autenticação, tamanho, formato e limite.
+0432 [] 4. O sistema persiste a publicação, seus metadados e a recompensa de XP na mesma transação.
+0433 [] 5. O feed é atualizado e a publicação fica disponível para interação.
+0434 [] Fluxos Alternativos
+0435 [] • A1 — Conteúdo inválido ou vazio: o sistema solicita correção.
+0436 [] • A2 — Limite excedido: o sistema recusa temporariamente.
+0437 [] • A3 — Upload falha: o usuário pode corrigir ou publicar sem a mídia, se permitido.
+0438 [Ttulo2] 5.14 Caso de Uso UC014 — Interagir com publicação
+0439 [] Protótipo de Interface
+0440 []  [IMAGEM rId43]
+0441 [] Referência visual de UC014. Captura de 12/09/2026.
+0442 []
+0443 [] Descrição: Reagir, votar, responder, salvar ou denunciar uma publicação.
+0444 [] Tipo: Condução
+0445 [] Ator iniciador ou caso chamador: Usuário autenticado
+0446 [] Atores secundários: Autor da publicação
+0447 [] Pré-condições: Usuário autenticado; publicação existente.
+0448 [] Pós-condições: Interação registrada e contadores/notificações atualizados.
+0449 [] Entradas: Publicação, ação, reação ou resposta.
+0450 [] Saídas: Novo estado da interação e eventual notificação.
+0451 [] Fluxo Principal
+0452 [] 1. O usuário seleciona uma publicação no feed.
+0453 [] 2. O usuário escolhe a interação permitida e informa dados adicionais quando necessário.
+0454 [] 3. O Stacklyst valida alvo, sessão e duplicidade.
+0455 [] 4. O sistema registra ou alterna a interação e atualiza contadores.
+0456 [] 5. O autor recebe notificação quando a regra prevê.
+0457 [] Fluxos Alternativos
+0458 [] • A1 — Publicação removida: o sistema interrompe a ação.
+0459 [] • A2 — Ação duplicada: o sistema mantém unicidade ou alterna o estado.
+0460 [] • A3 — Conteúdo denunciado: o sistema cria item para moderação.
+0461 [Ttulo2] 5.15 Caso de Uso UC015 — Criar evento
+0462 [] Protótipo de Interface
+0463 []  [IMAGEM rId44]
+0464 [] Referência visual de UC015. Captura de 12/09/2026.
+0465 []
+0466 [] Descrição: Permitir que qualquer usuário autenticado crie um evento comunitário com descrição, período e requisitos de participação, tornando-se o organizador responsável pelo cadastro.
+0467 [] Tipo: Configuração
+0468 [] Ator iniciador ou caso chamador: Usuário autenticado, no contexto de organizador do evento.
+0469 [] Atores secundários: Nenhum.
+0470 [] Pré-condições: Usuário autenticado e dados obrigatórios do evento preenchidos. A criação não exige o papel de Administrador ou Recrutador.
+0471 [] Pós-condições: Evento criado no estado UPCOMING e vinculado à conta que o cadastrou como criadora.
+0472 [] Entradas: Título, descrição, tipo, datas de início e término, nível mínimo, capacidade opcional, recompensa de XP e imagem opcional.
+0473 [] Saídas: Confirmação de criação e evento disponível na listagem com seu estado e requisitos.
+0474 [] Fluxo Principal
+0475 [] 1. O usuário acessa Eventos e seleciona Criar evento.
+0476 [] 2. O sistema verifica se há uma sessão válida e apresenta o formulário.
+0477 [] 3. O usuário preenche a descrição, o tipo, o período e os requisitos de participação.
+0478 [] 4. O formulário verifica os dados obrigatórios e a ordem das datas; o servidor valida os dados recebidos para a criação.
+0479 [] 5. O sistema registra o evento com o usuário como criador, define o estado inicial UPCOMING e confirma a criação.
+0480 [] Fluxos Alternativos
+0481 [] • A1 — Sessão ausente ou expirada: o sistema solicita que o usuário faça login antes de concluir a criação.
+0482 [] • A2 — Campos obrigatórios ou datas inválidos no formulário: o sistema solicita a correção e mantém os dados para nova tentativa.
+0483 [] • A3 — Falha ao salvar o evento: o sistema informa a falha e não apresenta confirmação de criação.
+0484 [Ttulo2] 5.16 Caso de Uso UC016 — Avaliar empate técnico
+0485 [] Protótipo de Interface [IMAGEM rId45]
+0486 [] Referência visual de UC016. Captura de 12/09/2026.
+0487 []
+0488 [] Descrição: Emitir parecer humano sobre soluções de duelo.
+0489 [] Tipo: Análise
+0490 [] Ator iniciador ou caso chamador: Avaliador ou Administrador.
+0491 [] Atores secundários: Nenhum.
+0492 [] Pré-condições: Avaliador aprovado ou Administrador autenticado, que não participou do duelo; duelo no estado REVIEW_PENDING, com soluções disponíveis para análise.
+0493 [] Pós-condições: Parecer registrado e duelo concluído; a notificação é solicitada. Falha de notificação não desfaz a decisão, conforme RN022.
+0494 [] Entradas: Pontuações de 0 a 1.000, vencedor obrigatório, feedback com pelo menos 5 caracteres, pontos fortes e melhorias.
+0495 [] Saídas: Parecer persistido e resultado.
+0496 [] Fluxo Principal
+0497 [] 1. O avaliador ou administrador abre a fila de avaliações pendentes.
+0498 [] 2. O Stacklyst autoriza o papel e apresenta as soluções.
+0499 [] 3. O avaliador compara código e resultados dos testes.
+0500 [] 4. O avaliador informa pontuações e feedback explicativo.
+0501 [] 5. O sistema valida, registra o parecer, fecha o duelo e notifica.
+0502 [] Fluxos Alternativos
+0503 [] • A1 — Papel ausente ou tentativa de avaliar o próprio duelo: o sistema nega a avaliação.
+0504 [] • A2 — Duelo já fechado: o sistema impede nova decisão conflitante.
+0505 [] • A3 — Feedback/pontuação inválidos: o sistema solicita correção.
+0506 [Ttulo2] 5.17 Caso de Uso UC017 — Publicar vaga
+0507 [] Protótipo de Interface [IMAGEM rId46]
+0508 [] Referência visual de UC017. Captura de 12/09/2026.
+0509 []
+0510 [] Descrição: Criar uma oportunidade vinculada a empresa autorizada.
+0511 [] Tipo: Configuração
+0512 [] Ator iniciador ou caso chamador: Recrutador; Administrador
+0513 [] Atores secundários: Nenhum.
+0514 [] Pré-condições: Ator autenticado com papel RECRUITER ou ADMIN e acesso autorizado à empresa selecionada. A verificação requireCompanyAccess valida o vínculo e as permissões antes da criação da vaga.
+0515 [] Pós-condições: Vaga aberta com etapas de recrutamento.
+0516 [] Entradas: Empresa, título, descrição, nível, tecnologias, modalidade, contrato e etapas.
+0517 [] Saídas: Vaga publicada ou erros por campo.
+0518 [] Fluxo Principal
+0519 [] 1. O recrutador seleciona a empresa sob sua responsabilidade.
+0520 [] 2. O ator informa dados da vaga e etapas.
+0521 [] 3. O Stacklyst valida o papel de recrutador ou administrador, o acesso autorizado à empresa e os campos obrigatórios.
+0522 [] 4. O sistema cria a vaga e as etapas em ordem.
+0523 [] 5. A oportunidade é disponibilizada para consulta e candidatura.
+0524 [] Fluxos Alternativos
+0525 [] • A1 — Sem papel ou vínculo autorizado: o servidor nega a operação. A rota de vagas verifica o papel e aplica requireCompanyAccess para a empresa selecionada.
+0526 [] • A2 — Vaga inválida: o sistema destaca campos e não publica.
+0527 [] • A3 — Salário omitido: o sistema aplica a política definida sem inventar valor.
+0528 [Ttulo2] 5.18 Caso de Uso UC018 — Consultar vagas
+0529 [] Protótipo de Interface
+0530 []  [IMAGEM rId47]
+0531 [] Referência visual de UC018. Captura de 12/09/2026.
+0532 []
+0533 [] Descrição: Listar e detalhar oportunidades disponíveis.
+0534 [] Tipo: Análise
+0535 [] Ator iniciador ou caso chamador: Usuário autenticado; Recrutador
+0536 [] Atores secundários: Nenhum.
+0537 [] Pré-condições: Acesso ao módulo; vagas cadastradas.
+0538 [] Pós-condições: Lista/detalhe exibido sem alteração obrigatória.
+0539 [] Entradas: Busca, tecnologia, nível, modalidade e contrato.
+0540 [] Saídas: Vagas filtradas, empresa, requisitos e etapas.
+0541 [] Fluxo Principal
+0542 [] 1. O ator abre a listagem de vagas.
+0543 [] 2. O Stacklyst carrega vagas abertas e filtros.
+0544 [] 3. O ator informa critérios ou seleciona uma oportunidade.
+0545 [] 4. O sistema aplica filtros e carrega os detalhes permitidos.
+0546 [] 5. A vaga, empresa e opção de candidatura são apresentadas.
+0547 [] Fluxos Alternativos
+0548 [] • A1 — Nenhuma vaga: o sistema exibe estado vazio.
+0549 [] • A2 — Vaga encerrada: o sistema exibe status e desabilita candidatura.
+0550 [] • A3 — Filtro inválido: o sistema solicita correção.
+0551 [Ttulo2] 5.19 Caso de Uso UC019 — Gerenciar permissões de usuários
+0552 [] Protótipo de Interface
+0553 []  [IMAGEM rId48]
+0554 [] Referência visual de UC019. Captura de 12/09/2026.
+0555 []
+0556 [] Descrição: Pesquisar usuários e alterar papéis autorizados.
+0557 [] Tipo: Configuração
+0558 [] Ator iniciador ou caso chamador: Administrador
+0559 [] Atores secundários: Nenhum.
+0560 [] Pré-condições: Administrador autenticado.
+0561 [] Pós-condições: Papel atualizado ou operação recusada; o serviço registra log da alteração.
+0562 [] Entradas: Busca, paginação, usuário e novo papel.
+0563 [] Saídas: Lista de usuários ou registro atualizado.
+0564 [] Fluxo Principal
+0565 [] 1. O administrador abre o painel de usuários.
+0566 [] 2. O Stacklyst valida a sessão administrativa e lista os registros.
+0567 [] 3. O administrador pesquisa e seleciona o usuário.
+0568 [] 4. O administrador escolhe o novo papel e confirma.
+0569 [] 5. O sistema valida a transição, atualiza e registra a ação.
+0570 [] Fluxos Alternativos
+0571 [] • A1 — Sem permissão: o sistema nega acesso.
+0572 [] • A2 — Papel inválido: o sistema não altera o usuário.
+0573 [] • A3 — Alteração que removeria o último administrador: recusar a operação.
+0574 [Ttulo2] 5.20 Caso de Uso UC020 — Tratar denúncias
+0575 [] Protótipo de Interface
+0576 []  [IMAGEM rId49]
+0577 [] Referência visual de UC020. Captura de 12/09/2026.
+0578 []
+0579 [] Descrição: Analisar denúncia e aplicar ação de moderação permitida.
+0580 [] Tipo: Análise
+0581 [] Ator iniciador ou caso chamador: Administrador
+0582 [] Atores secundários: Usuário denunciante; Autor do conteúdo
+0583 [] Pré-condições: Administrador autenticado; denúncia registrada.
+0584 [] Pós-condições: Denúncia tratada e ação registrada.
+0585 [] Entradas: Denúncia, conteúdo, contexto, decisão e justificativa.
+0586 [] Saídas: Resultado de moderação e eventual notificação.
+0587 [] Fluxo Principal
+0588 [] 1. O administrador abre a fila de denúncias.
+0589 [] 2. O Stacklyst apresenta denúncia, conteúdo e dados mínimos necessários.
+0590 [] 3. O administrador analisa motivo e contexto.
+0591 [] 4. O administrador seleciona decisão permitida e registra justificativa.
+0592 [] 5. Aplicar a operação suportada e atualizar o registro da denúncia; não há trilha universal de auditoria.
+0593 [] Fluxos Alternativos
+0594 [] • A1 — Denúncia improcedente: o sistema encerra sem remover conteúdo.
+0595 [] • A2 — Conteúdo já removido: o sistema registra o estado encontrado.
+0596 [] • A3 — Sanção adicional ou recurso: fora do fluxo atual; registrar a solicitação para tratamento administrativo.
+0597 [Ttulo2] 5.21 Caso de Uso UC021 — Consultar notificações
+0598 [] Protótipo de Interface
+0599 []  [IMAGEM rId50]
+0600 [] Referência visual de UC021. Captura de 07/09/2026.
+0601 []
+0602 [] Descrição: Consultar notificações destinadas à própria conta e marcá-las como lidas.
+0603 [] Tipo: Análise
+0604 [] Ator iniciador ou caso chamador: Usuário autenticado, incluindo Avaliador, Administrador e Recrutador.
+0605 [] Atores secundários: Nenhum.
+0606 [] Pré-condições: Ator autenticado.
+0607 [] Pós-condições: Notificações exibidas; estado de leitura atualizado apenas quando solicitado.
+0608 [] Entradas: Cursor, limite e ação de leitura.
+0609 [] Saídas: Lista, próximo cursor e contagem não lida.
+0610 [] Fluxo Principal
+0611 [] 1. O ator abre a central de notificações.
+0612 [] 2. O Stacklyst identifica o usuário da sessão.
+0613 [] 3. O sistema busca somente notificações do destinatário com paginação.
+0614 [] 4. O ator abre itens ou solicita marcar como lidos.
+0615 [] 5. O Stacklyst atualiza leitura e a contagem não lida.
+0616 [] Fluxos Alternativos
+0617 [] • A1 — Conexão indisponível: o sistema preserva o estado e permite nova tentativa.
+0618 [] • A2 — Notificação removida: o sistema ignora o item sem acessar recurso inexistente.
+0619 [] • A3 — Fora da aplicação web: o usuário deve acessar a central de notificações pelo navegador.
+0620 [Ttulo2] 5.22 Caso de Uso UC022 — Candidatar-se a vaga
+0621 [] Protótipo de Interface
+0622 []  [IMAGEM rId51]
+0623 [] Referência visual de UC022. Captura de 12/09/2026.
+0624 []
+0625 [] Descrição: Registrar candidatura de usuário em vaga aberta.
+0626 [] Tipo: Condução
+0627 [] Ator iniciador ou caso chamador: Usuário autenticado
+0628 [] Atores secundários: Recrutador
+0629 [] Pré-condições: Usuário autenticado e vaga identificada. A abertura da vaga e a ausência de candidatura anterior são verificadas durante o fluxo.
+0630 [] Pós-condições: Candidatura criada, vinculada ao usuário, à vaga aberta e à etapa inicial do processo.
+0631 [] Entradas: Identificador da vaga e sessão.
+0632 [] Saídas: Confirmação e situação da candidatura.
+0633 [] Fluxo Principal
+0634 [] 1. O usuário consulta o detalhe de uma vaga aberta.
+0635 [] 2. O usuário seleciona a opção de candidatura.
+0636 [] 3. O Stacklyst verifica sessão, status da vaga e duplicidade.
+0637 [] 4. O sistema cria a candidatura vinculada ao usuário, à vaga e à etapa inicial do processo de seleção.
+0638 [] 5. O Stacklyst confirma e passa a exibir a situação no processo.
+0639 [] Fluxos Alternativos
+0640 [] • A1 — Vaga encerrada: o sistema recusa candidatura.
+0641 [] • A2 — Candidatura duplicada: o sistema informa o registro existente.
+0642 [] • A3 — Perfil incompleto: permitir candidatura com os dados obrigatórios da vaga e indicar os campos públicos ausentes.
+0643 [Ttulo2] 5.23 Caso de Uso UC023 — Inscrever-se ou cancelar participação em evento
+0644 [] Protótipo de Interface
+0645 []  [IMAGEM rId52]
+0646 [] Referência visual de UC023. Captura de 12/09/2026.
+0647 []
+0648 [] Descrição: Inscrever o usuário em um evento elegível, cancelar sua própria participação e consultar o estado da inscrição.
+0649 [] Tipo: Condução
+0650 [] Ator iniciador ou caso chamador: Usuário autenticado
+0651 [] Atores secundários: Nenhum.
+0652 [] Pré-condições: Usuário autenticado e evento identificado. Encerramento, capacidade, nível e participação prévia são verificados durante o fluxo.
+0653 [] Pós-condições: Participação registrada uma única vez na inscrição ou vínculo de participação removido no cancelamento.
+0654 [] Entradas: Identificador do evento, sessão e ação de inscrição ou cancelamento.
+0655 [] Saídas: Confirmação, regras e estado da inscrição.
+0656 [] Fluxo Principal
+0657 [] 1. O usuário abre a listagem e seleciona um evento.
+0658 [] 2. O Stacklyst apresenta período, nível e capacidade.
+0659 [] 3. O usuário solicita participação.
+0660 [] 4. O sistema verifica se o evento não está encerrado, confere nível e capacidade e mantém a unicidade da participação.
+0661 [] 5. O Stacklyst registra o participante pela operação POST e confirma a inscrição.
+0662 [] Fluxos Alternativos
+0663 [] • A1 — Nível insuficiente: o sistema informa o requisito.
+0664 [] • A2 — Evento lotado ou encerrado: o sistema recusa a inscrição.
+0665 [] • A3 — Inscrição já registrada: o sistema não cria duplicidade; apresenta a participação existente quando o evento continua elegível.
+0666 [] • A4 — Cancelar participação: antes do encerramento do evento, o usuário solicita retirar a própria inscrição; a operação DELETE remove o vínculo e atualiza o estado exibido.
+0667 [Ttulo2] 5.24 Caso de Uso UC024 — Candidatar-se a avaliador
+0668 [] Protótipo de Interface
+0669 []  [IMAGEM rId53]
+0670 [] Referência visual de UC024. Captura de 07/09/2026.
+0671 []
+0672 [] Descrição: Verificar elegibilidade e enviar candidatura para papel de avaliador.
+0673 [] Tipo: Condução
+0674 [] Ator iniciador ou caso chamador: Usuário autenticado
+0675 [] Atores secundários: Administrador
+0676 [] Pré-condições: Usuário autenticado. Elegibilidade, papel atual e existência de candidatura pendente são verificados durante o fluxo.
+0677 [] Pós-condições: Candidatura pendente criada ou inelegibilidade informada.
+0678 [] Entradas: Motivação e tecnologias de domínio.
+0679 [] Saídas: Elegibilidade e status da candidatura.
+0680 [] Fluxo Principal
+0681 [] 1. O usuário abre a área de candidatura a avaliador.
+0682 [] 2. O Stacklyst calcula trilhas completas e XP.
+0683 [] 3. Se elegível, o usuário informa motivação e tecnologias.
+0684 [] 4. O sistema valida e registra a candidatura pendente.
+0685 [] 5. O administrador passa a visualizar a candidatura para decisão.
+0686 [] Fluxos Alternativos
+0687 [] • A1 — Critério não atendido: o sistema mostra requisitos atuais.
+0688 [] • A2 — Candidatura já pendente: o sistema não duplica.
+0689 [] • A3 — Usuário já é avaliador/administrador: o sistema informa o papel existente.
+0690 [Ttulo2] 5.25 Caso de Uso UC025 — Cadastrar empresa
+0691 [] Protótipo de Interface
+0692 []  [IMAGEM rId54]
+0693 [] Referência visual de UC025. Captura de 12/09/2026.
+0694 []
+0695 [] Descrição: Criar perfil de empresa vinculado a responsável autorizado.
+0696 [] Tipo: Configuração
+0697 [] Ator iniciador ou caso chamador: Usuário autenticado
+0698 [] Atores secundários: Nenhum.
+0699 [] Pré-condições: Usuário autenticado; dados da empresa disponíveis para preenchimento e validação.
+0700 [] Pós-condições: Empresa criada e vinculada ao responsável; conta USER passa a RECRUITER. A criação de eventos já é permitida a qualquer usuário autenticado.
+0701 [] Entradas: Nome, slug, descrição, localização, site e imagens opcionais.
+0702 [] Saídas: Cadastro da empresa.
+0703 [] Fluxo Principal
+0704 [] 1. O usuário abre o cadastro de empresa e informa os dados solicitados.
+0705 [] 2. O Stacklyst valida a sessão, os campos obrigatórios e a unicidade aplicável.
+0706 [] 3. O sistema cria a empresa e vincula o usuário como proprietário.
+0707 [] 4. O sistema atribui o papel RECRUITER à conta USER, preservando os demais papéis existentes.
+0708 [] 5. O Stacklyst confirma o cadastro e apresenta a empresa ao responsável.
+0709 [] Fluxos Alternativos
+0710 [] • A1 — Sem permissão: o sistema nega o cadastro.
+0711 [] • A2 — Slug/nome conflitante: o sistema solicita alteração.
+0712 [] • A3 — Verificação oficial: não disponível; a empresa permanece com is_verified=false.
+0713 [Ttulo2] 5.26 Caso de Uso UC026 — Atualizar etapa de candidatura
+0714 [] Protótipo de Interface
+0715 []  [IMAGEM rId55]
+0716 [] Referência visual de UC026. Captura de 12/09/2026.
+0717 []
+0718 [] Descrição: Atualizar a etapa de uma candidatura autorizada e solicitar automaticamente a notificação ao candidato associado.
+0719 [] Tipo: Configuração
+0720 [] Ator iniciador: Recrutador responsável ou Administrador autorizado.
+0721 [] Atores secundários: Candidato
+0722 [] Pré-condições: Ator autenticado e autorizado; candidatura existente, vinculada à vaga da empresa sob sua responsabilidade; etapa de destino pertencente ao processo da vaga.
+0723 [] Pós-condições: Etapa persistida e notificação automática solicitada somente ao candidato associado à candidatura. Falha de notificação não desfaz a atualização.
+0724 [] Entradas: Candidatura e etapa.
+0725 [] Saídas: Novo estado.
+0726 [] Fluxo Principal
+0727 [] 1. O recrutador seleciona a candidatura e informa a etapa desejada.
+0728 [] 2. O Stacklyst confere o acesso à empresa e o vínculo da candidatura com a vaga sob responsabilidade do ator.
+0729 [] 3. O sistema valida a etapa de destino e os dados informados.
+0730 [] 4. O sistema salva a alteração, confirma o resultado e solicita a notificação JOB_APPLICATION_UPDATE para o usuário associado à candidatura, como comportamento interno de UC026.
+0731 [] Fluxos Alternativos
+0732 [] • A1 — Sem vínculo ou etapa inválida: recusar.
+0733 [] • A2 — Notificação falha: registrar erro; a etapa permanece salva.
+0734 [Ttulo2] 5.27 Caso de Uso UC027 — Aprovar ou rejeitar candidatura de avaliador
+0735 [] Protótipo de Interface
+0736 []  [IMAGEM rId56]
+0737 [] Referência visual de UC027. Captura de 12/09/2026.
+0738 []
+0739 [] Descrição: Aprovar ou rejeitar candidatura.
+0740 [] Tipo: Configuração
+0741 [] Ator iniciador ou caso chamador: Administrador
+0742 [] Atores secundários: Candidato
+0743 [] Pré-condições: Administrador autenticado; candidatura pendente.
+0744 [] Pós-condições: Decisão registrada; aprovação atribui papel.
+0745 [] Entradas: Candidatura e decisão.
+0746 [] Saídas: Status.
+0747 [] Fluxo Principal
+0748 [] 1. O administrador seleciona uma candidatura pendente.
+0749 [] 2. O administrador analisa os critérios de elegibilidade e as informações do candidato.
+0750 [] 3. O administrador informa a aprovação ou rejeição.
+0751 [] 4. O Stacklyst valida a autorização e o estado da candidatura, registra a decisão e atribui o papel de avaliador quando aprovada.
+0752 [] Fluxos Alternativos
+0753 [] • A1 — Candidatura já decidida: informar estado.
+0754 [] • A2 — Sem papel ADMIN: negar.
+0755 [Ttulo2] 5.28 Caso de Uso UC028 — Avaliar resposta
+0756 [] Descrição: Avaliar a resposta conforme o conteúdo e os critérios canônicos da atividade. A comparação de respostas conceituais é completa por si. O ponto de extensão avaliar código é alcançado quando o tipo exige execução de programa.
+0757 [] Tipo: Análise; comportamento reutilizado por UC006.
+0758 [] Ator iniciador ou caso chamador: UC006 Resolver exercício
+0759 [] Atores secundários: Executor de código, por meio de UC029 nas atividades de programação.
+0760 [] Pré-condições: Resposta válida e acesso autorizado.
+0761 [] Pós-condições: Resultado da avaliação e feedback retornados, ou falha técnica informada sem aprovação. O caso chamador é responsável pela gravação.
+0762 [] Entradas: Resposta e atividade canônica.
+0763 [] Saídas: Avaliação e feedback.
+0764 [] Fluxo Principal
+0765 [] 1. O Stacklyst identifica o tipo da atividade e os critérios de avaliação aplicáveis.
+0766 [] 2. Para respostas conceituais, compara a escolha, as lacunas, a ordem, os pares, os blocos ou o comando com o conteúdo canônico.
+0767 [] 3. Para atividades de programação, no ponto avaliar código, executa UC029 e utiliza os resultados dos testes para determinar acerto ou erro. Falha técnica não equivale a resposta correta.
+0768 [] 4. O Stacklyst retorna a avaliação e o feedback a UC006, sem conceder XP diretamente.
+0769 [] Fluxos Alternativos
+0770 [] • A1 — Configuração de avaliação ausente: não aprovar.
+0771 [] • A2 — Executor indisponível: retornar falha controlada.
+0772 [] Protótipo de Interface
+0773 [] Sem tela própria: comportamento reutilizado pelo caso chamador; o resultado é apresentado no editor ou no feedback da atividade.
+0774 [Ttulo2] 5.29 Caso de Uso UC029 — Executar código e testes
+0775 [] Descrição: Executar código em ambiente isolado, usando o sandbox interno ou um provedor externo conforme a linguagem, com testes definidos no servidor.
+0776 [] Tipo: Análise; comportamento reutilizado por UC010 e UC028.
+0777 [] Ator iniciador ou caso chamador: UC010, por inclusão; UC028, pela extensão no ponto avaliar código.
+0778 [] Atores secundários: Executor de código
+0779 [] Pré-condições: Código e linguagem suportados; contrato de teste carregado.
+0780 [] Pós-condições: Saída e resultado de execução retornados.
+0781 [] Entradas: Código, linguagem e testes aplicáveis.
+0782 [] Saídas: Saída, erros e tempo de execução.
+0783 [] Fluxo Principal
+0784 [] 1. Preparar código e testes.
+0785 [] 2. Selecionar o executor suportado pela linguagem. JavaScript/TypeScript podem usar QuickJS interno; outras linguagens usam o provedor configurado.
+0786 [] 3. Tratar saída, compilação ou tempo limite.
+0787 [] 4. Retornar resultados sem expor testes ocultos.
+0788 [] Fluxos Alternativos
+0789 [] • A1 — Provedor indisponível: falhar sem confirmar acerto.
+0790 [] • A2 — Código inválido: retornar erro de compilação ou execução.
+0791 [] Protótipo de Interface
+0792 [] Sem tela própria: comportamento reutilizado pelo caso chamador; o resultado é apresentado no editor ou no feedback da atividade.
+0793 [Ttulo2] 5.30 Caso de Uso UC030 — Encerrar sessão
+0794 [] Descrição: Encerrar a sessão atual e retornar à área pública.
+0795 [] Tipo: Condução
+0796 [] Ator iniciador: Usuário autenticado, incluindo Avaliador, Administrador e Recrutador.
+0797 [] Atores secundários: Provedor de identidade.
+0798 [] Pré-condições: Usuário com sessão ativa.
+0799 [] Pós-condições: Sessão encerrada e estado local de autenticação removido; novas operações protegidas exigem autenticação.
+0800 [] Entradas: Solicitação de saída e sessão atual.
+0801 [] Saídas: Confirmação de encerramento ou informação de falha.
+0802 [] Fluxo Principal
+0803 [] 1. O usuário solicita sair da conta.
+0804 [] 2. O Stacklyst solicita o encerramento da sessão ao provedor de identidade.
+0805 [] 3. Após confirmação, o sistema remove o estado local de autenticação.
+0806 [] 4. O sistema apresenta a área pública e exige novo login para as funções protegidas.
+0807 [] Fluxos Alternativos
+0808 [] • A1 — Sessão já encerrada: o sistema apresenta a área pública.
+0809 [] • A2 — Falha ao encerrar a sessão: o sistema informa a falha, sem confirmar sucesso, e permite nova tentativa.
+0810 [] Rastreabilidade: RF003; RN017 e RN025. Referência de interface: ação Sair da conta já existente. Representado nas vistas UC00 e UC01 do projeto Astah.
+0811 [Ttulo2] 5.31 Caso de Uso UC031 — Consultar e pesquisar feed
+0812 [] Descrição: Consultar e pesquisar feed.
+0813 [] Ator iniciador: Usuário autenticado.
+0814 [] Pré-condições e autorização: Exibir somente o conteúdo autorizado.
+0815 [] Fluxo Principal
+0816 [] 1. Informar filtro ou termo.
+0817 [] 2. Consultar publicações e abrir conteúdo de interesse.
+0818 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0819 [] Fluxos Alternativos
+0820 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0821 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0822 [] Rastreabilidade: RF031.
+0823 [] Referência de implementação: src/app/feed; src/app/api/posts; src/app/api/search.
+0824 [Ttulo2] 5.32 Caso de Uso UC032 — Consultar perfil público
+0825 [] Descrição: Consultar perfil público.
+0826 [] Ator iniciador: Usuário autenticado.
+0827 [] Pré-condições e autorização: Dados privados de conta não compõem a resposta pública.
+0828 [] Fluxo Principal
+0829 [] 1. Selecionar usuário.
+0830 [] 2. Consultar perfil e indicadores públicos.
+0831 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0832 [] Fluxos Alternativos
+0833 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0834 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0835 [] Rastreabilidade: RF037, RF038.
+0836 [] Referência de implementação: src/app/profile/[username]; src/app/api/profile/[username].
+0837 [Ttulo2] 5.33 Caso de Uso UC033 — Seguir ou deixar de seguir usuário
+0838 [] Descrição: Seguir ou deixar de seguir usuário.
+0839 [] Ator iniciador: Usuário autenticado.
+0840 [] Pré-condições e autorização: A ação usa a identidade autenticada e as regras de FollowService.
+0841 [] Fluxo Principal
+0842 [] 1. Selecionar usuário.
+0843 [] 2. Alternar acompanhamento.
+0844 [] 3. Confirmar estado.
+0845 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0846 [] Fluxos Alternativos
+0847 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0848 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0849 [] Rastreabilidade: Ampliação: relações sociais.
+0850 [] Referência de implementação: src/app/explore/page.tsx; src/app/api/users/[id]/follow.
+0851 [Ttulo2] 5.34 Caso de Uso UC034 — Consultar publicações salvas
+0852 [] Descrição: Consultar publicações salvas.
+0853 [] Ator iniciador: Usuário autenticado.
+0854 [] Pré-condições e autorização: A coleção pertence ao usuário autenticado.
+0855 [] Fluxo Principal
+0856 [] 1. Abrir itens salvos.
+0857 [] 2. Selecionar publicação.
+0858 [] 3. Remover marcação se desejado.
+0859 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0860 [] Fluxos Alternativos
+0861 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0862 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0863 [] Rastreabilidade: RF032.
+0864 [] Referência de implementação: src/app/bookmarks/page.tsx; src/app/api/posts/[id]/bookmark.
+0865 [Ttulo2] 5.35 Caso de Uso UC035 — Editar ou excluir publicação própria
+0866 [] Descrição: Editar ou excluir publicação própria.
+0867 [] Ator iniciador: Usuário autenticado.
+0868 [] Pré-condições e autorização: O servidor valida author_id; edição exige conteúdo com pelo menos 10 caracteres.
+0869 [] Fluxo Principal
+0870 [] 1. Selecionar publicação própria.
+0871 [] 2. Solicitar edição ou exclusão.
+0872 [] 3. Confirmar resultado.
+0873 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0874 [] Fluxos Alternativos
+0875 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0876 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0877 [] Rastreabilidade: Ampliação: manutenção de publicação.
+0878 [] Referência de implementação: src/app/api/posts/[id]/route.ts.
+0879 [Ttulo2] 5.36 Caso de Uso UC036 — Aceitar resposta de uma publicação
+0880 [] Descrição: Aceitar resposta de uma publicação.
+0881 [] Ator iniciador: Usuário autenticado.
+0882 [] Pré-condições e autorização: Somente autor da publicação; transação impede recompensa duplicada do mesmo aceite.
+0883 [] Fluxo Principal
+0884 [] 1. Autor seleciona resposta.
+0885 [] 2. Confirma aceite.
+0886 [] 3. Sistema registra aceite e recompensa elegível.
+0887 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0888 [] Fluxos Alternativos
+0889 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0890 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0891 [] Rastreabilidade: Ampliação: resposta aceita.
+0892 [] Referência de implementação: src/app/api/answers/[id]/accept/route.ts.
+0893 [Ttulo2] 5.37 Caso de Uso UC037 — Responder quiz diário
+0894 [] Descrição: Responder quiz diário.
+0895 [] Ator iniciador: Usuário autenticado.
+0896 [] Pré-condições e autorização: A correção ocorre no servidor; repetição não duplica a primeira recompensa.
+0897 [] Fluxo Principal
+0898 [] 1. Consultar quiz disponível.
+0899 [] 2. Selecionar resposta.
+0900 [] 3. Enviar e analisar resultado.
+0901 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0902 [] Fluxos Alternativos
+0903 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0904 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0905 [] Rastreabilidade: RF008, RF009, RF011.
+0906 [] Referência de implementação: src/app/api/quiz/daily; src/app/api/quiz/[id]/attempt.
+0907 [Ttulo2] 5.38 Caso de Uso UC038 — Consultar conversas e mensagens
+0908 [] Descrição: Consultar conversas e mensagens.
+0909 [] Ator iniciador: Usuário autenticado.
+0910 [] Pré-condições e autorização: O histórico envolve o usuário autenticado como remetente ou destinatário.
+0911 [] Fluxo Principal
+0912 [] 1. Abrir conversas.
+0913 [] 2. Selecionar interlocutor.
+0914 [] 3. Consultar histórico permitido.
+0915 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0916 [] Fluxos Alternativos
+0917 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0918 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0919 [] Rastreabilidade: Ampliação: mensagens.
+0920 [] Referência de implementação: src/app/messages/page.tsx; src/app/api/messages/chats; src/app/api/messages.
+0921 [Ttulo2] 5.39 Caso de Uso UC039 — Enviar mensagem privada
+0922 [] Descrição: Enviar mensagem privada.
+0923 [] Ator iniciador: Usuário autenticado.
+0924 [] Pré-condições e autorização: Sessão válida e destinatário informado; envio sujeito a limite de frequência.
+0925 [] Fluxo Principal
+0926 [] 1. Selecionar interlocutor.
+0927 [] 2. Escrever texto ou anexar imagem.
+0928 [] 3. Enviar e consultar retorno.
+0929 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0930 [] Fluxos Alternativos
+0931 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0932 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0933 [] Rastreabilidade: Ampliação: mensagens.
+0934 [] Referência de implementação: src/app/messages/page.tsx; src/app/api/messages/route.ts.
+0935 [Ttulo2] 5.40 Caso de Uso UC040 — Editar ou excluir mensagem própria
+0936 [] Descrição: Editar ou excluir mensagem própria.
+0937 [] Ator iniciador: Usuário autenticado.
+0938 [] Pré-condições e autorização: Somente remetente; edição não admite texto vazio.
+0939 [] Fluxo Principal
+0940 [] 1. Selecionar mensagem enviada.
+0941 [] 2. Editar conteúdo ou excluir.
+0942 [] 3. Atualizar conversa.
+0943 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0944 [] Fluxos Alternativos
+0945 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0946 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0947 [] Rastreabilidade: Ampliação: mensagens.
+0948 [] Referência de implementação: src/app/api/messages/[id]/route.ts.
+0949 [Ttulo2] 5.41 Caso de Uso UC041 — Reagir a mensagem
+0950 [] Descrição: Reagir a mensagem.
+0951 [] Ator iniciador: Usuário autenticado.
+0952 [] Pré-condições e autorização: Somente remetente ou destinatário da mensagem.
+0953 [] Fluxo Principal
+0954 [] 1. Selecionar mensagem.
+0955 [] 2. Escolher emoji.
+0956 [] 3. Adicionar ou remover reação.
+0957 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0958 [] Fluxos Alternativos
+0959 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0960 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0961 [] Rastreabilidade: Ampliação: mensagens.
+0962 [] Referência de implementação: src/app/api/messages/[id]/react/route.ts.
+0963 [Ttulo2] 5.42 Caso de Uso UC042 — Consultar comunidades
+0964 [] Descrição: Consultar comunidades.
+0965 [] Ator iniciador: Usuário autenticado.
+0966 [] Pré-condições e autorização: Comunidades privadas exigem vínculo ou propriedade.
+0967 [] Fluxo Principal
+0968 [] 1. Listar comunidades públicas e próprias.
+0969 [] 2. Filtrar interesse.
+0970 [] 3. Abrir detalhes autorizados.
+0971 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0972 [] Fluxos Alternativos
+0973 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0974 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0975 [] Rastreabilidade: Ampliação: comunidades.
+0976 [] Referência de implementação: src/app/guilds/GuildsClient.tsx; src/app/api/guilds.
+0977 [Ttulo2] 5.43 Caso de Uso UC043 — Criar comunidade
+0978 [] Descrição: Criar comunidade.
+0979 [] Ator iniciador: Usuário autenticado.
+0980 [] Pré-condições e autorização: Nome com pelo menos 3 caracteres e slug não duplicado.
+0981 [] Fluxo Principal
+0982 [] 1. Informar nome, descrição e linguagem.
+0983 [] 2. Validar.
+0984 [] 3. Criar comunidade e vínculo de proprietário.
+0985 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+0986 [] Fluxos Alternativos
+0987 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+0988 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+0989 [] Rastreabilidade: Ampliação: comunidades.
+0990 [] Referência de implementação: src/app/guilds/GuildsClient.tsx; src/app/api/guilds.
+0991 [Ttulo2] 5.44 Caso de Uso UC044 — Entrar ou sair de comunidade
+0992 [] Descrição: Entrar ou sair de comunidade.
+0993 [] Ator iniciador: Usuário autenticado.
+0994 [] Pré-condições e autorização: Entrada pública, sem vínculo duplicado. Proprietário não pode sair por esta operação.
+0995 [] Fluxo Principal
+0996 [] 1. Selecionar comunidade.
+0997 [] 2. Solicitar entrada ou saída.
+0998 [] 3. Consultar associação atualizada.
+0999 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1000 [] Fluxos Alternativos
+1001 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1002 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1003 [] Rastreabilidade: Ampliação: comunidades.
+1004 [] Referência de implementação: src/app/guilds/[slug]/page.tsx; src/app/api/guilds/[id]/members.
+1005 [Ttulo2] 5.45 Caso de Uso UC045 — Administrar comunidade própria
+1006 [] Descrição: Administrar comunidade própria.
+1007 [] Ator iniciador: Usuário autenticado.
+1008 [] Pré-condições e autorização: Edição exige OWNER/ADMIN da guilda; exclusão exige OWNER. Contrato de API; painel completo de gestão não confirmado.
+1009 [] Fluxo Principal
+1010 [] 1. Selecionar comunidade sob gestão.
+1011 [] 2. Editar campos permitidos ou solicitar exclusão.
+1012 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1013 [] Fluxos Alternativos
+1014 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1015 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1016 [] Rastreabilidade: Ampliação: comunidades.
+1017 [] Referência de implementação: src/app/api/guilds/[id]/route.ts.
+1018 [Ttulo2] 5.46 Caso de Uso UC046 — Consultar eventos e desafios
+1019 [] Descrição: Consultar eventos e desafios.
+1020 [] Ator iniciador: Usuário autenticado.
+1021 [] Pré-condições e autorização: Respostas esperadas dos desafios ficam restritas ao gestor autorizado.
+1022 [] Fluxo Principal
+1023 [] 1. Consultar eventos.
+1024 [] 2. Abrir detalhes e desafios.
+1025 [] 3. Analisar datas e condições.
+1026 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1027 [] Fluxos Alternativos
+1028 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1029 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1030 [] Rastreabilidade: RF041, RF049.
+1031 [] Referência de implementação: src/app/events; src/app/api/events; src/app/api/events/[id]/challenges.
+1032 [Ttulo2] 5.47 Caso de Uso UC047 — Excluir evento sob responsabilidade
+1033 [] Descrição: Excluir evento sob responsabilidade.
+1034 [] Ator iniciador: Criador do evento ou Administrador autorizado.
+1035 [] Pré-condições e autorização: Somente criador ou Administrador, conforme regras de EventService.
+1036 [] Fluxo Principal
+1037 [] 1. Selecionar evento.
+1038 [] 2. Solicitar exclusão.
+1039 [] 3. Validar responsabilidade.
+1040 [] 4. Confirmar remoção.
+1041 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1042 [] Fluxos Alternativos
+1043 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1044 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1045 [] Rastreabilidade: RF041.
+1046 [] Referência de implementação: src/app/api/events/[id]/route.ts; src/services/event.service.ts.
+1047 [Ttulo2] 5.48 Caso de Uso UC048 — Gerenciar desafios de evento
+1048 [] Descrição: Gerenciar desafios de evento.
+1049 [] Ator iniciador: Criador do evento ou Administrador autorizado.
+1050 [] Pré-condições e autorização: Criador ou Administrador; evento concluído não admite alteração; respostas privadas não são públicas.
+1051 [] Fluxo Principal
+1052 [] 1. Criador define conjunto de desafios.
+1053 [] 2. Valida dados.
+1054 [] 3. Salva e consulta conjunto.
+1055 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1056 [] Fluxos Alternativos
+1057 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1058 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1059 [] Rastreabilidade: Ampliação: desafios de evento.
+1060 [] Referência de implementação: src/app/api/events/[id]/challenges; src/services/event-challenge.service.ts.
+1061 [Ttulo2] 5.49 Caso de Uso UC049 — Consultar métricas administrativas
+1062 [] Descrição: Consultar métricas administrativas.
+1063 [] Ator iniciador: Administrador.
+1064 [] Pré-condições e autorização: Exige Administrador; indicadores não equivalem a prova de segurança ou aceitação.
+1065 [] Fluxo Principal
+1066 [] 1. Abrir painel.
+1067 [] 2. Solicitar métricas.
+1068 [] 3. Analisar indicadores consolidados.
+1069 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1070 [] Fluxos Alternativos
+1071 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1072 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1073 [] Rastreabilidade: Ampliação: indicadores administrativos.
+1074 [] Referência de implementação: src/app/api/admin/metrics/route.ts; src/services/admin.service.ts.
+1075 [Ttulo2] 5.50 Caso de Uso UC050 — Configurar preferências pessoais
+1076 [] Descrição: Configurar preferências pessoais.
+1077 [] Ator iniciador: Usuário autenticado.
+1078 [] Pré-condições e autorização: Preferências locais não representam mudança de permissão no servidor.
+1079 [] Fluxo Principal
+1080 [] 1. Abrir configurações.
+1081 [] 2. Alterar aparência, sons ou idioma suportado.
+1082 [] 3. Aplicar preferência.
+1083 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1084 [] Fluxos Alternativos
+1085 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1086 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1087 [] Rastreabilidade: Ampliação: preferências.
+1088 [] Referência de implementação: src/app/settings/page.tsx.
+1089 [Ttulo2] 5.51 Caso de Uso UC051 — Personalizar avatar
+1090 [] Descrição: Personalizar avatar.
+1091 [] Ator iniciador: Usuário autenticado.
+1092 [] Pré-condições e autorização: A alteração pertence à própria conta.
+1093 [] Fluxo Principal
+1094 [] 1. Escolher características do avatar.
+1095 [] 2. Salvar configuração.
+1096 [] 3. Visualizar perfil atualizado.
+1097 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1098 [] Fluxos Alternativos
+1099 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1100 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1101 [] Rastreabilidade: RF004.
+1102 [] Referência de implementação: src/app/avatar/AvatarCustomizer.tsx; src/app/api/avatar.
+1103 [Ttulo2] 5.52 Caso de Uso UC052 — Testar código antes da submissão
+1104 [] Descrição: Testar código antes da submissão.
+1105 [] Ator iniciador: Usuário autenticado.
+1106 [] Pré-condições e autorização: Execução de teste não implica conclusão nem concessão de XP.
+1107 [] Fluxo Principal
+1108 [] 1. Preparar código.
+1109 [] 2. Solicitar execução de teste.
+1110 [] 3. Analisar saída e ajustar solução.
+1111 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1112 [] Fluxos Alternativos
+1113 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1114 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1115 [] Rastreabilidade: RF008, RF019.
+1116 [] Referência de implementação: src/app/api/exercises/[exerciseId]/run; src/app/api/duels/[id]/run.
+1117 [Ttulo2] 5.53 Caso de Uso UC053 — Consultar resultado de duelo
+1118 [] Descrição: Consultar resultado de duelo.
+1119 [] Ator iniciador: Usuário autenticado.
+1120 [] Pré-condições e autorização: Duelo ativo restringe acesso a participantes, avaliadores e administradores.
+1121 [] Fluxo Principal
+1122 [] 1. Abrir duelo permitido.
+1123 [] 2. Consultar estado, envios próprios e parecer disponível.
+1124 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1125 [] Fluxos Alternativos
+1126 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1127 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1128 [] Rastreabilidade: RF020, RF021.
+1129 [] Referência de implementação: src/app/api/duels/[id]/route.ts; src/app/duels/[id].
+1130 [Ttulo2] 5.54 Caso de Uso UC054 — Excluir duelo elegível
+1131 [] Descrição: Excluir duelo elegível.
+1132 [] Ator iniciador: Criador do duelo ou Administrador autorizado.
+1133 [] Pré-condições e autorização: Somente criador ou Administrador. Estados permitidos: PENDING, EXPIRED e CLOSED.
+1134 [] Fluxo Principal
+1135 [] 1. Criador seleciona duelo.
+1136 [] 2. Solicita exclusão.
+1137 [] 3. Servidor valida estado e propriedade.
+1138 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1139 [] Fluxos Alternativos
+1140 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1141 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1142 [] Rastreabilidade: Ampliação: manutenção de duelo.
+1143 [] Referência de implementação: src/app/api/duels/[id]/route.ts.
+1144 [Ttulo2] 5.55 Caso de Uso UC055 — Marcar notificações como lidas
+1145 [] Descrição: Marcar notificações como lidas.
+1146 [] Ator iniciador: Usuário autenticado.
+1147 [] Pré-condições e autorização: Operação afeta apenas as notificações do usuário autenticado.
+1148 [] Fluxo Principal
+1149 [] 1. Abrir notificações.
+1150 [] 2. Solicitar marcação.
+1151 [] 3. Atualizar estado de leitura.
+1152 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1153 [] Fluxos Alternativos
+1154 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1155 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1156 [] Rastreabilidade: RF046.
+1157 [] Referência de implementação: src/app/api/notifications/route.ts.
+1158 [Ttulo2] 5.56 Caso de Uso UC056 — Consultar candidaturas de uma vaga
+1159 [] Descrição: Consultar as candidaturas de uma vaga sob gestão, após validar o papel autorizado e a responsabilidade pela empresa.
+1160 [] Ator iniciador: Recrutador responsável ou Administrador autorizado.
+1161 [] Pré-condições e autorização: Recrutador responsável ou Administrador autenticado. A rota exige papel autorizado e JobService valida a responsabilidade pela empresa da vaga.
+1162 [] Fluxo Principal
+1163 [] 1. Selecionar vaga sob gestão.
+1164 [] 2. Listar candidaturas.
+1165 [] 3. Analisar informações autorizadas.
+1166 [] Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.
+1167 [] Fluxos Alternativos
+1168 [] • A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.
+1169 [] • A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.
+1170 [] Rastreabilidade: RF035, RF038, RF048.
+1171 [] Referência de implementação: src/app/api/jobs/[id]/applications; src/services/job.service.ts.
+1172 [Ttulo1] 6. Decisões e Critérios do Stacklyst
+1173 [Ttulo2] 6.1 Decisões adotadas
+1174 [] Decisão adotada: O escopo atual abrange aplicação web, aprendizado, gamificação, comunidade, duelos, avaliação humana, eventos, vagas e administração.
+1175 []
+1176 [] Decisão adotada: A fila atual procura um duelo pendente de outro usuário na mesma linguagem e com vaga disponível, priorizando o mais antigo. Se não houver vaga, cria uma espera. O fluxo atual não usa faixa de XP nem destinatário escolhido.
+1177 []
+1178 [] Decisão adotada: Resultados duplicados são impedidos por transições condicionais e a recompensa do vencedor é concedida uma única vez; anulação manual exige ação administrativa fora do fluxo automático.
+1179 []
+1180 [] Decisão adotada: Empresas consultam apenas informações públicas do perfil; e-mail, tokens e dados de sessão permanecem privados.
+1181 []
+1182 [] Decisão adotada: Lições, exercícios, dicas e respostas canônicas são conteúdos editoriais versionados; não há geração por assistência automatizada externa na versão atual.
+1183 []
+1184 [] Decisão adotada: O administrador analisa denúncias e pode remover a publicação denunciada; sanções adicionais e recursos não fazem parte da versão atual.
+1185 []
+1186 [] Decisão adotada: A equipe é formada por Guilherme Alves de Campos, Paulo Henrique Leal dos Santos e Pedro Antonio Silvestre Tescaro; a própria equipe representa o cliente acadêmico do produto.
+1187 []
+1188 [Ttulo2] 6.2 Critérios da versão atual
+1189 [] Critério adotado: O duelo aberto aguarda oponente por até 24 horas. Após o início, o prazo para o confronto é de duas horas. A atualização dos estados expirados depende da execução da manutenção.
+1190 []
+1191 [] Critério adotado: Faixas de XP e desempates seguem rewards.ts; sequência e conquistas seguem streak.ts e xp.service.ts.
+1192 []
+1193 [] Critério adotado: Elegibilidade de avaliador: uma trilha completa ou 1.000 XP, seguida de aprovação administrativa.
+1194 []
+1195 [] Critério adotado: Elicitação documentada por análise de código, análise de produtos similares, prototipação evolutiva e revisões da equipe.
+1196 []
+1197 [] Critério adotado: Metas de desempenho, disponibilidade, acessibilidade, carga e navegadores estão definidas nos requisitos não funcionais.
+1198 []
+1199 [] Critério adotado: A versão atual cobre usuários, papéis, denúncias, candidaturas de avaliador, métricas e notificações web; outras ações ficam fora do escopo.
+1200 []
+1201 [] Critério adotado: UC001 a UC030 preservam seus identificadores. UC031 a UC056 ampliam o inventário de funções existentes. O seminário apresenta um recorte de 20 casos na visão geral; a cobertura dos 56 casos permanece nas especificações e nos recortes por domínio.
+1202 []
+1203 [Ttulo2] 6.3 Melhorias futuras
+1204 [] Melhoria futura: Concluir testes de aceitação do núcleo educacional, comunidade, duelos, avaliações e vagas antes de ampliar o produto.
+1205 []
+1206 [] Melhoria futura: Monitorar Supabase, Vercel e executor de código e manter tratamento de falha para cada integração.
+1207 []
+1208 [] Melhoria futura: implementar a cobertura de auditoria de ações sensíveis prevista em RNF024 e a retenção de 90 dias prevista em RNF025, com acesso restrito a administradores autorizados.
+1209 []
+1210 [] Melhoria futura: Publicar contratos das APIs consumidas pelas interfaces web.
+1211 []
+1212 [] Melhoria futura: Executar testes de carga representativos para feed, ranking, matchmaking e notificações.
+1213 []
+1214 [] Melhoria futura: Realizar avaliação de acessibilidade e usabilidade com estudantes/desenvolvedores.
+1215 []
+1216 [Ttulo1] 7. Matriz de Rastreabilidade Geral
+1217 [] Atividade do Negócio
+1218 [] Requisito Funcional
+1219 [] Regra de Negócio
+1220 [] Caso de Uso
+1221 [] AN01 — Aprender em uma trilha
+1222 [] RF005–RF010
+1223 [] RN001–RN002, RN025, RN027–RN029
+1224 [] UC004–UC007, UC028, UC029
+1225 [] AN02 — Participar de duelo
+1226 [] RF016–RF017, RF019–RF021
+1227 [] RN007, RN010–RN012, RN016–RN017, RN024–RN025, RN028
+1228 [] UC008–UC010, UC016, UC029
+1229 [] AN03 — Resolver exercício
+1230 [] RF008–RF009
+1231 [] RN001–RN002, RN024–RN025, RN028–RN029
+1232 [] UC006, UC028, UC029
+1233 [] AN04 — Acompanhar a evolução no aprendizado
+1234 [] RF009–RF015
+1235 [] RN001–RN006, RN027–RN029
+1236 [] UC007, UC011
+1237 [] AN05 — Interagir com a comunidade
+1238 [] RF030–RF033, RF043
+1239 [] RN018–RN019, RN022
+1240 [] UC013–UC014, UC020
+1241 [] AN06 — Consultar ajuda do exercício
+1242 [] RF022–RF025
+1243 [] RN013
+1244 [] UC012
+1245 [] AN07 — Atuar como avaliador
+1246 [] RF026–RF029, RF042
+1247 [] RN012, RN014–RN017, RN022, RN028
+1248 [] UC016, UC024, UC027
+1249 [] AN08A — Divulgar oportunidade de trabalho
+1250 [] RF034–RF038
+1251 [] RN017, RN020–RN021, RN026–RN027
+1252 [] UC017, UC018, UC025
+1253 [] AN08B — Candidatar-se e acompanhar a seleção
+1254 [] RF035–RF038, RF044–RF048
+1255 [] RN017, RN020–RN022, RN026–RN027
+1256 [] UC018, UC022, UC026, UC056
+1257 [] Apoio administrativo — Administração da plataforma
+1258 [] RF026, RF039–RF040, RF042–RF043
+1259 [] RN014–RN015, RN017, RN019
+1260 [] UC019, UC020, UC027
+1261 [] AN09 — Descobrir e participar de um evento
+1262 [] RF041, RF049
+1263 [] RN017, RN023
+1264 [] UC015, UC023, UC046–UC048
+1265 [] Acesso — cadastro, sessão e perfil
+1266 [] RF001–RF004
+1267 [] RN017, RN025, RN027
+1268 [] UC001–UC003, UC030
+1269 [] Comunicação — notificações web
+1270 [] RF044–RF046
+1271 [] RN022, RN027
+1272 [] UC021; geração de avisos nos casos de origem
+1273 []
+1274 [] Rastreabilidade dos duelos: RF016 e RF017 correspondem à criação e entrada em duelos abertos. RF018, RN008 e RN009 permanecem apenas como histórico de convites. RN007 e RN010 definem as regras vigentes. Eventos podem ser criados por qualquer usuário autenticado, conforme RF041 e UC015.
+1275 [Ttulo2] 7.1 Cobertura complementar — UC031 a UC056
+1276 [] “Ampliação” identifica comportamento encontrado na implementação sem requisito funcional numerado correspondente no inventário original. A equipe deve formalizar esses requisitos no documento 3; os códigos RF existentes foram preservados.
+1277 [] Caso de uso
+1278 [] Funcionalidade
+1279 [] Rastreabilidade
+1280 [] UC031
+1281 [] Consultar e pesquisar feed
+1282 [] RF031
+1283 [] UC032
+1284 [] Consultar perfil público
+1285 [] RF037, RF038
+1286 [] UC033
+1287 [] Seguir ou deixar de seguir usuário
+1288 [] Ampliação: relações sociais
+1289 [] UC034
+1290 [] Consultar publicações salvas
+1291 [] RF032
+1292 [] UC035
+1293 [] Editar ou excluir publicação própria
+1294 [] Ampliação: manutenção de publicação
+1295 [] UC036
+1296 [] Aceitar resposta de uma publicação
+1297 [] Ampliação: resposta aceita
+1298 [] UC037
+1299 [] Responder quiz diário
+1300 [] RF008, RF009, RF011
+1301 [] UC038
+1302 [] Consultar conversas e mensagens
+1303 [] Ampliação: mensagens
+1304 [] UC039
+1305 [] Enviar mensagem privada
+1306 [] Ampliação: mensagens
+1307 [] UC040
+1308 [] Editar ou excluir mensagem própria
+1309 [] Ampliação: mensagens
+1310 [] UC041
+1311 [] Reagir a mensagem
+1312 [] Ampliação: mensagens
+1313 [] UC042
+1314 [] Consultar comunidades
+1315 [] Ampliação: comunidades
+1316 [] UC043
+1317 [] Criar comunidade
+1318 [] Ampliação: comunidades
+1319 [] UC044
+1320 [] Entrar ou sair de comunidade
+1321 [] Ampliação: comunidades
+1322 [] UC045
+1323 [] Administrar comunidade própria
+1324 [] Ampliação: comunidades
+1325 [] UC046
+1326 [] Consultar eventos e desafios
+1327 [] RF041, RF049
+1328 [] UC047
+1329 [] Excluir evento sob responsabilidade
+1330 [] RF041
+1331 [] UC048
+1332 [] Gerenciar desafios de evento
+1333 [] Ampliação: desafios de evento
+1334 [] UC049
+1335 [] Consultar métricas administrativas
+1336 [] Ampliação: indicadores administrativos
+1337 [] UC050
+1338 [] Configurar preferências pessoais
+1339 [] Ampliação: preferências
+1340 [] UC051
+1341 [] Personalizar avatar
+1342 [] RF004
+1343 [] UC052
+1344 [] Testar código antes da submissão
+1345 [] RF008, RF019
+1346 [] UC053
+1347 [] Consultar resultado de duelo
+1348 [] RF020, RF021
+1349 [] UC054
+1350 [] Excluir duelo elegível
+1351 [] Ampliação: manutenção de duelo
+1352 [] UC055
+1353 [] Marcar notificações como lidas
+1354 [] RF046
+1355 [] UC056
+1356 [] Consultar candidaturas de uma vaga
+1357 [] RF035, RF038, RF048
+1358 [] Limite de UC045: a API de administração de comunidades existe; um painel web completo de gestão não foi confirmado. O modelo representa a capacidade e explicita a diferença entre contrato e interface.
+1359 [Ttulo1] 8. Revisão de Consistência com a Programação
+1360 [] Área
+1361 [] Estado
+1362 [] Evidência/limite
+1363 [] Cadastro/login/perfil
+1364 [] Implementado
+1365 [] src/app/register; src/app/login; src/app/profile; src/app/api/auth/profile
+1366 [] Encerramento de sessão
+1367 [] Implementado
+1368 [] LogoutButton e encerramento da sessão no Supabase Auth
+1369 [] Trilhas/lições/exercícios
+1370 [] Implementado
+1371 [] src/app/trails; src/app/lesson; src/lib/lessons
+1372 [] XP/níveis/conquistas
+1373 [] Implementado com regras a validar
+1374 [] src/services/xp.service.ts; src/lib/streak.ts
+1375 [] Ranking/faixas
+1376 [] Implementado
+1377 [] rewards.ts e language-xp.ts; XP decrescente, username e id crescentes; faixas de XP sem rating Elo
+1378 [] Duelos/matchmaking
+1379 [] Implementado com limites
+1380 [] Criação aberta, fila por linguagem e entrada voluntária em src/app/api/duels; duração em src/lib/duels/constants.ts. A atualização da expiração depende da manutenção.
+1381 [] Avaliação humana
+1382 [] Implementado
+1383 [] evaluator applications, RBAC e DuelEvaluation
+1384 [] Assistência editorial
+1385 [] Implementado
+1386 [] modos Guided, Standard, Hard e No Assist; dicas, documentação e autocomplete editoriais
+1387 [] Comunidade
+1388 [] Implementado
+1389 [] feed, posts, respostas, reações, votos, favoritos, denúncias e mensagens
+1390 [] Eventos
+1391 [] Implementado com limites
+1392 [] Criação por usuário autenticado, participação persistida, cancelamento de inscrição e exclusão pelo criador ou Administrador. A edição do evento não integra UC015.
+1393 [] Vagas/empresas
+1394 [] Parcial
+1395 [] cadastro, vaga, candidatura e etapas existem; política de acesso a indicadores pendente
+1396 [] Administração
+1397 [] Parcial
+1398 [] usuários, denúncias, avaliadores e métricas existem; auditoria abrangente pendente
+1399 [] Notificações
+1400 [] Implementado na web
+1401 [] central e tipos de notificação; leitura e contagem disponíveis na central web
+1402 [] Aplicação web responsiva
+1403 [] Implementado
+1404 [] aplicação Next.js responsiva; cliente móvel nativo fora do escopo
+1405 []
+1406 [] A especificação textual preserva UC001 a UC056. O projeto stacklyst-seminario.asta contém 52 desses casos; UC042 a UC045 são mantidos como cobertura textual complementar de comunidades, sem diagrama atual. Os 11 recortes por domínio e as 10 vistas detalhadas desta edição foram conferidos contra o projeto fornecido. A base técnica foi conferida em 28/09/2026 por confronto de rotas, serviços, contratos e schema Prisma; a apresentação do seminário referencia o commit 9256a4f. A presença de implementação não substitui testes de aceitação. Funções adicionais sem requisito numerado no documento 3 permanecem identificadas na matriz complementar.
+1407 [Ttulo1] 9. Modelos técnicos e de dados
+1408 [Ttulo1] 9.1 Arquitetura de pacotes e dependências
+1409 []  [IMAGEM rId57]
+1410 [] Arquitetura modular e serviços externos.
+1411 [] Fonte editável: stacklyst-seminario.asta / TC01 Pacotes e dependencias.
+1412 [Ttulo2] 9.2 Classes de domínio — visão geral
+1413 []  [IMAGEM rId58]
+1414 [] CL00 Responsabilidades principais e operações dos serviços do Stacklyst.
+1415 [] Fonte editável: stacklyst-seminario.asta / CL00 Classes e responsabilidades principais.
+1416 [Ttulo2] 9.2.1 Contratos do catálogo de aprendizado
+1417 []  [IMAGEM rId59]
+1418 [] CL11 Interfaces TypeScript do catálogo; não representam tabelas do banco.
+1419 [] Fonte editável: stacklyst-seminario.asta / CL11 Catalogo e contratos TypeScript.
+1420 [Ttulo2] 9.2.2 Serviços e operações reais
+1421 []  [IMAGEM rId60]
+1422 [] CL12 Operações de serviços e dependências das entidades.
+1423 [] Fonte editável: stacklyst-seminario.asta / CL12 Servicos e operacoes reais.
+1424 [Ttulo2] 9.2.3 Classes de domínio Identidade e gamificação
+1425 []  [IMAGEM rId61]
+1426 [] CL01 Modelo de usuários, papéis, XP, níveis, conquistas e relações de identidade.
+1427 [] Fonte editável: stacklyst-seminario.asta / CL01 Identidade e gamificacao.
+1428 [Ttulo2] 9.2.4 Classes de domínio Grafo de conhecimento
+1429 []  [IMAGEM rId62]
+1430 [] CL02 Modelo de conceitos, relações e progresso no grafo de conhecimento.
+1431 [] Fonte editável: stacklyst-seminario.asta / CL02 Grafo de conhecimento.
+1432 [Ttulo2] 9.2.5 Classes de domínio Prática e progresso
+1433 []  [IMAGEM rId63]
+1434 [] CL03 Modelo de exercícios, tentativas, progresso de lições e operações relacionadas à prática.
+1435 [] Fonte editável: stacklyst-seminario.asta / CL03 Pratica e progresso.
+1436 [Ttulo2] 9.2.6 Classes de domínio Quiz e histórico
+1437 []  [IMAGEM rId64]
+1438 [] CL04 Modelo do quiz e dos registros de respostas e histórico.
+1439 [] Fonte editável: stacklyst-seminario.asta / CL04 Quiz e historico.
+1440 [Ttulo2] 9.2.7 Classes de domínio Duelos
+1441 []  [IMAGEM rId65]
+1442 [] CL05 Modelo de duelos, participantes, submissões e avaliações.
+1443 [] Fonte editável: stacklyst-seminario.asta / CL05 Duelos.
+1444 [Ttulo2] 9.2.8 Classes de domínio Publicações e moderação
+1445 []  [IMAGEM rId66]
+1446 [] CL06 Modelo de publicações, interações, respostas e denúncias para moderação.
+1447 [] Fonte editável: stacklyst-seminario.asta / CL06 Publicacoes e moderacao.
+1448 [Ttulo2] 9.2.9 Classes de domínio Mensagens privadas
+1449 []  [IMAGEM rId67]
+1450 [] CL07 Modelo de conversas, mensagens, participantes e interações.
+1451 [] Fonte editável: stacklyst-seminario.asta / CL07 Mensagens privadas.
+1452 [Ttulo2] 9.2.10 Classes de domínio Vagas e empresas
+1453 []  [IMAGEM rId68]
+1454 [] CL08 Modelo de empresas, vagas, etapas e candidaturas. As operações de acesso exigem vínculo autorizado com a empresa.
+1455 [] Fonte editável: stacklyst-seminario.asta / CL08 Vagas e empresas.
+1456 [Ttulo2] 9.2.11 Classes de domínio Eventos
+1457 []  [IMAGEM rId69]
+1458 [] CL09 Modelo de eventos, participantes e desafios. A inscrição e o cancelamento correspondem a UC023.
+1459 [] Fonte editável: stacklyst-seminario.asta / CL09 Eventos.
+1460 [Ttulo2] 9.2.12 Classes de domínio Suporte mobile
+1461 []  [IMAGEM rId70]
+1462 [] CL10 Modelo técnico de suporte e armazenamento de estado móvel apresentado no seminário.
+1463 [] Fonte editável: stacklyst-seminario.asta / CL10 Suporte mobile.
+1464 [Ttulo2] 9.3 Estados derivados de progresso
+1465 []  [IMAGEM rId71]
+1466 [] Estados derivados da lição.
+1467 [] Fonte editável: stacklyst-seminario.asta / TC02 Estados derivados da licao.
+1468 [Ttulo2] 9.4 Submissão e gravação transacional
+1469 []  [IMAGEM rId72]
+1470 [] Cenário de sucesso da submissão; exceções descritas na nota do diagrama.
+1471 [] Fonte editável: stacklyst-seminario.asta / TC03 Submissao e transacao - sucesso.
+1472 [Ttulo2] 9.5 Modelo relacional — visão geral
+1473 []  [IMAGEM rId73]
+1474 [] MR00 Chaves e relacionamentos do núcleo do Stacklyst.
+1475 [] Fonte editável: stacklyst-seminario.asta / MR00 Visao geral simplificada - entidades centrais.
+1476 [] O modelo relacional utiliza classes estereotipadas «table» no Astah UML. PK indica chave primária; FK, chave estrangeira; UQ, unicidade. Nomes físicos, campos e relações foram extraídos de prisma/schema.prisma. As vistas detalhadas registram cardinalidades e opcionalidade. Relações associativas não implicam composição UML.
+1477 [] Restrições complementares: Follow tem PK composta (followerId, followingId); MobileState tem PK composta (user_id, key). ExerciseSubmission possui índice único parcial para a primeira conclusão por usuário e exercício (first_completion = true); isso não torna todos os envios únicos. Enums são domínios de valores, não entidades adicionais.
+1478 [Ttulo2] 9.5.1 Modelo relacional — Identidade e gamificação
+1479 []  [IMAGEM rId74]
+1480 [] MR01 — Identidade e gamificacao.
+1481 [] Fonte editável: stacklyst-seminario.asta / MR01 Identidade e gamificacao.
+1482 [Ttulo2] 9.5.2 Modelo relacional — Grafo de conhecimento
+1483 []  [IMAGEM rId75]
+1484 [] MR02 — Grafo de conhecimento.
+1485 [] Fonte editável: stacklyst-seminario.asta / MR02 Grafo de conhecimento.
+1486 [Ttulo2] 9.5.3 Modelo relacional — Prática e progresso
+1487 []  [IMAGEM rId76]
+1488 [] MR03 — Pratica e progresso.
+1489 [] Fonte editável: stacklyst-seminario.asta / MR03 Pratica e progresso.
+1490 [Ttulo2] 9.5.4 Modelo relacional — Quiz e histórico
+1491 []  [IMAGEM rId77]
+1492 [] MR04 — Quiz e historico.
+1493 [] Fonte editável: stacklyst-seminario.asta / MR04 Quiz e historico.
+1494 [Ttulo2] 9.5.5 Modelo relacional — Duelos
+1495 []  [IMAGEM rId78]
+1496 [] MR05 — Duelos.
+1497 [] Fonte editável: stacklyst-seminario.asta / MR05 Duelos.
+1498 [Ttulo2] 9.5.6 Modelo relacional — Publicações e moderação
+1499 []  [IMAGEM rId79]
+1500 [] MR06 — Publicações e moderação.
+1501 [] Fonte editável: stacklyst-seminario.asta / MR06 Publicacoes e moderacao.
+1502 [Ttulo2] 9.5.7 Modelo relacional — Mensagens e comunidade
+1503 []  [IMAGEM rId80]
+1504 [] MR07 — Mensagens e comunidade.
+1505 [] Fonte editável: stacklyst-seminario.asta / MR07 Mensagens privadas.
+1506 [Ttulo2] 9.5.8 Modelo relacional — Vagas e empresas
+1507 []  [IMAGEM rId81]
+1508 [] MR08 Chaves e relacionamentos de empresas, vagas, etapas e candidaturas.
+1509 [] Fonte editável: stacklyst-seminario.asta / MR08 Vagas e empresas.
+1510 [Ttulo2] 9.5.9 Modelo relacional — Eventos
+1511 []  [IMAGEM rId82]
+1512 [] MR09 — Eventos.
+1513 [] Fonte editável: stacklyst-seminario.asta / MR09 Eventos.
+1514 [Ttulo2] 9.5.10 Modelo relacional — Suporte mobile
+1515 []  [IMAGEM rId83]
+1516 [] MR10 — Suporte mobile.
+1517 [] Fonte editável: stacklyst-seminario.asta / MR10 Suporte mobile.
+1518 [] As vistas de classes CL01 a CL10 integram stacklyst-seminario.asta e são reproduzidas nas seções 9.2.3 a 9.2.12. Os atributos de classe omitem FKs redundantes e mostram associações; o modelo relacional conserva os campos de persistência. UserRole é enum de autorização, sem subclasses persistidas por papel.

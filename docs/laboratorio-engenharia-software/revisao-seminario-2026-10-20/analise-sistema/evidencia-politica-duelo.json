@@ -1,0 +1,13 @@
+{
+  "method": "Pure deterministic policy, transpiled current file. No network/database.",
+  "source": "src/lib/duels/resolution-policy.ts",
+  "input_status": "JUDGE_UNAVAILABLE",
+  "selected_status": "JUDGE_UNAVAILABLE",
+  "decision": {
+    "kind": "closed",
+    "winnerId": "first",
+    "reason": "deadline_score",
+    "scoreGap": 0,
+    "runtimeGap": null
+  }
+}

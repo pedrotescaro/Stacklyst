@@ -1,0 +1,332 @@
+[
+  {
+    "id": "RNF001",
+    "nome": "Autenticação protegida",
+    "descricao": "Rotas privadas devem exigir sessão verificada no servidor.",
+    "criterio_aceitacao": "Teste automatizado deve comprovar 401 sem sessão válida e acesso com sessão válida.",
+    "estado_verificado": "mecanismo_presente",
+    "observacao": "requireAuth verifica sessão no servidor. As suítes locais incluem autorização, sem homologação integral das rotas.",
+    "evidencias": [
+      "src/lib/auth.ts:262",
+      "src/lib/__tests__/auth-session.test.ts:1"
+    ],
+    "proxima_validacao": "Completar a matriz de rotas com 401/403 e testes de sessão expirada."
+  },
+  {
+    "id": "RNF002",
+    "nome": "Autorização por papel",
+    "descricao": "Operações administrativas, de avaliador e recrutador devem aplicar RBAC; operações de vagas também devem validar acesso à empresa e aos recursos relacionados.",
+    "criterio_aceitacao": "Testes comprovam 403 para papel ou empresa não autorizados e sucesso para acesso permitido; candidaturas e etapas de outra vaga são rejeitadas.",
+    "estado_verificado": "parcial",
+    "observacao": "Existe RBAC e validação de empresa e vínculos nas rotas de vagas. Garantias administrativas adicionais ainda precisam evoluir.",
+    "evidencias": [
+      "src/lib/auth.ts:276",
+      "src/app/api/jobs/[id]/route.ts:30",
+      "src/lib/mobile/company-access.ts:1"
+    ],
+    "proxima_validacao": "Testar acesso cruzado e impedir a remoção do último administrador."
+  },
+  {
+    "id": "RNF003",
+    "nome": "Proteção de entrada e abuso",
+    "descricao": "Entradas devem ser validadas e endpoints críticos devem limitar frequência.",
+    "criterio_aceitacao": "Schemas rejeitam payload inválido e testes verificam limite configurado sem expor segredo.",
+    "estado_verificado": "parcial",
+    "observacao": "Há validação Zod e limitador Upstash com fallback local. Não se comprovou cobertura de todos endpoints críticos.",
+    "evidencias": [
+      "src/lib/api-handler.ts:77",
+      "src/lib/ratelimit.ts:28",
+      "src/lib/ratelimit.ts:79",
+      "src/app/api/jobs/[id]/route.ts:10"
+    ],
+    "proxima_validacao": "Mapear limites por rota e validar campos numéricos e transições de estado."
+  },
+  {
+    "id": "RNF004",
+    "nome": "Segredos somente no servidor",
+    "descricao": "Credenciais de banco, autenticação e serviços externos não podem ser enviadas ao cliente.",
+    "criterio_aceitacao": "Build e auditoria estática não contêm segredos em variáveis NEXT_PUBLIC nem no bundle cliente.",
+    "estado_verificado": "nao_homologado",
+    "observacao": "Não foi feita inspeção de bundles cliente nesta revisão. A presença de bibliotecas server-only não substitui a auditoria do build.",
+    "evidencias": [
+      "package.json:8",
+      ".github/workflows/ci.yml:79"
+    ],
+    "proxima_validacao": "Auditar artefatos de build com critérios de ausência de segredos, sem imprimir credenciais."
+  },
+  {
+    "id": "RNF005",
+    "nome": "Separação público/privado",
+    "descricao": "Perfil e recrutamento devem retornar apenas campos autorizados.",
+    "criterio_aceitacao": "Teste com usuário/empresa confirma ausência de e-mail, token e dados privados nas respostas públicas.",
+    "estado_verificado": "lacuna_confirmada",
+    "observacao": "Atualização da candidatura inclui o objeto User completo e a rota o devolve. A projeção pública precisa ser aplicada também no PATCH.",
+    "evidencias": [
+      "src/services/job.service.ts:318",
+      "src/app/api/jobs/[id]/route.ts:56"
+    ],
+    "proxima_validacao": "Usar DTO/select de campos permitidos e testar ausência de campos privados."
+  },
+  {
+    "id": "RNF006",
+    "nome": "Privacidade no recrutamento",
+    "descricao": "Indicadores consultados por empresas devem limitar-se aos campos públicos definidos pela aplicação.",
+    "criterio_aceitacao": "Testes comprovam ausência de e-mail, tokens e demais campos privados nas respostas de perfil e recrutamento.",
+    "estado_verificado": "lacuna_confirmada",
+    "observacao": "O retorno da atualização de recrutamento tem user:true, diferente da projeção limitada usada na listagem de candidatos.",
+    "evidencias": [
+      "src/services/job.service.ts:318",
+      "src/services/job.service.ts:96"
+    ],
+    "proxima_validacao": "Aplicar uma projeção pública única às respostas de recrutamento."
+  },
+  {
+    "id": "RNF007",
+    "nome": "Tempo de resposta das APIs",
+    "descricao": "APIs interativas devem responder com rapidez sob carga acadêmica representativa.",
+    "criterio_aceitacao": "P95 de até 2 segundos com 20 usuários simultâneos, exceto execução de código.",
+    "estado_verificado": "nao_homologado",
+    "observacao": "Não foi localizado gate de carga P95 com 20 usuários nos scripts e CI examinados. Não se mediu produção.",
+    "evidencias": [
+      ".github/workflows/ci.yml:1",
+      "package.json:5"
+    ],
+    "proxima_validacao": "Medir P95 de até 2 s com 20 usuários em ambiente controlado e publicar resultado reproduzível."
+  },
+  {
+    "id": "RNF008",
+    "nome": "Carregamento de página",
+    "descricao": "Páginas principais devem carregar sem bloquear a ação essencial.",
+    "criterio_aceitacao": "LCP de até 2,5 segundos em desktop e 4 segundos em viewport móvel com rede 4G simulada.",
+    "estado_verificado": "nao_homologado",
+    "observacao": "Não foi localizado gate de LCP no CI examinado. Capturas da interface não medem carregamento.",
+    "evidencias": [
+      ".github/workflows/ci.yml:1",
+      "package.json:5"
+    ],
+    "proxima_validacao": "Medir LCP nas páginas centrais com os perfis desktop e 4G móvel definidos."
+  },
+  {
+    "id": "RNF009",
+    "nome": "Execução limitada",
+    "descricao": "A execução de código deve possuir timeout e limite de payload.",
+    "criterio_aceitacao": "Teste de timeout confirma resposta controlada sem marcar acerto nem bloquear o servidor além do limite.",
+    "estado_verificado": "parcial",
+    "observacao": "Há timeout de 15 s nos provedores, mas timeout de transporte não recebe a mesma classificação de indisponibilidade das falhas de infraestrutura.",
+    "evidencias": [
+      "src/lib/code-execution/server.ts:75",
+      "src/lib/code-execution/server.ts:131",
+      "src/lib/code-execution/server.ts:194"
+    ],
+    "proxima_validacao": "Separar timeout de execução do programa de timeout HTTP do provedor e comprovar preservação do progresso."
+  },
+  {
+    "id": "RNF010",
+    "nome": "Responsividade",
+    "descricao": "Fluxos principais devem funcionar em desktop e na web móvel.",
+    "criterio_aceitacao": "Validação visual em 360 × 800, 768 × 1024 e 1440 × 900 sem perda de ação essencial.",
+    "estado_verificado": "nao_homologado",
+    "observacao": "A revisão do PowerPoint não constitui validação responsiva do aplicativo nos três viewports exigidos.",
+    "evidencias": [
+      "docs/laboratorio-engenharia-software/revisao-seminario-2026-10-20/fontes-extraidas/auditoria.json:1"
+    ],
+    "proxima_validacao": "Executar os fluxos em 360x800, 768x1024 e 1440x900 com evidências das ações essenciais."
+  },
+  {
+    "id": "RNF011",
+    "nome": "Acessibilidade básica",
+    "descricao": "Controles devem possuir nome acessível, foco e suporte a teclado.",
+    "criterio_aceitacao": "Lighthouse Accessibility igual ou superior a 90 e roteiro manual sem bloqueador crítico.",
+    "estado_verificado": "nao_homologado",
+    "observacao": "Não foi localizado gate Lighthouse Accessibility/axe no CI examinado nem foi realizado roteiro de teclado nesta revisão.",
+    "evidencias": [
+      ".github/workflows/ci.yml:1",
+      "package.json:5"
+    ],
+    "proxima_validacao": "Medir Accessibility >=90 e testar teclado, foco e nomes acessíveis nos fluxos principais."
+  },
+  {
+    "id": "RNF012",
+    "nome": "Degradação de serviço externo",
+    "descricao": "Falhas em serviços essenciais não devem confirmar operações incompletas. A notificação é acessória: sua falha não desfaz uma operação principal já concluída, conforme RN022.",
+    "criterio_aceitacao": "Simular falhas de gravação e execução sem confirmação de sucesso; simular falha de notificação e comprovar preservação da operação principal e possibilidade de consultar seu resultado.",
+    "estado_verificado": "parcial",
+    "observacao": "Lições preservam o progresso quando outcome.unavailable, e notificações não desfazem a atualização principal. O envio do workspace ainda persiste avaliação indisponível.",
+    "evidencias": [
+      "src/app/api/lessons/[lessonId]/attempt/route.ts:26",
+      "src/app/api/exercises/[exerciseId]/submit/route.ts:36",
+      "src/services/job.service.ts:324"
+    ],
+    "proxima_validacao": "Uniformizar a classificação de indisponibilidade e adicionar testes de falha e rollback nos dois fluxos."
+  },
+  {
+    "id": "RNF013",
+    "nome": "Meta de disponibilidade",
+    "descricao": "A plataforma deve possuir meta mensal e monitoramento de falhas críticas.",
+    "criterio_aceitacao": "Disponibilidade mensal mínima de 99,5% no ambiente de produção.",
+    "estado_verificado": "nao_homologado",
+    "observacao": "O healthcheck retorna 200 fixo. Não há acesso a histórico de disponibilidade que comprove 99,5% mensal.",
+    "evidencias": [
+      "src/app/api/health/route.ts:3"
+    ],
+    "proxima_validacao": "Instrumentar monitoramento, alertas e histórico mensal. Diferenciar liveness de dependências operacionais."
+  },
+  {
+    "id": "RNF014",
+    "nome": "Consistência de XP",
+    "descricao": "XP e progresso devem ser atualizados atomicamente e sem duplicidade.",
+    "criterio_aceitacao": "Teste concorrente comprova uma recompensa por atividade e rollback integral em falha.",
+    "estado_verificado": "parcial",
+    "observacao": "As transações e testes de aprendizado fornecem mecanismos de consistência. A revisão não executou concorrência com banco real.",
+    "evidencias": [
+      "src/lib/learning/transaction.ts:1",
+      "src/lib/learning/__tests__/transaction.test.ts:1",
+      "src/lib/learning/lesson-progress.ts:55"
+    ],
+    "proxima_validacao": "Comprovar uma recompensa por atividade em teste concorrente com banco de testes e rollback."
+  },
+  {
+    "id": "RNF015",
+    "nome": "Consistência de duelo e avaliação",
+    "descricao": "Estados de duelo aberto e avaliação devem impedir transições inválidas e resultados duplicados.",
+    "criterio_aceitacao": "Testes cobrem espera de 24 horas expirada, prazo de duas horas do confronto, dupla ocupação da vaga, envio fora do prazo e fechamento conflitante.",
+    "estado_verificado": "lacuna_confirmada",
+    "observacao": "A política de prazo do duelo pode considerar submissão com executor indisponível na escolha de vencedor.",
+    "evidencias": [
+      "src/lib/duels/resolution.ts:1",
+      "docs/laboratorio-engenharia-software/revisao-seminario-2026-10-20/analise-sistema/evidencia-politica-duelo.json:1"
+    ],
+    "proxima_validacao": "Rejeitar evidência de execução indisponível antes da resolução e testar fechamento concorrente."
+  },
+  {
+    "id": "RNF016",
+    "nome": "Crescimento de listas",
+    "descricao": "Feed, notificações e históricos devem usar paginação e índices.",
+    "criterio_aceitacao": "Teste com 10.000 registros mantém o P95 dentro da meta RNF007.",
+    "estado_verificado": "parcial",
+    "observacao": "Feed e notificações usam limites/paginação. O teste com 10.000 registros e P95 não foi executado nem localizado como gate.",
+    "evidencias": [
+      "src/services/post.service.ts:177",
+      "src/services/notification.service.ts:142"
+    ],
+    "proxima_validacao": "Medir consultas com 10.000 registros e estender paginação aos históricos e conversas."
+  },
+  {
+    "id": "RNF017",
+    "nome": "Navegadores suportados",
+    "descricao": "A aplicação web deve funcionar nos navegadores modernos suportados pelo framework.",
+    "criterio_aceitacao": "Chrome e Edge 111+, Firefox 111+ e Safari 16.4+, com os fluxos principais aprovados.",
+    "estado_verificado": "nao_homologado",
+    "observacao": "Não foi executada uma matriz de navegadores reais nesta revisão.",
+    "evidencias": [
+      ".github/workflows/ci.yml:1"
+    ],
+    "proxima_validacao": "Validar fluxos em Chrome/Edge/Firefox e Safari nas versões mínimas especificadas."
+  },
+  {
+    "id": "RNF018",
+    "nome": "Compatibilidade com web móvel",
+    "descricao": "A interface deve preservar navegação e ações em telas pequenas.",
+    "criterio_aceitacao": "Os viewports definidos no RNF010 não apresentam rolagem horizontal indevida nem controles inacessíveis.",
+    "estado_verificado": "nao_homologado",
+    "observacao": "Compatibilidade web móvel e acessibilidade das ações não são comprovadas pelas capturas dos documentos ou pela exportação mobile.",
+    "evidencias": [
+      ".github/workflows/ci.yml:1"
+    ],
+    "proxima_validacao": "Testar navegação, teclado virtual e ausência de rolagem indevida nos viewports previstos."
+  },
+  {
+    "id": "RNF019",
+    "nome": "Modularização",
+    "descricao": "Domínio, APIs, UI e integrações externas devem permanecer separados.",
+    "criterio_aceitacao": "Lint, typecheck e testes passam; revisão não identifica dependência circular crítica.",
+    "estado_verificado": "mecanismo_presente",
+    "observacao": "Há separação de componentes, rotas, serviços e bibliotecas de domínio. Não foi realizada auditoria completa de ciclos.",
+    "evidencias": [
+      "src/services/job.service.ts:1",
+      "src/lib/learning/assessment.ts:1",
+      "src/app/api/jobs/[id]/route.ts:1"
+    ],
+    "proxima_validacao": "Consolidar regras compartilhadas para evitar divergência entre rotas e serviços."
+  },
+  {
+    "id": "RNF020",
+    "nome": "Cobertura de qualidade",
+    "descricao": "Mudanças em regras críticas devem incluir testes e documentação.",
+    "criterio_aceitacao": "CI executa typecheck, lint e testes; cobertura de linhas mínima de 70% nos módulos críticos.",
+    "estado_verificado": "parcial",
+    "observacao": "CI declara lint, typecheck e testes. vitest.config.ts não configura cobertura ou limiar de 70%, e o CI não executa teste com coverage.",
+    "evidencias": [
+      "vitest.config.ts:1",
+      ".github/workflows/ci.yml:61",
+      ".github/workflows/ci.yml:82"
+    ],
+    "proxima_validacao": "Definir módulos críticos, relatório de cobertura e limiar mínimo de 70% no CI."
+  },
+  {
+    "id": "RNF021",
+    "nome": "Conteúdo editorial confiável",
+    "descricao": "Lições, dicas e respostas canônicas devem ser versionadas e revisáveis.",
+    "criterio_aceitacao": "Toda atividade publicada referencia um contrato canônico válido e não depende de geração em tempo de execução.",
+    "estado_verificado": "parcial",
+    "observacao": "O conteúdo fica versionado no repositório e possui testes. Isso não comprova revisão pedagógica de toda atividade publicada.",
+    "evidencias": [
+      "src/lib/lessons/registry.ts:1",
+      "src/lib/learning/__tests__/catalog.test.ts:1"
+    ],
+    "proxima_validacao": "Criar inventário de contratos, revisão editorial e teste de solução canônica por atividade."
+  },
+  {
+    "id": "RNF022",
+    "nome": "Privacidade na execução de código",
+    "descricao": "Quando houver execução externa, transmitir somente código, linguagem e testes necessários; manter credenciais e dados pessoais fora do payload. A execução interna deve preservar o isolamento.",
+    "criterio_aceitacao": "Auditoria do payload externo comprova ausência de credenciais e dados do perfil; as respostas ao cliente não expõem testes ocultos nem soluções privadas.",
+    "estado_verificado": "mecanismo_presente",
+    "observacao": "Os payloads dos provedores examinados contêm código e identificadores de linguagem/compilador. Não houve captura de rede externa nem auditoria completa de testes ocultos nesta revisão.",
+    "evidencias": [
+      "src/lib/code-execution/server.ts:82",
+      "src/lib/code-execution/server.ts:154"
+    ],
+    "proxima_validacao": "Manter contratos de payload sem dados do perfil e testes automatizados de serialização pública."
+  },
+  {
+    "id": "RNF023",
+    "nome": "Disponibilidade do executor",
+    "descricao": "Falha ou timeout do executor deve produzir resultado controlado.",
+    "criterio_aceitacao": "O sistema não concede XP nem vitória e mantém a resposta disponível para nova tentativa.",
+    "estado_verificado": "parcial",
+    "observacao": "Existem respostas de indisponibilidade, mas timeout de transporte e diferenças entre workspace/lições deixam o tratamento incompleto.",
+    "evidencias": [
+      "src/lib/code-execution/server.ts:131",
+      "src/lib/code-execution/server.ts:194",
+      "src/app/api/exercises/[exerciseId]/submit/route.ts:36"
+    ],
+    "proxima_validacao": "Adicionar teste específico AbortError, resposta inválida e indisponibilidade sem penalizar tentativa."
+  },
+  {
+    "id": "RNF024",
+    "nome": "Auditoria de ações sensíveis",
+    "descricao": "Alterações de papel, avaliações e ações administrativas devem ser rastreáveis.",
+    "criterio_aceitacao": "Registro contém ator, ação, alvo, instante e resultado para 100% das operações definidas.",
+    "estado_verificado": "lacuna_confirmada",
+    "observacao": "Os logs são console JSON. A alteração de papel registra alvo e novo papel, sem ator, estado anterior ou resultado completo.",
+    "evidencias": [
+      "src/lib/logger.ts:5",
+      "src/services/admin.service.ts:197"
+    ],
+    "proxima_validacao": "Persistir ator, ação, alvo, antes/depois, instante e resultado nas operações sensíveis."
+  },
+  {
+    "id": "RNF025",
+    "nome": "Retenção de auditoria",
+    "descricao": "Logs de ações sensíveis devem possuir prazo e acesso controlados.",
+    "criterio_aceitacao": "Reter logs administrativos por 90 dias, acessíveis apenas a administradores autorizados.",
+    "estado_verificado": "nao_homologado",
+    "observacao": "Não foi localizada configuração de retenção de 90 dias e acesso administrativo aos logs no código/CI examinados. Retenção do provedor não foi consultada.",
+    "evidencias": [
+      "src/lib/logger.ts:5",
+      ".github/workflows/ci.yml:1"
+    ],
+    "proxima_validacao": "Definir armazenamento, acesso e retenção de 90 dias e verificar a configuração efetiva."
+  }
+]

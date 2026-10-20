@@ -1,0 +1,493 @@
+{
+  "escopo": "Auditoria de recrutamento e aprendizagem baseada nos requisitos fornecidos, código atual e testes locais existentes.",
+  "base_commit": "bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa",
+  "metodo": "Leitura estática com rastreabilidade. Os efeitos descritos são consequências dos caminhos de código, sem execução autenticada ou de banco real. Sete arquivos de testes existentes foram executados localmente.",
+  "sem_alteracoes_produto": true,
+  "sem_chamadas_producao": true,
+  "teste_local": {
+    "status": "aprovado",
+    "arquivos": 7,
+    "testes": 35,
+    "aprovados": 35,
+    "falhas": 0,
+    "log": "analise-sistema/testes-fluxos.json",
+    "limite": "Testes de unidade/interface com mocks e sandbox JavaScript local. Não comprovam banco, concorrência real, implantação ou provedores externos."
+  },
+  "lacunas": [
+    {
+      "id": "FL01",
+      "prioridade": "P1",
+      "area": "Privacidade no recrutamento",
+      "titulo": "Atualizar candidatura devolve o registro privado completo do candidato",
+      "requisitos": [
+        "RF048",
+        "RNF005",
+        "RNF006",
+        "RN021",
+        "RN027"
+      ],
+      "evidencias": [
+        {
+          "arquivo": "src/services/job.service.ts",
+          "linha": 318,
+          "fim": 320,
+          "constatacao": "O include de updateApplicationStage usa user:true, sem seleção de campos públicos.",
+          "trecho": "      include: {\n        job: { include: { company: true } },\n        user: true,",
+          "sha256_arquivo": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e"
+        },
+        {
+          "arquivo": "src/app/api/jobs/[id]/route.ts",
+          "linha": 56,
+          "fim": 60,
+          "constatacao": "O objeto atualizado é serializado integralmente como application na resposta PATCH.",
+          "trecho": "  return NextResponse.json({\n    success: true,\n    message: 'Etapa do candidato atualizada com sucesso!',\n    application: updatedApplication,\n  });",
+          "sha256_arquivo": "59b68ba56c09a7ec64f87c5500c1f6f3bf5e108573fde89602614a78e57ed459"
+        },
+        {
+          "arquivo": "prisma/schema.prisma",
+          "linha": 187,
+          "fim": 201,
+          "constatacao": "O usuário possui email, birthday, discord_username e outros campos privados ou não necessários à gestão da candidatura.",
+          "trecho": "  username                  String    @unique\n  email                     String    @unique\n  avatar_url                String?\n  avatar_config             Json?\n  bio                       String?\n  institution               String?\n  github_username           String?\n  discord_username          String?\n  banner_url                String?\n  pronouns                  String?\n  birthday                  DateTime?\n  username_changed_at       DateTime?\n  total_xp                  Int       @default(0)\n  streak_days               Int       @default(0)\n  role                      UserRole  @default(USER)",
+          "sha256_arquivo": "8b3c6462c25207fde5d15f54612d944d491dda150c48669157327fcc978e6170"
+        },
+        {
+          "arquivo": "src/services/job.service.ts",
+          "linha": 96,
+          "fim": 104,
+          "constatacao": "A consulta de candidaturas já tem select de perfil público que pode servir de contrato comum.",
+          "trecho": "        user: {\n          select: {\n            id: true,\n            username: true,\n            avatar_url: true,\n            total_xp: true,\n            bio: true,\n            github_username: true,\n          },",
+          "sha256_arquivo": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e"
+        }
+      ],
+      "status_confirmacao": "Confirmado pelo contrato retornado no código; nenhuma informação privada real foi consultada.",
+      "impacto": "Um recrutador autorizado a alterar uma candidatura recebe campos privados do candidato que não deveriam integrar o perfil público. A autorização da empresa está presente, mas não substitui a seleção de campos.",
+      "esforco_relativo": "Pequeno",
+      "aceitar_correcao": [
+        "Usar DTO/select público explícito no PATCH e na consulta de candidaturas.",
+        "Teste de contrato com email, birthday e demais campos privados de sentinela deve provar que nenhum aparece na resposta do recrutador.",
+        "Preservar as verificações de papel, empresa e vínculo da candidatura."
+      ],
+      "cobertura_atual": "job.service.test.ts cobre apenas listJobs e getJobApplications. Não há teste do payload de updateApplicationStage ou da resposta PATCH."
+    },
+    {
+      "id": "FL02",
+      "prioridade": "P2",
+      "area": "Etapas e feedback",
+      "titulo": "API atualiza etapa e feedback, mas a interface só permite mudar situação",
+      "requisitos": [
+        "RF048",
+        "RN026"
+      ],
+      "evidencias": [
+        {
+          "arquivo": "src/app/recruiter/RecruiterContent.tsx",
+          "linha": 186,
+          "fim": 200,
+          "constatacao": "O handler envia apenas application_id e status.",
+          "trecho": "  const handleUpdateApplicationStatus = async (\n    jobId: string,\n    applicationId: string,\n    newStatus: string\n  ) => {\n    setUpdatingAppId(applicationId);\n    setErrorMsg(null);\n    try {\n      const res = await fetch(`/api/jobs/${jobId}`, {\n        method: 'PATCH',\n        headers: { 'Content-Type': 'application/json' },\n        body: JSON.stringify({\n          application_id: applicationId,\n          status: newStatus,\n        }),",
+          "sha256_arquivo": "329f6f1b96e199c6c9bf588c6859acf92ce100f3ee3eec4db97c505e84ceb9c4"
+        },
+        {
+          "arquivo": "src/app/recruiter/RecruiterContent.tsx",
+          "linha": 688,
+          "fim": 707,
+          "constatacao": "O controle disponível é o seletor de situação. Não há editor de etapa, feedback ou nota técnica.",
+          "trecho": "                                    <select\n                                      value={app.status}\n                                      disabled={isUpdating}\n                                      onChange={(e) =>\n                                        handleUpdateApplicationStatus(\n                                          job.id,\n                                          app.id,\n                                          e.target.value\n                                        )\n                                      }\n                                      className=\"bg-dd-bg border border-dd-border rounded-xl px-2.5 py-1 text-xs font-bold text-dd-text outline-none cursor-pointer focus:border-blue-500 disabled:opacity-50\"\n                                      aria-label={`Atualizar status de @${app.user.username}`}\n                                    >\n                                      <option value=\"APPLIED\">Inscrito</option>\n                                      <option value=\"REVIEWING\">Em Análise</option>\n                                      <option value=\"TESTING\">Desafio Técnico</option>\n                                      <option value=\"INTERVIEW\">Entrevista</option>\n                                      <option value=\"ACCEPTED\">Aprovado</option>\n                                      <option value=\"REJECTED\">Recusado</option>\n                                    </select>",
+          "sha256_arquivo": "329f6f1b96e199c6c9bf588c6859acf92ce100f3ee3eec4db97c505e84ceb9c4"
+        },
+        {
+          "arquivo": "src/app/api/jobs/[id]/route.ts",
+          "linha": 10,
+          "fim": 15,
+          "constatacao": "A API aceita stage_id, feedback e technical_score.",
+          "trecho": "const updateStageSchema = z.object({\n  application_id: z.string(),\n  stage_id: z.string().optional(),\n  status: z.nativeEnum(ApplicationStatus),\n  feedback: z.string().optional(),\n  technical_score: z.number().optional(),",
+          "sha256_arquivo": "59b68ba56c09a7ec64f87c5500c1f6f3bf5e108573fde89602614a78e57ed459"
+        },
+        {
+          "arquivo": "src/app/jobs/[id]/JobDetailContent.tsx",
+          "linha": 100,
+          "fim": 103,
+          "constatacao": "O candidato vê a situação, e o restante do componente mostra etapas, mas não renderiza application.feedback.",
+          "trecho": "            ) : (\n              <div className=\"px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs flex items-center gap-2 shrink-0\">\n                <CheckCircle className=\"w-4 h-4\" />\n                <span>Inscrição Confirmada ({application.status})</span>",
+          "sha256_arquivo": "51401eac19816548d030abd6ec706e7f67a6ad8c9b91e375874aa53561cd9308"
+        }
+      ],
+      "status_confirmacao": "Confirmado pela renderização e pelo payload atual da interface.",
+      "impacto": "O caso UC026/RF048 só está completo na API. O responsável não consegue operar o avanço de etapa ou dar um retorno escrito pela tela; o candidato tampouco lê o feedback salvo por outro cliente.",
+      "esforco_relativo": "Médio",
+      "aceitar_correcao": [
+        "Oferecer seleção de etapa da mesma vaga e campo de feedback no painel.",
+        "Salvar e reconsultar os dados no candidato com autorização correta.",
+        "Teste de interface deve selecionar etapa e informar feedback, conferir PATCH, refletir o retorno e cobrir falha sem confirmação prematura."
+      ],
+      "cobertura_atual": "RecruiterContent.test.tsx valida o seletor de status. Esse teste passa, mas não cobre o comportamento ausente de etapa/feedback."
+    },
+    {
+      "id": "FL03",
+      "prioridade": "P2",
+      "area": "Notificações de candidatura",
+      "titulo": "Notificação é registrada, mas apresentada sem identificação da vaga e sem link",
+      "requisitos": [
+        "RF044",
+        "RF048",
+        "RN022",
+        "RN026"
+      ],
+      "evidencias": [
+        {
+          "arquivo": "src/services/job.service.ts",
+          "linha": 324,
+          "fim": 330,
+          "constatacao": "A atualização cria JOB_APPLICATION_UPDATE com resourceType JOB e o id da vaga.",
+          "trecho": "    try {\n      await NotificationService.create({\n        userId: application.user_id,\n        type: 'JOB_APPLICATION_UPDATE',\n        resourceId: application.job_id,\n        resourceType: 'JOB',\n      });",
+          "sha256_arquivo": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e"
+        },
+        {
+          "arquivo": "src/services/notification.service.ts",
+          "linha": 56,
+          "fim": 103,
+          "constatacao": "Os helpers de título, conteúdo e link não tratam JOB_APPLICATION_UPDATE/JOB e caem em título/conteúdo genéricos e link null.",
+          "trecho": "function getNotificationTitle(type: NotificationType, isMessage: boolean) {\n  if (type === 'FOLLOW') return 'Novo seguidor';\n  if (type === 'LIKE') return 'Novo upvote';\n  if (type === 'REACTION') return 'Nova reacao';\n  if (type === 'COMMENT') return isMessage ? 'Mensagem recebida' : 'Nova resposta no seu post';\n  if (type === 'LEVEL_UP') return 'Subiu de nivel';\n  if (type === 'XP_MILESTONE') return 'Conquista de XP';\n  if (type === 'QUIZ_CORRECT') return 'Quiz correto';\n  if (type === 'DUEL_CHALLENGE') return 'Duelo disponivel';\n  if (type === 'DUEL_RESULT') return 'Resultado do duelo';\n  if (type === 'MENTION') return 'Voce foi mencionado';\n  return 'Notificacao Stacklyst';\n}\n\nfunction getNotificationContent(type: NotificationType, actorName: string, isMessage: boolean) {\n  if (type === 'FOLLOW') return `${actorName} comecou a seguir voce no Stacklyst.`;\n  if (type === 'LIKE') return `${actorName} deu um upvote no seu post.`;\n  if (type === 'REACTION') return `${actorName} reagiu ao seu post.`;\n  if (type === 'COMMENT') {\n    return isMessage\n      ? `${actorName} enviou uma mensagem para voce no Bate-papo.`\n      : `${actorName} respondeu a sua pergunta.`;\n  }\n  if (type === 'LEVEL_UP') return 'Parabens, voce subiu de nivel!';\n  if (type === 'QUIZ_CORRECT') return 'Voce acertou um quiz e ganhou XP.';\n  if (type === 'DUEL_CHALLENGE') return 'Ha um novo duelo disponivel para testar suas habilidades.';\n  if (type === 'DUEL_RESULT') return 'O resultado de um duelo foi atualizado.';\n  if (type === 'MENTION') return `${actorName} mencionou voce no Stacklyst.`;\n  return 'Voce recebeu uma notificacao.';\n}\n\nfunction getNotificationLink({\n  isMessage,\n  postId,\n  profileUsername,\n  resourceType,\n}: {\n  isMessage: boolean;\n  postId: string | null;\n  profileUsername: string | null;\n  resourceType?: string | null;\n}) {\n  if (isMessage) return '/messages';\n  if (postId) return `/post/${postId}`;\n  if (resourceType === 'DUEL') return '/duels';\n  if (resourceType === 'FEED') return '/feed';\n  if (profileUsername) return `/profile/${profileUsername}`;\n  return null;",
+          "sha256_arquivo": "992db0cef8fd83c3bfde353a69a3c6db2dfbeda6270e343ffdec9a7348bc76c3"
+        },
+        {
+          "arquivo": "src/services/notification.service.ts",
+          "linha": 208,
+          "fim": 214,
+          "constatacao": "A resposta consumida pela interface usa esses helpers.",
+          "trecho": "        return {\n          id: notif.id,\n          user_id: notif.userId,\n          type: mapApiType(notif.type),\n          title: getNotificationTitle(notif.type, isMessage),\n          content: getNotificationContent(notif.type, actorName, isMessage),\n          link,",
+          "sha256_arquivo": "992db0cef8fd83c3bfde353a69a3c6db2dfbeda6270e343ffdec9a7348bc76c3"
+        }
+      ],
+      "status_confirmacao": "Confirmado pelo mapeamento de apresentação, sem negar a criação do registro.",
+      "impacto": "O candidato recebe um aviso genérico sem saber qual oportunidade mudou nem como abrir a candidatura correspondente.",
+      "esforco_relativo": "Pequeno a médio",
+      "aceitar_correcao": [
+        "Mapear o tipo de candidatura com título/conteúdo úteis e link para a vaga autorizada.",
+        "Não expor parecer privado a terceiros ao montar o aviso.",
+        "Testar título, vaga, link e manutenção da operação principal se a notificação falhar."
+      ],
+      "cobertura_atual": "As sete suítes executadas não verificam a apresentação de JOB_APPLICATION_UPDATE."
+    },
+    {
+      "id": "FL04",
+      "prioridade": "P2",
+      "area": "Erros de candidatura e concorrência",
+      "titulo": "Rejeições esperadas de candidatura viram erro interno genérico",
+      "requisitos": [
+        "RF047",
+        "RN026"
+      ],
+      "evidencias": [
+        {
+          "arquivo": "src/services/job.service.ts",
+          "linha": 263,
+          "fim": 276,
+          "constatacao": "Candidatura existente, vaga ausente ou fechada lançam Error comum.",
+          "trecho": "    if (existing) {\n      throw new Error('Você já se candidatou a esta vaga.');\n    }\n\n    const job = await prisma.job.findUnique({\n      where: { id: jobId },\n      include: {\n        stages: { orderBy: { order: 'asc' } },\n        company: true,\n      },\n    });\n\n    if (!job || job.status !== 'OPEN') {\n      throw new Error('Esta vaga não está mais aceitando inscrições.');",
+          "sha256_arquivo": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e"
+        },
+        {
+          "arquivo": "src/lib/api-handler.ts",
+          "linha": 60,
+          "fim": 63,
+          "constatacao": "Erros sem tipo de domínio partem de status 500 e INTERNAL_ERROR.",
+          "trecho": "        let statusCode = 500;\n        let responsePayload: { error: string; message: string; details?: any } = {\n          error: 'INTERNAL_ERROR',\n          message: 'Internal server error',",
+          "sha256_arquivo": "aac33ab099274fb1703d90f5be3a42c288ee0d9cab88649d1cb98d3c9f05d5a1"
+        },
+        {
+          "arquivo": "src/lib/api-handler.ts",
+          "linha": 77,
+          "fim": 97,
+          "constatacao": "Só AppError preserva o código e a mensagem de domínio; Error comum mantém resposta genérica.",
+          "trecho": "        } else if (e instanceof AppError) {\n          statusCode = e.statusCode;\n          responsePayload = {\n            error: e.code,\n            message: e.message,\n            details: e.details,\n          };\n          logger.warn('API application error', {\n            code: e.code,\n            message: e.message,\n            statusCode: e.statusCode,\n            details: e.details,\n            requestId,\n          });\n        } else {\n          logger.error('Unhandled server error', {\n            error: e?.message || String(e),\n            stack: e?.stack,\n            requestId,\n          });\n        }",
+          "sha256_arquivo": "aac33ab099274fb1703d90f5be3a42c288ee0d9cab88649d1cb98d3c9f05d5a1"
+        },
+        {
+          "arquivo": "src/services/job.service.ts",
+          "linha": 253,
+          "fim": 281,
+          "constatacao": "Consulta prévia e criação são separadas. Requisições simultâneas podem passar da checagem e uma falhar na unicidade.",
+          "trecho": "  async applyForJob(userId: string, jobId: string) {\n    const existing = await prisma.jobApplication.findUnique({\n      where: {\n        job_id_user_id: {\n          job_id: jobId,\n          user_id: userId,\n        },\n      },\n    });\n\n    if (existing) {\n      throw new Error('Você já se candidatou a esta vaga.');\n    }\n\n    const job = await prisma.job.findUnique({\n      where: { id: jobId },\n      include: {\n        stages: { orderBy: { order: 'asc' } },\n        company: true,\n      },\n    });\n\n    if (!job || job.status !== 'OPEN') {\n      throw new Error('Esta vaga não está mais aceitando inscrições.');\n    }\n\n    const firstStage = job.stages[0];\n\n    const application = await prisma.jobApplication.create({",
+          "sha256_arquivo": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e"
+        },
+        {
+          "arquivo": "prisma/schema.prisma",
+          "linha": 355,
+          "constatacao": "A unicidade usuário/vaga impede duplicação no banco; não foi encontrado tratamento de P2002 nesse fluxo.",
+          "trecho": "  @@unique([job_id, user_id])",
+          "sha256_arquivo": "8b3c6462c25207fde5d15f54612d944d491dda150c48669157327fcc978e6170"
+        }
+      ],
+      "status_confirmacao": "Tratamento 500 confirmado estaticamente. Corrida de duas candidaturas não executada contra banco; a constraint evita duplicação.",
+      "impacto": "O usuário recebe falha de servidor em casos normais, inclusive retry depois de uma candidatura já confirmada. A consistência de unicidade existe, mas o resultado concorrente não é tratado como conflito ou resposta idempotente.",
+      "esforco_relativo": "Pequeno",
+      "aceitar_correcao": [
+        "Mapear inexistente, fechada e duplicada para erros de domínio e mensagens em português.",
+        "Tratar P2002 da chave usuário/vaga como conflito ou reconsulta idempotente.",
+        "Testar segunda candidatura sequencial e concorrente, confirmando uma única linha e nenhuma resposta 500 para conflito esperado."
+      ],
+      "cobertura_atual": "A suíte job.service.test.ts atual não contém applyForJob nem cenário concorrente."
+    },
+    {
+      "id": "FL05",
+      "prioridade": "P2",
+      "area": "Integridade de publicação e candidatura",
+      "titulo": "API permite publicar vaga sem etapa e candidatar com etapa inicial nula",
+      "requisitos": [
+        "RF035",
+        "RF047",
+        "RN026"
+      ],
+      "evidencias": [
+        {
+          "arquivo": "src/app/api/jobs/route.ts",
+          "linha": 28,
+          "fim": 38,
+          "constatacao": "O array stages é opcional, mas aceita [] quando informado, sem mínimo ou validação de ordem.",
+          "trecho": "  stages: z\n    .array(\n      z.object({\n        title: z.string(),\n        type: z.nativeEnum(RecruitmentStageType),\n        order: z.number(),\n        challengeId: z.string().optional(),\n        description: z.string().optional(),\n      })\n    )\n    .optional(),",
+          "sha256_arquivo": "a4df2b58eda57062ae0e80ab8b4908c65aa006fe2b565a33bc63d25cdc25dfa4"
+        },
+        {
+          "arquivo": "src/services/job.service.ts",
+          "linha": 191,
+          "constatacao": "stages || defaults preserva [] porque array vazio é truthy.",
+          "trecho": "    const defaultStages = stages || [",
+          "sha256_arquivo": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e"
+        },
+        {
+          "arquivo": "src/services/job.service.ts",
+          "linha": 279,
+          "fim": 286,
+          "constatacao": "A candidatura usa firstStage?.id e continua quando não há etapa.",
+          "trecho": "    const firstStage = job.stages[0];\n\n    const application = await prisma.jobApplication.create({\n      data: {\n        job_id: jobId,\n        user_id: userId,\n        stage_id: firstStage?.id,\n        status: 'APPLIED',",
+          "sha256_arquivo": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e"
+        },
+        {
+          "arquivo": "prisma/schema.prisma",
+          "linha": 344,
+          "constatacao": "stage_id é opcional, portanto o banco aceita a candidatura sem etapa.",
+          "trecho": "  stage_id        String?",
+          "sha256_arquivo": "8b3c6462c25207fde5d15f54612d944d491dda150c48669157327fcc978e6170"
+        }
+      ],
+      "status_confirmacao": "Confirmado pela composição do schema de entrada, fallback e persistência; nenhum dado foi gravado.",
+      "impacto": "Uma requisição válida pela API pode criar uma oportunidade que quebra o vínculo à etapa inicial exigido em RF047. A UI padrão omite stages e recebe defaults, mas outros clientes podem acionar o caso.",
+      "esforco_relativo": "Pequeno a médio",
+      "aceitar_correcao": [
+        "Definir contrato para array vazio: rejeitar ou aplicar etapas padrão.",
+        "Validar ordem das etapas e existência de etapa inicial antes de aceitar candidatura.",
+        "Testar POST com stages ausente, vazio, fora de ordem e duplicado, seguido da candidatura."
+      ],
+      "cobertura_atual": "A suíte do serviço não contém createJob ou etapas vazias."
+    },
+    {
+      "id": "FL06",
+      "prioridade": "P2",
+      "area": "Cadastro de empresa",
+      "titulo": "Criar empresa e promover responsável são operações separadas",
+      "requisitos": [
+        "RF034",
+        "RN020",
+        "RNF012"
+      ],
+      "evidencias": [
+        {
+          "arquivo": "src/services/job.service.ts",
+          "linha": 355,
+          "fim": 371,
+          "constatacao": "company.create confirma antes de user.updateMany que promove USER para RECRUITER; não há transação envolvendo as duas operações.",
+          "trecho": "    const company = await prisma.company.create({\n      data: {\n        owner_id: params.ownerId,\n        name: params.name,\n        slug,\n        description: params.description,\n        logo_url: params.logoUrl,\n        website: params.website,\n        location: params.location,\n        is_verified: false,\n      },\n    });\n\n    // Upgrade user role to RECRUITER if currently standard USER\n    await prisma.user.updateMany({\n      where: { id: params.ownerId, role: 'USER' },\n      data: { role: 'RECRUITER' },",
+          "sha256_arquivo": "79cb133aebabc6e43c2e7643fb61f53296920c217189beeb74a46d9221d40a7e"
+        },
+        {
+          "arquivo": "prisma/schema.prisma",
+          "linha": 284,
+          "constatacao": "O slug da empresa é único, portanto repetir a tentativa pode falhar se a criação anterior tiver persistido.",
+          "trecho": "  slug        String   @unique",
+          "sha256_arquivo": "8b3c6462c25207fde5d15f54612d944d491dda150c48669157327fcc978e6170"
+        },
+        {
+          "arquivo": "src/app/api/companies/route.ts",
+          "linha": 34,
+          "fim": 47,
+          "constatacao": "A API depende do retorno conjunto do serviço antes de confirmar sucesso.",
+          "trecho": "  const company = await JobService.createCompany({\n    ownerId: user.id,\n    name: parsed.name,\n    description: parsed.description,\n    logoUrl: parsed.logo_url,\n    website: parsed.website,\n    location: parsed.location,\n  });\n\n  return NextResponse.json({\n    success: true,\n    message: 'Empresa cadastrada com sucesso!',\n    company,\n  });",
+          "sha256_arquivo": "de2e4bfe856464960fd48b979abbfab6ada2dc3c5031862f166ee7e51c114d62"
+        }
+      ],
+      "status_confirmacao": "Falta de atomicidade confirmada por código. A falha entre operações é um cenário de risco, não foi induzida no banco.",
+      "impacto": "Se a promoção falhar após criar a empresa, a API responde erro embora a empresa exista e o usuário possa continuar sem o papel necessário para publicar. Repetir o cadastro com o mesmo nome pode colidir com o slug persistido.",
+      "esforco_relativo": "Pequeno a médio",
+      "aceitar_correcao": [
+        "Executar criação e promoção numa mesma transação ou definir recuperação idempotente explícita.",
+        "Teste de falha na promoção deve provar rollback da empresa ou recuperação segura sem cadastro duplicado.",
+        "Preservar os papéis já existentes que não sejam USER."
+      ],
+      "cobertura_atual": "job.service.test.ts não contém createCompany e não demonstra rollback."
+    },
+    {
+      "id": "FL07",
+      "prioridade": "P1",
+      "area": "Aprendizagem no workspace",
+      "titulo": "Indisponibilidade do executor ainda grava submissão e altera progresso no workspace",
+      "requisitos": [
+        "RF008",
+        "RF009",
+        "RNF012",
+        "RNF014"
+      ],
+      "evidencias": [
+        {
+          "arquivo": "src/lib/exercises/evaluator.ts",
+          "linha": 161,
+          "fim": 180,
+          "constatacao": "Falha do executor propaga unavailable no resultado de avaliação.",
+          "trecho": "      })),\n      consoleOutput: stripHarnessOutput(execution.output, marker),\n      error: execution.error ?? 'A execução não produziu resultados de teste válidos.',\n      executionMs: execution.executionMs,\n      unavailable: execution.unavailable === true,\n    };\n  }\n\n  const resultsById = new Map(parsedResults.map((result) => [result.id, result]));\n  let hiddenCounter = 0;\n  const tests = input.testCases.map((testCase) => {\n    const result = resultsById.get(testCase.id);\n    const label = testCase.is_hidden ? `Caso oculto ${++hiddenCounter}` : testCase.label;\n\n    return {\n      id: testCase.id,\n      label,\n      hidden: testCase.is_hidden,\n      passed: result?.passed ?? false,\n      actual: testCase.is_hidden ? undefined : result?.actual,",
+          "sha256_arquivo": "168b2ad5c920fc0c41f341a8d2c92952095cc443ce653e2a6c80d1693a14a105"
+        },
+        {
+          "arquivo": "src/app/api/exercises/[exerciseId]/submit/route.ts",
+          "linha": 36,
+          "fim": 48,
+          "constatacao": "A rota chama recordExerciseSubmission sem interromper evaluation.unavailable.",
+          "trecho": "  const evaluation = await evaluateExerciseCode({\n    code,\n    language: exercise.language,\n    functionName: exercise.function_name,\n    testCases: exercise.test_cases,\n  });\n  const result = await recordExerciseSubmission({\n    exercise,\n    userId: session.id,\n    assistanceMode: effectiveAssistanceMode,\n    code,\n    evaluation,\n  });",
+          "sha256_arquivo": "2452766233e70a33f108ab4c1c81d4f9f145bf72c604a5f5015a3f5f462db233"
+        },
+        {
+          "arquivo": "src/lib/exercises/repository.ts",
+          "linha": 246,
+          "fim": 278,
+          "constatacao": "Registra submissão ERROR e cria/atualiza UserNodeProgress como IN_PROGRESS/last_activity_at mesmo em indisponibilidade.",
+          "trecho": "    const submission = await transaction.exerciseSubmission.create({\n      data: {\n        exercise_id: input.exercise.id,\n        user_id: input.userId,\n        assistance_mode: input.assistanceMode,\n        status: getSubmissionStatus(input.evaluation),\n        code: input.code,\n        passed_public: publicTests.filter((test) => test.passed).length,\n        total_public: publicTests.length,\n        passed_hidden: hiddenTests.filter((test) => test.passed).length,\n        total_hidden: hiddenTests.length,\n        xp_earned: xpEarned,\n        first_completion: firstCompletion,\n        error_message: input.evaluation.error ?? null,\n        execution_ms: input.evaluation.executionMs,\n      },\n    });\n\n    let progress = await transaction.userNodeProgress.upsert({\n      where: {\n        user_id_knowledge_node_id: {\n          user_id: input.userId,\n          knowledge_node_id: input.exercise.knowledge_node_id,\n        },\n      },\n      create: {\n        user_id: input.userId,\n        knowledge_node_id: input.exercise.knowledge_node_id,\n        status: 'IN_PROGRESS',\n        started_at: new Date(),\n      },\n      update: { last_activity_at: new Date() },\n    });",
+          "sha256_arquivo": "af1408ac1f1f434e33ddf425249f0500f31aaca20bf7af39c4fae733857e4cb3"
+        },
+        {
+          "arquivo": "src/app/api/lessons/[lessonId]/attempt/route.ts",
+          "linha": 26,
+          "fim": 31,
+          "constatacao": "O fluxo de catálogo já interrompe unavailable com 503 antes de salvar; os dois caminhos divergem.",
+          "trecho": "  if ('unavailable' in outcome && outcome.unavailable)\n    throw new AppError(\n      'RUNNER_UNAVAILABLE',\n      'Serviço de execução indisponível. Seu progresso não foi alterado; tente novamente.',\n      503\n    );",
+          "sha256_arquivo": "d5de1f88c914ce2e26be4dde3aa77579ae109a0bab3215f5c153d7202bbdffd0"
+        }
+      ],
+      "status_confirmacao": "Confirmado pelos dois fluxos. Não houve execução de dados ou avaliação real indisponível.",
+      "impacto": "A mesma indisponibilidade preserva o progresso numa lição e altera histórico/progresso no workspace. O usuário ganha uma tentativa ERROR e atividade de aprendizagem sem avaliação efetiva. Não concede XP, mas viola a expectativa de falha essencial sem alteração do progresso.",
+      "esforco_relativo": "Pequeno a médio",
+      "aceitar_correcao": [
+        "Tratar indisponibilidade no workspace antes de gravar submissão/progresso, preservando eventual telemetria técnica separada.",
+        "Retornar erro recuperável consistente com o fluxo de catálogo.",
+        "Testar unavailable:true e demonstrar zero novas submissões/recompensas/mudanças de progresso e histórico do aluno; erro real de código deve continuar registrável."
+      ],
+      "cobertura_atual": "lesson-attempt possui oito testes e cobre interrupção de outage. Não há teste da rota workspace submit entre os arquivos existentes localizados."
+    },
+    {
+      "id": "FL08",
+      "prioridade": "P1",
+      "area": "Runners e preservação do progresso",
+      "titulo": "Timeout da requisição HTTP ao provedor é classificado como erro do código do aluno",
+      "requisitos": [
+        "RF008",
+        "RNF009",
+        "RNF012"
+      ],
+      "evidencias": [
+        {
+          "arquivo": "src/lib/code-execution/server.ts",
+          "linha": 130,
+          "fim": 138,
+          "constatacao": "Judge0: AbortError do fetch retorna ok:false com erro de limite, sem unavailable:true.",
+          "trecho": "  } catch (error) {\n    if (error instanceof Error && error.name === 'AbortError') {\n      return {\n        ok: false,\n        output: '',\n        error: 'Tempo limite de execução atingido (15s).',\n        executionMs: Math.max(0, Math.round(performance.now() - startedAt)),\n      };\n    }",
+          "sha256_arquivo": "87361f09f253c7093462cc905c6d6936c0921da8d27b3c5637d11be478d15b41"
+        },
+        {
+          "arquivo": "src/lib/code-execution/server.ts",
+          "linha": 193,
+          "fim": 201,
+          "constatacao": "Wandbox repete o mesmo tratamento do timeout da requisição.",
+          "trecho": "  } catch (error) {\n    if (error instanceof Error && error.name === 'AbortError') {\n      return {\n        ok: false,\n        output: '',\n        error: 'Tempo limite de execução atingido (15s).',\n        executionMs: Math.max(0, Math.round(performance.now() - startedAt)),\n      };\n    }",
+          "sha256_arquivo": "87361f09f253c7093462cc905c6d6936c0921da8d27b3c5637d11be478d15b41"
+        },
+        {
+          "arquivo": "src/lib/code-execution/server.ts",
+          "linha": 239,
+          "fim": 249,
+          "constatacao": "Qualquer resultado truthy encerra a escolha do provedor, portanto timeout HTTP não aciona o fallback.",
+          "trecho": "  if (judge0LanguageId) {\n    const result = await runOnJudge0(prepareCode(code, normalized, 'judge0'), judge0LanguageId);\n    if (result) return result;\n  }\n\n  if (wandboxLanguage && normalized !== 'kotlin' && normalized !== 'swift') {\n    const result = await runOnWandbox(\n      prepareCode(code, normalized, 'wandbox'),\n      wandboxLanguage.compiler\n    );\n    if (result) return result;",
+          "sha256_arquivo": "87361f09f253c7093462cc905c6d6936c0921da8d27b3c5637d11be478d15b41"
+        },
+        {
+          "arquivo": "src/app/api/lessons/[lessonId]/attempt/route.ts",
+          "linha": 26,
+          "fim": 39,
+          "constatacao": "Sem unavailable, o submit segue para saveLessonAssessment com isCorrect:false.",
+          "trecho": "  if ('unavailable' in outcome && outcome.unavailable)\n    throw new AppError(\n      'RUNNER_UNAVAILABLE',\n      'Serviço de execução indisponível. Seu progresso não foi alterado; tente novamente.',\n      503\n    );\n  if (answer.action === 'run') return NextResponse.json({ ...outcome, xpEarned: 0 });\n  const progress = await saveLessonAssessment(\n    user.id,\n    lesson,\n    step,\n    outcome.isCorrect,\n    answer.selectedOption ?? 0\n  );",
+          "sha256_arquivo": "d5de1f88c914ce2e26be4dde3aa77579ae109a0bab3215f5c153d7202bbdffd0"
+        }
+      ],
+      "status_confirmacao": "Classificação confirmada pelo catch. Timeout real de rede não provocado. Distinguir do timeout retornado pelo provedor ao executar código, que é erro legítimo do programa.",
+      "impacto": "Uma conexão lenta ou indisponível pode ser atribuída à solução do aluno e persistida como resposta incorreta; o fallback também é pulado. Não há evidência de que o programa foi executado até atingir o limite.",
+      "esforco_relativo": "Médio",
+      "aceitar_correcao": [
+        "Separar timeout de transporte de timeout de execução informado pelo provedor.",
+        "Para transporte, acionar fallback dentro de um orçamento total limitado ou retornar unavailable:true sem alterar progresso.",
+        "Com fetch simulado abortando e fallback saudável, provar uso do fallback; com todos indisponíveis, provar resposta recuperável sem gravação. Manter teste de laço infinito como falha legítima do programa."
+      ],
+      "cobertura_atual": "server.test.ts cobre sandbox JS, TS, laço infinito, teto de saída e HTTP não-ok com fallback. Não cobre AbortError de transporte."
+    },
+    {
+      "id": "FL09",
+      "prioridade": "P2",
+      "area": "Acesso a conteúdo de aprendizagem",
+      "titulo": "Workspace exibe conteúdo antes de verificar pré-requisitos",
+      "requisitos": [
+        "RF007",
+        "RN029"
+      ],
+      "evidencias": [
+        {
+          "arquivo": "src/app/lesson/[lessonId]/page.tsx",
+          "linha": 93,
+          "fim": 108,
+          "constatacao": "O ramo workspace obtém dados e renderiza ExerciseWorkspace sem chamar requireExerciseAccess.",
+          "trecho": "  const exercise = await getExerciseWorkspaceForUser(lessonId, user.id);\n  if (exercise) {\n    const sectionNumber = Number(firstSearchValue(query.section));\n    const pathSlug = firstSearchValue(query.path) ?? '';\n    const language = firstSearchValue(query.language) ?? '';\n    const jumpChallenge =\n      firstSearchValue(query.challenge) === 'jump' &&\n      Number.isInteger(sectionNumber) &&\n      sectionNumber >= 2 &&\n      sectionNumber <= 8 &&\n      /^[a-z0-9-]+$/.test(pathSlug) &&\n      ['JS', 'TS', 'PYTHON', 'RUST', 'GO', 'JAVA'].includes(language)\n        ? { sectionNumber, pathSlug, language }\n        : undefined;\n\n    return <ExerciseWorkspace exercise={exercise} jumpChallenge={jumpChallenge} />;",
+          "sha256_arquivo": "75bc77e0c2665411ff864a86e34a5a5ac30b074f417c9666b09d64cab909688a"
+        },
+        {
+          "arquivo": "src/lib/exercises/repository.ts",
+          "linha": 76,
+          "fim": 153,
+          "constatacao": "getExerciseWorkspaceForUser devolve enunciado, dicas e código inicial; não aplica requireExerciseAccess.",
+          "trecho": "\nexport async function getExerciseWorkspaceForUser(\n  identifier: string,\n  userId: string\n): Promise<ExerciseWorkspaceData | null> {\n  const exercise = await prisma.exercise.findFirst({\n    where: {\n      is_published: true,\n      OR: [{ id: identifier }, { slug: identifier }],\n    },\n    include: {\n      knowledge_node: {\n        include: {\n          user_progress: {\n            where: { user_id: userId },\n            take: 1,\n          },\n        },\n      },\n      test_cases: {\n        select: { is_hidden: true },\n      },\n      _count: {\n        select: {\n          runs: { where: { user_id: userId } },\n          submissions: { where: { user_id: userId } },\n        },\n      },\n      submissions: {\n        where: { user_id: userId, first_completion: true },\n        select: { id: true },\n        take: 1,\n      },\n    },\n  });\n\n  if (!exercise) return null;\n\n  const progress = exercise.knowledge_node.user_progress[0];\n\n  return {\n    id: exercise.id,\n    slug: exercise.slug,\n    title: exercise.title,\n    summary: exercise.summary,\n    problem: exercise.problem,\n    objective: exercise.objective,\n    language: exercise.language,\n    difficulty: exercise.difficulty,\n    baseXp: exercise.base_xp,\n    estimatedMinutes: exercise.estimated_minutes,\n    starterCode: exercise.starter_code,\n    constraints: exercise.constraints,\n    hints: exercise.hints,\n    documentationUrl: exercise.documentation_url,\n    examples: Array.isArray(exercise.examples) ? exercise.examples : [],\n    publicTestCount: exercise.test_cases.filter((testCase) => !testCase.is_hidden).length,\n    hiddenTestCount: exercise.test_cases.filter((testCase) => testCase.is_hidden).length,\n    knowledge: {\n      id: exercise.knowledge_node.id,\n      slug: exercise.knowledge_node.slug,\n      title: exercise.knowledge_node.title,\n      category: exercise.knowledge_node.category,\n      mastery: progress?.mastery ?? 0,\n      status: (progress?.status ?? 'AVAILABLE') as KnowledgeProgressStatus,\n    },\n    activity: {\n      runs: exercise._count.runs,\n      submissions: exercise._count.submissions,\n      completed: exercise.submissions.length > 0,\n    },\n  };\n}\n\nexport async function recordExerciseRun(input: {\n  exerciseId: string;\n  knowledgeNodeId: string;\n  userId: string;",
+          "sha256_arquivo": "af1408ac1f1f434e33ddf425249f0500f31aaca20bf7af39c4fae733857e4cb3"
+        },
+        {
+          "arquivo": "src/app/api/exercises/[exerciseId]/submit/route.ts",
+          "linha": 33,
+          "fim": 34,
+          "constatacao": "A submissão verifica requireExerciseAccess e bloqueia pré-requisito faltante.",
+          "trecho": "  if (!exercise) throw new NotFoundError('EXERCISE_NOT_FOUND', 'Exercício não encontrado.');\n  await requireExerciseAccess(session.id, exercise.knowledge_node_id);",
+          "sha256_arquivo": "2452766233e70a33f108ab4c1c81d4f9f145bf72c604a5f5015a3f5f462db233"
+        }
+      ],
+      "status_confirmacao": "Divergência de acesso entre leitura e ação confirmada. Não é bypass de submissão ou XP, pois essas rotas verificam acesso.",
+      "impacto": "Abrir diretamente a URL de um exercício bloqueado revela o conteúdo e o editor e só depois rejeita a prática. O aluno inicia visualmente uma atividade que o servidor não permite concluir.",
+      "esforco_relativo": "Pequeno a médio",
+      "aceitar_correcao": [
+        "Aplicar o gate também antes de renderizar o workspace, com mensagem de pré-requisito e navegação de retorno.",
+        "Preservar a regra de revisão de conteúdo já concluído.",
+        "Testar URL direta bloqueada e exercício já concluído após alteração de pré-requisitos."
+      ],
+      "cobertura_atual": "A verificação de conteúdo inicial no ramo workspace não foi coberta nos sete arquivos executados."
+    }
+  ],
+  "pontos_ja_implementados_que_nao_sao_lacunas": [
+    "Publicação e consulta de candidatos já validam a empresa por requireCompanyAccess. Não afirmar falta geral de isolamento de empresa.",
+    "Usuário/vaga possui unique no banco. Não afirmar que a corrida pode duplicar a candidatura persistida.",
+    "Catálogo de lições e workspace são dois fluxos existentes e intencionais. A dualidade por si só não comprova defeito.",
+    "Progresso e XP de catálogo usam lock por usuário e transação limitada. O workspace também usa lock para recompensa. Não afirmar duplicação de XP sem prova.",
+    "getUserLanguageXp soma LanguageTrail e histórico ExerciseSubmission sem migrar ou duplicar registros. Não tratar a ausência de atualização de LanguageTrail no workspace isoladamente como perda de XP por linguagem.",
+    "Os testes PostgreSQL concorrentes e os smoke tests de provedores existem, mas são opt-in LEARNING_DB_TEST e LEARNING_RUNNER_SMOKE. Eles não foram executados nesta auditoria por exigirem recursos externos."
+  ]
+}

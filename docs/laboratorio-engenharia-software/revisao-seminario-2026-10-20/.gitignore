@@ -1,0 +1,10 @@
+# Local dependencies, compiler intermediates and editor backups.
+.build/
+tools/node_modules/
+**/node_modules/
+__pycache__/
+*.py[cod]
+*.class
+*.lock
+*.bak
+~$*

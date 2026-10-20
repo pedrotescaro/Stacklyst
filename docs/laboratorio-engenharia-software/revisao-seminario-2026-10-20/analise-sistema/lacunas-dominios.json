@@ -1,0 +1,762 @@
+{
+  "date": "2026-10-20",
+  "commit": "bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa",
+  "method": "Auditoria estática de código, schema e documentos fornecidos; uma execução offline de política pura. Nenhum acesso a produção, banco ou serviços externos. Sem alterações ao produto, slides ou modelo nesta fase.",
+  "schema_diagram_alignment": {
+    "schema_models": 47,
+    "diagram_models": 47,
+    "missing_in_diagram": [],
+    "extra_in_diagram": [],
+    "schema_relations_in_plan": 74,
+    "statement": "Cobertura nominal dos 47 modelos no DER. Isso não comprova execução de 47 funcionalidades nem diagrama de classes exaustivo. Classes gerais são visão conceitual resumida; Lição/Etapa vêm de catálogo, não tabelas próprias.",
+    "source": "prisma/schema.prisma",
+    "schema_sha256": "ed97d738a4b5492b794f40f0c6825f14e29f82960d8b2ef5147603fefc7791da"
+  },
+  "domain_coverage": [
+    {
+      "dominio": "social",
+      "ids_rf": [
+        "RF030",
+        "RF031",
+        "RF032",
+        "RF033"
+      ],
+      "ids_uc": [
+        "UC013",
+        "UC014",
+        "UC020",
+        "UC031",
+        "UC033",
+        "UC034",
+        "UC035",
+        "UC036"
+      ],
+      "estado": "implementação conectada presente; moderação com falha DOM-01",
+      "evidencia": [
+        "src/app/api/posts/route.ts:1",
+        "src/services/post.service.ts:1",
+        "src/app/api/posts/[id]/report/route.ts:1"
+      ],
+      "limite": "Não homologado em navegador/produção nesta auditoria."
+    },
+    {
+      "dominio": "mensagens",
+      "ids_rf": [],
+      "ids_uc": [
+        "UC038",
+        "UC039",
+        "UC040",
+        "UC041"
+      ],
+      "estado": "ampliação implementada, com limitações web DOM-03/04/05",
+      "evidencia": [
+        "src/app/api/messages/route.ts:48",
+        "src/app/api/messages/[id]/route.ts:6",
+        "src/app/api/messages/[id]/react/route.ts:50"
+      ],
+      "limite": "Mensagens não possuem RF numerado próprio nos 49 RF, embora tenham UC de ampliação."
+    },
+    {
+      "dominio": "eventos",
+      "ids_rf": [
+        "RF041",
+        "RF049"
+      ],
+      "ids_uc": [
+        "UC015",
+        "UC023",
+        "UC046",
+        "UC047",
+        "UC048"
+      ],
+      "estado": "criação, inscrição, cancelamento, exclusão e conjunto editorial presentes; ciclo temporal parcial",
+      "evidencia": [
+        "src/app/api/events/route.ts:37",
+        "src/services/event.service.ts:174",
+        "src/services/event-challenge.service.ts:73"
+      ],
+      "limite": "Não confundir execução de competição completa com a inscrição exigida."
+    },
+    {
+      "dominio": "duelos",
+      "ids_rf": [
+        "RF015",
+        "RF016",
+        "RF017",
+        "RF018",
+        "RF019",
+        "RF020",
+        "RF021"
+      ],
+      "ids_uc": [
+        "UC008",
+        "UC009",
+        "UC010",
+        "UC016",
+        "UC029",
+        "UC052",
+        "UC053",
+        "UC054"
+      ],
+      "estado": "arena aberta e convites presentes, avaliação automática e humana conectadas; bugs/política DOM-02/09/14",
+      "evidencia": [
+        "src/app/api/duels/route.ts:46",
+        "src/app/api/duels/[id]/solution/route.ts:1",
+        "src/lib/duels/resolution.ts:16"
+      ],
+      "limite": "Executor externo e cron configurado não foram acionados ou homologados."
+    },
+    {
+      "dominio": "avaliador",
+      "ids_rf": [
+        "RF026",
+        "RF027",
+        "RF028",
+        "RF029"
+      ],
+      "ids_uc": [
+        "UC016",
+        "UC024",
+        "UC027"
+      ],
+      "estado": "candidatura, rubrica, aprovação, suspensão e parecer implementados em código",
+      "evidencia": [
+        "src/services/evaluator.service.ts:80",
+        "src/services/evaluator.service.ts:149",
+        "src/services/evaluator.service.ts:283",
+        "src/services/evaluator.service.ts:370",
+        "src/app/api/evaluations/route.ts:21"
+      ],
+      "limite": "Fila usa REVIEW_PENDING, perfil ativo/tecnologia e impede participante avaliar próprio duelo. Não foi encontrada razão para classificar todo domínio como não implementado."
+    },
+    {
+      "dominio": "admin",
+      "ids_rf": [
+        "RF039",
+        "RF040",
+        "RF042",
+        "RF043"
+      ],
+      "ids_uc": [
+        "UC019",
+        "UC020",
+        "UC049"
+      ],
+      "estado": "papéis, avaliadores, denúncias e métricas presentes; CRUD editorial completo não documentado como entregue",
+      "evidencia": [
+        "src/app/admin/AdminContent.tsx:68",
+        "src/services/admin.service.ts:10",
+        "src/services/admin.service.ts:144",
+        "src/services/admin.service.ts:205"
+      ],
+      "limite": "Sanções/recurso editorial e auditoria integral já são parciais/planejados no documento; não deduzir bug por falta de testes."
+    },
+    {
+      "dominio": "comunidades",
+      "ids_rf": [],
+      "ids_uc": [
+        "UC042",
+        "UC043",
+        "UC044",
+        "UC045"
+      ],
+      "estado": "ampliação/API presente, menu oculto e gestão web parcial",
+      "evidencia": [
+        "src/app/guilds/page.tsx:5",
+        "src/app/api/guilds/route.ts:1",
+        "src/components/Sidebar.tsx:449"
+      ],
+      "limite": "Não globalmente desativado. A retirada de uma atividade de negócio não apaga Guild/GuildMember."
+    }
+  ],
+  "findings": [
+    {
+      "id": "DOM-01",
+      "dominio": "admin/social",
+      "titulo": "Excluir publicação denunciada pode retornar erro após apagar os dados",
+      "status": "parcial",
+      "tipo": "bug",
+      "prioridade": "P1",
+      "ids_rf": [
+        "RF033",
+        "RF043"
+      ],
+      "ids_uc": [
+        "UC020"
+      ],
+      "lacuna": "A exclusão de Post provoca cascata em Report. O serviço em seguida tenta excluir individualmente a denúncia já removida. Pelo contrato Prisma isso gera P2025 e a rota falha depois da alteração principal. Não foi executado em banco.",
+      "evidencias": [
+        {
+          "path": "src/services/admin.service.ts",
+          "line": 226,
+          "evidence": "post.delete seguido de report.delete, sem transação ou deleteMany idempotente"
+        },
+        {
+          "path": "prisma/schema.prisma",
+          "line": 1010,
+          "evidence": "Report.post com onDelete: Cascade"
+        },
+        {
+          "path": "src/app/api/admin/reports/route.ts",
+          "line": 23,
+          "evidence": "Propaga o resultado do serviço"
+        }
+      ],
+      "recomendacao": "Eliminar a segunda exclusão ou usar operação transacional/idempotente, vinculando denúncia à publicação antes de remover.",
+      "escopo": "escopo documentado vigente",
+      "confianca": "verificado por inspeção estática"
+    },
+    {
+      "id": "DOM-02",
+      "dominio": "duelos",
+      "titulo": "Executor indisponível pode produzir vencedor e XP no fechamento por prazo",
+      "status": "parcial",
+      "tipo": "bug",
+      "prioridade": "P1",
+      "ids_rf": [
+        "RF019",
+        "RF020",
+        "RF021"
+      ],
+      "ids_uc": [
+        "UC010",
+        "UC029",
+        "UC053"
+      ],
+      "lacuna": "A seleção no prazo aceita JUDGE_UNAVAILABLE. Se só um participante possui essa submissão, mesmo com zero pontos, a política o declara vencedor e persistResolution concede 50 XP. Contraria a alternativa A2 de UC010. A política pura foi executada offline e confirmou a decisão indevida.",
+      "evidencias": [
+        {
+          "path": "src/lib/duels/judge.ts",
+          "line": 368,
+          "evidence": "Resultado incompleto é JUDGE_UNAVAILABLE"
+        },
+        {
+          "path": "src/lib/duels/resolution-policy.ts",
+          "line": 46,
+          "evidence": "Filtro sem acceptedOnly permite todos os status"
+        },
+        {
+          "path": "src/lib/duels/resolution-policy.ts",
+          "line": 67,
+          "evidence": "Uma submissão presente sempre vence da ausência"
+        },
+        {
+          "path": "src/lib/duels/resolution.ts",
+          "line": 39,
+          "evidence": "Fechamento por prazo usa seleção sem filtro de disponibilidade"
+        },
+        {
+          "path": "src/lib/duels/resolution.ts",
+          "line": 116,
+          "evidence": "Concede 50 XP ao vencedor"
+        },
+        {
+          "path": "docs/laboratorio-engenharia-software/revisao-seminario-2026-10-20/analise-sistema/evidencia-politica-duelo.json",
+          "line": 1,
+          "evidence": "Demonstração determinística offline"
+        }
+      ],
+      "recomendacao": "Excluir indisponibilidade de infraestrutura das submissões competitivas e definir adiamento/reexecução sem XP indevido.",
+      "escopo": "escopo documentado vigente",
+      "confianca": "confirmado por execução da política pura atual, sem rede nem banco"
+    },
+    {
+      "id": "DOM-03",
+      "dominio": "mensagens",
+      "titulo": "Histórico web carrega as 100 mensagens mais antigas",
+      "status": "parcial",
+      "tipo": "bug",
+      "prioridade": "P2",
+      "ids_rf": [],
+      "ids_uc": [
+        "UC038"
+      ],
+      "lacuna": "GET ordena ascendente e limita a 100, sem cursor. A UI substitui o histórico pela resposta ao abrir a conversa. Conversas acima de 100 mensagens omitem as recentes e o envio recente pode desaparecer ao reabrir. A API mobile já possui paginação descendente com cursor.",
+      "evidencias": [
+        {
+          "path": "src/app/api/messages/route.ts",
+          "line": 130,
+          "evidence": "orderBy created_at asc e take 100"
+        },
+        {
+          "path": "src/app/api/messages/route.ts",
+          "line": 144,
+          "evidence": "Fallback repete o mesmo limite"
+        },
+        {
+          "path": "src/app/messages/page.tsx",
+          "line": 223,
+          "evidence": "UI busca único lote e setMessages(data)"
+        },
+        {
+          "path": "src/app/api/mobile/messages/route.ts",
+          "line": 76,
+          "evidence": "Endpoint mobile com cursor e ordem descendente"
+        }
+      ],
+      "recomendacao": "Paginar da mensagem mais recente para as antigas e reutilizar contrato de cursor consistente entre web e mobile.",
+      "escopo": "escopo documentado vigente",
+      "confianca": "verificado por inspeção estática"
+    },
+    {
+      "id": "DOM-04",
+      "dominio": "mensagens",
+      "titulo": "Lista web de conversas considera apenas as últimas 200 mensagens globais",
+      "status": "parcial",
+      "tipo": "limitação funcional",
+      "prioridade": "P2",
+      "ids_rf": [],
+      "ids_uc": [
+        "UC038"
+      ],
+      "lacuna": "A API deriva parceiros das últimas 200 mensagens do usuário. Um contato antigo desaparece da lista se conversas recentes ocuparem esse lote, embora haja histórico legítimo no banco.",
+      "evidencias": [
+        {
+          "path": "src/app/api/messages/chats/route.ts",
+          "line": 13,
+          "evidence": "Consulta envolvimento do usuário com take 200"
+        },
+        {
+          "path": "src/app/api/messages/chats/route.ts",
+          "line": 24,
+          "evidence": "Agrupa só os parceiros encontrados nesse lote"
+        }
+      ],
+      "recomendacao": "Consultar a última mensagem por interlocutor no banco e paginar conversas.",
+      "escopo": "escopo documentado vigente",
+      "confianca": "verificado por inspeção estática"
+    },
+    {
+      "id": "DOM-05",
+      "dominio": "mensagens",
+      "titulo": "API web permite mensagem sem texto nem imagem e não valida limites de conteúdo",
+      "status": "parcial",
+      "tipo": "lacuna de validação",
+      "prioridade": "P2",
+      "ids_rf": [],
+      "ids_uc": [
+        "UC039"
+      ],
+      "lacuna": "O POST só exige receiver_id e transforma conteúdo ausente em string vazia. Aceita via API uma mensagem vazia, apesar de a interface restringir o botão e de UC039 descrever texto ou imagem. Não há limite de tamanho ou validação de URL neste handler. A API mobile valida UUID e texto de 1 a 5000 caracteres.",
+      "evidencias": [
+        {
+          "path": "src/app/api/messages/route.ts",
+          "line": 60,
+          "evidence": "Desestrutura corpo sem schema"
+        },
+        {
+          "path": "src/app/api/messages/route.ts",
+          "line": 62,
+          "evidence": "Valida apenas destinatário presente"
+        },
+        {
+          "path": "src/app/api/messages/route.ts",
+          "line": 71,
+          "evidence": "content vazio e image_url null persistíveis"
+        },
+        {
+          "path": "src/app/api/mobile/messages/route.ts",
+          "line": 10,
+          "evidence": "Schema mobile com tamanho, UUID e idempotência"
+        }
+      ],
+      "recomendacao": "Definir schema web que exija texto ou imagem válida e limites de conteúdo coerentes.",
+      "escopo": "escopo documentado vigente",
+      "confianca": "verificado por inspeção estática"
+    },
+    {
+      "id": "DOM-06",
+      "dominio": "eventos",
+      "titulo": "Cancelar participação ignora a data real de encerramento",
+      "status": "parcial",
+      "tipo": "bug",
+      "prioridade": "P2",
+      "ids_rf": [
+        "RF049"
+      ],
+      "ids_uc": [
+        "UC023"
+      ],
+      "lacuna": "A inscrição recusa end_date vencida; o cancelamento busca só status e bloqueia apenas COMPLETED. Eventos com data vencida e status ainda UPCOMING/ONGOING permitem cancelar, contrariando RN023.",
+      "evidencias": [
+        {
+          "path": "src/services/event.service.ts",
+          "line": 193,
+          "evidence": "Inscrição verifica status e end_date"
+        },
+        {
+          "path": "src/services/event.service.ts",
+          "line": 234,
+          "evidence": "Cancelamento não seleciona end_date"
+        },
+        {
+          "path": "src/services/event.service.ts",
+          "line": 238,
+          "evidence": "Cancelamento bloqueia apenas status COMPLETED"
+        }
+      ],
+      "recomendacao": "Reutilizar política efetiva de encerramento e testar limite da data com o mesmo critério em ambas operações.",
+      "escopo": "escopo documentado vigente",
+      "confianca": "verificado por inspeção estática"
+    },
+    {
+      "id": "DOM-07",
+      "dominio": "eventos",
+      "titulo": "Situação do evento não acompanha automaticamente as datas no fluxo principal",
+      "status": "parcial",
+      "tipo": "lacuna de ciclo de vida",
+      "prioridade": "P2",
+      "ids_rf": [
+        "RF041"
+      ],
+      "ids_uc": [
+        "UC015",
+        "UC046",
+        "UC049"
+      ],
+      "lacuna": "createEvent grava UPCOMING. listEvents/getEventById e os indicadores administrativos usam o status persistido. Não foi encontrado produtor de transições event.update/event.updateMany em src/scripts. Já EventChallengeService calcula estado efetivo por data, gerando critérios diferentes. Gatilhos externos de banco não foram consultados.",
+      "evidencias": [
+        {
+          "path": "src/services/event.service.ts",
+          "line": 13,
+          "evidence": "Listagem filtra status persistido"
+        },
+        {
+          "path": "src/services/event.service.ts",
+          "line": 163,
+          "evidence": "Criação sempre UPCOMING"
+        },
+        {
+          "path": "src/components/events/EventDetailsModal.tsx",
+          "line": 311,
+          "evidence": "Badge usa event.status"
+        },
+        {
+          "path": "src/services/event-challenge.service.ts",
+          "line": 16,
+          "evidence": "Desafios derivam estado por datas"
+        },
+        {
+          "path": "src/services/admin.service.ts",
+          "line": 50,
+          "evidence": "Métrica de eventos ativos usa ONGOING persistido"
+        }
+      ],
+      "recomendacao": "Centralizar estado efetivo por data ou implementar transições persistidas verificáveis; confirmar primeiro se há job externo configurado.",
+      "escopo": "escopo documentado vigente",
+      "confianca": "lacuna no código inspecionado; jobs externos não verificados"
+    },
+    {
+      "id": "DOM-08",
+      "dominio": "admin",
+      "titulo": "Métrica de avaliações pendentes conta duelos ativos",
+      "status": "parcial",
+      "tipo": "bug de indicador",
+      "prioridade": "P2",
+      "ids_rf": [
+        "RF020",
+        "RF027",
+        "RF039"
+      ],
+      "ids_uc": [
+        "UC049"
+      ],
+      "lacuna": "AdminService atribui pendingEvaluation a contagem de status ACTIVE, enquanto a fila de pareceres usa REVIEW_PENDING. O painel pode mostrar partidas em andamento como avaliações e omitir empates que realmente precisam de parecer.",
+      "evidencias": [
+        {
+          "path": "src/services/admin.service.ts",
+          "line": 52,
+          "evidence": "pendingEvaluations recebe prisma.duel.count ACTIVE"
+        },
+        {
+          "path": "src/services/admin.service.ts",
+          "line": 66,
+          "evidence": "Retorna esse valor em pendingEvaluation"
+        },
+        {
+          "path": "src/app/api/evaluations/route.ts",
+          "line": 39,
+          "evidence": "Fila real usa REVIEW_PENDING"
+        }
+      ],
+      "recomendacao": "Contar REVIEW_PENDING com os critérios da fila administrativa.",
+      "escopo": "escopo documentado vigente",
+      "confianca": "verificado por inspeção estática"
+    },
+    {
+      "id": "DOM-09",
+      "dominio": "duelos/documentação",
+      "titulo": "Convites diretos classificados como legado continuam ativos no produto",
+      "status": "implementado no código, documentação divergente",
+      "tipo": "documentação legada",
+      "prioridade": "P2",
+      "ids_rf": [
+        "RF018"
+      ],
+      "ids_uc": [],
+      "lacuna": "RF018 afirma histórico fora do escopo vigente. Entretanto o perfil permite desafiar usuário por convite de 72 horas, a arena consulta e responde convites e os handlers persistem DuelRequest. Remover a atividade de negócio de doc02 não desativa esse produto.",
+      "evidencias": [
+        {
+          "path": "src/app/profile/[username]/ProfileContent.tsx",
+          "line": 134,
+          "evidence": "UI chama POST /api/duels/request"
+        },
+        {
+          "path": "src/app/profile/[username]/ProfileContent.tsx",
+          "line": 584,
+          "evidence": "UI informa convite de 72 horas"
+        },
+        {
+          "path": "src/app/duels/DuelsContent.tsx",
+          "line": 134,
+          "evidence": "UI chama POST /api/duels/respond"
+        },
+        {
+          "path": "src/app/api/duels/request/route.ts",
+          "line": 34,
+          "evidence": "Chama criação de convite"
+        },
+        {
+          "path": "src/services/duel.service.ts",
+          "line": 145,
+          "evidence": "Persistência de DuelRequest"
+        }
+      ],
+      "recomendacao": "Decidir se convites pertencem ao escopo de produto e atualizar RF018/UC/modelos conforme decisão; não removê-los automaticamente por terem saído do seminário.",
+      "escopo": "escopo documentado vigente",
+      "confianca": "verificado por inspeção estática"
+    },
+    {
+      "id": "DOM-10",
+      "dominio": "comunidades",
+      "titulo": "Comunidades estão ocultas na navegação, mas suas páginas e APIs permanecem disponíveis",
+      "status": "parcial na experiência, backend presente",
+      "tipo": "escopo e descoberta",
+      "prioridade": "P3",
+      "ids_rf": [],
+      "ids_uc": [
+        "UC042",
+        "UC043",
+        "UC044",
+        "UC045"
+      ],
+      "lacuna": "Sidebar não inclui atalho ativo. Porém /guilds, criação, entrada/saída e edição/exclusão de comunidade existem. Não há bloqueio global de feature no proxy. UC045 já documenta API e ausência de painel completo, portanto isso é ampliação explicitamente parcial, não evidência de bug novo.",
+      "evidencias": [
+        {
+          "path": "src/components/Sidebar.tsx",
+          "line": 449,
+          "evidence": "/guilds comentado no menu ativo"
+        },
+        {
+          "path": "src/app/guilds/page.tsx",
+          "line": 5,
+          "evidence": "Página direta monta GuildsClient"
+        },
+        {
+          "path": "src/app/guilds/GuildsClient.tsx",
+          "line": 311,
+          "evidence": "UI cria comunidade"
+        },
+        {
+          "path": "src/app/api/guilds/[id]/route.ts",
+          "line": 57,
+          "evidence": "PATCH de campos administrativos"
+        },
+        {
+          "path": "src/app/api/guilds/[id]/route.ts",
+          "line": 92,
+          "evidence": "DELETE para proprietário"
+        },
+        {
+          "path": "src/app/guilds/[slug]/page.tsx",
+          "line": 390,
+          "evidence": "Página de detalhes possui Sobre/Membros"
+        }
+      ],
+      "recomendacao": "Definir se a ampliação está publicada, em preparação ou fora do escopo. Para publicar: navegação e painel de gestão; para desativar: bloqueio consistente das superfícies. Não chamar remoção de AN05 de remoção do produto inteiro.",
+      "escopo": "ampliação já classificada como API/parcial no DOCX04",
+      "confianca": "verificado por inspeção estática"
+    },
+    {
+      "id": "DOM-11",
+      "dominio": "eventos",
+      "titulo": "Inscrição e desafios editoriais existem, mas execução competitiva e prêmio de evento são evolução separada",
+      "status": "planejado ou fora do contrato atual",
+      "tipo": "evolução de produto",
+      "prioridade": "P3",
+      "ids_rf": [
+        "RF041",
+        "RF049"
+      ],
+      "ids_uc": [
+        "UC015",
+        "UC023",
+        "UC048"
+      ],
+      "lacuna": "O escopo descrito é criar/excluir evento, inscrever/cancelar e gerenciar enunciados. Há score/rank/xp_reward no modelo e XP exibido na UI, mas não foi encontrado endpoint de submissão de desafio de evento, pontuação de participante, encerramento com premiação ou concessão desse XP. Isso não invalida a inscrição implementada e não deve ser relatado como bug do contrato atual.",
+      "evidencias": [
+        {
+          "path": "src/services/event.service.ts",
+          "line": 160,
+          "evidence": "Armazena xp_reward"
+        },
+        {
+          "path": "src/services/event.service.ts",
+          "line": 219,
+          "evidence": "Participação inicia score 0"
+        },
+        {
+          "path": "src/services/event-challenge.service.ts",
+          "line": 95,
+          "evidence": "Gerenciamento do conjunto editorial apenas"
+        },
+        {
+          "path": "src/components/events/EventDetailsModal.tsx",
+          "line": 324,
+          "evidence": "UI exibe recompensa XP"
+        }
+      ],
+      "recomendacao": "Explicitar que XP é recompensa prevista ou especificar e implementar submissão, pontuação, conclusão e prêmio idempotente como nova entrega.",
+      "escopo": "evolução, não funcionalidade exigida pelos RF/UC atuais",
+      "confianca": "verificado por inspeção estática"
+    },
+    {
+      "id": "DOM-12",
+      "dominio": "notificações",
+      "titulo": "Atualização de candidatura cria aviso genérico sem destino para a vaga",
+      "status": "parcial na apresentação",
+      "tipo": "lacuna de UX",
+      "prioridade": "P2",
+      "ids_rf": [
+        "RF044",
+        "RF045",
+        "RF048"
+      ],
+      "ids_uc": [
+        "UC021",
+        "UC026"
+      ],
+      "lacuna": "JobService cria JOB_APPLICATION_UPDATE corretamente. Mas a leitura monta título/conteúdo com helpers que não tratam esse tipo e o recurso JOB não ganha link. O candidato recebe aviso genérico sem identificação da candidatura/etapa, embora a persistência da atualização funcione.",
+      "evidencias": [
+        {
+          "path": "src/services/job.service.ts",
+          "line": 325,
+          "evidence": "Cria JOB_APPLICATION_UPDATE para usuário associado"
+        },
+        {
+          "path": "src/services/notification.service.ts",
+          "line": 48,
+          "evidence": "Tipos sem tratamento caem no título genérico"
+        },
+        {
+          "path": "src/services/notification.service.ts",
+          "line": 63,
+          "evidence": "Conteúdo genérico para tipo não previsto"
+        },
+        {
+          "path": "src/services/notification.service.ts",
+          "line": 98,
+          "evidence": "Destino trata DUEL/FEED/perfil, não JOB"
+        },
+        {
+          "path": "src/services/notification.service.ts",
+          "line": 208,
+          "evidence": "Leitura aplica esses helpers"
+        }
+      ],
+      "recomendacao": "Adicionar tradução do tipo, nome da vaga/situação permitida e link para candidatura; manter falha do aviso separada da mutação principal.",
+      "escopo": "escopo documentado vigente",
+      "confianca": "verificado por inspeção estática"
+    },
+    {
+      "id": "DOM-13",
+      "dominio": "admin/permissões",
+      "titulo": "Alteração de papel não protege o último administrador",
+      "status": "parcial",
+      "tipo": "endurecimento de autorização",
+      "prioridade": "P2",
+      "ids_rf": [
+        "RF039",
+        "RF042"
+      ],
+      "ids_uc": [
+        "UC019"
+      ],
+      "lacuna": "Um administrador pode rebaixar o próprio usuário ou o último ADMIN, pois o handler não transmite ator e updateUserRole altera o papel sem verificar esse invariante. Trata-se de resiliência operacional a acrescentar, não permissão de usuário comum.",
+      "evidencias": [
+        {
+          "path": "src/app/api/admin/users/route.ts",
+          "line": 26,
+          "evidence": "requireAdmin sem proteção de autorrebaixamento"
+        },
+        {
+          "path": "src/services/admin.service.ts",
+          "line": 144,
+          "evidence": "Serviço recebe alvo e novo papel"
+        },
+        {
+          "path": "src/services/admin.service.ts",
+          "line": 176,
+          "evidence": "Atualiza papel sem contar administradores restantes"
+        }
+      ],
+      "recomendacao": "Definir regra do último ADMIN e validá-la em transação com auditoria de ator.",
+      "escopo": "regra de resiliência não detalhada no RF; recomendação de endurecimento",
+      "confianca": "verificado por inspeção estática"
+    },
+    {
+      "id": "DOM-14",
+      "dominio": "duelos/documentação",
+      "titulo": "Manutenção escolhe automaticamente oponente de vaga vencida apesar da entrada voluntária documentada",
+      "status": "parcial ou divergência de política",
+      "tipo": "política divergente",
+      "prioridade": "P2",
+      "ids_rf": [
+        "RF016",
+        "RF017"
+      ],
+      "ids_uc": [
+        "UC008",
+        "UC009"
+      ],
+      "lacuna": "UC009 descreve adesão voluntária e UC008 diz que vaga expirada deixa de ser elegível. A manutenção consulta vagas vencidas e escolhe qualquer usuário recente sem duelo ativo, depois o vincula e inicia duelo. Se não houver candidato, expira. É comportamento real no código, não ausência de teste.",
+      "evidencias": [
+        {
+          "path": "src/lib/duels/lifecycle.ts",
+          "line": 34,
+          "evidence": "Seleciona PENDING com match_deadline vencido"
+        },
+        {
+          "path": "src/lib/duels/lifecycle.ts",
+          "line": 53,
+          "evidence": "Escolhe usuário recente sem adesão específica"
+        },
+        {
+          "path": "src/lib/duels/lifecycle.ts",
+          "line": 69,
+          "evidence": "Define opponent_id e ACTIVE"
+        },
+        {
+          "path": "vercel.json",
+          "line": 8,
+          "evidence": "Cron diário chama manutenção"
+        }
+      ],
+      "recomendacao": "Confirmar a regra desejada: expirar vaga vencida ou restringir pareamento a participantes que aderiram à fila. Alinhar código, consequências por abandono e documento.",
+      "escopo": "escopo documentado vigente",
+      "confianca": "verificado por inspeção estática"
+    }
+  ],
+  "summary": {
+    "P1": 2,
+    "P2": 10,
+    "P3": 2
+  },
+  "scope_notes": [
+    "Atividades retiradas de DOCX02 não são ordens para eliminar funcionalidades do produto.",
+    "52 UC declarados no Astah antigo, 56 UC textuais e 18 elipses na imagem UC00 são contagens de coisas diferentes, não prova de funcionalidades ausentes.",
+    "O inventário RF018 legado diverge do código atual de convites; deve ser corrigido ou explicitamente versionado.",
+    "Recursos descritos como ampliação/parcial/planejado não foram promovidos a bug só por não serem completos.",
+    "Não houve verificação em execução de banco para cascatas, jobs externos, RLS ou deploy."
+  ]
+}

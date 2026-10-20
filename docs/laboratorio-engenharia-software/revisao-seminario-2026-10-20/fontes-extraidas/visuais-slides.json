@@ -1,0 +1,108 @@
+{
+  "specific_usecases": [
+    {
+      "id": "UC005",
+      "diagram_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image13.png",
+      "prototype_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image27.png"
+    },
+    {
+      "id": "UC006",
+      "diagram_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image14.png",
+      "prototype_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image28.png"
+    },
+    {
+      "id": "UC017",
+      "diagram_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image15.png",
+      "prototype_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image39.png"
+    },
+    {
+      "id": "UC022",
+      "diagram_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image16.png",
+      "prototype_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image44.png"
+    },
+    {
+      "id": "UC026",
+      "diagram_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image18.png",
+      "prototype_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image48.png"
+    }
+  ],
+  "general": {
+    "diagram_path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image1.jpg",
+    "visible_count": 18,
+    "labels": [
+      {
+        "id": "UC001",
+        "name": "Cadastrar conta"
+      },
+      {
+        "id": "UC002",
+        "name": "Fazer login"
+      },
+      {
+        "id": "UC003",
+        "name": "Editar perfil"
+      },
+      {
+        "id": "UC013",
+        "name": "Manter publicação"
+      },
+      {
+        "id": "UC008",
+        "name": "Criar duelo aberto"
+      },
+      {
+        "id": "UC010",
+        "name": "Enviar solução de duelo"
+      },
+      {
+        "id": "UC020",
+        "name": "Manter denúncias"
+      },
+      {
+        "id": "UC005",
+        "name": "Estudar lição"
+      },
+      {
+        "id": "UC058",
+        "name": "Manter intenção de vaga"
+      },
+      {
+        "id": "UC006",
+        "name": "Resolver exercício"
+      },
+      {
+        "id": "UC029",
+        "name": "Executar código e testes"
+      },
+      {
+        "id": "UC059",
+        "name": "Manter interesse em Evento"
+      },
+      {
+        "id": "UC015",
+        "name": "Criar evento"
+      },
+      {
+        "id": "UC011",
+        "name": "Manter ranking de XP"
+      },
+      {
+        "id": "UC017",
+        "name": "Publicar vaga"
+      },
+      {
+        "id": "UC057",
+        "name": "Notificar usuário"
+      },
+      {
+        "id": "UC048",
+        "name": "Gerenciar desafios de evento"
+      },
+      {
+        "id": "UC019",
+        "name": "Gerenciar permissões de usuários"
+      }
+    ],
+    "note": "Imagem geral original preservada contém 18 elipses e rótulos legados UC057–UC059. Os casos de estudo específicos seguem os identificadores do documento."
+  }
+}

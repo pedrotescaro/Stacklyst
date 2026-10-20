@@ -1,0 +1,1627 @@
+{
+  "counts": {
+    "RF": 49,
+    "RNF": 25,
+    "RN": 29,
+    "UC_text": 56,
+    "UC_astah_declared": 52,
+    "UC_general_ellipses_visually_counted": 18,
+    "business_activity_sections": 6,
+    "business_activity_images": 7
+  },
+  "functional_requirements": [
+    {
+      "id": "RF001",
+      "RF001 — Especificação": "Conteúdo",
+      "Nome": "Cadastrar usuário",
+      "Prioridade": "Alta",
+      "Descrição": "Criar uma conta de usuário com identidade única e perfil inicial.",
+      "Atores envolvidos": "Visitante",
+      "Regra de negócio relacionada": "RN017, RN025",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/register; src/app/api/auth/register.",
+      "Entradas": "Nome de usuário, e-mail, senha e dados opcionais permitidos.",
+      "Processamento": "Validar dados, criar identidade no provedor e registro local sem duplicidade.",
+      "Saídas": "Conta criada e sessão/encaminhamento de acesso.",
+      "Restrições": "E-mail e username únicos; senha tratada pelo provedor; limites de cadastro."
+    },
+    {
+      "id": "RF002",
+      "RF002 — Especificação": "Conteúdo",
+      "Nome": "Fazer login",
+      "Prioridade": "Alta",
+      "Descrição": "Permitir login e criação de sessão segura para acesso às funções protegidas.",
+      "Atores envolvidos": "Visitante; Provedor de identidade",
+      "Regra de negócio relacionada": "RN017, RN025",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/login; src/lib/auth.ts; src/lib/supabase.",
+      "Entradas": "Credencial e, quando escolhido, provedor OAuth.",
+      "Processamento": "Verificar identidade, emitir sessão/cookies e carregar papel autorizado.",
+      "Saídas": "Sessão autenticada ou mensagem de erro.",
+      "Restrições": "Credenciais não podem ser expostas; autorização deve ser revalidada no servidor."
+    },
+    {
+      "id": "RF003",
+      "RF003 — Especificação": "Conteúdo",
+      "Nome": "Encerrar sessão",
+      "Prioridade": "Alta",
+      "Descrição": "Encerrar a sessão autenticada com segurança.",
+      "Atores envolvidos": "Usuário, Avaliador, Administrador, Recrutador",
+      "Regra de negócio relacionada": "RN017, RN025",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/components/LogoutButton.tsx; Supabase Auth.",
+      "Entradas": "Sessão atual.",
+      "Processamento": "Solicitar encerramento ao provedor, remover estado local e redirecionar para a área pública.",
+      "Saídas": "Sessão encerrada.",
+      "Restrições": "A sessão não deve permanecer utilizável após o logout."
+    },
+    {
+      "id": "RF004",
+      "RF004 — Especificação": "Conteúdo",
+      "Nome": "Gerenciar perfil",
+      "Prioridade": "Alta",
+      "Descrição": "Consultar e atualizar dados permitidos do perfil.",
+      "Atores envolvidos": "Usuário autenticado",
+      "Regra de negócio relacionada": "RN017, RN027",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/profile/[username]; src/app/api/profile/update.",
+      "Entradas": "Bio, avatar, banner, pronomes e demais campos permitidos.",
+      "Processamento": "Validar propriedade, sanitizar e persistir alterações.",
+      "Saídas": "Perfil atualizado e visualização pública/privada coerente.",
+      "Restrições": "Titular autenticado; mudança de username confirmada e bloqueada por sete dias após alteração, validada no servidor."
+    },
+    {
+      "id": "RF005",
+      "RF005 — Especificação": "Conteúdo",
+      "Nome": "Visualizar trilhas",
+      "Prioridade": "Alta",
+      "Descrição": "Listar trilhas disponíveis e o progresso do usuário.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN025, RN029",
+      "Estado e referências de implementação": "Implementado: src/lib/learning/catalog.ts; src/app/trails/LearningJourney.tsx.",
+      "Entradas": "Idioma/tecnologia e preferências de curso.",
+      "Processamento": "Derivar unidades, lições e exercícios do catálogo e consultar o progresso salvo. Mapa e lista usam o mesmo conjunto e a mesma ordenação.",
+      "Saídas": "Mapa de trilha com estado das etapas.",
+      "Restrições": "Não expor conteúdo não publicado e manter mapa e lista sincronizados."
+    },
+    {
+      "id": "RF006",
+      "RF006 — Especificação": "Conteúdo",
+      "Nome": "Iniciar trilha",
+      "Prioridade": "Alta",
+      "Descrição": "Iniciar ou retomar uma trilha selecionada.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN025, RN029",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/trails; src/app/api/trails/course-preferences.",
+      "Entradas": "Trilha e nível/etapa selecionados.",
+      "Processamento": "Registrar preferência e direcionar à lição elegível.",
+      "Saídas": "Trilha ativa e próxima ação.",
+      "Restrições": "Pré-requisitos devem ser respeitados e validados."
+    },
+    {
+      "id": "RF007",
+      "RF007 — Especificação": "Conteúdo",
+      "Nome": "Acessar lição",
+      "Prioridade": "Alta",
+      "Descrição": "Exibir uma lição em página própria com etapas interativas.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN025, RN029",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/lesson/[lessonId]; src/lib/lessons/registry.ts.",
+      "Entradas": "Identificador da lição.",
+      "Processamento": "Resolver conteúdo cadastrado/dinâmico e verificar disponibilidade.",
+      "Saídas": "Conteúdo, progresso da sessão e exercícios.",
+      "Restrições": "Lição inexistente deve gerar resposta controlada; o conteúdo da lição é editorial."
+    },
+    {
+      "id": "RF008",
+      "RF008 — Especificação": "Conteúdo",
+      "Nome": "Resolver exercício",
+      "Prioridade": "Alta",
+      "Descrição": "Receber e avaliar respostas em diferentes tipos de interação, distinguindo o teste de código da submissão da atividade.",
+      "Atores envolvidos": "Usuário; serviço externo de execução, quando a linguagem exigir. A execução interna não constitui ator externo.",
+      "Regra de negócio relacionada": "RN001, RN002, RN024, RN025, RN029",
+      "Estado e referências de implementação": "Implementado no inventário; fluxo atualizado por UC006 do seminário e conferência pontual de 19/10/2026 em src/lib/code-execution/server.ts. Referências: learning/assessment.ts; lessons/[lessonId]/attempt.",
+      "Entradas": "Resposta, código, ordem, pares, lacunas ou comando.",
+      "Processamento": "Validar a resposta no servidor. JavaScript e TypeScript usam primeiro o sandbox interno QuickJS; a execução pode recorrer a serviço externo conforme a linguagem e a disponibilidade. Testes privados e soluções não são serializados ao cliente. O teste apresenta a saída; a submissão válida registra a tentativa e a recompensa elegível.",
+      "Saídas": "Resultado de acerto ou erro, feedback e saída de execução; XP elegível somente na submissão confirmada.",
+      "Restrições": "Entrada inválida retorna 400. Testar código não concede XP nem conclui a etapa. Falha do executor ou da gravação não confirma avanço; a interface permite tentar novamente."
+    },
+    {
+      "id": "RF009",
+      "RF009 — Especificação": "Conteúdo",
+      "Nome": "Registrar progresso",
+      "Prioridade": "Alta",
+      "Descrição": "Persistir respostas e derivar conclusão e desbloqueio de lições.",
+      "Atores externos e acionamento": "Usuário beneficiário; acionamento interno após atividade elegível.",
+      "Regra de negócio relacionada": "RN001, RN002, RN028, RN029",
+      "Estado e referências de implementação": "Implementado: lesson-progress.ts, transaction.ts, QuizAttempt e ExerciseSubmission.",
+      "Entradas": "Atividade concluída e identidade do usuário.",
+      "Processamento": "Lock por usuário; gravação atômica de tentativa e primeira recompensa. Transação de banco limitada a 20 s, com até 10 s para adquirir conexão.",
+      "Saídas": "Progresso consolidado.",
+      "Restrições": "QuizAttempt é único por usuário/atividade. Submissões possuem índice parcial para primeiro acerto. Revisões não duplicam recompensa."
+    },
+    {
+      "id": "RF010",
+      "RF010 — Especificação": "Conteúdo",
+      "Nome": "Consultar histórico",
+      "Prioridade": "Média",
+      "Descrição": "Apresentar histórico de evolução e atividade recente.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN027",
+      "Estado e referências de implementação": "Estado: Implementado parcialmente. Evidência: src/app/api/quiz/weekly-activity; perfil e trilhas.",
+      "Entradas": "Período, usuário e trilha.",
+      "Processamento": "Consolidar tentativas, XP e sequência dentro das permissões.",
+      "Saídas": "Linha do tempo/resumo de progresso.",
+      "Restrições": "O histórico apresenta as tentativas e os resultados autorizados do próprio usuário."
+    },
+    {
+      "id": "RF011",
+      "RF011 — Especificação": "Conteúdo",
+      "Nome": "Atribuir XP",
+      "Prioridade": "Alta",
+      "Descrição": "Conceder XP apenas a atividades válidas e elegíveis.",
+      "Atores externos e acionamento": "Usuário beneficiário; acionamento interno após atividade elegível.",
+      "Regra de negócio relacionada": "RN001, RN002, RN028",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/services/xp.service.ts.",
+      "Entradas": "Usuário, linguagem, atividade e quantidade configurada.",
+      "Processamento": "Validar elegibilidade e incrementar total/trilha atomicamente.",
+      "Saídas": "Novo XP total e por linguagem.",
+      "Restrições": "Idempotência por atividade; quantidade não deve vir livremente do cliente."
+    },
+    {
+      "id": "RF012",
+      "RF012 — Especificação": "Conteúdo",
+      "Nome": "Atualizar nível",
+      "Prioridade": "Alta",
+      "Descrição": "Recalcular o nível após mudança de XP.",
+      "Atores externos e acionamento": "Usuário beneficiário; acionamento interno após atividade elegível.",
+      "Regra de negócio relacionada": "RN003",
+      "Estado e referências de implementação": "Implementado: src/lib/learning/rewards.ts; src/lib/xp.ts.",
+      "Entradas": "XP atualizado.",
+      "Processamento": "Aplicar faixas de nível configuradas e detectar subida.",
+      "Saídas": "Nível, faixa anterior/próxima e notificação.",
+      "Restrições": "Nível é derivado de XP e é distinto da faixa Bronze a Diamante."
+    },
+    {
+      "id": "RF013",
+      "RF013 — Especificação": "Conteúdo",
+      "Nome": "Gerenciar conquistas",
+      "Prioridade": "Média",
+      "Descrição": "Conceder e listar conquistas por critérios verificáveis.",
+      "Atores externos e acionamento": "Usuário; concessão automática conforme os critérios de atividade.",
+      "Regra de negócio relacionada": "RN004",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: Badge, UserBadge; src/services/xp.service.ts.",
+      "Entradas": "Eventos de progresso e critérios.",
+      "Processamento": "Verificar conquistas já obtidas e registrar novas sem duplicidade.",
+      "Saídas": "Lista de badges e data de obtenção.",
+      "Restrições": "Critérios devem ser versionados e não retroagir sem decisão."
+    },
+    {
+      "id": "RF014",
+      "RF014 — Especificação": "Conteúdo",
+      "Nome": "Consultar ranking",
+      "Prioridade": "Alta",
+      "Descrição": "Consultar a classificação global ou por linguagem, calculada a partir do XP registrado.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN005, RN006, RN028",
+      "Estado e referências de implementação": "Estado: Implementado. Evidências: src/app/leaderboard; src/app/api/leaderboard; UC011 e slide 22 do seminário.",
+      "Entradas": "Filtro de linguagem opcional.",
+      "Processamento": "Ordenar XP decrescente, depois username e id crescentes. Por linguagem, somar LanguageTrail e recompensas históricas de exercícios.",
+      "Saídas": "Ranking com posição, usuário, XP e nível.",
+      "Restrições": "Desempates determinísticos. A API de leaderboard retorna top 10; não equivale à posição completa de todos os usuários. A consulta não permite manutenção manual de posições ou de XP."
+    },
+    {
+      "id": "RF015",
+      "RF015 — Especificação": "Conteúdo",
+      "Nome": "Derivar faixa de XP",
+      "Prioridade": "Média",
+      "Descrição": "Classificar XP acumulado nas cinco faixas.",
+      "Atores externos e acionamento": "Usuário beneficiário; acionamento interno após atividade elegível.",
+      "Regra de negócio relacionada": "RN005, RN006",
+      "Estado e referências de implementação": "Estado: Implementado parcialmente. Evidência: getUserRankTier em src/services/duel.service.ts.",
+      "Entradas": "XP total do usuário.",
+      "Processamento": "Aplicar limites de faixa e informar divisão.",
+      "Saídas": "Faixa de XP Bronze, Prata, Ouro, Platina ou Diamante.",
+      "Restrições": "Não é rating Elo. Sem perda de XP por derrota e sem rebaixamento automático por derrota."
+    },
+    {
+      "id": "RF016",
+      "RF016 — Especificação": "Conteúdo",
+      "Nome": "Criar duelo aberto",
+      "Prioridade": "Alta",
+      "Descrição": "Criar uma vaga de duelo aberta na arena, aguardando oponente voluntário para a mesma tecnologia.",
+      "Atores envolvidos": "Usuário autenticado",
+      "Regra de negócio relacionada": "RN007, RN010, RN025, RN028",
+      "Estado e referências de implementação": "Fluxo vigente documentado em UC008. Referências: src/app/api/duels/route.ts; src/lib/duels/lifecycle.ts; src/lib/duels/constants.ts.",
+      "Entradas": "Linguagem e desafio do catálogo; usuário identificado pela sessão. Não há destinatário selecionado.",
+      "Processamento": "Procurar vaga pendente de outro usuário na mesma linguagem. Se houver, ocupar a vaga e iniciar o confronto com o desafio existente; caso contrário, criar duelo aberto com espera de até 24 horas.",
+      "Saídas": "Duelo pendente sem oponente ou confronto iniciado em vaga compatível, com prazo de duas horas.",
+      "Restrições": "Uma vaga não pode ser ocupada por dois oponentes. O usuário não pode entrar no próprio duelo. Convite direto, faixa de XP e cooldown por rejeição não se aplicam."
+    },
+    {
+      "id": "RF017",
+      "RF017 — Especificação": "Conteúdo",
+      "Nome": "Entrar em duelo",
+      "Prioridade": "Alta",
+      "Descrição": "Entrar em um duelo aberto disponível na arena ou aguardar participante.",
+      "Atores envolvidos": "Usuário autenticado",
+      "Regra de negócio relacionada": "RN007, RN010, RN025, RN028",
+      "Estado e referências de implementação": "Implementado: src/app/api/duels/route.ts; src/lib/duels/lifecycle.ts.",
+      "Entradas": "Duelo escolhido para entrada direta ou linguagem selecionada na fila rápida; identidade da sessão.",
+      "Processamento": "Na entrada direta, ocupar vaga disponível de outro usuário. Na fila rápida, buscar o duelo pendente mais antigo da mesma linguagem; sem vaga, criar espera de até 24 horas. O início do confronto define o prazo de duas horas.",
+      "Saídas": "Duelo ativo ou confirmação de espera por oponente.",
+      "Restrições": "Não selecionar destinatário nem filtrar por XP. Recusar vaga ocupada, expirada ou do próprio usuário; impedir ocupação concorrente."
+    },
+    {
+      "id": "RF018",
+      "RF018 — Especificação": "Conteúdo",
+      "Nome": "Aceitar ou rejeitar convite de duelo legado",
+      "Prioridade": "Não aplicável à versão vigente",
+      "Descrição": "Registro histórico da resposta a convite direto. Esse comportamento foi excluído do fluxo vigente de duelos abertos.",
+      "Atores envolvidos": "Usuário autenticado",
+      "Regra de negócio relacionada": "RN008, RN009",
+      "Estado e referências de implementação": "Histórico, fora do escopo vigente. Referências anteriores: src/app/api/duels/respond; DuelService.respondDuelRequest.",
+      "Entradas": "No fluxo legado: convite e decisão de aceite ou rejeição.",
+      "Processamento": "No fluxo legado: verificar destinatário e prazo e registrar a decisão. Não executar essa etapa na entrada em duelo aberto.",
+      "Saídas": "No fluxo legado: convite aceito ou rejeitado.",
+      "Restrições": "RF018, RN008 e RN009 são preservados para histórico; não regem UC008 nem UC009."
+    },
+    {
+      "id": "RF019",
+      "RF019 — Especificação": "Conteúdo",
+      "Nome": "Enviar solução de duelo",
+      "Prioridade": "Alta",
+      "Descrição": "Submeter código com resolução do desafio dentro do prazo estipulado para avaliação de testes e pontuação.",
+      "Atores envolvidos": "Participante do duelo; Executor de código",
+      "Regra de negócio relacionada": "RN010, RN011",
+      "Estado e referências de implementação": "Implementado: src/app/api/duels/[id]/submit; src/lib/duels/judge.ts; lifecycle.ts.",
+      "Entradas": "Código e identificador do duelo.",
+      "Processamento": "Validar participante, estado e prazo; armazenar uma solução por usuário.",
+      "Saídas": "Soluções registradas e estado para avaliação.",
+      "Restrições": "Participante autenticado, duelo ativo e envio dentro das duas horas do confronto. A manutenção resolve duelos vencidos. Testes ocultos não são expostos ao cliente."
+    },
+    {
+      "id": "RF020",
+      "RF020 — Especificação": "Conteúdo",
+      "Nome": "Avaliar resultado",
+      "Prioridade": "Alta",
+      "Descrição": "Avaliar soluções de duelo por testes e pontuação automática; encaminhar empate técnico para parecer humano autorizado.",
+      "Atores externos e acionamento": "Avaliador ou Administrador na revisão humana; avaliação automática acionada internamente.",
+      "Regra de negócio relacionada": "RN011, RN012, RN016, RN024, RN028",
+      "Estado e referências de implementação": "Implementado parcialmente no inventário: testes e resolução automática, com revisão humana de empate técnico. Referências: src/lib/duels/resolution-policy.ts; src/app/api/evaluations; DuelEvaluation.",
+      "Entradas": "Soluções, testes, pontuações e, na revisão humana, vencedor e feedback.",
+      "Processamento": "Comparar os resultados automáticos conforme RN012. Em empate técnico, aguardar decisão de avaliador ou administrador que não participou do duelo. Votação comunitária não integra a decisão do fluxo vigente.",
+      "Saídas": "Pontuações, feedback, vencedor e justificativas.",
+      "Restrições": "A estimativa estática de complexidade é heurística, não prova formal. Revisão humana fecha pendência por transição condicional."
+    },
+    {
+      "id": "RF021",
+      "RF021 — Especificação": "Conteúdo",
+      "Nome": "Atualizar classificação após duelo",
+      "Prioridade": "Média",
+      "Descrição": "Recompensar o vencedor de duelo fechado com 50 XP uma única vez.",
+      "Atores externos e acionamento": "Usuário beneficiário; acionamento interno após atividade elegível.",
+      "Regra de negócio relacionada": "RN006, RN028",
+      "Estado e referências de implementação": "Implementado: src/lib/duels/resolution.ts; xp_awarded_at.",
+      "Entradas": "Duelo fechado e resultado aprovado.",
+      "Processamento": "Reivindicar recompensa por atualização condicional e gravar XP na transação.",
+      "Saídas": "Ranking/divisão e notificações atualizados.",
+      "Restrições": "Não há rating Elo ajustado à força relativa. Derrota não reduz XP."
+    },
+    {
+      "id": "RF022",
+      "RF022 — Especificação": "Conteúdo",
+      "Nome": "Consultar ajuda do exercício",
+      "Prioridade": "Média",
+      "Descrição": "Exibir dicas e documentação técnica permitidas pelo modo de assistência do exercício.",
+      "Atores envolvidos": "Usuário autenticado",
+      "Regra de negócio relacionada": "RN013",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: AssistanceControls; LearningEvent.",
+      "Entradas": "Exercício e modo de assistência.",
+      "Processamento": "Verificar disponibilidade e registrar consulta no workspace.",
+      "Saídas": "Dica ou documentação.",
+      "Restrições": "Ajuda não aumenta nem reduz XP."
+    },
+    {
+      "id": "RF023",
+      "RF023 — Especificação": "Conteúdo",
+      "Nome": "Selecionar modo de assistência",
+      "Prioridade": "Média",
+      "Descrição": "Permitir escolher entre Guided, Standard, Hard e No Assist.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN013",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/components/lesson/AssistanceControls.tsx.",
+      "Entradas": "Modo escolhido.",
+      "Processamento": "Aplicar as opções de dica, documentação e autocomplete definidas pelo modo.",
+      "Saídas": "Configuração de assistência ativa.",
+      "Restrições": "A escolha não altera o valor de XP da atividade."
+    },
+    {
+      "id": "RF024",
+      "RF024 — Especificação": "Conteúdo",
+      "Nome": "Consultar documentação",
+      "Prioridade": "Média",
+      "Descrição": "Exibir documentação editorial durante a prática quando o modo permitir.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN013",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: AssistanceControls; ExerciseWorkspace.",
+      "Entradas": "Exercício e modo de assistência.",
+      "Processamento": "Verificar permissão do modo e abrir o material publicado.",
+      "Saídas": "Documentação exibida.",
+      "Restrições": "No Assist não disponibiliza documentação."
+    },
+    {
+      "id": "RF025",
+      "RF025 — Especificação": "Conteúdo",
+      "Nome": "Utilizar sugestões do editor",
+      "Prioridade": "Baixa",
+      "Descrição": "Disponibilizar dicas ou autocomplete conforme o modo selecionado.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN013",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: AssistanceControls; editor de exercícios.",
+      "Entradas": "Código, exercício e modo.",
+      "Processamento": "Aplicar os recursos editoriais habilitados sem alterar a correção no servidor.",
+      "Saídas": "Auxílio no editor.",
+      "Restrições": "A avaliação final continua baseada no contrato canônico da atividade."
+    },
+    {
+      "id": "RF026",
+      "RF026 — Especificação": "Conteúdo",
+      "Nome": "Candidatar-se a avaliador",
+      "Prioridade": "Média",
+      "Descrição": "Permitir que o usuário elegível envie candidatura com motivação e tecnologias para avaliação administrativa.",
+      "Atores envolvidos": "Usuário autenticado; Administrador",
+      "Regra de negócio relacionada": "RN014, RN015",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/services/evaluator.service.ts.",
+      "Entradas": "Usuário, motivação e tecnologias.",
+      "Processamento": "Verificar trilha concluída/XP, duplicidade e registrar candidatura.",
+      "Saídas": "Elegibilidade e candidatura pendente.",
+      "Restrições": "Critérios atuais seguem a regra implementada; aprovação administrativa é obrigatória."
+    },
+    {
+      "id": "RF027",
+      "RF027 — Especificação": "Conteúdo",
+      "Nome": "Receber avaliações pendentes",
+      "Prioridade": "Média",
+      "Descrição": "Listar desafios com solução que necessitam revisão.",
+      "Atores envolvidos": "Avaliador; Administrador",
+      "Regra de negócio relacionada": "RN012, RN016, RN017",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: GET src/app/api/evaluations.",
+      "Entradas": "Sessão do avaliador.",
+      "Processamento": "Autorizar papel e carregar duelos pendentes.",
+      "Saídas": "Fila de avaliações com soluções e contexto.",
+      "Restrições": "Somente EVALUATOR ou ADMIN; dados devem ser minimizados."
+    },
+    {
+      "id": "RF028",
+      "RF028 — Especificação": "Conteúdo",
+      "Nome": "Avaliar solução",
+      "Prioridade": "Média",
+      "Descrição": "Permitir análise comparativa e parecer humano.",
+      "Atores envolvidos": "Avaliador; Administrador",
+      "Regra de negócio relacionada": "RN012, RN016, RN017, RN028",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/evaluations; POST src/app/api/evaluations.",
+      "Entradas": "Pontuações de 0 a 1.000, vencedor obrigatório, feedback com pelo menos 5 caracteres, pontos fortes e melhorias.",
+      "Processamento": "Validar limites, autorização e duelo; registrar avaliação humana.",
+      "Saídas": "Parecer e resultado do duelo.",
+      "Restrições": "Somente avaliador autorizado ou administrador que não participou do duelo pode decidir. Duelo deve estar pendente de revisão; impedir decisão duplicada ou conflitante."
+    },
+    {
+      "id": "RF029",
+      "RF029 — Especificação": "Conteúdo",
+      "Nome": "Registrar decisão de avaliação",
+      "Prioridade": "Alta",
+      "Descrição": "Persistir avaliação, fechar o duelo e notificar participantes.",
+      "Atores envolvidos": "Avaliador; Administrador",
+      "Regra de negócio relacionada": "RN016, RN022, RN028",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: EvaluatorService.submitDuelEvaluation.",
+      "Entradas": "Avaliação humana validada.",
+      "Processamento": "Criar DuelEvaluation, definir vencedor, fechar duelo e atualizar contador.",
+      "Saídas": "Decisão auditável e notificações.",
+      "Restrições": "Evitar avaliações conflitantes; política de reavaliação precisa ser definida."
+    },
+    {
+      "id": "RF030",
+      "RF030 — Especificação": "Conteúdo",
+      "Nome": "Criar publicação",
+      "Prioridade": "Alta",
+      "Descrição": "Publicar conteúdo técnico no feed.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN001, RN018, RN019, RN028",
+      "Estado e referências de implementação": "Implementado; fluxo transacional apresentado em UC013 e no slide 21 do seminário. Referências: src/app/feed; src/app/api/posts; PostService.",
+      "Entradas": "Título, corpo, linguagem, código e imagem opcional.",
+      "Processamento": "Validar, sanitizar, aplicar limite e gravar a publicação e o XP elegível na mesma transação.",
+      "Saídas": "Publicação exibida no feed e recompensa de XP, quando elegível.",
+      "Restrições": "Autenticação, limite de conteúdo, rate limit e moderação."
+    },
+    {
+      "id": "RF031",
+      "RF031 — Especificação": "Conteúdo",
+      "Nome": "Visualizar feed",
+      "Prioridade": "Alta",
+      "Descrição": "Exibir publicações paginadas e ordenadas.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN018, RN027",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/feed; PostService; paginação por cursor.",
+      "Entradas": "Filtro, limite e cursor.",
+      "Processamento": "Buscar página e relacionamentos permitidos.",
+      "Saídas": "Itens e próximo cursor.",
+      "Restrições": "Paginação deve evitar duplicidade e carga excessiva."
+    },
+    {
+      "id": "RF032",
+      "RF032 — Especificação": "Conteúdo",
+      "Nome": "Interagir com publicação",
+      "Prioridade": "Média",
+      "Descrição": "Reagir, votar, responder, salvar e seguir conforme a ação.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN018, RN022",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/api/posts/[id]; reactions, answers, bookmarks.",
+      "Entradas": "Publicação, tipo de interação e conteúdo quando aplicável.",
+      "Processamento": "Validar alvo, evitar duplicidade e registrar interação.",
+      "Saídas": "Contadores, resposta e notificação.",
+      "Restrições": "Ação própria indevida e abuso devem ser bloqueados."
+    },
+    {
+      "id": "RF033",
+      "RF033 — Especificação": "Conteúdo",
+      "Nome": "Denunciar conteúdo",
+      "Prioridade": "Alta",
+      "Descrição": "Registrar denúncia para análise administrativa.",
+      "Atores envolvidos": "Usuário; Administrador",
+      "Regra de negócio relacionada": "RN019",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/api/posts/[id]/report; src/app/api/admin/reports.",
+      "Entradas": "Publicação e motivo.",
+      "Processamento": "Validar usuário/alvo, impedir duplicidade e criar denúncia.",
+      "Saídas": "Confirmação e item na fila administrativa.",
+      "Restrições": "Denúncia não remove conteúdo automaticamente sem política definida."
+    },
+    {
+      "id": "RF034",
+      "RF034 — Especificação": "Conteúdo",
+      "Nome": "Cadastrar empresa",
+      "Prioridade": "Média",
+      "Descrição": "Criar empresa vinculada ao responsável autorizado.",
+      "Atores envolvidos": "Usuário autenticado (promovido a Recrutador)",
+      "Regra de negócio relacionada": "RN017, RN020, RN027",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/api/companies; Company.",
+      "Entradas": "Nome, slug, descrição, localização, site e imagem opcionais.",
+      "Processamento": "Validar sessão e dados; criar empresa com o usuário como proprietário e promover USER a RECRUITER.",
+      "Saídas": "Empresa cadastrada.",
+      "Restrições": "Não exige papel RECRUITER prévio. Verificação oficial da empresa não deve ser presumida."
+    },
+    {
+      "id": "RF035",
+      "RF035 — Especificação": "Conteúdo",
+      "Nome": "Publicar vaga",
+      "Prioridade": "Média",
+      "Descrição": "Criar oportunidade com requisitos e etapas para empresa sob responsabilidade autorizada.",
+      "Atores envolvidos": "Recrutador; Administrador",
+      "Regra de negócio relacionada": "RN020, RN026",
+      "Estado e referências de implementação": "Implementado; autorização reconferida em 19/10/2026 em POST src/app/api/jobs e src/lib/mobile/company-access.ts. A rota valida requireRole e requireCompanyAccess antes de JobService.createJob, conforme UC017 e slide 17.",
+      "Entradas": "Empresa, título, descrição, nível, tecnologias, modalidade, contrato e etapas.",
+      "Processamento": "Validar papel e dados, verificar acesso autorizado à empresa informada e criar a vaga e suas etapas.",
+      "Saídas": "Vaga aberta e consultável.",
+      "Restrições": "Permitir publicação apenas a RECRUITER ou ADMIN autorizado para a empresa. Rejeitar empresa sem acesso autorizado antes de criar a vaga."
+    },
+    {
+      "id": "RF036",
+      "RF036 — Especificação": "Conteúdo",
+      "Nome": "Consultar vagas",
+      "Prioridade": "Média",
+      "Descrição": "Listar e filtrar oportunidades abertas.",
+      "Atores envolvidos": "Usuário; Empresa / Recrutador",
+      "Regra de negócio relacionada": "RN020, RN026",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/jobs; GET src/app/api/jobs.",
+      "Entradas": "Busca, nível, modalidade, contrato e tecnologia.",
+      "Processamento": "Aplicar filtros e carregar empresa/etapas permitidas.",
+      "Saídas": "Lista e detalhes das vagas.",
+      "Restrições": "Vagas encerradas não devem aceitar candidatura."
+    },
+    {
+      "id": "RF037",
+      "RF037 — Especificação": "Conteúdo",
+      "Nome": "Visualizar perfil público de desenvolvedor",
+      "Prioridade": "Média",
+      "Descrição": "Exibir perfil público conforme configuração e autorização.",
+      "Atores envolvidos": "Empresa / Recrutador; Usuário",
+      "Regra de negócio relacionada": "RN021, RN027",
+      "Estado e referências de implementação": "Estado: Implementado parcialmente. Evidência: src/app/profile/[username].",
+      "Entradas": "Username do desenvolvedor.",
+      "Processamento": "Carregar apenas campos públicos e evidências permitidas.",
+      "Saídas": "Perfil e indicadores públicos.",
+      "Restrições": "Não expor e-mail, dados privados ou decisões automatizadas."
+    },
+    {
+      "id": "RF038",
+      "RF038 — Especificação": "Conteúdo",
+      "Nome": "Consultar indicadores permitidos do usuário",
+      "Prioridade": "Baixa",
+      "Descrição": "Apresentar trilhas, desafios e atividade pública como indicadores auxiliares.",
+      "Atores envolvidos": "Empresa / Recrutador",
+      "Regra de negócio relacionada": "RN021, RN027",
+      "Estado e referências de implementação": "Estado: Implementado parcialmente. Evidência: perfil público e modelos de progresso; não há painel analítico completo.",
+      "Entradas": "Usuário e permissão/consentimento aplicável.",
+      "Processamento": "Selecionar indicadores públicos e registrar acesso quando necessário.",
+      "Saídas": "Resumo de evidências sem decisão automática.",
+      "Restrições": "Limitar a consulta aos campos públicos definidos pela aplicação. Qualquer ampliação para dados privados exige política de visibilidade e autorização específica, fora do escopo vigente."
+    },
+    {
+      "id": "RF047",
+      "RF047 — Especificação": "Conteúdo",
+      "Nome": "Candidatar-se a vaga",
+      "Prioridade": "Média",
+      "Descrição": "Efetivar a candidatura do usuário autenticado a uma vaga aberta.",
+      "Atores envolvidos": "Usuário",
+      "Regra de negócio relacionada": "RN026",
+      "Estado e referências de implementação": "Estado: Implementado. Evidências: POST src/app/api/jobs/[id]/apply; UC022 e slide 18 do seminário.",
+      "Entradas": "Identificador da vaga e sessão.",
+      "Processamento": "Verificar vaga aberta e candidatura prévia; criar candidatura vinculada ao usuário e à etapa inicial da vaga.",
+      "Saídas": "Candidatura criada com status e etapa inicial.",
+      "Restrições": "Uma candidatura por usuário/vaga."
+    },
+    {
+      "id": "RF048",
+      "RF048 — Especificação": "Conteúdo",
+      "Nome": "Atualizar etapa de candidatura",
+      "Prioridade": "Média",
+      "Descrição": "Atualizar a etapa, o status e o feedback da candidatura vinculada à vaga, com notificação automática ao candidato.",
+      "Atores envolvidos": "Recrutador responsável ou Administrador autorizado; Candidato como destinatário da atualização.",
+      "Regra de negócio relacionada": "RN020, RN021, RN022, RN026",
+      "Estado e referências de implementação": "Fluxo apresentado em UC026 e nos slides 20 e 24 do seminário. Referências: PATCH src/app/api/jobs/[id]; JobService.updateApplicationStage; NotificationService.",
+      "Entradas": "Candidatura, etapa, status, feedback e nota opcional.",
+      "Processamento": "Verificar papel e acesso à empresa, confirmar que a candidatura pertence à vaga e que a etapa informada é dessa vaga. Atualizar o processo e gerar internamente notificação ao usuário da candidatura.",
+      "Saídas": "Candidatura atualizada e notificação destinada ao candidato associado.",
+      "Restrições": "Rejeitar candidatura ou etapa de outra vaga. A nota técnica é informada pelo responsável e validada no intervalo permitido. Falha da notificação não desfaz a atualização principal."
+    },
+    {
+      "id": "RF039",
+      "RF039 — Especificação": "Conteúdo",
+      "Nome": "Gerenciar usuários",
+      "Prioridade": "Alta",
+      "Descrição": "Listar usuários e alterar papéis autorizados.",
+      "Atores envolvidos": "Administrador",
+      "Regra de negócio relacionada": "RN017, RN025",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/api/admin/users; AdminService.",
+      "Entradas": "Busca, página, papel e alteração solicitada.",
+      "Processamento": "Autorizar administrador, validar papel e persistir.",
+      "Saídas": "Lista ou usuário atualizado.",
+      "Restrições": "Mudança de papel deve ser auditada; impedir escalada indevida."
+    },
+    {
+      "id": "RF040",
+      "RF040 — Especificação": "Conteúdo",
+      "Nome": "Gerenciar conteúdo",
+      "Prioridade": "Média",
+      "Descrição": "Revisar conteúdo e parâmetros editoriais administráveis.",
+      "Atores envolvidos": "Administrador",
+      "Regra de negócio relacionada": "RN017, RN019",
+      "Estado e referências de implementação": "Estado: Implementado parcialmente. Evidência: admin possui denúncias e geração de quiz; CRUD editorial completo não foi localizado.",
+      "Entradas": "Conteúdo, decisão e justificativa.",
+      "Processamento": "Validar permissão e aplicar ação suportada.",
+      "Saídas": "Conteúdo atualizado/ocultado ou ação recusada.",
+      "Restrições": "A moderação vigente permite analisar denúncias e remover publicações quando cabível. O cadastro, a edição e a exclusão completos do catálogo editorial não estão comprovados pelo inventário; os conteúdos de aprendizagem permanecem versionados."
+    },
+    {
+      "id": "RF041",
+      "RF041 — Especificação": "Conteúdo",
+      "Nome": "Criar e gerenciar eventos",
+      "Prioridade": "Média",
+      "Descrição": "Permitir criação de evento por qualquer usuário autenticado e exclusão pelo criador ou administrador autorizado.",
+      "Atores envolvidos": "Usuário autenticado (como organizador); Administrador",
+      "Regra de negócio relacionada": "RN017, RN023",
+      "Estado e referências de implementação": "Estado: Implementado parcialmente no inventário. Modelos do seminário distinguem UC015, criação, de UC023, inscrição e cancelamento. Referências: src/app/api/events; EventService.",
+      "Entradas": "Título, descrição, tipo, datas, nível e limite.",
+      "Processamento": "Validar sessão e dados, criar evento vinculado ao usuário e permitir exclusão somente pelo criador ou administrador.",
+      "Saídas": "Evento publicado, disponível para consulta e inscrição conforme os critérios de participação.",
+      "Restrições": "Criação não exige papel de Administrador ou Recrutador. A exclusão exige criador ou Administrador. Edição do evento não integra o escopo vigente; inscrição e cancelamento são descritos em RF049 e UC023."
+    },
+    {
+      "id": "RF042",
+      "RF042 — Especificação": "Conteúdo",
+      "Nome": "Gerenciar permissões de usuários",
+      "Prioridade": "Alta",
+      "Descrição": "Visualizar e atualizar papéis de usuários do sistema de forma controlada.",
+      "Atores envolvidos": "Administrador",
+      "Regra de negócio relacionada": "RN015, RN017",
+      "Estado e referências de implementação": "Implementado com limites: gestão de papéis disponível; cobertura integral de auditoria depende de RNF024 e RNF025. Referências: UserRole; requireRole; admin users/evaluators.",
+      "Entradas": "Usuário, papel e decisão.",
+      "Processamento": "Validar administrador, aplicar papel e registrar decisão.",
+      "Saídas": "Permissão atualizada.",
+      "Restrições": "Aplicar menor privilégio e impedir remoção do último administrador. A auditoria completa é requisito de aceitação; sua cobertura não está comprovada pelo inventário."
+    },
+    {
+      "id": "RF043",
+      "RF043 — Especificação": "Conteúdo",
+      "Nome": "Tratar denúncias",
+      "Prioridade": "Alta",
+      "Descrição": "Listar e decidir denúncias da comunidade.",
+      "Atores envolvidos": "Administrador",
+      "Regra de negócio relacionada": "RN019",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/api/admin/reports.",
+      "Entradas": "Denúncia e decisão.",
+      "Processamento": "Carregar contexto, aplicar ação permitida e registrar resultado.",
+      "Saídas": "Denúncia tratada e eventual alteração de conteúdo.",
+      "Restrições": "Política de sanções e recurso ainda precisa ser definida."
+    },
+    {
+      "id": "RF044",
+      "RF044 — Especificação": "Conteúdo",
+      "Nome": "Gerar notificação",
+      "Prioridade": "Média",
+      "Descrição": "Criar notificação para eventos relevantes da aplicação, incluindo a atualização de candidatura destinada ao próprio candidato.",
+      "Atores externos e acionamento": "Usuário destinatário; geração acionada internamente pela operação correspondente. Em UC026, o destinatário é o candidato associado à candidatura.",
+      "Regra de negócio relacionada": "RN022",
+      "Estado e referências de implementação": "Estado: Implementado. Evidências: NotificationService; NotificationType; JobService.updateApplicationStage; slide 24 do seminário.",
+      "Entradas": "Destinatário, tipo, ator e recurso. Na atualização de candidatura, user_id da candidatura e referência à vaga.",
+      "Processamento": "Validar os dados e persistir a notificação de forma resiliente. Após a atualização de candidatura, gerar JOB_APPLICATION_UPDATE para o candidato associado.",
+      "Saídas": "Notificação registrada.",
+      "Restrições": "Falha de notificação não corrompe nem desfaz a operação principal. O fluxo de UC026 não pressupõe cadastro de intenção de vaga ou alerta geral aos interessados."
+    },
+    {
+      "id": "RF045",
+      "RF045 — Especificação": "Conteúdo",
+      "Nome": "Consultar notificações",
+      "Prioridade": "Média",
+      "Descrição": "Listar, contar e marcar notificações web como lidas.",
+      "Atores envolvidos": "Usuário autenticado",
+      "Regra de negócio relacionada": "RN022, RN027",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/notifications; src/app/api/notifications.",
+      "Entradas": "Sessão, cursor/limite e ação de leitura.",
+      "Processamento": "Buscar notificações do próprio usuário e atualizar leitura.",
+      "Saídas": "Lista, próximo cursor e contagem não lida.",
+      "Restrições": "Usuário não pode consultar notificações alheias."
+    },
+    {
+      "id": "RF046",
+      "RF046 — Especificação": "Conteúdo",
+      "Nome": "Atualizar leitura de notificações",
+      "Prioridade": "Média",
+      "Descrição": "Marcar uma ou todas as notificações web como lidas.",
+      "Atores envolvidos": "Usuário, Avaliador, Administrador, Recrutador",
+      "Regra de negócio relacionada": "RN022, RN027",
+      "Estado e referências de implementação": "Estado: Implementado. Evidência: src/app/api/notifications/read; src/app/notifications.",
+      "Entradas": "Notificação ou ação de marcar todas.",
+      "Processamento": "Autorizar o titular e atualizar read_at somente em seus registros.",
+      "Saídas": "Estado de leitura e contagem atualizados.",
+      "Restrições": "Um usuário não pode alterar notificações de outra conta."
+    },
+    {
+      "id": "RF049",
+      "RF049 — Especificação": "Conteúdo",
+      "Nome": "Inscrever-se ou cancelar participação em evento",
+      "Prioridade": "Média",
+      "Descrição": "Efetivar a inscrição do usuário elegível ou cancelar a própria participação antes do encerramento do evento.",
+      "Atores envolvidos": "Usuário autenticado",
+      "Regra de negócio relacionada": "RN023",
+      "Estado e referências de implementação": "Estado: Implementado. Evidências: POST e DELETE src/app/api/events/[id]/participate; EventService.participate e cancelParticipation; UC023 e slide 19 do seminário.",
+      "Entradas": "Identificador do evento, identidade da sessão e ação de inscrição ou cancelamento.",
+      "Processamento": "Na inscrição via POST, verificar evento não encerrado, nível, capacidade e unicidade. No cancelamento via DELETE, verificar titularidade e evento não encerrado e remover a participação.",
+      "Saídas": "Inscrição confirmada, participação já existente ou cancelamento confirmado.",
+      "Restrições": "Uma inscrição ativa por usuário e evento. Cancelamento pelo próprio usuário antes do encerramento. O fluxo registra participação efetiva; não depende de cadastro separado de interesse em evento."
+    }
+  ],
+  "nonfunctional_requirements": [
+    {
+      "Identificador": "RNF001",
+      "Nome": "Autenticação protegida",
+      "Prioridade": "Alta",
+      "Categoria": "Segurança",
+      "Descrição": "Rotas privadas devem exigir sessão verificada no servidor.",
+      "Critério verificável de aceitação": "Teste automatizado deve comprovar 401 sem sessão válida e acesso com sessão válida."
+    },
+    {
+      "Identificador": "RNF002",
+      "Nome": "Autorização por papel",
+      "Prioridade": "Alta",
+      "Categoria": "Segurança",
+      "Descrição": "Operações administrativas, de avaliador e recrutador devem aplicar RBAC; operações de vagas também devem validar acesso à empresa e aos recursos relacionados.",
+      "Critério verificável de aceitação": "Testes comprovam 403 para papel ou empresa não autorizados e sucesso para acesso permitido; candidaturas e etapas de outra vaga são rejeitadas."
+    },
+    {
+      "Identificador": "RNF003",
+      "Nome": "Proteção de entrada e abuso",
+      "Prioridade": "Alta",
+      "Categoria": "Segurança",
+      "Descrição": "Entradas devem ser validadas e endpoints críticos devem limitar frequência.",
+      "Critério verificável de aceitação": "Schemas rejeitam payload inválido e testes verificam limite configurado sem expor segredo."
+    },
+    {
+      "Identificador": "RNF004",
+      "Nome": "Segredos somente no servidor",
+      "Prioridade": "Alta",
+      "Categoria": "Segurança",
+      "Descrição": "Credenciais de banco, autenticação e serviços externos não podem ser enviadas ao cliente.",
+      "Critério verificável de aceitação": "Build e auditoria estática não contêm segredos em variáveis NEXT_PUBLIC nem no bundle cliente."
+    },
+    {
+      "Identificador": "RNF005",
+      "Nome": "Separação público/privado",
+      "Prioridade": "Alta",
+      "Categoria": "Privacidade",
+      "Descrição": "Perfil e recrutamento devem retornar apenas campos autorizados.",
+      "Critério verificável de aceitação": "Teste com usuário/empresa confirma ausência de e-mail, token e dados privados nas respostas públicas."
+    },
+    {
+      "Identificador": "RNF006",
+      "Nome": "Privacidade no recrutamento",
+      "Prioridade": "Alta",
+      "Categoria": "Privacidade",
+      "Descrição": "Indicadores consultados por empresas devem limitar-se aos campos públicos definidos pela aplicação.",
+      "Critério verificável de aceitação": "Testes comprovam ausência de e-mail, tokens e demais campos privados nas respostas de perfil e recrutamento."
+    },
+    {
+      "Identificador": "RNF007",
+      "Nome": "Tempo de resposta das APIs",
+      "Prioridade": "Média",
+      "Categoria": "Desempenho",
+      "Descrição": "APIs interativas devem responder com rapidez sob carga acadêmica representativa.",
+      "Critério verificável de aceitação": "P95 de até 2 segundos com 20 usuários simultâneos, exceto execução de código."
+    },
+    {
+      "Identificador": "RNF008",
+      "Nome": "Carregamento de página",
+      "Prioridade": "Média",
+      "Categoria": "Desempenho",
+      "Descrição": "Páginas principais devem carregar sem bloquear a ação essencial.",
+      "Critério verificável de aceitação": "LCP de até 2,5 segundos em desktop e 4 segundos em viewport móvel com rede 4G simulada."
+    },
+    {
+      "Identificador": "RNF009",
+      "Nome": "Execução limitada",
+      "Prioridade": "Alta",
+      "Categoria": "Desempenho",
+      "Descrição": "A execução de código deve possuir timeout e limite de payload.",
+      "Critério verificável de aceitação": "Teste de timeout confirma resposta controlada sem marcar acerto nem bloquear o servidor além do limite."
+    },
+    {
+      "Identificador": "RNF010",
+      "Nome": "Responsividade",
+      "Prioridade": "Alta",
+      "Categoria": "Usabilidade",
+      "Descrição": "Fluxos principais devem funcionar em desktop e na web móvel.",
+      "Critério verificável de aceitação": "Validação visual em 360 × 800, 768 × 1024 e 1440 × 900 sem perda de ação essencial."
+    },
+    {
+      "Identificador": "RNF011",
+      "Nome": "Acessibilidade básica",
+      "Prioridade": "Média",
+      "Categoria": "Usabilidade",
+      "Descrição": "Controles devem possuir nome acessível, foco e suporte a teclado.",
+      "Critério verificável de aceitação": "Lighthouse Accessibility igual ou superior a 90 e roteiro manual sem bloqueador crítico."
+    },
+    {
+      "Identificador": "RNF012",
+      "Nome": "Degradação de serviço externo",
+      "Prioridade": "Alta",
+      "Categoria": "Disponibilidade",
+      "Descrição": "Falhas em serviços essenciais não devem confirmar operações incompletas. A notificação é acessória: sua falha não desfaz uma operação principal já concluída, conforme RN022.",
+      "Critério verificável de aceitação": "Simular falhas de gravação e execução sem confirmação de sucesso; simular falha de notificação e comprovar preservação da operação principal e possibilidade de consultar seu resultado."
+    },
+    {
+      "Identificador": "RNF013",
+      "Nome": "Meta de disponibilidade",
+      "Prioridade": "Média",
+      "Categoria": "Disponibilidade",
+      "Descrição": "A plataforma deve possuir meta mensal e monitoramento de falhas críticas.",
+      "Critério verificável de aceitação": "Disponibilidade mensal mínima de 99,5% no ambiente de produção."
+    },
+    {
+      "Identificador": "RNF014",
+      "Nome": "Consistência de XP",
+      "Prioridade": "Alta",
+      "Categoria": "Confiabilidade",
+      "Descrição": "XP e progresso devem ser atualizados atomicamente e sem duplicidade.",
+      "Critério verificável de aceitação": "Teste concorrente comprova uma recompensa por atividade e rollback integral em falha."
+    },
+    {
+      "Identificador": "RNF015",
+      "Nome": "Consistência de duelo e avaliação",
+      "Prioridade": "Alta",
+      "Categoria": "Confiabilidade",
+      "Descrição": "Estados de duelo aberto e avaliação devem impedir transições inválidas e resultados duplicados.",
+      "Critério verificável de aceitação": "Testes cobrem espera de 24 horas expirada, prazo de duas horas do confronto, dupla ocupação da vaga, envio fora do prazo e fechamento conflitante."
+    },
+    {
+      "Identificador": "RNF016",
+      "Nome": "Crescimento de listas",
+      "Prioridade": "Média",
+      "Categoria": "Escalabilidade",
+      "Descrição": "Feed, notificações e históricos devem usar paginação e índices.",
+      "Critério verificável de aceitação": "Teste com 10.000 registros mantém o P95 dentro da meta RNF007."
+    },
+    {
+      "Identificador": "RNF017",
+      "Nome": "Navegadores suportados",
+      "Prioridade": "Média",
+      "Categoria": "Compatibilidade",
+      "Descrição": "A aplicação web deve funcionar nos navegadores modernos suportados pelo framework.",
+      "Critério verificável de aceitação": "Chrome e Edge 111+, Firefox 111+ e Safari 16.4+, com os fluxos principais aprovados."
+    },
+    {
+      "Identificador": "RNF018",
+      "Nome": "Compatibilidade com web móvel",
+      "Prioridade": "Média",
+      "Categoria": "Compatibilidade",
+      "Descrição": "A interface deve preservar navegação e ações em telas pequenas.",
+      "Critério verificável de aceitação": "Os viewports definidos no RNF010 não apresentam rolagem horizontal indevida nem controles inacessíveis."
+    },
+    {
+      "Identificador": "RNF019",
+      "Nome": "Modularização",
+      "Prioridade": "Média",
+      "Categoria": "Manutenibilidade",
+      "Descrição": "Domínio, APIs, UI e integrações externas devem permanecer separados.",
+      "Critério verificável de aceitação": "Lint, typecheck e testes passam; revisão não identifica dependência circular crítica."
+    },
+    {
+      "Identificador": "RNF020",
+      "Nome": "Cobertura de qualidade",
+      "Prioridade": "Média",
+      "Categoria": "Manutenibilidade",
+      "Descrição": "Mudanças em regras críticas devem incluir testes e documentação.",
+      "Critério verificável de aceitação": "CI executa typecheck, lint e testes; cobertura de linhas mínima de 70% nos módulos críticos."
+    },
+    {
+      "Identificador": "RNF021",
+      "Nome": "Conteúdo editorial confiável",
+      "Prioridade": "Alta",
+      "Categoria": "Qualidade",
+      "Descrição": "Lições, dicas e respostas canônicas devem ser versionadas e revisáveis.",
+      "Critério verificável de aceitação": "Toda atividade publicada referencia um contrato canônico válido e não depende de geração em tempo de execução."
+    },
+    {
+      "Identificador": "RNF022",
+      "Nome": "Privacidade na execução de código",
+      "Prioridade": "Alta",
+      "Categoria": "Segurança",
+      "Descrição": "Quando houver execução externa, transmitir somente código, linguagem e testes necessários; manter credenciais e dados pessoais fora do payload. A execução interna deve preservar o isolamento.",
+      "Critério verificável de aceitação": "Auditoria do payload externo comprova ausência de credenciais e dados do perfil; as respostas ao cliente não expõem testes ocultos nem soluções privadas."
+    },
+    {
+      "Identificador": "RNF023",
+      "Nome": "Disponibilidade do executor",
+      "Prioridade": "Alta",
+      "Categoria": "Disponibilidade",
+      "Descrição": "Falha ou timeout do executor deve produzir resultado controlado.",
+      "Critério verificável de aceitação": "O sistema não concede XP nem vitória e mantém a resposta disponível para nova tentativa."
+    },
+    {
+      "Identificador": "RNF024",
+      "Nome": "Auditoria de ações sensíveis",
+      "Prioridade": "Alta",
+      "Categoria": "Auditoria",
+      "Descrição": "Alterações de papel, avaliações e ações administrativas devem ser rastreáveis.",
+      "Critério verificável de aceitação": "Registro contém ator, ação, alvo, instante e resultado para 100% das operações definidas."
+    },
+    {
+      "Identificador": "RNF025",
+      "Nome": "Retenção de auditoria",
+      "Prioridade": "Média",
+      "Categoria": "Auditoria",
+      "Descrição": "Logs de ações sensíveis devem possuir prazo e acesso controlados.",
+      "Critério verificável de aceitação": "Reter logs administrativos por 90 dias, acessíveis apenas a administradores autorizados."
+    }
+  ],
+  "business_rules": [
+    {
+      "ID": "RN001",
+      "Regra": "Elegibilidade de XP",
+      "Descrição": "XP somente é concedido após atividade válida e confirmada; repetir a mesma tentativa não gera nova recompensa.",
+      "Situação": "Implementado",
+      "Evidência": "QuizAttempt e XpService"
+    },
+    {
+      "ID": "RN002",
+      "Regra": "Valores de XP",
+      "Descrição": "No catálogo: explicação 0, prática conceitual 10, atividade guiada explicitamente configurada 15, código 25 e projeto 40. Atividades legadas preservam valores já ganhos. Checkpoint/baú não concedem XP livre pelo cliente.",
+      "Situação": "Implementado",
+      "Evidência": "learning/rewards.ts; catalog-types.ts; trails/checkpoint e chest"
+    },
+    {
+      "ID": "RN003",
+      "Regra": "Níveis",
+      "Descrição": "Níveis usam os limiares de 500, 800, 1.100, 1.500 e 2.000 XP; após o nível 6 o incremento cresce em 100 XP por nível.",
+      "Situação": "Implementado",
+      "Evidência": "src/lib/learning/rewards.ts"
+    },
+    {
+      "ID": "RN004",
+      "Regra": "Sequência e conquistas",
+      "Descrição": "Atividade em dias consecutivos atualiza a sequência; conquistas não podem ser duplicadas e incluem critérios de 7 e 30 dias.",
+      "Situação": "Implementado",
+      "Evidência": "src/lib/streak.ts; src/services/xp.service.ts"
+    },
+    {
+      "ID": "RN005",
+      "Regra": "Faixas de XP",
+      "Descrição": "Bronze 0–499; Prata 500–1199; Ouro 1200–2499; Platina 2500–4999; Diamante a partir de 5000. Promoção por XP acumulado; derrota não rebaixa. Não é Elo.",
+      "Situação": "Implementado",
+      "Evidência": "learning/rewards.ts"
+    },
+    {
+      "ID": "RN006",
+      "Regra": "Ordenação do ranking",
+      "Descrição": "XP decrescente, username e id crescentes. Por linguagem, agregar LanguageTrail e primeiro acerto de ExerciseSubmission, sem migrar nem somar novamente o histórico global.",
+      "Situação": "Implementado",
+      "Evidência": "learning/rewards.ts; language-xp.ts"
+    },
+    {
+      "ID": "RN007",
+      "Regra": "Entrada em duelos",
+      "Descrição": "Na fila rápida, procurar a vaga pendente mais antiga de outro usuário na mesma linguagem. Sem vaga, criar espera de até 24 horas. Entrada direta exige vaga disponível de outro usuário. O fluxo vigente não usa convite, destinatário ou faixa de XP.",
+      "Situação": "Regra vigente documentada",
+      "Evidência": "UC008; UC009; src/app/api/duels; src/lib/duels/lifecycle.ts"
+    },
+    {
+      "ID": "RN008",
+      "Regra": "Prazo do convite legado",
+      "Descrição": "No fluxo legado, o convite expirava em 30 segundos. Regra histórica, sem aplicação aos duelos abertos vigentes.",
+      "Situação": "Histórica, fora do escopo vigente",
+      "Evidência": "DUEL_REQUEST_TIMEOUT_SECONDS"
+    },
+    {
+      "ID": "RN009",
+      "Regra": "Rejeição e cooldown legados",
+      "Descrição": "No fluxo legado, três rejeições consecutivas aplicavam cooldown de 5 minutos. Regra histórica, sem aplicação aos duelos abertos vigentes.",
+      "Situação": "Histórica, fora do escopo vigente",
+      "Evidência": "MAX_DUEL_REJECTIONS; DUEL_COOLDOWN_MINUTES"
+    },
+    {
+      "ID": "RN010",
+      "Regra": "Tempo do desafio",
+      "Descrição": "O confronto dura duas horas a partir da entrada do segundo participante. A espera por oponente, antes do confronto, é de até 24 horas. O registro de expiração depende da manutenção, sem prorrogar a elegibilidade após o prazo.",
+      "Situação": "Regra vigente documentada",
+      "Evidência": "UC008; UC009; seção 6.2 dos casos de uso; src/lib/duels/constants.ts"
+    },
+    {
+      "ID": "RN011",
+      "Regra": "Prazo e resultado do duelo",
+      "Descrição": "Na resolução por prazo, sem envios fecha sem vencedor; um envio elegível pode vencer; dois envios são comparados. A manutenção efetiva depende de acionamento.",
+      "Situação": "Implementado com limite operacional",
+      "Evidência": "duels/resolution.ts; resolution-policy.ts; lifecycle.ts"
+    },
+    {
+      "ID": "RN012",
+      "Regra": "Avaliação de duelo",
+      "Descrição": "Testes e pontuação automática; diferença de score até 5 e runtime até 5% (ou ausente) encaminha empate técnico a REVIEW_PENDING. Vitória recebe 50 XP uma única vez.",
+      "Situação": "Implementado",
+      "Evidência": "duels/resolution-policy.ts; resolution.ts"
+    },
+    {
+      "ID": "RN013",
+      "Regra": "Assistência editorial",
+      "Descrição": "Dicas, documentação e autocomplete dependem do modo escolhido; a consulta não altera o XP.",
+      "Situação": "Implementado",
+      "Evidência": "AssistanceControls; ExerciseWorkspace"
+    },
+    {
+      "ID": "RN014",
+      "Regra": "Elegibilidade de avaliador",
+      "Descrição": "O usuário deve concluir ao menos uma trilha completa ou possuir 1.000 XP antes de se candidatar.",
+      "Situação": "Implementado",
+      "Evidência": "EvaluatorService.checkEligibility"
+    },
+    {
+      "ID": "RN015",
+      "Regra": "Aprovação de avaliador",
+      "Descrição": "A elegibilidade permite candidatura, mas somente o administrador atribui o papel EVALUATOR.",
+      "Situação": "Implementado",
+      "Evidência": "EvaluatorService.reviewApplication"
+    },
+    {
+      "ID": "RN016",
+      "Regra": "Parecer humano",
+      "Descrição": "As pontuações variam de 0 a 1.000, exigem vencedor e feedback com pelo menos 5 caracteres.",
+      "Situação": "Implementado",
+      "Evidência": "evaluationSchema; EvaluatorService.submitDuelEvaluation"
+    },
+    {
+      "ID": "RN017",
+      "Regra": "Controle por papel",
+      "Descrição": "Usuário autenticado usa as funções gerais e pode criar e participar de eventos; Avaliador avalia duelos autorizados; Administrador gerencia permissões e pode avaliar; Recrutador gerencia empresas e vagas autorizadas. Criador ou Administrador pode excluir evento.",
+      "Situação": "Implementado",
+      "Evidência": "UserRole; requireRole"
+    },
+    {
+      "ID": "RN018",
+      "Regra": "Publicação comunitária",
+      "Descrição": "Publicação exige autenticação, validação e limite de corpo de até 5.000 caracteres.",
+      "Situação": "Implementado",
+      "Evidência": "src/lib/config.ts; posts API"
+    },
+    {
+      "ID": "RN019",
+      "Regra": "Moderação",
+      "Descrição": "Denúncia deve ser registrada uma vez por usuário/publicação e analisada por administrador; sanções e recurso ainda dependem de política.",
+      "Situação": "Parcial",
+      "Evidência": "Report; admin reports"
+    },
+    {
+      "ID": "RN020",
+      "Regra": "Publicação de vaga",
+      "Descrição": "Somente RECRUITER ou ADMIN com acesso autorizado à empresa pode publicar vaga ou consultar suas candidaturas. A atualização de candidatura também exige vínculo com a empresa e consistência entre vaga, candidatura e etapa.",
+      "Situação": "Implementado; vínculo reconferido em 19/10/2026",
+      "Evidência": "UC017, UC026, UC056; jobs API; requireCompanyAccess; JobService.getJobApplications; slides 17, 20 e 23"
+    },
+    {
+      "ID": "RN021",
+      "Regra": "Acesso de empresas",
+      "Descrição": "Empresas consultam somente informações públicas do perfil; decisões de contratação permanecem sob responsabilidade humana.",
+      "Situação": "Regra adotada",
+      "Evidência": "perfil público; JobService"
+    },
+    {
+      "ID": "RN022",
+      "Regra": "Notificações",
+      "Descrição": "Eventos relevantes geram notificação ao destinatário. A atualização de candidatura notifica automaticamente o usuário associado à candidatura. Falha de notificação não desfaz a operação principal.",
+      "Situação": "Implementado na web",
+      "Evidência": "NotificationService; JobService.updateApplicationStage; slide 24"
+    },
+    {
+      "ID": "RN023",
+      "Regra": "Participação em evento",
+      "Descrição": "Usuário inscreve-se uma vez por evento via POST, respeitando evento não encerrado, nível mínimo e capacidade. Pode cancelar a própria participação via DELETE antes do encerramento.",
+      "Situação": "Implementado",
+      "Evidência": "UC023; EventService.participate e cancelParticipation; slide 19"
+    },
+    {
+      "ID": "RN024",
+      "Regra": "Falha do executor",
+      "Descrição": "Timeout, indisponibilidade ou resposta inválida do executor não confirma acerto, XP ou vitória.",
+      "Situação": "Implementado",
+      "Evidência": "src/lib/code-runner.ts; learning/assessment.ts; duels/judge.ts"
+    },
+    {
+      "ID": "RN025",
+      "Regra": "Identidade e sessão",
+      "Descrição": "E-mail e username são únicos; rotas protegidas exigem sessão verificada.",
+      "Situação": "Implementado",
+      "Evidência": "User; auth/register; requireAuth"
+    },
+    {
+      "ID": "RN026",
+      "Regra": "Candidatura a vaga",
+      "Descrição": "Usuário pode candidatar-se uma vez a uma vaga aberta, com vínculo à etapa inicial. O responsável autorizado atualiza a etapa ou o status, após validar os vínculos, e o candidato associado recebe notificação automática.",
+      "Situação": "Implementado",
+      "Evidência": "UC022, UC026; JobApplication; JobService; slides 18, 20 e 24"
+    },
+    {
+      "ID": "RN027",
+      "Regra": "Privacidade do perfil",
+      "Descrição": "Perfis públicos não expõem e-mail, tokens ou dados de sessão; rotas de edição exigem o titular autenticado.",
+      "Situação": "Implementado",
+      "Evidência": "src/app/api/profile/[username]; src/app/api/profile/update"
+    },
+    {
+      "ID": "RN028",
+      "Regra": "Integridade competitiva",
+      "Descrição": "XP, ranking, duelo e avaliação devem rejeitar duplicidade, manipulação pelo cliente e transições inválidas.",
+      "Situação": "Parcial",
+      "Evidência": "transações/uniques existentes; auditoria a ampliar"
+    },
+    {
+      "ID": "RN029",
+      "Regra": "Pré-requisitos de aprendizagem",
+      "Descrição": "Uma lição pode ser iniciada quando seus pré-requisitos estiverem cumpridos. Lições já concluídas podem ser revisitadas; a revisão não duplica a recompensa da mesma atividade.",
+      "Situação": "Regra documentada",
+      "Evidência": "RF005–RF009; UC004–UC006"
+    }
+  ],
+  "usecases": [
+    {
+      "id": "UC001",
+      "name": "Cadastrar conta",
+      "paragraph": 139
+    },
+    {
+      "id": "UC002",
+      "name": "Fazer login",
+      "paragraph": 162
+    },
+    {
+      "id": "UC003",
+      "name": "Editar perfil",
+      "paragraph": 185
+    },
+    {
+      "id": "UC004",
+      "name": "Selecionar trilha",
+      "paragraph": 208
+    },
+    {
+      "id": "UC005",
+      "name": "Estudar lição",
+      "paragraph": 231
+    },
+    {
+      "id": "UC006",
+      "name": "Resolver exercício",
+      "paragraph": 254
+    },
+    {
+      "id": "UC007",
+      "name": "Consultar progresso",
+      "paragraph": 278
+    },
+    {
+      "id": "UC008",
+      "name": "Criar duelo aberto",
+      "paragraph": 301
+    },
+    {
+      "id": "UC009",
+      "name": "Entrar em duelo",
+      "paragraph": 325
+    },
+    {
+      "id": "UC010",
+      "name": "Enviar solução de duelo",
+      "paragraph": 348
+    },
+    {
+      "id": "UC011",
+      "name": "Consultar ranking de XP",
+      "paragraph": 371
+    },
+    {
+      "id": "UC012",
+      "name": "Consultar ajuda do exercício",
+      "paragraph": 394
+    },
+    {
+      "id": "UC013",
+      "name": "Criar publicação",
+      "paragraph": 415
+    },
+    {
+      "id": "UC014",
+      "name": "Interagir com publicação",
+      "paragraph": 438
+    },
+    {
+      "id": "UC015",
+      "name": "Criar evento",
+      "paragraph": 461
+    },
+    {
+      "id": "UC016",
+      "name": "Avaliar empate técnico",
+      "paragraph": 484
+    },
+    {
+      "id": "UC017",
+      "name": "Publicar vaga",
+      "paragraph": 506
+    },
+    {
+      "id": "UC018",
+      "name": "Consultar vagas",
+      "paragraph": 528
+    },
+    {
+      "id": "UC019",
+      "name": "Gerenciar permissões de usuários",
+      "paragraph": 551
+    },
+    {
+      "id": "UC020",
+      "name": "Tratar denúncias",
+      "paragraph": 574
+    },
+    {
+      "id": "UC021",
+      "name": "Consultar notificações",
+      "paragraph": 597
+    },
+    {
+      "id": "UC022",
+      "name": "Candidatar-se a vaga",
+      "paragraph": 620
+    },
+    {
+      "id": "UC023",
+      "name": "Inscrever-se ou cancelar participação em evento",
+      "paragraph": 643
+    },
+    {
+      "id": "UC024",
+      "name": "Candidatar-se a avaliador",
+      "paragraph": 667
+    },
+    {
+      "id": "UC025",
+      "name": "Cadastrar empresa",
+      "paragraph": 690
+    },
+    {
+      "id": "UC026",
+      "name": "Atualizar etapa de candidatura",
+      "paragraph": 713
+    },
+    {
+      "id": "UC027",
+      "name": "Aprovar ou rejeitar candidatura de avaliador",
+      "paragraph": 734
+    },
+    {
+      "id": "UC028",
+      "name": "Avaliar resposta",
+      "paragraph": 755
+    },
+    {
+      "id": "UC029",
+      "name": "Executar código e testes",
+      "paragraph": 774
+    },
+    {
+      "id": "UC030",
+      "name": "Encerrar sessão",
+      "paragraph": 793
+    },
+    {
+      "id": "UC031",
+      "name": "Consultar e pesquisar feed",
+      "paragraph": 811
+    },
+    {
+      "id": "UC032",
+      "name": "Consultar perfil público",
+      "paragraph": 824
+    },
+    {
+      "id": "UC033",
+      "name": "Seguir ou deixar de seguir usuário",
+      "paragraph": 837
+    },
+    {
+      "id": "UC034",
+      "name": "Consultar publicações salvas",
+      "paragraph": 851
+    },
+    {
+      "id": "UC035",
+      "name": "Editar ou excluir publicação própria",
+      "paragraph": 865
+    },
+    {
+      "id": "UC036",
+      "name": "Aceitar resposta de uma publicação",
+      "paragraph": 879
+    },
+    {
+      "id": "UC037",
+      "name": "Responder quiz diário",
+      "paragraph": 893
+    },
+    {
+      "id": "UC038",
+      "name": "Consultar conversas e mensagens",
+      "paragraph": 907
+    },
+    {
+      "id": "UC039",
+      "name": "Enviar mensagem privada",
+      "paragraph": 921
+    },
+    {
+      "id": "UC040",
+      "name": "Editar ou excluir mensagem própria",
+      "paragraph": 935
+    },
+    {
+      "id": "UC041",
+      "name": "Reagir a mensagem",
+      "paragraph": 949
+    },
+    {
+      "id": "UC042",
+      "name": "Consultar comunidades",
+      "paragraph": 963
+    },
+    {
+      "id": "UC043",
+      "name": "Criar comunidade",
+      "paragraph": 977
+    },
+    {
+      "id": "UC044",
+      "name": "Entrar ou sair de comunidade",
+      "paragraph": 991
+    },
+    {
+      "id": "UC045",
+      "name": "Administrar comunidade própria",
+      "paragraph": 1005
+    },
+    {
+      "id": "UC046",
+      "name": "Consultar eventos e desafios",
+      "paragraph": 1018
+    },
+    {
+      "id": "UC047",
+      "name": "Excluir evento sob responsabilidade",
+      "paragraph": 1032
+    },
+    {
+      "id": "UC048",
+      "name": "Gerenciar desafios de evento",
+      "paragraph": 1047
+    },
+    {
+      "id": "UC049",
+      "name": "Consultar métricas administrativas",
+      "paragraph": 1061
+    },
+    {
+      "id": "UC050",
+      "name": "Configurar preferências pessoais",
+      "paragraph": 1075
+    },
+    {
+      "id": "UC051",
+      "name": "Personalizar avatar",
+      "paragraph": 1089
+    },
+    {
+      "id": "UC052",
+      "name": "Testar código antes da submissão",
+      "paragraph": 1103
+    },
+    {
+      "id": "UC053",
+      "name": "Consultar resultado de duelo",
+      "paragraph": 1117
+    },
+    {
+      "id": "UC054",
+      "name": "Excluir duelo elegível",
+      "paragraph": 1130
+    },
+    {
+      "id": "UC055",
+      "name": "Marcar notificações como lidas",
+      "paragraph": 1144
+    },
+    {
+      "id": "UC056",
+      "name": "Consultar candidaturas de uma vaga",
+      "paragraph": 1158
+    }
+  ],
+  "business_activities": [
+    {
+      "id": "AN01",
+      "name": "Estudar programação",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image5.jpg",
+      "old_id_inside_image": "AN01"
+    },
+    {
+      "id": "AN02",
+      "name": "Praticar exercícios de programação",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image1.jpg",
+      "old_id_inside_image": "AN03"
+    },
+    {
+      "id": "AN03",
+      "name": "Acompanhar a própria aprendizagem",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image2.png",
+      "old_id_inside_image": "AN04"
+    },
+    {
+      "id": "AN04",
+      "name": "Buscar ajuda para uma dúvida",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image3.jpg",
+      "old_id_inside_image": "AN06"
+    },
+    {
+      "id": "AN05A",
+      "name": "Divulgar oportunidade de trabalho",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image6.jpg",
+      "old_id_inside_image": "AN08A"
+    },
+    {
+      "id": "AN05B",
+      "name": "Candidatar-se e acompanhar a seleção",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image7.jpg",
+      "old_id_inside_image": "AN08B"
+    },
+    {
+      "id": "AN06",
+      "name": "Descobrir e participar de um evento",
+      "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\02\\image4.jpg",
+      "old_id_inside_image": "AN09"
+    }
+  ],
+  "general_usecases_original_image": {
+    "path": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image1.jpg",
+    "labels": [
+      {
+        "id": "UC001",
+        "name": "Cadastrar conta"
+      },
+      {
+        "id": "UC002",
+        "name": "Fazer login"
+      },
+      {
+        "id": "UC003",
+        "name": "Editar perfil"
+      },
+      {
+        "id": "UC013",
+        "name": "Manter publicação"
+      },
+      {
+        "id": "UC008",
+        "name": "Criar duelo aberto"
+      },
+      {
+        "id": "UC010",
+        "name": "Enviar solução de duelo"
+      },
+      {
+        "id": "UC020",
+        "name": "Manter denúncias"
+      },
+      {
+        "id": "UC005",
+        "name": "Estudar lição"
+      },
+      {
+        "id": "UC058",
+        "name": "Manter intenção de vaga"
+      },
+      {
+        "id": "UC006",
+        "name": "Resolver exercício"
+      },
+      {
+        "id": "UC029",
+        "name": "Executar código e testes"
+      },
+      {
+        "id": "UC059",
+        "name": "Manter interesse em Evento"
+      },
+      {
+        "id": "UC015",
+        "name": "Criar evento"
+      },
+      {
+        "id": "UC011",
+        "name": "Manter ranking de XP"
+      },
+      {
+        "id": "UC017",
+        "name": "Publicar vaga"
+      },
+      {
+        "id": "UC057",
+        "name": "Notificar usuário"
+      },
+      {
+        "id": "UC048",
+        "name": "Gerenciar desafios de evento"
+      },
+      {
+        "id": "UC019",
+        "name": "Gerenciar permissões de usuários"
+      }
+    ]
+  },
+  "prototypes": [
+    {
+      "uc": "UC001",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image23.png"
+    },
+    {
+      "uc": "UC002",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image24.png"
+    },
+    {
+      "uc": "UC003",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image25.png"
+    },
+    {
+      "uc": "UC004",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image26.png"
+    },
+    {
+      "uc": "UC005",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image27.png"
+    },
+    {
+      "uc": "UC006",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image28.png"
+    },
+    {
+      "uc": "UC007",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image29.png"
+    },
+    {
+      "uc": "UC008",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image30.png"
+    },
+    {
+      "uc": "UC009",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image31.png"
+    },
+    {
+      "uc": "UC010",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image32.png"
+    },
+    {
+      "uc": "UC011",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image33.png"
+    },
+    {
+      "uc": "UC012",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image34.jpg"
+    },
+    {
+      "uc": "UC013",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image35.png"
+    },
+    {
+      "uc": "UC014",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image36.png"
+    },
+    {
+      "uc": "UC015",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image37.png"
+    },
+    {
+      "uc": "UC016",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image38.png"
+    },
+    {
+      "uc": "UC017",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image39.png"
+    },
+    {
+      "uc": "UC018",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image40.png"
+    },
+    {
+      "uc": "UC019",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image41.png"
+    },
+    {
+      "uc": "UC020",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image42.png"
+    },
+    {
+      "uc": "UC021",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image43.png"
+    },
+    {
+      "uc": "UC022",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image44.png"
+    },
+    {
+      "uc": "UC023",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image45.png"
+    },
+    {
+      "uc": "UC024",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image46.jpg"
+    },
+    {
+      "uc": "UC025",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image47.png"
+    },
+    {
+      "uc": "UC026",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image48.png"
+    },
+    {
+      "uc": "UC027",
+      "image": "C:\\Users\\PEDRO\\Documents\\DevDeck\\docs\\laboratorio-engenharia-software\\revisao-seminario-2026-10-20\\fontes-extraidas\\04\\image49.png"
+    }
+  ],
+  "warnings": [
+    "DOCX04 fala em 20 casos no diagrama geral, mas há 18 elipses na imagem.",
+    "DOCX04 mantém 56 especificações, das quais UC042–UC045 são cobertura textual complementar e não têm elementos no Astah atual.",
+    "UC057, UC058 e UC059 da imagem geral são rótulos legados, sem especificações próprias. DOCX orienta correspondência com candidatura UC022, evento UC023 e notificação interna de UC026.",
+    "Texto e legendas DOCX02 foram renumerados, mas seis das sete imagens têm números antigos.",
+    "Tabela final de evidências do DOCX03 preserva numeração antiga de atividades e slides. Deve usar documentos atualizados e a nova apresentação como referência para renumeração."
+  ]
+}

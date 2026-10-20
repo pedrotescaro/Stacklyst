@@ -1,0 +1,410 @@
+[
+  {
+    "number": 1,
+    "title": "Stacklyst",
+    "subtitle": "Laboratório de Engenharia de Software",
+    "owner": "Grupo",
+    "seconds": 40,
+    "notes": "Apresentar o grupo, o objetivo do sistema e a ordem de demonstração. Os nomes e responsabilidades provêm do documento de visão, seção 5."
+  },
+  {
+    "number": 2,
+    "title": "O projeto e o problema",
+    "subtitle": "Estudo de programação e oportunidades profissionais",
+    "owner": "Grupo",
+    "seconds": 60,
+    "notes": "Fonte: documento 01, problema, objetivos e escopo. A demonstração seleciona aprendizagem e recrutamento. Demais funcionalidades permanecem documentadas."
+  },
+  {
+    "number": 3,
+    "title": "Ordem da apresentação",
+    "subtitle": "A continuidade entre os integrantes orienta a demonstração",
+    "owner": "Grupo",
+    "seconds": 45,
+    "notes": "Divisão proposta para o ensaio. Diagramas gerais de classes, MER e DER são mostrados somente por Pedro. Todos apresentam protótipo, RF/RNF/RN, classe e banco específicos, sequência completa, sequência com código e prática. Reservar dados auxiliares previamente."
+  },
+  {
+    "number": 4,
+    "title": "Estudar programação",
+    "subtitle": "AN01  Atividades do negócio",
+    "owner": "Grupo",
+    "seconds": 40,
+    "notes": "Fonte: documento 02 atualizado, seção 3. Organizar o estudo e verificar se o conteúdo foi compreendido e aplicado.\nO fluxo representa trabalho humano, inclusive fora do sistema. A imagem foi reutilizada do documento, com recorte apenas da aba superior que ainda exibia AN01. A identificação no slide segue a numeração atual AN01."
+  },
+  {
+    "number": 5,
+    "title": "Praticar exercícios de programação",
+    "subtitle": "AN02  Atividades do negócio",
+    "owner": "Grupo",
+    "seconds": 40,
+    "notes": "Fonte: documento 02 atualizado, seção 3. Resolver um problema, testar exemplos e compreender os erros encontrados.\nO fluxo representa trabalho humano, inclusive fora do sistema. A imagem foi reutilizada do documento, com recorte apenas da aba superior que ainda exibia AN03. A identificação no slide segue a numeração atual AN02."
+  },
+  {
+    "number": 6,
+    "title": "Acompanhar a própria aprendizagem",
+    "subtitle": "AN03  Atividades do negócio",
+    "owner": "Grupo",
+    "seconds": 40,
+    "notes": "Fonte: documento 02 atualizado, seção 3. Comparar os resultados aos objetivos e ajustar o planejamento de estudo.\nO fluxo representa trabalho humano, inclusive fora do sistema. A imagem foi reutilizada do documento, com recorte apenas da aba superior que ainda exibia AN04. A identificação no slide segue a numeração atual AN03."
+  },
+  {
+    "number": 7,
+    "title": "Buscar ajuda para uma dúvida",
+    "subtitle": "AN04  Atividades do negócio",
+    "owner": "Grupo",
+    "seconds": 40,
+    "notes": "Fonte: documento 02 atualizado, seção 3. Esclarecer uma dúvida e conferir a explicação em um exemplo.\nO fluxo representa trabalho humano, inclusive fora do sistema. A imagem foi reutilizada do documento, com recorte apenas da aba superior que ainda exibia AN06. A identificação no slide segue a numeração atual AN04."
+  },
+  {
+    "number": 8,
+    "title": "Divulgar oportunidade de trabalho",
+    "subtitle": "AN05A  Atividades do negócio",
+    "owner": "Grupo",
+    "seconds": 40,
+    "notes": "Fonte: documento 02 atualizado, seção 3. Definir e divulgar uma oportunidade profissional com informações conferidas.\nO fluxo representa trabalho humano, inclusive fora do sistema. A imagem foi reutilizada do documento, com recorte apenas da aba superior que ainda exibia AN08A. A identificação no slide segue a numeração atual AN05A."
+  },
+  {
+    "number": 9,
+    "title": "Candidatar-se e acompanhar a seleção",
+    "subtitle": "AN05B  Atividades do negócio",
+    "owner": "Grupo",
+    "seconds": 40,
+    "notes": "Fonte: documento 02 atualizado, seção 3. Enviar o currículo e acompanhar as etapas e o resultado da seleção.\nO fluxo representa trabalho humano, inclusive fora do sistema. A imagem foi reutilizada do documento, com recorte apenas da aba superior que ainda exibia AN08B. A identificação no slide segue a numeração atual AN05B."
+  },
+  {
+    "number": 10,
+    "title": "Descobrir e participar de um evento",
+    "subtitle": "AN06  Atividades do negócio",
+    "owner": "Grupo",
+    "seconds": 40,
+    "notes": "Fonte: documento 02 atualizado, seção 3. Encontrar um evento e organizar a inscrição e a participação.\nO fluxo representa trabalho humano, inclusive fora do sistema. A imagem foi reutilizada do documento, com recorte apenas da aba superior que ainda exibia AN09. A identificação no slide segue a numeração atual AN06."
+  },
+  {
+    "number": 11,
+    "title": "Diagrama geral de casos de uso",
+    "subtitle": "18 elementos na imagem geral do documento 04",
+    "owner": "Grupo",
+    "seconds": 45,
+    "notes": "Fonte: documento 04, seção 4.1. Contagem visual: 18 elipses. O inventário escrito contém 56 especificações; a imagem geral é uma visão selecionada. Não confundir quantidade de elementos desta vista com quantidade de especificações. A nota da fonte identifica rótulos históricos UC057/058/059: UC022 candidatura, UC023 participação em evento, UC026 notificação interna. Cadastro e login não exigem sessão. UC011 consulta ranking. Os recortes seguintes ampliam a mesma imagem."
+  },
+  {
+    "number": 12,
+    "title": "Casos de uso gerais: acesso e aprendizagem",
+    "subtitle": "Ampliação da imagem do documento 04",
+    "owner": "Grupo",
+    "seconds": 35,
+    "notes": "Fonte: documento 04, seção 4.1. Parte superior da mesma imagem geral. Cadastrar conta e fazer login são operações públicas. Os demais fluxos protegidos pressupõem sessão."
+  },
+  {
+    "number": 13,
+    "title": "Casos de uso gerais: oportunidades e eventos",
+    "subtitle": "Ampliação da imagem do documento 04",
+    "owner": "Grupo",
+    "seconds": 35,
+    "notes": "Fonte: documento 04, seção 4.1 e nota de correspondência. Parte inferior da mesma imagem. UC058 corresponde à candidatura UC022, UC059 à participação UC023. A notificação ao candidato integra UC026."
+  },
+  {
+    "number": 14,
+    "title": "Pedro: estudo de uma lição",
+    "subtitle": "Pedro Antonio Silvestre Tescaro  UC005",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 40,
+    "notes": "Fonte visual: documento 04 / UC005, referência visual da especificação. A captura representa a interface documentada.\nNo protótipo: conteúdo conceitual e navegação entre as etapas da lição."
+  },
+  {
+    "number": 15,
+    "title": "Resposta e confirmação da atividade",
+    "subtitle": "Pedro Antonio Silvestre Tescaro  UC006",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 40,
+    "notes": "Fonte visual: documento 04 / UC006, referência visual da especificação. A captura representa a interface documentada.\nNo protótipo: enunciado, alternativas, validação da resposta e retorno de XP."
+  },
+  {
+    "number": 16,
+    "title": "Requisitos e regras na interface",
+    "subtitle": "UC005 e UC006  Estudar uma lição e resolver exercício",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 72,
+    "notes": "Fonte: documento 03, seções 4, 5 e 6. RF indicam comportamento. RNF são critérios de aceitação, não resultados de homologação.\nRF007: Exibir uma lição em página própria com etapas interativas.\nRF008: Receber e avaliar respostas em diferentes tipos de interação, distinguindo o teste de código da submissão da atividade.\nRF009: Persistir respostas e derivar conclusão e desbloqueio de lições.\nRNF009: A execução de código deve possuir timeout e limite de payload.\nRNF014: XP e progresso devem ser atualizados atomicamente e sem duplicidade.\nRN001: XP somente é concedido após atividade válida e confirmada; repetir a mesma tentativa não gera nova recompensa.\nRN029: Uma lição pode ser iniciada quando seus pré-requisitos estiverem cumpridos. Lições já concluídas podem ser revisitadas; a revisão não duplica a recompensa da mesma atividade."
+  },
+  {
+    "number": 17,
+    "title": "Diagrama de classes geral",
+    "subtitle": "Visão conceitual dos domínios",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 56,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / CL00. Explicar os conceitos e as associações. Os rótulos do modelo estão em português. Identificadores de implementação aparecem somente nas capturas de código."
+  },
+  {
+    "number": 18,
+    "title": "Modelo de entidades e relacionamentos geral",
+    "subtitle": "MER  Visão conceitual",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 36,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / MER00. Explicar entidades, relacionamentos e cardinalidades sem chaves estrangeiras. O DER seguinte apresenta a visão relacional."
+  },
+  {
+    "number": 19,
+    "title": "Diagrama geral do banco de dados",
+    "subtitle": "DER  Estrutura completa e chaves",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 56,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / DER00. Vista panorâmica das 47 entidades do modelo persistido. Os slides específicos ampliam as tabelas dos fluxos apresentados. PK: chave primária. FK: chave estrangeira. Fonte: prisma/schema.prisma."
+  },
+  {
+    "number": 20,
+    "title": "Casos de uso da funcionalidade",
+    "subtitle": "UC005 e UC006  Estudar uma lição e resolver exercício",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 28,
+    "notes": "Fonte: documento 04, seção 4.13. A visão identifica o ator e o objetivo. A ordem das chamadas será explicada no diagrama de sequência."
+  },
+  {
+    "number": 21,
+    "title": "Classes da aprendizagem",
+    "subtitle": "UC005 e UC006  Conceitos e responsabilidades",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 40,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / CL01. Distinguir conteúdo do catálogo e registros persistidos. Lição e etapa não devem ser confundidas com tabelas de exercícios de outro fluxo."
+  },
+  {
+    "number": 22,
+    "title": "Banco de dados da aprendizagem",
+    "subtitle": "UC005 e UC006  Persistência e progresso",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 40,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / DER01. Fonte: Quiz e QuizAttempt no schema e saveLessonAssessment no código. O fluxo apresentado é a lição do catálogo, sem mode=workspace."
+  },
+  {
+    "number": 23,
+    "title": "Sequência completa: resolver exercício",
+    "subtitle": "UC006  Fluxo principal",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 56,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / SQ01. Percorrer do envio da resposta à exibição do resultado. Explicar as variações nos recortes seguintes: testar não grava conclusão nem concede XP. Indisponibilidade do executor retorna erro controlado. Repetição não duplica recompensa."
+  },
+  {
+    "number": 24,
+    "title": "Receber e avaliar a resposta",
+    "subtitle": "SQ01-A  Recorte da sequência e trecho correspondente",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 56,
+    "notes": "Fonte código: src/app/api/lessons/[lessonId]/attempt/route.ts, linhas 17–25. Commit bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa.\nValidar resposta, localizar lição e etapa, verificar acesso e solicitar avaliação.\nMensagens do recorte: Validar resposta; Verificar acesso à lição; Avaliar etapa.\nO diagrama usa nomes do domínio em português. A captura preserva os identificadores originais do código."
+  },
+  {
+    "number": 25,
+    "title": "Persistir conclusão e devolver o resultado",
+    "subtitle": "SQ01-B  Recorte da sequência e trecho correspondente",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 56,
+    "notes": "Fonte código: src/app/api/lessons/[lessonId]/attempt/route.ts, linhas 26–40. Commit bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa.\nTratar indisponibilidade, separar teste de envio e persistir avaliação antes da resposta.\nMensagens do recorte: Tratar indisponibilidade; Salvar avaliação se envio definitivo; Devolver resultado e progresso.\nO diagrama usa nomes do domínio em português. A captura preserva os identificadores originais do código."
+  },
+  {
+    "number": 26,
+    "title": "Conceder XP somente na primeira conclusão",
+    "subtitle": "SQ01-C  Recorte da sequência e trecho correspondente",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 56,
+    "notes": "Fonte código: src/lib/learning/lesson-progress.ts, linhas 55–62, 75–84. Commit bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa.\nLocalizar conclusão anterior e gravar a tentativa com XP calculado na transação.\nMensagens do recorte: Consultar tentativas; Calcular XP da primeira conclusão; Registrar tentativa.\nO diagrama usa nomes do domínio em português. A captura preserva os identificadores originais do código."
+  },
+  {
+    "number": 27,
+    "title": "Demonstração prática",
+    "subtitle": "Pedro Antonio Silvestre Tescaro  Aprendizagem e conclusão de atividades da lição",
+    "owner": "Pedro Antonio Silvestre Tescaro",
+    "seconds": 148,
+    "notes": "Roteiro de apresentação.\nPreparar antes:\nUsar conta de demonstração com progresso conhecido e anotar o XP inicial.\nDeixar aberta a lição de catálogo /lesson/js-l1, sem o parâmetro mode=workspace.\nPara testar código rapidamente, deixar as etapas anteriores concluídas e o desafio de programação selecionado.\nConferir o serviço de execução antes do seminário e deixar a solução calcularDesconto preparada no editor.\nExecutar ao vivo:\nMostrar o enunciado e a resposta preparada da atividade da lição.\nAcionar Testar e explicar que a resposta é avaliada no servidor sem conceder XP.\nAcionar a verificação definitiva da solução e observar o resultado e o progresso.\nComparar o XP ao valor anterior e repetir a verificação para mostrar que a mesma conclusão não concede XP novamente.\nResultados esperados:\nAção run retorna xpEarned igual a zero.\nA conclusão correta inédita pode conceder o XP da etapa.\nRepetir uma conclusão já correta não concede XP adicional.\nSe o serviço de execução estiver indisponível, a API retorna erro 503 e o progresso permanece inalterado.\nContinuidade: O perfil do candidato já existe. A próxima demonstração cria a oportunidade que será consumida no último bloco."
+  },
+  {
+    "number": 28,
+    "title": "Guilherme: publicação de vaga",
+    "subtitle": "Guilherme Alves de Campos  UC017",
+    "owner": "Guilherme Alves de Campos",
+    "seconds": 48,
+    "notes": "Fonte visual: documento 04 / UC017, referência visual da especificação. A captura representa a interface documentada.\nNo protótipo: empresa autorizada, dados da oportunidade e comando de publicação."
+  },
+  {
+    "number": 29,
+    "title": "Requisitos e regras na interface",
+    "subtitle": "UC017  Publicar uma vaga",
+    "owner": "Guilherme Alves de Campos",
+    "seconds": 87,
+    "notes": "Fonte: documento 03, seções 4, 5 e 6. RF indicam comportamento. RNF são critérios de aceitação, não resultados de homologação.\nRF035: Criar oportunidade com requisitos e etapas para empresa sob responsabilidade autorizada.\nRF036: Listar e filtrar oportunidades abertas.\nRNF001: Rotas privadas devem exigir sessão verificada no servidor.\nRNF002: Operações administrativas, de avaliador e recrutador devem aplicar RBAC; operações de vagas também devem validar acesso à empresa e aos recursos relacionados.\nRN020: Somente RECRUITER ou ADMIN com acesso autorizado à empresa pode publicar vaga ou consultar suas candidaturas. A atualização de candidatura também exige vínculo com a empresa e consistência entre vaga, candidatura e etapa.\nRN017: Usuário autenticado usa as funções gerais e pode criar e participar de eventos; Avaliador avalia duelos autorizados; Administrador gerencia permissões e pode avaliar; Recrutador gerencia empresas e vagas autorizadas. Criador ou Administrador pode excluir evento."
+  },
+  {
+    "number": 30,
+    "title": "Casos de uso da funcionalidade",
+    "subtitle": "UC017  Publicar uma vaga",
+    "owner": "Guilherme Alves de Campos",
+    "seconds": 34,
+    "notes": "Fonte: documento 04, seção 4.13. A visão identifica o ator e o objetivo. A ordem das chamadas será explicada no diagrama de sequência."
+  },
+  {
+    "number": 31,
+    "title": "Classes da publicação de vaga",
+    "subtitle": "UC017  Empresa, vaga e etapas",
+    "owner": "Guilherme Alves de Campos",
+    "seconds": 53,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / CL02. Explicar propriedade da empresa e composição das etapas da oportunidade. Usar nomes do domínio em português."
+  },
+  {
+    "number": 32,
+    "title": "Banco de dados da publicação",
+    "subtitle": "UC017  Chaves e vínculos",
+    "owner": "Guilherme Alves de Campos",
+    "seconds": 53,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / DER02. Fonte: Company, Job e RecruitmentStage. A vaga referencia a empresa. Suas etapas são persistidas para o fluxo de seleção."
+  },
+  {
+    "number": 33,
+    "title": "Sequência completa: publicar vaga",
+    "subtitle": "UC017  Da autorização à confirmação",
+    "owner": "Guilherme Alves de Campos",
+    "seconds": 68,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / SQ02. Percorrer validação de papel, vínculo com empresa, criação da vaga e etapas e retorno à interface. Uma rejeição deve impedir a gravação."
+  },
+  {
+    "number": 34,
+    "title": "Autorizar a publicação da vaga",
+    "subtitle": "SQ02-A  Recorte da sequência e trecho correspondente",
+    "owner": "Guilherme Alves de Campos",
+    "seconds": 68,
+    "notes": "Fonte código: src/app/api/jobs/route.ts, linhas 67–78. Commit bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa.\nExigir recrutador ou administrador, validar dados e vínculo com a empresa.\nMensagens do recorte: Validar papel e dados; Verificar acesso à empresa; Solicitar criação de vaga.\nO diagrama usa nomes do domínio em português. A captura preserva os identificadores originais do código."
+  },
+  {
+    "number": 35,
+    "title": "Gravar a vaga e suas etapas",
+    "subtitle": "SQ02-B  Recorte da sequência e trecho correspondente",
+    "owner": "Guilherme Alves de Campos",
+    "seconds": 68,
+    "notes": "Fonte código: src/services/job.service.ts, linhas 215–222, 229–238. Commit bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa.\nGravar vaga aberta e etapas do processo na mesma operação relacional.\nMensagens do recorte: Criar vaga aberta; Criar etapas associadas; Devolver vaga criada.\nO diagrama usa nomes do domínio em português. A captura preserva os identificadores originais do código."
+  },
+  {
+    "number": 36,
+    "title": "Confirmar a publicação na interface",
+    "subtitle": "SQ02-C  Recorte da sequência e trecho correspondente",
+    "owner": "Guilherme Alves de Campos",
+    "seconds": 68,
+    "notes": "Fonte código: src/app/recruiter/RecruiterContent.tsx, linhas 294–306. Commit bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa.\nDepois do retorno da API, confirmar publicação e recarregar a listagem.\nMensagens do recorte: Receber resposta; Exibir confirmação; Atualizar listagem de vagas.\nO diagrama usa nomes do domínio em português. A captura preserva os identificadores originais do código."
+  },
+  {
+    "number": 37,
+    "title": "Demonstração prática",
+    "subtitle": "Guilherme Alves de Campos  Publicação de vaga",
+    "owner": "Guilherme Alves de Campos",
+    "seconds": 173,
+    "notes": "Roteiro de apresentação.\nPreparar antes:\nDeixar a conta de recrutador autenticada e vinculada à empresa de demonstração.\nUsar /recruiter com empresa cadastrada previamente.\nPreencher título, descrição, tecnologias e demais campos de uma vaga de teste, sem publicar antes da explicação.\nUsar título identificável, por exemplo Estágio JavaScript - Seminário, com descrição de ao menos dez caracteres.\nExecutar ao vivo:\nIdentificar no protótipo a empresa e os dados obrigatórios da vaga.\nPublicar a vaga e mostrar a confirmação na interface.\nLocalizar a vaga na listagem atualizada e observar as etapas associadas.\nAbrir /jobs e a página da vaga para preparar a continuidade da demonstração.\nResultados esperados:\nO servidor exige papel de recrutador ou administrador e acesso à empresa.\nA vaga é persistida como aberta e recebe suas etapas de recrutamento.\nA listagem é recarregada após a confirmação.\nContinuidade: A vaga criada e sua primeira etapa já estão disponíveis para a candidatura do terceiro bloco."
+  },
+  {
+    "number": 38,
+    "title": "Paulo: candidatura à vaga",
+    "subtitle": "Paulo Henrique Leal dos Santos  UC022",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 46,
+    "notes": "Fonte visual: documento 04 / UC022, referência visual da especificação. A captura representa a interface documentada.\nNo protótipo: oportunidade aberta e comando de candidatura com o perfil do usuário."
+  },
+  {
+    "number": 39,
+    "title": "Protótipo do painel de candidaturas",
+    "subtitle": "Paulo Henrique Leal dos Santos  UC026",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 46,
+    "notes": "Protótipo reconstruído a partir do componente RecruiterContent.tsx, painel de candidaturas, com dados de demonstração. Renderização local sem chamada ao backend. Ver evidencias-codigo/prototipo-candidaturas.html.\nDados de demonstração: candidato, situação da candidatura e seletor do recrutador."
+  },
+  {
+    "number": 40,
+    "title": "Requisitos e regras na interface",
+    "subtitle": "UC022 e UC026  Candidatar-se e acompanhar a seleção",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 84,
+    "notes": "Fonte: documento 03, seções 4, 5 e 6. RF indicam comportamento. RNF são critérios de aceitação, não resultados de homologação.\nRF047: Efetivar a candidatura do usuário autenticado a uma vaga aberta.\nRF048: Atualizar a etapa, o status e o feedback da candidatura vinculada à vaga, com notificação automática ao candidato.\nRF044: Criar notificação para eventos relevantes da aplicação, incluindo a atualização de candidatura destinada ao próprio candidato.\nRNF002: Operações administrativas, de avaliador e recrutador devem aplicar RBAC; operações de vagas também devem validar acesso à empresa e aos recursos relacionados.\nRNF005: Perfil e recrutamento devem retornar apenas campos autorizados.\nRN026: Usuário pode candidatar-se uma vez a uma vaga aberta, com vínculo à etapa inicial. O responsável autorizado atualiza a etapa ou o status, após validar os vínculos, e o candidato associado recebe notificação automática.\nRN022: Eventos relevantes geram notificação ao destinatário. A atualização de candidatura notifica automaticamente o usuário associado à candidatura. Falha de notificação não desfaz a operação principal."
+  },
+  {
+    "number": 41,
+    "title": "Casos de uso da funcionalidade",
+    "subtitle": "UC022 e UC026  Candidatar-se e acompanhar a seleção",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 32,
+    "notes": "Fonte: documento 04, seção 4.13. A visão identifica o ator e o objetivo. A ordem das chamadas será explicada no diagrama de sequência."
+  },
+  {
+    "number": 42,
+    "title": "Classes da candidatura e do retorno",
+    "subtitle": "UC022 e UC026  Vínculos e responsabilidades",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 51,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / CL03. Explicar os vínculos de usuário, vaga, etapa, candidatura e notificação. A notificação é consequência da atualização do processo."
+  },
+  {
+    "number": 43,
+    "title": "Banco de dados da candidatura",
+    "subtitle": "UC022 e UC026  Integridade dos vínculos",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 51,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / DER03. Fonte: JobApplication, User, Job, RecruitmentStage e Notification. A candidatura vincula usuário e vaga. A atualização confere se candidatura e etapa pertencem à mesma vaga."
+  },
+  {
+    "number": 44,
+    "title": "Sequência completa: candidatar-se",
+    "subtitle": "UC022  Da vaga aberta à etapa inicial",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 60,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / SQ03. Vaga publicada no bloco anterior. Sessão autenticada e ausência de candidatura anterior. O processo cria a candidatura na primeira etapa disponível."
+  },
+  {
+    "number": 45,
+    "title": "Sequência completa: atualizar candidatura",
+    "subtitle": "UC026  Situação e notificação ao candidato",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 60,
+    "notes": "Fonte: Stacklyst-seminario-revisado.asta / SQ04. Na prática, o painel altera a situação. A API também aceita etapa e feedback, quando enviados. Mostrar a validação do responsável e dos vínculos antes da persistência. O aviso é destinado ao candidato associado. Falha da notificação não desfaz a alteração principal."
+  },
+  {
+    "number": 46,
+    "title": "Criar candidatura na primeira etapa",
+    "subtitle": "SQ03-A  Recorte da sequência e trecho correspondente",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 65,
+    "notes": "Fonte código: src/services/job.service.ts, linhas 275–292. Commit bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa.\nAceitar apenas vaga aberta e relacionar candidatura ao usuário e à primeira etapa.\nMensagens do recorte: Verificar vaga aberta; Selecionar etapa inicial; Gravar candidatura.\nO diagrama usa nomes do domínio em português. A captura preserva os identificadores originais do código."
+  },
+  {
+    "number": 47,
+    "title": "Conferir a candidatura e a etapa escolhida",
+    "subtitle": "SQ03-B  Recorte da sequência e trecho correspondente",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 65,
+    "notes": "Fonte código: src/app/api/jobs/[id]/route.ts, linhas 30–46. Commit bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa.\nAutorizar a empresa e impedir candidatura ou etapa pertencente a outra vaga.\nMensagens do recorte: Autorizar empresa; Conferir candidatura da vaga; Conferir etapa da vaga.\nO diagrama usa nomes do domínio em português. A captura preserva os identificadores originais do código."
+  },
+  {
+    "number": 48,
+    "title": "Atualizar a candidatura e avisar o candidato",
+    "subtitle": "SQ03-C  Recorte da sequência e trecho correspondente",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 65,
+    "notes": "Fonte código: src/services/job.service.ts, linhas 310–317, 324–333. Commit bdbc861542626c512f5e0c2d51b2fc9cdc05d6fa.\nPersistir etapa e situação e depois solicitar notificação ao candidato. Falha do aviso é registrada e não desfaz a atualização.\nMensagens do recorte: Atualizar etapa e situação; Criar notificação do candidato; Registrar eventual falha de notificação.\nO diagrama usa nomes do domínio em português. A captura preserva os identificadores originais do código."
+  },
+  {
+    "number": 49,
+    "title": "Demonstração prática",
+    "subtitle": "Paulo Henrique Leal dos Santos  Candidatura, acompanhamento e retorno ao candidato",
+    "owner": "Paulo Henrique Leal dos Santos",
+    "seconds": 215,
+    "notes": "Roteiro de apresentação.\nPreparar antes:\nUsar a vaga criada no bloco anterior e uma conta de candidato que ainda não se candidatou a ela.\nManter duas sessões separadas, candidato e recrutador, para evitar pausas de autenticação.\nDeixar o painel do recrutador aberto na mesma vaga e combinar a situação que será selecionada, por exemplo Em Análise.\nNão apresentar o cadastro de empresa, o cadastro do candidato nem a criação das etapas novamente.\nExecutar ao vivo:\nNa sessão do candidato, abrir a vaga e acionar Candidatar-se com Stacklyst.\nMostrar a confirmação da candidatura na etapa inicial.\nNa sessão do recrutador, carregar as candidaturas da vaga e localizar o mesmo candidato.\nNo seletor da candidatura, alterar a situação de Inscrito para Em Análise e mostrar a confirmação.\nVoltar à sessão do candidato, atualizar a consulta e localizar a notificação da atualização.\nResultados esperados:\nA candidatura referencia a vaga e o candidato e começa na primeira etapa disponível.\nUma candidatura repetida é rejeitada e vagas fechadas não aceitam inscrição.\nO painel atual altera a situação da candidatura. A API também suporta etapa, parecer e nota técnica, mas esses campos não possuem controles nessa tela.\nA atualização é persistida e solicita uma notificação ao candidato. Uma falha no aviso é registrada e não desfaz a atualização.\nContinuidade: Encerrar mostrando o percurso completo: estudar, disponibilizar uma oportunidade, candidatar-se e receber o retorno do processo."
+  },
+  {
+    "number": 50,
+    "title": "Percurso demonstrado",
+    "subtitle": "Aprendizagem e seleção com continuidade",
+    "owner": "Grupo",
+    "seconds": 395,
+    "notes": "Retomar os resultados observados durante a apresentação. Não afirmar execução de uma etapa que não tenha sido realizada ao vivo. Convidar perguntas sobre a relação entre requisito, modelo, código e funcionamento."
+  },
+  {
+    "number": 51,
+    "title": "Referências",
+    "subtitle": "Documentação, modelos e implementação",
+    "owner": "Grupo",
+    "seconds": 25,
+    "notes": "Fontes fornecidas pelo grupo. A lousa e as orientações da professora definem a estrutura do seminário. Fontes de imagens e código também estão nas notas dos slides correspondentes."
+  }
+]

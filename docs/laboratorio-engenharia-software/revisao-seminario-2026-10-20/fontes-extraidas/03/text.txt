@@ -1,0 +1,1818 @@
+0000 []
+0001 []
+0002 []
+0003 []
+0004 []
+0005 []
+0006 []
+0007 [] Stacklyst
+0008 [] Documento de Requisitos do Sistema
+0009 [] Laboratório de Engenharia de SoftwareProjeto acadêmicoRevisão documental: 19/10/2026 | Inventário técnico: 12/09/2026
+0010 []
+0011 [Ttulodondice] 1. Índice
+0012 [Sumrio1] 2. Objetivo4
+0013 [Sumrio1] 3. Técnicas Utilizadas na Elicitação de Requisitos4
+0014 [Sumrio1] 4. Requisitos Funcionais4
+0015 [Sumrio2] 4.1 Grupo 1 — Autenticação e Usuários5
+0016 [Sumrio3] 4.1.1 RF001 — Cadastrar usuário5
+0017 [Sumrio3] 4.1.2 RF002 — Fazer login5
+0018 [Sumrio3] 4.1.3 RF003 — Encerrar sessão6
+0019 [Sumrio3] 4.1.4 RF004 — Gerenciar perfil6
+0020 [Sumrio2] 4.2 Grupo 2 — Aprendizado7
+0021 [Sumrio3] 4.2.1 RF005 — Visualizar trilhas7
+0022 [Sumrio3] 4.2.2 RF006 — Iniciar trilha7
+0023 [Sumrio3] 4.2.3 RF007 — Acessar lição8
+0024 [Sumrio3] 4.2.4 RF008 — Resolver exercício8
+0025 [Sumrio3] 4.2.5 RF009 — Registrar progresso9
+0026 [Sumrio3] 4.2.6 RF010 — Consultar histórico9
+0027 [Sumrio2] 4.3 Grupo 3 — Gamificação10
+0028 [Sumrio3] 4.3.1 RF011 — Atribuir XP10
+0029 [Sumrio3] 4.3.2 RF012 — Atualizar nível10
+0030 [Sumrio3] 4.3.3 RF013 — Gerenciar conquistas11
+0031 [Sumrio3] 4.3.4 RF014 — Consultar ranking11
+0032 [Sumrio3] 4.3.5 RF015 — Derivar faixa de XP12
+0033 [Sumrio2] 4.4 Grupo 4 — Duelos12
+0034 [Sumrio3] 4.4.1 RF016 — Criar duelo aberto12
+0035 [Sumrio3] 4.4.2 RF017 — Entrar em duelo13
+0036 [Sumrio3] 4.4.3 RF018 — Aceitar ou rejeitar convite de duelo legado13
+0037 [Sumrio3] 4.4.4 RF019 — Enviar solução de duelo14
+0038 [Sumrio3] 4.4.5 RF020 — Avaliar resultado14
+0039 [Sumrio3] 4.4.6 RF021 — Atualizar classificação após duelo15
+0040 [Sumrio2] 4.5 Grupo 5 — Assistência Editorial15
+0041 [Sumrio3] 4.5.1 RF022 — Consultar ajuda do exercício15
+0042 [Sumrio3] 4.5.2 RF023 — Selecionar modo de assistência16
+0043 [Sumrio3] 4.5.3 RF024 — Consultar documentação16
+0044 [Sumrio3] 4.5.4 RF025 — Utilizar sugestões do editor17
+0045 [Sumrio2] 4.6 Grupo 6 — Avaliação Humana17
+0046 [Sumrio3] 4.6.1 RF026 — Candidatar-se a avaliador17
+0047 [Sumrio3] 4.6.2 RF027 — Receber avaliações pendentes18
+0048 [Sumrio3] 4.6.3 RF028 — Avaliar solução18
+0049 [Sumrio3] 4.6.4 RF029 — Registrar decisão de avaliação19
+0050 [Sumrio2] 4.7 Grupo 7 — Comunidade19
+0051 [Sumrio3] 4.7.1 RF030 — Criar publicação19
+0052 [Sumrio3] 4.7.2 RF031 — Visualizar feed20
+0053 [Sumrio3] 4.7.3 RF032 — Interagir com publicação20
+0054 [Sumrio3] 4.7.4 RF033 — Denunciar conteúdo21
+0055 [Sumrio2] 4.8 Grupo 8 — Vagas e Empresas21
+0056 [Sumrio3] 4.8.1 RF034 — Cadastrar empresa21
+0057 [Sumrio3] 4.8.2 RF035 — Publicar vaga22
+0058 [Sumrio3] 4.8.3 RF036 — Consultar vagas22
+0059 [Sumrio3] 4.8.4 RF037 — Visualizar perfil público de desenvolvedor23
+0060 [Sumrio3] 4.8.5 RF038 — Consultar indicadores permitidos do usuário23
+0061 [Sumrio3] 4.8.6 RF047 — Candidatar-se a vaga24
+0062 [Sumrio3] 4.8.7 RF048 — Atualizar etapa de candidatura24
+0063 [Sumrio2] 4.9 Grupo 9 — Administração25
+0064 [Sumrio3] 4.9.1 RF039 — Gerenciar usuários25
+0065 [Sumrio3] 4.9.2 RF040 — Gerenciar conteúdo25
+0066 [Sumrio3] 4.9.3 RF041 — Criar e gerenciar eventos26
+0067 [Sumrio3] 4.9.4 RF042 — Gerenciar permissões de usuários26
+0068 [Sumrio3] 4.9.5 RF043 — Tratar denúncias27
+0069 [Sumrio2] 4.10 Grupo 10 — Notificações27
+0070 [Sumrio3] 4.10.1 RF044 — Gerar notificação27
+0071 [Sumrio3] 4.10.2 RF045 — Consultar notificações28
+0072 [Sumrio3] 4.10.3 RF046 — Atualizar leitura de notificações28
+0073 [Sumrio2] 4.11 Grupo 11 — Eventos29
+0074 [Sumrio3] 4.11.1 RF049 — Inscrever-se ou cancelar participação em evento29
+0075 [Sumrio1] 5. Requisitos Não Funcionais29
+0076 [Sumrio1] 6. Regras de Negócio31
+0077 [Sumrio1] 7. Matriz de relacionamento Requisitos Funcionais × Regras de Negócio34
+0078 [Sumrio1] 8. Rastreabilidade com os modelos do seminário35
+0079 []
+0080 [Ttulo1] 2. Objetivo
+0081 [] Este documento identifica, organiza e formaliza os requisitos funcionais, os requisitos não funcionais e as regras de negócio do Stacklyst. Registra prioridade, atores, entradas, processamento, saídas, restrições, estado de implementação e evidências. A revisão documental de 19/10/2026 alinha os fluxos aos modelos e à apresentação do seminário, cuja base de código declarada é o commit 9256a4f.
+0082 [Ttulo1] 3. Técnicas Utilizadas na Elicitação de Requisitos
+0083 [] A documentação registra as seguintes técnicas de elicitação e revisão dos requisitos:
+0084 [] Brainstorming da equipe para definir módulos, atores e regras do produto.
+0085 []
+0086 [] Análise comparativa de plataformas de aprendizagem, comunidades técnicas e gamificação.
+0087 []
+0088 [] Prototipação evolutiva das telas, comprovada pelas interfaces e capturas versionadas.
+0089 []
+0090 [] Revisões da equipe durante as entregas da disciplina.
+0091 []
+0092 [] Revisão acadêmica do formato dos documentos, da posição dos protótipos e da adequação dos modelos, a partir dos comentários da professora.
+0093 []
+0094 [] Análise das necessidades de estudantes, desenvolvedores, avaliadores, administradores e recrutadores.
+0095 []
+0096 [] A base documental reúne necessidades discutidas pela equipe, protótipos, modelos acadêmicos e o inventário técnico de 12/09/2026. Esta edição incorpora o projeto Astah EntityStore1.asta e a apresentação Stacklyst seminário Astah, com referência ao commit 9256a4f e às orientações de revisão de 28/09/2026. As orientações da professora constituem insumos de revisão, sem representar aprovação de todos os modelos.
+0097 [Ttulo1] 4. Requisitos Funcionais
+0098 [] Os requisitos estão agrupados por módulo e preservam os identificadores RF001 a RF049. Os estados de implementação mantêm o inventário técnico de 12/09/2026, com atualizações explicitamente atribuídas ao seminário ou à conferência pontual de código indicada no requisito; não substituem testes de aceitação. O fluxo vigente de duelos usa vagas abertas. RF018, RN008 e RN009 permanecem apenas como histórico, sem aplicação ao fluxo atual.
+0099 [Ttulo2] 4.1 Grupo 1 — Autenticação e Usuários
+0100 [Ttulo3] 4.1.1 RF001 — Cadastrar usuário
+0101 [] RF001 — Especificação
+0102 [] Conteúdo
+0103 [] Nome
+0104 [] Cadastrar usuário
+0105 [] Identificador
+0106 [] RF001
+0107 [] Prioridade
+0108 [] Alta
+0109 [] Descrição
+0110 [] Criar uma conta de usuário com identidade única e perfil inicial.
+0111 [] Atores envolvidos
+0112 [] Visitante
+0113 [] Regra de negócio relacionada
+0114 [] RN017, RN025
+0115 [] Estado e referências de implementação
+0116 [] Estado: Implementado. Evidência: src/app/register; src/app/api/auth/register.
+0117 [] Entradas
+0118 [] Nome de usuário, e-mail, senha e dados opcionais permitidos.
+0119 [] Processamento
+0120 [] Validar dados, criar identidade no provedor e registro local sem duplicidade.
+0121 [] Saídas
+0122 [] Conta criada e sessão/encaminhamento de acesso.
+0123 [] Restrições
+0124 [] E-mail e username únicos; senha tratada pelo provedor; limites de cadastro.
+0125 []
+0126 [Ttulo3] 4.1.2 RF002 — Fazer login
+0127 [] RF002 — Especificação
+0128 [] Conteúdo
+0129 [] Nome
+0130 [] Fazer login
+0131 [] Identificador
+0132 [] RF002
+0133 [] Prioridade
+0134 [] Alta
+0135 [] Descrição
+0136 [] Permitir login e criação de sessão segura para acesso às funções protegidas.
+0137 [] Atores envolvidos
+0138 [] Visitante; Provedor de identidade
+0139 [] Regra de negócio relacionada
+0140 [] RN017, RN025
+0141 [] Estado e referências de implementação
+0142 [] Estado: Implementado. Evidência: src/app/login; src/lib/auth.ts; src/lib/supabase.
+0143 [] Entradas
+0144 [] Credencial e, quando escolhido, provedor OAuth.
+0145 [] Processamento
+0146 [] Verificar identidade, emitir sessão/cookies e carregar papel autorizado.
+0147 [] Saídas
+0148 [] Sessão autenticada ou mensagem de erro.
+0149 [] Restrições
+0150 [] Credenciais não podem ser expostas; autorização deve ser revalidada no servidor.
+0151 []
+0152 [Ttulo3] 4.1.3 RF003 — Encerrar sessão
+0153 [] RF003 — Especificação
+0154 [] Conteúdo
+0155 [] Nome
+0156 [] Encerrar sessão
+0157 [] Identificador
+0158 [] RF003
+0159 [] Prioridade
+0160 [] Alta
+0161 [] Descrição
+0162 [] Encerrar a sessão autenticada com segurança.
+0163 [] Atores envolvidos
+0164 [] Usuário, Avaliador, Administrador, Recrutador
+0165 [] Regra de negócio relacionada
+0166 [] RN017, RN025
+0167 [] Estado e referências de implementação
+0168 [] Estado: Implementado. Evidência: src/components/LogoutButton.tsx; Supabase Auth.
+0169 [] Entradas
+0170 [] Sessão atual.
+0171 [] Processamento
+0172 [] Solicitar encerramento ao provedor, remover estado local e redirecionar para a área pública.
+0173 [] Saídas
+0174 [] Sessão encerrada.
+0175 [] Restrições
+0176 [] A sessão não deve permanecer utilizável após o logout.
+0177 []
+0178 [Ttulo3] 4.1.4 RF004 — Gerenciar perfil
+0179 [] RF004 — Especificação
+0180 [] Conteúdo
+0181 [] Nome
+0182 [] Gerenciar perfil
+0183 [] Identificador
+0184 [] RF004
+0185 [] Prioridade
+0186 [] Alta
+0187 [] Descrição
+0188 [] Consultar e atualizar dados permitidos do perfil.
+0189 [] Atores envolvidos
+0190 [] Usuário autenticado
+0191 [] Regra de negócio relacionada
+0192 [] RN017, RN027
+0193 [] Estado e referências de implementação
+0194 [] Estado: Implementado. Evidência: src/app/profile/[username]; src/app/api/profile/update.
+0195 [] Entradas
+0196 [] Bio, avatar, banner, pronomes e demais campos permitidos.
+0197 [] Processamento
+0198 [] Validar propriedade, sanitizar e persistir alterações.
+0199 [] Saídas
+0200 [] Perfil atualizado e visualização pública/privada coerente.
+0201 [] Restrições
+0202 [] Titular autenticado; mudança de username confirmada e bloqueada por sete dias após alteração, validada no servidor.
+0203 []
+0204 [Ttulo2] 4.2 Grupo 2 — Aprendizado
+0205 [Ttulo3] 4.2.1 RF005 — Visualizar trilhas
+0206 [] RF005 — Especificação
+0207 [] Conteúdo
+0208 [] Nome
+0209 [] Visualizar trilhas
+0210 [] Identificador
+0211 [] RF005
+0212 [] Prioridade
+0213 [] Alta
+0214 [] Descrição
+0215 [] Listar trilhas disponíveis e o progresso do usuário.
+0216 [] Atores envolvidos
+0217 [] Usuário
+0218 [] Regra de negócio relacionada
+0219 [] RN025, RN029
+0220 [] Estado e referências de implementação
+0221 [] Implementado: src/lib/learning/catalog.ts; src/app/trails/LearningJourney.tsx.
+0222 [] Entradas
+0223 [] Idioma/tecnologia e preferências de curso.
+0224 [] Processamento
+0225 [] Derivar unidades, lições e exercícios do catálogo e consultar o progresso salvo. Mapa e lista usam o mesmo conjunto e a mesma ordenação.
+0226 [] Saídas
+0227 [] Mapa de trilha com estado das etapas.
+0228 [] Restrições
+0229 [] Não expor conteúdo não publicado e manter mapa e lista sincronizados.
+0230 []
+0231 [Ttulo3] 4.2.2 RF006 — Iniciar trilha
+0232 [] RF006 — Especificação
+0233 [] Conteúdo
+0234 [] Nome
+0235 [] Iniciar trilha
+0236 [] Identificador
+0237 [] RF006
+0238 [] Prioridade
+0239 [] Alta
+0240 [] Descrição
+0241 [] Iniciar ou retomar uma trilha selecionada.
+0242 [] Atores envolvidos
+0243 [] Usuário
+0244 [] Regra de negócio relacionada
+0245 [] RN025, RN029
+0246 [] Estado e referências de implementação
+0247 [] Estado: Implementado. Evidência: src/app/trails; src/app/api/trails/course-preferences.
+0248 [] Entradas
+0249 [] Trilha e nível/etapa selecionados.
+0250 [] Processamento
+0251 [] Registrar preferência e direcionar à lição elegível.
+0252 [] Saídas
+0253 [] Trilha ativa e próxima ação.
+0254 [] Restrições
+0255 [] Pré-requisitos devem ser respeitados e validados.
+0256 []
+0257 [Ttulo3] 4.2.3 RF007 — Acessar lição
+0258 [] RF007 — Especificação
+0259 [] Conteúdo
+0260 [] Nome
+0261 [] Acessar lição
+0262 [] Identificador
+0263 [] RF007
+0264 [] Prioridade
+0265 [] Alta
+0266 [] Descrição
+0267 [] Exibir uma lição em página própria com etapas interativas.
+0268 [] Atores envolvidos
+0269 [] Usuário
+0270 [] Regra de negócio relacionada
+0271 [] RN025, RN029
+0272 [] Estado e referências de implementação
+0273 [] Estado: Implementado. Evidência: src/app/lesson/[lessonId]; src/lib/lessons/registry.ts.
+0274 [] Entradas
+0275 [] Identificador da lição.
+0276 [] Processamento
+0277 [] Resolver conteúdo cadastrado/dinâmico e verificar disponibilidade.
+0278 [] Saídas
+0279 [] Conteúdo, progresso da sessão e exercícios.
+0280 [] Restrições
+0281 [] Lição inexistente deve gerar resposta controlada; o conteúdo da lição é editorial.
+0282 []
+0283 [Ttulo3] 4.2.4 RF008 — Resolver exercício
+0284 [] RF008 — Especificação
+0285 [] Conteúdo
+0286 [] Nome
+0287 [] Resolver exercício
+0288 [] Identificador
+0289 [] RF008
+0290 [] Prioridade
+0291 [] Alta
+0292 [] Descrição
+0293 [] Receber e avaliar respostas em diferentes tipos de interação, distinguindo o teste de código da submissão da atividade.
+0294 [] Atores envolvidos
+0295 [] Usuário; serviço externo de execução, quando a linguagem exigir. A execução interna não constitui ator externo.
+0296 [] Regra de negócio relacionada
+0297 [] RN001, RN002, RN024, RN025, RN029
+0298 [] Estado e referências de implementação
+0299 [] Implementado no inventário; fluxo atualizado por UC006 do seminário e conferência pontual de 19/10/2026 em src/lib/code-execution/server.ts. Referências: learning/assessment.ts; lessons/[lessonId]/attempt.
+0300 [] Entradas
+0301 [] Resposta, código, ordem, pares, lacunas ou comando.
+0302 [] Processamento
+0303 [] Validar a resposta no servidor. JavaScript e TypeScript usam primeiro o sandbox interno QuickJS; a execução pode recorrer a serviço externo conforme a linguagem e a disponibilidade. Testes privados e soluções não são serializados ao cliente. O teste apresenta a saída; a submissão válida registra a tentativa e a recompensa elegível.
+0304 [] Saídas
+0305 [] Resultado de acerto ou erro, feedback e saída de execução; XP elegível somente na submissão confirmada.
+0306 [] Restrições
+0307 [] Entrada inválida retorna 400. Testar código não concede XP nem conclui a etapa. Falha do executor ou da gravação não confirma avanço; a interface permite tentar novamente.
+0308 []
+0309 [Ttulo3] 4.2.5 RF009 — Registrar progresso
+0310 [] RF009 — Especificação
+0311 [] Conteúdo
+0312 [] Nome
+0313 [] Registrar progresso
+0314 [] Identificador
+0315 [] RF009
+0316 [] Prioridade
+0317 [] Alta
+0318 [] Descrição
+0319 [] Persistir respostas e derivar conclusão e desbloqueio de lições.
+0320 [] Atores externos e acionamento
+0321 [] Usuário beneficiário; acionamento interno após atividade elegível.
+0322 [] Regra de negócio relacionada
+0323 [] RN001, RN002, RN028, RN029
+0324 [] Estado e referências de implementação
+0325 [] Implementado: lesson-progress.ts, transaction.ts, QuizAttempt e ExerciseSubmission.
+0326 [] Entradas
+0327 [] Atividade concluída e identidade do usuário.
+0328 [] Processamento
+0329 [] Lock por usuário; gravação atômica de tentativa e primeira recompensa. Transação de banco limitada a 20 s, com até 10 s para adquirir conexão.
+0330 [] Saídas
+0331 [] Progresso consolidado.
+0332 [] Restrições
+0333 [] QuizAttempt é único por usuário/atividade. Submissões possuem índice parcial para primeiro acerto. Revisões não duplicam recompensa.
+0334 []
+0335 [Ttulo3] 4.2.6 RF010 — Consultar histórico
+0336 [] RF010 — Especificação
+0337 [] Conteúdo
+0338 [] Nome
+0339 [] Consultar histórico
+0340 [] Identificador
+0341 [] RF010
+0342 [] Prioridade
+0343 [] Média
+0344 [] Descrição
+0345 [] Apresentar histórico de evolução e atividade recente.
+0346 [] Atores envolvidos
+0347 [] Usuário
+0348 [] Regra de negócio relacionada
+0349 [] RN027
+0350 [] Estado e referências de implementação
+0351 [] Estado: Implementado parcialmente. Evidência: src/app/api/quiz/weekly-activity; perfil e trilhas.
+0352 [] Entradas
+0353 [] Período, usuário e trilha.
+0354 [] Processamento
+0355 [] Consolidar tentativas, XP e sequência dentro das permissões.
+0356 [] Saídas
+0357 [] Linha do tempo/resumo de progresso.
+0358 [] Restrições
+0359 [] O histórico apresenta as tentativas e os resultados autorizados do próprio usuário.
+0360 []
+0361 [Ttulo2] 4.3 Grupo 3 — Gamificação
+0362 [Ttulo3] 4.3.1 RF011 — Atribuir XP
+0363 [] RF011 — Especificação
+0364 [] Conteúdo
+0365 [] Nome
+0366 [] Atribuir XP
+0367 [] Identificador
+0368 [] RF011
+0369 [] Prioridade
+0370 [] Alta
+0371 [] Descrição
+0372 [] Conceder XP apenas a atividades válidas e elegíveis.
+0373 [] Atores externos e acionamento
+0374 [] Usuário beneficiário; acionamento interno após atividade elegível.
+0375 [] Regra de negócio relacionada
+0376 [] RN001, RN002, RN028
+0377 [] Estado e referências de implementação
+0378 [] Estado: Implementado. Evidência: src/services/xp.service.ts.
+0379 [] Entradas
+0380 [] Usuário, linguagem, atividade e quantidade configurada.
+0381 [] Processamento
+0382 [] Validar elegibilidade e incrementar total/trilha atomicamente.
+0383 [] Saídas
+0384 [] Novo XP total e por linguagem.
+0385 [] Restrições
+0386 [] Idempotência por atividade; quantidade não deve vir livremente do cliente.
+0387 []
+0388 [Ttulo3] 4.3.2 RF012 — Atualizar nível
+0389 [] RF012 — Especificação
+0390 [] Conteúdo
+0391 [] Nome
+0392 [] Atualizar nível
+0393 [] Identificador
+0394 [] RF012
+0395 [] Prioridade
+0396 [] Alta
+0397 [] Descrição
+0398 [] Recalcular o nível após mudança de XP.
+0399 [] Atores externos e acionamento
+0400 [] Usuário beneficiário; acionamento interno após atividade elegível.
+0401 [] Regra de negócio relacionada
+0402 [] RN003
+0403 [] Estado e referências de implementação
+0404 [] Implementado: src/lib/learning/rewards.ts; src/lib/xp.ts.
+0405 [] Entradas
+0406 [] XP atualizado.
+0407 [] Processamento
+0408 [] Aplicar faixas de nível configuradas e detectar subida.
+0409 [] Saídas
+0410 [] Nível, faixa anterior/próxima e notificação.
+0411 [] Restrições
+0412 [] Nível é derivado de XP e é distinto da faixa Bronze a Diamante.
+0413 []
+0414 [Ttulo3] 4.3.3 RF013 — Gerenciar conquistas
+0415 [] RF013 — Especificação
+0416 [] Conteúdo
+0417 [] Nome
+0418 [] Gerenciar conquistas
+0419 [] Identificador
+0420 [] RF013
+0421 [] Prioridade
+0422 [] Média
+0423 [] Descrição
+0424 [] Conceder e listar conquistas por critérios verificáveis.
+0425 [] Atores externos e acionamento
+0426 [] Usuário; concessão automática conforme os critérios de atividade.
+0427 [] Regra de negócio relacionada
+0428 [] RN004
+0429 [] Estado e referências de implementação
+0430 [] Estado: Implementado. Evidência: Badge, UserBadge; src/services/xp.service.ts.
+0431 [] Entradas
+0432 [] Eventos de progresso e critérios.
+0433 [] Processamento
+0434 [] Verificar conquistas já obtidas e registrar novas sem duplicidade.
+0435 [] Saídas
+0436 [] Lista de badges e data de obtenção.
+0437 [] Restrições
+0438 [] Critérios devem ser versionados e não retroagir sem decisão.
+0439 []
+0440 [Ttulo3] 4.3.4 RF014 — Consultar ranking
+0441 [] RF014 — Especificação
+0442 [] Conteúdo
+0443 [] Nome
+0444 [] Consultar ranking
+0445 [] Identificador
+0446 [] RF014
+0447 [] Prioridade
+0448 [] Alta
+0449 [] Descrição
+0450 [] Consultar a classificação global ou por linguagem, calculada a partir do XP registrado.
+0451 [] Atores envolvidos
+0452 [] Usuário
+0453 [] Regra de negócio relacionada
+0454 [] RN005, RN006, RN028
+0455 [] Estado e referências de implementação
+0456 [] Estado: Implementado. Evidências: src/app/leaderboard; src/app/api/leaderboard; UC011 e slide 22 do seminário.
+0457 [] Entradas
+0458 [] Filtro de linguagem opcional.
+0459 [] Processamento
+0460 [] Ordenar XP decrescente, depois username e id crescentes. Por linguagem, somar LanguageTrail e recompensas históricas de exercícios.
+0461 [] Saídas
+0462 [] Ranking com posição, usuário, XP e nível.
+0463 [] Restrições
+0464 [] Desempates determinísticos. A API de leaderboard retorna top 10; não equivale à posição completa de todos os usuários. A consulta não permite manutenção manual de posições ou de XP.
+0465 []
+0466 [Ttulo3] 4.3.5 RF015 — Derivar faixa de XP
+0467 [] RF015 — Especificação
+0468 [] Conteúdo
+0469 [] Nome
+0470 [] Derivar faixa de XP
+0471 [] Identificador
+0472 [] RF015
+0473 [] Prioridade
+0474 [] Média
+0475 [] Descrição
+0476 [] Classificar XP acumulado nas cinco faixas.
+0477 [] Atores externos e acionamento
+0478 [] Usuário beneficiário; acionamento interno após atividade elegível.
+0479 [] Regra de negócio relacionada
+0480 [] RN005, RN006
+0481 [] Estado e referências de implementação
+0482 [] Estado: Implementado parcialmente. Evidência: getUserRankTier em src/services/duel.service.ts.
+0483 [] Entradas
+0484 [] XP total do usuário.
+0485 [] Processamento
+0486 [] Aplicar limites de faixa e informar divisão.
+0487 [] Saídas
+0488 [] Faixa de XP Bronze, Prata, Ouro, Platina ou Diamante.
+0489 [] Restrições
+0490 [] Não é rating Elo. Sem perda de XP por derrota e sem rebaixamento automático por derrota.
+0491 []
+0492 [Ttulo2] 4.4 Grupo 4 — Duelos
+0493 [Ttulo3] 4.4.1 RF016 — Criar duelo aberto
+0494 [] RF016 — Especificação
+0495 [] Conteúdo
+0496 [] Nome
+0497 [] Criar duelo aberto
+0498 [] Identificador
+0499 [] RF016
+0500 [] Prioridade
+0501 [] Alta
+0502 [] Descrição
+0503 [] Criar uma vaga de duelo aberta na arena, aguardando oponente voluntário para a mesma tecnologia.
+0504 [] Atores envolvidos
+0505 [] Usuário autenticado
+0506 [] Regra de negócio relacionada
+0507 [] RN007, RN010, RN025, RN028
+0508 [] Estado e referências de implementação
+0509 [] Fluxo vigente documentado em UC008. Referências: src/app/api/duels/route.ts; src/lib/duels/lifecycle.ts; src/lib/duels/constants.ts.
+0510 [] Entradas
+0511 [] Linguagem e desafio do catálogo; usuário identificado pela sessão. Não há destinatário selecionado.
+0512 [] Processamento
+0513 [] Procurar vaga pendente de outro usuário na mesma linguagem. Se houver, ocupar a vaga e iniciar o confronto com o desafio existente; caso contrário, criar duelo aberto com espera de até 24 horas.
+0514 [] Saídas
+0515 [] Duelo pendente sem oponente ou confronto iniciado em vaga compatível, com prazo de duas horas.
+0516 [] Restrições
+0517 [] Uma vaga não pode ser ocupada por dois oponentes. O usuário não pode entrar no próprio duelo. Convite direto, faixa de XP e cooldown por rejeição não se aplicam.
+0518 []
+0519 [Ttulo3] 4.4.2 RF017 — Entrar em duelo
+0520 [] RF017 — Especificação
+0521 [] Conteúdo
+0522 [] Nome
+0523 [] Entrar em duelo
+0524 [] Identificador
+0525 [] RF017
+0526 [] Prioridade
+0527 [] Alta
+0528 [] Descrição
+0529 [] Entrar em um duelo aberto disponível na arena ou aguardar participante.
+0530 [] Atores envolvidos
+0531 [] Usuário autenticado
+0532 [] Regra de negócio relacionada
+0533 [] RN007, RN010, RN025, RN028
+0534 [] Estado e referências de implementação
+0535 [] Implementado: src/app/api/duels/route.ts; src/lib/duels/lifecycle.ts.
+0536 [] Entradas
+0537 [] Duelo escolhido para entrada direta ou linguagem selecionada na fila rápida; identidade da sessão.
+0538 [] Processamento
+0539 [] Na entrada direta, ocupar vaga disponível de outro usuário. Na fila rápida, buscar o duelo pendente mais antigo da mesma linguagem; sem vaga, criar espera de até 24 horas. O início do confronto define o prazo de duas horas.
+0540 [] Saídas
+0541 [] Duelo ativo ou confirmação de espera por oponente.
+0542 [] Restrições
+0543 [] Não selecionar destinatário nem filtrar por XP. Recusar vaga ocupada, expirada ou do próprio usuário; impedir ocupação concorrente.
+0544 []
+0545 [Ttulo3] 4.4.3 RF018 — Aceitar ou rejeitar convite de duelo legado
+0546 [] RF018 — Especificação
+0547 [] Conteúdo
+0548 [] Nome
+0549 [] Aceitar ou rejeitar convite de duelo legado
+0550 [] Identificador
+0551 [] RF018
+0552 [] Prioridade
+0553 [] Não aplicável à versão vigente
+0554 [] Descrição
+0555 [] Registro histórico da resposta a convite direto. Esse comportamento foi excluído do fluxo vigente de duelos abertos.
+0556 [] Atores envolvidos
+0557 [] Usuário autenticado
+0558 [] Regra de negócio relacionada
+0559 [] RN008, RN009
+0560 [] Estado e referências de implementação
+0561 [] Histórico, fora do escopo vigente. Referências anteriores: src/app/api/duels/respond; DuelService.respondDuelRequest.
+0562 [] Entradas
+0563 [] No fluxo legado: convite e decisão de aceite ou rejeição.
+0564 [] Processamento
+0565 [] No fluxo legado: verificar destinatário e prazo e registrar a decisão. Não executar essa etapa na entrada em duelo aberto.
+0566 [] Saídas
+0567 [] No fluxo legado: convite aceito ou rejeitado.
+0568 [] Restrições
+0569 [] RF018, RN008 e RN009 são preservados para histórico; não regem UC008 nem UC009.
+0570 []
+0571 [Ttulo3] 4.4.4 RF019 — Enviar solução de duelo
+0572 [] RF019 — Especificação
+0573 [] Conteúdo
+0574 [] Nome
+0575 [] Enviar solução de duelo
+0576 [] Identificador
+0577 [] RF019
+0578 [] Prioridade
+0579 [] Alta
+0580 [] Descrição
+0581 [] Submeter código com resolução do desafio dentro do prazo estipulado para avaliação de testes e pontuação.
+0582 [] Atores envolvidos
+0583 [] Participante do duelo; Executor de código
+0584 [] Regra de negócio relacionada
+0585 [] RN010, RN011
+0586 [] Estado e referências de implementação
+0587 [] Implementado: src/app/api/duels/[id]/submit; src/lib/duels/judge.ts; lifecycle.ts.
+0588 [] Entradas
+0589 [] Código e identificador do duelo.
+0590 [] Processamento
+0591 [] Validar participante, estado e prazo; armazenar uma solução por usuário.
+0592 [] Saídas
+0593 [] Soluções registradas e estado para avaliação.
+0594 [] Restrições
+0595 [] Participante autenticado, duelo ativo e envio dentro das duas horas do confronto. A manutenção resolve duelos vencidos. Testes ocultos não são expostos ao cliente.
+0596 []
+0597 [Ttulo3] 4.4.5 RF020 — Avaliar resultado
+0598 [] RF020 — Especificação
+0599 [] Conteúdo
+0600 [] Nome
+0601 [] Avaliar resultado
+0602 [] Identificador
+0603 [] RF020
+0604 [] Prioridade
+0605 [] Alta
+0606 [] Descrição
+0607 [] Avaliar soluções de duelo por testes e pontuação automática; encaminhar empate técnico para parecer humano autorizado.
+0608 [] Atores externos e acionamento
+0609 [] Avaliador ou Administrador na revisão humana; avaliação automática acionada internamente.
+0610 [] Regra de negócio relacionada
+0611 [] RN011, RN012, RN016, RN024, RN028
+0612 [] Estado e referências de implementação
+0613 [] Implementado parcialmente no inventário: testes e resolução automática, com revisão humana de empate técnico. Referências: src/lib/duels/resolution-policy.ts; src/app/api/evaluations; DuelEvaluation.
+0614 [] Entradas
+0615 [] Soluções, testes, pontuações e, na revisão humana, vencedor e feedback.
+0616 [] Processamento
+0617 [] Comparar os resultados automáticos conforme RN012. Em empate técnico, aguardar decisão de avaliador ou administrador que não participou do duelo. Votação comunitária não integra a decisão do fluxo vigente.
+0618 [] Saídas
+0619 [] Pontuações, feedback, vencedor e justificativas.
+0620 [] Restrições
+0621 [] A estimativa estática de complexidade é heurística, não prova formal. Revisão humana fecha pendência por transição condicional.
+0622 []
+0623 [Ttulo3] 4.4.6 RF021 — Atualizar classificação após duelo
+0624 [] RF021 — Especificação
+0625 [] Conteúdo
+0626 [] Nome
+0627 [] Atualizar classificação após duelo
+0628 [] Identificador
+0629 [] RF021
+0630 [] Prioridade
+0631 [] Média
+0632 [] Descrição
+0633 [] Recompensar o vencedor de duelo fechado com 50 XP uma única vez.
+0634 [] Atores externos e acionamento
+0635 [] Usuário beneficiário; acionamento interno após atividade elegível.
+0636 [] Regra de negócio relacionada
+0637 [] RN006, RN028
+0638 [] Estado e referências de implementação
+0639 [] Implementado: src/lib/duels/resolution.ts; xp_awarded_at.
+0640 [] Entradas
+0641 [] Duelo fechado e resultado aprovado.
+0642 [] Processamento
+0643 [] Reivindicar recompensa por atualização condicional e gravar XP na transação.
+0644 [] Saídas
+0645 [] Ranking/divisão e notificações atualizados.
+0646 [] Restrições
+0647 [] Não há rating Elo ajustado à força relativa. Derrota não reduz XP.
+0648 []
+0649 [Ttulo2] 4.5 Grupo 5 — Assistência Editorial
+0650 [Ttulo3] 4.5.1 RF022 — Consultar ajuda do exercício
+0651 [] RF022 — Especificação
+0652 [] Conteúdo
+0653 [] Nome
+0654 [] Consultar ajuda do exercício
+0655 [] Identificador
+0656 [] RF022
+0657 [] Prioridade
+0658 [] Média
+0659 [] Descrição
+0660 [] Exibir dicas e documentação técnica permitidas pelo modo de assistência do exercício.
+0661 [] Atores envolvidos
+0662 [] Usuário autenticado
+0663 [] Regra de negócio relacionada
+0664 [] RN013
+0665 [] Estado e referências de implementação
+0666 [] Estado: Implementado. Evidência: AssistanceControls; LearningEvent.
+0667 [] Entradas
+0668 [] Exercício e modo de assistência.
+0669 [] Processamento
+0670 [] Verificar disponibilidade e registrar consulta no workspace.
+0671 [] Saídas
+0672 [] Dica ou documentação.
+0673 [] Restrições
+0674 [] Ajuda não aumenta nem reduz XP.
+0675 []
+0676 [Ttulo3] 4.5.2 RF023 — Selecionar modo de assistência
+0677 [] RF023 — Especificação
+0678 [] Conteúdo
+0679 [] Nome
+0680 [] Selecionar modo de assistência
+0681 [] Identificador
+0682 [] RF023
+0683 [] Prioridade
+0684 [] Média
+0685 [] Descrição
+0686 [] Permitir escolher entre Guided, Standard, Hard e No Assist.
+0687 [] Atores envolvidos
+0688 [] Usuário
+0689 [] Regra de negócio relacionada
+0690 [] RN013
+0691 [] Estado e referências de implementação
+0692 [] Estado: Implementado. Evidência: src/components/lesson/AssistanceControls.tsx.
+0693 [] Entradas
+0694 [] Modo escolhido.
+0695 [] Processamento
+0696 [] Aplicar as opções de dica, documentação e autocomplete definidas pelo modo.
+0697 [] Saídas
+0698 [] Configuração de assistência ativa.
+0699 [] Restrições
+0700 [] A escolha não altera o valor de XP da atividade.
+0701 []
+0702 [Ttulo3] 4.5.3 RF024 — Consultar documentação
+0703 [] RF024 — Especificação
+0704 [] Conteúdo
+0705 [] Nome
+0706 [] Consultar documentação
+0707 [] Identificador
+0708 [] RF024
+0709 [] Prioridade
+0710 [] Média
+0711 [] Descrição
+0712 [] Exibir documentação editorial durante a prática quando o modo permitir.
+0713 [] Atores envolvidos
+0714 [] Usuário
+0715 [] Regra de negócio relacionada
+0716 [] RN013
+0717 [] Estado e referências de implementação
+0718 [] Estado: Implementado. Evidência: AssistanceControls; ExerciseWorkspace.
+0719 [] Entradas
+0720 [] Exercício e modo de assistência.
+0721 [] Processamento
+0722 [] Verificar permissão do modo e abrir o material publicado.
+0723 [] Saídas
+0724 [] Documentação exibida.
+0725 [] Restrições
+0726 [] No Assist não disponibiliza documentação.
+0727 []
+0728 [Ttulo3] 4.5.4 RF025 — Utilizar sugestões do editor
+0729 [] RF025 — Especificação
+0730 [] Conteúdo
+0731 [] Nome
+0732 [] Utilizar sugestões do editor
+0733 [] Identificador
+0734 [] RF025
+0735 [] Prioridade
+0736 [] Baixa
+0737 [] Descrição
+0738 [] Disponibilizar dicas ou autocomplete conforme o modo selecionado.
+0739 [] Atores envolvidos
+0740 [] Usuário
+0741 [] Regra de negócio relacionada
+0742 [] RN013
+0743 [] Estado e referências de implementação
+0744 [] Estado: Implementado. Evidência: AssistanceControls; editor de exercícios.
+0745 [] Entradas
+0746 [] Código, exercício e modo.
+0747 [] Processamento
+0748 [] Aplicar os recursos editoriais habilitados sem alterar a correção no servidor.
+0749 [] Saídas
+0750 [] Auxílio no editor.
+0751 [] Restrições
+0752 [] A avaliação final continua baseada no contrato canônico da atividade.
+0753 []
+0754 [Ttulo2] 4.6 Grupo 6 — Avaliação Humana
+0755 [Ttulo3] 4.6.1 RF026 — Candidatar-se a avaliador
+0756 [] RF026 — Especificação
+0757 [] Conteúdo
+0758 [] Nome
+0759 [] Candidatar-se a avaliador
+0760 [] Identificador
+0761 [] RF026
+0762 [] Prioridade
+0763 [] Média
+0764 [] Descrição
+0765 [] Permitir que o usuário elegível envie candidatura com motivação e tecnologias para avaliação administrativa.
+0766 [] Atores envolvidos
+0767 [] Usuário autenticado; Administrador
+0768 [] Regra de negócio relacionada
+0769 [] RN014, RN015
+0770 [] Estado e referências de implementação
+0771 [] Estado: Implementado. Evidência: src/services/evaluator.service.ts.
+0772 [] Entradas
+0773 [] Usuário, motivação e tecnologias.
+0774 [] Processamento
+0775 [] Verificar trilha concluída/XP, duplicidade e registrar candidatura.
+0776 [] Saídas
+0777 [] Elegibilidade e candidatura pendente.
+0778 [] Restrições
+0779 [] Critérios atuais seguem a regra implementada; aprovação administrativa é obrigatória.
+0780 []
+0781 [Ttulo3] 4.6.2 RF027 — Receber avaliações pendentes
+0782 [] RF027 — Especificação
+0783 [] Conteúdo
+0784 [] Nome
+0785 [] Receber avaliações pendentes
+0786 [] Identificador
+0787 [] RF027
+0788 [] Prioridade
+0789 [] Média
+0790 [] Descrição
+0791 [] Listar desafios com solução que necessitam revisão.
+0792 [] Atores envolvidos
+0793 [] Avaliador; Administrador
+0794 [] Regra de negócio relacionada
+0795 [] RN012, RN016, RN017
+0796 [] Estado e referências de implementação
+0797 [] Estado: Implementado. Evidência: GET src/app/api/evaluations.
+0798 [] Entradas
+0799 [] Sessão do avaliador.
+0800 [] Processamento
+0801 [] Autorizar papel e carregar duelos pendentes.
+0802 [] Saídas
+0803 [] Fila de avaliações com soluções e contexto.
+0804 [] Restrições
+0805 [] Somente EVALUATOR ou ADMIN; dados devem ser minimizados.
+0806 []
+0807 [Ttulo3] 4.6.3 RF028 — Avaliar solução
+0808 [] RF028 — Especificação
+0809 [] Conteúdo
+0810 [] Nome
+0811 [] Avaliar solução
+0812 [] Identificador
+0813 [] RF028
+0814 [] Prioridade
+0815 [] Média
+0816 [] Descrição
+0817 [] Permitir análise comparativa e parecer humano.
+0818 [] Atores envolvidos
+0819 [] Avaliador; Administrador
+0820 [] Regra de negócio relacionada
+0821 [] RN012, RN016, RN017, RN028
+0822 [] Estado e referências de implementação
+0823 [] Estado: Implementado. Evidência: src/app/evaluations; POST src/app/api/evaluations.
+0824 [] Entradas
+0825 [] Pontuações de 0 a 1.000, vencedor obrigatório, feedback com pelo menos 5 caracteres, pontos fortes e melhorias.
+0826 [] Processamento
+0827 [] Validar limites, autorização e duelo; registrar avaliação humana.
+0828 [] Saídas
+0829 [] Parecer e resultado do duelo.
+0830 [] Restrições
+0831 [] Somente avaliador autorizado ou administrador que não participou do duelo pode decidir. Duelo deve estar pendente de revisão; impedir decisão duplicada ou conflitante.
+0832 []
+0833 [Ttulo3] 4.6.4 RF029 — Registrar decisão de avaliação
+0834 [] RF029 — Especificação
+0835 [] Conteúdo
+0836 [] Nome
+0837 [] Registrar decisão de avaliação
+0838 [] Identificador
+0839 [] RF029
+0840 [] Prioridade
+0841 [] Alta
+0842 [] Descrição
+0843 [] Persistir avaliação, fechar o duelo e notificar participantes.
+0844 [] Atores envolvidos
+0845 [] Avaliador; Administrador
+0846 [] Regra de negócio relacionada
+0847 [] RN016, RN022, RN028
+0848 [] Estado e referências de implementação
+0849 [] Estado: Implementado. Evidência: EvaluatorService.submitDuelEvaluation.
+0850 [] Entradas
+0851 [] Avaliação humana validada.
+0852 [] Processamento
+0853 [] Criar DuelEvaluation, definir vencedor, fechar duelo e atualizar contador.
+0854 [] Saídas
+0855 [] Decisão auditável e notificações.
+0856 [] Restrições
+0857 [] Evitar avaliações conflitantes; política de reavaliação precisa ser definida.
+0858 []
+0859 [Ttulo2] 4.7 Grupo 7 — Comunidade
+0860 [Ttulo3] 4.7.1 RF030 — Criar publicação
+0861 [] RF030 — Especificação
+0862 [] Conteúdo
+0863 [] Nome
+0864 [] Criar publicação
+0865 [] Identificador
+0866 [] RF030
+0867 [] Prioridade
+0868 [] Alta
+0869 [] Descrição
+0870 [] Publicar conteúdo técnico no feed.
+0871 [] Atores envolvidos
+0872 [] Usuário
+0873 [] Regra de negócio relacionada
+0874 [] RN001, RN018, RN019, RN028
+0875 [] Estado e referências de implementação
+0876 [] Implementado; fluxo transacional apresentado em UC013 e no slide 21 do seminário. Referências: src/app/feed; src/app/api/posts; PostService.
+0877 [] Entradas
+0878 [] Título, corpo, linguagem, código e imagem opcional.
+0879 [] Processamento
+0880 [] Validar, sanitizar, aplicar limite e gravar a publicação e o XP elegível na mesma transação.
+0881 [] Saídas
+0882 [] Publicação exibida no feed e recompensa de XP, quando elegível.
+0883 [] Restrições
+0884 [] Autenticação, limite de conteúdo, rate limit e moderação.
+0885 []
+0886 [Ttulo3] 4.7.2 RF031 — Visualizar feed
+0887 [] RF031 — Especificação
+0888 [] Conteúdo
+0889 [] Nome
+0890 [] Visualizar feed
+0891 [] Identificador
+0892 [] RF031
+0893 [] Prioridade
+0894 [] Alta
+0895 [] Descrição
+0896 [] Exibir publicações paginadas e ordenadas.
+0897 [] Atores envolvidos
+0898 [] Usuário
+0899 [] Regra de negócio relacionada
+0900 [] RN018, RN027
+0901 [] Estado e referências de implementação
+0902 [] Estado: Implementado. Evidência: src/app/feed; PostService; paginação por cursor.
+0903 [] Entradas
+0904 [] Filtro, limite e cursor.
+0905 [] Processamento
+0906 [] Buscar página e relacionamentos permitidos.
+0907 [] Saídas
+0908 [] Itens e próximo cursor.
+0909 [] Restrições
+0910 [] Paginação deve evitar duplicidade e carga excessiva.
+0911 []
+0912 [Ttulo3] 4.7.3 RF032 — Interagir com publicação
+0913 [] RF032 — Especificação
+0914 [] Conteúdo
+0915 [] Nome
+0916 [] Interagir com publicação
+0917 [] Identificador
+0918 [] RF032
+0919 [] Prioridade
+0920 [] Média
+0921 [] Descrição
+0922 [] Reagir, votar, responder, salvar e seguir conforme a ação.
+0923 [] Atores envolvidos
+0924 [] Usuário
+0925 [] Regra de negócio relacionada
+0926 [] RN018, RN022
+0927 [] Estado e referências de implementação
+0928 [] Estado: Implementado. Evidência: src/app/api/posts/[id]; reactions, answers, bookmarks.
+0929 [] Entradas
+0930 [] Publicação, tipo de interação e conteúdo quando aplicável.
+0931 [] Processamento
+0932 [] Validar alvo, evitar duplicidade e registrar interação.
+0933 [] Saídas
+0934 [] Contadores, resposta e notificação.
+0935 [] Restrições
+0936 [] Ação própria indevida e abuso devem ser bloqueados.
+0937 []
+0938 [Ttulo3] 4.7.4 RF033 — Denunciar conteúdo
+0939 [] RF033 — Especificação
+0940 [] Conteúdo
+0941 [] Nome
+0942 [] Denunciar conteúdo
+0943 [] Identificador
+0944 [] RF033
+0945 [] Prioridade
+0946 [] Alta
+0947 [] Descrição
+0948 [] Registrar denúncia para análise administrativa.
+0949 [] Atores envolvidos
+0950 [] Usuário; Administrador
+0951 [] Regra de negócio relacionada
+0952 [] RN019
+0953 [] Estado e referências de implementação
+0954 [] Estado: Implementado. Evidência: src/app/api/posts/[id]/report; src/app/api/admin/reports.
+0955 [] Entradas
+0956 [] Publicação e motivo.
+0957 [] Processamento
+0958 [] Validar usuário/alvo, impedir duplicidade e criar denúncia.
+0959 [] Saídas
+0960 [] Confirmação e item na fila administrativa.
+0961 [] Restrições
+0962 [] Denúncia não remove conteúdo automaticamente sem política definida.
+0963 []
+0964 [Ttulo2] 4.8 Grupo 8 — Vagas e Empresas
+0965 [Ttulo3] 4.8.1 RF034 — Cadastrar empresa
+0966 [] RF034 — Especificação
+0967 [] Conteúdo
+0968 [] Nome
+0969 [] Cadastrar empresa
+0970 [] Identificador
+0971 [] RF034
+0972 [] Prioridade
+0973 [] Média
+0974 [] Descrição
+0975 [] Criar empresa vinculada ao responsável autorizado.
+0976 [] Atores envolvidos
+0977 [] Usuário autenticado (promovido a Recrutador)
+0978 [] Regra de negócio relacionada
+0979 [] RN017, RN020, RN027
+0980 [] Estado e referências de implementação
+0981 [] Estado: Implementado. Evidência: src/app/api/companies; Company.
+0982 [] Entradas
+0983 [] Nome, slug, descrição, localização, site e imagem opcionais.
+0984 [] Processamento
+0985 [] Validar sessão e dados; criar empresa com o usuário como proprietário e promover USER a RECRUITER.
+0986 [] Saídas
+0987 [] Empresa cadastrada.
+0988 [] Restrições
+0989 [] Não exige papel RECRUITER prévio. Verificação oficial da empresa não deve ser presumida.
+0990 []
+0991 [Ttulo3] 4.8.2 RF035 — Publicar vaga
+0992 [] RF035 — Especificação
+0993 [] Conteúdo
+0994 [] Nome
+0995 [] Publicar vaga
+0996 [] Identificador
+0997 [] RF035
+0998 [] Prioridade
+0999 [] Média
+1000 [] Descrição
+1001 [] Criar oportunidade com requisitos e etapas para empresa sob responsabilidade autorizada.
+1002 [] Atores envolvidos
+1003 [] Recrutador; Administrador
+1004 [] Regra de negócio relacionada
+1005 [] RN020, RN026
+1006 [] Estado e referências de implementação
+1007 [] Implementado; autorização reconferida em 19/10/2026 em POST src/app/api/jobs e src/lib/mobile/company-access.ts. A rota valida requireRole e requireCompanyAccess antes de JobService.createJob, conforme UC017 e slide 17.
+1008 [] Entradas
+1009 [] Empresa, título, descrição, nível, tecnologias, modalidade, contrato e etapas.
+1010 [] Processamento
+1011 [] Validar papel e dados, verificar acesso autorizado à empresa informada e criar a vaga e suas etapas.
+1012 [] Saídas
+1013 [] Vaga aberta e consultável.
+1014 [] Restrições
+1015 [] Permitir publicação apenas a RECRUITER ou ADMIN autorizado para a empresa. Rejeitar empresa sem acesso autorizado antes de criar a vaga.
+1016 []
+1017 [Ttulo3] 4.8.3 RF036 — Consultar vagas
+1018 [] RF036 — Especificação
+1019 [] Conteúdo
+1020 [] Nome
+1021 [] Consultar vagas
+1022 [] Identificador
+1023 [] RF036
+1024 [] Prioridade
+1025 [] Média
+1026 [] Descrição
+1027 [] Listar e filtrar oportunidades abertas.
+1028 [] Atores envolvidos
+1029 [] Usuário; Empresa / Recrutador
+1030 [] Regra de negócio relacionada
+1031 [] RN020, RN026
+1032 [] Estado e referências de implementação
+1033 [] Estado: Implementado. Evidência: src/app/jobs; GET src/app/api/jobs.
+1034 [] Entradas
+1035 [] Busca, nível, modalidade, contrato e tecnologia.
+1036 [] Processamento
+1037 [] Aplicar filtros e carregar empresa/etapas permitidas.
+1038 [] Saídas
+1039 [] Lista e detalhes das vagas.
+1040 [] Restrições
+1041 [] Vagas encerradas não devem aceitar candidatura.
+1042 []
+1043 [Ttulo3] 4.8.4 RF037 — Visualizar perfil público de desenvolvedor
+1044 [] RF037 — Especificação
+1045 [] Conteúdo
+1046 [] Nome
+1047 [] Visualizar perfil público de desenvolvedor
+1048 [] Identificador
+1049 [] RF037
+1050 [] Prioridade
+1051 [] Média
+1052 [] Descrição
+1053 [] Exibir perfil público conforme configuração e autorização.
+1054 [] Atores envolvidos
+1055 [] Empresa / Recrutador; Usuário
+1056 [] Regra de negócio relacionada
+1057 [] RN021, RN027
+1058 [] Estado e referências de implementação
+1059 [] Estado: Implementado parcialmente. Evidência: src/app/profile/[username].
+1060 [] Entradas
+1061 [] Username do desenvolvedor.
+1062 [] Processamento
+1063 [] Carregar apenas campos públicos e evidências permitidas.
+1064 [] Saídas
+1065 [] Perfil e indicadores públicos.
+1066 [] Restrições
+1067 [] Não expor e-mail, dados privados ou decisões automatizadas.
+1068 []
+1069 [Ttulo3] 4.8.5 RF038 — Consultar indicadores permitidos do usuário
+1070 [] RF038 — Especificação
+1071 [] Conteúdo
+1072 [] Nome
+1073 [] Consultar indicadores permitidos do usuário
+1074 [] Identificador
+1075 [] RF038
+1076 [] Prioridade
+1077 [] Baixa
+1078 [] Descrição
+1079 [] Apresentar trilhas, desafios e atividade pública como indicadores auxiliares.
+1080 [] Atores envolvidos
+1081 [] Empresa / Recrutador
+1082 [] Regra de negócio relacionada
+1083 [] RN021, RN027
+1084 [] Estado e referências de implementação
+1085 [] Estado: Implementado parcialmente. Evidência: perfil público e modelos de progresso; não há painel analítico completo.
+1086 [] Entradas
+1087 [] Usuário e permissão/consentimento aplicável.
+1088 [] Processamento
+1089 [] Selecionar indicadores públicos e registrar acesso quando necessário.
+1090 [] Saídas
+1091 [] Resumo de evidências sem decisão automática.
+1092 [] Restrições
+1093 [] Limitar a consulta aos campos públicos definidos pela aplicação. Qualquer ampliação para dados privados exige política de visibilidade e autorização específica, fora do escopo vigente.
+1094 []
+1095 [Ttulo3] 4.8.6 RF047 — Candidatar-se a vaga
+1096 [] RF047 — Especificação
+1097 [] Conteúdo
+1098 [] Nome
+1099 [] Candidatar-se a vaga
+1100 [] Identificador
+1101 [] RF047
+1102 [] Prioridade
+1103 [] Média
+1104 [] Descrição
+1105 [] Efetivar a candidatura do usuário autenticado a uma vaga aberta.
+1106 [] Atores envolvidos
+1107 [] Usuário
+1108 [] Regra de negócio relacionada
+1109 [] RN026
+1110 [] Estado e referências de implementação
+1111 [] Estado: Implementado. Evidências: POST src/app/api/jobs/[id]/apply; UC022 e slide 18 do seminário.
+1112 [] Entradas
+1113 [] Identificador da vaga e sessão.
+1114 [] Processamento
+1115 [] Verificar vaga aberta e candidatura prévia; criar candidatura vinculada ao usuário e à etapa inicial da vaga.
+1116 [] Saídas
+1117 [] Candidatura criada com status e etapa inicial.
+1118 [] Restrições
+1119 [] Uma candidatura por usuário/vaga.
+1120 []
+1121 [Ttulo3] 4.8.7 RF048 — Atualizar etapa de candidatura
+1122 [] RF048 — Especificação
+1123 [] Conteúdo
+1124 [] Nome
+1125 [] Atualizar etapa de candidatura
+1126 [] Identificador
+1127 [] RF048
+1128 [] Prioridade
+1129 [] Média
+1130 [] Descrição
+1131 [] Atualizar a etapa, o status e o feedback da candidatura vinculada à vaga, com notificação automática ao candidato.
+1132 [] Atores envolvidos
+1133 [] Recrutador responsável ou Administrador autorizado; Candidato como destinatário da atualização.
+1134 [] Regra de negócio relacionada
+1135 [] RN020, RN021, RN022, RN026
+1136 [] Estado e referências de implementação
+1137 [] Fluxo apresentado em UC026 e nos slides 20 e 24 do seminário. Referências: PATCH src/app/api/jobs/[id]; JobService.updateApplicationStage; NotificationService.
+1138 [] Entradas
+1139 [] Candidatura, etapa, status, feedback e nota opcional.
+1140 [] Processamento
+1141 [] Verificar papel e acesso à empresa, confirmar que a candidatura pertence à vaga e que a etapa informada é dessa vaga. Atualizar o processo e gerar internamente notificação ao usuário da candidatura.
+1142 [] Saídas
+1143 [] Candidatura atualizada e notificação destinada ao candidato associado.
+1144 [] Restrições
+1145 [] Rejeitar candidatura ou etapa de outra vaga. A nota técnica é informada pelo responsável e validada no intervalo permitido. Falha da notificação não desfaz a atualização principal.
+1146 []
+1147 [Ttulo2] 4.9 Grupo 9 — Administração
+1148 [Ttulo3] 4.9.1 RF039 — Gerenciar usuários
+1149 [] RF039 — Especificação
+1150 [] Conteúdo
+1151 [] Nome
+1152 [] Gerenciar usuários
+1153 [] Identificador
+1154 [] RF039
+1155 [] Prioridade
+1156 [] Alta
+1157 [] Descrição
+1158 [] Listar usuários e alterar papéis autorizados.
+1159 [] Atores envolvidos
+1160 [] Administrador
+1161 [] Regra de negócio relacionada
+1162 [] RN017, RN025
+1163 [] Estado e referências de implementação
+1164 [] Estado: Implementado. Evidência: src/app/api/admin/users; AdminService.
+1165 [] Entradas
+1166 [] Busca, página, papel e alteração solicitada.
+1167 [] Processamento
+1168 [] Autorizar administrador, validar papel e persistir.
+1169 [] Saídas
+1170 [] Lista ou usuário atualizado.
+1171 [] Restrições
+1172 [] Mudança de papel deve ser auditada; impedir escalada indevida.
+1173 []
+1174 [Ttulo3] 4.9.2 RF040 — Gerenciar conteúdo
+1175 [] RF040 — Especificação
+1176 [] Conteúdo
+1177 [] Nome
+1178 [] Gerenciar conteúdo
+1179 [] Identificador
+1180 [] RF040
+1181 [] Prioridade
+1182 [] Média
+1183 [] Descrição
+1184 [] Revisar conteúdo e parâmetros editoriais administráveis.
+1185 [] Atores envolvidos
+1186 [] Administrador
+1187 [] Regra de negócio relacionada
+1188 [] RN017, RN019
+1189 [] Estado e referências de implementação
+1190 [] Estado: Implementado parcialmente. Evidência: admin possui denúncias e geração de quiz; CRUD editorial completo não foi localizado.
+1191 [] Entradas
+1192 [] Conteúdo, decisão e justificativa.
+1193 [] Processamento
+1194 [] Validar permissão e aplicar ação suportada.
+1195 [] Saídas
+1196 [] Conteúdo atualizado/ocultado ou ação recusada.
+1197 [] Restrições
+1198 [] A moderação vigente permite analisar denúncias e remover publicações quando cabível. O cadastro, a edição e a exclusão completos do catálogo editorial não estão comprovados pelo inventário; os conteúdos de aprendizagem permanecem versionados.
+1199 []
+1200 [Ttulo3] 4.9.3 RF041 — Criar e gerenciar eventos
+1201 [] RF041 — Especificação
+1202 [] Conteúdo
+1203 [] Nome
+1204 [] Criar e gerenciar eventos
+1205 [] Identificador
+1206 [] RF041
+1207 [] Prioridade
+1208 [] Média
+1209 [] Descrição
+1210 [] Permitir criação de evento por qualquer usuário autenticado e exclusão pelo criador ou administrador autorizado.
+1211 [] Atores envolvidos
+1212 [] Usuário autenticado (como organizador); Administrador
+1213 [] Regra de negócio relacionada
+1214 [] RN017, RN023
+1215 [] Estado e referências de implementação
+1216 [] Estado: Implementado parcialmente no inventário. Modelos do seminário distinguem UC015, criação, de UC023, inscrição e cancelamento. Referências: src/app/api/events; EventService.
+1217 [] Entradas
+1218 [] Título, descrição, tipo, datas, nível e limite.
+1219 [] Processamento
+1220 [] Validar sessão e dados, criar evento vinculado ao usuário e permitir exclusão somente pelo criador ou administrador.
+1221 [] Saídas
+1222 [] Evento publicado, disponível para consulta e inscrição conforme os critérios de participação.
+1223 [] Restrições
+1224 [] Criação não exige papel de Administrador ou Recrutador. A exclusão exige criador ou Administrador. Edição do evento não integra o escopo vigente; inscrição e cancelamento são descritos em RF049 e UC023.
+1225 []
+1226 [Ttulo3] 4.9.4 RF042 — Gerenciar permissões de usuários
+1227 [] RF042 — Especificação
+1228 [] Conteúdo
+1229 [] Nome
+1230 [] Gerenciar permissões de usuários
+1231 [] Identificador
+1232 [] RF042
+1233 [] Prioridade
+1234 [] Alta
+1235 [] Descrição
+1236 [] Visualizar e atualizar papéis de usuários do sistema de forma controlada.
+1237 [] Atores envolvidos
+1238 [] Administrador
+1239 [] Regra de negócio relacionada
+1240 [] RN015, RN017
+1241 [] Estado e referências de implementação
+1242 [] Implementado com limites: gestão de papéis disponível; cobertura integral de auditoria depende de RNF024 e RNF025. Referências: UserRole; requireRole; admin users/evaluators.
+1243 [] Entradas
+1244 [] Usuário, papel e decisão.
+1245 [] Processamento
+1246 [] Validar administrador, aplicar papel e registrar decisão.
+1247 [] Saídas
+1248 [] Permissão atualizada.
+1249 [] Restrições
+1250 [] Aplicar menor privilégio e impedir remoção do último administrador. A auditoria completa é requisito de aceitação; sua cobertura não está comprovada pelo inventário.
+1251 []
+1252 [Ttulo3] 4.9.5 RF043 — Tratar denúncias
+1253 [] RF043 — Especificação
+1254 [] Conteúdo
+1255 [] Nome
+1256 [] Tratar denúncias
+1257 [] Identificador
+1258 [] RF043
+1259 [] Prioridade
+1260 [] Alta
+1261 [] Descrição
+1262 [] Listar e decidir denúncias da comunidade.
+1263 [] Atores envolvidos
+1264 [] Administrador
+1265 [] Regra de negócio relacionada
+1266 [] RN019
+1267 [] Estado e referências de implementação
+1268 [] Estado: Implementado. Evidência: src/app/api/admin/reports.
+1269 [] Entradas
+1270 [] Denúncia e decisão.
+1271 [] Processamento
+1272 [] Carregar contexto, aplicar ação permitida e registrar resultado.
+1273 [] Saídas
+1274 [] Denúncia tratada e eventual alteração de conteúdo.
+1275 [] Restrições
+1276 [] Política de sanções e recurso ainda precisa ser definida.
+1277 []
+1278 [Ttulo2] 4.10 Grupo 10 — Notificações
+1279 [Ttulo3] 4.10.1 RF044 — Gerar notificação
+1280 [] RF044 — Especificação
+1281 [] Conteúdo
+1282 [] Nome
+1283 [] Gerar notificação
+1284 [] Identificador
+1285 [] RF044
+1286 [] Prioridade
+1287 [] Média
+1288 [] Descrição
+1289 [] Criar notificação para eventos relevantes da aplicação, incluindo a atualização de candidatura destinada ao próprio candidato.
+1290 [] Atores externos e acionamento
+1291 [] Usuário destinatário; geração acionada internamente pela operação correspondente. Em UC026, o destinatário é o candidato associado à candidatura.
+1292 [] Regra de negócio relacionada
+1293 [] RN022
+1294 [] Estado e referências de implementação
+1295 [] Estado: Implementado. Evidências: NotificationService; NotificationType; JobService.updateApplicationStage; slide 24 do seminário.
+1296 [] Entradas
+1297 [] Destinatário, tipo, ator e recurso. Na atualização de candidatura, user_id da candidatura e referência à vaga.
+1298 [] Processamento
+1299 [] Validar os dados e persistir a notificação de forma resiliente. Após a atualização de candidatura, gerar JOB_APPLICATION_UPDATE para o candidato associado.
+1300 [] Saídas
+1301 [] Notificação registrada.
+1302 [] Restrições
+1303 [] Falha de notificação não corrompe nem desfaz a operação principal. O fluxo de UC026 não pressupõe cadastro de intenção de vaga ou alerta geral aos interessados.
+1304 []
+1305 [Ttulo3] 4.10.2 RF045 — Consultar notificações
+1306 [] RF045 — Especificação
+1307 [] Conteúdo
+1308 [] Nome
+1309 [] Consultar notificações
+1310 [] Identificador
+1311 [] RF045
+1312 [] Prioridade
+1313 [] Média
+1314 [] Descrição
+1315 [] Listar, contar e marcar notificações web como lidas.
+1316 [] Atores envolvidos
+1317 [] Usuário autenticado
+1318 [] Regra de negócio relacionada
+1319 [] RN022, RN027
+1320 [] Estado e referências de implementação
+1321 [] Estado: Implementado. Evidência: src/app/notifications; src/app/api/notifications.
+1322 [] Entradas
+1323 [] Sessão, cursor/limite e ação de leitura.
+1324 [] Processamento
+1325 [] Buscar notificações do próprio usuário e atualizar leitura.
+1326 [] Saídas
+1327 [] Lista, próximo cursor e contagem não lida.
+1328 [] Restrições
+1329 [] Usuário não pode consultar notificações alheias.
+1330 []
+1331 [Ttulo3] 4.10.3 RF046 — Atualizar leitura de notificações
+1332 [] RF046 — Especificação
+1333 [] Conteúdo
+1334 [] Nome
+1335 [] Atualizar leitura de notificações
+1336 [] Identificador
+1337 [] RF046
+1338 [] Prioridade
+1339 [] Média
+1340 [] Descrição
+1341 [] Marcar uma ou todas as notificações web como lidas.
+1342 [] Atores envolvidos
+1343 [] Usuário, Avaliador, Administrador, Recrutador
+1344 [] Regra de negócio relacionada
+1345 [] RN022, RN027
+1346 [] Estado e referências de implementação
+1347 [] Estado: Implementado. Evidência: src/app/api/notifications/read; src/app/notifications.
+1348 [] Entradas
+1349 [] Notificação ou ação de marcar todas.
+1350 [] Processamento
+1351 [] Autorizar o titular e atualizar read_at somente em seus registros.
+1352 [] Saídas
+1353 [] Estado de leitura e contagem atualizados.
+1354 [] Restrições
+1355 [] Um usuário não pode alterar notificações de outra conta.
+1356 []
+1357 [Ttulo2] 4.11 Grupo 11 — Eventos
+1358 [Ttulo3] 4.11.1 RF049 — Inscrever-se ou cancelar participação em evento
+1359 [] RF049 — Especificação
+1360 [] Conteúdo
+1361 [] Nome
+1362 [] Inscrever-se ou cancelar participação em evento
+1363 [] Identificador
+1364 [] RF049
+1365 [] Prioridade
+1366 [] Média
+1367 [] Descrição
+1368 [] Efetivar a inscrição do usuário elegível ou cancelar a própria participação antes do encerramento do evento.
+1369 [] Atores envolvidos
+1370 [] Usuário autenticado
+1371 [] Regra de negócio relacionada
+1372 [] RN023
+1373 [] Estado e referências de implementação
+1374 [] Estado: Implementado. Evidências: POST e DELETE src/app/api/events/[id]/participate; EventService.participate e cancelParticipation; UC023 e slide 19 do seminário.
+1375 [] Entradas
+1376 [] Identificador do evento, identidade da sessão e ação de inscrição ou cancelamento.
+1377 [] Processamento
+1378 [] Na inscrição via POST, verificar evento não encerrado, nível, capacidade e unicidade. No cancelamento via DELETE, verificar titularidade e evento não encerrado e remover a participação.
+1379 [] Saídas
+1380 [] Inscrição confirmada, participação já existente ou cancelamento confirmado.
+1381 [] Restrições
+1382 [] Uma inscrição ativa por usuário e evento. Cancelamento pelo próprio usuário antes do encerramento. O fluxo registra participação efetiva; não depende de cadastro separado de interesse em evento.
+1383 []
+1384 [Ttulo1] 5. Requisitos Não Funcionais
+1385 [] Os critérios abaixo formam a referência de aceitação adotada para a versão acadêmica. A medição deve ser registrada durante a homologação.
+1386 [] Identificador
+1387 [] Nome
+1388 [] Prioridade
+1389 [] Categoria
+1390 [] Descrição
+1391 [] Critério verificável de aceitação
+1392 [] RNF001
+1393 [] Autenticação protegida
+1394 [] Alta
+1395 [] Segurança
+1396 [] Rotas privadas devem exigir sessão verificada no servidor.
+1397 [] Teste automatizado deve comprovar 401 sem sessão válida e acesso com sessão válida.
+1398 [] RNF002
+1399 [] Autorização por papel
+1400 [] Alta
+1401 [] Segurança
+1402 [] Operações administrativas, de avaliador e recrutador devem aplicar RBAC; operações de vagas também devem validar acesso à empresa e aos recursos relacionados.
+1403 [] Testes comprovam 403 para papel ou empresa não autorizados e sucesso para acesso permitido; candidaturas e etapas de outra vaga são rejeitadas.
+1404 [] RNF003
+1405 [] Proteção de entrada e abuso
+1406 [] Alta
+1407 [] Segurança
+1408 [] Entradas devem ser validadas e endpoints críticos devem limitar frequência.
+1409 [] Schemas rejeitam payload inválido e testes verificam limite configurado sem expor segredo.
+1410 [] RNF004
+1411 [] Segredos somente no servidor
+1412 [] Alta
+1413 [] Segurança
+1414 [] Credenciais de banco, autenticação e serviços externos não podem ser enviadas ao cliente.
+1415 [] Build e auditoria estática não contêm segredos em variáveis NEXT_PUBLIC nem no bundle cliente.
+1416 [] RNF005
+1417 [] Separação público/privado
+1418 [] Alta
+1419 [] Privacidade
+1420 [] Perfil e recrutamento devem retornar apenas campos autorizados.
+1421 [] Teste com usuário/empresa confirma ausência de e-mail, token e dados privados nas respostas públicas.
+1422 [] RNF006
+1423 [] Privacidade no recrutamento
+1424 [] Alta
+1425 [] Privacidade
+1426 [] Indicadores consultados por empresas devem limitar-se aos campos públicos definidos pela aplicação.
+1427 [] Testes comprovam ausência de e-mail, tokens e demais campos privados nas respostas de perfil e recrutamento.
+1428 [] RNF007
+1429 [] Tempo de resposta das APIs
+1430 [] Média
+1431 [] Desempenho
+1432 [] APIs interativas devem responder com rapidez sob carga acadêmica representativa.
+1433 [] P95 de até 2 segundos com 20 usuários simultâneos, exceto execução de código.
+1434 [] RNF008
+1435 [] Carregamento de página
+1436 [] Média
+1437 [] Desempenho
+1438 [] Páginas principais devem carregar sem bloquear a ação essencial.
+1439 [] LCP de até 2,5 segundos em desktop e 4 segundos em viewport móvel com rede 4G simulada.
+1440 [] RNF009
+1441 [] Execução limitada
+1442 [] Alta
+1443 [] Desempenho
+1444 [] A execução de código deve possuir timeout e limite de payload.
+1445 [] Teste de timeout confirma resposta controlada sem marcar acerto nem bloquear o servidor além do limite.
+1446 [] RNF010
+1447 [] Responsividade
+1448 [] Alta
+1449 [] Usabilidade
+1450 [] Fluxos principais devem funcionar em desktop e na web móvel.
+1451 [] Validação visual em 360 × 800, 768 × 1024 e 1440 × 900 sem perda de ação essencial.
+1452 [] RNF011
+1453 [] Acessibilidade básica
+1454 [] Média
+1455 [] Usabilidade
+1456 [] Controles devem possuir nome acessível, foco e suporte a teclado.
+1457 [] Lighthouse Accessibility igual ou superior a 90 e roteiro manual sem bloqueador crítico.
+1458 [] RNF012
+1459 [] Degradação de serviço externo
+1460 [] Alta
+1461 [] Disponibilidade
+1462 [] Falhas em serviços essenciais não devem confirmar operações incompletas. A notificação é acessória: sua falha não desfaz uma operação principal já concluída, conforme RN022.
+1463 [] Simular falhas de gravação e execução sem confirmação de sucesso; simular falha de notificação e comprovar preservação da operação principal e possibilidade de consultar seu resultado.
+1464 [] RNF013
+1465 [] Meta de disponibilidade
+1466 [] Média
+1467 [] Disponibilidade
+1468 [] A plataforma deve possuir meta mensal e monitoramento de falhas críticas.
+1469 [] Disponibilidade mensal mínima de 99,5% no ambiente de produção.
+1470 [] RNF014
+1471 [] Consistência de XP
+1472 [] Alta
+1473 [] Confiabilidade
+1474 [] XP e progresso devem ser atualizados atomicamente e sem duplicidade.
+1475 [] Teste concorrente comprova uma recompensa por atividade e rollback integral em falha.
+1476 [] RNF015
+1477 [] Consistência de duelo e avaliação
+1478 [] Alta
+1479 [] Confiabilidade
+1480 [] Estados de duelo aberto e avaliação devem impedir transições inválidas e resultados duplicados.
+1481 [] Testes cobrem espera de 24 horas expirada, prazo de duas horas do confronto, dupla ocupação da vaga, envio fora do prazo e fechamento conflitante.
+1482 [] RNF016
+1483 [] Crescimento de listas
+1484 [] Média
+1485 [] Escalabilidade
+1486 [] Feed, notificações e históricos devem usar paginação e índices.
+1487 [] Teste com 10.000 registros mantém o P95 dentro da meta RNF007.
+1488 [] RNF017
+1489 [] Navegadores suportados
+1490 [] Média
+1491 [] Compatibilidade
+1492 [] A aplicação web deve funcionar nos navegadores modernos suportados pelo framework.
+1493 [] Chrome e Edge 111+, Firefox 111+ e Safari 16.4+, com os fluxos principais aprovados.
+1494 [] RNF018
+1495 [] Compatibilidade com web móvel
+1496 [] Média
+1497 [] Compatibilidade
+1498 [] A interface deve preservar navegação e ações em telas pequenas.
+1499 [] Os viewports definidos no RNF010 não apresentam rolagem horizontal indevida nem controles inacessíveis.
+1500 [] RNF019
+1501 [] Modularização
+1502 [] Média
+1503 [] Manutenibilidade
+1504 [] Domínio, APIs, UI e integrações externas devem permanecer separados.
+1505 [] Lint, typecheck e testes passam; revisão não identifica dependência circular crítica.
+1506 [] RNF020
+1507 [] Cobertura de qualidade
+1508 [] Média
+1509 [] Manutenibilidade
+1510 [] Mudanças em regras críticas devem incluir testes e documentação.
+1511 [] CI executa typecheck, lint e testes; cobertura de linhas mínima de 70% nos módulos críticos.
+1512 [] RNF021
+1513 [] Conteúdo editorial confiável
+1514 [] Alta
+1515 [] Qualidade
+1516 [] Lições, dicas e respostas canônicas devem ser versionadas e revisáveis.
+1517 [] Toda atividade publicada referencia um contrato canônico válido e não depende de geração em tempo de execução.
+1518 [] RNF022
+1519 [] Privacidade na execução de código
+1520 [] Alta
+1521 [] Segurança
+1522 [] Quando houver execução externa, transmitir somente código, linguagem e testes necessários; manter credenciais e dados pessoais fora do payload. A execução interna deve preservar o isolamento.
+1523 [] Auditoria do payload externo comprova ausência de credenciais e dados do perfil; as respostas ao cliente não expõem testes ocultos nem soluções privadas.
+1524 [] RNF023
+1525 [] Disponibilidade do executor
+1526 [] Alta
+1527 [] Disponibilidade
+1528 [] Falha ou timeout do executor deve produzir resultado controlado.
+1529 [] O sistema não concede XP nem vitória e mantém a resposta disponível para nova tentativa.
+1530 [] RNF024
+1531 [] Auditoria de ações sensíveis
+1532 [] Alta
+1533 [] Auditoria
+1534 [] Alterações de papel, avaliações e ações administrativas devem ser rastreáveis.
+1535 [] Registro contém ator, ação, alvo, instante e resultado para 100% das operações definidas.
+1536 [] RNF025
+1537 [] Retenção de auditoria
+1538 [] Média
+1539 [] Auditoria
+1540 [] Logs de ações sensíveis devem possuir prazo e acesso controlados.
+1541 [] Reter logs administrativos por 90 dias, acessíveis apenas a administradores autorizados.
+1542 []
+1543 [Ttulo1] 6. Regras de Negócio
+1544 [] ID
+1545 [] Regra
+1546 [] Descrição
+1547 [] Situação
+1548 [] Evidência
+1549 [] RN001
+1550 [] Elegibilidade de XP
+1551 [] XP somente é concedido após atividade válida e confirmada; repetir a mesma tentativa não gera nova recompensa.
+1552 [] Implementado
+1553 [] QuizAttempt e XpService
+1554 [] RN002
+1555 [] Valores de XP
+1556 [] No catálogo: explicação 0, prática conceitual 10, atividade guiada explicitamente configurada 15, código 25 e projeto 40. Atividades legadas preservam valores já ganhos. Checkpoint/baú não concedem XP livre pelo cliente.
+1557 [] Implementado
+1558 [] learning/rewards.ts; catalog-types.ts; trails/checkpoint e chest
+1559 [] RN003
+1560 [] Níveis
+1561 [] Níveis usam os limiares de 500, 800, 1.100, 1.500 e 2.000 XP; após o nível 6 o incremento cresce em 100 XP por nível.
+1562 [] Implementado
+1563 [] src/lib/learning/rewards.ts
+1564 [] RN004
+1565 [] Sequência e conquistas
+1566 [] Atividade em dias consecutivos atualiza a sequência; conquistas não podem ser duplicadas e incluem critérios de 7 e 30 dias.
+1567 [] Implementado
+1568 [] src/lib/streak.ts; src/services/xp.service.ts
+1569 [] RN005
+1570 [] Faixas de XP
+1571 [] Bronze 0–499; Prata 500–1199; Ouro 1200–2499; Platina 2500–4999; Diamante a partir de 5000. Promoção por XP acumulado; derrota não rebaixa. Não é Elo.
+1572 [] Implementado
+1573 [] learning/rewards.ts
+1574 [] RN006
+1575 [] Ordenação do ranking
+1576 [] XP decrescente, username e id crescentes. Por linguagem, agregar LanguageTrail e primeiro acerto de ExerciseSubmission, sem migrar nem somar novamente o histórico global.
+1577 [] Implementado
+1578 [] learning/rewards.ts; language-xp.ts
+1579 [] RN007
+1580 [] Entrada em duelos
+1581 [] Na fila rápida, procurar a vaga pendente mais antiga de outro usuário na mesma linguagem. Sem vaga, criar espera de até 24 horas. Entrada direta exige vaga disponível de outro usuário. O fluxo vigente não usa convite, destinatário ou faixa de XP.
+1582 [] Regra vigente documentada
+1583 [] UC008; UC009; src/app/api/duels; src/lib/duels/lifecycle.ts
+1584 [] RN008
+1585 [] Prazo do convite legado
+1586 [] No fluxo legado, o convite expirava em 30 segundos. Regra histórica, sem aplicação aos duelos abertos vigentes.
+1587 [] Histórica, fora do escopo vigente
+1588 [] DUEL_REQUEST_TIMEOUT_SECONDS
+1589 [] RN009
+1590 [] Rejeição e cooldown legados
+1591 [] No fluxo legado, três rejeições consecutivas aplicavam cooldown de 5 minutos. Regra histórica, sem aplicação aos duelos abertos vigentes.
+1592 [] Histórica, fora do escopo vigente
+1593 [] MAX_DUEL_REJECTIONS; DUEL_COOLDOWN_MINUTES
+1594 [] RN010
+1595 [] Tempo do desafio
+1596 [] O confronto dura duas horas a partir da entrada do segundo participante. A espera por oponente, antes do confronto, é de até 24 horas. O registro de expiração depende da manutenção, sem prorrogar a elegibilidade após o prazo.
+1597 [] Regra vigente documentada
+1598 [] UC008; UC009; seção 6.2 dos casos de uso; src/lib/duels/constants.ts
+1599 [] RN011
+1600 [] Prazo e resultado do duelo
+1601 [] Na resolução por prazo, sem envios fecha sem vencedor; um envio elegível pode vencer; dois envios são comparados. A manutenção efetiva depende de acionamento.
+1602 [] Implementado com limite operacional
+1603 [] duels/resolution.ts; resolution-policy.ts; lifecycle.ts
+1604 [] RN012
+1605 [] Avaliação de duelo
+1606 [] Testes e pontuação automática; diferença de score até 5 e runtime até 5% (ou ausente) encaminha empate técnico a REVIEW_PENDING. Vitória recebe 50 XP uma única vez.
+1607 [] Implementado
+1608 [] duels/resolution-policy.ts; resolution.ts
+1609 [] RN013
+1610 [] Assistência editorial
+1611 [] Dicas, documentação e autocomplete dependem do modo escolhido; a consulta não altera o XP.
+1612 [] Implementado
+1613 [] AssistanceControls; ExerciseWorkspace
+1614 [] RN014
+1615 [] Elegibilidade de avaliador
+1616 [] O usuário deve concluir ao menos uma trilha completa ou possuir 1.000 XP antes de se candidatar.
+1617 [] Implementado
+1618 [] EvaluatorService.checkEligibility
+1619 [] RN015
+1620 [] Aprovação de avaliador
+1621 [] A elegibilidade permite candidatura, mas somente o administrador atribui o papel EVALUATOR.
+1622 [] Implementado
+1623 [] EvaluatorService.reviewApplication
+1624 [] RN016
+1625 [] Parecer humano
+1626 [] As pontuações variam de 0 a 1.000, exigem vencedor e feedback com pelo menos 5 caracteres.
+1627 [] Implementado
+1628 [] evaluationSchema; EvaluatorService.submitDuelEvaluation
+1629 [] RN017
+1630 [] Controle por papel
+1631 [] Usuário autenticado usa as funções gerais e pode criar e participar de eventos; Avaliador avalia duelos autorizados; Administrador gerencia permissões e pode avaliar; Recrutador gerencia empresas e vagas autorizadas. Criador ou Administrador pode excluir evento.
+1632 [] Implementado
+1633 [] UserRole; requireRole
+1634 [] RN018
+1635 [] Publicação comunitária
+1636 [] Publicação exige autenticação, validação e limite de corpo de até 5.000 caracteres.
+1637 [] Implementado
+1638 [] src/lib/config.ts; posts API
+1639 [] RN019
+1640 [] Moderação
+1641 [] Denúncia deve ser registrada uma vez por usuário/publicação e analisada por administrador; sanções e recurso ainda dependem de política.
+1642 [] Parcial
+1643 [] Report; admin reports
+1644 [] RN020
+1645 [] Publicação de vaga
+1646 [] Somente RECRUITER ou ADMIN com acesso autorizado à empresa pode publicar vaga ou consultar suas candidaturas. A atualização de candidatura também exige vínculo com a empresa e consistência entre vaga, candidatura e etapa.
+1647 [] Implementado; vínculo reconferido em 19/10/2026
+1648 [] UC017, UC026, UC056; jobs API; requireCompanyAccess; JobService.getJobApplications; slides 17, 20 e 23
+1649 [] RN021
+1650 [] Acesso de empresas
+1651 [] Empresas consultam somente informações públicas do perfil; decisões de contratação permanecem sob responsabilidade humana.
+1652 [] Regra adotada
+1653 [] perfil público; JobService
+1654 [] RN022
+1655 [] Notificações
+1656 [] Eventos relevantes geram notificação ao destinatário. A atualização de candidatura notifica automaticamente o usuário associado à candidatura. Falha de notificação não desfaz a operação principal.
+1657 [] Implementado na web
+1658 [] NotificationService; JobService.updateApplicationStage; slide 24
+1659 [] RN023
+1660 [] Participação em evento
+1661 [] Usuário inscreve-se uma vez por evento via POST, respeitando evento não encerrado, nível mínimo e capacidade. Pode cancelar a própria participação via DELETE antes do encerramento.
+1662 [] Implementado
+1663 [] UC023; EventService.participate e cancelParticipation; slide 19
+1664 [] RN024
+1665 [] Falha do executor
+1666 [] Timeout, indisponibilidade ou resposta inválida do executor não confirma acerto, XP ou vitória.
+1667 [] Implementado
+1668 [] src/lib/code-runner.ts; learning/assessment.ts; duels/judge.ts
+1669 [] RN025
+1670 [] Identidade e sessão
+1671 [] E-mail e username são únicos; rotas protegidas exigem sessão verificada.
+1672 [] Implementado
+1673 [] User; auth/register; requireAuth
+1674 [] RN026
+1675 [] Candidatura a vaga
+1676 [] Usuário pode candidatar-se uma vez a uma vaga aberta, com vínculo à etapa inicial. O responsável autorizado atualiza a etapa ou o status, após validar os vínculos, e o candidato associado recebe notificação automática.
+1677 [] Implementado
+1678 [] UC022, UC026; JobApplication; JobService; slides 18, 20 e 24
+1679 [] RN027
+1680 [] Privacidade do perfil
+1681 [] Perfis públicos não expõem e-mail, tokens ou dados de sessão; rotas de edição exigem o titular autenticado.
+1682 [] Implementado
+1683 [] src/app/api/profile/[username]; src/app/api/profile/update
+1684 [] RN028
+1685 [] Integridade competitiva
+1686 [] XP, ranking, duelo e avaliação devem rejeitar duplicidade, manipulação pelo cliente e transições inválidas.
+1687 [] Parcial
+1688 [] transações/uniques existentes; auditoria a ampliar
+1689 [] RN029
+1690 [] Pré-requisitos de aprendizagem
+1691 [] Uma lição pode ser iniciada quando seus pré-requisitos estiverem cumpridos. Lições já concluídas podem ser revisitadas; a revisão não duplica a recompensa da mesma atividade.
+1692 [] Regra documentada
+1693 [] RF005–RF009; UC004–UC006
+1694 []
+1695 [] O inventário técnico de 12/09/2026 é preservado, com atualizações identificadas no seminário, base declarada 9256a4f, e conferências pontuais de código datadas nos requisitos. Regras históricas não constituem critérios de aceitação do fluxo vigente. A conformidade deve ser comprovada em homologação.
+1696 []
+1697 [Ttulo1] 7. Matriz de relacionamento Requisitos Funcionais × Regras de Negócio
+1698 [] Requisito Funcional
+1699 [] Regra(s) de Negócio Relacionada(s)
+1700 [] RF001 — Cadastrar usuário
+1701 [] RN017, RN025
+1702 [] RF002 — Fazer login
+1703 [] RN017, RN025
+1704 [] RF003 — Encerrar sessão
+1705 [] RN017, RN025
+1706 [] RF004 — Gerenciar perfil
+1707 [] RN017, RN027
+1708 [] RF005 — Visualizar trilhas
+1709 [] RN025, RN029
+1710 [] RF006 — Iniciar trilha
+1711 [] RN025, RN029
+1712 [] RF007 — Acessar lição
+1713 [] RN025, RN029
+1714 [] RF008 — Resolver exercício
+1715 [] RN001, RN002, RN024, RN025, RN029
+1716 [] RF009 — Registrar progresso
+1717 [] RN001, RN002, RN028, RN029
+1718 [] RF010 — Consultar histórico
+1719 [] RN027
+1720 [] RF011 — Atribuir XP
+1721 [] RN001, RN002, RN028
+1722 [] RF012 — Atualizar nível
+1723 [] RN003
+1724 [] RF013 — Gerenciar conquistas
+1725 [] RN004
+1726 [] RF014 — Consultar ranking
+1727 [] RN005, RN006, RN028
+1728 [] RF015 — Derivar faixa de XP
+1729 [] RN005, RN006
+1730 [] RF016 — Criar duelo aberto
+1731 [] RN007, RN010, RN025, RN028
+1732 [] RF017 — Entrar em duelo
+1733 [] RN007, RN010, RN025, RN028
+1734 [] RF018 — Aceitar ou rejeitar convite de duelo legado
+1735 [] RN008, RN009 — históricas, fora do escopo vigente
+1736 [] RF019 — Enviar solução de duelo
+1737 [] RN010, RN011
+1738 [] RF020 — Avaliar resultado
+1739 [] RN011, RN012, RN016, RN024, RN028
+1740 [] RF021 — Atualizar classificação após duelo
+1741 [] RN006, RN028
+1742 [] RF022 — Consultar ajuda do exercício
+1743 [] RN013
+1744 [] RF023 — Selecionar modo de assistência
+1745 [] RN013
+1746 [] RF024 — Consultar documentação
+1747 [] RN013
+1748 [] RF025 — Utilizar sugestões do editor
+1749 [] RN013
+1750 [] RF026 — Candidatar-se a avaliador
+1751 [] RN014, RN015
+1752 [] RF027 — Receber avaliações pendentes
+1753 [] RN012, RN016, RN017
+1754 [] RF028 — Avaliar solução
+1755 [] RN012, RN016, RN017, RN028
+1756 [] RF029 — Registrar decisão de avaliação
+1757 [] RN016, RN022, RN028
+1758 [] RF030 — Criar publicação
+1759 [] RN001, RN018, RN019, RN028
+1760 [] RF031 — Visualizar feed
+1761 [] RN018, RN027
+1762 [] RF032 — Interagir com publicação
+1763 [] RN018, RN022
+1764 [] RF033 — Denunciar conteúdo
+1765 [] RN019
+1766 [] RF034 — Cadastrar empresa
+1767 [] RN017, RN020, RN027
+1768 [] RF035 — Publicar vaga
+1769 [] RN020, RN026
+1770 [] RF036 — Consultar vagas
+1771 [] RN020, RN026
+1772 [] RF037 — Visualizar perfil público de desenvolvedor
+1773 [] RN021, RN027
+1774 [] RF038 — Consultar indicadores permitidos do usuário
+1775 [] RN021, RN027
+1776 [] RF047 — Candidatar-se a vaga
+1777 [] RN026
+1778 [] RF048 — Atualizar etapa de candidatura
+1779 [] RN020, RN021, RN022, RN026
+1780 [] RF039 — Gerenciar usuários
+1781 [] RN017, RN025
+1782 [] RF040 — Gerenciar conteúdo
+1783 [] RN017, RN019
+1784 [] RF041 — Criar e gerenciar eventos
+1785 [] RN017, RN023
+1786 [] RF042 — Gerenciar permissões de usuários
+1787 [] RN015, RN017
+1788 [] RF043 — Tratar denúncias
+1789 [] RN019
+1790 [] RF044 — Gerar notificação
+1791 [] RN022
+1792 [] RF045 — Consultar notificações
+1793 [] RN022, RN027
+1794 [] RF046 — Atualizar leitura de notificações
+1795 [] RN022, RN027
+1796 [] RF049 — Inscrever-se ou cancelar participação em evento
+1797 [] RN023
+1798 []
+1799 [Ttulo1] 8. Rastreabilidade com os modelos do seminário
+1800 [] Os modelos Astah e a apresentação do seminário refinam as responsabilidades e as operações relacionadas abaixo. As referências de slides usam a numeração da apresentação de 39 slides; sua base de código declarada é o commit 9256a4f. Esta matriz relaciona os modelos ao inventário de requisitos sem criar novos identificadores RF.
+1801 [] Modelo e evidência
+1802 [] Requisitos e comportamento correspondente
+1803 [] AN01, AN03, CL03; UC005 e UC006Slides 5, 10, 15, 16 e 36
+1804 [] RF005–RF009 e RF022–RF025: lição, prática, assistência e progresso; teste de código separado da submissão que confirma a atividade e o XP.
+1805 [] AN04; UC011Slides 22 e 37
+1806 [] RF010–RF015: acompanhar evolução e consultar ranking de XP. A ordenação é calculada no servidor, sem manutenção manual de posições.
+1807 [] UC013Slide 21
+1808 [] RF030, RN001, RN018 e RN028: criar publicação e registrar a recompensa elegível na mesma transação.
+1809 [] AN08A, CL08; UC017Slides 6, 11 e 17
+1810 [] RF034–RF038 e RN020: divulgar vaga e consultar informações públicas; validar o papel e o acesso autorizado à empresa antes de publicar.
+1811 [] AN08B; UC022, UC026 e UC056Slides 7, 18, 20 e 23
+1812 [] RF047 e RF048: candidatura efetiva, consulta autorizada das candidaturas da vaga e atualização de etapa. Validar empresa, candidatura e etapa da mesma vaga.
+1813 [] Comportamento interno de UC026Slide 24
+1814 [] RF044–RF046 e RN022: gerar notificação automática ao candidato associado e permitir sua consulta e leitura.
+1815 [] AN09, CL09; UC015 e UC023Slides 8, 12 e 19
+1816 [] RF041 e RF049: criar e excluir evento conforme permissão; inscrever-se ou cancelar a própria participação com verificação de elegibilidade.
+1817 [] O diagrama geral de casos de uso é a visão da revisão Astah reproduzida no slide 4. Para especificar operações, prevalecem os detalhamentos apresentados no seminário: UC022 efetiva a candidatura, UC023 efetiva ou cancela a inscrição e UC026 notifica o candidato após a atualização. Os rótulos de intenção ou interesse do diagrama geral não acrescentam uma inscrição em alertas ao fluxo descrito nestes requisitos.
