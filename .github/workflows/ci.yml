@@ -81,3 +81,9 @@ jobs:
 
       - name: Check mobile lesson and notification interactions
         run: npm --prefix apps/mobile run test:interactions
+
+      - name: Install mobile rendering test dependencies
+        run: npm ci --prefix apps/mobile
+
+      - name: Check mobile chat, thread and code interactions
+        run: npm --prefix apps/mobile run test:social

@@ -6,6 +6,9 @@ colors:
   dark-surface: '#111316'
   dark-elevated: '#1a1e23'
   dark-own-message: '#0b2b48'
+  dark-incoming-message: '#202327'
+  dark-composer: '#202327'
+  dark-social-border: '#2f3336'
   dark-text: '#f4f6f8'
   dark-muted: '#9da7b3'
   dark-primary: '#0078d4'
@@ -22,6 +25,9 @@ colors:
   light-surface: '#f7f9f9'
   light-elevated: '#eff3f4'
   light-own-message: '#e2f1ff'
+  light-incoming-message: '#eff3f4'
+  light-composer: '#eff3f4'
+  light-social-border: '#cfd9de'
   light-text: '#0f1419'
   light-muted: '#536471'
   light-primary: '#0074c8'
@@ -34,6 +40,12 @@ colors:
   light-like: '#c72250'
   light-danger: '#c32240'
   light-warning: '#826000'
+  snippet-background: '#282c34'
+  snippet-header: '#21252b'
+  snippet-text: '#abb2bf'
+  snippet-gutter: '#9da7b8'
+  snippet-border: '#353a42'
+  snippet-accent: '#61afef'
 typography:
   title: { fontSize: '28px', lineHeight: '34px', fontWeight: 800 }
   heading: { fontSize: '20px', lineHeight: '27px', fontWeight: 700 }
@@ -104,6 +116,8 @@ A prática concentra uma atividade e uma próxima ação por vez: ler, responder
 
 Este registro descreve o código nativo em `apps/mobile`. A avaliação visual em dispositivo permanece pendente de recaptura; os exemplos do sidecar são representações HTML dos componentes, não capturas nativas verificadas.
 
+Chat, detalhes da publicação e blocos de código seguem a direção solicitada de X escuro: fundo preto, cinzas discretos e azul do Stacklyst. O registro destas alterações se apoia no código e nos testes de interação; a conferência visual no emulador e em dispositivo ainda está pendente.
+
 ## Colors
 
 As paletas escura e clara do frontmatter reproduzem `src/theme.tsx`. O tema inicial é escuro; Configurações oferece escuro, claro e sistema, com preferência local. Componentes obtêm cores por `useTheme`.
@@ -120,7 +134,9 @@ Verde de aprendizagem distingue a próxima ação da lição, progresso e confir
 
 ### Neutral
 
-Fundo, superfície, superfície elevada, texto, texto secundário e divisórias mantêm as mesmas funções nos dois temas. Mensagens próprias usam `ownMessage`, também aplicado à seleção das opções da lição.
+Fundo, superfície, superfície elevada, texto, texto secundário e divisórias mantêm as mesmas funções nos dois temas. `composer` define o fundo da barra de digitação; `incomingMessage` identifica balões recebidos e `socialBorder` separa superfícies sociais. Os três têm valores próprios em cada paleta. Balões enviados usam `primary` com texto `onPrimary`; `ownMessage` permanece na seleção das opções da lição e não define a cor das mensagens enviadas.
+
+Os tokens `snippet-*` reproduzem a paleta One Dark do editor de exercícios. Esse ambiente de código conserva sua paleta nas duas aparências do app; texto, gutter e seleção vêm dos tokens do editor.
 
 ## Typography
 
@@ -132,6 +148,8 @@ O conteúdo ocupa a largura disponível até o limite centralizado (760 unidades
 
 Botões e alvos de ícone têm área mínima (48 unidades); inputs têm altura mínima (52). Opções de lição têm altura mínima (60), padding (16) e intervalo entre opções (12). O footer da tela fica fora da rolagem, dentro da área que se ajusta ao teclado, e soma espaço inferior aos insets do sistema. O botão principal da lição tem altura mínima (56). Sua posição acima do teclado e da área segura ainda precisa de conferência visual nativa.
 
+Conversa e detalhes da publicação usam corpo com rolagem própria e `CompactComposer` como irmão fixo no rodapé, dentro da área de ajuste ao teclado de `Screen`. A barra respeita o inset inferior; seu campo cresce entre (48) e (120 unidades), com ações integradas. Respostas encadeadas mantêm os avatares no mesmo eixo, sem recuo acumulado; a linha vertical e o contexto de destinatário indicam a thread. O formulário de denúncia aberto pelo menu tem ajuste ao teclado e conteúdo rolável próprio.
+
 ## Elevation & Depth
 
 A profundidade vem de superfícies tonais, bordas e divisórias hairline; os componentes compartilhados aqui não dependem de sombras. O drawer usa uma sobreposição escura cuja opacidade chega a (0.55), com entrada curta (240 ms) e saída (180 ms). A barra de progresso interpola a largura em (220 ms). Ambos respeitam redução de movimento, usando duração zero.
@@ -139,6 +157,8 @@ A profundidade vem de superfícies tonais, bordas e divisórias hairline; os com
 ## Shapes
 
 Avatares são circulares. Campos e painéis compartilhados usam cantos de controle; opções, feedback e botão principal da lição usam cantos de painel. Botões compartilhados usam cantos mais arredondados. A barra de progresso tem altura (12) e raio (6); opções usam borda (2) e indicam seleção também por ícone e peso do texto.
+
+Balões de conversa ajustam a largura ao texto até (82%) e usam cantos arredondados (24 unidades), com um canto menor para mensagens agrupadas do mesmo remetente. O composer social usa silhueta de cápsula (28 unidades), borda discreta e botão circular de envio. Blocos de código têm cantos de controle e preservam gutter e conteúdo como colunas distintas.
 
 ## Components
 
@@ -159,6 +179,26 @@ Curtidas são alternadas por coração, usando a API existente de votos. O cora�
 Notificações apresentam avatar quando há ator e ícone do tipo quando não há. Sem link, a linha pode usar o perfil do ator validado como destino. O avatar abre o perfil separadamente da ação da linha; sem ator, a mensagem não inventa uma pessoa. Estado não lido usa superfície discreta e indicador azul.
 
 A busca de destinatário exclui a própria conta antes de calcular a lista vazia, incluindo buscas que só retornem o usuário atual. Conversas usam lista cronológica e consulta ativa a cada (5 s). Um envio pendente preserva conteúdo e `client_id` para a tentativa seguinte; a interface não transforma uma repetição em uma segunda mensagem.
+
+### Direct conversation
+
+Mensagens enviadas alinham à direita; recebidas alinham à esquerda. Datas e horas agrupadas ficam em separadores centrais e apenas a última mensagem enviada recebe um estado sutil abaixo. O balão não contém botões de edição ou exclusão nem data completa. Toque, pressão longa ou reticências abrem o menu: copiar para todas as mensagens, editar e excluir apenas para as próprias. Exclusão mantém confirmação explícita.
+
+O campo tem placeholder “Mensagem”, ação de colar à esquerda e envio por ícone à direita. A edição reutiliza a barra com indicação e cancelamento; falhas e mensagens pendentes oferecem recuperação sem apagar o texto. A demonstração permanece somente leitura.
+
+### Publication thread
+
+Cada comentário reúne avatar circular à esquerda, nome em negrito, `@username` e tempo na mesma linha; a resposta ocupa o corpo logo abaixo. Avatares alinhados, conectores discretos e “Respondendo a” preservam a leitura de níveis profundos sem estreitar o conteúdo mobile. Ações discretas oferecem responder ao comentário, curtir, salvar e compartilhar. Votos usam a API com atualização otimista e rollback em falha; o autor da publicação pode aceitar uma resposta pelo menu, e a resposta aceita mostra ícone e rótulo.
+
+O menu da publicação principal reúne denúncia e, para seu autor, edição e exclusão. O motivo da denúncia aparece apenas após a escolha dessa ação. A barra inferior tem avatar do usuário, “Postar sua resposta”, editor de código sob demanda e envio compacto. Respostas a comentários enviam `parent_answer_id`; rascunhos da publicação e de cada destinatário permanecem separados.
+
+Salvar comentários é uma preferência local por conta, persistida neste aparelho e confirmada somente após a gravação. Os rótulos e avisos declaram esse alcance. Esses comentários não são favoritos no servidor nem itens da lista global de publicações salvas; falhas de leitura e gravação têm recuperação visível.
+
+### Social code snippets
+
+`CodeBlock` e `SnippetComposer` usam o ambiente One Dark do editor de exercícios, fonte monoespaçada, numeração de linhas à esquerda e rolagem horizontal do código, mantendo o gutter visível. A renderização usa fonte (13/22); a edição usa (14/22). A numeração não entra no conteúdo copiado nem na leitura acessível. O cabeçalho mostra a linguagem e uma ação compacta de copiar com confirmação ou erro.
+
+O mesmo renderer atende fences e blocos indentados Markdown, `<pre><code>` HTML e o campo legado `code_snippet`. Conteúdo já presente no corpo não reaparece pelo metadado legado. Criação de publicação e resposta oferece inserção de código; edição de publicação disponibiliza todos os blocos existentes no corpo, em sua ordem, preserva o texto entre eles e permite alterar linguagem, conteúdo ou remover o bloco. A persistência continua passando pelas APIs e pelos rascunhos existentes.
 
 ### Lesson session
 
@@ -181,6 +221,8 @@ Listas oferecem skeleton, pull to refresh, paginação, vazio contextual e erro 
 - **Do** manter uma próxima ação clara, feedback legível e avaliação no servidor.
 - **Do** respeitar área segura, teclado, escala de fonte e redução de movimento.
 - **Do** conferir os estados nativos em dispositivo antes de marcar a aparência como verificada.
+- **Do** manter a barra social compacta, ações destrutivas no menu e código numerado com rolagem horizontal.
+- **Do** identificar comentários salvos como locais à conta e ao aparelho.
 
 ### Don't:
 
@@ -188,3 +230,5 @@ Listas oferecem skeleton, pull to refresh, paginação, vazio contextual e erro 
 - **Don't** trocar ícones vetoriais por emojis ou substituir os ativos existentes.
 - **Don't** reduzir fonte para acomodar código ou esconder o estado de erro.
 - **Don't** ativar demonstração automaticamente quando a API falhar.
+- **Don't** reutilizar `ownMessage` como cor de balão enviado ou acumular recuo nas respostas encadeadas.
+- **Don't** apresentar testes de código ou de interação como comprovação visual nativa.

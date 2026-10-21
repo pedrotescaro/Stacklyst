@@ -25,4 +25,18 @@ describe('extractPostMetadata', () => {
     expect(metadata.code).toBe(null);
     expect(metadata.isQuestion).toBe(false);
   });
+
+  it('preserves indentation and literal triple backticks inside a longer fence', () => {
+    expect(extractPostMetadata('````python\n  value = "```"\n  print(value)\n````').code).toBe(
+      '  value = "```"\n  print(value)'
+    );
+  });
+
+  it('accepts tilde fences and CRLF without treating inline backticks as a block', () => {
+    expect(extractPostMetadata('~~~javascript\r\nconst x = 1;\r\n~~~')).toMatchObject({
+      language: 'JS',
+      code: 'const x = 1;',
+    });
+    expect(extractPostMetadata('inline ```ts\nvalue\n```').code).toBeNull();
+  });
 });

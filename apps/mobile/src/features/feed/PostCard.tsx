@@ -11,11 +11,14 @@ import { config } from '../../lib/config';
 import { Avatar } from '../../components/ui';
 import { RichText, CodeBlock } from '../../components/content';
 import { useTheme } from '../../theme';
+import { hasCodeBlock } from '~/lib/code-snippets';
+import { useSession } from '~/lib/session';
 
 type FeedPost = Post & { upvotes?: number };
 type MutationResult = { upvotes?: number; bookmarked?: boolean };
 
-function timeLabel(date: string) {
+export function timeLabel(date?: string) {
+  if (!date || Number.isNaN(new Date(date).getTime())) return '';
   const created = new Date(date);
   const minutes = Math.max(0, Math.floor((Date.now() - created.getTime()) / 60000));
   if (minutes < 1) return 'agora';
@@ -24,7 +27,7 @@ function timeLabel(date: string) {
   return created.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
 }
 
-function PostAction({
+export function PostAction({
   label,
   icon,
   count,
@@ -73,13 +76,42 @@ function PostAction({
   );
 }
 
-export function PostCard({ post, detail = false }: { post: FeedPost; detail?: boolean }) {
+export function PostCard({
+  post,
+  detail = false,
+  headerActions,
+  onReply,
+}: {
+  post: FeedPost;
+  detail?: boolean;
+  headerActions?: ReactNode;
+  onReply?: () => void;
+}) {
   // A recycled list cell must not carry a pending mutation into a different post.
-  return <PostContent key={post.id} post={post} detail={detail} />;
+  return (
+    <PostContent
+      key={post.id}
+      post={post}
+      detail={detail}
+      headerActions={headerActions}
+      onReply={onReply}
+    />
+  );
 }
 
-function PostContent({ post, detail }: { post: FeedPost; detail: boolean }) {
+function PostContent({
+  post,
+  detail,
+  headerActions,
+  onReply,
+}: {
+  post: FeedPost;
+  detail: boolean;
+  headerActions?: ReactNode;
+  onReply?: () => void;
+}) {
   const { colors: c } = useTheme();
+  const { isPreview } = useSession();
   const serverSaved = !!post.bookmarks?.length;
   const serverVote = post.votes?.[0]?.value ?? 0;
   const serverScore = post.upvotes ?? post.score ?? 0;
@@ -151,26 +183,31 @@ function PostContent({ post, detail }: { post: FeedPost; detail: boolean }) {
         <Avatar uri={post.author.avatar_url} name={post.author.username} size={44} />
       </Pressable>
       <View style={{ flex: 1, minWidth: 0 }}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={'Abrir perfil de ' + post.author.username}
-          onPress={openProfile}
-          style={({ pressed }) => ({
-            minHeight: 48,
-            justifyContent: 'center',
-            opacity: pressed ? 0.65 : 1,
-          })}
-        >
-          <Text
-            numberOfLines={1}
-            style={{ fontSize: 15, lineHeight: 21, color: c.text, fontWeight: '700' }}
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={'Abrir perfil de ' + post.author.username}
+            onPress={openProfile}
+            style={({ pressed }) => ({
+              flex: 1,
+              minWidth: 0,
+              minHeight: 48,
+              justifyContent: 'center',
+              opacity: pressed ? 0.65 : 1,
+            })}
           >
-            {post.author.avatar_config?.displayName || post.author.username}
-          </Text>
-          <Text numberOfLines={1} style={{ fontSize: 13, lineHeight: 19, color: c.muted }}>
-            @{post.author.username} · {timeLabel(post.created_at)}
-          </Text>
-        </Pressable>
+            <Text
+              numberOfLines={1}
+              style={{ fontSize: 15, lineHeight: 21, color: c.text, fontWeight: '700' }}
+            >
+              {post.author.avatar_config?.displayName || post.author.username}
+            </Text>
+            <Text numberOfLines={1} style={{ fontSize: 13, lineHeight: 19, color: c.muted }}>
+              @{post.author.username} · {timeLabel(post.created_at)}
+            </Text>
+          </Pressable>
+          {headerActions}
+        </View>
         <Pressable
           accessibilityRole={detail ? undefined : 'button'}
           accessibilityLabel={detail ? undefined : 'Abrir publicação'}
@@ -235,7 +272,9 @@ function PostContent({ post, detail }: { post: FeedPost; detail: boolean }) {
             />
           </Pressable>
         )}
-        {post.code_snippet && <CodeBlock code={post.code_snippet} />}
+        {post.code_snippet && !hasCodeBlock(post.body, post.code_snippet) && (
+          <CodeBlock code={post.code_snippet} language={post.language} />
+        )}
         <View
           style={{
             flexDirection: 'row',
@@ -248,7 +287,8 @@ function PostContent({ post, detail }: { post: FeedPost; detail: boolean }) {
           <PostAction
             label={'Respostas: ' + answers}
             count={answers}
-            onPress={open}
+            busy={isPreview && !!onReply}
+            onPress={onReply ?? open}
             icon={<IconMessageCircle size={20} strokeWidth={1.8} color={c.muted} />}
           />
           <PostAction
@@ -256,7 +296,7 @@ function PostContent({ post, detail }: { post: FeedPost; detail: boolean }) {
             count={score}
             active={vote === 1}
             activeColor={c.like}
-            busy={m.isPending}
+            busy={m.isPending || isPreview}
             onPress={() => m.mutate({ action: 'vote', value: vote === 1 ? 0 : 1 })}
             icon={
               <IconHeart
@@ -270,7 +310,7 @@ function PostContent({ post, detail }: { post: FeedPost; detail: boolean }) {
           <PostAction
             label={saved ? 'Remover dos salvos' : 'Salvar publicação'}
             active={saved}
-            busy={m.isPending}
+            busy={m.isPending || isPreview}
             onPress={() => m.mutate({ action: 'bookmark' })}
             icon={
               <IconBookmark

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 import { extractPostMetadata } from '@/lib/editor/extract-metadata';
 import { publicQuiz } from '@/lib/quiz-public';
+import { buildAnswerThreads } from '@/lib/answer-threads';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -26,43 +27,22 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           select: {
             username: true,
             avatar_url: true,
+            avatar_config: true,
             total_xp: true,
           },
         },
         answers: {
-          // Only top-level answers here; nested replies come embedded via `replies`.
-          where: { parent_id: null },
+          // Fetch the full thread once. A fixed nested include silently drops deep replies.
           orderBy: { created_at: 'asc' },
           include: {
             author: {
               select: {
                 username: true,
                 avatar_url: true,
+                avatar_config: true,
               },
             },
             votes: user ? { where: { user_id: user.id } } : { where: { id: 'none' } },
-            // Nested replies up to 3 levels deep (matches the UI indent cap).
-            replies: {
-              orderBy: { created_at: 'asc' },
-              include: {
-                author: { select: { username: true, avatar_url: true } },
-                votes: user ? { where: { user_id: user.id } } : { where: { id: 'none' } },
-                replies: {
-                  orderBy: { created_at: 'asc' },
-                  include: {
-                    author: { select: { username: true, avatar_url: true } },
-                    votes: user ? { where: { user_id: user.id } } : { where: { id: 'none' } },
-                    replies: {
-                      orderBy: { created_at: 'asc' },
-                      include: {
-                        author: { select: { username: true, avatar_url: true } },
-                        votes: user ? { where: { user_id: user.id } } : { where: { id: 'none' } },
-                      },
-                    },
-                  },
-                },
-              },
-            },
           },
         },
         quizzes: {
@@ -79,7 +59,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: 'Post não encontrado' }, { status: 404 });
     }
 
-    return NextResponse.json({ ...post, quizzes: post.quizzes.map(publicQuiz) });
+    return NextResponse.json({
+      ...post,
+      answers: buildAnswerThreads(post.answers),
+      quizzes: post.quizzes.map(publicQuiz),
+    });
   } catch (error) {
     console.error('Error fetching post details:', error);
     return NextResponse.json({ error: 'Erro ao buscar detalhes do post' }, { status: 500 });

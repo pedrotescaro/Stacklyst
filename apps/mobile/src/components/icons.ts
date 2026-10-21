@@ -12,6 +12,8 @@ export { default as IconCalendarEvent } from '@tabler/icons-react-native/IconCal
 export { default as IconCheck } from '@tabler/icons-react-native/IconCheck';
 export { default as IconChevronRight } from '@tabler/icons-react-native/IconChevronRight';
 export { default as IconCode } from '@tabler/icons-react-native/IconCode';
+export { default as IconCopy } from '@tabler/icons-react-native/IconCopy';
+export { default as IconDots } from '@tabler/icons-react-native/IconDots';
 export { default as IconEdit } from '@tabler/icons-react-native/IconEdit';
 export { default as IconHome } from '@tabler/icons-react-native/IconHome';
 export { default as IconHeart } from '@tabler/icons-react-native/IconHeart';
@@ -26,6 +28,7 @@ export { default as IconPhoto } from '@tabler/icons-react-native/IconPhoto';
 export { default as IconPlus } from '@tabler/icons-react-native/IconPlus';
 export { default as IconRoute } from '@tabler/icons-react-native/IconRoute';
 export { default as IconSearch } from '@tabler/icons-react-native/IconSearch';
+export { default as IconSend } from '@tabler/icons-react-native/IconSend';
 export { default as IconSettings } from '@tabler/icons-react-native/IconSettings';
 export { default as IconShare } from '@tabler/icons-react-native/IconShare';
 export { default as IconShieldCheck } from '@tabler/icons-react-native/IconShieldCheck';

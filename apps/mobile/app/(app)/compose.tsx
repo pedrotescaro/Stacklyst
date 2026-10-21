@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Image, Platform, ScrollView, Text, TextInput, View } from 'react-native';
+import { Image, ScrollView, Text, TextInput, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
@@ -16,6 +16,15 @@ import {
   IconButton,
 } from '~/components/ui';
 import { DraftConflict } from '~/components/content';
+import { SnippetComposer } from '~/components/SnippetComposer';
+import {
+  appendCodeBlock,
+  editableSnippets,
+  hasCodeBlock,
+  replaceSnippet,
+  snippetBodySections,
+  type SnippetBodySection,
+} from '~/lib/code-snippets';
 import { useDraft } from '~/lib/draft';
 import { api, send, errorMessage } from '~/lib/api';
 import { queryClient } from '~/lib/query';
@@ -39,26 +48,17 @@ const empty: Composition = {
   image: '',
   language: '',
 };
-const languages = [
-  { value: '', label: 'Sem linguagem' },
-  { value: 'JS', label: 'JavaScript' },
-  { value: 'TS', label: 'TypeScript' },
-  { value: 'PYTHON', label: 'Python' },
-  { value: 'JAVA', label: 'Java' },
-  { value: 'RUST', label: 'Rust' },
-  { value: 'GO', label: 'Go' },
-  { value: 'KOTLIN', label: 'Kotlin' },
-  { value: 'SWIFT', label: 'Swift' },
-  { value: 'CPP', label: 'C++' },
-];
-function decode(value: string): Composition {
+function storedComposition(value: string): Composition | null {
   try {
     const parsed = JSON.parse(value);
-    if (typeof parsed.body === 'string') return { ...empty, ...parsed };
+    if (typeof parsed?.body === 'string') return { ...empty, ...parsed };
   } catch {
     /* Previously saved drafts contained only text. */
   }
-  return { ...empty, body: value };
+  return null;
+}
+function decode(value: string): Composition {
+  return storedComposition(value) ?? { ...empty, body: value };
 }
 export default function Compose() {
   const { isPreview } = useSession();
@@ -74,12 +74,31 @@ export default function Compose() {
     enabled: !!id,
     refetchOnWindowFocus: false,
   });
-  const initial = id ? (original.data?.body ?? '') : JSON.stringify(empty);
-  const draft = useDraft(id ? 'post:' + id : 'post', initial, !id || !!original.data);
-  const composition = useMemo(
-    () => (id ? { ...empty, body: draft.value } : decode(draft.value)),
-    [id, draft.value]
+  const originalCode = original.data?.code_snippet;
+  const initial = JSON.stringify(
+    id && original.data
+      ? {
+          ...empty,
+          body: original.data.body,
+          code: originalCode && !hasCodeBlock(original.data.body, originalCode) ? originalCode : '',
+          language: original.data.language || '',
+        }
+      : empty
   );
+  const draft = useDraft(id ? 'post:' + id : 'post', initial, !id || !!original.data);
+  const composition = useMemo(() => {
+    const saved = decode(draft.value);
+    // Old edit drafts contained plain body text. Preserve their legacy snippet too.
+    if (
+      id &&
+      !storedComposition(draft.value) &&
+      originalCode &&
+      !hasCodeBlock(saved.body, originalCode)
+    ) {
+      return { ...saved, code: originalCode, language: original.data?.language || '' };
+    }
+    return saved;
+  }, [id, draft.value, originalCode, original.data?.language]);
   const latest = useRef(composition);
   useEffect(() => {
     latest.current = composition;
@@ -88,6 +107,13 @@ export default function Compose() {
     latest.current = { ...latest.current, [field]: value };
     draft.setValue(JSON.stringify(latest.current));
   };
+  const bodySections: SnippetBodySection[] = id
+    ? snippetBodySections(composition.body)
+    : [{ kind: 'text', start: 0, end: composition.body.length, text: composition.body }];
+  const bodyTextLength = bodySections.reduce(
+    (count, section) => count + (section.kind === 'text' ? section.text.length : 0),
+    0
+  );
   const [uploading, setUploading] = useState(false),
     [uploadError, setUploadError] = useState('');
   const m = useMutation({
@@ -95,12 +121,12 @@ export default function Compose() {
       send(
         '/api/posts' + (id ? '/' + id : ''),
         id
-          ? { body: draft.value }
+          ? { body: appendCodeBlock(composition.body, composition.code, composition.language) }
           : {
               body: composition.body,
               title: composition.title || undefined,
               type: composition.type,
-              code_snippet: composition.code || null,
+              code: composition.code || null,
               language: composition.language || null,
               image_url: composition.image || null,
             },
@@ -219,26 +245,82 @@ export default function Compose() {
             )}
           </>
         )}
-        <TextInput
-          accessibilityLabel="Conteúdo da publicação"
-          placeholder="O que você está construindo ou aprendendo?"
-          placeholderTextColor={colors.muted}
-          selectionColor={colors.primary}
-          value={composition.body}
-          editable={draft.ready}
-          onChangeText={(value) => (id ? draft.setValue(value) : change('body', value))}
-          multiline
-          maxLength={5000}
-          autoCapitalize="sentences"
-          textAlignVertical="top"
-          style={{
-            color: colors.text,
-            fontSize: 18,
-            lineHeight: 28,
-            minHeight: 190,
-            paddingVertical: 8,
-          }}
-        />
+        {bodySections.map((section, sectionIndex) => {
+          if (section.kind === 'code') {
+            const snippetIndex = bodySections
+              .slice(0, sectionIndex)
+              .filter((item) => item.kind === 'code').length;
+            return (
+              <SnippetComposer
+                key={sectionIndex}
+                value={section.snippet.code}
+                language={section.snippet.language}
+                editable={draft.ready}
+                maxLength={10000}
+                onRemove={() => {
+                  const current = editableSnippets(latest.current.body)[snippetIndex];
+                  if (current)
+                    change(
+                      'body',
+                      latest.current.body.slice(0, current.start) +
+                        latest.current.body.slice(current.end)
+                    );
+                }}
+                onChange={(value) =>
+                  change('body', replaceSnippet(latest.current.body, snippetIndex, value))
+                }
+                onLanguageChange={(value) => {
+                  const current = editableSnippets(latest.current.body)[snippetIndex];
+                  if (current)
+                    change(
+                      'body',
+                      replaceSnippet(latest.current.body, snippetIndex, current.code, value)
+                    );
+                }}
+              />
+            );
+          }
+          return (
+            <TextInput
+              key={sectionIndex}
+              accessibilityLabel={
+                sectionIndex
+                  ? `Conteúdo da publicação, trecho ${sectionIndex + 1}`
+                  : 'Conteúdo da publicação'
+              }
+              placeholder={
+                sectionIndex ? 'Adicionar texto' : 'O que você está construindo ou aprendendo?'
+              }
+              placeholderTextColor={colors.muted}
+              selectionColor={colors.primary}
+              value={section.text}
+              editable={draft.ready}
+              onChangeText={(value) => {
+                const current = id
+                  ? snippetBodySections(latest.current.body)[sectionIndex]
+                  : { kind: 'text', start: 0, end: latest.current.body.length };
+                if (current?.kind === 'text')
+                  change(
+                    'body',
+                    latest.current.body.slice(0, current.start) +
+                      value +
+                      latest.current.body.slice(current.end)
+                  );
+              }}
+              multiline
+              maxLength={Math.max(section.text.length, 5000 - bodyTextLength + section.text.length)}
+              autoCapitalize="sentences"
+              textAlignVertical="top"
+              style={{
+                color: colors.text,
+                fontSize: 18,
+                lineHeight: 28,
+                minHeight: bodySections.length === 1 ? 190 : section.text ? 60 : 40,
+                paddingVertical: 8,
+              }}
+            />
+          );
+        })}
         <View
           style={{
             flexDirection: 'row',
@@ -255,15 +337,22 @@ export default function Compose() {
             {isPreview ? 'Demonstração somente leitura' : draft.status}
           </Text>
           <Text style={{ color: colors.muted, fontSize: 12, fontVariant: ['tabular-nums'] }}>
-            {composition.body.length}/5000
+            {bodyTextLength}/5000
           </Text>
         </View>
-        {id ? (
-          <Label muted>
-            A edição preserva título e imagem. Para incluir código, use um bloco Markdown com três
-            crases e a linguagem.
-          </Label>
-        ) : (
+        {id && (
+          <IconButton
+            label={showCode ? 'Ocultar editor de código' : 'Adicionar código'}
+            onPress={() => setShowCode(!showCode)}
+            icon={
+              <IconCode
+                size={23}
+                color={showCode || composition.code ? colors.primary : colors.muted}
+              />
+            }
+          />
+        )}
+        {!id && (
           <>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
               <IconButton
@@ -292,27 +381,6 @@ export default function Compose() {
                     color={showTitle || composition.title ? colors.primary : colors.muted}
                   />
                 }
-              />
-            </View>
-            {(showCode || !!composition.code) && (
-              <Field
-                label="Código (opcional)"
-                value={composition.code}
-                editable={draft.ready}
-                onChangeText={(value) => change('code', value)}
-                multiline
-                maxLength={10000}
-                autoCorrect={false}
-                autoCapitalize="none"
-                style={{ fontFamily: Platform.OS === 'ios' ? 'Menlo' : 'monospace', fontSize: 14 }}
-              />
-            )}
-            <View style={{ gap: 4 }}>
-              <Label muted>Linguagem (opcional)</Label>
-              <Choice
-                value={composition.language}
-                onChange={(value) => change('language', value)}
-                options={languages}
               />
             </View>
             {uploading && <Label muted>Enviando imagem…</Label>}
@@ -352,6 +420,20 @@ export default function Compose() {
             )}
           </>
         )}
+        {(showCode || !!composition.code) && (
+          <SnippetComposer
+            value={composition.code}
+            onChange={(value) => change('code', value)}
+            language={composition.language}
+            onLanguageChange={(value) => change('language', value)}
+            editable={draft.ready}
+            maxLength={10000}
+            onRemove={() => {
+              change('code', '');
+              setShowCode(false);
+            }}
+          />
+        )}
         <Button
           secondary
           disabled={!draft.ready}
@@ -360,16 +442,12 @@ export default function Compose() {
         />
         <DraftConflict
           draft={draft}
-          formatValue={
-            id
-              ? undefined
-              : (value) => {
-                  const saved = decode(value);
-                  return [saved.title, saved.body, saved.code, saved.language, saved.image]
-                    .filter(Boolean)
-                    .join('\n\n');
-                }
-          }
+          formatValue={(value) => {
+            const saved = decode(value);
+            return [saved.title, saved.body, saved.code, saved.language, saved.image]
+              .filter(Boolean)
+              .join('\n\n');
+          }}
         />
         {uploadError && <Label>{uploadError}</Label>}
         {m.error && <Label>{errorMessage(m.error)}</Label>}
