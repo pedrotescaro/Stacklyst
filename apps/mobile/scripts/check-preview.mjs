@@ -80,6 +80,21 @@ try {
     '/api/profile/ana_dev',
   ])
     assert.ok(await client.api(endpoint));
+  const profile = await client.api('/api/profile/visitante');
+  assert.equal(profile.followers, 2);
+  assert.equal(profile.following, 2);
+  assert.ok(profile.trails.length > 0);
+  assert.ok(profile.user.badges.length > 0);
+  assert.equal((await client.api('/api/users/demo_reader/followers')).length, profile.followers);
+  assert.equal((await client.api('/api/users/demo_reader/following')).length, profile.following);
+  const replies = await client.api('/api/profile/ana_dev/replies?limit=10');
+  assert.equal(replies.items.length, 1);
+  assert.equal(replies.items[0].post.id, 'demo_typescript');
+  assert.equal((await client.api('/api/profile/ana_dev/replies?cursor=next')).items.length, 0);
+  const authored = await client.api('/api/posts?author=ana_dev');
+  assert.ok(authored.items.length > 0);
+  assert.ok(authored.items.every((post) => post.author.username === 'ana_dev'));
+  assert.equal((await client.api('/api/posts?likedBy=missing')).items.length, 0);
   assert.equal(requests, 0);
   client.disablePreview();
   assert.equal(client.isPreviewEnabled(), false);

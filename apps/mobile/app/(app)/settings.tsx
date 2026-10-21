@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Linking } from 'react-native';
+import { Linking, Switch, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { Screen, Field, Button, Label, Heading, Choice, confirm } from '~/components/ui';
 import { useTheme, type ThemeMode } from '~/theme';
@@ -16,8 +16,15 @@ import {
 } from '~/lib/notifications';
 import { queryClient } from '~/lib/query';
 import { config } from '~/lib/config';
+import { useSoundEffects } from '~/lib/sounds';
 export default function Settings() {
-  const { mode, setMode } = useTheme();
+  const { colors, mode, setMode } = useTheme();
+  const {
+    enabled: soundsEnabled,
+    ready: soundsReady,
+    setEnabled: setSoundsEnabled,
+    preferenceError,
+  } = useSoundEffects();
   const { isPreview } = useSession();
   const [hour, setHour] = useState('19:00'),
     [info, setInfo] = useState('');
@@ -53,10 +60,34 @@ export default function Settings() {
       />
     </>
   );
+  const sounds = (
+    <>
+      <Heading>Sons das atividades</Heading>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 16, minHeight: 48 }}>
+        <Text style={{ flex: 1, color: colors.text, fontSize: 16 }}>Efeitos sonoros</Text>
+        <Switch
+          accessibilityLabel="Sons das atividades"
+          value={soundsEnabled}
+          disabled={!soundsReady}
+          onValueChange={setSoundsEnabled}
+          trackColor={{ false: colors.border, true: colors.primary }}
+          thumbColor={colors.onPrimary}
+        />
+      </View>
+      <Label muted>
+        Sons curtos ao verificar respostas, ganhar XP e concluir atividades. Disponíveis sem
+        internet. Desative os efeitos aqui ou ajuste o volume de mídia do aparelho.
+      </Label>
+      {preferenceError && (
+        <Label>Não foi possível salvar a preferência. Tente alterar novamente.</Label>
+      )}
+    </>
+  );
   if (isPreview)
     return (
       <Screen title="Configurações" back>
         {appearance}
+        {sounds}
         <Heading>Explore sem uma conta</Heading>
         <Label muted>
           Esta demonstração usa dados ilustrativos. Publicações, mensagens, alterações de conta e
@@ -75,6 +106,7 @@ export default function Settings() {
   return (
     <Screen title="Configurações" back>
       {appearance}
+      {sounds}
       <Heading>Notificações</Heading>
       <Label muted>
         Receba avisos de atividade. O conteúdo de mensagens fica oculto na tela bloqueada.
@@ -112,7 +144,7 @@ export default function Settings() {
       <Heading>Conta e acessibilidade</Heading>
       <Label muted>
         O app acompanha o tamanho de texto do sistema. As transições respeitam a preferência de
-        movimento do aparelho. Sem sons ou vibrações contínuas.
+        movimento do aparelho. Você pode desligar os sons das atividades acima.
       </Label>
       <Button
         secondary

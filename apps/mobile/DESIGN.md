@@ -200,6 +200,20 @@ Salvar comentários é uma preferência local por conta, persistida neste aparel
 
 O mesmo renderer atende fences e blocos indentados Markdown, `<pre><code>` HTML e o campo legado `code_snippet`. Conteúdo já presente no corpo não reaparece pelo metadado legado. Criação de publicação e resposta oferece inserção de código; edição de publicação disponibiliza todos os blocos existentes no corpo, em sua ordem, preserva o texto entre eles e permite alterar linguagem, conteúdo ou remover o bloco. A persistência continua passando pelas APIs e pelos rascunhos existentes.
 
+### Profile
+
+O perfil nativo acompanha a composição atual do site: banner com cantos arredondados, retrato quadrado centralizado, nome, nível, `@username`, data de entrada, bio e metadados públicos. O fundo padrão do banner usa a mesma paleta e o mesmo cálculo do web; avatares e banners existentes vêm da conta. Os logos das seis linguagens são os mesmos SVGs Devicon do site e ficam incluídos no aplicativo.
+
+Estatísticas apresentam ofensiva, XP, nível global, precisão, respostas enviadas e aceitas. As trilhas mostram XP e nível retornados pelo servidor; a barra indica o avanço entre os limites do nível atual, usando a mesma função de níveis da API. Esse nível por linguagem é distinto do nível global exibido no perfil, que acompanha o cálculo do site. Postagens, Respostas, Curtidas, Estatísticas, Trilhas e Conquistas têm abas próprias e estados de carregamento, vazio e falha. Seguidores e seguindo abrem uma lista de pessoas. O menu da conta preserva configurações e demais acessos sem dominar o conteúdo público do perfil.
+
+Editar perfil, seguir, enviar mensagem e desafiar continuam ligados aos fluxos reais. A demonstração identifica os dados como ilustrativos, desabilita seguir e bloqueia gravações e envio de convites. A composição foi adaptada a partir do código atual do site. Sem um pacote de capturas nativas disponível, a aparência em emulador ou aparelho permanece sem validação visual; testes de código e interação não comprovam essa paridade.
+
+### Activity sounds
+
+Acerto, erro, XP, mudança de nível e conclusão usam os mesmos arquivos de som disponíveis no site, incluídos no APK para reprodução local. Os sons são curtos e sequenciais, com volume moderado, e acompanham respostas confirmadas pelo servidor. Executar casos públicos, falhas de rede e abrir uma tela não anunciam recompensas. Revisões preservam o feedback de acerto e erro sem repetir recompensas.
+
+A preferência “Sons das atividades” fica em Configurações, começa ativada e é persistida neste aparelho. Desativar a opção, sair da atividade ou colocar o app em segundo plano interrompe a reprodução. Trocar de tela invalida os sons de respostas pendentes daquela visita; retornar ao primeiro plano não retoma sequências interrompidas. A integração não solicita gravação nem reprodução de fundo. A reprodução audível em hardware permanece sem validação; testes de eventos e empacotamento não a comprovam.
+
 ### Lesson session
 
 `LessonSession` e `LessonControls` organizam progresso real, pergunta, opções amplas e footer persistente. `LessonOption` usa seleção azul com marca de confirmação; `LessonButton` usa verde com `onSuccess`. Feedback combina texto, ícone e superfície de sucesso ou erro, com anúncio acessível. A dica aparece sob demanda.

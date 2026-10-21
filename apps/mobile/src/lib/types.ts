@@ -4,14 +4,29 @@ export type { PublicLesson } from '../../../../src/lib/mobile/lesson';
 export interface Person {
   id: string;
   username: string;
+  name?: string | null;
   avatar_url?: string | null;
-  avatar_config?: { name?: string; displayName?: string };
+  avatar_config?: { name?: string; displayName?: string; background?: number };
+  banner_url?: string | null;
+  institution?: string | null;
+  pronouns?: string | null;
+  created_at?: string;
+  last_active_at?: string | null;
   total_xp?: number;
   role?: 'USER' | 'ADMIN' | 'RECRUITER' | 'EVALUATOR';
   streak_days?: number;
   bio?: string | null;
-  github_username?: string;
-  badges?: { label?: string; badge?: { label: string } }[];
+  github_username?: string | null;
+  discord_username?: string | null;
+  badges?: {
+    slug?: string;
+    label?: string;
+    description?: string;
+    icon?: string;
+    color?: string;
+    earned_at?: string;
+    badge?: { label: string };
+  }[];
 }
 export interface Post {
   id: string;

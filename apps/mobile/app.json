@@ -2,7 +2,7 @@
   "expo": {
     "name": "Stacklyst",
     "slug": "stacklyst-mobile",
-    "version": "0.1.3",
+    "version": "0.1.4",
     "scheme": "stacklyst",
     "orientation": "default",
     "userInterfaceStyle": "automatic",
@@ -14,7 +14,7 @@
     },
     "android": {
       "package": "com.stacklyst.mobile",
-      "versionCode": 4,
+      "versionCode": 5,
       "softwareKeyboardLayoutMode": "resize",
       "predictiveBackGestureEnabled": true,
       "adaptiveIcon": {
@@ -42,7 +42,17 @@
             "image": "./assets/splash-icon.png"
           }
         }
-      ]
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "enableBackgroundPlayback": false,
+          "enableBackgroundRecording": false
+        }
+      ],
+      "expo-asset"
     ],
     "web": {
       "bundler": "metro",

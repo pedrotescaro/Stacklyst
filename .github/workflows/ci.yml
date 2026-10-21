@@ -87,3 +87,6 @@ jobs:
 
       - name: Check mobile chat, thread and code interactions
         run: npm --prefix apps/mobile run test:social
+
+      - name: Check mobile activity sounds and profile interactions
+        run: npm --prefix apps/mobile run test:sounds && npm --prefix apps/mobile run test:profile
