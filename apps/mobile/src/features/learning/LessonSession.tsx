@@ -8,7 +8,7 @@
  * FINISH: unreviewed and undocumented is unfinished; this build ends with the
  * finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
  */
-import { useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { Image, Keyboard, Pressable, Text, View } from 'react-native';
 import { router } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
@@ -22,6 +22,9 @@ import type { PublicLesson, Result } from '~/lib/types';
 import { queryClient } from '~/lib/query';
 import { useSession } from '~/lib/session';
 import { useTheme } from '~/theme';
+import { useSoundEffects } from '~/lib/sounds';
+import { confirmedActivitySounds, type ConfirmedActivityResult } from '~/lib/sounds-engine';
+import { useActivitySoundScope } from '~/lib/sounds-focus';
 import { ResultView } from './ResultView';
 import {
   LessonProgress,
@@ -33,13 +36,15 @@ import {
 
 export type Lesson = PublicLesson & { completedStepIds: string[] };
 type Step = Lesson['steps'][number];
-type Assessment = Result & { lessonCompleted?: boolean };
+type Assessment = Result & ConfirmedActivityResult;
 
 function Activity({
   step,
   lesson,
   completed,
   last,
+  review,
+  captureSoundEvent,
   onAccepted,
   next,
 }: {
@@ -47,11 +52,16 @@ function Activity({
   lesson: Lesson;
   completed: number;
   last: boolean;
+  review: boolean;
+  captureSoundEvent: () => () => boolean;
   onAccepted: (result: Assessment) => void;
   next: () => void;
 }) {
   const { colors } = useTheme();
   const { isPreview } = useSession();
+  const { playSequence } = useSoundEffects();
+  const soundScope = useId();
+  const attempt = useRef(0);
   const draft = useDraft('lesson:' + step.id, step.codeTemplate ?? '');
   const [option, setOption] = useState('');
   const [blanks, setBlanks] = useState<Record<string, string>>({});
@@ -63,8 +73,10 @@ function Activity({
   const [submitted, setSubmitted] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const mutation = useMutation({
-    mutationFn: (action: 'run' | 'submit') =>
-      send<Assessment>('/api/lessons/' + lesson.id + '/attempt', {
+    onMutate: captureSoundEvent,
+    mutationFn: (action: 'run' | 'submit') => {
+      attempt.current += 1;
+      return send<Assessment>('/api/lessons/' + lesson.id + '/attempt', {
         stepId: step.id,
         action,
         code: draft.value,
@@ -74,8 +86,14 @@ function Activity({
         tokens,
         pairs,
         command,
-      }),
-    onSuccess: (result, action) => {
+      });
+    },
+    onSuccess: (result, action, canPlaySound) => {
+      if (canPlaySound?.() && !isPreview)
+        playSequence(
+          confirmedActivitySounds(result, action, review),
+          `lesson:${soundScope}:${lesson.id}:${step.id}:${attempt.current}`
+        );
       setSubmitted(action === 'submit');
       if (action === 'submit') Keyboard.dismiss();
       if (action === 'submit' && result.isCorrect) {
@@ -381,6 +399,11 @@ function Activity({
 
 export function LessonSession({ lesson }: { lesson: Lesson }) {
   const { colors } = useTheme();
+  const { playSound } = useSoundEffects();
+  const { canPlaySound, captureSoundEvent } = useActivitySoundScope();
+  const soundScope = useId();
+  const completionConfirmed = useRef(false);
+  const [reviewing, setReviewing] = useState(false);
   const [completed, setCompleted] = useState(() => new Set(lesson.completedStepIds));
   const [index, setIndex] = useState(() => {
     const first = lesson.steps.findIndex((step) => !lesson.completedStepIds.includes(step.id));
@@ -416,6 +439,7 @@ export function LessonSession({ lesson }: { lesson: Lesson }) {
                 setCompleted(new Set());
                 setEarned({});
                 setFinished(false);
+                setReviewing(true);
               }}
             />
           </View>
@@ -462,7 +486,10 @@ export function LessonSession({ lesson }: { lesson: Lesson }) {
       lesson={lesson}
       completed={lesson.steps.filter((item) => completed.has(item.id)).length}
       last={lesson.steps.every((item) => item.id === step.id || completed.has(item.id))}
+      review={reviewing || lesson.completedStepIds.includes(step.id)}
+      captureSoundEvent={captureSoundEvent}
       onAccepted={(result) => {
+        if (result.lessonCompleted) completionConfirmed.current = true;
         setCompleted((previous) => new Set([...previous, step.id]));
         setEarned((previous) => ({
           ...previous,
@@ -471,8 +498,11 @@ export function LessonSession({ lesson }: { lesson: Lesson }) {
       }}
       next={() => {
         const next = lesson.steps.findIndex((item) => !completed.has(item.id));
-        if (next < 0) setFinished(true);
-        else setIndex(next);
+        if (next < 0) {
+          setFinished(true);
+          if (completionConfirmed.current && !reviewing && canPlaySound())
+            playSound('lesson_completed', `lesson:${soundScope}:${lesson.id}:completed`);
+        } else setIndex(next);
       }}
     />
   );

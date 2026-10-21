@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useId, useRef, useState } from 'react';
 import { router, useLocalSearchParams } from 'expo-router';
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { Screen, AsyncState, Heading, Label, Button, Choice } from '~/components/ui';
@@ -10,18 +10,35 @@ import { ExerciseWorkspaceData, Result } from '~/lib/types';
 import { queryClient } from '~/lib/query';
 import { ResultView } from '~/features/learning/ResultView';
 import { LessonButton } from '~/features/learning/LessonControls';
+import { useSoundEffects } from '~/lib/sounds';
+import { confirmedActivitySounds, type ConfirmedActivityResult } from '~/lib/sounds-engine';
+import { useActivitySoundScope } from '~/lib/sounds-focus';
+import { useSession } from '~/lib/session';
 function Workspace({ e }: { e: ExerciseWorkspaceData }) {
+  const { playSequence } = useSoundEffects();
+  const { captureSoundEvent } = useActivitySoundScope();
+  const { isPreview } = useSession();
+  const soundScope = useId();
+  const attempt = useRef(0);
   const draft = useDraft('exercise:' + e.id + ':' + e.language, e.starterCode);
   const [area, setArea] = useState('problem'),
     [submitted, setSubmitted] = useState(false),
     [mode, setMode] = useState('STANDARD');
   const m = useMutation({
-    mutationFn: (action: 'run' | 'submit') =>
-      send<Result>('/api/exercises/' + e.id + '/' + action, {
+    onMutate: captureSoundEvent,
+    mutationFn: (action: 'run' | 'submit') => {
+      attempt.current += 1;
+      return send<Result & ConfirmedActivityResult>('/api/exercises/' + e.id + '/' + action, {
         code: draft.value,
         assistanceMode: mode,
-      }),
-    onSuccess: (_r, action) => {
+      });
+    },
+    onSuccess: (result, action, canPlaySound) => {
+      const sounds = confirmedActivitySounds(result, action, e.activity.completed);
+      if (action === 'submit' && result.passed && result.firstCompletion && !e.activity.completed)
+        sounds.push('lesson_completed');
+      if (canPlaySound?.() && !isPreview)
+        playSequence(sounds, `exercise:${soundScope}:${e.id}:${attempt.current}`);
       setSubmitted(action === 'submit');
       setArea('result');
       queryClient.invalidateQueries({ queryKey: ['learning'] });

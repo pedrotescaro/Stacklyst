@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { KnowledgeMapData, Message, Notification, Person, Post } from './types';
+import type { Answer, KnowledgeMapData, Message, Notification, Person, Post } from './types';
 
 // Preview is an explicit, temporary UI mode. It never creates an auth session.
 let enabled = false;
@@ -30,11 +30,20 @@ export class PreviewError extends Error {
 const reader: Person = {
   id: 'demo_reader',
   username: 'visitante',
-  avatar_config: { displayName: 'Seu espaço para evoluir' },
+  avatar_config: { displayName: 'Seu espaço para evoluir', background: 0 },
   bio: 'Demonstração do Stacklyst. Os exemplos são fictícios e nenhuma atividade é salva.',
   role: 'USER',
-  total_xp: 0,
-  streak_days: 0,
+  total_xp: 680,
+  streak_days: 3,
+  created_at: '2026-09-04T12:00:00.000Z',
+  institution: 'Comunidade Stacklyst',
+  badges: [
+    {
+      slug: 'demo-first-steps',
+      label: 'Primeiros passos',
+      description: 'Conquista ilustrativa da demonstração.',
+    },
+  ],
 };
 const people: Person[] = [
   reader,
@@ -44,6 +53,9 @@ const people: Person[] = [
     avatar_config: { displayName: 'Ana Costa' },
     bio: 'Frontend, acessibilidade e pequenos aprendizados todos os dias.',
     role: 'USER',
+    total_xp: 430,
+    created_at: '2026-09-08T12:00:00.000Z',
+    pronouns: 'ela/dela',
   },
   {
     id: 'demo_caio',
@@ -51,6 +63,10 @@ const people: Person[] = [
     avatar_config: { displayName: 'Caio Lima' },
     bio: 'Aprendendo TypeScript e compartilhando o caminho.',
     role: 'USER',
+    total_xp: 1240,
+    streak_days: 4,
+    created_at: '2026-09-01T12:00:00.000Z',
+    institution: 'Comunidade Stacklyst',
   },
   {
     id: 'demo_luiza',
@@ -58,6 +74,8 @@ const people: Person[] = [
     avatar_config: { displayName: 'Luiza Rocha' },
     bio: 'Python, dados e código que outras pessoas consigam ler.',
     role: 'USER',
+    total_xp: 960,
+    created_at: '2026-09-12T12:00:00.000Z',
   },
 ];
 const posts: Post[] = [
@@ -155,6 +173,18 @@ const learning: KnowledgeMapData = {
 };
 const page = <T>(items: T[]) => ({ items, nextCursor: null });
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+const follows = [
+  [reader.id, people[1].id],
+  [reader.id, people[2].id],
+  [people[2].id, reader.id],
+  [people[3].id, reader.id],
+];
+const replies = (answers: Answer[], post: Post): (Answer & { post: Post })[] =>
+  answers.flatMap((answer) => [
+    { ...answer, post: { ...post, answers: undefined } },
+    ...replies(answer.replies ?? [], post),
+  ]);
+const allReplies = posts.flatMap((post) => replies(post.answers ?? [], post));
 
 /** Only curated GET contracts exist here. Unsupported routes never fall through to the network. */
 export async function previewRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
@@ -174,6 +204,11 @@ export async function previewRequest<T>(path: string, init: RequestInit = {}): P
       let result = posts;
       const language = url.searchParams.get('language');
       const search = url.searchParams.get('search')?.toLocaleLowerCase('pt-BR');
+      const author = url.searchParams.get('author');
+      const likedBy = url.searchParams.get('likedBy');
+      if (author) result = result.filter((post) => post.author.username === author);
+      if (likedBy)
+        result = people.some((person) => person.username === likedBy) ? result.slice(0, 2) : [];
       if (language) result = result.filter((post) => post.language === language);
       if (search)
         result = result.filter((post) =>
@@ -188,17 +223,55 @@ export async function previewRequest<T>(path: string, init: RequestInit = {}): P
       if (post) return post;
     }
     if (route.startsWith('/api/profile/')) {
-      const username = decodeURIComponent(route.slice('/api/profile/'.length));
+      const [encodedUsername, section] = route.slice('/api/profile/'.length).split('/');
+      const username = decodeURIComponent(encodedUsername);
       const user = people.find((person) => person.username === username);
-      if (user)
+      if (user) {
+        const userReplies = allReplies.filter((answer) => answer.author_id === user.id);
+        if (section === 'replies') return page(cursor ? [] : userReplies);
         return {
           user,
           posts: page(cursor ? [] : posts.filter((post) => post.author_id === user.id)),
-          stats: { answers_count: 0, accepted_count: 0, accuracy: 0 },
-          followers: 0,
-          following: 0,
-          isFollowing: false,
+          stats: {
+            answers_count: userReplies.length,
+            accepted_count: userReplies.filter((answer) => answer.is_accepted).length,
+            accuracy: 0,
+          },
+          followers: follows.filter(([, following]) => following === user.id).length,
+          following: follows.filter(([follower]) => follower === user.id).length,
+          isFollowing: follows.some(
+            ([follower, following]) => follower === reader.id && following === user.id
+          ),
+          trails: user.total_xp
+            ? [
+                {
+                  language:
+                    user.id === people[3].id ? 'PYTHON' : user.id === people[2].id ? 'TS' : 'JS',
+                  xp: user.total_xp,
+                  level: Math.floor(user.total_xp / 500) + 1,
+                },
+              ]
+            : [],
         };
+      }
+    }
+    const followList = route.match(/^\/api\/users\/([^/]+)\/(followers|following)$/);
+    if (followList) {
+      const userId = decodeURIComponent(followList[1]);
+      return people
+        .filter((person) =>
+          follows.some(([follower, following]) =>
+            followList[2] === 'followers'
+              ? follower === person.id && following === userId
+              : follower === userId && following === person.id
+          )
+        )
+        .map((person) => ({
+          ...person,
+          isFollowing: follows.some(
+            ([follower, following]) => follower === reader.id && following === person.id
+          ),
+        }));
     }
     if (route === '/api/search') {
       const search = (url.searchParams.get('q') ?? '').trim().toLocaleLowerCase('pt-BR');

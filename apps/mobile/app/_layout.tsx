@@ -11,6 +11,7 @@ import { AppDrawer } from '../src/components/AppDrawer';
 import { useReducedMotion } from '../src/lib/motion';
 import { notificationRoute } from '../src/lib/links';
 import { loadNotifications, type NotificationResponse } from '../src/lib/notification-runtime';
+import { SoundEffectsProvider } from '../src/lib/sounds';
 function NotificationLinks() {
   const navigation = useRootNavigationState();
   const { ready } = useSession();
@@ -53,9 +54,11 @@ export default function Layout() {
         <QueryClientProvider client={queryClient}>
           <ThemeProvider>
             <SessionProvider>
-              <AppDrawer>
-                <Navigation />
-              </AppDrawer>
+              <SoundEffectsProvider>
+                <AppDrawer>
+                  <Navigation />
+                </AppDrawer>
+              </SoundEffectsProvider>
             </SessionProvider>
           </ThemeProvider>
         </QueryClientProvider>
