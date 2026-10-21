@@ -91,7 +91,7 @@ export function RemoteList<T extends { id: string }>({
   filter,
 }: {
   path: string;
-  render: (item: T) => ReactNode;
+  render: (item: T, index: number, rows: T[]) => ReactNode;
   header?: ReactNode;
   chronological?: boolean;
   edgeToEdge?: boolean;
@@ -125,7 +125,7 @@ export function RemoteList<T extends { id: string }>({
       <FlashList
         data={rows}
         keyExtractor={(i) => i.id}
-        renderItem={({ item }) => <>{render(item)}</>}
+        renderItem={({ item, index }) => <>{render(item, index, rows)}</>}
         ListHeaderComponent={
           <>
             {header}

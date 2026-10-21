@@ -79,7 +79,21 @@ const posts: Post[] = [
         author_id: people[1].id,
         author: people[1],
         is_accepted: false,
+        created_at: '2026-10-16T13:30:00.000Z',
+        upvotes: 4,
         body: 'Também gosto dessa abordagem em formulários: fica mais difícil mostrar sucesso e erro ao mesmo tempo.',
+        replies: [
+          {
+            id: 'demo_reply_nested',
+            parent_id: 'demo_reply',
+            author_id: people[2].id,
+            author: people[2],
+            is_accepted: false,
+            created_at: '2026-10-16T13:35:00.000Z',
+            upvotes: 2,
+            body: 'Exatamente! Assim cada estado tem seus próprios dados.\n\n```typescript\nif (state.status === "success") {\n  console.log(state.data);\n}\n```',
+          },
+        ],
       },
     ],
   },
@@ -210,7 +224,7 @@ export async function previewRequest<T>(path: string, init: RequestInit = {}): P
         {
           partnerId: people[1].id,
           partner: people[1],
-          lastMessage: 'Esta conversa é um exemplo local de leitura.',
+          lastMessage: 'Vou testar essa abordagem. Obrigado!',
         },
       ];
     if (route === '/api/mobile/messages')
@@ -218,6 +232,27 @@ export async function previewRequest<T>(path: string, init: RequestInit = {}): P
         cursor
           ? []
           : [
+              {
+                id: 'demo_message_4',
+                sender_id: reader.id,
+                receiver_id: people[1].id,
+                content: 'Vou testar essa abordagem. Obrigado!',
+                created_at: '2026-10-16T13:10:00.000Z',
+              },
+              {
+                id: 'demo_message_3',
+                sender_id: people[1].id,
+                receiver_id: reader.id,
+                content: 'Sim! E dá para compartilhar o código com a comunidade.',
+                created_at: '2026-10-16T13:09:00.000Z',
+              },
+              {
+                id: 'demo_message_2',
+                sender_id: reader.id,
+                receiver_id: people[1].id,
+                content: 'Gostei da ideia de separar os estados da requisição.',
+                created_at: '2026-10-16T12:12:00.000Z',
+              },
               {
                 id: 'demo_message',
                 sender_id: people[1].id,

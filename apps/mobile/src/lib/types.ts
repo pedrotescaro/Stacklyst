@@ -35,6 +35,11 @@ export interface Answer {
   author: Person;
   body: string;
   is_accepted: boolean;
+  created_at?: string;
+  parent_id?: string | null;
+  code_snippet?: string | null;
+  upvotes?: number;
+  votes?: { value: number }[];
   replies?: Answer[];
 }
 export interface Page<T> {
