@@ -23,11 +23,11 @@ export const GET = apiHandler(async (req) => {
 });
 
 export const PATCH = apiHandler(async (req) => {
-  await requireAdmin();
+  const actor = await requireAdmin();
   const body = await req.json();
   const parsed = updateUserRoleSchema.parse(body);
 
-  const updatedUser = await AdminService.updateUserRole(parsed.user_id, parsed.role);
+  const updatedUser = await AdminService.updateUserRole(parsed.user_id, parsed.role, actor.id);
   return NextResponse.json({
     success: true,
     message: `Papel do usuário atualizado para ${parsed.role}.`,

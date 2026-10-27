@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { EventService } from '../event.service';
 const mocks = vi.hoisted(() => ({
+  event: { findUnique: vi.fn() },
+  participant: { deleteMany: vi.fn() },
   tx: {
     $executeRaw: vi.fn(),
     user: { findUnique: vi.fn() },
@@ -9,7 +11,11 @@ const mocks = vi.hoisted(() => ({
   },
 }));
 vi.mock('@/lib/prisma', () => ({
-  prisma: { $transaction: (fn: (tx: unknown) => unknown) => fn(mocks.tx) },
+  prisma: {
+    $transaction: (fn: (tx: unknown) => unknown) => fn(mocks.tx),
+    event: mocks.event,
+    eventParticipant: mocks.participant,
+  },
 }));
 describe('event participation rules', () => {
   const event = {
@@ -58,5 +64,17 @@ describe('event participation rules', () => {
       code: 'EVENT_CLOSED',
     });
     expect(mocks.tx.eventParticipant.upsert).not.toHaveBeenCalled();
+  });
+  it('rejects cancellation after the deadline without deleting the existing participation', async () => {
+    mocks.event.findUnique.mockResolvedValue({
+      ...event,
+      start_date: new Date('2020-01-01'),
+      end_date: new Date('2020-01-02'),
+    });
+    await expect(EventService.cancelParticipation('u', 'e')).rejects.toMatchObject({
+      code: 'EVENT_CLOSED',
+      statusCode: 409,
+    });
+    expect(mocks.participant.deleteMany).not.toHaveBeenCalled();
   });
 });

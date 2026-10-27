@@ -6,22 +6,11 @@ import {
   type EventChallengeInput,
 } from '@/lib/event-challenges';
 import { logger } from '@/lib/logger';
-import type { EventStatus } from '@prisma/client';
+import { effectiveEventStatus } from '@/lib/event-status';
 
 interface EventChallengeViewer {
   id: string;
   isAdmin?: boolean;
-}
-
-function effectiveEventStatus(event: {
-  status: EventStatus;
-  start_date: Date;
-  end_date: Date;
-}): EventStatus {
-  const now = new Date();
-  if (event.status === 'COMPLETED' || event.end_date <= now) return 'COMPLETED';
-  if (event.status === 'ONGOING' || event.start_date <= now) return 'ONGOING';
-  return 'UPCOMING';
 }
 
 async function findEvent(eventId: string) {

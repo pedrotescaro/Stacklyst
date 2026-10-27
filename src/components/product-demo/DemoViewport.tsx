@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import { BrandLogo } from '@/components/BrandLogo';
 import { motion, useTransform, type MotionValue } from 'framer-motion';
 import {
   Home,
@@ -88,8 +88,7 @@ export function DemoViewport({
             <div className="demo-app">
               <aside className="demo-sidebar">
                 <div className="demo-brand">
-                  <Image src="/logo.svg" alt="" width={28} height={25} />
-                  <strong>Stacklyst</strong>
+                  <BrandLogo size={27} />
                 </div>
                 <div className="demo-nav">
                   {nav.map(([id, label, Icon]) => (

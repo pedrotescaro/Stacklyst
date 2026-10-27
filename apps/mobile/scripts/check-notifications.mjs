@@ -19,7 +19,7 @@ const stubs = {
   'react/jsx-runtime':
     'export const jsx = (type, props) => ({type, props}); export const jsxs = jsx; export const Fragment = "Fragment";',
   'react-native':
-    'export const Platform = { OS: globalThis.__notificationCheck.platform }; export const Linking = {};',
+    'export const Platform = { OS: globalThis.__notificationCheck.platform }; export const Linking = {}; export const Switch = "Switch", Text = "Text", View = "View";',
   'react-native-gesture-handler': 'export const GestureHandlerRootView = "GestureHandlerRootView";',
   'expo-router':
     'export const Stack = "Stack"; export const router = {}; export const useRootNavigationState = () => ({key: "test"});',
@@ -34,6 +34,8 @@ const stubs = {
     'export const ThemeProvider = "ThemeProvider"; export const useTheme = () => ({colors: {background: "black"}, mode: "dark", setMode() {}});',
   '../src/components/AppDrawer': 'export const AppDrawer = "AppDrawer";',
   '../src/lib/motion': 'export const useReducedMotion = () => false;',
+  '../src/lib/sounds':
+    'export const SoundEffectsProvider = "SoundEffectsProvider"; export const useSoundEffects = () => ({enabled: true, ready: true, setEnabled() {}, preferenceError: null});',
   '../src/lib/links': 'export const notificationRoute = (path) => path;',
   '~/components/ui':
     'export const Screen = "Screen", Field = "Field", Button = "Button", Label = "Label", Heading = "Heading", Choice = "Choice"; export const confirm = () => {};',
@@ -113,6 +115,8 @@ try {
     format: 'cjs',
     outfile: output,
     logLevel: 'silent',
+    // Native media is an inert fixture in this Node-only notifications check.
+    loader: { '.mp3': 'dataurl' },
     plugins: [
       {
         name: 'isolated-notification-runtime',
@@ -128,6 +132,7 @@ try {
                 '~/lib/query': '../src/lib/query',
                 '~/theme': '../src/theme',
                 '~/lib/config': './config',
+                '~/lib/sounds': '../src/lib/sounds',
               }[path] ?? path;
             if (Object.hasOwn(stubs, path)) return { path, namespace: 'stub' };
           });

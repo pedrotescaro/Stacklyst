@@ -190,6 +190,9 @@ export function AdminContent({ user }: { user: any }) {
         setActionMessage('Post denunciado removido e denúncia resolvida.');
         loadData();
         setTimeout(() => setActionMessage(null), 4000);
+      } else {
+        const data = await res.json().catch(() => null);
+        setActionMessage(data?.message || data?.error || 'Não foi possível remover a publicação.');
       }
     } catch (err) {
       console.error(err);

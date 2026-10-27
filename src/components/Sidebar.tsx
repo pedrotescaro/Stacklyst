@@ -1,5 +1,7 @@
 'use client';
 
+import { BrandLogo } from '@/components/BrandLogo';
+
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -35,7 +37,6 @@ import { CharCounter } from '@/components/motion/CharCounter';
 import { MentionDropdown } from '@/components/motion/MentionDropdown';
 import { appendPostExtras, ReplyAudience, resetPostComposerExtras } from '@/lib/post-composer';
 import { POST_CHAR_LIMIT } from '@/lib/motion';
-import { ThemeLogo } from '@/components/ThemeLogo';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { getCurrentUser, invalidateCurrentUser } from '@/lib/client/current-user';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -541,17 +542,9 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
           <Link
             href="/feed"
             className="group flex w-full shrink-0 items-center justify-center px-2 py-1 xl:w-fit xl:justify-start xl:gap-2.5 xl:px-3"
-            aria-label="Stacklyst"
           >
-            <ThemeLogo
-              alt="Stacklyst Logo"
-              width={28}
-              height={28}
-              className="object-contain group-hover:scale-105 transition-transform duration-300"
-            />
-            <span className="hidden text-dd-text dark:text-white font-black text-xl tracking-tight xl:inline">
-              Stacklyst
-            </span>
+            <BrandLogo size={27} wordmark={false} className="xl:hidden" />
+            <BrandLogo size={27} className="hidden xl:inline-flex" />
           </Link>
 
           {/* Navigation Links */}
@@ -794,8 +787,7 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
         {/* Top Header */}
         <header className="sticky top-0 z-[100] flex w-full items-center justify-between border-b border-dd-border bg-dd-bg/80 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md">
           <Link href="/feed" className="flex items-center gap-2 group">
-            <ThemeLogo alt="Stacklyst Logo" width={24} height={24} className="object-contain" />
-            <span className="text-dd-text font-extrabold text-base tracking-tight">Stacklyst</span>
+            <BrandLogo size={24} />
           </Link>
 
           <div className="flex items-center gap-2.5">

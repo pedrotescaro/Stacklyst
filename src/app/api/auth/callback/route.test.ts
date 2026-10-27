@@ -129,3 +129,76 @@ describe('OAuth redirect destination', () => {
     expect(response.headers.get('location')).toBe('https://stacklyst.test/jobs?search=ts#list');
   });
 });
+
+describe('Web email callbacks', () => {
+  it('exchanges a recovery code and opens password reset without requiring the application database', async () => {
+    const exchange = vi.fn(async () => ({
+      data: {
+        user: { id: 'recovery-user' },
+        session: { access_token: 'private' },
+        redirectType: 'recovery',
+      },
+      error: null,
+    }));
+    vi.mocked(createClient).mockResolvedValueOnce({
+      auth: { exchangeCodeForSession: exchange },
+    } as never);
+    const response = await GET(
+      new Request('https://stacklyst.test/api/auth/callback?code=valid-code&next=/reset-password')
+    );
+    expect(response.headers.get('location')).toBe('https://stacklyst.test/reset-password');
+    expect(exchange).toHaveBeenCalledWith('valid-code');
+    expect(response.headers.get('set-cookie')).toContain('stacklyst-password-recovery=');
+    expect(response.headers.get('set-cookie')).toContain('HttpOnly');
+    expect(hasDatabaseConnection).not.toHaveBeenCalled();
+    expect(signJwt).not.toHaveBeenCalled();
+  });
+  it('verifies recovery token hashes for email templates, including links opened in another browser', async () => {
+    const verifyOtp = vi.fn(async () => ({
+      data: { user: { id: 'recovery-user' }, session: { access_token: 'private' } },
+      error: null,
+    }));
+    vi.mocked(createClient).mockResolvedValueOnce({ auth: { verifyOtp } } as never);
+    const response = await GET(
+      new Request('https://stacklyst.test/api/auth/callback?token_hash=valid-hash&type=recovery')
+    );
+    expect(response.headers.get('location')).toBe('https://stacklyst.test/reset-password');
+    expect(verifyOtp).toHaveBeenCalledWith({ token_hash: 'valid-hash', type: 'recovery' });
+    expect(response.headers.get('location')).not.toContain('valid-hash');
+  });
+  it('does not accept an expired token or create a recovery session', async () => {
+    vi.mocked(createClient).mockResolvedValueOnce({
+      auth: {
+        exchangeCodeForSession: vi.fn(async () => ({
+          data: {},
+          error: { message: 'Expired token' },
+        })),
+      },
+    } as never);
+    const response = await GET(
+      new Request('https://stacklyst.test/api/auth/callback?code=expired&next=/reset-password')
+    );
+    expect(new URL(response.headers.get('location')!).pathname).toBe('/login');
+    expect(setJwtCookie).not.toHaveBeenCalled();
+  });
+});
+
+it('cannot turn a normal OAuth code into a password-recovery proof by changing next', async () => {
+  vi.mocked(createClient).mockResolvedValueOnce({
+    auth: {
+      exchangeCodeForSession: vi.fn(async () => ({
+        data: {
+          user: { id: 'normal-user' },
+          session: { access_token: 'private' },
+          redirectType: null,
+        },
+        error: null,
+      })),
+    },
+  } as never);
+  const response = await GET(
+    new Request('https://stacklyst.test/api/auth/callback?code=oauth-code&next=/reset-password')
+  );
+  expect(new URL(response.headers.get('location')!).pathname).toBe('/forgot-password');
+  expect(response.headers.get('set-cookie')).toBeNull();
+});

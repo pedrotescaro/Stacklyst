@@ -103,4 +103,17 @@ describe.each(['output', 'test cases'] as const)('lesson execution using %s', (m
       expect(saveLessonAssessment).not.toHaveBeenCalled();
     }
   );
+
+  if (mode === 'test cases') {
+    it('preserves progress when a provider returns a successful response without valid test results', async () => {
+      vi.mocked(executeCode).mockResolvedValue({
+        ok: true,
+        output: 'incomplete provider response',
+        executionMs: 1,
+      });
+      const response = await send('submit');
+      expect(response.status).toBe(503);
+      expect(saveLessonAssessment).not.toHaveBeenCalled();
+    });
+  }
 });

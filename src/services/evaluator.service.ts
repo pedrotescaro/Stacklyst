@@ -13,6 +13,7 @@ import {
   hasReviewableTechnology,
 } from '@/lib/evaluators/policy';
 import { ForbiddenError, ValidationError } from '@/lib/errors';
+import { recordSecurityAudit } from '@/lib/security-audit';
 
 export const EvaluatorService = {
   /**
@@ -212,10 +213,17 @@ export const EvaluatorService = {
           'Esta candidatura já foi analisada.'
         );
       }
+      await recordSecurityAudit(tx, {
+        actorId: adminId,
+        action: 'EVALUATOR_APPLICATION_REVIEWED',
+        resourceId: applicationId,
+        metadata: { decision },
+      });
 
       if (decision === 'APPROVED') {
-        await tx.user.update({
-          where: { id: application.user_id },
+        await tx.user.updateMany({
+          // Evaluator governance must never silently remove an administrator role.
+          where: { id: application.user_id, role: { not: 'ADMIN' } },
           data: { role: 'EVALUATOR' },
         });
         await tx.evaluatorProfile.upsert({
@@ -270,7 +278,8 @@ export const EvaluatorService = {
   async moderateEvaluator(
     evaluatorId: string,
     action: 'WARN' | 'SUSPEND' | 'REINSTATE' | 'REVOKE',
-    notes: string
+    notes: string,
+    actorId?: string
   ) {
     if (notes.trim().length < 20) {
       throw new ValidationError(
@@ -298,8 +307,17 @@ export const EvaluatorService = {
     }
 
     const updated = await prisma.$transaction(async (tx) => {
+      await recordSecurityAudit(tx, {
+        actorId,
+        action: 'EVALUATOR_MODERATED',
+        resourceId: evaluatorId,
+        metadata: { action, previous_status: profile.status },
+      });
       if (action === 'REVOKE') {
-        await tx.user.update({ where: { id: evaluatorId }, data: { role: 'USER' } });
+        await tx.user.updateMany({
+          where: { id: evaluatorId, role: { not: 'ADMIN' } },
+          data: { role: 'USER' },
+        });
         return tx.evaluatorProfile.update({
           where: { user_id: evaluatorId },
           data: { status: 'REVOKED', sanction_reason: notes.trim() },
@@ -312,7 +330,10 @@ export const EvaluatorService = {
         });
       }
       if (action === 'REINSTATE') {
-        await tx.user.update({ where: { id: evaluatorId }, data: { role: 'EVALUATOR' } });
+        await tx.user.updateMany({
+          where: { id: evaluatorId, role: { not: 'ADMIN' } },
+          data: { role: 'EVALUATOR' },
+        });
         return tx.evaluatorProfile.update({
           where: { user_id: evaluatorId },
           data: {

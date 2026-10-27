@@ -45,12 +45,13 @@ export const POST = apiHandler(async (req) => {
 });
 
 export const PATCH = apiHandler(async (req) => {
-  await requireAdmin();
+  const actor = await requireAdmin();
   const parsed = moderationSchema.parse(await req.json());
   const profile = await EvaluatorService.moderateEvaluator(
     parsed.evaluator_id,
     parsed.action,
-    parsed.notes
+    parsed.notes,
+    actor.id
   );
 
   return NextResponse.json({

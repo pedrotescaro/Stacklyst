@@ -3,6 +3,7 @@ import { logger } from '@/lib/logger';
 import { EventStatus, EventType } from '@prisma/client';
 import { calculateLevel } from '@/lib/learning/rewards';
 import { AppError } from '@/lib/errors';
+import { effectiveEventStatus, eventStatusWhere } from '@/lib/event-status';
 
 export const EventService = {
   /**
@@ -10,7 +11,7 @@ export const EventService = {
    */
   async listEvents(status?: EventStatus, currentUserId?: string) {
     const events = await prisma.event.findMany({
-      where: status ? { status } : undefined,
+      where: eventStatusWhere(status),
       orderBy: { start_date: 'asc' },
       include: {
         creator: { select: { id: true, username: true, avatar_url: true } },
@@ -34,6 +35,7 @@ export const EventService = {
       const { participants: _participants, ...rest } = event;
       return {
         ...rest,
+        status: effectiveEventStatus(event),
         is_joined: isJoined,
         user_participation: userParticipation,
       };
@@ -76,6 +78,7 @@ export const EventService = {
 
     return {
       ...event,
+      status: effectiveEventStatus(event),
       is_joined: !!userParticipation,
       userParticipation,
     };
@@ -117,6 +120,7 @@ export const EventService = {
 
     return {
       ...event,
+      status: effectiveEventStatus(event),
       is_joined: !!userParticipation,
       userParticipation,
     };
@@ -231,12 +235,16 @@ export const EventService = {
   async cancelParticipation(userId: string, eventId: string) {
     const event = await prisma.event.findUnique({
       where: { id: eventId },
-      select: { id: true, status: true },
+      select: { id: true, status: true, start_date: true, end_date: true },
     });
 
-    if (!event) throw new Error('Evento não encontrado.');
-    if (event.status === 'COMPLETED') {
-      throw new Error('Não é possível cancelar inscrição em evento já encerrado.');
+    if (!event) throw new AppError('EVENT_NOT_FOUND', 'Evento não encontrado.', 404);
+    if (effectiveEventStatus(event) === 'COMPLETED') {
+      throw new AppError(
+        'EVENT_CLOSED',
+        'Não é possível cancelar inscrição em evento já encerrado.',
+        409
+      );
     }
 
     const deleted = await prisma.eventParticipant.deleteMany({

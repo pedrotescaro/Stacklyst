@@ -11,6 +11,46 @@ describe('duel TypeScript judge', () => {
     mockedExecuteCode.mockReset();
   });
 
+  it('keeps a transport timeout out of contestant runtime penalties and scoring', async () => {
+    mockedExecuteCode.mockResolvedValue({
+      ok: false,
+      output: '',
+      unavailable: true,
+      error: 'Tempo limite',
+      executionMs: 15000,
+    });
+    const result = await judgeDuelCode({
+      problemId: 'compress-string-rle-live',
+      language: 'TS',
+      includeHiddenTests: false,
+      code: 'function solve() {}',
+    });
+    expect(result).toMatchObject({ status: 'JUDGE_UNAVAILABLE', score: 0, runtimeMs: null });
+  });
+
+  it('rejects duplicate test identifiers instead of manufacturing a passing score', async () => {
+    mockedExecuteCode.mockImplementation(async (harness) => {
+      const start = harness.match(/__STACKLYST_DUEL_[\w-]+_START__/)?.[0];
+      const end = harness.match(/__STACKLYST_DUEL_[\w-]+_END__/)?.[0];
+      return {
+        ok: true,
+        output: `${start}${JSON.stringify([
+          { id: 't1', passed: true },
+          { id: 't1', passed: true },
+        ])}${end}`,
+        executionMs: 10,
+      };
+    });
+    expect(
+      await judgeDuelCode({
+        problemId: 'compress-string-rle-live',
+        language: 'TS',
+        includeHiddenTests: false,
+        code: 'function solve() {}',
+      })
+    ).toMatchObject({ status: 'JUDGE_UNAVAILABLE', score: 0 });
+  });
+
   it('transpiles TypeScript and evaluates a single renamed solution function', async () => {
     mockedExecuteCode.mockImplementation(async (harness, language) => {
       const start = harness.match(/__STACKLYST_DUEL_[\w-]+_START__/)?.[0];

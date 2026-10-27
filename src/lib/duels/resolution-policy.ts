@@ -12,7 +12,12 @@ export type DuelResolutionDecision =
   | {
       kind: 'closed';
       winnerId: string | null;
-      reason: 'automatic_score' | 'deadline_score' | 'no_submissions';
+      reason:
+        | 'automatic_score'
+        | 'deadline_score'
+        | 'no_submissions'
+        | 'no_valid_submissions'
+        | 'judge_unavailable';
       scoreGap: number;
       runtimeGap: number | null;
     }
@@ -27,6 +32,13 @@ export type DuelResolutionDecision =
 function submissionOrder(left: ComparableSubmission, right: ComparableSubmission) {
   const acceptedGap = Number(right.status === 'ACCEPTED') - Number(left.status === 'ACCEPTED');
   if (acceptedGap !== 0) return acceptedGap;
+  const judgedGap =
+    Number(right.status === 'WRONG_ANSWER' && right.score > 0) -
+    Number(left.status === 'WRONG_ANSWER' && left.score > 0);
+  if (judgedGap !== 0) return judgedGap;
+  const outageGap =
+    Number(right.status === 'JUDGE_UNAVAILABLE') - Number(left.status === 'JUDGE_UNAVAILABLE');
+  if (outageGap !== 0) return outageGap;
   if (right.score !== left.score) return right.score - left.score;
   const leftRuntime = left.runtime_ms ?? Number.MAX_SAFE_INTEGER;
   const rightRuntime = right.runtime_ms ?? Number.MAX_SAFE_INTEGER;
@@ -54,12 +66,37 @@ export function decideDuelResolution(input: {
   second: ComparableSubmission | null;
   reason: 'automatic_score' | 'deadline_score';
 }): DuelResolutionDecision {
-  const { first, second } = input;
+  let { first, second } = input;
+  if (first?.status === 'JUDGE_UNAVAILABLE' || second?.status === 'JUDGE_UNAVAILABLE') {
+    return {
+      kind: 'closed',
+      winnerId: null,
+      reason: 'judge_unavailable',
+      scoreGap: 0,
+      runtimeGap: null,
+    };
+  }
   if (!first && !second) {
     return {
       kind: 'closed',
       winnerId: null,
       reason: 'no_submissions',
+      scoreGap: 0,
+      runtimeGap: null,
+    };
+  }
+  const hasValidTests = (submission: ComparableSubmission | null) =>
+    submission &&
+    (submission.status === 'ACCEPTED' || submission.status === 'WRONG_ANSWER') &&
+    Number.isFinite(submission.score) &&
+    submission.score > 0;
+  first = hasValidTests(first) ? first : null;
+  second = hasValidTests(second) ? second : null;
+  if (!first && !second) {
+    return {
+      kind: 'closed',
+      winnerId: null,
+      reason: 'no_valid_submissions',
       scoreGap: 0,
       runtimeGap: null,
     };

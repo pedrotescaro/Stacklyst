@@ -1,8 +1,9 @@
 'use client';
 
+import { BrandLogo } from '@/components/BrandLogo';
+
 import { useEffect, useState } from 'react';
 import dynamic from 'next/dynamic';
-import Image from 'next/image';
 import Link from 'next/link';
 import styles from './AuthHero.module.css';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -52,18 +53,7 @@ export default function AuthHero() {
 
       <div className="relative z-10 flex w-full -translate-y-[1.5%] flex-col items-center px-10 text-center">
         <Link href="/" className="inline-flex items-center gap-5">
-          <Image
-            src="/logo.svg"
-            alt="Stacklyst logo"
-            width={62}
-            height={62}
-            className={`${styles.brandLogo} h-[62px] w-[62px] object-contain`}
-          />
-          <span
-            className={`${styles.brandText} text-[43px] font-bold tracking-[-0.055em] text-white`}
-          >
-            Stacklyst
-          </span>
+          <BrandLogo size={50} className="text-white" />
         </Link>
 
         <h1

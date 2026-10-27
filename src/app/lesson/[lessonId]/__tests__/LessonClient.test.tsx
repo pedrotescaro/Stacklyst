@@ -1,4 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LessonClient } from '@/app/lesson/[lessonId]/LessonClient';
 import type { Lesson } from '@/lib/lessons/types';
@@ -164,10 +165,10 @@ describe('LessonClient trail progress', () => {
     // User can select an option and then verify
     const firstOption = screen.getByRole('button', { name: /Olá!/ });
     expect(firstOption).not.toBeDisabled();
-    fireEvent.click(firstOption);
+    await userEvent.click(firstOption);
 
-    expect(verifyButton).not.toBeDisabled();
-    fireEvent.click(verifyButton);
+    await waitFor(() => expect(screen.getByRole('button', { name: 'Verificar' })).toBeEnabled());
+    await userEvent.click(screen.getByRole('button', { name: 'Verificar' }));
 
     await waitFor(() => {
       expect(screen.getByText('Mandou muito bem!')).toBeInTheDocument();

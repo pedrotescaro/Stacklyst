@@ -1,30 +1,29 @@
-import Svg, { Path } from 'react-native-svg';
-import { useTheme } from '../theme';
-
-/** Original Stacklyst artwork from public/logo.svg, with theme-aware contrast. */
-export function BrandMark({ width = 72 }: { width?: number }) {
-  const { isDark } = useTheme();
+import Svg, { G, Path } from 'react-native-svg';
+import { brandGeometry as g } from './brand-geometry';
+/** Supplied S; wordmark uses the same Space Grotesk outlines as the website. */
+export function BrandMark({
+  width = 72,
+  wordmark = false,
+}: {
+  width?: number;
+  wordmark?: boolean;
+}) {
+  const height = (width * g.height) / g.width;
   return (
     <Svg
-      width={width}
-      height={(width * 283) / 366}
-      viewBox="0 0 366 283"
-      fill="none"
-      accessible={false}
+      width={wordmark ? (height * g.wordmarkWidth) / g.wordmarkHeight : width}
+      height={height}
+      viewBox={wordmark ? `0 0 ${g.wordmarkWidth} ${g.wordmarkHeight}` : g.viewBox}
+      accessible
+      accessibilityRole="image"
+      accessibilityLabel="Stacklyst"
     >
-      <Path
-        key="0"
-        d="M98.5745 185.224L78.409 246.026C73.5738 260.605 86.2949 274.966 101.35 271.926L292.357 233.36C299.39 231.94 305.123 226.862 307.382 220.052L354.914 76.7369C359.749 62.1584 347.028 47.7967 331.973 50.8366L247.68 67.8561"
-        stroke="#0083FE"
-        strokeWidth="20"
-      />
-      <Path
-        key="1"
-        fillRule="evenodd"
-        clipRule="evenodd"
-        d="M260.785 198.42C267.585 197.05 273.056 192.234 275.225 185.709L325.861 33.3949C330.724 18.7682 317.405 3.93973 302.162 7.01009L99.5822 47.8168C92.7819 49.1866 87.3112 54.0021 85.1418 60.5276L34.5059 212.842C29.6434 227.468 42.9624 242.297 58.2049 239.226L260.785 198.42ZM132.442 83.7496L125.519 101.306L152.811 95.9725L145.888 113.529L173.18 108.195L166.258 125.752L138.966 131.086L132.043 148.642L104.751 153.976L97.8282 171.532L125.12 166.199L132.043 148.642L159.335 143.308L166.258 125.752L193.549 120.418L200.472 102.862L173.18 108.195L180.103 90.6388L152.811 95.9725L159.734 78.416L132.442 83.7496ZM206.996 150.198L213.919 132.641L241.211 127.307L234.288 144.864L206.996 150.198Z"
-        fill={isDark ? '#ffffff' : '#0f1419'}
-      />
+      <Path d={g.path} fill="#0083fe" />
+      {wordmark && (
+        <G transform={`translate(${g.width + 36} 0)`}>
+          <Path d={g.suffixPath} fill="#0083fe" />
+        </G>
+      )}
     </Svg>
   );
 }

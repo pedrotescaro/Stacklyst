@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useMemo, useState, useCallback, useRef } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { Check, Flame, Globe2, LockKeyhole, Shield, Sparkles, Trophy } from 'lucide-react';
+import { LockKeyhole, Shield, Trophy } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { StreakPopover } from '@/components/StreakPopover';
@@ -11,6 +11,7 @@ import { LeaderboardMedal } from '@/components/LeaderboardMedal';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { TrailCourseSelector, type TrailCourseOption } from '@/app/trails/TrailCourseSelector';
 import { getTrailLanguageMetadata, type TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
+import { getXpBand, XP_BANDS } from '@/lib/learning/rewards';
 
 export interface LeaderboardRow {
   rank: number;
@@ -62,62 +63,15 @@ interface Division {
   type: 'bronze' | 'silver' | 'gold' | 'sapphire' | 'ruby' | 'diamond';
 }
 
-const DIVISIONS: Division[] = [
-  {
-    id: 'bronze',
-    name: 'Bronze',
-    labelPt: 'Divisão Bronze',
-    labelEn: 'Bronze Division',
-    accent: '#d97706',
-    isUnlocked: true,
-    type: 'bronze',
-  },
-  {
-    id: 'prata',
-    name: 'Prata',
-    labelPt: 'Divisão Prata',
-    labelEn: 'Silver Division',
-    accent: '#94a3b8',
-    isUnlocked: true,
-    type: 'silver',
-  },
-  {
-    id: 'ouro',
-    name: 'Ouro',
-    labelPt: 'Divisão Ouro',
-    labelEn: 'Gold Division',
-    accent: '#facc15',
-    isUnlocked: true,
-    type: 'gold',
-  },
-  {
-    id: 'safira',
-    name: 'Safira',
-    labelPt: 'Divisão Safira',
-    labelEn: 'Sapphire Division',
-    accent: '#38bdf8',
-    isUnlocked: false,
-    type: 'sapphire',
-  },
-  {
-    id: 'rubi',
-    name: 'Rubi',
-    labelPt: 'Divisão Rubi',
-    labelEn: 'Ruby Division',
-    accent: '#ef4444',
-    isUnlocked: false,
-    type: 'ruby',
-  },
-  {
-    id: 'diamante',
-    name: 'Diamante',
-    labelPt: 'Divisão Diamante',
-    labelEn: 'Diamond Division',
-    accent: '#06b6d4',
-    isUnlocked: false,
-    type: 'diamond',
-  },
-];
+const DIVISIONS: Division[] = XP_BANDS.map((band, index) => ({
+  id: band.tier,
+  name: band.label,
+  labelPt: `Divisão ${band.label}`,
+  labelEn: `${['Bronze', 'Silver', 'Gold', 'Platinum', 'Diamond'][index]} Division`,
+  accent: ['#d97706', '#94a3b8', '#facc15', '#38bdf8', '#06b6d4'][index],
+  isUnlocked: true,
+  type: (['bronze', 'silver', 'gold', 'sapphire', 'diamond'] as const)[index],
+}));
 
 function formatXp(value: number, locale = 'pt-BR') {
   return Math.max(0, value).toLocaleString(locale);
@@ -364,40 +318,6 @@ function DuolingoRow({
   );
 }
 
-function ArrowUpIcon({ className = 'h-3.5 w-3.5 shrink-0' }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      stroke="currentColor"
-      strokeWidth="0.6"
-      strokeLinejoin="round"
-      strokeLinecap="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M8 2L13.5 7.5H10V14H6V7.5H2.5L8 2Z" />
-    </svg>
-  );
-}
-
-function ArrowDownIcon({ className = 'h-3.5 w-3.5 shrink-0' }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 16 16"
-      fill="currentColor"
-      stroke="currentColor"
-      strokeWidth="0.6"
-      strokeLinejoin="round"
-      strokeLinecap="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M8 14L2.5 8.5H6V2H10V8.5H13.5L8 14Z" />
-    </svg>
-  );
-}
-
 export function LeaderboardClient({
   initialUser,
   initialLeaderboard,
@@ -408,7 +328,7 @@ export function LeaderboardClient({
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>(initialLeaderboard);
   const [activeLanguage, setActiveLanguage] = useState<TrailLanguageCode>(initialLanguage);
   const [loading, setLoading] = useState(false);
-  const [activeDivision, setActiveDivision] = useState<string>('ouro');
+  const [selectedDivision, setSelectedDivision] = useState<string | null>(null);
   const [userStatusEmoji, setUserStatusEmoji] = useState<string>('👀');
   const isFirstMount = useRef(true);
 
@@ -485,7 +405,15 @@ export function LeaderboardClient({
     ? leaderboard.find((row) => row.username === initialUser.username)
     : undefined;
 
-  const currentDivision = DIVISIONS.find((d) => d.id === activeDivision) ?? DIVISIONS[2];
+  const viewerXp =
+    viewerRow?.xp ?? courses?.find((course) => course.language === activeLanguage)?.xp ?? 0;
+  const activeDivision = selectedDivision ?? getXpBand(viewerXp).tier;
+  const currentDivision =
+    DIVISIONS.find((division) => division.id === activeDivision) ?? DIVISIONS[0];
+  const bandIndex = XP_BANDS.findIndex((band) => band.tier === activeDivision);
+  const currentBand = XP_BANDS[Math.max(0, bandIndex)];
+  const nextBand = XP_BANDS[bandIndex + 1];
+  const divisionRows = leaderboard.filter((row) => getXpBand(row.xp).tier === activeDivision);
 
   return (
     <div className="dd-platform-shell dd-platform-shell--fullscreen selection:bg-blue-500/35 selection:text-white">
@@ -511,7 +439,7 @@ export function LeaderboardClient({
                   isActive={division.id === activeDivision}
                   onClick={() => {
                     if (division.isUnlocked) {
-                      setActiveDivision(division.id);
+                      setSelectedDivision(division.id);
                     }
                   }}
                 />
@@ -521,17 +449,19 @@ export function LeaderboardClient({
             {/* Título da Divisão Ativa & Regra de Promoção */}
             <div className="mt-3 flex flex-col items-center justify-center text-center">
               <h2 className="text-2xl sm:text-[28px] font-black tracking-tight text-dd-text">
-                {currentDivision.labelPt}
+                {text(currentDivision.labelPt, currentDivision.labelEn)}
               </h2>
               <p className="mt-1 text-sm font-semibold text-dd-muted">
                 {text(
-                  `Os 10 primeiros na trilha de ${languageLabel} avançam pra próxima divisão.`,
-                  `The top 10 in the ${languageLabel} trail advance to the next division.`
+                  `A divisão acompanha o XP acumulado na trilha de ${languageLabel}.`,
+                  `Your division follows the accumulated XP in the ${languageLabel} trail.`
                 )}
               </p>
               <div className="mt-2 flex w-full items-center justify-center text-center">
                 <p className="text-center text-[11px] font-black uppercase tracking-wider text-blue-500 dark:text-blue-400">
-                  {text('6 dias restantes', '6 days remaining')}
+                  {nextBand
+                    ? `${formatXp(currentBand.minXp, locale)}–${formatXp(nextBand.minXp - 1, locale)} XP`
+                    : `${formatXp(currentBand.minXp, locale)}+ XP`}
                 </p>
               </div>
             </div>
@@ -559,76 +489,32 @@ export function LeaderboardClient({
                   />
                 ))}
               </div>
-            ) : leaderboard.length > 0 ? (
+            ) : divisionRows.length > 0 ? (
               <div className="space-y-1">
-                {leaderboard.map((row) => {
-                  const isViewer = initialUser?.username === row.username;
-                  const isTenth = row.rank === 10;
-                  const isRelegationBoundary =
-                    leaderboard.length > 20 &&
-                    row.rank === (leaderboard.length >= 30 ? 25 : leaderboard.length - 5);
-                  const showBothAtTenth =
-                    isTenth && leaderboard.length > 10 && leaderboard.length <= 20;
-                  const showPromotionOnlyAtTenth = isTenth && leaderboard.length > 20;
-
-                  return (
-                    <div key={row.username}>
-                      <DuolingoRow
-                        row={row}
-                        isViewer={isViewer}
-                        activeStatusEmoji={isViewer ? userStatusEmoji : undefined}
-                      />
-
-                      {/* Exibição quando a liga tem entre 11 e 20 participantes (exatamente como na referência) */}
-                      {showBothAtTenth && (
-                        <div className="my-5 flex flex-col items-center justify-center gap-3.5 py-1 select-none">
-                          <div className="flex items-center justify-center gap-2.5 text-[11px] font-black uppercase tracking-wider text-blue-500 dark:text-blue-400">
-                            <ArrowUpIcon />
-                            <span>{text('ZONA DE PROMOÇÃO', 'PROMOTION ZONE')}</span>
-                            <ArrowUpIcon />
-                          </div>
-                          <div className="flex items-center justify-center gap-2.5 text-[11px] font-black uppercase tracking-wider text-red-500 dark:text-red-400">
-                            <ArrowDownIcon />
-                            <span>{text('ZONA DE REBAIXAMENTO', 'RELEGATION ZONE')}</span>
-                            <ArrowDownIcon />
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Divisor da Zona de Promoção (quando há mais de 20 participantes) */}
-                      {showPromotionOnlyAtTenth && (
-                        <div className="my-4 flex items-center justify-center gap-2.5 py-1 text-[11px] font-black uppercase tracking-wider text-blue-500 dark:text-blue-400 select-none">
-                          <ArrowUpIcon />
-                          <span>{text('ZONA DE PROMOÇÃO', 'PROMOTION ZONE')}</span>
-                          <ArrowUpIcon />
-                        </div>
-                      )}
-
-                      {/* Divisor da Zona de Rebaixamento (quando há mais de 20 participantes) */}
-                      {isRelegationBoundary && (
-                        <div className="my-4 flex items-center justify-center gap-2.5 py-1 text-[11px] font-black uppercase tracking-wider text-red-500 dark:text-red-400 select-none">
-                          <ArrowDownIcon />
-                          <span>{text('ZONA DE REBAIXAMENTO', 'RELEGATION ZONE')}</span>
-                          <ArrowDownIcon />
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
+                {divisionRows.map((row) => (
+                  <DuolingoRow
+                    key={row.username}
+                    row={row}
+                    isViewer={initialUser?.username === row.username}
+                    activeStatusEmoji={
+                      initialUser?.username === row.username ? userStatusEmoji : undefined
+                    }
+                  />
+                ))}
               </div>
             ) : (
               <div className="rounded-2xl border-2 border-dashed border-dd-border px-6 py-14 text-center">
                 <Trophy aria-hidden="true" className="mx-auto h-10 w-10 text-dd-muted" />
                 <p className="mt-3 text-base font-black text-dd-text">
                   {text(
-                    'Ainda não há perfis neste ranking.',
-                    'There are no profiles in this ranking yet.'
+                    'Nenhum perfil desta divisão entre os 50 primeiros.',
+                    'No profiles from this division in the top 50.'
                   )}
                 </p>
                 <p className="mt-1 text-xs font-semibold text-dd-muted">
                   {text(
-                    `Inicie a trilha de ${languageLabel} para conquistar XP e entrar na liga!`,
-                    `Start the ${languageLabel} trail to gain XP and join the league!`
+                    `Explore outra faixa ou pratique ${languageLabel} para conquistar XP.`,
+                    `Explore another band or practice ${languageLabel} to earn XP.`
                   )}
                 </p>
               </div>
@@ -647,7 +533,7 @@ export function LeaderboardClient({
                 courses ?? [
                   {
                     language: activeLanguage,
-                    xp: viewerRow?.xp ?? initialUser?.total_xp ?? 0,
+                    xp: viewerXp,
                     started: true,
                   },
                 ]
@@ -679,7 +565,7 @@ export function LeaderboardClient({
             {/* Raio de XP do perfil */}
             <div
               className="group flex items-center gap-1.5 rounded-xl p-1 select-none"
-              title={`${formatXp(viewerRow?.xp ?? initialUser?.total_xp ?? 0)} XP`}
+              title={`${formatXp(viewerXp)} XP`}
             >
               <Image
                 src="/assets/trails/trail-lightning.png"
@@ -689,7 +575,7 @@ export function LeaderboardClient({
                 className="h-6 w-6 shrink-0 object-contain drop-shadow-[0_2px_8px_rgba(250,204,21,0.4)] transition-transform group-hover:scale-110"
               />
               <span className="font-mono text-sm font-black text-dd-text">
-                {formatXp(viewerRow?.xp ?? initialUser?.total_xp ?? 0)}
+                {formatXp(viewerXp)}
               </span>
             </div>
 

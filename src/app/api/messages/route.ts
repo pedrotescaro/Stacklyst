@@ -4,6 +4,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { NotificationService } from '@/services/notification.service';
 import { rateLimit } from '@/lib/ratelimit';
+import { buildCursorWhere, encodeCursor } from '@/lib/pagination';
 
 let ensuredTable = false;
 async function ensureMessageReactionTable() {
@@ -104,14 +105,32 @@ export const GET = apiHandler(async (req) => {
 
   await ensureMessageReactionTable();
 
-  try {
-    const messages = await prisma.message.findMany({
-      where: {
+  const where = {
+    AND: [
+      {
         OR: [
           { sender_id: user.id, receiver_id: receiverId },
           { sender_id: receiverId, receiver_id: user.id },
         ],
       },
+      buildCursorWhere(searchParams.get('cursor') || undefined),
+    ],
+  };
+  const pageResponse = <T extends { id: string; created_at: Date }>(rows: T[]) => {
+    const page = rows.slice(0, 100);
+    const oldest = page.at(-1);
+    return NextResponse.json(page.reverse(), {
+      headers: {
+        'X-Next-Cursor':
+          rows.length > 100 && oldest ? encodeCursor(oldest.created_at, oldest.id) : '',
+        'Cache-Control': 'private, no-store',
+      },
+    });
+  };
+
+  try {
+    const messages = await prisma.message.findMany({
+      where,
       include: {
         reactions: {
           select: {
@@ -127,24 +146,19 @@ export const GET = apiHandler(async (req) => {
           },
         },
       },
-      orderBy: { created_at: 'asc' },
-      take: 100, // Safe limit for performance
+      orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
+      take: 101,
     });
 
-    return NextResponse.json(messages);
+    return pageResponse(messages);
   } catch (err) {
     console.warn('Failed to load messages with reactions, falling back:', err);
     const messages = await prisma.message.findMany({
-      where: {
-        OR: [
-          { sender_id: user.id, receiver_id: receiverId },
-          { sender_id: receiverId, receiver_id: user.id },
-        ],
-      },
-      orderBy: { created_at: 'asc' },
-      take: 100,
+      where,
+      orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
+      take: 101,
     });
 
-    return NextResponse.json(messages.map((m) => ({ ...m, reactions: [] })));
+    return pageResponse(messages.map((m) => ({ ...m, reactions: [] })));
   }
 });

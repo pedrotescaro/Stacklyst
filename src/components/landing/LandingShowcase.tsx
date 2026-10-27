@@ -1,5 +1,7 @@
 'use client';
 
+import { BrandLogo } from '@/components/BrandLogo';
+
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import {
@@ -364,16 +366,7 @@ function PlatformMockup() {
           <div className="space-y-3">
             {/* Logo */}
             <div className="flex items-center gap-3 px-2 py-1">
-              <div className="flex items-center justify-center size-8 rounded-xl bg-black border border-white/15 shadow-sm">
-                <NextImage
-                  src="/logo.svg"
-                  alt="Stacklyst"
-                  width={22}
-                  height={22}
-                  className="size-5 object-contain"
-                />
-              </div>
-              <span className="text-xl font-black tracking-tight text-white">Stacklyst</span>
+              <BrandLogo size={26} className="text-white" />
             </div>
 
             {/* Navigation Menu */}
@@ -439,16 +432,7 @@ function PlatformMockup() {
           {/* Mobile app header */}
           <div className="flex h-14 items-center justify-between border-b border-white/10 px-4 md:hidden shrink-0">
             <div className="flex items-center gap-2.5">
-              <div className="flex size-7 items-center justify-center rounded-xl bg-blue-500/15 border-2 border-b-[3px] border-blue-500/40">
-                <NextImage
-                  src="/logo.svg"
-                  alt="Stacklyst"
-                  width={18}
-                  height={18}
-                  className="size-4 object-contain"
-                />
-              </div>
-              <span className="text-base font-black tracking-tight text-white">Stacklyst</span>
+              <BrandLogo size={22} className="text-white" />
             </div>
             <div className="size-8 rounded-xl bg-slate-900 border-2 border-b-[3px] border-white/20 flex items-center justify-center text-xs font-black text-white">
               US

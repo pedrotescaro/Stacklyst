@@ -37,6 +37,6 @@ describe('LanguageToggle', () => {
 
     expect(screen.getByText('EN')).toBeInTheDocument();
     expect(screen.getByText('Português')).toBeInTheDocument();
-    expect(button).toHaveAttribute('aria-label', 'Mudar para português');
+    expect(button).toHaveAttribute('aria-label', 'EN: Mudar para português');
   });
 });

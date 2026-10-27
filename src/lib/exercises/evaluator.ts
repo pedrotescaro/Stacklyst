@@ -146,7 +146,18 @@ export async function evaluateExerciseCode(input: {
   const execution = await executeCode(code, input.language);
   const parsedResults = execution.ok ? parseHarnessOutput(execution.output, marker) : null;
 
-  if (!execution.ok || !parsedResults) {
+  if (
+    !execution.ok ||
+    !parsedResults ||
+    parsedResults.length !== input.testCases.length ||
+    new Set(parsedResults.map((result) => result?.id)).size !== input.testCases.length ||
+    parsedResults.some(
+      (result) =>
+        !result ||
+        typeof result.passed !== 'boolean' ||
+        !input.testCases.some((test) => test.id === result.id)
+    )
+  ) {
     let hiddenCounter = 0;
     return {
       ok: false,
@@ -162,7 +173,7 @@ export async function evaluateExerciseCode(input: {
       consoleOutput: stripHarnessOutput(execution.output, marker),
       error: execution.error ?? 'A execução não produziu resultados de teste válidos.',
       executionMs: execution.executionMs,
-      unavailable: execution.unavailable === true,
+      unavailable: execution.unavailable === true || execution.ok,
     };
   }
 

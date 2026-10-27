@@ -25,6 +25,25 @@ function submission(
 }
 
 describe('duel resolution policy', () => {
+  it.each(['COMPILE_ERROR', 'RUNTIME_ERROR', 'TIME_LIMIT_EXCEEDED', 'WRONG_ANSWER'] as const)(
+    'never invents victory or human-review XP for only invalid tests (%s)',
+    (status) => {
+      expect(
+        decideDuelResolution({
+          first: submission('a', 0, 10, status),
+          second: null,
+          reason: 'deadline_score',
+        })
+      ).toMatchObject({ winnerId: null, reason: 'no_valid_submissions' });
+      expect(
+        decideDuelResolution({
+          first: submission('a', 0, 10, status),
+          second: submission('b', 0, 10, status),
+          reason: 'deadline_score',
+        })
+      ).toMatchObject({ winnerId: null, reason: 'no_valid_submissions' });
+    }
+  );
   it('chooses an accepted attempt before a higher-scoring rejected attempt', () => {
     const rejected = submission('first', 900, 10, 'WRONG_ANSWER');
     const accepted = submission('first', 850, 20, 'ACCEPTED', 1);
@@ -54,4 +73,17 @@ describe('duel resolution policy', () => {
       decideDuelResolution({ first: null, second: null, reason: 'deadline_score' })
     ).toMatchObject({ kind: 'closed', winnerId: null, reason: 'no_submissions' });
   });
+
+  it.each([null, submission('second', 950, 20)])(
+    'never awards a winner when one participant could not be judged',
+    (other) => {
+      expect(
+        decideDuelResolution({
+          first: submission('first', 0, null, 'JUDGE_UNAVAILABLE'),
+          second: other,
+          reason: 'deadline_score',
+        })
+      ).toMatchObject({ kind: 'closed', winnerId: null, reason: 'judge_unavailable' });
+    }
+  );
 });

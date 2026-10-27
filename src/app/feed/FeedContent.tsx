@@ -57,6 +57,7 @@ import {
 } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import type { OnboardingPreferences } from '@/lib/onboarding';
 
 const MarkdownEditor = dynamic(
   () => import('@/components/MarkdownEditor').then((module) => module.MarkdownEditor),
@@ -140,6 +141,7 @@ function highlightMatches(text: string, query: string) {
 }
 
 interface FeedContentProps {
+  initialPreferences?: OnboardingPreferences;
   initialCurrentDate: string;
   initialUser: {
     id: string;
@@ -184,6 +186,7 @@ function RailSectionHeading({
 }
 
 export function FeedContent({
+  initialPreferences,
   initialCurrentDate,
   initialUser,
   initialPosts,
@@ -194,7 +197,10 @@ export function FeedContent({
   const { text } = useLocalizedText();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'feed' | 'quizzes' | 'duels' | 'ranking'>('feed');
-  const [feedFilter, setFeedFilter] = useState<'for-you' | 'following'>('for-you');
+  const [feedFilter, setFeedFilter] = useState<'for-you' | 'following'>(
+    initialPreferences?.feed || 'for-you'
+  );
+  const feedLanguages = initialPreferences?.languages.join(',') || '';
   const [followingSort, setFollowingSort] = useState<'recent' | 'popular'>('recent');
   const [showFollowingSortMenu, setShowFollowingSortMenu] = useState(false);
   const [posts, setPosts] = useState<any[]>(initialPosts);
@@ -434,7 +440,7 @@ export function FeedContent({
         const url =
           feedFilter === 'following'
             ? `/api/posts?filter=following&sort=${followingSort}&limit=${FEED_PAGE_SIZE}&useCursor=true`
-            : `/api/posts?limit=${FEED_PAGE_SIZE}&useCursor=true`;
+            : `/api/posts?limit=${FEED_PAGE_SIZE}&useCursor=true${feedLanguages ? `&languages=${encodeURIComponent(feedLanguages)}` : ''}`;
         const res = await fetch(url, { signal: controller.signal, cache: 'no-store' });
         if (res.ok) {
           const data = await res.json();
@@ -460,7 +466,7 @@ export function FeedContent({
     }
 
     return () => controller.abort();
-  }, [feedFilter, followingSort, searchQuery]);
+  }, [feedFilter, followingSort, searchQuery, feedLanguages]);
 
   const loadMorePosts = useCallback(async () => {
     if (loadingMore || !hasMore) return;
@@ -473,7 +479,7 @@ export function FeedContent({
         url =
           feedFilter === 'following'
             ? `/api/posts?filter=following&sort=${followingSort}&useCursor=true&limit=${FEED_PAGE_SIZE}${nextCursor ? `&cursor=${nextCursor}` : ''}`
-            : `/api/posts?useCursor=true&limit=${FEED_PAGE_SIZE}${nextCursor ? `&cursor=${nextCursor}` : ''}`;
+            : `/api/posts?useCursor=true&limit=${FEED_PAGE_SIZE}${nextCursor ? `&cursor=${nextCursor}` : ''}${feedLanguages ? `&languages=${encodeURIComponent(feedLanguages)}` : ''}`;
       }
       const res = await fetch(url);
       if (res.ok) {
@@ -492,7 +498,7 @@ export function FeedContent({
     } finally {
       setLoadingMore(false);
     }
-  }, [loadingMore, hasMore, searchQuery, nextCursor, feedFilter, followingSort]);
+  }, [loadingMore, hasMore, searchQuery, nextCursor, feedFilter, followingSort, feedLanguages]);
 
   const scrollSentinelRef = useInfiniteScroll({
     onLoadMore: loadMorePosts,
@@ -513,9 +519,11 @@ export function FeedContent({
     if (feedFilter === 'following') {
       params.set('filter', 'following');
       params.set('sort', followingSort);
+    } else if (feedLanguages) {
+      params.set('languages', feedLanguages);
     }
     return `/api/posts?${params.toString()}`;
-  }, [feedFilter, followingSort]);
+  }, [feedFilter, followingSort, feedLanguages]);
 
   useEffect(() => {
     if (activeTab !== 'feed' || searchQuery.trim() || !newestVisiblePostTimestamp) return;
@@ -532,6 +540,7 @@ export function FeedContent({
           after: newestVisiblePostTimestamp,
         });
         if (feedFilter === 'following') params.set('filter', 'following');
+        else if (feedLanguages) params.set('languages', feedLanguages);
 
         const res = await fetch(`/api/posts?${params.toString()}`, {
           cache: 'no-store',
@@ -561,7 +570,7 @@ export function FeedContent({
       window.removeEventListener('focus', handleVisibilityOrFocus);
       document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
     };
-  }, [activeTab, feedFilter, newestVisiblePostTimestamp, searchQuery]);
+  }, [activeTab, feedFilter, newestVisiblePostTimestamp, searchQuery, feedLanguages]);
 
   const handleLoadNewPosts = useCallback(async () => {
     if (refreshRequestRef.current) return;
@@ -1390,6 +1399,22 @@ export function FeedContent({
           {/* Feed Tab View */}
           {activeTab === 'feed' && (
             <>
+              <div className="flex items-center justify-between gap-3 border-b border-dd-border/60 px-4 py-2 text-xs text-dd-muted">
+                <span className="min-w-0 truncate">
+                  {feedFilter === 'following'
+                    ? text('Pessoas que você segue', 'People you follow')
+                    : text('Suas linguagens', 'Your languages')}
+                  {feedFilter !== 'following' && feedLanguages
+                    ? ` · ${feedLanguages.replaceAll(',', ' · ')}`
+                    : ''}
+                </span>
+                <Link
+                  href="/onboarding"
+                  className="shrink-0 py-1 text-blue-400 underline-offset-4 hover:underline"
+                >
+                  {text('Personalizar', 'Customize')}
+                </Link>
+              </div>
               <div
                 ref={composerContainerRef}
                 onClick={() => setComposeFocused(true)}

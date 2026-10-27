@@ -1,6 +1,7 @@
 'use client';
 
-import Image from 'next/image';
+import { BrandLogo } from '@/components/BrandLogo';
+
 import Link from 'next/link';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -58,16 +59,7 @@ export default function LandingFooter() {
       <div className="mx-auto max-w-5xl px-6 pt-14 pb-10">
         {/* Centered logo */}
         <div className="flex items-center justify-center gap-3 mb-8">
-          <Image
-            src="/logo.svg"
-            alt="Stacklyst Logo"
-            width={366}
-            height={283}
-            className="h-auto w-8 object-contain"
-          />
-          <span className="lp-font-heading text-lg font-bold tracking-tight text-[var(--lp-fg)]">
-            Stacklyst
-          </span>
+          <BrandLogo size={32} className="text-white" />
         </div>
 
         {/* Nav links row */}

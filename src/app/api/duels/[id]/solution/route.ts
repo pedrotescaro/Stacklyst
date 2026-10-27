@@ -96,6 +96,19 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     });
     const resolution = judged.status === 'ACCEPTED' ? await resolveDuelIfReady(duelId) : null;
 
+    if (judged.status === 'JUDGE_UNAVAILABLE') {
+      return NextResponse.json(
+        {
+          submission,
+          judgment: judged,
+          success: false,
+          error:
+            'O avaliador está indisponível. Tente novamente; esta tentativa não gera XP nem penalidade.',
+        },
+        { status: 503 }
+      );
+    }
+
     return NextResponse.json({ submission, judgment: judged, duel: resolution, success: true });
   } catch (error) {
     console.error('Error submitting duel solution:', error);

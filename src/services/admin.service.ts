@@ -1,7 +1,9 @@
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
 import { UserRole } from '@prisma/client';
-import { ValidationError } from '@/lib/errors';
+import { NotFoundError, ValidationError } from '@/lib/errors';
+import { recordSecurityAudit } from '@/lib/security-audit';
+import { eventStatusWhere } from '@/lib/event-status';
 
 export const AdminService = {
   /**
@@ -47,9 +49,9 @@ export const AdminService = {
       prisma.company.count(),
       prisma.company.count({ where: { is_verified: true } }),
       prisma.event.count(),
-      prisma.event.count({ where: { status: 'ONGOING' } }),
+      prisma.event.count({ where: eventStatusWhere('ONGOING') }),
       prisma.report.count(),
-      prisma.duel.count({ where: { status: 'ACTIVE' } }),
+      prisma.duel.count({ where: { status: 'REVIEW_PENDING' } }),
       prisma.evaluatorApplication.count({ where: { status: 'PENDING' } }),
       prisma.quizAttempt.count(),
     ]);
@@ -141,7 +143,7 @@ export const AdminService = {
   /**
    * Update a user's role (USER, EVALUATOR, ADMIN, RECRUITER).
    */
-  async updateUserRole(userId: string, newRole: UserRole) {
+  async updateUserRole(userId: string, newRole: UserRole, actorId?: string) {
     let approvedApplication: { tech_stack: string[] } | null = null;
     if (newRole === 'EVALUATOR') {
       const [application, evaluatorProfile] = await Promise.all([
@@ -171,9 +173,27 @@ export const AdminService = {
     }
 
     const updated = await prisma.$transaction(async (tx) => {
+      // Serialize every role mutation, including promotions, across all server instances.
+      // A count outside this lock allows two admins to demote each other concurrently.
+      await tx.$queryRaw`SELECT 1 AS locked FROM pg_advisory_xact_lock(1937006963, 1)`;
+      const current = await tx.user.findUnique({
+        where: { id: userId },
+        select: { role: true },
+      });
+      if (!current) throw new NotFoundError('USER_NOT_FOUND', 'Usuário não encontrado.');
+      if (current.role === 'ADMIN' && newRole !== 'ADMIN') {
+        const administrators = await tx.user.count({ where: { role: 'ADMIN' } });
+        if (administrators <= 1) {
+          throw new ValidationError(
+            'LAST_ADMIN_REQUIRED',
+            'O último administrador não pode perder esse papel. Promova outro administrador primeiro.'
+          );
+        }
+      }
       const changedUser = await tx.user.update({
         where: { id: userId },
         data: { role: newRole },
+        select: { id: true, username: true, role: true },
       });
 
       if (newRole === 'EVALUATOR') {
@@ -191,6 +211,12 @@ export const AdminService = {
           },
         });
       }
+      await recordSecurityAudit(tx, {
+        actorId,
+        action: 'USER_ROLE_UPDATED',
+        resourceId: userId,
+        metadata: { previous_role: current.role, role: newRole },
+      });
       return changedUser;
     });
 
@@ -223,9 +249,28 @@ export const AdminService = {
   /**
    * Delete reported post and resolve report.
    */
-  async deleteReportedPost(reportId: string, postId: string) {
-    await prisma.post.delete({ where: { id: postId } });
-    await prisma.report.delete({ where: { id: reportId } });
+  async deleteReportedPost(reportId: string, postId: string, actorId?: string) {
+    await prisma.$transaction(async (tx) => {
+      const report = await tx.report.findUnique({
+        where: { id: reportId },
+        select: { post_id: true, reason: true },
+      });
+      if (!report || report.post_id !== postId) {
+        throw new NotFoundError(
+          'REPORT_NOT_FOUND',
+          'Denúncia não encontrada para esta publicação.'
+        );
+      }
+      await recordSecurityAudit(tx, {
+        actorId,
+        action: 'REPORTED_POST_DELETED',
+        resourceId: postId,
+        // Retain the action and reason; never copy the post body or reporter's private data.
+        metadata: { report_id: reportId, reason: report.reason },
+      });
+      // Report.post cascades on deletion; deleting it again made a successful action fail.
+      await tx.post.delete({ where: { id: postId } });
+    });
     logger.info('Reported post deleted by admin', { reportId, postId });
     return { success: true };
   },

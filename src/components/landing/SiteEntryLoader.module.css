@@ -2,94 +2,28 @@
   position: fixed;
   inset: 0;
   z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
   overflow: hidden;
-  user-select: none;
-  background: #151515;
-  color: #fff;
-  transform: translateY(0);
-  transition: transform 620ms cubic-bezier(0.76, 0, 0.24, 1);
+  background: #08090b;
+  color: #f5f7fa;
+  transition:
+    clip-path 420ms cubic-bezier(0.76, 0, 0.24, 1),
+    visibility 420ms;
+  clip-path: inset(0);
 }
-
 .exiting {
-  transform: translateY(-100%);
+  clip-path: inset(0 0 100%);
+  visibility: hidden;
 }
-
-.wordmark {
-  position: relative;
-  width: min(80vw, 965px);
-  aspect-ratio: 962 / 192;
-}
-
-.wordmarkSvg {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-
-.wordBase,
-.wordFill {
-  font-family: var(--font-space-grotesk), 'Space Grotesk', sans-serif;
-  font-size: 188px;
-  font-weight: 700;
-  letter-spacing: -0.065em;
-}
-
-.wordBase {
-  fill: rgba(170, 170, 170, 0.3);
-}
-
-.wordFill {
-  fill: #f7f7f7;
-}
-
-.counter {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  display: flex;
-  align-items: baseline;
-  margin-top: 4px;
-  font-family: var(--font-space-grotesk), 'Space Grotesk', sans-serif;
-  font-size: 16px;
-  font-weight: 500;
-  line-height: 1.1;
-  white-space: pre;
-}
-
-.counter span {
-  display: inline-block;
-  width: 3ch;
-  text-align: right;
-}
-
-.srOnly {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
-
-@media (max-width: 767px) {
-  .wordmark {
-    width: 86vw;
-  }
-
-  .counter {
-    font-size: 13px;
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
-  .loader:not([data-force-motion='true']) {
-    transition-duration: 80ms;
+  .loader {
+    transition:
+      opacity 80ms,
+      visibility 80ms;
+  }
+  .exiting {
+    clip-path: none;
+    opacity: 0;
   }
 }
