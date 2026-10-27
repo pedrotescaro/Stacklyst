@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { BrandLogo } from '@/components/BrandLogo';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabasePublicConfigured } from '@/lib/supabase/env';
@@ -36,12 +36,12 @@ export default function LoginPage() {
         signIn: 'Sign in',
         noAccount: "Don't have an account yet?",
         createAccount: 'Create your account',
-        configError:
-          'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to enable authentication.',
+        configError: 'Sign-in is temporarily unavailable. Please try again shortly.',
         oauthError: (provider: string) =>
           `Could not authenticate with ${provider}. Please try again.`,
         invalidCredentials: 'Invalid email or password.',
-        emailNotConfirmed: 'Email address not confirmed. Please try again.',
+        emailNotConfirmed:
+          'Confirm your email using the link we sent. You can request a new link below.',
         signInError: 'An error occurred while signing in. Please try again.',
       }
     : {
@@ -63,11 +63,12 @@ export default function LoginPage() {
         noAccount: 'Ainda não tem uma conta?',
         createAccount: 'Crie sua conta',
         configError:
-          'Defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY para habilitar a autenticação.',
+          'O acesso está temporariamente indisponível. Tente novamente em alguns instantes.',
         oauthError: (provider: string) =>
           `Não foi possível autenticar com ${provider}. Tente novamente.`,
         invalidCredentials: 'E-mail ou senha inválidos.',
-        emailNotConfirmed: 'Endereço de e-mail não confirmado. Tente novamente.',
+        emailNotConfirmed:
+          'Confirme seu e-mail pelo link enviado. Você pode solicitar outro link abaixo.',
         signInError: 'Ocorreu um erro ao entrar. Tente novamente.',
       };
   const [email, setEmail] = useState('');
@@ -140,35 +141,10 @@ export default function LoginPage() {
 
     try {
       const supabase = createClient();
-      let { error: loginError } = await supabase.auth.signInWithPassword({
+      const { error: loginError } = await supabase.auth.signInWithPassword({
         email: trimmedEmail,
         password,
       });
-
-      // Se o erro for de e-mail não confirmado, auto-confirmamos via API e tentamos novamente
-      if (
-        loginError &&
-        (loginError.message?.toLowerCase().includes('email not confirmed') ||
-          (loginError as any).code === 'email_not_confirmed')
-      ) {
-        try {
-          const confirmRes = await fetch('/api/auth/confirm-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: trimmedEmail }),
-          });
-
-          if (confirmRes.ok) {
-            const retryRes = await supabase.auth.signInWithPassword({
-              email: trimmedEmail,
-              password,
-            });
-            loginError = retryRes.error;
-          }
-        } catch {
-          // Continua para o tratamento de erro padrão
-        }
-      }
 
       if (loginError) {
         let displayError = loginError.message;
@@ -220,16 +196,7 @@ export default function LoginPage() {
                 href="/"
                 className="pointer-events-auto inline-flex items-center gap-2.5 transition-opacity hover:opacity-85"
               >
-                <Image
-                  src="/logo.svg"
-                  alt="Stacklyst logo"
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 object-contain"
-                />
-                <span className="font-sans text-xl font-extrabold tracking-tight text-white">
-                  Stacklyst
-                </span>
+                <BrandLogo size={28} />
               </Link>
             </div>
 
@@ -349,6 +316,21 @@ export default function LoginPage() {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                <Link
+                  href="/forgot-password"
+                  className="py-2 text-blue-300 underline-offset-4 hover:underline"
+                >
+                  {isEnglish ? 'Forgot password?' : 'Esqueci minha senha'}
+                </Link>
+                <Link
+                  href="/check-email"
+                  className="py-2 text-zinc-300 underline-offset-4 hover:underline"
+                >
+                  {isEnglish ? 'Resend confirmation' : 'Reenviar confirmação'}
+                </Link>
               </div>
 
               <button

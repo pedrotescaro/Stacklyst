@@ -10,6 +10,7 @@ import {
   RecruitmentStageType,
 } from '@prisma/client';
 import { NotificationService } from './notification.service';
+import { recordSecurityAudit } from '@/lib/security-audit';
 
 export const JobService = {
   /**
@@ -304,21 +305,40 @@ export const JobService = {
     status: ApplicationStatus;
     feedback?: string;
     technicalScore?: number;
+    actorId?: string;
   }) {
     const { applicationId, stageId, status, feedback, technicalScore } = params;
 
-    const application = await prisma.jobApplication.update({
-      where: { id: applicationId },
-      data: {
-        stage_id: stageId,
-        status,
-        feedback,
-        technical_score: technicalScore,
-      },
-      include: {
-        job: { include: { company: true } },
-        user: true,
-      },
+    const application = await prisma.$transaction(async (tx) => {
+      const updated = await tx.jobApplication.update({
+        where: { id: applicationId },
+        data: {
+          stage_id: stageId,
+          status,
+          feedback,
+          technical_score: technicalScore,
+        },
+        include: {
+          stage: true,
+          user: {
+            select: {
+              id: true,
+              username: true,
+              avatar_url: true,
+              total_xp: true,
+              bio: true,
+              github_username: true,
+            },
+          },
+        },
+      });
+      await recordSecurityAudit(tx, {
+        actorId: params.actorId,
+        action: 'JOB_APPLICATION_UPDATED',
+        resourceId: applicationId,
+        metadata: { job_id: updated.job_id, status, stage_id: updated.stage_id },
+      });
+      return updated;
     });
 
     try {

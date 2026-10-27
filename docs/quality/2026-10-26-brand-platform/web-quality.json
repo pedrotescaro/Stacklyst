@@ -1,0 +1,372 @@
+{
+  "environment": {
+    "base": "http://127.0.0.1:3100",
+    "browser": "Chrome/156.0.8078.47",
+    "cpuThrottle": 1,
+    "network": "local HTTP, no artificial throttling",
+    "note": "Local production build; this is not field Core Web Vitals.",
+    "validationNote": "Initial 14-view production scan, followed by targeted home retest after removing sequential entrance animations. Home pages and performance gates below use the final retest."
+  },
+  "pages": [
+    {
+      "route": "/",
+      "device": "desktop",
+      "status": 200,
+      "lcp": 1300,
+      "cls": 0,
+      "fcp": 1300,
+      "ttfb": 588.7999999523163,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        },
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        },
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/login",
+      "device": "desktop",
+      "status": 200,
+      "lcp": 752,
+      "cls": 0,
+      "fcp": 752,
+      "ttfb": 14.600000023841858,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        },
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/register",
+      "device": "desktop",
+      "status": 200,
+      "lcp": 224,
+      "cls": 0,
+      "fcp": 188,
+      "ttfb": 14.399999976158142,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        },
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/forgot-password",
+      "device": "desktop",
+      "status": 200,
+      "lcp": 104,
+      "cls": 0,
+      "fcp": 104,
+      "ttfb": 7.600000023841858,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/reset-password",
+      "device": "desktop",
+      "status": 200,
+      "lcp": 416,
+      "cls": 0.01058641975308642,
+      "fcp": 168,
+      "ttfb": 37.09999990463257,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/check-email",
+      "device": "desktop",
+      "status": 200,
+      "lcp": 136,
+      "cls": 0,
+      "fcp": 136,
+      "ttfb": 12.200000047683716,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/privacy",
+      "device": "desktop",
+      "status": 200,
+      "lcp": 140,
+      "cls": 0,
+      "fcp": 140,
+      "ttfb": 32.5,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/",
+      "device": "mobile",
+      "status": 200,
+      "lcp": 1964,
+      "cls": 0,
+      "fcp": 412,
+      "ttfb": 49.10000002384186,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        },
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        },
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/login",
+      "device": "mobile",
+      "status": 200,
+      "lcp": 140,
+      "cls": 0,
+      "fcp": 140,
+      "ttfb": 13.100000023841858,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        },
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/register",
+      "device": "mobile",
+      "status": 200,
+      "lcp": 108,
+      "cls": 0,
+      "fcp": 108,
+      "ttfb": 10.700000047683716,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        },
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/forgot-password",
+      "device": "mobile",
+      "status": 200,
+      "lcp": 100,
+      "cls": 0,
+      "fcp": 100,
+      "ttfb": 7.799999952316284,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/reset-password",
+      "device": "mobile",
+      "status": 200,
+      "lcp": 100,
+      "cls": 0,
+      "fcp": 100,
+      "ttfb": 9,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/check-email",
+      "device": "mobile",
+      "status": 200,
+      "lcp": 108,
+      "cls": 0,
+      "fcp": 108,
+      "ttfb": 9,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    },
+    {
+      "route": "/privacy",
+      "device": "mobile",
+      "status": 200,
+      "lcp": 128,
+      "cls": 0,
+      "fcp": 128,
+      "ttfb": 8.300000071525574,
+      "overflow": false,
+      "brands": [
+        {
+          "mark": "rgb(0, 131, 254)",
+          "text": "rgb(0, 131, 254)",
+          "label": "Stacklyst"
+        }
+      ],
+      "errors": [],
+      "violations": []
+    }
+  ],
+  "checks": [
+    {
+      "name": "desktop: keyboard focus is visible",
+      "passed": true
+    },
+    {
+      "name": "desktop: reduced motion has no entry overlay",
+      "passed": true
+    },
+    {
+      "name": "desktop: reduced motion disables logo animation",
+      "passed": true
+    },
+    {
+      "name": "mobile: keyboard focus is visible",
+      "passed": true
+    },
+    {
+      "name": "mobile: reduced motion has no entry overlay",
+      "passed": true
+    },
+    {
+      "name": "mobile: reduced motion disables logo animation",
+      "passed": true
+    },
+    {
+      "name": "all brand lettering matches the monogram blue",
+      "passed": true
+    },
+    {
+      "name": "no horizontal overflow",
+      "passed": true
+    },
+    {
+      "name": "no uncaught page errors",
+      "passed": true
+    },
+    {
+      "name": "all public routes return HTTP 200",
+      "passed": true
+    },
+    {
+      "name": "WCAG 2.2 AA axe scan: zero violations",
+      "passed": true
+    },
+    {
+      "name": "local LCP <= 2500ms",
+      "passed": true
+    },
+    {
+      "name": "CLS <= 0.1",
+      "passed": true
+    }
+  ]
+}

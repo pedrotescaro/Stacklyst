@@ -46,7 +46,7 @@ describe('LeaderboardClient', () => {
       '/profile/carol'
     );
     expect(screen.queryByText('Alexa miliano')).not.toBeInTheDocument();
-    expect(screen.getByText('Divisão Ouro')).toBeInTheDocument();
+    expect(screen.getByText('Divisão Prata')).toBeInTheDocument();
     expect(screen.queryByText(/\bRP\b/i)).not.toBeInTheDocument();
   });
 
@@ -84,7 +84,7 @@ describe('LeaderboardClient', () => {
     render(<LeaderboardClient initialUser={viewer} initialLeaderboard={leaderboard} />);
 
     // Título da divisão usa text-dd-text (visível tanto no claro quanto no escuro)
-    const divisionHeading = screen.getByRole('heading', { level: 2, name: 'Divisão Ouro' });
+    const divisionHeading = screen.getByRole('heading', { level: 2, name: 'Divisão Prata' });
     expect(divisionHeading).toHaveClass('text-dd-text');
     expect(divisionHeading).not.toHaveClass('text-white');
 
@@ -99,32 +99,27 @@ describe('LeaderboardClient', () => {
     expect(viewerRow.className).toContain('dark:bg-[#121c2e]');
   });
 
-  it('renderiza ZONA DE PROMOÇÃO em azul e ZONA DE REBAIXAMENTO em vermelho com a fonte em caixa alta', () => {
-    // Cria lista com 14 participantes (como no banco real)
-    const longLeaderboard = Array.from({ length: 14 }, (_, i) => ({
-      rank: i + 1,
-      username: `user_${i + 1}`,
-      avatar_url: null,
-      xp: 1000 - i * 50,
-      level: 1,
-    }));
-
-    render(<LeaderboardClient initialUser={viewer} initialLeaderboard={longLeaderboard} />);
-
-    const promoElement = screen.getByText('ZONA DE PROMOÇÃO');
-    expect(promoElement).toBeInTheDocument();
-    const promoContainer = promoElement.parentElement;
-    expect(promoContainer?.className).toContain('text-blue-500');
-    expect(promoContainer?.className).toContain('font-black');
-    expect(promoContainer?.className).toContain('uppercase');
-    expect(promoContainer?.className).toContain('tracking-wider');
-
-    const relegElement = screen.getByText('ZONA DE REBAIXAMENTO');
-    expect(relegElement).toBeInTheDocument();
-    const relegContainer = relegElement.parentElement;
-    expect(relegContainer?.className).toContain('text-red-500');
-    expect(relegContainer?.className).toContain('font-black');
-    expect(relegContainer?.className).toContain('uppercase');
-    expect(relegContainer?.className).toContain('tracking-wider');
+  it('usa as faixas reais de XP e permite consultar uma divisão sem inventar temporadas', async () => {
+    const user = userEvent.setup();
+    render(
+      <LeaderboardClient
+        initialUser={viewer}
+        initialLeaderboard={[
+          ...leaderboard,
+          { rank: 5, username: 'platinum', xp: 2500, level: 6 },
+          { rank: 6, username: 'diamond', xp: 5000, level: 8 },
+        ]}
+      />
+    );
+    expect(screen.getByRole('heading', { name: 'Divisão Prata' })).toBeInTheDocument();
+    expect(screen.getByText('500–1.199 XP')).toBeInTheDocument();
+    expect(screen.queryByText('6 dias restantes')).not.toBeInTheDocument();
+    expect(screen.queryByText('Safira')).not.toBeInTheDocument();
+    expect(screen.queryByText('Rubi')).not.toBeInTheDocument();
+    await user.click(screen.getByTitle('Divisão Platina'));
+    expect(screen.getByRole('heading', { name: 'Divisão Platina' })).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /platinum/ })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: /alice/ })).not.toBeInTheDocument();
+    expect(screen.queryByText('ZONA DE PROMOÇÃO')).not.toBeInTheDocument();
   });
 });

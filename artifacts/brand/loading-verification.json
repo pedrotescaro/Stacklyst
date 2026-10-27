@@ -1,0 +1,78 @@
+{
+  "viewports": [
+    {
+      "width": 320,
+      "samples": 9,
+      "durationMs": 2071.5,
+      "measuredP95FrameIntervalMs": 1352.6000000238419,
+      "maxWidth": 180.84375,
+      "stableWidth": true,
+      "fits": true,
+      "colorsMatch": true,
+      "sora600": true,
+      "noOverlap": true,
+      "fadeIntermediateFrames": 2,
+      "fadeDuration": "0.36s",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "width": 390,
+      "samples": 84,
+      "durationMs": 1571.5999999046326,
+      "measuredP95FrameIntervalMs": 45.299999952316284,
+      "maxWidth": 180.84375,
+      "stableWidth": true,
+      "fits": true,
+      "colorsMatch": true,
+      "sora600": true,
+      "noOverlap": true,
+      "fadeIntermediateFrames": 21,
+      "fadeDuration": "0.36s",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "width": 768,
+      "samples": 78,
+      "durationMs": 1588.5999999046326,
+      "measuredP95FrameIntervalMs": 59.299999952316284,
+      "maxWidth": 248,
+      "stableWidth": true,
+      "fits": true,
+      "colorsMatch": true,
+      "sora600": true,
+      "noOverlap": true,
+      "fadeIntermediateFrames": 21,
+      "fadeDuration": "0.36s",
+      "overflow": false,
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "samples": 82,
+      "durationMs": 1576.8999999761581,
+      "measuredP95FrameIntervalMs": 34.39999997615814,
+      "maxWidth": 284.1875,
+      "stableWidth": true,
+      "fits": true,
+      "colorsMatch": true,
+      "sora600": true,
+      "noOverlap": true,
+      "fadeIntermediateFrames": 17,
+      "fadeDuration": "0.36s",
+      "overflow": false,
+      "errors": []
+    }
+  ],
+  "reducedMotionCompletes": true,
+  "passed": true,
+  "scope": "Responsive layout, color, choreography and completion. requestAnimationFrame samples observe the main thread, not compositor frame rate.",
+  "coldStartMainThreadDelayObserved": true,
+  "validation": {
+    "productionBuild": true,
+    "targetedTests": 13,
+    "reducedMotion": true,
+    "realDeviceFrameRateVerified": false
+  }
+}

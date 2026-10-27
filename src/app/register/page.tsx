@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+import { BrandLogo } from '@/components/BrandLogo';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabasePublicConfigured } from '@/lib/supabase/env';
@@ -10,7 +10,8 @@ import { OAUTH_PROVIDER_LABELS, type OAuthProvider } from '@/lib/supabase/oauth'
 import { ArrowLeft, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import AuthHero from '@/components/auth/AuthHero';
 import { DiscordIcon, GitHubIcon, GoogleIcon } from '@/components/auth/OAuthProviderIcons';
-import Loader from '@/components/Loader';
+import { BrandReveal } from '@/components/BrandReveal';
+import SiteEntryLoader from '@/components/landing/SiteEntryLoader';
 import LanguageToggle from '@/components/LanguageToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
 import styles from '../login/login.module.css';
@@ -44,8 +45,7 @@ export default function RegisterPage() {
         create: 'Create account',
         hasAccount: 'Already have an account?',
         signIn: 'Sign in',
-        configError:
-          'Set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY to enable authentication.',
+        configError: 'Sign-in is temporarily unavailable. Please try again shortly.',
         oauthError: (provider: string) =>
           `Could not authenticate with ${provider}. Please try again.`,
         passwordMismatch: 'Passwords do not match. Enter the same password in both fields.',
@@ -82,7 +82,7 @@ export default function RegisterPage() {
         hasAccount: 'Já tem uma conta?',
         signIn: 'Entrar',
         configError:
-          'Defina NEXT_PUBLIC_SUPABASE_URL e NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY para habilitar a autenticação.',
+          'O acesso está temporariamente indisponível. Tente novamente em alguns instantes.',
         oauthError: (provider: string) =>
           `Não foi possível autenticar com ${provider}. Tente novamente.`,
         passwordMismatch: 'As senhas não coincidem. Digite a mesma senha nos dois campos.',
@@ -101,6 +101,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [successDestination, setSuccessDestination] = useState<string | null>(null);
 
   useEffect(() => {
     document.documentElement.classList.add('lp-landing-page');
@@ -177,52 +178,35 @@ export default function RegisterPage() {
         return;
       }
 
-      // 2. Realizar login automático no Supabase
-      const supabase = createClient();
-      let { error: loginError } = await supabase.auth.signInWithPassword({
-        email: trimmedEmail,
-        password,
-      });
-
-      if (
-        loginError &&
-        (loginError.message?.toLowerCase().includes('email not confirmed') ||
-          (loginError as any).code === 'email_not_confirmed')
-      ) {
+      if (data.requiresEmailConfirmation) {
+        // Keep the address out of URLs, history and referrer logs.
         try {
-          const confirmRes = await fetch('/api/auth/confirm-email', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: trimmedEmail }),
-          });
-
-          if (confirmRes.ok) {
-            const retryRes = await supabase.auth.signInWithPassword({
-              email: trimmedEmail,
-              password,
-            });
-            loginError = retryRes.error;
-          }
+          sessionStorage.setItem('stacklyst-confirmation-email', trimmedEmail);
         } catch {
-          // Continua para o tratamento de erro padrão
+          /* The confirmation page also accepts manual entry. */
         }
-      }
-
-      if (loginError) {
-        setError(copy.automaticSignInError);
-        setLoading(false);
-        router.push('/login');
+        setSuccessDestination('/check-email');
         return;
       }
 
-      router.push('/feed');
-      router.refresh();
+      setSuccessDestination('/onboarding');
     } catch (err) {
       console.error(err);
       setError(copy.serverError);
       setLoading(false);
     }
   };
+
+  if (successDestination) {
+    return (
+      <SiteEntryLoader
+        onComplete={() => {
+          router.push(successDestination);
+          router.refresh();
+        }}
+      />
+    );
+  }
 
   return (
     <main className="min-h-svh bg-black font-sans text-white antialiased">
@@ -253,16 +237,7 @@ export default function RegisterPage() {
                 href="/"
                 className="pointer-events-auto inline-flex items-center gap-2.5 transition-opacity hover:opacity-85"
               >
-                <Image
-                  src="/logo.svg"
-                  alt="Stacklyst logo"
-                  width={28}
-                  height={28}
-                  className="h-7 w-7 object-contain"
-                />
-                <span className="font-sans text-xl font-extrabold tracking-tight text-white">
-                  Stacklyst
-                </span>
+                <BrandLogo size={28} />
               </Link>
             </div>
 
@@ -274,11 +249,10 @@ export default function RegisterPage() {
 
           <div className="w-full max-w-[466px] my-auto lg:my-0 pb-6 lg:pb-0">
             {loading ? (
-              <Loader
+              <BrandReveal
                 title={copy.loadingTitle}
                 subtitle={copy.loadingSubtitle}
-                size="md"
-                className="min-h-[520px] px-0"
+                className="min-h-[520px]"
               />
             ) : (
               <>

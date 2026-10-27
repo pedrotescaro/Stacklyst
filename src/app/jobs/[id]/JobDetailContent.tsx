@@ -29,6 +29,14 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
   const [applying, setApplying] = useState(false);
   const [applySuccess, setApplySuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const statusLabels: Record<string, string> = {
+    APPLIED: 'Inscrito',
+    REVIEWING: 'Em análise',
+    TESTING: 'Desafio técnico',
+    INTERVIEW: 'Entrevista',
+    ACCEPTED: 'Aprovado',
+    REJECTED: 'Recusado',
+  };
 
   const handleApply = async () => {
     setApplying(true);
@@ -100,7 +108,7 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
             ) : (
               <div className="px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs flex items-center gap-2 shrink-0">
                 <CheckCircle className="w-4 h-4" />
-                <span>Inscrição Confirmada ({application.status})</span>
+                <span>{statusLabels[application.status] ?? application.status}</span>
               </div>
             )}
           </div>
@@ -118,6 +126,39 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
             </p>
           )}
         </div>
+
+        {application && (
+          <section
+            id="application"
+            aria-labelledby="application-title"
+            className="scroll-mt-8 space-y-4 rounded-2xl border border-dd-border bg-dd-surface p-6"
+          >
+            <h2 id="application-title" className="text-lg font-bold text-dd-text">
+              Sua candidatura
+            </h2>
+            <dl className="grid gap-4 sm:grid-cols-2">
+              <div>
+                <dt className="text-xs text-dd-muted">Status</dt>
+                <dd className="mt-1 text-sm font-semibold text-dd-text">
+                  {statusLabels[application.status] ?? application.status}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-xs text-dd-muted">Etapa atual</dt>
+                <dd className="mt-1 text-sm font-semibold text-dd-text">
+                  {application.stage?.title ?? 'Aguardando definição da empresa'}
+                </dd>
+              </div>
+            </dl>
+            <div>
+              <h3 className="text-sm font-semibold text-dd-text">Feedback da empresa</h3>
+              <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-dd-muted">
+                {application.feedback ||
+                  'A empresa ainda não enviou feedback. Acompanhe as atualizações por aqui.'}
+              </p>
+            </div>
+          </section>
+        )}
 
         {/* Recruitment Stages Visual Pipeline */}
         <div className="p-6 rounded-3xl bg-dd-surface border border-dd-border space-y-4">

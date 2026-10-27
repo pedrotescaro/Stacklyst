@@ -338,11 +338,13 @@ export async function judgeDuelCode(input: {
     }
   );
   const result = await executeCode(harness, executionLanguage(input.language));
+  if (result.unavailable)
+    return unavailableResult(result.error ?? 'Serviço de execução indisponível.');
   const parsed = result.ok ? parseResults(result.output, startMarker, endMarker) : [];
   const totalTests = tests.length;
-  const passedTests = parsed.filter((item) => item.passed).length;
+  const passedTests = parsed.filter((item) => item?.passed === true).length;
   const publicIds = new Set(problem.testCases.map((item) => item.id));
-  const publicResult = parsed.filter((item) => publicIds.has(item.id));
+  const publicResult = parsed.filter((item) => item && publicIds.has(item.id));
   const publicPassedTests = publicResult.filter((item) => item.passed).length;
 
   if (!result.ok) {
@@ -357,13 +359,18 @@ export async function judgeDuelCode(input: {
       complexityConfidence: null,
       complexityReason: null,
       complexityScore: 0,
-      score: Math.round((passedTests / Math.max(1, totalTests)) * 700),
+      score: 0,
       publicResult,
       error: result.error,
     };
   }
 
-  if (parsed.length !== totalTests) {
+  const expectedIds = new Set(tests.map((test) => test.id));
+  if (
+    parsed.length !== totalTests ||
+    new Set(parsed.map((item) => item?.id)).size !== totalTests ||
+    parsed.some((item) => !item || !expectedIds.has(item.id) || typeof item.passed !== 'boolean')
+  ) {
     return {
       status: 'JUDGE_UNAVAILABLE',
       passedTests,
@@ -375,7 +382,7 @@ export async function judgeDuelCode(input: {
       complexityConfidence: null,
       complexityReason: null,
       complexityScore: 0,
-      score: Math.round((passedTests / Math.max(1, totalTests)) * 700),
+      score: 0,
       publicResult,
       error: 'O avaliador não recebeu todos os resultados esperados.',
     };

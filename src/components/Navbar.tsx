@@ -1,11 +1,12 @@
 'use client';
 
+import { BrandLogo } from '@/components/BrandLogo';
+
 import Link from 'next/link';
 import { useState } from 'react';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { StreakBadge } from './StreakBadge';
-import { ThemeLogo } from './ThemeLogo';
 import { LanguageToggle } from './LanguageToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -66,8 +67,7 @@ export function Navbar({ user }: NavbarProps) {
       <div className="max-w-6xl mx-auto px-4 h-14 flex items-center justify-between">
         {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          <ThemeLogo alt="Stacklyst Logo" width={20} height={20} className="object-contain" />
-          <span className="text-dd-text font-semibold text-lg tracking-tight">Stacklyst</span>
+          <BrandLogo size={24} />
         </Link>
 
         {/* Desktop right section */}

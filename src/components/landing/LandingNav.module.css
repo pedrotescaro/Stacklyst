@@ -1,3 +1,7 @@
+.brand {
+  --brand-cap: clamp(18px, calc(8.571vw - 9.43px), 24px);
+}
+
 .centerLinks {
   display: none;
 }
@@ -18,7 +22,9 @@
   letter-spacing: -0.01em;
   white-space: nowrap;
   box-shadow: 0 1px 1px rgba(0, 0, 0, 0.07);
-  transition: letter-spacing 900ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease;
+  transition:
+    letter-spacing 900ms cubic-bezier(0.16, 1, 0.3, 1),
+    background-color 150ms ease;
 }
 
 @media (min-width: 640px) {

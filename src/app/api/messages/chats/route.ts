@@ -9,31 +9,28 @@ export async function GET() {
       return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
     }
 
-    // Fetch all messages involving the user (limited to last 200 for performance)
-    const messages = await prisma.message.findMany({
-      where: {
-        OR: [{ sender_id: user.id }, { receiver_id: user.id }],
-      },
-      orderBy: { created_at: 'desc' },
-      take: 200,
-    });
-
-    // Group by conversation partner
-    const chatsMap = new Map<string, any>();
-
-    for (const msg of messages) {
-      const partnerId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
-      if (!chatsMap.has(partnerId)) {
-        chatsMap.set(partnerId, {
-          lastMessage: msg.content,
-          lastMessageTime: msg.created_at,
-          lastSenderId: msg.sender_id,
-          partnerId: partnerId,
-        });
-      }
-    }
-
-    const chatsList = Array.from(chatsMap.values());
+    // Select the latest row per partner before limiting. A busy conversation
+    // must not push every older conversation out of the sidebar.
+    const chatsList = await prisma.$queryRaw<
+      Array<{
+        partnerId: string;
+        lastMessage: string;
+        lastMessageTime: Date;
+        lastSenderId: string;
+      }>
+    >`
+      SELECT "partnerId", content AS "lastMessage", created_at AS "lastMessageTime", sender_id AS "lastSenderId"
+      FROM (
+        SELECT DISTINCT ON (CASE WHEN sender_id = ${user.id} THEN receiver_id ELSE sender_id END)
+          CASE WHEN sender_id = ${user.id} THEN receiver_id ELSE sender_id END AS "partnerId",
+          content, created_at, sender_id, id
+        FROM "Message"
+        WHERE sender_id = ${user.id} OR receiver_id = ${user.id}
+        ORDER BY CASE WHEN sender_id = ${user.id} THEN receiver_id ELSE sender_id END, created_at DESC, id DESC
+      ) conversations
+      ORDER BY created_at DESC, id DESC
+      LIMIT 100
+    `;
 
     // Fetch partner details
     const partners = await prisma.user.findMany({

@@ -908,6 +908,8 @@ model Message {
   @@unique([sender_id, client_id])
 
   @@index([created_at])
+  @@index([sender_id, receiver_id, created_at(sort: Desc), id(sort: Desc)])
+  @@index([receiver_id, sender_id, created_at(sort: Desc), id(sort: Desc)])
 }
 
 model MobileState {
@@ -1011,6 +1013,21 @@ model Report {
 
   @@unique([user_id, post_id])
   @@index([created_at])
+}
+
+// Intentionally has no cascading relations: administrative evidence outlives its subject.
+model SecurityAuditEvent {
+  id           String   @id @default(uuid())
+  actor_id     String?
+  action       String
+  resource_id  String
+  metadata     Json     @default("{}")
+  created_at   DateTime @default(now()) @db.Timestamptz(3)
+  retain_until DateTime @db.Timestamptz(3)
+
+  @@index([retain_until])
+  @@index([resource_id, created_at(sort: Desc)])
+  @@map("security_audit_events")
 }
 
 model Follow {

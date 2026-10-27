@@ -153,6 +153,31 @@ export const NotificationService = {
       },
     });
 
+    const jobIds = [
+      ...new Set(
+        notifications
+          .filter((notification) => notification.resourceType === 'JOB' && notification.resourceId)
+          .map((notification) => notification.resourceId!)
+      ),
+    ];
+    // One query for the page, bounded to this candidate's applications.
+    const jobs = jobIds.length
+      ? await prisma.job.findMany({
+          where: { id: { in: jobIds } },
+          select: {
+            id: true,
+            title: true,
+            company: { select: { name: true } },
+            applications: {
+              where: { user_id: userId },
+              take: 1,
+              select: { status: true, stage: { select: { title: true } } },
+            },
+          },
+        })
+      : [];
+    const jobsById = new Map(jobs.map((job) => [job.id, job]));
+
     const enhancedNotifications = await Promise.all(
       notifications.map(async (notif) => {
         let postTitle: string | undefined = undefined;
@@ -198,6 +223,16 @@ export const NotificationService = {
 
         const actorName = notif.actor ? `@${notif.actor.username}` : 'Alguem';
         const isMessage = notif.resourceType === 'MESSAGE';
+        const job = notif.resourceType === 'JOB' ? jobsById.get(notif.resourceId ?? '') : undefined;
+        const application = job?.applications[0];
+        const applicationStatus: Record<string, string> = {
+          APPLIED: 'Inscrito',
+          REVIEWING: 'Em análise',
+          TESTING: 'Desafio técnico',
+          INTERVIEW: 'Entrevista',
+          ACCEPTED: 'Aprovado',
+          REJECTED: 'Recusado',
+        };
         const link = getNotificationLink({
           isMessage,
           postId,
@@ -209,9 +244,22 @@ export const NotificationService = {
           id: notif.id,
           user_id: notif.userId,
           type: mapApiType(notif.type),
-          title: getNotificationTitle(notif.type, isMessage),
-          content: getNotificationContent(notif.type, actorName, isMessage),
-          link,
+          title:
+            notif.type === 'JOB_APPLICATION_UPDATE'
+              ? `Candidatura: ${job?.title ?? 'vaga indisponível'}`
+              : getNotificationTitle(notif.type, isMessage),
+          content:
+            notif.type === 'JOB_APPLICATION_UPDATE'
+              ? job
+                ? `${job.title} · ${job.company.name}. ${application ? `${applicationStatus[application.status] ?? application.status}${application.stage ? ` · ${application.stage.title}` : ''}. ` : ''}Veja sua etapa e o feedback da empresa.`
+                : 'Esta vaga foi removida. Explore as oportunidades disponíveis.'
+              : getNotificationContent(notif.type, actorName, isMessage),
+          link:
+            notif.type === 'JOB_APPLICATION_UPDATE'
+              ? job
+                ? `/jobs/${encodeURIComponent(job.id)}#application`
+                : '/jobs'
+              : link,
           is_read: notif.read,
           created_at: notif.createdAt.toISOString(),
           actor: notif.actor,

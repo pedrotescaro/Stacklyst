@@ -273,4 +273,51 @@ describe('RecruiterContent Dashboard & Applicants', () => {
     expect(screen.getByTestId('metric-total-jobs')).toHaveTextContent('0');
     expect(screen.getByTestId('metric-total-applications')).toHaveTextContent('0');
   });
+
+  it('persists stage and candidate feedback and renders the server-confirmed stage', async () => {
+    const fetchMock = vi
+      .spyOn(global, 'fetch')
+      .mockImplementation(async (url: any, options: any) => {
+        if (String(url) === '/api/companies')
+          return { ok: true, json: async () => mockCompanies } as Response;
+        if (String(url) === '/api/jobs/job-1/applications')
+          return { ok: true, json: async () => mockApplicants } as Response;
+        if (String(url) === '/api/jobs/job-1' && options?.method === 'PATCH')
+          return {
+            ok: true,
+            json: async () => ({
+              application: {
+                ...mockApplicants[0],
+                stage_id: 'st-2',
+                feedback: 'Revise os testes antes da entrevista.',
+                stage: mockJobs[0].stages[1],
+              },
+            }),
+          } as Response;
+        return { ok: true, json: async () => mockJobs } as Response;
+      });
+    render(<RecruiterContent user={mockUser} />);
+    fireEvent.click(await screen.findByRole('button', { name: /ver inscritos \(2\)/i }));
+    fireEvent.change(await screen.findByLabelText('Etapa de @candidato_alice'), {
+      target: { value: 'st-2' },
+    });
+    fireEvent.change(screen.getByLabelText('Feedback para @candidato_alice'), {
+      target: { value: 'Revise os testes antes da entrevista.' },
+    });
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Salvar etapa e feedback de @candidato_alice' })
+    );
+    await screen.findByText('Etapa e feedback salvos com sucesso!');
+    expect(fetchMock).toHaveBeenCalledWith('/api/jobs/job-1', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        application_id: 'app-1',
+        status: 'APPLIED',
+        stage_id: 'st-2',
+        feedback: 'Revise os testes antes da entrevista.',
+      }),
+    });
+    expect(screen.getByLabelText('Etapa de @candidato_alice')).toHaveValue('st-2');
+  });
 });

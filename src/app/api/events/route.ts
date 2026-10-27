@@ -26,7 +26,10 @@ const createEventSchema = z
 
 export const GET = apiHandler(async (req) => {
   const { searchParams } = new URL(req.url);
-  const status = (searchParams.get('status') as EventStatus) || undefined;
+  const status = z
+    .nativeEnum(EventStatus)
+    .optional()
+    .parse(searchParams.get('status') || undefined);
   const user = await getAuthUser();
 
   const events = await EventService.listEvents(status, user?.id);

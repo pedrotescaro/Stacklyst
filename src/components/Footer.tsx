@@ -1,7 +1,8 @@
 'use client';
 
+import { BrandLogo } from '@/components/BrandLogo';
+
 import Link from 'next/link';
-import { ThemeLogo } from '@/components/ThemeLogo';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 const footerLinks = [
@@ -67,15 +68,7 @@ export function Footer() {
       <div className="mx-auto max-w-5xl px-4 pt-10 pb-8">
         {/* Centered logo */}
         <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-dd-card border border-dd-border">
-            <ThemeLogo
-              alt="Stacklyst Logo"
-              width={20}
-              height={20}
-              className="w-5 h-5 object-contain"
-            />
-          </div>
-          <span className="text-dd-text font-bold text-sm">Stacklyst</span>
+          <BrandLogo size={25} />
         </div>
 
         {/* Nav links row */}

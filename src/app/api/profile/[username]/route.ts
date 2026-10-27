@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUserId } from '@/lib/auth-session';
 import { getUserLanguageXp } from '@/lib/learning/language-xp';
+import { getEffectiveStreak } from '@/lib/streak';
 
 export async function GET(request: Request, { params }: { params: Promise<{ username: string }> }) {
   try {
@@ -134,7 +135,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
         pronouns: user.pronouns,
         birthday: viewerId === user.id ? user.birthday : null,
         total_xp: user.total_xp,
-        streak_days: user.streak_days,
+        streak_days: getEffectiveStreak(user.streak_days, user.last_active_at),
+        last_active_at: user.last_active_at,
         created_at: user.created_at,
         badges: user.badges.map((ub) => ({
           slug: ub.badge.slug,

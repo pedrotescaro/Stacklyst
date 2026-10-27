@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
+import { TraceMap, originalPositionFor } from '@jridgewell/trace-mapping';
 
 const require = createRequire(import.meta.url);
 const buildDir = path.resolve('.next');
@@ -40,13 +41,44 @@ async function builtExport(routePath, exportName) {
   for (const chunk of chunks) runtime.c(chunk);
 
   for (const chunk of chunks) {
+    const chunkPath = path.join(buildDir, chunk);
     const modules = require(path.join(buildDir, chunk));
+    const chunkSource = readFileSync(chunkPath, 'utf8');
+    let sourceMap;
     for (let index = 0; index < modules.length - 1; index += 1) {
       const factory = modules[index + 1];
-      if (typeof factory !== 'function' || !factory.toString().includes(`"${exportName}",`))
-        continue;
-      const exports = await runtime.m(modules[index]).exports;
-      if (typeof exports[exportName] === 'function') return exports[exportName];
+      if (typeof factory !== 'function') continue;
+      const factorySource = factory.toString();
+      if (factorySource.includes(`"${exportName}",`)) {
+        const exports = await runtime.m(modules[index]).exports;
+        if (typeof exports[exportName] === 'function') return exports[exportName];
+      }
+      // Next 16.4 also minifies server export keys. Resolve the original
+      // function through its source map, while still executing the built WASM.
+      for (const exported of factorySource.matchAll(/"([^"\s]+)",0,([\w$]+)/g)) {
+        const inline = exported[2] === 'function';
+        const declaration = inline
+          ? null
+          : new RegExp(`function\\s+${exported[2].replace(/\$/g, '\\$')}\\(`).exec(factorySource);
+        if (!inline && !declaration) continue;
+        sourceMap ??= new TraceMap(JSON.parse(readFileSync(`${chunkPath}.map`, 'utf8')));
+        const offset =
+          chunkSource.indexOf(factorySource) +
+          (inline
+            ? exported.index + exported[0].indexOf('function')
+            : declaration.index + declaration[0].indexOf(exported[2]));
+        if (offset < 0) continue;
+        const original = originalPositionFor(sourceMap, {
+          line: chunkSource.slice(0, offset).split('\n').length,
+          column: offset - chunkSource.lastIndexOf('\n', offset) - 1,
+        });
+        const sourceIndex = sourceMap.sources.indexOf(original.source);
+        const sourceLine = sourceMap.sourcesContent?.[sourceIndex]?.split('\n')[original.line - 1];
+        const originalName = original.name ?? sourceLine?.match(/function\s+([\w$]+)/)?.[1];
+        if (originalName !== exportName) continue;
+        const exports = await runtime.m(modules[index]).exports;
+        if (typeof exports[exported[1]] === 'function') return exports[exported[1]];
+      }
     }
   }
   throw new Error(`Missing ${exportName} in the compiled ${routePath}`);

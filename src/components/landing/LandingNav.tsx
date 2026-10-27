@@ -1,8 +1,9 @@
 'use client';
 
+import { BrandLogo } from '@/components/BrandLogo';
+
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { useLanguage } from '@/contexts/LanguageContext';
 import LanguageToggle from '@/components/LanguageToggle';
@@ -54,19 +55,7 @@ export default function LandingNav({ initialUser }: LandingNavProps) {
       >
         {/* ── Logo ── */}
         <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
-          <Image
-            src="/logo.svg"
-            alt="Stacklyst Logo"
-            width={366}
-            height={283}
-            className="h-6 w-auto sm:h-7 sm:w-auto object-contain"
-          />
-          <span
-            className="font-sans text-base sm:text-xl font-extrabold tracking-tight"
-            style={{ color: 'var(--lp-fg)' }}
-          >
-            Stacklyst
-          </span>
+          <BrandLogo size={27} className={styles.brand} />
         </Link>
 
         {/* ── Right side (Language Toggle & Auth) ── */}

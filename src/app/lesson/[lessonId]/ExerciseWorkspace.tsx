@@ -207,7 +207,7 @@ export function ExerciseWorkspace({ exercise, jumpChallenge }: ExerciseWorkspace
         passedTests: data.passedTests ?? 0,
         totalTests: data.totalTests ?? 0,
         executionMs: data.executionMs ?? 0,
-        error: data.error ?? data.message,
+        error: data.message ?? data.error,
       });
 
       if (typeof data.runCount === 'number') setRunCount(data.runCount);

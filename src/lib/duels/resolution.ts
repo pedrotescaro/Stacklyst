@@ -120,6 +120,8 @@ async function persistResolution(
       { userId: duel.challenger_id, submitted: Boolean(first) },
       { userId: duel.opponent_id, submitted: Boolean(second) },
     ];
+    // A provider outage must never become an abandonment or cooldown penalty.
+    if (decision.reason === 'judge_unavailable') return true;
     for (const participant of participation) {
       if (!participant.userId) continue;
       if (participant.submitted) {

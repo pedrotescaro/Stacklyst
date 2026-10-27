@@ -1,6 +1,7 @@
 'use client';
 
-import Image from 'next/image';
+import { BrandLogo } from '@/components/BrandLogo';
+
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import LanguageToggle from '@/components/LanguageToggle';
@@ -120,13 +121,8 @@ export default function LegalPage({ kind }: { kind: LegalPageKind }) {
     <main className="min-h-svh bg-black px-5 py-6 text-white sm:px-8 sm:py-8">
       <div className="mx-auto flex w-full max-w-4xl flex-col">
         <header className="flex items-center justify-between">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-3"
-            aria-label={isEnglish ? 'Back to home' : 'Voltar para a página inicial'}
-          >
-            <Image src="/logo.svg" alt="Stacklyst" width={30} height={30} />
-            <span className="text-lg font-bold tracking-tight">Stacklyst</span>
+          <Link href="/" className="inline-flex items-center gap-3">
+            <BrandLogo size={30} />
           </Link>
           <div className="flex items-center gap-3">
             <Link

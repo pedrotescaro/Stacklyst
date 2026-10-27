@@ -8,11 +8,11 @@ import { ApplicationStatus } from '@prisma/client';
 import { requireCompanyAccess } from '@/lib/mobile/company-access';
 
 const updateStageSchema = z.object({
-  application_id: z.string(),
-  stage_id: z.string().optional(),
+  application_id: z.string().min(1),
+  stage_id: z.string().min(1).optional(),
   status: z.nativeEnum(ApplicationStatus),
-  feedback: z.string().optional(),
-  technical_score: z.number().optional(),
+  feedback: z.string().max(5000).optional(),
+  technical_score: z.number().int().min(0).max(100).optional(),
 });
 
 export const GET = apiHandler(async (_req, { params }) => {
@@ -51,6 +51,7 @@ export const PATCH = apiHandler(async (req, { params }) => {
     status: parsed.status,
     feedback: parsed.feedback,
     technicalScore: parsed.technical_score,
+    actorId: user.id,
   });
 
   return NextResponse.json({

@@ -1,0 +1,74 @@
+{
+  "runtime": {
+    "expo": "57.0.31",
+    "reactNative": "0.86.3",
+    "notifications": "57.0.24"
+  },
+  "checks": {
+    "typecheck": 0,
+    "lint": 0,
+    "expoInstallCheck": 0,
+    "expoDoctor": {
+      "exitCode": 1,
+      "passed": 20,
+      "total": 21,
+      "remaining": "react-native-render-html is marked unmaintained"
+    },
+    "npmAuditHigh": {
+      "exitCode": 1,
+      "counts": {
+        "info": 0,
+        "low": 0,
+        "moderate": 3,
+        "high": 5,
+        "critical": 0,
+        "total": 8
+      }
+    },
+    "export": {
+      "exitCode": 0,
+      "platforms": ["android", "ios"],
+      "maxWorkers": 2,
+      "bundles": [
+        {
+          "platform": "android",
+          "path": ".tmp\\quality\\mobile-export\\_expo\\static\\js\\android\\entry-8045208b64430e111353ae9fcfb9e2ad.hbc",
+          "bytes": 7106333,
+          "sha256": "71044a8c530077ceb206b8dcbdd170505a5ae9d1c96308d54db3538bb478b801"
+        },
+        {
+          "platform": "ios",
+          "path": ".tmp\\quality\\mobile-export\\_expo\\static\\js\\ios\\entry-ec78fdc17cdc61de65ac3d6c2b613ea8.hbc",
+          "bytes": 6890841,
+          "sha256": "e06015e5ece89a83b29ab64316f557bffccb69a6830f87be41bb083cc0c6929b"
+        }
+      ]
+    },
+    "configTest": 0,
+    "notificationsTest": {
+      "exitCode": 0,
+      "reason": "Isolated media fixture repaired; startup, push revocation, fallback and zero-network checks passed."
+    }
+  },
+  "remainingDependencies": [
+    "@expo/cli",
+    "@expo/code-signing-certificates",
+    "decode-uri-component",
+    "expo",
+    "expo-router",
+    "node-forge",
+    "query-string",
+    "zod"
+  ],
+  "limitations": [
+    "No installed-device or emulator validation in this task.",
+    "No APK or native folders generated.",
+    "node-forge currently has no patched version; Zod3 requires breaking-major upgrade; decoder0.5.1 is ESM and incompatible with query-string7 require contract."
+  ],
+  "sources": [
+    "https://docs.expo.dev/versions/v57.0.0/",
+    "https://github.com/advisories/GHSA-86w9-cpqp-85rv",
+    "https://github.com/advisories/GHSA-mrhx-c7xc-m3w5",
+    "https://raw.githubusercontent.com/expo/expo/sdk-57/packages/expo-notifications/CHANGELOG.md"
+  ]
+}

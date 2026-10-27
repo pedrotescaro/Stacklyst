@@ -18,7 +18,7 @@ export function LanguageToggle({ className }: LanguageToggleProps) {
   const flagSrc = isEnglish ? '/flags/flag-us.png' : '/flags/flag-br.png';
   const code = isEnglish ? 'EN' : 'BR';
   const tooltipText = isEnglish ? 'Português' : 'English';
-  const ariaLabel = isEnglish ? 'Mudar para português' : 'Switch to English';
+  const ariaLabel = `${code}: ${isEnglish ? 'Mudar para português' : 'Switch to English'}`;
 
   const handleClick = useCallback(() => {
     toggleLanguage();
@@ -54,7 +54,9 @@ export function LanguageToggle({ className }: LanguageToggleProps) {
       />
       <span className={styles.code}>{code}</span>
       <ChevronDown className={styles.chevron} aria-hidden="true" />
-      <span className={styles.tooltip}>{tooltipText}</span>
+      <span className={styles.tooltip} aria-hidden="true">
+        {tooltipText}
+      </span>
     </button>
   );
 }

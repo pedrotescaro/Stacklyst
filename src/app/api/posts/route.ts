@@ -4,10 +4,15 @@ import { PostService } from '@/services/post.service';
 import { createPostSchema } from '@/lib/validators';
 import { rateLimit } from '@/lib/ratelimit';
 import { requireAuth } from '@/lib/auth';
+import { z } from 'zod';
+import { onboardingLanguageSchema } from '@/lib/onboarding';
 
 export const GET = apiHandler(async (req, { session }) => {
   const { searchParams } = new URL(req.url);
   const language = searchParams.get('language') || undefined;
+  const languages = searchParams.has('languages')
+    ? z.array(onboardingLanguageSchema).max(6).parse(searchParams.get('languages')!.split(','))
+    : undefined;
   const search = searchParams.get('search') || undefined;
   const author = searchParams.get('author') || undefined;
   const filter = searchParams.get('filter') || undefined;
@@ -27,6 +32,7 @@ export const GET = apiHandler(async (req, { session }) => {
     const count = await PostService.countNewer(session?.id || null, {
       after: afterDate,
       filter,
+      languages,
     });
 
     return NextResponse.json(
@@ -37,6 +43,7 @@ export const GET = apiHandler(async (req, { session }) => {
 
   const feed = await PostService.getFeed(session?.id || null, {
     language,
+    languages,
     search,
     author,
     filter,

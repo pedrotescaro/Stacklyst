@@ -52,10 +52,20 @@ export default function Auth() {
       }
       const registering = mode === 'register';
       if (registering) {
-        await send('/api/auth/register', { email: address, password, username: username.trim() });
+        const registration = await send<{ requiresEmailConfirmation?: boolean }>(
+          '/api/auth/register',
+          { email: address, password, username: username.trim() }
+        );
         // The account now exists, including when the project requires confirmation.
         // Another tap must log in instead of trying to create the account again.
         setMode('login');
+        if (registration.requiresEmailConfirmation) {
+          setPassword('');
+          setInfo(
+            'Conta criada. Confirme seu e-mail e depois entre para escolher seu feed e suas linguagens.'
+          );
+          return;
+        }
       }
       const { error } = await supabase.auth.signInWithPassword({ email: address, password });
       if (error) {
@@ -108,7 +118,7 @@ export default function Auth() {
   return (
     <Screen title="Stacklyst">
       <View style={{ paddingTop: 20, paddingBottom: 12, gap: 20 }}>
-        <BrandMark width={64} />
+        <BrandMark width={45} wordmark />
         <Text style={[styles.title, { fontSize: 32, lineHeight: 38, maxWidth: 360 }]}>
           Aprender fica melhor em comunidade.
         </Text>

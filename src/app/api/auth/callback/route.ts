@@ -5,6 +5,11 @@ import { AVATAR_API_URL, DEFAULT_LANGUAGE_TRAILS } from '@/lib/config';
 import { signJwt, setJwtCookie } from '@/lib/jwt';
 import { logger } from '@/lib/logger';
 import { getOAuthSignupBio } from '@/lib/supabase/oauth';
+import {
+  issueRecoveryProof,
+  RECOVERY_COOKIE,
+  RECOVERY_COOKIE_OPTIONS,
+} from '@/lib/supabase/password-recovery';
 
 const mobileCallbackLimits = {
   code: 2048,
@@ -60,10 +65,20 @@ function mobileCallback(searchParams: URLSearchParams) {
   });
 }
 
+function authRedirect(url: string | URL) {
+  const response = NextResponse.redirect(url);
+  response.headers.set('Cache-Control', 'private, no-store');
+  response.headers.set('Pragma', 'no-cache');
+  response.headers.set('Referrer-Policy', 'no-referrer');
+  return response;
+}
+
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url);
   if (searchParams.get('client') === 'mobile') return mobileCallback(searchParams);
   const code = searchParams.get('code');
+  const tokenHash = searchParams.get('token_hash');
+  const emailType = searchParams.get('type');
   const next = searchParams.get('next') ?? '/feed';
   // Accept only local absolute paths, never authority/credential URL syntax.
   const destination = new URL('/feed', origin);
@@ -76,18 +91,51 @@ export async function GET(request: Request) {
     }
   }
 
-  if (code && !hasDatabaseConnection()) {
-    const message = 'The application database is not configured in this environment.';
-    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(message)}`);
+  const isRecovery = emailType === 'recovery' || destination.pathname === '/reset-password';
+  if (searchParams.has('error') || searchParams.has('error_code')) {
+    return authRedirect(
+      `${origin}/login?error=${encodeURIComponent('Link de acesso inválido ou expirado. Solicite um novo link.')}`
+    );
   }
 
-  if (code) {
+  if ((code || tokenHash) && !isRecovery && !hasDatabaseConnection()) {
+    const message = 'The application database is not configured in this environment.';
+    return authRedirect(`${origin}/login?error=${encodeURIComponent(message)}`);
+  }
+
+  if (code || tokenHash) {
     const supabase = await createClient();
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code);
+    if (tokenHash && !['signup', 'email', 'recovery'].includes(emailType || '')) {
+      return authRedirect(
+        `${origin}/login?error=${encodeURIComponent('Link de acesso inválido.')}`
+      );
+    }
+    const { data, error } = tokenHash
+      ? await supabase.auth.verifyOtp({
+          token_hash: tokenHash,
+          type: emailType as 'signup' | 'email' | 'recovery',
+        })
+      : await supabase.auth.exchangeCodeForSession(code!);
 
     if (error) {
       logger.error('OAuth Code Exchange Error', { error: error.message });
-      return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error.message)}`);
+      return authRedirect(`${origin}/login?error=${encodeURIComponent(error.message)}`);
+    }
+
+    if (isRecovery) {
+      const verifiedRecovery = tokenHash
+        ? emailType === 'recovery'
+        : (data as { redirectType?: string | null }).redirectType === 'recovery';
+      if (!data?.session || !data?.user || !verifiedRecovery) {
+        return authRedirect(`${origin}/forgot-password?error=expired`);
+      }
+      const response = authRedirect(`${origin}/reset-password`);
+      response.cookies.set(
+        RECOVERY_COOKIE,
+        issueRecoveryProof(data.user.id),
+        RECOVERY_COOKIE_OPTIONS
+      );
+      return response;
     }
 
     if (data?.user) {
@@ -108,6 +156,8 @@ export async function GET(request: Request) {
         let finalUsername = username;
 
         if (!existingUser) {
+          // New OAuth accounts choose their feed and languages before entering.
+          if (destination.pathname === '/feed') destination.pathname = '/onboarding';
           // Garantir que o username é único no banco
           const userWithSameName = await prisma.user.findUnique({
             where: { username: finalUsername },
@@ -170,7 +220,7 @@ export async function GET(request: Request) {
         }
       } catch (dbError) {
         logger.error('Database sync error during OAuth signup', { error: String(dbError) });
-        return NextResponse.redirect(
+        return authRedirect(
           `${origin}/login?error=${encodeURIComponent('Erro ao sincronizar dados com o banco de dados.')}`
         );
       }
@@ -178,5 +228,5 @@ export async function GET(request: Request) {
   }
 
   // Redirecionar para o destino
-  return NextResponse.redirect(destination);
+  return authRedirect(destination);
 }

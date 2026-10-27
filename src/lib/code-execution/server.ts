@@ -121,6 +121,10 @@ async function runOnJudge0(
       };
     }
 
+    // Queued, processing, internal errors and unknown responses are not a
+    // verdict on the submitted program. Try the next provider.
+    if (!Number.isInteger(statusId) || statusId < 3 || statusId >= 13) return null;
+
     return {
       ok: false,
       output: stdout,
@@ -132,7 +136,8 @@ async function runOnJudge0(
       return {
         ok: false,
         output: '',
-        error: 'Tempo limite de execução atingido (15s).',
+        error: 'O serviço de execução não respondeu a tempo. Tente novamente.',
+        unavailable: true,
         executionMs: Math.max(0, Math.round(performance.now() - startedAt)),
       };
     }
@@ -195,7 +200,8 @@ async function runOnWandbox(code: string, compiler: string): Promise<ServerExecu
       return {
         ok: false,
         output: '',
-        error: 'Tempo limite de execução atingido (15s).',
+        error: 'O serviço de execução não respondeu a tempo. Tente novamente.',
+        unavailable: true,
         executionMs: Math.max(0, Math.round(performance.now() - startedAt)),
       };
     }

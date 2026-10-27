@@ -24,7 +24,7 @@ describe('Security and Platform Logic Hardening', () => {
       vi.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
 
       const mockUpdateUserById = vi.fn();
-      vi.spyOn(adminModule, 'getSupabaseAdminClient').mockReturnValue({
+      const adminClient = vi.spyOn(adminModule, 'getSupabaseAdminClient').mockReturnValue({
         auth: {
           admin: {
             createUser: vi.fn().mockResolvedValue({
@@ -35,6 +35,16 @@ describe('Security and Platform Logic Hardening', () => {
             listUsers: vi.fn(),
           },
         },
+      } as any);
+      const mockUpdateUser = vi.fn();
+      const mockSignUp = vi.fn().mockResolvedValue({
+        // Supabase obfuscates an already registered address with an empty
+        // identities list. It must never trigger profile creation or a reset.
+        data: { user: { id: 'existing-auth-user', identities: [] }, session: null },
+        error: null,
+      });
+      vi.spyOn(serverSupabaseModule, 'createClient').mockResolvedValue({
+        auth: { signUp: mockSignUp, updateUser: mockUpdateUser },
       } as any);
 
       const request = new Request('http://localhost:3000/api/auth/register', {
@@ -51,7 +61,10 @@ describe('Security and Platform Logic Hardening', () => {
       expect(response.status).toBe(409);
       const json = await response.json();
       expect(json.error).toContain('Endereço de e-mail já está em uso.');
+      expect(mockSignUp).toHaveBeenCalledOnce();
+      expect(adminClient).not.toHaveBeenCalled();
       expect(mockUpdateUserById).not.toHaveBeenCalled();
+      expect(mockUpdateUser).not.toHaveBeenCalled();
     });
   });
 

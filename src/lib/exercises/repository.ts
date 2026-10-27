@@ -155,6 +155,7 @@ export async function recordExerciseRun(input: {
   code: string;
   evaluation: ExerciseEvaluation;
 }) {
+  requireValidEvaluation(input.evaluation);
   const [run] = await prisma.$transaction([
     prisma.exerciseRun.create({
       data: {
@@ -212,6 +213,17 @@ function getSubmissionStatus(evaluation: ExerciseEvaluation): ExerciseSubmission
   return evaluation.passed ? 'PASSED' : 'FAILED';
 }
 
+function requireValidEvaluation(evaluation: ExerciseEvaluation) {
+  if (evaluation.unavailable || !evaluation.ok) {
+    throw new AppError(
+      evaluation.unavailable ? 'RUNNER_UNAVAILABLE' : 'CODE_EVALUATION_FAILED',
+      evaluation.error ??
+        'Não foi possível avaliar o código. Seu progresso não foi alterado; tente novamente.',
+      evaluation.unavailable ? 503 : 422
+    );
+  }
+}
+
 export async function recordExerciseSubmission(input: {
   exercise: { id: string; knowledge_node_id: string; base_xp: number };
   userId: string;
@@ -219,6 +231,9 @@ export async function recordExerciseSubmission(input: {
   code: string;
   evaluation: ExerciseEvaluation;
 }) {
+  // Provider failures are not learner attempts. Keep this guard in the repository
+  // so every caller is protected before a transaction can mutate progression.
+  requireValidEvaluation(input.evaluation);
   const lockKey = `learning:${input.userId}`;
 
   return learningTransaction(async (transaction) => {

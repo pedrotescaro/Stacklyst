@@ -143,6 +143,9 @@ export default function NotificationsPage() {
         return { title: 'XP achievement', content: 'You reached a new XP milestone.' };
       case 'DUEL':
         return { title: 'Duel update', content: 'A duel has a new update for you.' };
+      case 'JOB_APPLICATION_UPDATE':
+        // Preserve the vacancy, company and stage instead of replacing them with a generic label.
+        return { title: item.title, content: item.content };
       default:
         return { title: 'Stacklyst notification', content: 'You received a notification.' };
     }
@@ -156,7 +159,9 @@ export default function NotificationsPage() {
     }
     if (activeTab === 'prioridade') {
       // Prioritize ANSWER and DUEL types
-      return notifications.filter((n) => n.type === 'ANSWER' || n.type === 'DUEL');
+      return notifications.filter(
+        (n) => n.type === 'ANSWER' || n.type === 'DUEL' || n.type === 'JOB_APPLICATION_UPDATE'
+      );
     }
     return notifications; // 'tudo'
   };
@@ -373,7 +378,10 @@ export default function NotificationsPage() {
                             href={item.link}
                             className="text-[10px] font-black text-blue-400 hover:text-blue-300 transition-colors inline-flex items-center gap-0.5"
                           >
-                            {text('Ir para atividade', 'View activity')} →
+                            {item.type === 'JOB_APPLICATION_UPDATE'
+                              ? text('Ver candidatura e feedback', 'View application and feedback')
+                              : text('Ir para atividade', 'View activity')}{' '}
+                            →
                           </Link>
                         </div>
                       )}

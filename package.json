@@ -41,7 +41,6 @@
     "@tiptap/extension-code-block": "^3.31.3",
     "@tiptap/extension-link": "^3.31.3",
     "@tiptap/extension-placeholder": "^3.31.3",
-    "@tiptap/html": "^3.31.3",
     "@tiptap/pm": "^3.31.3",
     "@tiptap/react": "^3.31.3",
     "@tiptap/starter-kit": "^3.31.3",
@@ -65,7 +64,7 @@
     "jose": "^6.2.3",
     "lucide-react": "^1.20.0",
     "motion": "^12.43.0",
-    "next": "16.3.5",
+    "next": "^16.4.3",
     "ogl": "^1.0.11",
     "pg": "^8.21.0",
     "quickjs-emscripten-core": "0.32.0",
@@ -84,6 +83,7 @@
   "devDependencies": {
     "@commitlint/cli": "^21.0.2",
     "@commitlint/config-conventional": "^21.0.2",
+    "@jridgewell/trace-mapping": "^0.3.31",
     "@tailwindcss/postcss": "^4.3.3",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -94,9 +94,11 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@vitejs/plugin-react": "^6.0.2",
+    "@vitest/coverage-v8": "^4.1.12",
+    "axe-core": "^4.14.0",
     "dotenv": "^17.4.2",
     "eslint": "^9",
-    "eslint-config-next": "^16.3.2",
+    "eslint-config-next": "^16.4.3",
     "husky": "^9.1.7",
     "jsdom": "^29.1.1",
     "lint-staged": "^17.0.7",
@@ -106,14 +108,14 @@
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
     "typescript": "^5",
-    "vitest": "^4.1.9"
+    "vitest": "^4.1.12"
   },
   "overrides": {
     "@prisma/config": {
       "deepmerge-ts": "8.0.2"
     },
     "browserslist": "4.28.9",
-    "fast-uri": "3.1.6",
+    "fast-uri": "^3.1.9",
     "mysql2": "3.23.1",
     "qs": "6.16.0"
   },

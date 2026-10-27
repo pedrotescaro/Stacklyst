@@ -3,6 +3,7 @@ import { getAuthUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { PostService } from '@/services/post.service';
 import { FeedContent } from './FeedContent';
+import { ONBOARDING_STATE_KEY, parseOnboarding } from '@/lib/onboarding';
 
 export const revalidate = 0;
 
@@ -13,11 +14,20 @@ export default async function FeedPage() {
     // Permite que o middleware abra o login mesmo quando existe um cookie expirado.
     redirect('/login?reason=session_expired');
   }
+  const state = await prisma.mobileState.findUnique({
+    where: { user_id_key: { user_id: user.id, key: ONBOARDING_STATE_KEY } },
+  });
+  const preferences = parseOnboarding(state?.value);
+  if (!preferences) redirect('/onboarding');
 
   // Só o conteúdo essencial bloqueia o primeiro paint. Duelos e atividade semanal
   // são carregados no cliente depois que o feed já está utilizável.
   const [feed, allBadges] = await Promise.all([
-    PostService.getFeed(user.id, { limit: 10 }),
+    PostService.getFeed(user.id, {
+      limit: 10,
+      filter: preferences.feed,
+      languages: preferences.languages,
+    }),
     prisma.badge.findMany({ orderBy: { slug: 'asc' } }),
   ]);
   const bookmarksMap: Record<string, boolean> = {};
@@ -39,6 +49,7 @@ export default async function FeedPage() {
 
   return (
     <FeedContent
+      initialPreferences={preferences}
       initialCurrentDate={new Date().toISOString()}
       initialUser={{
         id: user.id,

@@ -115,6 +115,7 @@ export const PostService = {
     userId: string | null,
     params: {
       language?: string;
+      languages?: string[];
       search?: string;
       author?: string;
       filter?: string;
@@ -124,7 +125,17 @@ export const PostService = {
       answeredBy?: string;
     }
   ) {
-    const { language, search, author, filter, cursor, limit = 10, likedBy, answeredBy } = params;
+    const {
+      language,
+      languages,
+      search,
+      author,
+      filter,
+      cursor,
+      limit = 10,
+      likedBy,
+      answeredBy,
+    } = params;
 
     const whereClause: any = {};
 
@@ -142,6 +153,8 @@ export const PostService = {
 
     if (language) {
       whereClause.language = language as Language;
+    } else if (languages?.length && filter !== 'following') {
+      whereClause.language = { in: languages as Language[] };
     }
     if (author) {
       whereClause.author = { username: author };
@@ -218,7 +231,10 @@ export const PostService = {
     };
   },
 
-  async countNewer(userId: string | null, params: { after: Date; filter?: string }) {
+  async countNewer(
+    userId: string | null,
+    params: { after: Date; filter?: string; languages?: string[] }
+  ) {
     const where: any = {
       created_at: { gt: params.after },
     };
@@ -233,6 +249,9 @@ export const PostService = {
           },
         };
       }
+    }
+    if (params.languages?.length && params.filter !== 'following') {
+      where.language = { in: params.languages as Language[] };
     }
 
     return prisma.post.count({ where });

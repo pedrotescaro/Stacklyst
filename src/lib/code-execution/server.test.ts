@@ -84,4 +84,30 @@ describe('server code execution fallback', () => {
     expect(fetchMock).toHaveBeenCalledTimes(2);
     expect(String(fetchMock.mock.calls[1][0])).toContain('wandbox.org');
   });
+
+  it('classifies HTTP transport timeout as infrastructure failure instead of code timeout', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(Object.assign(new Error('Request aborted'), { name: 'AbortError' }))
+    );
+    const result = await executeCode('print("ok")', 'python');
+    expect(result).toMatchObject({ ok: false, unavailable: true });
+    expect(result.error).not.toContain('Tempo limite de execução');
+  });
+
+  it('tries another provider when Judge0 returns its internal-error status', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ status: { id: 13, description: 'Internal error' } }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ status: '0', program_output: 'ok' }),
+      });
+    vi.stubGlobal('fetch', fetchMock);
+    expect(await executeCode('print("ok")', 'python')).toMatchObject({ ok: true, output: 'ok' });
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+  });
 });

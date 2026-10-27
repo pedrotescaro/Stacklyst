@@ -31,7 +31,7 @@ export default function HomeClient({ initialUser }: HomeClientProps) {
       className="flex flex-col min-h-screen bg-[var(--lp-bg)] text-[var(--lp-fg)] antialiased selection:bg-[var(--lp-accent)]/30 selection:text-white"
       data-force-motion="true"
     >
-      {showEntryLoader && <SiteEntryLoader forceMotion onComplete={handleEntryComplete} />}
+      {showEntryLoader && <SiteEntryLoader onComplete={handleEntryComplete} />}
 
       {/* Background grain texture */}
       <div className="lp-grain" />
@@ -40,7 +40,7 @@ export default function HomeClient({ initialUser }: HomeClientProps) {
       <LandingNav initialUser={initialUser} />
 
       {/* Hero Section */}
-      <LandingHero initialUser={initialUser} isReady={!showEntryLoader} />
+      <LandingHero initialUser={initialUser} isReady />
 
       {/* Redesigned product experience */}
       <main className="relative z-10">

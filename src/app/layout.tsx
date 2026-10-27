@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Space_Grotesk, JetBrains_Mono, Bebas_Neue } from 'next/font/google';
+import { Inter, Sora, Space_Grotesk, JetBrains_Mono, Bebas_Neue } from 'next/font/google';
 import Script from 'next/script';
 import './globals.css';
 import './landing.css';
@@ -38,6 +38,13 @@ const spaceGrotesk = Space_Grotesk({
   weight: ['400', '500', '600', '700'],
 });
 
+const sora = Sora({
+  subsets: ['latin'],
+  variable: '--font-sora',
+  weight: '600',
+  display: 'swap',
+});
+
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains-mono',
@@ -57,7 +64,7 @@ export const metadata: Metadata = {
   icons: {
     icon: '/logo.svg',
     shortcut: '/logo.svg',
-    apple: '/logo.svg',
+    apple: '/apple-touch-icon.png',
   },
 };
 
@@ -69,7 +76,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${inter.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${bebasNeue.variable} h-full antialiased`}
+      className={`${inter.variable} ${sora.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${bebasNeue.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <body className="bg-dd-bg text-dd-text min-h-screen font-sans" suppressHydrationWarning>

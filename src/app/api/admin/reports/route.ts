@@ -16,10 +16,10 @@ export const GET = apiHandler(async () => {
 });
 
 export const DELETE = apiHandler(async (req) => {
-  await requireAdmin();
+  const actor = await requireAdmin();
   const body = await req.json();
   const parsed = deleteReportSchema.parse(body);
 
-  const result = await AdminService.deleteReportedPost(parsed.report_id, parsed.post_id);
+  const result = await AdminService.deleteReportedPost(parsed.report_id, parsed.post_id, actor.id);
   return NextResponse.json(result);
 });

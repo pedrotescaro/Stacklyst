@@ -163,7 +163,7 @@ export function Screen({
               accessibilityLabel={title}
               style={{ flex: 1, alignItems: 'center', marginRight: hasMenu && !actions ? 48 : 0 }}
             >
-              <BrandMark width={32} />
+              <BrandMark width={27} wordmark />
             </View>
           ) : (
             <Text

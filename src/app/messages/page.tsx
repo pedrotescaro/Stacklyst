@@ -108,6 +108,12 @@ export default function MessagesPage() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [loadingChats, setLoadingChats] = useState(true);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [historyCursor, setHistoryCursor] = useState<string | null>(null);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const historyRequestRef = useRef<AbortController | null>(null);
+  const prependingHistoryRef = useRef(false);
+  const historyContainerRef = useRef<HTMLDivElement | null>(null);
   const [isPartnerTyping, setIsPartnerTyping] = useState(false);
 
   // Search/Filter states
@@ -216,24 +222,73 @@ export default function MessagesPage() {
   // Fetch message history for active chat
   useEffect(() => {
     if (!activeChat) return;
+    const controller = new AbortController();
+    historyRequestRef.current?.abort();
+    historyRequestRef.current = controller;
+    setMessages([]);
+    setHistoryCursor(null);
+    setHistoryError(null);
+    setLoadingOlder(false);
 
     const fetchMessages = async () => {
       setLoadingMessages(true);
       try {
-        const res = await fetch(`/api/messages?receiver_id=${activeChat.partnerId}`);
+        const res = await fetch(`/api/messages?receiver_id=${activeChat.partnerId}`, {
+          signal: controller.signal,
+        });
         if (res.ok) {
           const data = await res.json();
-          setMessages(data);
-        }
+          if (!controller.signal.aborted) {
+            setMessages(data);
+            setHistoryCursor(res.headers.get('X-Next-Cursor') || null);
+          }
+        } else throw new Error('Não foi possível carregar o histórico.');
       } catch (err) {
-        console.error('Error fetching message history:', err);
+        if (!controller.signal.aborted)
+          setHistoryError(err instanceof Error ? err.message : 'Erro ao carregar histórico.');
       } finally {
-        setLoadingMessages(false);
+        if (!controller.signal.aborted) setLoadingMessages(false);
       }
     };
 
     fetchMessages();
+    return () => controller.abort();
   }, [activeChat]);
+
+  async function loadOlderMessages() {
+    if (!activeChat || !historyCursor || loadingOlder) return;
+    const controller = historyRequestRef.current;
+    if (!controller || controller.signal.aborted) return;
+    setLoadingOlder(true);
+    setHistoryError(null);
+    const previousHeight = historyContainerRef.current?.scrollHeight ?? 0;
+    try {
+      const response = await fetch(
+        `/api/messages?receiver_id=${activeChat.partnerId}&cursor=${encodeURIComponent(historyCursor)}`,
+        { signal: controller.signal }
+      );
+      if (!response.ok)
+        throw new Error('Não foi possível carregar mensagens anteriores. Tente novamente.');
+      const rows: Message[] = await response.json();
+      if (controller.signal.aborted) return;
+      prependingHistoryRef.current = true;
+      setMessages((current) => [
+        ...rows.filter((row) => !current.some((message) => message.id === row.id)),
+        ...current,
+      ]);
+      setHistoryCursor(response.headers.get('X-Next-Cursor') || null);
+      requestAnimationFrame(() => {
+        if (historyContainerRef.current)
+          historyContainerRef.current.scrollTop +=
+            historyContainerRef.current.scrollHeight - previousHeight;
+      });
+    } catch (error) {
+      if (!controller.signal.aborted)
+        setHistoryError(error instanceof Error ? error.message : 'Erro ao carregar histórico.');
+    } finally {
+      if (!controller.signal.aborted) setLoadingOlder(false);
+    }
+  }
 
   useEffect(() => {
     setIsPartnerTyping(false);
@@ -307,6 +362,10 @@ export default function MessagesPage() {
 
   // Scroll messages to bottom
   useEffect(() => {
+    if (prependingHistoryRef.current) {
+      prependingHistoryRef.current = false;
+      return;
+    }
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, loadingMessages]);
 
@@ -910,7 +969,27 @@ export default function MessagesPage() {
                 </div>
 
                 {/* Messages Body */}
-                <div className="flex-grow overflow-y-auto p-4 space-y-3 bg-dd-surface/10">
+                <div
+                  ref={historyContainerRef}
+                  className="flex-grow overflow-y-auto p-4 space-y-3 bg-dd-surface/10"
+                >
+                  {historyError && (
+                    <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+                      {historyError}
+                    </p>
+                  )}
+                  {historyCursor && (
+                    <button
+                      type="button"
+                      onClick={loadOlderMessages}
+                      disabled={loadingOlder}
+                      className="mx-auto block min-h-11 rounded-lg px-4 text-sm font-semibold text-dd-text focus-visible:outline-2 focus-visible:outline-blue-500 disabled:opacity-50"
+                    >
+                      {loadingOlder
+                        ? text('Carregando...', 'Loading...')
+                        : text('Carregar mensagens anteriores', 'Load older messages')}
+                    </button>
+                  )}
                   {loadingMessages ? (
                     <div className="flex flex-col items-center justify-center h-full gap-2 text-dd-muted">
                       <div className="h-5 w-5 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />

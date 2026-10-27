@@ -114,6 +114,9 @@ export function RecruiterContent({ user }: { user: any }) {
   const [applicationsMap, setApplicationsMap] = useState<Record<string, JobApplicationItem[]>>({});
   const [loadingApplications, setLoadingApplications] = useState<Record<string, boolean>>({});
   const [updatingAppId, setUpdatingAppId] = useState<string | null>(null);
+  const [applicationDrafts, setApplicationDrafts] = useState<
+    Record<string, { stageId: string; feedback: string }>
+  >({});
 
   useEffect(() => {
     loadCompanies();
@@ -186,7 +189,8 @@ export function RecruiterContent({ user }: { user: any }) {
   const handleUpdateApplicationStatus = async (
     jobId: string,
     applicationId: string,
-    newStatus: string
+    newStatus: string,
+    details?: { stageId: string; feedback: string }
   ) => {
     setUpdatingAppId(applicationId);
     setErrorMsg(null);
@@ -197,18 +201,26 @@ export function RecruiterContent({ user }: { user: any }) {
         body: JSON.stringify({
           application_id: applicationId,
           status: newStatus,
+          ...(details
+            ? { stage_id: details.stageId || undefined, feedback: details.feedback }
+            : {}),
         }),
       });
 
       if (res.ok) {
+        const result = await res.json();
         setApplicationsMap((prev) => ({
           ...prev,
           [jobId]:
             prev[jobId]?.map((app) =>
-              app.id === applicationId ? { ...app, status: newStatus } : app
+              app.id === applicationId ? (result.application ?? { ...app, status: newStatus }) : app
             ) || [],
         }));
-        setSuccessMsg('Status do candidato atualizado com sucesso!');
+        setSuccessMsg(
+          details
+            ? 'Etapa e feedback salvos com sucesso!'
+            : 'Status do candidato atualizado com sucesso!'
+        );
         setTimeout(() => setSuccessMsg(null), 3500);
       } else {
         const errData = await res.json().catch(() => null);
@@ -637,11 +649,15 @@ export function RecruiterContent({ user }: { user: any }) {
                                 text: 'text-dd-muted',
                               };
                               const isUpdating = updatingAppId === app.id;
+                              const draft = applicationDrafts[app.id] ?? {
+                                stageId: app.stage_id ?? '',
+                                feedback: app.feedback ?? '',
+                              };
 
                               return (
                                 <div
                                   key={app.id}
-                                  className="p-4 rounded-2xl bg-dd-surface border border-dd-border flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all"
+                                  className="p-4 rounded-2xl bg-dd-surface border border-dd-border flex flex-wrap justify-between gap-4 transition-all"
                                 >
                                   {/* Candidate Profile Details */}
                                   <div className="flex items-center gap-3 min-w-0">
@@ -706,6 +722,85 @@ export function RecruiterContent({ user }: { user: any }) {
                                       <option value="REJECTED">Recusado</option>
                                     </select>
                                   </div>
+
+                                  <form
+                                    className="w-full space-y-3 border-t border-dd-border pt-3"
+                                    onSubmit={(event) => {
+                                      event.preventDefault();
+                                      void handleUpdateApplicationStatus(
+                                        job.id,
+                                        app.id,
+                                        app.status,
+                                        draft
+                                      );
+                                    }}
+                                  >
+                                    <div>
+                                      <label
+                                        htmlFor={`stage-${app.id}`}
+                                        className="mb-1 block text-xs font-semibold text-dd-text"
+                                      >
+                                        Etapa de @{app.user.username}
+                                      </label>
+                                      <select
+                                        id={`stage-${app.id}`}
+                                        value={draft.stageId}
+                                        disabled={isUpdating || job.stages.length === 0}
+                                        onChange={(event) =>
+                                          setApplicationDrafts((previous) => ({
+                                            ...previous,
+                                            [app.id]: { ...draft, stageId: event.target.value },
+                                          }))
+                                        }
+                                        className="dd-focus-ring min-h-10 w-full rounded-xl border border-dd-border bg-dd-bg px-3 text-sm text-dd-text disabled:opacity-50"
+                                      >
+                                        <option value="">
+                                          {job.stages.length
+                                            ? 'Selecione a etapa'
+                                            : 'Esta vaga não tem etapas'}
+                                        </option>
+                                        {[...job.stages]
+                                          .sort((a, b) => a.order - b.order)
+                                          .map((stage) => (
+                                            <option key={stage.id} value={stage.id}>
+                                              {stage.title}
+                                            </option>
+                                          ))}
+                                      </select>
+                                    </div>
+                                    <div>
+                                      <label
+                                        htmlFor={`feedback-${app.id}`}
+                                        className="mb-1 block text-xs font-semibold text-dd-text"
+                                      >
+                                        Feedback para @{app.user.username}
+                                      </label>
+                                      <textarea
+                                        id={`feedback-${app.id}`}
+                                        value={draft.feedback}
+                                        maxLength={5000}
+                                        rows={3}
+                                        disabled={isUpdating}
+                                        placeholder="Conte ao candidato como foi a avaliação e quais são os próximos passos."
+                                        onChange={(event) =>
+                                          setApplicationDrafts((previous) => ({
+                                            ...previous,
+                                            [app.id]: { ...draft, feedback: event.target.value },
+                                          }))
+                                        }
+                                        className="dd-focus-ring w-full rounded-xl border border-dd-border bg-dd-bg p-3 text-sm text-dd-text placeholder:text-dd-muted disabled:opacity-50"
+                                      />
+                                    </div>
+                                    <button
+                                      type="submit"
+                                      disabled={isUpdating}
+                                      className="dd-focus-ring min-h-10 rounded-xl bg-dd-accent px-4 text-sm font-semibold text-white disabled:opacity-50"
+                                    >
+                                      {isUpdating
+                                        ? 'Salvando...'
+                                        : `Salvar etapa e feedback de @${app.user.username}`}
+                                    </button>
+                                  </form>
                                 </div>
                               );
                             })}

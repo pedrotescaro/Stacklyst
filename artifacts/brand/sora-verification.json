@@ -1,0 +1,137 @@
+{
+  "typography": {
+    "family": "Sora",
+    "weight": 600,
+    "letterSpacing": "-0.02em",
+    "color": "#0083FE"
+  },
+  "symbol": {
+    "unchanged": true,
+    "pathSha256": "8b914da3f37f9f62b8240609f4c361da287a462418d53d21db508296430fd650"
+  },
+  "browserChecks": [
+    {
+      "width": 320,
+      "opening": {
+        "width": 180.84375,
+        "height": 38.078125,
+        "left": 66.578125,
+        "right": 247.421875,
+        "markHeight": 28,
+        "color": "rgb(0, 131, 254)"
+      },
+      "page": {
+        "brandWidth": 116.25,
+        "brandHeight": 24.484375,
+        "markHeight": 18,
+        "controlsFit": true,
+        "overflow": false
+      }
+    },
+    {
+      "width": 390,
+      "opening": {
+        "width": 180.84375,
+        "height": 38.078125,
+        "left": 101.578125,
+        "right": 282.421875,
+        "markHeight": 28,
+        "color": "rgb(0, 131, 254)"
+      },
+      "page": {
+        "brandWidth": 154.96875,
+        "brandHeight": 32.640625,
+        "markHeight": 23.984375,
+        "controlsFit": true,
+        "overflow": false
+      }
+    },
+    {
+      "width": 768,
+      "opening": {
+        "width": 248,
+        "height": 52.21875,
+        "left": 257,
+        "right": 505,
+        "markHeight": 38.390625,
+        "color": "rgb(0, 131, 254)"
+      },
+      "page": {
+        "brandWidth": 155,
+        "brandHeight": 32.640625,
+        "markHeight": 24,
+        "controlsFit": true,
+        "overflow": false
+      }
+    },
+    {
+      "width": 1440,
+      "opening": {
+        "width": 284.1875,
+        "height": 59.84375,
+        "left": 574.90625,
+        "right": 859.09375,
+        "markHeight": 44,
+        "color": "rgb(0, 131, 254)"
+      },
+      "page": {
+        "brandWidth": 155,
+        "brandHeight": 32.640625,
+        "markHeight": 24,
+        "controlsFit": true,
+        "overflow": false
+      }
+    }
+  ],
+  "animationFont": "Sora, \"Sora Fallback\", sans-serif",
+  "reducedMotion": true,
+  "passed": true,
+  "validation": {
+    "build": true,
+    "targetedTests": 7,
+    "mobileTypecheck": true,
+    "nativeDeviceInspected": false
+  },
+  "colorFrames": [
+    {
+      "timeMs": 120,
+      "text": "rgb(0, 131, 254)",
+      "symbol": "rgb(0, 131, 254)",
+      "textOpacity": "1",
+      "symbolOpacity": "1"
+    },
+    {
+      "timeMs": 450,
+      "text": "rgb(0, 131, 254)",
+      "symbol": "rgb(0, 131, 254)",
+      "textOpacity": "1",
+      "symbolOpacity": "1"
+    },
+    {
+      "timeMs": 850,
+      "text": "rgb(0, 131, 254)",
+      "symbol": "rgb(0, 131, 254)",
+      "textOpacity": "1",
+      "symbolOpacity": "1"
+    },
+    {
+      "timeMs": 1150,
+      "text": "rgb(0, 131, 254)",
+      "symbol": "rgb(0, 131, 254)",
+      "textOpacity": "1",
+      "symbolOpacity": "1"
+    }
+  ],
+  "responsiveSizing": {
+    "navigationSymbolMaxPx": 24,
+    "openingSymbolMaxPx": 44,
+    "openingWidthMaxPx": 284.1875,
+    "verifiedViewportWidths": [
+      320,
+      390,
+      768,
+      1440
+    ],
+    "sidebarUsesVisibilityWrappers": true
+  }
+}
