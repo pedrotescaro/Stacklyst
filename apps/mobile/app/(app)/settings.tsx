@@ -48,6 +48,13 @@ export default function Settings() {
   const appearance = (
     <>
       <Heading>Aparência</Heading>
+      {!isPreview && (
+        <Button
+          label="Personalizar meu perfil"
+          secondary
+          onPress={() => router.push('/personalize')}
+        />
+      )}
       <Label muted>Escolha como o Stacklyst aparece neste aparelho.</Label>
       <Choice
         value={mode}

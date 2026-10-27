@@ -6,6 +6,7 @@ import { XpService, calculateLevel } from './xp.service';
 import { NotificationService } from './notification.service';
 import { logger } from '@/lib/logger';
 import { publicQuiz } from '@/lib/quiz-public';
+import { syncProfileAchievementsSafely } from './profile-customization.service';
 
 export const PostService = {
   async create(userId: string, data: CreatePostInput, clientId?: string) {
@@ -108,6 +109,7 @@ export const PostService = {
       }
     }
 
+    await syncProfileAchievementsSafely(userId);
     return result;
   },
 

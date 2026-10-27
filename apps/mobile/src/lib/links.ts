@@ -5,7 +5,7 @@ export function safeRoute(path: string | undefined) {
   try {
     const parsed = new URL(path, 'https://stacklyst.invalid');
     const allowed =
-      /^\/(?:$|(?:post|profile|lesson|knowledge|exercise|duel|conversation|events|jobs|communities|company|recruitment|evaluation)\/[a-zA-Z0-9_-]+$|(?:learn|practice|duels|profile|events|jobs|communities|notifications|messages|explore|ranking|settings|bookmarks|applications|onboarding|edit-profile|compose|evaluator|recruiter|admin)$)/;
+      /^\/(?:$|(?:post|profile|lesson|knowledge|exercise|duel|conversation|events|jobs|communities|company|recruitment|evaluation)\/[a-zA-Z0-9_-]+$|(?:learn|practice|duels|profile|events|jobs|communities|notifications|messages|explore|ranking|settings|bookmarks|applications|onboarding|edit-profile|personalize|achievements|compose|evaluator|recruiter|admin)$)/;
     return parsed.origin === 'https://stacklyst.invalid' && allowed.test(parsed.pathname)
       ? parsed.pathname + parsed.search
       : '/';

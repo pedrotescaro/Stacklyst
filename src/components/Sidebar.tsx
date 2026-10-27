@@ -1,6 +1,7 @@
 'use client';
 
 import { BrandLogo } from '@/components/BrandLogo';
+import { ProfileName } from '@/components/profile/ProfileIdentity';
 
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
@@ -170,6 +171,21 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
   }, [user]);
 
   const [unreadCount, setUnreadCount] = useState(0);
+
+  useEffect(() => {
+    const refreshIdentity = () => {
+      void getCurrentUser<SidebarUser>()
+        .then((data) => {
+          if (!data) return;
+          setActiveUser(data);
+          inMemoryUser = data;
+          sessionStorage.setItem('stacklyst_user', JSON.stringify(data));
+        })
+        .catch(() => undefined);
+    };
+    window.addEventListener('stacklyst:profile-customization', refreshIdentity);
+    return () => window.removeEventListener('stacklyst:profile-customization', refreshIdentity);
+  }, []);
 
   useEffect(() => {
     if (!activeUser) return;
@@ -722,10 +738,12 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
               <div className="hidden min-w-0 flex-1 font-sans xl:block">
                 <div className="flex min-w-0 items-center justify-between gap-1.5">
                   <p className="min-w-0 truncate text-[15px] font-bold leading-tight text-dd-text dark:text-white">
-                    {activeUser.name ||
-                      (activeUser.avatar_config as any)?.name ||
-                      (activeUser.avatar_config as any)?.displayName ||
-                      activeUser.username}
+                    <ProfileName config={activeUser.avatar_config}>
+                      {activeUser.name ||
+                        (activeUser.avatar_config as any)?.name ||
+                        (activeUser.avatar_config as any)?.displayName ||
+                        activeUser.username}
+                    </ProfileName>
                   </p>
                 </div>
                 <div className="mt-0.5 min-w-0">

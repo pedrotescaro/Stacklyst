@@ -10,6 +10,7 @@ import {
   requireExerciseAccess,
 } from '@/lib/exercises/repository';
 import { rateLimit } from '@/lib/ratelimit';
+import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
 
 const submissionSchema = z.object({
   code: z.string().min(1).max(20_000),
@@ -46,6 +47,7 @@ export const POST = apiHandler(async (request, { session, params }) => {
     code,
     evaluation,
   });
+  if (evaluation.ok && evaluation.passed) await syncProfileAchievementsSafely(session.id);
 
   return NextResponse.json(
     {

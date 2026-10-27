@@ -1,0 +1,151 @@
+{
+  "fix": "Mobile hex fields now use one column below640px",
+  "viewports": [
+    {
+      "width": 320,
+      "overflow": false,
+      "hexFields": [
+        {
+          "value": "#10151d",
+          "width": 148
+        },
+        {
+          "value": "#151e29",
+          "width": 148
+        },
+        {
+          "value": "#70b6ff",
+          "width": 148
+        },
+        {
+          "value": "#0083fe",
+          "width": 148
+        }
+      ],
+      "allHexValuesFit": true
+    },
+    {
+      "width": 375,
+      "overflow": false,
+      "hexFields": [
+        {
+          "value": "#10151d",
+          "width": 148
+        },
+        {
+          "value": "#151e29",
+          "width": 148
+        },
+        {
+          "value": "#70b6ff",
+          "width": 148
+        },
+        {
+          "value": "#0083fe",
+          "width": 148
+        }
+      ],
+      "allHexValuesFit": true
+    },
+    {
+      "width": 430,
+      "overflow": false,
+      "hexFields": [
+        {
+          "value": "#10151d",
+          "width": 148
+        },
+        {
+          "value": "#151e29",
+          "width": 148
+        },
+        {
+          "value": "#70b6ff",
+          "width": 148
+        },
+        {
+          "value": "#0083fe",
+          "width": 148
+        }
+      ],
+      "allHexValuesFit": true
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "hexFields": [
+        {
+          "value": "#10151d",
+          "width": 135
+        },
+        {
+          "value": "#151e29",
+          "width": 135
+        },
+        {
+          "value": "#70b6ff",
+          "width": 135
+        },
+        {
+          "value": "#0083fe",
+          "width": 135
+        }
+      ],
+      "allHexValuesFit": true
+    },
+    {
+      "width": 1024,
+      "overflow": false,
+      "hexFields": [
+        {
+          "value": "#10151d",
+          "width": 148
+        },
+        {
+          "value": "#151e29",
+          "width": 148
+        },
+        {
+          "value": "#70b6ff",
+          "width": 148
+        },
+        {
+          "value": "#0083fe",
+          "width": 148
+        }
+      ],
+      "allHexValuesFit": true
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "hexFields": [
+        {
+          "value": "#10151d",
+          "width": 148
+        },
+        {
+          "value": "#151e29",
+          "width": 148
+        },
+        {
+          "value": "#70b6ff",
+          "width": 148
+        },
+        {
+          "value": "#0083fe",
+          "width": 148
+        }
+      ],
+      "allHexValuesFit": true
+    }
+  ],
+  "photoEditorDirectLink": true,
+  "spotifyEmbed": {
+    "title": "Cut To The Feeling - Carly Rae Jepsen | Spotify",
+    "body": "Cut To The Feeling\nPrévia\nCarly Rae Jepsen\nSalvar no Spotify"
+  },
+  "errors": [],
+  "passed": true,
+  "measurementNote": "Text controls use the default input type; selector measures the DOM type property."
+}

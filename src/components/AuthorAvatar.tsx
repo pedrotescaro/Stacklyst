@@ -1,4 +1,6 @@
 import Image from 'next/image';
+import { AvatarFrame } from '@/components/profile/ProfileIdentity';
+import { readProfileIdentity } from '@/lib/profile-style';
 
 interface AuthorAvatarProps {
   username: string;
@@ -17,26 +19,30 @@ const sizeClasses = {
 export function AuthorAvatar({
   username,
   avatar_url,
+  avatar_config,
   size = 'sm',
   className = '',
 }: AuthorAvatarProps) {
   const initials = username.trim().slice(0, 2).toUpperCase() || 'DD';
 
   return (
-    <div
-      className={`${sizeClasses[size]} flex shrink-0 select-none items-center justify-center overflow-hidden rounded-full border border-dd-border bg-blue-500/10 text-[10px] font-black text-blue-400 ${className}`}
+    <AvatarFrame
+      frame={readProfileIdentity(avatar_config).frame}
+      className={`${sizeClasses[size]} shrink-0 ${className}`}
     >
-      {avatar_url ? (
-        <Image
-          src={avatar_url}
-          alt={`Foto de ${username}`}
-          width={48}
-          height={48}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <span aria-label={`Iniciais de ${username}`}>{initials}</span>
-      )}
-    </div>
+      <div className="flex h-full w-full select-none items-center justify-center overflow-hidden rounded-full border border-dd-border bg-blue-500/10 text-[10px] font-black text-blue-400">
+        {avatar_url ? (
+          <Image
+            src={avatar_url}
+            alt={`Foto de ${username}`}
+            width={48}
+            height={48}
+            className="h-full w-full object-cover"
+          />
+        ) : (
+          <span aria-label={`Iniciais de ${username}`}>{initials}</span>
+        )}
+      </div>
+    </AvatarFrame>
   );
 }

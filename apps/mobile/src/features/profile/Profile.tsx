@@ -14,6 +14,7 @@ import {
   Label,
 } from '../../components/ui';
 import { ActionMenu } from '../../components/ActionMenu';
+import { ProfileName } from '../../components/ProfileName';
 import { IconTrophy, IconX } from '../../components/icons';
 import { RichText } from '../../components/content';
 import { PostCard, timeLabel } from '../feed/PostCard';
@@ -23,7 +24,9 @@ import { queryClient } from '../../lib/query';
 import { useMe, useSession } from '../../lib/session';
 import { useReducedMotion } from '../../lib/motion';
 import { Answer, Page, Person, Post } from '../../lib/types';
-import { useTheme } from '../../theme';
+import { ScopedTheme, useTheme } from '../../theme';
+import { profilePalette } from '../../lib/profile-customization';
+import { usePublicCustomization } from './useCustomization';
 import {
   ProfileHero,
   ProfileStatsSummary,
@@ -136,11 +139,14 @@ function PeopleSheet({
                     },
                   ]}
                 >
-                  <Avatar name={person.username} uri={person.avatar_url} size={44} />
+                  <Avatar
+                    name={person.username}
+                    uri={person.avatar_url}
+                    profileStyle={person.avatar_config?.profileStyle}
+                    size={44}
+                  />
                   <View style={{ flex: 1, gap: 3 }}>
-                    <Text style={{ color: c.text, fontSize: 16, fontWeight: '700' }}>
-                      {profileName(person)}
-                    </Text>
+                    <ProfileName user={person} style={{ fontSize: 16, fontWeight: '700' }} />
                     <Text style={{ color: c.muted, fontSize: 14 }}>@{person.username}</Text>
                   </View>
                 </Pressable>
@@ -161,7 +167,7 @@ function PeopleSheet({
 }
 
 export function Profile({ username, own = false }: { username: string; own?: boolean }) {
-  const { colors: c } = useTheme();
+  const { colors: baseColors } = useTheme();
   const insets = useSafeAreaInsets();
   const reducedMotion = useReducedMotion();
   const me = useMe();
@@ -185,6 +191,9 @@ export function Profile({ username, own = false }: { username: string; own?: boo
   });
   const data = q.data?.pages[0];
   const user = data?.user;
+  const customization = usePublicCustomization(username, !!user);
+  const profileUser = user && { ...user, customization: customization.data || user.customization };
+  const c = profilePalette(baseColors, profileUser?.customization?.preferences.appearance);
   const isOwner = own || user?.id === me.data?.id;
   const canParticipate = !!session && !isPreview;
   const posts = uniqueRows(
@@ -249,9 +258,12 @@ export function Profile({ username, own = false }: { username: string; own?: boo
   });
   const refresh = () => {
     void q.refetch();
+    void customization.refetch();
     if (activeTab === 'likes' || activeTab === 'replies') void timeline.refetch();
   };
   const menuItems = [
+    { label: 'Personalizar perfil', onPress: () => router.push('/personalize' as never) },
+    { label: 'Minhas conquistas', onPress: () => router.push('/achievements' as never) },
     { label: 'Itens salvos', onPress: () => router.push('/bookmarks') },
     { label: 'Ranking', onPress: () => router.push('/ranking') },
     { label: 'Minhas candidaturas', onPress: () => router.push('/applications') },
@@ -271,289 +283,297 @@ export function Profile({ username, own = false }: { username: string; own?: boo
       : []),
   ];
   return (
-    <Screen
-      title={own ? 'Perfil' : '@' + username}
-      back={!own}
-      scroll={false}
-      actions={isOwner ? <ActionMenu label="Opções da conta" items={menuItems} /> : undefined}
-    >
-      <ScrollView
-        keyboardShouldPersistTaps="handled"
-        contentContainerStyle={{
-          width: '100%',
-          maxWidth: 760,
-          alignSelf: 'center',
-          paddingBottom: Math.max(32, insets.bottom + 16),
-        }}
-        refreshControl={
-          <RefreshControl
-            refreshing={q.isRefetching && !q.isFetchingNextPage}
-            onRefresh={refresh}
-            tintColor={c.primary}
-            colors={[c.primary]}
-          />
-        }
+    <ScopedTheme colors={c}>
+      <Screen
+        title={own ? 'Perfil' : '@' + username}
+        back={!own}
+        scroll={false}
+        actions={isOwner ? <ActionMenu label="Opções da conta" items={menuItems} /> : undefined}
       >
-        <AsyncState query={q}>
-          {user && data && (
-            <>
-              <ProfileHero
-                user={user}
-                stats={data.stats}
-                trails={data.trails ?? []}
-                followers={data.followers ?? 0}
-                following={data.following ?? 0}
-                owner={isOwner}
-                isFollowing={!!data.isFollowing}
-                followPending={follow.isPending}
-                followDisabled={!canParticipate}
-                onFollow={() => follow.mutate()}
-                onMessage={() =>
-                  router.push(
-                    ('/conversation/' +
-                      user.id +
-                      '?username=' +
-                      encodeURIComponent(user.username)) as never
-                  )
-                }
-                onChallenge={() => {
-                  setChallengeNotice('');
-                  challenge.reset();
-                  setChallengeOpen(true);
-                }}
-                onShowFollowers={() => setPeopleType('followers')}
-                onShowFollowing={() => setPeopleType('following')}
-                feedback={follow.error ? errorMessage(follow.error) : undefined}
-              />
-              <View style={[s.tabs, { borderColor: c.border, backgroundColor: c.surface }]}>
-                {tabs.map((tab) => (
-                  <Pressable
-                    key={tab.value}
-                    accessibilityRole="tab"
-                    accessibilityLabel={tab.label}
-                    accessibilityState={{ selected: activeTab === tab.value }}
-                    onPress={() => setActiveTab(tab.value)}
-                    style={({ pressed }) => ({
-                      width: '31.5%',
-                      minHeight: 48,
-                      paddingHorizontal: 4,
-                      paddingVertical: 10,
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      borderRadius: 12,
-                      backgroundColor:
-                        activeTab === tab.value ? c.primary : pressed ? c.elevated : 'transparent',
-                    })}
-                  >
-                    <Text
-                      style={{
-                        color: activeTab === tab.value ? c.onPrimary : c.muted,
-                        fontSize: 12,
-                        fontWeight: '800',
-                        textAlign: 'center',
-                      }}
-                    >
-                      {tab.label}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-              {activeTab === 'posts' && (
-                <>
-                  {posts.map((post) => (
-                    <PostCard key={post.id} post={post} />
-                  ))}
-                  {!posts.length && <Empty label="Nenhuma publicação encontrada." />}
-                  {q.hasNextPage && (
-                    <View style={s.section}>
-                      <Button
-                        secondary
-                        label="Carregar mais publicações"
-                        busy={q.isFetchingNextPage}
-                        onPress={() => void q.fetchNextPage()}
-                      />
-                    </View>
-                  )}
-                </>
-              )}
-              {(activeTab === 'replies' || activeTab === 'likes') && (
-                <AsyncState query={timeline}>
-                  {timelineRows.map((row) =>
-                    activeTab === 'likes' ? (
-                      <PostCard key={row.id} post={row as Post} />
-                    ) : (
-                      <ProfileReplyRow
-                        key={row.id}
-                        reply={row as ProfileReply}
-                        savedIds={saved.ids}
-                        saving={saved.save.isPending}
-                        disabled={!canParticipate}
-                        onSave={(id) => saved.save.mutate(id)}
-                      />
+        <ScrollView
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{
+            width: '100%',
+            maxWidth: 760,
+            alignSelf: 'center',
+            paddingBottom: Math.max(32, insets.bottom + 16),
+          }}
+          refreshControl={
+            <RefreshControl
+              refreshing={q.isRefetching && !q.isFetchingNextPage}
+              onRefresh={refresh}
+              tintColor={c.primary}
+              colors={[c.primary]}
+            />
+          }
+        >
+          <AsyncState query={q}>
+            {user && data && (
+              <>
+                <ProfileHero
+                  user={profileUser || user}
+                  achievements={customization.data?.achievements ?? []}
+                  stats={data.stats}
+                  trails={data.trails ?? []}
+                  followers={data.followers ?? 0}
+                  following={data.following ?? 0}
+                  owner={isOwner}
+                  isFollowing={!!data.isFollowing}
+                  followPending={follow.isPending}
+                  followDisabled={!canParticipate}
+                  onFollow={() => follow.mutate()}
+                  onMessage={() =>
+                    router.push(
+                      ('/conversation/' +
+                        user.id +
+                        '?username=' +
+                        encodeURIComponent(user.username)) as never
                     )
-                  )}
-                  {!timelineRows.length && (
-                    <Empty
-                      label={
-                        activeTab === 'replies'
-                          ? 'Nenhuma resposta encontrada.'
-                          : 'Nenhuma curtida encontrada.'
-                      }
-                    />
-                  )}
-                  {saved.save.error && (
-                    <View style={s.section}>
-                      <Label>{errorMessage(saved.save.error)}</Label>
-                    </View>
-                  )}
-                  {timeline.hasNextPage && (
-                    <View style={s.section}>
-                      <Button
-                        secondary
+                  }
+                  onChallenge={() => {
+                    setChallengeNotice('');
+                    challenge.reset();
+                    setChallengeOpen(true);
+                  }}
+                  onShowFollowers={() => setPeopleType('followers')}
+                  onShowFollowing={() => setPeopleType('following')}
+                  feedback={follow.error ? errorMessage(follow.error) : undefined}
+                />
+                <View style={[s.tabs, { borderColor: c.border, backgroundColor: c.surface }]}>
+                  {tabs.map((tab) => (
+                    <Pressable
+                      key={tab.value}
+                      accessibilityRole="tab"
+                      accessibilityLabel={tab.label}
+                      accessibilityState={{ selected: activeTab === tab.value }}
+                      onPress={() => setActiveTab(tab.value)}
+                      style={({ pressed }) => ({
+                        width: '31.5%',
+                        minHeight: 48,
+                        paddingHorizontal: 4,
+                        paddingVertical: 10,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        borderRadius: 12,
+                        backgroundColor:
+                          activeTab === tab.value
+                            ? c.primary
+                            : pressed
+                              ? c.elevated
+                              : 'transparent',
+                      })}
+                    >
+                      <Text
+                        style={{
+                          color: activeTab === tab.value ? c.onPrimary : c.muted,
+                          fontSize: 12,
+                          fontWeight: '800',
+                          textAlign: 'center',
+                        }}
+                      >
+                        {tab.label}
+                      </Text>
+                    </Pressable>
+                  ))}
+                </View>
+                {activeTab === 'posts' && (
+                  <>
+                    {posts.map((post) => (
+                      <PostCard key={post.id} post={post} />
+                    ))}
+                    {!posts.length && <Empty label="Nenhuma publicação encontrada." />}
+                    {q.hasNextPage && (
+                      <View style={s.section}>
+                        <Button
+                          secondary
+                          label="Carregar mais publicações"
+                          busy={q.isFetchingNextPage}
+                          onPress={() => void q.fetchNextPage()}
+                        />
+                      </View>
+                    )}
+                  </>
+                )}
+                {(activeTab === 'replies' || activeTab === 'likes') && (
+                  <AsyncState query={timeline}>
+                    {timelineRows.map((row) =>
+                      activeTab === 'likes' ? (
+                        <PostCard key={row.id} post={row as Post} />
+                      ) : (
+                        <ProfileReplyRow
+                          key={row.id}
+                          reply={row as ProfileReply}
+                          savedIds={saved.ids}
+                          saving={saved.save.isPending}
+                          disabled={!canParticipate}
+                          onSave={(id) => saved.save.mutate(id)}
+                        />
+                      )
+                    )}
+                    {!timelineRows.length && (
+                      <Empty
                         label={
                           activeTab === 'replies'
-                            ? 'Carregar mais respostas'
-                            : 'Carregar mais curtidas'
+                            ? 'Nenhuma resposta encontrada.'
+                            : 'Nenhuma curtida encontrada.'
                         }
-                        busy={timeline.isFetchingNextPage}
-                        onPress={() => void timeline.fetchNextPage()}
                       />
-                    </View>
-                  )}
-                </AsyncState>
-              )}
-              {activeTab === 'stats' && (
-                <View style={s.section}>
-                  <ProfileStatsSummary user={user} stats={data.stats} />
-                </View>
-              )}
-              {activeTab === 'trails' && (
-                <View style={s.section}>
-                  <ProfileTrails trails={data.trails ?? []} />
-                </View>
-              )}
-              {activeTab === 'badges' && (
-                <View style={[s.section, { gap: 16 }]}>
-                  <Heading>Conquistas</Heading>
-                  {user.badges?.length ? (
-                    user.badges.map((badge, i) => (
-                      <View
-                        key={badge.slug ?? i}
-                        style={[s.badge, { backgroundColor: c.surface, borderColor: c.border }]}
-                      >
-                        <IconTrophy size={32} color={c.warning} />
-                        <View style={{ flex: 1, gap: 5 }}>
-                          <Text style={{ color: c.text, fontWeight: '800', fontSize: 16 }}>
-                            {badge.label ?? badge.badge?.label}
-                          </Text>
-                          {badge.description && (
-                            <Text style={{ color: c.muted, lineHeight: 20, fontSize: 13 }}>
-                              {badge.description}
-                            </Text>
-                          )}
-                          {badge.earned_at && (
-                            <Text style={{ color: c.muted, fontSize: 12 }}>
-                              Conquistada em {new Date(badge.earned_at).toLocaleDateString('pt-BR')}
-                            </Text>
-                          )}
-                        </View>
+                    )}
+                    {saved.save.error && (
+                      <View style={s.section}>
+                        <Label>{errorMessage(saved.save.error)}</Label>
                       </View>
-                    ))
-                  ) : (
-                    <Empty label="As conquistas aparecem conforme você progride." />
-                  )}
-                </View>
-              )}
-            </>
-          )}
-        </AsyncState>
-      </ScrollView>
-      {user && peopleType && (
-        <PeopleSheet
-          key={user.id + peopleType}
-          userId={user.id}
-          type={peopleType}
-          onClose={() => setPeopleType(null)}
-        />
-      )}
-      <Modal
-        transparent
-        visible={challengeOpen}
-        animationType={reducedMotion ? 'none' : 'slide'}
-        onRequestClose={() => {
-          if (!challenge.isPending) setChallengeOpen(false);
-        }}
-      >
-        <View style={{ flex: 1, backgroundColor: '#00000088', justifyContent: 'flex-end' }}>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Fechar convite para duelo"
-            disabled={challenge.isPending}
-            onPress={() => setChallengeOpen(false)}
-            style={absoluteFill}
+                    )}
+                    {timeline.hasNextPage && (
+                      <View style={s.section}>
+                        <Button
+                          secondary
+                          label={
+                            activeTab === 'replies'
+                              ? 'Carregar mais respostas'
+                              : 'Carregar mais curtidas'
+                          }
+                          busy={timeline.isFetchingNextPage}
+                          onPress={() => void timeline.fetchNextPage()}
+                        />
+                      </View>
+                    )}
+                  </AsyncState>
+                )}
+                {activeTab === 'stats' && (
+                  <View style={s.section}>
+                    <ProfileStatsSummary user={user} stats={data.stats} />
+                  </View>
+                )}
+                {activeTab === 'trails' && (
+                  <View style={s.section}>
+                    <ProfileTrails trails={data.trails ?? []} />
+                  </View>
+                )}
+                {activeTab === 'badges' && (
+                  <View style={[s.section, { gap: 16 }]}>
+                    <Heading>Conquistas</Heading>
+                    {user.badges?.length ? (
+                      user.badges.map((badge, i) => (
+                        <View
+                          key={badge.slug ?? i}
+                          style={[s.badge, { backgroundColor: c.surface, borderColor: c.border }]}
+                        >
+                          <IconTrophy size={32} color={c.warning} />
+                          <View style={{ flex: 1, gap: 5 }}>
+                            <Text style={{ color: c.text, fontWeight: '800', fontSize: 16 }}>
+                              {badge.label ?? badge.badge?.label}
+                            </Text>
+                            {badge.description && (
+                              <Text style={{ color: c.muted, lineHeight: 20, fontSize: 13 }}>
+                                {badge.description}
+                              </Text>
+                            )}
+                            {badge.earned_at && (
+                              <Text style={{ color: c.muted, fontSize: 12 }}>
+                                Conquistada em{' '}
+                                {new Date(badge.earned_at).toLocaleDateString('pt-BR')}
+                              </Text>
+                            )}
+                          </View>
+                        </View>
+                      ))
+                    ) : (
+                      <Empty label="As conquistas aparecem conforme você progride." />
+                    )}
+                  </View>
+                )}
+              </>
+            )}
+          </AsyncState>
+        </ScrollView>
+        {user && peopleType && (
+          <PeopleSheet
+            key={user.id + peopleType}
+            userId={user.id}
+            type={peopleType}
+            onClose={() => setPeopleType(null)}
           />
-          <View
-            accessibilityViewIsModal
-            style={{
-              maxWidth: 760,
-              alignSelf: 'center',
-              width: '100%',
-              maxHeight: '90%',
-              padding: 24,
-              paddingBottom: Math.max(24, insets.bottom + 16),
-              gap: 20,
-              backgroundColor: c.surface,
-              borderTopLeftRadius: 24,
-              borderTopRightRadius: 24,
-            }}
-          >
-            <ScrollView contentContainerStyle={{ gap: 20 }} keyboardShouldPersistTaps="handled">
-              <View style={s.between}>
-                <Heading>Desafiar @{user?.username}</Heading>
-                <IconButton
-                  label="Fechar convite para duelo"
-                  disabled={challenge.isPending}
-                  onPress={() => setChallengeOpen(false)}
-                  icon={<IconX size={22} color={c.text} />}
-                />
-              </View>
-              <Label muted>Escolha a linguagem do duelo.</Label>
-              <Choice
-                options={[
-                  { value: 'TS', label: 'TypeScript' },
-                  { value: 'JS', label: 'JavaScript' },
-                  { value: 'PYTHON', label: 'Python' },
-                ]}
-                value={challengeLanguage}
-                onChange={(value) => {
-                  setChallengeLanguage(value);
-                  challenge.reset();
-                  setChallengeNotice('');
-                }}
-              />
-              {(challenge.error || challengeNotice) && (
-                <Text
-                  accessibilityLiveRegion="polite"
-                  style={{
-                    color: challenge.error ? c.danger : c.success,
-                    fontSize: 14,
-                    lineHeight: 21,
+        )}
+        <Modal
+          transparent
+          visible={challengeOpen}
+          animationType={reducedMotion ? 'none' : 'slide'}
+          onRequestClose={() => {
+            if (!challenge.isPending) setChallengeOpen(false);
+          }}
+        >
+          <View style={{ flex: 1, backgroundColor: '#00000088', justifyContent: 'flex-end' }}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Fechar convite para duelo"
+              disabled={challenge.isPending}
+              onPress={() => setChallengeOpen(false)}
+              style={absoluteFill}
+            />
+            <View
+              accessibilityViewIsModal
+              style={{
+                maxWidth: 760,
+                alignSelf: 'center',
+                width: '100%',
+                maxHeight: '90%',
+                padding: 24,
+                paddingBottom: Math.max(24, insets.bottom + 16),
+                gap: 20,
+                backgroundColor: c.surface,
+                borderTopLeftRadius: 24,
+                borderTopRightRadius: 24,
+              }}
+            >
+              <ScrollView contentContainerStyle={{ gap: 20 }} keyboardShouldPersistTaps="handled">
+                <View style={s.between}>
+                  <Heading>Desafiar @{user?.username}</Heading>
+                  <IconButton
+                    label="Fechar convite para duelo"
+                    disabled={challenge.isPending}
+                    onPress={() => setChallengeOpen(false)}
+                    icon={<IconX size={22} color={c.text} />}
+                  />
+                </View>
+                <Label muted>Escolha a linguagem do duelo.</Label>
+                <Choice
+                  options={[
+                    { value: 'TS', label: 'TypeScript' },
+                    { value: 'JS', label: 'JavaScript' },
+                    { value: 'PYTHON', label: 'Python' },
+                  ]}
+                  value={challengeLanguage}
+                  onChange={(value) => {
+                    setChallengeLanguage(value);
+                    challenge.reset();
+                    setChallengeNotice('');
                   }}
-                >
-                  {challenge.error ? errorMessage(challenge.error) : challengeNotice}
-                </Text>
-              )}
-              <Button
-                label={challenge.isSuccess ? 'Convite enviado' : 'Enviar convite'}
-                busy={challenge.isPending}
-                disabled={!canParticipate || challenge.isSuccess}
-                onPress={() => challenge.mutate()}
-              />
-            </ScrollView>
+                />
+                {(challenge.error || challengeNotice) && (
+                  <Text
+                    accessibilityLiveRegion="polite"
+                    style={{
+                      color: challenge.error ? c.danger : c.success,
+                      fontSize: 14,
+                      lineHeight: 21,
+                    }}
+                  >
+                    {challenge.error ? errorMessage(challenge.error) : challengeNotice}
+                  </Text>
+                )}
+                <Button
+                  label={challenge.isSuccess ? 'Convite enviado' : 'Enviar convite'}
+                  busy={challenge.isPending}
+                  disabled={!canParticipate || challenge.isSuccess}
+                  onPress={() => challenge.mutate()}
+                />
+              </ScrollView>
+            </View>
           </View>
-        </View>
-      </Modal>
-    </Screen>
+        </Modal>
+      </Screen>
+    </ScopedTheme>
   );
 }
 

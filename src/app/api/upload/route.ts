@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
 import { createClient } from '@/lib/supabase/server';
+import sharp from 'sharp';
 
 export async function POST(request: Request) {
   try {
@@ -71,6 +72,32 @@ export async function POST(request: Request) {
     if (!isValidImage) {
       return NextResponse.json(
         { error: 'Arquivo corrompido ou formato de imagem inválido.' },
+        { status: 400 }
+      );
+    }
+
+    try {
+      const metadata = await sharp(buffer, {
+        limitInputPixels: 40000000,
+        animated: false,
+      }).metadata();
+      if (
+        !metadata.width ||
+        !metadata.height ||
+        metadata.width < 32 ||
+        metadata.height < 32 ||
+        metadata.width > 12000 ||
+        metadata.height > 12000
+      ) {
+        return NextResponse.json(
+          { error: 'A imagem deve ter entre 32 e 12.000 pixels em cada dimensão.' },
+          { status: 400 }
+        );
+      }
+      await sharp(buffer, { limitInputPixels: 40000000, animated: false }).resize(1, 1).toBuffer();
+    } catch {
+      return NextResponse.json(
+        { error: 'Não foi possível ler essa imagem. Envie um arquivo de imagem válido.' },
         { status: 400 }
       );
     }

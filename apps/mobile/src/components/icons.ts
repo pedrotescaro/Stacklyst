@@ -27,6 +27,7 @@ export { default as IconLogout } from '@tabler/icons-react-native/IconLogout';
 export { default as IconMail } from '@tabler/icons-react-native/IconMail';
 export { default as IconMessageCircle } from '@tabler/icons-react-native/IconMessageCircle';
 export { default as IconMoon } from '@tabler/icons-react-native/IconMoon';
+export { default as IconMusic } from '@tabler/icons-react-native/IconMusic';
 export { default as IconPhoto } from '@tabler/icons-react-native/IconPhoto';
 export { default as IconPlus } from '@tabler/icons-react-native/IconPlus';
 export { default as IconRoute } from '@tabler/icons-react-native/IconRoute';

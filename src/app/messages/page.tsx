@@ -1,6 +1,8 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { usePrivateChat } from '@/hooks/usePrivateChat';
+import { privateChatStyle } from '@/lib/profile-style';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -98,6 +100,7 @@ export default function MessagesPage() {
   const { text } = useLocalizedText();
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
+  const privateChat = usePrivateChat(user?.id);
 
   // Conversations & Messages states
   const [chats, setChats] = useState<ChatItem[]>([]);
@@ -807,7 +810,10 @@ export default function MessagesPage() {
     <div className="dd-platform-shell h-screen overflow-hidden">
       <Sidebar user={user} />
 
-      <div className="flex h-full min-w-0 flex-1 flex-grow overflow-hidden bg-dd-bg w-full">
+      <div
+        className="flex h-full min-w-0 flex-1 flex-grow overflow-hidden bg-dd-bg w-full"
+        style={privateChatStyle(privateChat)}
+      >
         <div className="flex w-full h-full overflow-hidden">
           {/* Left Panel: Conversation List Sidebar */}
           <div
@@ -1045,6 +1051,14 @@ export default function MessagesPage() {
                                     ? 'bg-blue-500 text-white rounded-br-none'
                                     : 'bg-dd-surface text-dd-text rounded-bl-none border border-dd-border/60'
                                 }`}
+                                style={
+                                  isCurrentUser && privateChat.mode !== 'default'
+                                    ? {
+                                        backgroundColor: 'var(--chat-bubble, #0083fe)',
+                                        color: 'var(--chat-bubble-text, #ffffff)',
+                                      }
+                                    : undefined
+                                }
                               >
                                 {msg.image_url && (
                                   <Image
@@ -1550,6 +1564,15 @@ export default function MessagesPage() {
                       <button
                         type="submit"
                         disabled={(!newMessageText.trim() && !messageImage) || uploadingImage}
+                        aria-label={text('Enviar mensagem', 'Send message')}
+                        style={
+                          privateChat.mode !== 'default' && (newMessageText.trim() || messageImage)
+                            ? {
+                                backgroundColor: 'var(--chat-accent, #3b82f6)',
+                                color: 'var(--chat-accent-text, #ffffff)',
+                              }
+                            : undefined
+                        }
                         className="p-2.5 bg-blue-500 text-white rounded-full transition-all shrink-0 hover:bg-blue-600 disabled:opacity-50 disabled:bg-dd-surface disabled:text-dd-muted active:scale-95 cursor-pointer"
                       >
                         <Send className="w-4 h-4" />

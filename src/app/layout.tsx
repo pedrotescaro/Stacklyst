@@ -5,6 +5,7 @@ import './globals.css';
 import './landing.css';
 import ConnectionBanner from '@/components/ConnectionBanner';
 import PlatformPresence from '@/components/PlatformPresence';
+import AchievementNotifications from '@/components/profile/AchievementNotifications';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 
 const themeScript = `
@@ -86,6 +87,7 @@ export default function RootLayout({
         </Script>
         <LanguageProvider>
           <PlatformPresence />
+          <AchievementNotifications />
           {children}
           <ConnectionBanner />
         </LanguageProvider>

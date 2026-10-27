@@ -93,6 +93,18 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   return <Context.Provider value={value}>{children}</Context.Provider>;
 }
 export const useTheme = () => useContext(Context);
+/** Profile/chat colors remain scoped to their subtree and never persist the global theme. */
+export function ScopedTheme({
+  colors: scopedColors,
+  children,
+}: {
+  colors: Palette;
+  children: ReactNode;
+}) {
+  const current = useTheme();
+  const value = useMemo(() => ({ ...current, colors: scopedColors }), [current, scopedColors]);
+  return <Context.Provider value={value}>{children}</Context.Provider>;
+}
 /** Default palette for non-rendering configuration; components use useTheme(). */
 export const colors = dark;
 export const space = { xs: 4, sm: 8, md: 12, lg: 16, xl: 24, xxl: 32 } as const;

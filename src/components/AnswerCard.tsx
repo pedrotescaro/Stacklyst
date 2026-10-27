@@ -11,6 +11,7 @@ import { RepostMenu } from '@/components/motion/RepostMenu';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { MarkdownEditor } from '@/components/MarkdownEditor';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
+import { ProfileName } from '@/components/profile/ProfileIdentity';
 import type { AnswerNode } from '@/components/answer-types';
 import { MAX_ANSWER_DEPTH } from '@/components/answer-types';
 
@@ -227,11 +228,14 @@ export function AnswerCard({
             <AuthorAvatar
               username={answer.author.username}
               avatar_url={answer.author.avatar_url}
+              avatar_config={answer.author.avatar_config}
               size="sm"
             />
             <div className="flex items-center gap-1.5 min-w-0">
               <span className="text-dd-text text-sm font-bold truncate">
-                {answer.author.name || answer.author.username}
+                <ProfileName config={answer.author.avatar_config}>
+                  {answer.author.name || answer.author.username}
+                </ProfileName>
               </span>
               <span className="text-dd-muted text-xs font-medium truncate">
                 @{answer.author.username.toLowerCase()}

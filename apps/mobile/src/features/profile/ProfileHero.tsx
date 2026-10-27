@@ -1,16 +1,8 @@
 import { useState } from 'react';
-import {
-  Image,
-  Linking,
-  Pressable,
-  StyleSheet,
-  Text,
-  View,
-  useWindowDimensions,
-} from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { router } from 'expo-router';
 import { LanguageLogo } from '~/components/LanguageLogo';
-import { Button, Heading } from '~/components/ui';
+import { Avatar, Button, Heading } from '~/components/ui';
 import {
   IconBolt,
   IconBrandGithub,
@@ -20,9 +12,11 @@ import {
   IconTarget,
   IconTrophy,
 } from '~/components/icons';
-import { config } from '~/lib/config';
 import { Person } from '~/lib/types';
 import { useTheme } from '~/theme';
+import { readableColor, type PublicProfileAchievement } from '../../lib/profile-customization';
+import { ProfileExtras, ProfileFlag, ProfileTitle } from './ProfileIdentity';
+import { ProfileBanner } from './ProfileBanner';
 import {
   languageMetadata,
   profileBannerColor,
@@ -41,8 +35,6 @@ export interface ProfileStats {
   accepted_count: number;
   accuracy: number;
 }
-
-const imageUri = (value: string) => (value.startsWith('/') ? config.apiUrl + value : value);
 
 export function ProfileStatsSummary({ user, stats }: { user: Person; stats: ProfileStats }) {
   const { colors: c } = useTheme();
@@ -205,6 +197,7 @@ export function ProfileHero({
   onShowFollowers,
   onShowFollowing,
   feedback,
+  achievements = [],
 }: {
   user: Person;
   stats: ProfileStats;
@@ -221,11 +214,10 @@ export function ProfileHero({
   onShowFollowers: () => void;
   onShowFollowing: () => void;
   feedback?: string;
+  achievements?: PublicProfileAchievement[];
 }) {
   const { colors: c } = useTheme();
   const { width } = useWindowDimensions();
-  const [failedAvatar, setFailedAvatar] = useState<string | null>(null);
-  const [failedBanner, setFailedBanner] = useState<string | null>(null);
   const [linkError, setLinkError] = useState('');
   const avatarSize = width >= 600 ? 190 : 158;
   const banner = profileBannerColor(user.username, user.avatar_config);
@@ -250,52 +242,41 @@ export function ProfileHero({
       ? user.github_username
       : null;
   const started = trails.filter((trail) => trail.xp > 0).slice(0, 6);
+  const preferences = user.customization?.preferences;
+  const publicAchievements = achievements.length
+    ? achievements
+    : (user.customization?.achievements ?? []);
+  const equippedTitle =
+    publicAchievements.find((item) => item.id === preferences?.equippedTitleId) ||
+    user.avatar_config?.profileStyle?.title;
   return (
     <View style={{ paddingHorizontal: 16, paddingTop: 20, paddingBottom: 24, gap: 24 }}>
-      <View style={[s.banner, { height: width >= 600 ? 270 : 222, backgroundColor: banner }]}>
-        {user.banner_url && user.banner_url !== failedBanner && (
-          <Image
-            accessibilityLabel="Banner do perfil"
-            source={{ uri: imageUri(user.banner_url) }}
-            style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
-            resizeMode="cover"
-            onError={() => setFailedBanner(user.banner_url ?? null)}
-          />
-        )}
-        <View
-          style={[
-            s.portrait,
-            { width: avatarSize, height: avatarSize, borderRadius: avatarSize / 5 },
-          ]}
-        >
-          {user.avatar_url && user.avatar_url !== failedAvatar ? (
-            <Image
-              accessibilityLabel={'Foto de ' + user.username}
-              source={{ uri: imageUri(user.avatar_url) }}
-              onError={() => setFailedAvatar(user.avatar_url ?? null)}
-              style={{ width: '100%', height: '100%' }}
-              resizeMode="cover"
-            />
-          ) : (
-            <Text
-              accessibilityLabel={'Iniciais de ' + user.username}
-              style={{ color: '#ffffff', fontSize: 50, fontWeight: '900' }}
-            >
-              {user.username.trim().slice(0, 2).toUpperCase() || 'DD'}
-            </Text>
-          )}
-        </View>
-      </View>
+      <ProfileBanner
+        banner={preferences?.banner}
+        legacyImage={user.banner_url}
+        fallbackColor={banner}
+        height={width >= 600 ? 270 : 222}
+      >
+        <Avatar
+          uri={user.avatar_url}
+          name={user.username}
+          size={avatarSize}
+          frameId={preferences?.frameId}
+          profileStyle={user.avatar_config?.profileStyle}
+        />
+      </ProfileBanner>
       <View style={{ gap: 16 }}>
         <View style={{ gap: 6 }}>
           <View style={[s.wrap, { justifyContent: 'flex-start', alignItems: 'center', gap: 10 }]}>
             <Text
               accessibilityRole="header"
               style={{
-                color: c.text,
+                color: readableColor(preferences?.nameStyle.color, c.background, c.text),
                 fontSize: 27,
                 lineHeight: 34,
-                fontWeight: '900',
+                fontWeight: preferences ? (preferences.nameStyle.bold ? '800' : '500') : '900',
+                fontStyle: preferences?.nameStyle.italic ? 'italic' : 'normal',
+                textDecorationLine: preferences?.nameStyle.underline ? 'underline' : 'none',
                 flexShrink: 1,
               }}
             >
@@ -313,6 +294,12 @@ export function ProfileHero({
               <Text style={{ color: '#12202c', fontSize: 11, fontWeight: '900' }}>Lvl {level}</Text>
             </View>
           </View>
+          {(preferences?.flag || equippedTitle) && (
+            <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 }}>
+              {preferences?.flag && <ProfileFlag code={preferences.flag} />}{' '}
+              {equippedTitle && <ProfileTitle achievement={equippedTitle} />}
+            </View>
+          )}
           <Text style={{ color: c.muted, fontSize: 15, fontWeight: '600' }}>@{user.username}</Text>
           {joined && (
             <View style={[s.inline, { marginTop: 3 }]}>
@@ -325,7 +312,23 @@ export function ProfileHero({
         </View>
         <View style={[s.wrap, { justifyContent: 'flex-start', gap: 8 }]}>
           {owner ? (
-            <Button secondary label="Editar perfil" onPress={() => router.push('/edit-profile')} />
+            <>
+              <Button
+                secondary
+                label="Editar perfil"
+                onPress={() => router.push('/edit-profile')}
+              />
+              <Button
+                secondary
+                label="Personalizar perfil"
+                onPress={() => router.push('/personalize' as never)}
+              />
+              <Button
+                secondary
+                label="Minhas conquistas"
+                onPress={() => router.push('/achievements' as never)}
+              />
+            </>
           ) : (
             <>
               <Button
@@ -387,6 +390,7 @@ export function ProfileHero({
             {linkError}
           </Text>
         )}
+        <ProfileExtras preferences={preferences} achievements={publicAchievements} />
         <View style={[s.inline, { columnGap: 20, flexWrap: 'wrap' }]}>
           <Pressable
             accessibilityRole="button"

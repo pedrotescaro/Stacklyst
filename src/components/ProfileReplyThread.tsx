@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
+import { ProfileName } from '@/components/profile/ProfileIdentity';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
 import { LikeButton } from '@/components/motion/LikeButton';
@@ -197,6 +198,7 @@ export function ProfileReplyThread({ reply }: ProfileReplyThreadProps) {
             <AuthorAvatar
               username={reply.author.username}
               avatar_url={reply.author.avatar_url}
+              avatar_config={reply.author.avatar_config}
               size="sm"
             />
           </Link>
@@ -210,7 +212,9 @@ export function ProfileReplyThread({ reply }: ProfileReplyThreadProps) {
               onClick={(e) => e.stopPropagation()}
               className="flex items-center gap-1.5 hover:underline"
             >
-              <span className="text-dd-text font-bold">{reply.author.username}</span>
+              <ProfileName config={reply.author.avatar_config} className="text-dd-text font-bold">
+                {reply.author.username}
+              </ProfileName>
               <span className="text-dd-muted text-[11px]">@{reply.author.username}</span>
             </Link>
             <span className="text-dd-muted">•</span>

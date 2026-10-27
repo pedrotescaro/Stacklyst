@@ -5,6 +5,7 @@ import { getUserLanguageXp } from '@/lib/learning/language-xp';
 import { getEffectiveStreak } from '@/lib/streak';
 import { getAuthUser } from '@/lib/auth';
 import { ProfileContent } from './ProfileContent';
+import { getPublicProfileCustomization } from '@/services/profile-customization.service';
 
 export const revalidate = 0; // Desabilitar cache para dados dinâmicos do perfil
 
@@ -102,6 +103,7 @@ export default async function ProfilePage({
 
   // Serializar
   const serializedProfileUser = {
+    customization: await getPublicProfileCustomization(profileUser.id),
     id: profileUser.id,
     name:
       (profileUser as any).name ||

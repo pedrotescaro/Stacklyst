@@ -6,14 +6,33 @@ import { Screen, Field, RowLink, Avatar, Notice } from '~/components/ui';
 import { RemoteList } from '~/components/remote';
 import { PostCard } from '~/features/feed/PostCard';
 import { Person, Post } from '~/lib/types';
+import { ProfileName } from '~/components/ProfileName';
 import { useTheme } from '~/theme';
 
 export default function Explore({ fromTab = false }: { fromTab?: boolean } = {}) {
+  const params = useLocalSearchParams<{ type?: string; tag?: string }>();
+  return (
+    <ExploreContent
+      key={`${params.type || ''}:${params.tag || ''}`}
+      fromTab={fromTab}
+      initialType={params.type}
+      initialTag={params.tag}
+    />
+  );
+}
+function ExploreContent({
+  fromTab,
+  initialType,
+  initialTag,
+}: {
+  fromTab: boolean;
+  initialType?: string;
+  initialTag?: string;
+}) {
   const { colors } = useTheme();
-  const params = useLocalSearchParams<{ type?: string }>();
-  const [type, setType] = useState(params.type === 'users' ? 'users' : 'posts');
-  const [text, setText] = useState('');
-  const [query, setQuery] = useState('');
+  const [type, setType] = useState(initialType === 'users' ? 'users' : 'posts');
+  const [text, setText] = useState(initialTag || '');
+  const [query, setQuery] = useState(initialTag || '');
   useEffect(() => {
     const timer = setTimeout(() => setQuery(text.trim()), 300);
     return () => clearTimeout(timer);
@@ -145,14 +164,18 @@ export default function Explore({ fromTab = false }: { fromTab?: boolean } = {})
                 backgroundColor: pressed ? colors.surface : 'transparent',
               })}
             >
-              <Avatar name={person.username} uri={person.avatar_url} size={44} />
+              <Avatar
+                name={person.username}
+                uri={person.avatar_url}
+                profileStyle={person.avatar_config?.profileStyle}
+                size={44}
+              />
               <View style={{ flex: 1, minWidth: 0, gap: 3 }}>
-                <Text
+                <ProfileName
+                  user={person}
                   numberOfLines={1}
                   style={{ fontSize: 16, lineHeight: 23, fontWeight: '700', color: colors.text }}
-                >
-                  {person.avatar_config?.displayName || person.username}
-                </Text>
+                />
                 <Text
                   numberOfLines={1}
                   style={{ fontSize: 14, lineHeight: 21, color: colors.muted }}

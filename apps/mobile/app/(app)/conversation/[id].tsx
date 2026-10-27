@@ -15,7 +15,9 @@ import { useMe, useSession } from '~/lib/session';
 import { useDraft } from '~/lib/draft';
 import { Message } from '~/lib/types';
 import { queryClient } from '~/lib/query';
-import { useTheme } from '~/theme';
+import { ScopedTheme, useTheme } from '~/theme';
+import { useCustomization } from '~/features/profile/useCustomization';
+import { chatPalette, colorInk } from '~/lib/profile-customization';
 import { conversationTime, startsMessageGroup } from '~/features/messages/presentation';
 
 interface Pending {
@@ -36,7 +38,9 @@ export default function Conversation() {
 }
 
 function ConversationContent({ id, username }: { id: string; username?: string }) {
-  const { colors: c } = useTheme();
+  const { colors: baseColors } = useTheme();
+  const customization = useCustomization();
+  const c = chatPalette(baseColors, customization.data?.chat);
   const { session, isPreview } = useSession();
   const me = useMe();
   const userId = session?.user.id ?? (isPreview ? me.data?.id : undefined);
@@ -148,190 +152,195 @@ function ConversationContent({ id, username }: { id: string; username?: string }
       : '';
 
   return (
-    <Screen title={username ? '@' + username : 'Conversa'} back scroll={false}>
-      <RemoteList<Message>
-        key={key}
-        chronological
-        refetchInterval={5000}
-        path={'/api/mobile/messages?receiver_id=' + id}
-        empty={
-          <View style={s.empty}>
-            <Text style={[s.emptyTitle, { color: c.text }]}>Comece a conversa</Text>
-            <Text style={[s.emptyText, { color: c.muted }]}>
-              Envie uma mensagem para {username ? '@' + username : 'esta pessoa'}.
-            </Text>
-          </View>
-        }
-        render={(message, index, rows) => {
-          const own = message.sender_id === userId;
-          const previous = rows[index - 1];
-          const groupStart = startsMessageGroup(message, previous);
-          const sameSender = previous?.sender_id === message.sender_id && !groupStart;
-          const lastSent = own && index === rows.length - 1;
-          const actions = [
-            { label: 'Copiar mensagem', onPress: () => void copy(message) },
-            ...(own
-              ? [
-                  {
-                    label: 'Editar mensagem',
-                    onPress: () => startEditing(message),
-                    disabled: !editable || Boolean(pending),
-                  },
-                  {
-                    label: 'Excluir mensagem',
-                    destructive: true,
-                    disabled: !editable,
-                    onPress: () =>
-                      confirm(
-                        'Excluir mensagem',
-                        'Excluir esta mensagem? Esta ação não pode ser desfeita.',
-                        () => remove.mutate(message)
-                      ),
-                  },
-                ]
-              : []),
-          ];
-          return (
-            <View>
-              {groupStart && (
-                <Text style={[s.dateSeparator, { color: c.muted }]}>
-                  {conversationTime(message.created_at)}
-                </Text>
-              )}
-              <View
-                style={[
-                  s.messageRow,
-                  {
-                    justifyContent: own ? 'flex-end' : 'flex-start',
-                    marginTop: sameSender ? 3 : 12,
-                  },
-                ]}
-              >
-                {own && (
-                  <ActionMenu
-                    label="Opções da mensagem enviada"
-                    items={actions}
-                    open={menuId === message.id}
-                    onOpenChange={(open) => setMenuId(open ? message.id : null)}
-                  />
-                )}
-                <Pressable
-                  accessibilityRole="button"
-                  accessibilityLabel={(own ? 'Você: ' : 'Mensagem: ') + message.content}
-                  accessibilityHint="Mantenha pressionado para ver as opções da mensagem"
-                  onLongPress={() => setMenuId(message.id)}
-                  onPress={() => setMenuId(message.id)}
-                  delayLongPress={350}
-                  style={({ pressed }) => [
-                    s.bubble,
+    <ScopedTheme colors={c}>
+      <Screen title={username ? '@' + username : 'Conversa'} back scroll={false}>
+        <RemoteList<Message>
+          key={key}
+          chronological
+          refetchInterval={5000}
+          path={'/api/mobile/messages?receiver_id=' + id}
+          empty={
+            <View style={s.empty}>
+              <Text style={[s.emptyTitle, { color: c.text }]}>Comece a conversa</Text>
+              <Text style={[s.emptyText, { color: c.muted }]}>
+                Envie uma mensagem para {username ? '@' + username : 'esta pessoa'}.
+              </Text>
+            </View>
+          }
+          render={(message, index, rows) => {
+            const own = message.sender_id === userId;
+            const previous = rows[index - 1];
+            const groupStart = startsMessageGroup(message, previous);
+            const sameSender = previous?.sender_id === message.sender_id && !groupStart;
+            const lastSent = own && index === rows.length - 1;
+            const actions = [
+              { label: 'Copiar mensagem', onPress: () => void copy(message) },
+              ...(own
+                ? [
                     {
-                      backgroundColor: own ? c.primary : c.incomingMessage,
-                      borderBottomRightRadius: own && sameSender ? 8 : 24,
-                      borderBottomLeftRadius: !own && sameSender ? 8 : 24,
-                      opacity: pressed ? 0.8 : 1,
+                      label: 'Editar mensagem',
+                      onPress: () => startEditing(message),
+                      disabled: !editable || Boolean(pending),
+                    },
+                    {
+                      label: 'Excluir mensagem',
+                      destructive: true,
+                      disabled: !editable,
+                      onPress: () =>
+                        confirm(
+                          'Excluir mensagem',
+                          'Excluir esta mensagem? Esta ação não pode ser desfeita.',
+                          () => remove.mutate(message)
+                        ),
+                    },
+                  ]
+                : []),
+            ];
+            return (
+              <View>
+                {groupStart && (
+                  <Text style={[s.dateSeparator, { color: c.muted }]}>
+                    {conversationTime(message.created_at)}
+                  </Text>
+                )}
+                <View
+                  style={[
+                    s.messageRow,
+                    {
+                      justifyContent: own ? 'flex-end' : 'flex-start',
+                      marginTop: sameSender ? 3 : 12,
                     },
                   ]}
                 >
-                  <Text style={[s.messageText, { color: own ? c.onPrimary : c.text }]}>
-                    {message.content}
+                  {own && (
+                    <ActionMenu
+                      label="Opções da mensagem enviada"
+                      items={actions}
+                      open={menuId === message.id}
+                      onOpenChange={(open) => setMenuId(open ? message.id : null)}
+                    />
+                  )}
+                  <Pressable
+                    accessibilityRole="button"
+                    accessibilityLabel={(own ? 'Você: ' : 'Mensagem: ') + message.content}
+                    accessibilityHint="Mantenha pressionado para ver as opções da mensagem"
+                    onLongPress={() => setMenuId(message.id)}
+                    onPress={() => setMenuId(message.id)}
+                    delayLongPress={350}
+                    style={({ pressed }) => [
+                      s.bubble,
+                      {
+                        backgroundColor: own ? c.ownMessage : c.incomingMessage,
+                        borderBottomRightRadius: own && sameSender ? 8 : 24,
+                        borderBottomLeftRadius: !own && sameSender ? 8 : 24,
+                        opacity: pressed ? 0.8 : 1,
+                      },
+                    ]}
+                  >
+                    <Text style={[s.messageText, { color: own ? colorInk(c.ownMessage) : c.text }]}>
+                      {message.content}
+                    </Text>
+                  </Pressable>
+                  {!own && (
+                    <ActionMenu
+                      label="Opções da mensagem recebida"
+                      items={actions}
+                      open={menuId === message.id}
+                      onOpenChange={(open) => setMenuId(open ? message.id : null)}
+                    />
+                  )}
+                </View>
+                {lastSent && (
+                  <Text style={[s.sentStatus, { color: c.muted }]}>
+                    Enviada ·{' '}
+                    {new Date(message.created_at).toLocaleTimeString('pt-BR', {
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
                   </Text>
-                </Pressable>
-                {!own && (
-                  <ActionMenu
-                    label="Opções da mensagem recebida"
-                    items={actions}
-                    open={menuId === message.id}
-                    onOpenChange={(open) => setMenuId(open ? message.id : null)}
-                  />
                 )}
               </View>
-              {lastSent && (
-                <Text style={[s.sentStatus, { color: c.muted }]}>
-                  Enviada ·{' '}
-                  {new Date(message.created_at).toLocaleTimeString('pt-BR', {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </Text>
-              )}
+            );
+          }}
+        />
+        {pending && !editing && (
+          <View style={s.pending}>
+            <View
+              style={[
+                s.bubble,
+                { alignSelf: 'flex-end', backgroundColor: c.ownMessage, opacity: 0.65 },
+              ]}
+            >
+              <Text numberOfLines={3} style={[s.messageText, { color: colorInk(c.ownMessage) }]}>
+                {pending.content}
+              </Text>
             </View>
-          );
-        }}
-      />
-      {pending && !editing && (
-        <View style={s.pending}>
-          <View
-            style={[s.bubble, { alignSelf: 'flex-end', backgroundColor: c.primary, opacity: 0.65 }]}
+            <Text style={[s.pendingStatus, { color: m.error ? c.danger : c.muted }]}>
+              {m.isPending ? 'Enviando…' : 'Não enviada · toque em enviar para tentar novamente'}
+            </Text>
+          </View>
+        )}
+        {editing && (
+          <View style={[s.editing, { borderTopColor: c.socialBorder }]}>
+            <View style={{ flex: 1, gap: 2 }}>
+              <Text style={[s.editingTitle, { color: c.primary }]}>Editando mensagem</Text>
+              <Text numberOfLines={1} style={[s.status, { color: c.muted }]}>
+                {editing.content}
+              </Text>
+            </View>
+            <IconButton
+              label="Cancelar edição"
+              disabled={edit.isPending}
+              onPress={() => {
+                setEditing(null);
+                edit.reset();
+              }}
+              icon={<IconX size={20} color={c.muted} />}
+            />
+          </View>
+        )}
+        {(error || remove.error || clipboardError || draftError || isPreview) && (
+          <Text
+            accessibilityLiveRegion="polite"
+            style={[s.notice, { color: isPreview ? c.muted : c.danger }]}
           >
-            <Text numberOfLines={3} style={[s.messageText, { color: c.onPrimary }]}>
-              {pending.content}
-            </Text>
-          </View>
-          <Text style={[s.pendingStatus, { color: m.error ? c.danger : c.muted }]}>
-            {m.isPending ? 'Enviando…' : 'Não enviada · toque em enviar para tentar novamente'}
+            {isPreview
+              ? 'Entre na sua conta para enviar mensagens.'
+              : error
+                ? errorMessage(error)
+                : remove.error
+                  ? errorMessage(remove.error)
+                  : clipboardError || draftError}
           </Text>
-        </View>
-      )}
-      {editing && (
-        <View style={[s.editing, { borderTopColor: c.socialBorder }]}>
-          <View style={{ flex: 1, gap: 2 }}>
-            <Text style={[s.editingTitle, { color: c.primary }]}>Editando mensagem</Text>
-            <Text numberOfLines={1} style={[s.status, { color: c.muted }]}>
-              {editing.content}
-            </Text>
-          </View>
-          <IconButton
-            label="Cancelar edição"
-            disabled={edit.isPending}
-            onPress={() => {
-              setEditing(null);
-              edit.reset();
-            }}
-            icon={<IconX size={20} color={c.muted} />}
-          />
-        </View>
-      )}
-      {(error || remove.error || clipboardError || draftError || isPreview) && (
-        <Text
-          accessibilityLiveRegion="polite"
-          style={[s.notice, { color: isPreview ? c.muted : c.danger }]}
-        >
-          {isPreview
-            ? 'Entre na sua conta para enviar mensagens.'
-            : error
-              ? errorMessage(error)
-              : remove.error
-                ? errorMessage(remove.error)
-                : clipboardError || draftError}
-        </Text>
-      )}
-      <CompactComposer
-        inputRef={input}
-        value={editing ? editText : (pending?.content ?? draft.value)}
-        onChangeText={changeText}
-        onSend={() => (editing ? edit.mutate() : m.mutate())}
-        placeholder="Mensagem"
-        sendLabel={
-          editing ? 'Salvar mensagem' : pending ? 'Tentar enviar novamente' : 'Enviar mensagem'
-        }
-        maxLength={5000}
-        editable={editing ? editable : canCompose}
-        disabled={
-          editing
-            ? !editable || !editText.trim()
-            : !editable || !loaded || !draft.ready || (!pending && !draft.value.trim())
-        }
-        busy={editing ? edit.isPending : m.isPending}
-        leading={
-          <IconButton
-            label="Colar mensagem"
-            icon={<IconPlus size={24} color={c.muted} />}
-            disabled={editing ? !editable : !canCompose}
-            onPress={() => void paste()}
-          />
-        }
-      />
-    </Screen>
+        )}
+        <CompactComposer
+          inputRef={input}
+          value={editing ? editText : (pending?.content ?? draft.value)}
+          onChangeText={changeText}
+          onSend={() => (editing ? edit.mutate() : m.mutate())}
+          placeholder="Mensagem"
+          sendLabel={
+            editing ? 'Salvar mensagem' : pending ? 'Tentar enviar novamente' : 'Enviar mensagem'
+          }
+          maxLength={5000}
+          editable={editing ? editable : canCompose}
+          disabled={
+            editing
+              ? !editable || !editText.trim()
+              : !editable || !loaded || !draft.ready || (!pending && !draft.value.trim())
+          }
+          busy={editing ? edit.isPending : m.isPending}
+          leading={
+            <IconButton
+              label="Colar mensagem"
+              icon={<IconPlus size={24} color={c.muted} />}
+              disabled={editing ? !editable : !canCompose}
+              onPress={() => void paste()}
+            />
+          }
+        />
+      </Screen>
+    </ScopedTheme>
   );
 }
 

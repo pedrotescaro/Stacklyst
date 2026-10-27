@@ -11,6 +11,7 @@ export interface AnswerAuthor {
   name?: string | null;
   username: string;
   avatar_url?: string | null;
+  avatar_config?: unknown;
   total_xp?: number;
 }
 

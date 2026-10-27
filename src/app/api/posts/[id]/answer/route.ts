@@ -6,6 +6,7 @@ import { createAnswerSchema } from '@/lib/validators';
 import { XpService } from '@/services/xp.service';
 import { NotificationService } from '@/services/notification.service';
 import { NotFoundError } from '@/lib/errors';
+import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
 
 export const POST = apiHandler(async (req, { params }) => {
   const user = await requireAuth();
@@ -85,6 +86,7 @@ export const POST = apiHandler(async (req, { params }) => {
 
   // Award XP (+15 XP for answering)
   const xpResult = await XpService.awardXP(user.id, post.language, 15);
+  await syncProfileAchievementsSafely(user.id);
 
   return NextResponse.json({ answer, xpResult });
 });

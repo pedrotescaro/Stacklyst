@@ -1,0 +1,1 @@
+Country flags: flag-icons 7.6.0, https://github.com/lipis/flag-icons, MIT license in LICENSE.txt. Only two-letter country/territory SVG files are included. The developer-community flag and the six-stripe rainbow flag are authored SVG geometry; they are theme choices, not country identities.

@@ -72,10 +72,11 @@ export const Button=({label,onPress,disabled,busy})=>React.createElement('button
 export const IconButton=({label,onPress,disabled})=>React.createElement('button',{'aria-label':label,onClick:onPress,disabled},label);
 export const Heading=({children})=>React.createElement('h2',null,children);export const Label=({children})=>React.createElement('span',null,children);
 export const Choice=({options,value,onChange})=>React.createElement('div',null,options.map(option=>React.createElement('button',{key:option.value,onClick:()=>onChange(option.value),'aria-label':option.label,'aria-pressed':value===option.value},option.label)));`;
-const theme = `export const useTheme=()=>({colors:{background:'#000',surface:'#111316',elevated:'#1a1e23',text:'#f4f6f8',muted:'#9da7b3',primary:'#0078d4',onPrimary:'#fff',border:'#292d33',warning:'#f2cb6d',success:'#63d99b',danger:'#ff8c95'}});`;
+const theme = `import React from 'react';export const ScopedTheme=({children})=>children;export const useTheme=()=>({colors:{background:'#000',surface:'#111316',elevated:'#1a1e23',text:'#f4f6f8',muted:'#9da7b3',primary:'#0078d4',onPrimary:'#fff',border:'#292d33',warning:'#f2cb6d',success:'#63d99b',danger:'#ff8c95'}});`;
 const transport = `export const errorMessage=error=>error.message;
 export const api=async path=>{
 const s=globalThis.__profile;s.reads.push(path);const url=new URL(path,'https://example.invalid');const cursor=url.searchParams.get('cursor');
+if(url.pathname==='/api/profile/customization')return s.customization;
 const post=(id,body)=>({id,author_id:'ana-id',author:s.user,body,title:'',created_at:'2026-10-19T12:00:00.000Z'});
 if(url.pathname.endsWith('/followers')||url.pathname.endsWith('/following'))return [{id:'bob-id',username:'bob',avatar_config:{displayName:'Bruno'}}];
 if(url.pathname.endsWith('/replies'))return {items:cursor?[]:[{id:'reply-1',author_id:'ana-id',author:s.user,body:'Resposta real de Ana.',post_id:'original',post:post('original','Contexto da publicação original.'),is_accepted:false}],nextCursor:cursor?null:'replies-2'};
@@ -90,8 +91,11 @@ if(path==='/api/duels/request'){if(s.failDuel)throw new Error('Duelo indisponív
 throw new Error('Unexpected mutation '+path);
 };`;
 const icons =
-  'export const IconTrophy=()=>null,IconX=()=>null,IconDots=()=>null,IconBolt=()=>null,IconBrandGithub=()=>null,IconCalendar=()=>null,IconFlame=()=>null,IconSchool=()=>null,IconTarget=()=>null;';
+  'export const IconTrophy=()=>null,IconX=()=>null,IconDots=()=>null,IconBolt=()=>null,IconBrandGithub=()=>null,IconCalendar=()=>null,IconFlame=()=>null,IconSchool=()=>null,IconTarget=()=>null,IconMusic=()=>null;';
 const stubs = {
+  'react-native-svg': `import React from 'react';const Shape=({children})=>React.createElement('span',null,children);export default Shape;export const SvgUri=Shape,Defs=Shape,LinearGradient=Shape,Rect=Shape,Stop=Shape;`,
+  'react-native-webview': `export const WebView=()=>null;`,
+  '../../lib/config': 'export const config={apiUrl:"https://example.invalid"};',
   'react-native': native,
   'react-native-safe-area-context':
     'export const useSafeAreaInsets=()=>({top:0,bottom:12,left:0,right:0});',
@@ -121,7 +125,7 @@ let queryClient;
 try {
   await build({
     stdin: {
-      contents: `export {Profile} from './src/features/profile/Profile';export * from './src/features/profile/profile-model';export {normalizeAvatarConfig,AVATAR_BACKGROUNDS} from '../../src/lib/avatar';export {calculateLevel} from '../../src/lib/learning/rewards';export {QueryClientProvider} from '@tanstack/react-query';export {queryClient} from './src/lib/query';`,
+      contents: `export {Profile} from './src/features/profile/Profile';export * from './src/lib/profile-customization';export * from './src/features/profile/profile-model';export {normalizeAvatarConfig,AVATAR_BACKGROUNDS} from '../../src/lib/avatar';export {calculateLevel} from '../../src/lib/learning/rewards';export {QueryClientProvider} from '@tanstack/react-query';export {queryClient} from './src/lib/query';`,
       resolveDir: fileURLToPath(new URL('..', import.meta.url)),
       loader: 'tsx',
     },
@@ -157,6 +161,7 @@ try {
   });
   const built = require(output);
   queryClient = built.queryClient;
+  state.customization = { preferences: built.defaultProfilePreferences, achievements: [] };
   for (const username of ['', 'ana', 'ANA', 'pedrotescaro', 'usuário']) {
     for (const config of [
       undefined,

@@ -14,6 +14,9 @@ import { BookOpen, Award, Check, Calendar } from 'lucide-react';
 import { TrailsProgressSidebar, type TrailDailyProgress } from '@/app/trails/TrailsProgressSidebar';
 import { TRAIL_LANGUAGE_CODES, type TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { ProfilePublic, type PublicProfileCustomization } from '@/components/profile/ProfilePublic';
+import { profileAppearanceStyle } from '@/lib/profile-style';
+import profileStyles from '@/components/profile/ProfilePublic.module.css';
 
 interface ProfileContentProps {
   user: {
@@ -26,6 +29,7 @@ interface ProfileContentProps {
     last_active_at?: string | null;
   };
   profileUser: {
+    customization?: PublicProfileCustomization | null;
     id: string;
     name?: string | null;
     username: string;
@@ -295,7 +299,18 @@ export function ProfileContent({
     <div data-testid="profile-shell" className="dd-platform-shell dd-platform-shell--fullscreen">
       <Sidebar user={user} />
 
-      <div className="flex min-w-0 flex-grow flex-col bg-dd-bg">
+      <div
+        className={`flex min-w-0 flex-grow flex-col bg-dd-bg ${profileStyles.scope}`}
+        data-secondary={Boolean(
+          localProfileUser.customization?.preferences.appearance.secondaryColor
+        )}
+        data-custom-card={Boolean(localProfileUser.customization?.preferences.appearance.cardColor)}
+        style={
+          localProfileUser.customization
+            ? profileAppearanceStyle(localProfileUser.customization.preferences)
+            : undefined
+        }
+      >
         <main className="flex min-h-screen w-full min-w-0 flex-grow flex-col bg-dd-bg pb-24 md:pb-8">
           <div
             data-testid="profile-layout"
@@ -321,7 +336,7 @@ export function ProfileContent({
                 onShowFollowers={showFollowersModal}
                 onShowFollowing={showFollowingModal}
               />
-
+              <ProfilePublic customization={localProfileUser.customization} />
               <div className="mx-4 mb-4 grid grid-cols-3 gap-1 rounded-2xl border-2 border-dd-border bg-dd-sidebar-bg p-1.5 sm:mx-7 sm:grid-cols-6">
                 {[
                   { id: 'posts', label: text('Postagens', 'Posts') },

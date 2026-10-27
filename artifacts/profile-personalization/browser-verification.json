@@ -1,0 +1,97 @@
+{
+  "environment": {
+    "base": "http://127.0.0.1:3100",
+    "kind": "local production build with real authenticated API/database and temporary QA accounts",
+    "syntheticAccounts": true
+  },
+  "checks": [
+    {
+      "name": "actual activity earns title",
+      "passed": true
+    },
+    {
+      "name": "stale version rejected",
+      "passed": true
+    },
+    {
+      "name": "other account cannot target owner",
+      "passed": true
+    },
+    {
+      "name": "visitor sees public customization without private chat",
+      "passed": true
+    },
+    {
+      "name": "Spotify real metadata or labeled fallback",
+      "passed": true
+    },
+    {
+      "name": "Spotify search configuration truthful",
+      "passed": true
+    },
+    {
+      "name": "photo selected, cropped and saved in central editor",
+      "passed": true
+    },
+    {
+      "name": "public profile renders saved personal fields and no books",
+      "passed": true,
+      "details": {
+        "overflow": false,
+        "hasTags": true,
+        "hasStudies": true,
+        "hasPlayer": true,
+        "noBookSection": true,
+        "profileBackground": [
+          "#10151d"
+        ]
+      }
+    }
+  ],
+  "viewports": [
+    {
+      "width": 320,
+      "overflow": false,
+      "saveVisible": true,
+      "photoLoaded": true,
+      "axeViolations": []
+    },
+    {
+      "width": 375,
+      "overflow": false,
+      "saveVisible": true,
+      "photoLoaded": true,
+      "axeViolations": []
+    },
+    {
+      "width": 430,
+      "overflow": false,
+      "saveVisible": true,
+      "photoLoaded": true,
+      "axeViolations": []
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "saveVisible": true,
+      "photoLoaded": true,
+      "axeViolations": []
+    },
+    {
+      "width": 1024,
+      "overflow": false,
+      "saveVisible": true,
+      "photoLoaded": true,
+      "axeViolations": []
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "saveVisible": true,
+      "photoLoaded": true,
+      "axeViolations": []
+    }
+  ],
+  "errors": [],
+  "passed": true
+}

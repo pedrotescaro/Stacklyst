@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 import { X, Camera, Loader2, Check, Sparkles, AlertCircle } from 'lucide-react';
 import { AVATAR_BACKGROUNDS, normalizeAvatarConfig } from '@/lib/avatar';
 import { cn } from '@/lib/cn';
@@ -329,6 +330,13 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
                     </div>
                   )}
                 </div>
+                <Link
+                  href="/personalize?section=frames"
+                  className="rounded-full border border-dd-border px-3 py-2 text-xs font-semibold hover:bg-dd-surface focus-visible:outline-2 focus-visible:outline-dd-accent"
+                  onClick={onClose}
+                >
+                  Alterar foto e moldura
+                </Link>
               </div>
 
               {/* Form Fields */}

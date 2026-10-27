@@ -22,6 +22,7 @@ import { LikeButton } from './motion/LikeButton';
 import { BookmarkButton } from './motion/BookmarkButton';
 import { RepostMenu } from './motion/RepostMenu';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
+import { ProfileName } from '@/components/profile/ProfileIdentity';
 import { LevelBadge } from '@/components/LevelBadge';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { PostLocation, SensitiveContentGate } from './PostPresentation';
@@ -350,7 +351,9 @@ export function PostCard({
                 className="flex items-center gap-1.5 hover:underline truncate group/author min-w-0"
               >
                 <span className="text-dd-text text-xs font-bold truncate min-w-0 group-hover/author:underline">
-                  {post.author.name || post.author.username}
+                  <ProfileName config={post.author.avatar_config}>
+                    {post.author.name || post.author.username}
+                  </ProfileName>
                 </span>
                 <span className="text-dd-muted text-[11px] font-medium truncate min-w-0">
                   @{post.author.username.toLowerCase()}

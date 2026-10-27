@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
+import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -57,10 +58,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     const newUpvotes = aggregate._sum.value ?? 0;
 
     // 3. Atualizar a contagem total no modelo Answer
-    await prisma.answer.update({
+    const updatedAnswer = await prisma.answer.update({
       where: { id: answerId },
       data: { upvotes: newUpvotes },
+      select: { author_id: true },
     });
+    await syncProfileAchievementsSafely(updatedAnswer.author_id);
 
     return NextResponse.json({ success: true, upvotes: newUpvotes });
   } catch (error: any) {

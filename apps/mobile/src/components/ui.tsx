@@ -32,6 +32,7 @@ import { useMe, useSession } from '../lib/session';
 import { errorMessage } from '../lib/api';
 import { config } from '../lib/config';
 import { BrandMark } from './BrandMark';
+import { AvatarFrame } from './AvatarFrame';
 
 function createStyles(c: Palette) {
   return StyleSheet.create({
@@ -154,7 +155,12 @@ export function Screen({
                 opacity: pressed ? 0.65 : 1,
               })}
             >
-              <Avatar uri={me.data?.avatar_url} name={me.data?.username ?? 'S'} size={34} />
+              <Avatar
+                uri={me.data?.avatar_url}
+                name={me.data?.username ?? 'S'}
+                profileStyle={me.data?.avatar_config?.profileStyle}
+                size={34}
+              />
             </Pressable>
           ) : null}
           {brand ? (
@@ -529,36 +535,66 @@ export function Avatar({
   uri,
   name,
   size = 44,
+  frameId,
+  frameColor,
+  frameDecoration,
+  profileStyle,
 }: {
   uri?: string | null;
   name: string;
   size?: number;
+  frameId?: string | null;
+  frameColor?: string;
+  frameDecoration?: string;
+  profileStyle?: import('../lib/types').ProfileIdentityStyle;
 }) {
   const { colors: c } = useTheme();
   const [failedUri, setFailedUri] = useState<string | null>(null);
-  return uri && uri !== failedUri ? (
-    <Image
-      accessibilityLabel={'Avatar de ' + name}
-      source={{ uri: uri.startsWith('/') ? config.apiUrl + uri : uri }}
-      onError={() => setFailedUri(uri)}
-      style={{ width: size, height: size, borderRadius: size / 2, backgroundColor: c.surface }}
-    />
-  ) : (
-    <View
-      accessibilityLabel={'Avatar de ' + name}
-      style={{
-        width: size,
-        height: size,
-        borderRadius: size / 2,
-        backgroundColor: c.elevated,
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
+  frameId = frameId ?? profileStyle?.frame?.id;
+  frameColor = frameColor ?? profileStyle?.frame?.color;
+  const innerSize =
+    frameId && frameId !== 'none'
+      ? size - Math.max(3, size * 0.04) * 2 - Math.max(1, size * 0.025) * 2
+      : size;
+  const content =
+    uri && uri !== failedUri ? (
+      <Image
+        accessibilityLabel={'Avatar de ' + name}
+        source={{ uri: uri.startsWith('/') ? config.apiUrl + uri : uri }}
+        onError={() => setFailedUri(uri)}
+        style={{
+          width: innerSize,
+          height: innerSize,
+          borderRadius: innerSize / 2,
+          backgroundColor: c.surface,
+        }}
+      />
+    ) : (
+      <View
+        accessibilityLabel={'Avatar de ' + name}
+        style={{
+          width: innerSize,
+          height: innerSize,
+          borderRadius: innerSize / 2,
+          backgroundColor: c.elevated,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+      >
+        <Text style={{ color: c.text, fontSize: size / 2.3, fontWeight: '700' }}>
+          {name[0]?.toUpperCase() ?? 'S'}
+        </Text>
+      </View>
+    );
+  return (
+    <AvatarFrame
+      frameId={frameId}
+      color={frameColor}
+      decoration={frameDecoration ?? profileStyle?.frame?.decoration}
+      size={size}
     >
-      <Text style={{ color: c.text, fontSize: size / 2.3, fontWeight: '700' }}>
-        {name[0]?.toUpperCase() ?? 'S'}
-      </Text>
-    </View>
+      {content}
+    </AvatarFrame>
   );
 }
 export function Choice({

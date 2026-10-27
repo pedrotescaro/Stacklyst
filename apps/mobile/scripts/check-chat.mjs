@@ -37,7 +37,9 @@ const stubs = {
   '~/components/CompactComposer': `import React from 'react';
     export const CompactComposer=props=>{globalThis.__chat.composer=props;return React.createElement('div',null,props.leading,React.createElement('textarea',{'aria-label':props.placeholder,readOnly:!props.editable,value:props.value,onChange:event=>props.onChangeText(event.target.value)}),React.createElement('button',{'aria-label':props.sendLabel,disabled:props.disabled||props.busy,onClick:props.onSend},props.sendLabel));};`,
   '~/components/icons': 'export const IconPlus=()=>null; export const IconX=()=>null;',
-  '~/theme': 'export const useTheme=()=>({colors:{}});',
+  '~/theme':
+    'export const ScopedTheme=({children})=>children; export const useTheme=()=>({colors:{background:"#000000",text:"#FFFFFF",ownMessage:"#0B2B48",incomingMessage:"#202327"}});',
+  '~/features/profile/useCustomization': 'export const useCustomization=()=>({data:undefined});',
   '~/lib/session': `export const useSession=()=>({session:globalThis.__chat.preview?null:{user:{id:globalThis.__chat.user}},isPreview:globalThis.__chat.preview}); export const useMe=()=>({data:{id:'preview-user'}});`,
   '~/lib/draft': `import {useState} from 'react';
     export const useDraft=key=>{const scope=globalThis.__chat.user+':'+key;const [value,update]=useState(globalThis.__chat.drafts.get(scope)||'');return {value,ready:!globalThis.__chat.preview,status:'Salvo neste aparelho',setValue:next=>{globalThis.__chat.drafts.set(scope,next);update(next);},clear:async()=>{globalThis.__chat.drafts.delete(scope);update('');}};};`,

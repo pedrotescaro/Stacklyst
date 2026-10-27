@@ -4,6 +4,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { NotificationService } from '@/services/notification.service';
 import { ValidationError, NotFoundError } from '@/lib/errors';
+import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
 
 export const POST = apiHandler(async (req, { params }) => {
   const user = await requireAuth();
@@ -98,5 +99,6 @@ export const POST = apiHandler(async (req, { params }) => {
     }
   }
 
+  await syncProfileAchievementsSafely(updatedPost.author_id);
   return NextResponse.json({ success: true, upvotes: newUpvotes });
 });

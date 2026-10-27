@@ -2,11 +2,17 @@ export type { KnowledgeMapData, KnowledgeMapNode } from '../../../../src/lib/lea
 export type { ExerciseWorkspaceData } from '../../../../src/lib/exercises/types';
 export type { PublicLesson } from '../../../../src/lib/mobile/lesson';
 export interface Person {
+  customization?: import('./profile-customization').PublicCustomization;
   id: string;
   username: string;
   name?: string | null;
   avatar_url?: string | null;
-  avatar_config?: { name?: string; displayName?: string; background?: number };
+  avatar_config?: {
+    name?: string;
+    displayName?: string;
+    background?: number;
+    profileStyle?: ProfileIdentityStyle;
+  };
   banner_url?: string | null;
   institution?: string | null;
   pronouns?: string | null;
@@ -27,6 +33,12 @@ export interface Person {
     earned_at?: string;
     badge?: { label: string };
   }[];
+}
+export interface ProfileIdentityStyle {
+  nameStyle: import('./profile-customization').ProfilePreferences['nameStyle'];
+  frame: null | { id: string; decoration: string; color: string };
+  flag: string | null;
+  title: null | { id: string; name: string; color: string; rarity: string };
 }
 export interface Post {
   id: string;

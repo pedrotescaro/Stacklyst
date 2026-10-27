@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getAuthUserId } from '@/lib/auth-session';
 import { getUserLanguageXp } from '@/lib/learning/language-xp';
 import { getEffectiveStreak } from '@/lib/streak';
+import { getPublicProfileCustomization } from '@/services/profile-customization.service';
 
 export async function GET(request: Request, { params }: { params: Promise<{ username: string }> }) {
   try {
@@ -123,6 +124,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
         }))
       ),
       user: {
+        customization: await getPublicProfileCustomization(user.id),
         id: user.id,
         username: user.username,
         avatar_url: user.avatar_url,

@@ -9,6 +9,14 @@ import { getTrailLanguageMetadata, TrailLanguageLogo } from '@/app/trails/TrailL
 import { AVATAR_BACKGROUNDS, normalizeAvatarConfig } from '@/lib/avatar';
 import { StreakPopover } from '@/components/StreakPopover';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import {
+  AvatarFrame,
+  ProfileFlag,
+  ProfileName,
+  ProfileTitle,
+} from '@/components/profile/ProfileIdentity';
+import { readProfileIdentity, foregroundOn } from '@/lib/profile-style';
+import type { PublicProfileCustomization } from '@/components/profile/ProfilePublic';
 
 interface ProfileHeroProps {
   currentUserId: string;
@@ -28,6 +36,7 @@ interface ProfileHeroProps {
     last_active_at?: string | null;
     avatar_url?: string | null;
     avatar_config?: unknown;
+    customization?: PublicProfileCustomization | null;
   };
   trails: Array<{ language: string; xp: number; level: number }>;
   stats?: { answers_count: number; accuracy: number; accepted_count: number };
@@ -84,6 +93,21 @@ export function ProfileHero({
   const languageLogos = startedTrails.slice(0, 6);
   const avatar = normalizeAvatarConfig(profile.avatar_config, profile.username);
   const bannerColor = AVATAR_BACKGROUNDS[avatar.background];
+  const preferences = profile.customization?.preferences;
+  const identity = readProfileIdentity(profile.avatar_config);
+  const banner = preferences?.banner;
+  const bannerImage =
+    banner?.mode === 'image'
+      ? banner.imageUrl
+      : banner?.mode === 'default' || !banner
+        ? profile.banner_url
+        : null;
+  const bannerBackground =
+    banner?.mode === 'gradient'
+      ? `linear-gradient(135deg,${banner.color},${banner.secondaryColor})`
+      : banner?.mode === 'color'
+        ? banner.color
+        : bannerColor;
   const initials = profile.username.trim().slice(0, 2).toUpperCase() || 'DD';
   const displayName =
     profile.name ||
@@ -95,36 +119,45 @@ export function ProfileHero({
     <section className="w-full px-4 pb-6 pt-5 sm:px-7 sm:pt-9 lg:px-9 lg:pt-[50px]">
       <div
         className="relative flex h-[245px] w-full items-end justify-center overflow-hidden rounded-[28px] border-2 border-b-4 border-black/20 sm:h-[280px] lg:h-[295px] transition-colors duration-300"
-        style={{ backgroundColor: bannerColor }}
+        style={{ background: bannerBackground }}
       >
-        {profile.banner_url && (
+        {bannerImage && (
           <Image
-            src={profile.banner_url}
+            src={bannerImage}
             alt={text('Banner do perfil', 'Profile banner')}
             fill
             sizes="100%"
             className="object-cover"
+            style={{ objectPosition: `${banner?.positionX ?? 50}% ${banner?.positionY ?? 50}%` }}
             priority
           />
         )}
-        <div className="relative z-10 mb-7 flex h-[180px] w-[180px] items-center justify-center overflow-hidden rounded-[36px] border-[6px] border-white/25 bg-black/15 text-5xl font-black text-white shadow-[0_14px_0_rgba(0,0,0,0.18)] sm:h-[210px] sm:w-[210px]">
-          {profile.avatar_url ? (
-            <Image
-              src={profile.avatar_url}
-              alt={text(`Foto de ${profile.username}`, `${profile.username}'s profile picture`)}
-              width={220}
-              height={220}
-              className="h-full w-full object-cover"
-              priority
-            />
-          ) : (
-            <span
-              aria-label={text(`Iniciais de ${profile.username}`, `${profile.username}'s initials`)}
-            >
-              {initials}
-            </span>
-          )}
-        </div>
+        <AvatarFrame
+          frame={identity.frame}
+          className="relative z-10 mb-7 h-[180px] w-[180px] sm:h-[210px] sm:w-[210px]"
+        >
+          <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-[6px] border-white/25 bg-black/15 text-5xl font-black text-white shadow-[0_14px_0_rgba(0,0,0,0.18)]">
+            {profile.avatar_url ? (
+              <Image
+                src={profile.avatar_url}
+                alt={text(`Foto de ${profile.username}`, `${profile.username}'s profile picture`)}
+                width={220}
+                height={220}
+                className="h-full w-full object-cover"
+                priority
+              />
+            ) : (
+              <span
+                aria-label={text(
+                  `Iniciais de ${profile.username}`,
+                  `${profile.username}'s initials`
+                )}
+              >
+                {initials}
+              </span>
+            )}
+          </div>
+        </AvatarFrame>
         <div className="pointer-events-none absolute inset-x-0 bottom-0 z-20 h-16 bg-gradient-to-t from-black/18 to-transparent" />
       </div>
 
@@ -132,9 +165,19 @@ export function ProfileHero({
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2.5">
             <h1 className="truncate text-2xl font-black tracking-tight text-dd-text sm:text-3xl">
-              {displayName}
+              <ProfileName
+                config={profile.avatar_config}
+                background={preferences?.appearance.backgroundColor}
+              >
+                {displayName}
+              </ProfileName>
             </h1>
             <LevelBadge totalXp={profile.total_xp} className="text-[10px]" />
+            <ProfileFlag code={identity.flag} />
+            <ProfileTitle
+              title={identity.title}
+              background={preferences?.appearance.backgroundColor}
+            />
           </div>
           <p className="mt-1 text-sm font-bold text-dd-muted">@{profile.username}</p>
           <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-dd-muted">
@@ -145,14 +188,31 @@ export function ProfileHero({
 
         <div className="flex flex-wrap gap-2">
           {isOwner ? (
-            <button
-              type="button"
-              onClick={onEdit}
-              className="dd-focus-ring inline-flex min-h-12 items-center gap-2 rounded-2xl border-2 border-b-4 border-dd-border bg-dd-surface px-4 text-xs font-black uppercase text-dd-text transition-transform hover:-translate-y-0.5"
-            >
-              <Edit3 className="h-4 w-4" />
-              {text('Editar perfil', 'Edit profile')}
-            </button>
+            <>
+              <Link
+                href="/personalize"
+                className="dd-focus-ring inline-flex min-h-12 items-center gap-2 rounded-2xl border border-dd-border bg-dd-surface px-4 text-xs font-semibold text-dd-text"
+                style={
+                  preferences?.appearance.buttonColor
+                    ? {
+                        background: preferences.appearance.buttonColor,
+                        color: foregroundOn(preferences.appearance.buttonColor),
+                      }
+                    : undefined
+                }
+              >
+                <Sparkles className="h-4 w-4" />
+                Personalizar perfil
+              </Link>
+              <button
+                type="button"
+                onClick={onEdit}
+                className="dd-focus-ring inline-flex min-h-12 items-center gap-2 rounded-2xl border-2 border-b-4 border-dd-border bg-dd-surface px-4 text-xs font-black uppercase text-dd-text transition-transform hover:-translate-y-0.5"
+              >
+                <Edit3 className="h-4 w-4" />
+                {text('Editar perfil', 'Edit profile')}
+              </button>
+            </>
           ) : (
             <>
               <FollowButton isFollowing={following} onToggle={onFollowToggle} />

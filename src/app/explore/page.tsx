@@ -30,6 +30,9 @@ export default function ExplorePage() {
 
   // Search state
   const [searchQuery, setSearchQuery] = useState('');
+  useEffect(() => {
+    setSearchQuery(new URLSearchParams(window.location.search).get('q') || '');
+  }, []);
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [searchUsers, setSearchUsers] = useState<any[]>([]);
   const [searchTab, setSearchTab] = useState<'posts' | 'users'>('posts');

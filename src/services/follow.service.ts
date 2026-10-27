@@ -1,6 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { NotFoundError, ValidationError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
+import { syncProfileAchievementsSafely } from './profile-customization.service';
 
 export const FollowService = {
   async toggleFollow(followerId: string, followingId: string) {
@@ -8,7 +9,7 @@ export const FollowService = {
       throw new ValidationError('SELF_FOLLOW', 'Você não pode seguir a si mesmo');
     }
 
-    return await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       // 1. Verify target user exists
       const targetUser = await tx.user.findUnique({
         where: { id: followingId },
@@ -63,5 +64,7 @@ export const FollowService = {
         return { following: true };
       }
     });
+    await syncProfileAchievementsSafely(followingId);
+    return result;
   },
 };

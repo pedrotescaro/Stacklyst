@@ -5,6 +5,7 @@ import { useMutation, useQuery } from '@tanstack/react-query';
 import { useRecyclingState } from '@shopify/flash-list';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Avatar } from '~/components/ui';
+import { ProfileName } from '~/components/ProfileName';
 import { ActionMenu } from '~/components/ActionMenu';
 import { RichText, CodeBlock } from '~/components/content';
 import {
@@ -139,7 +140,12 @@ export function ThreadAnswer({
               opacity: pressed ? 0.65 : 1,
             })}
           >
-            <Avatar uri={answer.author.avatar_url} name={answer.author.username} size={38} />
+            <Avatar
+              uri={answer.author.avatar_url}
+              name={answer.author.username}
+              size={38}
+              profileStyle={answer.author.avatar_config?.profileStyle}
+            />
           </Pressable>
           {(replies.length > 0 || continues) && (
             <View
@@ -170,9 +176,10 @@ export function ThreadAnswer({
               })}
             >
               <Text numberOfLines={1} style={{ color: c.muted, fontSize: 13, lineHeight: 20 }}>
-                <Text style={{ color: c.text, fontWeight: '700', fontSize: 15 }}>
-                  {answer.author.avatar_config?.displayName || answer.author.username}
-                </Text>
+                <ProfileName
+                  user={answer.author}
+                  style={{ color: c.text, fontWeight: '700', fontSize: 15 }}
+                />
                 {' @' + answer.author.username}
                 {elapsed ? ' · ' + elapsed : ''}
               </Text>

@@ -1,0 +1,85 @@
+.name {
+  color: var(--name-light, inherit);
+}
+:global(.dark) .name {
+  color: var(--name-dark, inherit);
+}
+.frame {
+  position: relative;
+  isolation: isolate;
+}
+.frame::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 2px solid var(--frame-color);
+  pointer-events: none;
+  z-index: 2;
+}
+.frame[data-decoration='minimal']::after {
+  inset: -2px;
+  border-width: 1px;
+}
+.frame[data-decoration='neon']::after {
+  border-width: 3px;
+  box-shadow: 0 3px 9px color-mix(in srgb, var(--frame-color), transparent 45%);
+}
+.frame[data-decoration='cyberpunk']::after {
+  border-style: dashed;
+  border-width: 3px;
+  transform: rotate(-18deg);
+}
+.frame[data-decoration='circuit']::after {
+  border-style: double;
+  border-width: 5px;
+}
+.frame[data-decoration='pixel']::after {
+  border-radius: 20%;
+  border-style: dashed;
+  border-width: 4px;
+}
+.frame[data-decoration='galaxy']::after {
+  border-width: 3px;
+  border-color: var(--frame-color) #e9d5ff #7c3aed #f0abfc;
+}
+.frame[data-decoration='hacker']::after {
+  border-style: dotted;
+  border-width: 4px;
+}
+.frame[data-decoration='halloween']::after {
+  border-width: 4px;
+  border-color: #f97316 #7c3aed;
+}
+.frame[data-decoration='christmas']::after {
+  border-style: dashed;
+  border-width: 4px;
+  border-color: #ef4444 #22c55e;
+}
+.frame[data-decoration='legendary']::after {
+  border-style: double;
+  border-width: 5px;
+  border-color: #eab308;
+}
+.flag {
+  display: inline-block;
+  width: 24px;
+  height: 18px;
+  border-radius: 2px;
+  object-fit: cover;
+  vertical-align: middle;
+  flex-shrink: 0;
+}
+.title {
+  display: inline-flex;
+  max-width: 100%;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid currentColor;
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}

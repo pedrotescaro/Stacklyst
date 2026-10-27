@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { router } from 'expo-router';
-import { Screen, AsyncState, Field, Label } from '~/components/ui';
+import { Screen, AsyncState, Button, Field, Label } from '~/components/ui';
 import { Action } from '~/components/remote';
 import { useMe } from '~/lib/session';
 import { Person } from '~/lib/types';
@@ -11,6 +11,11 @@ function Form({ user }: { user: Person }) {
     [github, setGithub] = useState(user.github_username || '');
   return (
     <>
+      <Button
+        label="Alterar foto e moldura"
+        secondary
+        onPress={() => router.push('/personalize?section=frames')}
+      />
       <Field label="Nome" value={name} onChangeText={setName} />
       <Field label="Username" value={username} onChangeText={setUsername} />
       <Label muted>

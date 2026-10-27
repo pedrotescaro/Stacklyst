@@ -54,7 +54,7 @@ function NotificationRow({ item }: { item: NotificationEntry }) {
         ? IconMessageCircle
         : item.type === 'DUEL'
           ? IconSwords
-          : item.type === 'XP' || item.type === 'QUIZ_CORRECT'
+          : item.type === 'XP' || item.type === 'XP_MILESTONE' || item.type === 'QUIZ_CORRECT'
             ? IconTrophy
             : item.type === 'MENTION'
               ? IconAt
@@ -89,7 +89,12 @@ function NotificationRow({ item }: { item: NotificationEntry }) {
               if (actorDestination) router.push(actorDestination as never);
             }}
           >
-            <Avatar name={item.actor.username} uri={item.actor.avatar_url} size={44} />
+            <Avatar
+              name={item.actor.username}
+              uri={item.actor.avatar_url}
+              profileStyle={item.actor.avatar_config?.profileStyle}
+              size={44}
+            />
           </Pressable>
         ) : (
           <TypeIcon size={27} strokeWidth={1.8} color={read ? colors.muted : colors.primary} />

@@ -298,8 +298,13 @@ describe('Security and Platform Logic Hardening', () => {
         },
       } as any);
 
-      // PNG magic bytes: 0x89, 0x50, 0x4e, 0x47
-      const validPngBytes = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]);
+      // A signature alone is insufficient: the upload must fully decode.
+      const { default: sharp } = await import('sharp');
+      const validPngBytes = await sharp({
+        create: { width: 32, height: 32, channels: 3, background: '#0083fe' },
+      })
+        .png()
+        .toBuffer();
       const mockFile = {
         name: 'test.png',
         type: 'image/png',

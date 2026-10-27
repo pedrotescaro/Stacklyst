@@ -1,0 +1,27 @@
+{
+  "target": "ienkozdeancyqvjbepna",
+  "migration": "20261027183000_profile_customization",
+  "checksum": "dfe5356e317f32c82b32c4eeb0842012d128ed37073608eefb0890ba8747502b",
+  "appliedNow": true,
+  "transactionCommitted": true,
+  "tables": [
+    {
+      "relname": "profile_achievement_catalogs",
+      "relrowsecurity": true,
+      "anon_access": false,
+      "authenticated_access": false
+    },
+    {
+      "relname": "profile_customizations",
+      "relrowsecurity": true,
+      "anon_access": false,
+      "authenticated_access": false
+    },
+    {
+      "relname": "user_profile_achievements",
+      "relrowsecurity": true,
+      "anon_access": false,
+      "authenticated_access": false
+    }
+  ]
+}

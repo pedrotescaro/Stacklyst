@@ -1,0 +1,54 @@
+.toast {
+  position: fixed;
+  right: 20px;
+  bottom: calc(24px + env(safe-area-inset-bottom));
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  width: min(390px, calc(100vw - 32px));
+  padding: 18px;
+  color: var(--color-dd-text);
+  background: var(--color-dd-card);
+  border: 1px solid var(--color-dd-border);
+  border-radius: 16px;
+  box-shadow: 0 8px 30px #0002;
+}
+.toast > svg {
+  color: var(--color-dd-accent);
+  flex-shrink: 0;
+}
+.toast strong {
+  font-size: 14px;
+}
+.toast p {
+  font-size: 13px;
+  margin: 5px 0 8px;
+}
+.toast a {
+  color: var(--color-dd-accent);
+  font-size: 13px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.toast button {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  margin: -8px -8px 0 auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.toast button:focus-visible,
+.toast a:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 3px;
+}
+@media (max-width: 600px) {
+  .toast {
+    right: 16px;
+    bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+}

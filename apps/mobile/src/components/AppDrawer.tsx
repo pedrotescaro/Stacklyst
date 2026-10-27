@@ -138,7 +138,12 @@ export function AppDrawer({ children }: { children: ReactNode }) {
                   paddingVertical: 12,
                 }}
               >
-                <Avatar size={52} name={me.data?.username ?? 'S'} uri={me.data?.avatar_url} />
+                <Avatar
+                  size={52}
+                  name={me.data?.username ?? 'S'}
+                  uri={me.data?.avatar_url}
+                  profileStyle={me.data?.avatar_config?.profileStyle}
+                />
                 <IconButton
                   label="Fechar menu da conta"
                   onPress={closeDrawer}

@@ -33,6 +33,7 @@ const stubs = {
   '../src/theme':
     'export const ThemeProvider = "ThemeProvider"; export const useTheme = () => ({colors: {background: "black"}, mode: "dark", setMode() {}});',
   '../src/components/AppDrawer': 'export const AppDrawer = "AppDrawer";',
+  '../src/components/PlatformPresence': 'export const PlatformPresence = () => null;',
   '../src/lib/motion': 'export const useReducedMotion = () => false;',
   '../src/lib/sounds':
     'export const SoundEffectsProvider = "SoundEffectsProvider"; export const useSoundEffects = () => ({enabled: true, ready: true, setEnabled() {}, preferenceError: null});',

@@ -177,6 +177,21 @@ export const NotificationService = {
         })
       : [];
     const jobsById = new Map(jobs.map((job) => [job.id, job]));
+    const achievementIds = notifications
+      .filter((item) => item.resourceType === 'PROFILE_ACHIEVEMENT' && item.resourceId)
+      .map((item) => item.resourceId!);
+    const earnedAchievements = achievementIds.length
+      ? await prisma.userProfileAchievement.findMany({
+          where: { userId, achievementId: { in: achievementIds } },
+          select: { achievementId: true, definition: true },
+        })
+      : [];
+    const achievementNames = new Map(
+      earnedAchievements.map((item) => [
+        item.achievementId,
+        (item.definition as { name?: string })?.name || 'Nova conquista',
+      ])
+    );
 
     const enhancedNotifications = await Promise.all(
       notifications.map(async (notif) => {
@@ -225,6 +240,7 @@ export const NotificationService = {
         const isMessage = notif.resourceType === 'MESSAGE';
         const job = notif.resourceType === 'JOB' ? jobsById.get(notif.resourceId ?? '') : undefined;
         const application = job?.applications[0];
+        const isAchievement = notif.resourceType === 'PROFILE_ACHIEVEMENT';
         const applicationStatus: Record<string, string> = {
           APPLIED: 'Inscrito',
           REVIEWING: 'Em análise',
@@ -244,18 +260,21 @@ export const NotificationService = {
           id: notif.id,
           user_id: notif.userId,
           type: mapApiType(notif.type),
-          title:
-            notif.type === 'JOB_APPLICATION_UPDATE'
+          title: isAchievement
+            ? 'Nova conquista desbloqueada'
+            : notif.type === 'JOB_APPLICATION_UPDATE'
               ? `Candidatura: ${job?.title ?? 'vaga indisponível'}`
               : getNotificationTitle(notif.type, isMessage),
-          content:
-            notif.type === 'JOB_APPLICATION_UPDATE'
+          content: isAchievement
+            ? `Você conquistou ${achievementNames.get(notif.resourceId || '') || 'um novo título'}. Abra Minhas Conquistas para equipar.`
+            : notif.type === 'JOB_APPLICATION_UPDATE'
               ? job
                 ? `${job.title} · ${job.company.name}. ${application ? `${applicationStatus[application.status] ?? application.status}${application.stage ? ` · ${application.stage.title}` : ''}. ` : ''}Veja sua etapa e o feedback da empresa.`
                 : 'Esta vaga foi removida. Explore as oportunidades disponíveis.'
               : getNotificationContent(notif.type, actorName, isMessage),
-          link:
-            notif.type === 'JOB_APPLICATION_UPDATE'
+          link: isAchievement
+            ? '/achievements'
+            : notif.type === 'JOB_APPLICATION_UPDATE'
               ? job
                 ? `/jobs/${encodeURIComponent(job.id)}#application`
                 : '/jobs'

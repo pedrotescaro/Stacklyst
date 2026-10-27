@@ -1,0 +1,33 @@
+{
+  "web": {
+    "build": "passed, including production judge smoke",
+    "tests": { "passed": 763, "skipped": 21, "failed": 0, "filesPassed": 145, "filesSkipped": 4, "workers": 2 },
+    "postgresIntegration": { "passed": 10, "database": "isolated PostgreSQL 17 localhost" },
+    "lint": { "errors": 0, "warnings": 11, "note": "plain images in local photo previews, flags and Spotify artwork" },
+    "coverageScope": "five new core domain/service/music/style/upload ownership files; excludes UI and project-wide coverage",
+    "coverageLinesPercent": 79.75,
+    "coverageBranchesPercent": 70.77,
+    "browserViewports": [320, 375, 430, 768, 1024, 1440],
+    "automatedAccessibility": "zero axe violations in the main editor content at the six tested widths; no screen-reader evaluation",
+    "independentReview": "SHIP for reviewed web scope; Spotify persistence, public secondary colors, live preview and mobile hex-field findings resolved"
+  },
+  "native": {
+    "typecheck": "passed",
+    "lint": "passed",
+    "tests": "profile, personalization, chat, notifications and configuration passed",
+    "exports": "Android and iOS Hermes passed",
+    "dependencyCompatibility": "expo install --check passed",
+    "expoDoctor": "20/21; pre-existing unmaintained react-native-render-html notice retained",
+    "newApk": false,
+    "deviceVerified": false,
+    "note": "camera permission and native feature changes require rebuilding the installed app"
+  },
+  "spotify": {
+    "officialOembedAndPlayer": "verified with an actual track",
+    "nameSearchConfigured": false,
+    "nameSearchRequirement": "server-only SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET",
+    "automaticPlayback": false
+  },
+  "migration": "three additive tables applied atomically; RLS enabled; direct anon/authenticated access revoked",
+  "initialRun": "first full test run overlapped builds and had four timing failures plus an obsolete signature-only upload fixture; fixture now uses a decoded image, final full suite passed with two workers"
+}

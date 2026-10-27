@@ -31,6 +31,14 @@
       "expo-web-browser",
       "expo-status-bar",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "O Stacklyst usa a foto que você escolher para personalizar seu perfil e banner.",
+          "cameraPermission": "O Stacklyst usa a câmera quando você decide tirar uma foto para seu perfil.",
+          "microphonePermission": false
+        }
+      ],
+      [
         "expo-splash-screen",
         {
           "backgroundColor": "#000000",

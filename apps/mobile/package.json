@@ -22,6 +22,7 @@
     "test:social": "npm run test:chat && npm run test:thread && npm run test:snippets",
     "test:sounds": "node scripts/check-sounds.mjs",
     "test:profile": "node scripts/check-profile.mjs",
+    "test:personalization": "node scripts/check-personalization.mjs",
     "check:release": "node scripts/check-release.mjs",
     "build:apk:windows": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/build-apk.ps1",
     "eas-build-post-install": "npm run build:editor",

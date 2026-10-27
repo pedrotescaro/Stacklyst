@@ -1,0 +1,14 @@
+{
+  "environment": "PostgreSQL17 localhost Docker; warm process; includes transaction roundtrip",
+  "fixtures": {
+    "accounts": 8,
+    "posts": 29,
+    "comments": 11,
+    "votes": 24
+  },
+  "samples": 25,
+  "medianMs": 12.052699999999732,
+  "p95Ms": 13.39200000000028,
+  "maxMs": 14.961099999999988,
+  "note": "Small deterministic fixture, not production-load or field-performance evidence."
+}

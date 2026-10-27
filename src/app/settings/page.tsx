@@ -773,6 +773,13 @@ export default function SettingsPage() {
 
             {activeTab === 'aparencia' && (
               <div className="space-y-6">
+                <button
+                  type="button"
+                  onClick={() => router.push('/personalize')}
+                  className="flex min-h-12 w-full items-center justify-between rounded-xl border border-dd-border bg-dd-surface px-4 text-left text-sm font-semibold text-dd-text"
+                >
+                  Personalizar perfil <ChevronRight size={18} aria-hidden="true" />
+                </button>
                 <div>
                   <h3 className="text-xs font-bold text-dd-muted uppercase tracking-wider mb-1">
                     {t.settings.appearance.heading}

@@ -50,6 +50,7 @@ export const SearchService = {
           SELECT p.id, p.author_id, p.title, p.body, p.language, p.code_snippet, p.image_url, p.is_pinned, p.created_at, p.view_count, p.upvotes,
                  u.username as "author_username", 
                  u.avatar_url as "author_avatar_url",
+                 u.avatar_config as "author_avatar_config",
                  u.total_xp as "author_total_xp",
                  (SELECT COUNT(*)::int FROM "Answer" WHERE post_id = p.id) as "answers_count",
                  ts_headline('portuguese', p.title || ' ' || COALESCE(p.body, ''),
@@ -75,6 +76,7 @@ export const SearchService = {
           SELECT p.id, p.author_id, p.title, p.body, p.language, p.code_snippet, p.image_url, p.is_pinned, p.created_at, p.view_count, p.upvotes,
                  u.username as "author_username", 
                  u.avatar_url as "author_avatar_url",
+                 u.avatar_config as "author_avatar_config",
                  u.total_xp as "author_total_xp",
                  (SELECT COUNT(*)::int FROM "Answer" WHERE post_id = p.id) as "answers_count",
                  ts_headline('portuguese', p.title || ' ' || COALESCE(p.body, ''),
@@ -117,6 +119,7 @@ export const SearchService = {
         id: p.author_id,
         username: p.author_username,
         avatar_url: p.author_avatar_url,
+        avatar_config: p.author_avatar_config,
         total_xp: p.author_total_xp,
       },
       _count: {
@@ -159,16 +162,26 @@ export const SearchService = {
 
     const users = await prisma.user.findMany({
       where: {
-        username: {
-          contains: query,
-          mode: 'insensitive',
-        },
+        OR: [
+          { username: { contains: query, mode: 'insensitive' } },
+          {
+            profile_customization: {
+              is: {
+                preferences: {
+                  path: ['tags'],
+                  array_contains: [query.replace(/^#/, '').toLowerCase()],
+                },
+              },
+            },
+          },
+        ],
         id: cursor ? { gt: cursor } : undefined,
       },
       select: {
         id: true,
         username: true,
         avatar_url: true,
+        avatar_config: true,
         total_xp: true,
       },
       orderBy: { id: 'asc' },

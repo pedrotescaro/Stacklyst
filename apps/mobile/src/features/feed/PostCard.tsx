@@ -9,6 +9,7 @@ import { send, errorMessage } from '../../lib/api';
 import { queryClient } from '../../lib/query';
 import { config } from '../../lib/config';
 import { Avatar } from '../../components/ui';
+import { ProfileName } from '../../components/ProfileName';
 import { RichText, CodeBlock } from '../../components/content';
 import { useTheme } from '../../theme';
 import { hasCodeBlock } from '~/lib/code-snippets';
@@ -180,7 +181,12 @@ function PostContent({
         onPress={openProfile}
         style={({ pressed }) => ({ minHeight: 48, minWidth: 48, opacity: pressed ? 0.65 : 1 })}
       >
-        <Avatar uri={post.author.avatar_url} name={post.author.username} size={44} />
+        <Avatar
+          uri={post.author.avatar_url}
+          name={post.author.username}
+          size={44}
+          profileStyle={post.author.avatar_config?.profileStyle}
+        />
       </Pressable>
       <View style={{ flex: 1, minWidth: 0 }}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -196,12 +202,11 @@ function PostContent({
               opacity: pressed ? 0.65 : 1,
             })}
           >
-            <Text
+            <ProfileName
+              user={post.author}
               numberOfLines={1}
               style={{ fontSize: 15, lineHeight: 21, color: c.text, fontWeight: '700' }}
-            >
-              {post.author.avatar_config?.displayName || post.author.username}
-            </Text>
+            ></ProfileName>
             <Text numberOfLines={1} style={{ fontSize: 13, lineHeight: 19, color: c.muted }}>
               @{post.author.username} · {timeLabel(post.created_at)}
             </Text>
