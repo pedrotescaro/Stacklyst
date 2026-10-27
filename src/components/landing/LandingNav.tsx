@@ -23,7 +23,7 @@ export default function LandingNav({ initialUser }: LandingNavProps) {
     const syncScrollState = () => {
       cancelAnimationFrame(animationFrame);
       animationFrame = requestAnimationFrame(() => {
-        setIsScrolled(window.scrollY > 56);
+        setIsScrolled((previous) => window.scrollY > (previous ? 40 : 72));
       });
     };
 
@@ -42,17 +42,10 @@ export default function LandingNav({ initialUser }: LandingNavProps) {
       animate={{ y: 0, opacity: 1 }}
       transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
       data-force-motion="true"
-      className={`fixed inset-x-0 z-50 mx-auto overflow-visible border font-sans transition-[top,width,max-width,background-color,border-color,border-radius,box-shadow,backdrop-filter] duration-500 ease-out ${
-        isScrolled
-          ? 'top-3 sm:top-4 w-[calc(100%_-_1.25rem)] sm:w-[calc(100%_-_3rem)] max-w-6xl rounded-2xl border-white/10 bg-black/90 shadow-2xl backdrop-blur-2xl'
-          : 'top-2 sm:top-3 w-[calc(100%_-_1.25rem)] sm:w-[calc(100%_-_1.5rem)] max-w-[1536px] rounded-none border-transparent bg-transparent shadow-none backdrop-blur-none'
-      }`}
+      className={`${styles.nav} ${isScrolled ? styles.scrolled : ''}`}
+      data-scrolled={isScrolled}
     >
-      <div
-        className={`relative flex w-full items-center justify-between transition-[padding] duration-500 ease-out ${
-          isScrolled ? 'px-3 py-2 sm:px-6 sm:py-3' : 'px-3 py-3 sm:px-10 sm:py-5'
-        }`}
-      >
+      <div className={styles.inner}>
         {/* ── Logo ── */}
         <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
           <BrandLogo size={27} className={styles.brand} />

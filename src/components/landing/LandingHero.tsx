@@ -3,7 +3,8 @@
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import RippleDistortion from '@/components/RippleDistortion';
-import AnimatedAvatarGroup, { type AvatarData } from '@/components/smoothui/animated-avatar-group';
+import AnimatedAvatarGroup from '@/components/smoothui/animated-avatar-group';
+import { usePlatformPresence } from '@/hooks/usePlatformPresence';
 import { useLanguage } from '@/contexts/LanguageContext';
 import styles from './LandingHero.module.css';
 
@@ -17,24 +18,6 @@ const lineReveal = {
   show: { y: 0, transition: { duration: 1, ease: [0.22, 1, 0.36, 1] } },
 } as const;
 
-const HERO_AVATAR_URLS = [
-  'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=100&h=100&q=80',
-  'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=100&h=100&q=80',
-  'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&h=100&q=80',
-  'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=100&h=100&q=80',
-  'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=100&h=100&q=80',
-];
-
-// Build the avatar data for AnimatedAvatarGroup.
-// 5 visible with images + 1800 hidden (only counted for the "+N" indicator).
-const heroAvatars: AvatarData[] = [
-  ...HERO_AVATAR_URLS.map((src, i) => ({ src, alt: `Dev ${i + 1}` })),
-  ...Array.from({ length: 1800 }, (_, i) => ({
-    src: '',
-    alt: `Dev ${i + 6}`,
-  })),
-];
-
 interface LandingHeroProps {
   initialUser: any;
   isReady?: boolean;
@@ -42,6 +25,24 @@ interface LandingHeroProps {
 
 export default function LandingHero({ initialUser, isReady = true }: LandingHeroProps) {
   const { t, isEnglish } = useLanguage();
+  const { summary, unavailable } = usePlatformPresence();
+  const avatars =
+    summary?.avatars.map((user) => ({
+      src: user.avatarUrl,
+      alt: user.username,
+      href: `/profile/${encodeURIComponent(user.username)}`,
+    })) || [];
+  const presenceText = summary
+    ? isEnglish
+      ? `${summary.activeCount.toLocaleString('en-US')} ${summary.activeCount === 1 ? 'person online now' : 'people online now'}`
+      : `${summary.activeCount.toLocaleString('pt-BR')} ${summary.activeCount === 1 ? 'pessoa online agora' : 'pessoas online agora'}`
+    : unavailable
+      ? isEnglish
+        ? 'Online count unavailable'
+        : 'Contagem online indisponível'
+      : isEnglish
+        ? 'Checking who is online…'
+        : 'Consultando pessoas online…';
 
   return (
     <section
@@ -107,21 +108,30 @@ export default function LandingHero({ initialUser, isReady = true }: LandingHero
               show: { opacity: 1, y: 0, transition: { duration: 0.7, delay: 0.35 } },
             }}
           >
-            <AnimatedAvatarGroup
-              avatars={heroAvatars}
-              maxVisible={5}
-              size={36}
-              overlap={0.35}
-              expandOnHover
-              forceMotion
-              className="[&_div.rounded-full.border-2]:!border-[var(--lp-bg)] [&>div:last-child]:!bg-[var(--lp-accent)] [&>div:last-child_span]:!text-[var(--lp-bg)] [&>div:last-child_span]:!font-bold"
-            />
+            {avatars.length > 0 && (
+              <AnimatedAvatarGroup
+                avatars={avatars}
+                maxVisible={5}
+                size={36}
+                overlap={0.35}
+                expandOnHover
+                className="[&_div.rounded-full.border-2]:!border-[var(--lp-bg)]"
+              />
+            )}
             <div className="flex flex-col items-center sm:items-start">
               <span className="lp-font-mono text-[9px] tracking-[0.15em] uppercase text-white leading-none mb-1">
-                {t.hero.activeMembers}
+                {isEnglish ? 'STACKLYST COMMUNITY' : 'COMUNIDADE STACKLYST'}
               </span>
-              <span className="lp-font-heading font-semibold text-xs text-[var(--lp-fg)] leading-none">
-                {t.hero.membersInArena}
+              <span
+                className="lp-font-heading font-semibold text-xs text-[var(--lp-fg)] leading-none"
+                title={
+                  isEnglish
+                    ? 'Signed-in accounts active in the last 60 seconds. Photos are from community profiles.'
+                    : 'Contas conectadas com atividade nos últimos 60 segundos. Fotos de perfis da comunidade.'
+                }
+                data-platform-presence
+              >
+                {presenceText}
               </span>
             </div>
           </motion.div>

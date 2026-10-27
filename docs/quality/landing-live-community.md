@@ -1,0 +1,15 @@
+# Comunidade real e cabeçalho
+
+A página inicial busca até cinco fotos de perfis cadastrados; não usa imagens de banco nem cria avatares vazios para simular membros. As fotos representam a comunidade, independentemente de estarem online. A contagem ao lado representa contas autenticadas com heartbeat nos últimos **60 segundos**, atualizada na interface a cada **20 segundos**. Visitantes anônimos não entram na contagem. Zero é exibido como zero; falha de consulta é exibida como indisponibilidade.
+
+O heartbeat web funciona apenas com sessão e página visível. O aplicativo envia o mesmo heartbeat apenas em primeiro plano e fora do modo de demonstração. Uma chave reservada em `MobileState` mantém uma linha por conta, compartilhada entre abas e dispositivos, com timestamp do servidor. Nenhum campo de streak, XP ou aprendizagem é alterado. Registros expiram logicamente pela janela de tempo; ocultar uma aba não apaga a presença de outras sessões. A contagem é uma aproximação por atividade recente, não uma medição instantânea de conexões.
+
+O endpoint público devolve somente contagem, horário da observação, tamanho da janela e os campos públicos `id`, `username` e `avatarUrl`. O POST resolve a identidade verificada no servidor, ignora identidade/horário fornecidos pelo cliente e exige cabeçalho próprio; origens externas são rejeitadas. Cada conta tem limite de requisições e as escritas repetidas são limitadas no SQL a uma atualização a cada dez segundos.
+
+O botão de acesso do cabeçalho acompanha a altura do seletor de idioma: **32px até 820px de largura e 34px nas telas maiores**, preservando a expansão do espaçamento ao hover/foco. A barra tem posição e padding constantes: apenas a largura máxima transita e a superfície aparece por opacidade. Limiares distintos para entrar e sair do modo compacto evitam oscilação próxima ao ponto de rolagem. Redução de movimento remove essa transição.
+
+`artifacts/landing/presence-database-verification.json` registra o teste no PostgreSQL configurado, dentro de uma transação desfeita ao final: conta autenticada contada uma vez, heartbeat repetido sem duplicação, expiração e timestamp futuro fora da contagem, projeção pública e remoção da conta de teste pelo rollback. A consulta executou em menos de 1ms no volume observado; isso não é benchmark de carga. Não foi necessária migração de schema.
+
+O heartbeat mobile exige um novo binário para chegar ao aplicativo instalado. A publicação web não atualiza automaticamente o aplicativo do aparelho.
+
+Validação desta revisão: **9 testes passaram** (autenticação, origem/host atrás do proxy, projeção pública, falha versus zero, pausa em segundo plano, logout e cancelamento). Build web com smoke do avaliador, typecheck web/mobile e lint passaram. Os exports Hermes Android/iOS e web também passaram. `artifacts/landing/browser-verification.json` registra a conferência em **320, 390 e 1440px**, nos dois idiomas: cinco imagens carregadas correspondendo à API, contagem real, controles da mesma altura, expansão no hover, dimensões estáveis ao rolar, limiares de retorno e redução de movimento. Não houve teste em aparelho ou geração de APK.

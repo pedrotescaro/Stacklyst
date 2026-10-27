@@ -1,0 +1,12 @@
+{
+  "singleRowPerUser": true,
+  "activeAccountCounted": true,
+  "expiredNotCounted": true,
+  "futureNotCounted": true,
+  "publicPhotoFieldsOnly": true,
+  "actualCommunityPhotos": 5,
+  "executionMs": 0.228,
+  "rolledBack": true,
+  "testAccountRemoved": true,
+  "passed": true
+}

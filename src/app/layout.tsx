@@ -4,6 +4,7 @@ import Script from 'next/script';
 import './globals.css';
 import './landing.css';
 import ConnectionBanner from '@/components/ConnectionBanner';
+import PlatformPresence from '@/components/PlatformPresence';
 import { LanguageProvider } from '@/contexts/LanguageContext';
 
 const themeScript = `
@@ -84,6 +85,7 @@ export default function RootLayout({
           {themeScript}
         </Script>
         <LanguageProvider>
+          <PlatformPresence />
           {children}
           <ConnectionBanner />
         </LanguageProvider>

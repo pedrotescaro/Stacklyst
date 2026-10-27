@@ -29,12 +29,12 @@
 
 @media (min-width: 640px) {
   .signUpButton {
-    height: 2.5rem;
-    padding-inline: 1.25rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    line-height: 1.25rem;
-    letter-spacing: -0.02em;
+    height: 2.125rem;
+    padding-inline: 0.875rem;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    line-height: 1rem;
+    letter-spacing: -0.01em;
   }
 }
 
@@ -95,5 +95,70 @@
   .signUpButton:not([data-force-motion='true']),
   .loginLink:not([data-force-motion='true']) {
     transition-duration: 1ms;
+  }
+}
+
+@media (max-width: 820px) {
+  .signUpButton {
+    height: 32px;
+  }
+}
+.nav {
+  position: fixed;
+  inset-inline: 0;
+  top: 12px;
+  z-index: 50;
+  width: calc(100% - 20px);
+  max-width: 1536px;
+  margin-inline: auto;
+  font-family: var(--font-inter), sans-serif;
+  transition: max-width 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 16px;
+  background: rgba(8, 9, 11, 0.94);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease;
+}
+
+.scrolled {
+  max-width: 1152px;
+}
+.scrolled::before {
+  opacity: 1;
+}
+
+.inner {
+  position: relative;
+  display: flex;
+  width: 100%;
+  min-height: 58px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px;
+}
+
+@media (min-width: 640px) {
+  .nav {
+    top: 16px;
+    width: calc(100% - 48px);
+  }
+  .inner {
+    min-height: 66px;
+    padding: 16px 24px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav,
+  .nav::before {
+    transition: none;
   }
 }

@@ -1,0 +1,154 @@
+{
+  "viewports": [
+    {
+      "width": 320,
+      "community": {
+        "actualCount": 0,
+        "displayedCount": "0 pessoas online agora",
+        "photoCount": 5,
+        "photosFromPublicProfiles": true,
+        "noFabricatedCount": true,
+        "allPhotosLoaded": true
+      },
+      "initial": {
+        "buttonHeight": 32,
+        "toggleHeight": 32,
+        "buttonWidth": 96.265625,
+        "navHeight": 58,
+        "top": 12,
+        "scrolled": "false",
+        "innerTransition": "0s",
+        "controlsFit": true,
+        "overflow": false
+      },
+      "hoverExpansionPx": 12.15625,
+      "compact": {
+        "buttonHeight": 32,
+        "toggleHeight": 32,
+        "buttonWidth": 96.265625,
+        "navHeight": 58,
+        "top": 12,
+        "scrolled": "true",
+        "innerTransition": "0s",
+        "controlsFit": true,
+        "overflow": false
+      },
+      "hysteresisPreserved": true,
+      "restored": true,
+      "english": {
+        "buttonHeight": 32,
+        "toggleHeight": 32,
+        "buttonWidth": 74.390625,
+        "navHeight": 58,
+        "top": 12,
+        "scrolled": "false",
+        "innerTransition": "0s",
+        "controlsFit": true,
+        "overflow": false
+      },
+      "errors": [],
+      "passed": true
+    },
+    {
+      "width": 390,
+      "community": {
+        "actualCount": 0,
+        "displayedCount": "0 pessoas online agora",
+        "photoCount": 5,
+        "photosFromPublicProfiles": true,
+        "noFabricatedCount": true,
+        "allPhotosLoaded": true
+      },
+      "initial": {
+        "buttonHeight": 32,
+        "toggleHeight": 32,
+        "buttonWidth": 96.265625,
+        "navHeight": 58,
+        "top": 12,
+        "scrolled": "false",
+        "innerTransition": "0s",
+        "controlsFit": true,
+        "overflow": false
+      },
+      "hoverExpansionPx": 12.15625,
+      "compact": {
+        "buttonHeight": 32,
+        "toggleHeight": 32,
+        "buttonWidth": 96.28125,
+        "navHeight": 58,
+        "top": 12,
+        "scrolled": "true",
+        "innerTransition": "0s",
+        "controlsFit": true,
+        "overflow": false
+      },
+      "hysteresisPreserved": true,
+      "restored": true,
+      "english": {
+        "buttonHeight": 32,
+        "toggleHeight": 32,
+        "buttonWidth": 74.390625,
+        "navHeight": 58,
+        "top": 12,
+        "scrolled": "false",
+        "innerTransition": "0s",
+        "controlsFit": true,
+        "overflow": false
+      },
+      "errors": [],
+      "passed": true
+    },
+    {
+      "width": 1440,
+      "community": {
+        "actualCount": 0,
+        "displayedCount": "0 pessoas online agora",
+        "photoCount": 5,
+        "photosFromPublicProfiles": true,
+        "noFabricatedCount": true,
+        "allPhotosLoaded": true
+      },
+      "initial": {
+        "buttonHeight": 34,
+        "toggleHeight": 34,
+        "buttonWidth": 96.265625,
+        "navHeight": 66,
+        "top": 16,
+        "scrolled": "false",
+        "innerTransition": "0s",
+        "controlsFit": true,
+        "overflow": false
+      },
+      "hoverExpansionPx": 12.15625,
+      "compact": {
+        "buttonHeight": 34,
+        "toggleHeight": 34,
+        "buttonWidth": 96.28125,
+        "navHeight": 66,
+        "top": 16,
+        "scrolled": "true",
+        "innerTransition": "0s",
+        "controlsFit": true,
+        "overflow": false
+      },
+      "hysteresisPreserved": true,
+      "restored": true,
+      "english": {
+        "buttonHeight": 34,
+        "toggleHeight": 34,
+        "buttonWidth": 74.390625,
+        "navHeight": 66,
+        "top": 16,
+        "scrolled": "false",
+        "innerTransition": "0s",
+        "controlsFit": true,
+        "overflow": false
+      },
+      "errors": [],
+      "passed": true
+    }
+  ],
+  "reducedMotionTransitionRemoved": true,
+  "anonymousHeartbeatRejected": true,
+  "passed": true
+}

@@ -12,6 +12,7 @@ import { useReducedMotion } from '../src/lib/motion';
 import { notificationRoute } from '../src/lib/links';
 import { loadNotifications, type NotificationResponse } from '../src/lib/notification-runtime';
 import { SoundEffectsProvider } from '../src/lib/sounds';
+import { PlatformPresence } from '../src/components/PlatformPresence';
 function NotificationLinks() {
   const navigation = useRootNavigationState();
   const { ready } = useSession();
@@ -80,6 +81,7 @@ function Navigation() {
         }}
       />
       <NotificationLinks />
+      <PlatformPresence />
     </>
   );
 }
