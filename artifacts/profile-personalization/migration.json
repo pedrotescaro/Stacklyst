@@ -1,7 +1,7 @@
 {
   "target": "ienkozdeancyqvjbepna",
   "migration": "20261027183000_profile_customization",
-  "checksum": "dfe5356e317f32c82b32c4eeb0842012d128ed37073608eefb0890ba8747502b",
+  "checksum": "e0cab1a1fb19606b1c48e166efe9c434a764ab9831486268139809db5322a58d",
   "appliedNow": true,
   "transactionCommitted": true,
   "tables": [
@@ -23,5 +23,8 @@
       "anon_access": false,
       "authenticated_access": false
     }
-  ]
+  ],
+  "executedOriginalChecksum": "dfe5356e317f32c82b32c4eeb0842012d128ed37073608eefb0890ba8747502b",
+  "gitNewlineNormalization": true,
+  "semanticSqlUnchanged": true
 }
