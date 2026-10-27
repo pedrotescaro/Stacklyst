@@ -29,8 +29,7 @@ export function BrandLogo({
           '--brand-width-ratio': wordmark
             ? brandGeometry.wordmarkWidth / brandGeometry.height + 0.1
             : brandGeometry.width / brandGeometry.height,
-          '--brand-suffix-ratio':
-            (brandGeometry.wordmarkWidth - brandGeometry.width - 36) / brandGeometry.height,
+          '--brand-font-scale': brandGeometry.suffixFontSizeRatio,
         } as CSSProperties
       }
     >

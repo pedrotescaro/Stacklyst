@@ -1,0 +1,77 @@
+{
+  "scope": "Native/static branding assets and Expo bundle verification",
+  "reference": {
+    "symbolBlueBounds": [5, 5, 62, 58],
+    "textBlueBounds": [64, 24, 222, 62],
+    "symbolToTextInkHeightRatio": 1.3846153846153846
+  },
+  "typography": {
+    "family": "Sora",
+    "weight": 600,
+    "letterSpacingEm": -0.02,
+    "fontSizeToSymbolHeightRatio": 0.76,
+    "textInkBounds": [5.47884, 280.35, 2376.59904, 855.01944],
+    "wordmarkCanvas": [3289, 864]
+  },
+  "symbol": {
+    "originalPathPreserved": true,
+    "pathSha256": "8b914da3f37f9f62b8240609f4c361da287a462418d53d21db508296430fd650"
+  },
+  "icons": {
+    "app-icon.png": {
+      "width": 1024,
+      "height": 1024
+    },
+    "android-icon-foreground.png": {
+      "width": 1024,
+      "height": 1024
+    },
+    "android-icon-monochrome.png": {
+      "width": 1024,
+      "height": 1024
+    },
+    "android-icon-background.png": {
+      "width": 1024,
+      "height": 1024
+    },
+    "splash-icon.png": {
+      "width": 1024,
+      "height": 1024
+    },
+    "logo.png": {
+      "width": 512,
+      "height": 512
+    },
+    "icon.png": {
+      "width": 1024,
+      "height": 1024
+    },
+    "favicon.png": {
+      "width": 48,
+      "height": 48
+    }
+  },
+  "expoConfig": {
+    "icon": "./assets/app-icon.png",
+    "adaptiveIcon": {
+      "foregroundImage": "./assets/android-icon-foreground.png",
+      "monochromeImage": "./assets/android-icon-monochrome.png",
+      "backgroundColor": "#000000"
+    },
+    "webFavicon": "./assets/favicon.png",
+    "allReferencedAssetsExist": true
+  },
+  "validation": {
+    "typecheck": true,
+    "lint": true,
+    "configTest": true,
+    "expoConfig": true,
+    "androidHermesExport": true,
+    "iosHermesExport": true,
+    "webExport": true,
+    "exportedWebFaviconUsesBlueMonogram": true,
+    "nativeBinaryBuilt": false,
+    "deviceVisualVerified": false
+  },
+  "passed": true
+}

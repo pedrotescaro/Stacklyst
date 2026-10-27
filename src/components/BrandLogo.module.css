@@ -27,51 +27,34 @@
   color: var(--brand-color);
   -webkit-text-fill-color: var(--brand-color);
   font-family: var(--font-sora), sans-serif;
-  font-size: calc(var(--brand-size) * 1.36);
+  font-size: calc(var(--brand-size) * var(--brand-font-scale, 0.76));
   font-weight: 600;
   letter-spacing: -0.02em;
-  transform: translateY(calc(var(--brand-size) * -0.045));
-}
-.animated {
-  animation: brand-arrive 160ms ease-out both;
+  transform: translateY(calc(var(--brand-size) * 0.16));
 }
 .animated .mark {
-  animation: assemble-mark 740ms 80ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: reveal-mark 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .animated .suffix {
-  animation: assemble-name 740ms 80ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: reveal-name 380ms 660ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-@keyframes brand-arrive {
+@keyframes reveal-mark {
   from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-@keyframes assemble-mark {
-  from {
-    transform: translateX(calc(var(--brand-size) * var(--brand-suffix-ratio) / 2));
-  }
-  to {
-    transform: translateX(0);
-  }
-}
-@keyframes assemble-name {
-  from {
-    clip-path: inset(0 100% 0 0);
-    transform: translate(
-      calc(var(--brand-size) * var(--brand-suffix-ratio) / 2),
-      calc(var(--brand-size) * -0.045)
-    );
+    clip-path: inset(100% 0 0);
   }
   to {
     clip-path: inset(0);
-    transform: translate(0, calc(var(--brand-size) * -0.045));
+  }
+}
+@keyframes reveal-name {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0);
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .animated,
   .animated .mark,
   .animated .suffix {
     animation: none;

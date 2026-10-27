@@ -3,7 +3,7 @@
 Usage: python scripts/outline-brand-wordmark.py <Sora.ttf>
 Requires fonttools; font license lives in public/brand/OFL-Sora.txt.
 Only the suffix is regenerated; the supplied monogram geometry is preserved.
-Web renders the same face at 1.36 times the monogram height and -0.02em tracking.
+Web renders the same face at 0.76 times the monogram height and -0.02em tracking.
 """
 import ast
 import json
@@ -31,8 +31,10 @@ def read_value(key):
     return ast.literal_eval(match.group(1))
 
 geometry = {key: read_value(key) for key in ["viewBox", "width", "height", "path"]}
-scale = 1.36 * geometry["height"] / font["head"].unitsPerEm
-baseline = font["OS/2"].sCapHeight * scale + 8
+font_size_ratio = 0.76
+ink_top_ratio = 0.35
+scale = font_size_ratio * geometry["height"] / font["head"].unitsPerEm
+baseline = font["OS/2"].sCapHeight * scale + ink_top_ratio * geometry["height"]
 
 # Sora's Latin kerning is GPOS PairPos. Preserve it in the outlined signature,
 # then add the requested CSS-equivalent letter spacing between glyphs only.
@@ -76,7 +78,7 @@ pen = SVGPathPen(glyphs, ntos=lambda n: f"{n:.3f}".rstrip("0").rstrip(".") or "0
 bounds = BoundsPen(glyphs)
 x = 0
 previous = None
-tracking = -0.02 * 1.36 * geometry["height"]
+tracking = -0.02 * font_size_ratio * geometry["height"]
 text = "tacklyst"
 for index, char in enumerate(text):
     name = cmap[ord(char)]
@@ -97,6 +99,8 @@ geometry["wordmarkHeight"] = math.ceil(max(geometry["height"], bounds.bounds[3])
 geometry["suffixFontFamily"] = "Sora"
 geometry["suffixFontWeight"] = 600
 geometry["suffixLetterSpacingEm"] = -0.02
+geometry["suffixFontSizeRatio"] = font_size_ratio
+geometry["suffixInkTopRatio"] = ink_top_ratio
 content = ("// Supplied monogram + Sora SemiBold 600 outlines; see public/brand/OFL-Sora.txt.\n"
            "export const brandGeometry = " + json.dumps(geometry, indent=2) + " as const;\n")
 for file in [geometry_file, Path("apps/mobile/src/components/brand-geometry.ts")]:

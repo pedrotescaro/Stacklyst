@@ -1,0 +1,732 @@
+{
+  "scope": "Paused replay of the actual rendered loader markup and shipped CSS after font readiness; original page completion is checked separately. This is DOM/pixel evidence, not native-device or compositor frame-rate proof.",
+  "reference": {
+    "symbolInkHeight": 54,
+    "textInkHeight": 39,
+    "symbolToTextHeightRatio": 1.3846153846153846
+  },
+  "viewports": [
+    {
+      "width": 320,
+      "originalLoaderCompleted": true,
+      "frames": [
+        {
+          "timeMs": 200,
+          "brand": {
+            "left": 99.515625,
+            "top": 436,
+            "right": 214.46875,
+            "bottom": 464,
+            "width": 114.953125,
+            "height": 28
+          },
+          "mark": {
+            "left": 99.515625,
+            "top": 436,
+            "right": 129.75,
+            "bottom": 464,
+            "width": 30.234375,
+            "height": 28
+          },
+          "text": {
+            "left": 131,
+            "top": 443.8393859863281,
+            "right": 214.46875,
+            "bottom": 465.1206359863281,
+            "width": 83.46875,
+            "height": 21.28125
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 4.48)",
+          "markClip": "inset(14.3633% 0px 0px)",
+          "textClip": "inset(0px 100% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "21.28px",
+          "letterSpacing": "-0.4256px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        },
+        {
+          "timeMs": 640,
+          "brand": {
+            "left": 99.515625,
+            "top": 436,
+            "right": 214.46875,
+            "bottom": 464,
+            "width": 114.953125,
+            "height": 28
+          },
+          "mark": {
+            "left": 99.515625,
+            "top": 436,
+            "right": 129.75,
+            "bottom": 464,
+            "width": 30.234375,
+            "height": 28
+          },
+          "text": {
+            "left": 131,
+            "top": 443.8393859863281,
+            "right": 214.46875,
+            "bottom": 465.1206359863281,
+            "width": 83.46875,
+            "height": 21.28125
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 4.48)",
+          "markClip": "inset(0% 0px 0px)",
+          "textClip": "inset(0px 100% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "21.28px",
+          "letterSpacing": "-0.4256px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        },
+        {
+          "timeMs": 850,
+          "brand": {
+            "left": 99.515625,
+            "top": 436,
+            "right": 214.46875,
+            "bottom": 464,
+            "width": 114.953125,
+            "height": 28
+          },
+          "mark": {
+            "left": 99.515625,
+            "top": 436,
+            "right": 129.75,
+            "bottom": 464,
+            "width": 30.234375,
+            "height": 28
+          },
+          "text": {
+            "left": 131,
+            "top": 443.8393859863281,
+            "right": 214.46875,
+            "bottom": 465.1206359863281,
+            "width": 83.46875,
+            "height": 21.28125
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 4.48)",
+          "markClip": "inset(0% 0px 0px)",
+          "textClip": "inset(0px 3.86175% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "21.28px",
+          "letterSpacing": "-0.4256px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        },
+        {
+          "timeMs": 1100,
+          "brand": {
+            "left": 99.515625,
+            "top": 436,
+            "right": 214.46875,
+            "bottom": 464,
+            "width": 114.953125,
+            "height": 28
+          },
+          "mark": {
+            "left": 99.515625,
+            "top": 436,
+            "right": 129.75,
+            "bottom": 464,
+            "width": 30.234375,
+            "height": 28
+          },
+          "text": {
+            "left": 131,
+            "top": 443.8393859863281,
+            "right": 214.46875,
+            "bottom": 465.1206359863281,
+            "width": 83.46875,
+            "height": 21.28125
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 4.48)",
+          "markClip": "inset(0% 0px 0px)",
+          "textClip": "inset(0px 0% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "21.28px",
+          "letterSpacing": "-0.4256px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        }
+      ],
+      "ink": {
+        "symbol": {
+          "left": 88,
+          "top": 71,
+          "right": 117,
+          "bottom": 98,
+          "width": 30,
+          "height": 28
+        },
+        "text": {
+          "left": 119,
+          "top": 80,
+          "right": 201,
+          "bottom": 99,
+          "width": 83,
+          "height": 20
+        },
+        "symbolToTextHeightRatio": 1.4
+      },
+      "assertions": {
+        "expectedAnimations": true,
+        "markStationary": true,
+        "nameHiddenUntilMarkComplete": true,
+        "markCompleteAt640": true,
+        "nameRevealingAt850": true,
+        "nameCompleteAt1100": true,
+        "separated": true,
+        "colorsMatch": true,
+        "typography": true,
+        "fits": true,
+        "referenceProportion": true,
+        "noJavaScriptErrors": true
+      },
+      "errors": []
+    },
+    {
+      "width": 390,
+      "originalLoaderCompleted": true,
+      "frames": [
+        {
+          "timeMs": 200,
+          "brand": {
+            "left": 134.515625,
+            "top": 436,
+            "right": 249.46875,
+            "bottom": 464,
+            "width": 114.953125,
+            "height": 28
+          },
+          "mark": {
+            "left": 134.515625,
+            "top": 436,
+            "right": 164.75,
+            "bottom": 464,
+            "width": 30.234375,
+            "height": 28
+          },
+          "text": {
+            "left": 166,
+            "top": 443.8393859863281,
+            "right": 249.46875,
+            "bottom": 465.1206359863281,
+            "width": 83.46875,
+            "height": 21.28125
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 4.48)",
+          "markClip": "inset(14.3633% 0px 0px)",
+          "textClip": "inset(0px 100% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "21.28px",
+          "letterSpacing": "-0.4256px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        },
+        {
+          "timeMs": 640,
+          "brand": {
+            "left": 134.515625,
+            "top": 436,
+            "right": 249.46875,
+            "bottom": 464,
+            "width": 114.953125,
+            "height": 28
+          },
+          "mark": {
+            "left": 134.515625,
+            "top": 436,
+            "right": 164.75,
+            "bottom": 464,
+            "width": 30.234375,
+            "height": 28
+          },
+          "text": {
+            "left": 166,
+            "top": 443.8393859863281,
+            "right": 249.46875,
+            "bottom": 465.1206359863281,
+            "width": 83.46875,
+            "height": 21.28125
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 4.48)",
+          "markClip": "inset(0% 0px 0px)",
+          "textClip": "inset(0px 100% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "21.28px",
+          "letterSpacing": "-0.4256px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        },
+        {
+          "timeMs": 850,
+          "brand": {
+            "left": 134.515625,
+            "top": 436,
+            "right": 249.46875,
+            "bottom": 464,
+            "width": 114.953125,
+            "height": 28
+          },
+          "mark": {
+            "left": 134.515625,
+            "top": 436,
+            "right": 164.75,
+            "bottom": 464,
+            "width": 30.234375,
+            "height": 28
+          },
+          "text": {
+            "left": 166,
+            "top": 443.8393859863281,
+            "right": 249.46875,
+            "bottom": 465.1206359863281,
+            "width": 83.46875,
+            "height": 21.28125
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 4.48)",
+          "markClip": "inset(0% 0px 0px)",
+          "textClip": "inset(0px 3.86175% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "21.28px",
+          "letterSpacing": "-0.4256px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        },
+        {
+          "timeMs": 1100,
+          "brand": {
+            "left": 134.515625,
+            "top": 436,
+            "right": 249.46875,
+            "bottom": 464,
+            "width": 114.953125,
+            "height": 28
+          },
+          "mark": {
+            "left": 134.515625,
+            "top": 436,
+            "right": 164.75,
+            "bottom": 464,
+            "width": 30.234375,
+            "height": 28
+          },
+          "text": {
+            "left": 166,
+            "top": 443.8393859863281,
+            "right": 249.46875,
+            "bottom": 465.1206359863281,
+            "width": 83.46875,
+            "height": 21.28125
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 4.48)",
+          "markClip": "inset(0% 0px 0px)",
+          "textClip": "inset(0px 0% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "21.28px",
+          "letterSpacing": "-0.4256px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        }
+      ],
+      "ink": {
+        "symbol": {
+          "left": 123,
+          "top": 71,
+          "right": 152,
+          "bottom": 98,
+          "width": 30,
+          "height": 28
+        },
+        "text": {
+          "left": 154,
+          "top": 80,
+          "right": 236,
+          "bottom": 99,
+          "width": 83,
+          "height": 20
+        },
+        "symbolToTextHeightRatio": 1.4
+      },
+      "assertions": {
+        "expectedAnimations": true,
+        "markStationary": true,
+        "nameHiddenUntilMarkComplete": true,
+        "markCompleteAt640": true,
+        "nameRevealingAt850": true,
+        "nameCompleteAt1100": true,
+        "separated": true,
+        "colorsMatch": true,
+        "typography": true,
+        "fits": true,
+        "referenceProportion": true,
+        "noJavaScriptErrors": true
+      },
+      "errors": []
+    },
+    {
+      "width": 1440,
+      "originalLoaderCompleted": true,
+      "frames": [
+        {
+          "timeMs": 200,
+          "brand": {
+            "left": 626.6875,
+            "top": 428,
+            "right": 807.296875,
+            "bottom": 472,
+            "width": 180.609375,
+            "height": 44
+          },
+          "mark": {
+            "left": 626.6875,
+            "top": 428,
+            "right": 674.203125,
+            "bottom": 472,
+            "width": 47.515625,
+            "height": 44
+          },
+          "text": {
+            "left": 676.171875,
+            "top": 440.3212585449219,
+            "right": 807.296875,
+            "bottom": 473.7587585449219,
+            "width": 131.125,
+            "height": 33.4375
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 7.04)",
+          "markClip": "inset(14.3633% 0px 0px)",
+          "textClip": "inset(0px 100% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "33.44px",
+          "letterSpacing": "-0.6688px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        },
+        {
+          "timeMs": 640,
+          "brand": {
+            "left": 626.6875,
+            "top": 428,
+            "right": 807.296875,
+            "bottom": 472,
+            "width": 180.609375,
+            "height": 44
+          },
+          "mark": {
+            "left": 626.6875,
+            "top": 428,
+            "right": 674.203125,
+            "bottom": 472,
+            "width": 47.515625,
+            "height": 44
+          },
+          "text": {
+            "left": 676.171875,
+            "top": 440.3212585449219,
+            "right": 807.296875,
+            "bottom": 473.7587585449219,
+            "width": 131.125,
+            "height": 33.4375
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 7.04)",
+          "markClip": "inset(0% 0px 0px)",
+          "textClip": "inset(0px 100% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "33.44px",
+          "letterSpacing": "-0.6688px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        },
+        {
+          "timeMs": 850,
+          "brand": {
+            "left": 626.6875,
+            "top": 428,
+            "right": 807.296875,
+            "bottom": 472,
+            "width": 180.609375,
+            "height": 44
+          },
+          "mark": {
+            "left": 626.6875,
+            "top": 428,
+            "right": 674.203125,
+            "bottom": 472,
+            "width": 47.515625,
+            "height": 44
+          },
+          "text": {
+            "left": 676.171875,
+            "top": 440.3212585449219,
+            "right": 807.296875,
+            "bottom": 473.7587585449219,
+            "width": 131.125,
+            "height": 33.4375
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 7.04)",
+          "markClip": "inset(0% 0px 0px)",
+          "textClip": "inset(0px 3.86175% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "33.44px",
+          "letterSpacing": "-0.6688px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        },
+        {
+          "timeMs": 1100,
+          "brand": {
+            "left": 626.6875,
+            "top": 428,
+            "right": 807.296875,
+            "bottom": 472,
+            "width": 180.609375,
+            "height": 44
+          },
+          "mark": {
+            "left": 626.6875,
+            "top": 428,
+            "right": 674.203125,
+            "bottom": 472,
+            "width": 47.515625,
+            "height": 44
+          },
+          "text": {
+            "left": 676.171875,
+            "top": 440.3212585449219,
+            "right": 807.296875,
+            "bottom": 473.7587585449219,
+            "width": 131.125,
+            "height": 33.4375
+          },
+          "markTransform": "none",
+          "textTransform": "matrix(1, 0, 0, 1, 0, 7.04)",
+          "markClip": "inset(0% 0px 0px)",
+          "textClip": "inset(0px 0% 0px 0px)",
+          "symbolColor": "rgb(0, 131, 254)",
+          "textColor": "rgb(0, 131, 254)",
+          "textFill": "rgb(0, 131, 254)",
+          "font": "Sora, \"Sora Fallback\", sans-serif",
+          "weight": "600",
+          "fontSize": "33.44px",
+          "letterSpacing": "-0.6688px",
+          "animations": [
+            {
+              "name": "f_kG8a_reveal-mark",
+              "duration": 620,
+              "delay": 0
+            },
+            {
+              "name": "f_kG8a_reveal-name",
+              "duration": 380,
+              "delay": 660
+            }
+          ]
+        }
+      ],
+      "ink": {
+        "symbol": {
+          "left": 117,
+          "top": 63,
+          "right": 163,
+          "bottom": 106,
+          "width": 47,
+          "height": 44
+        },
+        "text": {
+          "left": 166,
+          "top": 77,
+          "right": 296,
+          "bottom": 108,
+          "width": 131,
+          "height": 32
+        },
+        "symbolToTextHeightRatio": 1.375
+      },
+      "assertions": {
+        "expectedAnimations": true,
+        "markStationary": true,
+        "nameHiddenUntilMarkComplete": true,
+        "markCompleteAt640": true,
+        "nameRevealingAt850": true,
+        "nameCompleteAt1100": true,
+        "separated": true,
+        "colorsMatch": true,
+        "typography": true,
+        "fits": true,
+        "referenceProportion": true,
+        "noJavaScriptErrors": true
+      },
+      "errors": []
+    }
+  ],
+  "reducedMotionCompletes": true,
+  "passed": true
+}

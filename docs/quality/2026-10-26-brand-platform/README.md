@@ -1,6 +1,6 @@
 # Entrega: marca, acesso e integridade funcional
 
-A marca usa o S enviado como primeira letra e `tacklyst` em **Sora SemiBold 600**, com espaçamento **-0,02em**, ambos em **#0083FE**. Os componentes compartilhados cobrem navegação, autenticação, rodapés, demonstração, loading, favicon e aplicativo. A abertura revela símbolo e nome juntos, enquanto o conteúdo já fica pronto por baixo para evitar duas entradas sequenciais; após cadastro/onboarding bem-sucedidos, navega quando a abertura termina. Redução de movimento desativa a formação. O refinamento final mantém o tamanho responsivo da marca, coordena a formação com uma dissolução de 360ms e encerra a abertura em 1,32s.
+A marca usa o S enviado como primeira letra e `tacklyst` em **Sora SemiBold 600**, com espaçamento **-0,02em**, ambos em **#0083FE**. A proporção revisada segue a referência do proprietário: símbolo maior e texto com tamanho de fonte equivalente a 0,76 da altura do S. Os componentes compartilhados cobrem navegação, autenticação, rodapés, demonstração, loading, favicon e aplicativo. A abertura revela primeiro o S, fixo, em 620ms; depois o nome, a partir de 660ms. A sequência nominal termina em 1,56s, incluindo dissolução de 360ms. Após cadastro/onboarding bem-sucedidos, navega quando a abertura termina; durante o salvamento de preferências, mantém apenas a marca do cabeçalho. Redução de movimento desativa a formação.
 
 ## Alterações funcionais
 
@@ -32,7 +32,9 @@ A varredura teve **zero violações axe** em 14 visualizações. Após remover d
 
 `coverage-summary.json` contém a cobertura por arquivo das áreas selecionadas, incluindo código preexistente desses módulos. A medição é deliberadamente explícita: não representa cobertura de toda a aplicação nem afirma cobertura alta de todos os serviços.
 
-O refinamento final da abertura passou no build de produção e em 13 testes direcionados de cadastro, navegação e conclusão da animação. `artifacts/brand/loading-verification.json` registra as larguras 320, 390, 768 e 1440px: marca com tamanho estável, sem sobreposição entre símbolo e nome, cor idêntica, dissolução e conclusão com movimento reduzido. As amostras de `requestAnimationFrame` observaram atraso da thread principal na primeira carga fria; elas não medem os quadros do compositor nem comprovam fluidez em aparelho real. A conclusão agora acompanha o evento de término da transição, com fallback e proteção contra navegação duplicada.
+A nova abertura sequencial passou no build de produção e em **14 testes direcionados** de cadastro, navegação, conclusão da animação e marca única durante o salvamento do onboarding. `artifacts/brand/sequential-entry-verification.json` registra quadros de 200, 640, 850 e 1100ms nas larguras **320, 390 e 1440px**: S fixo, nome oculto até o símbolo terminar, ausência de sobreposição, mesma cor e proporção semelhante à referência (S/texto: 1,40 no celular e 1,375 no desktop; referência 1,385). A conclusão real e a preferência de redução de movimento também passaram. A conclusão acompanha o evento de término da transição, com fallback e proteção contra navegação duplicada.
+
+`artifacts/brand/native-brand-verification.json` registra ícones e assinatura do aplicativo, configuração e exports Hermes Android/iOS e web. O favicon exportado contém o novo S azul. Typecheck, lint e teste de configuração passaram. Os novos ícones nativos precisam de outro binário para aparecer no aplicativo instalado; não foi gerado APK nem feita validação visual em aparelho. A evidência de quadros no navegador não comprova taxa de quadros do compositor nem fluidez em aparelho real. Os artefatos `loading-verification.json` e `sora-verification.json` preservam as medições das revisões anteriores.
 
 ## Pendências de ambiente
 

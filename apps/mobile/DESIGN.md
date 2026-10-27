@@ -142,6 +142,8 @@ Os tokens `snippet-*` reproduzem a paleta One Dark do editor de exercícios. Ess
 
 Fonte nativa do sistema, acompanhando a escala do aparelho. A hierarquia compartilhada é título, heading, corpo, secundário e legenda. O título de atividade usa a função `lesson-title`; as opções usam texto amplo (17/25) e diferenciam seleção por peso, borda e ícone. Código preserva fonte monoespaçada e rolagem horizontal, sem reduzir a fonte para caber.
 
+A assinatura usa o S fornecido pelo proprietário, maior que o texto `tacklyst`, em Sora SemiBold 600 e espaçamento -0,02em. A fonte equivale a 0,76 da altura do símbolo, com o nome alinhado mais abaixo conforme a referência aprovada; os contornos mantêm essa proporção sem depender de fontes do aparelho. Símbolo e texto são #0083FE. O launcher, os ícones adaptativo e monocromático, o splash e o favicon da versão web do aplicativo derivam do mesmo monograma, com margens transparentes apropriadas. Os arquivos podem ser regenerados por `node scripts/build-native-brand-icons.mjs` sem redesenhar o S. Alterações de launcher e splash só aparecem em um novo binário nativo; Expo Go não comprova sua aparência final.
+
 ## Layout
 
 O conteúdo ocupa a largura disponível até o limite centralizado (760 unidades). A tela compartilhada usa padding e intervalo de conteúdo (20 unidades); o feed mantém linhas de ponta a ponta, com avatar à esquerda e conteúdo à direita. A escala nomeada de espaços está no frontmatter; valores CSS representam as unidades de layout do React Native.

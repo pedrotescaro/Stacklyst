@@ -39,7 +39,7 @@ describe('Site entry completion', () => {
 
     transitionEnd(loader);
     expect(onComplete).not.toHaveBeenCalled();
-    advance(960);
+    advance(1200);
     transitionEnd(screen.getByRole('status'));
     transitionEnd(loader, 'transform');
     advance(360);
@@ -52,7 +52,7 @@ describe('Site entry completion', () => {
   it('completes once even if the fallback and another transition follow', () => {
     const onComplete = vi.fn();
     render(<SiteEntryLoader onComplete={onComplete} />);
-    advance(960);
+    advance(1200);
     transitionEnd(screen.getByTestId('site-entry-loader'));
     advance(440);
     transitionEnd(screen.getByTestId('site-entry-loader'));
@@ -62,14 +62,14 @@ describe('Site entry completion', () => {
   it('recovers when the exit transition is interrupted and emits no event', () => {
     const onComplete = vi.fn();
     render(<SiteEntryLoader onComplete={onComplete} />);
-    advance(960);
+    advance(1200);
     advance(439);
     expect(onComplete).not.toHaveBeenCalled();
     advance(1);
     expect(onComplete).toHaveBeenCalledOnce();
   });
 
-  it.each([0, 960])('cancels pending completion when unmounted at %ims', (elapsed) => {
+  it.each([0, 1200])('cancels pending completion when unmounted at %ims', (elapsed) => {
     const onComplete = vi.fn();
     const { unmount } = render(<SiteEntryLoader onComplete={onComplete} />);
     advance(elapsed);

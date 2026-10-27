@@ -8,10 +8,10 @@ export function BrandMark({
   width?: number;
   wordmark?: boolean;
 }) {
-  const height = (width * g.height) / g.width;
+  const height = (width * (wordmark ? g.wordmarkHeight : g.height)) / g.width;
   return (
     <Svg
-      width={wordmark ? (height * g.wordmarkWidth) / g.wordmarkHeight : width}
+      width={wordmark ? (width * g.wordmarkWidth) / g.width : width}
       height={height}
       viewBox={wordmark ? `0 0 ${g.wordmarkWidth} ${g.wordmarkHeight}` : g.viewBox}
       accessible

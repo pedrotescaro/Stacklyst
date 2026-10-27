@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 
 const mocks = vi.hoisted(() => ({ push: vi.fn(), refresh: vi.fn(), fetch: vi.fn() }));
 vi.mock('next/navigation', () => ({
@@ -96,6 +96,42 @@ describe('Account opening animation', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Concluir animação' }));
     expect(mocks.push).toHaveBeenCalledWith('/feed');
     expect(mocks.refresh).toHaveBeenCalledOnce();
+  });
+  it('keeps one logo while preferences are saving and shows the opening only after success', async () => {
+    let resolveSave!: (response: Response) => void;
+    mocks.fetch.mockReturnValue(
+      new Promise<Response>((resolve) => {
+        resolveSave = resolve;
+      })
+    );
+    render(<OnboardingForm initialPreferences={{ feed: 'following', languages: ['TS'] }} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir meu feed' }));
+
+    expect(screen.getAllByTestId('brand-logo')).toHaveLength(1);
+    expect(screen.getByRole('status')).toHaveTextContent('Salvando preferências...');
+    expect(screen.getByRole('button', { name: 'Salvando preferências...' })).toBeDisabled();
+    expect(screen.getByRole('checkbox', { name: 'TS' })).toBeChecked();
+    expect(screen.getByRole('checkbox', { name: 'TS' })).toBeDisabled();
+    expect(screen.queryByTestId('opening-animation')).not.toBeInTheDocument();
+    expect(mocks.push).not.toHaveBeenCalled();
+    expect(mocks.fetch).toHaveBeenCalledTimes(1);
+    expect(JSON.parse(mocks.fetch.mock.calls[0][1].body)).toEqual({
+      feed: 'following',
+      languages: ['TS'],
+    });
+
+    await act(async () => {
+      resolveSave(
+        new Response(JSON.stringify({ feed: 'following', languages: ['TS'] }), { status: 200 })
+      );
+    });
+    expect(screen.getByTestId('opening-animation')).toBeInTheDocument();
+    expect(screen.getAllByTestId('brand-logo')).toHaveLength(1);
+    expect(screen.queryByRole('checkbox', { name: 'TS' })).not.toBeInTheDocument();
+    expect(mocks.push).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Concluir animação' }));
+    expect(mocks.push).toHaveBeenCalledOnce();
+    expect(mocks.push).toHaveBeenCalledWith('/feed');
   });
   it('preserves choices after a save failure and does not play the opening', async () => {
     mocks.fetch.mockRejectedValue(new Error('network'));

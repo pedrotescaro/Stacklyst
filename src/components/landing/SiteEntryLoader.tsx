@@ -19,7 +19,7 @@ export default function SiteEntryLoader({
   }, []);
   useEffect(() => {
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const reveal = window.setTimeout(() => setExiting(true), reduced ? 0 : 960);
+    const reveal = window.setTimeout(() => setExiting(true), reduced ? 0 : 1200);
     return () => {
       window.clearTimeout(reveal);
     };
