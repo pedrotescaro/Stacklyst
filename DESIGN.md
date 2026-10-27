@@ -8,6 +8,6 @@ O símbolo e o texto usam o mesmo Electric Blue #0083FE nas duas aparências, co
 
 O tamanho solicitado é um teto, não uma dimensão fixa: `BrandLogo` limita a altura do símbolo à largura da tela e ao contexto. Navegação: 18–24px; assinaturas comuns: até 22px em telas pequenas e 32px no desktop; abertura: 28–44px. O texto acompanha proporcionalmente o símbolo. A abertura não deve ocupar a largura inteira da tela.
 
-A abertura forma o S no centro e o desloca para sua posição enquanto revela "tacklyst" na mesma Sora SemiBold. Duas cortinas se afastam do centro para revelar a página já pronta por baixo. A sequência termina em 1,44 segundo; a preferência de redução de movimento mantém somente uma transição de opacidade de 80ms. Não representar progresso com porcentagens sem dados reais.
+A abertura apresenta o S no centro e o desloca suavemente para sua posição enquanto revela "tacklyst" na mesma Sora SemiBold. Símbolo e nome compartilham a opacidade de entrada e saída, preservando a igualdade de cor. A marca mantém seu tamanho durante toda a sequência; uma breve pausa após a formação precede a dissolução de 360ms para a página já pronta por baixo. A sequência termina em 1,32 segundo; a preferência de redução de movimento mantém somente uma transição de opacidade de 80ms. Não representar progresso com porcentagens sem dados reais.
 
 Essa revisão altera a marca e a abertura. Os tokens de produto, a estrutura de navegação e o mascote seguem a implementação existente. As novas telas de recuperação e onboarding usam os mesmos controles e cores operacionais.

@@ -1,6 +1,6 @@
 # Entrega: marca, acesso e integridade funcional
 
-A marca usa o S enviado como primeira letra e `tacklyst` em Space Grotesk Bold, ambos em **#0083FE**. Os componentes compartilhados cobrem navegação, autenticação, rodapés, demonstração, loading, favicon e aplicativo. A abertura revela símbolo e nome juntos, enquanto o conteúdo já fica pronto por baixo para evitar duas entradas sequenciais; após cadastro/onboarding bem-sucedidos, navega quando a abertura termina. Redução de movimento desativa a formação.
+A marca usa o S enviado como primeira letra e `tacklyst` em **Sora SemiBold 600**, com espaçamento **-0,02em**, ambos em **#0083FE**. Os componentes compartilhados cobrem navegação, autenticação, rodapés, demonstração, loading, favicon e aplicativo. A abertura revela símbolo e nome juntos, enquanto o conteúdo já fica pronto por baixo para evitar duas entradas sequenciais; após cadastro/onboarding bem-sucedidos, navega quando a abertura termina. Redução de movimento desativa a formação. O refinamento final mantém o tamanho responsivo da marca, coordena a formação com uma dissolução de 360ms e encerra a abertura em 1,32s.
 
 ## Alterações funcionais
 
@@ -32,10 +32,12 @@ A varredura teve **zero violações axe** em 14 visualizações. Após remover d
 
 `coverage-summary.json` contém a cobertura por arquivo das áreas selecionadas, incluindo código preexistente desses módulos. A medição é deliberadamente explícita: não representa cobertura de toda a aplicação nem afirma cobertura alta de todos os serviços.
 
+O refinamento final da abertura passou no build de produção e em 13 testes direcionados de cadastro, navegação e conclusão da animação. `artifacts/brand/loading-verification.json` registra as larguras 320, 390, 768 e 1440px: marca com tamanho estável, sem sobreposição entre símbolo e nome, cor idêntica, dissolução e conclusão com movimento reduzido. As amostras de `requestAnimationFrame` observaram atraso da thread principal na primeira carga fria; elas não medem os quadros do compositor nem comprovam fluidez em aparelho real. A conclusão agora acompanha o evento de término da transição, com fallback e proteção contra navegação duplicada.
+
 ## Pendências de ambiente
 
 1. Configurar e comprovar SMTP, templates e URLs permitidas do Supabase com uma conta de teste autorizada. Nenhum e-mail real foi enviado nesta tarefa. Ver `docs/security/auth-email-setup.md`.
-2. Aplicar a migração de auditoria no banco de destino antes deste código e agendar a limpeza autenticada. Nenhum banco de produção foi alterado. A cadeia histórica apresenta falha anterior no bootstrap de banco vazio; ver `docs/security/audit-retention.md`.
+2. A migração `20261027010000_security_audit_retention` foi aplicada e verificada no banco de produção em **27/10/2026**, antes da publicação do código, com SQL e registro Prisma na mesma transação. A tabela, RLS, índices, trigger e ausência de privilégios de `anon`/`authenticated` foram conferidos após o commit; o histórico anterior e os dados de usuários foram preservados. Evidência: `production-audit-migration.json`. Falta agendar a limpeza autenticada. Permanecem a migração histórica de `EventChallenge` ausente, uma divergência antiga de checksum e a falha anterior no bootstrap de banco vazio; ver `docs/security/audit-retention.md`.
 3. Audit mobile permanece com **5 altos e 3 moderados transitivos**. Não houve atualização de SDK ou override incompatível para ocultar o problema. Expo Doctor passou 20/21; o item restante marca `react-native-render-html` como sem manutenção. Detalhes em `mobile-validation.json`. O gate de CI `npm audit --audit-level=high` continua bloqueado no mobile.
 4. Os bundles mobile não comprovam instalação, teclado, layout ou reprodução em aparelho. Nenhum APK novo foi gerado. Ranking por divisão filtra os 50 primeiros da consulta e informa esse limite na interface.
 
