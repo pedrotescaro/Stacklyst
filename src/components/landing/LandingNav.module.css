@@ -1,5 +1,5 @@
 .brand {
-  --brand-size: clamp(18px, calc(12.857vw - 23.14px), 27px) !important;
+  --brand-cap: clamp(18px, calc(8.571vw - 9.43px), 24px);
 }
 
 .centerLinks {

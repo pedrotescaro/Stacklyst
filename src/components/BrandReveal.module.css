@@ -8,6 +8,7 @@
   color: inherit;
 }
 .wordmark {
+  --brand-cap: clamp(28px, 5vw, 44px);
   max-width: 100%;
 }
 .copy {
@@ -24,9 +25,4 @@
   font-size: 14px;
   line-height: 1.6;
   opacity: 0.7;
-}
-@media (max-width: 480px) {
-  .wordmark {
-    --brand-size: 40px !important;
-  }
 }

@@ -4,7 +4,7 @@ import { BrandLogo } from './BrandLogo';
 import styles from './BrandReveal.module.css';
 
 export function BrandReveal({
-  size = 72,
+  size = 44,
   className = '',
   title,
   subtitle,

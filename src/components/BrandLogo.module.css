@@ -1,11 +1,17 @@
 .brand {
   --brand-color: #0083fe;
+  --brand-size: min(
+    var(--brand-requested-size, 28px),
+    var(--brand-cap, clamp(22px, 3vw, 32px)),
+    calc((100vw - 48px) / var(--brand-width-ratio))
+  );
   display: inline-flex;
   align-items: center;
   gap: calc(var(--brand-size) * 0.045);
   flex-shrink: 0;
   vertical-align: middle;
   white-space: nowrap;
+  max-width: 100%;
   color: var(--brand-color);
   line-height: 1;
 }

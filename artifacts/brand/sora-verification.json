@@ -11,136 +11,76 @@
   },
   "browserChecks": [
     {
-      "name": "desktop",
-      "width": 1440,
-      "headerControlsFit": true,
-      "overflow": false,
-      "brands": [
-        {
-          "font": "Sora, \"Sora Fallback\", sans-serif",
-          "weight": "600",
-          "spacing": "-0.7344px",
-          "fontSize": "36.72px",
-          "textColor": "rgb(0, 131, 254)",
-          "symbolColor": "rgb(0, 131, 254)",
-          "right": 227.390625,
-          "left": 53
-        },
-        {
-          "font": "Sora, \"Sora Fallback\", sans-serif",
-          "weight": "600",
-          "spacing": "-0.7344px",
-          "fontSize": "36.72px",
-          "textColor": "rgb(0, 131, 254)",
-          "symbolColor": "rgb(0, 131, 254)",
-          "right": 359.6104736328125,
-          "left": 221.29689025878906
-        },
-        {
-          "font": "Sora, \"Sora Fallback\", sans-serif",
-          "weight": "600",
-          "spacing": "-0.8704px",
-          "fontSize": "43.52px",
-          "textColor": "rgb(0, 131, 254)",
-          "symbolColor": "rgb(0, 131, 254)",
-          "right": 820.328125,
-          "left": 613.65625
-        }
-      ]
-    },
-    {
-      "name": "mobile",
-      "width": 390,
-      "headerControlsFit": true,
-      "overflow": false,
-      "brands": [
-        {
-          "font": "Sora, \"Sora Fallback\", sans-serif",
-          "weight": "600",
-          "spacing": "-0.7344px",
-          "fontSize": "36.72px",
-          "textColor": "rgb(0, 131, 254)",
-          "symbolColor": "rgb(0, 131, 254)",
-          "right": 197.390625,
-          "left": 23
-        },
-        {
-          "font": "Sora, \"Sora Fallback\", sans-serif",
-          "weight": "600",
-          "spacing": "-0.7344px",
-          "fontSize": "36.72px",
-          "textColor": "rgb(0, 131, 254)",
-          "symbolColor": "rgb(0, 131, 254)",
-          "right": 72.35194206237793,
-          "left": 26.046873092651367
-        },
-        {
-          "font": "Sora, \"Sora Fallback\", sans-serif",
-          "weight": "600",
-          "spacing": "-0.8704px",
-          "fontSize": "43.52px",
-          "textColor": "rgb(0, 131, 254)",
-          "symbolColor": "rgb(0, 131, 254)",
-          "right": 295.328125,
-          "left": 88.65625
-        }
-      ]
-    },
-    {
-      "name": "small",
       "width": 320,
-      "headerControlsFit": true,
-      "overflow": false,
-      "brands": [
-        {
-          "font": "Sora, \"Sora Fallback\", sans-serif",
-          "weight": "600",
-          "spacing": "-0.489665px",
-          "fontSize": "24.4833px",
-          "textColor": "rgb(0, 131, 254)",
-          "symbolColor": "rgb(0, 131, 254)",
-          "right": 139.25,
-          "left": 23
-        },
-        {
-          "font": "Sora, \"Sora Fallback\", sans-serif",
-          "weight": "600",
-          "spacing": "-0.7344px",
-          "fontSize": "36.72px",
-          "textColor": "rgb(0, 131, 254)",
-          "symbolColor": "rgb(0, 131, 254)",
-          "right": 61.69893455505371,
-          "left": 24.816404342651367
-        },
-        {
-          "font": "Sora, \"Sora Fallback\", sans-serif",
-          "weight": "600",
-          "spacing": "-0.8704px",
-          "fontSize": "43.52px",
-          "textColor": "rgb(0, 131, 254)",
-          "symbolColor": "rgb(0, 131, 254)",
-          "right": 260.328125,
-          "left": 53.65625
-        }
-      ]
+      "opening": {
+        "width": 180.84375,
+        "height": 38.078125,
+        "left": 66.578125,
+        "right": 247.421875,
+        "markHeight": 28,
+        "color": "rgb(0, 131, 254)"
+      },
+      "page": {
+        "brandWidth": 116.25,
+        "brandHeight": 24.484375,
+        "markHeight": 18,
+        "controlsFit": true,
+        "overflow": false
+      }
     },
     {
-      "name": "login",
+      "width": 390,
+      "opening": {
+        "width": 180.84375,
+        "height": 38.078125,
+        "left": 101.578125,
+        "right": 282.421875,
+        "markHeight": 28,
+        "color": "rgb(0, 131, 254)"
+      },
+      "page": {
+        "brandWidth": 154.96875,
+        "brandHeight": 32.640625,
+        "markHeight": 23.984375,
+        "controlsFit": true,
+        "overflow": false
+      }
+    },
+    {
+      "width": 768,
+      "opening": {
+        "width": 248,
+        "height": 52.21875,
+        "left": 257,
+        "right": 505,
+        "markHeight": 38.390625,
+        "color": "rgb(0, 131, 254)"
+      },
+      "page": {
+        "brandWidth": 155,
+        "brandHeight": 32.640625,
+        "markHeight": 24,
+        "controlsFit": true,
+        "overflow": false
+      }
+    },
+    {
       "width": 1440,
-      "headerControlsFit": true,
-      "overflow": false,
-      "brands": [
-        {
-          "font": "Sora, \"Sora Fallback\", sans-serif",
-          "weight": "600",
-          "spacing": "-1.36px",
-          "fontSize": "68px",
-          "textColor": "rgb(0, 131, 254)",
-          "symbolColor": "rgb(0, 131, 254)",
-          "right": 547.484375,
-          "left": 224.53125
-        }
-      ]
+      "opening": {
+        "width": 284.1875,
+        "height": 59.84375,
+        "left": 574.90625,
+        "right": 859.09375,
+        "markHeight": 44,
+        "color": "rgb(0, 131, 254)"
+      },
+      "page": {
+        "brandWidth": 155,
+        "brandHeight": 32.640625,
+        "markHeight": 24,
+        "controlsFit": true,
+        "overflow": false
+      }
     }
   ],
   "animationFont": "Sora, \"Sora Fallback\", sans-serif",
@@ -181,5 +121,17 @@
       "textOpacity": "1",
       "symbolOpacity": "1"
     }
-  ]
+  ],
+  "responsiveSizing": {
+    "navigationSymbolMaxPx": 24,
+    "openingSymbolMaxPx": 44,
+    "openingWidthMaxPx": 284.1875,
+    "verifiedViewportWidths": [
+      320,
+      390,
+      768,
+      1440
+    ],
+    "sidebarUsesVisibilityWrappers": true
+  }
 }

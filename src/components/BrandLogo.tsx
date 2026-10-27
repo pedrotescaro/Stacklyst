@@ -25,13 +25,23 @@ export function BrandLogo({
       className={`${styles.brand} ${animated ? styles.animated : ''} ${className}`}
       style={
         {
-          '--brand-size': `${size}px`,
+          '--brand-requested-size': `${size}px`,
+          '--brand-width-ratio': wordmark
+            ? brandGeometry.wordmarkWidth / brandGeometry.height + 0.1
+            : brandGeometry.width / brandGeometry.height,
           '--brand-suffix-ratio':
             (brandGeometry.wordmarkWidth - brandGeometry.width - 36) / brandGeometry.height,
         } as CSSProperties
       }
     >
-      <svg className={styles.mark} viewBox={brandGeometry.viewBox} fill="none" aria-hidden="true">
+      <svg
+        className={styles.mark}
+        width={Math.min(size, 32) * (brandGeometry.width / brandGeometry.height)}
+        height={Math.min(size, 32)}
+        viewBox={brandGeometry.viewBox}
+        fill="none"
+        aria-hidden="true"
+      >
         <path d={brandGeometry.path} fill="currentColor" />
       </svg>
       {wordmark && (

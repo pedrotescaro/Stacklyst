@@ -543,8 +543,12 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
             href="/feed"
             className="group flex w-full shrink-0 items-center justify-center px-2 py-1 xl:w-fit xl:justify-start xl:gap-2.5 xl:px-3"
           >
-            <BrandLogo size={27} wordmark={false} className="xl:hidden" />
-            <BrandLogo size={27} className="hidden xl:inline-flex" />
+            <span className="xl:hidden">
+              <BrandLogo size={27} wordmark={false} />
+            </span>
+            <span className="hidden xl:inline-flex">
+              <BrandLogo size={27} />
+            </span>
           </Link>
 
           {/* Navigation Links */}
