@@ -151,5 +151,35 @@
     "targetedTests": 7,
     "mobileTypecheck": true,
     "nativeDeviceInspected": false
-  }
+  },
+  "colorFrames": [
+    {
+      "timeMs": 120,
+      "text": "rgb(0, 131, 254)",
+      "symbol": "rgb(0, 131, 254)",
+      "textOpacity": "1",
+      "symbolOpacity": "1"
+    },
+    {
+      "timeMs": 450,
+      "text": "rgb(0, 131, 254)",
+      "symbol": "rgb(0, 131, 254)",
+      "textOpacity": "1",
+      "symbolOpacity": "1"
+    },
+    {
+      "timeMs": 850,
+      "text": "rgb(0, 131, 254)",
+      "symbol": "rgb(0, 131, 254)",
+      "textOpacity": "1",
+      "symbolOpacity": "1"
+    },
+    {
+      "timeMs": 1150,
+      "text": "rgb(0, 131, 254)",
+      "symbol": "rgb(0, 131, 254)",
+      "textOpacity": "1",
+      "symbolOpacity": "1"
+    }
+  ]
 }

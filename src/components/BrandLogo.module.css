@@ -1,11 +1,12 @@
 .brand {
+  --brand-color: #0083fe;
   display: inline-flex;
   align-items: center;
   gap: calc(var(--brand-size) * 0.045);
   flex-shrink: 0;
   vertical-align: middle;
   white-space: nowrap;
-  color: inherit;
+  color: var(--brand-color);
   line-height: 1;
 }
 .mark {
@@ -13,10 +14,12 @@
   width: calc(var(--brand-size) * 1.08);
   height: var(--brand-size);
   flex-shrink: 0;
+  color: var(--brand-color);
 }
 .suffix {
   display: block;
-  color: #0083fe;
+  color: var(--brand-color);
+  -webkit-text-fill-color: var(--brand-color);
   font-family: var(--font-sora), sans-serif;
   font-size: calc(var(--brand-size) * 1.36);
   font-weight: 600;
@@ -31,29 +34,24 @@
 }
 @keyframes assemble-mark {
   0% {
-    opacity: 0.15;
     transform: translateX(calc(var(--brand-size) * var(--brand-suffix-ratio) / 2)) scale(0.9);
     clip-path: inset(0 0 100%);
   }
   22% {
-    opacity: 1;
     transform: translateX(calc(var(--brand-size) * var(--brand-suffix-ratio) / 2)) scale(1);
     clip-path: inset(0);
   }
   100% {
-    opacity: 1;
     transform: translateX(0) scale(1);
     clip-path: inset(0);
   }
 }
 @keyframes assemble-name {
   from {
-    opacity: 0;
     clip-path: inset(0 100% 0 0);
     transform: translate(-0.3em, -0.045em);
   }
   to {
-    opacity: 1;
     clip-path: inset(0);
     transform: translate(0, -0.045em);
   }

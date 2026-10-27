@@ -32,7 +32,7 @@ export function BrandLogo({
       }
     >
       <svg className={styles.mark} viewBox={brandGeometry.viewBox} fill="none" aria-hidden="true">
-        <path d={brandGeometry.path} fill="#0083fe" />
+        <path d={brandGeometry.path} fill="currentColor" />
       </svg>
       {wordmark && (
         <span className={styles.suffix} aria-hidden="true">
