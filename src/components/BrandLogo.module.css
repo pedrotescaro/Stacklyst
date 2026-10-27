@@ -17,27 +17,32 @@
 .suffix {
   display: block;
   color: #0083fe;
-  font-family: var(--font-space-grotesk), sans-serif;
+  font-family: var(--font-sora), sans-serif;
   font-size: calc(var(--brand-size) * 1.36);
-  font-weight: 700;
-  letter-spacing: -0.035em;
+  font-weight: 600;
+  letter-spacing: -0.02em;
   transform: translateY(calc(var(--brand-size) * -0.045));
 }
 .animated .mark {
-  animation: assemble-mark 850ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: assemble-mark 880ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .animated .suffix {
-  animation: assemble-name 950ms 180ms cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: assemble-name 720ms 250ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 @keyframes assemble-mark {
-  from {
-    opacity: 0;
-    transform: translateX(38%) rotate(-12deg) scale(0.8);
-    clip-path: inset(100% 0 0);
+  0% {
+    opacity: 0.15;
+    transform: translateX(calc(var(--brand-size) * var(--brand-suffix-ratio) / 2)) scale(0.9);
+    clip-path: inset(0 0 100%);
   }
-  to {
+  22% {
     opacity: 1;
-    transform: translateX(0) rotate(0) scale(1);
+    transform: translateX(calc(var(--brand-size) * var(--brand-suffix-ratio) / 2)) scale(1);
+    clip-path: inset(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
     clip-path: inset(0);
   }
 }
@@ -45,7 +50,7 @@
   from {
     opacity: 0;
     clip-path: inset(0 100% 0 0);
-    transform: translate(-0.45em, -0.045em);
+    transform: translate(-0.3em, -0.045em);
   }
   to {
     opacity: 1;

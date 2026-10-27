@@ -42,7 +42,7 @@ Stacklyst combina uma comunidade social para programadores com um mapa compartil
 - Nome do produto: Stacklyst.
 - Identidade principal: base OLED escura, Electric Blue `#0083fe`, superfícies discretas e contraste adequado para sessões prolongadas de programação.
 - A experiência deve equilibrar energia de gamificação com legibilidade operacional; cor comunica setores, estado e progresso, não decoração indiscriminada.
-- Marca: o monograma S azul fornecido substitui a primeira letra, seguido de "tacklyst" em Space Grotesk Bold. Usar os componentes compartilhados e os vetores em `public/brand/`.
+- Marca: o monograma S azul fornecido substitui a primeira letra, seguido de "tacklyst" em Sora SemiBold 600, espaçamento -0,02em, ambos em #0083FE. Usar os componentes compartilhados e os vetores em `public/brand/`.
 - Preservar o mascote existente, a sidebar principal e a linguagem visual compartilhada do produto.
 
 ## Evidence on Hand

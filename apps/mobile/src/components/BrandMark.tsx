@@ -1,6 +1,6 @@
 import Svg, { G, Path } from 'react-native-svg';
 import { brandGeometry as g } from './brand-geometry';
-/** Supplied S; wordmark uses the same Space Grotesk outlines as the website. */
+/** Supplied S; wordmark uses the same Sora SemiBold 600 outlines as the website. */
 export function BrandMark({
   width = 72,
   wordmark = false,

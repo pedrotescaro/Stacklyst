@@ -13,8 +13,8 @@ export default function SiteEntryLoader({
   complete.current = onComplete;
   useEffect(() => {
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const reveal = window.setTimeout(() => setExiting(true), reduced ? 0 : 1150);
-    const finish = window.setTimeout(() => complete.current?.(), reduced ? 80 : 1570);
+    const reveal = window.setTimeout(() => setExiting(true), reduced ? 0 : 1080);
+    const finish = window.setTimeout(() => complete.current?.(), reduced ? 80 : 1440);
     return () => {
       window.clearTimeout(reveal);
       window.clearTimeout(finish);

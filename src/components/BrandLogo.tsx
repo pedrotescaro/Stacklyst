@@ -23,7 +23,13 @@ export function BrandLogo({
       role="img"
       aria-label={label}
       className={`${styles.brand} ${animated ? styles.animated : ''} ${className}`}
-      style={{ '--brand-size': `${size}px` } as CSSProperties}
+      style={
+        {
+          '--brand-size': `${size}px`,
+          '--brand-suffix-ratio':
+            (brandGeometry.wordmarkWidth - brandGeometry.width - 36) / brandGeometry.height,
+        } as CSSProperties
+      }
     >
       <svg className={styles.mark} viewBox={brandGeometry.viewBox} fill="none" aria-hidden="true">
         <path d={brandGeometry.path} fill="#0083fe" />

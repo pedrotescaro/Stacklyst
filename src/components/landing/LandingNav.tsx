@@ -55,7 +55,7 @@ export default function LandingNav({ initialUser }: LandingNavProps) {
       >
         {/* ── Logo ── */}
         <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
-          <BrandLogo size={27} className="text-white" />
+          <BrandLogo size={27} className={styles.brand} />
         </Link>
 
         {/* ── Right side (Language Toggle & Auth) ── */}
