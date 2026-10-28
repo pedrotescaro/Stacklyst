@@ -180,12 +180,13 @@ export const PostService = {
       whereClause.OR = [
         { title: { contains: search, mode: 'insensitive' } },
         { body: { contains: search, mode: 'insensitive' } },
+        { code_snippet: { contains: search, mode: 'insensitive' } },
         { author: { username: { contains: search, mode: 'insensitive' } } },
       ];
     }
 
     const cursorWhere = buildCursorWhere(cursor, 'created_at');
-    const finalWhere = { ...whereClause, ...cursorWhere };
+    const finalWhere = { AND: [whereClause, cursorWhere] };
 
     const posts = await prisma.post.findMany({
       where: finalWhere,

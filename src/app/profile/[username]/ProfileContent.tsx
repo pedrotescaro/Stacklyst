@@ -2,13 +2,17 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import {
+  ArrowLeft,
   ChartNoAxesCombined,
   Heart,
   ImageIcon,
   MessageCircle,
   Newspaper,
+  Search,
   Video,
+  X,
 } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
 import { PostCard } from '@/components/PostCard';
@@ -26,6 +30,7 @@ import { profileAppearanceStyle } from '@/lib/profile-style';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import profileStyles from '@/components/profile/ProfilePublic.module.css';
 import styles from '@/components/profile-inline/InlineProfile.module.css';
+import headerStyles from './ProfileHeader.module.css';
 
 type ProfileTab = 'posts' | 'photos' | 'videos' | 'likes' | 'replies' | 'stats';
 interface ProfileContentProps {
@@ -73,6 +78,15 @@ export function ProfileContent({
   initialTab = 'posts',
 }: ProfileContentProps) {
   const { text, isEnglish } = useLocalizedText();
+  const router = useRouter();
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchInput, setSearchInput] = useState('');
+  const [search, setSearch] = useState('');
+  const tabsRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSearch(searchInput.trim()), 300);
+    return () => window.clearTimeout(timer);
+  }, [searchInput]);
   const [localProfile, setLocalProfile] = useState(profileUser);
   const [previewPreferences, setPreviewPreferences] = useState<ProfilePreferences | null>(null);
   const [activeTab, setActiveTab] = useState<ProfileTab>(
@@ -110,12 +124,13 @@ export function ProfileContent({
       try {
         const name = encodeURIComponent(profileUser.username);
         const afterQuery = after ? `&cursor=${encodeURIComponent(after)}` : '';
+        const searchQuery = search ? `&search=${encodeURIComponent(search)}` : '';
         const url =
           target === 'photos' || target === 'videos'
-            ? `/api/profile/${name}/media?type=${target}&limit=18${afterQuery}`
+            ? `/api/profile/${name}/media?type=${target}&limit=18${afterQuery}${searchQuery}`
             : target === 'replies'
-              ? `/api/profile/${name}/replies?limit=10${afterQuery}`
-              : `/api/posts?${target === 'likes' ? 'likedBy' : 'author'}=${name}&useCursor=true&limit=10${afterQuery}`;
+              ? `/api/profile/${name}/replies?limit=10${afterQuery}${searchQuery}`
+              : `/api/posts?${target === 'likes' ? 'likedBy' : 'author'}=${name}&useCursor=true&limit=10${afterQuery}${searchQuery}`;
         const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
         const result = await response.json();
         if (!response.ok)
@@ -134,7 +149,7 @@ export function ProfileContent({
         if (!controller.signal.aborted) setLoading(false);
       }
     },
-    [profileUser.username]
+    [profileUser.username, search]
   );
   useEffect(() => {
     setItems([]);
@@ -215,6 +230,9 @@ export function ProfileContent({
     { id: 'replies' as const, label: text('Respostas', 'Replies'), icon: MessageCircle },
     { id: 'stats' as const, label: text('Estatísticas', 'Statistics'), icon: ChartNoAxesCombined },
   ];
+  useEffect(() => {
+    if (search) tabsRef.current?.scrollIntoView?.({ block: 'start' });
+  }, [search]);
   const badgeEarned = new Map(profileUser.badges.map((item) => [item.slug, item.earned_at]));
 
   return (
@@ -228,6 +246,76 @@ export function ProfileContent({
       >
         <main className={styles.pageMain}>
           <div className={styles.content} data-testid="profile-layout">
+            <div className={headerStyles.sticky}>
+              <header className={headerStyles.header}>
+                <button
+                  type="button"
+                  className={headerStyles.iconButton}
+                  onClick={() => router.back()}
+                  aria-label={text('Voltar', 'Back')}
+                >
+                  <ArrowLeft size={20} aria-hidden="true" />
+                </button>
+                <div className={headerStyles.identity}>
+                  <h1>{localProfile.name || localProfile.username}</h1>
+                  <p>
+                    {stats.posts_count ?? 0}{' '}
+                    {stats.posts_count === 1
+                      ? text('publicação', 'post')
+                      : text('publicações', 'posts')}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className={headerStyles.iconButton}
+                  onClick={() => {
+                    setSearchOpen((open) => !open);
+                    if (searchOpen) setSearchInput('');
+                    else if (activeTab === 'stats') setActiveTab('posts');
+                  }}
+                  aria-expanded={searchOpen}
+                  aria-controls="profile-search"
+                  aria-label={
+                    searchOpen
+                      ? text('Fechar busca', 'Close search')
+                      : text('Buscar no perfil', 'Search profile')
+                  }
+                >
+                  {searchOpen ? (
+                    <X size={20} aria-hidden="true" />
+                  ) : (
+                    <Search size={20} aria-hidden="true" />
+                  )}
+                </button>
+              </header>
+              {searchOpen && (
+                <div id="profile-search" className={headerStyles.searchArea}>
+                  <div className={headerStyles.search}>
+                    <Search size={17} aria-hidden="true" />
+                    <input
+                      type="search"
+                      value={searchInput}
+                      onChange={(event) => setSearchInput(event.target.value)}
+                      placeholder={text('Buscar no conteúdo do perfil', 'Search profile content')}
+                      aria-label={text('Buscar no conteúdo do perfil', 'Search profile content')}
+                      maxLength={200}
+                      autoFocus
+                    />
+                  </div>
+                  <p>
+                    {activeTab === 'stats'
+                      ? text(
+                          'Selecione uma aba de conteúdo para pesquisar.',
+                          'Select a content tab to search.'
+                        )
+                      : text(
+                          `Buscando em ${tabDefinitions.find((tab) => tab.id === activeTab)?.label}. Troque de aba para ver outros resultados.`,
+                          `Searching ${tabDefinitions.find((tab) => tab.id === activeTab)?.label}. Switch tabs to see other results.`
+                        )}
+                  </p>
+                </div>
+              )}
+            </div>
             <SocialProfileOverview
               profile={localProfile}
               currentUserId={user.id}
@@ -242,7 +330,8 @@ export function ProfileContent({
               onPreview={setPreviewPreferences}
             />
             <div
-              className={styles.tabs}
+              ref={tabsRef}
+              className={`${styles.tabs} ${headerStyles.tabs}`}
               role="tablist"
               aria-label={text('Conteúdo do perfil', 'Profile content')}
             >
@@ -430,21 +519,26 @@ export function ProfileContent({
                     )}
                   {!loading && !error && items.length === 0 && (
                     <p className={styles.empty}>
-                      {activeTab === 'photos'
+                      {search
                         ? text(
-                            'Nenhuma foto publicada. As imagens das publicações aparecem aqui.',
-                            'No photos yet. Images from posts appear here.'
+                            'Nenhum resultado encontrado nesta aba.',
+                            'No results found in this tab.'
                           )
-                        : activeTab === 'videos'
+                        : activeTab === 'photos'
                           ? text(
-                              'Nenhum vídeo publicado neste perfil.',
-                              'No videos published on this profile.'
+                              'Nenhuma foto publicada. As imagens das publicações aparecem aqui.',
+                              'No photos yet. Images from posts appear here.'
                             )
-                          : activeTab === 'likes'
-                            ? text('Nenhuma publicação curtida.', 'No liked posts.')
-                            : activeTab === 'replies'
-                              ? text('Nenhuma resposta publicada.', 'No replies yet.')
-                              : text('Nenhuma publicação por enquanto.', 'No posts yet.')}
+                          : activeTab === 'videos'
+                            ? text(
+                                'Nenhum vídeo publicado neste perfil.',
+                                'No videos published on this profile.'
+                              )
+                            : activeTab === 'likes'
+                              ? text('Nenhuma publicação curtida.', 'No liked posts.')
+                              : activeTab === 'replies'
+                                ? text('Nenhuma resposta publicada.', 'No replies yet.')
+                                : text('Nenhuma publicação por enquanto.', 'No posts yet.')}
                     </p>
                   )}
                   {loading && (

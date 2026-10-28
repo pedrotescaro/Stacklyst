@@ -6,6 +6,7 @@ export const GET = apiHandler(async (req, { session, params }) => {
   try {
     const { username } = await params;
     const { searchParams } = new URL(req.url);
+    const search = searchParams.get('search')?.trim().slice(0, 200);
     const cursor = searchParams.get('cursor') || undefined;
     const limit = parseInt(searchParams.get('limit') || '10', 10);
 
@@ -24,6 +25,19 @@ export const GET = apiHandler(async (req, { session, params }) => {
         username: { equals: username, mode: 'insensitive' },
       },
     };
+
+    if (search) {
+      whereClause.AND = [
+        {
+          OR: [
+            { body: { contains: search, mode: 'insensitive' } },
+            { code_snippet: { contains: search, mode: 'insensitive' } },
+            { post: { title: { contains: search, mode: 'insensitive' } } },
+            { post: { body: { contains: search, mode: 'insensitive' } } },
+          ],
+        },
+      ];
+    }
 
     if (cursorTime && cursorId) {
       whereClause.OR = [

@@ -6,6 +6,7 @@ import { ValidationError } from '@/lib/errors';
 export const GET = apiHandler(async (request, { params }) => {
   const { username } = await params;
   const query = new URL(request.url).searchParams;
+  const search = query.get('search')?.trim().slice(0, 200);
   const type = z.enum(['photos', 'videos']).parse(query.get('type') || 'photos');
   const limit = z.coerce
     .number()
@@ -41,6 +42,19 @@ export const GET = apiHandler(async (request, { params }) => {
     where: {
       author_id: profile.id,
       image_url: { not: null, notIn: [''] },
+      ...(search
+        ? {
+            AND: [
+              {
+                OR: [
+                  { title: { contains: search, mode: 'insensitive' as const } },
+                  { body: { contains: search, mode: 'insensitive' as const } },
+                  { code_snippet: { contains: search, mode: 'insensitive' as const } },
+                ],
+              },
+            ],
+          }
+        : {}),
       ...(cursor
         ? {
             OR: [

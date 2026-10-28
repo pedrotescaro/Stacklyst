@@ -19,6 +19,13 @@
   right: 14px;
   bottom: 14px;
 }
+.photoEditButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--color-dd-bg);
+  color: var(--color-dd-text);
+}
 .body {
   padding: 0 20px;
   min-width: 0;
@@ -54,6 +61,7 @@
   position: absolute;
   bottom: 0;
   left: 71px;
+  z-index: 1;
 }
 .actions {
   display: flex;
@@ -508,9 +516,7 @@
 }
 .content {
   min-width: 0;
-  max-width: 1120px;
   width: 100%;
-  margin-inline: auto;
   border-inline: 1px solid var(--color-dd-border);
 }
 .pageMain {
@@ -622,10 +628,7 @@
 }
 @media (min-width: 1200px) {
   .pageMain {
-    padding: 20px 24px 50px;
-  }
-  .cover {
-    border-radius: 16px;
+    padding-bottom: 50px;
   }
 }
 @media (max-width: 600px) {

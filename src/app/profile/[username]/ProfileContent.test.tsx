@@ -1,6 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfileContent } from './ProfileContent';
+vi.mock('next/navigation', () => ({ useRouter: () => ({ back: vi.fn() }) }));
 vi.mock('@/components/Sidebar', () => ({ Sidebar: () => <nav aria-label="Navegação global" /> }));
 vi.mock('@/components/PostCard', () => ({
   PostCard: ({ post }: { post: { body: string } }) => <article>{post.body}</article>,
@@ -110,5 +111,30 @@ describe('Compact social profile content', () => {
     );
     fireEvent.click(screen.getByRole('tab', { name: 'Respostas' }));
     await screen.findByText('Resposta real');
+  });
+  it('searches the full server-backed list and keeps the query when changing tabs', async () => {
+    render(<ProfileContent {...props} />);
+    await screen.findByText('Publicação real');
+    fireEvent.click(screen.getByRole('button', { name: 'Buscar no perfil' }));
+    fireEvent.change(screen.getByRole('searchbox', { name: 'Buscar no conteúdo do perfil' }), {
+      target: { value: 'código antigo' },
+    });
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining(
+          'author=developer&useCursor=true&limit=10&search=c%C3%B3digo%20antigo'
+        ),
+        expect.any(Object)
+      )
+    );
+    fireEvent.click(screen.getByRole('tab', { name: 'Respostas' }));
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/replies?limit=10&search=c%C3%B3digo%20antigo'),
+        expect.any(Object)
+      )
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar busca' }));
+    await waitFor(() => expect(screen.queryByRole('searchbox')).not.toBeInTheDocument());
   });
 });

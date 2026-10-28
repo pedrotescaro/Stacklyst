@@ -78,4 +78,28 @@ describe('Profile media from actual publications', () => {
       (await GET(new Request('https://stacklyst.test/api/profile/missing/media'), context)).status
     ).toBe(404);
   });
+  it('combines text search with the photo cursor', async () => {
+    const cursor = Buffer.from(
+      JSON.stringify({ id: 'last', createdAt: '2026-10-27T12:00:00.000Z' })
+    ).toString('base64url');
+    await GET(
+      new Request(
+        `https://stacklyst.test/api/profile/developer/media?search=antigo&cursor=${cursor}`
+      ),
+      context
+    );
+    expect(mocks.posts.mock.calls[0][0].where).toMatchObject({
+      author_id: 'profile-owner',
+      AND: [
+        {
+          OR: [
+            { title: { contains: 'antigo', mode: 'insensitive' } },
+            { body: { contains: 'antigo', mode: 'insensitive' } },
+            { code_snippet: { contains: 'antigo', mode: 'insensitive' } },
+          ],
+        },
+      ],
+      OR: expect.any(Array),
+    });
+  });
 });

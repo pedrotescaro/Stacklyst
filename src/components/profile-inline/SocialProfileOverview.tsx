@@ -547,7 +547,12 @@ export function SocialProfileOverview({
         )}
         {editing && (
           <div className={styles.coverEdit}>
-            <ContextPopover label="Editar capa" triggerIcon={<Camera size={15} />} disabled={busy}>
+            <ContextPopover
+              label="Editar capa"
+              triggerIcon={<Camera size={15} />}
+              className={styles.photoEditButton}
+              disabled={busy}
+            >
               <div className={styles.popoverBody}>
                 <h3 className={styles.popoverHeading}>Capa do perfil</h3>
                 <label className={styles.field}>
@@ -682,6 +687,7 @@ export function SocialProfileOverview({
               <ContextPopover
                 label="Editar foto e moldura"
                 triggerIcon={<Camera size={15} />}
+                className={styles.photoEditButton}
                 disabled={busy}
               >
                 <div className={styles.popoverBody}>
