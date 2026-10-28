@@ -1,0 +1,55 @@
+{
+  "date": "2026-10-27",
+  "web": {
+    "command": "npx vitest run --dir src --maxWorkers=2 --reporter=verbose",
+    "passed": 810,
+    "skipped": 26,
+    "filesPassed": 152,
+    "filesSkipped": 4
+  },
+  "postgres": {
+    "environment": "Isolated local PostgreSQL quality database",
+    "passed": 15,
+    "command": "node scripts/verify-profile-personalization-postgres.mjs; requires STACKLYST_TEST_DATABASE_URL"
+  },
+  "build": {
+    "command": "npm run build",
+    "passed": true,
+    "includesTypeScript": true,
+    "productionJudgeSmokePassed": true
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": "Six next/no-img-element notices for user images and previews; no unused directives remain"
+  },
+  "coverage": {
+    "scope": "Ten profile domain, service and inline UI files; not project-wide",
+    "tests": 64,
+    "lines": 76.93,
+    "branches": 67.37,
+    "summary": "coverage/coverage-summary.json"
+  },
+  "browser": {
+    "passed": true,
+    "checks": 27,
+    "widths": [
+      320,
+      375,
+      430,
+      768,
+      1024,
+      1440
+    ],
+    "pageOverflow": false,
+    "scopedAxeViolations": 0,
+    "report": "browser-verification.json"
+  },
+  "limits": [
+    "Spotify name search needs provider credentials and approval; official oEmbed link resolution and embed verified live",
+    "Existing storage has no video records; Videos tab uses an honest empty state",
+    "Browser responsive evidence does not validate an installed native application",
+    "Performance sample is small local data, not production load"
+  ],
+  "newMigrationRequired": false,
+  "testAccountsRemoved": true
+}

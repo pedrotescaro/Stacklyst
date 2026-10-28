@@ -4,6 +4,8 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { DEFAULT_PROFILE_CATALOG, DEFAULT_PROFILE_PREFERENCES } from '@/lib/profile-customization';
+import { LEARNING_COURSES } from '@/lib/learning/catalog';
+import { bumpProfileVersion } from '@/lib/profile-version';
 import {
   getProfileCustomization,
   getPublicProfileCustomization,
@@ -42,6 +44,7 @@ const preferences = () => structuredClone(DEFAULT_PROFILE_PREFERENCES);
 const ownedPhoto = `https://quality.supabase.co/storage/v1/object/public/uploads/${owner}/12345678-1234-1234-1234-123456789abc.png`;
 let validPostId: string;
 let exerciseId: string;
+const addedQuizIds: string[] = [];
 
 describe.skipIf(!process.env.STACKLYST_TEST_DATABASE_URL)(
   'profile customization with PostgreSQL',
@@ -198,6 +201,8 @@ describe.skipIf(!process.env.STACKLYST_TEST_DATABASE_URL)(
       else await prisma.profileAchievementCatalog.deleteMany({ where: { id: 'profile-catalog' } });
       await prisma.knowledgeNode.deleteMany({ where: { slug: suffix } });
       await prisma.user.deleteMany({ where: { id: { in: userIds } } });
+      if (addedQuizIds.length)
+        await prisma.quiz.deleteMany({ where: { id: { in: addedQuizIds } } });
       await prisma.$disconnect();
       vi.unstubAllEnvs();
     });
@@ -352,6 +357,217 @@ describe.skipIf(!process.env.STACKLYST_TEST_DATABASE_URL)(
       ).rejects.toMatchObject({ code: 'AVATAR_IMAGE_NOT_OWNED' });
       expect((await getProfileCustomization(owner)).avatarUrl).toBe(ownedPhoto);
       expect((await getProfileCustomization(owner)).version).toBe(state.version);
+    });
+    it('persists complete inline profile edits and rich preferences atomically after reload', async () => {
+      const state = await getProfileCustomization(owner);
+      const saved = await saveProfileCustomization(owner, {
+        version: state.version,
+        avatarUrl: ownedPhoto,
+        preferences: {
+          ...state.preferences,
+          flags: ['BR', 'br-sp', 'community-communist'],
+          tags: ['python', 'react'],
+          tagColors: { react: '#0083fe' },
+          studyDetails: [
+            { subject: 'Python', description: 'Backend', progress: 65, status: 'studying' },
+          ],
+          socialLinks: [{ label: 'Meu site', url: 'https://example.com/' }],
+        },
+        profile: {
+          displayName: 'Perfil atualizado',
+          bio: 'Biografia persistente',
+          institution: 'Fatec',
+          pronouns: 'ele/dele',
+          github_username: 'pedro',
+          discord_username: 'pedro.dev',
+          birthday: '2000-02-29',
+        },
+      });
+      const reloaded = await getProfileCustomization(owner);
+      expect(reloaded.version).toBe(state.version + 1);
+      expect(reloaded.profile).toMatchObject({
+        displayName: 'Perfil atualizado',
+        bio: 'Biografia persistente',
+        birthday: '2000-02-29',
+      });
+      expect(reloaded.preferences).toMatchObject({
+        flags: ['BR', 'br-sp', 'community-communist'],
+        flag: 'BR',
+        studyDetails: [{ subject: 'Python', progress: 65 }],
+        studies: ['Python'],
+        tagColors: { react: '#0083fe' },
+      });
+      const user = await prisma.user.findUniqueOrThrow({ where: { id: owner } });
+      expect(user.avatar_config).toMatchObject({
+        displayName: 'Perfil atualizado',
+        profileStyle: {
+          flags: ['BR', 'br-sp', 'community-communist'],
+          title: { id: 'halloween-spirit' },
+        },
+      });
+      await expect(
+        saveProfileCustomization(owner, {
+          version: state.version,
+          preferences: state.preferences,
+          profile: { displayName: 'Stale name' },
+        })
+      ).rejects.toMatchObject({ code: 'PROFILE_VERSION_CONFLICT' });
+      expect((await getProfileCustomization(owner)).profile?.displayName).toBe(
+        saved.profile?.displayName
+      );
+      expect(await getPublicProfileCustomization(owner)).not.toHaveProperty('profile');
+    });
+    it('invalidates an open inline draft when a legacy profile edit commits', async () => {
+      const state = await getProfileCustomization(owner);
+      await prisma.$transaction(async (tx) => {
+        await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('stacklyst:profile:'||${owner}))`;
+        await tx.user.update({
+          where: { id: owner },
+          data: { bio: 'Updated by the existing mobile editor' },
+        });
+        await bumpProfileVersion(tx, owner);
+      });
+      await expect(
+        saveProfileCustomization(owner, {
+          version: state.version,
+          preferences: state.preferences,
+          profile: { bio: 'Stale inline draft' },
+        })
+      ).rejects.toMatchObject({ code: 'PROFILE_VERSION_CONFLICT' });
+      expect((await getProfileCustomization(owner)).profile?.bio).toBe(
+        'Updated by the existing mobile editor'
+      );
+    });
+    it('keeps legacy roundtrip edits effective even when GET included rich aliases', async () => {
+      const own = await getProfileCustomization(owner);
+      const legacy = structuredClone(own.preferences);
+      legacy.flag = 'US';
+      legacy.studies = ['Rust'];
+      const saved = await saveProfileCustomization(owner, {
+        version: own.version,
+        preferences: legacy,
+      });
+      expect(saved.preferences).toMatchObject({
+        flag: 'US',
+        flags: ['US'],
+        studies: ['Rust'],
+        studyDetails: [{ subject: 'Rust', description: null, progress: null, status: 'studying' }],
+      });
+      const modern = structuredClone(saved.preferences);
+      modern.flags = ['BR', 'br-rj'];
+      modern.studyDetails = [
+        { subject: 'React', description: 'UI', progress: 42, status: 'paused' },
+      ];
+      const updated = await saveProfileCustomization(owner, {
+        version: saved.version,
+        preferences: modern,
+      });
+      expect(updated.preferences).toMatchObject({
+        flag: 'BR',
+        flags: ['BR', 'br-rj'],
+        studies: ['React'],
+        studyDetails: [{ subject: 'React', progress: 42, status: 'paused' }],
+      });
+      const clear = structuredClone(updated.preferences);
+      clear.flag = null;
+      clear.studies = [];
+      const removed = await saveProfileCustomization(owner, {
+        version: updated.version,
+        preferences: clear,
+      });
+      expect(removed.preferences).toMatchObject({
+        flag: null,
+        flags: [],
+        studies: [],
+        studyDetails: [],
+      });
+    });
+    it('removes a saved image on default reset without losing an unchanged old banner', async () => {
+      const own = await getProfileCustomization(owner);
+      const image = {
+        ...own.preferences,
+        banner: { ...own.preferences.banner, mode: 'image' as const, imageUrl: ownedPhoto },
+      };
+      const saved = await saveProfileCustomization(owner, {
+        version: own.version,
+        preferences: image,
+      });
+      expect(saved.bannerUrl).toBe(ownedPhoto);
+      const reset = { ...saved.preferences, banner: { ...DEFAULT_PROFILE_PREFERENCES.banner } };
+      const removed = await saveProfileCustomization(owner, {
+        version: saved.version,
+        preferences: reset,
+      });
+      expect(removed.bannerUrl).toBeNull();
+      expect((await prisma.user.findUniqueOrThrow({ where: { id: owner } })).banner_url).toBeNull();
+      // Older users can have a banner only in User.banner_url and default preferences.
+      await prisma.user.update({ where: { id: owner }, data: { banner_url: ownedPhoto } });
+      const legacy = await getProfileCustomization(owner);
+      expect(legacy.bannerUrl).toBe(ownedPhoto);
+      const edited = await saveProfileCustomization(owner, {
+        version: legacy.version,
+        preferences: legacy.preferences,
+        profile: { bio: 'Only a bio edit' },
+      });
+      expect(edited.bannerUrl).toBe(ownedPhoto);
+      const explicitReset = await saveProfileCustomization(owner, {
+        version: edited.version,
+        preferences: edited.preferences,
+        clearBanner: true,
+      });
+      expect(explicitReset.bannerUrl).toBeNull();
+    });
+    it('awards a complete trail only after every real catalog assessment passed', async () => {
+      const course = LEARNING_COURSES[0];
+      const steps = [
+        ...new Map(
+          course.lessons
+            .flatMap((lesson) => lesson.steps.filter((step) => step.type !== 'concept_explanation'))
+            .map((step) => [step.id, step])
+        ).values(),
+      ];
+      expect(steps.length).toBeGreaterThan(1);
+      const existing = await prisma.quiz.findMany({
+        where: { id: { in: steps.map((step) => step.id) } },
+        select: { id: true },
+      });
+      const existingIds = new Set(existing.map((row) => row.id));
+      const missing = steps.filter((step) => !existingIds.has(step.id));
+      addedQuizIds.push(...missing.map((step) => step.id));
+      await prisma.quiz.createMany({
+        data: missing.map((step) => ({
+          id: step.id,
+          question: 'Isolated curriculum assessment fixture',
+          options: ['A'],
+          correct_index: 0,
+          is_daily: false,
+        })),
+        skipDuplicates: true,
+      });
+      await prisma.quizAttempt.createMany({
+        data: steps.map((step, index) => ({
+          user_id: young,
+          quiz_id: step.id,
+          selected_index: 0,
+          is_correct: index !== steps.length - 1,
+          xp_earned: 0,
+        })),
+      });
+      const partial = await getProfileCustomization(young);
+      expect(partial.achievements.find((award) => award.id === 'trails-1')).toMatchObject({
+        unlocked: false,
+        progress: 0,
+      });
+      await prisma.quizAttempt.update({
+        where: { user_id_quiz_id: { user_id: young, quiz_id: steps.at(-1)!.id } },
+        data: { is_correct: true },
+      });
+      const complete = await getProfileCustomization(young);
+      expect(complete.achievements.find((award) => award.id === 'trails-1')).toMatchObject({
+        unlocked: true,
+        progress: 1,
+      });
+      expect(complete.achievements.find((award) => award.id === 'trails-3')?.unlocked).toBe(false);
     });
     it('does not grant learning credit for executor errors, only distinct passed activities', async () => {
       await prisma.exerciseSubmission.create({

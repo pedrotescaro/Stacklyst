@@ -1,0 +1,238 @@
+{
+  "environment": "Local production build; real authenticated APIs, Supabase and temporary accounts; presence heartbeat suppressed only for QA users",
+  "checks": [
+    {
+      "name": "Title granted from actual publication",
+      "passed": true
+    },
+    {
+      "name": "Atomic profile basics and rich preferences persisted",
+      "passed": true
+    },
+    {
+      "name": "Cannot target another user through payload",
+      "passed": true
+    },
+    {
+      "name": "Optimistic concurrency rejects stale saves",
+      "passed": true
+    },
+    {
+      "name": "Editor stays in the profile without a large modal",
+      "passed": true
+    },
+    {
+      "name": "Draft does not persist before saving",
+      "passed": true
+    },
+    {
+      "name": "Leaving with unsaved data asks confirmation",
+      "passed": true
+    },
+    {
+      "name": "Cancel restores original name",
+      "passed": true
+    },
+    {
+      "name": "Avatar, tags and Spotify remain local until Save",
+      "passed": true
+    },
+    {
+      "name": "Network error retains editable draft",
+      "passed": true,
+      "details": {
+        "draftName": "Pedro • Stacklyst",
+        "retained": "Pedro • Stacklyst"
+      }
+    },
+    {
+      "name": "Retry saves successfully with one request",
+      "passed": true
+    },
+    {
+      "name": "Photo, music and tags persisted by real API",
+      "passed": true
+    },
+    {
+      "name": "Saved profile survives reload",
+      "passed": true
+    },
+    {
+      "name": "Exact six tabs in requested order",
+      "passed": true
+    },
+    {
+      "name": "No statistics section above posts",
+      "passed": true
+    },
+    {
+      "name": "Mobile contextual flag selector stays within viewport",
+      "passed": true
+    },
+    {
+      "name": "Actual statistics shown only in statistics tab",
+      "passed": true
+    },
+    {
+      "name": "Real photos tab resolves",
+      "passed": true
+    },
+    {
+      "name": "Videos use truthful empty state",
+      "passed": true
+    },
+    {
+      "name": "Separate authenticated visitor cannot edit",
+      "passed": true
+    },
+    {
+      "name": "Public data excludes private preferences",
+      "passed": true
+    }
+  ],
+  "viewports": [
+    {
+      "width": 320,
+      "overflow": false,
+      "flags": 0,
+      "tabCount": 6,
+      "avatarLoaded": true,
+      "axeViolations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".rounded-lg"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.44 (foreground color: #ffffff, background color: #1cb0f6, font size: 6.8pt (9px), font weight: bold). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "width": 375,
+      "overflow": false,
+      "flags": 0,
+      "tabCount": 6,
+      "avatarLoaded": true,
+      "axeViolations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".rounded-lg"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.44 (foreground color: #ffffff, background color: #1cb0f6, font size: 6.8pt (9px), font weight: bold). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "width": 430,
+      "overflow": false,
+      "flags": 0,
+      "tabCount": 6,
+      "avatarLoaded": true,
+      "axeViolations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".rounded-lg"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.44 (foreground color: #ffffff, background color: #1cb0f6, font size: 6.8pt (9px), font weight: bold). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "flags": 0,
+      "tabCount": 6,
+      "avatarLoaded": true,
+      "axeViolations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".rounded-lg"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.44 (foreground color: #ffffff, background color: #1cb0f6, font size: 6.8pt (9px), font weight: bold). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1024,
+      "overflow": false,
+      "flags": 0,
+      "tabCount": 6,
+      "avatarLoaded": true,
+      "axeViolations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".rounded-lg"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.44 (foreground color: #ffffff, background color: #1cb0f6, font size: 6.8pt (9px), font weight: bold). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "flags": 0,
+      "tabCount": 6,
+      "avatarLoaded": true,
+      "axeViolations": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".rounded-lg"
+              ],
+              "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.44 (foreground color: #ffffff, background color: #1cb0f6, font size: 6.8pt (9px), font weight: bold). Expected contrast ratio of 4.5:1"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "mobileFlagPopoverAxe": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "nodes": [
+        {
+          "target": [
+            ".rounded-lg"
+          ],
+          "summary": "Fix any of the following:\n  Element has insufficient color contrast of 2.44 (foreground color: #ffffff, background color: #1cb0f6, font size: 6.8pt (9px), font weight: bold). Expected contrast ratio of 4.5:1"
+        }
+      ]
+    }
+  ],
+  "statisticsAxe": [],
+  "passed": false
+}

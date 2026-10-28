@@ -1,0 +1,143 @@
+{
+  "repository": "https://github.com/akagabi/bandeira-dos-estados-do-brasil",
+  "revision": "93624a385c870dc11a2ca686a89d3ab73b43538e",
+  "license": "MIT; upstream credits Wikipedia state flag sources",
+  "files": [
+    {
+      "file": "br-ac.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/ac.svg",
+      "sha256": "18b988acac6592c86ebb1d3ab6aed18085e1baea489cf4e5b2e917346baccf0a"
+    },
+    {
+      "file": "br-al.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/al.svg",
+      "sha256": "1766d00edfbed8670fabb6251c532a05ede19534f9a4a594636a9e70e2dbbde4"
+    },
+    {
+      "file": "br-ap.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/ap.svg",
+      "sha256": "a535c31913f449d381a0ade372345742acf7e7a9259249eab34b9c65ef54d8e0"
+    },
+    {
+      "file": "br-am.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/am.svg",
+      "sha256": "4ba2efde58c7ee5305f4c2b64647643ecf7e0a9386ec5a9c527cf1c724589183"
+    },
+    {
+      "file": "br-ba.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/ba.svg",
+      "sha256": "8e54add3e41c9208e6a916c86f3733ffd4d8a539f23c7bb94188034c1c5b02ec"
+    },
+    {
+      "file": "br-ce.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/ce.svg",
+      "sha256": "130331e3d04db6eb975c31d6f00f5728ef75e159ca39eec9ace4751c7cc467cd"
+    },
+    {
+      "file": "br-df.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/df.svg",
+      "sha256": "c1dd4c1b735e6d8f702b926e8373990f7c19d1c01c5e483b673cba57ac99ab1e"
+    },
+    {
+      "file": "br-es.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/es.svg",
+      "sha256": "5f4de7b3e98d2d581d3a5150bb14d2a5354a6ef052eb65d1a90c4340e371cae2"
+    },
+    {
+      "file": "br-go.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/go.svg",
+      "sha256": "ef3611f8b1d2ccaf556f7706ebe415dfaa9b44382755ba0ef72868ca3a7963c3"
+    },
+    {
+      "file": "br-ma.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/ma.svg",
+      "sha256": "f0ca7675bfd558c75128764dcd763d5e4b5dc1939b1190b584299abbbc0ad510"
+    },
+    {
+      "file": "br-mt.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/mt.svg",
+      "sha256": "9d994495d2ce4e8f135e84cdcca1cff3005e7eea948a0494daaba07b6168d81e"
+    },
+    {
+      "file": "br-ms.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/ms.svg",
+      "sha256": "fe4ee9c5ebd150f17e81c6f29cf2f39875070b7f822967361a8f7c29fce3419a"
+    },
+    {
+      "file": "br-mg.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/mg.svg",
+      "sha256": "02f1b2291ee1e9752433518f85d5d79961df20b37820bb52b8faa5854a3b32db"
+    },
+    {
+      "file": "br-pa.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/pa.svg",
+      "sha256": "7d0f48bb8c32037b880a06c9a853ddf261ae8b27f0a496f6733d8689be1eeca9"
+    },
+    {
+      "file": "br-pb.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/pb.svg",
+      "sha256": "5fd3940369df65054298f56c3d68f67bfdfab39eb58ef1f92c00de8b6847e5bc"
+    },
+    {
+      "file": "br-pr.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/pr.svg",
+      "sha256": "543f1fe7ec058a0db8028564ca47b248a9cf98df8a48a3baf3e41a7a2ca45140"
+    },
+    {
+      "file": "br-pe.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/pe.svg",
+      "sha256": "5649cee888f035f03617773d7a2a78610e81f41f81f9e442a527e6101200db10"
+    },
+    {
+      "file": "br-pi.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/pi.svg",
+      "sha256": "6e314cde2dbdebe2263439c1431caf37b348ed4ab9e37889f76d70c6ec82c68d"
+    },
+    {
+      "file": "br-rj.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/rj.svg",
+      "sha256": "e51adc77fee50c6efb2611c4147b0f6f212e4cb79382b448c38d3e8a716b257a"
+    },
+    {
+      "file": "br-rn.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/rn.svg",
+      "sha256": "8590913b5dc9d6718b73dc9a826994593da112d989ab25dedd65c23449fb10ff"
+    },
+    {
+      "file": "br-rs.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/rs.svg",
+      "sha256": "db8b6095d8d609ff479c64d95f19324797f30a989de7b0035e4805361afad9cf"
+    },
+    {
+      "file": "br-ro.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/ro.svg",
+      "sha256": "8698b8d7166a760871c8f1fa750f2d658aefda8c7ac09bc0a6c89b3e66eca114"
+    },
+    {
+      "file": "br-rr.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/rr.svg",
+      "sha256": "4c893747ae7a9180ed9f2cf69fcfc75c1c75de722fb711367996defaac6adde0"
+    },
+    {
+      "file": "br-sc.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/sc.svg",
+      "sha256": "d6361bb5b25e16d7cad42049d5fff62d54068ccd3edcd94137754a17b225ae06"
+    },
+    {
+      "file": "br-sp.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/sp.svg",
+      "sha256": "7971a0becbff78f2363e23258bec0f3ff2343dd8bd5ac074b315e91a0cf50715"
+    },
+    {
+      "file": "br-se.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/se.svg",
+      "sha256": "869f71bdc464a9ddaf111a2acd034056b852ede08cbc40720cddf6666a25df6c"
+    },
+    {
+      "file": "br-to.svg",
+      "source": "https://raw.githubusercontent.com/akagabi/bandeira-dos-estados-do-brasil/93624a385c870dc11a2ca686a89d3ab73b43538e/to.svg",
+      "sha256": "4fcfa743e77c401c7c462f16fb348a2be6687628802c2f24169d3ad0c9c001a9"
+    }
+  ],
+  "hashFormat": "SHA256 of the sanitized local SVG using LF line endings"
+}

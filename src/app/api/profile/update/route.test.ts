@@ -1,5 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-const mocks = vi.hoisted(() => ({ auth: vi.fn(), lock: vi.fn(), read: vi.fn(), update: vi.fn() }));
+const mocks = vi.hoisted(() => ({
+  auth: vi.fn(),
+  lock: vi.fn(),
+  read: vi.fn(),
+  update: vi.fn(),
+  version: vi.fn(),
+}));
 vi.mock('@/lib/auth', () => ({ getAuthUser: mocks.auth }));
 vi.mock('@/lib/prisma', () => ({
   prisma: {
@@ -7,6 +13,7 @@ vi.mock('@/lib/prisma', () => ({
       callback({
         $executeRaw: mocks.lock,
         user: { findUniqueOrThrow: mocks.read, update: mocks.update },
+        profileCustomization: { upsert: mocks.version },
       }),
   },
 }));
@@ -39,6 +46,11 @@ describe('legacy profile edits and earned decoration protection', () => {
     );
     expect(response.status).toBe(200);
     expect(mocks.lock).toHaveBeenCalledOnce();
+    expect(mocks.version).toHaveBeenCalledExactlyOnceWith({
+      where: { userId: 'owner' },
+      create: { userId: 'owner', preferences: {}, chat: {} },
+      update: { version: { increment: 1 } },
+    });
     expect(mocks.update.mock.calls[0][0]).toMatchObject({
       where: { id: 'owner' },
       data: {

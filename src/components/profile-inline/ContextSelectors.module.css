@@ -1,0 +1,272 @@
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 6px;
+  color: var(--color-dd-muted);
+  border: 1px solid var(--color-dd-border);
+  border-radius: 8px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+.trigger:hover {
+  background: var(--color-dd-surface);
+  color: var(--color-dd-text);
+}
+.trigger:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.trigger:focus-visible,
+.popover :is(button, input, select, a):focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 3px;
+}
+.popover {
+  position: fixed;
+  z-index: 150;
+  width: min(420px, calc(100vw - 24px));
+  overflow: auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--color-dd-border);
+  background: var(--color-dd-bg);
+  color: var(--color-dd-text);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px #0003;
+}
+.popoverHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-dd-border);
+}
+.popoverHeader strong {
+  font-size: 14px;
+}
+.popoverHeader button {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.popoverHeader button:hover {
+  background: var(--color-dd-surface);
+}
+.popoverBody {
+  padding: 14px;
+}
+.selector {
+  min-width: 0;
+  font-size: 13px;
+}
+.help {
+  color: var(--color-dd-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.selectedFlags {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 12px 0;
+}
+.selectedFlags button {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+  border: 1px solid var(--color-dd-border);
+  padding: 6px 8px;
+  border-radius: 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.selectedFlags img,
+.flagGrid img {
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 9px;
+  padding: 10px 12px;
+  min-height: 42px;
+}
+.search input {
+  min-width: 0;
+  flex: 1;
+  width: 100%;
+  background: transparent;
+  font: inherit;
+  outline: none;
+}
+.categories {
+  display: flex;
+  gap: 5px;
+  overflow: auto;
+  margin: 12px 0;
+  padding: 2px;
+}
+.categories button {
+  white-space: nowrap;
+  border-radius: 7px;
+  padding: 8px 10px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.categories button[aria-pressed='true'] {
+  color: var(--color-dd-text);
+  background: var(--color-dd-surface);
+}
+.flagGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 6px;
+  max-height: 270px;
+  overflow: auto;
+  padding: 3px;
+}
+.flagGrid button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-align: left;
+  padding: 9px 7px;
+  min-height: 44px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 8px;
+  font-size: 11px;
+  cursor: pointer;
+}
+.flagGrid button span {
+  overflow-wrap: anywhere;
+}
+.flagGrid button[aria-pressed='true'] {
+  border-color: var(--color-dd-accent);
+  background: var(--color-dd-surface);
+}
+.flagGrid button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.field {
+  display: grid;
+  gap: 7px;
+  margin-top: 14px;
+}
+.field > span {
+  font-size: 12px;
+  font-weight: 600;
+}
+.field input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 11px;
+  background: var(--color-dd-bg);
+  border: 1px solid var(--color-dd-border);
+  border-radius: 8px;
+}
+.actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.button {
+  min-height: 36px;
+  padding: 8px 11px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.button:hover {
+  background: var(--color-dd-surface);
+}
+.button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.results {
+  display: grid;
+  gap: 2px;
+  margin-top: 10px;
+}
+.track {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  padding: 9px 5px;
+  min-width: 0;
+  border-bottom: 1px solid var(--color-dd-border);
+}
+.track img {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border-radius: 5px;
+  flex-shrink: 0;
+}
+.trackInfo {
+  min-width: 0;
+  flex: 1;
+}
+.trackInfo strong {
+  font-size: 12px;
+  display: block;
+  overflow-wrap: anywhere;
+}
+.trackInfo p {
+  margin-top: 3px;
+  font-size: 11px;
+  color: var(--color-dd-muted);
+  overflow-wrap: anywhere;
+}
+.track > button {
+  flex-shrink: 0;
+}
+.error {
+  color: var(--color-dd-text);
+  font-size: 12px;
+  line-height: 1.6;
+  margin: 10px 0;
+  padding: 9px 10px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 8px;
+}
+.selectedMusic {
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-dd-border);
+}
+.selectedMusic strong {
+  font-size: 13px;
+}
+.selectedMusic a {
+  display: inline-block;
+  color: var(--color-dd-accent);
+  font-size: 12px;
+  margin: 7px 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (pointer: coarse) {
+  .trigger {
+    min-width: 40px;
+    min-height: 40px;
+  }
+  .categories button {
+    min-height: 40px;
+  }
+}

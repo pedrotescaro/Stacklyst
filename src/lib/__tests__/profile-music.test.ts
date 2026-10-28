@@ -12,6 +12,125 @@ afterEach(() => {
   vi.unstubAllEnvs();
 });
 describe('Spotify profile tracks', () => {
+  it('requires explicit approval mode before exposing a public production search', async () => {
+    vi.stubEnv('SPOTIFY_CLIENT_ID', 'client');
+    vi.stubEnv('SPOTIFY_CLIENT_SECRET', 'secret');
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.stubEnv('SPOTIFY_SEARCH_MODE', '');
+    const { spotifySearchAvailability } = await import('../profile-music');
+    expect(spotifySearchAvailability()).toEqual({ configured: false, reason: 'approval_required' });
+    vi.stubEnv('SPOTIFY_SEARCH_MODE', 'extended');
+    expect(spotifySearchAvailability()).toEqual({ configured: true, reason: null });
+  });
+  it('searches official paginated tracks and artists using cached credentials and only real metadata', async () => {
+    vi.stubEnv('SPOTIFY_CLIENT_ID', 'client');
+    vi.stubEnv('SPOTIFY_CLIENT_SECRET', 'secret');
+    const track = {
+      id,
+      name: 'Real track',
+      artists: [{ name: 'Real artist' }],
+      album: { name: 'Real album', images: [{ url: 'https://i.scdn.co/image/art' }] },
+      duration_ms: 211000,
+    };
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(Response.json({ access_token: 'first', expires_in: 3600 }))
+      .mockResolvedValueOnce(
+        Response.json({
+          tracks: {
+            items: [track],
+            total: 25,
+            next: 'https://api.spotify.com/v1/search?offset=10',
+          },
+        })
+      )
+      .mockResolvedValueOnce(
+        Response.json({
+          tracks: {
+            items: [track],
+            total: 25,
+            next: 'https://api.spotify.com/v1/search?offset=20',
+          },
+        })
+      );
+    vi.stubGlobal('fetch', fetcher);
+    const { searchSpotifyTrackPage } = await import('../profile-music');
+    const first = await searchSpotifyTrackPage('Lady Gaga');
+    expect(first).toMatchObject({
+      nextOffset: 10,
+      total: 25,
+      tracks: [{ album: 'Real album', durationMs: 211000, artist: 'Real artist' }],
+    });
+    await searchSpotifyTrackPage('Lady Gaga', 10);
+    expect(fetcher).toHaveBeenCalledTimes(3);
+    const url = new URL(fetcher.mock.calls[1][0]);
+    expect(url.origin).toBe('https://api.spotify.com');
+    expect(Object.fromEntries(url.searchParams)).toEqual({
+      q: 'Lady Gaga',
+      type: 'track,artist',
+      market: 'BR',
+      limit: '10',
+      offset: '0',
+    });
+    await searchSpotifyTrackPage('Lady Gaga');
+    expect(fetcher).toHaveBeenCalledTimes(3);
+    await expect(searchSpotifyTrackPage('query', 1001)).rejects.toMatchObject({
+      code: 'INVALID_SPOTIFY_SEARCH',
+    });
+  });
+  it('refreshes a rejected token once and returns sanitized quota/error metadata', async () => {
+    vi.stubEnv('SPOTIFY_CLIENT_ID', 'client');
+    vi.stubEnv('SPOTIFY_CLIENT_SECRET', 'secret');
+    const fetcher = vi
+      .fn()
+      .mockResolvedValueOnce(Response.json({ access_token: 'expired', expires_in: 3600 }))
+      .mockResolvedValueOnce(new Response('', { status: 401 }))
+      .mockResolvedValueOnce(Response.json({ access_token: 'fresh', expires_in: 3600 }))
+      .mockResolvedValueOnce(
+        Response.json(
+          { error: { reason: 'QUOTA_EXCEEDED', message: 'private upstream detail' } },
+          { status: 429, headers: { 'Retry-After': '45' } }
+        )
+      );
+    vi.stubGlobal('fetch', fetcher);
+    const { searchSpotifyTrackPage } = await import('../profile-music');
+    await expect(searchSpotifyTrackPage('Bad Romance')).rejects.toMatchObject({
+      kind: 'quota_exceeded',
+      upstreamStatus: 429,
+      retryAfter: 45,
+    });
+    expect(fetcher).toHaveBeenCalledTimes(4);
+    expect(fetcher.mock.calls[3][1].headers.Authorization).toBe('Bearer fresh');
+  });
+  it.each([401, 403, 429])(
+    'classifies Spotify %s without making up a result or retrying indefinitely',
+    async (status) => {
+      vi.stubEnv('SPOTIFY_CLIENT_ID', 'client');
+      vi.stubEnv('SPOTIFY_CLIENT_SECRET', 'secret');
+      const fetcher = vi.fn(async (url: string) =>
+        url.includes('/api/token')
+          ? Response.json({ access_token: 'token', expires_in: 3600 })
+          : new Response('', { status })
+      );
+      vi.stubGlobal('fetch', fetcher);
+      const { searchSpotifyTrackPage } = await import('../profile-music');
+      await expect(searchSpotifyTrackPage('Some song')).rejects.toMatchObject({
+        upstreamStatus: status,
+        kind: status === 401 ? 'authorization' : status === 403 ? 'forbidden' : 'rate_limited',
+      });
+      expect(fetcher.mock.calls.length).toBeLessThanOrEqual(4);
+    }
+  );
+  it('returns connection failure, never synthetic tracks', async () => {
+    vi.stubEnv('SPOTIFY_CLIENT_ID', 'client');
+    vi.stubEnv('SPOTIFY_CLIENT_SECRET', 'secret');
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new Error('offline')));
+    const { searchSpotifyTrackPage } = await import('../profile-music');
+    await expect(searchSpotifyTrackPage('Some song')).rejects.toMatchObject({
+      kind: 'connection',
+      upstreamStatus: 503,
+    });
+  });
   it('accepts official track URL/URI and rejects external origins, credentials and nontracks', () => {
     for (const valid of [
       id,
@@ -46,8 +165,8 @@ describe('Spotify profile tracks', () => {
     expect(spotifySearchConfigured()).toBe(false);
     expect(await resolveSpotifyTrack(`https://open.spotify.com/track/${id}`)).toEqual({
       trackId: id,
-      title: 'Music',
-      artist: 'Artist',
+      title: 'Music - Artist',
+      artist: '',
       artworkUrl: 'https://i.scdn.co/image/abc',
     });
     expect(fetcher.mock.calls[0][0]).toBe(

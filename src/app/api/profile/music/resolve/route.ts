@@ -12,10 +12,17 @@ export const POST = apiHandler(async (request) => {
     endpoint: '/api/profile/music/resolve',
   });
   const { url } = z.object({ url: z.string().min(1).max(500) }).parse(await request.json());
-  const { trackId, title, artist, artworkUrl } = await resolveSpotifyTrack(url);
+  const { trackId, title, artist, artworkUrl, album, durationMs } = await resolveSpotifyTrack(url);
   // Diagnostic metadata must never enter the strict persisted music preference.
   return Response.json(
-    { trackId, title, artist, artworkUrl },
+    {
+      trackId,
+      title,
+      artist,
+      artworkUrl,
+      ...(album !== undefined ? { album } : {}),
+      ...(durationMs !== undefined ? { durationMs } : {}),
+    },
     {
       headers: { 'Cache-Control': 'private, no-store' },
     }

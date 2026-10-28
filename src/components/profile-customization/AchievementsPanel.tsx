@@ -2,6 +2,7 @@
 
 import { useState, type CSSProperties } from 'react';
 import {
+  Sprout,
   Award,
   Cake,
   Check,
@@ -27,6 +28,7 @@ const rarityNames: Record<string, string> = {
   special: 'Especial',
 };
 const achievementIcons = {
+  sprout: Sprout,
   award: Award,
   message: MessageCircle,
   users: Users,

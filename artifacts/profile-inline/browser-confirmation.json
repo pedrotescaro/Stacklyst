@@ -1,0 +1,88 @@
+{
+  "checks": [
+    {
+      "name": "Banner uploaded and repositioning persisted",
+      "passed": true
+    },
+    {
+      "name": "Banner placement survives reload",
+      "passed": true
+    },
+    {
+      "name": "Explicit default clears stored banner",
+      "passed": true
+    },
+    {
+      "name": "Decorative frame preserves original avatar",
+      "passed": true
+    },
+    {
+      "name": "Actual photo publication created",
+      "passed": true
+    },
+    {
+      "name": "Photos tab shows actual published media",
+      "passed": true
+    }
+  ],
+  "viewports": [
+    {
+      "width": 320,
+      "overflow": false,
+      "flagCount": 3,
+      "avatarLoaded": true,
+      "playerHeight": 80,
+      "duplicateMusicCovers": 0,
+      "axeViolations": []
+    },
+    {
+      "width": 375,
+      "overflow": false,
+      "flagCount": 3,
+      "avatarLoaded": true,
+      "playerHeight": 80,
+      "duplicateMusicCovers": 0,
+      "axeViolations": []
+    },
+    {
+      "width": 430,
+      "overflow": false,
+      "flagCount": 3,
+      "avatarLoaded": true,
+      "playerHeight": 80,
+      "duplicateMusicCovers": 0,
+      "axeViolations": []
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "flagCount": 3,
+      "avatarLoaded": true,
+      "playerHeight": 80,
+      "duplicateMusicCovers": 0,
+      "axeViolations": []
+    },
+    {
+      "width": 1024,
+      "overflow": false,
+      "flagCount": 3,
+      "avatarLoaded": true,
+      "playerHeight": 80,
+      "duplicateMusicCovers": 0,
+      "axeViolations": []
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "flagCount": 3,
+      "avatarLoaded": true,
+      "playerHeight": 80,
+      "duplicateMusicCovers": 0,
+      "axeViolations": []
+    }
+  ],
+  "errors": [],
+  "popoverAxe": [],
+  "statsAxe": [],
+  "passed": true
+}

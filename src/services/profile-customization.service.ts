@@ -7,6 +7,8 @@ import {
   DEFAULT_CHAT_PREFERENCES,
   profileCatalogSchema,
   profilePreferencesSchema,
+  profileBasicsSchema,
+  normalizeProfilePreferenceAliases,
   privateChatSchema,
   achievementDefinitionSchema,
   parseProfilePreferences,
@@ -21,11 +23,67 @@ import {
 import { resolveSpotifyTrack } from '@/lib/profile-music';
 import { isOwnedProfileUpload } from '@/lib/profile-upload';
 import { z } from 'zod';
+import { LEARNING_COURSES } from '@/lib/learning/catalog';
 
 const CATALOG_ID = 'profile-catalog';
 type Transaction = Prisma.TransactionClient;
 type Metrics = Record<ProfileMetric, number>;
 const json = (value: unknown) => JSON.parse(JSON.stringify(value)) as Prisma.InputJsonValue;
+const completedTrailRequirements = JSON.stringify(
+  LEARNING_COURSES.map((course) => ({
+    id: course.id,
+    steps: [
+      ...new Set(
+        course.lessons.flatMap((lesson) =>
+          lesson.steps.filter((step) => step.type !== 'concept_explanation').map((step) => step.id)
+        )
+      ),
+    ],
+  }))
+);
+const profileUserSelection = {
+  avatar_url: true,
+  banner_url: true,
+  avatar_config: true,
+  username: true,
+  bio: true,
+  institution: true,
+  pronouns: true,
+  github_username: true,
+  discord_username: true,
+  birthday: true,
+} as const;
+function editableProfile(user: {
+  username?: string;
+  avatar_config?: unknown;
+  bio?: string | null;
+  institution?: string | null;
+  pronouns?: string | null;
+  github_username?: string | null;
+  discord_username?: string | null;
+  birthday?: Date | string | null;
+}) {
+  const avatar =
+    user.avatar_config &&
+    typeof user.avatar_config === 'object' &&
+    !Array.isArray(user.avatar_config)
+      ? (user.avatar_config as Record<string, unknown>)
+      : {};
+  return {
+    displayName:
+      typeof avatar.displayName === 'string'
+        ? avatar.displayName
+        : typeof avatar.name === 'string'
+          ? avatar.name
+          : user.username || '',
+    bio: user.bio ?? null,
+    institution: user.institution ?? null,
+    pronouns: user.pronouns ?? null,
+    github_username: user.github_username ?? null,
+    discord_username: user.discord_username ?? null,
+    birthday: user.birthday ? new Date(user.birthday).toISOString().slice(0, 10) : null,
+  };
+}
 
 export async function getProfileCatalog(): Promise<ProfileCatalog> {
   const row = await prisma.profileAchievementCatalog.findUnique({ where: { id: CATALOG_ID } });
@@ -63,6 +121,7 @@ export async function profileActivityMetrics(tx: Transaction, userId: string): P
       likes: number;
       followers: number;
       learningActivities: number;
+      completedTrails: number;
     }>
   >`
     WITH normalized_posts AS (
@@ -95,9 +154,22 @@ export async function profileActivityMetrics(tx: Transaction, userId: string): P
       COALESCE((SELECT SUM(amount)::int FROM daily_likes),0) AS likes,
       (SELECT COUNT(*)::int FROM "Follow" f JOIN "User" u ON u.id=f."followerId"
         WHERE f."followingId"=${userId} AND f."followerId"<>${userId} AND u.created_at<=f."createdAt"-INTERVAL '24 hours') AS followers,
-      (SELECT COUNT(DISTINCT exercise_id)::int FROM exercise_submissions WHERE user_id=${userId} AND status='PASSED') AS "learningActivities"
+      (SELECT COUNT(DISTINCT exercise_id)::int FROM exercise_submissions WHERE user_id=${userId} AND status='PASSED') AS "learningActivities",
+      (SELECT COUNT(*)::int FROM jsonb_array_elements(${completedTrailRequirements}::jsonb) course
+        WHERE jsonb_array_length(course->'steps') > 0
+        AND NOT EXISTS (
+          SELECT 1 FROM jsonb_array_elements_text(course->'steps') required_step
+          WHERE NOT EXISTS (SELECT 1 FROM "QuizAttempt" attempt WHERE attempt.user_id=${userId}
+            AND attempt.quiz_id=required_step.value AND attempt.is_correct=true)
+        )) AS "completedTrails"
   `;
-  return { ...row, eventPosts: 0, eventComments: 0, eventComplete: 0 };
+  return {
+    ...row,
+    completedTrails: row.completedTrails ?? 0,
+    eventPosts: 0,
+    eventComments: 0,
+    eventComplete: 0,
+  };
 }
 
 export function eventIsActive(event: ProfileCatalog['events'][number], now: Date) {
@@ -251,7 +323,7 @@ export async function getProfileCustomization(
       const row = await tx.profileCustomization.findUnique({ where: { userId } });
       const user = await tx.user.findUnique({
         where: { id: userId },
-        select: { avatar_url: true },
+        select: profileUserSelection,
       });
       if (!user) throw new NotFoundError('USER_NOT_FOUND');
       // Only the explicit notification consumer may claim the transient toast.
@@ -269,6 +341,8 @@ export async function getProfileCustomization(
         chat: parsePrivateChat(row?.chat),
         version: row?.version || 0,
         avatarUrl: user.avatar_url,
+        bannerUrl: user.banner_url ?? null,
+        profile: editableProfile(user),
         catalog,
         achievements,
         newUnlocks,
@@ -297,8 +371,14 @@ export const saveProfileCustomizationSchema = z
     preferences: profilePreferencesSchema,
     chat: privateChatSchema.optional(),
     avatarUrl: z.string().max(2048).nullable().optional(),
+    profile: profileBasicsSchema.optional(),
+    clearBanner: z.boolean().optional(),
   })
-  .strict();
+  .strict()
+  .refine((value) => !value.clearBanner || value.preferences.banner.mode === 'default', {
+    path: ['clearBanner'],
+    message: 'Remova a capa somente ao escolher o banner padrão.',
+  });
 export async function saveProfileCustomization(
   userId: string,
   input: unknown
@@ -306,6 +386,7 @@ export async function saveProfileCustomization(
   const parsed = saveProfileCustomizationSchema.parse(input);
   const existing = await prisma.profileCustomization.findUnique({ where: { userId } });
   const current = parseProfilePreferences(existing?.preferences);
+  parsed.preferences = normalizeProfilePreferenceAliases(parsed.preferences, current);
   const bannerImage = parsed.preferences.banner.imageUrl;
   if (
     bannerImage &&
@@ -329,6 +410,8 @@ export async function saveProfileCustomization(
         title: resolved.title,
         artist: resolved.artist,
         artworkUrl: resolved.artworkUrl,
+        ...(resolved.album !== undefined ? { album: resolved.album } : {}),
+        ...(resolved.durationMs !== undefined ? { durationMs: resolved.durationMs } : {}),
       };
     }
   }
@@ -390,7 +473,7 @@ export async function saveProfileCustomization(
       }
       const user = await tx.user.findUnique({
         where: { id: userId },
-        select: { avatar_config: true, avatar_url: true },
+        select: profileUserSelection,
       });
       if (!user) throw new NotFoundError('USER_NOT_FOUND');
       if (
@@ -425,8 +508,43 @@ export async function saveProfileCustomization(
         where: { id: userId },
         data: {
           ...(parsed.avatarUrl !== undefined ? { avatar_url: parsed.avatarUrl } : {}),
+          ...(parsed.profile
+            ? {
+                ...(parsed.profile.bio !== undefined ? { bio: parsed.profile.bio || null } : {}),
+                ...(parsed.profile.institution !== undefined
+                  ? { institution: parsed.profile.institution || null }
+                  : {}),
+                ...(parsed.profile.pronouns !== undefined
+                  ? { pronouns: parsed.profile.pronouns || null }
+                  : {}),
+                ...(parsed.profile.github_username !== undefined
+                  ? { github_username: parsed.profile.github_username || null }
+                  : {}),
+                ...(parsed.profile.discord_username !== undefined
+                  ? { discord_username: parsed.profile.discord_username || null }
+                  : {}),
+                ...(parsed.profile.birthday !== undefined
+                  ? {
+                      birthday: parsed.profile.birthday
+                        ? new Date(parsed.profile.birthday + 'T00:00:00.000Z')
+                        : null,
+                    }
+                  : {}),
+              }
+            : {}),
+          banner_url:
+            parsed.preferences.banner.mode === 'image'
+              ? parsed.preferences.banner.imageUrl
+              : parsed.preferences.banner.mode === 'default'
+                ? parsed.clearBanner || current.banner.mode !== 'default'
+                  ? null
+                  : undefined
+                : null,
           avatar_config: json({
             ...avatar,
+            ...(parsed.profile?.displayName !== undefined
+              ? { name: parsed.profile.displayName, displayName: parsed.profile.displayName }
+              : {}),
             profileStyle: {
               nameStyle: parsed.preferences.nameStyle,
               frame:
@@ -434,8 +552,15 @@ export async function saveProfileCustomization(
                   ? null
                   : { id: frame.id, decoration: frame.decoration, color: frame.color },
               flag: parsed.preferences.flag,
+              flags: parsed.preferences.flags,
               title: title
-                ? { id: title.id, name: title.name, color: title.color, rarity: title.rarity }
+                ? {
+                    id: title.id,
+                    name: title.name,
+                    icon: title.icon,
+                    color: title.color,
+                    rarity: title.rarity,
+                  }
                 : null,
             },
           }),

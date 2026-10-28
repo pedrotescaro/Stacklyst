@@ -1,5 +1,7 @@
 # Personalização de perfis
 
+O perfil principal agora oferece edição diretamente em `/profile/[username]`, sem abrir o modal antigo. A reformulação, seus campos adicionais e evidências atuais estão em [Perfil social com edição na própria página](profile-inline-redesign.md). Os resultados quantitativos abaixo registram a entrega anterior da central de personalização; não substituem os resultados da reformulação.
+
 A central `/personalize` reúne foto com recorte, molduras, aparência, nome, bandeira, título, banner, interesses, estudos, música e preferências privadas de chat. `/achievements` mostra os requisitos, progresso e conquistas liberadas. Não há seção de livros.
 
 ## Persistência e autorização

@@ -7,8 +7,8 @@
     "votes": 24
   },
   "samples": 25,
-  "medianMs": 12.052699999999732,
-  "p95Ms": 13.39200000000028,
-  "maxMs": 14.961099999999988,
+  "medianMs": 17.82029999999986,
+  "p95Ms": 20.91220000000021,
+  "maxMs": 21.289700000000266,
   "note": "Small deterministic fixture, not production-load or field-performance evidence."
 }

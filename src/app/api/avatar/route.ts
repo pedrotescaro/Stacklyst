@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getAuthUser } from '@/lib/auth';
 import { avatarConfigSchema } from '@/lib/avatar';
 import { prisma } from '@/lib/prisma';
+import { bumpProfileVersion } from '@/lib/profile-version';
 
 export async function PUT(request: Request) {
   const user = await getAuthUser();
@@ -27,11 +28,13 @@ export async function PUT(request: Request) {
       !Array.isArray(current.avatar_config)
         ? current.avatar_config
         : {};
-    return tx.user.update({
+    const updated = await tx.user.update({
       where: { id: user.id },
       data: { avatar_config: { ...config, ...result.data } },
       select: { id: true, username: true, avatar_config: true },
     });
+    await bumpProfileVersion(tx, user.id);
+    return updated;
   });
 
   return NextResponse.json(updatedUser);

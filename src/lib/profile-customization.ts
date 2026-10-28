@@ -1,9 +1,7 @@
 import { z } from 'zod';
+import { getProfileFlags as getFlagCatalog, isProfileFlagId } from '@/lib/profile-flags';
 
-export const PROFILE_COUNTRY_CODES =
-  'AD AE AF AG AI AL AM AO AQ AR AS AT AU AW AX AZ BA BB BD BE BF BG BH BI BJ BL BM BN BO BQ BR BS BT BV BW BY BZ CA CC CD CF CG CH CI CK CL CM CN CO CR CU CV CW CX CY CZ DE DJ DK DM DO DZ EC EE EG EH ER ES ET FI FJ FK FM FO FR GA GB GD GE GF GG GH GI GL GM GN GP GQ GR GS GT GU GW GY HK HM HN HR HT HU ID IE IL IM IN IO IQ IR IS IT JE JM JO JP KE KG KH KI KM KN KP KR KW KY KZ LA LB LC LI LK LR LS LT LU LV LY MA MC MD ME MF MG MH MK ML MM MN MO MP MQ MR MS MT MU MV MW MX MY MZ NA NC NE NF NG NI NL NO NP NR NU NZ OM PA PE PF PG PH PK PL PM PN PR PS PT PW PY QA RE RO RS RU RW SA SB SC SD SE SG SH SI SJ SK SL SM SN SO SR SS ST SV SX SY SZ TC TD TF TG TH TJ TK TL TM TN TO TR TT TV TW TZ UA UG UM US UY UZ VA VC VE VG VI VN VU WF WS YE YT ZA ZM ZW'.split(
-    ' '
-  );
+export { PROFILE_COUNTRY_CODES } from '@/lib/profile-flags';
 export const PROFILE_RARITIES = [
   'common',
   'uncommon',
@@ -19,6 +17,7 @@ export const PROFILE_METRICS = [
   'likes',
   'followers',
   'learningActivities',
+  'completedTrails',
   'eventPosts',
   'eventComments',
   'eventComplete',
@@ -52,6 +51,75 @@ const tag = z
       .regex(/^[\p{L}\p{N}_+-]+$/u, 'Tags só podem conter letras, números, +, - e _.')
   );
 
+const flagId = z.string().max(32).refine(isProfileFlagId, 'Escolha uma bandeira do catálogo.');
+export const profileStudySchema = z
+  .object({
+    subject: safeText(60).min(2),
+    description: safeText(160).nullable().default(null),
+    progress: z.number().int().min(0).max(100).nullable().default(null),
+    status: z.enum(['studying', 'paused', 'completed']).default('studying'),
+  })
+  .strict();
+export type ProfileStudy = z.infer<typeof profileStudySchema>;
+export const profileSocialLinkSchema = z
+  .object({
+    label: safeText(32).min(1),
+    url: z
+      .string()
+      .trim()
+      .max(500)
+      .url()
+      .refine((value) => {
+        try {
+          const url = new URL(value);
+          return url.protocol === 'https:' && !url.username && !url.password;
+        } catch {
+          return false;
+        }
+      }, 'Use um link HTTPS sem credenciais.'),
+  })
+  .strict();
+
+const optionalProfileText = (max: number) => safeText(max).nullable().optional();
+export const profileBasicsSchema = z
+  .object({
+    displayName: safeText(50).min(1).optional(),
+    bio: optionalProfileText(500),
+    institution: optionalProfileText(100),
+    pronouns: optionalProfileText(40),
+    github_username: z
+      .string()
+      .trim()
+      .max(39)
+      .regex(/^(?:[a-z\d](?:[a-z\d-]*[a-z\d])?)?$/i, 'Informe um usuário GitHub válido.')
+      .nullable()
+      .optional(),
+    discord_username: optionalProfileText(100),
+    birthday: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/, 'Informe uma data válida.')
+      .refine((value) => {
+        const date = new Date(value + 'T00:00:00.000Z');
+        return (
+          Number.isFinite(date.getTime()) &&
+          date.toISOString().slice(0, 10) === value &&
+          date <= new Date()
+        );
+      }, 'Informe uma data de nascimento válida.')
+      .nullable()
+      .optional(),
+  })
+  .strict();
+export interface ProfileBasics {
+  displayName: string;
+  bio: string | null;
+  institution: string | null;
+  pronouns: string | null;
+  github_username: string | null;
+  discord_username: string | null;
+  birthday: string | null;
+}
+
 export const profilePreferencesSchema = z
   .object({
     appearance: z
@@ -82,26 +150,27 @@ export const profilePreferencesSchema = z
         positionY: z.number().min(0).max(100),
       })
       .strict(),
-    flag: z
-      .string()
-      .max(16)
-      .nullable()
-      .refine(
-        (value) =>
-          value === null ||
-          PROFILE_COUNTRY_CODES.includes(value) ||
-          ['dev', 'rainbow'].includes(value),
-        'Escolha uma bandeira do catálogo.'
-      ),
+    flag: flagId.nullable(),
+    flags: z
+      .array(flagId)
+      .max(3)
+      .transform((values) => [...new Set(values)])
+      .optional(),
     frameId: z.string().min(1).max(80),
     tags: z
       .array(tag)
       .max(10)
       .transform((values) => [...new Set(values)]),
+    tagColors: z
+      .record(tag, hex)
+      .refine((value) => Object.keys(value).length <= 10, 'Use até dez cores de tags.')
+      .optional(),
     studies: z
       .array(safeText(60).min(2))
       .max(3)
       .transform((values) => [...new Set(values)]),
+    studyDetails: z.array(profileStudySchema).max(3).optional(),
+    socialLinks: z.array(profileSocialLinkSchema).max(5).optional(),
     music: z
       .object({
         trackId: z.string().regex(/^[a-zA-Z0-9]{22}$/),
@@ -110,6 +179,8 @@ export const profilePreferencesSchema = z
         title: z.string().trim().max(200).nullable(),
         artist: z.string().trim().max(200).nullable(),
         artworkUrl: assetUrl.nullable(),
+        album: z.string().trim().max(200).nullable().optional(),
+        durationMs: z.number().int().min(0).max(86400000).nullable().optional(),
       })
       .strict()
       .nullable(),
@@ -179,6 +250,7 @@ export const achievementDefinitionSchema = z
       'ghost',
       'gift',
       'cake',
+      'sprout',
     ]),
     category: z.enum(['posts', 'comments', 'community', 'learning', 'event']),
     rarity: z.enum(PROFILE_RARITIES),
@@ -210,6 +282,8 @@ export const avatarFrameSchema = z
       'halloween',
       'christmas',
       'legendary',
+      'alien',
+      'hat',
     ]),
     achievementId: z.string().max(80).optional(),
   })
@@ -300,21 +374,25 @@ const achievement = (
               ? `Conquiste ${target} seguidores válidos.`
               : metric === 'learningActivities'
                 ? 'Conclua uma atividade com sucesso.'
-                : metric === 'eventPosts'
-                  ? 'Publique com a hashtag do evento durante o período.'
-                  : metric === 'eventComments'
-                    ? `Comente em ${target} publicações diferentes do evento.`
-                    : 'Conclua todos os desafios deste evento.',
+                : metric === 'completedTrails'
+                  ? `Conclua ${target} ${target === 1 ? 'trilha inteira' : 'trilhas inteiras'} de aprendizagem.`
+                  : metric === 'eventPosts'
+                    ? 'Publique com a hashtag do evento durante o período.'
+                    : metric === 'eventComments'
+                      ? `Comente em ${target} publicações diferentes do evento.`
+                      : 'Conclua todos os desafios deste evento.',
   icon:
-    category === 'event'
-      ? 'ghost'
-      : category === 'posts'
-        ? 'award'
-        : category === 'comments'
-          ? 'message'
-          : category === 'learning'
-            ? 'code'
-            : 'users',
+    id === 'posts-1'
+      ? 'sprout'
+      : category === 'event'
+        ? 'ghost'
+        : category === 'posts'
+          ? 'award'
+          : category === 'comments'
+            ? 'message'
+            : category === 'learning'
+              ? 'code'
+              : 'users',
   category,
   rarity,
   color,
@@ -332,6 +410,8 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
   frames: [
     { id: 'none', name: 'Sem moldura', color: '#64748b', decoration: 'none' },
     { id: 'minimal', name: 'Minimalista', color: '#94a3b8', decoration: 'minimal' },
+    { id: 'alien', name: 'Alienígena', color: '#72b981', decoration: 'alien' },
+    { id: 'hat', name: 'Chapéu', color: '#94a3b8', decoration: 'hat' },
     { id: 'neon-blue', name: 'Neon azul', color: '#0083fe', decoration: 'neon' },
     { id: 'neon-purple', name: 'Neon roxo', color: '#a855f7', decoration: 'neon' },
     { id: 'cyberpunk', name: 'Cyberpunk', color: '#ec4899', decoration: 'cyberpunk' },
@@ -365,11 +445,11 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
     ...(
       [
         [1, 'Primeiros Passos', 'common'],
-        [10, 'Iniciante', 'uncommon'],
+        [10, 'Voz Ativa', 'uncommon'],
         [50, 'Criador Ativo', 'rare'],
-        [100, 'Criador Experiente', 'rare'],
-        [200, 'Veterano', 'epic'],
-        [500, 'Lenda do Feed', 'epic'],
+        [100, 'Criador Frequente', 'rare'],
+        [200, 'Criador Consistente', 'epic'],
+        [500, 'Veterano', 'epic'],
         [1000, 'Ícone do Stacklyst', 'legendary'],
       ] as const
     ).map(([target, name, rarity]) =>
@@ -412,11 +492,11 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
       colors.rare
     ),
     achievement('likes-100', 'Em Destaque', 'likes', 100, 'community', 'rare', colors.rare),
-    achievement('likes-1000', 'Popular', 'likes', 1000, 'community', 'epic', colors.epic),
-    achievement('followers-100', 'Influente', 'followers', 100, 'community', 'epic', colors.epic),
+    achievement('likes-1000', 'Apreciado', 'likes', 1000, 'community', 'epic', colors.epic),
+    achievement('followers-100', 'Popular', 'followers', 100, 'community', 'epic', colors.epic),
     achievement(
       'followers-1000',
-      'Referência',
+      'Comunicador',
       'followers',
       1000,
       'community',
@@ -432,6 +512,8 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
       'uncommon',
       colors.uncommon
     ),
+    achievement('trails-1', 'Explorador', 'completedTrails', 1, 'learning', 'rare', colors.rare),
+    achievement('trails-3', 'Maratonista', 'completedTrails', 3, 'learning', 'epic', colors.epic),
     achievement(
       'halloween-spirit',
       'Espírito de Halloween',
@@ -517,28 +599,103 @@ export interface AchievementProgress extends AchievementDefinition {
 }
 export interface ProfileCustomizationState {
   avatarUrl: string | null;
+  /** Canonical persisted legacy banner, including removal after a reset. */
+  bannerUrl?: string | null;
   preferences: ProfilePreferences;
   chat: PrivateChatPreferences;
   version: number;
   catalog: ProfileCatalog;
   achievements: AchievementProgress[];
   newUnlocks: string[];
+  /** Private editable fields, returned only to the authenticated owner. */
+  profile?: ProfileBasics;
 }
 export function getProfileFlags(locale = 'pt-BR') {
-  const names = new Intl.DisplayNames([locale], { type: 'region' });
-  return [
-    ...PROFILE_COUNTRY_CODES.map((id) => ({
-      id,
-      label: names.of(id) || id,
-      imageUrl: `/flags/profile/${id.toLowerCase()}.svg`,
-    })),
-    { id: 'dev', label: 'Desenvolvimento', imageUrl: '/flags/profile/dev.svg' },
-    { id: 'rainbow', label: 'Diversidade', imageUrl: '/flags/profile/rainbow.svg' },
-  ];
+  return getFlagCatalog(locale);
+}
+export function getSelectedProfileFlags(preferences: ProfilePreferences) {
+  return preferences.flags ?? (preferences.flag ? [preferences.flag] : []);
+}
+export function getProfileStudies(preferences: ProfilePreferences): ProfileStudy[] {
+  return (
+    preferences.studyDetails ??
+    preferences.studies.map((subject) => ({
+      subject,
+      description: null,
+      progress: null,
+      status: 'studying' as const,
+    }))
+  );
+}
+/** Upgrade old JSON and old client payloads without resetting unrelated preferences. */
+export function normalizeProfilePreferenceAliases(
+  preferences: ProfilePreferences,
+  current?: ProfilePreferences
+): ProfilePreferences {
+  const equal = (first: readonly string[], second: readonly string[]) =>
+    first.length === second.length && first.every((value, index) => value === second[index]);
+  const currentFlags = current ? getSelectedProfileFlags(current) : undefined;
+  // Older apps spread a full GET response before changing only the legacy alias.
+  // A changed new array wins; an unchanged array must not hide that older edit.
+  const legacyFlagChanged = current && preferences.flag !== current.flag;
+  const newFlagsChanged =
+    preferences.flags !== undefined &&
+    currentFlags !== undefined &&
+    !equal(preferences.flags, currentFlags);
+  const flags =
+    legacyFlagChanged && !newFlagsChanged
+      ? preferences.flag
+        ? [preferences.flag]
+        : []
+      : (preferences.flags ?? currentFlags ?? getSelectedProfileFlags(preferences));
+  const currentStudies = current ? getProfileStudies(current) : undefined;
+  const studyKey = (studies: readonly ProfileStudy[]) =>
+    JSON.stringify(
+      studies.map((study) => [
+        study.subject,
+        study.description ?? null,
+        study.progress ?? null,
+        study.status,
+      ])
+    );
+  const legacyStudiesChanged = current && !equal(preferences.studies, current.studies);
+  const newStudiesChanged =
+    preferences.studyDetails !== undefined &&
+    currentStudies !== undefined &&
+    studyKey(preferences.studyDetails) !== studyKey(currentStudies);
+  const studyDetails =
+    legacyStudiesChanged && !newStudiesChanged
+      ? preferences.studies.map(
+          (subject) =>
+            currentStudies?.find((study) => study.subject === subject) ?? {
+              subject,
+              description: null,
+              progress: null,
+              status: 'studying' as const,
+            }
+        )
+      : (preferences.studyDetails ?? currentStudies ?? getProfileStudies(preferences));
+  const tagColors = Object.fromEntries(
+    Object.entries(preferences.tagColors ?? current?.tagColors ?? {}).filter(([key]) =>
+      preferences.tags.includes(key)
+    )
+  );
+  return {
+    ...preferences,
+    flag: flags[0] ?? null,
+    flags,
+    tags: preferences.tags,
+    tagColors,
+    studies: studyDetails.map((study) => study.subject),
+    studyDetails,
+    socialLinks: preferences.socialLinks ?? current?.socialLinks ?? [],
+  };
 }
 export function parseProfilePreferences(value: unknown): ProfilePreferences {
   const parsed = profilePreferencesSchema.safeParse(value);
-  return parsed.success ? parsed.data : structuredClone(DEFAULT_PROFILE_PREFERENCES);
+  return parsed.success
+    ? normalizeProfilePreferenceAliases(parsed.data)
+    : structuredClone(DEFAULT_PROFILE_PREFERENCES);
 }
 export function parsePrivateChat(value: unknown): PrivateChatPreferences {
   const parsed = privateChatSchema.safeParse(value);

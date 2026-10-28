@@ -61,6 +61,32 @@
   border-width: 5px;
   border-color: #eab308;
 }
+.frame[data-decoration='alien']::after {
+  border-color: var(--frame-color);
+  border-width: 2px;
+}
+.frame[data-decoration='hat']::after {
+  border-width: 1px;
+}
+.alienOverlay {
+  position: absolute;
+  inset: -12%;
+  width: 124%;
+  height: 124%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 3;
+}
+.hatOverlay {
+  position: absolute;
+  width: 108%;
+  height: 48%;
+  left: -4%;
+  top: -22%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 3;
+}
 .flag {
   display: inline-block;
   width: 24px;

@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import type { ProfilePreferences, PrivateChatPreferences } from '@/lib/profile-customization';
+import { isProfileFlagId } from '@/lib/profile-flags';
 
 const validColor = (value: unknown): value is string =>
   typeof value === 'string' && /^#[\da-f]{6}$/i.test(value);
@@ -39,7 +40,8 @@ export interface ProfileIdentityStyle {
   nameStyle?: { color?: string | null; bold?: boolean; italic?: boolean; underline?: boolean };
   frame?: { id: string; decoration: string; color: string } | null;
   flag?: string | null;
-  title?: { id: string; name: string; color: string; rarity: string } | null;
+  flags?: string[];
+  title?: { id: string; name: string; color: string; rarity: string; icon?: string } | null;
 }
 export function readProfileIdentity(config: unknown): ProfileIdentityStyle {
   const value = (
@@ -57,10 +59,14 @@ export function readProfileIdentity(config: unknown): ProfileIdentityStyle {
       value.frame && validColor(value.frame.color) && /^[a-z-]+$/.test(value.frame.decoration)
         ? value.frame
         : null,
-    flag:
-      typeof value.flag === 'string' && /^(?:[A-Z]{2}|dev|rainbow)$/.test(value.flag)
-        ? value.flag
-        : null,
+    flag: typeof value.flag === 'string' && isProfileFlagId(value.flag) ? value.flag : null,
+    flags: Array.isArray(value.flags)
+      ? value.flags
+          .filter((flag): flag is string => typeof flag === 'string' && isProfileFlagId(flag))
+          .slice(0, 3)
+      : typeof value.flag === 'string' && isProfileFlagId(value.flag)
+        ? [value.flag]
+        : [],
     title:
       value.title &&
       typeof value.title.name === 'string' &&

@@ -1,6 +1,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { getLevelFromTotalXp, LevelBadge } from '../LevelBadge';
+import { colorContrast } from '@/lib/profile-customization';
 
 describe('LevelBadge', () => {
   it('calcula o nível global por XP', () => {
@@ -17,5 +18,21 @@ describe('LevelBadge', () => {
     rerender(<LevelBadge totalXp={19_000} />);
     const advanced = screen.getByLabelText('Nível 20');
     expect(advanced).toHaveStyle({ backgroundColor: '#ffc800', boxShadow: '0 3px 0 #c79700' });
+  });
+  it('maintains readable small text in every level palette', () => {
+    const { rerender } = render(<LevelBadge totalXp={0} />);
+    const hex = (rgb: string) =>
+      '#' +
+      rgb
+        .match(/\d+/g)!
+        .map((channel) => Number(channel).toString(16).padStart(2, '0'))
+        .join('');
+    for (const level of [1, 5, 10, 20, 30]) {
+      rerender(<LevelBadge totalXp={(level - 1) * 1000} />);
+      const badge = screen.getByLabelText(`Nível ${level}`);
+      expect(
+        colorContrast(hex(badge.style.color), hex(badge.style.backgroundColor))
+      ).toBeGreaterThanOrEqual(4.5);
+    }
   });
 });

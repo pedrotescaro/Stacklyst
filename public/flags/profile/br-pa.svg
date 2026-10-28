@@ -1,0 +1,8 @@
+<svg version="1.0" viewBox="0 0 900 600" xmlns="http://www.w3.org/2000/svg">
+<g>
+<rect width="900" height="600" fill="#fff"/>
+<rect width="900" height="600" fill="#f00"/>
+<path d="m0 0h180l720 507v93h-180l-720-507.41v-92.59z" fill="#fff" fill-rule="evenodd"/>
+<path d="m497.02 364.72-47.023-34.164-47.023 34.164 17.961-55.279-47.023-34.164h58.123l17.961-55.279 17.961 55.279h58.123l-47.023 34.164 17.961 55.279z" fill="#0074d8"/>
+</g>
+</svg>

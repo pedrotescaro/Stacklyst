@@ -313,4 +313,128 @@ describe('Profile persistence and awards', () => {
       music: { title: '<song>', artist: 'Artist > name' },
     });
   });
+  it('writes basic info, social links, structured studies and identity together under the authenticated owner', async () => {
+    await saveProfileCustomization('owner', {
+      version: 0,
+      preferences: {
+        ...DEFAULT_PROFILE_PREFERENCES,
+        flags: ['BR', 'br-sp', 'community-communist'],
+        tags: ['react'],
+        tagColors: { react: '#0083fe' },
+        studyDetails: [
+          { subject: 'React', description: 'Interfaces', progress: 65, status: 'studying' },
+        ],
+        socialLinks: [{ label: 'Meu site', url: 'https://example.com' }],
+      },
+      profile: {
+        displayName: 'Novo nome',
+        bio: 'Biografia atualizada',
+        institution: 'Fatec',
+        pronouns: 'ele/dele',
+        github_username: 'pedro',
+        discord_username: 'pedro.dev',
+        birthday: '2000-02-29',
+      },
+    });
+    expect(mocks.updateUser.mock.calls[0][0]).toMatchObject({
+      where: { id: 'owner' },
+      data: {
+        bio: 'Biografia atualizada',
+        institution: 'Fatec',
+        avatar_config: {
+          name: 'Novo nome',
+          displayName: 'Novo nome',
+          hair: 4,
+          profileStyle: { flags: ['BR', 'br-sp', 'community-communist'], flag: 'BR' },
+        },
+      },
+    });
+    expect(mocks.save.mock.calls[0][0].create.preferences).toMatchObject({
+      studies: ['React'],
+      studyDetails: [{ progress: 65 }],
+      socialLinks: [{ label: 'Meu site' }],
+    });
+    expect(mocks.updateUser.mock.calls[0][0].data.birthday.toISOString()).toBe(
+      '2000-02-29T00:00:00.000Z'
+    );
+  });
+  it('does not change basic fields when a version conflict rejects the whole save', async () => {
+    mocks.state.mockResolvedValue({ version: 7, preferences: DEFAULT_PROFILE_PREFERENCES });
+    await expect(
+      saveProfileCustomization('owner', {
+        version: 6,
+        preferences: DEFAULT_PROFILE_PREFERENCES,
+        profile: { displayName: 'Do not write', bio: 'Stale bio' },
+      })
+    ).rejects.toMatchObject({ code: 'PROFILE_VERSION_CONFLICT' });
+    expect(mocks.updateUser).not.toHaveBeenCalled();
+    expect(mocks.save).not.toHaveBeenCalled();
+  });
+  it('returns private editable personal data only in the owner response', async () => {
+    mocks.user.mockResolvedValue({
+      username: 'pedro',
+      avatar_url: null,
+      avatar_config: { displayName: 'Pedro' },
+      bio: 'Minha bio',
+      birthday: new Date('2000-01-01T00:00:00.000Z'),
+    });
+    expect((await getProfileCustomization('owner')).profile).toMatchObject({
+      displayName: 'Pedro',
+      birthday: '2000-01-01',
+    });
+    expect(await getPublicProfileCustomization('owner')).not.toHaveProperty('profile');
+  });
+  it('persists edits from old apps that retain rich fields received from GET', async () => {
+    const current = parseProfilePreferences({
+      ...DEFAULT_PROFILE_PREFERENCES,
+      flags: ['BR', 'br-sp'],
+      studyDetails: [{ subject: 'React', description: 'UI', progress: 65, status: 'paused' }],
+    });
+    mocks.state.mockResolvedValue({ version: 4, preferences: current });
+    const own = await getProfileCustomization('owner');
+    const oldClient = structuredClone(own.preferences);
+    oldClient.flag = 'US';
+    oldClient.studies = ['Python'];
+    await saveProfileCustomization('owner', { version: own.version, preferences: oldClient });
+    expect(mocks.save.mock.calls[0][0].create.preferences).toMatchObject({
+      flag: 'US',
+      flags: ['US'],
+      studies: ['Python'],
+      studyDetails: [{ subject: 'Python', progress: null, status: 'studying' }],
+    });
+  });
+  it('clears a custom banner on reset while preserving an untouched legacy banner', async () => {
+    const photo =
+      'https://project.supabase.co/storage/v1/object/public/uploads/owner/12345678-1234-1234-1234-123456789abc.jpg';
+    const custom = {
+      ...DEFAULT_PROFILE_PREFERENCES,
+      banner: { ...DEFAULT_PROFILE_PREFERENCES.banner, mode: 'image' as const, imageUrl: photo },
+    };
+    mocks.state.mockResolvedValue({ version: 1, preferences: custom });
+    mocks.user.mockResolvedValue({ avatar_url: null, banner_url: photo, avatar_config: {} });
+    expect((await getProfileCustomization('owner')).bannerUrl).toBe(photo);
+    await saveProfileCustomization('owner', {
+      version: 1,
+      preferences: DEFAULT_PROFILE_PREFERENCES,
+    });
+    expect(mocks.updateUser.mock.calls[0][0].data.banner_url).toBeNull();
+    mocks.updateUser.mockClear();
+    mocks.state.mockResolvedValue({ version: 2, preferences: DEFAULT_PROFILE_PREFERENCES });
+    await saveProfileCustomization('owner', {
+      version: 2,
+      preferences: DEFAULT_PROFILE_PREFERENCES,
+      profile: { bio: 'Edit only my bio' },
+    });
+    expect(mocks.updateUser.mock.calls[0][0].data.banner_url).toBeUndefined();
+    mocks.updateUser.mockClear();
+    await saveProfileCustomization('owner', {
+      version: 2,
+      preferences: DEFAULT_PROFILE_PREFERENCES,
+      clearBanner: true,
+    });
+    expect(mocks.updateUser.mock.calls[0][0].data.banner_url).toBeNull();
+    await expect(
+      saveProfileCustomization('owner', { version: 2, preferences: custom, clearBanner: true })
+    ).rejects.toThrow('Remova a capa somente');
+  });
 });

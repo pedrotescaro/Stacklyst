@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 import { isOwnedProfileUpload } from '@/lib/profile-upload';
 import type { Prisma } from '@prisma/client';
+import { bumpProfileVersion } from '@/lib/profile-version';
 
 const USERNAME_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
 
@@ -115,7 +116,7 @@ export async function POST(request: Request) {
           updatedAvatarConfig = { ...updatedAvatarConfig, name: cleanName, displayName: cleanName };
         }
       }
-      return tx.user.update({
+      const updated = await tx.user.update({
         where: { id: user.id },
         data: {
           username: newUsername !== undefined ? newUsername : undefined,
@@ -131,6 +132,8 @@ export async function POST(request: Request) {
           avatar_config: updatedAvatarConfig !== undefined ? updatedAvatarConfig : undefined,
         },
       });
+      await bumpProfileVersion(tx, user.id);
+      return updated;
     });
 
     return NextResponse.json(updatedUser);

@@ -1,6 +1,5 @@
 import { redirect, notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import { usersAheadWhere } from '@/lib/learning/rewards';
 import { getUserLanguageXp } from '@/lib/learning/language-xp';
 import { getEffectiveStreak } from '@/lib/streak';
 import { getAuthUser } from '@/lib/auth';
@@ -8,8 +7,6 @@ import { ProfileContent } from './ProfileContent';
 import { getPublicProfileCustomization } from '@/services/profile-customization.service';
 
 export const revalidate = 0; // Desabilitar cache para dados dinâmicos do perfil
-
-const TRAIL_ACTIVITY_ID_PATTERN = /^(js|ts|py|python|rust|go|java)-(?:l\d+-q\d+|u\d+-checkpoint)$/i;
 
 export default async function ProfilePage({
   params,
@@ -52,10 +49,6 @@ export default async function ProfilePage({
   // Buscar todos os badges cadastrados no sistema
   const profileId = profileUser.id;
 
-  // Calcular estatísticas
-  const todayStart = new Date();
-  todayStart.setUTCHours(0, 0, 0, 0);
-
   const [
     allBadges,
     answersCount,
@@ -65,9 +58,9 @@ export default async function ProfilePage({
     follow,
     followersCount,
     followingCount,
-    usersAhead,
-    totalParticipants,
-    todayAttempts,
+    postsCount,
+    postLikes,
+    answerLikes,
   ] = await Promise.all([
     prisma.badge.findMany({ orderBy: { slug: 'asc' } }),
     prisma.answer.count({ where: { author_id: profileId } }),
@@ -84,19 +77,9 @@ export default async function ProfilePage({
     }),
     prisma.follow.count({ where: { followingId: profileId } }),
     prisma.follow.count({ where: { followerId: profileId } }),
-    prisma.user.count({ where: usersAheadWhere(profileUser) }),
-    prisma.user.count(),
-    prisma.quizAttempt.findMany({
-      where: {
-        user_id: profileId,
-        created_at: { gte: todayStart },
-      },
-      select: {
-        quiz_id: true,
-        is_correct: true,
-        xp_earned: true,
-      },
-    }),
+    prisma.post.count({ where: { author_id: profileId } }),
+    prisma.postVote.count({ where: { value: 1, post: { author_id: profileId } } }),
+    prisma.answerVote.count({ where: { value: 1, answer: { author_id: profileId } } }),
   ]);
 
   const accuracy = totalAttempts > 0 ? Math.round((correctAttempts / totalAttempts) * 100) : 0;
@@ -119,7 +102,8 @@ export default async function ProfilePage({
     discord_username: profileUser.discord_username,
     banner_url: profileUser.banner_url,
     pronouns: profileUser.pronouns,
-    birthday: profileUser.birthday ? profileUser.birthday.toISOString() : null,
+    birthday:
+      user.id === profileId && profileUser.birthday ? profileUser.birthday.toISOString() : null,
     created_at: profileUser.created_at.toISOString(),
     total_xp: profileUser.total_xp,
     streak_days: getEffectiveStreak(profileUser.streak_days, profileUser.last_active_at),
@@ -142,17 +126,6 @@ export default async function ProfilePage({
 
   // Verificar se o usuário atual segue este perfil
   const isFollowing = follow !== null;
-  const todayTrailAttempts = todayAttempts.filter((attempt) =>
-    TRAIL_ACTIVITY_ID_PATTERN.test(attempt.quiz_id)
-  );
-  const dailyProgress = {
-    xpEarned: todayTrailAttempts.reduce(
-      (total, attempt) => total + Math.max(0, attempt.xp_earned),
-      0
-    ),
-    correctAnswers: todayTrailAttempts.filter((attempt) => attempt.is_correct).length,
-    trailActivities: todayTrailAttempts.length,
-  };
 
   return (
     <ProfileContent
@@ -170,16 +143,30 @@ export default async function ProfilePage({
         answers_count: answersCount,
         accuracy,
         accepted_count: acceptedCount,
+        posts_count: postsCount,
+        likes_received: postLikes + answerLikes,
       }}
       trails={serializedTrails}
       allBadges={serializedAllBadges}
       isFollowing={isFollowing}
       followersCount={followersCount}
       followingCount={followingCount}
-      globalRank={usersAhead + 1}
-      totalParticipants={totalParticipants}
-      dailyProgress={dailyProgress}
-      initialTab={resolvedSearchParams.tab === 'badges' ? 'badges' : 'posts'}
+      initialTab={
+        typeof resolvedSearchParams.tab === 'string' &&
+        ['posts', 'photos', 'videos', 'likes', 'replies', 'stats', 'trails', 'badges'].includes(
+          resolvedSearchParams.tab
+        )
+          ? (resolvedSearchParams.tab as
+              | 'posts'
+              | 'photos'
+              | 'videos'
+              | 'likes'
+              | 'replies'
+              | 'stats'
+              | 'trails'
+              | 'badges')
+          : 'posts'
+      }
     />
   );
 }

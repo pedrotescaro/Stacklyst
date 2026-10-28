@@ -3,11 +3,11 @@
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 const LEVEL_STYLES = [
-  { min: 30, background: '#ff4b4b', shadow: '#b83232', text: '#ffffff' },
+  { min: 30, background: '#ff4b4b', shadow: '#b83232', text: '#12212e' },
   { min: 20, background: '#ffc800', shadow: '#c79700', text: '#5a4100' },
-  { min: 10, background: '#ce82ff', shadow: '#9656bf', text: '#ffffff' },
+  { min: 10, background: '#ce82ff', shadow: '#9656bf', text: '#12212e' },
   { min: 5, background: '#58cc02', shadow: '#368f00', text: '#153a00' },
-  { min: 1, background: '#1cb0f6', shadow: '#087db5', text: '#ffffff' },
+  { min: 1, background: '#1cb0f6', shadow: '#087db5', text: '#12212e' },
 ];
 
 export function getLevelFromTotalXp(totalXp: number) {
