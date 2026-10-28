@@ -24,6 +24,7 @@ import { LanguageTrailBar } from '@/components/LanguageTrailBar';
 import {
   SocialProfileOverview,
   type SocialProfile,
+  type FollowedByUser,
 } from '@/components/profile-inline/SocialProfileOverview';
 import type { TrailDailyProgress } from '@/app/trails/TrailsProgressSidebar';
 import type { ProfilePreferences } from '@/lib/profile-customization';
@@ -62,6 +63,7 @@ interface ProfileContentProps {
   isFollowing: boolean;
   followersCount: number;
   followingCount: number;
+  followedBy?: FollowedByUser[];
   globalRank?: number;
   totalParticipants?: number;
   dailyProgress?: TrailDailyProgress;
@@ -78,6 +80,7 @@ export function ProfileContent({
   isFollowing,
   followersCount,
   followingCount,
+  followedBy = [],
   initialTab = 'posts',
 }: ProfileContentProps) {
   const { text, isEnglish } = useLocalizedText();
@@ -325,6 +328,7 @@ export function ProfileContent({
               following={following}
               followers={followers}
               followingCount={followingCount}
+              followedBy={followedBy}
               onFollowToggle={follow}
               onChallenge={() => {
                 setChallengeOpen(true);

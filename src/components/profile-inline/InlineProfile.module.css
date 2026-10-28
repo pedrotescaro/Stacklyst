@@ -4,10 +4,10 @@
 }
 .cover {
   position: relative;
-  height: 170px;
+  height: 200px;
   background: #122235;
   overflow: hidden;
-  border-radius: 0 0 16px 16px;
+  border-radius: 0;
 }
 .cover > img {
   width: 100%;
@@ -32,23 +32,23 @@
 }
 .avatarRow {
   display: flex;
-  align-items: flex-end;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
-  margin-top: -42px;
+  margin-top: -68px;
   position: relative;
-  margin-bottom: 11px;
+  margin-bottom: 12px;
 }
 .avatar {
-  height: 100px;
-  width: 100px;
+  height: 136px;
+  width: 136px;
   border-radius: 50%;
   border: 4px solid var(--color-dd-bg);
   background: var(--color-dd-surface);
   flex-shrink: 0;
   display: grid;
   place-items: center;
-  font-size: 26px;
+  font-size: 38px;
   font-weight: 650;
 }
 .avatar img {
@@ -59,8 +59,8 @@
 }
 .avatarAction {
   position: absolute;
-  bottom: 0;
-  left: 71px;
+  bottom: 4px;
+  left: 98px;
   z-index: 1;
 }
 .actions {
@@ -69,7 +69,7 @@
   align-items: center;
   flex-wrap: wrap;
   justify-content: flex-end;
-  padding-top: 49px;
+  padding-top: 80px;
 }
 .button,
 .primary,
@@ -263,6 +263,65 @@
 .followCount strong {
   color: var(--color-dd-text);
   font-weight: 800;
+}
+.followedBy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: -2px 0 10px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-dd-muted);
+}
+.followedByAvatars {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.followedByAvatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-dd-bg);
+  background: var(--color-dd-surface);
+  overflow: hidden;
+  margin-left: -6px;
+  position: relative;
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--color-dd-text);
+  text-decoration: none;
+  transition: transform 0.15s ease;
+}
+.followedByAvatar:first-child {
+  margin-left: 0;
+}
+.followedByAvatar:hover {
+  transform: scale(1.15);
+  z-index: 10 !important;
+}
+.followedByAvatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.followedByText {
+  margin: 0;
+  color: var(--color-dd-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.followedByLink {
+  color: var(--color-dd-text);
+  font-weight: 700;
+  text-decoration: none;
+}
+.followedByLink:hover {
+  text-decoration: underline;
 }
 .editAnchor {
   display: inline-flex;
@@ -695,17 +754,19 @@
     padding-inline: 16px;
   }
   .avatar {
-    width: 82px;
-    height: 82px;
+    width: 88px;
+    height: 88px;
+    font-size: 24px;
   }
   .avatarRow {
-    margin-top: -34px;
+    margin-top: -44px;
   }
   .avatarAction {
-    left: 56px;
+    left: 62px;
+    bottom: 2px;
   }
   .actions {
-    padding-top: 40px;
+    padding-top: 54px;
     gap: 5px;
   }
   .actions .button,

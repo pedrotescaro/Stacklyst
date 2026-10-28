@@ -94,16 +94,16 @@ describe('Compact social profile content', () => {
       'Respostas',
       'Estatísticas',
     ]);
-    expect(screen.queryByText('Seguidores')).not.toBeInTheDocument();
     expect(screen.queryByText('Publicações')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('tab', { name: 'Estatísticas' }));
     const panel = screen.getByRole('tabpanel');
-    expect(within(panel).getByText('Seguidores')).toBeInTheDocument();
-    expect(within(panel).getByText('16')).toBeInTheDocument();
-    expect(within(panel).getByText('21')).toBeInTheDocument();
+    expect(within(panel).getByText('Publicações')).toBeInTheDocument();
+    expect(within(panel).getByText('Comentários')).toBeInTheDocument();
     expect(within(panel).getByText('12')).toBeInTheDocument();
     expect(within(panel).getByText('7')).toBeInTheDocument();
     expect(within(panel).getByText('23')).toBeInTheDocument();
+    expect(within(panel).queryByText('Seguidores')).not.toBeInTheDocument();
+    expect(within(panel).queryByText('Seguindo')).not.toBeInTheDocument();
     expect(
       screen.getByLabelText('Perfil social').compareDocumentPosition(screen.getByRole('tablist')) &
         Node.DOCUMENT_POSITION_FOLLOWING

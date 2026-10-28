@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import {
   useCallback,
   useEffect,
@@ -66,6 +67,12 @@ export interface SocialProfile {
   total_xp: number;
   customization?: PublicProfileCustomization | null;
 }
+export type FollowedByUser = {
+  id: string;
+  username: string;
+  name?: string | null;
+  avatar_url?: string | null;
+};
 type Basics = {
   displayName: string;
   bio: string | null;
@@ -168,6 +175,7 @@ export function SocialProfileOverview({
   following,
   followers,
   followingCount,
+  followedBy = [],
   onFollowToggle,
   onChallenge,
   onShowFollowers,
@@ -180,6 +188,7 @@ export function SocialProfileOverview({
   following: boolean;
   followers: number;
   followingCount: number;
+  followedBy?: FollowedByUser[];
   onFollowToggle: () => Promise<void>;
   onChallenge?: () => void;
   onShowFollowers: () => void;
@@ -1218,6 +1227,41 @@ export function SocialProfileOverview({
             <strong>{followers.toLocaleString('pt-BR')}</strong> Seguidores
           </button>
         </div>
+        {followedBy && followedBy.length > 0 && (
+          <div className={styles.followedBy}>
+            <div className={styles.followedByAvatars}>
+              {followedBy.slice(0, 3).map((item, index) => (
+                <Link
+                  key={item.id}
+                  href={`/profile/${item.username}`}
+                  className={styles.followedByAvatar}
+                  style={{ zIndex: 3 - index }}
+                  title={item.name || item.username}
+                >
+                  {item.avatar_url ? (
+                    <img src={item.avatar_url} alt={item.name || item.username} />
+                  ) : (
+                    <span>{(item.name || item.username).slice(0, 2).toUpperCase()}</span>
+                  )}
+                </Link>
+              ))}
+            </div>
+            <p className={styles.followedByText}>
+              <span>Seguido por </span>
+              {followedBy.slice(0, 2).map((item, idx) => (
+                <span key={item.id}>
+                  {idx > 0 && ' e '}
+                  <Link href={`/profile/${item.username}`} className={styles.followedByLink}>
+                    {item.name || item.username}
+                  </Link>
+                </span>
+              ))}
+              {followers > 2 && (
+                <span>{` e outros ${(followers - 2).toLocaleString('pt-BR')}`}</span>
+              )}
+            </p>
+          </div>
+        )}
 
         {(activePreferences.tags.length > 0 || editing) && (
           <section className={styles.section} aria-label="Tags e hobbies">

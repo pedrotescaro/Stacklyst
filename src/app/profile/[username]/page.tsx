@@ -134,6 +134,73 @@ export default async function ProfilePage({
   // Verificar se o usuário atual segue este perfil
   const isFollowing = follow !== null;
 
+  // Buscar seguidores em comum para "Seguido por..."
+  let followedBy: Array<{
+    id: string;
+    username: string;
+    name?: string | null;
+    avatar_url?: string | null;
+  }> = [];
+
+  if (followersCount > 0) {
+    let mutualFollows =
+      user.id !== profileId
+        ? await prisma.follow.findMany({
+            where: {
+              followingId: profileId,
+              follower: {
+                followers: {
+                  some: {
+                    followerId: user.id,
+                  },
+                },
+              },
+            },
+            include: {
+              follower: {
+                select: {
+                  id: true,
+                  username: true,
+                  avatar_url: true,
+                  avatar_config: true,
+                },
+              },
+            },
+            take: 3,
+          })
+        : [];
+
+    if (mutualFollows.length === 0) {
+      mutualFollows = await prisma.follow.findMany({
+        where: {
+          followingId: profileId,
+          ...(user.id !== profileId && followersCount > 1 ? { followerId: { not: user.id } } : {}),
+        },
+        include: {
+          follower: {
+            select: {
+              id: true,
+              username: true,
+              avatar_url: true,
+              avatar_config: true,
+            },
+          },
+        },
+        take: 3,
+      });
+    }
+
+    followedBy = mutualFollows.map((f) => {
+      const config = f.follower.avatar_config as { name?: string; displayName?: string } | null;
+      return {
+        id: f.follower.id,
+        username: f.follower.username,
+        name: config?.name || config?.displayName || f.follower.username,
+        avatar_url: f.follower.avatar_url,
+      };
+    });
+  }
+
   return (
     <ProfileContent
       railUser={{
@@ -181,6 +248,7 @@ export default async function ProfilePage({
       isFollowing={isFollowing}
       followersCount={followersCount}
       followingCount={followingCount}
+      followedBy={followedBy}
       initialTab={
         typeof resolvedSearchParams.tab === 'string' &&
         ['posts', 'photos', 'videos', 'likes', 'replies', 'stats', 'trails', 'badges'].includes(
