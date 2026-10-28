@@ -27,6 +27,7 @@ import {
   Pencil,
   Trash2,
 } from 'lucide-react';
+import { PostActionsBar, postActionClassName, InteractionCount } from '@/components/PostActionsBar';
 import { RepostMenu } from '@/components/motion/RepostMenu';
 import { BookmarkButton } from '@/components/motion/BookmarkButton';
 import { LikeButton } from '@/components/motion/LikeButton';
@@ -587,44 +588,46 @@ export function PostDetailContent({
 
             {/* Post bottom actions section */}
             <div
-              className="flex items-center justify-between pt-2.5 mt-2 border-t border-dd-border/60 text-xs w-full select-none text-dd-muted max-w-full"
+              className="pt-2.5 mt-2 border-t border-dd-border/60 text-xs w-full select-none text-dd-muted max-w-full"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
               }}
             >
-              {/* 1. Comment Bubble */}
-              <div className="flex items-center gap-1 text-dd-muted hover:text-blue-400 cursor-pointer group/comment -ml-1 py-1 px-1">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center group-hover/comment:bg-blue-500/10 transition-colors shrink-0">
-                  <MessageCircle className="w-[18px] h-[18px] text-dd-muted group-hover/comment:text-blue-400" />
-                </div>
-                {(post.answers?.length || 0) > 0 && (
-                  <span className="px-0.5 text-xs text-dd-muted group-hover/comment:text-blue-400">
-                    {post.answers?.length}
-                  </span>
-                )}
-              </div>
+              <PostActionsBar>
+                {/* Existing response count: this detail view has no comment action here. */}
+                <span
+                  className={postActionClassName}
+                  aria-label={`Respostas: ${post.answers?.length || 0}`}
+                >
+                  <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
+                  <InteractionCount count={post.answers?.length || 0} />
+                </span>
 
-              {/* 2. Repost Menu */}
-              <RepostMenu
-                count={repostState.count}
-                isReposted={repostState.reposted}
-                onRepost={handleRepost}
-                onQuote={handleQuotePost}
-              />
+                {/* 2. Repost Menu */}
+                <RepostMenu
+                  appearance="post"
+                  count={repostState.count}
+                  isReposted={repostState.reposted}
+                  onRepost={handleRepost}
+                  onQuote={handleQuotePost}
+                />
 
-              {/* 3. Heart/Like button */}
-              <LikeButton
-                count={postVotesCount}
-                isActive={postUserVote === 'up'}
-                onToggle={() => handlePostVote('up')}
-                title="Curtir post"
-              />
+                {/* 3. Heart/Like button */}
+                <LikeButton
+                  appearance="post"
+                  count={postVotesCount}
+                  isActive={postUserVote === 'up'}
+                  onToggle={() => handlePostVote('up')}
+                  title="Curtir post"
+                />
 
-              {/* Right cluster: Bookmark, Share, More (...) */}
-              <div className="flex items-center gap-1 -mr-1">
                 {/* 4. BookmarkButton */}
-                <BookmarkButton isSaved={isSaved} onToggle={handleBookmarkToggle} />
+                <BookmarkButton
+                  appearance="post"
+                  isSaved={isSaved}
+                  onToggle={handleBookmarkToggle}
+                />
 
                 {/* 5. Share Button */}
                 <div className="relative">
@@ -657,7 +660,7 @@ export function PostDetailContent({
                         console.error('Failed to copy share link:', err);
                       }
                     }}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-dd-muted hover:text-blue-400 hover:bg-blue-500/10 transition-colors cursor-pointer shrink-0"
+                    className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
                     title="Compartilhar post"
                   >
                     {shareCopied ? (
@@ -682,7 +685,7 @@ export function PostDetailContent({
                       e.preventDefault();
                       setMenuOpen(!menuOpen);
                     }}
-                    className="w-8 h-8 rounded-full flex items-center justify-center text-dd-muted hover:text-blue-400 hover:bg-blue-500/10 transition-colors cursor-pointer shrink-0"
+                    className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
                     title="Mais opções"
                   >
                     <MoreHorizontal className="w-[18px] h-[18px]" />
@@ -711,7 +714,7 @@ export function PostDetailContent({
                     </div>
                   )}
                 </div>
-              </div>
+              </PostActionsBar>
             </div>
           </article>
 

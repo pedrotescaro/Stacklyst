@@ -7,15 +7,23 @@ import { cn } from '@/lib/cn';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { postActionClassName } from '@/components/PostActionsBar';
 
 interface BookmarkButtonProps {
   isSaved: boolean;
   onToggle: () => void;
   className?: string;
   onViewAll?: () => void;
+  appearance?: 'default' | 'post';
 }
 
-export function BookmarkButton({ isSaved, onToggle, className, onViewAll }: BookmarkButtonProps) {
+export function BookmarkButton({
+  isSaved,
+  onToggle,
+  className,
+  onViewAll,
+  appearance = 'default',
+}: BookmarkButtonProps) {
   const { text } = useLocalizedText();
   const reduced = useReducedMotion();
   const [saved, setSaved] = useState(isSaved);
@@ -57,13 +65,17 @@ export function BookmarkButton({ isSaved, onToggle, className, onViewAll }: Book
         type="button"
         onClick={handleClick}
         className={cn(
-          'dd-touch dd-focus-ring w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0',
+          appearance === 'post'
+            ? postActionClassName
+            : 'dd-touch dd-focus-ring w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0',
           saved
             ? 'text-blue-500 hover:bg-blue-500/10'
             : 'text-dd-muted hover:text-blue-400 hover:bg-blue-500/10',
           className
         )}
-        whileTap={reduced ? undefined : { scale: [1, 1.2, 1] }}
+        whileTap={
+          reduced ? undefined : appearance === 'post' ? { scale: 0.96 } : { scale: [1, 1.2, 1] }
+        }
         transition={{ duration: 0.3 }}
         title={saved ? text('Remover dos salvos', 'Remove from bookmarks') : text('Salvar', 'Save')}
       >

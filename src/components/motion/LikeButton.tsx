@@ -7,6 +7,8 @@ import { cn } from '@/lib/cn';
 import { AnimatedCounter } from './AnimatedCounter';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { InteractionCount, postActionClassName } from '@/components/PostActionsBar';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Twitter like particles with vivid festive colors
 const TWITTER_PARTICLES = [
@@ -25,10 +27,18 @@ interface LikeButtonProps {
   isActive: boolean;
   onToggle: () => void;
   title?: string;
+  appearance?: 'default' | 'post';
 }
 
-export function LikeButton({ count, isActive, onToggle, title }: LikeButtonProps) {
+export function LikeButton({
+  count,
+  isActive,
+  onToggle,
+  title,
+  appearance = 'default',
+}: LikeButtonProps) {
   const [bursting, setBursting] = useState(false);
+  const { isEnglish } = useLanguage();
   const reduced = useReducedMotion();
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -54,7 +64,7 @@ export function LikeButton({ count, isActive, onToggle, title }: LikeButtonProps
     e.stopPropagation();
     const willActivate = !isActive;
     if (willActivate) {
-      if (!reduced) {
+      if (!reduced && appearance !== 'post') {
         setBursting(true);
         setTimeout(() => setBursting(false), 500);
       }
@@ -62,6 +72,25 @@ export function LikeButton({ count, isActive, onToggle, title }: LikeButtonProps
     }
     onToggle();
   };
+
+  if (appearance === 'post') {
+    return (
+      <button
+        type="button"
+        onClick={handleClick}
+        title={title}
+        aria-label={`${title || (isEnglish ? 'Like' : 'Curtir')}: ${new Intl.NumberFormat(isEnglish ? 'en-US' : 'pt-BR').format(count)}`}
+        aria-pressed={isActive}
+        className={cn(
+          postActionClassName,
+          isActive ? 'text-[#f91880]' : 'hover:text-[#f91880] hover:bg-[#f91880]/10'
+        )}
+      >
+        <Heart aria-hidden="true" className={cn(isActive && 'fill-current')} />
+        <InteractionCount count={count} />
+      </button>
+    );
+  }
 
   return (
     <button

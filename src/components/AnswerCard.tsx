@@ -3,8 +3,9 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MessageCircle, BarChart2, Share, Send } from 'lucide-react';
+import { MessageCircle, BarChart2, Share2, Send } from 'lucide-react';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
+import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
 import { LikeButton } from '@/components/motion/LikeButton';
 import { BookmarkButton } from '@/components/motion/BookmarkButton';
 import { RepostMenu } from '@/components/motion/RepostMenu';
@@ -296,8 +297,8 @@ export function AnswerCard({
         )}
 
         {/* Footer */}
-        <div className="flex items-center justify-between pt-3 border-t border-dd-border w-full select-none text-xs gap-3">
-          <div className="flex items-center justify-between flex-grow max-w-xl">
+        <div className="pt-3 border-t border-dd-border w-full select-none text-xs">
+          <PostActionsBar>
             {/* 1. Comment bubble */}
             <button
               type="button"
@@ -307,16 +308,15 @@ export function AnswerCard({
                   setReplyText(`@${answer.author.username} `);
                 }
               }}
-              className="flex items-center gap-0.5 text-dd-muted select-none hover:text-blue-400 cursor-pointer group/comment border-none bg-transparent active:scale-[0.95] transition-transform"
+              className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
               title="Responder a este comentário"
             >
-              <div className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-500/10 transition-colors animate-none">
-                <MessageCircle className="w-3.5 h-3.5 text-dd-muted group-hover/comment:text-blue-400" />
-              </div>
+              <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
             </button>
 
             {/* 2. Repost Menu */}
             <RepostMenu
+              appearance="post"
               count={repostCount}
               isReposted={reposted}
               onRepost={() => {
@@ -328,12 +328,31 @@ export function AnswerCard({
 
             {/* 3. Heart/Like button */}
             <LikeButton
+              appearance="post"
               count={voteCount}
               isActive={userVote === 'up'}
               onToggle={() => handleVote('up')}
               title="Curtir resposta"
             />
 
+            {/* 5. BookmarkButton */}
+            <BookmarkButton
+              appearance="post"
+              isSaved={isBookmarked}
+              onToggle={() => setIsBookmarked(!isBookmarked)}
+            />
+
+            {/* 6. Share button */}
+            <button
+              type="button"
+              onClick={handleShare}
+              className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
+              title="Compartilhar"
+            >
+              <Share2 className="h-[18px] w-[18px]" />
+            </button>
+          </PostActionsBar>
+          <div className="mt-2 flex items-center justify-between gap-3">
             {/* 4. Views BarChart */}
             <div className="flex items-center gap-0.5 text-dd-muted select-none group/views">
               <div className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-500/10 hover:text-blue-400 transition-colors animate-none">
@@ -344,48 +363,32 @@ export function AnswerCard({
               </span>
             </div>
 
-            {/* 5. BookmarkButton */}
-            <BookmarkButton
-              isSaved={isBookmarked}
-              onToggle={() => setIsBookmarked(!isBookmarked)}
-            />
-
-            {/* 6. Share button */}
-            <button
-              type="button"
-              onClick={handleShare}
-              className="w-8 h-8 rounded-full flex items-center justify-center text-dd-muted hover:text-blue-500 hover:bg-blue-500/10 transition-colors cursor-pointer shrink-0"
-              title="Compartilhar"
-            >
-              <Share className="w-3.5 h-3.5" />
-            </button>
-          </div>
-
-          {/* 7. Accept Button */}
-          {isPostAuthor &&
-            !answer.is_accepted &&
-            currentUser &&
-            answer.author.username !== currentUser.username && (
-              <button
-                onClick={handleAccept}
-                disabled={accepting}
-                className="flex items-center gap-1 text-[10px] font-bold text-dd-green bg-dd-green/10 hover:bg-dd-green/20 px-2.5 py-1.5 rounded-full transition-colors disabled:opacity-50 shrink-0"
-              >
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
+            {/* 7. Accept Button */}
+            {isPostAuthor &&
+              !answer.is_accepted &&
+              currentUser &&
+              answer.author.username !== currentUser.username && (
+                <button
+                  onClick={handleAccept}
+                  disabled={accepting}
+                  className="flex items-center gap-1 text-[10px] font-bold text-dd-green bg-dd-green/10 hover:bg-dd-green/20 px-2.5 py-1.5 rounded-full transition-colors disabled:opacity-50 shrink-0"
                 >
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                Aceitar
-              </button>
-            )}
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                  Aceitar
+                </button>
+              )}
+          </div>
         </div>
         {showReplyBox && (
           <form

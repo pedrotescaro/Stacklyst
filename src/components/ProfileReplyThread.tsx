@@ -9,10 +9,11 @@ import { LevelBadge } from '@/components/LevelBadge';
 import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
+import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
 import { LikeButton } from '@/components/motion/LikeButton';
 import { BookmarkButton } from '@/components/motion/BookmarkButton';
 import { RepostMenu } from '@/components/motion/RepostMenu';
-import { MessageCircle, BarChart2, Share } from 'lucide-react';
+import { MessageCircle, BarChart2, Share2 } from 'lucide-react';
 
 interface ProfileReplyThreadProps {
   reply: any;
@@ -305,21 +306,22 @@ export function ProfileReplyThread({ reply }: ProfileReplyThreadProps) {
           )}
 
           {/* Footer Controls (Consistent with AnswerCard) */}
-          <div className="flex items-center justify-between pt-2 border-t border-dd-border/40 mt-3 select-none text-xs gap-3">
-            <div className="flex items-center justify-between flex-grow max-w-xl">
+          <div className="pt-2 border-t border-dd-border/40 mt-3 select-none text-xs">
+            <PostActionsBar>
               {/* Comment Button (just redirects to post thread) */}
               <button
                 type="button"
-                className="flex items-center gap-0.5 text-dd-muted hover:text-blue-400 active:scale-[0.95] transition-transform p-1 bg-transparent border-none"
+                onClick={handleReplyClick}
+                className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
+                aria-label="Ver resposta"
               >
-                <div className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-500/10 transition-colors">
-                  <MessageCircle className="w-3.5 h-3.5" />
-                </div>
+                <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
               </button>
 
               {/* Repost Menu */}
               <div onClick={(e) => e.stopPropagation()}>
                 <RepostMenu
+                  appearance="post"
                   count={repostCount}
                   isReposted={reposted}
                   onRepost={() => {
@@ -333,6 +335,7 @@ export function ProfileReplyThread({ reply }: ProfileReplyThreadProps) {
               {/* Vote/Like Button */}
               <div onClick={(e) => e.stopPropagation()}>
                 <LikeButton
+                  appearance="post"
                   count={voteCount}
                   isActive={userVote === 'up'}
                   onToggle={() => handleVote('up')}
@@ -340,19 +343,10 @@ export function ProfileReplyThread({ reply }: ProfileReplyThreadProps) {
                 />
               </div>
 
-              {/* Views Mock */}
-              <div className="flex items-center gap-0.5 text-dd-muted select-none group/views">
-                <div className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-500/10 hover:text-blue-400 transition-colors">
-                  <BarChart2 className="w-4 h-4" />
-                </div>
-                <span className="px-1 font-semibold text-[10px] text-dd-muted group-hover/views:text-blue-400">
-                  {Math.abs(voteCount) * 4 + 12}
-                </span>
-              </div>
-
               {/* Bookmark Button */}
               <div onClick={(e) => e.stopPropagation()}>
                 <BookmarkButton
+                  appearance="post"
                   isSaved={isBookmarked}
                   onToggle={() => setIsBookmarked(!isBookmarked)}
                 />
@@ -362,12 +356,20 @@ export function ProfileReplyThread({ reply }: ProfileReplyThreadProps) {
               <button
                 type="button"
                 onClick={handleShare}
-                className="flex items-center gap-0.5 text-dd-muted hover:text-blue-400 transition-colors p-1 bg-transparent border-none"
+                className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
+                aria-label="Compartilhar resposta"
               >
-                <div className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-500/10 transition-colors">
-                  <Share className="w-3.5 h-3.5" />
-                </div>
+                <Share2 className="h-[18px] w-[18px]" aria-hidden="true" />
               </button>
+            </PostActionsBar>
+            {/* Views Mock */}
+            <div className="flex items-center gap-0.5 text-dd-muted select-none group/views">
+              <div className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-500/10 hover:text-blue-400 transition-colors">
+                <BarChart2 className="w-4 h-4" />
+              </div>
+              <span className="px-1 font-semibold text-[10px] text-dd-muted group-hover/views:text-blue-400">
+                {Math.abs(voteCount) * 4 + 12}
+              </span>
             </div>
           </div>
         </div>

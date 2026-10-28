@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { Pencil } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { popoverMenuVariants } from '@/lib/motion';
+import { InteractionCount, postActionClassName } from '@/components/PostActionsBar';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export function RetweetIcon({ className = 'w-[18px] h-[18px]' }: { className?: string }) {
   return (
@@ -22,6 +24,7 @@ interface RepostMenuProps {
   count?: number;
   isReposted?: boolean;
   className?: string;
+  appearance?: 'default' | 'post';
 }
 
 export function RepostMenu({
@@ -30,8 +33,10 @@ export function RepostMenu({
   count = 0,
   isReposted = false,
   className,
+  appearance = 'default',
 }: RepostMenuProps) {
   const [open, setOpen] = useState(false);
+  const { isEnglish } = useLanguage();
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -46,21 +51,33 @@ export function RepostMenu({
   }, [open]);
 
   return (
-    <div className={cn('relative flex items-center gap-0.5', className)} ref={ref}>
+    <div
+      className={cn('relative flex items-center', appearance !== 'post' && 'gap-0.5', className)}
+      ref={ref}
+    >
       <button
         type="button"
         onClick={() => setOpen(!open)}
         className={cn(
-          'dd-touch dd-focus-ring w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0',
+          appearance === 'post'
+            ? postActionClassName
+            : 'dd-touch dd-focus-ring w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0',
           isReposted
             ? 'text-emerald-400 hover:bg-emerald-500/10'
             : 'text-dd-muted hover:text-emerald-400 hover:bg-emerald-500/10'
         )}
         title="Repostar"
+        aria-expanded={open}
+        aria-label={
+          appearance === 'post'
+            ? `${isEnglish ? 'Repost' : 'Repostar'}: ${new Intl.NumberFormat(isEnglish ? 'en-US' : 'pt-BR').format(count)}`
+            : undefined
+        }
       >
         <RetweetIcon className="w-[18px] h-[18px]" />
+        {appearance === 'post' && <InteractionCount count={count} />}
       </button>
-      {count > 0 && (
+      {appearance !== 'post' && count > 0 && (
         <span
           className={cn(
             'px-0.5 text-xs font-normal',

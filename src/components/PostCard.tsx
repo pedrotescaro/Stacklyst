@@ -20,6 +20,7 @@ import {
 import { LikeButton } from './motion/LikeButton';
 import { BookmarkButton } from './motion/BookmarkButton';
 import { RepostMenu } from './motion/RepostMenu';
+import { PostActionsBar, postActionClassName, InteractionCount } from '@/components/PostActionsBar';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { LevelBadge } from '@/components/LevelBadge';
@@ -420,11 +421,8 @@ export function PostCard({
         <PostLocation location={presentedPost.location} className="mb-3" />
 
         {/* Footer: Action bar (Twitter style) */}
-        <div
-          className={cn(
-            'flex items-center justify-between pt-2.5 mt-2 border-t border-dd-border/60 text-xs w-full select-none text-dd-muted max-w-full',
-            styles.actions
-          )}
+        <PostActionsBar
+          className={cn('pt-2.5 mt-2 border-t border-dd-border/60', styles.actions)}
           onClick={(e) => {
             e.stopPropagation();
           }}
@@ -432,21 +430,16 @@ export function PostCard({
           {/* 1. Comment bubble */}
           <Link
             href={`/post/${post.id}`}
-            className="flex items-center gap-1 text-dd-muted hover:text-blue-400 transition-colors group/comment -ml-1 py-1 px-1"
+            className={postActionClassName}
             title={text('Responder', 'Reply')}
           >
-            <div className="w-8 h-8 rounded-full flex items-center justify-center group-hover/comment:bg-blue-500/10 transition-colors shrink-0">
-              <MessageCircle className="w-[18px] h-[18px] text-dd-muted group-hover/comment:text-blue-400" />
-            </div>
-            {(post._count?.answers ?? 0) > 0 && (
-              <span className="px-0.5 text-xs text-dd-muted group-hover/comment:text-blue-400">
-                {post._count?.answers}
-              </span>
-            )}
+            <MessageCircle aria-hidden="true" />
+            <InteractionCount count={post._count?.answers ?? 0} />
           </Link>
 
           {/* 2. Repost Menu */}
           <RepostMenu
+            appearance="post"
             count={repostsCount}
             isReposted={reposted}
             onRepost={handleRepostToggle}
@@ -455,133 +448,131 @@ export function PostCard({
 
           {/* 3. Heart/Like button */}
           <LikeButton
+            appearance="post"
             count={likesCount}
             isActive={liked}
             onToggle={handleLikeToggle}
             title={text('Curtir post', 'Like post')}
           />
 
-          {/* Right cluster: Bookmark, Share, More (...) */}
-          <div className="flex items-center gap-1 -mr-1">
-            {/* 4. BookmarkButton */}
-            <BookmarkButton isSaved={bookmarked} onToggle={handleBookmarkToggle} />
+          {/* 4. BookmarkButton */}
+          <BookmarkButton appearance="post" isSaved={bookmarked} onToggle={handleBookmarkToggle} />
 
-            {/* 5. Share Button */}
-            <div className="relative">
-              <button
-                type="button"
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  const url =
-                    typeof window !== 'undefined'
-                      ? `${window.location.origin}/post/${post.id}`
-                      : `/post/${post.id}`;
-                  if (navigator.share && /mobile|android|iphone/i.test(navigator.userAgent)) {
-                    try {
-                      await navigator.share({
-                        title: post.title || 'Stacklyst Post',
-                        text: post.body.substring(0, 100),
-                        url,
-                      });
-                      return;
-                    } catch {
-                      // fallback to clipboard
-                    }
-                  }
+          {/* 5. Share Button */}
+          <div className="relative">
+            <button
+              type="button"
+              onClick={async (e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                const url =
+                  typeof window !== 'undefined'
+                    ? `${window.location.origin}/post/${post.id}`
+                    : `/post/${post.id}`;
+                if (navigator.share && /mobile|android|iphone/i.test(navigator.userAgent)) {
                   try {
-                    await navigator.clipboard.writeText(url);
-                    setShareCopied(true);
-                    setTimeout(() => setShareCopied(false), 2000);
-                  } catch (err) {
-                    console.error('Failed to copy share link:', err);
+                    await navigator.share({
+                      title: post.title || 'Stacklyst Post',
+                      text: post.body.substring(0, 100),
+                      url,
+                    });
+                    return;
+                  } catch {
+                    // fallback to clipboard
                   }
-                }}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-dd-muted hover:text-blue-400 hover:bg-blue-500/10 transition-colors cursor-pointer shrink-0"
-                title={text('Compartilhar post', 'Share post')}
-              >
-                {shareCopied ? (
-                  <Check className="w-[18px] h-[18px] text-emerald-400" />
-                ) : (
-                  <Share2 className="w-[18px] h-[18px]" />
-                )}
-              </button>
-              {shareCopied && (
-                <div className="absolute bottom-full right-0 mb-2 whitespace-nowrap bg-dd-surface border border-dd-border text-dd-text text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-xl animate-slide-up z-50">
-                  Link copiado!
-                </div>
+                }
+                try {
+                  await navigator.clipboard.writeText(url);
+                  setShareCopied(true);
+                  setTimeout(() => setShareCopied(false), 2000);
+                } catch (err) {
+                  console.error('Failed to copy share link:', err);
+                }
+              }}
+              className={postActionClassName}
+              title={text('Compartilhar post', 'Share post')}
+            >
+              {shareCopied ? (
+                <Check className="text-emerald-400" aria-hidden="true" />
+              ) : (
+                <Share2 aria-hidden="true" />
               )}
-            </div>
+            </button>
+            {shareCopied && (
+              <div className="absolute bottom-full right-0 mb-2 whitespace-nowrap bg-dd-surface border border-dd-border text-dd-text text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-xl animate-slide-up z-50">
+                Link copiado!
+              </div>
+            )}
+          </div>
 
-            {/* 6. More Options (...) */}
-            <div className="relative" ref={menuRef}>
-              <button
-                type="button"
+          {/* 6. More Options (...) */}
+          <div className="relative" ref={menuRef}>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setMenuOpen(!menuOpen);
+              }}
+              className={postActionClassName}
+              title={text('Mais opções', 'More options')}
+            >
+              <MoreHorizontal aria-hidden="true" />
+            </button>
+
+            {menuOpen && (
+              <div
+                className="absolute right-0 bottom-full mb-1.5 w-44 rounded-2xl border border-dd-border/80 bg-dd-surface p-1.5 shadow-2xl z-40 animate-slide-up"
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
-                  setMenuOpen(!menuOpen);
                 }}
-                className="w-8 h-8 rounded-full flex items-center justify-center text-dd-muted hover:text-blue-400 hover:bg-blue-500/10 transition-colors cursor-pointer shrink-0"
-                title={text('Mais opções', 'More options')}
               >
-                <MoreHorizontal className="w-[18px] h-[18px]" />
-              </button>
-
-              {menuOpen && (
-                <div
-                  className="absolute right-0 bottom-full mb-1.5 w-44 rounded-2xl border border-dd-border/80 bg-dd-surface p-1.5 shadow-2xl z-40 animate-slide-up"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                  }}
-                >
-                  {isOwner ? (
-                    <>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          setEditModalOpen(true);
-                          setMenuOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
-                      >
-                        <Pencil className="w-4 h-4 text-dd-muted" />
-                        <span>{text('Editar', 'Edit')}</span>
-                      </button>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          e.preventDefault();
-                          setDeleteModalOpen(true);
-                          setMenuOpen(false);
-                        }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer text-left"
-                      >
-                        <Trash2 className="w-4 h-4 text-red-400" />
-                        <span>{text('Excluir', 'Delete')}</span>
-                      </button>
-                    </>
-                  ) : (
+                {isOwner ? (
+                  <>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
-                        setReportModalOpen(true);
+                        setEditModalOpen(true);
                         setMenuOpen(false);
                       }}
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
                     >
-                      <Flag className="w-4 h-4 text-dd-muted" />
-                      <span>Denunciar</span>
+                      <Pencil className="w-4 h-4 text-dd-muted" />
+                      <span>{text('Editar', 'Edit')}</span>
                     </button>
-                  )}
-                </div>
-              )}
-            </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setDeleteModalOpen(true);
+                        setMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer text-left"
+                    >
+                      <Trash2 className="w-4 h-4 text-red-400" />
+                      <span>{text('Excluir', 'Delete')}</span>
+                    </button>
+                  </>
+                ) : (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      e.preventDefault();
+                      setReportModalOpen(true);
+                      setMenuOpen(false);
+                    }}
+                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
+                  >
+                    <Flag className="w-4 h-4 text-dd-muted" />
+                    <span>Denunciar</span>
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-        </div>
+        </PostActionsBar>
       </article>
 
       {reportModalOpen && (
