@@ -77,6 +77,9 @@
   pointer-events: none;
   z-index: 3;
 }
+.alienRear {
+  z-index: -1;
+}
 .hatOverlay {
   position: absolute;
   width: 108%;

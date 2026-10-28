@@ -70,6 +70,26 @@ export function AvatarFrame({
           : undefined
       }
     >
+      {frame?.decoration === 'alien' && (
+        <svg
+          className={`${styles.alienOverlay} ${styles.alienRear}`}
+          viewBox="0 0 120 120"
+          fill="none"
+          aria-hidden="true"
+        >
+          <path d="M31 98c7-18 51-18 58 0" stroke="var(--frame-color)" strokeWidth="3" />
+          <ellipse
+            cx="60"
+            cy="103"
+            rx="49"
+            ry="10"
+            fill="#253d42"
+            stroke="var(--frame-color)"
+            strokeWidth="2"
+          />
+          <ellipse cx="60" cy="100" rx="30" ry="5" fill="#607f85" />
+        </svg>
+      )}
       {children}
       {frame?.decoration === 'propeller' && (
         <svg className={styles.propellerHat} viewBox="0 0 120 65" fill="none" aria-hidden="true">
@@ -133,17 +153,12 @@ export function AvatarFrame({
           />
           <circle cx="20" cy="10" r="5" fill="#79bd86" />
           <circle cx="100" cy="10" r="5" fill="#79bd86" />
-          <path d="M31 98c7-18 51-18 58 0" stroke="var(--frame-color)" strokeWidth="3" />
-          <ellipse
-            cx="60"
-            cy="103"
-            rx="49"
-            ry="10"
+          <path
+            d="M11 103a49 10 0 0 0 98 0"
             fill="#253d42"
             stroke="var(--frame-color)"
             strokeWidth="2"
           />
-          <ellipse cx="60" cy="100" rx="30" ry="5" fill="#607f85" />
           <circle cx="30" cy="104" r="3" fill="#f4cf74" />
           <circle cx="60" cy="106" r="3" fill="#f4cf74" />
           <circle cx="90" cy="104" r="3" fill="#f4cf74" />
