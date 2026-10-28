@@ -7,7 +7,11 @@ import { ONBOARDING_STATE_KEY, parseOnboarding } from '@/lib/onboarding';
 
 export const revalidate = 0;
 
-export default async function FeedPage() {
+export default async function FeedPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ q?: string | string[] }>;
+}) {
   const user = await getAuthUser();
 
   if (!user) {
@@ -19,6 +23,8 @@ export default async function FeedPage() {
   });
   const preferences = parseOnboarding(state?.value);
   if (!preferences) redirect('/onboarding');
+  const { q } = await searchParams;
+  const initialSearchQuery = typeof q === 'string' ? q.trim().slice(0, 200) : '';
 
   // Só o conteúdo essencial bloqueia o primeiro paint. Duelos e atividade semanal
   // são carregados no cliente depois que o feed já está utilizável.
@@ -49,6 +55,7 @@ export default async function FeedPage() {
 
   return (
     <FeedContent
+      initialSearchQuery={initialSearchQuery}
       initialPreferences={preferences}
       initialCurrentDate={new Date().toISOString()}
       initialUser={{

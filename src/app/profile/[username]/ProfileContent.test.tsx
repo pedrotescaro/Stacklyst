@@ -3,6 +3,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfileContent } from './ProfileContent';
 vi.mock('next/navigation', () => ({ useRouter: () => ({ back: vi.fn() }) }));
 vi.mock('@/components/Sidebar', () => ({ Sidebar: () => <nav aria-label="Navegação global" /> }));
+vi.mock('@/components/profile/ProfileRightRail', () => ({
+  ProfileRightRail: ({ user }: { user: { username: string } }) => (
+    <aside aria-label="Painel pessoal">{user.username}</aside>
+  ),
+}));
 vi.mock('@/components/PostCard', () => ({
   PostCard: ({ post }: { post: { body: string } }) => <article>{post.body}</article>,
 }));
@@ -24,6 +29,7 @@ vi.mock('@/components/profile-inline/SocialProfileOverview', () => ({
   ),
 }));
 const props = {
+  railUser: { username: 'viewer', streak: 0, last_active_at: null, trails: [], badges: [] },
   user: { id: 'owner', username: 'developer', total_xp: 30 },
   profileUser: {
     id: 'owner',
@@ -73,6 +79,10 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe('Compact social profile content', () => {
+  it('shows the authenticated viewer in the personal rail when visiting a profile', () => {
+    render(<ProfileContent {...props} />);
+    expect(screen.getByLabelText('Painel pessoal')).toHaveTextContent('viewer');
+  });
   it('shows exactly six requested tabs and keeps all metrics inside Statistics', async () => {
     render(<ProfileContent {...props} />);
     await screen.findByText('Publicação real');

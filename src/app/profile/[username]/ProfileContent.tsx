@@ -15,6 +15,7 @@ import {
   X,
 } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
+import { ProfileRightRail, type ProfileRailUser } from '@/components/profile/ProfileRightRail';
 import { PostCard } from '@/components/PostCard';
 import { ProfileReplyThread } from '@/components/ProfileReplyThread';
 import { FollowersModal } from '@/components/motion/FollowersModal';
@@ -34,6 +35,7 @@ import headerStyles from './ProfileHeader.module.css';
 
 type ProfileTab = 'posts' | 'photos' | 'videos' | 'likes' | 'replies' | 'stats';
 interface ProfileContentProps {
+  railUser: ProfileRailUser;
   user: {
     id: string;
     username: string;
@@ -67,6 +69,7 @@ interface ProfileContentProps {
 }
 
 export function ProfileContent({
+  railUser,
   user,
   profileUser,
   stats,
@@ -239,7 +242,7 @@ export function ProfileContent({
     <div data-testid="profile-shell" className="dd-platform-shell dd-platform-shell--fullscreen">
       <Sidebar user={user} />
       <div
-        className={`flex min-w-0 flex-grow flex-col bg-dd-bg ${profileStyles.scope}`}
+        className={`min-w-0 flex-grow bg-dd-bg ${styles.pageLayout} ${profileStyles.scope}`}
         data-secondary={Boolean(preferences?.appearance.secondaryColor)}
         data-custom-card={Boolean(preferences?.appearance.cardColor)}
         style={preferences ? profileAppearanceStyle(preferences) : undefined}
@@ -563,6 +566,9 @@ export function ProfileContent({
             </div>
           </div>
         </main>
+        <div className={styles.rightRail}>
+          <ProfileRightRail user={railUser} />
+        </div>
       </div>
       <FollowersModal
         open={followersModal !== null}

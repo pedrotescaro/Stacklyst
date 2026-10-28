@@ -141,6 +141,7 @@ function highlightMatches(text: string, query: string) {
 }
 
 interface FeedContentProps {
+  initialSearchQuery?: string;
   initialPreferences?: OnboardingPreferences;
   initialCurrentDate: string;
   initialUser: {
@@ -186,6 +187,7 @@ function RailSectionHeading({
 }
 
 export function FeedContent({
+  initialSearchQuery = '',
   initialPreferences,
   initialCurrentDate,
   initialUser,
@@ -248,7 +250,8 @@ export function FeedContent({
   const FEED_PAGE_SIZE = 10;
   const [postImage, setPostImage] = useState('');
   const [uploadingImage, setUploadingImage] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  useEffect(() => setSearchQuery(initialSearchQuery), [initialSearchQuery]);
   const [quotePost, setQuotePost] = useState<any | null>(null);
   const [bookmarkedPostIds, setBookmarkedPostIds] =
     useState<Record<string, boolean>>(initialBookmarks);
@@ -1623,7 +1626,14 @@ export function FeedContent({
               )}
 
               <div className="flex flex-col">
-                {loadingSearch ? (
+                {searchQuery.trim().length === 1 ? (
+                  <p className="px-6 py-12 text-center text-sm text-dd-muted" role="status">
+                    {text(
+                      'Digite pelo menos 2 caracteres para buscar.',
+                      'Enter at least 2 characters to search.'
+                    )}
+                  </p>
+                ) : loadingSearch ? (
                   <PostSkeletonList count={3} variant="feed" />
                 ) : posts.length === 0 ? (
                   <EmptyState

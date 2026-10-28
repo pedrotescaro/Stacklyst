@@ -124,11 +124,41 @@ export default async function ProfilePage({
     color: b.color,
   }));
 
+  const viewerBadgeDates = new Map<string, string | null>(
+    user.badges.map((entry: any): [string, string | null] => [
+      entry.badge.slug,
+      entry.earned_at?.toISOString() ?? null,
+    ])
+  );
+
   // Verificar se o usuário atual segue este perfil
   const isFollowing = follow !== null;
 
   return (
     <ProfileContent
+      railUser={{
+        username: user.username,
+        streak: Math.max(
+          user.streak_days,
+          user.trails.reduce(
+            (max: number, trail: { streak: number }) => Math.max(max, trail.streak),
+            0
+          )
+        ),
+        last_active_at: user.last_active_at?.toISOString() ?? null,
+        trails: [...user.trails]
+          .sort((a, b) => b.xp - a.xp)
+          .map((trail) => ({
+            id: trail.id,
+            language: trail.language,
+            xp: trail.xp,
+            level: trail.level,
+          })),
+        badges: serializedAllBadges.map((badge) => ({
+          ...badge,
+          earned_at: viewerBadgeDates.get(badge.slug) ?? null,
+        })),
+      }}
       user={{
         id: user.id,
         username: user.username,
