@@ -47,6 +47,11 @@ describe('Ranking periods', () => {
         expect.anything()
       )
     );
+    fireEvent.click(screen.getByRole('button', { name: 'Semanal' }));
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenLastCalledWith('/api/leaderboard', expect.anything())
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Semanal' }));
     fireEvent.click(screen.getByRole('button', { name: 'Escolher linguagem do ranking' }));
     fireEvent.change(screen.getByLabelText('Classificação'), { target: { value: 'PYTHON' } });
     await waitFor(() =>

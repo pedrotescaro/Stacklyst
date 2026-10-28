@@ -10,7 +10,7 @@ import { TRAIL_LANGUAGE_CODES, type TrailLanguageCode } from '@/app/trails/Trail
 import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
 import type { Language } from '@prisma/client';
 import { getLeaderboardAvatarConfig } from '@/lib/leaderboard-identity';
-import { getPeriodLeaderboard } from '@/lib/learning/period-leaderboard';
+import { getGlobalLeaderboard } from '@/lib/learning/leaderboard';
 
 export const revalidate = 0;
 
@@ -60,7 +60,7 @@ export default async function RankedPage() {
   // Buscar o ranking específico da linguagem ativa
   const [leaders, initialGlobalLeaderboard] = await Promise.all([
     getLanguageLeaderboard(activeLanguage as unknown as Language, 50),
-    getPeriodLeaderboard('daily'),
+    getGlobalLeaderboard(50),
   ]);
 
   const initialLeaderboard = leaders.map((leader, index) => ({
@@ -74,6 +74,10 @@ export default async function RankedPage() {
     created_at: leader.created_at ? leader.created_at.toISOString() : null,
   }));
 
+  const allBadges = await prisma.badge.findMany({ orderBy: { slug: 'asc' } });
+  const earned = new Map(
+    user.badges.map((item: any) => [item.badge.slug, item.earned_at?.toISOString() ?? null])
+  );
   return (
     <LeaderboardClient
       initialLeaderboard={initialLeaderboard}
@@ -86,6 +90,8 @@ export default async function RankedPage() {
         avatar_url: user.avatar_url,
         avatar_config: getLeaderboardAvatarConfig(user.avatar_config),
         total_xp: user.total_xp,
+        trails: user.trails,
+        badges: allBadges.map((badge) => ({ ...badge, earned_at: earned.get(badge.slug) ?? null })),
         streak: user.streak_days,
         last_active_at: user.last_active_at ? user.last_active_at.toISOString() : null,
       }}

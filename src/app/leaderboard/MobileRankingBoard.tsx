@@ -34,7 +34,7 @@ export function MobileRankingBoard({
   const mounted = useRef(false);
   const [error, setError] = useState(false);
   const [request, setRequest] = useState(0);
-  const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+  const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly' | null>(null);
   const [editing, setEditing] = useState(false);
 
   useEffect(() => {
@@ -47,7 +47,10 @@ export function MobileRankingBoard({
       setLoading(true);
       setError(false);
       try {
-        const url = `/api/leaderboard?period=${period}${scope === 'GLOBAL' ? '' : `&language=${scope}`}`;
+        const params = new URLSearchParams();
+        if (period) params.set('period', period);
+        if (scope !== 'GLOBAL') params.set('language', scope);
+        const url = `/api/leaderboard${params.size ? `?${params}` : ''}`;
         const response = await fetch(url, { signal: controller.signal });
         if (!response.ok) throw new Error('Leaderboard request failed');
         const data: unknown = await response.json();
@@ -127,7 +130,7 @@ export function MobileRankingBoard({
             type="button"
             key={value}
             aria-pressed={period === value}
-            onClick={() => setPeriod(value)}
+            onClick={() => setPeriod(period === value ? null : value)}
             className={`min-h-11 rounded-full border px-3 text-xs font-bold ${period === value ? 'border-dd-accent bg-dd-accent text-white' : 'border-dd-border text-dd-muted'}`}
           >
             {['Diário', 'Semanal', 'Mensal'][i]}
@@ -165,8 +168,10 @@ export function MobileRankingBoard({
         </label>
       )}
       <p className="mb-4 text-xs text-dd-muted">
-        {scope === 'GLOBAL' ? 'Global' : getTrailLanguageMetadata(scope).label} · XP do período.
-        Histórico registrado a partir desta atualização.
+        {scope === 'GLOBAL' ? 'Global' : getTrailLanguageMetadata(scope).label} ·{' '}
+        {period
+          ? 'XP do período. O histórico anterior inclui exercícios registrados; outras atividades anteriores podem faltar.'
+          : 'XP acumulado desde o início da plataforma.'}
       </p>
       <div aria-busy={loading} aria-live="polite">
         {loading ? (
