@@ -166,7 +166,7 @@ export function FeedControls({
         disabled={refreshDisabled}
         aria-label={text('Atualizar publicações', 'Refresh posts')}
         title={text('Atualizar publicações', 'Refresh posts')}
-        className="dd-focus-ring absolute right-3 top-3 flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-dd-muted hover:bg-dd-surface hover:text-blue-500 disabled:cursor-wait disabled:opacity-60 md:static md:rounded-none"
+        className="dd-focus-ring hidden h-11 w-11 shrink-0 items-center justify-center text-dd-muted hover:bg-dd-surface hover:text-blue-500 disabled:cursor-wait disabled:opacity-60 md:flex"
       >
         <RefreshCw className={cn('h-4 w-4', refreshing && 'animate-spin')} />
       </button>

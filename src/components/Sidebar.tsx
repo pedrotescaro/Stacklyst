@@ -15,7 +15,6 @@ import {
   Trophy,
   User as UserIcon,
   Settings as SettingsIcon,
-  Plus,
   LogOut,
   X,
   Home,
@@ -393,6 +392,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
 
       if (res.ok) {
         resetCompose();
+        window.dispatchEvent(new Event('stacklyst:post-created'));
         setPublishState('success');
         setTimeout(() => {
           setPublishState('idle');
@@ -907,14 +907,14 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
         <nav className="fixed bottom-0 left-0 right-0 z-[100] flex items-center justify-around border-t border-dd-border bg-dd-bg/90 px-3 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-md sm:px-6">
           {mobileNavItems.map(renderMobileNavItem)}
 
-          {/* O feed já possui um compositor próprio; mantém o atalho flutuante para a raiz. */}
-          {activeUser && pathname === '/' && (
+          {activeUser && pathname === '/feed' && (
             <button
+              type="button"
               onClick={() => setModalOpen(true)}
-              className="absolute -top-14 right-4 bg-blue-500 text-white rounded-full p-3.5 shadow-lg shadow-blue-500/25 active:scale-95 transition-all w-12 h-12 flex items-center justify-center cursor-pointer"
-              aria-label={t.nav.post}
+              className="absolute -top-[4.5rem] right-4 flex h-14 w-14 items-center justify-center rounded-full bg-blue-500 text-white shadow-lg transition-colors hover:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+              aria-label={isEnglish ? 'New post' : 'Nova postagem'}
             >
-              <Plus className="w-5.5 h-5.5" />
+              <SquarePen className="h-6 w-6" aria-hidden="true" />
             </button>
           )}
         </nav>
@@ -927,15 +927,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
         hasDraft={hasDraft}
         onDiscard={resetCompose}
         onSaveDraft={saveDraft}
-        headerExtra={
-          <button
-            type="button"
-            onClick={() => showToast('Rascunhos salvos localmente!')}
-            className="text-xs font-black text-blue-500 hover:text-blue-400 transition-colors cursor-pointer"
-          >
-            Rascunhos
-          </button>
-        }
+        mobileTitle={isEnglish ? 'New post' : 'Nova postagem'}
       >
         <form onSubmit={handleCreatePost} className="space-y-4">
           <div className="flex gap-3">
@@ -1010,9 +1002,9 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
           </div>
 
           {/* Divider */}
-          <div className="border-t border-dd-border/50 pt-3 flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-dd-border/50 pt-3">
             {/* Left tools (Icons) */}
-            <div className="flex items-center gap-2 text-blue-500">
+            <div className="flex flex-wrap items-center gap-1 text-blue-500 sm:gap-2">
               {/* Image input trigger */}
               <input
                 type="file"

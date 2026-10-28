@@ -24,6 +24,7 @@ import { PublishButton, PublishState } from '@/components/motion/PublishButton';
 import { XPProgressBar } from '@/components/motion/XPProgressBar';
 import { FeedEngagementCard } from '@/app/feed/FeedEngagementCard';
 import { FeedControls } from '@/app/feed/FeedControls';
+import { MobilePullToRefresh } from '@/components/MobilePullToRefresh';
 import { CharCounter } from '@/components/motion/CharCounter';
 import { MentionDropdown } from '@/components/motion/MentionDropdown';
 import { EmptyState } from '@/components/motion/EmptyState';
@@ -625,6 +626,12 @@ export function FeedContent({
       setRefreshingPosts(false);
     }
   }, [firstPageUrl, text]);
+
+  useEffect(() => {
+    const refreshAfterPublishing = () => void handleLoadNewPosts();
+    window.addEventListener('stacklyst:post-created', refreshAfterPublishing);
+    return () => window.removeEventListener('stacklyst:post-created', refreshAfterPublishing);
+  }, [handleLoadNewPosts]);
 
   useEffect(() => {
     return () => refreshRequestRef.current?.abort();
@@ -1285,581 +1292,590 @@ export function FeedContent({
           data-testid="primary-column"
           className="flex min-h-screen w-full min-w-0 max-w-[720px] flex-grow flex-col border-dd-border/60 bg-dd-bg md:border-r pb-[calc(6rem+env(safe-area-inset-bottom))] md:border-l md:pb-8 xl:max-w-[820px] 2xl:max-w-[920px]"
         >
-          <FeedControls
-            filter={feedFilter}
-            onFilterChange={setFeedFilter}
-            sort={followingSort}
-            onSortChange={setFollowingSort}
+          <MobilePullToRefresh
             refreshing={refreshingPosts}
-            refreshDisabled={
-              refreshingPosts || loadingSearch || activeTab !== 'feed' || !!searchQuery.trim()
-            }
+            disabled={loadingSearch || activeTab !== 'feed' || !!searchQuery.trim()}
             onRefresh={handleLoadNewPosts}
-          />
+          >
+            <FeedControls
+              filter={feedFilter}
+              onFilterChange={setFeedFilter}
+              sort={followingSort}
+              onSortChange={setFollowingSort}
+              refreshing={refreshingPosts}
+              refreshDisabled={
+                refreshingPosts || loadingSearch || activeTab !== 'feed' || !!searchQuery.trim()
+              }
+              onRefresh={handleLoadNewPosts}
+            />
 
-          {/* Feed Tab View */}
-          {activeTab === 'feed' && (
-            <>
-              <div className="hidden items-center justify-between gap-3 border-b border-dd-border/60 px-4 py-2 text-xs text-dd-muted md:flex">
-                <span className="min-w-0 truncate">
-                  {feedFilter === 'following'
-                    ? text('Pessoas que você segue', 'People you follow')
-                    : text('Suas linguagens', 'Your languages')}
-                  {feedFilter !== 'following' && feedLanguages
-                    ? ` · ${feedLanguages.replaceAll(',', ' · ')}`
-                    : ''}
-                </span>
-                <Link
-                  href="/onboarding"
-                  className="shrink-0 py-1 text-blue-400 underline-offset-4 hover:underline"
+            {/* Feed Tab View */}
+            {activeTab === 'feed' && (
+              <>
+                <div className="hidden items-center justify-between gap-3 border-b border-dd-border/60 px-4 py-2 text-xs text-dd-muted md:flex">
+                  <span className="min-w-0 truncate">
+                    {feedFilter === 'following'
+                      ? text('Pessoas que você segue', 'People you follow')
+                      : text('Suas linguagens', 'Your languages')}
+                    {feedFilter !== 'following' && feedLanguages
+                      ? ` · ${feedLanguages.replaceAll(',', ' · ')}`
+                      : ''}
+                  </span>
+                  <Link
+                    href="/onboarding"
+                    className="shrink-0 py-1 text-blue-400 underline-offset-4 hover:underline"
+                  >
+                    {text('Personalizar', 'Customize')}
+                  </Link>
+                </div>
+                <div
+                  ref={composerContainerRef}
+                  onClick={() => setComposeFocused(true)}
+                  data-testid="desktop-feed-composer"
+                  className="relative z-20 hidden border-b border-dd-border/60 bg-transparent px-3 pb-2 pt-3 transition-[border-color,box-shadow] duration-200 focus-within:border-blue-500/40 md:block sm:px-4 sm:pb-2.5 sm:pt-3.5"
                 >
-                  {text('Personalizar', 'Customize')}
-                </Link>
-              </div>
-              <div
-                ref={composerContainerRef}
-                onClick={() => setComposeFocused(true)}
-                className="relative z-20 border-b border-dd-border/60 bg-transparent px-3 pb-2 pt-3 transition-[border-color,box-shadow] duration-200 focus-within:border-blue-500/40 sm:px-4 sm:pb-2.5 sm:pt-3.5"
-              >
-                <form onSubmit={handleCreatePost} className="flex gap-2 sm:gap-3">
-                  <div className="shrink-0 pt-0.5">
-                    <AuthorAvatar
-                      username={initialUser.username}
-                      avatar_url={initialUser.avatar_url}
-                      avatar_config={initialUser.avatar_config}
-                      size="md"
-                      className="!h-9 !w-9 sm:!h-10 sm:!w-10"
-                    />
-                  </div>
-
-                  <div className="flex-1 min-w-0 flex flex-col justify-between">
-                    <div className="relative">
-                      <MarkdownEditor
-                        ref={postBodyEditorRef}
-                        value={postBody}
-                        onChange={(value) => handleBodyChange(value, 'inline')}
-                        onFocus={() => setComposeFocused(true)}
-                        maxLength={POST_CHAR_LIMIT}
-                        minHeight={
-                          composeFocused ||
-                          Boolean(postBody.trim()) ||
-                          Boolean(quotePost) ||
-                          Boolean(postLocation) ||
-                          Boolean(scheduledAt) ||
-                          isSensitive ||
-                          replyAudience !== 'everyone'
-                            ? '3.5rem'
-                            : '1.75rem'
-                        }
-                        placeholder={text(
-                          'O que você está construindo hoje?',
-                          'What are you building today?'
-                        )}
-                        className="feed-composer-editor"
-                      />
-                      {(composeFocused || postBody.trim().length > 0) && (
-                        <div className="absolute bottom-0 right-0">
-                          <CharCounter text={postBody} limit={POST_CHAR_LIMIT} />
-                        </div>
-                      )}
-                      <MentionDropdown
-                        query={postBody.split(/\s+/).at(-1)?.replace(/^@/, '') || ''}
-                        visible={showMentionSuggestions && focusedInput === 'inline'}
-                        onSelect={handleSelectMention}
-                        onClose={() => {
-                          setShowMentionSuggestions(false);
-                          setMentionUsers([]);
-                        }}
+                  <form onSubmit={handleCreatePost} className="flex gap-2 sm:gap-3">
+                    <div className="shrink-0 pt-0.5">
+                      <AuthorAvatar
+                        username={initialUser.username}
+                        avatar_url={initialUser.avatar_url}
+                        avatar_config={initialUser.avatar_config}
+                        size="md"
+                        className="!h-9 !w-9 sm:!h-10 sm:!w-10"
                       />
                     </div>
 
-                    {quotePost && (
-                      <div className="dd-quote-card my-2 rounded-2xl border border-dd-border bg-dd-bg/60 p-3">
-                        <div className="mb-2 flex items-center justify-between gap-3">
-                          <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-dd-muted">
-                            Citando @{quotePost.author.username}
-                          </span>
+                    <div className="flex-1 min-w-0 flex flex-col justify-between">
+                      <div className="relative">
+                        <MarkdownEditor
+                          ref={postBodyEditorRef}
+                          value={postBody}
+                          onChange={(value) => handleBodyChange(value, 'inline')}
+                          onFocus={() => setComposeFocused(true)}
+                          maxLength={POST_CHAR_LIMIT}
+                          minHeight={
+                            composeFocused ||
+                            Boolean(postBody.trim()) ||
+                            Boolean(quotePost) ||
+                            Boolean(postLocation) ||
+                            Boolean(scheduledAt) ||
+                            isSensitive ||
+                            replyAudience !== 'everyone'
+                              ? '3.5rem'
+                              : '1.75rem'
+                          }
+                          placeholder={text(
+                            'O que você está construindo hoje?',
+                            'What are you building today?'
+                          )}
+                          className="feed-composer-editor"
+                        />
+                        {(composeFocused || postBody.trim().length > 0) && (
+                          <div className="absolute bottom-0 right-0">
+                            <CharCounter text={postBody} limit={POST_CHAR_LIMIT} />
+                          </div>
+                        )}
+                        <MentionDropdown
+                          query={postBody.split(/\s+/).at(-1)?.replace(/^@/, '') || ''}
+                          visible={showMentionSuggestions && focusedInput === 'inline'}
+                          onSelect={handleSelectMention}
+                          onClose={() => {
+                            setShowMentionSuggestions(false);
+                            setMentionUsers([]);
+                          }}
+                        />
+                      </div>
+
+                      {quotePost && (
+                        <div className="dd-quote-card my-2 rounded-2xl border border-dd-border bg-dd-bg/60 p-3">
+                          <div className="mb-2 flex items-center justify-between gap-3">
+                            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-dd-muted">
+                              Citando @{quotePost.author.username}
+                            </span>
+                            <button
+                              type="button"
+                              onClick={() => setQuotePost(null)}
+                              className="dd-touch rounded-full p-1 text-dd-muted transition-colors hover:bg-dd-surface hover:text-dd-text"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                          <p className="line-clamp-2 text-xs text-dd-muted">
+                            {quotePost.body.replace(/```[\s\S]*?```/g, '').substring(0, 120)}
+                          </p>
+                        </div>
+                      )}
+
+                      {postError && (
+                        <p className="my-1 text-[11px] font-medium text-red-400">{postError}</p>
+                      )}
+
+                      {postImage && (
+                        <div className="relative my-2 rounded-xl overflow-hidden border border-dd-border max-h-60 bg-dd-bg">
+                          <Image
+                            src={postImage}
+                            alt="Preview"
+                            width={800}
+                            height={240}
+                            className="w-full h-full object-cover max-h-60"
+                          />
                           <button
                             type="button"
-                            onClick={() => setQuotePost(null)}
-                            className="dd-touch rounded-full p-1 text-dd-muted transition-colors hover:bg-dd-surface hover:text-dd-text"
+                            onClick={() => setPostImage('')}
+                            className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white hover:bg-black/85 transition-colors cursor-pointer"
                           >
                             <X className="w-3.5 h-3.5" />
                           </button>
                         </div>
-                        <p className="line-clamp-2 text-xs text-dd-muted">
-                          {quotePost.body.replace(/```[\s\S]*?```/g, '').substring(0, 120)}
-                        </p>
-                      </div>
-                    )}
-
-                    {postError && (
-                      <p className="my-1 text-[11px] font-medium text-red-400">{postError}</p>
-                    )}
-
-                    {postImage && (
-                      <div className="relative my-2 rounded-xl overflow-hidden border border-dd-border max-h-60 bg-dd-bg">
-                        <Image
-                          src={postImage}
-                          alt="Preview"
-                          width={800}
-                          height={240}
-                          className="w-full h-full object-cover max-h-60"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setPostImage('')}
-                          className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white hover:bg-black/85 transition-colors cursor-pointer"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    )}
-
-                    {(composeFocused ||
-                      Boolean(postBody.trim()) ||
-                      Boolean(quotePost) ||
-                      Boolean(postLocation) ||
-                      Boolean(scheduledAt) ||
-                      isSensitive ||
-                      replyAudience !== 'everyone') && (
-                      <div className="my-2 border-b border-dd-border/40 pb-2 animate-slide-up">
-                        <PostComposerExtras
-                          section="meta"
-                          postBody={postBody}
-                          setPostBody={setPostBody}
-                          editorRef={postBodyEditorRef}
-                          replyAudience={replyAudience}
-                          setReplyAudience={setReplyAudience}
-                          scheduledAt={scheduledAt}
-                          setScheduledAt={setScheduledAt}
-                          location={postLocation}
-                          setLocation={setPostLocation}
-                          isSensitive={isSensitive}
-                          setIsSensitive={setIsSensitive}
-                        />
-                      </div>
-                    )}
-
-                    <div
-                      className={cn(
-                        'flex flex-wrap items-center gap-x-2 gap-y-1',
-                        composeFocused ||
-                          Boolean(postBody.trim()) ||
-                          Boolean(quotePost) ||
-                          Boolean(postLocation) ||
-                          Boolean(scheduledAt) ||
-                          isSensitive ||
-                          replyAudience !== 'everyone'
-                          ? 'pt-1'
-                          : 'pt-2'
                       )}
-                    >
-                      <div className="flex min-w-0 items-center gap-1 text-blue-500">
-                        <div>
-                          <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleImageUpload}
-                            className="hidden"
-                            id="inline-file-upload"
+
+                      {(composeFocused ||
+                        Boolean(postBody.trim()) ||
+                        Boolean(quotePost) ||
+                        Boolean(postLocation) ||
+                        Boolean(scheduledAt) ||
+                        isSensitive ||
+                        replyAudience !== 'everyone') && (
+                        <div className="my-2 border-b border-dd-border/40 pb-2 animate-slide-up">
+                          <PostComposerExtras
+                            section="meta"
+                            postBody={postBody}
+                            setPostBody={setPostBody}
+                            editorRef={postBodyEditorRef}
+                            replyAudience={replyAudience}
+                            setReplyAudience={setReplyAudience}
+                            scheduledAt={scheduledAt}
+                            setScheduledAt={setScheduledAt}
+                            location={postLocation}
+                            setLocation={setPostLocation}
+                            isSensitive={isSensitive}
+                            setIsSensitive={setIsSensitive}
                           />
-                          <label
-                            htmlFor="inline-file-upload"
-                            className="dd-touch inline-flex items-center justify-center rounded-full p-2 transition-colors hover:bg-blue-500/10 cursor-pointer"
-                            title="Adicionar imagem"
-                          >
-                            <svg
-                              viewBox="0 0 24 24"
-                              className="w-5 h-5 fill-none stroke-current"
-                              strokeWidth="2"
+                        </div>
+                      )}
+
+                      <div
+                        className={cn(
+                          'flex flex-wrap items-center gap-x-2 gap-y-1',
+                          composeFocused ||
+                            Boolean(postBody.trim()) ||
+                            Boolean(quotePost) ||
+                            Boolean(postLocation) ||
+                            Boolean(scheduledAt) ||
+                            isSensitive ||
+                            replyAudience !== 'everyone'
+                            ? 'pt-1'
+                            : 'pt-2'
+                        )}
+                      >
+                        <div className="flex min-w-0 items-center gap-1 text-blue-500">
+                          <div>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              className="hidden"
+                              id="inline-file-upload"
+                            />
+                            <label
+                              htmlFor="inline-file-upload"
+                              className="dd-touch inline-flex items-center justify-center rounded-full p-2 transition-colors hover:bg-blue-500/10 cursor-pointer"
+                              title="Adicionar imagem"
                             >
-                              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                              <polyline points="21 15 16 10 5 21"></polyline>
-                            </svg>
-                          </label>
+                              <svg
+                                viewBox="0 0 24 24"
+                                className="w-5 h-5 fill-none stroke-current"
+                                strokeWidth="2"
+                              >
+                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                                <polyline points="21 15 16 10 5 21"></polyline>
+                              </svg>
+                            </label>
+                          </div>
+
+                          <PostComposerExtras
+                            section="tools"
+                            postBody={postBody}
+                            setPostBody={setPostBody}
+                            editorRef={postBodyEditorRef}
+                            replyAudience={replyAudience}
+                            setReplyAudience={setReplyAudience}
+                            scheduledAt={scheduledAt}
+                            setScheduledAt={setScheduledAt}
+                            location={postLocation}
+                            setLocation={setPostLocation}
+                            isSensitive={isSensitive}
+                            setIsSensitive={setIsSensitive}
+                          />
                         </div>
 
-                        <PostComposerExtras
-                          section="tools"
-                          postBody={postBody}
-                          setPostBody={setPostBody}
-                          editorRef={postBodyEditorRef}
-                          replyAudience={replyAudience}
-                          setReplyAudience={setReplyAudience}
-                          scheduledAt={scheduledAt}
-                          setScheduledAt={setScheduledAt}
-                          location={postLocation}
-                          setLocation={setPostLocation}
-                          isSensitive={isSensitive}
-                          setIsSensitive={setIsSensitive}
-                        />
-                      </div>
-
-                      <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
-                        {uploadingImage && (
-                          <span className="text-[10px] text-dd-muted animate-pulse font-semibold">
-                            Enviando imagem...
-                          </span>
-                        )}
-                        <PublishButton
-                          disabled={
-                            !postBody.trim() || uploadingImage || postBody.length >= POST_CHAR_LIMIT
-                          }
-                          state={publishState}
-                          xpReward={xpReward}
-                          className="px-3 text-xs sm:px-4 sm:text-sm"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </form>
-              </div>
-
-              {feedError && (
-                <div className="rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-xs font-semibold text-red-300">
-                  {feedError}
-                </div>
-              )}
-
-              <div className="flex flex-col">
-                {searchQuery.trim().length === 1 ? (
-                  <p className="px-6 py-12 text-center text-sm text-dd-muted" role="status">
-                    {text(
-                      'Digite pelo menos 2 caracteres para buscar.',
-                      'Enter at least 2 characters to search.'
-                    )}
-                  </p>
-                ) : loadingSearch ? (
-                  <PostSkeletonList count={3} variant="feed" />
-                ) : posts.length === 0 ? (
-                  <EmptyState
-                    type={searchQuery.trim() ? 'search' : 'feed'}
-                    searchTerm={searchQuery}
-                    className="bg-transparent border-0 rounded-none py-12 px-6"
-                  />
-                ) : (
-                  <AnimatePresence initial={false}>
-                    {posts.map((post) => {
-                      const postWithBookmarks = {
-                        ...post,
-                        bookmarks: bookmarkedPostIds[post.id] ? [{ id: 'temp-id' }] : [],
-                      };
-                      return (
-                        <motion.div
-                          key={post._clientKey ?? post.id}
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-                          transition={springGentle}
-                        >
-                          <PostCard
-                            post={postWithBookmarks}
-                            isOwner={post.author.username === initialUser.username}
-                            flat={true}
-                            onBookmarkToggle={(postId, isBookmarked) => {
-                              handleBookmarkToggle(postId);
-                            }}
-                            onDelete={(postId) => {
-                              setPosts((prev) => prev.filter((p) => p.id !== postId));
-                            }}
-                            onEdit={(postId, updatedPost) => {
-                              setPosts((prev) =>
-                                prev.map((p) => (p.id === postId ? { ...p, ...updatedPost } : p))
-                              );
-                            }}
-                          />
-                        </motion.div>
-                      );
-                    })}
-                  </AnimatePresence>
-                )}
-                {loadingMore && (
-                  <PostSkeletonList
-                    count={2}
-                    variant="feed"
-                    label={text('Carregando mais publicações', 'Loading more posts')}
-                  />
-                )}
-                {!searchQuery.trim() && hasMore && (
-                  <div ref={scrollSentinelRef} className="h-1" aria-hidden />
-                )}
-              </div>
-            </>
-          )}
-
-          {/* TAB DE QUIZZES */}
-          {activeTab === 'quizzes' && (
-            <motion.div
-              initial="enter"
-              animate="center"
-              variants={crossfadeVariants}
-              className="space-y-6 dd-tab-crossfade"
-            >
-              <div className="rounded-xl border border-dd-border bg-dd-surface p-5 backdrop-blur-sm">
-                <h2 className="font-bold text-lg text-dd-text flex items-center gap-2">
-                  <Sparkles className="w-5 h-5 text-blue-500" />
-                  🧩 Stacklyst Quizzes
-                </h2>
-                <p className="text-dd-muted text-xs mt-1">
-                  {text(
-                    'Responda ao quiz diário curado para ganhar bônus de +15 XP.',
-                    'Complete the daily quiz to earn a +15 XP bonus.'
-                  )}
-                </p>
-              </div>
-
-              {/* Quiz Diário do Dia */}
-              {dailyQuiz && (
-                <div className="dd-glow-ring rounded-xl border border-blue-500/35 bg-dd-surface p-5 backdrop-blur-sm space-y-4">
-                  <div className="flex justify-between items-center border-b border-dd-border pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/25 rounded-md uppercase tracking-wider">
-                        Oficial
-                      </span>
-                      <span className="text-xs font-bold text-dd-text">
-                        {text('Quiz Diário do Dia (+15 XP)', 'Daily Quiz (+15 XP)')}
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-dd-muted flex items-center gap-1 font-semibold">
-                      <Calendar className="w-3.5 h-3.5 text-blue-500" />{' '}
-                      {text('Rotativo Diário', 'Daily rotation')}
-                    </span>
-                  </div>
-                  <QuizWidget
-                    quiz={dailyQuiz}
-                    postId=""
-                    attempted={!!dailyAttempt}
-                    userAnswer={dailyAttempt?.selected_index}
-                    onAttemptSuccess={(
-                      selectedIndex: number,
-                      isCorrect: boolean,
-                      xpResult: any
-                    ) => {
-                      setDailyAttempt({
-                        quiz_id: dailyQuiz.id,
-                        selected_index: selectedIndex,
-                        is_correct: isCorrect,
-                      });
-                      refetchWeeklyActivity();
-                      if (isCorrect) {
-                        showXPToast(15, 'Global');
-                      }
-                    }}
-                  />
-                </div>
-              )}
-            </motion.div>
-          )}
-
-          {/* TAB DE DUELOS */}
-          {activeTab === 'duels' && (
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 rounded-xl border border-dd-border bg-dd-surface p-5 backdrop-blur-sm shadow-sm">
-                <div>
-                  <h2 className="font-bold text-lg text-dd-text flex items-center gap-2">
-                    <Swords className="w-5 h-5 text-blue-500" />
-                    ⚔️ Arena de Duelos
-                  </h2>
-                  <p className="text-dd-muted text-xs mt-1">
-                    Crie um duelo e aguarde matchmaking, ou entre em duelos abertos criados pela
-                    comunidade.
-                  </p>
-                </div>
-                <button
-                  onClick={() => setShowDuelForm(!showDuelForm)}
-                  className="bg-blue-500 text-white font-bold py-2.5 px-5 rounded-lg text-xs transition-colors hover:bg-blue-600 whitespace-nowrap cursor-pointer shadow-[0_0_15px_rgba(0, 131, 254,0.15)] flex items-center gap-1.5 self-start sm:self-auto"
-                >
-                  <Plus className="w-4 h-4" />
-                  {showDuelForm
-                    ? text('Fechar formulário', 'Close form')
-                    : text('Criar novo duelo', 'Create new duel')}
-                </button>
-              </div>
-
-              {showDuelForm && (
-                <div className="rounded-xl border border-dd-border bg-dd-surface p-5 backdrop-blur-sm shadow-sm">
-                  <h3 className="font-bold text-sm text-dd-text mb-4">
-                    {text('Lançar novo desafio', 'Launch a new challenge')}
-                  </h3>
-                  <form onSubmit={handleCreateDuel} className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div className="sm:col-span-2">
-                        <input
-                          type="text"
-                          value={duelTitle}
-                          onChange={(e) => setDuelTitle(e.target.value)}
-                          required
-                          placeholder={text(
-                            'Título do problema (Ex: Inverter String sem Built-ins)...',
-                            'Problem title (e.g. Reverse a string without built-ins)...'
+                        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
+                          {uploadingImage && (
+                            <span className="text-[10px] text-dd-muted animate-pulse font-semibold">
+                              Enviando imagem...
+                            </span>
                           )}
-                          className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg/80 px-4 py-2.5 text-dd-text placeholder-slate-600 focus:border-blue-500/60 focus:outline-none"
-                        />
+                          <PublishButton
+                            disabled={
+                              !postBody.trim() ||
+                              uploadingImage ||
+                              postBody.length >= POST_CHAR_LIMIT
+                            }
+                            state={publishState}
+                            xpReward={xpReward}
+                            className="px-3 text-xs sm:px-4 sm:text-sm"
+                          />
+                        </div>
                       </div>
-                      <div>
-                        <select
-                          value={duelLanguage}
-                          onChange={(e) => setDuelLanguage(e.target.value as Language)}
-                          className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg/80 px-3 py-2.5 text-dd-text focus:border-blue-500/60 focus:outline-none cursor-pointer"
-                        >
-                          <option value="TS">TypeScript</option>
-                          <option value="JS">JavaScript</option>
-                          <option value="PYTHON">Python</option>
-                          <option value="RUST">Rust</option>
-                          <option value="GO">Go</option>
-                          <option value="CPP">C++</option>
-                        </select>
-                      </div>
-                    </div>
-                    <div>
-                      <textarea
-                        value={duelBody}
-                        onChange={(e) => setDuelBody(e.target.value)}
-                        required
-                        rows={4}
-                        placeholder={text(
-                          'Descreva o problema de algoritmo, formatos de entradas/saídas e exemplos...',
-                          'Describe the algorithm problem, input/output formats, and examples...'
-                        )}
-                        className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg/80 px-4 py-2.5 text-dd-text placeholder-slate-600 focus:border-blue-500/60 focus:outline-none resize-none"
-                      />
-                    </div>
-                    <div className="flex justify-end">
-                      <button
-                        type="submit"
-                        disabled={creatingDuel}
-                        className="bg-blue-500 text-white text-xs font-bold px-6 py-2 rounded-lg transition-all hover:bg-blue-600 disabled:opacity-50 cursor-pointer"
-                      >
-                        {creatingDuel ? 'Enviando...' : 'Publicar Duelo'}
-                      </button>
                     </div>
                   </form>
                 </div>
-              )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {duelsLoading ? (
-                  <div className="col-span-2 grid grid-cols-1 gap-6 md:grid-cols-2">
-                    <div className="dd-skeleton-post dd-skeleton h-52 rounded-xl" />
-                    <div className="dd-skeleton-post dd-skeleton h-52 rounded-xl" />
+                {feedError && (
+                  <div className="rounded-xl border border-red-500/20 bg-red-500/8 px-4 py-3 text-xs font-semibold text-red-300">
+                    {feedError}
                   </div>
-                ) : duels.length === 0 ? (
-                  <div className="col-span-2 rounded-xl border border-dd-border bg-dd-surface/10 p-12 text-center text-dd-muted text-sm">
-                    {text(
-                      'Nenhum duelo de código ocorrendo no momento. Inicie um novo duelo acima!',
-                      'No code duels are happening right now. Start a new duel above!'
-                    )}
-                  </div>
-                ) : (
-                  duels.map((duel) => <DuelCard key={duel.id} duel={duel} />)
                 )}
-              </div>
-            </div>
-          )}
 
-          {/* TAB DE RANKINGS */}
-          {activeTab === 'ranking' && (
-            <div className="space-y-6">
-              <div className="rounded-xl border border-dd-border bg-dd-surface p-5 backdrop-blur-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4">
-                <div>
+                <div className="flex flex-col">
+                  {searchQuery.trim().length === 1 ? (
+                    <p className="px-6 py-12 text-center text-sm text-dd-muted" role="status">
+                      {text(
+                        'Digite pelo menos 2 caracteres para buscar.',
+                        'Enter at least 2 characters to search.'
+                      )}
+                    </p>
+                  ) : loadingSearch ? (
+                    <PostSkeletonList count={3} variant="feed" />
+                  ) : posts.length === 0 ? (
+                    <EmptyState
+                      type={searchQuery.trim() ? 'search' : 'feed'}
+                      searchTerm={searchQuery}
+                      className="bg-transparent border-0 rounded-none py-12 px-6"
+                    />
+                  ) : (
+                    <AnimatePresence initial={false}>
+                      {posts.map((post) => {
+                        const postWithBookmarks = {
+                          ...post,
+                          bookmarks: bookmarkedPostIds[post.id] ? [{ id: 'temp-id' }] : [],
+                        };
+                        return (
+                          <motion.div
+                            key={post._clientKey ?? post.id}
+                            initial={{ opacity: 0, y: -10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
+                            transition={springGentle}
+                          >
+                            <PostCard
+                              post={postWithBookmarks}
+                              isOwner={post.author.username === initialUser.username}
+                              flat={true}
+                              onBookmarkToggle={(postId, isBookmarked) => {
+                                handleBookmarkToggle(postId);
+                              }}
+                              onDelete={(postId) => {
+                                setPosts((prev) => prev.filter((p) => p.id !== postId));
+                              }}
+                              onEdit={(postId, updatedPost) => {
+                                setPosts((prev) =>
+                                  prev.map((p) => (p.id === postId ? { ...p, ...updatedPost } : p))
+                                );
+                              }}
+                            />
+                          </motion.div>
+                        );
+                      })}
+                    </AnimatePresence>
+                  )}
+                  {loadingMore && (
+                    <PostSkeletonList
+                      count={2}
+                      variant="feed"
+                      label={text('Carregando mais publicações', 'Loading more posts')}
+                    />
+                  )}
+                  {!searchQuery.trim() && hasMore && (
+                    <div ref={scrollSentinelRef} className="h-1" aria-hidden />
+                  )}
+                </div>
+              </>
+            )}
+
+            {/* TAB DE QUIZZES */}
+            {activeTab === 'quizzes' && (
+              <motion.div
+                initial="enter"
+                animate="center"
+                variants={crossfadeVariants}
+                className="space-y-6 dd-tab-crossfade"
+              >
+                <div className="rounded-xl border border-dd-border bg-dd-surface p-5 backdrop-blur-sm">
                   <h2 className="font-bold text-lg text-dd-text flex items-center gap-2">
-                    <Trophy className="w-5 h-5 text-blue-500" />
-                    {text('Quadro de líderes', 'Leaderboard')}
+                    <Sparkles className="w-5 h-5 text-blue-500" />
+                    🧩 Stacklyst Quizzes
                   </h2>
                   <p className="text-dd-muted text-xs mt-1">
                     {text(
-                      'Os desenvolvedores lendários com maior XP na comunidade Stacklyst.',
-                      'The developers with the most XP in the Stacklyst community.'
+                      'Responda ao quiz diário curado para ganhar bônus de +15 XP.',
+                      'Complete the daily quiz to earn a +15 XP bonus.'
                     )}
                   </p>
                 </div>
-                <div>
-                  <select
-                    value={leaderboardLanguage}
-                    onChange={(e) => setLeaderboardLanguage(e.target.value)}
-                    className="text-xs rounded-lg border border-dd-border bg-dd-bg/80 px-3 py-2 text-dd-text focus:border-blue-500/60 focus:outline-none cursor-pointer font-medium"
+
+                {/* Quiz Diário do Dia */}
+                {dailyQuiz && (
+                  <div className="dd-glow-ring rounded-xl border border-blue-500/35 bg-dd-surface p-5 backdrop-blur-sm space-y-4">
+                    <div className="flex justify-between items-center border-b border-dd-border pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-500/10 text-blue-400 border border-blue-500/25 rounded-md uppercase tracking-wider">
+                          Oficial
+                        </span>
+                        <span className="text-xs font-bold text-dd-text">
+                          {text('Quiz Diário do Dia (+15 XP)', 'Daily Quiz (+15 XP)')}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-dd-muted flex items-center gap-1 font-semibold">
+                        <Calendar className="w-3.5 h-3.5 text-blue-500" />{' '}
+                        {text('Rotativo Diário', 'Daily rotation')}
+                      </span>
+                    </div>
+                    <QuizWidget
+                      quiz={dailyQuiz}
+                      postId=""
+                      attempted={!!dailyAttempt}
+                      userAnswer={dailyAttempt?.selected_index}
+                      onAttemptSuccess={(
+                        selectedIndex: number,
+                        isCorrect: boolean,
+                        xpResult: any
+                      ) => {
+                        setDailyAttempt({
+                          quiz_id: dailyQuiz.id,
+                          selected_index: selectedIndex,
+                          is_correct: isCorrect,
+                        });
+                        refetchWeeklyActivity();
+                        if (isCorrect) {
+                          showXPToast(15, 'Global');
+                        }
+                      }}
+                    />
+                  </div>
+                )}
+              </motion.div>
+            )}
+
+            {/* TAB DE DUELOS */}
+            {activeTab === 'duels' && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 rounded-xl border border-dd-border bg-dd-surface p-5 backdrop-blur-sm shadow-sm">
+                  <div>
+                    <h2 className="font-bold text-lg text-dd-text flex items-center gap-2">
+                      <Swords className="w-5 h-5 text-blue-500" />
+                      ⚔️ Arena de Duelos
+                    </h2>
+                    <p className="text-dd-muted text-xs mt-1">
+                      Crie um duelo e aguarde matchmaking, ou entre em duelos abertos criados pela
+                      comunidade.
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => setShowDuelForm(!showDuelForm)}
+                    className="bg-blue-500 text-white font-bold py-2.5 px-5 rounded-lg text-xs transition-colors hover:bg-blue-600 whitespace-nowrap cursor-pointer shadow-[0_0_15px_rgba(0, 131, 254,0.15)] flex items-center gap-1.5 self-start sm:self-auto"
                   >
-                    <option value="GLOBAL">Leaderboard Global</option>
-                    <option value="TS">TypeScript</option>
-                    <option value="JS">JavaScript</option>
-                    <option value="PYTHON">Python</option>
-                    <option value="RUST">Rust</option>
-                    <option value="GO">Go</option>
-                    <option value="CPP">C++</option>
-                    <option value="JAVA">Java</option>
-                    <option value="KOTLIN">Kotlin</option>
-                    <option value="SWIFT">Swift</option>
-                  </select>
+                    <Plus className="w-4 h-4" />
+                    {showDuelForm
+                      ? text('Fechar formulário', 'Close form')
+                      : text('Criar novo duelo', 'Create new duel')}
+                  </button>
+                </div>
+
+                {showDuelForm && (
+                  <div className="rounded-xl border border-dd-border bg-dd-surface p-5 backdrop-blur-sm shadow-sm">
+                    <h3 className="font-bold text-sm text-dd-text mb-4">
+                      {text('Lançar novo desafio', 'Launch a new challenge')}
+                    </h3>
+                    <form onSubmit={handleCreateDuel} className="space-y-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div className="sm:col-span-2">
+                          <input
+                            type="text"
+                            value={duelTitle}
+                            onChange={(e) => setDuelTitle(e.target.value)}
+                            required
+                            placeholder={text(
+                              'Título do problema (Ex: Inverter String sem Built-ins)...',
+                              'Problem title (e.g. Reverse a string without built-ins)...'
+                            )}
+                            className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg/80 px-4 py-2.5 text-dd-text placeholder-slate-600 focus:border-blue-500/60 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <select
+                            value={duelLanguage}
+                            onChange={(e) => setDuelLanguage(e.target.value as Language)}
+                            className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg/80 px-3 py-2.5 text-dd-text focus:border-blue-500/60 focus:outline-none cursor-pointer"
+                          >
+                            <option value="TS">TypeScript</option>
+                            <option value="JS">JavaScript</option>
+                            <option value="PYTHON">Python</option>
+                            <option value="RUST">Rust</option>
+                            <option value="GO">Go</option>
+                            <option value="CPP">C++</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <textarea
+                          value={duelBody}
+                          onChange={(e) => setDuelBody(e.target.value)}
+                          required
+                          rows={4}
+                          placeholder={text(
+                            'Descreva o problema de algoritmo, formatos de entradas/saídas e exemplos...',
+                            'Describe the algorithm problem, input/output formats, and examples...'
+                          )}
+                          className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg/80 px-4 py-2.5 text-dd-text placeholder-slate-600 focus:border-blue-500/60 focus:outline-none resize-none"
+                        />
+                      </div>
+                      <div className="flex justify-end">
+                        <button
+                          type="submit"
+                          disabled={creatingDuel}
+                          className="bg-blue-500 text-white text-xs font-bold px-6 py-2 rounded-lg transition-all hover:bg-blue-600 disabled:opacity-50 cursor-pointer"
+                        >
+                          {creatingDuel ? 'Enviando...' : 'Publicar Duelo'}
+                        </button>
+                      </div>
+                    </form>
+                  </div>
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {duelsLoading ? (
+                    <div className="col-span-2 grid grid-cols-1 gap-6 md:grid-cols-2">
+                      <div className="dd-skeleton-post dd-skeleton h-52 rounded-xl" />
+                      <div className="dd-skeleton-post dd-skeleton h-52 rounded-xl" />
+                    </div>
+                  ) : duels.length === 0 ? (
+                    <div className="col-span-2 rounded-xl border border-dd-border bg-dd-surface/10 p-12 text-center text-dd-muted text-sm">
+                      {text(
+                        'Nenhum duelo de código ocorrendo no momento. Inicie um novo duelo acima!',
+                        'No code duels are happening right now. Start a new duel above!'
+                      )}
+                    </div>
+                  ) : (
+                    duels.map((duel) => <DuelCard key={duel.id} duel={duel} />)
+                  )}
                 </div>
               </div>
+            )}
 
-              <div className="rounded-xl border border-dd-border bg-dd-surface backdrop-blur-sm overflow-hidden shadow-sm">
-                <table className="w-full text-left border-collapse text-xs">
-                  <thead>
-                    <tr className="border-b border-dd-border bg-dd-surface text-dd-muted font-bold uppercase tracking-wider">
-                      <th className="py-4 px-6 text-center w-20">Rank</th>
-                      <th className="py-4 px-6">Desenvolvedor</th>
-                      <th className="py-4 px-6 text-center">{text('Nível', 'Level')}</th>
-                      <th className="py-4 px-6 text-right">XP Acumulado</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {leaderboard.length === 0 ? (
-                      <tr>
-                        <td colSpan={4} className="py-12 text-center text-dd-muted font-medium">
-                          {text('Carregando ranking de líderes...', 'Loading leaderboard...')}
-                        </td>
+            {/* TAB DE RANKINGS */}
+            {activeTab === 'ranking' && (
+              <div className="space-y-6">
+                <div className="rounded-xl border border-dd-border bg-dd-surface p-5 backdrop-blur-sm flex flex-col sm:flex-row justify-between sm:items-center gap-4">
+                  <div>
+                    <h2 className="font-bold text-lg text-dd-text flex items-center gap-2">
+                      <Trophy className="w-5 h-5 text-blue-500" />
+                      {text('Quadro de líderes', 'Leaderboard')}
+                    </h2>
+                    <p className="text-dd-muted text-xs mt-1">
+                      {text(
+                        'Os desenvolvedores lendários com maior XP na comunidade Stacklyst.',
+                        'The developers with the most XP in the Stacklyst community.'
+                      )}
+                    </p>
+                  </div>
+                  <div>
+                    <select
+                      value={leaderboardLanguage}
+                      onChange={(e) => setLeaderboardLanguage(e.target.value)}
+                      className="text-xs rounded-lg border border-dd-border bg-dd-bg/80 px-3 py-2 text-dd-text focus:border-blue-500/60 focus:outline-none cursor-pointer font-medium"
+                    >
+                      <option value="GLOBAL">Leaderboard Global</option>
+                      <option value="TS">TypeScript</option>
+                      <option value="JS">JavaScript</option>
+                      <option value="PYTHON">Python</option>
+                      <option value="RUST">Rust</option>
+                      <option value="GO">Go</option>
+                      <option value="CPP">C++</option>
+                      <option value="JAVA">Java</option>
+                      <option value="KOTLIN">Kotlin</option>
+                      <option value="SWIFT">Swift</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="rounded-xl border border-dd-border bg-dd-surface backdrop-blur-sm overflow-hidden shadow-sm">
+                  <table className="w-full text-left border-collapse text-xs">
+                    <thead>
+                      <tr className="border-b border-dd-border bg-dd-surface text-dd-muted font-bold uppercase tracking-wider">
+                        <th className="py-4 px-6 text-center w-20">Rank</th>
+                        <th className="py-4 px-6">Desenvolvedor</th>
+                        <th className="py-4 px-6 text-center">{text('Nível', 'Level')}</th>
+                        <th className="py-4 px-6 text-right">XP Acumulado</th>
                       </tr>
-                    ) : (
-                      leaderboard.map((row) => (
-                        <tr
-                          key={row.username}
-                          className={`border-b border-dd-border hover:bg-dd-surface transition-colors ${
-                            row.rank === 1
-                              ? 'bg-blue-500/5 border-l-2 border-l-blue-400'
-                              : row.rank === 2
-                                ? 'bg-slate-300/5 border-l-2 border-l-slate-400'
-                                : row.rank === 3
-                                  ? 'bg-blue-700/5 border-l-2 border-l-blue-700'
-                                  : ''
-                          }`}
-                        >
-                          <td className="py-4 px-6 text-center font-extrabold text-sm text-dd-text">
-                            {row.rank === 1
-                              ? '🥇'
-                              : row.rank === 2
-                                ? '🥈'
-                                : row.rank === 3
-                                  ? '🥉'
-                                  : `#${row.rank}`}
-                          </td>
-                          <td className="py-4 px-6 font-bold text-dd-text">
-                            <Link
-                              href={`/profile/${row.username}`}
-                              className="flex items-center gap-3 hover:text-blue-400 transition-colors w-fit"
-                            >
-                              <div className="w-7 h-7 rounded-full bg-dd-surface text-dd-text flex items-center justify-center font-bold text-xs select-none">
-                                {row.username.slice(0, 2).toUpperCase()}
-                              </div>
-                              {row.username}
-                            </Link>
-                          </td>
-                          <td className="py-4 px-6 text-center text-blue-400 font-mono font-bold">
-                            Nível {row.level}
-                          </td>
-                          <td className="py-4 px-6 text-right font-mono font-bold text-dd-text">
-                            {row.xp.toLocaleString()} XP
+                    </thead>
+                    <tbody>
+                      {leaderboard.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="py-12 text-center text-dd-muted font-medium">
+                            {text('Carregando ranking de líderes...', 'Loading leaderboard...')}
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
+                      ) : (
+                        leaderboard.map((row) => (
+                          <tr
+                            key={row.username}
+                            className={`border-b border-dd-border hover:bg-dd-surface transition-colors ${
+                              row.rank === 1
+                                ? 'bg-blue-500/5 border-l-2 border-l-blue-400'
+                                : row.rank === 2
+                                  ? 'bg-slate-300/5 border-l-2 border-l-slate-400'
+                                  : row.rank === 3
+                                    ? 'bg-blue-700/5 border-l-2 border-l-blue-700'
+                                    : ''
+                            }`}
+                          >
+                            <td className="py-4 px-6 text-center font-extrabold text-sm text-dd-text">
+                              {row.rank === 1
+                                ? '🥇'
+                                : row.rank === 2
+                                  ? '🥈'
+                                  : row.rank === 3
+                                    ? '🥉'
+                                    : `#${row.rank}`}
+                            </td>
+                            <td className="py-4 px-6 font-bold text-dd-text">
+                              <Link
+                                href={`/profile/${row.username}`}
+                                className="flex items-center gap-3 hover:text-blue-400 transition-colors w-fit"
+                              >
+                                <div className="w-7 h-7 rounded-full bg-dd-surface text-dd-text flex items-center justify-center font-bold text-xs select-none">
+                                  {row.username.slice(0, 2).toUpperCase()}
+                                </div>
+                                {row.username}
+                              </Link>
+                            </td>
+                            <td className="py-4 px-6 text-center text-blue-400 font-mono font-bold">
+                              Nível {row.level}
+                            </td>
+                            <td className="py-4 px-6 text-right font-mono font-bold text-dd-text">
+                              {row.xp.toLocaleString()} XP
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </MobilePullToRefresh>
         </main>
 
         {/* ========================================================================= */}

@@ -13,7 +13,7 @@ vi.mock('@/components/auth/AccountSwitcher', () => ({
 }));
 vi.mock('next/navigation', () => ({
   usePathname: () => route.pathname,
-  useRouter: () => ({ push: vi.fn() }),
+  useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 vi.mock('next/link', () => ({
   default: ({ children, ...props }: React.ComponentProps<'a'>) => <a {...props}>{children}</a>,
@@ -52,13 +52,57 @@ describe('responsive web navigation', () => {
     const bottom = document.querySelector('nav.fixed') as HTMLElement;
     expect(within(bottom).getByRole('link', { name: 'Duelos' })).toHaveAttribute('href', '/duels');
     expect(within(bottom).queryByRole('link', { name: 'Notificações' })).not.toBeInTheDocument();
+    expect(within(bottom).getByRole('button', { name: 'Nova postagem' })).toBeInTheDocument();
     route.pathname = '/duels';
     view.rerender(<Sidebar user={user} />);
     expect(screen.queryByRole('button', { name: 'Abrir menu' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Nova postagem' })).not.toBeInTheDocument();
     expect(within(bottom).getByRole('link', { name: 'Duelos' })).toHaveAttribute(
       'aria-current',
       'page'
     );
+  });
+
+  it('opens and closes the feed composer from the floating button, restoring focus', async () => {
+    render(<Sidebar user={user} />);
+    const button = screen.getByRole('button', { name: 'Nova postagem' });
+    button.focus();
+    fireEvent.click(button);
+    const dialog = await screen.findByRole('dialog', { name: 'Criar nova publicação' });
+    expect(within(dialog).getByRole('heading', { name: 'Nova postagem' })).toBeInTheDocument();
+    expect(within(dialog).getByRole('button', { name: 'Fechar rascunho' })).toHaveFocus();
+    fireEvent.keyDown(window, { key: 'Escape' });
+    await waitFor(() => expect(button).toHaveFocus());
+  });
+
+  it('publishes the floating composer through the posts API', async () => {
+    const fetchMock = vi.fn(async (_url: RequestInfo | URL, _options?: RequestInit) => ({
+      ok: true,
+      json: async () => ({ count: 0 }),
+    }));
+    const onCreated = vi.fn();
+    window.addEventListener('stacklyst:post-created', onCreated);
+    vi.stubGlobal('fetch', fetchMock);
+    render(<Sidebar user={user} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Nova postagem' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Criar nova publicação' });
+    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Texto da publicação' }), {
+      target: { value: 'Minha nova postagem de teste' },
+    });
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Postar' }));
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/posts',
+        expect.objectContaining({ method: 'POST' })
+      )
+    );
+    const postCall = fetchMock.mock.calls.find(([url]) => url === '/api/posts');
+    expect(JSON.parse((postCall?.[1] as RequestInit).body as string).body).toContain(
+      'Minha nova postagem de teste'
+    );
+    expect(onCreated).toHaveBeenCalledOnce();
+    window.removeEventListener('stacklyst:post-created', onCreated);
+    vi.unstubAllGlobals();
   });
 
   it('opens the drawer with real destinations and closes with Escape, returning focus', async () => {
