@@ -117,6 +117,13 @@
   gap: 4px 6px;
   max-width: 100%;
 }
+.flags {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
 .podiumPlayer .identity {
   max-width: 100%;
   align-items: center;

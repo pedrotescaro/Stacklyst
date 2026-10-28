@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Trophy, Pencil } from 'lucide-react';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { FeedRankingSwitcher, feedRankingSurfaceClassName } from '@/components/FeedRankingSwitcher';
-import { ProfileName, ProfileTitle } from '@/components/profile/ProfileIdentity';
+import { ProfileFlag, ProfileName, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { getAuthorDisplayName, readProfileIdentity } from '@/lib/profile-style';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import {
@@ -104,6 +104,13 @@ export function MobileRankingBoard({
             <span className={styles.name}>
               <ProfileName config={row.avatar_config}>{name}</ProfileName>
             </span>
+            {!!identity.flags?.length && (
+              <span className={styles.flags}>
+                {identity.flags.map((code) => (
+                  <ProfileFlag key={code} code={code} />
+                ))}
+              </span>
+            )}
             {identity.title && <ProfileTitle title={identity.title} />}
           </div>
           {!featured && <span className={styles.username}>@{row.username}</span>}

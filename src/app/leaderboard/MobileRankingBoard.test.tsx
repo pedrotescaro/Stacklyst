@@ -11,12 +11,13 @@ const rows = [
       profileStyle: {
         frame: { id: 'neon', decoration: 'neon', color: '#0083fe' },
         title: { id: 'first', name: 'Pioneiro', color: '#0083fe', rarity: 'common' },
+        flags: ['BR', 'PT'],
       },
     },
   },
   { rank: 2, username: 'bia', xp: 100, level: 1 },
   { rank: 3, username: 'caio', xp: 90, level: 1 },
-  { rank: 4, username: 'davi', xp: 80, level: 1 },
+  { rank: 4, username: 'davi', xp: 80, level: 1, avatar_config: { profileStyle: { flag: 'BR' } } },
 ];
 const fetchMock = vi.fn();
 beforeEach(() => {
@@ -39,6 +40,9 @@ describe('Ranking periods', () => {
         .map((a) => a.getAttribute('href'))
     ).toEqual(['/profile/bia', '/profile/ana', '/profile/caio']);
     expect(screen.getByText('Pioneiro')).toBeInTheDocument();
+    expect(within(podium).getByAltText('Bandeira: Brasil')).toBeInTheDocument();
+    expect(within(podium).getByAltText('Bandeira: Portugal')).toBeInTheDocument();
+    expect(screen.getAllByAltText('Bandeira: Brasil')).toHaveLength(2);
     expect(fetchMock).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Semanal' }));
     await waitFor(() =>
@@ -47,6 +51,7 @@ describe('Ranking periods', () => {
         expect.anything()
       )
     );
+    expect(await screen.findAllByAltText('Bandeira: Brasil')).toHaveLength(2);
     fireEvent.click(screen.getByRole('button', { name: 'Semanal' }));
     await waitFor(() =>
       expect(fetchMock).toHaveBeenLastCalledWith('/api/leaderboard', expect.anything())
