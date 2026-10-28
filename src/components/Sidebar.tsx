@@ -91,7 +91,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   const { t, isEnglish } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const shouldHideMobileHeader = hideMobileHeader;
+  const shouldHideMobileHeader = hideMobileHeader || pathname !== '/feed';
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
 
@@ -551,11 +551,11 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       active: pathname.startsWith('/trails'),
     },
     {
-      id: 'notifications',
-      label: t.nav.notifications,
-      href: '/notifications',
-      icon: Bell,
-      active: pathname === '/notifications',
+      id: 'duels',
+      label: t.nav.duels,
+      href: '/duels',
+      icon: Swords,
+      active: pathname.startsWith('/duels'),
     },
     {
       id: 'profile',
@@ -572,17 +572,11 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
 
     const iconEl = (
       <div className="relative flex items-center justify-center">
-        {item.id === 'notifications' ? (
-          <NotificationBellIcon unreadCount={unreadCount} active={item.active} />
-        ) : (
-          <>
-            <Icon
-              className={`w-5.5 h-5.5 text-dd-text dark:text-white ${item.active ? 'fill-current' : ''}`}
-            />
-            {item.badge === 'dot' && (
-              <span className="absolute -top-0.5 -right-0.5 block h-1.5 w-1.5 rounded-full bg-[#1d9bf0]" />
-            )}
-          </>
+        <Icon
+          className={`w-5.5 h-5.5 text-dd-text dark:text-white ${item.active ? 'fill-current' : ''}`}
+        />
+        {item.badge === 'dot' && (
+          <span className="absolute -top-0.5 -right-0.5 block h-1.5 w-1.5 rounded-full bg-[#1d9bf0]" />
         )}
       </div>
     );
@@ -892,13 +886,9 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
             <Link
               href="/notifications"
               aria-label={t.nav.notifications}
-              aria-current={pathname === '/notifications' ? 'page' : undefined}
               className="flex h-11 w-11 items-center justify-center justify-self-end rounded-full hover:bg-dd-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
-              <NotificationBellIcon
-                unreadCount={unreadCount}
-                active={pathname === '/notifications'}
-              />
+              <NotificationBellIcon unreadCount={unreadCount} active={false} />
             </Link>
           </header>
         )}

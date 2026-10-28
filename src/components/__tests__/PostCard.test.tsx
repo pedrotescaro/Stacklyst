@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -104,6 +104,18 @@ describe('PostCard', () => {
       language: 'python',
     });
     expect(await screen.findByText('ran from api')).toBeInTheDocument();
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it('allows the reply link to navigate and does not navigate when interacting with code', () => {
+    const { container } = render(<PostCard post={pythonPost} flat />);
+    const reply = screen.getByTitle('Responder');
+    const event = new Event('click', { bubbles: true, cancelable: true });
+    fireEvent(reply, event);
+    // The footer stops propagation but must not cancel the link's default action.
+    expect(event.defaultPrevented).toBe(false);
+    expect(reply).toHaveAttribute('href', '/post/post-1');
+    fireEvent.click(container.querySelector('pre')!);
     expect(pushMock).not.toHaveBeenCalled();
   });
 

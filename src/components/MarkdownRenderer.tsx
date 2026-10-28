@@ -325,7 +325,7 @@ function CodeBlock({
         <pre
           className={cn(
             'm-0 overflow-x-auto bg-dd-bg p-4 font-mono text-xs leading-relaxed text-dd-text',
-            collapsed && 'max-h-24 overflow-hidden'
+            collapsed && 'max-h-24 overflow-x-auto overflow-y-hidden'
           )}
         >
           <code className={cn('hljs', `language-${language}`)}>{children}</code>
@@ -485,7 +485,9 @@ export function MarkdownRenderer({ content, compact = false }: MarkdownRendererP
         ref={contentRef}
         className={cn(
           'dd-markdown text-sm leading-relaxed text-dd-text',
-          compact && !expanded && 'max-h-36 overflow-hidden'
+          compact &&
+            !expanded &&
+            (content.includes('```') ? 'max-h-72 overflow-hidden' : 'max-h-36 overflow-hidden')
         )}
       >
         <ReactMarkdown

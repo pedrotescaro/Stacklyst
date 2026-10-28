@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { Sidebar } from '@/components/Sidebar';
 
+const route = vi.hoisted(() => ({ pathname: '/feed' }));
 const user = { id: 'u1', username: 'pessoa', role: 'USER' as const };
 vi.mock('@/lib/client/current-user', () => ({
   getCurrentUser: vi.fn(async () => user),
@@ -11,7 +12,7 @@ vi.mock('@/components/auth/AccountSwitcher', () => ({
   AccountSwitcher: () => <button>Contas</button>,
 }));
 vi.mock('next/navigation', () => ({
-  usePathname: () => '/feed',
+  usePathname: () => route.pathname,
   useRouter: () => ({ push: vi.fn() }),
 }));
 vi.mock('next/link', () => ({
@@ -31,6 +32,7 @@ vi.mock('next/dynamic', () => ({
 
 describe('responsive web navigation', () => {
   beforeEach(() => {
+    route.pathname = '/feed';
     sessionStorage.clear();
     localStorage.clear();
     window.matchMedia = vi.fn().mockImplementation((query: string) => ({
@@ -42,6 +44,21 @@ describe('responsive web navigation', () => {
       removeListener: vi.fn(),
       dispatchEvent: vi.fn(),
     }));
+  });
+
+  it('shows the header only on feed and keeps duels in the bottom navigation', () => {
+    const view = render(<Sidebar user={user} />);
+    expect(screen.getByRole('button', { name: 'Abrir menu' })).toBeInTheDocument();
+    const bottom = document.querySelector('nav.fixed') as HTMLElement;
+    expect(within(bottom).getByRole('link', { name: 'Duelos' })).toHaveAttribute('href', '/duels');
+    expect(within(bottom).queryByRole('link', { name: 'Notificações' })).not.toBeInTheDocument();
+    route.pathname = '/duels';
+    view.rerender(<Sidebar user={user} />);
+    expect(screen.queryByRole('button', { name: 'Abrir menu' })).not.toBeInTheDocument();
+    expect(within(bottom).getByRole('link', { name: 'Duelos' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    );
   });
 
   it('opens the drawer with real destinations and closes with Escape, returning focus', async () => {

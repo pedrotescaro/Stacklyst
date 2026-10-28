@@ -35,6 +35,7 @@ import { POST_CHAR_LIMIT } from '@/lib/motion';
 import { parsePostExtras } from '@/lib/post-composer';
 import { prismaLanguageToEditor } from '@/lib/editor/languages';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import styles from './PostCard.module.css';
 
 interface PostAuthor {
   name?: string | null;
@@ -138,6 +139,7 @@ export function PostCard({
       target.closest('select') ||
       target.closest('input') ||
       target.closest('textarea') ||
+      target.closest('pre') ||
       window.getSelection()?.toString()
     ) {
       return;
@@ -329,7 +331,7 @@ export function PostCard({
           'relative min-w-0 transition-colors',
           flat
             ? 'rounded-none border-b border-dd-border/50 bg-transparent p-3 sm:p-4 lg:p-5 hover:bg-dd-surface/20'
-            : 'bg-dd-card border border-dd-border rounded-xl p-5 hover:border-blue-500/30'
+            : 'bg-dd-card border border-dd-border rounded-xl p-3 sm:p-5 hover:border-blue-500/30'
         )}
       >
         {/* Header */}
@@ -389,7 +391,7 @@ export function PostCard({
 
         <SensitiveContentGate isSensitive={presentedPost.isSensitive}>
           {/* Body preview */}
-          <div className="mb-3 text-dd-muted">
+          <div className={cn('mb-3 min-w-0 text-dd-muted', styles.content)}>
             <MarkdownRenderer content={presentedPost.content} compact />
           </div>
 
@@ -419,10 +421,12 @@ export function PostCard({
 
         {/* Footer: Action bar (Twitter style) */}
         <div
-          className="flex items-center justify-between pt-2.5 mt-2 border-t border-dd-border/60 text-xs w-full select-none text-dd-muted max-w-full"
+          className={cn(
+            'flex items-center justify-between pt-2.5 mt-2 border-t border-dd-border/60 text-xs w-full select-none text-dd-muted max-w-full',
+            styles.actions
+          )}
           onClick={(e) => {
             e.stopPropagation();
-            e.preventDefault();
           }}
         >
           {/* 1. Comment bubble */}

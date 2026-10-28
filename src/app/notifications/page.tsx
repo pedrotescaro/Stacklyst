@@ -10,7 +10,7 @@ import { EmptyState } from '@/components/motion/EmptyState';
 import { staggerContainerVariants, staggerItemVariants } from '@/lib/motion';
 import { cn } from '@/lib/cn';
 import { getCurrentUser } from '@/lib/client/current-user';
-import { Bell, MessageCircle, Sparkles, Swords, Settings, Heart, X } from 'lucide-react';
+import { ArrowLeft, Bell, MessageCircle, Sparkles, Swords, Settings, Heart, X } from 'lucide-react';
 import Link from 'next/link';
 import { FeedRightSidebar } from '@/components/FeedRightSidebar';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
@@ -218,8 +218,19 @@ export default function NotificationsPage() {
         >
           {/* Header (Matching image 3 style) */}
           <div className="sticky top-0 z-30 bg-dd-bg/95 backdrop-blur-md border-b border-dd-border/60">
-            <div className="flex items-center justify-between px-4 py-3">
-              <h1 className="text-lg font-black tracking-tight text-dd-text">
+            <div className="flex items-center gap-3 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] md:py-3">
+              <button
+                type="button"
+                aria-label={text('Voltar', 'Back')}
+                onClick={() => {
+                  if (window.history.length > 1) router.back();
+                  else router.push('/feed');
+                }}
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-dd-text transition-colors hover:bg-dd-surface/60 focus-visible:outline-2 focus-visible:outline-blue-500 md:hidden"
+              >
+                <ArrowLeft className="h-5 w-5" aria-hidden="true" />
+              </button>
+              <h1 className="flex-1 text-lg font-black tracking-tight text-dd-text">
                 {text('Notificações', 'Notifications')}
               </h1>
               <button

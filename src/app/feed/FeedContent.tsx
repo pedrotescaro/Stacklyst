@@ -23,6 +23,7 @@ import { NewPostsPill } from '@/components/motion/NewPostsPill';
 import { PublishButton, PublishState } from '@/components/motion/PublishButton';
 import { XPProgressBar } from '@/components/motion/XPProgressBar';
 import { FeedEngagementCard } from '@/app/feed/FeedEngagementCard';
+import { FeedControls } from '@/app/feed/FeedControls';
 import { CharCounter } from '@/components/motion/CharCounter';
 import { MentionDropdown } from '@/components/motion/MentionDropdown';
 import { EmptyState } from '@/components/motion/EmptyState';
@@ -204,7 +205,6 @@ export function FeedContent({
   );
   const feedLanguages = initialPreferences?.languages.join(',') || '';
   const [followingSort, setFollowingSort] = useState<'recent' | 'popular'>('recent');
-  const [showFollowingSortMenu, setShowFollowingSortMenu] = useState(false);
   const [posts, setPosts] = useState<any[]>(initialPosts);
   const [duels, setDuels] = useState<any[]>(initialDuels);
   const [duelsLoading, setDuelsLoading] = useState(initialDuels.length === 0);
@@ -1283,126 +1283,24 @@ export function FeedContent({
         {/* ========================================================================= */}
         <main
           data-testid="primary-column"
-          className="flex min-h-screen w-full min-w-0 max-w-[720px] flex-grow flex-col border-r border-dd-border/60 bg-dd-bg pb-[calc(6rem+env(safe-area-inset-bottom))] md:border-l md:pb-8 xl:max-w-[820px] 2xl:max-w-[920px]"
+          className="flex min-h-screen w-full min-w-0 max-w-[720px] flex-grow flex-col border-dd-border/60 bg-dd-bg md:border-r pb-[calc(6rem+env(safe-area-inset-bottom))] md:border-l md:pb-8 xl:max-w-[820px] 2xl:max-w-[920px]"
         >
-          {/* Seletor de Abas Feed / Quizzes */}
-          <div className="sticky top-0 z-30 bg-dd-bg/95 backdrop-blur-md flex border-b border-dd-border/60 select-none">
-            <div
-              role="tablist"
-              aria-label="Filtros do feed"
-              data-testid="feed-tabs"
-              className="relative flex min-w-0 flex-1 overflow-visible"
-            >
-              <button
-                role="tab"
-                aria-selected={feedFilter === 'for-you'}
-                onClick={() => setFeedFilter('for-you')}
-                className={`relative flex-1 py-3 text-xs font-bold transition-colors cursor-pointer ${
-                  feedFilter === 'for-you'
-                    ? 'text-dd-text'
-                    : 'text-dd-muted hover:text-dd-text hover:bg-dd-surface/30'
-                }`}
-              >
-                {text('Para você', 'For you')}
-              </button>
-              <div className="relative flex flex-1">
-                <button
-                  role="tab"
-                  aria-selected={feedFilter === 'following'}
-                  onClick={() => setFeedFilter('following')}
-                  className={`relative flex-1 py-3 text-xs font-bold transition-colors cursor-pointer flex items-center justify-center gap-1.5 ${
-                    feedFilter === 'following'
-                      ? 'text-dd-text'
-                      : 'text-dd-muted hover:text-dd-text hover:bg-dd-surface/30'
-                  }`}
-                >
-                  Seguindo
-                  {feedFilter === 'following' && (
-                    <span className="text-[10px] text-dd-muted font-normal">
-                      ({followingSort === 'recent' ? 'Recente' : 'Popular'})
-                    </span>
-                  )}
-                </button>
-                {feedFilter === 'following' && (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setShowFollowingSortMenu(!showFollowingSortMenu);
-                    }}
-                    aria-label="Ordenar publicações seguidas"
-                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full hover:bg-dd-surface/50 text-dd-muted hover:text-dd-text transition-colors z-10 cursor-pointer"
-                  >
-                    <ChevronDown
-                      className={`w-3.5 h-3.5 transition-transform ${showFollowingSortMenu ? 'rotate-180' : ''}`}
-                    />
-                  </button>
-                )}
-                <AnimatePresence>
-                  {showFollowingSortMenu && feedFilter === 'following' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: -5 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute top-full right-0 mt-1 w-36 rounded-xl border border-dd-border bg-dd-surface shadow-lg backdrop-blur-xl z-50 overflow-hidden py-1"
-                    >
-                      <button
-                        onClick={() => {
-                          setFollowingSort('recent');
-                          setShowFollowingSortMenu(false);
-                        }}
-                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors cursor-pointer ${
-                          followingSort === 'recent'
-                            ? 'text-blue-400 font-bold bg-blue-500/5'
-                            : 'text-dd-text hover:bg-dd-surface/80'
-                        }`}
-                      >
-                        Recente
-                      </button>
-                      <button
-                        onClick={() => {
-                          setFollowingSort('popular');
-                          setShowFollowingSortMenu(false);
-                        }}
-                        className={`w-full text-left px-4 py-2.5 text-xs transition-colors cursor-pointer ${
-                          followingSort === 'popular'
-                            ? 'text-blue-400 font-bold bg-blue-500/5'
-                            : 'text-dd-text hover:bg-dd-surface/80'
-                        }`}
-                      >
-                        Popular
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-              <span
-                aria-hidden="true"
-                data-testid="feed-tab-indicator"
-                className={cn(
-                  'pointer-events-none absolute bottom-0 left-0 z-20 h-0.5 w-1/2 rounded-full bg-blue-500 transition-transform duration-200 ease-out motion-reduce:transition-none',
-                  feedFilter === 'following' && 'translate-x-full'
-                )}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={handleLoadNewPosts}
-              disabled={
-                refreshingPosts || loadingSearch || activeTab !== 'feed' || !!searchQuery.trim()
-              }
-              aria-label={text('Atualizar publicações', 'Refresh posts')}
-              title={text('Atualizar publicações', 'Refresh posts')}
-              className="dd-focus-ring dd-touch flex w-12 shrink-0 items-center justify-center text-dd-muted transition-colors hover:bg-dd-surface/40 hover:text-blue-500 disabled:cursor-wait disabled:opacity-60"
-            >
-              <RefreshCw className={cn('h-4 w-4', refreshingPosts && 'animate-spin')} />
-            </button>
-          </div>
+          <FeedControls
+            filter={feedFilter}
+            onFilterChange={setFeedFilter}
+            sort={followingSort}
+            onSortChange={setFollowingSort}
+            refreshing={refreshingPosts}
+            refreshDisabled={
+              refreshingPosts || loadingSearch || activeTab !== 'feed' || !!searchQuery.trim()
+            }
+            onRefresh={handleLoadNewPosts}
+          />
 
           {/* Feed Tab View */}
           {activeTab === 'feed' && (
             <>
-              <div className="flex items-center justify-between gap-3 border-b border-dd-border/60 px-4 py-2 text-xs text-dd-muted">
+              <div className="hidden items-center justify-between gap-3 border-b border-dd-border/60 px-4 py-2 text-xs text-dd-muted md:flex">
                 <span className="min-w-0 truncate">
                   {feedFilter === 'following'
                     ? text('Pessoas que você segue', 'People you follow')
