@@ -54,6 +54,37 @@ describe('reply action bars', () => {
     expect(screen.getByRole('button', { name: 'Remover dos salvos' })).toBeInTheDocument();
   });
 
+  it('shows the selected flags and title for comments and nested replies', () => {
+    const decoratedAuthor = {
+      username: 'ana',
+      avatar_config: {
+        profileStyle: {
+          flags: ['BR', 'PT'],
+          title: {
+            id: 'first-steps',
+            name: 'Primeiros Passos',
+            color: '#0083fe',
+            rarity: 'common',
+          },
+        },
+      },
+    };
+    render(
+      <AnswerCard
+        answer={{
+          ...answer,
+          author: decoratedAuthor,
+          replies: [{ ...answer, id: 'nested', author: decoratedAuthor }],
+        }}
+        depth={0}
+        isPostAuthor={false}
+      />
+    );
+    expect(screen.getAllByAltText('Bandeira: Brasil')).toHaveLength(2);
+    expect(screen.getAllByAltText('Bandeira: Portugal')).toHaveLength(2);
+    expect(screen.getAllByText('Primeiros Passos')).toHaveLength(2);
+  });
+
   it('navigates to the reply when its comment button is pressed', () => {
     const reply = {
       ...answer,

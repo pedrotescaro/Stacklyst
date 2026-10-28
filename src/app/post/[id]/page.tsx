@@ -6,6 +6,13 @@ import { PostDetailContent } from './PostDetailContent';
 
 export const revalidate = 0; // Desabilitar cache para dados dinâmicos de comentários/respostas
 
+const authorSelect = {
+  username: true,
+  avatar_url: true,
+  avatar_config: true,
+  total_xp: true,
+} as const;
+
 export default async function PostDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const [user, { id }] = await Promise.all([getAuthUser(), params]);
 
@@ -31,11 +38,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
     where: { id },
     include: {
       author: {
-        select: {
-          username: true,
-          avatar_url: true,
-          total_xp: true,
-        },
+        select: authorSelect,
       },
       answers: {
         // Only top-level answers here; nested replies come embedded via `replies`.
@@ -43,10 +46,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         orderBy: { created_at: 'asc' },
         include: {
           author: {
-            select: {
-              username: true,
-              avatar_url: true,
-            },
+            select: authorSelect,
           },
           votes: {
             where: { user_id: user.id },
@@ -55,17 +55,17 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           replies: {
             orderBy: { created_at: 'asc' },
             include: {
-              author: { select: { username: true, avatar_url: true } },
+              author: { select: authorSelect },
               votes: { where: { user_id: user.id } },
               replies: {
                 orderBy: { created_at: 'asc' },
                 include: {
-                  author: { select: { username: true, avatar_url: true } },
+                  author: { select: authorSelect },
                   votes: { where: { user_id: user.id } },
                   replies: {
                     orderBy: { created_at: 'asc' },
                     include: {
-                      author: { select: { username: true, avatar_url: true } },
+                      author: { select: authorSelect },
                       votes: { where: { user_id: user.id } },
                     },
                   },
