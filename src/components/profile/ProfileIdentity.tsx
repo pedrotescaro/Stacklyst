@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { FrameDetails } from './FrameDetails';
 import { getFrameRingBackground } from '@/lib/profile-frames';
 import {
   Award,
@@ -91,6 +92,10 @@ export function AvatarFrame({
         </svg>
       )}
       {children}
+      {frame &&
+        ['pixel', 'circuit', 'galaxy', 'hacker', 'halloween', 'christmas', 'legendary'].includes(
+          frame.decoration
+        ) && <FrameDetails kind={frame.decoration} />}
       {frame?.decoration === 'propeller' && (
         <svg className={styles.propellerHat} viewBox="0 0 120 65" fill="none" aria-hidden="true">
           <path
@@ -101,6 +106,18 @@ export function AvatarFrame({
           />
           <path d="M20 57c0-23 16-40 40-40-12 12-16 24-16 40" fill="#22c55e" />
           <path d="M60 17c24 0 40 17 40 40H76c0-16-4-28-16-40Z" fill="#ef4444" />
+          <path
+            d="M60 18c-12 12-16 24-16 36M60 18c12 12 16 24 16 36"
+            stroke="#ffffff"
+            strokeOpacity=".4"
+            strokeWidth="1.5"
+          />
+          <path
+            d="M26 48c9-7 22-10 34-10s25 3 34 10"
+            stroke="#172554"
+            strokeOpacity=".15"
+            strokeWidth="7"
+          />
           <path
             d="M17 55h85l12 6H12l5-6Z"
             fill="#0083fe"

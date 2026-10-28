@@ -31,30 +31,28 @@
   transform: rotate(-18deg);
 }
 .frame[data-decoration='circuit']::after {
-  border-style: double;
-  border-width: 5px;
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--frame-color), transparent 35%);
 }
 .frame[data-decoration='pixel']::after {
-  border-radius: 20%;
-  border-style: dashed;
-  border-width: 4px;
+  border-width: 1px;
+  border-color: color-mix(in srgb, var(--frame-color), transparent 65%);
 }
 .frame[data-decoration='galaxy']::after {
   border-width: 3px;
   border-color: var(--frame-color) #e9d5ff #7c3aed #f0abfc;
 }
 .frame[data-decoration='hacker']::after {
-  border-style: dotted;
-  border-width: 4px;
+  border-width: 2px;
+  border-color: #22c55e #14532d #22c55e #14532d;
 }
 .frame[data-decoration='halloween']::after {
   border-width: 4px;
   border-color: #f97316 #7c3aed;
 }
 .frame[data-decoration='christmas']::after {
-  border-style: dashed;
-  border-width: 4px;
-  border-color: #ef4444 #22c55e;
+  border-width: 3px;
+  border-color: #166534 #dcfce7 #166534 #dcfce7;
 }
 .frame[data-decoration='legendary']::after {
   border-style: double;
@@ -94,8 +92,10 @@
 .frame[data-decoration='country']::after,
 .frame[data-decoration='aurora']::after {
   border: 0;
-  padding: 3px;
-  background: var(--frame-background, var(--frame-color));
+  padding: 4px;
+  background:
+    linear-gradient(135deg, #ffffff66, transparent 40%, #00000030 65%, #ffffff44),
+    var(--frame-background, var(--frame-color));
   mask:
     linear-gradient(#fff 0 0) content-box,
     linear-gradient(#fff 0 0);
@@ -105,17 +105,19 @@
   background: conic-gradient(#2dd4bf, #38bdf8, #818cf8, #e879f9, #2dd4bf);
 }
 .frame[data-decoration='orbit']::after {
-  border-width: 3px;
-  border-color: var(--frame-color) transparent;
-  transform: rotate(-30deg);
+  border-width: 2px;
+  border-color: #bae6fd transparent #38bdf8 transparent;
+  animation: orbitSpin 8s linear infinite;
 }
 .frame[data-decoration='orbit']::before {
   content: '';
   position: absolute;
   inset: -9% -18%;
-  border: 2px solid var(--frame-color);
+  border: 1px solid #7dd3fc;
   border-radius: 50%;
+  background: radial-gradient(circle at 85% 24%, #e0f2fe 0 3px, transparent 4px);
   transform: rotate(-30deg) scaleY(0.55);
+  animation: orbitTilt 8s ease-in-out infinite;
   pointer-events: none;
   z-index: 3;
 }
@@ -131,7 +133,7 @@
 }
 .propellerBlades {
   transform-origin: 60px 8px;
-  animation: propeller 1.8s linear infinite;
+  animation: propeller 0.65s linear infinite;
 }
 @keyframes propeller {
   to {
@@ -139,7 +141,9 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .propellerBlades {
+  .propellerBlades,
+  .frame[data-decoration='orbit']::after,
+  .frame[data-decoration='orbit']::before {
     animation: none;
   }
 }
@@ -172,4 +176,19 @@
   font-weight: 600;
   line-height: 1.4;
   overflow-wrap: anywhere;
+}
+
+@keyframes orbitSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes orbitTilt {
+  0%,
+  100% {
+    transform: rotate(-30deg) scaleY(0.55);
+  }
+  50% {
+    transform: rotate(30deg) scaleY(0.7);
+  }
 }
