@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   ChartNoAxesCombined,
+  Check,
+  ChevronDown,
   Heart,
   ImageIcon,
   MessageCircle,
@@ -98,6 +100,48 @@ export function ProfileContent({
   const [activeTab, setActiveTab] = useState<ProfileTab>(
     initialTab === 'trails' || initialTab === 'badges' ? 'stats' : initialTab
   );
+  const [selectedMedia, setSelectedMedia] = useState<'videos' | 'photos'>(
+    initialTab === 'photos' ? 'photos' : 'videos'
+  );
+  const [mediaMenuOpen, setMediaMenuOpen] = useState(false);
+  const mediaTabRef = useRef<HTMLButtonElement>(null);
+  const mediaMenuRef = useRef<HTMLDivElement>(null);
+  const mobileTabsRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (activeTab === 'photos') {
+      setSelectedMedia('photos');
+    } else if (activeTab === 'videos') {
+      setSelectedMedia('videos');
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    if (!mediaMenuOpen) return;
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target as Node;
+      if (
+        mediaMenuRef.current &&
+        !mediaMenuRef.current.contains(target) &&
+        mediaTabRef.current &&
+        !mediaTabRef.current.contains(target)
+      ) {
+        setMediaMenuOpen(false);
+      }
+    };
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setMediaMenuOpen(false);
+        mediaTabRef.current?.focus();
+      }
+    };
+    document.addEventListener('pointerdown', handlePointerDown);
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [mediaMenuOpen]);
   const [items, setItems] = useState<any[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -340,11 +384,13 @@ export function ProfileContent({
               onSaved={(next) => setLocalProfile((previous) => ({ ...previous, ...next }))}
               onPreview={setPreviewPreferences}
             />
+            {/* Desktop Navigation (>= 768px): strictly preserved */}
             <div
               ref={tabsRef}
-              className={`${styles.tabs} ${headerStyles.tabs}`}
+              className={`hidden md:flex ${styles.tabs} ${headerStyles.tabs} ${headerStyles.desktopTabs}`}
               role="tablist"
               aria-label={text('Conteúdo do perfil', 'Profile content')}
+              data-testid="profile-desktop-tabs"
             >
               {tabDefinitions.map(({ id, label, icon: Icon }, index) => (
                 <button
@@ -384,6 +430,301 @@ export function ProfileContent({
                 </button>
               ))}
             </div>
+
+            {/* Mobile Navigation (< 768px): Twitter/X responsive compact navigation */}
+            {(() => {
+              const mobileTabKeys = ['posts', 'likes', 'replies', 'stats', 'media'] as const;
+              const isMediaActive = activeTab === 'videos' || activeTab === 'photos';
+
+              const handleMobileTabKeyDown = (event: React.KeyboardEvent, index: number) => {
+                if (
+                  event.key !== 'ArrowLeft' &&
+                  event.key !== 'ArrowRight' &&
+                  event.key !== 'Home' &&
+                  event.key !== 'End'
+                )
+                  return;
+                event.preventDefault();
+                const nextIndex =
+                  event.key === 'Home'
+                    ? 0
+                    : event.key === 'End'
+                      ? mobileTabKeys.length - 1
+                      : (index + (event.key === 'ArrowRight' ? 1 : -1) + mobileTabKeys.length) %
+                        mobileTabKeys.length;
+                const targetKey = mobileTabKeys[nextIndex];
+                if (targetKey === 'media') {
+                  setActiveTab(selectedMedia);
+                } else {
+                  setActiveTab(targetKey);
+                }
+                setMediaMenuOpen(false);
+                document.getElementById(`profile-mobile-tab-${targetKey}`)?.focus();
+              };
+
+              return (
+                <div
+                  ref={mobileTabsRef}
+                  className={`flex md:hidden ${headerStyles.mobileTabsBar}`}
+                  role="tablist"
+                  aria-label={text('Navegação móvel de publicações', 'Mobile post navigation')}
+                  data-testid="profile-mobile-tabs"
+                >
+                  {/* 1. Postagens */}
+                  <button
+                    type="button"
+                    role="tab"
+                    id="profile-mobile-tab-posts"
+                    aria-controls="profile-panel-posts"
+                    aria-selected={activeTab === 'posts'}
+                    aria-label={text('Postagens', 'Posts')}
+                    tabIndex={activeTab === 'posts' ? 0 : -1}
+                    className={`${headerStyles.mobileTab} ${activeTab === 'posts' ? headerStyles.mobileTabActive : ''}`}
+                    onClick={() => {
+                      setActiveTab('posts');
+                      setMediaMenuOpen(false);
+                    }}
+                    onKeyDown={(event) => handleMobileTabKeyDown(event, 0)}
+                  >
+                    <span className={headerStyles.mobileTabInner}>
+                      <Newspaper
+                        size={activeTab === 'posts' ? 17 : 19}
+                        aria-hidden="true"
+                        className="shrink-0"
+                      />
+                      {activeTab === 'posts' ? (
+                        <span className={headerStyles.mobileTabLabel}>
+                          {text('Postagens', 'Posts')}
+                        </span>
+                      ) : (
+                        <span className="sr-only">{text('Postagens', 'Posts')}</span>
+                      )}
+                    </span>
+                    {activeTab === 'posts' && (
+                      <span className={headerStyles.mobileIndicator} aria-hidden="true" />
+                    )}
+                  </button>
+
+                  {/* 2. Curtidas */}
+                  <button
+                    type="button"
+                    role="tab"
+                    id="profile-mobile-tab-likes"
+                    aria-controls="profile-panel-likes"
+                    aria-selected={activeTab === 'likes'}
+                    aria-label={text('Curtidas', 'Likes')}
+                    tabIndex={activeTab === 'likes' ? 0 : -1}
+                    className={`${headerStyles.mobileTab} ${activeTab === 'likes' ? headerStyles.mobileTabActive : ''}`}
+                    onClick={() => {
+                      setActiveTab('likes');
+                      setMediaMenuOpen(false);
+                    }}
+                    onKeyDown={(event) => handleMobileTabKeyDown(event, 1)}
+                  >
+                    <span className={headerStyles.mobileTabInner}>
+                      <Heart
+                        size={activeTab === 'likes' ? 17 : 19}
+                        aria-hidden="true"
+                        className="shrink-0"
+                      />
+                      {activeTab === 'likes' ? (
+                        <span className={headerStyles.mobileTabLabel}>
+                          {text('Curtidas', 'Likes')}
+                        </span>
+                      ) : (
+                        <span className="sr-only">{text('Curtidas', 'Likes')}</span>
+                      )}
+                    </span>
+                    {activeTab === 'likes' && (
+                      <span className={headerStyles.mobileIndicator} aria-hidden="true" />
+                    )}
+                  </button>
+
+                  {/* 3. Respostas */}
+                  <button
+                    type="button"
+                    role="tab"
+                    id="profile-mobile-tab-replies"
+                    aria-controls="profile-panel-replies"
+                    aria-selected={activeTab === 'replies'}
+                    aria-label={text('Respostas', 'Replies')}
+                    tabIndex={activeTab === 'replies' ? 0 : -1}
+                    className={`${headerStyles.mobileTab} ${activeTab === 'replies' ? headerStyles.mobileTabActive : ''}`}
+                    onClick={() => {
+                      setActiveTab('replies');
+                      setMediaMenuOpen(false);
+                    }}
+                    onKeyDown={(event) => handleMobileTabKeyDown(event, 2)}
+                  >
+                    <span className={headerStyles.mobileTabInner}>
+                      <MessageCircle
+                        size={activeTab === 'replies' ? 17 : 19}
+                        aria-hidden="true"
+                        className="shrink-0"
+                      />
+                      {activeTab === 'replies' ? (
+                        <span className={headerStyles.mobileTabLabel}>
+                          {text('Respostas', 'Replies')}
+                        </span>
+                      ) : (
+                        <span className="sr-only">{text('Respostas', 'Replies')}</span>
+                      )}
+                    </span>
+                    {activeTab === 'replies' && (
+                      <span className={headerStyles.mobileIndicator} aria-hidden="true" />
+                    )}
+                  </button>
+
+                  {/* 4. Estatísticas */}
+                  <button
+                    type="button"
+                    role="tab"
+                    id="profile-mobile-tab-stats"
+                    aria-controls="profile-panel-stats"
+                    aria-selected={activeTab === 'stats'}
+                    aria-label={text('Estatísticas', 'Statistics')}
+                    tabIndex={activeTab === 'stats' ? 0 : -1}
+                    className={`${headerStyles.mobileTab} ${activeTab === 'stats' ? headerStyles.mobileTabActive : ''}`}
+                    onClick={() => {
+                      setActiveTab('stats');
+                      setMediaMenuOpen(false);
+                    }}
+                    onKeyDown={(event) => handleMobileTabKeyDown(event, 3)}
+                  >
+                    <span className={headerStyles.mobileTabInner}>
+                      <ChartNoAxesCombined
+                        size={activeTab === 'stats' ? 17 : 19}
+                        aria-hidden="true"
+                        className="shrink-0"
+                      />
+                      {activeTab === 'stats' ? (
+                        <span className={headerStyles.mobileTabLabel}>
+                          {text('Estatísticas', 'Statistics')}
+                        </span>
+                      ) : (
+                        <span className="sr-only">{text('Estatísticas', 'Statistics')}</span>
+                      )}
+                    </span>
+                    {activeTab === 'stats' && (
+                      <span className={headerStyles.mobileIndicator} aria-hidden="true" />
+                    )}
+                  </button>
+
+                  {/* 5. Mídia (Vídeos e Fotos agrupados) */}
+                  {(() => {
+                    const MediaIcon = selectedMedia === 'videos' ? Video : ImageIcon;
+                    const mediaLabel =
+                      selectedMedia === 'videos'
+                        ? text('Vídeos', 'Videos')
+                        : text('Fotos', 'Photos');
+                    return (
+                      <button
+                        ref={mediaTabRef}
+                        type="button"
+                        role="tab"
+                        id="profile-mobile-tab-media"
+                        aria-controls={`profile-panel-${selectedMedia}`}
+                        aria-selected={isMediaActive}
+                        aria-label={mediaLabel}
+                        aria-haspopup="menu"
+                        aria-expanded={mediaMenuOpen}
+                        tabIndex={isMediaActive ? 0 : -1}
+                        className={`${headerStyles.mobileTab} ${isMediaActive ? headerStyles.mobileTabActive : ''}`}
+                        onClick={() => {
+                          if (!isMediaActive) {
+                            setActiveTab(selectedMedia);
+                            setMediaMenuOpen(true);
+                          } else {
+                            setMediaMenuOpen((open) => !open);
+                          }
+                        }}
+                        onKeyDown={(event) => handleMobileTabKeyDown(event, 4)}
+                      >
+                        <span className={headerStyles.mobileTabInner}>
+                          <MediaIcon
+                            size={isMediaActive ? 17 : 19}
+                            aria-hidden="true"
+                            className="shrink-0"
+                          />
+                          {isMediaActive ? (
+                            <>
+                              <span className={headerStyles.mobileTabLabel}>{mediaLabel}</span>
+                              <ChevronDown
+                                size={14}
+                                aria-hidden="true"
+                                className={`shrink-0 transition-transform duration-200 ${mediaMenuOpen ? 'rotate-180' : ''}`}
+                              />
+                            </>
+                          ) : (
+                            <span className="sr-only">{mediaLabel}</span>
+                          )}
+                        </span>
+                        {isMediaActive && (
+                          <span className={headerStyles.mobileIndicator} aria-hidden="true" />
+                        )}
+                      </button>
+                    );
+                  })()}
+
+                  {/* Dropdown Menu para Vídeos e Fotos */}
+                  {mediaMenuOpen && (
+                    <div
+                      ref={mediaMenuRef}
+                      role="menu"
+                      aria-label={text('Opções de mídia', 'Media options')}
+                      className={headerStyles.mediaDropdown}
+                    >
+                      <button
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={selectedMedia === 'videos'}
+                        className={`${headerStyles.mediaDropdownItem} ${selectedMedia === 'videos' ? headerStyles.mediaDropdownItemActive : ''}`}
+                        onClick={() => {
+                          setSelectedMedia('videos');
+                          setActiveTab('videos');
+                          setMediaMenuOpen(false);
+                          mediaTabRef.current?.focus();
+                        }}
+                      >
+                        <Video size={17} aria-hidden="true" className="shrink-0" />
+                        <span>{text('Vídeos', 'Videos')}</span>
+                        {selectedMedia === 'videos' && (
+                          <Check
+                            size={16}
+                            aria-hidden="true"
+                            className={headerStyles.mediaCheckIcon}
+                            strokeWidth={2.5}
+                          />
+                        )}
+                      </button>
+                      <button
+                        type="button"
+                        role="menuitemradio"
+                        aria-checked={selectedMedia === 'photos'}
+                        className={`${headerStyles.mediaDropdownItem} ${selectedMedia === 'photos' ? headerStyles.mediaDropdownItemActive : ''}`}
+                        onClick={() => {
+                          setSelectedMedia('photos');
+                          setActiveTab('photos');
+                          setMediaMenuOpen(false);
+                          mediaTabRef.current?.focus();
+                        }}
+                      >
+                        <ImageIcon size={17} aria-hidden="true" className="shrink-0" />
+                        <span>{text('Fotos', 'Photos')}</span>
+                        {selectedMedia === 'photos' && (
+                          <Check
+                            size={16}
+                            aria-hidden="true"
+                            className={headerStyles.mediaCheckIcon}
+                            strokeWidth={2.5}
+                          />
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             <div
               role="tabpanel"
               id={`profile-panel-${activeTab}`}
