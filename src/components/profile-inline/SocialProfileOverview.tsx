@@ -14,6 +14,7 @@ import {
   ArrowUp,
   Award,
   Camera,
+  CircleUserRound,
   Check,
   GraduationCap,
   Link2,
@@ -702,7 +703,7 @@ export function SocialProfileOverview({
           {editing && (
             <div className={styles.avatarAction}>
               <ContextPopover
-                label="Editar foto e moldura"
+                label="Editar foto"
                 triggerIcon={<Camera size={15} />}
                 className={styles.photoEditButton}
                 disabled={busy}
@@ -723,6 +724,19 @@ export function SocialProfileOverview({
                     }}
                     onError={setError}
                   />
+                </div>
+              </ContextPopover>
+            </div>
+          )}
+          <div className={styles.actions}>
+            {editing && (
+              <ContextPopover
+                label="Escolher moldura"
+                triggerText="Moldura"
+                triggerIcon={<CircleUserRound size={15} />}
+                disabled={busy}
+              >
+                <div className={styles.popoverBody}>
                   <h3 className={styles.popoverHeading}>Molduras</h3>
                   <label className={styles.field}>
                     Mostrar molduras
@@ -733,6 +747,9 @@ export function SocialProfileOverview({
                     >
                       <option value="all">Todas</option>
                       <option value="free">Gratuitas</option>
+                      <option value="pride">LGBTQIA+</option>
+                      <option value="country">Países</option>
+                      <option value="decorative">Decorativas</option>
                       <option value="earned">Desbloqueadas</option>
                       <option value="locked">Indisponíveis</option>
                       <option value="seasonal">Sazonais</option>
@@ -743,6 +760,10 @@ export function SocialProfileOverview({
                       .filter(
                         (item) =>
                           frameFilter === 'all' ||
+                          (frameFilter === 'pride' && item.decoration === 'pride') ||
+                          (frameFilter === 'country' && item.decoration === 'country') ||
+                          (frameFilter === 'decorative' &&
+                            !['pride', 'country', 'none'].includes(item.decoration)) ||
                           (frameFilter === 'free' && !item.achievementId) ||
                           (frameFilter === 'earned' &&
                             Boolean(item.achievementId && ownedIds.has(item.achievementId))) ||
@@ -780,9 +801,7 @@ export function SocialProfileOverview({
                   </div>
                 </div>
               </ContextPopover>
-            </div>
-          )}
-          <div className={styles.actions}>
+            )}
             {isOwner ? (
               editing ? (
                 <>

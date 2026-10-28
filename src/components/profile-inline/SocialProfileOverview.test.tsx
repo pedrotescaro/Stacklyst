@@ -1,4 +1,4 @@
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   DEFAULT_CHAT_PREFERENCES,
@@ -149,6 +149,22 @@ async function edit() {
   await screen.findByRole('textbox', { name: 'Nome de exibição' });
 }
 describe('Inline social profile editing', () => {
+  it('offers a separate frame picker and persists a pride frame without changing the photo', async () => {
+    mount();
+    await edit();
+    fireEvent.click(screen.getByRole('button', { name: 'Editar foto' }));
+    expect(screen.queryByRole('heading', { name: 'Molduras' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Escolher moldura' }));
+    expect(screen.getByRole('heading', { name: 'Molduras' })).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Mostrar molduras'), { target: { value: 'pride' } });
+    expect(screen.queryByRole('button', { name: 'Brasil' })).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Trans' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    await waitFor(() => expect(writes).toHaveLength(1));
+    await screen.findByRole('button', { name: 'Editar perfil' });
+    expect(writes[0].preferences.frameId).toBe('pride-trans');
+    expect(writes[0].avatarUrl).toBeNull();
+  });
   it('keeps visitor controls read-only with social sections before content, without statistics or pencil controls', () => {
     mount('visitor');
     expect(screen.getByRole('heading', { name: 'Nome anterior' })).toBeInTheDocument();
@@ -225,7 +241,7 @@ describe('Inline social profile editing', () => {
   it('keeps a photo in the local preview and reuses its upload after a failed atomic save', async () => {
     mount();
     await edit();
-    fireEvent.click(screen.getByRole('button', { name: 'Editar foto e moldura' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Editar foto' }));
     fireEvent.click(screen.getByRole('button', { name: 'Preparar foto de teste' }));
     expect(uploads).toBe(0);
     failSave = true;

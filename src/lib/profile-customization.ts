@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { EXTRA_PROFILE_FRAMES } from '@/lib/profile-frames';
 import { getProfileFlags as getFlagCatalog, isProfileFlagId } from '@/lib/profile-flags';
 
 export { PROFILE_COUNTRY_CODES } from '@/lib/profile-flags';
@@ -284,6 +285,12 @@ export const avatarFrameSchema = z
       'legendary',
       'alien',
       'hat',
+      'pride',
+      'country',
+      'propeller',
+      'orbit',
+      'laurel',
+      'aurora',
     ]),
     achievementId: z.string().max(80).optional(),
   })
@@ -440,6 +447,7 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
       decoration: 'legendary',
       achievementId: 'posts-1000',
     },
+    ...EXTRA_PROFILE_FRAMES,
   ],
   achievements: [
     ...(

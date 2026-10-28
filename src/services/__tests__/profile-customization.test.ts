@@ -46,6 +46,7 @@ import {
   getProfileCustomization,
   reconcileProfileAchievements,
   eventIsActive,
+  getProfileCatalog,
 } from '../profile-customization.service';
 const zero = {
   posts: 0,
@@ -75,6 +76,22 @@ beforeEach(() => {
   mocks.save.mockResolvedValue({});
 });
 describe('Profile persistence and awards', () => {
+  it('adds new frames to older catalogs while retaining custom entries', async () => {
+    mocks.catalog.mockResolvedValue({
+      value: {
+        ...DEFAULT_PROFILE_CATALOG,
+        frames: [
+          { id: 'none', name: 'Sem moldura', color: '#64748b', decoration: 'none' },
+          { id: 'custom', name: 'Especial', color: '#0083fe', decoration: 'neon' },
+        ],
+      },
+    });
+    const catalog = await getProfileCatalog();
+    expect(catalog.frames.some((frame) => frame.id === 'custom')).toBe(true);
+    expect(catalog.frames.some((frame) => frame.id === 'propeller')).toBe(true);
+    expect(catalog.frames.some((frame) => frame.id === 'pride-rainbow')).toBe(true);
+    expect(catalog.frames.some((frame) => frame.id === 'country-br')).toBe(true);
+  });
   it('rejects owner impersonation and fabricated unlock lists in the payload', async () => {
     await expect(
       saveProfileCustomization('owner', {

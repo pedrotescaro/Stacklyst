@@ -1,4 +1,5 @@
 import { Prisma } from '@prisma/client';
+import { EXTRA_PROFILE_FRAMES } from '@/lib/profile-frames';
 import { prisma } from '@/lib/prisma';
 import { AppError, ForbiddenError, NotFoundError, ValidationError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
@@ -88,7 +89,13 @@ function editableProfile(user: {
 export async function getProfileCatalog(): Promise<ProfileCatalog> {
   const row = await prisma.profileAchievementCatalog.findUnique({ where: { id: CATALOG_ID } });
   const parsed = profileCatalogSchema.safeParse(row?.value);
-  return parsed.success ? parsed.data : structuredClone(DEFAULT_PROFILE_CATALOG);
+  if (!parsed.success) return structuredClone(DEFAULT_PROFILE_CATALOG);
+  // Older persisted catalogs retain their custom entries and gain the new built-in options.
+  const ids = new Set(parsed.data.frames.map((frame) => frame.id));
+  return {
+    ...parsed.data,
+    frames: [...parsed.data.frames, ...EXTRA_PROFILE_FRAMES.filter((frame) => !ids.has(frame.id))],
+  };
 }
 
 export async function saveProfileCatalog(value: unknown, version: number) {

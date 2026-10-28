@@ -1,4 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react';
+import { getFrameRingBackground } from '@/lib/profile-frames';
 import {
   Award,
   Code2,
@@ -60,9 +61,68 @@ export function AvatarFrame({
     <div
       className={`${frame ? styles.frame : ''} ${className}`}
       data-decoration={frame?.decoration}
-      style={frame ? ({ '--frame-color': frame.color } as CSSProperties) : undefined}
+      style={
+        frame
+          ? ({
+              '--frame-color': frame.color,
+              '--frame-background': getFrameRingBackground(frame.id),
+            } as CSSProperties)
+          : undefined
+      }
     >
       {children}
+      {frame?.decoration === 'propeller' && (
+        <svg className={styles.propellerHat} viewBox="0 0 120 65" fill="none" aria-hidden="true">
+          <path
+            d="M20 57c0-26 17-40 40-40s40 14 40 40"
+            fill="#facc15"
+            stroke="#172554"
+            strokeWidth="2"
+          />
+          <path d="M20 57c0-23 16-40 40-40-12 12-16 24-16 40" fill="#22c55e" />
+          <path d="M60 17c24 0 40 17 40 40H76c0-16-4-28-16-40Z" fill="#ef4444" />
+          <path
+            d="M17 55h85l12 6H12l5-6Z"
+            fill="#0083fe"
+            stroke="#172554"
+            strokeWidth="2"
+            strokeLinejoin="round"
+          />
+          <path d="M60 18V9" stroke="#172554" strokeWidth="3" />
+          <g className={styles.propellerBlades}>
+            <ellipse cx="45" cy="8" rx="17" ry="4" fill="#ef4444" />
+            <ellipse cx="75" cy="8" rx="17" ry="4" fill="#22c55e" />
+            <circle cx="60" cy="8" r="4" fill="#facc15" />
+          </g>
+        </svg>
+      )}
+      {frame?.decoration === 'laurel' && (
+        <svg className={styles.laurelOverlay} viewBox="0 0 120 120" fill="none" aria-hidden="true">
+          <path
+            d="M48 112C5 99-2 48 22 17M72 112c43-13 50-64 26-95"
+            stroke="var(--frame-color)"
+            strokeWidth="2"
+          />
+          {[30, 48, 66, 84, 100].map((y, i) => (
+            <g key={y} fill="var(--frame-color)">
+              <ellipse
+                cx={i === 4 ? 31 : 13}
+                cy={y}
+                rx="4"
+                ry="9"
+                transform={`rotate(-35 ${i === 4 ? 31 : 13} ${y})`}
+              />
+              <ellipse
+                cx={i === 4 ? 89 : 107}
+                cy={y}
+                rx="4"
+                ry="9"
+                transform={`rotate(35 ${i === 4 ? 89 : 107} ${y})`}
+              />
+            </g>
+          ))}
+        </svg>
+      )}
       {frame?.decoration === 'alien' && (
         <svg className={styles.alienOverlay} viewBox="0 0 120 120" fill="none" aria-hidden="true">
           <path
