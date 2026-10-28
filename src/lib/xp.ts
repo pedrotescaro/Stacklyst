@@ -1,3 +1,4 @@
+import { recordPeriodXp } from '@/lib/learning/xp-periods';
 import { Language, type Prisma } from '@prisma/client';
 import { calculateNextStreak } from '@/lib/streak';
 import { learningTransaction } from '@/lib/learning/transaction';
@@ -43,6 +44,8 @@ export async function awardXPInTransaction(
       last_active_at: now,
     },
   });
+
+  await recordPeriodXp(tx, userId, language, amount);
 
   if (!language)
     return {

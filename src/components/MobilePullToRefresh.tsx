@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
-import { brandGeometry } from '@/lib/brand-geometry';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './MobilePullToRefresh.module.css';
 
@@ -26,7 +25,6 @@ export function MobilePullToRefresh({ children, refreshing, disabled = false, on
   stateRef.current = { disabled, refreshing, onRefresh };
   const [progress, setProgress] = useState(0);
   const [working, setWorking] = useState(false);
-  const id = useId().replace(/:/g, '');
   const { text } = useLocalizedText();
 
   useEffect(() => {
@@ -126,32 +124,18 @@ export function MobilePullToRefresh({ children, refreshing, disabled = false, on
   }, []);
 
   const active = working || refreshing;
-  const shown = progress > 0 || active;
-  const fill = active ? 1 : progress;
+  useEffect(() => {
+    window.dispatchEvent(
+      new CustomEvent('stacklyst:feed-refresh', { detail: { progress, refreshing: active } })
+    );
+    return () => {
+      window.dispatchEvent(
+        new CustomEvent('stacklyst:feed-refresh', { detail: { progress: 0, refreshing: false } })
+      );
+    };
+  }, [progress, active]);
   return (
     <div ref={wrapperRef} className={styles.wrapper} data-testid="pull-to-refresh">
-      <div
-        className={styles.indicator}
-        data-visible={shown}
-        data-refreshing={active}
-        aria-hidden="true"
-      >
-        <svg viewBox={brandGeometry.viewBox} className={styles.logo}>
-          <defs>
-            <clipPath id={id}>
-              <rect
-                className={styles.fillMask}
-                x="0"
-                y="0"
-                width={brandGeometry.width}
-                height={brandGeometry.height * fill}
-              />
-            </clipPath>
-          </defs>
-          <path d={brandGeometry.path} className={styles.outline} />
-          <path d={brandGeometry.path} className={styles.fill} clipPath={`url(#${id})`} />
-        </svg>
-      </div>
       <span className={styles.srOnly} role="status" aria-live="polite">
         {active ? text('Atualizando publicações', 'Refreshing posts') : ''}
       </span>

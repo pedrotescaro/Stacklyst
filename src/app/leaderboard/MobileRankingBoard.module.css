@@ -199,8 +199,3 @@
   border-radius: 10px;
   color: var(--color-dd-text);
 }
-@media (min-width: 768px) {
-  .board {
-    display: none;
-  }
-}

@@ -1,3 +1,4 @@
+import { recordPeriodXp } from '@/lib/learning/xp-periods';
 import 'server-only';
 
 import type { AssistanceMode, ExerciseSubmissionStatus, LearningEventType } from '@prisma/client';
@@ -225,7 +226,12 @@ function requireValidEvaluation(evaluation: ExerciseEvaluation) {
 }
 
 export async function recordExerciseSubmission(input: {
-  exercise: { id: string; knowledge_node_id: string; base_xp: number };
+  exercise: {
+    id: string;
+    knowledge_node_id: string;
+    base_xp: number;
+    language?: import('@prisma/client').Language;
+  };
   userId: string;
   assistanceMode: AssistanceMode;
   code: string;
@@ -326,6 +332,7 @@ export async function recordExerciseSubmission(input: {
         },
       });
 
+      await recordPeriodXp(transaction, input.userId, input.exercise.language, xpEarned);
       await transaction.user.update({
         where: { id: input.userId },
         data: { total_xp: { increment: xpEarned } },

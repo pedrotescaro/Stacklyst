@@ -1,3 +1,4 @@
+import { recordPeriodXp } from '@/lib/learning/xp-periods';
 import { prisma } from '@/lib/prisma';
 import { NotFoundError } from '@/lib/errors';
 import { awardXPInTransaction } from '@/lib/xp';
@@ -53,6 +54,7 @@ export const ReactionService = {
             where: { id: userId },
             data: { total_xp: { decrement: Math.min(2, Math.max(0, user.total_xp)) } },
           });
+          await recordPeriodXp(tx, userId, post.language, -Math.min(2, Math.max(0, user.total_xp)));
           if (post.language) {
             const trail = await tx.languageTrail.findUnique({
               where: { user_id_language: { user_id: userId, language: post.language } },

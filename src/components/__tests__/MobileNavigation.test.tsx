@@ -31,6 +31,16 @@ vi.mock('next/dynamic', () => ({
 }));
 
 describe('responsive web navigation', () => {
+  it('offers only adding an account and logging out in the desktop account menu', () => {
+    render(<Sidebar user={user} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Abrir menu do perfil' }));
+    const menu = screen.getByRole('menu');
+    expect(within(menu).getAllByRole('menuitem')).toHaveLength(2);
+    expect(
+      within(menu).getByRole('menuitem', { name: 'Adicionar uma conta existente' })
+    ).toBeInTheDocument();
+    expect(within(menu).getByRole('menuitem', { name: 'Sair da conta atual' })).toBeInTheDocument();
+  });
   beforeEach(() => {
     route.pathname = '/feed';
     sessionStorage.clear();
@@ -53,6 +63,9 @@ describe('responsive web navigation', () => {
     expect(within(bottom).getByRole('link', { name: 'Duelos' })).toHaveAttribute('href', '/duels');
     expect(within(bottom).queryByRole('link', { name: 'Notificações' })).not.toBeInTheDocument();
     expect(within(bottom).getByRole('button', { name: 'Nova postagem' })).toBeInTheDocument();
+    route.pathname = '/ranking';
+    view.rerender(<Sidebar user={user} />);
+    expect(screen.getByRole('button', { name: 'Abrir menu' })).toBeInTheDocument();
     route.pathname = '/duels';
     view.rerender(<Sidebar user={user} />);
     expect(screen.queryByRole('button', { name: 'Abrir menu' })).not.toBeInTheDocument();
@@ -114,7 +127,6 @@ describe('responsive web navigation', () => {
     for (const [name, href] of [
       ['Itens salvos', '/bookmarks'],
       ['Títulos', '/achievements'],
-      ['Ranking', '/ranking'],
       ['Vagas', '/jobs'],
       ['Eventos', '/events'],
       ['Duelos', '/duels'],

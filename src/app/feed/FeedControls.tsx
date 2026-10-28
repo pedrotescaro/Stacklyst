@@ -1,8 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import Link from 'next/link';
-import { Check, ChevronDown, Pencil, RefreshCw } from 'lucide-react';
+import { FeedPreferencesEditor } from '@/components/FeedPreferencesEditor';
+import { Check, ChevronDown, RefreshCw } from 'lucide-react';
 import { FeedRankingSwitcher } from '@/components/FeedRankingSwitcher';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
@@ -55,16 +55,16 @@ export function FeedControls({
   };
 
   return (
-    <div className="relative z-30 min-w-0 border-b border-dd-border/60 bg-dd-bg px-3 py-3 md:sticky md:top-0 md:flex md:p-0">
-      <div className="mb-2 flex items-center gap-2 md:hidden">
+    <div className="relative z-30 min-w-0 border-b border-dd-border/60 bg-dd-bg px-3 py-3 md:sticky md:top-0">
+      <div className="mb-2 flex items-center gap-2 ">
         <FeedRankingSwitcher active="feed" />
       </div>
-      <div className="flex min-w-0 items-center gap-2 md:flex-1 md:gap-0">
+      <div className="flex min-w-0 items-center gap-2 ">
         <div
           role="tablist"
           aria-label={text('Filtros do feed', 'Feed filters')}
           data-testid="feed-tabs"
-          className="relative flex min-w-0 items-center gap-2 md:flex-1 md:gap-0"
+          className="relative flex min-w-0 items-center gap-2 "
         >
           <button
             type="button"
@@ -72,9 +72,9 @@ export function FeedControls({
             aria-selected={filter === 'for-you'}
             onClick={() => selectFilter('for-you')}
             className={cn(
-              'dd-focus-ring order-2 min-h-11 rounded-full border px-4 text-xs font-bold transition-colors md:order-1 md:flex-1 md:rounded-none md:border-0 md:py-3',
+              'dd-focus-ring order-2 min-h-11 rounded-full border px-4 text-xs font-bold transition-colors',
               filter === 'for-you'
-                ? 'border-dd-accent bg-dd-accent text-white md:bg-transparent md:text-dd-text'
+                ? 'border-dd-accent bg-dd-accent text-white'
                 : 'border-dd-border text-dd-muted hover:text-dd-text'
             )}
           >
@@ -86,22 +86,14 @@ export function FeedControls({
             aria-selected={filter === 'following'}
             onClick={() => selectFilter('following')}
             className={cn(
-              'dd-focus-ring order-1 min-h-11 rounded-full border px-4 text-xs font-bold transition-colors md:order-2 md:flex-1 md:rounded-none md:border-0 md:py-3',
+              'dd-focus-ring order-1 min-h-11 rounded-full border px-4 text-xs font-bold transition-colors',
               filter === 'following'
-                ? 'border-dd-accent bg-dd-accent text-white md:bg-transparent md:text-dd-text'
+                ? 'border-dd-accent bg-dd-accent text-white'
                 : 'border-dd-border text-dd-muted hover:text-dd-text'
             )}
           >
             {text('Seguindo', 'Following')}
           </button>
-          <span
-            aria-hidden="true"
-            data-testid="feed-tab-indicator"
-            className={cn(
-              'pointer-events-none absolute bottom-0 left-0 hidden h-0.5 w-1/2 rounded-full bg-blue-500 transition-transform motion-reduce:transition-none md:block',
-              filter === 'following' && 'translate-x-full'
-            )}
-          />
         </div>
         {filter === 'following' && (
           <div ref={sortRef} className="relative shrink-0">
@@ -143,14 +135,7 @@ export function FeedControls({
             )}
           </div>
         )}
-        <Link
-          href="/onboarding"
-          aria-label={text('Personalizar feed', 'Customize feed')}
-          title={text('Personalizar feed', 'Customize feed')}
-          className="dd-focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-dd-border text-dd-text hover:bg-dd-surface md:hidden"
-        >
-          <Pencil className="h-4 w-4" aria-hidden="true" />
-        </Link>
+        <FeedPreferencesEditor />
       </div>
       <button
         type="button"
@@ -158,7 +143,7 @@ export function FeedControls({
         disabled={refreshDisabled}
         aria-label={text('Atualizar publicações', 'Refresh posts')}
         title={text('Atualizar publicações', 'Refresh posts')}
-        className="dd-focus-ring hidden h-11 w-11 shrink-0 items-center justify-center text-dd-muted hover:bg-dd-surface hover:text-blue-500 disabled:cursor-wait disabled:opacity-60 md:flex"
+        className="dd-focus-ring hidden h-11 w-11 shrink-0 items-center justify-center text-dd-muted hover:bg-dd-surface hover:text-blue-500 disabled:cursor-wait disabled:opacity-60 md:absolute md:right-3 md:top-3 md:flex"
       >
         <RefreshCw className={cn('h-4 w-4', refreshing && 'animate-spin')} />
       </button>

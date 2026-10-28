@@ -14,7 +14,6 @@ import {
   ShieldAlert,
   SquarePen,
   Swords,
-  Trophy,
   X,
 } from 'lucide-react';
 import { AccountSwitcher } from '@/components/auth/AccountSwitcher';
@@ -84,7 +83,6 @@ export function MobileNavigationDrawer({
   const items = [
     { href: '/bookmarks', label: t.nav.bookmarks, icon: Bookmark },
     { href: '/achievements', label: isEnglish ? 'Titles' : 'Títulos', icon: Award },
-    { href: '/ranking', label: t.nav.ranking, icon: Trophy },
     { href: '/jobs', label: t.nav.jobs, icon: Briefcase },
     { href: '/events', label: t.nav.events, icon: Calendar },
     { href: '/duels', label: t.nav.duels, icon: Swords },

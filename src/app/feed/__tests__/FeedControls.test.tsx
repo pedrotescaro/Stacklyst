@@ -19,6 +19,8 @@ function Controls({ refresh = vi.fn() }: { refresh?: () => void }) {
   );
 }
 
+vi.mock('@/hooks/useReducedMotion', () => ({ useReducedMotion: () => true }));
+
 describe('Feed controls', () => {
   it('switches the real feed filters and keeps sorting available for followed posts', () => {
     render(<Controls />);
@@ -39,10 +41,7 @@ describe('Feed controls', () => {
   it('opens feed personalization and refreshes the posts', () => {
     const refresh = vi.fn();
     render(<Controls refresh={refresh} />);
-    expect(screen.getByRole('link', { name: 'Personalizar feed' })).toHaveAttribute(
-      'href',
-      '/onboarding'
-    );
+    expect(screen.getByRole('button', { name: 'Personalizar feed' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Atualizar publicações' }));
     expect(refresh).toHaveBeenCalledOnce();
   });

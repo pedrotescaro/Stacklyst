@@ -1,0 +1,21 @@
+.logo {
+  width: 28px;
+  height: 26px;
+}
+.logo[data-refreshing='true'] .mask {
+  transform-origin: top;
+  animation: fill 900ms ease-in-out infinite;
+}
+@keyframes fill {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo[data-refreshing='true'] .mask {
+    animation: none;
+  }
+}

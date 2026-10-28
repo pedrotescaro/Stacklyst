@@ -1,5 +1,6 @@
 'use client';
 
+import { HeaderRefreshLogo } from '@/components/HeaderRefreshLogo';
 import { BrandLogo } from '@/components/BrandLogo';
 import { MobileNavigationDrawer } from '@/components/MobileNavigationDrawer';
 import { ProfileName } from '@/components/profile/ProfileIdentity';
@@ -10,6 +11,7 @@ import Image from 'next/image';
 import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
 import {
+  Plus,
   BookOpen,
   Swords,
   Trophy,
@@ -90,7 +92,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   const { t, isEnglish } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const shouldHideMobileHeader = hideMobileHeader || pathname !== '/feed';
+  const shouldHideMobileHeader = hideMobileHeader || !['/feed', '/ranking'].includes(pathname);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
 
@@ -822,24 +824,33 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                   role="menu"
                   className="absolute bottom-full left-0 z-[120] mb-2 w-[290px] max-w-[calc(100vw-2rem)] origin-bottom-left overflow-hidden rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.4)] animate-slide-up"
                 >
-                  <Link
-                    href={`/profile/${activeUser.username}`}
+                  <button
+                    type="button"
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3.5 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                    onClick={() => setDropdownOpen(false)}
+                    onClick={async () => {
+                      try {
+                        const response = await fetch('/api/auth/accounts', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ action: 'save' }),
+                        });
+                        const result = await response.json();
+                        if (!response.ok)
+                          throw new Error(result.error || 'Não foi possível adicionar a conta.');
+                        router.push('/login?addAccount=1');
+                      } catch (error) {
+                        showToast(
+                          error instanceof Error
+                            ? error.message
+                            : 'Não foi possível adicionar a conta.'
+                        );
+                      }
+                    }}
+                    className="flex w-full items-center gap-4 rounded-xl px-4 py-3.5 text-left text-sm font-bold text-dd-text hover:bg-dd-bg"
                   >
-                    <UserIcon className="h-5.5 w-5.5 shrink-0 text-dd-text" />
-                    <span>{t.nav.myProfile}</span>
-                  </Link>
-                  <Link
-                    href="/settings"
-                    role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3.5 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                    onClick={() => setDropdownOpen(false)}
-                  >
-                    <SettingsIcon className="h-5.5 w-5.5 shrink-0 text-dd-text" />
-                    <span>{t.nav.settings}</span>
-                  </Link>
+                    <Plus className="h-5 w-5" />
+                    {isEnglish ? 'Add an existing account' : 'Adicionar uma conta existente'}
+                  </button>
                   <button
                     type="button"
                     role="menuitem"
@@ -850,7 +861,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                     className="flex w-full cursor-pointer items-center gap-4 rounded-xl px-4 py-3.5 text-left text-[15px] font-extrabold leading-none text-red-500 transition-colors hover:bg-red-500/10 focus-visible:bg-red-500/10 focus-visible:outline-none"
                   >
                     <LogOut className="h-5.5 w-5.5 shrink-0" />
-                    <span>{t.nav.signOut}</span>
+                    <span>{isEnglish ? 'Log out of current account' : 'Sair da conta atual'}</span>
                   </button>
                 </div>
               </>
@@ -881,7 +892,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
               aria-label="Stacklyst"
               className="justify-self-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
             >
-              <BrandLogo size={26} wordmark={false} />
+              <HeaderRefreshLogo />
             </Link>
             <Link
               href="/notifications"

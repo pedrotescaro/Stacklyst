@@ -5,69 +5,6 @@
   flex: 1 1 auto;
 }
 
-.indicator {
-  position: absolute;
-  z-index: 40;
-  top: 6px;
-  left: 50%;
-  display: grid;
-  width: 44px;
-  height: 44px;
-  place-items: center;
-  border: 1px solid var(--color-dd-border);
-  border-radius: 50%;
-  background: var(--color-dd-bg);
-  opacity: 0;
-  pointer-events: none;
-  transform: translate(-50%, -8px);
-  transition:
-    opacity 120ms ease,
-    transform 180ms ease;
-}
-
-.indicator[data-visible='true'] {
-  opacity: 1;
-  transform: translate(-50%, 0);
-}
-.logo {
-  width: 23px;
-  height: 23px;
-}
-.outline {
-  fill: #0083fe;
-  opacity: 0.2;
-}
-.fill {
-  fill: #0083fe;
-}
-.indicator[data-refreshing='true'] .fillMask {
-  transform-origin: top;
-  transform-box: fill-box;
-  animation: filling 900ms ease-in-out infinite;
-}
-
-@keyframes filling {
-  from {
-    transform: scaleY(0);
-  }
-  to {
-    transform: scaleY(1);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .indicator {
-    transition: opacity 80ms linear;
-    transform: translate(-50%, 0);
-  }
-  .indicator[data-refreshing='true'] .fillMask {
-    animation: none;
-  }
-}
-@media (min-width: 768px) {
-  .indicator {
-    display: none;
-  }
-}
 .srOnly {
   position: absolute;
   width: 1px;

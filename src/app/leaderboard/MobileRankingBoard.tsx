@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
-import { Trophy } from 'lucide-react';
+import { Trophy, Pencil } from 'lucide-react';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { FeedRankingSwitcher, feedRankingSurfaceClassName } from '@/components/FeedRankingSwitcher';
 import { ProfileName, ProfileTitle } from '@/components/profile/ProfileIdentity';
@@ -30,18 +30,24 @@ export function MobileRankingBoard({
   const { text, locale } = useLocalizedText();
   const [scope, setScope] = useState<Scope>(initialGlobalLeaderboard ? 'GLOBAL' : initialLanguage);
   const [rows, setRows] = useState(initialGlobalLeaderboard ?? initialLeaderboard);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!initialGlobalLeaderboard);
+  const mounted = useRef(false);
   const [error, setError] = useState(false);
   const [request, setRequest] = useState(0);
+  const [period, setPeriod] = useState<'daily' | 'weekly' | 'monthly'>('daily');
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
-    if (request === 0) return;
+    if (!mounted.current) {
+      mounted.current = true;
+      if (initialGlobalLeaderboard) return;
+    }
     const controller = new AbortController();
     async function load() {
       setLoading(true);
       setError(false);
       try {
-        const url = scope === 'GLOBAL' ? '/api/leaderboard' : `/api/leaderboard?language=${scope}`;
+        const url = `/api/leaderboard?period=${period}${scope === 'GLOBAL' ? '' : `&language=${scope}`}`;
         const response = await fetch(url, { signal: controller.signal });
         if (!response.ok) throw new Error('Leaderboard request failed');
         const data: unknown = await response.json();
@@ -55,7 +61,7 @@ export function MobileRankingBoard({
     }
     void load();
     return () => controller.abort();
-  }, [scope, request]);
+  }, [scope, request, period, initialGlobalLeaderboard]);
 
   function changeScope(value: Scope) {
     setScope(value);
@@ -115,15 +121,41 @@ export function MobileRankingBoard({
       aria-label={text('Ranking', 'Ranking')}
     >
       <FeedRankingSwitcher active="ranking" />
-      <div className={styles.heading}>
-        <div>
-          <h2>{text('Ranking de XP', 'XP ranking')}</h2>
-          <p>{text('Classificação por XP acumulado', 'Ranked by accumulated XP')}</p>
-        </div>
-        <label className={styles.scope}>
-          <span>{text('Classificação', 'Ranking scope')}</span>
-          <select value={scope} onChange={(event) => changeScope(event.target.value as Scope)}>
-            <option value="GLOBAL">{text('Global', 'Global')}</option>
+      <div className="my-2 flex items-center gap-2" role="group" aria-label="Período do ranking">
+        {(['daily', 'weekly', 'monthly'] as const).map((value, i) => (
+          <button
+            type="button"
+            key={value}
+            aria-pressed={period === value}
+            onClick={() => setPeriod(value)}
+            className={`min-h-11 rounded-full border px-3 text-xs font-bold ${period === value ? 'border-dd-accent bg-dd-accent text-white' : 'border-dd-border text-dd-muted'}`}
+          >
+            {['Diário', 'Semanal', 'Mensal'][i]}
+          </button>
+        ))}
+        <button
+          type="button"
+          aria-label="Escolher linguagem do ranking"
+          aria-expanded={editing}
+          onClick={() => setEditing(!editing)}
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-dd-border"
+        >
+          <Pencil size={16} />
+        </button>
+      </div>
+      {editing && (
+        <label className="block mb-3 text-sm">
+          Linguagem
+          <select
+            aria-label="Classificação"
+            className="block w-full bg-dd-surface border border-dd-border rounded-xl p-3"
+            value={scope}
+            onChange={(e) => {
+              changeScope(e.target.value as Scope);
+              setEditing(false);
+            }}
+          >
+            <option value="GLOBAL">Global</option>
             {TRAIL_LANGUAGE_CODES.map((code) => (
               <option key={code} value={code}>
                 {getTrailLanguageMetadata(code).label}
@@ -131,7 +163,11 @@ export function MobileRankingBoard({
             ))}
           </select>
         </label>
-      </div>
+      )}
+      <p className="mb-4 text-xs text-dd-muted">
+        {scope === 'GLOBAL' ? 'Global' : getTrailLanguageMetadata(scope).label} · XP do período.
+        Histórico registrado a partir desta atualização.
+      </p>
       <div aria-busy={loading} aria-live="polite">
         {loading ? (
           <p className={styles.message}>{text('Carregando classificação…', 'Loading ranking…')}</p>

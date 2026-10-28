@@ -1,5 +1,6 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { HeaderRefreshLogo } from '../HeaderRefreshLogo';
 import { MobilePullToRefresh } from '../MobilePullToRefresh';
 import { brandGeometry } from '@/lib/brand-geometry';
 
@@ -10,10 +11,13 @@ function setup(onRefresh = vi.fn().mockResolvedValue(undefined), disabled = fals
   Object.defineProperty(window, 'innerWidth', { configurable: true, value: 390 });
   Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
   const view = render(
-    <MobilePullToRefresh refreshing={false} disabled={disabled} onRefresh={onRefresh}>
-      <div>Feed</div>
-      <pre>code</pre>
-    </MobilePullToRefresh>
+    <>
+      <HeaderRefreshLogo />
+      <MobilePullToRefresh refreshing={false} disabled={disabled} onRefresh={onRefresh}>
+        <div>Feed</div>
+        <pre>code</pre>
+      </MobilePullToRefresh>
+    </>
   );
   return { ...view, onRefresh, feed: screen.getByText('Feed') };
 }
@@ -108,7 +112,10 @@ describe('mobile pull to refresh', () => {
         <pre>code</pre>
       </MobilePullToRefresh>
     );
-    pull();
+    const fresh = screen.getByText('Feed');
+    fireEvent.touchStart(fresh, { touches: [touch(10, 10)] });
+    fireEvent.touchMove(fresh, { touches: [touch(10, 110)] });
+    fireEvent.touchEnd(fresh, { touches: [] });
     await waitFor(() => expect(onRefresh).toHaveBeenCalledTimes(1));
     pull();
     expect(onRefresh).toHaveBeenCalledTimes(1);

@@ -205,7 +205,16 @@ export function FeedContent({
   const [feedFilter, setFeedFilter] = useState<'for-you' | 'following'>(
     initialPreferences?.feed || 'for-you'
   );
-  const feedLanguages = initialPreferences?.languages.join(',') || '';
+  const [feedLanguages, setFeedLanguages] = useState(initialPreferences?.languages.join(',') || '');
+  useEffect(() => {
+    const update = (e: Event) => {
+      const prefs = (e as CustomEvent<OnboardingPreferences>).detail;
+      setFeedLanguages(prefs.languages.join(','));
+      setFeedFilter(prefs.feed);
+    };
+    window.addEventListener('stacklyst:feed-preferences', update);
+    return () => window.removeEventListener('stacklyst:feed-preferences', update);
+  }, []);
   const [followingSort, setFollowingSort] = useState<'recent' | 'popular'>('recent');
   const [posts, setPosts] = useState<any[]>(initialPosts);
   const [duels, setDuels] = useState<any[]>(initialDuels);
@@ -1316,22 +1325,6 @@ export function FeedContent({
             {/* Feed Tab View */}
             {activeTab === 'feed' && (
               <>
-                <div className="hidden items-center justify-between gap-3 border-b border-dd-border/60 px-4 py-2 text-xs text-dd-muted md:flex">
-                  <span className="min-w-0 truncate">
-                    {feedFilter === 'following'
-                      ? text('Pessoas que você segue', 'People you follow')
-                      : text('Suas linguagens', 'Your languages')}
-                    {feedFilter !== 'following' && feedLanguages
-                      ? ` · ${feedLanguages.replaceAll(',', ' · ')}`
-                      : ''}
-                  </span>
-                  <Link
-                    href="/onboarding"
-                    className="shrink-0 py-1 text-blue-400 underline-offset-4 hover:underline"
-                  >
-                    {text('Personalizar', 'Customize')}
-                  </Link>
-                </div>
                 <div
                   ref={composerContainerRef}
                   onClick={() => setComposeFocused(true)}

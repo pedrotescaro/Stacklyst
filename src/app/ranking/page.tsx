@@ -10,7 +10,7 @@ import { TRAIL_LANGUAGE_CODES, type TrailLanguageCode } from '@/app/trails/Trail
 import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
 import type { Language } from '@prisma/client';
 import { getLeaderboardAvatarConfig } from '@/lib/leaderboard-identity';
-import { getGlobalLeaderboard } from '@/lib/learning/leaderboard';
+import { getPeriodLeaderboard } from '@/lib/learning/period-leaderboard';
 
 export const revalidate = 0;
 
@@ -60,7 +60,7 @@ export default async function RankedPage() {
   // Buscar o ranking específico da linguagem ativa
   const [leaders, initialGlobalLeaderboard] = await Promise.all([
     getLanguageLeaderboard(activeLanguage as unknown as Language, 50),
-    getGlobalLeaderboard(50),
+    getPeriodLeaderboard('daily'),
   ]);
 
   const initialLeaderboard = leaders.map((leader, index) => ({
