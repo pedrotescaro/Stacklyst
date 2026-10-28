@@ -323,12 +323,16 @@ export function ProfileContent({
               profile={localProfile}
               currentUserId={user.id}
               following={following}
+              followers={followers}
+              followingCount={followingCount}
               onFollowToggle={follow}
               onChallenge={() => {
                 setChallengeOpen(true);
                 setChallengeFeedback('');
                 setChallengeSent(false);
               }}
+              onShowFollowers={() => setFollowersModal('followers')}
+              onShowFollowing={() => setFollowersModal('following')}
               onSaved={(next) => setLocalProfile((previous) => ({ ...previous, ...next }))}
               onPreview={setPreviewPreferences}
             />
@@ -398,16 +402,6 @@ export function ProfileContent({
                 <section className={styles.statistics}>
                   <h2>{text('Estatísticas do perfil', 'Profile statistics')}</h2>
                   <div className={styles.metrics}>
-                    <Metric
-                      value={followers}
-                      label={text('Seguidores', 'Followers')}
-                      onClick={() => setFollowersModal('followers')}
-                    />
-                    <Metric
-                      value={followingCount}
-                      label={text('Seguindo', 'Following')}
-                      onClick={() => setFollowersModal('following')}
-                    />
                     <Metric value={stats.posts_count ?? 0} label={text('Publicações', 'Posts')} />
                     <Metric value={stats.answers_count} label={text('Comentários', 'Comments')} />
                     {stats.likes_received !== undefined && (

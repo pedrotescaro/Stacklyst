@@ -166,16 +166,24 @@ export function SocialProfileOverview({
   profile,
   currentUserId,
   following,
+  followers,
+  followingCount,
   onFollowToggle,
   onChallenge,
+  onShowFollowers,
+  onShowFollowing,
   onSaved,
   onPreview,
 }: {
   profile: SocialProfile;
   currentUserId: string;
   following: boolean;
+  followers: number;
+  followingCount: number;
   onFollowToggle: () => Promise<void>;
   onChallenge?: () => void;
+  onShowFollowers: () => void;
+  onShowFollowing: () => void;
   onSaved: (profile: SocialProfile) => void;
   onPreview?: (preferences: ProfilePreferences | null) => void;
 }) {
@@ -1201,6 +1209,14 @@ export function SocialProfileOverview({
               </div>
             </ContextPopover>
           )}
+        </div>
+        <div className={styles.followCounts}>
+          <button type="button" onClick={onShowFollowing} className={styles.followCount}>
+            <strong>{followingCount.toLocaleString('pt-BR')}</strong> Seguindo
+          </button>
+          <button type="button" onClick={onShowFollowers} className={styles.followCount}>
+            <strong>{followers.toLocaleString('pt-BR')}</strong> Seguidores
+          </button>
         </div>
 
         {(activePreferences.tags.length > 0 || editing) && (

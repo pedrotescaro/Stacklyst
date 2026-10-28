@@ -239,6 +239,31 @@
 .meta a {
   color: var(--color-dd-accent);
 }
+.followCounts {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 10px;
+}
+.followCount {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--color-dd-muted);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: inherit;
+}
+.followCount:hover {
+  color: var(--color-dd-text);
+}
+.followCount strong {
+  color: var(--color-dd-text);
+  font-weight: 800;
+}
 .editAnchor {
   display: inline-flex;
   align-items: center;
@@ -652,6 +677,8 @@
     display: block;
     flex: 0 0 380px;
     min-width: 0;
+    /* The sticky sidebar needs a containing block as tall as the profile. */
+    align-self: stretch;
   }
 }
 @media (min-width: 1536px) {

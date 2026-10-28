@@ -105,7 +105,8 @@ beforeEach(() => {
       if (init?.method === 'PUT') {
         const body = JSON.parse(init.body as string);
         writes.push(body);
-        if (failSave) return Response.json({ message: 'Sem conexão temporária' }, { status: 503 });
+        if (failSave)
+          return Response.json({ message: 'Sem conexÃƒÂ£o temporÃƒÂ¡ria' }, { status: 503 });
         state = {
           ...state,
           version: state.version + 1,
@@ -134,7 +135,11 @@ const mount = (owner = 'owner') => {
       profile={profile}
       currentUserId={owner}
       following={false}
+      followers={42}
+      followingCount={10}
       onFollowToggle={vi.fn()}
+      onShowFollowers={vi.fn()}
+      onShowFollowing={vi.fn()}
       onSaved={saved}
     />
   );
@@ -142,7 +147,7 @@ const mount = (owner = 'owner') => {
 };
 async function edit() {
   fireEvent.click(screen.getByRole('button', { name: 'Editar perfil' }));
-  await screen.findByRole('textbox', { name: 'Nome de exibição' });
+  await screen.findByRole('textbox', { name: 'Nome de exibiÃƒÂ§ÃƒÂ£o' });
 }
 describe('Inline social profile editing', () => {
   it('keeps visitor controls read-only with social sections before content, without statistics or pencil controls', () => {
@@ -150,7 +155,7 @@ describe('Inline social profile editing', () => {
     expect(screen.getByRole('heading', { name: 'Nome anterior' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Editar perfil' })).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Editar estudos' })).not.toBeInTheDocument();
-    expect(screen.queryByText('Estatísticas')).not.toBeInTheDocument();
+    expect(screen.queryByText('EstatÃƒÂ­sticas')).not.toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'python' }).getAttribute('href')).toBe(
       '/explore?q=python'
     );
@@ -165,12 +170,12 @@ describe('Inline social profile editing', () => {
     const { saved } = mount();
     await edit();
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-    fireEvent.change(screen.getByRole('textbox', { name: 'Nome de exibição' }), {
+    fireEvent.change(screen.getByRole('textbox', { name: 'Nome de exibiÃƒÂ§ÃƒÂ£o' }), {
       target: { value: 'Novo nome' },
     });
     fireEvent.change(screen.getByLabelText('Biografia'), { target: { value: 'Nova biografia' } });
     expect(writes).toHaveLength(0);
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alteraÃƒÂ§ÃƒÂµes' }));
     await screen.findByText('Perfil atualizado.');
     expect(writes).toHaveLength(1);
     expect(writes[0]).toMatchObject({
@@ -186,19 +191,21 @@ describe('Inline social profile editing', () => {
   it('discards the local draft and restores the saved profile when canceling', async () => {
     mount();
     await edit();
-    fireEvent.change(screen.getByRole('textbox', { name: 'Nome de exibição' }), {
+    fireEvent.change(screen.getByRole('textbox', { name: 'Nome de exibiÃƒÂ§ÃƒÂ£o' }), {
       target: { value: 'Rascunho' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
     expect(screen.getByRole('heading', { name: 'Nome anterior' })).toBeInTheDocument();
     expect(writes).toHaveLength(0);
-    expect(screen.queryByRole('textbox', { name: 'Nome de exibição' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('textbox', { name: 'Nome de exibiÃƒÂ§ÃƒÂ£o' })
+    ).not.toBeInTheDocument();
   });
   it('preserves fields after a failed save, supports retry and confirms leaving a dirty draft', async () => {
     const { container } = mount();
     await edit();
     failSave = true;
-    fireEvent.change(screen.getByRole('textbox', { name: 'Nome de exibição' }), {
+    fireEvent.change(screen.getByRole('textbox', { name: 'Nome de exibiÃƒÂ§ÃƒÂ£o' }), {
       target: { value: 'Rascunho preservado' },
     });
     const anchor = document.createElement('a');
@@ -208,13 +215,13 @@ describe('Inline social profile editing', () => {
     anchor.dispatchEvent(navigation);
     expect(navigation.defaultPrevented).toBe(true);
     expect(window.confirm).toHaveBeenCalled();
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alteraÃƒÂ§ÃƒÂµes' }));
     await screen.findByRole('alert');
-    expect(screen.getByRole('textbox', { name: 'Nome de exibição' })).toHaveValue(
+    expect(screen.getByRole('textbox', { name: 'Nome de exibiÃƒÂ§ÃƒÂ£o' })).toHaveValue(
       'Rascunho preservado'
     );
     failSave = false;
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alteraÃƒÂ§ÃƒÂµes' }));
     await screen.findByText('Perfil atualizado.');
     expect(writes).toHaveLength(2);
   });
@@ -225,11 +232,11 @@ describe('Inline social profile editing', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Preparar foto de teste' }));
     expect(uploads).toBe(0);
     failSave = true;
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alteraÃƒÂ§ÃƒÂµes' }));
     await screen.findByRole('alert');
     expect(uploads).toBe(1);
     failSave = false;
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alteraÃƒÂ§ÃƒÂµes' }));
     await screen.findByText('Perfil atualizado.');
     expect(uploads).toBe(1);
     expect(writes[1].avatarUrl).toContain('/uploads/owner/');
@@ -245,7 +252,7 @@ describe('Inline social profile editing', () => {
     fireEvent.change(screen.getByLabelText('Cor da tag react'), { target: { value: '#e879c0' } });
     fireEvent.click(screen.getByRole('button', { name: 'Fechar adicionar ou editar tags' }));
     fireEvent.click(screen.getByRole('button', { name: 'Editar estudos' }));
-    fireEvent.change(screen.getByRole('textbox', { name: 'Descrição curta' }), {
+    fireEvent.change(screen.getByRole('textbox', { name: 'DescriÃƒÂ§ÃƒÂ£o curta' }), {
       target: { value: 'Protocolos e roteamento' },
     });
     fireEvent.change(screen.getByLabelText('Progresso (%)'), { target: { value: '65' } });
@@ -254,7 +261,7 @@ describe('Inline social profile editing', () => {
       '65'
     );
     expect(writes).toHaveLength(0);
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alteraÃƒÂ§ÃƒÂµes' }));
     await screen.findByText('Perfil atualizado.');
     expect(writes[0].preferences).toMatchObject({
       tags: ['python', 'react'],
@@ -282,7 +289,11 @@ describe('Inline social profile editing', () => {
         profile={bannerProfile}
         currentUserId="owner"
         following={false}
+        followers={42}
+        followingCount={10}
         onFollowToggle={vi.fn()}
+        onShowFollowers={vi.fn()}
+        onShowFollowing={vi.fn()}
         onSaved={saved}
       />
     );
@@ -291,7 +302,7 @@ describe('Inline social profile editing', () => {
     fireEvent.change(screen.getByLabelText('Tipo de capa'), { target: { value: 'default' } });
     expect(screen.queryByRole('img', { name: 'Capa do perfil' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Fechar editar capa' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alteraÃƒÂ§ÃƒÂµes' }));
     await screen.findByText('Perfil atualizado.');
     expect(writes[0]).toMatchObject({
       clearBanner: true,
@@ -302,7 +313,7 @@ describe('Inline social profile editing', () => {
   it('blocks duplicate save requests while the first request is pending', async () => {
     mount();
     await edit();
-    fireEvent.change(screen.getByRole('textbox', { name: 'Nome de exibição' }), {
+    fireEvent.change(screen.getByRole('textbox', { name: 'Nome de exibiÃƒÂ§ÃƒÂ£o' }), {
       target: { value: 'Novo nome' },
     });
     const original = global.fetch;
@@ -317,10 +328,10 @@ describe('Inline social profile editing', () => {
         return original(url, init);
       })
     );
-    const button = screen.getByRole('button', { name: 'Salvar alterações' });
+    const button = screen.getByRole('button', { name: 'Salvar alteraÃƒÂ§ÃƒÂµes' });
     fireEvent.click(button);
     fireEvent.click(button);
-    expect(screen.getByRole('button', { name: 'Salvando…' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'SalvandoÃ¢â‚¬Â¦' })).toBeDisabled();
     release();
     await screen.findByText('Perfil atualizado.');
     expect(writes).toHaveLength(1);
