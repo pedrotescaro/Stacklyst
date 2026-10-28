@@ -8,10 +8,11 @@
   display: flex;
   align-items: center;
   gap: 16px;
-  min-height: 64px;
-  padding: 8px 16px;
+  min-height: 56px;
+  padding: max(8px, env(safe-area-inset-top)) 16px 8px;
   border-bottom: 1px solid var(--color-dd-border);
   background: var(--color-dd-bg);
+  backdrop-filter: blur(12px);
 }
 
 .iconButton {

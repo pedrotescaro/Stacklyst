@@ -65,6 +65,7 @@ interface SidebarUser {
 interface SidebarProps {
   user: SidebarUser | null;
   showDivider?: boolean;
+  hideMobileHeader?: boolean;
 }
 
 // Module-level cache to persist logged-in user across page navigation transitions
@@ -82,12 +83,13 @@ if (typeof window !== 'undefined') {
   }
 }
 
-export function Sidebar({ user, showDivider = true }: SidebarProps) {
+export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
   const { t } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
+  const shouldHideMobileHeader = hideMobileHeader || Boolean(pathname?.startsWith('/profile'));
 
   // Local state for user with sessionStorage cache fallback
   const [activeUser, setActiveUser] = useState<SidebarUser | null>(() => {
@@ -807,133 +809,138 @@ export function Sidebar({ user, showDivider = true }: SidebarProps) {
       {/* ========================================== */}
       <div className="md:hidden flex flex-col w-full">
         {/* Top Header */}
-        <header className="sticky top-0 z-[100] flex w-full items-center justify-between border-b border-dd-border bg-dd-bg/80 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md">
-          <Link href="/feed" className="flex items-center gap-2 group">
-            <BrandLogo size={24} />
-          </Link>
+        {!shouldHideMobileHeader && (
+          <header className="sticky top-0 z-[100] flex w-full items-center justify-between border-b border-dd-border bg-dd-bg/80 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md">
+            <Link href="/feed" className="flex items-center gap-2 group">
+              <BrandLogo size={24} />
+            </Link>
 
-          <div className="flex items-center gap-2.5">
-            {activeUser && (
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMoreMenuOpen(false);
-                    setDropdownOpen((open) => !open);
-                  }}
-                  aria-expanded={dropdownOpen}
-                  aria-haspopup="menu"
-                  className="flex items-center focus:outline-none"
-                >
-                  <AuthorAvatar
-                    username={activeUser.username}
-                    avatar_url={activeUser.avatar_url}
-                    avatar_config={activeUser.avatar_config}
-                    size="sm"
-                    className="!h-7 !w-7"
-                  />
-                </button>
+            <div className="flex items-center gap-2.5">
+              {activeUser && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setMoreMenuOpen(false);
+                      setDropdownOpen((open) => !open);
+                    }}
+                    aria-expanded={dropdownOpen}
+                    aria-haspopup="menu"
+                    className="flex items-center focus:outline-none"
+                  >
+                    <AuthorAvatar
+                      username={activeUser.username}
+                      avatar_url={activeUser.avatar_url}
+                      avatar_config={activeUser.avatar_config}
+                      size="sm"
+                      className="!h-7 !w-7"
+                    />
+                  </button>
 
-                {dropdownOpen && (
-                  <>
-                    <div className="fixed inset-0 z-[110]" onClick={() => setDropdownOpen(false)} />
-                    <div
-                      role="menu"
-                      className="absolute right-0 z-[120] mt-2 w-60 overflow-hidden rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
-                    >
-                      <Link
-                        href={`/profile/${activeUser.username}`}
-                        role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                  {dropdownOpen && (
+                    <>
+                      <div
+                        className="fixed inset-0 z-[110]"
                         onClick={() => setDropdownOpen(false)}
+                      />
+                      <div
+                        role="menu"
+                        className="absolute right-0 z-[120] mt-2 w-60 overflow-hidden rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
                       >
-                        <UserIcon className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>{t.nav.myProfile}</span>
-                      </Link>
-                      <Link
-                        href="/ranking"
-                        role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <Trophy className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>{t.nav.ranking}</span>
-                      </Link>
-                      <Link
-                        href="/jobs"
-                        role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <Briefcase className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>{t.nav.jobs}</span>
-                      </Link>
-                      <Link
-                        href="/events"
-                        role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <Calendar className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>{t.nav.events}</span>
-                      </Link>
-                      <Link
-                        href="/duels"
-                        role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <Swords className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>{t.nav.duels}</span>
-                      </Link>
-                      <Link
-                        href="/evaluations"
-                        role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <Code2 className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>{t.nav.codeEvaluation}</span>
-                      </Link>
-                      {isAdmin && (
                         <Link
-                          href="/admin"
+                          href={`/profile/${activeUser.username}`}
                           role="menuitem"
                           className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                           onClick={() => setDropdownOpen(false)}
                         >
-                          <ShieldAlert className="h-5 w-5 shrink-0 text-dd-text" />
-                          <span>{t.nav.adminPanel}</span>
+                          <UserIcon className="h-5 w-5 shrink-0 text-dd-text" />
+                          <span>{t.nav.myProfile}</span>
                         </Link>
-                      )}
-                      <Link
-                        href="/settings"
-                        role="menuitem"
-                        className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                        onClick={() => setDropdownOpen(false)}
-                      >
-                        <SettingsIcon className="h-5 w-5 shrink-0 text-dd-text" />
-                        <span>{t.nav.settings}</span>
-                      </Link>
-                      <button
-                        type="button"
-                        role="menuitem"
-                        onClick={() => {
-                          setDropdownOpen(false);
-                          handleSignOut();
-                        }}
-                        className="flex w-full cursor-pointer items-center gap-3.5 rounded-xl px-3.5 py-3 text-left text-sm font-extrabold leading-none text-red-500 transition-colors hover:bg-red-500/10 focus-visible:bg-red-500/10 focus-visible:outline-none"
-                      >
-                        <LogOut className="h-5 w-5 shrink-0" />
-                        <span>{t.nav.signOut}</span>
-                      </button>
-                    </div>
-                  </>
-                )}
-              </div>
-            )}
-          </div>
-        </header>
+                        <Link
+                          href="/ranking"
+                          role="menuitem"
+                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Trophy className="h-5 w-5 shrink-0 text-dd-text" />
+                          <span>{t.nav.ranking}</span>
+                        </Link>
+                        <Link
+                          href="/jobs"
+                          role="menuitem"
+                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Briefcase className="h-5 w-5 shrink-0 text-dd-text" />
+                          <span>{t.nav.jobs}</span>
+                        </Link>
+                        <Link
+                          href="/events"
+                          role="menuitem"
+                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Calendar className="h-5 w-5 shrink-0 text-dd-text" />
+                          <span>{t.nav.events}</span>
+                        </Link>
+                        <Link
+                          href="/duels"
+                          role="menuitem"
+                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Swords className="h-5 w-5 shrink-0 text-dd-text" />
+                          <span>{t.nav.duels}</span>
+                        </Link>
+                        <Link
+                          href="/evaluations"
+                          role="menuitem"
+                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <Code2 className="h-5 w-5 shrink-0 text-dd-text" />
+                          <span>{t.nav.codeEvaluation}</span>
+                        </Link>
+                        {isAdmin && (
+                          <Link
+                            href="/admin"
+                            role="menuitem"
+                            className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                            onClick={() => setDropdownOpen(false)}
+                          >
+                            <ShieldAlert className="h-5 w-5 shrink-0 text-dd-text" />
+                            <span>{t.nav.adminPanel}</span>
+                          </Link>
+                        )}
+                        <Link
+                          href="/settings"
+                          role="menuitem"
+                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                          onClick={() => setDropdownOpen(false)}
+                        >
+                          <SettingsIcon className="h-5 w-5 shrink-0 text-dd-text" />
+                          <span>{t.nav.settings}</span>
+                        </Link>
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setDropdownOpen(false);
+                            handleSignOut();
+                          }}
+                          className="flex w-full cursor-pointer items-center gap-3.5 rounded-xl px-3.5 py-3 text-left text-sm font-extrabold leading-none text-red-500 transition-colors hover:bg-red-500/10 focus-visible:bg-red-500/10 focus-visible:outline-none"
+                        >
+                          <LogOut className="h-5 w-5 shrink-0" />
+                          <span>{t.nav.signOut}</span>
+                        </button>
+                      </div>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
+          </header>
+        )}
 
         <nav className="fixed bottom-0 left-0 right-0 z-[100] flex items-center justify-around border-t border-dd-border bg-dd-bg/90 px-3 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-md sm:px-6">
           {mobileNavItems.map(renderMobileNavItem)}
