@@ -3,6 +3,7 @@ import { isOwnedProfileUpload } from '../profile-upload';
 import {
   contrastRatio,
   foregroundOn,
+  getAuthorDisplayName,
   privateChatStyle,
   profileAppearanceStyle,
   readableColor,
@@ -75,5 +76,43 @@ describe('scoped profile and chat appearance', () => {
         },
       })
     ).toMatchObject({ nameStyle: { color: null }, frame: null, flag: null, title: null });
+  });
+
+  it('correctly resolves display names from author config and fallback', () => {
+    expect(
+      getAuthorDisplayName({
+        username: 'pedrotescaro',
+        avatar_config: { displayName: 'Pedro' },
+      })
+    ).toBe('Pedro');
+
+    expect(
+      getAuthorDisplayName({
+        username: 'pedrotescaro',
+        avatar_config: { name: 'Pedro' },
+      })
+    ).toBe('Pedro');
+
+    expect(
+      getAuthorDisplayName({
+        username: 'pedrotescaro',
+        name: 'Pedro T',
+        avatar_config: { displayName: 'Pedro' },
+      })
+    ).toBe('Pedro T');
+
+    expect(
+      getAuthorDisplayName({
+        username: 'pedrotescaro',
+        avatar_config: JSON.stringify({ displayName: 'Pedro From String' }),
+      })
+    ).toBe('Pedro From String');
+
+    expect(
+      getAuthorDisplayName({
+        username: 'pedrotescaro',
+        avatar_config: null,
+      })
+    ).toBe('pedrotescaro');
   });
 });

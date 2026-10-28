@@ -11,7 +11,9 @@ import { RepostMenu } from '@/components/motion/RepostMenu';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { MarkdownEditor } from '@/components/MarkdownEditor';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
-import { ProfileName } from '@/components/profile/ProfileIdentity';
+import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
+import { LevelBadge } from '@/components/LevelBadge';
+import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import type { AnswerNode } from '@/components/answer-types';
 import { MAX_ANSWER_DEPTH } from '@/components/answer-types';
 
@@ -220,10 +222,10 @@ export function AnswerCard({
         )}
 
         {/* Header */}
-        <div className="flex items-center gap-2 mb-3">
+        <div className="flex items-start gap-2 sm:gap-2.5 mb-3">
           <Link
             href={`/profile/${answer.author.username}`}
-            className="flex items-center gap-2 hover:opacity-85 transition-opacity"
+            className="hover:opacity-85 transition-opacity shrink-0 pt-0.5"
           >
             <AuthorAvatar
               username={answer.author.username}
@@ -231,18 +233,52 @@ export function AnswerCard({
               avatar_config={answer.author.avatar_config}
               size="sm"
             />
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="text-dd-text text-sm font-bold truncate">
-                <ProfileName config={answer.author.avatar_config}>
-                  {answer.author.name || answer.author.username}
-                </ProfileName>
-              </span>
-              <span className="text-dd-muted text-xs font-medium truncate">
-                @{answer.author.username.toLowerCase()}
-              </span>
-            </div>
           </Link>
-          <span className="text-dd-muted text-xs">{relativeTime}</span>
+          <div className="flex-1 min-w-0">
+            {/* Row 1: Name, Flags, Title, Level (>=5) */}
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+              <Link
+                href={`/profile/${answer.author.username}`}
+                className="hover:underline truncate group/author min-w-0"
+              >
+                <span className="text-dd-text text-xs sm:text-sm font-bold truncate min-w-0 group-hover/author:underline">
+                  <ProfileName config={answer.author.avatar_config}>
+                    {getAuthorDisplayName(answer.author)}
+                  </ProfileName>
+                </span>
+              </Link>
+              {(() => {
+                const answerIdentity = readProfileIdentity(answer.author.avatar_config);
+                return (
+                  <>
+                    {answerIdentity.flags && answerIdentity.flags.length > 0 && (
+                      <span className="inline-flex items-center gap-1 shrink-0">
+                        {answerIdentity.flags.map((code) => (
+                          <ProfileFlag key={code} code={code} />
+                        ))}
+                      </span>
+                    )}
+                    {answerIdentity.title && <ProfileTitle title={answerIdentity.title} />}
+                  </>
+                );
+              })()}
+              {answer.author.total_xp !== undefined && (
+                <LevelBadge totalXp={answer.author.total_xp} minLevel={5} />
+              )}
+            </div>
+
+            {/* Row 2: @username · relativeTime */}
+            <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-dd-muted font-medium flex-wrap min-w-0">
+              <Link
+                href={`/profile/${answer.author.username}`}
+                className="hover:underline truncate"
+              >
+                @{answer.author.username.toLowerCase()}
+              </Link>
+              <span>·</span>
+              <span className="text-[10px]">{relativeTime}</span>
+            </div>
+          </div>
         </div>
 
         {/* Body */}

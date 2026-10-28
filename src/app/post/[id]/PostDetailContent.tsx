@@ -5,8 +5,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
-import { LanguageTag } from '@/components/LanguageTag';
 import { LevelBadge } from '@/components/LevelBadge';
+import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
+import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import { QuizWidget } from '@/components/QuizWidget';
 import { AnswerThread } from '@/components/AnswerThread';
 import type { AnswerNode } from '@/components/answer-types';
@@ -481,29 +482,62 @@ export function PostDetailContent({
 
           {/* Post Detail Card */}
           <article className="bg-transparent border-b border-dd-border/50 p-4 sm:p-6 space-y-6">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-dd-border/50 pb-3">
-              <Link
-                href={`/profile/${post.author.username}`}
-                className="flex items-center gap-2 hover:opacity-85 transition-opacity"
-              >
-                <AuthorAvatar
-                  username={post.author.username}
-                  avatar_url={post.author.avatar_url}
-                  size="md"
-                />
-                <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-                  <span className="text-xs font-bold text-dd-text">
-                    {post.author.name || post.author.username}
-                  </span>
-                  <span className="text-[11px] text-dd-muted font-medium">
-                    @{post.author.username.toLowerCase()}
-                  </span>
-                  <LevelBadge totalXp={post.author.total_xp ?? 0} />
-                </div>
-              </Link>
+            <div className="flex items-start justify-between gap-3 border-b border-dd-border/50 pb-3">
+              <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
+                <Link
+                  href={`/profile/${post.author.username}`}
+                  className="hover:opacity-85 transition-opacity shrink-0 pt-0.5"
+                >
+                  <AuthorAvatar
+                    username={post.author.username}
+                    avatar_url={post.author.avatar_url}
+                    avatar_config={post.author.avatar_config}
+                    size="md"
+                  />
+                </Link>
+                <div className="flex-1 min-w-0">
+                  {/* Top row: Display Name, Flags, Title, Level (>= 5) */}
+                  <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+                    <Link
+                      href={`/profile/${post.author.username}`}
+                      className="hover:underline truncate group/author min-w-0"
+                    >
+                      <span className="text-xs sm:text-sm font-bold text-dd-text truncate min-w-0 group-hover/author:underline">
+                        <ProfileName config={post.author.avatar_config}>
+                          {getAuthorDisplayName(post.author)}
+                        </ProfileName>
+                      </span>
+                    </Link>
+                    {(() => {
+                      const postAuthorIdentity = readProfileIdentity(post.author.avatar_config);
+                      return (
+                        <>
+                          {postAuthorIdentity.flags && postAuthorIdentity.flags.length > 0 && (
+                            <span className="inline-flex items-center gap-1 shrink-0">
+                              {postAuthorIdentity.flags.map((code) => (
+                                <ProfileFlag key={code} code={code} />
+                              ))}
+                            </span>
+                          )}
+                          {postAuthorIdentity.title && (
+                            <ProfileTitle title={postAuthorIdentity.title} />
+                          )}
+                        </>
+                      );
+                    })()}
+                    <LevelBadge totalXp={post.author.total_xp ?? 0} minLevel={5} />
+                  </div>
 
-              <div className="flex items-center gap-2 flex-wrap">
-                <LanguageTag language={post.language} size="sm" />
+                  {/* Bottom row: @username */}
+                  <div className="mt-0.5 text-[11px] text-dd-muted font-medium">
+                    <Link
+                      href={`/profile/${post.author.username}`}
+                      className="hover:underline truncate"
+                    >
+                      @{post.author.username.toLowerCase()}
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
 

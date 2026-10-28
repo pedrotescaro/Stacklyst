@@ -40,6 +40,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
                 username: true,
                 avatar_url: true,
                 avatar_config: true,
+                total_xp: true,
               },
             },
             votes: user ? { where: { user_id: user.id } } : { where: { id: 'none' } },

@@ -14,9 +14,18 @@ export function getLevelFromTotalXp(totalXp: number) {
   return Math.max(1, Math.floor(Math.max(0, totalXp) / 1000) + 1);
 }
 
-export function LevelBadge({ totalXp, className = '' }: { totalXp: number; className?: string }) {
+export function LevelBadge({
+  totalXp,
+  minLevel = 1,
+  className = '',
+}: {
+  totalXp: number;
+  minLevel?: number;
+  className?: string;
+}) {
   const { text } = useLocalizedText();
   const level = getLevelFromTotalXp(totalXp);
+  if (level < minLevel) return null;
   const style = LEVEL_STYLES.find((item) => level >= item.min) ?? LEVEL_STYLES.at(-1)!;
 
   return (

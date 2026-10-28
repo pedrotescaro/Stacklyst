@@ -4,7 +4,9 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
-import { ProfileName } from '@/components/profile/ProfileIdentity';
+import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
+import { LevelBadge } from '@/components/LevelBadge';
+import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
 import { LikeButton } from '@/components/motion/LikeButton';
@@ -150,6 +152,7 @@ export function ProfileReplyThread({ reply }: ProfileReplyThreadProps) {
             <AuthorAvatar
               username={parentAuthor.username}
               avatar_url={parentAuthor.avatar_url}
+              avatar_config={parentAuthor.avatar_config}
               size="sm"
             />
           </Link>
@@ -158,24 +161,52 @@ export function ProfileReplyThread({ reply }: ProfileReplyThreadProps) {
 
         {/* Right Column (Content) */}
         <div className="flex-grow min-w-0 pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1.5 text-xs">
+          <div className="flex flex-col min-w-0">
+            {/* Top row: Name, Flags, Title, Level */}
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
               <Link
                 href={`/profile/${parentAuthor.username}`}
                 onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-1.5 hover:underline"
+                className="hover:underline truncate group/author min-w-0"
               >
-                <span className="text-dd-text font-bold">{parentAuthor.username}</span>
-                <span className="text-dd-muted text-[11px]">@{parentAuthor.username}</span>
+                <span className="text-dd-text text-xs font-bold truncate min-w-0 group-hover/author:underline">
+                  <ProfileName config={parentAuthor.avatar_config}>
+                    {getAuthorDisplayName(parentAuthor)}
+                  </ProfileName>
+                </span>
               </Link>
-              <span className="text-dd-muted">•</span>
-              <span className="text-dd-muted text-[11px]">{parentRelativeTime}</span>
+              {(() => {
+                const parentIdentity = readProfileIdentity(parentAuthor.avatar_config);
+                return (
+                  <>
+                    {parentIdentity.flags && parentIdentity.flags.length > 0 && (
+                      <span className="inline-flex items-center gap-1 shrink-0">
+                        {parentIdentity.flags.map((code) => (
+                          <ProfileFlag key={code} code={code} />
+                        ))}
+                      </span>
+                    )}
+                    {parentIdentity.title && <ProfileTitle title={parentIdentity.title} />}
+                  </>
+                );
+              })()}
+              {parentAuthor.total_xp !== undefined && (
+                <LevelBadge totalXp={parentAuthor.total_xp} minLevel={5} />
+              )}
             </div>
-            {postLanguage && (
-              <span className="px-1.5 py-0.5 text-[9px] font-bold text-blue-500 bg-blue-500/10 border border-blue-500/20 rounded">
-                {postLanguage}
-              </span>
-            )}
+
+            {/* Bottom row: @username · relativeTime */}
+            <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-dd-muted font-medium flex-wrap min-w-0">
+              <Link
+                href={`/profile/${parentAuthor.username}`}
+                onClick={(e) => e.stopPropagation()}
+                className="hover:underline truncate"
+              >
+                @{parentAuthor.username.toLowerCase()}
+              </Link>
+              <span>·</span>
+              <span className="text-[10px]">{parentRelativeTime}</span>
+            </div>
           </div>
           <div className="text-xs text-dd-text/90 mt-1 line-clamp-3">
             {parentTitle && (
@@ -206,23 +237,59 @@ export function ProfileReplyThread({ reply }: ProfileReplyThreadProps) {
 
         {/* Right Column (Reply Content) */}
         <div className="flex-grow min-w-0">
-          <div className="flex items-center gap-1.5 text-xs">
-            <Link
-              href={`/profile/${reply.author.username}`}
-              onClick={(e) => e.stopPropagation()}
-              className="flex items-center gap-1.5 hover:underline"
-            >
-              <ProfileName config={reply.author.avatar_config} className="text-dd-text font-bold">
-                {reply.author.username}
-              </ProfileName>
-              <span className="text-dd-muted text-[11px]">@{reply.author.username}</span>
-            </Link>
-            <span className="text-dd-muted">•</span>
-            <span className="text-dd-muted text-[11px]">{replyRelativeTime}</span>
+          <div className="flex flex-col min-w-0">
+            {/* Top row: Name, Flags, Title, Level */}
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+              <Link
+                href={`/profile/${reply.author.username}`}
+                onClick={(e) => e.stopPropagation()}
+                className="hover:underline truncate group/author min-w-0"
+              >
+                <span className="text-dd-text text-xs font-bold truncate min-w-0 group-hover/author:underline">
+                  <ProfileName config={reply.author.avatar_config}>
+                    {getAuthorDisplayName(reply.author)}
+                  </ProfileName>
+                </span>
+              </Link>
+              {(() => {
+                const replyIdentity = readProfileIdentity(reply.author.avatar_config);
+                return (
+                  <>
+                    {replyIdentity.flags && replyIdentity.flags.length > 0 && (
+                      <span className="inline-flex items-center gap-1 shrink-0">
+                        {replyIdentity.flags.map((code) => (
+                          <ProfileFlag key={code} code={code} />
+                        ))}
+                      </span>
+                    )}
+                    {replyIdentity.title && <ProfileTitle title={replyIdentity.title} />}
+                  </>
+                );
+              })()}
+              {reply.author.total_xp !== undefined && (
+                <LevelBadge totalXp={reply.author.total_xp} minLevel={5} />
+              )}
+            </div>
+
+            {/* Bottom row: @username · relativeTime */}
+            <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-dd-muted font-medium flex-wrap min-w-0">
+              <Link
+                href={`/profile/${reply.author.username}`}
+                onClick={(e) => e.stopPropagation()}
+                className="hover:underline truncate"
+              >
+                @{reply.author.username.toLowerCase()}
+              </Link>
+              <span>·</span>
+              <span className="text-[10px]">{replyRelativeTime}</span>
+            </div>
           </div>
 
-          <div className="text-[11px] text-dd-muted mt-0.5">
-            Repondo a <span className="text-blue-500/90 font-medium">@{parentAuthor.username}</span>
+          <div className="text-[11px] text-dd-muted mt-1.5">
+            Repondo a{' '}
+            <span className="text-blue-500/90 font-medium">
+              @{parentAuthor.username.toLowerCase()}
+            </span>
           </div>
 
           <div className="text-sm text-dd-text mt-2">

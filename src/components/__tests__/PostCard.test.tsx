@@ -106,4 +106,57 @@ describe('PostCard', () => {
     expect(await screen.findByText('ran from api')).toBeInTheDocument();
     expect(pushMock).not.toHaveBeenCalled();
   });
+
+  it('renders author display name, flags, title, username underneath, and hides low level badge', () => {
+    const postWithProfile = {
+      ...pythonPost,
+      author: {
+        username: 'pedrotescaro',
+        avatar_url: null,
+        total_xp: 1200, // Level 2 (< 5)
+        avatar_config: {
+          displayName: 'Pedro',
+          profileStyle: {
+            flag: 'BR',
+            title: {
+              id: 'first-steps',
+              name: 'Primeiros Passos',
+              color: '#0083fe',
+              rarity: 'common',
+            },
+          },
+        },
+      },
+    };
+
+    render(<PostCard post={postWithProfile} flat />);
+
+    // Display name shown
+    expect(screen.getByText('Pedro')).toBeInTheDocument();
+    // Username shown with @
+    expect(screen.getByText('@pedrotescaro')).toBeInTheDocument();
+    // Flag shown
+    expect(screen.getByAltText(/Bandeira: Brasil/i)).toBeInTheDocument();
+    // Title shown
+    expect(screen.getByText('Primeiros Passos')).toBeInTheDocument();
+    // Level 2 should NOT be shown (minLevel 5)
+    expect(screen.queryByText(/Lvl 2/i)).not.toBeInTheDocument();
+    // Language tag in header should NOT be present (the code block itself handles language in console)
+    const pythonPills = screen.queryAllByText('PYTHON');
+    // Only in code block console header, not as a standalone tag in header
+    expect(pythonPills.length).toBeLessThanOrEqual(1);
+  });
+
+  it('displays level badge when level is 5 or higher', () => {
+    const highLevelPost = {
+      ...pythonPost,
+      author: {
+        username: 'masterdev',
+        total_xp: 5000, // Level 6 (>= 5)
+      },
+    };
+
+    render(<PostCard post={highLevelPost} flat />);
+    expect(screen.getByText(/Lvl 6/i)).toBeInTheDocument();
+  });
 });

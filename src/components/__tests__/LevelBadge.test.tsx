@@ -35,4 +35,15 @@ describe('LevelBadge', () => {
       ).toBeGreaterThanOrEqual(4.5);
     }
   });
+
+  it('respects minLevel threshold', () => {
+    const { container, rerender } = render(<LevelBadge totalXp={0} minLevel={5} />);
+    expect(container).toBeEmptyDOMElement();
+
+    rerender(<LevelBadge totalXp={3_000} minLevel={5} />);
+    expect(container).toBeEmptyDOMElement();
+
+    rerender(<LevelBadge totalXp={4_000} minLevel={5} />);
+    expect(screen.getByLabelText('Nível 5')).toBeInTheDocument();
+  });
 });

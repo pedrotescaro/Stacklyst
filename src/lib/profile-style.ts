@@ -43,9 +43,50 @@ export interface ProfileIdentityStyle {
   flags?: string[];
   title?: { id: string; name: string; color: string; rarity: string; icon?: string } | null;
 }
+
+export function getAuthorDisplayName(
+  author?: {
+    name?: string | null;
+    username: string;
+    avatar_config?: unknown;
+  } | null
+): string {
+  if (!author) return '';
+  const raw = author.avatar_config;
+  let config: Record<string, unknown> | null = null;
+  if (raw && typeof raw === 'object' && !Array.isArray(raw)) {
+    config = raw as Record<string, unknown>;
+  } else if (typeof raw === 'string') {
+    try {
+      config = JSON.parse(raw);
+    } catch {
+      config = null;
+    }
+  }
+  const configName =
+    typeof config?.displayName === 'string' && config.displayName.trim()
+      ? config.displayName.trim()
+      : typeof config?.name === 'string' && config.name.trim()
+        ? config.name.trim()
+        : null;
+  return author.name?.trim() || configName || author.username;
+}
+
 export function readProfileIdentity(config: unknown): ProfileIdentityStyle {
+  let parsed = config;
+  if (typeof config === 'string') {
+    try {
+      parsed = JSON.parse(config);
+    } catch {
+      parsed = null;
+    }
+  }
+  const rawObj =
+    parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as Record<string, unknown>)
+      : null;
   const value = (
-    config && typeof config === 'object' ? (config as Record<string, unknown>).profileStyle : null
+    rawObj?.profileStyle && typeof rawObj.profileStyle === 'object' ? rawObj.profileStyle : rawObj
   ) as ProfileIdentityStyle | null;
   if (!value || typeof value !== 'object') return {};
   return {

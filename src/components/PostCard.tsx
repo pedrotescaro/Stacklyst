@@ -5,7 +5,6 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import { LanguageTag } from './LanguageTag';
 import {
   Flag,
   Heart,
@@ -22,8 +21,9 @@ import { LikeButton } from './motion/LikeButton';
 import { BookmarkButton } from './motion/BookmarkButton';
 import { RepostMenu } from './motion/RepostMenu';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
-import { ProfileName } from '@/components/profile/ProfileIdentity';
+import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { LevelBadge } from '@/components/LevelBadge';
+import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { PostLocation, SensitiveContentGate } from './PostPresentation';
 import { cn } from '@/lib/cn';
@@ -319,6 +319,8 @@ export function PostCard({
     ? createSnippetMarkdown(postCodeSnippet, postLanguage)
     : null;
   const { text: relativeTime, isRelative } = useHydrationSafeRelativeTime(post.created_at);
+  const authorIdentity = readProfileIdentity(post.author.avatar_config);
+  const authorDisplayName = getAuthorDisplayName(post.author);
 
   return (
     <div onClick={handleCardClick} className="block min-w-0 group cursor-pointer">
@@ -331,11 +333,11 @@ export function PostCard({
         )}
       >
         {/* Header */}
-        <div className="mb-2.5 flex items-center gap-2 sm:mb-3 sm:gap-3">
+        <div className="mb-2.5 flex items-start gap-2 sm:mb-3 sm:gap-3">
           <Link
             href={`/profile/${post.author.username}`}
             onClick={(e) => e.stopPropagation()}
-            className="hover:opacity-85 transition-opacity shrink-0"
+            className="hover:opacity-85 transition-opacity shrink-0 pt-0.5"
           >
             <AuthorAvatar
               username={post.author.username}
@@ -344,31 +346,44 @@ export function PostCard({
             />
           </Link>
           <div className="flex-1 min-w-0">
-            <div className="flex items-center gap-1.5 min-w-0">
+            {/* Row 1: Name, Flags, Title, Level (>=5) */}
+            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
               <Link
                 href={`/profile/${post.author.username}`}
                 onClick={(e) => e.stopPropagation()}
-                className="flex items-center gap-1.5 hover:underline truncate group/author min-w-0"
+                className="hover:underline truncate group/author min-w-0"
               >
                 <span className="text-dd-text text-xs font-bold truncate min-w-0 group-hover/author:underline">
-                  <ProfileName config={post.author.avatar_config}>
-                    {post.author.name || post.author.username}
-                  </ProfileName>
-                </span>
-                <span className="text-dd-muted text-[11px] font-medium truncate min-w-0">
-                  @{post.author.username.toLowerCase()}
+                  <ProfileName config={post.author.avatar_config}>{authorDisplayName}</ProfileName>
                 </span>
               </Link>
-              <LevelBadge totalXp={post.author.total_xp ?? 0} />
+              {authorIdentity.flags && authorIdentity.flags.length > 0 && (
+                <span className="inline-flex items-center gap-1 shrink-0">
+                  {authorIdentity.flags.map((code) => (
+                    <ProfileFlag key={code} code={code} />
+                  ))}
+                </span>
+              )}
+              {authorIdentity.title && <ProfileTitle title={authorIdentity.title} />}
+              <LevelBadge totalXp={post.author.total_xp ?? 0} minLevel={5} />
             </div>
-            <span className="text-dd-muted text-[10px] block mt-0.5 font-medium">
-              {isRelative && relativeTime === 'agora'
-                ? text('Postado há pouco', 'Posted just now')
-                : `Postado ${relativeTime}`}
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5" onClick={(e) => e.preventDefault()}>
-            {postLanguage && <LanguageTag language={postLanguage} size="sm" />}
+
+            {/* Row 2: @username · Postado há pouco / Postado ... */}
+            <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-dd-muted font-medium flex-wrap min-w-0">
+              <Link
+                href={`/profile/${post.author.username}`}
+                onClick={(e) => e.stopPropagation()}
+                className="hover:underline truncate"
+              >
+                @{post.author.username.toLowerCase()}
+              </Link>
+              <span>·</span>
+              <span className="text-[10px]">
+                {isRelative && relativeTime === 'agora'
+                  ? text('Postado há pouco', 'Posted just now')
+                  : `Postado ${relativeTime}`}
+              </span>
+            </div>
           </div>
         </div>
 
