@@ -1,0 +1,206 @@
+.board {
+  display: block;
+  padding: 12px 12px 24px;
+  color: var(--color-dd-text);
+}
+.heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 22px 2px 18px;
+}
+.heading h2 {
+  font-size: 20px;
+  font-weight: 800;
+  line-height: 1.2;
+}
+.heading p {
+  margin-top: 5px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--color-dd-muted);
+}
+.scope {
+  display: grid;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: 11px;
+  color: var(--color-dd-muted);
+}
+.scope select {
+  max-width: 130px;
+  min-height: 40px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 10px;
+  padding: 0 8px;
+  background: var(--color-dd-surface);
+  color: var(--color-dd-text);
+  font-size: 12px;
+}
+.scope select:focus-visible,
+.board a:focus-visible,
+.message button:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 3px;
+}
+.podium {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+  gap: 8px;
+  min-height: 245px;
+}
+.podiumSlot {
+  min-width: 0;
+}
+.podiumPlayer {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  min-height: 205px;
+  padding: 20px 5px 0;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 14px 14px 8px 8px;
+  text-align: center;
+}
+.podiumSlot[data-rank='1'] .podiumPlayer {
+  min-height: 245px;
+}
+.podiumSlot[data-rank='2'] .podiumPlayer {
+  min-height: 225px;
+}
+.podiumAvatar {
+  margin: 2px 0 4px;
+}
+.featuredAvatar {
+  width: 56px !important;
+  height: 56px !important;
+}
+.firstAvatar {
+  width: 68px !important;
+  height: 68px !important;
+}
+.podiumBase {
+  display: grid;
+  width: calc(100% + 10px);
+  min-height: 64px;
+  margin: auto -5px 0;
+  place-items: center;
+  border-radius: 0 0 7px 7px;
+  background: #b7c3d3;
+  color: #111827;
+  font-size: 24px;
+  font-weight: 800;
+}
+.podiumBase[data-rank='1'] {
+  min-height: 90px;
+  background: #f2c94c;
+}
+.podiumBase[data-rank='3'] {
+  min-height: 52px;
+  background: #ce9467;
+}
+.identity {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 3px;
+}
+.nameLine {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 6px;
+  max-width: 100%;
+}
+.podiumPlayer .identity {
+  max-width: 100%;
+  align-items: center;
+}
+.podiumPlayer .nameLine {
+  justify-content: center;
+}
+.name {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  font-weight: 700;
+}
+.nameLine > span:not(.name) {
+  max-width: 100%;
+  font-size: 10px;
+}
+.username {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-dd-muted);
+  font-size: 11px;
+}
+.xp {
+  flex-shrink: 0;
+  color: var(--color-dd-text);
+  font-size: 12px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.podiumPlayer .xp {
+  max-width: 100%;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: clamp(10px, 2.9vw, 12px);
+}
+.list {
+  margin-top: 16px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 14px;
+}
+.list > div:last-child .row {
+  border-bottom: 0;
+}
+.row {
+  display: grid;
+  grid-template-columns: 28px 44px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+  min-height: 68px;
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--color-dd-border);
+}
+.rowRank {
+  color: var(--color-dd-muted);
+  text-align: center;
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.message {
+  display: grid;
+  justify-items: center;
+  gap: 12px;
+  padding: 55px 20px;
+  color: var(--color-dd-muted);
+  font-size: 13px;
+  text-align: center;
+}
+.message button {
+  min-height: 40px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 10px;
+  color: var(--color-dd-text);
+}
+@media (min-width: 768px) {
+  .board {
+    display: none;
+  }
+}

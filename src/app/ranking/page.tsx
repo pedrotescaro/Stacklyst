@@ -9,6 +9,8 @@ import { getUserLanguageXp, getLanguageLeaderboard } from '@/lib/learning/langua
 import { TRAIL_LANGUAGE_CODES, type TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
 import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
 import type { Language } from '@prisma/client';
+import { getLeaderboardAvatarConfig } from '@/lib/leaderboard-identity';
+import { getGlobalLeaderboard } from '@/lib/learning/leaderboard';
 
 export const revalidate = 0;
 
@@ -56,12 +58,16 @@ export default async function RankedPage() {
   });
 
   // Buscar o ranking específico da linguagem ativa
-  const leaders = await getLanguageLeaderboard(activeLanguage as unknown as Language, 50);
+  const [leaders, initialGlobalLeaderboard] = await Promise.all([
+    getLanguageLeaderboard(activeLanguage as unknown as Language, 50),
+    getGlobalLeaderboard(50),
+  ]);
 
   const initialLeaderboard = leaders.map((leader, index) => ({
     rank: index + 1,
     username: leader.username,
     avatar_url: leader.avatar_url,
+    avatar_config: getLeaderboardAvatarConfig(leader.avatar_config),
     xp: leader.xp,
     level: calculateLevel(leader.xp).level,
     streak: getEffectiveStreak(leader.streak_days ?? 0, leader.last_active_at),
@@ -71,12 +77,14 @@ export default async function RankedPage() {
   return (
     <LeaderboardClient
       initialLeaderboard={initialLeaderboard}
+      initialGlobalLeaderboard={initialGlobalLeaderboard}
       initialLanguage={activeLanguage}
       courses={userCourses}
       initialUser={{
         id: user.id,
         username: user.username,
         avatar_url: user.avatar_url,
+        avatar_config: getLeaderboardAvatarConfig(user.avatar_config),
         total_xp: user.total_xp,
         streak: user.streak_days,
         last_active_at: user.last_active_at ? user.last_active_at.toISOString() : null,

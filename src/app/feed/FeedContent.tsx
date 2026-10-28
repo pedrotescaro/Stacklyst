@@ -25,6 +25,7 @@ import { XPProgressBar } from '@/components/motion/XPProgressBar';
 import { FeedEngagementCard } from '@/app/feed/FeedEngagementCard';
 import { FeedControls } from '@/app/feed/FeedControls';
 import { MobilePullToRefresh } from '@/components/MobilePullToRefresh';
+import { feedRankingSurfaceClassName } from '@/components/FeedRankingSwitcher';
 import { CharCounter } from '@/components/motion/CharCounter';
 import { MentionDropdown } from '@/components/motion/MentionDropdown';
 import { EmptyState } from '@/components/motion/EmptyState';
@@ -1290,7 +1291,10 @@ export function FeedContent({
         {/* ========================================================================= */}
         <main
           data-testid="primary-column"
-          className="flex min-h-screen w-full min-w-0 max-w-[720px] flex-grow flex-col border-dd-border/60 bg-dd-bg md:border-r pb-[calc(6rem+env(safe-area-inset-bottom))] md:border-l md:pb-8 xl:max-w-[820px] 2xl:max-w-[920px]"
+          className={cn(
+            'flex min-h-screen w-full min-w-0 max-w-[720px] flex-grow flex-col border-dd-border/60 bg-dd-bg md:border-r pb-[calc(6rem+env(safe-area-inset-bottom))] md:border-l md:pb-8 xl:max-w-[820px] 2xl:max-w-[920px]',
+            feedRankingSurfaceClassName
+          )}
         >
           <MobilePullToRefresh
             refreshing={refreshingPosts}

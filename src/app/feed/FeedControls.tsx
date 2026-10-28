@@ -2,7 +2,8 @@
 
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { BarChart2, Check, ChevronDown, Newspaper, Pencil, RefreshCw } from 'lucide-react';
+import { Check, ChevronDown, Pencil, RefreshCw } from 'lucide-react';
+import { FeedRankingSwitcher } from '@/components/FeedRankingSwitcher';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
@@ -56,16 +57,7 @@ export function FeedControls({
   return (
     <div className="relative z-30 min-w-0 border-b border-dd-border/60 bg-dd-bg px-3 py-3 md:sticky md:top-0 md:flex md:p-0">
       <div className="mb-2 flex items-center gap-2 md:hidden">
-        <span className="inline-flex min-h-11 items-center gap-2 rounded-full bg-dd-accent px-4 text-xs font-bold text-white">
-          <Newspaper className="h-4 w-4" aria-hidden="true" /> Feed
-        </span>
-        <Link
-          href="/ranking"
-          aria-label={text('Ver ranking', 'View ranking')}
-          className="dd-focus-ring flex h-11 w-11 items-center justify-center rounded-full bg-dd-surface text-dd-muted hover:text-dd-text"
-        >
-          <BarChart2 className="h-5 w-5" aria-hidden="true" />
-        </Link>
+        <FeedRankingSwitcher active="feed" />
       </div>
       <div className="flex min-w-0 items-center gap-2 md:flex-1 md:gap-0">
         <div

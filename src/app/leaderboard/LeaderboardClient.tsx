@@ -12,11 +12,13 @@ import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { TrailCourseSelector, type TrailCourseOption } from '@/app/trails/TrailCourseSelector';
 import { getTrailLanguageMetadata, type TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
 import { getXpBand, XP_BANDS } from '@/lib/learning/rewards';
+import { MobileRankingBoard } from './MobileRankingBoard';
 
 export interface LeaderboardRow {
   rank: number;
   username: string;
   avatar_url?: string | null;
+  avatar_config?: unknown;
   xp: number;
   level: number;
   streak?: number;
@@ -29,11 +31,13 @@ interface LeaderboardClientProps {
     id: string;
     username: string;
     avatar_url?: string | null;
+    avatar_config?: unknown;
     total_xp: number;
     streak?: number;
     last_active_at?: string | null;
   } | null;
   initialLeaderboard: LeaderboardRow[];
+  initialGlobalLeaderboard?: LeaderboardRow[];
   initialLanguage?: TrailLanguageCode;
   courses?: TrailCourseOption[];
 }
@@ -321,6 +325,7 @@ function DuolingoRow({
 export function LeaderboardClient({
   initialUser,
   initialLeaderboard,
+  initialGlobalLeaderboard,
   initialLanguage = 'JS',
   courses,
 }: LeaderboardClientProps) {
@@ -422,104 +427,109 @@ export function LeaderboardClient({
       <div className="mx-auto flex w-full min-w-0 flex-grow items-start justify-center bg-dd-bg xl:max-w-[1320px] xl:justify-start">
         {/* Coluna Central do Ranking */}
         <main className="flex min-h-screen w-full min-w-0 max-w-[760px] flex-grow flex-col bg-dd-bg pb-24 md:pb-12">
-          {/* Header com os Escudos de Divisão estilo Duolingo */}
-          <header className="px-4 pb-4 pt-6 sm:px-8 sm:pt-8">
-            {/* Título com acessibilidade para testes */}
-            <h1 className="sr-only">{text('Ranking de XP', 'XP Ranking')}</h1>
+          <h1 className="sr-only">{text('Ranking de XP', 'XP Ranking')}</h1>
+          <MobileRankingBoard
+            initialLeaderboard={initialLeaderboard}
+            initialLanguage={initialLanguage}
+            initialGlobalLeaderboard={initialGlobalLeaderboard}
+          />
+          <div className="hidden md:block">
+            {/* Header com os Escudos de Divisão estilo Duolingo */}
+            <header className="px-4 pb-4 pt-6 sm:px-8 sm:pt-8">
+              {/* Trilha de Escudos de Divisão (Bronze, Prata, Ouro, Safira, Rubi, Diamante) */}
+              <div
+                aria-label={text('Divisões de XP', 'XP Divisions')}
+                className="flex min-h-[96px] items-end justify-center gap-2.5 sm:gap-4 py-2"
+              >
+                {DIVISIONS.map((division) => (
+                  <DivisionShield
+                    key={division.id}
+                    division={division}
+                    isActive={division.id === activeDivision}
+                    onClick={() => {
+                      if (division.isUnlocked) {
+                        setSelectedDivision(division.id);
+                      }
+                    }}
+                  />
+                ))}
+              </div>
 
-            {/* Trilha de Escudos de Divisão (Bronze, Prata, Ouro, Safira, Rubi, Diamante) */}
-            <div
-              aria-label={text('Divisões de XP', 'XP Divisions')}
-              className="flex min-h-[96px] items-end justify-center gap-2.5 sm:gap-4 py-2"
+              {/* Título da Divisão Ativa & Regra de Promoção */}
+              <div className="mt-3 flex flex-col items-center justify-center text-center">
+                <h2 className="text-2xl sm:text-[28px] font-black tracking-tight text-dd-text">
+                  {text(currentDivision.labelPt, currentDivision.labelEn)}
+                </h2>
+                <p className="mt-1 text-sm font-semibold text-dd-muted">
+                  {text(
+                    `A divisão acompanha o XP acumulado na trilha de ${languageLabel}.`,
+                    `Your division follows the accumulated XP in the ${languageLabel} trail.`
+                  )}
+                </p>
+                <div className="mt-2 flex w-full items-center justify-center text-center">
+                  <p className="text-center text-[11px] font-black uppercase tracking-wider text-blue-500 dark:text-blue-400">
+                    {nextBand
+                      ? `${formatXp(currentBand.minXp, locale)}–${formatXp(nextBand.minXp - 1, locale)} XP`
+                      : `${formatXp(currentBand.minXp, locale)}+ XP`}
+                  </p>
+                </div>
+              </div>
+
+              {/* Linha separadora sutil */}
+              <div className="mt-6 border-b border-dd-border/80" />
+            </header>
+
+            {/* Tabela do Ranking (Leaderboard Rows) */}
+            <section
+              aria-label={text(`Classificação ${languageLabel}`, `${languageLabel} ranking`)}
+              aria-busy={loading}
+              className="px-3 sm:px-6"
             >
-              {DIVISIONS.map((division) => (
-                <DivisionShield
-                  key={division.id}
-                  division={division}
-                  isActive={division.id === activeDivision}
-                  onClick={() => {
-                    if (division.isUnlocked) {
-                      setSelectedDivision(division.id);
-                    }
-                  }}
-                />
-              ))}
-            </div>
-
-            {/* Título da Divisão Ativa & Regra de Promoção */}
-            <div className="mt-3 flex flex-col items-center justify-center text-center">
-              <h2 className="text-2xl sm:text-[28px] font-black tracking-tight text-dd-text">
-                {text(currentDivision.labelPt, currentDivision.labelEn)}
-              </h2>
-              <p className="mt-1 text-sm font-semibold text-dd-muted">
-                {text(
-                  `A divisão acompanha o XP acumulado na trilha de ${languageLabel}.`,
-                  `Your division follows the accumulated XP in the ${languageLabel} trail.`
-                )}
-              </p>
-              <div className="mt-2 flex w-full items-center justify-center text-center">
-                <p className="text-center text-[11px] font-black uppercase tracking-wider text-blue-500 dark:text-blue-400">
-                  {nextBand
-                    ? `${formatXp(currentBand.minXp, locale)}–${formatXp(nextBand.minXp - 1, locale)} XP`
-                    : `${formatXp(currentBand.minXp, locale)}+ XP`}
-                </p>
-              </div>
-            </div>
-
-            {/* Linha separadora sutil */}
-            <div className="mt-6 border-b border-dd-border/80" />
-          </header>
-
-          {/* Tabela do Ranking (Leaderboard Rows) */}
-          <section
-            aria-label={text(`Classificação ${languageLabel}`, `${languageLabel} ranking`)}
-            aria-busy={loading}
-            className="px-3 sm:px-6"
-          >
-            {loading ? (
-              <div className="space-y-2 py-2" aria-live="polite">
-                <p className="sr-only">
-                  {text('Carregando classificação...', 'Loading ranking...')}
-                </p>
-                {Array.from({ length: 10 }, (_, index) => (
-                  <div
-                    key={index}
-                    className="dd-skeleton h-[68px] w-full rounded-2xl"
-                    aria-hidden="true"
-                  />
-                ))}
-              </div>
-            ) : divisionRows.length > 0 ? (
-              <div className="space-y-1">
-                {divisionRows.map((row) => (
-                  <DuolingoRow
-                    key={row.username}
-                    row={row}
-                    isViewer={initialUser?.username === row.username}
-                    activeStatusEmoji={
-                      initialUser?.username === row.username ? userStatusEmoji : undefined
-                    }
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="rounded-2xl border-2 border-dashed border-dd-border px-6 py-14 text-center">
-                <Trophy aria-hidden="true" className="mx-auto h-10 w-10 text-dd-muted" />
-                <p className="mt-3 text-base font-black text-dd-text">
-                  {text(
-                    'Nenhum perfil desta divisão entre os 50 primeiros.',
-                    'No profiles from this division in the top 50.'
-                  )}
-                </p>
-                <p className="mt-1 text-xs font-semibold text-dd-muted">
-                  {text(
-                    `Explore outra faixa ou pratique ${languageLabel} para conquistar XP.`,
-                    `Explore another band or practice ${languageLabel} to earn XP.`
-                  )}
-                </p>
-              </div>
-            )}
-          </section>
+              {loading ? (
+                <div className="space-y-2 py-2" aria-live="polite">
+                  <p className="sr-only">
+                    {text('Carregando classificação...', 'Loading ranking...')}
+                  </p>
+                  {Array.from({ length: 10 }, (_, index) => (
+                    <div
+                      key={index}
+                      className="dd-skeleton h-[68px] w-full rounded-2xl"
+                      aria-hidden="true"
+                    />
+                  ))}
+                </div>
+              ) : divisionRows.length > 0 ? (
+                <div className="space-y-1">
+                  {divisionRows.map((row) => (
+                    <DuolingoRow
+                      key={row.username}
+                      row={row}
+                      isViewer={initialUser?.username === row.username}
+                      activeStatusEmoji={
+                        initialUser?.username === row.username ? userStatusEmoji : undefined
+                      }
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-2xl border-2 border-dashed border-dd-border px-6 py-14 text-center">
+                  <Trophy aria-hidden="true" className="mx-auto h-10 w-10 text-dd-muted" />
+                  <p className="mt-3 text-base font-black text-dd-text">
+                    {text(
+                      'Nenhum perfil desta divisão entre os 50 primeiros.',
+                      'No profiles from this division in the top 50.'
+                    )}
+                  </p>
+                  <p className="mt-1 text-xs font-semibold text-dd-muted">
+                    {text(
+                      `Explore outra faixa ou pratique ${languageLabel} para conquistar XP.`,
+                      `Explore another band or practice ${languageLabel} to earn XP.`
+                    )}
+                  </p>
+                </div>
+              )}
+            </section>
+          </div>
         </main>
 
         {/* Barra Lateral Direita (Widgets Duolingo) */}

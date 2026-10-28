@@ -94,7 +94,7 @@ describe('LeaderboardClient', () => {
     expect(statusSection).toHaveClass('dark:bg-black');
 
     // Linha do espectador com destaque azul tanto no claro quanto no escuro
-    const viewerRow = screen.getByRole('link', { name: /pedro/i });
+    const viewerRow = screen.getByRole('link', { name: '3º lugar, pedro, 720 XP' });
     expect(viewerRow.className).toContain('bg-blue-500/[0.08]');
     expect(viewerRow.className).toContain('dark:bg-[#121c2e]');
   });
@@ -118,8 +118,8 @@ describe('LeaderboardClient', () => {
     expect(screen.queryByText('Rubi')).not.toBeInTheDocument();
     await user.click(screen.getByTitle('Divisão Platina'));
     expect(screen.getByRole('heading', { name: 'Divisão Platina' })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /platinum/ })).toBeInTheDocument();
-    expect(screen.queryByRole('link', { name: /alice/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('link', { name: '5º lugar, platinum, 2.500 XP' })).toBeInTheDocument();
+    expect(screen.queryByRole('link', { name: '1º lugar, alice, 900 XP' })).not.toBeInTheDocument();
     expect(screen.queryByText('ZONA DE PROMOÇÃO')).not.toBeInTheDocument();
   });
 });

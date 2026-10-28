@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { prisma } from '@/lib/prisma';
 import { Language } from '@prisma/client';
-import { calculateLevel, XP_RANK_ORDER } from '@/lib/learning/rewards';
+import { calculateLevel } from '@/lib/learning/rewards';
+import { getGlobalLeaderboard } from '@/lib/learning/leaderboard';
 import { getLanguageLeaderboard } from '@/lib/learning/language-xp';
 import { getEffectiveStreak } from '@/lib/streak';
+import { getLeaderboardAvatarConfig } from '@/lib/leaderboard-identity';
 
 export async function GET(request: Request) {
   try {
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
         rank: index + 1,
         username: leader.username,
         avatar_url: leader.avatar_url,
+        avatar_config: getLeaderboardAvatarConfig(leader.avatar_config),
         xp: leader.xp,
         level: calculateLevel(leader.xp).level,
         streak: getEffectiveStreak(leader.streak_days ?? 0, leader.last_active_at),
@@ -28,31 +30,7 @@ export async function GET(request: Request) {
 
       return NextResponse.json(formatted);
     } else {
-      // Leaderboard global baseado no total_xp do usuário
-      const leaders = await prisma.user.findMany({
-        orderBy: XP_RANK_ORDER,
-        take: 50,
-        select: {
-          username: true,
-          avatar_url: true,
-          total_xp: true,
-          streak_days: true,
-          last_active_at: true,
-          created_at: true,
-        },
-      });
-
-      const formatted = leaders.map((leader, index) => ({
-        rank: index + 1,
-        username: leader.username,
-        avatar_url: leader.avatar_url,
-        xp: leader.total_xp,
-        level: calculateLevel(leader.total_xp).level,
-        streak: getEffectiveStreak(leader.streak_days ?? 0, leader.last_active_at),
-        created_at: leader.created_at ? leader.created_at.toISOString() : null,
-      }));
-
-      return NextResponse.json(formatted);
+      return NextResponse.json(await getGlobalLeaderboard(50));
     }
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
