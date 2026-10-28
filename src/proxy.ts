@@ -7,7 +7,8 @@ export async function proxy(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   if (
     pathname === '/api/auth/callback' &&
-    request.nextUrl.searchParams.get('client') === 'mobile'
+    (request.nextUrl.searchParams.get('client') === 'mobile' ||
+      request.nextUrl.searchParams.get('addAccount') === '1')
   ) {
     return NextResponse.next();
   }

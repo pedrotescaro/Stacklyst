@@ -92,7 +92,7 @@ describe('Sidebar role-aware navigation', () => {
 
     await waitFor(() => expect(getCurrentUser).toHaveBeenCalled());
     expect(await screen.findAllByRole('link', { name: 'Home' })).toHaveLength(2);
-    expect(screen.getAllByRole('link', { name: 'Notifications' })).toHaveLength(2);
+    expect(screen.getAllByRole('link', { name: 'Notifications' })).toHaveLength(3);
     expect(screen.getByRole('link', { name: 'Bookmarks' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument();
   });

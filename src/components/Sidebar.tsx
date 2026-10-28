@@ -1,9 +1,10 @@
 'use client';
 
 import { BrandLogo } from '@/components/BrandLogo';
+import { MobileNavigationDrawer } from '@/components/MobileNavigationDrawer';
 import { ProfileName } from '@/components/profile/ProfileIdentity';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import dynamic from 'next/dynamic';
@@ -27,6 +28,7 @@ import {
   Code2,
   ShieldAlert,
   SquarePen,
+  Menu,
 } from 'lucide-react';
 import { PostComposerExtras } from '@/components/PostComposerExtras';
 import type { NotionEditorRef } from '@/components/MarkdownEditor';
@@ -86,10 +88,12 @@ if (typeof window !== 'undefined') {
 export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const { t } = useLanguage();
+  const { t, isEnglish } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
-  const shouldHideMobileHeader = hideMobileHeader || Boolean(pathname?.startsWith('/profile'));
+  const shouldHideMobileHeader = hideMobileHeader;
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const closeMobileMenu = useCallback(() => setMobileMenuOpen(false), []);
 
   // Local state for user with sessionStorage cache fallback
   const [activeUser, setActiveUser] = useState<SidebarUser | null>(() => {
@@ -220,6 +224,47 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   const [postLocation, setPostLocation] = useState('');
   const [isSensitive, setIsSensitive] = useState(false);
 
+  // Drafts belong to the signed-in account and remain on this browser only.
+  useEffect(() => {
+    if (!activeUser?.id) return;
+    try {
+      const raw = localStorage.getItem(`stacklyst-post-draft:${activeUser.id}`);
+      const draft = raw ? JSON.parse(raw) : null;
+      setPostBody(typeof draft?.body === 'string' ? draft.body : '');
+      setPostImage(typeof draft?.image === 'string' ? draft.image : '');
+      setPostLocation(typeof draft?.location === 'string' ? draft.location : '');
+      setScheduledAt(typeof draft?.scheduledAt === 'string' ? draft.scheduledAt : null);
+      setIsSensitive(draft?.isSensitive === true);
+      setReplyAudience(
+        draft?.replyAudience === 'followers' || draft?.replyAudience === 'mentioned'
+          ? draft.replyAudience
+          : 'everyone'
+      );
+    } catch {
+      // An unavailable or malformed local draft must not block the composer.
+    }
+  }, [activeUser?.id]);
+
+  const saveDraft = () => {
+    if (!activeUser?.id) return false;
+    try {
+      localStorage.setItem(
+        `stacklyst-post-draft:${activeUser.id}`,
+        JSON.stringify({
+          body: postBody,
+          image: postImage,
+          location: postLocation,
+          scheduledAt,
+          isSensitive,
+          replyAudience,
+        })
+      );
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
   // Custom sidebar item states
   const [toast, setToast] = useState<{ message: string; visible: boolean } | null>(null);
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
@@ -296,6 +341,13 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   };
 
   const resetCompose = () => {
+    if (activeUser?.id) {
+      try {
+        localStorage.removeItem(`stacklyst-post-draft:${activeUser.id}`);
+      } catch {
+        /* Storage may be unavailable. */
+      }
+    }
     setPostBody('');
     setPostImage('');
     setShowMentionSuggestions(false);
@@ -356,7 +408,9 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       }
     } catch (err: any) {
       console.error('Error creating post from sidebar:', err);
-      setPostError(err.message || 'Algo deu errado ao postar. Seu texto foi salvo como rascunho.');
+      setPostError(
+        err.message || 'Algo deu errado ao postar. Você pode salvar seu texto como rascunho.'
+      );
       setPublishState('idle');
     } finally {
       setSubmitting(false);
@@ -368,7 +422,14 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
     setPostError(null);
   };
 
-  const hasDraft = Boolean(postBody.trim() || postImage);
+  const hasDraft = Boolean(
+    postBody.trim() ||
+    postImage ||
+    postLocation ||
+    scheduledAt ||
+    isSensitive ||
+    replyAudience !== 'everyone'
+  );
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -808,138 +869,49 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       {/* MOBILE HEADER & BOTTOM NAV (Twitter mobile style) */}
       {/* ========================================== */}
       <div className="md:hidden flex flex-col w-full">
-        {/* Top Header */}
+        {/* Cabeçalho compartilhado para o web responsivo. */}
         {!shouldHideMobileHeader && (
-          <header className="sticky top-0 z-[100] flex w-full items-center justify-between border-b border-dd-border bg-dd-bg/80 px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))] backdrop-blur-md">
-            <Link href="/feed" className="flex items-center gap-2 group">
-              <BrandLogo size={24} />
+          <header className="sticky top-0 z-[100] grid w-full grid-cols-3 items-center border-b border-dd-border bg-dd-bg/95 px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-md">
+            <button
+              type="button"
+              aria-label={isEnglish ? 'Open menu' : 'Abrir menu'}
+              aria-expanded={mobileMenuOpen}
+              aria-haspopup="dialog"
+              onClick={() => setMobileMenuOpen(true)}
+              className="flex h-11 w-11 items-center justify-center rounded-full text-dd-text hover:bg-dd-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            >
+              <Menu className="h-6 w-6" aria-hidden="true" />
+            </button>
+            <Link
+              href="/feed"
+              aria-label="Stacklyst"
+              className="justify-self-center rounded-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            >
+              <BrandLogo size={26} wordmark={false} />
             </Link>
-
-            <div className="flex items-center gap-2.5">
-              {activeUser && (
-                <div className="relative">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMoreMenuOpen(false);
-                      setDropdownOpen((open) => !open);
-                    }}
-                    aria-expanded={dropdownOpen}
-                    aria-haspopup="menu"
-                    className="flex items-center focus:outline-none"
-                  >
-                    <AuthorAvatar
-                      username={activeUser.username}
-                      avatar_url={activeUser.avatar_url}
-                      avatar_config={activeUser.avatar_config}
-                      size="sm"
-                      className="!h-7 !w-7"
-                    />
-                  </button>
-
-                  {dropdownOpen && (
-                    <>
-                      <div
-                        className="fixed inset-0 z-[110]"
-                        onClick={() => setDropdownOpen(false)}
-                      />
-                      <div
-                        role="menu"
-                        className="absolute right-0 z-[120] mt-2 w-60 overflow-hidden rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.4)]"
-                      >
-                        <Link
-                          href={`/profile/${activeUser.username}`}
-                          role="menuitem"
-                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <UserIcon className="h-5 w-5 shrink-0 text-dd-text" />
-                          <span>{t.nav.myProfile}</span>
-                        </Link>
-                        <Link
-                          href="/ranking"
-                          role="menuitem"
-                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <Trophy className="h-5 w-5 shrink-0 text-dd-text" />
-                          <span>{t.nav.ranking}</span>
-                        </Link>
-                        <Link
-                          href="/jobs"
-                          role="menuitem"
-                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <Briefcase className="h-5 w-5 shrink-0 text-dd-text" />
-                          <span>{t.nav.jobs}</span>
-                        </Link>
-                        <Link
-                          href="/events"
-                          role="menuitem"
-                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <Calendar className="h-5 w-5 shrink-0 text-dd-text" />
-                          <span>{t.nav.events}</span>
-                        </Link>
-                        <Link
-                          href="/duels"
-                          role="menuitem"
-                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <Swords className="h-5 w-5 shrink-0 text-dd-text" />
-                          <span>{t.nav.duels}</span>
-                        </Link>
-                        <Link
-                          href="/evaluations"
-                          role="menuitem"
-                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <Code2 className="h-5 w-5 shrink-0 text-dd-text" />
-                          <span>{t.nav.codeEvaluation}</span>
-                        </Link>
-                        {isAdmin && (
-                          <Link
-                            href="/admin"
-                            role="menuitem"
-                            className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                            onClick={() => setDropdownOpen(false)}
-                          >
-                            <ShieldAlert className="h-5 w-5 shrink-0 text-dd-text" />
-                            <span>{t.nav.adminPanel}</span>
-                          </Link>
-                        )}
-                        <Link
-                          href="/settings"
-                          role="menuitem"
-                          className="flex items-center gap-3.5 rounded-xl px-3.5 py-3 text-sm font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
-                          onClick={() => setDropdownOpen(false)}
-                        >
-                          <SettingsIcon className="h-5 w-5 shrink-0 text-dd-text" />
-                          <span>{t.nav.settings}</span>
-                        </Link>
-                        <button
-                          type="button"
-                          role="menuitem"
-                          onClick={() => {
-                            setDropdownOpen(false);
-                            handleSignOut();
-                          }}
-                          className="flex w-full cursor-pointer items-center gap-3.5 rounded-xl px-3.5 py-3 text-left text-sm font-extrabold leading-none text-red-500 transition-colors hover:bg-red-500/10 focus-visible:bg-red-500/10 focus-visible:outline-none"
-                        >
-                          <LogOut className="h-5 w-5 shrink-0" />
-                          <span>{t.nav.signOut}</span>
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
+            <Link
+              href="/notifications"
+              aria-label={t.nav.notifications}
+              aria-current={pathname === '/notifications' ? 'page' : undefined}
+              className="flex h-11 w-11 items-center justify-center justify-self-end rounded-full hover:bg-dd-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            >
+              <NotificationBellIcon
+                unreadCount={unreadCount}
+                active={pathname === '/notifications'}
+              />
+            </Link>
           </header>
+        )}
+        {mobileMenuOpen && (
+          <MobileNavigationDrawer
+            user={activeUser}
+            onClose={closeMobileMenu}
+            onSignOut={handleSignOut}
+            onOpenDraft={() => {
+              closeMobileMenu();
+              setModalOpen(true);
+            }}
+          />
         )}
 
         <nav className="fixed bottom-0 left-0 right-0 z-[100] flex items-center justify-around border-t border-dd-border bg-dd-bg/90 px-3 pb-[max(0.625rem,env(safe-area-inset-bottom))] pt-2.5 backdrop-blur-md sm:px-6">
@@ -964,6 +936,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
         onClose={handleCloseModal}
         hasDraft={hasDraft}
         onDiscard={resetCompose}
+        onSaveDraft={saveDraft}
         headerExtra={
           <button
             type="button"

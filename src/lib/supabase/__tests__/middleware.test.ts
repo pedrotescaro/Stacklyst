@@ -62,6 +62,17 @@ describe('Supabase session proxy', () => {
     expect(verifyBearerIdentity).not.toHaveBeenCalled();
   });
 
+  it('allows a signed-in user to add an account and does not rotate their session on the OAuth callback', async () => {
+    getClaims.mockResolvedValue({ data: { claims: { sub: 'user-1' } }, error: null });
+    const login = await updateSession(new NextRequest('https://stacklyst.test/login?addAccount=1'));
+    expect(login.status).toBe(200);
+    const callback = await proxy(
+      new NextRequest('https://stacklyst.test/api/auth/callback?addAccount=1&code=one-time')
+    );
+    expect(callback.status).toBe(200);
+    expect(createServerClient).toHaveBeenCalledTimes(1);
+  });
+
   it('rejects bootstrap without Authorization before inspecting any browser session cookies', async () => {
     const response = await proxy(
       new NextRequest('https://stacklyst.test/api/mobile/auth/bootstrap', {

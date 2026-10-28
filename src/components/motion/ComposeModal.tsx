@@ -11,6 +11,7 @@ interface ComposeModalProps {
   onClose: () => void;
   hasDraft: boolean;
   onDiscard?: () => void;
+  onSaveDraft?: () => boolean;
   children: ReactNode;
   headerExtra?: ReactNode;
 }
@@ -20,11 +21,13 @@ export function ComposeModal({
   onClose,
   hasDraft,
   onDiscard,
+  onSaveDraft,
   children,
   headerExtra,
 }: ComposeModalProps) {
   const reduced = useReducedMotion();
   const [discardWarning, setDiscardWarning] = useState(false);
+  const [saveError, setSaveError] = useState(false);
 
   const handleClose = useCallback(() => {
     if (hasDraft) {
@@ -105,10 +108,29 @@ export function ComposeModal({
                   <div className="space-y-1">
                     <p className="text-sm font-bold text-dd-text">Descartar rascunho?</p>
                     <p className="text-xs text-dd-muted">
-                      Seu texto continua salvo ate voce decidir descartar.
+                      {onSaveDraft
+                        ? 'Salve neste navegador para continuar depois ou descarte o texto.'
+                        : 'Seu texto permanece aberto até você decidir descartá-lo.'}
                     </p>
                   </div>
-                  <div className="flex items-center justify-end gap-2">
+                  <div className="flex flex-wrap items-center justify-end gap-2">
+                    {onSaveDraft && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (!onSaveDraft()) {
+                            setSaveError(true);
+                            return;
+                          }
+                          setSaveError(false);
+                          setDiscardWarning(false);
+                          onClose();
+                        }}
+                        className="dd-touch rounded-full border border-dd-border px-4 py-2 text-xs font-bold text-dd-text cursor-pointer"
+                      >
+                        Salvar rascunho
+                      </button>
+                    )}
                     <button
                       type="button"
                       onClick={() => setDiscardWarning(false)}
@@ -124,6 +146,12 @@ export function ComposeModal({
                       Descartar
                     </button>
                   </div>
+                  {saveError && (
+                    <p role="alert" className="text-xs text-red-400">
+                      Não foi possível salvar neste navegador. Continue editando ou descarte o
+                      texto.
+                    </p>
+                  )}
                 </div>
               </motion.div>
             )}

@@ -287,7 +287,7 @@ export function ProfileContent({
 
   return (
     <div data-testid="profile-shell" className="dd-platform-shell dd-platform-shell--fullscreen">
-      <Sidebar user={user} hideMobileHeader />
+      <Sidebar user={user} />
       <div
         className={`min-w-0 flex-grow bg-dd-bg ${styles.pageLayout} ${profileStyles.scope}`}
         data-secondary={Boolean(preferences?.appearance.secondaryColor)}

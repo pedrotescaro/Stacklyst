@@ -119,6 +119,7 @@ export async function updateSession(request: NextRequest) {
   if (
     user &&
     (pathname === '/login' || pathname === '/register') &&
+    !(pathname === '/login' && request.nextUrl.searchParams.get('addAccount') === '1') &&
     reasonParam !== 'session_expired'
   ) {
     const url = request.nextUrl.clone();

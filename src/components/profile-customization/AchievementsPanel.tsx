@@ -15,7 +15,12 @@ import {
   Sparkles,
   Users,
 } from 'lucide-react';
-import type { AchievementProgress, ProfilePreferences } from '@/lib/profile-customization';
+import type {
+  AchievementProgress,
+  ProfileCatalog,
+  ProfileMetric,
+  ProfilePreferences,
+} from '@/lib/profile-customization';
 import { readableColor } from '@/lib/profile-style';
 import styles from './Personalization.module.css';
 
@@ -40,12 +45,41 @@ const achievementIcons = {
   cake: Cake,
 };
 
+const metricDetails: Record<ProfileMetric, string> = {
+  posts:
+    'Publicações precisam ter título com pelo menos 4 caracteres e texto com pelo menos 40. Conteúdos repetidos contam uma vez, com limite de 5 por dia.',
+  comments:
+    'Comentários precisam ter pelo menos 12 caracteres e responder a outra pessoa. Textos repetidos contam uma vez.',
+  peopleHelped:
+    'Conte as pessoas diferentes às quais você respondeu. A resposta precisa ter pelo menos 12 caracteres e textos repetidos contam uma vez.',
+  likes:
+    'Contam curtidas de outras contas criadas há pelo menos 24 horas, até 20 por pessoa por dia.',
+  followers:
+    'Contam seguidores cujas contas foram criadas pelo menos 24 horas antes de seguir você.',
+  learningActivities: 'Conclua exercícios diferentes com resultado aprovado.',
+  completedTrails: 'Conclua todas as etapas obrigatórias dos quizzes da trilha.',
+  eventPosts:
+    'Durante o evento, publique com a hashtag indicada, título com pelo menos 4 caracteres e texto com pelo menos 40. Conteúdos repetidos contam uma vez.',
+  eventComments:
+    'Durante o evento, comente em publicações de outras pessoas feitas no período e com a hashtag do evento. Comentários precisam ter pelo menos 12 caracteres e textos repetidos contam uma vez.',
+  eventComplete:
+    'Conclua todos os outros desafios deste evento durante o período em que ele estiver ativo.',
+};
+
+const eventDate = new Intl.DateTimeFormat('pt-BR', {
+  dateStyle: 'short',
+  timeStyle: 'short',
+  timeZone: 'America/Sao_Paulo',
+});
+
 export function AchievementsPanel({
   achievements,
+  events,
   preferences,
   onChange,
 }: {
   achievements: AchievementProgress[];
+  events: ProfileCatalog['events'];
   preferences: ProfilePreferences;
   onChange: (preferences: ProfilePreferences) => void;
 }) {
@@ -83,6 +117,7 @@ export function AchievementsPanel({
           const equipped = preferences.equippedTitleId === achievement.id;
           const target = achievement.requirement.target;
           const Icon = achievementIcons[achievement.icon];
+          const event = events.find((item) => item.id === achievement.requirement.eventId);
           return (
             <article key={achievement.id} className={styles.achievement}>
               <div
@@ -109,6 +144,18 @@ export function AchievementsPanel({
                   </span>
                 </h3>
                 <p className={styles.achievementDescription}>{achievement.description}</p>
+                <details className={styles.achievementDetails}>
+                  <summary>Como conseguir</summary>
+                  <p>{metricDetails[achievement.requirement.metric]}</p>
+                  {event && (
+                    <p>
+                      {event.name} · #{event.hashtag}. De{' '}
+                      {eventDate.format(new Date(event.startsAt))} até{' '}
+                      {eventDate.format(new Date(event.endsAt))} (horário de Brasília, término
+                      exclusivo). {!event.enabled && 'Este evento está desativado.'}
+                    </p>
+                  )}
+                </details>
                 <progress
                   className={styles.progress}
                   value={Math.min(achievement.progress, target)}

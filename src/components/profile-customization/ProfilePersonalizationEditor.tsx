@@ -1047,6 +1047,7 @@ export function ProfilePersonalizationEditor({
               {section === 'achievements' && (
                 <AchievementsPanel
                   achievements={state.achievements}
+                  events={state.catalog.events}
                   preferences={preferences}
                   onChange={setPreferences}
                 />

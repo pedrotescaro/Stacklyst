@@ -107,16 +107,35 @@ export default function LoginPage() {
     return true;
   };
 
+  // Save immediately before replacing the current browser session: the proxy
+  // may have rotated its refresh token while the login page was loading.
+  const preserveCurrentAccount = async () => {
+    if (new URLSearchParams(window.location.search).get('addAccount') !== '1') return true;
+    const response = await fetch('/api/auth/accounts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'save' }),
+    });
+    if (response.ok) return true;
+    const result = await response.json().catch(() => null);
+    setError(result?.error || copy.signInError);
+    return false;
+  };
+
   const handleOAuthLogin = async (provider: OAuthProvider) => {
     setError(null);
     if (!checkSupabaseConfig()) return;
 
     try {
+      if (!(await preserveCurrentAccount())) return;
+      if (new URLSearchParams(window.location.search).get('addAccount') === '1') {
+        sessionStorage.removeItem('stacklyst_user');
+      }
       const supabase = createClient();
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`,
+          redirectTo: `${window.location.origin}/api/auth/callback${new URLSearchParams(window.location.search).get('addAccount') === '1' ? '?addAccount=1' : ''}`,
         },
       });
 
@@ -140,6 +159,10 @@ export default function LoginPage() {
     const trimmedEmail = email.trim().toLowerCase();
 
     try {
+      if (!(await preserveCurrentAccount())) {
+        setLoading(false);
+        return;
+      }
       const supabase = createClient();
       const { error: loginError } = await supabase.auth.signInWithPassword({
         email: trimmedEmail,
@@ -158,8 +181,15 @@ export default function LoginPage() {
         return;
       }
 
-      router.push('/feed');
-      router.refresh();
+      if (new URLSearchParams(window.location.search).get('addAccount') === '1') {
+        sessionStorage.removeItem('stacklyst_user');
+        // Clear client caches belonging to the previous account.
+        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
+        window.location.assign('/feed');
+      } else {
+        router.push('/feed');
+        router.refresh();
+      }
     } catch (err) {
       console.error(err);
       setError(copy.signInError);

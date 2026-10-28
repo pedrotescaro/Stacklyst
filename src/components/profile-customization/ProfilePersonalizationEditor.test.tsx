@@ -219,6 +219,19 @@ describe('Profile personalization editor', () => {
     expect(persisted.preferences.featuredAchievementIds).toEqual([first.id]);
   });
 
+  it('explains the real criteria and event dates for titles', async () => {
+    await open('achievements');
+    const first = screen.getByRole('heading', { name: /Primeiros Passos/ }).closest('article')!;
+    fireEvent.click(within(first).getByText('Como conseguir'));
+    expect(within(first).getByText(/limite de 5 por dia/)).toBeInTheDocument();
+    const event = screen
+      .getByRole('heading', { name: /Espírito de Halloween/ })
+      .closest('article')!;
+    fireEvent.click(within(event).getByText('Como conseguir'));
+    expect(within(event).getByText(/#Halloween/)).toHaveTextContent('25/10/2026');
+    expect(within(event).getByText(/#Halloween/)).toHaveTextContent('01/11/2026');
+  });
+
   it('removes a persisted photo only after saving and can discard the removal', async () => {
     persisted.avatarUrl =
       'https://project.supabase.co/storage/v1/object/public/uploads/owner/old.jpg';
