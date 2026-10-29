@@ -2565,3 +2565,55 @@
   background: var(--ad-card);
   color: var(--ad-text);
 }
+
+/* Exploration owns the viewport; other adventure screens keep normal scrolling. */
+.adventure-platform:has(.adventure-world) {
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+}
+.adventure-platform:has(.adventure-world) > .mx-auto {
+  height: 100%;
+  min-height: 0;
+}
+.adventure-platform:has(.adventure-world) main {
+  min-height: 0;
+  padding-bottom: 0;
+  overflow: hidden;
+}
+.adventure-world {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh;
+  min-height: 0;
+  padding-bottom: 12px;
+  overflow: hidden;
+  overscroll-behavior: none;
+}
+.adventure-platform .adventure-world {
+  height: 100%;
+}
+.adventure-world > .ad-page-heading,
+.adventure-world > .ad-notice,
+.adventure-world > .ad-error {
+  flex-shrink: 0;
+}
+.adventure-world .world-shell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.adventure-world .world-viewport {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+  overscroll-behavior: none;
+}
+.adventure-world .world-hint-footer {
+  flex-shrink: 0;
+}
+.adventure-world > .ad-footer-badge {
+  display: none;
+}

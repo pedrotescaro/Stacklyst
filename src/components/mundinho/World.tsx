@@ -123,12 +123,15 @@ export default function World({
       'arrowright',
     ]);
     const down = (e: KeyboardEvent) => {
+      const target = e.target instanceof HTMLElement ? e.target : null;
+      if (target?.closest('input, textarea, select, a, [contenteditable="true"]')) return;
+      if (target && target !== document.body && !el.closest('.adventure')?.contains(target)) return;
       const key = e.key.toLowerCase();
       if (controls.has(key)) {
         e.preventDefault();
         keys.current.add(key);
       }
-      if ((key === 'e' || key === ' ') && !e.repeat) {
+      if ((key === 'e' || (key === ' ' && !target?.closest('button'))) && !e.repeat) {
         e.preventDefault();
         interaction.current();
       }
@@ -139,7 +142,7 @@ export default function World({
       stick.current = { x: 0, y: 0 };
     };
 
-    el.addEventListener('keydown', down);
+    window.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
     window.addEventListener('blur', clear);
     document.addEventListener('visibilitychange', clear);
@@ -190,7 +193,7 @@ export default function World({
     return () => {
       observer.disconnect();
       cancelAnimationFrame(frame);
-      el.removeEventListener('keydown', down);
+      window.removeEventListener('keydown', down);
       window.removeEventListener('keyup', up);
       window.removeEventListener('blur', clear);
       document.removeEventListener('visibilitychange', clear);

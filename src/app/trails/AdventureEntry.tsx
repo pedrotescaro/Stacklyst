@@ -60,7 +60,7 @@ export function AdventureEntry({
   }, []);
 
   return (
-    <div className="dd-platform-shell relative min-h-screen bg-dd-bg">
+    <div className="dd-platform-shell adventure-platform relative min-h-screen bg-dd-bg">
       <Sidebar user={user} />
       <div className="mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
         {/* Main Mundinho Area - Sits right adjacent to Sidebar divider */}
