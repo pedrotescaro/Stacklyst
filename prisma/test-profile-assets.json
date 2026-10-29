@@ -1,0 +1,22 @@
+{
+  "testuser999": {
+    "avatar_url": "https://stacklyst.vercel.app/avatars/demo/testuser999.jpg",
+    "source_url": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=256&h=256&fit=crop&crop=faces&fm=jpg&q=85"
+  },
+  "dev_405495": {
+    "avatar_url": "https://stacklyst.vercel.app/avatars/demo/dev_405495.jpg",
+    "source_url": "https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=256&h=256&fit=crop&crop=faces&fm=jpg&q=85"
+  },
+  "admin": {
+    "avatar_url": "https://stacklyst.vercel.app/avatars/demo/admin.jpg",
+    "source_url": "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=256&h=256&fit=crop&crop=faces&fm=jpg&q=85"
+  },
+  "pedroteste": {
+    "avatar_url": "https://stacklyst.vercel.app/avatars/demo/pedroteste.jpg",
+    "source_url": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=256&h=256&fit=crop&crop=faces&fm=jpg&q=85"
+  },
+  "testegames": {
+    "avatar_url": "https://stacklyst.vercel.app/avatars/demo/testegames.jpg",
+    "source_url": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=256&h=256&fit=crop&crop=faces&fm=jpg&q=85"
+  }
+}
