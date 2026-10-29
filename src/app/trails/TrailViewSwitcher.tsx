@@ -29,7 +29,9 @@ export function TrailViewSwitcher({
           className={id === active ? styles.active : styles.inactive}
         >
           <Icon size={19} aria-hidden="true" />
-          <span>{label}</span>
+          <span className={styles.label} aria-hidden={id !== active}>
+            {label}
+          </span>
         </button>
       ))}
     </div>

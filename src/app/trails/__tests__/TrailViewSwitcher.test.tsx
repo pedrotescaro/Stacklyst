@@ -2,13 +2,15 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import { TrailViewSwitcher } from '../TrailViewSwitcher';
 
-it('keeps both views in place and preserves focus when switching repeatedly', () => {
+it('expands only the selected label while preserving button order and focus', () => {
   const onChange = vi.fn();
   const { rerender } = render(<TrailViewSwitcher active="map" onChange={onChange} />);
   expect(screen.getByRole('button', { name: 'Mapa' })).toHaveAttribute('aria-pressed', 'true');
   const map = screen.getByRole('button', { name: 'Mapa' });
   const trail = screen.getByRole('button', { name: 'Trilha' });
   expect(trail).toHaveTextContent('Trilha');
+  expect(map.querySelector('span')).toHaveAttribute('aria-hidden', 'false');
+  expect(trail.querySelector('span')).toHaveAttribute('aria-hidden', 'true');
   trail.focus();
   fireEvent.click(trail);
   expect(onChange).toHaveBeenCalledWith('trail');
@@ -17,6 +19,8 @@ it('keeps both views in place and preserves focus when switching repeatedly', ()
   expect(trail).toHaveFocus();
   expect(trail).toHaveAttribute('aria-pressed', 'true');
   expect(map).toHaveAttribute('aria-pressed', 'false');
+  expect(map.querySelector('span')).toHaveAttribute('aria-hidden', 'true');
+  expect(trail.querySelector('span')).toHaveAttribute('aria-hidden', 'false');
   expect(map).toHaveTextContent('Mapa');
   fireEvent.click(trail);
   expect(onChange).toHaveBeenCalledTimes(1);
@@ -26,4 +30,6 @@ it('keeps both views in place and preserves focus when switching repeatedly', ()
   expect(screen.getAllByRole('button')).toEqual([map, trail]);
   expect(map).toHaveAttribute('aria-pressed', 'true');
   expect(trail).toHaveAttribute('aria-pressed', 'false');
+  expect(map.querySelector('span')).toHaveAttribute('aria-hidden', 'false');
+  expect(trail.querySelector('span')).toHaveAttribute('aria-hidden', 'true');
 });
