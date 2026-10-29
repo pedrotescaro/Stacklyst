@@ -7,6 +7,7 @@ import type { KnowledgeMapNode, LearningPathSummary } from '@/lib/learning/types
 import { isKnowledgeCompleted } from '@/lib/learning/progress';
 import { TrailMascot } from './TrailMascot';
 import styles from './LearningJourney.module.css';
+import { JourneyOverview } from './JourneyOverview';
 
 export function getJourneyItems(path: LearningPathSummary, nodes: KnowledgeMapNode[]) {
   const byId = new Map(nodes.map((node) => [node.id, node]));
@@ -67,51 +68,33 @@ export function LearningJourney({
       aria-labelledby="journey-title"
       className="mx-auto w-full max-w-3xl px-4 pb-24 sm:px-8"
     >
-      <div className="py-6 sm:py-8">
-        <h1
-          id="journey-title"
-          className="text-2xl font-bold tracking-tight text-dd-text sm:text-3xl"
-        >
-          {path.title}
-        </h1>
-        <p className="mt-2 max-w-xl text-sm leading-6 text-dd-muted">{path.description}</p>
-        <p className="mt-4 text-sm text-dd-text">
-          {path.completedNodes}/{items.length} lições · {completedCount}/{exerciseCount} exercícios
-          · {units.length} unidades
-        </p>
-        <progress
-          className="mt-3 h-2 w-full accent-blue-500"
-          max={Math.max(1, exerciseCount)}
-          value={completedCount}
-          aria-label="Exercícios concluídos"
-        />
-        {next && (
-          <Link
-            onClick={() => remember(next.id)}
-            href={nodeHref(next, returnTo) ?? '#'}
-            className="dd-focus-ring mt-5 inline-flex min-h-12 items-center gap-3 rounded-xl bg-blue-500 px-5 py-3 font-bold text-white transition-colors hover:bg-blue-600"
-          >
-            {next.status === 'IN_PROGRESS' ? 'Continuar' : 'Começar'}: {next.title}
-            <ArrowRight className="h-4 w-4 shrink-0" />
-          </Link>
-        )}
-        {!next && path.completedNodes === items.length && (
-          <p role="status" className="mt-4 font-semibold text-emerald-500">
-            Caminho concluído. Você pode revisar qualquer lição.
-          </p>
-        )}
-      </div>
-      <nav aria-label="Unidades da trilha" className="mb-6 flex gap-2 overflow-x-auto pb-3">
-        {units.map((unit, index) => (
-          <a
-            key={unit}
-            href={`#unit-${path.id}-${index}`}
-            className="dd-focus-ring flex min-h-11 shrink-0 items-center rounded-lg border border-dd-border px-3 text-sm font-medium text-dd-text hover:bg-dd-surface"
-          >
-            {index + 1}. {unit}
-          </a>
-        ))}
-      </nav>
+      <JourneyOverview
+        title={path.title}
+        description={path.description}
+        completedLessons={path.completedNodes}
+        totalLessons={items.length}
+        completedExercises={completedCount}
+        totalExercises={exerciseCount}
+        units={units}
+        pathId={path.id}
+        action={
+          <>
+            {next && (
+              <Link onClick={() => remember(next.id)} href={nodeHref(next, returnTo) ?? '#'}>
+                <span>
+                  {next.status === 'IN_PROGRESS' ? 'Continuar' : 'Começar'}: {next.title}
+                </span>
+                <ArrowRight className="h-4 w-4 shrink-0" />
+              </Link>
+            )}
+            {!next && path.completedNodes === items.length && (
+              <p role="status" className="mt-4 font-semibold text-emerald-500">
+                Caminho concluído. Você pode revisar qualquer lição.
+              </p>
+            )}
+          </>
+        }
+      />
       <div
         ref={mapRef}
         className="relative isolate pb-24"
