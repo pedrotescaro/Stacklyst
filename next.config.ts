@@ -71,6 +71,12 @@ const nextConfig: NextConfig = {
     contentDispositionType: 'attachment',
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
     remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'stacklyst.vercel.app',
+        pathname: '/avatars/demo/**',
+        search: '',
+      },
       { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'api.dicebear.com' },
       { protocol: 'https', hostname: 'avatars.githubusercontent.com' },
