@@ -316,29 +316,113 @@ function draw(layer, value, d, f, motion = 'walk') {
   }
   if (layer === 'accessory') {
     if (value === 1 && !back) {
-      for (const x of side ? [19] : [9, 18]) {
-        box(x, 11, 4, 1, '#182e42');
-        box(x, 12, 1, 1, '#182e42');
-        box(x + 3, 12, 1, 1, '#182e42');
-        box(x, 13, 4, 1, '#182e42');
+      // Open lenses surround the two eye rows instead of painting over the pupils.
+      const frame = '#34323a';
+      for (const x of side ? [18] : [9, 18]) {
+        box(x, 11, 4, 1, frame);
+        box(x, 12, 1, 2, frame);
+        box(x + 3, 12, 1, 2, frame);
+        box(x + 1, 14, 2, 1, frame);
       }
-      if (!side) box(13, 12, 5, 1, '#182e42');
+      if (!side) {
+        box(13, 12, 5, 1, frame);
+        box(8, 11, 1, 1, frame);
+        box(22, 11, 1, 1, frame);
+      } else box(15, 11, 3, 1, frame);
     }
     if (value === 2) {
-      box(back ? 10 : side ? 10 : 9, 18, back ? 11 : 3, 5, '#a97c4a');
+      const ink = '#382c2b',
+        leather = '#9f7048',
+        light = '#d2a269',
+        shade = '#674533';
+      if (back) {
+        box(14, 15, 5, 2, ink); // Carry handle above the rounded flap.
+        box(15, 15, 3, 1, light);
+        box(11, 17, 11, 7, ink);
+        box(12, 16, 9, 9, ink);
+        box(12, 18, 9, 5, leather);
+        box(13, 17, 7, 7, leather);
+        box(12, 18, 1, 5, light);
+        box(20, 18, 1, 5, shade);
+        box(13, 17, 7, 2, light); // Top flap, central fastener and front pocket.
+        box(13, 19, 7, 1, shade);
+        box(16, 18, 2, 3, shade);
+        box(16, 19, 2, 1, '#ead19a');
+        box(14, 21, 5, 3, shade);
+        box(14, 21, 5, 1, light);
+        box(15, 22, 3, 1, leather);
+        box(10, 19, 1, 3, shade);
+        box(22, 19, 1, 3, shade);
+      } else if (side) {
+        box(8, 17, 5, 7, ink);
+        box(9, 16, 3, 1, ink);
+        box(9, 18, 3, 5, leather);
+        box(9, 17, 3, 2, light);
+        box(8, 19, 2, 3, shade);
+        box(9, 20, 1, 1, light);
+        box(13, 17, 2, 5, shade); // Strap follows the near shoulder, not the face.
+        box(14, 18, 1, 3, light);
+      } else {
+        for (const x of [10, 20]) {
+          box(x, 17, 2, 5, ink);
+          box(x, 17, 1, 4, leather);
+          box(x, 20, 2, 1, '#d5bd88');
+        }
+      }
     }
     if (value === 3) {
-      box(8, 2, 15, 3, '#bc945b');
-      box(6, 5, 19, 2, '#dfa958');
+      const ink = '#57402e',
+        straw = '#cba363',
+        light = '#edcc88';
+      box(side ? 10 : 11, 1, 10, 1, ink);
+      box(9, 2, 14, 4, ink);
+      box(10, 2, 12, 3, straw);
+      box(11, 2, 8, 1, light);
+      box(21, 3, 1, 2, '#aa7b45');
+      box(10, 5, 12, 1, '#793e36'); // Fitted woven crown with a cloth band.
+      box(side ? 7 : 6, 6, 20, 1, ink);
+      box(side ? 8 : 7, 6, 18, 1, light);
+      box(side ? 8 : 7, 7, 18, 1, ink);
+      if (!back) box(side ? 22 : 19, 5, 2, 1, '#d18160');
     }
     if (value === 4) {
-      box(side ? 10 : 8, 10, 2, 4, '#6995af');
-      if (!side) box(22, 10, 2, 4, '#6995af');
-      box(10, 3, 12, 1, '#293c50');
+      const ink = '#111a27',
+        shell = '#476780',
+        light = '#91b7cd';
+      box(10, 3, 12, 1, ink);
+      box(9, 4, 14, 1, shell);
+      box(11, 4, 9, 1, light);
+      box(8, 5, 2, 5, ink);
+      box(22, 5, 2, 5, ink);
+      if (side) {
+        // One visible cup sits over the ear; the far cup stays behind the head.
+        box(9, 10, 4, 5, ink);
+        box(9, 11, 3, 3, shell);
+        box(9, 11, 1, 2, light);
+        box(10, 12, 1, 1, '#66bdd1');
+      } else {
+        for (const x of [7, 23]) {
+          box(x, 10, 2, 5, ink);
+          box(x, 11, 2, 3, shell);
+          box(x, 11, 1, 2, light);
+        }
+      }
     }
     if (value === 5) {
-      box(12, 16, 9, 1, '#d49054');
-      box(18, 17, 2, 4, '#c37943');
+      const ink = '#703c31',
+        cloth = '#cd7950',
+        light = '#efb57b';
+      box(side ? 11 : 10, 16, side ? 10 : 12, 3, ink);
+      box(side ? 12 : 11, 16, side ? 8 : 10, 1, light);
+      box(side ? 12 : 11, 17, side ? 8 : 10, 1, cloth);
+      const tailX = back ? 11 : side ? 12 : 18;
+      box(tailX, 18, 3, 5, ink);
+      box(tailX, 18, 2, 4, cloth);
+      box(tailX, 20, 2, 1, light);
+      box(tailX, 23, 1, 1, cloth);
+      box(tailX + 2, 23, 1, 1, cloth);
+      box(tailX - 1, 17, 4, 2, ink); // Visible knot and a short, finished tail.
+      box(tailX, 17, 2, 1, light);
     }
   }
   return c;
