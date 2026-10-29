@@ -75,6 +75,40 @@ afterEach(() => {
 });
 
 describe('EventsContent', () => {
+  it('keeps the event list visible when a registration fails because an event has closed', async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValueOnce(eventsResponse([events[0]]))
+        .mockResolvedValueOnce(
+          eventsResponse({ error: 'EVENT_CLOSED', message: 'Este evento já foi encerrado.' }, false)
+        )
+        .mockResolvedValueOnce(eventsResponse([{ ...events[0], status: 'COMPLETED' }]))
+    );
+    render(<EventsContent user={{ id: 'member-1', role: 'MEMBER' }} />);
+    await screen.findByRole('heading', { name: events[0].title });
+    await user.click(screen.getByRole('button', { name: 'Inscrever-se no evento' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Este evento já foi encerrado.');
+    expect(await screen.findByText('Evento encerrado')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: events[0].title })).toBeInTheDocument();
+    expect(
+      screen.queryByRole('heading', { name: 'Falha ao carregar os eventos' })
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText('EVENT_CLOSED')).not.toBeInTheDocument();
+  });
+  it('does not offer registration or cancellation on completed events', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValue(eventsResponse([{ ...events[0], status: 'COMPLETED', is_joined: true }]))
+    );
+    render(<EventsContent user={{ id: 'member-1', role: 'MEMBER' }} />);
+    expect(await screen.findByText('Evento encerrado')).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /Cancelar inscrição/ })).not.toBeInTheDocument();
+  });
   it('filtra eventos por uma ou mais categorias e restaura os resultados ao limpar', async () => {
     const user = userEvent.setup();
     vi.stubGlobal('fetch', vi.fn().mockResolvedValue(eventsResponse(events)));

@@ -7,17 +7,13 @@ import ConnectionBanner from '@/components/ConnectionBanner';
 import PlatformPresence from '@/components/PlatformPresence';
 import AchievementNotifications from '@/components/profile/AchievementNotifications';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { ThemeSync } from '@/components/ThemeSync';
+import { themeBootstrap } from '@/lib/theme';
 
 const themeScript = `
   (function() {
     try {
-      const storedTheme = localStorage.getItem('theme');
-      const theme = storedTheme || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
+      ${themeBootstrap}
     } catch (e) {}
 
     try {
@@ -86,6 +82,7 @@ export default function RootLayout({
           {themeScript}
         </Script>
         <LanguageProvider>
+          <ThemeSync />
           <PlatformPresence />
           <AchievementNotifications />
           {children}

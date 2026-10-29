@@ -1,4 +1,5 @@
 'use client';
+import { saveTheme, syncTheme } from '@/lib/theme';
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
@@ -60,21 +61,19 @@ export default function SettingsPage() {
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
 
   useEffect(() => {
-    const isDark =
-      document.documentElement.classList.contains('dark') ||
-      localStorage.getItem('theme') === 'dark';
-    setTheme(isDark ? 'dark' : 'light');
+    const update = () => setTheme(syncTheme());
+    update();
+    window.addEventListener('stacklyst:theme-changed', update);
+    window.addEventListener('storage', update);
+    return () => {
+      window.removeEventListener('stacklyst:theme-changed', update);
+      window.removeEventListener('storage', update);
+    };
   }, []);
 
   const changeTheme = (newTheme: 'light' | 'dark') => {
     setTheme(newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-      localStorage.setItem('theme', 'dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-      localStorage.setItem('theme', 'light');
-    }
+    saveTheme(newTheme);
   };
 
   // Sound preference state & handler

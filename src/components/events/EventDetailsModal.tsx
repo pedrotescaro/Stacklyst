@@ -110,13 +110,18 @@ export function EventDetailsModal({
     if (!eventId || !currentUser) return;
     setActionLoading(true);
     setFeedbackMessage(null);
+    setError(null);
     try {
       const res = await fetch(`/api/events/${eventId}/participate`, {
         method: 'POST',
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || data.message || 'Falha ao se inscrever.');
+        if (data.error === 'EVENT_CLOSED') {
+          setEvent((previous) => (previous ? { ...previous, status: 'COMPLETED' } : previous));
+          onStatusChange();
+        }
+        throw new Error(data.message || 'Falha ao se inscrever.');
       }
 
       setFeedbackMessage(text('Inscrição confirmada com sucesso!', 'Registration confirmed!'));
@@ -155,13 +160,18 @@ export function EventDetailsModal({
     if (!eventId || !currentUser) return;
     setActionLoading(true);
     setFeedbackMessage(null);
+    setError(null);
     try {
       const res = await fetch(`/api/events/${eventId}/participate`, {
         method: 'DELETE',
       });
       const data = await res.json();
       if (!res.ok) {
-        throw new Error(data.error || data.message || 'Falha ao cancelar inscrição.');
+        if (data.error === 'EVENT_CLOSED') {
+          setEvent((previous) => (previous ? { ...previous, status: 'COMPLETED' } : previous));
+          onStatusChange();
+        }
+        throw new Error(data.message || 'Falha ao cancelar inscrição.');
       }
 
       setFeedbackMessage(text('Inscrição cancelada com sucesso.', 'Participation canceled.'));
@@ -543,7 +553,11 @@ export function EventDetailsModal({
                       {text('Fechar', 'Close')}
                     </button>
 
-                    {event.is_joined ? (
+                    {event.status === 'COMPLETED' ? (
+                      <span className="text-sm font-semibold text-dd-muted">
+                        {text('Evento encerrado', 'Event ended')}
+                      </span>
+                    ) : event.is_joined ? (
                       <button
                         type="button"
                         onClick={handleCancelParticipation}

@@ -143,6 +143,7 @@ export function EventsContent({ user }: { user: any }) {
   const [filters, setFilters] = useState<EventFilters>(EMPTY_FILTERS);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
   const [requestVersion, setRequestVersion] = useState(0);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
   const [joiningId, setJoiningId] = useState<string | null>(null);
@@ -164,7 +165,7 @@ export function EventsContent({ user }: { user: any }) {
         if (!response.ok) throw new Error('Não foi possível consultar os eventos agora.');
 
         const data = await response.json();
-        setEvents(Array.isArray(data) ? data : []);
+        if (!controller.signal.aborted) setEvents(Array.isArray(data) ? data : []);
       } catch (loadError) {
         if ((loadError as Error).name !== 'AbortError') {
           setError(
@@ -199,6 +200,7 @@ export function EventsContent({ user }: { user: any }) {
       return;
     }
     setJoiningId(eventId);
+    setActionError(null);
     try {
       const response = await fetch(`/api/events/${eventId}/participate`, {
         method: 'POST',
@@ -212,10 +214,23 @@ export function EventsContent({ user }: { user: any }) {
         setTimeout(() => setMessage(null), 4000);
       } else {
         const errorData = await response.json();
-        setError(errorData.error || errorData.message || 'Falha ao se inscrever no evento.');
+        setActionError(
+          errorData.message ||
+            text(
+              'Não foi possível se inscrever neste evento.',
+              'Could not register for this event.'
+            )
+        );
+        if (errorData.error === 'EVENT_CLOSED' || errorData.error === 'EVENT_FULL')
+          setRequestVersion((version) => version + 1);
       }
-    } catch (joinError) {
-      console.error(joinError);
+    } catch {
+      setActionError(
+        text(
+          'Não foi possível se inscrever. Verifique sua conexão e tente novamente.',
+          'Could not register. Check your connection and try again.'
+        )
+      );
     } finally {
       setJoiningId(null);
     }
@@ -227,6 +242,7 @@ export function EventsContent({ user }: { user: any }) {
       return;
     }
     setJoiningId(eventId);
+    setActionError(null);
     try {
       const response = await fetch(`/api/events/${eventId}/participate`, {
         method: 'DELETE',
@@ -236,9 +252,21 @@ export function EventsContent({ user }: { user: any }) {
         setMessage(text('Inscrição cancelada com sucesso.', 'Event registration canceled.'));
         setRequestVersion((version) => version + 1);
         setTimeout(() => setMessage(null), 4000);
+      } else {
+        const body = await response.json();
+        setActionError(
+          body.message ||
+            text('Não foi possível cancelar a inscrição.', 'Could not cancel registration.')
+        );
+        if (body.error === 'EVENT_CLOSED') setRequestVersion((version) => version + 1);
       }
-    } catch (cancelError) {
-      console.error(cancelError);
+    } catch {
+      setActionError(
+        text(
+          'Não foi possível cancelar a inscrição. Verifique sua conexão.',
+          'Could not cancel registration. Check your connection.'
+        )
+      );
     } finally {
       setJoiningId(null);
     }
@@ -294,6 +322,14 @@ export function EventsContent({ user }: { user: any }) {
             </div>
           </header>
 
+          {actionError && (
+            <div
+              role="alert"
+              className="mt-5 rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-dd-text"
+            >
+              {actionError}
+            </div>
+          )}
           {message && (
             <div className="mt-5 flex items-center gap-3 rounded-2xl border border-emerald-500/30 bg-emerald-500/10 p-4 text-sm font-bold text-emerald-400 animate-fade-in">
               <CheckCircle aria-hidden="true" className="h-5 w-5 shrink-0" />
@@ -522,7 +558,11 @@ export function EventsContent({ user }: { user: any }) {
                             <span className="hidden sm:inline">{text('Detalhes', 'Details')}</span>
                           </button>
 
-                          {isJoined ? (
+                          {event.status === 'COMPLETED' ? (
+                            <span className="flex flex-1 items-center justify-center rounded-2xl border border-dd-border px-3 py-2.5 text-xs font-semibold text-dd-muted">
+                              {text('Evento encerrado', 'Event ended')}
+                            </span>
+                          ) : isJoined ? (
                             <button
                               type="button"
                               onClick={() => handleCancelEvent(event.id)}
@@ -558,7 +598,11 @@ export function EventsContent({ user }: { user: any }) {
                             <button
                               type="button"
                               onClick={() => handleJoinEvent(event.id)}
-                              disabled={joiningId === event.id}
+                              disabled={
+                                joiningId === event.id ||
+                                (event.max_participants !== null &&
+                                  event._count.participants >= event.max_participants)
+                              }
                               className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-2xl py-2.5 px-3 text-xs font-bold shadow-md transition-all bg-purple-600 text-white hover:bg-purple-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
                             >
                               {joiningId === event.id ? (
@@ -566,7 +610,10 @@ export function EventsContent({ user }: { user: any }) {
                               ) : (
                                 <>
                                   <span>
-                                    {text('Inscrever-se no evento', 'Register for event')}
+                                    {event.max_participants !== null &&
+                                    event._count.participants >= event.max_participants
+                                      ? text('Vagas esgotadas', 'Event full')
+                                      : text('Inscrever-se no evento', 'Register for event')}
                                   </span>
                                   <ArrowRight aria-hidden="true" className="h-4 w-4" />
                                 </>

@@ -4,13 +4,13 @@
    ============================================================ */
 
 .adventure {
-  --ad-bg: #000000;
-  --ad-card: #0d1117;
-  --ad-card-inner: #161b22;
-  --ad-border: #21262d;
-  --ad-border-light: #30363d;
-  --ad-text: #f0f6fc;
-  --ad-muted: #8b949e;
+  --ad-bg: var(--color-dd-bg, #000000);
+  --ad-card: var(--color-dd-card, #0d1117);
+  --ad-card-inner: var(--color-dd-surface, #161b22);
+  --ad-border: var(--color-dd-border, #21262d);
+  --ad-border-light: var(--color-dd-border, #30363d);
+  --ad-text: var(--color-dd-text, #f0f6fc);
+  --ad-muted: var(--color-dd-muted, #8b949e);
   --ad-blue: #1e88e5;
   --ad-blue-hover: #2196f3;
   --ad-gold: #fed433;
@@ -67,7 +67,7 @@
   border-radius: 50%;
   background: var(--ad-card);
   border: 1px solid var(--ad-border);
-  color: #fff;
+  color: var(--ad-text);
   flex-shrink: 0;
 }
 
@@ -81,7 +81,7 @@
   font-weight: 800;
   letter-spacing: -0.02em;
   margin: 0;
-  color: #fff;
+  color: var(--ad-text);
 }
 
 .ad-heading-text h1:focus {
@@ -130,7 +130,7 @@
 }
 
 .ad-error {
-  background: #34181a;
+  background: var(--color-dd-surface, #34181a);
   color: #fca5a5;
   border: 1px solid #7f1d1d;
 }
@@ -144,7 +144,7 @@
 }
 
 .ad-notice {
-  background: #142a20;
+  background: var(--color-dd-surface, #142a20);
   color: #86efac;
   border: 1px solid #166534;
 }
@@ -273,7 +273,7 @@
 .ad-stat-number {
   font-size: 24px;
   font-weight: 800;
-  color: #fff;
+  color: var(--ad-text);
   letter-spacing: -0.02em;
 }
 
@@ -375,7 +375,7 @@
 .ad-level-bar-labels strong {
   font-weight: 800;
   font-size: 15px;
-  color: #fff;
+  color: var(--ad-text);
 }
 
 .ad-level-bar-labels span {
@@ -387,7 +387,7 @@
 .ad-level-track {
   width: 100%;
   height: 9px;
-  background: #1e2633;
+  background: var(--color-dd-surface, #1e2633);
   border-radius: 9999px;
   overflow: hidden;
 }
@@ -411,7 +411,7 @@
 .ad-section-title {
   font-size: 17px;
   font-weight: 800;
-  color: #fff;
+  color: var(--ad-text);
   margin: 0 0 14px;
 }
 
@@ -436,7 +436,7 @@
 
 .ad-checkin-day-pill.is-today {
   border-color: rgba(254, 212, 51, 0.4);
-  background: #232219;
+  background: var(--color-dd-surface, #232219);
 }
 
 .ad-checkin-day-pill.is-claimed {
@@ -495,7 +495,7 @@
 }
 
 .ad-checkin-yellow-button:disabled {
-  background: #1e2820;
+  background: var(--color-dd-surface, #1e2820);
   color: #86efac;
   opacity: 1 !important;
   box-shadow: none;
@@ -531,23 +531,23 @@
   font-weight: 750;
   padding: 3px 10px;
   border-radius: 9999px;
-  background: #1c2432;
+  background: var(--color-dd-surface, #1c2432);
   color: #cbd5e1;
 }
 
 .tag-fácil {
   color: #86efac;
-  background: #162a1d;
+  background: var(--color-dd-surface, #162a1d);
 }
 
 .tag-médio {
   color: #fde047;
-  background: #2a2814;
+  background: var(--color-dd-surface, #2a2814);
 }
 
 .tag-lendário {
   color: #c084fc;
-  background: #281738;
+  background: var(--color-dd-surface, #281738);
 }
 
 .ad-mission-progress-badge {
@@ -559,7 +559,7 @@
 .ad-mission-name {
   font-size: 14px;
   font-weight: 650;
-  color: #fff;
+  color: var(--ad-text);
   margin: 0 0 10px;
 }
 
@@ -637,7 +637,7 @@
   width: 48px;
   height: 48px;
   border-radius: 14px;
-  background: #171f2b;
+  background: var(--color-dd-surface, #171f2b);
   display: grid;
   place-items: center;
   flex-shrink: 0;
@@ -658,7 +658,7 @@
   font-size: 16px;
   font-weight: 750;
   margin: 0;
-  color: #fff;
+  color: var(--ad-text);
 }
 
 .ad-course-progress-text {
@@ -670,7 +670,7 @@
 .ad-course-progress-track {
   width: 100%;
   height: 5px;
-  background: #1e2633;
+  background: var(--color-dd-surface, #1e2633);
   border-radius: 9999px;
   overflow: hidden;
   margin-bottom: 6px;
@@ -712,7 +712,7 @@
 .ad-shortcut-btn strong {
   display: block;
   font-size: 14px;
-  color: #fff;
+  color: var(--ad-text);
 }
 
 .ad-shortcut-btn small {
@@ -768,7 +768,7 @@
 .ad-balance-number {
   font-size: 38px;
   font-weight: 850;
-  color: #fff;
+  color: var(--ad-text);
   line-height: 1;
 }
 
@@ -804,7 +804,7 @@
 .ad-ledger-heading {
   font-size: 16px;
   font-weight: 750;
-  color: #fff;
+  color: var(--ad-text);
   margin: 0;
 }
 
@@ -833,7 +833,7 @@
 .ad-ledger-label {
   font-size: 15px;
   font-weight: 700;
-  color: #fff;
+  color: var(--ad-text);
   margin: 0;
 }
 
@@ -872,7 +872,7 @@
 }
 
 .ad-recharge-notice {
-  background: #252012;
+  background: var(--color-dd-surface, #252012);
   border: 1px solid #785a1a;
   color: #fde68a;
   border-radius: 14px;
@@ -916,7 +916,7 @@
 .ad-pkg-name {
   font-size: 15px;
   font-weight: 750;
-  color: #fff;
+  color: var(--ad-text);
   margin: 0;
 }
 
@@ -930,7 +930,7 @@
 .ad-pkg-amount {
   font-size: 19px;
   font-weight: 850;
-  color: #fff;
+  color: var(--ad-text);
 }
 
 .ad-pkg-coin {
@@ -1013,7 +1013,7 @@
 }
 
 .ad-category-tab.is-selected {
-  background: #1c324a;
+  background: var(--color-dd-surface, #1c324a);
   border-color: var(--ad-blue);
   color: #fff;
 }
@@ -1040,7 +1040,7 @@
 
 .ad-option-tile.is-selected {
   border-color: var(--ad-blue);
-  background: #112338;
+  background: var(--color-dd-surface, #112338);
 }
 
 .ad-option-checkmark {
@@ -1445,7 +1445,7 @@
 
 .ad-lobby-header h2 {
   font-size: 20px;
-  color: #fff;
+  color: var(--ad-text);
   margin: 0 0 6px;
 }
 
@@ -1474,7 +1474,7 @@
 .ad-lobby-label select {
   background: var(--ad-card-inner);
   border: 1px solid var(--ad-border-light);
-  color: #fff;
+  color: var(--ad-text);
   border-radius: 12px;
   padding: 10px 14px;
   font-size: 14px;
@@ -1618,7 +1618,7 @@
   font-size: 15px;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   margin: 0 0 14px;
-  color: #fff;
+  color: var(--ad-text);
   line-height: 1.5;
 }
 
@@ -1636,7 +1636,7 @@
   border: 1px solid var(--ad-border-light);
   border-radius: 12px;
   padding: 12px 14px;
-  color: #fff;
+  color: var(--ad-text);
   text-align: left;
 }
 
@@ -1646,7 +1646,7 @@
   width: 26px;
   height: 26px;
   border-radius: 8px;
-  background: #28374d;
+  background: var(--color-dd-surface, #28374d);
   font-weight: 800;
   font-size: 13px;
   flex-shrink: 0;
@@ -1673,7 +1673,7 @@
   border: 1px solid var(--ad-border-light);
   border-radius: 14px;
   padding: 14px 10px;
-  color: #fff;
+  color: var(--ad-text);
 }
 
 .ad-skill-card-btn strong {
@@ -1719,7 +1719,7 @@
 
 .ad-store-balance strong {
   font-size: 18px;
-  color: #fff;
+  color: var(--ad-text);
 }
 
 .ad-store-balance .gold-coin {
@@ -1773,7 +1773,7 @@
 .ad-item-name {
   font-size: 15px;
   font-weight: 750;
-  color: #fff;
+  color: var(--ad-text);
   margin: 0;
 }
 
@@ -1799,7 +1799,7 @@
 
 .ad-buy-btn {
   background: var(--ad-blue);
-  color: #fff;
+  color: var(--ad-text);
   border: 0;
 }
 
@@ -1815,7 +1815,7 @@
 }
 
 .ad-equip-btn.is-worn {
-  background: #172b22;
+  background: var(--color-dd-surface, #172b22);
   border-color: #2e7d58;
   color: #86efac;
 }
@@ -1945,7 +1945,7 @@
   }
 }
 .adventure {
-  --ad-muted: #a5b1bf;
+  --ad-muted: var(--color-dd-muted, #a5b1bf);
   max-width: 1100px;
   margin-inline: auto;
 }
@@ -2780,6 +2780,43 @@
   border-radius: 8px;
   background: #1765ab;
   color: #fff;
+}
+
+/* Flat controls inherit the selected theme; scenery keeps its illustrated palette. */
+.ad-error,
+.ad-notice,
+.ad-recharge-notice,
+.ad-battle-narrative,
+.ad-category-tab.is-selected,
+.ad-equip-btn,
+.ad-encounter-levels span,
+.ad-encounter-levels .is-locked span {
+  color: var(--ad-text);
+}
+.ad-mission-tag,
+.tag-fácil,
+.tag-médio,
+.tag-lendário,
+.ad-checkin-yellow-button:disabled,
+.ad-equip-btn.is-worn {
+  color: var(--ad-text);
+}
+.ad-code-editor {
+  background: var(--color-dd-surface, #090d12);
+}
+.ad-code-editor textarea {
+  color: var(--ad-text);
+}
+.ad-code-commands code {
+  color: var(--color-dd-text, #9fe0be);
+}
+.ad-hero-banner {
+  color: #f0f6fc;
+}
+.ad-hero-banner .ad-home-language select {
+  background: #0d1117;
+  color: #f0f6fc;
+  border-color: #30363d;
 }
 .ad-code-result {
   font-size: 14px;
