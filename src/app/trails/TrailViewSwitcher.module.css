@@ -1,0 +1,54 @@
+.switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.switcher button {
+  display: inline-flex;
+  min-width: 104px;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 140ms ease,
+    color 140ms ease;
+}
+
+.switcher svg {
+  flex-shrink: 0;
+}
+
+.active {
+  color: white;
+  background: var(--color-dd-accent);
+}
+
+.inactive {
+  color: var(--color-dd-muted);
+  background: var(--color-dd-surface);
+}
+
+.inactive:hover {
+  color: var(--color-dd-text);
+  background: var(--color-dd-border);
+}
+
+.switcher button:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switcher button {
+    transition: none;
+  }
+}

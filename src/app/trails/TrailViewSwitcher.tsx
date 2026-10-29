@@ -1,7 +1,7 @@
 'use client';
 
 import { List, Network } from 'lucide-react';
-import styles from '@/components/FeedRankingSwitcher.module.css';
+import styles from './TrailViewSwitcher.module.css';
 
 export function TrailViewSwitcher({
   active,
@@ -13,7 +13,7 @@ export function TrailViewSwitcher({
   const options = [
     { id: 'map' as const, label: 'Mapa', Icon: Network },
     { id: 'trail' as const, label: 'Trilha', Icon: List },
-  ].sort((a, b) => Number(b.id === active) - Number(a.id === active));
+  ];
   return (
     <div className={styles.switcher} role="group" aria-label="Visualização do aprendizado">
       {options.map(({ id, label, Icon }) => (
@@ -29,7 +29,7 @@ export function TrailViewSwitcher({
           className={id === active ? styles.active : styles.inactive}
         >
           <Icon size={19} aria-hidden="true" />
-          {id === active && <span className={styles.label}>{label}</span>}
+          <span>{label}</span>
         </button>
       ))}
     </div>

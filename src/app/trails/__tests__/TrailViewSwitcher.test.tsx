@@ -2,15 +2,28 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { expect, it, vi } from 'vitest';
 import { TrailViewSwitcher } from '../TrailViewSwitcher';
 
-it('expands the active view first and preserves the accessible name of the compact alternative', () => {
+it('keeps both views in place and preserves focus when switching repeatedly', () => {
   const onChange = vi.fn();
   const { rerender } = render(<TrailViewSwitcher active="map" onChange={onChange} />);
   expect(screen.getByRole('button', { name: 'Mapa' })).toHaveAttribute('aria-pressed', 'true');
-  expect(screen.getByRole('button', { name: 'Trilha' }).textContent).toBe('');
-  fireEvent.click(screen.getByRole('button', { name: 'Trilha' }));
+  const map = screen.getByRole('button', { name: 'Mapa' });
+  const trail = screen.getByRole('button', { name: 'Trilha' });
+  expect(trail).toHaveTextContent('Trilha');
+  trail.focus();
+  fireEvent.click(trail);
   expect(onChange).toHaveBeenCalledWith('trail');
   rerender(<TrailViewSwitcher active="trail" onChange={onChange} />);
-  expect(screen.getAllByRole('button')[0]).toHaveAccessibleName('Trilha');
-  expect(screen.getByRole('button', { name: 'Trilha' }).textContent).toBe('Trilha');
-  expect(screen.getByRole('button', { name: 'Mapa' }).textContent).toBe('');
+  expect(screen.getAllByRole('button')).toEqual([map, trail]);
+  expect(trail).toHaveFocus();
+  expect(trail).toHaveAttribute('aria-pressed', 'true');
+  expect(map).toHaveAttribute('aria-pressed', 'false');
+  expect(map).toHaveTextContent('Mapa');
+  fireEvent.click(trail);
+  expect(onChange).toHaveBeenCalledTimes(1);
+  fireEvent.click(map);
+  expect(onChange).toHaveBeenLastCalledWith('map');
+  rerender(<TrailViewSwitcher active="map" onChange={onChange} />);
+  expect(screen.getAllByRole('button')).toEqual([map, trail]);
+  expect(map).toHaveAttribute('aria-pressed', 'true');
+  expect(trail).toHaveAttribute('aria-pressed', 'false');
 });
