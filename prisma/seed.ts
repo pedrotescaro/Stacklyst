@@ -4,6 +4,8 @@ dotenv.config({ path: '.env.local' });
 import { Language, DuelStatus } from '@prisma/client';
 import { prisma } from '../src/lib/prisma';
 import { createClient } from '@supabase/supabase-js';
+import demoAssets from './demo-profile-assets.json';
+import { randomInt } from 'node:crypto';
 
 async function main() {
   console.log('🌱 Seeding Stacklyst database...\n');
@@ -229,7 +231,16 @@ async function main() {
         id: user.id,
         username: u.username,
         email: u.email,
-        avatar_url: `https://api.dicebear.com/9.x/pixel-art/svg?seed=${u.username}`,
+        avatar_url: demoAssets[u.username as keyof typeof demoAssets].avatar_url,
+        avatar_config: {
+          profileStyle: {
+            frame: [
+              { id: 'orbit', color: '#38bdf8', decoration: 'orbit' },
+              { id: 'alien', color: '#72b981', decoration: 'alien' },
+              { id: 'neon-blue', color: '#0083fe', decoration: 'neon' },
+            ][randomInt(3)],
+          },
+        },
         bio: u.bio,
         institution: u.institution,
         total_xp: u.total_xp,

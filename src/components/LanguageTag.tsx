@@ -81,6 +81,7 @@ interface LanguageTagProps {
   size?: 'sm' | 'md';
   className?: string;
   showDot?: boolean;
+  flat?: boolean;
 }
 
 export function getLanguageColor(language: string): string {
@@ -98,6 +99,7 @@ export function LanguageTag({
   size = 'sm',
   className,
   showDot = true,
+  flat = false,
 }: LanguageTagProps) {
   if (!language) return null;
 
@@ -115,19 +117,25 @@ export function LanguageTag({
   return (
     <span
       className={cn(
-        'inline-flex items-center gap-1.5 select-none font-black tracking-wider uppercase transition-all duration-150',
-        'rounded-xl border-2 border-b-[3px] shadow-sm',
-        isSmall ? 'text-[10px] px-2.5 py-0.5 min-h-[22px]' : 'text-[11px] px-3.5 py-1 min-h-[28px]',
+        'inline-flex items-center gap-1.5 select-none transition-colors duration-150',
+        flat
+          ? 'rounded-lg border font-semibold normal-case tracking-normal'
+          : 'rounded-xl border-2 border-b-[3px] shadow-sm font-black tracking-wider uppercase',
+        flat
+          ? 'text-xs px-2.5 py-0.5'
+          : isSmall
+            ? 'text-[10px] px-2.5 py-0.5 min-h-[22px]'
+            : 'text-[11px] px-3.5 py-1 min-h-[28px]',
         className
       )}
       style={{
         backgroundColor: config.bg,
         color: config.color,
         borderColor: config.borderColor,
-        borderBottomColor: config.borderBottomColor,
+        borderBottomColor: flat ? config.borderColor : config.borderBottomColor,
       }}
     >
-      {showDot && (
+      {showDot && !flat && (
         <span
           className="w-1.5 h-1.5 rounded-full shrink-0 animate-pulse"
           style={{ backgroundColor: config.color }}

@@ -20,6 +20,7 @@ import { LanguageTag } from '@/components/LanguageTag';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { cn } from '@/lib/cn';
 import Link from 'next/link';
+import Image from 'next/image';
 import { parseProblemFromJson, type DuelProblem } from '@/lib/duel-problems';
 import { getDuelListingExpiryAt, isDuelVisibleInListing } from '@/lib/duels/listing';
 import styles from './DuelsContent.module.css';
@@ -80,6 +81,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
   const [generatorTopic, setGeneratorTopic] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedProblem, setGeneratedProblem] = useState<DuelProblem | null>(null);
+  const [recentProblemIds, setRecentProblemIds] = useState<string[]>([]);
   const [generatorError, setGeneratorError] = useState<string | null>(null);
 
   // Poll for incoming duel requests
@@ -259,6 +261,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
           language: duelLanguage,
           difficulty: generatorDifficulty,
           topic: generatorTopic.trim() || undefined,
+          excludeIds: recentProblemIds,
         }),
       });
 
@@ -270,6 +273,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
 
       const data = await res.json();
       if (data.problem) {
+        setRecentProblemIds((ids) => [...ids.slice(-19), data.problem.id]);
         setGeneratedProblem(data.problem);
         setDuelTitle(data.problem.title);
         setDuelBody(data.problem.description);
@@ -580,7 +584,10 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
 
                     {/* Generator error */}
                     {generatorError && (
-                      <div className="rounded-full border border-rose-500/30 bg-rose-500/10 px-4 py-2.5 text-xs text-rose-300 font-semibold">
+                      <div
+                        role="alert"
+                        className="rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2.5 text-sm text-rose-300 font-semibold"
+                      >
                         {generatorError}
                       </div>
                     )}
@@ -588,7 +595,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                     {/* Generated Problem Preview */}
                     {generatedProblem && (
                       <div className="space-y-3 animate-fade-in">
-                        <div className="rounded-full border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-3">
+                        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-500/5 p-4 space-y-3">
                           <div className="flex items-center gap-2">
                             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                             <span className="text-xs font-bold text-emerald-400">
@@ -815,12 +822,18 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                         data-language={duel.language}
                         aria-hidden="true"
                       >
-                        {duel.language === 'PYTHON' ? 'Py' : duel.language}
+                        <Image
+                          src={`/languages/${duel.language.toLowerCase()}.svg`}
+                          alt=""
+                          width={48}
+                          height={48}
+                          className="h-3/4 w-3/4 object-contain"
+                        />
                       </div>
                       {/* Left: Problem info and Language */}
                       <div className={styles.cardBody}>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <LanguageTag language={duel.language} size="sm" />
+                          <LanguageTag language={duel.language} size="sm" flat />
                           <span
                             className={cn(
                               'text-xs font-bold  px-2.5 py-0.5 rounded-lg border ',

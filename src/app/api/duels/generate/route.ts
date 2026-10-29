@@ -52,7 +52,10 @@ export async function POST(req: NextRequest) {
     const problem: DuelProblem = generateProceduralDuelProblem(
       language as SupportedLang,
       diffLabel,
-      sanitizedTopic
+      sanitizedTopic,
+      Array.isArray(body.excludeIds)
+        ? body.excludeIds.filter((id: unknown): id is string => typeof id === 'string').slice(-20)
+        : []
     );
 
     logger.info('Duel problem generated successfully', {

@@ -1,4 +1,5 @@
 import type { DuelProblem } from './duel-problems';
+import { EXTRA_DUEL_CHALLENGES } from './duel-extra-challenges';
 
 export interface ChallengeTemplate {
   id: string;
@@ -26,6 +27,7 @@ export interface ChallengeTemplate {
 }
 
 export const CHALLENGE_LIBRARY: ChallengeTemplate[] = [
+  ...EXTRA_DUEL_CHALLENGES,
   // --- FÁCIL ---
   {
     id: 'is-anagram',
@@ -539,7 +541,8 @@ export const CHALLENGE_LIBRARY: ChallengeTemplate[] = [
 export function generateProceduralDuelProblem(
   language: string,
   difficulty: 'Fácil' | 'Médio' | 'Difícil',
-  topic?: string
+  topic?: string,
+  excludeIds: string[] = []
 ): DuelProblem {
   const normTopic = topic ? topic.toLowerCase().trim() : '';
 
@@ -562,7 +565,12 @@ export function generateProceduralDuelProblem(
     }
   }
 
-  // 3. Pick random candidate
+  const unseen = candidates.filter(
+    (candidate) =>
+      !excludeIds.some((id) => id === candidate.id || id.startsWith(`${candidate.id}-`))
+  );
+  if (unseen.length > 0) candidates = unseen;
+  // Pick a candidate outside the recent history when possible.
   const chosen = candidates[Math.floor(Math.random() * candidates.length)];
   const uniqueSuffix = Date.now().toString(36).slice(-4);
 
