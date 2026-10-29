@@ -14,6 +14,8 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:mundinho-sprites": "node scripts/check-mundinho-body.mjs",
+    "mobile:build-mundinho": "node apps/mobile/scripts/build-mundinho.mjs",
     "prepare": "husky",
     "mobile:install": "npm --prefix apps/mobile ci",
     "mobile:start": "npm --prefix apps/mobile run start",

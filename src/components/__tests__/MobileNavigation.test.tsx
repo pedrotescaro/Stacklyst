@@ -129,13 +129,13 @@ describe('responsive web navigation', () => {
       ['Títulos', '/achievements'],
       ['Vagas', '/jobs'],
       ['Eventos', '/events'],
-      ['Duelos', '/duels'],
       ['Avaliação de Código', '/evaluations'],
       ['Configurações', '/settings'],
     ]) {
       expect(within(drawer).getByRole('link', { name })).toHaveAttribute('href', href);
     }
     expect(within(drawer).queryByText('Indique amigos')).not.toBeInTheDocument();
+    expect(within(drawer).queryByRole('link', { name: 'Duelos' })).not.toBeInTheDocument();
     fireEvent.keyDown(window, { key: 'Escape' });
     await waitFor(() =>
       expect(screen.queryByRole('dialog', { name: 'Menu de navegação' })).not.toBeInTheDocument()

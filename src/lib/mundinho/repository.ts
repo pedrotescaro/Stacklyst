@@ -19,10 +19,10 @@ import { QUESTIONS, publicQuestion } from './questions';
 const avatarSchema = z.object({
   skin: z.number().int().min(0).max(8),
   eyes: z.number().int().min(0).max(4),
-  hair: z.number().int().min(0).max(3),
+  hair: z.number().int().min(0).max(5),
   hairColor: z.number().int().min(0).max(5),
   outfit: z.number().int().min(0).max(5),
-  accessory: z.number().int().min(0).max(3),
+  accessory: z.number().int().min(0).max(5),
 });
 export const actionSchema = z.discriminatedUnion('type', [
   z.object({ type: z.literal('checkin') }),

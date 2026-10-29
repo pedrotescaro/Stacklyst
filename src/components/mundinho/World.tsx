@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import {
-  ArrowDown,
   ArrowLeft,
-  ArrowRight,
-  ArrowUp,
   Backpack,
   BookOpen,
   Map as MapIcon,
@@ -15,8 +12,9 @@ import {
 } from 'lucide-react';
 import { CREATURES, type Avatar } from '../../lib/mundinho/types';
 import { movePlayer, WORLD, WORLD_OBJECTS } from '../../lib/mundinho/world';
-import { PixelAvatar, PixelCreature } from './PixelArt';
+import { PixelAvatar, PixelCreature, TreasureChest } from './PixelArt';
 import { adventureAsset } from './assets';
+import { TouchStick } from './TouchStick';
 
 export default function World({
   avatar,
@@ -37,6 +35,12 @@ export default function World({
 }) {
   const viewport = useRef<HTMLDivElement>(null);
   const keys = useRef(new Set<string>());
+  const stick = useRef({ x: 0, y: 0 });
+  const [clock, setClock] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => setClock((t) => t + 1), 250);
+    return () => clearInterval(timer);
+  }, []);
   const player = useRef({ ...WORLD.spawn, direction: 'down', walking: false });
   const [pose, setPose] = useState(player.current);
   const [size, setSize] = useState({ width: 800, height: 480 });
@@ -46,7 +50,8 @@ export default function World({
   const [showMap, setShowMap] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
 
-  const targets = [...CREATURES, ...WORLD_OBJECTS];
+  const visibleCreatures = CREATURES.filter((_, i) => (clock + i * 7) % 64 < 52);
+  const targets = [...visibleCreatures, ...WORLD_OBJECTS];
   const nearest = targets.find((e) => Math.hypot(e.x - pose.x, e.y - pose.y) < 55);
   const isCreature = nearest && CREATURES.some((c) => c.id === nearest.id);
 
@@ -111,7 +116,10 @@ export default function World({
       }
     };
     const up = (e: KeyboardEvent) => keys.current.delete(e.key.toLowerCase());
-    const clear = () => keys.current.clear();
+    const clear = () => {
+      keys.current.clear();
+      stick.current = { x: 0, y: 0 };
+    };
 
     el.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
@@ -129,10 +137,12 @@ export default function World({
 
       let dx =
         Number(held.has('d') || held.has('arrowright')) -
-        Number(held.has('a') || held.has('arrowleft'));
+        Number(held.has('a') || held.has('arrowleft')) +
+        stick.current.x;
       let dy =
         Number(held.has('s') || held.has('arrowdown')) -
-        Number(held.has('w') || held.has('arrowup'));
+        Number(held.has('w') || held.has('arrowup')) +
+        stick.current.y;
 
       const direction = dx
         ? dx > 0
@@ -144,9 +154,10 @@ export default function World({
             : 'up'
           : player.current.direction;
 
-      if (dx && dy) {
-        dx /= Math.SQRT2;
-        dy /= Math.SQRT2;
+      const magnitude = Math.hypot(dx, dy);
+      if (magnitude > 1) {
+        dx /= magnitude;
+        dy /= magnitude;
       }
 
       player.current = {
@@ -173,14 +184,14 @@ export default function World({
       window.removeEventListener('keyup', up);
       window.removeEventListener('blur', clear);
       document.removeEventListener('visibilitychange', clear);
-      keys.current.clear();
+      clear();
     };
   }, []);
 
   // Camera scale and offset to follow player smoothly
   const scale = showMap
     ? Math.min(size.width / WORLD.width, size.height / WORLD.height)
-    : Math.max(1.1, Math.min(1.6, size.width / 500));
+    : Math.max(0.85, Math.min(1.2, size.width / 850));
   const x = showMap
     ? (size.width - WORLD.width * scale) / 2
     : Math.min(0, Math.max(size.width - WORLD.width * scale, size.width / 2 - pose.x * scale));
@@ -257,17 +268,20 @@ export default function World({
             width: WORLD.width,
             height: WORLD.height,
             transform: `translate(${x}px, ${y}px) scale(${scale})`,
-            backgroundImage: `url(${adventureAsset('forest.png', assetBase)})`,
+            backgroundImage: `url(${adventureAsset('forest-v2.png', assetBase)})`,
           }}
         >
-          {CREATURES.map((c) => (
+          {CREATURES.map((c, i) => (
             <div
               key={c.id}
-              className="world-entity"
+              className={`world-entity world-habitat ${(clock + i * 7) % 64 < 52 ? 'is-visible' : 'is-hidden'}`}
               style={{ left: c.x, top: c.y }}
               onClick={() => {
-                keys.current.clear();
-                onEncounter(c.id);
+                if (Math.hypot(c.x - pose.x, c.y - pose.y) < 55 && visibleCreatures.includes(c)) {
+                  keys.current.clear();
+                  stick.current = { x: 0, y: 0 };
+                  onEncounter(c.id);
+                } else setDialogue('Aproxime-se da moita para encontrar esta criatura.');
               }}
             >
               <span className="world-entity-badge">{c.name}</span>
@@ -285,7 +299,11 @@ export default function World({
               <span className="world-entity-badge">{o.name}</span>
               {o.id === 'guide' ? (
                 <PixelAvatar avatar={{ ...avatar, hairColor: 3, outfit: 1 }} />
-              ) : null}
+              ) : o.id === 'chest' ? (
+                <TreasureChest />
+              ) : (
+                <MessageSquare size={20} />
+              )}
             </div>
           ))}
 
@@ -313,7 +331,7 @@ export default function World({
         {/* GUIDE MODAL */}
         {showGuide && (
           <div className="world-guide-modal">
-            <h3>📖 Guia do Explorador</h3>
+            <h3>Guia do Explorador</h3>
             <p>
               • <strong>Batalhas:</strong> Aproxime-se de qualquer criatura e toque na espada para
               duelar com perguntas de código.
@@ -334,34 +352,11 @@ export default function World({
 
         {/* CONTROLS (D-Pad + Sword Button, Matching Image 3) */}
         <div className="world-controls">
-          <div className="world-dpad">
-            {[
-              ['w', ArrowUp, 'Cima'],
-              ['a', ArrowLeft, 'Esquerda'],
-              ['s', ArrowDown, 'Baixo'],
-              ['d', ArrowRight, 'Direita'],
-            ].map(([key, Icon, label]) => {
-              const ControlIcon = Icon as typeof ArrowUp;
-              return (
-                <button
-                  key={key as string}
-                  aria-label={`Andar para ${label}`}
-                  className={`direction-${key}`}
-                  onPointerDown={(e) => {
-                    e.currentTarget.setPointerCapture(e.pointerId);
-                    keys.current.add(key as string);
-                    viewport.current?.focus();
-                  }}
-                  onPointerUp={() => keys.current.delete(key as string)}
-                  onPointerCancel={() => keys.current.delete(key as string)}
-                  onLostPointerCapture={() => keys.current.delete(key as string)}
-                >
-                  <ControlIcon size={22} />
-                </button>
-              );
-            })}
-          </div>
-
+          <TouchStick
+            onMove={(x, y) => {
+              stick.current = { x, y };
+            }}
+          />
           {/* Big Action / Sword Button on Bottom Right */}
           <button
             className={`world-action-sword ${nearest ? 'is-target' : ''}`}
@@ -373,33 +368,6 @@ export default function World({
               <span className="world-action-label">{isCreature ? 'Batalha' : 'Interagir'}</span>
             )}
           </button>
-        </div>
-
-        {/* BOTTOM STATS HUD (Matching Image 3) */}
-        <div className="world-bottom-hud">
-          <div className="world-hud-bars">
-            <div className="world-bar-item">
-              <span className="world-bar-label">❤️ 100/100</span>
-              <div className="world-meter world-meter-hp">
-                <div className="world-meter-fill" style={{ width: '100%' }} />
-              </div>
-            </div>
-            <div className="world-bar-item">
-              <span className="world-bar-label">💧 100/100</span>
-              <div className="world-meter world-meter-mana">
-                <div className="world-meter-fill" style={{ width: '100%' }} />
-              </div>
-            </div>
-          </div>
-          <div className="world-hud-level">
-            <div className="world-level-info">
-              <span>Nível 1</span>
-              <span>XP 0</span>
-            </div>
-            <div className="world-meter world-meter-xp">
-              <div className="world-meter-fill" style={{ width: '38%' }} />
-            </div>
-          </div>
         </div>
       </div>
 

@@ -34,7 +34,10 @@
 
 .adventure button {
   cursor: pointer;
-  transition: transform 0.12s, filter 0.12s, background-color 0.12s;
+  transition:
+    transform 0.12s,
+    filter 0.12s,
+    background-color 0.12s;
   font: inherit;
 }
 
@@ -964,12 +967,7 @@
   min-height: 260px;
   border-radius: 20px;
   background-color: #1a222e;
-  background-image: conic-gradient(
-    #253040 25%,
-    transparent 0 50%,
-    #253040 0 75%,
-    transparent 0
-  );
+  background-image: conic-gradient(#253040 25%, transparent 0 50%, #253040 0 75%, transparent 0);
   background-size: 32px 32px;
   border: 1px solid var(--ad-border);
   display: flex;
@@ -1880,4 +1878,531 @@
   .ad-skills-grid {
     grid-template-columns: 1fr;
   }
+}
+/* Compact RPG refinement: sprites from LibreSprite, restrained HUD, tactile touch control. */
+.sprite-avatar {
+  display: inline-block;
+  position: relative;
+  width: 64px;
+  height: 64px !important;
+  flex-shrink: 0;
+  image-rendering: pixelated;
+  vertical-align: middle;
+}
+.sprite-layer {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  animation: hero-breathe 2.8s steps(1) infinite;
+}
+.sprite-avatar.is-walking .sprite-layer,
+.sprite-attack .sprite-layer {
+  animation: hero-walk 0.8s steps(7) infinite;
+}
+.sprite-creature {
+  display: inline-block;
+  width: 32px;
+  height: 32px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  animation: creature-breathe 1.6s steps(7) infinite;
+  transform-origin: 50% 95%;
+}
+@keyframes hero-walk {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}
+@keyframes hero-breathe {
+  0%,
+  65%,
+  100% {
+    background-position-x: 0%;
+  }
+  70%,
+  95% {
+    background-position-x: 28.5714286%;
+  }
+}
+@keyframes creature-breathe {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 100%;
+  }
+}
+.adventure {
+  --ad-muted: #a5b1bf;
+  max-width: 1100px;
+  margin-inline: auto;
+}
+.adventure h2 {
+  font-weight: 650;
+}
+.ad-hero-banner {
+  min-height: 205px;
+  background-position: center 42%;
+}
+.ad-hero-avatar-center {
+  top: 38%;
+  left: 52%;
+}
+.ad-hero-avatar-center .pixel-avatar {
+  width: 64px;
+  height: 64px;
+}
+.ad-enter-world-button {
+  min-height: 44px;
+  font-size: 16px;
+  box-shadow: none;
+  border-radius: 12px;
+}
+.ad-hero-pencil-button {
+  width: 44px;
+  height: 44px;
+}
+.ad-stat-number {
+  font-size: 22px;
+}
+.ad-radio-card {
+  display: none;
+}
+.ad-footer-badge {
+  margin-top: 24px;
+}
+.ad-option-avatar-inner .pixel-avatar {
+  width: 64px;
+  height: 64px;
+}
+.ad-avatar-preview-box .pixel-avatar {
+  width: 160px;
+  height: 160px !important;
+}
+.world-viewport {
+  height: min(680px, 75dvh);
+  min-height: 390px;
+  isolation: isolate;
+  border: 1px solid #2b3e45;
+  border-radius: 14px;
+  touch-action: none;
+  background: #294c3b;
+}
+.world-map {
+  image-rendering: pixelated;
+}
+.world-entity .sprite-avatar {
+  width: 40px;
+  height: 40px !important;
+}
+.world-entity .sprite-creature {
+  width: 28px;
+  height: 28px;
+}
+.world-player .sprite-avatar {
+  width: 40px;
+  height: 40px !important;
+}
+.world-entity-badge {
+  display: none;
+}
+.world-object:hover .world-entity-badge,
+.world-habitat:hover .world-entity-badge {
+  display: block;
+  position: absolute;
+  bottom: 100%;
+}
+.world-player-name {
+  font-size: 9px;
+  font-weight: 550;
+  padding: 2px 5px;
+  background: #182c36bb;
+}
+.world-top-hud {
+  padding: 12px;
+  gap: 8px;
+}
+.world-hud-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #43525b;
+  border-radius: 10px;
+  background: #182d36e8;
+  color: #edf6f4;
+  box-shadow: none;
+}
+.world-time-badge,
+.world-hud-btn.is-status {
+  display: none;
+}
+.world-controls {
+  bottom: 18px;
+  left: 18px;
+  right: 18px;
+  align-items: flex-end;
+}
+.world-stick {
+  pointer-events: auto;
+  touch-action: none;
+  display: grid;
+  place-items: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  border: 1px solid #c2e0d659;
+  background: #122e3e66;
+  user-select: none;
+}
+.world-stick > span {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #d5e5e5bb;
+  border: 1px solid #f4ffffaa;
+  box-shadow: 0 3px 8px #071c3b55;
+}
+.world-action-sword {
+  width: 54px;
+  height: 54px;
+  border: 1px solid #c6e2d0;
+  border-radius: 50%;
+  background: #234345e8;
+  color: #f1e1b4;
+  box-shadow: none;
+}
+.world-action-label {
+  font-size: 10px;
+}
+.world-dialogue-card {
+  left: 16px;
+  right: 16px;
+  bottom: 145px;
+  max-width: 480px;
+  padding: 12px 40px 12px 14px;
+  font-size: 12px;
+  background: #142d38f2;
+  color: #e2eeee;
+  border: 1px solid #628185;
+  border-radius: 12px;
+  box-shadow: none;
+}
+.world-dialogue-card p {
+  color: #d9e8e5;
+  font-size: 12px;
+}
+.world-hint-footer {
+  font-size: 11px;
+  padding: 10px;
+}
+.world-habitat {
+  transition:
+    opacity 0.55s,
+    filter 0.55s;
+  z-index: 2;
+}
+.world-habitat:after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: -6px;
+  right: -6px;
+  height: 8px;
+  border-radius: 40% 45% 20% 20%;
+  background: #37663e;
+  z-index: 3;
+}
+.world-habitat.is-hidden {
+  opacity: 0;
+  pointer-events: none;
+  filter: blur(2px);
+}
+.world-habitat.is-visible .sprite-creature {
+  animation:
+    creature-breathe 1.6s steps(7) infinite,
+    habitat-emerge 0.55s ease-out both;
+}
+@keyframes habitat-emerge {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+.ad-arena-scene {
+  height: 330px;
+  display: block;
+  background-position: center;
+  overflow: hidden;
+}
+.ad-arena-scene::after {
+  background: linear-gradient(0deg, #102c34bb, transparent 70%);
+  pointer-events: none;
+}
+.ad-combatant {
+  position: absolute;
+}
+.ad-combatant-enemy {
+  right: 8%;
+  top: 28px;
+  flex-direction: row;
+}
+.ad-combatant-player {
+  left: 7%;
+  bottom: 25px;
+  flex-direction: row;
+}
+.ad-combatant-player .pixel-avatar {
+  width: 104px;
+  height: 104px !important;
+}
+.ad-combatant-enemy .pixel-creature {
+  width: 76px;
+  height: 76px;
+}
+.ad-combatant-card {
+  min-width: 155px;
+  border: 1px solid #52676d;
+  background: #142c36ef;
+  padding: 10px 12px;
+  border-radius: 10px;
+}
+.ad-combatant-name {
+  font-size: 13px;
+  font-weight: 650;
+}
+.ad-combatant-hp-bar {
+  height: 6px;
+}
+.ad-hp-fill {
+  transition: width 0.6s ease-out;
+}
+.ad-battle-lobby {
+  padding: 16px;
+}
+.ad-battle-bottom-console {
+  padding: 16px;
+}
+.ad-skills-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+.ad-skill-btn {
+  padding: 12px !important;
+  font-size: 12px !important;
+}
+.ad-combatant:after {
+  content: '';
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  right: 0;
+  height: 12px;
+  border-radius: 50%;
+  background: #0a263a50;
+  z-index: -1;
+}
+.combat-player-attack .ad-combatant-player > .pixel-avatar {
+  animation: rpg-lunge 0.35s ease-out;
+}
+.combat-enemy-attack .ad-combatant-enemy > .pixel-creature {
+  animation: rpg-counter 0.35s ease-out;
+}
+.combat-enemy-hurt .ad-combatant-enemy > .pixel-creature,
+.sprite-hurt {
+  animation: rpg-hit 0.4s steps(2);
+}
+.combat-enemy-hurt .ad-combatant-enemy:before {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 12px;
+  width: 55px;
+  height: 55px;
+  border-right: 5px solid #fff0b6;
+  border-bottom: 3px solid #a9dfef;
+  transform: rotate(40deg);
+  animation: rpg-slash 0.4s ease-out;
+}
+.combat-damage {
+  position: absolute;
+  right: 20px;
+  top: 0;
+  color: #ffdd8b;
+  font-size: 24px;
+  font-weight: 800;
+  animation: rpg-damage 0.5s ease-out both;
+}
+.combat-victory .ad-combatant-player > .pixel-avatar {
+  animation: rpg-win 0.6s ease-out 2;
+}
+.combat-defeat .ad-combatant-player > .pixel-avatar {
+  filter: grayscale(0.7);
+  opacity: 0.6;
+}
+@keyframes rpg-lunge {
+  50% {
+    transform: translate(34px, -16px) rotate(-8deg);
+  }
+}
+@keyframes rpg-counter {
+  50% {
+    transform: translate(-30px, 16px) rotate(7deg);
+  }
+}
+@keyframes rpg-hit {
+  25%,
+  75% {
+    opacity: 0.25;
+    filter: brightness(3);
+  }
+  50% {
+    transform: translateX(4px);
+  }
+}
+@keyframes rpg-slash {
+  from {
+    opacity: 1;
+    transform: scale(0.3) rotate(10deg);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.4) rotate(65deg);
+  }
+}
+@keyframes rpg-damage {
+  to {
+    transform: translateY(-24px);
+    opacity: 0;
+  }
+}
+@keyframes rpg-win {
+  50% {
+    transform: translateY(-12px);
+  }
+}
+@media (max-width: 600px) {
+  .adventure {
+    padding: 12px 12px 28px;
+  }
+  .ad-hero-banner {
+    min-height: 195px;
+  }
+  .world-viewport {
+    height: 68dvh;
+    min-height: 380px;
+  }
+  .world-stick {
+    width: 104px;
+    height: 104px;
+  }
+  .world-top-hud {
+    padding: 9px;
+  }
+  .world-hud-btn {
+    width: 40px;
+    height: 40px;
+  }
+  .ad-arena-scene {
+    height: 295px;
+    padding: 12px;
+  }
+  .ad-combatant-card {
+    min-width: 130px;
+    padding: 9px;
+  }
+  .ad-combatant-player {
+    left: 4%;
+    bottom: 20px;
+    gap: 7px;
+  }
+  .ad-combatant-enemy {
+    right: 4%;
+    top: 22px;
+    gap: 7px;
+  }
+  .ad-combatant-player .pixel-avatar {
+    width: 80px;
+    height: 80px !important;
+  }
+  .ad-combatant-enemy .pixel-creature {
+    width: 60px;
+    height: 60px;
+  }
+  .ad-skills-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .ad-skill-btn {
+    padding: 8px !important;
+  }
+  .world-dialogue-card {
+    bottom: 137px;
+  }
+  .ad-combatant-name {
+    font-size: 12px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .adventure *,
+  .adventure *:before,
+  .adventure *:after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+.sprite-avatar {
+  aspect-ratio: 1;
+  height: auto !important;
+}
+.world-dialogue-card {
+  top: auto !important;
+  height: auto;
+  max-height: 120px;
+  overflow-y: auto;
+}
+.ad-hero-avatar-center {
+  left: 52%;
+  right: auto;
+  bottom: auto;
+  transform: translate(-50%, -50%);
+}
+.adventure .ad-checkin-button {
+  box-shadow: none;
+}
+.ad-shortcut-btn .sprite-avatar {
+  width: 36px;
+  height: 36px !important;
+}
+.adventure button {
+  color: inherit;
+}
+.adventure .ad-enter-world-button {
+  color: #fff;
+}
+.adventure .ad-checkin-button {
+  color: #231e0f;
+}
+.adventure .ad-skill-btn {
+  color: #dcecf8;
+}
+
+.world-object > .pixel-chest {
+  width: 26px;
+  height: 26px;
+  image-rendering: pixelated;
+}
+.world-object > svg:not(.pixel-chest) {
+  color: #ead4a0;
+}
+.world-map {
+  transition: transform 100ms linear;
+}
+.sprite-attack .sprite-layer {
+  animation: hero-walk 0.35s steps(7) 1 forwards;
 }

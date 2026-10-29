@@ -57,11 +57,14 @@ describe('Sidebar role-aware navigation', () => {
     render(<Sidebar user={regularUser} />);
 
     await waitFor(() => expect(getCurrentUser).toHaveBeenCalled());
-    // Only the bottom navigation exposes a primary Duels link.
-    expect(screen.getAllByRole('link', { name: 'Duelos' })).toHaveLength(1);
+    // Duelos is directly after Trilhas on desktop and remains in the mobile bottom bar.
+    expect(screen.getAllByRole('link', { name: 'Duelos' })).toHaveLength(2);
+    const desktopLinks = Array.from(document.querySelectorAll('aside nav a'));
+    const trails = desktopLinks.findIndex((link) => link.getAttribute('href') === '/trails');
+    expect(desktopLinks[trails + 1]).toHaveAttribute('href', '/duels');
     fireEvent.click(screen.getByRole('button', { name: 'Mais' }));
 
-    expect(screen.getByRole('menuitem', { name: 'Duelos' })).toHaveAttribute('href', '/duels');
+    expect(screen.queryByRole('menuitem', { name: 'Duelos' })).not.toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Avaliação de Código' })).toBeInTheDocument();
     expect(
       screen.queryByRole('menuitem', { name: 'Painel Administrativo' })

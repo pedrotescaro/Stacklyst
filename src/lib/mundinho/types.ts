@@ -112,12 +112,12 @@ export const ITEMS: Item[] = [
 ];
 export const CHECKIN_REWARDS = [10, 15, 20, 25, 30, 35, 40];
 export const CREATURES = [
-  { id: 'syntax-slime', name: 'Gosma de sintaxe', color: '#85cc4b', level: 1, x: 280, y: 200 },
-  { id: 'blue-slime', name: 'Gota de lógica', color: '#53bce7', level: 2, x: 490, y: 350 },
-  { id: 'ember', name: 'Faísca recursiva', color: '#f39a42', level: 3, x: 670, y: 260 },
-  { id: 'byte-bug', name: 'Besouro de bits', color: '#b39be8', level: 2, x: 340, y: 360 },
-  { id: 'forest', name: 'Broto booleano', color: '#4dbb8b', level: 1, x: 380, y: 200 },
-  { id: 'null-ghost', name: 'Sombra do nulo', color: '#a7b6cc', level: 3, x: 490, y: 260 },
+  { id: 'syntax-slime', name: 'Gosma de sintaxe', color: '#85cc4b', level: 1, x: 300, y: 270 },
+  { id: 'blue-slime', name: 'Gota de lógica', color: '#53bce7', level: 2, x: 680, y: 450 },
+  { id: 'ember', name: 'Faísca recursiva', color: '#f39a42', level: 3, x: 820, y: 350 },
+  { id: 'byte-bug', name: 'Besouro de bits', color: '#b39be8', level: 2, x: 290, y: 510 },
+  { id: 'forest', name: 'Broto booleano', color: '#4dbb8b', level: 1, x: 420, y: 180 },
+  { id: 'null-ghost', name: 'Sombra do nulo', color: '#a7b6cc', level: 3, x: 580, y: 620 },
 ];
 export type PublicQuestion = {
   id: string;

@@ -5,28 +5,21 @@ import {
   ArrowLeft,
   ArrowRight,
   ArrowUp,
-  Award,
   Backpack,
-  Calendar,
   Check,
   ChevronRight,
   Crown,
   Flame,
   Globe2,
-  Map,
-  Music,
   Pause,
   Pencil,
   Play,
   RotateCcw,
   RotateCw,
-  ScrollText,
   Shield,
   Sparkles,
   Swords,
   PackageOpen as TreasureChest,
-  Volume2,
-  X,
 } from 'lucide-react';
 import {
   CHECKIN_REWARDS,
@@ -119,6 +112,8 @@ export function AdventureHub({
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
   const [radioPlaying, setRadioPlaying] = useState(false);
+  const [combatPhase, setCombatPhase] = useState('idle');
+  const [impact, setImpact] = useState(0);
 
   const [language, setLanguage] = useState<(typeof LANGUAGES)[number]>('PYTHON');
   const [creature, setCreature] = useState(CREATURES[0].id);
@@ -183,6 +178,29 @@ export function AdventureHub({
     setNotice('');
     try {
       const next = await transport(action);
+      if (action.type === 'battle-answer' && data?.battle && next.battle) {
+        const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const pause = (ms: number) =>
+          new Promise((resolve) => setTimeout(resolve, reduced ? 0 : ms));
+        setImpact(data.battle.enemyHp - next.battle.enemyHp);
+        setCombatPhase('player-attack');
+        await pause(350);
+        setCombatPhase(next.battle.enemyHp < data.battle.enemyHp ? 'enemy-hurt' : 'miss');
+        await pause(450);
+        if (next.battle.hp < data.battle.hp) {
+          setCombatPhase('enemy-attack');
+          await pause(350);
+          setCombatPhase('player-hurt');
+          await pause(350);
+        }
+        setCombatPhase(
+          next.battle.status === 'won'
+            ? 'victory'
+            : next.battle.status === 'lost'
+              ? 'defeat'
+              : 'idle'
+        );
+      }
       setData(next);
       if (success) setNotice(success);
       return next;
@@ -309,7 +327,7 @@ export function AdventureHub({
             className="ad-hero-banner"
             aria-label="Prévia do Meu Mundinho"
             style={{
-              backgroundImage: `url(${adventureAsset('forest.png', assetBase)})`,
+              backgroundImage: `url(${adventureAsset('forest-v2.png', assetBase)})`,
             }}
           >
             <div className="ad-hero-overlay" />
@@ -809,10 +827,10 @@ export function AdventureHub({
                   {
                     skin: SKIN.length,
                     eyes: 5,
-                    hair: 4,
+                    hair: 6,
                     hairColor: HAIR.length,
                     outfit: OUTFIT.length,
-                    accessory: 4,
+                    accessory: 6,
                   }[category] || 4,
               },
               (_, i) => {
@@ -942,9 +960,9 @@ export function AdventureHub({
             <div className="ad-arena-container">
               {/* Arena Battleground */}
               <div
-                className="ad-arena-scene"
+                className={`ad-arena-scene combat-${combatPhase}`}
                 style={{
-                  backgroundImage: `url(${adventureAsset('forest.png', assetBase)})`,
+                  backgroundImage: `url(${adventureAsset('forest-v2.png', assetBase)})`,
                 }}
               >
                 {/* Enemy Combatant */}
@@ -963,11 +981,28 @@ export function AdventureHub({
                     <span className="ad-hp-number">{battle.enemyHp} / 100 PV</span>
                   </div>
                   <PixelCreature kind={opponent.id} color={opponent.color} />
+                  {combatPhase === 'enemy-hurt' && (
+                    <span className="combat-damage" aria-hidden="true">
+                      −{impact}
+                    </span>
+                  )}
                 </div>
 
                 {/* Player Combatant */}
                 <div className="ad-combatant ad-combatant-player">
-                  <PixelAvatar avatar={equippedAvatar} direction="up" />
+                  <PixelAvatar
+                    avatar={equippedAvatar}
+                    direction="right"
+                    motion={
+                      combatPhase === 'player-attack'
+                        ? 'attack'
+                        : combatPhase === 'player-hurt'
+                          ? 'hurt'
+                          : combatPhase === 'victory'
+                            ? 'victory'
+                            : 'idle'
+                    }
+                  />
                   <div className="ad-combatant-card">
                     <span className="ad-combatant-name">{data?.username}</span>
                     <small className="ad-combatant-meta">Nível {xp.level}</small>
@@ -984,7 +1019,9 @@ export function AdventureHub({
 
               {/* Console & Battle Turn Actions */}
               <div className="ad-battle-bottom-console">
-                <p className="ad-battle-narrative">{battle.feedback}</p>
+                <p className="ad-battle-narrative" role="status" aria-live="polite">
+                  {battle.feedback}
+                </p>
 
                 {battle.status === 'active' ? (
                   battle.question ? (
