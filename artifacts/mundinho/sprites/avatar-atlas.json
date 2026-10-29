@@ -1,7 +1,7 @@
 {
-  "width": 168,
+  "width": 224,
   "height": 128,
-  "tileWidth": 24,
+  "tileWidth": 32,
   "tileHeight": 32,
   "source": "src/components/mundinho/PixelArt.tsx",
   "sprites": [
@@ -9,196 +9,196 @@
       "id": "down:idle",
       "x": 0,
       "y": 0,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "down:walk-a",
-      "x": 24,
+      "x": 32,
       "y": 0,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "down:walk-b",
-      "x": 48,
+      "x": 64,
       "y": 0,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "down:interact",
-      "x": 72,
+      "x": 96,
       "y": 0,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "down:attack",
-      "x": 96,
+      "x": 128,
       "y": 0,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "down:damage",
-      "x": 120,
+      "x": 160,
       "y": 0,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "down:victory",
-      "x": 144,
+      "x": 192,
       "y": 0,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "left:idle",
       "x": 0,
       "y": 32,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "left:walk-a",
-      "x": 24,
+      "x": 32,
       "y": 32,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "left:walk-b",
-      "x": 48,
+      "x": 64,
       "y": 32,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "left:interact",
-      "x": 72,
+      "x": 96,
       "y": 32,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "left:attack",
-      "x": 96,
+      "x": 128,
       "y": 32,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "left:damage",
-      "x": 120,
+      "x": 160,
       "y": 32,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "left:victory",
-      "x": 144,
+      "x": 192,
       "y": 32,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "up:idle",
       "x": 0,
       "y": 64,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "up:walk-a",
-      "x": 24,
+      "x": 32,
       "y": 64,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "up:walk-b",
-      "x": 48,
+      "x": 64,
       "y": 64,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "up:interact",
-      "x": 72,
+      "x": 96,
       "y": 64,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "up:attack",
-      "x": 96,
+      "x": 128,
       "y": 64,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "up:damage",
-      "x": 120,
+      "x": 160,
       "y": 64,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "up:victory",
-      "x": 144,
+      "x": 192,
       "y": 64,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "right:idle",
       "x": 0,
       "y": 96,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "right:walk-a",
-      "x": 24,
+      "x": 32,
       "y": 96,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "right:walk-b",
-      "x": 48,
+      "x": 64,
       "y": 96,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "right:interact",
-      "x": 72,
+      "x": 96,
       "y": 96,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "right:attack",
-      "x": 96,
+      "x": 128,
       "y": 96,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "right:damage",
-      "x": 120,
+      "x": 160,
       "y": 96,
-      "width": 24,
+      "width": 32,
       "height": 32
     },
     {
       "id": "right:victory",
-      "x": 144,
+      "x": 192,
       "y": 96,
-      "width": 24,
+      "width": 32,
       "height": 32
     }
   ]

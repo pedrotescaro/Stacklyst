@@ -17,7 +17,7 @@ import { checkinStatus, dayKey, resolveTurn, SKILLS } from './rules';
 import { QUESTIONS, publicQuestion } from './questions';
 
 const avatarSchema = z.object({
-  skin: z.number().int().min(0).max(7),
+  skin: z.number().int().min(0).max(8),
   eyes: z.number().int().min(0).max(4),
   hair: z.number().int().min(0).max(3),
   hairColor: z.number().int().min(0).max(5),

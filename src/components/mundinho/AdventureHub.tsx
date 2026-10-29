@@ -838,7 +838,13 @@ export function AdventureHub({
                       </div>
                     )}
                     <div className="ad-option-avatar-inner">
-                      <PixelAvatar avatar={{ ...draft, [category]: i }} />
+                      <PixelAvatar
+                        avatar={
+                          category === 'skin'
+                            ? { ...draft, skin: i, hair: -1, outfit: -1, accessory: 0 }
+                            : { ...draft, [category]: i }
+                        }
+                      />
                     </div>
                     {locked && (
                       <div className="ad-option-locked-badge">

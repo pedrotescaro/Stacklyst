@@ -17,19 +17,19 @@ const { PixelAvatar, PixelCreature } = await import(pathToFileURL(modulePath));
 const directions = ['down', 'left', 'up', 'right'];
 const frames = ['idle', 'walk-a', 'walk-b', 'interact', 'attack', 'damage', 'victory'];
 const composites = [];
-const manifest = { width: frames.length * 24, height: 4 * 32, tileWidth: 24, tileHeight: 32, source: 'src/components/mundinho/PixelArt.tsx', sprites: [] };
+const manifest = { width: frames.length * 32, height: 4 * 32, tileWidth: 32, tileHeight: 32, source: 'src/components/mundinho/PixelArt.tsx', sprites: [] };
 for (const [row, direction] of directions.entries()) {
   for (const [column, frame] of frames.entries()) {
     let svg = renderToStaticMarkup(React.createElement(PixelAvatar, { direction }));
-    svg = svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="32" ');
+    svg = svg.replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" ');
     if (frame === 'walk-a') svg = svg.replace('class="pixel-legs"', 'class="pixel-legs" transform="translate(0 -1)"');
     if (frame === 'walk-b') svg = svg.replace('class="pixel-legs"', 'class="pixel-legs" transform="translate(0 1)"');
-    if (frame === 'interact') svg = svg.replace('</svg>', '<path d="M21 14v-4m-2 2h4" stroke="#ffe18b" stroke-width="1"/></svg>');
-    if (frame === 'attack') svg = svg.replace('</svg>', '<path d="M21 20L23 10" stroke="#def4ff" stroke-width="2"/><path d="M19 20h5" stroke="#e5ae54" stroke-width="2"/></svg>');
-    if (frame === 'damage') svg = svg.replace('</svg>', '<path d="M2 6l3 3M21 3l-3 4" stroke="#ff7d80" stroke-width="1"/></svg>');
-    if (frame === 'victory') svg = svg.replace('</svg>', '<path d="M2 4v4M0 6h4M22 1v4M20 3h4" stroke="#ffe070" stroke-width="1"/></svg>');
-    composites.push({ input: await sharp(Buffer.from(svg)).png().toBuffer(), left: column * 24, top: row * 32 });
-    manifest.sprites.push({ id: `${direction}:${frame}`, x: column * 24, y: row * 32, width: 24, height: 32 });
+    if (frame === 'interact') svg = svg.replace('</svg>', '<path d="M26 14v-4m-2 2h4" stroke="#ffe18b" stroke-width="1"/></svg>');
+    if (frame === 'attack') svg = svg.replace('</svg>', '<path d="M26 20L28 10" stroke="#def4ff" stroke-width="2"/><path d="M24 20h5" stroke="#e5ae54" stroke-width="2"/></svg>');
+    if (frame === 'damage') svg = svg.replace('</svg>', '<path d="M3 6l3 3M27 3l-3 4" stroke="#ff7d80" stroke-width="1"/></svg>');
+    if (frame === 'victory') svg = svg.replace('</svg>', '<path d="M3 4v4M1 6h4M28 1v4M26 3h4" stroke="#ffe070" stroke-width="1"/></svg>');
+    composites.push({ input: await sharp(Buffer.from(svg)).png().toBuffer(), left: column * 32, top: row * 32 });
+    manifest.sprites.push({ id: `${direction}:${frame}`, x: column * 32, y: row * 32, width: 32, height: 32 });
   }
 }
 await sharp({ create: { width: manifest.width, height: manifest.height, channels: 4, background: '#00000000' } }).composite(composites).png().toFile(path.join(destination, 'avatar-atlas.png'));
