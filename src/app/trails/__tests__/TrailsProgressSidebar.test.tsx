@@ -26,7 +26,9 @@ const baseProps = {
 
 describe('TrailsProgressSidebar', () => {
   it('renders real trail stats and the global ranking link', () => {
-    render(<TrailsProgressSidebar {...baseProps} />);
+    render(<TrailsProgressSidebar {...baseProps} avatarUrl="https://example.com/avatar.png" />);
+    expect(screen.queryByAltText(baseProps.username)).not.toBeInTheDocument();
+    expect(screen.getByTestId('trail-rail-resources').children).toHaveLength(4);
 
     expect(screen.getByTestId('trails-progress-sidebar')).toBeInTheDocument();
     expect(

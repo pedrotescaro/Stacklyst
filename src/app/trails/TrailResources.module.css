@@ -1,0 +1,40 @@
+.resources {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 16px;
+}
+.resource {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 44px;
+}
+.resource > span {
+  font-variant-numeric: tabular-nums;
+}
+.resource > div {
+  max-width: 100%;
+}
+.streak {
+  width: 100%;
+  border-radius: 12px;
+  padding: 4px;
+  cursor: pointer;
+  transition: background-color 140ms ease;
+}
+.streak:hover {
+  background: var(--color-dd-surface);
+}
+.streak:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .streak {
+    transition: none;
+  }
+}

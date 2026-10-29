@@ -8,6 +8,7 @@ import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
 import type { TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
 import { StreakPopover } from '@/components/StreakPopover';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import styles from './TrailResources.module.css';
 
 export interface TrailDailyProgress {
   xpEarned: number;
@@ -106,15 +107,12 @@ export function TrailsProgressSidebar({
   lastActiveAt,
   globalRank,
   totalParticipants,
-  username,
-  avatarUrl,
   dailyProgress,
   weeklyActivity,
   variant = 'trails',
   allowAddingCourses = true,
 }: TrailsProgressSidebarProps) {
   const { locale, text } = useLocalizedText();
-  const initials = username.slice(0, 2).toUpperCase();
   const rankMessage =
     globalRank <= 3
       ? text('Continue assim para ficar no pódio!', 'Keep it up to reach the podium!')
@@ -135,20 +133,22 @@ export function TrailsProgressSidebar({
         'sticky top-0 hidden h-screen w-[380px] shrink-0 flex-col gap-4 overflow-y-auto border-l border-dd-border p-5 scrollbar-none xl:flex',
       ].join(' ')}
     >
-      <div className="grid grid-cols-[76px_40px_minmax(56px,1fr)_54px_40px] items-center gap-1 pb-4">
-        <TrailCourseSelector
-          activeLanguage={activeLanguage}
-          courses={courses}
-          onSelectCourse={onSelectCourse}
-          variant="rail"
-          allowAddingCourses={allowAddingCourses}
-        />
+      <div className={styles.resources} data-testid="trail-rail-resources">
+        <div className={styles.resource}>
+          <TrailCourseSelector
+            activeLanguage={activeLanguage}
+            courses={courses}
+            onSelectCourse={onSelectCourse}
+            variant="rail"
+            allowAddingCourses={allowAddingCourses}
+          />
+        </div>
 
         <StreakPopover
           streak={streak}
           lastActiveAt={lastActiveAt}
           weeklyActivity={weeklyActivity}
-          triggerClassName="dd-focus-ring flex min-w-0 items-center justify-center gap-1 rounded-xl p-0.5 transition-colors hover:bg-blue-500/10"
+          triggerClassName={`${styles.resource} ${styles.streak}`}
         >
           <Image
             data-testid="glossy-streak-flame"
@@ -156,14 +156,14 @@ export function TrailsProgressSidebar({
             alt=""
             width={30}
             height={30}
-            className="h-5 w-5 shrink-0 object-contain"
+            className="h-6 w-6 shrink-0 object-contain"
           />
           <span className="truncate text-xs font-black text-dd-text">{formatMetric(streak)}</span>
         </StreakPopover>
 
         <div
           title={`${formatMetric(totalXp, locale)} ${text('XP total', 'total XP')}`}
-          className="flex min-w-0 items-center justify-center gap-1.5"
+          className={styles.resource}
         >
           <Image
             src="/assets/trails/trail-lightning.png"
@@ -177,27 +177,10 @@ export function TrailsProgressSidebar({
 
         <div
           title={`${formatMetric(gems, locale)} ${text('gemas', 'gems')}`}
-          className="flex min-w-0 items-center justify-center gap-1"
+          className={styles.resource}
         >
-          <Coin className="h-5 w-5 shrink-0 drop-shadow-[0_2px_6px_rgba(250,204,21,0.5)]" />
+          <Coin className="h-6 w-6 shrink-0 drop-shadow-[0_2px_6px_rgba(250,204,21,0.5)]" />
           <span className="truncate text-xs font-black text-dd-text">{formatMetric(gems)}</span>
-        </div>
-
-        <div
-          title={text(`Perfil de @${username}`, `@${username}'s profile`)}
-          className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border border-blue-500/25 bg-blue-500/10 text-[10px] font-black text-blue-300"
-        >
-          {avatarUrl ? (
-            <Image
-              src={avatarUrl}
-              alt={username}
-              width={36}
-              height={36}
-              className="h-9 w-9 object-cover"
-            />
-          ) : (
-            initials
-          )}
         </div>
       </div>
 
