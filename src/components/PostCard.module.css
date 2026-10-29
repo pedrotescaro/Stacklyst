@@ -2,6 +2,19 @@
   overflow-wrap: anywhere;
 }
 
+.actions {
+  position: relative;
+}
+
+.actions::before {
+  content: '';
+  position: absolute;
+  inset-inline: 12px;
+  top: 0;
+  border-top: 1px solid color-mix(in srgb, var(--color-dd-border) 60%, transparent);
+  pointer-events: none;
+}
+
 @media (max-width: 767px) {
   .content {
     margin-bottom: 0;
@@ -19,6 +32,9 @@
   .actions {
     margin-top: 4px;
     padding-top: 0;
-    border-top: 0;
+  }
+
+  .actions::before {
+    display: none;
   }
 }

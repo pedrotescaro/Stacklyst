@@ -422,7 +422,7 @@ export function PostCard({
 
         {/* Footer: Action bar (Twitter style) */}
         <PostActionsBar
-          className={cn('pt-2.5 mt-2 border-t border-dd-border/60', styles.actions)}
+          className={cn('pt-2.5 mt-2', styles.actions)}
           onClick={(e) => {
             e.stopPropagation();
           }}
