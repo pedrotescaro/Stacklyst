@@ -61,6 +61,36 @@ const openBattle = async (transport: AdventureTransport) => {
   fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
 };
 describe('Mundinho battle navigation', () => {
+  it('shows healing and the elemental counter even when net health increases', async () => {
+    const active = state('active');
+    active.battle!.hp = 30;
+    active.battle!.skill = 'focus';
+    active.battle!.creature = 'ember';
+    active.battle!.question = {
+      id: 'question',
+      concept: 'Laços',
+      prompt: 'Qual resultado?',
+      options: ['1', '2', '3', '4'],
+      difficulty: 'Fácil',
+    };
+    const next = structuredClone(active);
+    next.battle!.hp = 39;
+    next.battle!.enemyHp = 82;
+    next.battle!.question = null;
+    const sound = vi.spyOn(BattleAudio.prototype, 'play');
+    await openBattle(async (action) => (action?.type === 'battle-answer' ? next : active));
+    fireEvent.click(screen.getByRole('button', { name: 'A1' }));
+    await waitFor(() =>
+      expect(document.querySelector('[data-effect="focus-impact"]')).toBeInTheDocument()
+    );
+    expect(screen.getByText('+20')).toBeInTheDocument();
+    await waitFor(() =>
+      expect(document.querySelector('[data-effect="fire-impact"]')).toBeInTheDocument()
+    );
+    expect(screen.getByText('−11')).toBeInTheDocument();
+    expect(sound).toHaveBeenCalledWith('heal');
+    sound.mockRestore();
+  });
   it('keeps the world language synchronized with the selected course', async () => {
     const changed = vi.fn();
     const props = { transport: async () => state(null), courses: [], onCourse: () => {} };

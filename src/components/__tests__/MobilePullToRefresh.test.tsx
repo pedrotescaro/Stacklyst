@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { HeaderRefreshLogo } from '../HeaderRefreshLogo';
+import { MobileRefreshHeader } from '../MobileRefreshHeader';
 import { MobilePullToRefresh } from '../MobilePullToRefresh';
 import { brandGeometry } from '@/lib/brand-geometry';
 
@@ -12,7 +13,11 @@ function setup(onRefresh = vi.fn().mockResolvedValue(undefined), disabled = fals
   Object.defineProperty(window, 'scrollY', { configurable: true, value: 0 });
   const view = render(
     <>
-      <HeaderRefreshLogo />
+      <MobileRefreshHeader>
+        <button>Menu</button>
+        <HeaderRefreshLogo />
+        <button>Notificações</button>
+      </MobileRefreshHeader>
       <MobilePullToRefresh refreshing={false} disabled={disabled} onRefresh={onRefresh}>
         <div>Feed</div>
         <pre>code</pre>
@@ -31,6 +36,7 @@ describe('mobile pull to refresh', () => {
     Object.defineProperty(move, 'touches', { value: [touch(11, 52)] });
     fireEvent(feed, move);
     expect(move.defaultPrevented).toBe(true);
+    expect(container.querySelector('header')?.style.getPropertyValue('--header-pull')).toBe('32px');
     expect(container.querySelector('clipPath rect')?.getAttribute('height')).toBe(
       String(brandGeometry.height / 2)
     );
@@ -38,6 +44,30 @@ describe('mobile pull to refresh', () => {
     fireEvent.touchMove(feed, { touches: [touch(10, 100)] });
     fireEvent.touchEnd(feed, { touches: [] });
     await waitFor(() => expect(onRefresh).toHaveBeenCalledTimes(1));
+  });
+
+  it('holds the expanded header during refresh and collapses after completion or cancellation', async () => {
+    let finish!: () => void;
+    const onRefresh = vi.fn(
+      () =>
+        new Promise<void>((resolve) => {
+          finish = resolve;
+        })
+    );
+    const { feed, container } = setup(onRefresh);
+    const header = container.querySelector('header')!;
+    fireEvent.touchStart(feed, { touches: [touch(10, 10)] });
+    fireEvent.touchMove(feed, { touches: [touch(10, 200)] });
+    expect(header.style.getPropertyValue('--header-pull')).toBe('64px');
+    fireEvent.touchEnd(feed);
+    await waitFor(() => expect(onRefresh).toHaveBeenCalledOnce());
+    expect(header.style.getPropertyValue('--header-pull')).toBe('44px');
+    finish();
+    await waitFor(() => expect(header.style.getPropertyValue('--header-pull')).toBe('0px'));
+    fireEvent.touchStart(feed, { touches: [touch(10, 10)] });
+    fireEvent.touchMove(feed, { touches: [touch(10, 40)] });
+    fireEvent.touchCancel(feed);
+    expect(header.style.getPropertyValue('--header-pull')).toBe('0px');
   });
 
   it('does not intercept horizontal scrolling, code or gestures away from the top', async () => {

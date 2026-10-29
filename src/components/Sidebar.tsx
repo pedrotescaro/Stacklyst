@@ -1,6 +1,7 @@
 'use client';
 
 import { HeaderRefreshLogo } from '@/components/HeaderRefreshLogo';
+import { MobileRefreshHeader } from '@/components/MobileRefreshHeader';
 import { BrandLogo } from '@/components/BrandLogo';
 import { MobileNavigationDrawer } from '@/components/MobileNavigationDrawer';
 import { ProfileName } from '@/components/profile/ProfileIdentity';
@@ -876,7 +877,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       <div className="md:hidden flex flex-col w-full">
         {/* Cabeçalho compartilhado para o web responsivo. */}
         {!shouldHideMobileHeader && (
-          <header className="sticky top-0 z-[100] grid w-full grid-cols-3 items-center border-b border-dd-border bg-dd-bg/95 px-3 pb-2 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-md">
+          <MobileRefreshHeader>
             <button
               type="button"
               aria-label={isEnglish ? 'Open menu' : 'Abrir menu'}
@@ -901,7 +902,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
             >
               <NotificationBellIcon unreadCount={unreadCount} active={false} />
             </Link>
-          </header>
+          </MobileRefreshHeader>
         )}
         {mobileMenuOpen && (
           <MobileNavigationDrawer

@@ -128,12 +128,14 @@ export function MobilePullToRefresh({ children, refreshing, disabled = false, on
     window.dispatchEvent(
       new CustomEvent('stacklyst:feed-refresh', { detail: { progress, refreshing: active } })
     );
+  }, [progress, active]);
+  useEffect(() => {
     return () => {
       window.dispatchEvent(
         new CustomEvent('stacklyst:feed-refresh', { detail: { progress: 0, refreshing: false } })
       );
     };
-  }, [progress, active]);
+  }, []);
   return (
     <div ref={wrapperRef} className={styles.wrapper} data-testid="pull-to-refresh">
       <span className={styles.srOnly} role="status" aria-live="polite">

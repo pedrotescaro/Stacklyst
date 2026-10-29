@@ -1,0 +1,23 @@
+.header {
+  padding-bottom: calc(0.5rem + var(--header-pull, 0px));
+  overflow-anchor: none;
+  transition: padding-bottom 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.header > :nth-child(2) {
+  transform: translateY(calc(var(--header-pull, 0px) / 2));
+  transition: transform 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.header[data-pulling='true'],
+.header[data-pulling='true'] > :nth-child(2) {
+  transition: none;
+}
+@media (prefers-reduced-motion: reduce), (min-width: 768px) {
+  .header {
+    padding-bottom: 0.5rem;
+    transition: none;
+  }
+  .header > :nth-child(2) {
+    transform: none;
+    transition: none;
+  }
+}

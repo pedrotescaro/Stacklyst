@@ -40,6 +40,7 @@ import {
 import { canChallengeCreature, SKILLS } from '../../lib/mundinho/rules';
 import { BattleAudio } from '../../lib/mundinho/battleAudio';
 import { CodeBattle } from './CodeBattle';
+import { BattleEffects, CREATURE_ELEMENTS } from './BattleEffects';
 import { WORLD } from '../../lib/mundinho/world';
 import { Coin, HAIR, OUTFIT, PixelAvatar, PixelCreature, SKIN } from './PixelArt';
 import './mundinho.css';
@@ -127,6 +128,9 @@ export function AdventureHub({
   const [radioPlaying, setRadioPlaying] = useState(false);
   const [combatPhase, setCombatPhase] = useState('idle');
   const [impact, setImpact] = useState(0);
+  const [attackEffect, setAttackEffect] = useState('strike');
+  const [incomingDamage, setIncomingDamage] = useState(0);
+  const [healing, setHealing] = useState(0);
   const [battleAudio] = useState(() => new BattleAudio());
   const [soundEnabled, setSoundEnabled] = useState(true);
   useEffect(() => {
@@ -250,14 +254,21 @@ export function AdventureHub({
         const pause = (ms: number) =>
           new Promise((resolve) => setTimeout(resolve, reduced ? 0 : ms));
         setImpact(data.battle.enemyHp - next.battle.enemyHp);
+        const skill = SKILLS.find((item) => item.id === data.battle?.skill) ?? SKILLS[0];
+        const landed = next.battle.enemyHp < data.battle.enemyHp;
+        setAttackEffect(skill.id);
+        setHealing(landed ? Math.max(0, Math.min(100 - data.battle.hp, skill.heal)) : 0);
+        const recoveredHp = landed ? Math.min(100, data.battle.hp + skill.heal) : data.battle.hp;
+        const counterDamage = Math.max(0, recoveredHp - next.battle.hp);
+        setIncomingDamage(counterDamage);
         battleAudio.play('attack');
         setCombatPhase('player-attack');
         await pause(350);
         battleAudio.play(next.battle.enemyHp < data.battle.enemyHp ? 'hit' : 'miss');
-        if (next.battle.hp > data.battle.hp) battleAudio.play('heal');
+        if (landed && skill.heal > 0) battleAudio.play('heal');
         setCombatPhase(next.battle.enemyHp < data.battle.enemyHp ? 'enemy-hurt' : 'miss');
         await pause(450);
-        if (next.battle.hp < data.battle.hp) {
+        if (counterDamage > 0 && next.battle.enemyHp > 0) {
           setCombatPhase('enemy-attack');
           await pause(350);
           battleAudio.play('hurt');
@@ -489,7 +500,7 @@ export function AdventureHub({
                 onClick={() => go('world')}
               >
                 <Globe2 size={22} />
-                <span>Entrar no Mundinho · {LANGUAGE_NAMES[language]}</span>
+                <span>Entrar no Mundinho</span>
               </button>
               <button
                 className="ad-hero-pencil-button"
@@ -1150,30 +1161,70 @@ export function AdventureHub({
                     </div>
                     <span className="ad-hp-number">{battle.enemyHp} / 100 PV</span>
                   </div>
-                  <PixelCreature kind={opponent.id} color={opponent.color} />
-                  {combatPhase === 'enemy-hurt' && (
-                    <span className="combat-damage" aria-hidden="true">
-                      −{impact}
-                    </span>
-                  )}
+                  <div className="battle-sprite battle-sprite-enemy">
+                    <PixelCreature kind={opponent.id} color={opponent.color} />
+                    {combatPhase === 'enemy-attack' && (
+                      <BattleEffects
+                        kind={CREATURE_ELEMENTS[opponent.id]?.element ?? 'slime'}
+                        stage="cast"
+                      />
+                    )}
+                    {combatPhase === 'enemy-hurt' && (
+                      <>
+                        <BattleEffects kind={attackEffect} stage="impact" />
+                        <span className="combat-damage" aria-hidden="true">
+                          −{impact}
+                        </span>
+                      </>
+                    )}
+                    {combatPhase === 'miss' && (
+                      <span className="battle-miss" aria-hidden="true">
+                        Errou
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Player Combatant */}
                 <div className="ad-combatant ad-combatant-player">
-                  <PixelAvatar
-                    avatar={equippedAvatar}
-                    direction={combatPhase === 'flee' ? 'left' : 'right'}
-                    walking={combatPhase === 'flee'}
-                    motion={
-                      combatPhase === 'player-attack'
-                        ? 'attack'
-                        : combatPhase === 'player-hurt'
-                          ? 'hurt'
-                          : combatPhase === 'victory'
-                            ? 'victory'
-                            : 'idle'
-                    }
-                  />
+                  <div className="battle-sprite battle-sprite-player">
+                    <PixelAvatar
+                      avatar={equippedAvatar}
+                      direction={combatPhase === 'flee' ? 'left' : 'right'}
+                      walking={combatPhase === 'flee'}
+                      motion={
+                        combatPhase === 'player-attack'
+                          ? 'attack'
+                          : combatPhase === 'player-hurt'
+                            ? 'hurt'
+                            : combatPhase === 'victory'
+                              ? 'victory'
+                              : 'idle'
+                      }
+                    />
+                    {combatPhase === 'player-attack' && (
+                      <BattleEffects kind={attackEffect} stage="cast" />
+                    )}
+                    {combatPhase === 'enemy-hurt' && healing > 0 && (
+                      <>
+                        <BattleEffects kind="focus" stage="heal" />
+                        <span className="combat-damage battle-heal" aria-hidden="true">
+                          +{healing}
+                        </span>
+                      </>
+                    )}
+                    {combatPhase === 'player-hurt' && (
+                      <>
+                        <BattleEffects
+                          kind={CREATURE_ELEMENTS[opponent.id]?.element ?? 'slime'}
+                          stage="impact"
+                        />
+                        <span className="combat-damage battle-damage-player" aria-hidden="true">
+                          −{incomingDamage}
+                        </span>
+                      </>
+                    )}
+                  </div>
                   <div className="ad-combatant-card">
                     <span className="ad-combatant-name">{data?.username}</span>
                     <small className="ad-combatant-meta">Nível {xp.level}</small>
