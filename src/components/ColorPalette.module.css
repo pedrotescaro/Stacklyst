@@ -1,0 +1,40 @@
+.palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  min-width: 0;
+  max-width: 100%;
+  padding: 4px;
+}
+.swatch {
+  position: relative;
+  flex: 0 0 32px;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid #8b949e80;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.swatch[aria-pressed='true'] {
+  outline: 2px solid var(--color-dd-accent, #0083fe);
+  outline-offset: 2px;
+}
+.swatch:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+.swatch:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.swatch svg {
+  position: absolute;
+  inset: 7px;
+  width: 16px;
+  height: 16px;
+  fill: none;
+  stroke: white;
+  stroke-width: 3;
+  filter: drop-shadow(0 1px 1px #000);
+}

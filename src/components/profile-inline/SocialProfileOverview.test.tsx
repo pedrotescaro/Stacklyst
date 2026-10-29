@@ -262,7 +262,7 @@ describe('Inline social profile editing', () => {
       target: { value: 'react' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Adicionar' }));
-    fireEvent.change(screen.getByLabelText('Cor da tag react'), { target: { value: '#e879c0' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Cor da tag react: #ec4899' }));
     fireEvent.click(screen.getByRole('button', { name: 'Fechar adicionar ou editar tags' }));
     fireEvent.click(screen.getByRole('button', { name: 'Editar estudos' }));
     fireEvent.change(screen.getByRole('textbox', { name: 'Descrição curta' }), {
@@ -278,7 +278,7 @@ describe('Inline social profile editing', () => {
     await screen.findByText('Perfil atualizado.');
     expect(writes[0].preferences).toMatchObject({
       tags: ['python', 'react'],
-      tagColors: { react: '#e879c0' },
+      tagColors: { react: '#ec4899' },
       studyDetails: [
         {
           subject: 'Redes',

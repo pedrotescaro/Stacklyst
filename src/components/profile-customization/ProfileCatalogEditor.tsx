@@ -1,4 +1,5 @@
 'use client';
+import { ColorPalette } from '@/components/ColorPalette';
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
@@ -381,9 +382,7 @@ export function ProfileCatalogEditor() {
                             </label>
                             <label className={styles.field}>
                               <span className={styles.label}>Cor</span>
-                              <input
-                                className={styles.colorPicker}
-                                type="color"
+                              <ColorPalette
                                 value={achievement.color}
                                 onChange={(e) =>
                                   setCatalog({
@@ -613,9 +612,7 @@ export function ProfileCatalogEditor() {
                           <div className={styles.split}>
                             <label className={styles.field}>
                               <span className={styles.label}>Cor</span>
-                              <input
-                                className={styles.colorPicker}
-                                type="color"
+                              <ColorPalette
                                 value={frame.color}
                                 onChange={(e) =>
                                   setCatalog({

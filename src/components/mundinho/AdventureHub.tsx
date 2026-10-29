@@ -41,6 +41,7 @@ import { canChallengeCreature, SKILLS } from '../../lib/mundinho/rules';
 import { BattleAudio } from '../../lib/mundinho/battleAudio';
 import { CodeBattle } from './CodeBattle';
 import { BattleEffects, CREATURE_ELEMENTS } from './BattleEffects';
+import { ColorPalette } from '../ColorPalette';
 import { WORLD } from '../../lib/mundinho/world';
 import { Coin, HAIR, OUTFIT, PixelAvatar, PixelCreature, SKIN } from './PixelArt';
 import './mundinho.css';
@@ -981,6 +982,20 @@ export function AdventureHub({
             ))}
           </div>
 
+          {category === 'hair' && (
+            <section className="ad-hair-colors" aria-label="Cor do cabelo">
+              <h2>Cor do cabelo</h2>
+              <ColorPalette
+                aria-label="Cor do cabelo"
+                colors={HAIR}
+                names={['Preto', 'Castanho', 'Loiro', 'Prata', 'Roxo', 'Ruivo']}
+                value={HAIR[draft.hairColor] ?? HAIR[0]}
+                onChange={(event) =>
+                  setDraft({ ...draft, hairColor: HAIR.indexOf(event.target.value) })
+                }
+              />
+            </section>
+          )}
           {/* 3-Column Grid of Avatar Options (Matching Image 4) */}
           <div className="ad-options-grid-three">
             {Array.from(

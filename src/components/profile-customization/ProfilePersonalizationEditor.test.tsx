@@ -89,22 +89,20 @@ async function open(initialSection?: 'appearance' | 'achievements') {
 describe('Profile personalization editor', () => {
   it('previews card, accent, secondary and button colors before saving', async () => {
     await open();
-    fireEvent.change(screen.getByLabelText('Fundo do perfil'), { target: { value: '#10151d' } });
-    fireEvent.change(screen.getByLabelText('Fundo dos cartões'), { target: { value: '#151e29' } });
-    fireEvent.change(screen.getByLabelText('Cor de destaque'), { target: { value: '#70b6ff' } });
-    fireEvent.change(screen.getByLabelText('Destaque secundário'), {
-      target: { value: '#e879c0' },
-    });
-    fireEvent.change(screen.getByLabelText('Cor dos botões'), { target: { value: '#0083fe' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Fundo do perfil: #0d1117' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Fundo dos cartões: #161b22' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cor de destaque: #2f6bb2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Destaque secundário: #ec4899' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cor dos botões: #0083fe' }));
     const preview = screen.getByTestId('profile-live-preview');
     expect(preview).toHaveStyle({
-      '--color-dd-card': '#151e29',
-      '--color-dd-accent': '#70b6ff',
-      '--color-dd-muted': '#e879c0',
+      '--color-dd-card': '#161b22',
+      '--color-dd-accent': '#2f6bb2',
+      '--color-dd-muted': '#ec4899',
       '--profile-button': '#0083fe',
     });
     expect(within(preview).getByText('Prévia das cores do perfil').parentElement).toHaveStyle({
-      backgroundColor: '#151e29',
+      backgroundColor: '#161b22',
     });
     expect(within(preview).getByText('Seguir')).toHaveStyle({ backgroundColor: '#0083fe' });
     expect(calls).toHaveLength(0);
@@ -127,18 +125,26 @@ describe('Profile personalization editor', () => {
     expect(calls[0].body).not.toHaveProperty('userId');
     view.unmount();
     await open();
-    expect(screen.getByLabelText('Fundo do perfil')).toHaveValue('#eaf4ff');
+    expect(screen.getByTestId('profile-live-preview')).toHaveStyle({
+      backgroundColor: '#eaf4ff',
+    });
   });
 
   it('preserves unsaved choices on failure and discards only when requested', async () => {
     await open();
     failSave = true;
-    fireEvent.change(screen.getByLabelText('Fundo do perfil'), { target: { value: '#123456' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Fundo do perfil: #000000' }));
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
     await screen.findByRole('alert');
-    expect(screen.getByLabelText('Fundo do perfil')).toHaveValue('#123456');
+    expect(screen.getByRole('button', { name: 'Fundo do perfil: #000000' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Descartar' }));
-    expect(screen.getByLabelText('Fundo do perfil')).toHaveValue('');
+    expect(screen.getByRole('button', { name: 'Fundo do perfil: #000000' })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
     expect(screen.getByRole('button', { name: 'Salvar' })).toBeDisabled();
   });
 
@@ -191,14 +197,12 @@ describe('Profile personalization editor', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Remover música' }));
     fireEvent.click(screen.getByRole('button', { name: 'Banner' }));
     fireEvent.change(screen.getByLabelText('Tipo de banner'), { target: { value: 'gradient' } });
-    fireEvent.change(screen.getByLabelText('Cor do banner'), { target: { value: '#112233' } });
-    fireEvent.change(screen.getByLabelText('Segunda cor do banner'), {
-      target: { value: '#445566' },
-    });
+    fireEvent.click(screen.getByRole('button', { name: 'Cor do banner: #2b9c86' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Segunda cor do banner: #435d9d' }));
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
     await waitFor(() => expect(persisted.preferences.music).toBeNull());
     expect(persisted.preferences.banner).toEqual(
-      expect.objectContaining({ mode: 'gradient', color: '#112233', secondaryColor: '#445566' })
+      expect.objectContaining({ mode: 'gradient', color: '#2b9c86', secondaryColor: '#435d9d' })
     );
   });
 

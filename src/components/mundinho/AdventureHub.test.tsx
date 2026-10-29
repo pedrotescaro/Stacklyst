@@ -61,6 +61,36 @@ const openBattle = async (transport: AdventureTransport) => {
   fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
 };
 describe('Mundinho battle navigation', () => {
+  it('previews and saves a selected hair color, including black', async () => {
+    const initial = state(null);
+    initial.avatar.hairColor = 1;
+    const transport = vi
+      .fn<AdventureTransport>()
+      .mockImplementation(async (action) =>
+        action?.type === 'avatar'
+          ? { ...initial, avatar: action.avatar as typeof initial.avatar }
+          : initial
+      );
+    render(<AdventureHub transport={transport} courses={[]} onCourse={() => {}} />);
+    await screen.findByText('Nível 1');
+    fireEvent.click(screen.getByRole('button', { name: 'Personalizar avatar' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Cabelo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cor do cabelo: Roxo' }));
+    expect(screen.getByRole('button', { name: 'Cor do cabelo: Roxo' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Cor do cabelo: Preto' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    await waitFor(() =>
+      expect(transport).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'avatar',
+          avatar: expect.objectContaining({ hairColor: 0 }),
+        })
+      )
+    );
+  });
   it('shows healing and the elemental counter even when net health increases', async () => {
     const active = state('active');
     active.battle!.hp = 30;

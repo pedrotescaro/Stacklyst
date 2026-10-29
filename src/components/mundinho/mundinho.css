@@ -2612,6 +2612,16 @@
   max-width: 480px;
   justify-content: space-between;
 }
+.ad-hair-colors {
+  padding: 12px;
+  margin-bottom: 16px;
+  border: 1px solid var(--ad-border);
+  border-radius: 12px;
+}
+.ad-hair-colors h2 {
+  margin: 0 0 10px;
+  font-size: 14px;
+}
 .ad-home-language select {
   min-width: 0;
   max-width: 100%;

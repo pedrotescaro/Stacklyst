@@ -1,4 +1,5 @@
 'use client';
+import { ColorPalette } from '@/components/ColorPalette';
 
 import { useEffect, useId, useMemo, useRef, useState, type CSSProperties } from 'react';
 import Link from 'next/link';
@@ -161,21 +162,13 @@ function ColorField({
         {label}
       </label>
       <div className={styles.colorRow}>
-        <input
-          className={styles.colorPicker}
-          type="color"
+        <ColorPalette
+          id={id}
           value={/^#[\da-f]{6}$/i.test(value || '') ? value! : fallback}
-          aria-label={`Paleta: ${label}`}
+          aria-label={label}
           onChange={(event) => onChange(event.target.value)}
         />
-        <input
-          id={id}
-          className={`${styles.input} ${styles.colorText}`}
-          value={value || ''}
-          placeholder="Padrão"
-          maxLength={7}
-          onChange={(event) => onChange(event.target.value || null)}
-        />
+
         <button
           type="button"
           className={styles.quietButton}

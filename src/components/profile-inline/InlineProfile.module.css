@@ -442,6 +442,11 @@
   font-weight: 650;
   margin: 0 0 5px;
 }
+.appearanceColor {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
 .row {
   display: flex;
   align-items: center;
@@ -534,9 +539,17 @@
 }
 .tagRow {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 34px auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 5px;
+}
+.tagRow > [role='group'] {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}
+.tagRow > .tagControls {
+  grid-column: 2;
+  grid-row: 1;
 }
 .colorInput {
   width: 34px;

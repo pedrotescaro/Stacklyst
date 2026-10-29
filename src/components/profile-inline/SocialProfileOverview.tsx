@@ -1,4 +1,5 @@
 'use client';
+import { ColorPalette } from '@/components/ColorPalette';
 
 import Link from 'next/link';
 import {
@@ -610,8 +611,8 @@ export function SocialProfileOverview({
                   <div className={styles.rowWrap}>
                     <label className={styles.field}>
                       Cor
-                      <input
-                        type="color"
+                      <ColorPalette
+                        aria-label="Cor do banner"
                         value={banner.color}
                         onChange={(event) =>
                           updatePreference('banner', { ...banner, color: event.target.value })
@@ -621,8 +622,8 @@ export function SocialProfileOverview({
                     {banner.mode === 'gradient' && (
                       <label className={styles.field}>
                         Segunda cor
-                        <input
-                          type="color"
+                        <ColorPalette
+                          aria-label="Segunda cor do banner"
                           value={banner.secondaryColor}
                           onChange={(event) =>
                             updatePreference('banner', {
@@ -880,8 +881,8 @@ export function SocialProfileOverview({
                 <h3 className={styles.popoverHeading}>Estilo do nome</h3>
                 <label className={styles.field}>
                   Cor do nome
-                  <input
-                    type="color"
+                  <ColorPalette
+                    aria-label="Cor do nome"
                     value={preferences.nameStyle.color || '#0083fe'}
                     onChange={(event) =>
                       updatePreference('nameStyle', {
@@ -1184,26 +1185,12 @@ export function SocialProfileOverview({
                     ['buttonColor', 'Botões'],
                   ] as const
                 ).map(([key, label]) => (
-                  <div className={styles.row} key={key}>
+                  <div className={styles.appearanceColor} key={key}>
                     <label className={styles.field} style={{ flex: 1 }}>
                       {label}
-                      <input
-                        className={styles.input}
-                        value={preferences.appearance[key] || ''}
-                        placeholder="Padrão"
-                        maxLength={7}
-                        onChange={(event) =>
-                          updatePreference('appearance', {
-                            ...preferences.appearance,
-                            [key]: event.target.value || null,
-                          })
-                        }
-                      />
                     </label>
-                    <input
-                      type="color"
+                    <ColorPalette
                       aria-label={`Selecionar cor: ${label}`}
-                      className={styles.colorInput}
                       value={
                         /^#[\da-f]{6}$/i.test(preferences.appearance[key] || '')
                           ? preferences.appearance[key]!
@@ -1653,9 +1640,7 @@ function TagEditor({
           }
         }}
       />
-      <input
-        className={styles.colorInput}
-        type="color"
+      <ColorPalette
         aria-label={`Cor da tag ${value}`}
         value={color}
         onChange={(event) => onColor(event.target.value)}

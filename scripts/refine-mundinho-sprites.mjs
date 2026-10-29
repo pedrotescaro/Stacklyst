@@ -16,7 +16,7 @@ const skins = [
   '#e7ded0',
   '#ba8b7a',
 ];
-const hairs = ['#273047', '#684331', '#bd8240', '#dcd8d4', '#805d9e', '#c15e54'];
+const hairs = ['#17191f', '#684331', '#bd8240', '#dcd8d4', '#805d9e', '#c15e54'];
 const coats = ['#b94f57', '#498faa', '#344a5c', '#4e785d', '#934153', '#c59a45'];
 const shade = (c, n) =>
   '#' +

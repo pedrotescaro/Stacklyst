@@ -113,7 +113,7 @@ export const SKIN_PALETTES: SkinPalette[] = [
 export const SKIN = SKIN_PALETTES.map((p) => p.base);
 
 export const HAIR = [
-  '#273047', // Preto Ônix
+  '#17191f', // Preto
   '#684331', // Castanho Chocolate
   '#bd8240', // Loiro Âmbar
   '#dcd8d4', // Prata Platina
