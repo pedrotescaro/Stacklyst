@@ -4,7 +4,8 @@
   gap: 8px;
   min-height: 44px;
 }
-.switcher a {
+.switcher a,
+.switcher button {
   display: inline-flex;
   min-width: 44px;
   height: 44px;
@@ -14,6 +15,8 @@
   border-radius: 999px;
   font-size: 12px;
   font-weight: 700;
+  border: 0;
+  cursor: pointer;
   transition:
     background-color 140ms ease,
     color 140ms ease;
@@ -31,7 +34,8 @@
   color: var(--color-dd-text);
   background: var(--color-dd-border);
 }
-.switcher a:focus-visible {
+.switcher a:focus-visible,
+.switcher button:focus-visible {
   outline: 2px solid var(--color-dd-accent);
   outline-offset: 3px;
 }
@@ -70,7 +74,8 @@
   .surface {
     animation: none;
   }
-  .switcher a {
+  .switcher a,
+  .switcher button {
     transition: none;
   }
 }

@@ -132,7 +132,7 @@ describe('PostCard', () => {
             flag: 'BR',
             title: {
               id: 'first-steps',
-              name: 'Primeiros Passos',
+              name: 'Iniciante',
               color: '#0083fe',
               rarity: 'common',
             },
@@ -150,7 +150,7 @@ describe('PostCard', () => {
     // Flag shown
     expect(screen.getByAltText(/Bandeira: Brasil/i)).toBeInTheDocument();
     // Title shown
-    expect(screen.getByText('Primeiros Passos')).toBeInTheDocument();
+    expect(screen.getByText('Iniciante')).toBeInTheDocument();
     // Level 2 should NOT be shown (minLevel 5)
     expect(screen.queryByText(/Lvl 2/i)).not.toBeInTheDocument();
     // Language tag in header should NOT be present (the code block itself handles language in console)

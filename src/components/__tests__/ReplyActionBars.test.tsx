@@ -62,7 +62,7 @@ describe('reply action bars', () => {
           flags: ['BR', 'PT'],
           title: {
             id: 'first-steps',
-            name: 'Primeiros Passos',
+            name: 'Iniciante',
             color: '#0083fe',
             rarity: 'common',
           },
@@ -82,7 +82,7 @@ describe('reply action bars', () => {
     );
     expect(screen.getAllByAltText('Bandeira: Brasil')).toHaveLength(2);
     expect(screen.getAllByAltText('Bandeira: Portugal')).toHaveLength(2);
-    expect(screen.getAllByText('Primeiros Passos')).toHaveLength(2);
+    expect(screen.getAllByText('Iniciante')).toHaveLength(2);
   });
 
   it('navigates to the reply when its comment button is pressed', () => {

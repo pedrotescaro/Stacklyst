@@ -225,7 +225,7 @@ describe('Profile personalization editor', () => {
 
   it('explains the real criteria and event dates for titles', async () => {
     await open('achievements');
-    const first = screen.getByRole('heading', { name: /Primeiros Passos/ }).closest('article')!;
+    const first = screen.getByRole('heading', { name: /Iniciante/ }).closest('article')!;
     fireEvent.click(within(first).getByText('Como conseguir'));
     expect(within(first).getByText(/limite de 5 por dia/)).toBeInTheDocument();
     const event = screen

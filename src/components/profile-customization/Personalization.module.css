@@ -121,6 +121,22 @@
   padding: 14px 16px;
   border-bottom: 1px solid var(--color-dd-border);
   scrollbar-width: thin;
+  scrollbar-color: var(--color-dd-border) var(--color-dd-bg);
+}
+.navigation::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.navigation::-webkit-scrollbar-track,
+.navigation::-webkit-scrollbar-corner {
+  background: var(--color-dd-bg);
+}
+.navigation::-webkit-scrollbar-thumb {
+  background: var(--color-dd-border);
+  border-radius: 999px;
+}
+.navigation::-webkit-scrollbar-thumb:hover {
+  background: var(--color-dd-muted);
 }
 .navButton {
   display: inline-flex;

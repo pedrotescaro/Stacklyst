@@ -452,7 +452,7 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
   achievements: [
     ...(
       [
-        [1, 'Primeiros Passos', 'common'],
+        [1, 'Iniciante', 'common'],
         [10, 'Voz Ativa', 'uncommon'],
         [50, 'Criador Ativo', 'rare'],
         [100, 'Criador Frequente', 'rare'],

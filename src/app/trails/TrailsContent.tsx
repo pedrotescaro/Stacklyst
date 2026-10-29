@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Network, List, MapPinned } from 'lucide-react';
+import { MapPinned } from 'lucide-react';
+import { TrailViewSwitcher } from './TrailViewSwitcher';
 import { Sidebar } from '@/components/Sidebar';
 import { TrailResourceBar } from './TrailResourceBar';
 import { TrailsProgressSidebar, type TrailDailyProgress } from './TrailsProgressSidebar';
@@ -119,29 +120,7 @@ export function TrailsContent({
               ← Meu Mundinho e recompensas
             </Link>
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div
-                role="group"
-                aria-label="Visualização do aprendizado"
-                className="flex rounded-xl border border-dd-border p-1"
-              >
-                {(
-                  [
-                    { id: 'map', label: 'Mapa', Icon: Network },
-                    { id: 'trail', label: 'Trilha', Icon: List },
-                  ] as const
-                ).map(({ id, label, Icon }) => (
-                  <button
-                    key={id}
-                    type="button"
-                    aria-pressed={viewMode === id}
-                    onClick={() => changeMode(id)}
-                    className={`dd-focus-ring flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-semibold ${viewMode === id ? 'bg-blue-500 text-white' : 'text-dd-muted hover:text-dd-text'}`}
-                  >
-                    <Icon className="h-4 w-4" />
-                    {label}
-                  </button>
-                ))}
-              </div>
+              <TrailViewSwitcher active={viewMode} onChange={changeMode} />
               <div className="xl:hidden">
                 <TrailResourceBar
                   activeLanguage={activeLanguage}

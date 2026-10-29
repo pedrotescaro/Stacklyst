@@ -94,6 +94,11 @@ export async function getProfileCatalog(): Promise<ProfileCatalog> {
   const ids = new Set(parsed.data.frames.map((frame) => frame.id));
   return {
     ...parsed.data,
+    achievements: parsed.data.achievements.map((achievement) =>
+      achievement.id === 'posts-1' && achievement.name === 'Primeiros Passos'
+        ? { ...achievement, name: 'Iniciante' }
+        : achievement
+    ),
     frames: [...parsed.data.frames, ...EXTRA_PROFILE_FRAMES.filter((frame) => !ids.has(frame.id))],
   };
 }

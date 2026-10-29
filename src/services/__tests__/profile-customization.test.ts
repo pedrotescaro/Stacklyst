@@ -76,6 +76,17 @@ beforeEach(() => {
   mocks.save.mockResolvedValue({});
 });
 describe('Profile persistence and awards', () => {
+  it('renames the legacy starter title while preserving its id and unlock requirement', async () => {
+    const catalog = structuredClone(DEFAULT_PROFILE_CATALOG);
+    const starter = catalog.achievements.find((item) => item.id === 'posts-1')!;
+    starter.name = 'Primeiros Passos';
+    mocks.catalog.mockResolvedValue({ value: catalog });
+    const updated = await getProfileCatalog();
+    expect(updated.achievements.find((item) => item.id === 'posts-1')).toEqual({
+      ...starter,
+      name: 'Iniciante',
+    });
+  });
   it('adds new frames to older catalogs while retaining custom entries', async () => {
     mocks.catalog.mockResolvedValue({
       value: {
