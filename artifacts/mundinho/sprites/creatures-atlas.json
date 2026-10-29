@@ -1,0 +1,48 @@
+{
+  "width": 144,
+  "height": 24,
+  "sprites": [
+    {
+      "id": "syntax-slime",
+      "x": 0,
+      "y": 0,
+      "width": 24,
+      "height": 24
+    },
+    {
+      "id": "blue-slime",
+      "x": 24,
+      "y": 0,
+      "width": 24,
+      "height": 24
+    },
+    {
+      "id": "ember",
+      "x": 48,
+      "y": 0,
+      "width": 24,
+      "height": 24
+    },
+    {
+      "id": "byte-bug",
+      "x": 72,
+      "y": 0,
+      "width": 24,
+      "height": 24
+    },
+    {
+      "id": "forest",
+      "x": 96,
+      "y": 0,
+      "width": 24,
+      "height": 24
+    },
+    {
+      "id": "null-ghost",
+      "x": 120,
+      "y": 0,
+      "width": 24,
+      "height": 24
+    }
+  ]
+}

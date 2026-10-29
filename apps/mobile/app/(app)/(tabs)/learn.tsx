@@ -15,6 +15,7 @@ import {
 import { useLearning } from '~/features/learning/hooks';
 import { useMe } from '~/lib/session';
 import { useTheme } from '~/theme';
+import { AdventureScreen } from '~/mundinho/AdventureScreen';
 export default function Learning() {
   const styles = useUIStyles();
   const { colors: c } = useTheme();
@@ -22,6 +23,7 @@ export default function Learning() {
     me = useMe();
   const [language, setLanguage] = useState('JS'),
     [path, setPath] = useState('all');
+  const [showLessons, setShowLessons] = useState(false);
   const languages = [
     ...new Set(q.data?.nodes.map((n) => n.language).filter((s): s is string => !!s)),
   ];
@@ -35,8 +37,18 @@ export default function Learning() {
         !['COMPLETED', 'MASTERED'].includes(n.status) &&
         !n.prerequisites.some((p) => p.relation === 'REQUIRED' && !p.completed)
     );
+  if (!showLessons)
+    return (
+      <AdventureScreen
+        onCourse={(selected) => {
+          if (selected) setLanguage(selected);
+          setShowLessons(true);
+        }}
+      />
+    );
   return (
     <Screen title="Aprender">
+      <Button label="Meu Mundinho e recompensas" secondary onPress={() => setShowLessons(false)} />
       <AsyncState query={q}>
         <Choice
           value={language}

@@ -181,6 +181,7 @@ enum EventStatus {
 }
 
 model User {
+  rpg_player                RpgPlayer?
   profile_customization     ProfileCustomization?
   profile_achievements      UserProfileAchievement[]
   mobile_state              MobileState[]
@@ -247,6 +248,60 @@ model User {
 
   @@index([total_xp(sort: Desc)])
   @@index([role])
+}
+
+model RpgPlayer {
+  userId        String           @id
+  coins         Int              @default(0)
+  sourceCoins   Int              @default(0)
+  avatar        Json             @default("{}")
+  inventory     Json             @default("[]")
+  equipped      Json             @default("{}")
+  lastCheckin   String?
+  checkinStreak Int              @default(0)
+  updatedAt     DateTime         @updatedAt
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactions  RpgTransaction[]
+  battles       RpgBattle[]
+
+  @@map("rpg_players")
+}
+
+model RpgTransaction {
+  id        String    @id @default(uuid())
+  userId    String
+  key       String
+  label     String
+  amount    Int
+  createdAt DateTime  @default(now())
+  player    RpgPlayer @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@unique([userId, key])
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("rpg_transactions")
+}
+
+model RpgBattle {
+  id         String    @id @default(uuid())
+  userId     String
+  language   String
+  creature   String
+  status     String    @default("active")
+  hp         Int       @default(100)
+  enemyHp    Int       @default(100)
+  turn       Int       @default(0)
+  correct    Int       @default(0)
+  questionId String?
+  skill      String?
+  used       Json      @default("[]")
+  feedback   String    @default("")
+  reward     Int       @default(0)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  player     RpgPlayer @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId, createdAt(sort: Desc)])
+  @@map("rpg_battles")
 }
 
 model ProfileCustomization {
@@ -926,7 +981,7 @@ model AnswerVote {
 }
 
 model Message {
-  client_id String?
+  client_id   String?
   id          String    @id @default(uuid())
   sender_id   String
   receiver_id String
@@ -941,28 +996,29 @@ model Message {
   reactions MessageReaction[]
 
   @@unique([sender_id, client_id])
-
   @@index([created_at])
   @@index([sender_id, receiver_id, created_at(sort: Desc), id(sort: Desc)])
   @@index([receiver_id, sender_id, created_at(sort: Desc), id(sort: Desc)])
 }
 
 model MobileState {
-  user_id String
-  key String
-  value Json
-  version Int @default(1)
+  user_id    String
+  key        String
+  value      Json
+  version    Int      @default(1)
   updated_at DateTime @updatedAt
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
   @@id([user_id, key])
 }
 
 model MobileDevice {
-  token String @id
-  user_id String
-  enabled Boolean @default(true)
+  token      String   @id
+  user_id    String
+  enabled    Boolean  @default(true)
   updated_at DateTime @updatedAt
-  user User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
   @@index([user_id, enabled])
 }
 

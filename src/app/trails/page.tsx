@@ -15,6 +15,7 @@ import { prisma } from '@/lib/prisma';
 import { TrailsContent } from '@/app/trails/TrailsContent';
 import { buildLearningMap, mergeLearningMaps, LEARNING_LESSONS } from '@/lib/learning/catalog';
 import { usersAheadWhere } from '@/lib/learning/rewards';
+import { AdventureEntry } from './AdventureEntry';
 
 export const revalidate = 0;
 
@@ -171,6 +172,20 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
       : savedViewModeCookie === 'trail'
         ? 'trail'
         : 'map';
+
+  if (!['map', 'trail'].includes(firstSearchValue(query.view) ?? '') && !initialPathSlug) {
+    const dashboardCourses = ['PYTHON', 'JS', 'TS', 'RUST', 'GO', 'JAVA']
+      .map((language) => {
+        const nodes = unifiedMap.nodes.filter((node) => node.language === language);
+        return {
+          language,
+          total: nodes.length,
+          completed: nodes.filter((node) => ['COMPLETED', 'MASTERED'].includes(node.status)).length,
+        };
+      })
+      .filter((course) => course.total > 0);
+    return <AdventureEntry user={user} courses={dashboardCourses} />;
+  }
 
   return (
     <TrailsContent

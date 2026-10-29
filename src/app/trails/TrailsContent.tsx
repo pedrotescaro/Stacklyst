@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { Network, List, MapPinned } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
 import { TrailResourceBar } from './TrailResourceBar';
@@ -111,6 +112,12 @@ export function TrailsContent({
       <div className="mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
         <main className="min-w-0 flex-1 pb-20">
           <header className="sticky top-0 z-30 border-b border-dd-border bg-dd-bg px-4 py-3">
+            <Link
+              href="/trails"
+              className="dd-focus-ring mb-2 inline-flex min-h-10 items-center text-sm font-semibold text-dd-accent"
+            >
+              ← Meu Mundinho e recompensas
+            </Link>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div
                 role="group"
