@@ -3,6 +3,96 @@ import type { BattleLanguage, PublicQuestion } from './types';
 type Question = PublicQuestion & { language: BattleLanguage; answer: number; explanation: string };
 type Row = [string, string, string[], number, string];
 const rows: Record<BattleLanguage, Row[]> = {
+  RUST: [
+    [
+      'Arrays',
+      'let valores = [2, 4, 6]; Qual é valores[1]?',
+      ['2', '4', '6', '1'],
+      1,
+      'Os índices começam em zero; o índice 1 aponta para o segundo elemento.',
+    ],
+    [
+      'Operadores',
+      'Qual é o resultado da divisão inteira 7 / 2?',
+      ['3', '3.5', '4', '2'],
+      0,
+      'A divisão entre inteiros descarta a parte fracionária.',
+    ],
+    [
+      'Laços',
+      'Quantas vezes o corpo de for i in 0..3 é executado?',
+      ['2', '3', '4', '0'],
+      1,
+      'O intervalo 0..3 inclui 0, 1 e 2.',
+    ],
+    [
+      'Variáveis',
+      'Qual palavra permite alterar uma variável em Rust?',
+      ['mut', 'const', 'static', 'final'],
+      0,
+      'let mut declara uma variável mutável.',
+    ],
+  ],
+  GO: [
+    [
+      'Slices',
+      'valores := []int{2, 4, 6}. Qual é len(valores)?',
+      ['2', '3', '4', '6'],
+      1,
+      'len retorna a quantidade de elementos do slice.',
+    ],
+    [
+      'Operadores',
+      'Qual é o resultado da divisão entre inteiros 7 / 2?',
+      ['3', '3.5', '4', '2'],
+      0,
+      'A divisão entre inteiros descarta a parte fracionária.',
+    ],
+    [
+      'Laços',
+      'Quantas vezes o corpo de for i := 0; i < 3; i++ é executado?',
+      ['2', '3', '4', '0'],
+      1,
+      'O contador assume os valores 0, 1 e 2.',
+    ],
+    [
+      'Variáveis',
+      'Qual operador declara uma variável com tipo inferido dentro de uma função?',
+      ['==', ':=', '=>', '+='],
+      1,
+      ':= declara e inicializa uma variável local.',
+    ],
+  ],
+  JAVA: [
+    [
+      'Arrays',
+      'int[] valores = {2, 4, 6}; Qual é valores[1]?',
+      ['2', '4', '6', '1'],
+      1,
+      'Os índices começam em zero; o índice 1 aponta para o segundo elemento.',
+    ],
+    [
+      'Operadores',
+      'Qual é o valor de int resultado = 7 / 2?',
+      ['3', '3.5', '4', '2'],
+      0,
+      'A divisão entre inteiros descarta a parte fracionária.',
+    ],
+    [
+      'Laços',
+      'Quantas vezes o corpo de for (int i = 0; i < 3; i++) é executado?',
+      ['2', '3', '4', '0'],
+      1,
+      'O contador assume os valores 0, 1 e 2.',
+    ],
+    [
+      'Tipos',
+      'Qual tipo representa verdadeiro ou falso?',
+      ['String', 'int', 'boolean', 'char'],
+      2,
+      'boolean possui os valores true e false.',
+    ],
+  ],
   PYTHON: [
     [
       'Condicionais',

@@ -61,6 +61,20 @@ const openBattle = async (transport: AdventureTransport) => {
   fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
 };
 describe('Mundinho battle navigation', () => {
+  it('keeps the world language synchronized with the selected course', async () => {
+    const changed = vi.fn();
+    const props = { transport: async () => state(null), courses: [], onCourse: () => {} };
+    const { rerender } = render(
+      <AdventureHub {...props} languagePreference="TS" onLanguageChange={changed} />
+    );
+    expect(screen.getByRole('combobox', { name: 'Linguagem do Mundinho' })).toHaveValue('TS');
+    rerender(<AdventureHub {...props} languagePreference="PYTHON" onLanguageChange={changed} />);
+    expect(screen.getByRole('combobox', { name: 'Linguagem do Mundinho' })).toHaveValue('PYTHON');
+    fireEvent.change(screen.getByRole('combobox', { name: 'Linguagem do Mundinho' }), {
+      target: { value: 'JS' },
+    });
+    expect(changed).toHaveBeenCalledWith('JS');
+  });
   it('keeps a native sound toggle applied while the preference bridge responds', async () => {
     const preference = vi.fn();
     const { rerender } = render(

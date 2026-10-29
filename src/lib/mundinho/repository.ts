@@ -16,6 +16,9 @@ import {
 } from './types';
 import { canChallengeCreature, checkinStatus, dayKey, resolveTurn, SKILLS } from './rules';
 import { QUESTIONS, publicQuestion } from './questions';
+import { challengeProgram, codeChallenge, evaluateTrace } from './codeChallenges';
+import { executeCode } from '@/lib/code-execution/server';
+import type { CodeRun } from './types';
 
 const avatarSchema = z.object({
   skin: z.number().int().min(0).max(8),
@@ -51,6 +54,14 @@ export const actionSchema = z.discriminatedUnion('type', [
     answer: z.number().int().min(0).max(3),
   }),
   z.object({ type: z.literal('battle-flee'), battle: z.string().uuid() }),
+  z.object({
+    type: z.literal('battle-code'),
+    battle: z.string().uuid(),
+    turn: z.number().int().min(0),
+    question: z.string().max(60),
+    code: z.string().min(1).max(8000),
+    submit: z.boolean(),
+  }),
 ]);
 type Action = z.infer<typeof actionSchema>;
 type Tx = Prisma.TransactionClient;
@@ -63,6 +74,7 @@ function fail(message: string): never {
 function battleView(b: RpgBattle | null): AdventureState['battle'] {
   if (!b) return null;
   const q = QUESTIONS.find((q) => q.id === b.questionId);
+  const challenge = codeChallenge(b.language as BattleLanguage);
   return {
     id: b.id,
     language: b.language as BattleLanguage,
@@ -71,7 +83,14 @@ function battleView(b: RpgBattle | null): AdventureState['battle'] {
     enemyHp: b.enemyHp,
     turn: b.turn,
     status: b.status as NonNullable<AdventureState['battle']>['status'],
-    question: q && b.status === 'active' ? publicQuestion(q) : null,
+    question:
+      b.status === 'active'
+        ? q
+          ? publicQuestion(q)
+          : challenge?.id === b.questionId
+            ? challenge
+            : null
+        : null,
     feedback: b.feedback,
     reward: b.reward,
     skill: b.skill,
@@ -133,6 +152,28 @@ async function missions(tx: Tx, userId: string, now: Date) {
 
 /** All mutations for one player serialize on a database row, across servers/devices. */
 export async function adventure(userId: string, action?: Action): Promise<AdventureState> {
+  let codeRun: CodeRun | undefined;
+  // Execute outside the transaction: an external compiler must not hold the player row lock.
+  if (action?.type === 'battle-code') {
+    const battle = await prisma.rpgBattle.findFirst({ where: { id: action.battle, userId } });
+    if (
+      !battle ||
+      battle.status !== 'active' ||
+      battle.turn !== action.turn ||
+      battle.questionId !== action.question
+    )
+      fail('Este desafio não está ativo. Atualize a batalha.');
+    const challenge = codeChallenge(battle.language as BattleLanguage);
+    if (!challenge || challenge.id !== battle.questionId)
+      fail('Este turno não é um desafio de código.');
+    const execution = await executeCode(
+      challengeProgram(battle.language as BattleLanguage, action.code),
+      battle.language
+    );
+    if (!execution.ok)
+      fail(execution.error ?? 'Não foi possível executar o código. Tente novamente.');
+    codeRun = evaluateTrace(execution.output);
+  }
   return prisma.$transaction(
     async (tx) => {
       // The database clock is authoritative; clients never supply dates, prices, damage or rewards.
@@ -238,17 +279,27 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
             fail(
               `Esta criatura requer nível ${creature.level}. Continue aprendendo para enfrentá-la.`
             );
+          const completed = await tx.rpgBattle.count({
+            where: { userId, status: { in: ['won', 'lost'] } },
+          });
+          const challenge = completed % 2 === 1 ? codeChallenge(action.language) : null;
           await tx.rpgBattle.create({
             data: {
               userId,
               language: action.language,
               creature: action.creature,
-              feedback: 'Escolha uma habilidade. Seu conhecimento dá força ao ataque.',
+              ...(challenge ? { questionId: challenge.id, skill: 'strike' } : {}),
+              feedback: challenge
+                ? 'Desafio de código! Colete os cristais e confirme seu ataque.'
+                : 'Escolha uma habilidade. Seu conhecimento dá força ao ataque.',
             },
           });
         }
       }
-      if (action && ['battle-skill', 'battle-answer', 'battle-flee'].includes(action.type)) {
+      if (
+        action &&
+        ['battle-skill', 'battle-answer', 'battle-code', 'battle-flee'].includes(action.type)
+      ) {
         const a = action as Extract<Action, { battle: string }>;
         const b = await tx.rpgBattle.findFirst({ where: { id: a.battle, userId } });
         if (!b || (b.status !== 'active' && !(a.type === 'battle-flee' && b.status === 'fled')))
@@ -283,48 +334,59 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
           } else {
             if (!b.questionId || b.questionId !== a.question || !b.skill)
               fail('Selecione uma habilidade antes de responder.');
-            const q = QUESTIONS.find((q) => q.id === b.questionId)!;
-            const correct = q.answer === a.answer;
-            const creature = CREATURES.find((c) => c.id === b.creature)!;
-            const result = resolveTurn(b.hp, b.enemyHp, correct, b.skill, creature.level);
-            if (b.turn >= 11 && result.status === 'active') {
-              result.status = 'lost';
-              result.hp = 0;
-            }
-            let reward = 0;
-            if (result.status === 'won') {
-              const rewarded = await tx.rpgTransaction.count({
-                where: { userId, key: { startsWith: `battle:${checkin.day}:` } },
-              });
-              if (rewarded < 3) {
-                reward = 15;
-                await credit(
-                  tx,
-                  userId,
-                  `battle:${checkin.day}:${b.id}`,
-                  `Vitória · ${creature.name}`,
-                  reward
-                );
-                await tx.user.update({
-                  where: { id: userId },
-                  data: { total_xp: { increment: 30 } },
-                });
+            const q = QUESTIONS.find((q) => q.id === b.questionId);
+            const challenge = codeChallenge(b.language as BattleLanguage);
+            if (a.type === 'battle-answer' && (!q || a.question !== q.id))
+              fail('Responda este desafio com código.');
+            if (
+              a.type === 'battle-code' &&
+              (!challenge || challenge.id !== b.questionId || !codeRun)
+            )
+              fail('Este desafio de código não está ativo.');
+            // A preview never consumes a turn or grants a reward.
+            if (a.type !== 'battle-code' || a.submit) {
+              const correct = a.type === 'battle-code' ? codeRun!.passed : q!.answer === a.answer;
+              const creature = CREATURES.find((c) => c.id === b.creature)!;
+              const result = resolveTurn(b.hp, b.enemyHp, correct, b.skill, creature.level);
+              if (b.turn >= 11 && result.status === 'active') {
+                result.status = 'lost';
+                result.hp = 0;
               }
+              let reward = 0;
+              if (result.status === 'won') {
+                const rewarded = await tx.rpgTransaction.count({
+                  where: { userId, key: { startsWith: `battle:${checkin.day}:` } },
+                });
+                if (rewarded < 3) {
+                  reward = 15;
+                  await credit(
+                    tx,
+                    userId,
+                    `battle:${checkin.day}:${b.id}`,
+                    `Vitória · ${creature.name}`,
+                    reward
+                  );
+                  await tx.user.update({
+                    where: { id: userId },
+                    data: { total_xp: { increment: 30 } },
+                  });
+                }
+              }
+              const move = SKILLS.find((s) => s.id === b.skill)!;
+              await tx.rpgBattle.update({
+                where: { id: b.id },
+                data: {
+                  ...result,
+                  reward,
+                  turn: b.turn + 1,
+                  correct: { increment: correct ? 1 : 0 },
+                  questionId: null,
+                  skill: null,
+                  used: [...(b.used as string[]), b.questionId],
+                  feedback: `${correct ? `Correto! ${move.name} causou ${move.damage} de dano.` : 'Ainda não. O inimigo aproveitou a abertura.'} ${a.type === 'battle-code' ? (correct ? 'Seu laço coletou todos os cristais.' : (codeRun!.error ?? 'Revise a sequência dos comandos.')) : q!.explanation}`,
+                },
+              });
             }
-            const move = SKILLS.find((s) => s.id === b.skill)!;
-            await tx.rpgBattle.update({
-              where: { id: b.id },
-              data: {
-                ...result,
-                reward,
-                turn: b.turn + 1,
-                correct: { increment: correct ? 1 : 0 },
-                questionId: null,
-                skill: null,
-                used: [...(b.used as string[]), q.id],
-                feedback: `${correct ? `Correto! ${move.name} causou ${move.damage} de dano.` : 'Ainda não. O inimigo aproveitou a abertura.'} ${q.explanation}`,
-              },
-            });
           }
         }
       }
@@ -343,6 +405,7 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
         missions(tx, userId, now),
       ]);
       return {
+        ...(codeRun ? { codeRun } : {}),
         username: user.username,
         coins: current.coins,
         totalXp: user.total_xp,

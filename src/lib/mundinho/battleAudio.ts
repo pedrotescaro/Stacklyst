@@ -27,6 +27,7 @@ export class BattleAudio {
   private enabled = true;
   private foreground = true;
   private battling = false;
+  private exploring = false;
   private loop: ReturnType<typeof setInterval> | null = null;
   private beat = 0;
   private nodes = new Set<OscillatorNode>();
@@ -57,7 +58,21 @@ export class BattleAudio {
     } else if (this.context) this.unlock();
   }
   setBattle(battling: boolean) {
+    if (this.battling !== battling) {
+      if (this.loop) clearInterval(this.loop);
+      this.loop = null;
+      this.beat = 0;
+    }
     this.battling = battling;
+    this.updateLoop();
+  }
+  setWorld(exploring: boolean) {
+    if (this.exploring !== exploring) {
+      if (this.loop) clearInterval(this.loop);
+      this.loop = null;
+      this.beat = 0;
+    }
+    this.exploring = exploring;
     this.updateLoop();
   }
   play(cue: BattleCue) {
@@ -101,19 +116,31 @@ export class BattleAudio {
     oscillator.stop(time + duration + 0.01);
   }
   private updateLoop() {
-    if (!this.battling || !this.enabled || !this.foreground || !this.context) {
+    if ((!this.battling && !this.exploring) || !this.enabled || !this.foreground || !this.context) {
       if (this.loop) clearInterval(this.loop);
       this.loop = null;
       return;
     }
     if (this.loop) return;
-    const melody = [262, 0, 392, 330, 294, 0, 440, 392, 262, 330, 392, 523, 494, 392, 330, 294];
-    this.loop = setInterval(() => {
-      if (this.context?.state !== 'running') return;
-      const note = melody[this.beat++ % melody.length];
-      if (note) this.tone(note, 0, 0.15, 0.014);
-      if (this.beat % 4 === 0) this.tone(131, 0, 0.2, 0.02, 'sine');
-    }, 220);
+    const melody = this.battling
+      ? [262, 0, 392, 330, 294, 0, 440, 392, 262, 330, 392, 523, 494, 392, 330, 294]
+      : [262, 330, 392, 0, 330, 294, 262, 0, 220, 262, 330, 392, 330, 294, 262, 0];
+    this.loop = setInterval(
+      () => {
+        if (this.context?.state !== 'running') return;
+        const note = melody[this.beat++ % melody.length];
+        if (note)
+          this.tone(
+            note,
+            0,
+            this.battling ? 0.15 : 0.48,
+            this.battling ? 0.014 : 0.018,
+            this.battling ? 'triangle' : 'sine'
+          );
+        if (this.beat % 4 === 0) this.tone(131, 0, 0.2, 0.02, 'sine');
+      },
+      this.battling ? 220 : 430
+    );
   }
   private stop() {
     if (this.loop) clearInterval(this.loop);

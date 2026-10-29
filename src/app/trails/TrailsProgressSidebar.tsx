@@ -135,7 +135,7 @@ export function TrailsProgressSidebar({
         'sticky top-0 hidden h-screen w-[380px] shrink-0 flex-col gap-4 overflow-y-auto border-l border-dd-border p-5 scrollbar-none xl:flex',
       ].join(' ')}
     >
-      <div className="grid grid-cols-[96px_54px_70px_54px_40px] items-center gap-1 pb-4">
+      <div className="grid grid-cols-[76px_40px_minmax(56px,1fr)_54px_40px] items-center gap-1 pb-4">
         <TrailCourseSelector
           activeLanguage={activeLanguage}
           courses={courses}
@@ -148,7 +148,7 @@ export function TrailsProgressSidebar({
           streak={streak}
           lastActiveAt={lastActiveAt}
           weeklyActivity={weeklyActivity}
-          triggerClassName="dd-focus-ring flex min-w-0 items-center justify-center gap-1.5 rounded-xl p-1 transition-colors hover:bg-blue-500/10"
+          triggerClassName="dd-focus-ring flex min-w-0 items-center justify-center gap-1 rounded-xl p-0.5 transition-colors hover:bg-blue-500/10"
         >
           <Image
             data-testid="glossy-streak-flame"
@@ -156,7 +156,7 @@ export function TrailsProgressSidebar({
             alt=""
             width={30}
             height={30}
-            className="h-7 w-7 shrink-0 object-contain"
+            className="h-5 w-5 shrink-0 object-contain"
           />
           <span className="truncate text-xs font-black text-dd-text">{formatMetric(streak)}</span>
         </StreakPopover>

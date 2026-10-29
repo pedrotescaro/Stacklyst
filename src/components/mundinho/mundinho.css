@@ -2111,17 +2111,6 @@
     filter 0.55s;
   z-index: 2;
 }
-.world-habitat:after {
-  content: '';
-  position: absolute;
-  bottom: -3px;
-  left: -6px;
-  right: -6px;
-  height: 8px;
-  border-radius: 40% 45% 20% 20%;
-  background: #37663e;
-  z-index: 3;
-}
 .world-habitat.is-hidden {
   opacity: 0;
   pointer-events: none;
@@ -2619,4 +2608,131 @@
 }
 .adventure-world > .ad-footer-badge {
   display: none;
+}
+
+.ad-home-language {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0;
+  font-size: 13px;
+}
+.ad-home-language select {
+  padding: 8px 12px;
+  border: 1px solid var(--ad-border);
+  border-radius: 8px;
+  background: var(--ad-card);
+  color: var(--ad-text);
+  font: inherit;
+}
+.ad-code-challenge {
+  padding: 16px;
+  min-width: 0;
+}
+.ad-code-challenge h3 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+.ad-code-challenge p {
+  line-height: 1.5;
+}
+.ad-code-board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+  padding: 20px 12px;
+  margin: 16px 0;
+  background: #315b40;
+  border: 1px solid #5b845e;
+  border-radius: 10px;
+}
+.ad-code-tile {
+  position: relative;
+  display: grid;
+  place-items: center;
+  height: 56px;
+  background: #48734b;
+  border-bottom: 4px solid #28472d;
+}
+.ad-code-tile .sprite-avatar {
+  position: absolute;
+  width: 48px;
+}
+.ad-code-crystal {
+  width: 14px;
+  height: 22px;
+  background: #8be1e4;
+  clip-path: polygon(50% 0, 100% 35%, 75% 80%, 50% 100%, 25% 80%, 0 35%);
+}
+.ad-code-commands {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 13px;
+}
+.ad-code-commands code {
+  color: #9fe0be;
+}
+.ad-code-editor {
+  display: flex;
+  border: 1px solid var(--ad-border);
+  border-radius: 10px;
+  background: #090d12;
+  overflow: hidden;
+}
+.ad-code-editor pre {
+  margin: 0;
+  padding: 16px 8px 16px 12px;
+  color: var(--ad-muted);
+  font: 14px/1.65 monospace;
+  user-select: none;
+}
+.ad-code-editor textarea {
+  min-width: 0;
+  width: 100%;
+  min-height: 200px;
+  resize: vertical;
+  border: 0;
+  padding: 16px 12px;
+  background: transparent;
+  color: #dbecdf;
+  font: 16px/1.444 monospace;
+  tab-size: 4;
+}
+.ad-code-editor textarea:focus-visible {
+  outline: 2px solid var(--ad-blue);
+  outline-offset: -2px;
+}
+.ad-code-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+.ad-code-actions button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+}
+.ad-code-run {
+  border: 1px solid var(--ad-border-light);
+  border-radius: 8px;
+  background: var(--ad-card-inner);
+}
+.adventure .ad-code-actions .ad-primary {
+  border: 1px solid #1765ab;
+  border-radius: 8px;
+  background: #1765ab;
+  color: #fff;
+}
+.ad-code-result {
+  font-size: 14px;
+  color: var(--ad-text);
 }

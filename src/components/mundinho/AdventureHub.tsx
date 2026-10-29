@@ -39,6 +39,7 @@ import {
 } from '../../lib/mundinho/types';
 import { canChallengeCreature, SKILLS } from '../../lib/mundinho/rules';
 import { BattleAudio } from '../../lib/mundinho/battleAudio';
+import { CodeBattle } from './CodeBattle';
 import { WORLD } from '../../lib/mundinho/world';
 import { Coin, HAIR, OUTFIT, PixelAvatar, PixelCreature, SKIN } from './PixelArt';
 import './mundinho.css';
@@ -106,6 +107,8 @@ export function AdventureHub({
   assetBase = '/assets/mundinho',
   soundPreference,
   onSoundPreferenceChange,
+  languagePreference,
+  onLanguageChange,
 }: {
   transport: AdventureTransport;
   courses: Course[];
@@ -113,6 +116,8 @@ export function AdventureHub({
   assetBase?: string;
   soundPreference?: boolean;
   onSoundPreferenceChange?: (enabled: boolean) => void;
+  languagePreference?: (typeof LANGUAGES)[number];
+  onLanguageChange?: (language: (typeof LANGUAGES)[number]) => void;
 }) {
   const [data, setData] = useState<AdventureState | null>(null);
   const [view, setView] = useState<View>('home');
@@ -163,7 +168,12 @@ export function AdventureHub({
     onSoundPreferenceChange?.(enabled);
   };
 
-  const [language, setLanguage] = useState<(typeof LANGUAGES)[number]>('PYTHON');
+  const [language, setLanguage] = useState<(typeof LANGUAGES)[number]>(
+    languagePreference ?? 'PYTHON'
+  );
+  useEffect(() => {
+    if (languagePreference) setLanguage(languagePreference);
+  }, [languagePreference]);
   const [creature, setCreature] = useState(CREATURES[0].id);
 
   // Avatar Editor State
@@ -233,7 +243,9 @@ export function AdventureHub({
     setNotice('');
     try {
       const next = await transport(action);
-      if (action.type === 'battle-answer' && data?.battle && next.battle) {
+      const answered =
+        action.type === 'battle-answer' || (action.type === 'battle-code' && action.submit);
+      if (answered && data?.battle && next.battle) {
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const pause = (ms: number) =>
           new Promise((resolve) => setTimeout(resolve, reduced ? 0 : ms));
@@ -260,10 +272,8 @@ export function AdventureHub({
               : 'idle'
         );
       }
-      if (action.type === 'battle-answer' && next.battle?.status === 'won')
-        battleAudio.play('victory');
-      if (action.type === 'battle-answer' && next.battle?.status === 'lost')
-        battleAudio.play('defeat');
+      if (answered && next.battle?.status === 'won') battleAudio.play('victory');
+      if (answered && next.battle?.status === 'lost') battleAudio.play('defeat');
       if (action.type === 'battle-start') battleAudio.play('encounter');
       if (action.type === 'battle-flee') {
         if (next.battle?.status !== 'fled')
@@ -322,7 +332,11 @@ export function AdventureHub({
   const equippedAvatar = data?.avatar ?? DEFAULT_AVATAR;
   useEffect(() => {
     battleAudio.setBattle(view === 'battle' && battle?.status === 'active');
-    return () => battleAudio.setBattle(false);
+    battleAudio.setWorld(view === 'world');
+    return () => {
+      battleAudio.setBattle(false);
+      battleAudio.setWorld(false);
+    };
   }, [battleAudio, view, battle?.status]);
   useEffect(() => {
     if (view !== 'battle' || battle?.status !== 'won') return;
@@ -451,10 +465,31 @@ export function AdventureHub({
               <PixelAvatar avatar={equippedAvatar} effect={Boolean(data?.equipped.effect)} />
             </div>
 
+            <label className="ad-home-language">
+              Linguagem do Mundinho
+              <select
+                value={language}
+                onChange={(event) => {
+                  const selected = event.target.value as typeof language;
+                  setLanguage(selected);
+                  onLanguageChange?.(selected);
+                }}
+              >
+                {LANGUAGES.map((item) => (
+                  <option key={item} value={item}>
+                    {LANGUAGE_NAMES[item]}
+                  </option>
+                ))}
+              </select>
+            </label>
             <div className="ad-hero-buttons-row">
-              <button className="ad-enter-world-button" onClick={() => go('world')}>
+              <button
+                className="ad-enter-world-button"
+                aria-label="Entrar no Mundinho"
+                onClick={() => go('world')}
+              >
                 <Globe2 size={22} />
-                <span>Entrar no Mundinho</span>
+                <span>Entrar no Mundinho · {LANGUAGE_NAMES[language]}</span>
               </button>
               <button
                 className="ad-hero-pencil-button"
@@ -1041,7 +1076,11 @@ export function AdventureHub({
                   Linguagem do Combate
                   <select
                     value={language}
-                    onChange={(e) => setLanguage(e.target.value as typeof language)}
+                    onChange={(e) => {
+                      const selected = e.target.value as typeof language;
+                      setLanguage(selected);
+                      onLanguageChange?.(selected);
+                    }}
                   >
                     {LANGUAGES.map((l) => (
                       <option key={l} value={l}>
@@ -1158,7 +1197,24 @@ export function AdventureHub({
                 </p>
 
                 {battle.status === 'active' ? (
-                  battle.question ? (
+                  battle.question?.code ? (
+                    <CodeBattle
+                      key={`${battle.id}:${battle.question.id}`}
+                      question={battle.question}
+                      avatar={equippedAvatar}
+                      busy={busy}
+                      onExecute={(code, submit) =>
+                        act({
+                          type: 'battle-code',
+                          battle: battle.id,
+                          turn: battle.turn,
+                          question: battle.question!.id,
+                          code,
+                          submit,
+                        })
+                      }
+                    />
+                  ) : battle.question ? (
                     <div className="ad-battle-question-box">
                       <span className="ad-concept-tag">
                         {battle.question.concept} · {battle.question.difficulty}

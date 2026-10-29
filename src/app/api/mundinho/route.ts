@@ -1,6 +1,7 @@
 import { apiHandler } from '@/lib/api-handler';
 import { UnauthorizedError, ForbiddenError } from '@/lib/errors';
 import { actionSchema, adventure } from '@/lib/mundinho/repository';
+export const maxDuration = 60;
 
 export const GET = apiHandler(async (_request, { session }) => {
   if (!session) throw new UnauthorizedError();

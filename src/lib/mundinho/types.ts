@@ -1,5 +1,5 @@
 import { calculateLevel } from '../learning/rewards';
-export const LANGUAGES = ['PYTHON', 'HTML', 'CSS', 'JS', 'TS'] as const;
+export const LANGUAGES = ['PYTHON', 'JS', 'TS', 'RUST', 'GO', 'JAVA', 'HTML', 'CSS'] as const;
 export type BattleLanguage = (typeof LANGUAGES)[number];
 export const LANGUAGE_NAMES: Record<string, string> = {
   PYTHON: 'Python',
@@ -125,7 +125,9 @@ export type PublicQuestion = {
   prompt: string;
   options: string[];
   difficulty: string;
+  code?: { starter: string; commands: string[]; target: number };
 };
+export type CodeRun = { passed: boolean; trace: string[]; error?: string };
 export type BattleView = {
   id: string;
   language: BattleLanguage;
@@ -149,6 +151,7 @@ export type Mission = {
   claimed: boolean;
 };
 export type AdventureState = {
+  codeRun?: CodeRun;
   username: string;
   coins: number;
   totalXp: number;

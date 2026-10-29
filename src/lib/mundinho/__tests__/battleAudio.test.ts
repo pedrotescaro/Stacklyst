@@ -47,6 +47,23 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe('Battle audio lifecycle', () => {
+  it('plays exploration music and switches scenes without leaving a second loop running', () => {
+    const audio = new BattleAudio();
+    audio.unlock();
+    audio.setWorld(true);
+    vi.advanceTimersByTime(430);
+    expect(started).toBeGreaterThan(0);
+    audio.setWorld(false);
+    audio.setBattle(true);
+    const before = started;
+    vi.advanceTimersByTime(220);
+    expect(started - before).toBe(1);
+    audio.setBattle(false);
+    const exited = started;
+    vi.advanceTimersByTime(2000);
+    expect(started).toBe(exited);
+    audio.dispose();
+  });
   it('waits for gesture unlock, then emits music and distinct combat cues', () => {
     const audio = new BattleAudio();
     audio.setEnabled(true);

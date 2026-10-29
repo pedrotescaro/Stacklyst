@@ -41,6 +41,33 @@ export function AdventureEntry({
   const router = useRouter();
   const [activeLanguage, setActiveLanguage] = useState<TrailLanguageCode>(initialActiveLanguage);
   const [currentCoins, setCurrentCoins] = useState(coins);
+  const [preferenceError, setPreferenceError] = useState('');
+  const selectLanguage = async (language: TrailLanguageCode) => {
+    setActiveLanguage(language);
+    setPreferenceError('');
+    try {
+      const response = await fetch('/api/trails/course-preferences', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          activeLanguage: language,
+          startedLanguages: [
+            ...new Set(
+              initialCourses
+                .filter((course) => course.started)
+                .map((course) => course.language)
+                .concat(language)
+            ),
+          ],
+        }),
+      });
+      if (!response.ok) throw new Error();
+    } catch {
+      setPreferenceError(
+        'A linguagem mudou nesta sessão, mas não foi possível salvar sua preferência.'
+      );
+    }
+  };
 
   const transport: AdventureTransport = useCallback(async (action) => {
     const response = await fetch('/api/mundinho', {
@@ -65,7 +92,17 @@ export function AdventureEntry({
       <div className="mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
         {/* Main Mundinho Area - Sits right adjacent to Sidebar divider */}
         <main className="min-w-0 flex-1 pb-20">
+          {preferenceError && (
+            <p role="alert" className="px-6 py-2 text-sm text-amber-300">
+              {preferenceError}
+            </p>
+          )}
           <AdventureHub
+            languagePreference={activeLanguage}
+            onLanguageChange={(language) => {
+              if (['JS', 'TS', 'PYTHON', 'RUST', 'GO', 'JAVA'].includes(language))
+                void selectLanguage(language as TrailLanguageCode);
+            }}
             transport={transport}
             courses={courses}
             onCourse={(language) =>
@@ -80,10 +117,7 @@ export function AdventureEntry({
         <TrailsProgressSidebar
           activeLanguage={activeLanguage}
           courses={initialCourses}
-          onSelectCourse={(lang) => {
-            setActiveLanguage(lang);
-            router.push(`/trails?view=map&language=${encodeURIComponent(lang)}`);
-          }}
+          onSelectCourse={(lang) => void selectLanguage(lang)}
           totalXp={user.total_xp}
           gems={currentCoins}
           streak={user.streak ?? 0}

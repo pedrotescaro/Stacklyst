@@ -1,12 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_AVATAR } from '../types';
-const db = vi.hoisted(() => ({ tx: {} as Record<string, any> }));
+const db = vi.hoisted(() => ({ tx: {} as Record<string, any>, execute: vi.fn() }));
 vi.mock('@/lib/prisma', () => ({
-  prisma: { $transaction: async (fn: (tx: unknown) => unknown) => fn(db.tx) },
+  prisma: {
+    $transaction: async (fn: (tx: unknown) => unknown) => fn(db.tx),
+    rpgBattle: { findFirst: (...args: any[]) => db.tx.rpgBattle.findFirst(...args) },
+  },
 }));
+vi.mock('@/lib/code-execution/server', () => ({ executeCode: db.execute }));
 vi.mock('@/lib/learning/catalog', () => ({ LEARNING_LESSONS: new Map() }));
 import { adventure } from '../repository';
 beforeEach(() => {
+  db.execute.mockReset().mockResolvedValue({
+    ok: true,
+    output: 'andar\ncoletar\nandar\ncoletar\nandar\ncoletar',
+    executionMs: 1,
+  });
   const player = {
     userId: 'user',
     coins: 0,
@@ -33,6 +42,7 @@ beforeEach(() => {
       update: vi.fn(),
     },
     rpgBattle: {
+      count: vi.fn(async () => 0),
       findFirst: vi.fn(async () => battle),
       findMany: vi.fn(async () => []),
       create: vi.fn(async ({ data }: any) => {
@@ -45,6 +55,9 @@ beforeEach(() => {
           turn: 0,
           reward: 0,
           skill: null,
+          questionId: null,
+          used: [],
+          ...data,
         };
         return battle;
       }),
@@ -56,6 +69,71 @@ beforeEach(() => {
   };
 });
 describe('Server encounter rules', () => {
+  it('assigns practical code on every second completed encounter', async () => {
+    db.tx.rpgBattle.count.mockResolvedValue(1);
+    const result = await adventure('user', {
+      type: 'battle-start',
+      language: 'TS',
+      creature: 'syntax-slime',
+    });
+    expect(result.battle?.question?.code?.starter).toContain('let passo: number');
+    expect(result.battle?.language).toBe('TS');
+  });
+  it('previews real execution without damage, then consumes the turn only on submit', async () => {
+    db.tx.rpgBattle.count.mockResolvedValue(1);
+    const start = await adventure('user', {
+      type: 'battle-start',
+      language: 'JS',
+      creature: 'syntax-slime',
+    });
+    const input = {
+      type: 'battle-code' as const,
+      battle: 'battle',
+      turn: 0,
+      question: start.battle!.question!.id,
+      code: 'mundo.coletar();',
+      submit: false,
+    };
+    const preview = await adventure('user', input);
+    expect(preview.codeRun?.passed).toBe(true);
+    expect(preview.battle?.turn).toBe(0);
+    expect(preview.battle?.enemyHp).toBe(100);
+    expect(db.tx.rpgBattle.update).not.toHaveBeenCalled();
+    const submitted = await adventure('user', { ...input, submit: true });
+    expect(submitted.battle?.enemyHp).toBe(70);
+    expect(submitted.battle?.turn).toBe(1);
+    expect(db.execute).toHaveBeenCalledTimes(2);
+    expect(db.tx.user.update).not.toHaveBeenCalled();
+  });
+  it('rejects choice answers for code challenges and keeps provider failures retryable', async () => {
+    db.tx.rpgBattle.count.mockResolvedValue(1);
+    const start = await adventure('user', {
+      type: 'battle-start',
+      language: 'PYTHON',
+      creature: 'syntax-slime',
+    });
+    await expect(
+      adventure('user', {
+        type: 'battle-answer',
+        battle: 'battle',
+        turn: 0,
+        question: start.battle!.question!.id,
+        answer: 0,
+      })
+    ).rejects.toThrow('com código');
+    db.execute.mockResolvedValue({ ok: false, error: 'Serviço indisponível' });
+    await expect(
+      adventure('user', {
+        type: 'battle-code',
+        battle: 'battle',
+        turn: 0,
+        question: start.battle!.question!.id,
+        code: 'print(1)',
+        submit: true,
+      })
+    ).rejects.toThrow('Serviço indisponível');
+    expect(db.tx.rpgBattle.update).not.toHaveBeenCalled();
+  });
   it('refuses an encounter above the verified player level', async () => {
     await expect(
       adventure('user', { type: 'battle-start', language: 'PYTHON', creature: 'blue-slime' })

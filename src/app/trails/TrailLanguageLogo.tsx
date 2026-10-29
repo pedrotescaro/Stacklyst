@@ -22,11 +22,13 @@ export const TRAIL_LANGUAGE_METADATA: Record<TrailLanguageCode, TrailLanguageMet
     color: '#f0db4f',
     label: 'JavaScript',
     logo: javascriptLogo,
+    logoClassName: 'rounded-[5px]',
   },
   TS: {
     color: '#007acc',
     label: 'TypeScript',
     logo: typescriptLogo,
+    logoClassName: 'rounded-[5px]',
   },
   PYTHON: {
     color: '#5a9fd4',
@@ -74,8 +76,8 @@ export function TrailLanguageLogo({ language, className }: TrailLanguageLogoProp
       src={metadata.logo}
       alt=""
       aria-hidden="true"
-      width={128}
-      height={128}
+      width={32}
+      height={32}
       unoptimized
       draggable={false}
       className={`${className ?? ''} object-contain ${metadata.logoClassName ?? ''}`}
