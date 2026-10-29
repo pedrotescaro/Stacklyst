@@ -1,6 +1,10 @@
 import geometry from './geometry.json';
 export const WORLD = { width: geometry.width, height: geometry.height, spawn: geometry.spawn };
 export const COLLISIONS = geometry.obstacles;
+export function movementDirection(dx: number, dy: number, previous: string) {
+  if (Math.hypot(dx, dy) < 0.08) return previous;
+  return Math.abs(dy) >= Math.abs(dx) ? (dy > 0 ? 'down' : 'up') : dx > 0 ? 'right' : 'left';
+}
 export function canWalk(x: number, y: number) {
   return (
     x >= 28 &&

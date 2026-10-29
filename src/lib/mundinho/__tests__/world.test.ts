@@ -1,7 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { canWalk, movePlayer, WORLD, WORLD_OBJECTS, COLLISIONS } from '../world';
+import { movementDirection, canWalk, movePlayer, WORLD, WORLD_OBJECTS, COLLISIONS } from '../world';
 import { CREATURES } from '../types';
 describe('Exploração da floresta', () => {
+  it('faces the dominant touch axis even with horizontal finger drift', () => {
+    expect(movementDirection(0.06, -0.9, 'right')).toBe('up');
+    expect(movementDirection(-0.12, 0.8, 'left')).toBe('down');
+    expect(movementDirection(0.9, -0.1, 'up')).toBe('right');
+    expect(movementDirection(-0.8, 0.2, 'down')).toBe('left');
+    expect(movementDirection(0, 0, 'up')).toBe('up');
+  });
   it('keeps every encounter and interactive object reachable from spawn', () => {
     const queue = [WORLD.spawn],
       visited = new Set<string>();

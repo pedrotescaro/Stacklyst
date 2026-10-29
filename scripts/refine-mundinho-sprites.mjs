@@ -380,7 +380,8 @@ for (let species = 0; species < 6; species++)
         const sy = Math.min(23, Math.floor(y / (f === 2 || f === 3 ? 0.94 : 1)));
         const p = (sy * info.width + sourceX + x) * 4;
         const yy = y + (f === 2 || f === 3 ? 1 : 0);
-        if (yy < 24) c.data.set(raw.subarray(p, p + 4), (yy * 24 + x) * 4);
+        if (yy < 24 && !(sy >= 21 && raw[p + 3] < 200))
+          c.data.set(raw.subarray(p, p + 4), (yy * 24 + x) * 4);
       }
     frames.push(c);
   }

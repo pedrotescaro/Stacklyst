@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AdventureHub } from './AdventureHub';
+import { BattleAudio } from '../../lib/mundinho/battleAudio';
 import {
   DEFAULT_AVATAR,
   type AdventureState,
@@ -60,6 +61,70 @@ const openBattle = async (transport: AdventureTransport) => {
   fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
 };
 describe('Mundinho battle navigation', () => {
+  it('keeps a native sound toggle applied while the preference bridge responds', async () => {
+    const preference = vi.fn();
+    const { rerender } = render(
+      <AdventureHub
+        transport={async () => state('active')}
+        courses={[]}
+        onCourse={() => {}}
+        soundPreference={false}
+        onSoundPreferenceChange={preference}
+      />
+    );
+    await screen.findByText('Nível 1');
+    fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Ativar sons do jogo' }));
+    expect(screen.getByRole('button', { name: 'Silenciar sons do jogo' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    expect(preference).toHaveBeenCalledWith(true);
+    rerender(
+      <AdventureHub
+        transport={async () => state('active')}
+        courses={[]}
+        onCourse={() => {}}
+        soundPreference={true}
+        onSoundPreferenceChange={preference}
+      />
+    );
+    expect(screen.getByRole('button', { name: 'Silenciar sons do jogo' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+  });
+  it('plays confirmed victory cues and automatically returns to the world with rewards', async () => {
+    window.matchMedia = vi
+      .fn()
+      .mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() });
+    const active = state('active');
+    active.battle!.question = {
+      id: 'question',
+      concept: 'Listas',
+      prompt: 'Qual é o último elemento?',
+      options: ['1', '2', '3', '4'],
+      difficulty: 'Fácil',
+    };
+    const won = state('won');
+    won.battle!.enemyHp = 0;
+    won.battle!.reward = 15;
+    const sound = vi.spyOn(BattleAudio.prototype, 'play');
+    await openBattle(async (action) => (action?.type === 'battle-answer' ? won : active));
+    fireEvent.click(screen.getByRole('button', { name: 'A1' }));
+    await screen.findByText('Voltando ao Mundinho em instantes…');
+    await waitFor(
+      () => expect(screen.getByRole('region', { name: 'Clareira' })).toBeInTheDocument(),
+      { timeout: 4000 }
+    );
+    expect(
+      screen.getByText('Vitória! +15 moedas e +30 XP. Recompensa registrada.')
+    ).toBeInTheDocument();
+    expect(sound).toHaveBeenCalledWith('attack');
+    expect(sound).toHaveBeenCalledWith('hit');
+    expect(sound).toHaveBeenCalledWith('victory');
+    sound.mockRestore();
+  });
   it('animates fleeing only after success and returns directly to the world', async () => {
     const transport = vi
       .fn<AdventureTransport>()

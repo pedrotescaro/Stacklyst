@@ -15,6 +15,7 @@ declare global {
       data?: AdventureState;
       error?: string;
       courses?: Course[];
+      soundEnabled?: boolean;
     }) => void;
   }
 }
@@ -37,6 +38,8 @@ const transport: AdventureTransport = (action) =>
     window.ReactNativeWebView?.postMessage(JSON.stringify({ type: 'api', id, action }));
   });
 const root = createRoot(document.getElementById('root')!);
+let courses: Course[] = [];
+let soundEnabled = true;
 window.mundinhoReceive = (message) => {
   if (message.id) {
     const request = pending.get(message.id);
@@ -45,15 +48,24 @@ window.mundinhoReceive = (message) => {
     pending.delete(message.id);
     if (message.error) request.reject(new Error(message.error));
     else if (message.data) request.resolve(message.data);
-  } else if (message.courses)
+  } else {
+    if (message.courses) courses = message.courses;
+    if (typeof message.soundEnabled === 'boolean') soundEnabled = message.soundEnabled;
     root.render(
       <AdventureHub
         transport={transport}
-        courses={message.courses}
+        courses={courses}
+        soundPreference={soundEnabled}
+        onSoundPreferenceChange={(enabled) =>
+          window.ReactNativeWebView?.postMessage(
+            JSON.stringify({ type: 'sound-preference', enabled })
+          )
+        }
         onCourse={(language) =>
           window.ReactNativeWebView?.postMessage(JSON.stringify({ type: 'course', language }))
         }
       />
     );
+  }
 };
 window.ReactNativeWebView?.postMessage(JSON.stringify({ type: 'ready' }));

@@ -19,6 +19,8 @@ import {
   Shield,
   Sparkles,
   Swords,
+  Volume2,
+  VolumeX,
   PackageOpen as TreasureChest,
 } from 'lucide-react';
 import {
@@ -36,6 +38,7 @@ import {
   type Course,
 } from '../../lib/mundinho/types';
 import { canChallengeCreature, SKILLS } from '../../lib/mundinho/rules';
+import { BattleAudio } from '../../lib/mundinho/battleAudio';
 import { WORLD } from '../../lib/mundinho/world';
 import { Coin, HAIR, OUTFIT, PixelAvatar, PixelCreature, SKIN } from './PixelArt';
 import './mundinho.css';
@@ -101,11 +104,15 @@ export function AdventureHub({
   courses,
   onCourse,
   assetBase = '/assets/mundinho',
+  soundPreference,
+  onSoundPreferenceChange,
 }: {
   transport: AdventureTransport;
   courses: Course[];
   onCourse: (language?: string) => void;
   assetBase?: string;
+  soundPreference?: boolean;
+  onSoundPreferenceChange?: (enabled: boolean) => void;
 }) {
   const [data, setData] = useState<AdventureState | null>(null);
   const [view, setView] = useState<View>('home');
@@ -115,6 +122,46 @@ export function AdventureHub({
   const [radioPlaying, setRadioPlaying] = useState(false);
   const [combatPhase, setCombatPhase] = useState('idle');
   const [impact, setImpact] = useState(0);
+  const [battleAudio] = useState(() => new BattleAudio());
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  useEffect(() => {
+    const sync = () => {
+      let enabled = true;
+      try {
+        enabled = localStorage.getItem('stacklyst-sound') !== 'false';
+      } catch {}
+      enabled = soundPreference ?? enabled;
+      setSoundEnabled(enabled);
+      battleAudio.setEnabled(enabled);
+    };
+    sync();
+    window.addEventListener('stacklyst-sound-changed', sync);
+    const visibility = () => battleAudio.setForeground(document.visibilityState === 'visible');
+    visibility();
+    document.addEventListener('visibilitychange', visibility);
+    const nativeVisibility = (event: Event) =>
+      battleAudio.setForeground(Boolean((event as CustomEvent<boolean>).detail));
+    window.addEventListener('mundinho-foreground', nativeVisibility);
+    return () => {
+      window.removeEventListener('stacklyst-sound-changed', sync);
+      document.removeEventListener('visibilitychange', visibility);
+      window.removeEventListener('mundinho-foreground', nativeVisibility);
+    };
+  }, [battleAudio, soundPreference]);
+  useEffect(() => () => battleAudio.dispose(), [battleAudio]);
+  const toggleBattleSound = () => {
+    const enabled = !soundEnabled;
+    setSoundEnabled(enabled);
+    battleAudio.setEnabled(enabled);
+    if (enabled) battleAudio.unlock();
+    try {
+      localStorage.setItem('stacklyst-sound', String(enabled));
+      // Native preferences arrive through the bridge after the tap; do not
+      // immediately restore the previous prop while that update is pending.
+      if (soundPreference === undefined) window.dispatchEvent(new Event('stacklyst-sound-changed'));
+    } catch {}
+    onSoundPreferenceChange?.(enabled);
+  };
 
   const [language, setLanguage] = useState<(typeof LANGUAGES)[number]>('PYTHON');
   const [creature, setCreature] = useState(CREATURES[0].id);
@@ -179,6 +226,8 @@ export function AdventureHub({
     if (pending.current) return;
     stateRevision.current++;
     pending.current = true;
+    battleAudio.unlock();
+    if (action.type === 'battle-skill') battleAudio.play('select');
     setBusy(true);
     setError('');
     setNotice('');
@@ -189,13 +238,17 @@ export function AdventureHub({
         const pause = (ms: number) =>
           new Promise((resolve) => setTimeout(resolve, reduced ? 0 : ms));
         setImpact(data.battle.enemyHp - next.battle.enemyHp);
+        battleAudio.play('attack');
         setCombatPhase('player-attack');
         await pause(350);
+        battleAudio.play(next.battle.enemyHp < data.battle.enemyHp ? 'hit' : 'miss');
+        if (next.battle.hp > data.battle.hp) battleAudio.play('heal');
         setCombatPhase(next.battle.enemyHp < data.battle.enemyHp ? 'enemy-hurt' : 'miss');
         await pause(450);
         if (next.battle.hp < data.battle.hp) {
           setCombatPhase('enemy-attack');
           await pause(350);
+          battleAudio.play('hurt');
           setCombatPhase('player-hurt');
           await pause(350);
         }
@@ -207,9 +260,15 @@ export function AdventureHub({
               : 'idle'
         );
       }
+      if (action.type === 'battle-answer' && next.battle?.status === 'won')
+        battleAudio.play('victory');
+      if (action.type === 'battle-answer' && next.battle?.status === 'lost')
+        battleAudio.play('defeat');
+      if (action.type === 'battle-start') battleAudio.play('encounter');
       if (action.type === 'battle-flee') {
         if (next.battle?.status !== 'fled')
           throw new Error('Não foi possível recuar. Tente novamente.');
+        battleAudio.play('flee');
         setCombatPhase('flee');
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
           await new Promise((resolve) => setTimeout(resolve, 600));
@@ -261,6 +320,26 @@ export function AdventureHub({
     CREATURES.find((c) => c.id === creature) ??
     CREATURES[0];
   const equippedAvatar = data?.avatar ?? DEFAULT_AVATAR;
+  useEffect(() => {
+    battleAudio.setBattle(view === 'battle' && battle?.status === 'active');
+    return () => battleAudio.setBattle(false);
+  }, [battleAudio, view, battle?.status]);
+  useEffect(() => {
+    if (view !== 'battle' || battle?.status !== 'won') return;
+    const reward = battle.reward;
+    const timer = setTimeout(() => {
+      go('world');
+      setNotice(
+        reward
+          ? `Vitória! +${reward} moedas e +30 XP. Recompensa registrada.`
+          : 'Vitória! Você voltou à clareira.'
+      );
+      setCombatPhase('idle');
+    }, 2000);
+    return () => clearTimeout(timer);
+    // Only the confirmed battle result owns this timer; changing screens cancels it.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view, battle?.id, battle?.status]);
 
   const startBattle = async (selectedLang = language, selectedCreature = creature) => {
     setCombatPhase('idle');
@@ -273,7 +352,11 @@ export function AdventureHub({
   };
 
   return (
-    <div className={`adventure adventure-${view}`}>
+    <div
+      className={`adventure adventure-${view}`}
+      onPointerDownCapture={() => battleAudio.unlock()}
+      onKeyDownCapture={() => battleAudio.unlock()}
+    >
       {/* HEADER BAR */}
       <header className="ad-page-heading">
         {view !== 'home' ? (
@@ -300,6 +383,16 @@ export function AdventureHub({
           )}
         </div>
 
+        {(view === 'world' || view === 'battle') && (
+          <button
+            className="ad-battle-sound"
+            aria-label={soundEnabled ? 'Silenciar sons do jogo' : 'Ativar sons do jogo'}
+            aria-pressed={soundEnabled}
+            onClick={toggleBattleSound}
+          >
+            {soundEnabled ? <Volume2 size={19} /> : <VolumeX size={19} />}
+          </button>
+        )}
         {view === 'home' && (
           <button
             className="ad-lessons-link"
@@ -1132,6 +1225,9 @@ export function AdventureHub({
                           : 'Você venceu a batalha e praticou seus conhecimentos.'
                         : 'Revise o conceito e tente novamente! Suas lições continuam salvas.'}
                     </p>
+                    {battle.status === 'won' && (
+                      <p role="status">Voltando ao Mundinho em instantes…</p>
+                    )}
                     <button className="ad-primary mt-4" onClick={() => go('world')}>
                       Voltar ao Mundinho
                     </button>

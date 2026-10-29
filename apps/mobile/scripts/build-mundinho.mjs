@@ -36,6 +36,12 @@ const result = await build({
   minify: true,
   format: 'iife',
   platform: 'browser',
+  // Shared web components and the native entry must use the same React runtime.
+  // Otherwise esbuild resolves the mobile and root installations separately.
+  alias: {
+    react: path.dirname(require.resolve('react/package.json')),
+    'react-dom': path.dirname(require.resolve('react-dom/package.json')),
+  },
   target: 'es2020',
   outfile: 'mundinho.js',
   jsx: 'automatic',

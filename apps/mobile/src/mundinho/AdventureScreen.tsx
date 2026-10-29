@@ -1,11 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { AppState, View } from 'react-native';
+import { useFocusEffect } from 'expo-router';
 import { WebView } from 'react-native-webview';
 import type { WebViewMessageEvent } from 'react-native-webview';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { api, errorMessage } from '~/lib/api';
 import { useLearning } from '~/features/learning/hooks';
 import { useMe } from '~/lib/session';
+import { useSoundEffects } from '~/lib/sounds';
 import { mundinhoHtml } from './document.generated';
 
 export function AdventureScreen({ onCourse }: { onCourse: (language?: string) => void }) {
@@ -13,6 +15,7 @@ export function AdventureScreen({ onCourse }: { onCourse: (language?: string) =>
   const learning = useLearning(),
     me = useMe(),
     insets = useSafeAreaInsets();
+  const sound = useSoundEffects();
   const [ready, setReady] = useState(false);
   const account = useRef(me.data?.id);
   account.current = me.data?.id;
@@ -32,8 +35,33 @@ export function AdventureScreen({ onCourse }: { onCourse: (language?: string) =>
       .filter((c) => c.total > 0);
     receive({ courses });
   }, [ready, learning.data]);
+  useEffect(() => {
+    if (ready) receive({ soundEnabled: sound.ready && sound.enabled });
+  }, [ready, sound.ready, sound.enabled]);
+  useFocusEffect(
+    useCallback(() => {
+      const foreground = (active: boolean) =>
+        ref.current?.injectJavaScript(
+          `window.dispatchEvent(new CustomEvent('mundinho-foreground',{detail:${active}}));true;`
+        );
+      foreground(AppState.currentState === 'active');
+      const listener = AppState.addEventListener('change', (state) =>
+        foreground(state === 'active')
+      );
+      return () => {
+        listener.remove();
+        foreground(false);
+      };
+    }, [ready])
+  );
   const message = async (event: WebViewMessageEvent) => {
-    let input: { type?: string; id?: string; language?: string; action?: unknown };
+    let input: {
+      type?: string;
+      id?: string;
+      language?: string;
+      enabled?: boolean;
+      action?: unknown;
+    };
     try {
       input = JSON.parse(event.nativeEvent.data);
     } catch {
@@ -41,6 +69,10 @@ export function AdventureScreen({ onCourse }: { onCourse: (language?: string) =>
     }
     if (input.type === 'ready') {
       setReady(true);
+      return;
+    }
+    if (input.type === 'sound-preference' && typeof input.enabled === 'boolean') {
+      await sound.setEnabled(input.enabled);
       return;
     }
     if (input.type === 'course') {

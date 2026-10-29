@@ -11,7 +11,7 @@ import {
   X,
 } from 'lucide-react';
 import { CREATURES, type Avatar } from '../../lib/mundinho/types';
-import { movePlayer, WORLD, WORLD_OBJECTS } from '../../lib/mundinho/world';
+import { movementDirection, movePlayer, WORLD, WORLD_OBJECTS } from '../../lib/mundinho/world';
 import { PixelAvatar, PixelCreature, TreasureChest } from './PixelArt';
 import { adventureAsset } from './assets';
 import { TouchStick } from './TouchStick';
@@ -162,15 +162,7 @@ export default function World({
         Number(held.has('w') || held.has('arrowup')) +
         stick.current.y;
 
-      const direction = dx
-        ? dx > 0
-          ? 'right'
-          : 'left'
-        : dy
-          ? dy > 0
-            ? 'down'
-            : 'up'
-          : player.current.direction;
+      const direction = movementDirection(dx, dy, player.current.direction);
 
       const magnitude = Math.hypot(dx, dy);
       if (magnitude > 1) {

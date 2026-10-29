@@ -28,6 +28,7 @@
   font-family: inherit;
 }
 
+.adventure,
 .adventure * {
   box-sizing: border-box;
 }
@@ -2524,4 +2525,43 @@
   .combat-flee .ad-combatant-player > .pixel-avatar {
     animation: none;
   }
+}
+/* Ground shadows belong to sprite feet, never to a sprite plus its information card. */
+.ad-combatant:after {
+  display: none;
+}
+.sprite-avatar:before,
+.sprite-creature:before {
+  content: '';
+  position: absolute;
+  width: 38%;
+  height: 5%;
+  left: 31%;
+  bottom: 16%;
+  background: #071a2440;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.sprite-creature {
+  position: relative;
+}
+.sprite-creature:before {
+  width: 44%;
+  left: 28%;
+  bottom: 7%;
+  height: 5%;
+}
+.world-habitat .sprite-creature:before {
+  opacity: 0.7;
+}
+.ad-battle-sound {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border: 1px solid var(--ad-border);
+  border-radius: 50%;
+  background: var(--ad-card);
+  color: var(--ad-text);
 }
