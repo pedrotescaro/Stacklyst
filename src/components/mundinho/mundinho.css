@@ -2406,3 +2406,122 @@
 .sprite-attack .sprite-layer {
   animation: hero-walk 0.35s steps(7) 1 forwards;
 }
+/* Encounter levels are visible in the world; retreat returns to the same clearing. */
+.world-creature-level {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  align-items: center;
+  min-width: 38px;
+  padding: 3px 5px;
+  background: #132c35ed;
+  color: #dcefe8;
+  font-size: 9px;
+  line-height: 1.2;
+  border-radius: 5px;
+  white-space: nowrap;
+  margin-bottom: 2px;
+  z-index: 4;
+}
+.world-creature-life {
+  display: block;
+  width: 100%;
+  height: 3px;
+  background: #83ce9b;
+  border-radius: 3px;
+}
+.world-creature-level.is-locked {
+  color: #f1c6bb;
+}
+.world-creature-level.is-locked .world-creature-life {
+  background: #cf8e7f;
+}
+.ad-encounter-levels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+.ad-encounter-levels article {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid var(--ad-border);
+  border-radius: 10px;
+  min-width: 0;
+}
+.ad-encounter-levels article > div {
+  flex: 1;
+  min-width: 0;
+}
+.ad-encounter-levels strong {
+  display: block;
+  font-size: 13px;
+}
+.ad-encounter-levels span {
+  display: block;
+  font-size: 11px;
+  color: #a4cdb7;
+  margin: 3px 0 6px;
+}
+.ad-encounter-levels progress {
+  appearance: none;
+  display: block;
+  width: 100%;
+  height: 4px;
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.ad-encounter-levels progress::-webkit-progress-bar {
+  background: #273a3e;
+}
+.ad-encounter-levels progress::-webkit-progress-value {
+  background: #81c598;
+}
+.ad-encounter-levels progress::-moz-progress-bar {
+  background: #81c598;
+}
+.ad-encounter-levels .is-locked span {
+  color: #d9a89b;
+}
+.ad-encounter-levels .is-locked progress::-webkit-progress-value {
+  background: #bb887d;
+}
+.ad-lobby-controls {
+  grid-template-columns: 1fr;
+}
+.combat-flee .ad-combatant-player > .pixel-avatar {
+  animation: rpg-flee 0.6s ease-in forwards;
+}
+.combat-flee .ad-combatant-player > .ad-combatant-card {
+  opacity: 0.4;
+  transition: opacity 0.2s;
+}
+.combat-flee .ad-combatant-player:after {
+  opacity: 0;
+}
+@keyframes rpg-flee {
+  0% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(-240px);
+    opacity: 0;
+  }
+}
+@media (max-width: 600px) {
+  .ad-encounter-levels {
+    grid-template-columns: 1fr;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .combat-flee .ad-combatant-player > .pixel-avatar {
+    animation: none;
+  }
+}

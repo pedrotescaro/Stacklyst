@@ -15,6 +15,7 @@ import { movePlayer, WORLD, WORLD_OBJECTS } from '../../lib/mundinho/world';
 import { PixelAvatar, PixelCreature, TreasureChest } from './PixelArt';
 import { adventureAsset } from './assets';
 import { TouchStick } from './TouchStick';
+import { canChallengeCreature } from '../../lib/mundinho/rules';
 
 export default function World({
   avatar,
@@ -24,6 +25,9 @@ export default function World({
   onChest,
   onBack,
   onInventory,
+  playerLevel = 1,
+  initialPosition = WORLD.spawn,
+  onPositionChange,
 }: {
   avatar: Avatar;
   assetBase: string;
@@ -32,6 +36,9 @@ export default function World({
   onChest: () => Promise<void>;
   onBack?: () => void;
   onInventory?: () => void;
+  playerLevel?: number;
+  initialPosition?: { x: number; y: number };
+  onPositionChange?: (position: { x: number; y: number }) => void;
 }) {
   const viewport = useRef<HTMLDivElement>(null);
   const keys = useRef(new Set<string>());
@@ -41,8 +48,11 @@ export default function World({
     const timer = setInterval(() => setClock((t) => t + 1), 250);
     return () => clearInterval(timer);
   }, []);
-  const player = useRef({ ...WORLD.spawn, direction: 'down', walking: false });
+  const player = useRef({ ...initialPosition, direction: 'down', walking: false });
   const [pose, setPose] = useState(player.current);
+  useEffect(() => {
+    onPositionChange?.({ x: pose.x, y: pose.y });
+  }, [pose.x, pose.y, onPositionChange]);
   const [size, setSize] = useState({ width: 800, height: 480 });
   const [dialogue, setDialogue] = useState<string | null>(
     'Explore a clareira. Aproxime-se de criaturas para iniciar batalhas de conceitos ou interaja com placas e baús.'
@@ -63,7 +73,15 @@ export default function World({
         return;
       }
       if (CREATURES.some((c) => c.id === nearest.id)) {
+        const creature = CREATURES.find((c) => c.id === nearest.id)!;
+        if (!canChallengeCreature(playerLevel, creature.level)) {
+          setDialogue(
+            `${creature.name} · nível ${creature.level}. Você está no nível ${playerLevel}. Continue suas lições para poder enfrentá-la.`
+          );
+          return;
+        }
         keys.current.clear();
+        stick.current = { x: 0, y: 0 };
         onEncounter(nearest.id);
       } else if (nearest.id === 'guide') {
         setDialogue(
@@ -83,7 +101,7 @@ export default function World({
           .catch(() => setDialogue('Este baú já foi resgatado ou não pôde ser aberto no momento.'));
       }
     };
-  }, [nearest, onEncounter, onChest]);
+  }, [nearest, onEncounter, onChest, playerLevel]);
 
   useEffect(() => {
     const el = viewport.current;
@@ -278,13 +296,26 @@ export default function World({
               style={{ left: c.x, top: c.y }}
               onClick={() => {
                 if (Math.hypot(c.x - pose.x, c.y - pose.y) < 55 && visibleCreatures.includes(c)) {
+                  if (!canChallengeCreature(playerLevel, c.level)) {
+                    setDialogue(
+                      `${c.name} requer nível ${c.level}. Seu nível atual é ${playerLevel}.`
+                    );
+                    return;
+                  }
                   keys.current.clear();
                   stick.current = { x: 0, y: 0 };
                   onEncounter(c.id);
                 } else setDialogue('Aproxime-se da moita para encontrar esta criatura.');
               }}
             >
-              <span className="world-entity-badge">{c.name}</span>
+              <span
+                className={`world-creature-level ${canChallengeCreature(playerLevel, c.level) ? '' : 'is-locked'}`}
+                aria-label={`${c.name}, nível ${c.level}. ${canChallengeCreature(playerLevel, c.level) ? 'Pode enfrentar' : 'Nível insuficiente'}`}
+              >
+                Nv. {c.level}
+                {!canChallengeCreature(playerLevel, c.level) && ' · Bloqueado'}
+                <span className="world-creature-life" />
+              </span>
               <PixelCreature color={c.color} kind={c.id} />
             </div>
           ))}

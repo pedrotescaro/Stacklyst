@@ -35,7 +35,8 @@ import {
   type Avatar,
   type Course,
 } from '../../lib/mundinho/types';
-import { SKILLS } from '../../lib/mundinho/rules';
+import { canChallengeCreature, SKILLS } from '../../lib/mundinho/rules';
+import { WORLD } from '../../lib/mundinho/world';
 import { Coin, HAIR, OUTFIT, PixelAvatar, PixelCreature, SKIN } from './PixelArt';
 import './mundinho.css';
 import { adventureAsset } from './assets';
@@ -126,11 +127,15 @@ export function AdventureHub({
 
   const heading = useRef<HTMLHeadingElement>(null);
   const pending = useRef(false);
+  const stateRevision = useRef(0);
+  const worldPosition = useRef({ ...WORLD.spawn });
 
   const load = useCallback(async () => {
     if (pending.current) return;
+    const revision = stateRevision.current;
     try {
       const next = await transport();
+      if (pending.current || stateRevision.current !== revision) return;
       setData(next);
       setError('');
     } catch (e) {
@@ -172,6 +177,7 @@ export function AdventureHub({
 
   const act = async (action: AdventureAction, success?: string) => {
     if (pending.current) return;
+    stateRevision.current++;
     pending.current = true;
     setBusy(true);
     setError('');
@@ -200,6 +206,17 @@ export function AdventureHub({
               ? 'defeat'
               : 'idle'
         );
+      }
+      if (action.type === 'battle-flee') {
+        if (next.battle?.status !== 'fled')
+          throw new Error('Não foi possível recuar. Tente novamente.');
+        setCombatPhase('flee');
+        if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+          await new Promise((resolve) => setTimeout(resolve, 600));
+        setData(next);
+        go('world');
+        setCombatPhase('idle');
+        return next;
       }
       setData(next);
       if (success) setNotice(success);
@@ -246,6 +263,7 @@ export function AdventureHub({
   const equippedAvatar = data?.avatar ?? DEFAULT_AVATAR;
 
   const startBattle = async (selectedLang = language, selectedCreature = creature) => {
+    setCombatPhase('idle');
     const next = await act({
       type: 'battle-start',
       language: selectedLang,
@@ -261,8 +279,13 @@ export function AdventureHub({
         {view !== 'home' ? (
           <button
             className="ad-back-button"
-            aria-label="Voltar para a tela inicial"
-            onClick={() => go('home')}
+            aria-label={view === 'battle' ? 'Voltar ao Mundinho' : 'Voltar para a tela inicial'}
+            disabled={busy}
+            onClick={() => {
+              if (view === 'battle' && battle?.status === 'active')
+                void act({ type: 'battle-flee', battle: battle.id });
+              else go(view === 'battle' ? 'world' : 'home');
+            }}
           >
             <ArrowLeft size={22} />
           </button>
@@ -885,6 +908,11 @@ export function AdventureHub({
         <Suspense fallback={<p className="ad-loading">Carregando o mundinho em pixel art…</p>}>
           <World
             avatar={equippedAvatar}
+            playerLevel={xp.level}
+            initialPosition={worldPosition.current}
+            onPositionChange={(position) => {
+              worldPosition.current = position;
+            }}
             assetBase={assetBase}
             username={data?.username ?? 'Pedrolado'}
             onBack={() => go('home')}
@@ -905,10 +933,10 @@ export function AdventureHub({
       {/* ============================================================ */}
       {view === 'battle' && (
         <div className="ad-battle-view">
-          {(!battle || battle.status !== 'active') && (
+          {(!battle || battle.status === 'fled') && (
             <div className="ad-battle-lobby">
               <div className="ad-lobby-header">
-                <h2>Batalhas de Conceitos</h2>
+                <h2>Prepare sua aventura</h2>
                 <p>
                   Desafie criaturas com perguntas e habilidades reais de programação. Cada acerto
                   causa dano e ensina um fundamento.
@@ -929,30 +957,40 @@ export function AdventureHub({
                     ))}
                   </select>
                 </label>
-
-                <label className="ad-lobby-label">
-                  Criatura Oponente
-                  <select value={creature} onChange={(e) => setCreature(e.target.value)}>
-                    {CREATURES.map((c) => (
-                      <option value={c.id} key={c.id}>
-                        {c.name} · Nível {c.level}
-                      </option>
-                    ))}
-                  </select>
-                </label>
               </div>
 
               <button
                 className="ad-start-battle-btn"
                 disabled={!data || busy}
-                onClick={() => void startBattle()}
+                onClick={() => go('world')}
               >
                 <Swords size={22} />
-                <span>Iniciar Batalha</span>
+                <span>Explorar o Mundinho</span>
               </button>
               <small className="ad-lobby-tip">
-                Vitórias diárias rendem moedas e XP adicionais no seu extrato!
+                Encontre uma criatura na clareira. Você pode enfrentar criaturas de nível igual ou
+                inferior ao seu.
               </small>
+              <div className="ad-encounter-levels" aria-label="Níveis das criaturas">
+                {CREATURES.map((c) => (
+                  <article
+                    key={c.id}
+                    className={canChallengeCreature(xp.level, c.level) ? '' : 'is-locked'}
+                  >
+                    <PixelCreature kind={c.id} />
+                    <div>
+                      <strong>{c.name}</strong>
+                      <span>
+                        Nível {c.level} ·{' '}
+                        {canChallengeCreature(xp.level, c.level)
+                          ? 'Pode enfrentar'
+                          : `Requer nível ${c.level}`}
+                      </span>
+                      <progress aria-label={`Vida de ${c.name}`} value={100} max={100} />
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
           )}
 
@@ -992,7 +1030,8 @@ export function AdventureHub({
                 <div className="ad-combatant ad-combatant-player">
                   <PixelAvatar
                     avatar={equippedAvatar}
-                    direction="right"
+                    direction={combatPhase === 'flee' ? 'left' : 'right'}
+                    walking={combatPhase === 'flee'}
                     motion={
                       combatPhase === 'player-attack'
                         ? 'attack'
@@ -1020,7 +1059,9 @@ export function AdventureHub({
               {/* Console & Battle Turn Actions */}
               <div className="ad-battle-bottom-console">
                 <p className="ad-battle-narrative" role="status" aria-live="polite">
-                  {battle.feedback}
+                  {combatPhase === 'flee'
+                    ? 'Você recuou. Voltando para a clareira…'
+                    : battle.feedback}
                 </p>
 
                 {battle.status === 'active' ? (
@@ -1091,8 +1132,8 @@ export function AdventureHub({
                           : 'Você venceu a batalha e praticou seus conhecimentos.'
                         : 'Revise o conceito e tente novamente! Suas lições continuam salvas.'}
                     </p>
-                    <button className="ad-primary mt-4" onClick={() => go('home')}>
-                      Voltar para Trilhas
+                    <button className="ad-primary mt-4" onClick={() => go('world')}>
+                      Voltar ao Mundinho
                     </button>
                   </div>
                 )}

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { checkinStatus, dayKey, resolveTurn, SKILLS } from '../rules';
+import { canChallengeCreature, checkinStatus, dayKey, resolveTurn, SKILLS } from '../rules';
 import { QUESTIONS } from '../questions';
 import {
   CHECKIN_REWARDS,
@@ -11,6 +11,12 @@ import {
 } from '../types';
 
 describe('Mundinho Gamification Rules', () => {
+  it('only unlocks encounters at or below the player level', () => {
+    expect(canChallengeCreature(1, 1)).toBe(true);
+    expect(canChallengeCreature(1, 2)).toBe(false);
+    expect(canChallengeCreature(2, 2)).toBe(true);
+    expect(canChallengeCreature(3, 1)).toBe(true);
+  });
   it('correctly calculates 7-day progressive checkin rewards and cycles', () => {
     const now = new Date('2026-10-29T12:00:00-03:00');
     const day = dayKey(now);

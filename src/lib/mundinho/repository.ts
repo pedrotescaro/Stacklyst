@@ -9,11 +9,12 @@ import {
   ITEMS,
   LANGUAGES,
   CREATURES,
+  levelProgress,
   type AdventureState,
   type Avatar,
   type BattleLanguage,
 } from './types';
-import { checkinStatus, dayKey, resolveTurn, SKILLS } from './rules';
+import { canChallengeCreature, checkinStatus, dayKey, resolveTurn, SKILLS } from './rules';
 import { QUESTIONS, publicQuestion } from './questions';
 
 const avatarSchema = z.object({
@@ -225,9 +226,18 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
           await tx.user.update({ where: { id: userId }, data: { total_xp: { increment: 10 } } });
       }
       if (action?.type === 'battle-start') {
-        if (!CREATURES.some((c) => c.id === action.creature)) fail('Criatura desconhecida.');
+        const creature = CREATURES.find((c) => c.id === action.creature);
+        if (!creature) fail('Criatura desconhecida.');
         const active = await tx.rpgBattle.findFirst({ where: { userId, status: 'active' } });
-        if (!active)
+        if (!active) {
+          const user = await tx.user.findUniqueOrThrow({
+            where: { id: userId },
+            select: { total_xp: true },
+          });
+          if (!canChallengeCreature(levelProgress(user.total_xp).level, creature.level))
+            fail(
+              `Esta criatura requer nível ${creature.level}. Continue aprendendo para enfrentá-la.`
+            );
           await tx.rpgBattle.create({
             data: {
               userId,
@@ -236,22 +246,24 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
               feedback: 'Escolha uma habilidade. Seu conhecimento dá força ao ataque.',
             },
           });
+        }
       }
       if (action && ['battle-skill', 'battle-answer', 'battle-flee'].includes(action.type)) {
         const a = action as Extract<Action, { battle: string }>;
         const b = await tx.rpgBattle.findFirst({ where: { id: a.battle, userId } });
-        if (!b || b.status !== 'active')
+        if (!b || (b.status !== 'active' && !(a.type === 'battle-flee' && b.status === 'fled')))
           fail('Esta batalha terminou. Atualize para ver o resultado.');
-        if (a.type === 'battle-flee')
-          await tx.rpgBattle.update({
-            where: { id: b.id },
-            data: {
-              status: 'fled',
-              questionId: null,
-              feedback: 'Você voltou à clareira. Seu progresso de aprendizagem está salvo.',
-            },
-          });
-        else {
+        if (a.type === 'battle-flee') {
+          if (b.status === 'active')
+            await tx.rpgBattle.update({
+              where: { id: b.id },
+              data: {
+                status: 'fled',
+                questionId: null,
+                feedback: 'Você voltou à clareira. Seu progresso de aprendizagem está salvo.',
+              },
+            });
+        } else {
           if (a.turn !== b.turn) fail('Este turno já foi respondido. Atualize a batalha.');
           if (a.type === 'battle-skill') {
             if (!b.questionId) {

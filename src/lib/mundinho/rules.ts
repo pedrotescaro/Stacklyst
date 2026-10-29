@@ -1,4 +1,7 @@
 import { CHECKIN_REWARDS } from './types';
+export function canChallengeCreature(playerLevel: number, creatureLevel: number) {
+  return playerLevel >= creatureLevel;
+}
 export function dayKey(now: Date) {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/Sao_Paulo',
