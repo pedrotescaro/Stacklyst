@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Gem } from 'lucide-react';
+import { Coin } from '@/components/mundinho/PixelArt';
 import { TrailCourseSelector } from '@/app/trails/TrailCourseSelector';
 import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
 import type { TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
@@ -77,16 +77,12 @@ export function TrailResourceBar({
 
       <div
         data-testid="trail-gems"
-        title={`${formatMetric(gems)} joias. Ganhe 5 na primeira conclusão de cada exercício.`}
+        title={`${formatMetric(gems)} moedas. Ganhe 5 na primeira conclusão de cada exercício.`}
         className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-1.5"
       >
-        <Gem
-          className="h-5 w-5 shrink-0 fill-violet-300 text-violet-300"
-          strokeWidth={1.8}
-          aria-hidden="true"
-        />
+        <Coin className="h-5 w-5 shrink-0 drop-shadow-[0_2px_6px_rgba(250,204,21,0.4)]" />
         <span className="text-xs font-bold tabular-nums text-dd-text">{formatMetric(gems)}</span>
-        <span className="sr-only">joias</span>
+        <span className="sr-only">moedas</span>
       </div>
     </div>
   );

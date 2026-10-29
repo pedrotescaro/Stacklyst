@@ -4,13 +4,13 @@
    ============================================================ */
 
 .adventure {
-  --ad-bg: #070a0e;
-  --ad-card: #12161f;
-  --ad-card-inner: #19202c;
-  --ad-border: #1f2735;
-  --ad-border-light: #2c374a;
-  --ad-text: #f3f5f8;
-  --ad-muted: #8e9cae;
+  --ad-bg: #000000;
+  --ad-card: #0d1117;
+  --ad-card-inner: #161b22;
+  --ad-border: #21262d;
+  --ad-border-light: #30363d;
+  --ad-text: #f0f6fc;
+  --ad-muted: #8b949e;
   --ad-blue: #1e88e5;
   --ad-blue-hover: #2196f3;
   --ad-gold: #fed433;
@@ -18,10 +18,11 @@
   --ad-green: #4ade80;
   --ad-red: #f87171;
   color: var(--ad-text);
-  background: var(--ad-bg);
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 18px 20px 48px;
+  background: transparent;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 18px 24px 48px;
   min-width: 0;
   line-height: 1.45;
   font-family: inherit;
@@ -170,9 +171,9 @@
   inset: 0;
   background: linear-gradient(
     0deg,
-    rgba(7, 10, 14, 0.85) 0%,
-    rgba(7, 10, 14, 0.35) 60%,
-    rgba(7, 10, 14, 0.2) 100%
+    rgba(0, 0, 0, 0.85) 0%,
+    rgba(0, 0, 0, 0.3) 60%,
+    rgba(0, 0, 0, 0.15) 100%
   );
   z-index: 1;
 }

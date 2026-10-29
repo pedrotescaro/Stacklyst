@@ -53,6 +53,7 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
     todayQuizAttempts,
     completedTrailStepAttempts,
     jumpAttempts,
+    rpgPlayer,
   ] = await Promise.all([
     getKnowledgeMapForUser(user.id),
     prisma.languageTrail.findMany({
@@ -83,6 +84,10 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
     prisma.quizAttempt.findMany({
       where: { user_id: user.id, quiz_id: { startsWith: 'trail-jump-' }, is_correct: true },
       select: { quiz_id: true },
+    }),
+    prisma.rpgPlayer.findUnique({
+      where: { userId: user.id },
+      select: { coins: true },
     }),
   ]);
 
@@ -161,6 +166,8 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
   const lessonCompletions = completedTrailStepAttempts.filter(
     (attempt) => attempt.is_correct && authoredExerciseIds.has(attempt.quiz_id)
   ).length;
+  const userCoins =
+    rpgPlayer?.coins ?? calculateGemBalance(firstCompletions.length + lessonCompletions);
   const completedLessonIds = getCompletedTrailLessonIds(
     completedTrailStepAttempts.filter((a) => a.is_correct).map((attempt) => attempt.quiz_id)
   );
@@ -184,7 +191,25 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
         };
       })
       .filter((course) => course.total > 0);
-    return <AdventureEntry user={user} courses={dashboardCourses} />;
+    return (
+      <AdventureEntry
+        user={{
+          id: user.id,
+          username: user.username,
+          avatar_url: user.avatar_url,
+          total_xp: user.total_xp,
+          streak: user.streak_days,
+          last_active_at: user.last_active_at ? user.last_active_at.toISOString() : null,
+        }}
+        courses={dashboardCourses}
+        initialCourses={courses}
+        initialActiveLanguage={initialActiveLanguage}
+        coins={userCoins}
+        globalRank={usersAhead + 1}
+        totalParticipants={totalParticipants}
+        dailyProgress={dailyProgress}
+      />
+    );
   }
 
   return (
@@ -200,7 +225,7 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
       knowledgeMap={unifiedMap}
       initialCourses={courses}
       initialActiveLanguage={initialActiveLanguage}
-      gems={calculateGemBalance(firstCompletions.length + lessonCompletions)}
+      gems={userCoins}
       globalRank={usersAhead + 1}
       totalParticipants={totalParticipants}
       dailyProgress={dailyProgress}

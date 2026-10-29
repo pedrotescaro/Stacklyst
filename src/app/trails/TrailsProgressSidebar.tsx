@@ -1,7 +1,8 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { ReactNode } from 'react';
-import { BadgeCheck, ChevronRight, Gem, Shield, Target, Zap } from 'lucide-react';
+import { BadgeCheck, ChevronRight, Shield, Target, Zap } from 'lucide-react';
+import { Coin } from '@/components/mundinho/PixelArt';
 import { TrailCourseSelector } from '@/app/trails/TrailCourseSelector';
 import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
 import type { TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
@@ -131,7 +132,7 @@ export function TrailsProgressSidebar({
           : text('Progresso e missões da trilha', 'Trail progress and missions')
       }
       className={[
-        'sticky top-0 hidden h-screen w-[380px] shrink-0 flex-col gap-4 overflow-y-auto p-5 scrollbar-none xl:flex',
+        'sticky top-0 hidden h-screen w-[380px] shrink-0 flex-col gap-4 overflow-y-auto border-l border-dd-border p-5 scrollbar-none xl:flex',
       ].join(' ')}
     >
       <div className="grid grid-cols-[96px_54px_70px_54px_40px] items-center gap-1 pb-4">
@@ -178,11 +179,7 @@ export function TrailsProgressSidebar({
           title={`${formatMetric(gems, locale)} ${text('gemas', 'gems')}`}
           className="flex min-w-0 items-center justify-center gap-1"
         >
-          <Gem
-            aria-hidden="true"
-            className="h-5 w-5 shrink-0 fill-violet-500 text-violet-300 drop-shadow-[0_2px_7px_rgba(168,85,247,0.55)]"
-            strokeWidth={2.4}
-          />
+          <Coin className="h-5 w-5 shrink-0 drop-shadow-[0_2px_6px_rgba(250,204,21,0.5)]" />
           <span className="truncate text-xs font-black text-dd-text">{formatMetric(gems)}</span>
         </div>
 
