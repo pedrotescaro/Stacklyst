@@ -57,8 +57,11 @@ describe('Sidebar role-aware navigation', () => {
     render(<Sidebar user={regularUser} />);
 
     await waitFor(() => expect(getCurrentUser).toHaveBeenCalled());
+    // Only the bottom navigation exposes a primary Duels link.
+    expect(screen.getAllByRole('link', { name: 'Duelos' })).toHaveLength(1);
     fireEvent.click(screen.getByRole('button', { name: 'Mais' }));
 
+    expect(screen.getByRole('menuitem', { name: 'Duelos' })).toHaveAttribute('href', '/duels');
     expect(screen.getByRole('menuitem', { name: 'Avaliação de Código' })).toBeInTheDocument();
     expect(
       screen.queryByRole('menuitem', { name: 'Painel Administrativo' })

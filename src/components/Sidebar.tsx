@@ -494,13 +494,6 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       active: pathname.startsWith('/ranking') || pathname.startsWith('/leaderboard'),
     },
     {
-      id: 'duels',
-      label: t.nav.duels,
-      href: '/duels',
-      icon: Swords,
-      active: pathname.startsWith('/duels'),
-    },
-    {
       id: 'chat',
       label: t.nav.chat,
       href: '/messages',
@@ -526,6 +519,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   const isAdmin = activeUser?.role === 'ADMIN';
 
   const moreMenuIsActive = [
+    '/duels',
     '/jobs',
     '/recruiter',
     // '/guilds',
@@ -708,6 +702,15 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                   role="menu"
                   className="absolute bottom-full left-0 z-[120] mb-2 w-[290px] max-w-[calc(100vw-2rem)] origin-bottom-left overflow-y-auto max-h-[75vh] rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-slide-up"
                 >
+                  <Link
+                    href="/duels"
+                    role="menuitem"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    onClick={() => setMoreMenuOpen(false)}
+                  >
+                    <Swords className="h-5.5 w-5.5 shrink-0 text-dd-text" />
+                    <span>{t.nav.duels}</span>
+                  </Link>
                   <Link
                     href="/jobs"
                     role="menuitem"

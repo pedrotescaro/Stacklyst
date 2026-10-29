@@ -29,8 +29,8 @@ export async function GET(request: Request) {
       orderBy: { created_at: 'desc' },
       take: limit,
       include: {
-        challenger: { select: { id: true, username: true, avatar_url: true } },
-        opponent: { select: { id: true, username: true, avatar_url: true } },
+        challenger: { select: { id: true, username: true, avatar_url: true, avatar_config: true } },
+        opponent: { select: { id: true, username: true, avatar_url: true, avatar_config: true } },
         solutions: { select: { user_id: true, vote_count: true } },
       },
     });

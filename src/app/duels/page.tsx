@@ -24,10 +24,10 @@ export default async function DuelsPage() {
     orderBy: { created_at: 'desc' },
     include: {
       challenger: {
-        select: { id: true, username: true, avatar_url: true },
+        select: { id: true, username: true, avatar_url: true, avatar_config: true },
       },
       opponent: {
-        select: { id: true, username: true, avatar_url: true },
+        select: { id: true, username: true, avatar_url: true, avatar_config: true },
       },
       solutions: {
         select: {

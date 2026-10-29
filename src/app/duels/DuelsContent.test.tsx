@@ -12,6 +12,38 @@ afterEach(() => {
 });
 
 describe('Duel lobby actions', () => {
+  it('preserves both participants profile frames in the duel listing', () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Response.json([]))
+    );
+    const { container } = render(
+      <DuelsContent
+        user={user}
+        initialDuels={[
+          {
+            id: 'framed-duel',
+            status: 'ACTIVE',
+            language: 'TS',
+            problem_title: 'Duelo com molduras',
+            problem_body: 'Teste',
+            challenger: {
+              ...user,
+              avatar_config: { profileStyle: { frame: { color: '#38bdf8', decoration: 'orbit' } } },
+            },
+            opponent: {
+              id: 'other',
+              username: 'bia',
+              avatar_config: { profileStyle: { frame: { color: '#a78bfa', decoration: 'alien' } } },
+            },
+          },
+        ]}
+      />
+    );
+    expect(container.querySelector('[data-decoration="orbit"]')).toBeInTheDocument();
+    expect(container.querySelector('[data-decoration="alien"]')).toBeInTheDocument();
+  });
+
   it('filters community duels and starts a quick match in the selected language', async () => {
     const fetcher = vi.fn(async (_url, init) =>
       Response.json(init?.method === 'POST' ? { duel: { id: 'new-duel' } } : [])
