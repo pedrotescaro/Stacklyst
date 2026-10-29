@@ -628,30 +628,17 @@ CREATURE_SPECS.forEach((c, idx) => {
 });
 
 // -------------------------------------------------------------
-// 4. GENERATE GOLD COIN (32 x 32 with Cat Emblem)
+// 4. GENERATE GOLD COIN (32 x 32 with Stacklyst S)
 // -------------------------------------------------------------
-console.log('Crafting Pixel Art Gold Coin with Cat Silhouette...');
+console.log('Crafting Pixel Art Gold Coin with Stacklyst S...');
 const coinCanvas = new PixelCanvas(32, 32);
-coinCanvas.drawCircle(16, 17, 13, '#8e5917'); // Drop shadow
-coinCanvas.drawCircle(16, 15, 13, '#cf8a1e'); // Dark rim
-coinCanvas.drawCircle(16, 15, 12, '#f6ba28'); // Gold face
-coinCanvas.drawCircle(16, 15, 9, '#ffe169');  // Inner embossed circle
-
-// Cat Emblem inside coin (matching reference photos!)
-coinCanvas.drawCircle(16, 16, 5, '#cf8a1e');
-// Left cat ear
-coinCanvas.setPixel(12, 11, '#cf8a1e');
-coinCanvas.setPixel(13, 12, '#cf8a1e');
-coinCanvas.setPixel(14, 13, '#cf8a1e');
-// Right cat ear
-coinCanvas.setPixel(20, 11, '#cf8a1e');
-coinCanvas.setPixel(19, 12, '#cf8a1e');
-coinCanvas.setPixel(18, 13, '#cf8a1e');
-// Cat eyes
-coinCanvas.setPixel(14, 15, '#ffe169');
-coinCanvas.setPixel(18, 15, '#ffe169');
-// Cat nose
-coinCanvas.setPixel(16, 17, '#ffe169');
+coinCanvas.drawCircle(16, 17, 13, '#8e5917');
+coinCanvas.drawCircle(16, 15, 13, '#cf8a1e');
+coinCanvas.drawCircle(16, 15, 12, '#f6ba28');
+coinCanvas.drawCircle(16, 15, 9, '#ffe169');
+const brandSvg = fs.readFileSync('public/brand/monogram.svg', 'utf8').replace('#0083fe', '#b77b1b');
+const emblem = await sharp(Buffer.from(brandSvg)).resize(13,13,{fit:'contain',background:{r:0,g:0,b:0,alpha:0}}).ensureAlpha().raw().toBuffer();
+for(let y=0;y<13;y++)for(let x=0;x<13;x++){const i=(y*13+x)*4;if(emblem[i+3])coinCanvas.setPixel(10+x,9+y,[...emblem.subarray(i,i+4)]);}
 
 // Shine highlight
 coinCanvas.setPixel(10, 8, '#ffffff');

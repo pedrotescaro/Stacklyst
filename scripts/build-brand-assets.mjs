@@ -130,7 +130,7 @@ for (const file of [
   'apps/mobile/assets/logo.png',
 ]) {
   const size = file.includes('apple') ? 180 : 512;
-  await sharp(Buffer.from(svg)).resize(size, size, { fit: 'contain' }).png().toFile(file);
+  await sharp(Buffer.from(svg)).resize(size, size, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toFile(file);
 }
 for (const [file, mark, background, monochrome] of [
   ['app-icon.png', 700, '#08090b', false],
@@ -139,7 +139,7 @@ for (const [file, mark, background, monochrome] of [
   ['splash-icon.png', 800, '#00000000', false],
 ]) {
   const icon = await sharp(Buffer.from(monochrome ? svg.replace('#0083fe', '#ffffff') : svg))
-    .resize(mark, mark, { fit: 'contain' })
+    .resize(mark, mark, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } })
     .png()
     .toBuffer();
   await sharp({ create: { width: 1024, height: 1024, channels: 4, background } })
@@ -148,7 +148,7 @@ for (const [file, mark, background, monochrome] of [
     .toFile(path.join('apps/mobile/assets', file));
 }
 // Next's file-convention favicon takes precedence over metadata.
-const png = await sharp(Buffer.from(svg)).resize(48, 48, { fit: 'contain' }).png().toBuffer();
+const png = await sharp(Buffer.from(svg)).resize(48, 48, { fit: 'contain', background: { r: 0, g: 0, b: 0, alpha: 0 } }).png().toBuffer();
 const header = Buffer.alloc(22);
 header.writeUInt16LE(1, 2);
 header.writeUInt16LE(1, 4);

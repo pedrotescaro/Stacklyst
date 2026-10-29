@@ -1,5 +1,6 @@
 import type { CSSProperties } from 'react';
 import { adventureAsset } from './assets';
+import { brandGeometry } from '../../lib/brand-geometry';
 import { DEFAULT_AVATAR, type Avatar } from '../../lib/mundinho/types';
 
 export interface SkinPalette {
@@ -234,16 +235,9 @@ export function Coin({ className = '' }: { className?: string }) {
       <circle cx="20" cy="21" r="17" fill="#8e5917" />
       <circle cx="20" cy="19" r="17" fill="#edaf25" />
       <circle cx="20" cy="19" r="13" fill="#ffda58" stroke="#ffe895" strokeWidth="2" />
-      {/* Cute cat face / meow emblem inside the golden coin matching the reference */}
-      <circle cx="20" cy="20.5" r="7" fill="#cf8a1e" />
-      {/* Cat ears */}
-      <polygon points="15,16 13,12 17,14" fill="#cf8a1e" />
-      <polygon points="25,16 27,12 23,14" fill="#cf8a1e" />
-      {/* Cat eyes */}
-      <circle cx="18" cy="19" r="1" fill="#ffe169" />
-      <circle cx="22" cy="19" r="1" fill="#ffe169" />
-      {/* Cat nose */}
-      <polygon points="20,21 19,22 21,22" fill="#ffe169" />
+      <g transform="translate(12.2 11.8) scale(0.018)">
+        <path d={brandGeometry.path} fill="#b77b1b" />
+      </g>
     </svg>
   );
 }

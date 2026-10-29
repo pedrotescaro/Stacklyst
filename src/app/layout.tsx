@@ -64,8 +64,8 @@ export const metadata: Metadata = {
   description:
     'Level up through real discussions, code duels, adaptive quizzes, and verifiable skills.',
   icons: {
-    icon: '/logo.svg',
-    shortcut: '/logo.svg',
+    icon: '/icon.svg?v=2',
+    shortcut: '/favicon.ico?v=2',
     apple: '/apple-touch-icon.png',
   },
 };
