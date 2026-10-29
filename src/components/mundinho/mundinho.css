@@ -1172,6 +1172,12 @@
   cursor: pointer;
 }
 
+.world-scenery {
+  position: absolute;
+  pointer-events: none;
+  background-repeat: no-repeat;
+}
+
 .world-entity-badge {
   font-size: 10px;
   font-weight: 750;
@@ -2400,9 +2406,6 @@
 }
 .world-object > svg:not(.pixel-chest) {
   color: #ead4a0;
-}
-.world-map {
-  transition: transform 100ms linear;
 }
 .sprite-attack .sprite-layer {
   animation: hero-walk 0.35s steps(7) 1 forwards;

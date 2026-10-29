@@ -11,7 +11,14 @@ import {
   X,
 } from 'lucide-react';
 import { CREATURES, type Avatar } from '../../lib/mundinho/types';
-import { movementDirection, movePlayer, WORLD, WORLD_OBJECTS } from '../../lib/mundinho/world';
+import {
+  movementDirection,
+  movePlayer,
+  SCENERY,
+  worldDepth,
+  WORLD,
+  WORLD_OBJECTS,
+} from '../../lib/mundinho/world';
 import { PixelAvatar, PixelCreature, TreasureChest } from './PixelArt';
 import { adventureAsset } from './assets';
 import { TouchStick } from './TouchStick';
@@ -149,7 +156,6 @@ export default function World({
 
     let frame = 0;
     let previous = performance.now();
-    let rendered = 0;
 
     const tick = (time: number) => {
       const dt = Math.min((time - previous) / 1000, 0.04);
@@ -179,10 +185,17 @@ export default function World({
         walking: Boolean(dx || dy),
       };
 
-      if (time - rendered > 30) {
-        setPose({ ...player.current });
-        rendered = time;
-      }
+      // Camera and character must commit the same simulation frame. A separate
+      // camera transition or 30 Hz render throttle makes touch movement wobble.
+      const next = player.current;
+      setPose((current) =>
+        current.x === next.x &&
+        current.y === next.y &&
+        current.direction === next.direction &&
+        current.walking === next.walking
+          ? current
+          : { ...next }
+      );
 
       frame = requestAnimationFrame(tick);
     };
@@ -281,14 +294,32 @@ export default function World({
             width: WORLD.width,
             height: WORLD.height,
             transform: `translate(${x}px, ${y}px) scale(${scale})`,
-            backgroundImage: `url(${adventureAsset('forest-v2.png', assetBase)})`,
+            backgroundImage: `url(${adventureAsset('forest-ground.png', assetBase)})`,
           }}
         >
+          {SCENERY.objects.map((object) => (
+            <div
+              key={object.id}
+              className="world-scenery"
+              data-scenery={object.id}
+              aria-hidden="true"
+              style={{
+                left: object.x,
+                top: object.y,
+                width: SCENERY.width,
+                height: SCENERY.height,
+                zIndex: worldDepth(object.depth),
+                backgroundImage: `url(${adventureAsset('forest-scenery.png', assetBase)})`,
+                backgroundSize: `${SCENERY.width * SCENERY.columns}px ${SCENERY.height * SCENERY.rows}px`,
+                backgroundPosition: `${-(object.frame % SCENERY.columns) * SCENERY.width}px ${-Math.floor(object.frame / SCENERY.columns) * SCENERY.height}px`,
+              }}
+            />
+          ))}
           {CREATURES.map((c, i) => (
             <div
               key={c.id}
               className={`world-entity world-habitat ${(clock + i * 7) % 64 < 52 ? 'is-visible' : 'is-hidden'}`}
-              style={{ left: c.x, top: c.y }}
+              style={{ left: c.x, top: c.y, zIndex: worldDepth(c.y) }}
               onClick={() => {
                 if (Math.hypot(c.x - pose.x, c.y - pose.y) < 55 && visibleCreatures.includes(c)) {
                   if (!canChallengeCreature(playerLevel, c.level)) {
@@ -319,7 +350,7 @@ export default function World({
             <div
               key={o.id}
               className="world-entity world-object"
-              style={{ left: o.x, top: o.y }}
+              style={{ left: o.x, top: o.y, zIndex: worldDepth(o.y) }}
               onClick={() => interaction.current()}
             >
               <span className="world-entity-badge">{o.name}</span>
@@ -334,7 +365,10 @@ export default function World({
           ))}
 
           {/* Player with Floating Username Tag (Matching Image 3) */}
-          <div className="world-entity world-player" style={{ left: pose.x, top: pose.y }}>
+          <div
+            className="world-entity world-player"
+            style={{ left: pose.x, top: pose.y, zIndex: worldDepth(pose.y) }}
+          >
             <span className="world-player-name">{username}</span>
             <PixelAvatar avatar={avatar} direction={pose.direction} walking={pose.walking} />
           </div>

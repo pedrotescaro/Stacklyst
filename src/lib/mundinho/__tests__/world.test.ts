@@ -1,7 +1,35 @@
 import { describe, expect, it } from 'vitest';
-import { movementDirection, canWalk, movePlayer, WORLD, WORLD_OBJECTS, COLLISIONS } from '../world';
+import {
+  movementDirection,
+  canWalk,
+  movePlayer,
+  SCENERY,
+  worldDepth,
+  WORLD,
+  WORLD_OBJECTS,
+  COLLISIONS,
+} from '../world';
 import { CREATURES } from '../types';
 describe('Exploração da floresta', () => {
+  it('places solid scenery between characters behind and in front of its feet', () => {
+    for (const object of SCENERY.objects) {
+      expect(worldDepth(object.depth - 1)).toBeLessThan(worldDepth(object.depth));
+      expect(worldDepth(object.depth + 1)).toBeGreaterThan(worldDepth(object.depth));
+      expect(object.frame).toBeLessThan(SCENERY.columns * SCENERY.rows);
+    }
+    expect(SCENERY.objects.find((object) => object.id === 'cabin')?.depth).toBe(204);
+  });
+  it('allows walking behind crowns and the roof while blocking trunks and cabin walls', () => {
+    expect(canWalk(205, 575)).toBe(true);
+    expect(canWalk(205, 605)).toBe(false);
+    expect(canWalk(205, 616)).toBe(true);
+    expect(canWalk(682, 85)).toBe(true);
+    expect(canWalk(682, 110)).toBe(false);
+    expect(canWalk(682, 198)).toBe(false);
+    expect(canWalk(682, 211)).toBe(true);
+    expect(movePlayer(682, 98, 0, 5)).toEqual({ x: 682, y: 98 });
+    expect(movePlayer(682, 210, 0, -5)).toEqual({ x: 682, y: 210 });
+  });
   it('faces the dominant touch axis even with horizontal finger drift', () => {
     expect(movementDirection(0.06, -0.9, 'right')).toBe('up');
     expect(movementDirection(-0.12, 0.8, 'left')).toBe('down');

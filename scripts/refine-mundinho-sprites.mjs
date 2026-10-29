@@ -392,6 +392,14 @@ console.log(
 // One shared scenery/collision description: an expanded forest with connected clearings.
 const map = canvas(1024, 768),
   obstacles = [];
+const scenery = [],
+  sceneryFrames = [];
+function sceneryObject(id, x, y, depth) {
+  const frame = canvas(176, 160);
+  scenery.push({ id, x, y, depth, frame: sceneryFrames.length });
+  sceneryFrames.push(frame);
+  return { r: (xx, yy, w, h, color) => frame.r(xx - x, yy - y, w, h, color) };
+}
 let seed = 71;
 const rand = () => {
   seed = (seed * 1664525 + 1013904223) >>> 0;
@@ -411,20 +419,21 @@ for (let y = 30; y < 740; y++)
     if (path) map.r(x, y, 1, 1, rand() > 0.95 ? '#a58c62' : '#bd9f71');
   }
 function tree(x, y) {
+  const paint = sceneryObject(`tree-${scenery.length}`, x - 88, y - 154, y);
   obstacles.push({ x: x - 9, y: y - 12, w: 18, h: 18 });
-  map.r(x - 5, y - 25, 10, 27, '#624a38');
-  map.r(x - 3, y - 25, 3, 23, '#967047');
+  paint.r(x - 5, y - 25, 10, 27, '#624a38');
+  paint.r(x - 3, y - 25, 3, 23, '#967047');
   const colors = ['#203f3a', '#28503f', '#326446', '#468051', '#639351'];
   for (let k = 0; k < 5; k++) {
     const radius = 32 - k * 4,
       cy = y - 38 - k * 4;
     for (let yy = -radius; yy <= radius; yy += 2) {
       const width = Math.floor(Math.sqrt(radius * radius - yy * yy));
-      map.r(x - width + (k % 2) * 3, cy + yy, width * 2, 2, colors[k]);
+      paint.r(x - width + (k % 2) * 3, cy + yy, width * 2, 2, colors[k]);
     }
   }
   for (let i = 0; i < 22; i++) {
-    map.r(x - 20 + Math.floor(rand() * 38), y - 70 + Math.floor(rand() * 32), 3, 2, '#729b59');
+    paint.r(x - 20 + Math.floor(rand() * 38), y - 70 + Math.floor(rand() * 32), 3, 2, '#729b59');
   }
 }
 for (let x = 15; x < 1024; x += 42) {
@@ -463,24 +472,25 @@ for (let i = 0; i < 38; i++) {
   map.r(x, y, 6, 1, '#75b6b1');
 }
 // Cabin in the north clearing; access road connects at its door.
-map.r(620, 105, 125, 93, '#694b38');
-for (let y = 110; y < 198; y += 7) map.r(623, y, 119, 2, '#886448');
-map.r(668, 148, 27, 50, '#3e3733');
-map.r(671, 152, 21, 46, '#936a45');
-map.r(687, 172, 2, 2, '#edc975');
+const cabin = sceneryObject('cabin', 594, 44, 204);
+cabin.r(620, 105, 125, 93, '#694b38');
+for (let y = 110; y < 198; y += 7) cabin.r(623, y, 119, 2, '#886448');
+cabin.r(668, 148, 27, 50, '#3e3733');
+cabin.r(671, 152, 21, 46, '#936a45');
+cabin.r(687, 172, 2, 2, '#edc975');
 for (const x of [635, 711]) {
-  map.r(x, 143, 19, 23, '#282f35');
-  map.r(x + 2, 145, 15, 18, '#efc779');
-  map.r(x + 8, 145, 2, 18, '#79583e');
-  map.r(x + 2, 154, 15, 2, '#79583e');
+  cabin.r(x, 143, 19, 23, '#282f35');
+  cabin.r(x + 2, 145, 15, 18, '#efc779');
+  cabin.r(x + 8, 145, 2, 18, '#79583e');
+  cabin.r(x + 2, 154, 15, 2, '#79583e');
 }
 for (let y = 55; y < 120; y++) {
   const half = Math.floor((y - 55) * 1.25);
-  map.r(682 - half, y, half * 2, 1, y % 7 === 0 ? '#513c39' : '#9c6150');
+  cabin.r(682 - half, y, half * 2, 1, y % 7 === 0 ? '#513c39' : '#9c6150');
 }
-map.r(599, 118, 166, 6, '#413833');
-map.r(665, 199, 34, 5, '#a2a18a');
-obstacles.push({ x: 615, y: 100, w: 136, h: 95 });
+cabin.r(599, 118, 166, 6, '#413833');
+cabin.r(665, 199, 34, 5, '#a2a18a');
+obstacles.push({ x: 620, y: 105, w: 125, h: 99 });
 // Species habitats: low bushes leave their approach tiles walkable.
 for (const [x, y] of [
   [300, 270],
@@ -505,10 +515,40 @@ for (let i = 0; i < 260; i++) {
     map.r(x - 1, y, 3, 2, i % 3 ? '#dbc78d' : '#c68d9b');
   }
 }
+await exportAnimation('forest-ground', [map], 1);
+await exportAnimation('forest-scenery', sceneryFrames, 8);
+// Retain the composed illustration for battle backgrounds.
+for (const object of [...scenery].sort((a, b) => a.depth - b.depth)) {
+  const frame = sceneryFrames[object.frame];
+  for (let yy = 0; yy < frame.h; yy++)
+    for (let xx = 0; xx < frame.w; xx++) {
+      const x = object.x + xx,
+        y = object.y + yy,
+        p = (yy * frame.w + xx) * 4;
+      if (x >= 0 && y >= 0 && x < map.w && y < map.h && frame.data[p + 3])
+        map.data.set(frame.data.subarray(p, p + 4), (y * map.w + x) * 4);
+    }
+}
 await exportAnimation('forest-v2', [map], 1);
 await fs.writeFile(
   'src/lib/mundinho/geometry.json',
-  JSON.stringify({ width: 1024, height: 768, spawn: { x: 485, y: 390 }, obstacles }, null, 2)
+  JSON.stringify(
+    {
+      width: 1024,
+      height: 768,
+      spawn: { x: 485, y: 390 },
+      obstacles,
+      scenery: {
+        width: 176,
+        height: 160,
+        columns: 8,
+        rows: Math.ceil(scenery.length / 8),
+        objects: scenery,
+      },
+    },
+    null,
+    2
+  )
 );
 
 for (const file of (await fs.readdir(dir)).filter(

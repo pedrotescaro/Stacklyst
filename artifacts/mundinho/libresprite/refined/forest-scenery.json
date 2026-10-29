@@ -1,0 +1,803 @@
+{ "frames": [
+   {
+    "filename": "forest-scenery 0.ase",
+    "frame": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 1.ase",
+    "frame": { "x": 176, "y": 0, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 2.ase",
+    "frame": { "x": 352, "y": 0, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 3.ase",
+    "frame": { "x": 528, "y": 0, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 4.ase",
+    "frame": { "x": 704, "y": 0, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 5.ase",
+    "frame": { "x": 880, "y": 0, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 6.ase",
+    "frame": { "x": 1056, "y": 0, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 7.ase",
+    "frame": { "x": 1232, "y": 0, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 8.ase",
+    "frame": { "x": 0, "y": 160, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 9.ase",
+    "frame": { "x": 176, "y": 160, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 10.ase",
+    "frame": { "x": 352, "y": 160, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 11.ase",
+    "frame": { "x": 528, "y": 160, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 12.ase",
+    "frame": { "x": 704, "y": 160, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 13.ase",
+    "frame": { "x": 880, "y": 160, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 14.ase",
+    "frame": { "x": 1056, "y": 160, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 15.ase",
+    "frame": { "x": 1232, "y": 160, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 16.ase",
+    "frame": { "x": 0, "y": 320, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 17.ase",
+    "frame": { "x": 176, "y": 320, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 18.ase",
+    "frame": { "x": 352, "y": 320, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 19.ase",
+    "frame": { "x": 528, "y": 320, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 20.ase",
+    "frame": { "x": 704, "y": 320, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 21.ase",
+    "frame": { "x": 880, "y": 320, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 22.ase",
+    "frame": { "x": 1056, "y": 320, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 23.ase",
+    "frame": { "x": 1232, "y": 320, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 24.ase",
+    "frame": { "x": 0, "y": 480, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 25.ase",
+    "frame": { "x": 176, "y": 480, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 26.ase",
+    "frame": { "x": 352, "y": 480, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 27.ase",
+    "frame": { "x": 528, "y": 480, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 28.ase",
+    "frame": { "x": 704, "y": 480, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 29.ase",
+    "frame": { "x": 880, "y": 480, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 30.ase",
+    "frame": { "x": 1056, "y": 480, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 31.ase",
+    "frame": { "x": 1232, "y": 480, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 32.ase",
+    "frame": { "x": 0, "y": 640, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 33.ase",
+    "frame": { "x": 176, "y": 640, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 34.ase",
+    "frame": { "x": 352, "y": 640, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 35.ase",
+    "frame": { "x": 528, "y": 640, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 36.ase",
+    "frame": { "x": 704, "y": 640, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 37.ase",
+    "frame": { "x": 880, "y": 640, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 38.ase",
+    "frame": { "x": 1056, "y": 640, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 39.ase",
+    "frame": { "x": 1232, "y": 640, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 40.ase",
+    "frame": { "x": 0, "y": 800, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 41.ase",
+    "frame": { "x": 176, "y": 800, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 42.ase",
+    "frame": { "x": 352, "y": 800, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 43.ase",
+    "frame": { "x": 528, "y": 800, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 44.ase",
+    "frame": { "x": 704, "y": 800, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 45.ase",
+    "frame": { "x": 880, "y": 800, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 46.ase",
+    "frame": { "x": 1056, "y": 800, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 47.ase",
+    "frame": { "x": 1232, "y": 800, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 48.ase",
+    "frame": { "x": 0, "y": 960, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 49.ase",
+    "frame": { "x": 176, "y": 960, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 50.ase",
+    "frame": { "x": 352, "y": 960, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 51.ase",
+    "frame": { "x": 528, "y": 960, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 52.ase",
+    "frame": { "x": 704, "y": 960, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 53.ase",
+    "frame": { "x": 880, "y": 960, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 54.ase",
+    "frame": { "x": 1056, "y": 960, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 55.ase",
+    "frame": { "x": 1232, "y": 960, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 56.ase",
+    "frame": { "x": 0, "y": 1120, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 57.ase",
+    "frame": { "x": 176, "y": 1120, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 58.ase",
+    "frame": { "x": 352, "y": 1120, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 59.ase",
+    "frame": { "x": 528, "y": 1120, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 60.ase",
+    "frame": { "x": 704, "y": 1120, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 61.ase",
+    "frame": { "x": 880, "y": 1120, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 62.ase",
+    "frame": { "x": 1056, "y": 1120, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 63.ase",
+    "frame": { "x": 1232, "y": 1120, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 64.ase",
+    "frame": { "x": 0, "y": 1280, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 65.ase",
+    "frame": { "x": 176, "y": 1280, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 66.ase",
+    "frame": { "x": 352, "y": 1280, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 67.ase",
+    "frame": { "x": 528, "y": 1280, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 68.ase",
+    "frame": { "x": 704, "y": 1280, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 69.ase",
+    "frame": { "x": 880, "y": 1280, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 70.ase",
+    "frame": { "x": 1056, "y": 1280, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 71.ase",
+    "frame": { "x": 1232, "y": 1280, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 72.ase",
+    "frame": { "x": 0, "y": 1440, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 73.ase",
+    "frame": { "x": 176, "y": 1440, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 74.ase",
+    "frame": { "x": 352, "y": 1440, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 75.ase",
+    "frame": { "x": 528, "y": 1440, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 76.ase",
+    "frame": { "x": 704, "y": 1440, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 77.ase",
+    "frame": { "x": 880, "y": 1440, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 78.ase",
+    "frame": { "x": 1056, "y": 1440, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 79.ase",
+    "frame": { "x": 1232, "y": 1440, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 80.ase",
+    "frame": { "x": 0, "y": 1600, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 81.ase",
+    "frame": { "x": 176, "y": 1600, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 82.ase",
+    "frame": { "x": 352, "y": 1600, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 83.ase",
+    "frame": { "x": 528, "y": 1600, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 84.ase",
+    "frame": { "x": 704, "y": 1600, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 85.ase",
+    "frame": { "x": 880, "y": 1600, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 86.ase",
+    "frame": { "x": 1056, "y": 1600, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   },
+   {
+    "filename": "forest-scenery 87.ase",
+    "frame": { "x": 1232, "y": 1600, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 120
+   }
+ ],
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.3",
+  "image": "public/assets/mundinho/forest-scenery.png",
+  "format": "RGBA8888",
+  "size": { "w": 1408, "h": 1760 },
+  "scale": "1"
+ }
+}

@@ -8,6 +8,8 @@ const assets = {};
 for (const file of [
   'forest.png',
   'forest-v2.png',
+  'forest-ground.png',
+  'forest-scenery.png',
   'hero-body.png',
   'hero-body-attack.png',
   'hero-outfit-attack.png',
@@ -25,7 +27,7 @@ for (const file of [
 ]) {
   const bytes = await readFile(path.resolve('public/assets/mundinho', file));
   assets[file] =
-    file.endsWith('.png') && file.startsWith('forest')
+    file.endsWith('.png') && file.startsWith('forest') && file !== 'forest-scenery.png'
       ? `data:image/webp;base64,${(await sharp(bytes).webp({ quality: 85 }).toBuffer()).toString('base64')}`
       : `data:${file.endsWith('.png') ? 'image/png' : 'image/svg+xml'};base64,${bytes.toString('base64')}`;
 }
