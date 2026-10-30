@@ -21,6 +21,7 @@ import { executeCode } from '@/lib/code-execution/server';
 import type { CodeRun } from './types';
 
 const avatarSchema = z.object({
+  gender: z.enum(['masculine', 'feminine']).optional(),
   skin: z.number().int().min(0).max(8),
   eyes: z.number().int().min(0).max(4),
   hair: z.number().int().min(0).max(5),

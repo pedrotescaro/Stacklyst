@@ -1,0 +1,56 @@
+[
+  {
+    "name": "portrait-body",
+    "width": 96,
+    "height": 112,
+    "frames": 18,
+    "source": "artifacts/mundinho/libresprite/portraits/portrait-body.ase",
+    "exporter": "LibreSprite 1.3",
+    "provenance": "Original layered pixel art; scripts/build-mundinho-portraits.mjs"
+  },
+  {
+    "name": "portrait-outfit",
+    "width": 96,
+    "height": 112,
+    "frames": 12,
+    "source": "artifacts/mundinho/libresprite/portraits/portrait-outfit.ase",
+    "exporter": "LibreSprite 1.3",
+    "provenance": "Original layered pixel art; scripts/build-mundinho-portraits.mjs"
+  },
+  {
+    "name": "portrait-eyes",
+    "width": 96,
+    "height": 112,
+    "frames": 10,
+    "source": "artifacts/mundinho/libresprite/portraits/portrait-eyes.ase",
+    "exporter": "LibreSprite 1.3",
+    "provenance": "Original layered pixel art; scripts/build-mundinho-portraits.mjs"
+  },
+  {
+    "name": "portrait-hair-back",
+    "width": 96,
+    "height": 112,
+    "frames": 6,
+    "source": "artifacts/mundinho/libresprite/portraits/portrait-hair-back.ase",
+    "exporter": "LibreSprite 1.3",
+    "provenance": "Original layered pixel art; scripts/build-mundinho-portraits.mjs"
+  },
+  {
+    "name": "portrait-hair",
+    "width": 96,
+    "height": 112,
+    "frames": 6,
+    "source": "artifacts/mundinho/libresprite/portraits/portrait-hair.ase",
+    "exporter": "LibreSprite 1.3",
+    "provenance": "Original layered pixel art; scripts/build-mundinho-portraits.mjs"
+  },
+  {
+    "name": "portrait-accessory",
+    "width": 96,
+    "height": 112,
+    "frames": 6,
+    "source": "artifacts/mundinho/libresprite/portraits/portrait-accessory.ase",
+    "exporter": "LibreSprite 1.3",
+    "provenance": "Original layered pixel art; scripts/build-mundinho-portraits.mjs"
+  }
+]

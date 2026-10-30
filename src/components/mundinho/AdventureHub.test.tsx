@@ -5,6 +5,7 @@ import { BattleAudio } from '../../lib/mundinho/battleAudio';
 import {
   DEFAULT_AVATAR,
   type AdventureState,
+  type Avatar,
   type AdventureTransport,
 } from '../../lib/mundinho/types';
 vi.mock('./World', () => ({
@@ -61,6 +62,119 @@ const openBattle = async (transport: AdventureTransport) => {
   fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
 };
 describe('Mundinho battle navigation', () => {
+  it('previews and saves the portrait silhouette with the existing wardrobe', async () => {
+    let saved = state(null);
+    const transport = vi.fn<AdventureTransport>().mockImplementation(async (action) => {
+      if (action?.type === 'avatar') saved = { ...saved, avatar: action.avatar as Avatar };
+      return saved;
+    });
+    render(<AdventureHub transport={transport} courses={[]} onCourse={() => {}} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Personalizar avatar' }));
+    const portrait = screen.getByRole('img', { name: 'Retrato de Jogador' });
+    expect(portrait).toHaveAttribute('data-silhouette', 'masculine');
+    fireEvent.click(screen.getByRole('radio', { name: 'Feminino' }));
+    expect(portrait).toHaveAttribute('data-silhouette', 'feminine');
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    await waitFor(() =>
+      expect(transport).toHaveBeenCalledWith({
+        type: 'avatar',
+        avatar: { ...DEFAULT_AVATAR, gender: 'feminine' },
+      })
+    );
+    expect(saved.avatar).toEqual({ ...DEFAULT_AVATAR, gender: 'feminine' });
+  });
+  it('moves the action cursor with WASD/arrows and submits only on confirmation', async () => {
+    const active = state('active');
+    let finish: (next: AdventureState) => void = () => {};
+    const transport = vi.fn<AdventureTransport>().mockImplementation((action) =>
+      action
+        ? new Promise((resolve) => {
+            finish = resolve;
+          })
+        : Promise.resolve(active)
+    );
+    await openBattle(transport);
+    const apply = screen.getByRole('button', { name: /^Aplicar conceito/ });
+    const debug = screen.getByRole('button', { name: /^Depurar/ });
+    const refactor = screen.getByRole('button', { name: /^Refatorar/ });
+    const heading = screen.getByRole('heading', { level: 1 });
+    fireEvent.keyDown(heading, { key: 'ArrowLeft' });
+    expect(refactor).toHaveFocus();
+    expect(refactor).toHaveAttribute('data-selected', 'true');
+    fireEvent.keyDown(refactor, { key: 'w' });
+    expect(debug).toHaveFocus();
+    fireEvent.keyDown(debug, { key: 'ArrowDown' });
+    expect(refactor).toHaveFocus();
+    fireEvent.keyDown(refactor, { key: 'd' });
+    expect(apply).toHaveFocus();
+    fireEvent.keyDown(apply, { key: 'd' });
+    expect(debug).toHaveFocus();
+    expect(transport.mock.calls.filter(([action]) => action)).toHaveLength(0);
+    fireEvent.keyDown(debug, { key: 'Enter' });
+    fireEvent.keyDown(debug, { key: 'Enter', repeat: true });
+    fireEvent.keyDown(debug, { key: 'ArrowRight' });
+    expect(debug).toBeDisabled();
+    expect(transport.mock.calls.filter(([action]) => action)).toHaveLength(1);
+    expect(transport).toHaveBeenCalledWith({
+      type: 'battle-skill',
+      battle: 'battle-id',
+      turn: 0,
+      skill: 'focus',
+    });
+    const question = structuredClone(active);
+    question.battle!.question = {
+      id: 'question',
+      concept: 'Laços',
+      prompt: 'Qual resultado?',
+      options: ['1', '2'],
+      difficulty: 'Fácil',
+    };
+    finish(question);
+    await screen.findByText('Qual resultado?');
+    fireEvent.keyDown(screen.getByText('Qual resultado?'), { key: 'd' });
+    expect(transport.mock.calls.filter(([action]) => action)).toHaveLength(1);
+    transport.mockResolvedValueOnce(active);
+    fireEvent.click(screen.getByRole('button', { name: 'A1' }));
+    await waitFor(() => expect(screen.getByRole('button', { name: /^Depurar/ })).toHaveFocus());
+  });
+  it('supports direct touch/click and leaves other controls outside command navigation', async () => {
+    const transport = vi.fn<AdventureTransport>().mockResolvedValue(state('active'));
+    await openBattle(transport);
+    const sound = screen.getByRole('button', { name: 'Silenciar sons do jogo' });
+    sound.focus();
+    expect(fireEvent.keyDown(sound, { key: 'ArrowRight' })).toBe(true);
+    expect(sound).toHaveFocus();
+    expect(screen.getByRole('button', { name: /^Aplicar conceito/ })).toHaveAttribute(
+      'data-selected',
+      'true'
+    );
+    fireEvent.click(screen.getByRole('button', { name: /^Refatorar/ }));
+    await waitFor(() =>
+      expect(transport).toHaveBeenCalledWith({
+        type: 'battle-skill',
+        battle: 'battle-id',
+        turn: 0,
+        skill: 'burst',
+      })
+    );
+    expect(transport.mock.calls.filter(([action]) => action)).toHaveLength(1);
+  });
+  it('exposes both health values to assistive technology and keeps their numeric labels', async () => {
+    const active = state('active');
+    active.battle!.hp = 47;
+    active.battle!.enemyHp = 12;
+    await openBattle(async () => active);
+    expect(screen.getByRole('progressbar', { name: 'Vida de Jogador' })).toHaveAttribute(
+      'aria-valuenow',
+      '47'
+    );
+    expect(screen.getByRole('progressbar', { name: 'Vida de Gosma de sintaxe' })).toHaveAttribute(
+      'aria-valuenow',
+      '12'
+    );
+    expect(screen.getByText('47 / 100 PV')).toBeInTheDocument();
+    expect(screen.getByText('12 / 100 PV')).toBeInTheDocument();
+  });
   it('saves and reloads an expanded hair color without changing the hairstyle', async () => {
     let saved = state(null);
     saved = { ...saved, avatar: { ...DEFAULT_AVATAR, hair: 1 } };
@@ -256,7 +370,7 @@ describe('Mundinho battle navigation', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Mover' }));
     fireEvent.click(screen.getByRole('button', { name: 'Voltar para a tela inicial' }));
     fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
-    const retreat = screen.getByRole('button', { name: 'Recuar para a clareira' });
+    const retreat = screen.getByRole('button', { name: 'Fugir' });
     fireEvent.click(retreat);
     fireEvent.click(retreat);
     await waitFor(() => expect(container.querySelector('.combat-flee')).toBeInTheDocument());
@@ -274,9 +388,9 @@ describe('Mundinho battle navigation', () => {
       return state('active');
     };
     await openBattle(transport);
-    fireEvent.click(screen.getByRole('button', { name: 'Recuar para a clareira' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Fugir' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Sem conexão');
-    expect(screen.getByRole('button', { name: 'Recuar para a clareira' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Fugir' })).toBeEnabled();
     expect(screen.queryByRole('region', { name: 'Clareira' })).not.toBeInTheDocument();
   });
   it('offers language only, with readable level requirements instead of creature selection', async () => {

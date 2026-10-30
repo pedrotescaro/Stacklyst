@@ -2,6 +2,28 @@
 
 A revisão preserva os commits anteriores, o atlas original de criaturas e as regras de recompensas. Duelos volta à navegação principal, imediatamente após Trilhas; sai do menu Mais. O item da navegação inferior móvel permanece disponível.
 
+## Diálogos e retratos — 30/10/2026
+
+A conversa com Ada usa uma barra preta na parte inferior, com nome, retrato próprio e três temas: combate, aparência e exploração. Cada escolha mostra a fala e o retrato do jogador antes da resposta de Ada. WASD/setas selecionam respostas, Enter/Espaço confirmam e Escape fecha. O movimento pausa durante o diálogo; fechar devolve o foco ao mapa. No celular, as respostas são botões de toque de pelo menos 44 px.
+
+Os retratos originais de 96 × 112 px são desenhos independentes do avatar pequeno, exportados pelo LibreSprite. As 58 camadas cobrem duas silhuetas, nove peles, cinco olhos, seis roupas, seis penteados (frente e fundo) e seis acessórios, incluindo chapéu. A coloração de cabelo acompanha a paleta existente. Fontes editáveis e catálogo: `artifacts/mundinho/libresprite/portraits/`; regeneração: `node scripts/build-mundinho-portraits.mjs`. Ada tem aparência fixa, independente do jogador.
+
+O editor exibe o retrato atualizado e permite selecionar Masculino/Feminino. O campo opcional `gender` é validado e salvo no JSON do avatar, preservando avatares antigos sem migração. A escolha define a silhueta do retrato; o corpo original de caminhada permanece preservado. Todas as peças existentes continuam compatíveis com ambas as silhuetas e mantêm suas regras de aquisição.
+
+Verificação: 25 testes nos quatro arquivos de diálogo, mundo, AdventureHub e repositório; quatro testes de cor de cabelo também passaram. Build de produção e tipos mobile passaram. Chromium conferiu 1280/390/320 px, três opções, alternância de falas, teclado/toque, restauração de foco, salvamento da silhueta e assets incorporados no HTML mobile offline. Capturas e relatório em `artifacts/mundinho/dialogue/`. São fixtures sintéticas, sem afirmar teste autenticado ou aparelho físico. A revisão independente ficou indisponível por limite de uso; revisão visual local substituiu essa etapa.
+
+## Interface pixel art e seleção de comandos — 30/10/2026
+
+Os indicadores de nível no mapa e os painéis de vida da batalha usam molduras com cantos em degraus, preenchimento segmentado e tons de luz/sombra. `PixelMeter` mantém o valor numérico e a semântica de progresso acessíveis. Vida alta usa verde; até 50 PV usa âmbar, e até 25 PV usa vermelho. O bloqueio por nível continua explícito em texto, separado da vida da criatura. As regras e os valores recebidos do servidor permanecem iguais.
+
+Textos da exploração e da batalha usam Pixelify Sans, incluindo os acentos em português. A fonte original e sua licença SIL OFL ficam em `public/assets/mundinho/pixelify-sans.ttf` e `LICENSE-Pixelify-Sans.txt`. Origem: [repositório oficial no Google Fonts](https://github.com/google/fonts/tree/main/ofl/pixelifysans). O bundle mobile incorpora a fonte em data URL e inclui a licença, sem depender de um serviço externo. Conteúdo de código continua monoespaçado.
+
+No seletor de ações, WASD e as quatro setas movem o cursor entre Aplicar conceito, Depurar e Refatorar, com retorno circular nas pontas; Home/End escolhem a primeira/última opção. Enter ou Espaço confirmam. Apenas mover o cursor não envia uma ação. O foco retorna ao comando selecionado quando a pergunta termina. O jogo não intercepta atalhos nos demais controles, perguntas ou editores. Ações ficam desabilitadas durante o envio.
+
+No celular, os comandos aparecem em linhas com alvos de toque grandes e descrições completas; tocar executa diretamente. A dica de teclado fica oculta no dispositivo de toque. O botão de saída passou a se chamar **Fugir**, preservando a validação no servidor, a animação e o retorno à posição anterior na clareira.
+
+Validação local: 20 testes passaram, incluindo navegação circular, confirmação única, toque/clique, foco após a pergunta, valores acessíveis e fuga. Tipos mobile e build web passaram. Prévia sintética em Chromium conferiu desktop, 390 px, 320 px e o HTML offline mobile: fonte carregada, ausência de overflow/erros JS, navegação sem envio prematuro e retorno ao mapa. Capturas e relatório em `artifacts/mundinho/rpg-ui/`. Não representa sessão autenticada nem teste em aparelho físico.
+
 ## Casa, árvores, lago e flores — 30/10/2026
 
 Os quatro grupos foram refeitos como pixel art original, salvos em documentos nativos com camadas e exportados pelo LibreSprite 1.3. As fontes estão em `artifacts/mundinho/libresprite/environment/`, com manifesto e metadados dos PNGs. Prancha ampliada: `artifacts/mundinho/environment-review.png`.

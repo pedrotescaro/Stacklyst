@@ -1,0 +1,57 @@
+{
+  "results": [
+    {
+      "name": "desktop",
+      "overflow": false,
+      "panelOverflow": false,
+      "black": "rgb(0, 0, 0)",
+      "choices": 3,
+      "targets": true,
+      "withinViewport": true,
+      "position": {
+        "x": 680,
+        "y": 260
+      },
+      "resumed": true,
+      "saved": "feminine"
+    },
+    {
+      "name": "mobile",
+      "overflow": false,
+      "panelOverflow": false,
+      "black": "rgb(0, 0, 0)",
+      "choices": 3,
+      "targets": true,
+      "withinViewport": true,
+      "position": {
+        "x": 680,
+        "y": 260
+      },
+      "resumed": true,
+      "saved": "feminine"
+    },
+    {
+      "name": "mobile-small",
+      "overflow": false,
+      "panelOverflow": false,
+      "black": "rgb(0, 0, 0)",
+      "choices": 3,
+      "targets": true,
+      "withinViewport": true,
+      "position": {
+        "x": 680,
+        "y": 260
+      },
+      "resumed": true,
+      "saved": "feminine"
+    },
+    {
+      "name": "native-offline",
+      "silhouette": "feminine",
+      "bundled": true,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "failed": []
+}

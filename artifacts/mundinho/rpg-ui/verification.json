@@ -1,0 +1,77 @@
+{
+  "results": [
+    {
+      "name": "desktop",
+      "overflow": false,
+      "fontLoaded": true,
+      "hint": "block",
+      "meters": [
+        {
+          "label": "Vida de Gosma de sintaxe",
+          "value": "42",
+          "height": 12
+        },
+        {
+          "label": "Vida de killua",
+          "value": "78",
+          "height": 12
+        }
+      ],
+      "cursor": "Depurar18 de dano · recupera 20 de vida",
+      "chosen": "focus",
+      "restored": "Depurar18 de dano · recupera 20 de vida",
+      "fled": true
+    },
+    {
+      "name": "mobile",
+      "overflow": false,
+      "fontLoaded": true,
+      "hint": "none",
+      "meters": [
+        {
+          "label": "Vida de Gosma de sintaxe",
+          "value": "42",
+          "height": 12
+        },
+        {
+          "label": "Vida de killua",
+          "value": "78",
+          "height": 12
+        }
+      ],
+      "cursor": "Aplicar conceito30 de dano",
+      "chosen": "burst",
+      "restored": "Refatorar45 de dano · recebe 8 de desgaste",
+      "fled": true
+    },
+    {
+      "name": "mobile-small",
+      "overflow": false,
+      "fontLoaded": true,
+      "hint": "none",
+      "meters": [
+        {
+          "label": "Vida de Gosma de sintaxe",
+          "value": "42",
+          "height": 12
+        },
+        {
+          "label": "Vida de killua",
+          "value": "78",
+          "height": 12
+        }
+      ],
+      "cursor": "Aplicar conceito30 de dano",
+      "chosen": "burst",
+      "restored": "Refatorar45 de dano · recebe 8 de desgaste",
+      "fled": true
+    },
+    {
+      "name": "native-offline",
+      "fontLoaded": true,
+      "overflow": false
+    }
+  ],
+  "errors": [],
+  "failed": []
+}

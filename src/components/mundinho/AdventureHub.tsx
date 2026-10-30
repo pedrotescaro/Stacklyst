@@ -1,6 +1,14 @@
 'use client';
 
-import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -52,6 +60,8 @@ import { WORLD } from '../../lib/mundinho/world';
 import { Coin, HAIR, OUTFIT, PixelAvatar, PixelCreature, SKIN } from './PixelArt';
 import './mundinho.css';
 import { adventureAsset } from './assets';
+import { PixelMeter } from './PixelMeter';
+import { Portrait } from './Portrait';
 
 const World = lazy(() => import('./World'));
 const hairColors = [
@@ -147,6 +157,8 @@ export function AdventureHub({
   const [attackEffect, setAttackEffect] = useState('strike');
   const [incomingDamage, setIncomingDamage] = useState(0);
   const [healing, setHealing] = useState(0);
+  const [selectedSkill, setSelectedSkill] = useState(0);
+  const skillButtons = useRef<(HTMLButtonElement | null)[]>([]);
   const [battleAudio] = useState(() => new BattleAudio());
   const [soundEnabled, setSoundEnabled] = useState(true);
   useEffect(() => {
@@ -198,7 +210,7 @@ export function AdventureHub({
 
   // Avatar Editor State
   const [draft, setDraft] = useState<Avatar>(DEFAULT_AVATAR);
-  const [category, setCategory] = useState<Exclude<keyof Avatar, 'hairTint'>>('skin');
+  const [category, setCategory] = useState<Exclude<keyof Avatar, 'hairTint' | 'gender'>>('skin');
   const [direction, setDirection] = useState(0); // 0: down, 1: right, 2: up, 3: left
   const [confirm, setConfirm] = useState<string | null>(null);
 
@@ -242,6 +254,7 @@ export function AdventureHub({
     setError('');
     setNotice('');
     setConfirm(null);
+    if (next === 'battle') setSelectedSkill(0);
     if (next === 'avatar' && data) {
       setDraft(data.avatar);
     }
@@ -304,7 +317,7 @@ export function AdventureHub({
       if (action.type === 'battle-start') battleAudio.play('encounter');
       if (action.type === 'battle-flee') {
         if (next.battle?.status !== 'fled')
-          throw new Error('Não foi possível recuar. Tente novamente.');
+          throw new Error('Não foi possível fugir. Tente novamente.');
         battleAudio.play('flee');
         setCombatPhase('flee');
         if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches)
@@ -357,6 +370,13 @@ export function AdventureHub({
     CREATURES.find((c) => c.id === creature) ??
     CREATURES[0];
   const equippedAvatar = data?.avatar ?? DEFAULT_AVATAR;
+  const choosingSkill = view === 'battle' && battle?.status === 'active' && !battle.question;
+  useEffect(() => {
+    if (!choosingSkill || busy) return;
+    const focused = document.activeElement;
+    if (!focused || focused === document.body || focused === heading.current)
+      skillButtons.current[selectedSkill]?.focus({ preventScroll: true });
+  }, [choosingSkill, busy, selectedSkill]);
   useEffect(() => {
     battleAudio.setBattle(view === 'battle' && battle?.status === 'active');
     battleAudio.setWorld(view === 'world');
@@ -392,11 +412,56 @@ export function AdventureHub({
     if (next) go('battle');
   };
 
+  const handleBattleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+    if (
+      view !== 'battle' ||
+      battle?.status !== 'active' ||
+      battle.question ||
+      busy ||
+      event.altKey ||
+      event.ctrlKey ||
+      event.metaKey
+    )
+      return;
+    const target = event.target instanceof Element ? event.target : null;
+    if (target?.closest('input, textarea, select, [contenteditable="true"], [role="textbox"]'))
+      return;
+    const button = target?.closest('button');
+    if (button && !button.classList.contains('ad-skill-card-btn')) return;
+    const key = event.key.toLowerCase();
+    const previous = ['arrowleft', 'arrowup', 'a', 'w'].includes(key);
+    const next = ['arrowright', 'arrowdown', 'd', 's'].includes(key);
+    if (previous || next || key === 'home' || key === 'end') {
+      event.preventDefault();
+      event.stopPropagation();
+      const index =
+        key === 'home'
+          ? 0
+          : key === 'end'
+            ? SKILLS.length - 1
+            : (selectedSkill + (previous ? -1 : 1) + SKILLS.length) % SKILLS.length;
+      setSelectedSkill(index);
+      skillButtons.current[index]?.focus({ preventScroll: true });
+      battleAudio.play('select');
+    } else if (key === 'enter' || key === ' ') {
+      event.preventDefault();
+      event.stopPropagation();
+      if (event.repeat) return;
+      void act({
+        type: 'battle-skill',
+        battle: battle.id,
+        turn: battle.turn,
+        skill: SKILLS[selectedSkill].id,
+      });
+    }
+  };
+
   return (
     <div
       className={`adventure adventure-${view}`}
       onPointerDownCapture={() => battleAudio.unlock()}
       onKeyDownCapture={() => battleAudio.unlock()}
+      onKeyDown={handleBattleKeyDown}
     >
       {/* HEADER BAR */}
       <header className="ad-page-heading">
@@ -976,6 +1041,41 @@ export function AdventureHub({
             </button>
           </div>
 
+          <section className="ad-portrait-editor" aria-label="Retrato de diálogo">
+            <Portrait
+              avatar={draft}
+              name={data?.username ?? 'Seu personagem'}
+              assetBase={assetBase}
+            />
+            <div>
+              <h2>Seu retrato nas conversas</h2>
+              <p>Pele, olhos, cabelo, roupas e acessórios acompanham suas escolhas.</p>
+              <fieldset className="ad-gender-picker">
+                <legend>Gênero do personagem</legend>
+                {(
+                  [
+                    { value: 'masculine', label: 'Masculino' },
+                    { value: 'feminine', label: 'Feminino' },
+                  ] as const
+                ).map((option) => (
+                  <label key={option.value}>
+                    <input
+                      type="radio"
+                      name="portrait-gender"
+                      value={option.value}
+                      checked={(draft.gender ?? 'masculine') === option.value}
+                      onChange={() => setDraft({ ...draft, gender: option.value })}
+                    />
+                    {option.label}
+                  </label>
+                ))}
+              </fieldset>
+              <p className="ad-portrait-note">
+                Define a silhueta do retrato. Todas as peças podem ser usadas nas duas opções.
+              </p>
+            </div>
+          </section>
+
           {/* Category Tabs (Matching Image 4) */}
           <div className="ad-category-tabs-row" role="tablist">
             {[
@@ -990,7 +1090,7 @@ export function AdventureHub({
                 role="tab"
                 aria-selected={category === tab.id}
                 className={`ad-category-tab ${category === tab.id ? 'is-selected' : ''}`}
-                onClick={() => setCategory(tab.id as Exclude<keyof Avatar, 'hairTint'>)}
+                onClick={() => setCategory(tab.id as Exclude<keyof Avatar, 'hairTint' | 'gender'>)}
               >
                 {tab.label}
               </button>
@@ -1157,7 +1257,7 @@ export function AdventureHub({
                           ? 'Pode enfrentar'
                           : `Requer nível ${c.level}`}
                       </span>
-                      <progress aria-label={`Vida de ${c.name}`} value={100} max={100} />
+                      <PixelMeter label={`Vida de ${c.name}`} value={100} compact />
                     </div>
                   </article>
                 ))}
@@ -1181,12 +1281,7 @@ export function AdventureHub({
                     <small className="ad-combatant-meta">
                       Nível {opponent.level} · {LANGUAGE_NAMES[battle.language]}
                     </small>
-                    <div className="ad-combatant-hp-bar">
-                      <div
-                        className="ad-hp-fill"
-                        style={{ width: `${Math.max(0, battle.enemyHp)}%` }}
-                      />
-                    </div>
+                    <PixelMeter value={battle.enemyHp} label={`Vida de ${opponent.name}`} />
                     <span className="ad-hp-number">{battle.enemyHp} / 100 PV</span>
                   </div>
                   <div className="battle-sprite battle-sprite-enemy">
@@ -1256,12 +1351,10 @@ export function AdventureHub({
                   <div className="ad-combatant-card">
                     <span className="ad-combatant-name">{data?.username}</span>
                     <small className="ad-combatant-meta">Nível {xp.level}</small>
-                    <div className="ad-combatant-hp-bar">
-                      <div
-                        className="ad-hp-fill is-player"
-                        style={{ width: `${Math.max(0, battle.hp)}%` }}
-                      />
-                    </div>
+                    <PixelMeter
+                      value={battle.hp}
+                      label={`Vida de ${data?.username ?? 'jogador'}`}
+                    />
                     <span className="ad-hp-number">{battle.hp} / 100 PV</span>
                   </div>
                 </div>
@@ -1271,7 +1364,7 @@ export function AdventureHub({
               <div className="ad-battle-bottom-console">
                 <p className="ad-battle-narrative" role="status" aria-live="polite">
                   {combatPhase === 'flee'
-                    ? 'Você recuou. Voltando para a clareira…'
+                    ? 'Você fugiu. Voltando para a clareira…'
                     : battle.feedback}
                 </p>
 
@@ -1324,27 +1417,44 @@ export function AdventureHub({
                       </div>
                     </div>
                   ) : (
-                    <div className="ad-skills-grid">
-                      {SKILLS.map((skill) => (
-                        <button
-                          key={skill.id}
-                          disabled={busy}
-                          className="ad-skill-card-btn"
-                          onClick={() =>
-                            void act({
-                              type: 'battle-skill',
-                              battle: battle.id,
-                              turn: battle.turn,
-                              skill: skill.id,
-                            })
-                          }
-                        >
-                          <Swords size={20} className="text-amber-400" />
-                          <strong>{skill.name}</strong>
-                          <small>{skill.description}</small>
-                        </button>
-                      ))}
-                    </div>
+                    <>
+                      <div
+                        className="ad-skills-grid"
+                        role="toolbar"
+                        aria-label="Ações de batalha"
+                        aria-orientation="horizontal"
+                      >
+                        {SKILLS.map((skill, index) => (
+                          <button
+                            key={skill.id}
+                            disabled={busy}
+                            className="ad-skill-card-btn"
+                            ref={(element) => {
+                              skillButtons.current[index] = element;
+                            }}
+                            tabIndex={selectedSkill === index ? 0 : -1}
+                            data-selected={selectedSkill === index}
+                            onFocus={() => setSelectedSkill(index)}
+                            onClick={() => {
+                              setSelectedSkill(index);
+                              void act({
+                                type: 'battle-skill',
+                                battle: battle.id,
+                                turn: battle.turn,
+                                skill: skill.id,
+                              });
+                            }}
+                          >
+                            <span className="rpg-selection-cursor" aria-hidden="true" />
+                            <strong>{skill.name}</strong>
+                            <small>{skill.description}</small>
+                          </button>
+                        ))}
+                      </div>
+                      <p className="rpg-command-hint">
+                        WASD / setas: selecionar · Enter / Espaço: confirmar
+                      </p>
+                    </>
                   )
                 ) : (
                   <div className="ad-battle-end-card">
@@ -1375,7 +1485,7 @@ export function AdventureHub({
                     disabled={busy}
                     onClick={() => void act({ type: 'battle-flee', battle: battle.id })}
                   >
-                    Recuar para a clareira
+                    Fugir
                   </button>
                 )}
               </div>

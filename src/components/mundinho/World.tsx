@@ -8,9 +8,8 @@ import {
   Moon,
   Shield,
   Swords,
-  X,
 } from 'lucide-react';
-import { CREATURES, type Avatar } from '../../lib/mundinho/types';
+import { ADA_AVATAR, CREATURES, type Avatar } from '../../lib/mundinho/types';
 import {
   movementDirection,
   movePlayer,
@@ -21,6 +20,8 @@ import {
 } from '../../lib/mundinho/world';
 import { PixelAvatar, PixelCreature } from './PixelArt';
 import { HabitatSprite, WorldPropSprite } from './ScenerySprites';
+import { PixelMeter } from './PixelMeter';
+import { WorldDialogue } from './WorldDialogue';
 import { adventureAsset } from './assets';
 import { TouchStick } from './TouchStick';
 import { canChallengeCreature } from '../../lib/mundinho/rules';
@@ -67,21 +68,30 @@ export default function World({
   );
   const [showMap, setShowMap] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const paused = useRef(false);
+  paused.current = Boolean(dialogue || showGuide);
+  const closeDialogue = () => {
+    setDialogue(null);
+    keys.current.clear();
+    stick.current = { x: 0, y: 0 };
+    viewport.current?.focus({ preventScroll: true });
+  };
 
   const visibleCreatures = CREATURES.filter((_, i) => (clock + i * 7) % 64 < 52);
   const targets = [...visibleCreatures, ...WORLD_OBJECTS];
   const nearest = targets.find((e) => Math.hypot(e.x - pose.x, e.y - pose.y) < 55);
   const isCreature = nearest && CREATURES.some((c) => c.id === nearest.id);
 
-  const interaction = useRef<() => void>(() => {});
+  const interaction = useRef<(objectId?: string) => void>(() => {});
   useEffect(() => {
-    interaction.current = () => {
-      if (!nearest) {
+    interaction.current = (objectId) => {
+      const target = objectId ? WORLD_OBJECTS.find((object) => object.id === objectId) : nearest;
+      if (!target || Math.hypot(target.x - player.current.x, target.y - player.current.y) >= 55) {
         setDialogue('Aproxime-se de uma criatura, da placa, do baú ou da Ada para interagir.');
         return;
       }
-      if (CREATURES.some((c) => c.id === nearest.id)) {
-        const creature = CREATURES.find((c) => c.id === nearest.id)!;
+      if (CREATURES.some((c) => c.id === target.id)) {
+        const creature = CREATURES.find((c) => c.id === target.id)!;
         if (!canChallengeCreature(playerLevel, creature.level)) {
           setDialogue(
             `${creature.name} · nível ${creature.level}. Você está no nível ${playerLevel}. Continue suas lições para poder enfrentá-la.`
@@ -90,16 +100,16 @@ export default function World({
         }
         keys.current.clear();
         stick.current = { x: 0, y: 0 };
-        onEncounter(nearest.id);
-      } else if (nearest.id === 'guide') {
-        setDialogue(
-          'Ada: "Cada erro de programação é apenas uma hipótese descartada. Nas batalhas, use habilidades de conceitos para desarmar os bugs!"'
-        );
-      } else if (nearest.id === 'sign') {
+        onEncounter(target.id);
+      } else if (target.id === 'guide') {
+        keys.current.clear();
+        stick.current = { x: 0, y: 0 };
+        setDialogue('ada');
+      } else if (target.id === 'sign') {
         setDialogue(
           'Placa: "Dica: Em Python ou JavaScript, compreenda a condição de parada antes de iniciar qualquer repetição."'
         );
-      } else if (nearest.id === 'chest') {
+      } else if (target.id === 'chest') {
         void onChest()
           .then(() =>
             setDialogue(
@@ -135,6 +145,10 @@ export default function World({
       if (target?.closest('input, textarea, select, a, [contenteditable="true"]')) return;
       if (target && target !== document.body && !el.closest('.adventure')?.contains(target)) return;
       const key = e.key.toLowerCase();
+      if (paused.current) {
+        if (controls.has(key)) e.preventDefault();
+        return;
+      }
       if (controls.has(key)) {
         e.preventDefault();
         keys.current.add(key);
@@ -161,6 +175,10 @@ export default function World({
     const tick = (time: number) => {
       const dt = Math.min((time - previous) / 1000, 0.04);
       previous = time;
+      if (paused.current) {
+        keys.current.clear();
+        stick.current = { x: 0, y: 0 };
+      }
       const held = keys.current;
 
       let dx =
@@ -202,7 +220,7 @@ export default function World({
     };
 
     frame = requestAnimationFrame(tick);
-    el.focus();
+    if (!paused.current) el.focus();
 
     return () => {
       observer.disconnect();
@@ -291,6 +309,7 @@ export default function World({
         {/* 2D TILEMAP & ENTITIES (Using LibreSprite exported scenery) */}
         <div
           className="world-map"
+          inert={Boolean(dialogue || showGuide)}
           style={{
             width: WORLD.width,
             height: WORLD.height,
@@ -342,31 +361,35 @@ export default function World({
                 className={`world-creature-level ${canChallengeCreature(playerLevel, c.level) ? '' : 'is-locked'}`}
                 aria-label={`${c.name}, nível ${c.level}. ${canChallengeCreature(playerLevel, c.level) ? 'Pode enfrentar' : 'Nível insuficiente'}`}
               >
-                Nv. {c.level}
-                {!canChallengeCreature(playerLevel, c.level) && ' · Bloqueado'}
-                <span className="world-creature-life" />
+                <span className="world-creature-label">
+                  <span>Nv. {c.level}</span>
+                  {!canChallengeCreature(playerLevel, c.level) && <span>Bloqueado</span>}
+                </span>
+                <PixelMeter value={100} label={`Vida de ${c.name}`} compact />
               </span>
               <PixelCreature color={c.color} kind={c.id} />
             </div>
           ))}
 
           {WORLD_OBJECTS.map((o) => (
-            <div
+            <button
+              type="button"
+              aria-label={o.id === 'guide' ? 'Conversar com Ada' : o.name}
               key={o.id}
               className="world-entity world-object"
               style={{ left: o.x, top: o.y, zIndex: worldDepth(o.y) }}
-              onClick={() => interaction.current()}
+              onClick={() => interaction.current(o.id)}
             >
               <span className="world-entity-badge">{o.name}</span>
               {o.id === 'guide' ? (
-                <PixelAvatar avatar={{ ...avatar, hairColor: 3, hairTint: undefined, outfit: 1 }} />
+                <PixelAvatar avatar={ADA_AVATAR} />
               ) : (
                 <WorldPropSprite
                   kind={o.id === 'chest' ? 'chest' : 'signpost'}
                   assetBase={assetBase}
                 />
               )}
-            </div>
+            </button>
           ))}
 
           {/* Player with Floating Username Tag (Matching Image 3) */}
@@ -379,18 +402,16 @@ export default function World({
           </div>
         </div>
 
-        {/* DIALOGUE BUBBLE */}
         {dialogue && (
-          <div className="world-dialogue-card" role="status">
-            <p>{dialogue}</p>
-            <button
-              aria-label="Fechar diálogo"
-              className="world-dialogue-close"
-              onClick={() => setDialogue(null)}
-            >
-              <X size={15} />
-            </button>
-          </div>
+          <WorldDialogue
+            key={dialogue}
+            text={dialogue}
+            conversation={dialogue === 'ada'}
+            avatar={avatar}
+            username={username}
+            assetBase={assetBase}
+            onClose={closeDialogue}
+          />
         )}
 
         {/* GUIDE MODAL */}
@@ -416,7 +437,7 @@ export default function World({
         )}
 
         {/* CONTROLS (D-Pad + Sword Button, Matching Image 3) */}
-        <div className="world-controls">
+        <div className="world-controls" hidden={Boolean(dialogue || showGuide)}>
           <TouchStick
             onMove={(x, y) => {
               stick.current = { x, y };

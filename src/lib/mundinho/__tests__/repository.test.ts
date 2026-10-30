@@ -69,6 +69,22 @@ beforeEach(() => {
   };
 });
 describe('Server encounter rules', () => {
+  it('persists either portrait silhouette, accepts legacy avatars and rejects invalid values', async () => {
+    for (const gender of ['masculine', 'feminine'] as const) {
+      const avatar = { ...DEFAULT_AVATAR, gender };
+      const parsed = actionSchema.parse({ type: 'avatar', avatar });
+      await adventure('user', parsed);
+      expect(db.tx.rpgPlayer.update).toHaveBeenLastCalledWith({
+        where: { userId: 'user' },
+        data: { avatar },
+      });
+    }
+    expect(actionSchema.safeParse({ type: 'avatar', avatar: DEFAULT_AVATAR }).success).toBe(true);
+    expect(
+      actionSchema.safeParse({ type: 'avatar', avatar: { ...DEFAULT_AVATAR, gender: 'invalid' } })
+        .success
+    ).toBe(false);
+  });
   it('persists an expanded hair tint while accepting unchanged legacy avatars', async () => {
     const avatar = { ...DEFAULT_AVATAR, hairColor: 3, hairTint: '#2563eb' };
     expect(actionSchema.parse({ type: 'avatar', avatar })).toMatchObject({
