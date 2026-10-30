@@ -359,7 +359,7 @@ export default function NotificationsPage() {
                             {identity.flags?.map((flag) => (
                               <ProfileFlag code={flag} key={flag} />
                             ))}
-                            <ProfileTitle title={identity.title} backgrounds={backgrounds} />
+                            <ProfileTitle title={identity.title} />
                           </span>{' '}
                         </>
                       )}

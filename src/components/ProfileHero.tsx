@@ -174,10 +174,7 @@ export function ProfileHero({
             </h1>
             <LevelBadge totalXp={profile.total_xp} className="text-[10px]" />
             <ProfileFlag code={identity.flag} />
-            <ProfileTitle
-              title={identity.title}
-              background={preferences?.appearance.backgroundColor}
-            />
+            <ProfileTitle title={identity.title} />
           </div>
           <p className="mt-1 text-sm font-bold text-dd-muted">@{profile.username}</p>
           <p className="mt-2 flex items-center gap-2 text-sm font-semibold text-dd-muted">

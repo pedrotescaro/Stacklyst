@@ -14,7 +14,13 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { getProfileFlags } from '@/lib/profile-customization';
-import { readProfileIdentity, readableColor, type ProfileIdentityStyle } from '@/lib/profile-style';
+import {
+  contrastRatio,
+  foregroundOn,
+  readProfileIdentity,
+  readableColor,
+  type ProfileIdentityStyle,
+} from '@/lib/profile-style';
 import styles from './ProfileIdentity.module.css';
 
 type IdentityBackgrounds = { light: string; dark: string };
@@ -220,16 +226,10 @@ export function ProfileFlag({ code }: { code: string | null | undefined }) {
   ) : null;
 }
 
-export function ProfileTitle({
-  title,
-  background,
-  backgrounds,
-}: {
-  title?: ProfileIdentityStyle['title'];
-  background?: string | null;
-  backgrounds?: IdentityBackgrounds;
-}) {
+export function ProfileTitle({ title }: { title?: ProfileIdentityStyle['title'] }) {
   if (!title) return null;
+  const foreground = foregroundOn(title.color);
+  const textColor = contrastRatio(foreground, title.color) >= 4.5 ? foreground : '#000000';
   const isBeginner = title.id === 'posts-1' || title.name.trim().toLowerCase() === 'iniciante';
   const Icon =
     (
@@ -247,15 +247,9 @@ export function ProfileTitle({
     )[title.icon || (title.id === 'posts-1' ? 'sprout' : 'award')] || Award;
   return (
     <span
-      className={`${styles.title} ${styles.name}`}
+      className={styles.title}
       data-rarity={title.rarity}
-      style={
-        {
-          '--name-light': readableColor(title.color, backgrounds?.light ?? '#ffffff'),
-          '--name-dark': readableColor(title.color, backgrounds?.dark ?? '#000000'),
-          ...(background ? { color: readableColor(title.color, background) } : {}),
-        } as CSSProperties
-      }
+      style={{ backgroundColor: title.color, color: textColor }}
     >
       {!isBeginner && <Icon size={13} aria-hidden="true" />}
       {title.name}

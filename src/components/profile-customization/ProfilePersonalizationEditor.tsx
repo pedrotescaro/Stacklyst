@@ -274,7 +274,7 @@ function Preview({
           </p>
           <div className={styles.previewMeta}>
             {flag && <img src={flag.imageUrl} alt={flag.label} />}
-            {title && <ProfileTitle title={title} background={background} />}
+            {title && <ProfileTitle title={title} />}
           </div>
           <p className={styles.previewMuted}>@{user.username}</p>
           <div

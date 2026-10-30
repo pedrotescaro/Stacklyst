@@ -917,7 +917,7 @@ export function SocialProfileOverview({
               <ProfileFlag key={flag} code={flag} />
             ))}
           </span>
-          {title && <ProfileTitle title={title} background={background} />}
+          {title && <ProfileTitle title={title} />}
           {editing && (
             <ContextPopover
               label="Escolher bandeiras"
