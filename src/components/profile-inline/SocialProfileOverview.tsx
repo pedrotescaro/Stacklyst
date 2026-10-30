@@ -30,7 +30,7 @@ import {
   Type,
   X,
 } from 'lucide-react';
-import { FollowButton } from '@/components/motion/FollowButton';
+import { ProfileActions } from './ProfileActions';
 import {
   AvatarFrame,
   ProfileFlag,
@@ -693,7 +693,7 @@ export function SocialProfileOverview({
         )}
       </div>
       <div className={styles.body}>
-        <div className={styles.avatarRow}>
+        <div className={`${styles.avatarRow} ${!isOwner ? styles.visitorAvatarRow : ''}`}>
           <AvatarFrame frame={frame} className={styles.avatar}>
             {activeAvatar ? (
               <img src={activeAvatar} alt={`Foto de ${profile.username}`} />
@@ -729,7 +729,7 @@ export function SocialProfileOverview({
               </ContextPopover>
             </div>
           )}
-          <div className={styles.actions}>
+          <div className={`${styles.actions} ${!isOwner ? styles.visitorActions : ''}`}>
             {editing && (
               <ContextPopover
                 label="Escolher moldura"
@@ -835,14 +835,13 @@ export function SocialProfileOverview({
                 </button>
               )
             ) : (
-              <>
-                <FollowButton isFollowing={following} onToggle={onFollowToggle} />
-                {onChallenge && (
-                  <button type="button" className={styles.button} onClick={onChallenge}>
-                    Desafiar
-                  </button>
-                )}
-              </>
+              <ProfileActions
+                userId={profile.id}
+                username={profile.username}
+                following={following}
+                onFollowToggle={onFollowToggle}
+                onChallenge={onChallenge}
+              />
             )}
           </div>
         </div>

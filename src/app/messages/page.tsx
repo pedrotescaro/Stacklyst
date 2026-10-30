@@ -1,9 +1,14 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { Suspense, useState, useEffect, useRef } from 'react';
 import { usePrivateChat } from '@/hooks/usePrivateChat';
 import { privateChatStyle } from '@/lib/profile-style';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
+import {
+  createConversation,
+  resolveProfileConversation,
+  type ChatItem,
+} from '@/lib/chat-conversations';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createClient } from '@/lib/supabase/client';
@@ -66,18 +71,6 @@ export interface MessageReactionItem {
   };
 }
 
-interface ChatItem {
-  partnerId: string;
-  lastMessage: string;
-  lastMessageTime: string;
-  lastSenderId: string;
-  partner: {
-    id: string;
-    username: string;
-    avatar_url: string | null;
-  };
-}
-
 interface Message {
   id: string;
   sender_id: string;
@@ -98,7 +91,23 @@ interface UserListItem {
 
 export default function MessagesPage() {
   const { text } = useLocalizedText();
+  return (
+    <Suspense
+      fallback={
+        <main role="status" className="min-h-svh bg-dd-bg p-8 text-dd-text">
+          {text('Carregando conversas…', 'Loading conversations…')}
+        </main>
+      }
+    >
+      <MessagesContent />
+    </Suspense>
+  );
+}
+
+function MessagesContent() {
+  const { text } = useLocalizedText();
   const router = useRouter();
+  const requestedUsername = useSearchParams().get('to')?.trim() || '';
   const [user, setUser] = useState<any>(null);
   const privateChat = usePrivateChat(user?.id);
 
@@ -203,9 +212,35 @@ export default function MessagesPage() {
 
         const chatData = resChats.ok ? await resChats.json() : [];
 
+        let requestedChat: ChatItem | null = null;
+        if (requestedUsername) {
+          try {
+            requestedChat = await resolveProfileConversation(
+              requestedUsername,
+              userData.id,
+              chatData,
+              controller.signal
+            );
+          } catch {
+            if (!active || controller.signal.aborted) return;
+            setToastMessage(
+              text(
+                'Não foi possível abrir esta conversa. O perfil pode estar indisponível. Tente novamente.',
+                'Could not open this conversation. The profile may be unavailable. Try again.'
+              )
+            );
+          }
+        }
+
         if (!active) return;
         setUser(userData);
-        setChats(chatData);
+        setChats(
+          requestedChat &&
+            !chatData.some((chat: ChatItem) => chat.partnerId === requestedChat.partnerId)
+            ? [requestedChat, ...chatData]
+            : chatData
+        );
+        if (requestedUsername) setActiveChat(requestedChat);
       } catch (err) {
         if ((err as Error).name === 'AbortError') return;
         console.error('Error fetching messages page data:', err);
@@ -220,7 +255,7 @@ export default function MessagesPage() {
       active = false;
       controller.abort();
     };
-  }, [router]);
+  }, [router, requestedUsername, text]);
 
   // Fetch message history for active chat
   useEffect(() => {
@@ -761,17 +796,7 @@ export default function MessagesPage() {
       setActiveChat(existingChat);
     } else {
       // Create a temporary ChatItem structure to mount
-      const tempChat: ChatItem = {
-        partnerId: targetUser.id,
-        lastMessage: '',
-        lastMessageTime: new Date().toISOString(),
-        lastSenderId: user?.id || '',
-        partner: {
-          id: targetUser.id,
-          username: targetUser.username,
-          avatar_url: targetUser.avatar_url,
-        },
-      };
+      const tempChat = createConversation(targetUser, user?.id || '');
       setChats((prev) => [tempChat, ...prev]);
       setActiveChat(tempChat);
     }

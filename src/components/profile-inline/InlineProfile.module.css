@@ -71,6 +71,12 @@
   justify-content: flex-end;
   padding-top: 80px;
 }
+.visitorAvatarRow {
+  column-gap: 8px;
+}
+.visitorActions {
+  flex-wrap: nowrap;
+}
 .button,
 .primary,
 .iconButton,
@@ -810,5 +816,17 @@
   .skeleton {
     animation: none;
     transition: none;
+  }
+}
+@media (max-width: 360px) {
+  .visitorAvatarRow {
+    margin-top: -36px;
+  }
+  .visitorAvatarRow .avatar {
+    width: 72px;
+    height: 72px;
+  }
+  .visitorActions {
+    padding-top: 48px;
   }
 }

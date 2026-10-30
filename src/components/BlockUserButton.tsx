@@ -11,16 +11,22 @@ export function BlockUserButton({
   blocked = false,
   onChanged,
   className = '',
+  initialConfirming = false,
+  confirmationTitleId,
+  onCancel,
 }: {
   userId: string;
   username: string;
   blocked?: boolean;
   onChanged?: (blocked: boolean) => void;
   className?: string;
+  initialConfirming?: boolean;
+  confirmationTitleId?: string;
+  onCancel?: () => void;
 }) {
   const { text } = useLocalizedText();
   const router = useRouter();
-  const [confirming, setConfirming] = useState(false);
+  const [confirming, setConfirming] = useState(initialConfirming);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
 
@@ -58,7 +64,7 @@ export function BlockUserButton({
     <div className="min-w-0" onClick={(event) => event.stopPropagation()}>
       {confirming ? (
         <div className="space-y-3 p-3 text-sm">
-          <p className="font-semibold text-dd-text">
+          <p id={confirmationTitleId} className="font-semibold text-dd-text">
             {text(`Bloquear @${username}?`, `Block @${username}?`)}
           </p>
           <p className="text-xs leading-5 text-dd-text/80">
@@ -84,6 +90,7 @@ export function BlockUserButton({
               onClick={() => {
                 setConfirming(false);
                 setError('');
+                onCancel?.();
               }}
               className="rounded-lg border border-dd-border px-3 py-2 text-xs text-dd-text"
             >

@@ -12,9 +12,16 @@ interface FollowButtonProps {
   onToggle: () => Promise<void> | void;
   size?: 'sm' | 'md';
   className?: string;
+  appearance?: 'default' | 'profile';
 }
 
-export function FollowButton({ isFollowing, onToggle, size = 'md', className }: FollowButtonProps) {
+export function FollowButton({
+  isFollowing,
+  onToggle,
+  size = 'md',
+  className,
+  appearance = 'default',
+}: FollowButtonProps) {
   const { text } = useLocalizedText();
   const reduced = useReducedMotion();
   const [optimistic, setOptimistic] = useState(isFollowing);
@@ -38,7 +45,7 @@ export function FollowButton({ isFollowing, onToggle, size = 'md', className }: 
   };
 
   const label = following
-    ? hovered
+    ? hovered && appearance !== 'profile'
       ? text('Deixar de seguir', 'Unfollow')
       : text('Seguindo', 'Following')
     : text('Seguir', 'Follow');
@@ -54,18 +61,20 @@ export function FollowButton({ isFollowing, onToggle, size = 'md', className }: 
       className={cn(
         'dd-focus-ring dd-touch font-black rounded-full transition-all cursor-pointer',
         size === 'sm' ? 'text-[10px] px-3 py-1' : 'text-xs px-4 py-1.5',
-        following
-          ? hovered
-            ? 'bg-red-500/10 border-red-500/30 text-red-400'
-            : 'bg-dd-surface border border-dd-border text-dd-text'
-          : 'bg-dd-accent text-white hover:bg-blue-600',
+        appearance === 'profile'
+          ? 'border border-dd-border bg-dd-bg text-dd-text hover:bg-dd-surface'
+          : following
+            ? hovered
+              ? 'bg-red-500/10 border-red-500/30 text-red-400'
+              : 'bg-dd-surface border border-dd-border text-dd-text'
+            : 'bg-dd-accent text-white hover:bg-blue-600',
         loading && 'opacity-70 cursor-wait',
         className
       )}
       whileTap={reduced ? undefined : { scale: 0.95 }}
     >
       <span className="inline-flex items-center gap-1">
-        {following && !hovered && (
+        {following && !hovered && appearance !== 'profile' && (
           <motion.span
             initial={reduced ? false : { scale: 0 }}
             animate={{ scale: 1 }}
