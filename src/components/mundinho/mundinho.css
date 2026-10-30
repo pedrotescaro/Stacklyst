@@ -2384,13 +2384,23 @@
   color: #dcecf8;
 }
 
-.world-object > .pixel-chest {
-  width: 26px;
-  height: 26px;
+.world-prop-sprite {
+  display: block;
+  width: 48px;
+  height: 48px;
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
   image-rendering: pixelated;
 }
-.world-object > svg:not(.pixel-chest) {
-  color: #ead4a0;
+.world-foliage-sprite {
+  position: absolute;
+  width: 72px;
+  height: 48px;
+  transform: translate(-50%, -100%);
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
 }
 .sprite-attack .sprite-layer {
   animation: hero-walk 0.35s steps(7) 1 forwards;

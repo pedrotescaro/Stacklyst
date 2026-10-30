@@ -1,0 +1,56 @@
+[
+  {
+    "file": "public/assets/mundinho/chest.png",
+    "source": "artifacts/mundinho/libresprite/props/chest.ase",
+    "layer": null,
+    "width": 48,
+    "height": 48,
+    "frames": 1,
+    "layers": [
+      "Sombra",
+      "Madeira",
+      "Ferragens"
+    ],
+    "exporter": "libresprite.exe"
+  },
+  {
+    "file": "public/assets/mundinho/signpost.png",
+    "source": "artifacts/mundinho/libresprite/props/signpost.ase",
+    "layer": null,
+    "width": 48,
+    "height": 48,
+    "frames": 1,
+    "layers": [
+      "Sombra",
+      "Madeira",
+      "Entalhes e musgo"
+    ],
+    "exporter": "libresprite.exe"
+  },
+  {
+    "file": "public/assets/mundinho/habitats-back.png",
+    "source": "artifacts/mundinho/libresprite/props/habitats.ase",
+    "layer": "Traseira",
+    "width": 216,
+    "height": 48,
+    "frames": 3,
+    "layers": [
+      "Traseira",
+      "Frente"
+    ],
+    "exporter": "libresprite.exe"
+  },
+  {
+    "file": "public/assets/mundinho/habitats-front.png",
+    "source": "artifacts/mundinho/libresprite/props/habitats.ase",
+    "layer": "Frente",
+    "width": 216,
+    "height": 48,
+    "frames": 3,
+    "layers": [
+      "Traseira",
+      "Frente"
+    ],
+    "exporter": "libresprite.exe"
+  }
+]

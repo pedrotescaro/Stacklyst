@@ -1,0 +1,38 @@
+{ "frames": [
+   {
+    "filename": "trees 0.ase",
+    "frame": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 160
+   },
+   {
+    "filename": "trees 1.ase",
+    "frame": { "x": 176, "y": 0, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 160
+   },
+   {
+    "filename": "trees 2.ase",
+    "frame": { "x": 352, "y": 0, "w": 176, "h": 160 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 176, "h": 160 },
+    "sourceSize": { "w": 176, "h": 160 },
+    "duration": 160
+   }
+ ],
+ "meta": {
+  "app": "https://github.com/LibreSprite/LibreSprite/",
+  "version": "1.3",
+  "image": "public/assets/mundinho/trees.png",
+  "format": "RGBA8888",
+  "size": { "w": 528, "h": 160 },
+  "scale": "1"
+ }
+}

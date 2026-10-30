@@ -4,6 +4,7 @@ import { deflateSync } from 'node:zlib';
 import sharp from 'sharp';
 const dir = 'public/assets/mundinho',
   source = 'artifacts/mundinho/libresprite/refined';
+const sceneryOnly = process.argv.includes('--scenery-only');
 await fs.mkdir(source, { recursive: true });
 const skins = [
   '#fcd4b8',
@@ -45,6 +46,7 @@ function canvas(w = 32, h = 32) {
 }
 // Write actual animated Aseprite documents; LibreSprite is the final exporter.
 async function exportAnimation(name, frames, columns = 8) {
+  if (sceneryOnly && !name.startsWith('forest-')) return;
   const chunks = frames.map((c) => {
     const compressed = deflateSync(c.data);
     const cel = Buffer.alloc(26);
@@ -471,19 +473,56 @@ for (let species = 0; species < 6; species++)
   }
 await exportAnimation('creatures-animated', frames);
 console.log(
-  'LibreSprite: layered four-direction character sheets and animated creature sheets exported.'
+  sceneryOnly
+    ? 'LibreSprite: rebuilding scenery only; character and creature sheets are unchanged.'
+    : 'LibreSprite: layered four-direction character sheets and animated creature sheets exported.'
 );
 // One shared scenery/collision description: an expanded forest with connected clearings.
 const map = canvas(1024, 768),
   obstacles = [];
 const scenery = [],
   sceneryFrames = [];
-function sceneryObject(id, x, y, depth) {
+const [cabinSprite, pondSprite, flowerSheet] = await Promise.all(
+  ['cabin', 'pond', 'flowers'].map(async (name) => {
+    const { data, info } = await sharp(`${dir}/${name}.png`)
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    return { data, w: info.width, h: info.height };
+  })
+);
+const treeFrames = await Promise.all(
+  [0, 1, 2].map(async (variant) =>
+    sharp(`${dir}/trees.png`)
+      .extract({ left: variant * 176, top: 0, width: 176, height: 160 })
+      .ensureAlpha()
+      .raw()
+      .toBuffer()
+  )
+);
+function sceneryObject(id, x, y, depth, pixels) {
   const frame = canvas(176, 160);
+  frame.data.set(pixels);
   scenery.push({ id, x, y, depth, frame: sceneryFrames.length });
   sceneryFrames.push(frame);
-  return { r: (xx, yy, w, h, color) => frame.r(xx - x, yy - y, w, h, color) };
 }
+function stamp(target, sprite, x, y, sourceX = 0, width = sprite.w) {
+  for (let yy = 0; yy < sprite.h; yy++)
+    for (let xx = 0; xx < width; xx++) {
+      const tx = x + xx,
+        ty = y + yy;
+      if (tx < 0 || ty < 0 || tx >= target.w || ty >= target.h) continue;
+      const from = (yy * sprite.w + sourceX + xx) * 4,
+        to = (ty * target.w + tx) * 4;
+      const alpha = sprite.data[from + 3] / 255;
+      if (!alpha) continue;
+      for (let channel = 0; channel < 3; channel++)
+        target.data[to + channel] = Math.round(
+          sprite.data[from + channel] * alpha + target.data[to + channel] * (1 - alpha)
+        );
+    }
+}
+
 let seed = 71;
 const rand = () => {
   seed = (seed * 1664525 + 1013904223) >>> 0;
@@ -503,23 +542,10 @@ for (let y = 30; y < 740; y++)
     if (path) map.r(x, y, 1, 1, rand() > 0.95 ? '#a58c62' : '#bd9f71');
   }
 function tree(x, y) {
-  const paint = sceneryObject(`tree-${scenery.length}`, x - 88, y - 154, y);
+  sceneryObject(`tree-${scenery.length}`, x - 88, y - 154, y, treeFrames[scenery.length % 3]);
   obstacles.push({ x: x - 9, y: y - 12, w: 18, h: 18 });
-  paint.r(x - 5, y - 25, 10, 27, '#624a38');
-  paint.r(x - 3, y - 25, 3, 23, '#967047');
-  const colors = ['#203f3a', '#28503f', '#326446', '#468051', '#639351'];
-  for (let k = 0; k < 5; k++) {
-    const radius = 32 - k * 4,
-      cy = y - 38 - k * 4;
-    for (let yy = -radius; yy <= radius; yy += 2) {
-      const width = Math.floor(Math.sqrt(radius * radius - yy * yy));
-      paint.r(x - width + (k % 2) * 3, cy + yy, width * 2, 2, colors[k]);
-    }
-  }
-  for (let i = 0; i < 22; i++) {
-    paint.r(x - 20 + Math.floor(rand() * 38), y - 70 + Math.floor(rand() * 32), 3, 2, '#729b59');
-  }
 }
+
 for (let x = 15; x < 1024; x += 42) {
   tree(x, 70);
   tree(x, 773);
@@ -542,75 +568,65 @@ for (const [x, y] of [
   [710, 680],
 ])
   tree(x, y);
-// Pond, bank and reflected ripples.
-for (let y = 485; y < 660; y++)
-  for (let x = 790; x < 960; x++) {
-    const d = ((x - 875) / 80) ** 2 + ((y - 574) / 78) ** 2;
-    if (d < 1.1)
-      map.r(x, y, 1, 1, d > 1 ? '#a8ac77' : d > 0.85 ? '#489b99' : d > 0.5 ? '#357e8c' : '#2b657b');
-  }
+// Ground-level sprites stay under the independently depth-sorted tree and cabin sprites.
+stamp(map, pondSprite, 771, 474);
 obstacles.push({ x: 795, y: 500, w: 160, h: 145 });
-for (let i = 0; i < 38; i++) {
-  const x = 820 + Math.floor(rand() * 110),
-    y = 530 + Math.floor(rand() * 80);
-  map.r(x, y, 6, 1, '#75b6b1');
-}
-// Cabin in the north clearing; access road connects at its door.
-const cabin = sceneryObject('cabin', 594, 44, 204);
-cabin.r(620, 105, 125, 93, '#694b38');
-for (let y = 110; y < 198; y += 7) cabin.r(623, y, 119, 2, '#886448');
-cabin.r(668, 148, 27, 50, '#3e3733');
-cabin.r(671, 152, 21, 46, '#936a45');
-cabin.r(687, 172, 2, 2, '#edc975');
-for (const x of [635, 711]) {
-  cabin.r(x, 143, 19, 23, '#282f35');
-  cabin.r(x + 2, 145, 15, 18, '#efc779');
-  cabin.r(x + 8, 145, 2, 18, '#79583e');
-  cabin.r(x + 2, 154, 15, 2, '#79583e');
-}
-for (let y = 55; y < 120; y++) {
-  const half = Math.floor((y - 55) * 1.25);
-  cabin.r(682 - half, y, half * 2, 1, y % 7 === 0 ? '#513c39' : '#9c6150');
-}
-cabin.r(599, 118, 166, 6, '#413833');
-cabin.r(665, 199, 34, 5, '#a2a18a');
+sceneryObject('cabin', 594, 44, 204, cabinSprite.data);
 obstacles.push({ x: 620, y: 105, w: 125, h: 99 });
-// Species habitats: low bushes leave their approach tiles walkable.
-for (const [x, y] of [
+// Habitat foliage is exported separately by build-mundinho-props.mjs.
+// Keeping it out of the ground allows depth sorting around creatures and players.
+let flowersPlaced = 0;
+for (let attempt = 0; attempt < 900 && flowersPlaced < 72; attempt++) {
+  const x = 65 + Math.floor(rand() * 890),
+    y = 90 + Math.floor(rand() * 615);
+  const nearPath =
+    Math.abs(x - (490 + Math.sin(y / 140) * 95)) < 42 ||
+    Math.abs(y - (360 + Math.sin(x / 130) * 35)) < 40;
+  if (
+    nearPath ||
+    obstacles.some((r) => x > r.x - 20 && x < r.x + r.w + 20 && y > r.y - 10 && y < r.y + r.h + 25)
+  )
+    continue;
+  stamp(map, flowerSheet, x - 16, y - 28, (flowersPlaced % 6) * 32, 32);
+  flowersPlaced++;
+}
+await exportAnimation('forest-ground', [map], 1);
+await exportAnimation('forest-scenery', sceneryFrames, 8);
+// Retain the composed illustration for battle backgrounds.
+const illustration = scenery.map((object) => ({ ...object, pixels: sceneryFrames[object.frame] }));
+for (const [index, [x, y]] of [
   [300, 270],
   [680, 450],
   [820, 350],
   [290, 510],
   [420, 180],
   [580, 620],
-]) {
-  for (let i = 0; i < 8; i++) {
-    const xx = x - 25 + Math.floor(rand() * 50),
-      yy = y + Math.floor(rand() * 12);
-    map.r(xx, yy, 12, 8, '#284e3b');
-    map.r(xx + 1, yy - 3, 9, 5, '#598450');
-  }
+].entries()) {
+  const tile = { left: (index % 3) * 72, top: 0, width: 72, height: 48 };
+  const foreground = await sharp(`${dir}/habitats-front.png`).extract(tile).png().toBuffer();
+  const data = await sharp(`${dir}/habitats-back.png`)
+    .extract(tile)
+    .composite([{ input: foreground }])
+    .ensureAlpha()
+    .raw()
+    .toBuffer();
+  illustration.push({ x: x - 36, y: y - 38, depth: y, pixels: { w: 72, h: 48, data } });
 }
-for (let i = 0; i < 260; i++) {
-  const x = 65 + Math.floor(rand() * 890),
-    y = 90 + Math.floor(rand() * 615);
-  if (rand() > 0.5) {
-    map.r(x, y, 1, 4, '#6f9c58');
-    map.r(x - 1, y, 3, 2, i % 3 ? '#dbc78d' : '#c68d9b');
-  }
-}
-await exportAnimation('forest-ground', [map], 1);
-await exportAnimation('forest-scenery', sceneryFrames, 8);
-// Retain the composed illustration for battle backgrounds.
-for (const object of [...scenery].sort((a, b) => a.depth - b.depth)) {
-  const frame = sceneryFrames[object.frame];
+for (const object of illustration.sort((a, b) => a.depth - b.depth)) {
+  const frame = object.pixels;
   for (let yy = 0; yy < frame.h; yy++)
     for (let xx = 0; xx < frame.w; xx++) {
       const x = object.x + xx,
         y = object.y + yy,
         p = (yy * frame.w + xx) * 4;
-      if (x >= 0 && y >= 0 && x < map.w && y < map.h && frame.data[p + 3])
-        map.data.set(frame.data.subarray(p, p + 4), (y * map.w + x) * 4);
+      if (x >= 0 && y >= 0 && x < map.w && y < map.h && frame.data[p + 3]) {
+        const target = (y * map.w + x) * 4;
+        const alpha = frame.data[p + 3] / 255;
+        for (let channel = 0; channel < 3; channel++)
+          map.data[target + channel] = Math.round(
+            frame.data[p + channel] * alpha + map.data[target + channel] * (1 - alpha)
+          );
+      }
     }
 }
 await exportAnimation('forest-v2', [map], 1);
@@ -632,11 +648,13 @@ await fs.writeFile(
     },
     null,
     2
-  )
+  ) + '\n'
 );
 
 for (const file of (await fs.readdir(dir)).filter(
-  (f) => f.startsWith('hero-') || f === 'forest-v2.png' || f === 'creatures-animated.png'
+  (f) =>
+    f === 'forest-v2.png' ||
+    (!sceneryOnly && (f.startsWith('hero-') || f === 'creatures-animated.png'))
 )) {
   execFileSync(
     process.execPath,

@@ -2,6 +2,48 @@
 
 A revisão preserva os commits anteriores, o atlas original de criaturas e as regras de recompensas. Duelos volta à navegação principal, imediatamente após Trilhas; sai do menu Mais. O item da navegação inferior móvel permanece disponível.
 
+## Casa, árvores, lago e flores — 30/10/2026
+
+Os quatro grupos foram refeitos como pixel art original, salvos em documentos nativos com camadas e exportados pelo LibreSprite 1.3. As fontes estão em `artifacts/mundinho/libresprite/environment/`, com manifesto e metadados dos PNGs. Prancha ampliada: `artifacts/mundinho/environment-review.png`.
+
+- `trees.ase` / `trees.png`: três copas assimétricas, galhos, tronco com veios, raízes e folhas com luz/sombra. Cada variante ocupa 176 × 160 pixels, com os pés na mesma posição do atlas anterior.
+- `cabin.ase` / `cabin.png`: casa de 176 × 160 pixels com telhas individuais, chaminé, janela no telhado, fachada lateral, vigas, fundação de pedra, porta, janelas e floreiras.
+- `pond.ase` / `pond.png`: lago de 208 × 200 pixels, com margem irregular, água rasa, pedras, juncos, reflexos e nenúfares.
+- `flowers.ase` / `flowers.png`: seis variações em células de 32 × 32, distribuídas no gramado em pequenos grupos, evitando caminhos e obstáculos.
+
+Casa e árvores continuam sendo objetos independentes em `forest-scenery.png`, ordenados pela posição dos pés. `geometry.json` permanece igual: troncos e paredes bloqueiam a passagem; copas e telhado permitem que o personagem passe por trás. A casa mantém profundidade 204 e a mesma origem. Lago e flores são compostos no terreno, e a ilustração de batalha recebe a mesma arte atualizada.
+
+Regeneração completa do cenário:
+
+```sh
+node scripts/build-mundinho-props.mjs
+node scripts/build-mundinho-environment.mjs
+node scripts/refine-mundinho-sprites.mjs --scenery-only
+node apps/mobile/scripts/build-mundinho.mjs
+```
+
+Validação: sete testes de exploração, ESLint, tipos mobile e build web com smoke de produção passaram. Prévia sintética em Chromium conferiu desktop, celular e paisagem sem overflow ou erros JS. Comparação de pixels com o avatar visível/oculto confirmou a oclusão atrás da árvore/casa e a presença do personagem à frente. São verificações locais; não incluem sessão autenticada ou aparelho físico.
+
+## Baú, placa e vegetação — 30/10/2026
+
+O mapa usa agora sprites PNG transparentes exportados pelo LibreSprite 1.3. O baú tem tampa arredondada, tábuas com veios, lateral em perspectiva, cintas e fechadura de metal. A placa tem poste, madeira entalhada, pregos e musgo; o desenho de um livro indica as dicas. Ambos têm canvas de 48 × 48 pixels. O antigo baú SVG e o ícone de conversa da placa deixaram de ser usados no cenário.
+
+As seis moitas usam três variações de vegetação em células de 72 × 48 pixels. Os atlas `habitats-back.png` e `habitats-front.png` separam a parte traseira da folhagem que cobre os pés das criaturas. As duas partes acompanham a profundidade no mapa e permanecem visíveis quando a criatura se recolhe. O terreno não contém mais os blocos antigos de vegetação. A imagem composta das batalhas também recebe as novas moitas.
+
+Fontes editáveis em `artifacts/mundinho/libresprite/props/`: `chest.ase` (sombra, madeira, ferragens), `signpost.ase` (sombra, madeira, entalhes/musgo) e `habitats.ase` (traseira/frente, três quadros de variações). São documentos nativos abertos e salvos pelo LibreSprite, que também exporta os PNGs e os metadados JSON. O manifesto registra dimensões, camadas e arquivos utilizados. Prancha ampliada: `artifacts/mundinho/props-review.png`.
+
+Para regenerar, na ordem:
+
+```sh
+node scripts/build-mundinho-props.mjs
+node scripts/refine-mundinho-sprites.mjs --scenery-only
+node apps/mobile/scripts/build-mundinho.mjs
+```
+
+O primeiro comando aceita `LIBRESPRITE_BIN` para indicar outro executável. A opção `--scenery-only` do segundo comando conserva os atlas de personagens e criaturas. Os quatro PNGs novos são incorporados ao bundle offline compartilhado pelo WebView mobile.
+
+Validação desta substituição: sete testes de exploração passaram, assim como tipos web/mobile, ESLint e build de produção com smoke do executor. A checagem de anatomia confirmou os corpos originais. Prévia isolada com dados sintéticos em Chromium (1280 × 900, 390 × 844 e 980 × 640) conferiu carregamento dos PNGs, profundidade das duas camadas, interação do baú e ausência de overflow/erros JS. O bundle gerado contém os quatro PNGs em data URLs. A verificação não inclui sessão autenticada nem aparelho físico.
+
 ## Sprites e LibreSprite
 
 Execute `node scripts/refine-mundinho-sprites.mjs` na raiz. O script cria documentos animados `.ase` reais em `artifacts/mundinho/libresprite/refined/` e chama o LibreSprite instalado em `C:/Program Files/LibreSprite/libresprite.exe` para exportar os PNGs e metadados. Não são arquivos PNG apenas renomeados para ASE.

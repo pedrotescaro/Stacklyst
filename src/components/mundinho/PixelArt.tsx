@@ -264,27 +264,3 @@ export function Coin({ className = '' }: { className?: string }) {
     </svg>
   );
 }
-
-const r = (x: number, y: number, w: number, h: number, fill: string) => (
-  <rect key={`${x}:${y}:${w}:${h}:${fill}`} x={x} y={y} width={w} height={h} fill={fill} />
-);
-export function TreasureChest({ className = '' }: { className?: string }) {
-  return (
-    <svg viewBox="0 0 32 32" aria-hidden="true" className={`pixel-chest ${className}`}>
-      {r(4, 26, 24, 3, '#10271e80')}
-      {r(5, 14, 22, 12, '#9b5e2b')}
-      {r(4, 14, 24, 1, '#44250e')}
-      {r(4, 25, 24, 1, '#44250e')}
-      {r(4, 14, 1, 12, '#44250e')}
-      {r(27, 14, 1, 12, '#44250e')}
-      {r(6, 8, 20, 6, '#b7763c')}
-      {r(5, 8, 22, 1, '#44250e')}
-      {r(8, 14, 3, 11, '#f3cb48')}
-      {r(21, 14, 3, 11, '#f3cb48')}
-      {r(8, 8, 3, 6, '#f3cb48')}
-      {r(21, 8, 3, 6, '#f3cb48')}
-      {r(14, 16, 4, 5, '#f3cb48')}
-      {r(15, 18, 2, 2, '#2a1708')}
-    </svg>
-  );
-}

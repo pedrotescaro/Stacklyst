@@ -19,7 +19,8 @@ import {
   WORLD,
   WORLD_OBJECTS,
 } from '../../lib/mundinho/world';
-import { PixelAvatar, PixelCreature, TreasureChest } from './PixelArt';
+import { PixelAvatar, PixelCreature } from './PixelArt';
+import { HabitatSprite, WorldPropSprite } from './ScenerySprites';
 import { adventureAsset } from './assets';
 import { TouchStick } from './TouchStick';
 import { canChallengeCreature } from '../../lib/mundinho/rules';
@@ -316,6 +317,9 @@ export default function World({
             />
           ))}
           {CREATURES.map((c, i) => (
+            <HabitatSprite key={c.id} x={c.x} y={c.y} variant={i} assetBase={assetBase} />
+          ))}
+          {CREATURES.map((c, i) => (
             <div
               key={c.id}
               className={`world-entity world-habitat ${(clock + i * 7) % 64 < 52 ? 'is-visible' : 'is-hidden'}`}
@@ -356,10 +360,11 @@ export default function World({
               <span className="world-entity-badge">{o.name}</span>
               {o.id === 'guide' ? (
                 <PixelAvatar avatar={{ ...avatar, hairColor: 3, hairTint: undefined, outfit: 1 }} />
-              ) : o.id === 'chest' ? (
-                <TreasureChest />
               ) : (
-                <MessageSquare size={20} />
+                <WorldPropSprite
+                  kind={o.id === 'chest' ? 'chest' : 'signpost'}
+                  assetBase={assetBase}
+                />
               )}
             </div>
           ))}

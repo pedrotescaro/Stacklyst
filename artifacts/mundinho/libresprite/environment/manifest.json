@@ -1,0 +1,60 @@
+[
+  {
+    "name": "trees",
+    "png": "public/assets/mundinho/trees.png",
+    "native": "artifacts/mundinho/libresprite/environment/trees.ase",
+    "width": 176,
+    "height": 160,
+    "variants": 3,
+    "layers": [
+      "Sombra",
+      "Tronco e galhos",
+      "Copa",
+      "Folhas e musgo"
+    ],
+    "exporter": "LibreSprite 1.3"
+  },
+  {
+    "name": "cabin",
+    "png": "public/assets/mundinho/cabin.png",
+    "native": "artifacts/mundinho/libresprite/environment/cabin.ase",
+    "width": 176,
+    "height": 160,
+    "variants": 1,
+    "layers": [
+      "Sombra",
+      "Estrutura",
+      "Telhado",
+      "Janelas e detalhes"
+    ],
+    "exporter": "LibreSprite 1.3"
+  },
+  {
+    "name": "pond",
+    "png": "public/assets/mundinho/pond.png",
+    "native": "artifacts/mundinho/libresprite/environment/pond.ase",
+    "width": 208,
+    "height": 200,
+    "variants": 1,
+    "layers": [
+      "Margem",
+      "Agua",
+      "Pedras e plantas",
+      "Reflexos"
+    ],
+    "exporter": "LibreSprite 1.3"
+  },
+  {
+    "name": "flowers",
+    "png": "public/assets/mundinho/flowers.png",
+    "native": "artifacts/mundinho/libresprite/environment/flowers.ase",
+    "width": 32,
+    "height": 32,
+    "variants": 6,
+    "layers": [
+      "Caules e folhas",
+      "Petalas"
+    ],
+    "exporter": "LibreSprite 1.3"
+  }
+]
