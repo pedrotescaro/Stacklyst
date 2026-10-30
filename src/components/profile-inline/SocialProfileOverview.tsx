@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { ProfileActions } from './ProfileActions';
 import { BannerColorPicker } from './BannerColorPicker';
+import { NameColorPicker } from './NameColorPicker';
 import {
   AvatarFrame,
   ProfileFlag,
@@ -711,79 +712,6 @@ export function SocialProfileOverview({
             </div>
           )}
           <div className={`${styles.actions} ${!isOwner ? styles.visitorActions : ''}`}>
-            {editing && (
-              <ContextPopover
-                label="Escolher moldura"
-                triggerText="Moldura"
-                triggerIcon={<CircleUserRound size={15} />}
-                disabled={busy}
-              >
-                <div className={styles.popoverBody}>
-                  <h3 className={styles.popoverHeading}>Molduras</h3>
-                  <label className={styles.field}>
-                    Mostrar molduras
-                    <select
-                      className={styles.select}
-                      value={frameFilter}
-                      onChange={(event) => setFrameFilter(event.target.value)}
-                    >
-                      <option value="all">Todas</option>
-                      <option value="free">Gratuitas</option>
-                      <option value="pride">LGBTQIA+</option>
-                      <option value="country">Países</option>
-                      <option value="decorative">Decorativas</option>
-                      <option value="earned">Desbloqueadas</option>
-                      <option value="locked">Indisponíveis</option>
-                      <option value="seasonal">Sazonais</option>
-                    </select>
-                  </label>
-                  <div className={styles.frameGrid}>
-                    {state?.catalog.frames
-                      .filter(
-                        (item) =>
-                          frameFilter === 'all' ||
-                          (frameFilter === 'pride' && item.decoration === 'pride') ||
-                          (frameFilter === 'country' && item.decoration === 'country') ||
-                          (frameFilter === 'decorative' &&
-                            !['pride', 'country', 'none'].includes(item.decoration)) ||
-                          (frameFilter === 'free' && !item.achievementId) ||
-                          (frameFilter === 'earned' &&
-                            Boolean(item.achievementId && ownedIds.has(item.achievementId))) ||
-                          (frameFilter === 'locked' &&
-                            Boolean(item.achievementId && !ownedIds.has(item.achievementId))) ||
-                          (frameFilter === 'seasonal' &&
-                            ['halloween', 'christmas', 'hat'].includes(item.decoration))
-                      )
-                      .map((item) => {
-                        const locked = Boolean(
-                          item.achievementId && !ownedIds.has(item.achievementId)
-                        );
-                        return (
-                          <button
-                            type="button"
-                            key={item.id}
-                            className={styles.frameChoice}
-                            aria-label={item.name}
-                            aria-pressed={preferences.frameId === item.id}
-                            disabled={locked || busy}
-                            onClick={() => updatePreference('frameId', item.id)}
-                          >
-                            <AvatarFrame
-                              className={styles.frameAvatar}
-                              frame={item.id === 'none' ? null : item}
-                            >
-                              {avatarUrl && <img src={avatarUrl} alt="" />}
-                            </AvatarFrame>
-                            <span>
-                              {locked && <Lock size={10} aria-hidden="true" />} {item.name}
-                            </span>
-                          </button>
-                        );
-                      })}
-                  </div>
-                </div>
-              </ContextPopover>
-            )}
             {isOwner ? (
               editing ? (
                 <>
@@ -837,81 +765,169 @@ export function SocialProfileOverview({
           </p>
         )}
         <div className={styles.identity}>
-          <h1 className={styles.name}>
-            {editing ? (
-              <input
-                className={styles.nameInput}
-                aria-label="Nome de exibição"
-                value={basics.displayName}
-                maxLength={50}
-                onChange={(event) =>
-                  setBasics((current) => ({ ...current, displayName: event.target.value }))
+          <div className={styles.nameEditor}>
+            <h1 className={styles.name}>
+              <ProfileName
+                config={
+                  editing
+                    ? { profileStyle: { nameStyle: preferences.nameStyle } }
+                    : profile.avatar_config
                 }
-                disabled={saving}
-              />
-            ) : (
-              <ProfileName config={profile.avatar_config} background={background}>
-                {activeBasics.displayName}
-              </ProfileName>
-            )}
-          </h1>
-          {editing && (
-            <ContextPopover label="Estilo do nome" triggerIcon={<Type size={14} />} disabled={busy}>
-              <div className={styles.popoverBody}>
-                <h3 className={styles.popoverHeading}>Estilo do nome</h3>
-                <label className={styles.field}>
-                  Cor do nome
-                  <ColorPalette
-                    aria-label="Cor do nome"
-                    value={preferences.nameStyle.color || '#0083fe'}
+                background={background}
+              >
+                {editing ? (
+                  <input
+                    className={styles.nameInput}
+                    aria-label="Nome de exibição"
+                    value={basics.displayName}
+                    maxLength={50}
                     onChange={(event) =>
-                      updatePreference('nameStyle', {
-                        ...preferences.nameStyle,
-                        color: event.target.value,
-                      })
+                      setBasics((current) => ({ ...current, displayName: event.target.value }))
                     }
+                    disabled={saving}
                   />
-                </label>
-                <div className={styles.rowWrap}>
-                  {(
-                    [
-                      ['bold', 'Negrito'],
-                      ['italic', 'Itálico'],
-                      ['underline', 'Sublinhado'],
-                    ] as const
-                  ).map(([key, label]) => (
-                    <label className={styles.row} key={key}>
-                      <input
-                        type="checkbox"
-                        checked={preferences.nameStyle[key]}
-                        onChange={(event) =>
-                          updatePreference('nameStyle', {
-                            ...preferences.nameStyle,
-                            [key]: event.target.checked,
-                          })
-                        }
-                      />
-                      {label}
-                    </label>
-                  ))}
-                </div>
-                <button
-                  className={styles.button}
-                  type="button"
-                  onClick={() =>
-                    updatePreference('nameStyle', {
-                      color: null,
-                      bold: false,
-                      italic: false,
-                      underline: false,
-                    })
-                  }
+                ) : (
+                  activeBasics.displayName
+                )}
+              </ProfileName>
+            </h1>
+            <div className={styles.nameTools}>
+              {editing && (
+                <ContextPopover
+                  label="Escolher moldura"
+                  triggerIcon={<CircleUserRound size={17} aria-hidden="true" />}
+                  className={styles.identityControl}
+                  disabled={busy}
                 >
-                  Restaurar padrão
-                </button>
-              </div>
-            </ContextPopover>
-          )}
+                  <div className={styles.popoverBody}>
+                    <h3 className={styles.popoverHeading}>Molduras</h3>
+                    <label className={styles.field}>
+                      Mostrar molduras
+                      <select
+                        className={styles.select}
+                        value={frameFilter}
+                        onChange={(event) => setFrameFilter(event.target.value)}
+                      >
+                        <option value="all">Todas</option>
+                        <option value="free">Gratuitas</option>
+                        <option value="pride">LGBTQIA+</option>
+                        <option value="country">Países</option>
+                        <option value="decorative">Decorativas</option>
+                        <option value="earned">Desbloqueadas</option>
+                        <option value="locked">Indisponíveis</option>
+                        <option value="seasonal">Sazonais</option>
+                      </select>
+                    </label>
+                    <div className={styles.frameGrid}>
+                      {state?.catalog.frames
+                        .filter(
+                          (item) =>
+                            frameFilter === 'all' ||
+                            (frameFilter === 'pride' && item.decoration === 'pride') ||
+                            (frameFilter === 'country' && item.decoration === 'country') ||
+                            (frameFilter === 'decorative' &&
+                              !['pride', 'country', 'none'].includes(item.decoration)) ||
+                            (frameFilter === 'free' && !item.achievementId) ||
+                            (frameFilter === 'earned' &&
+                              Boolean(item.achievementId && ownedIds.has(item.achievementId))) ||
+                            (frameFilter === 'locked' &&
+                              Boolean(item.achievementId && !ownedIds.has(item.achievementId))) ||
+                            (frameFilter === 'seasonal' &&
+                              ['halloween', 'christmas', 'hat'].includes(item.decoration))
+                        )
+                        .map((item) => {
+                          const locked = Boolean(
+                            item.achievementId && !ownedIds.has(item.achievementId)
+                          );
+                          return (
+                            <button
+                              type="button"
+                              key={item.id}
+                              className={styles.frameChoice}
+                              aria-label={item.name}
+                              aria-pressed={preferences.frameId === item.id}
+                              disabled={locked || busy}
+                              onClick={() => updatePreference('frameId', item.id)}
+                            >
+                              <AvatarFrame
+                                className={styles.frameAvatar}
+                                frame={item.id === 'none' ? null : item}
+                              >
+                                {avatarUrl && <img src={avatarUrl} alt="" />}
+                              </AvatarFrame>
+                              <span>
+                                {locked && <Lock size={10} aria-hidden="true" />} {item.name}
+                              </span>
+                            </button>
+                          );
+                        })}
+                    </div>
+                  </div>
+                </ContextPopover>
+              )}
+              {editing && (
+                <ContextPopover
+                  label="Cor e estilo do nome"
+                  triggerIcon={<Type size={17} aria-hidden="true" />}
+                  className={styles.identityControl}
+                  disabled={busy}
+                >
+                  <div className={styles.popoverBody}>
+                    <h3 className={styles.popoverHeading}>Estilo do nome</h3>
+                    <NameColorPicker
+                      value={preferences.nameStyle.color || '#0083fe'}
+                      disabled={busy}
+                      onChange={(color) =>
+                        updatePreference('nameStyle', {
+                          ...preferences.nameStyle,
+                          color,
+                        })
+                      }
+                    />
+                    <div className={styles.rowWrap}>
+                      {(
+                        [
+                          ['bold', 'Negrito'],
+                          ['italic', 'Itálico'],
+                          ['underline', 'Sublinhado'],
+                        ] as const
+                      ).map(([key, label]) => (
+                        <label className={styles.row} key={key}>
+                          <input
+                            type="checkbox"
+                            checked={preferences.nameStyle[key]}
+                            disabled={busy}
+                            onChange={(event) =>
+                              updatePreference('nameStyle', {
+                                ...preferences.nameStyle,
+                                [key]: event.target.checked,
+                              })
+                            }
+                          />
+                          {label}
+                        </label>
+                      ))}
+                    </div>
+                    <button
+                      className={styles.button}
+                      type="button"
+                      disabled={busy}
+                      onClick={() =>
+                        updatePreference('nameStyle', {
+                          color: null,
+                          bold: false,
+                          italic: false,
+                          underline: false,
+                        })
+                      }
+                    >
+                      Restaurar padrão
+                    </button>
+                  </div>
+                </ContextPopover>
+              )}
+            </div>
+          </div>
           <span className={styles.flags}>
             {selectedFlags.map((flag) => (
               <ProfileFlag key={flag} code={flag} />

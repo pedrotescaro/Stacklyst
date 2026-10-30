@@ -112,6 +112,7 @@ export function ContextPopover({
         type="button"
         className={`${styles.trigger} ${className}`}
         aria-label={label}
+        title={label}
         aria-expanded={open && !disabled}
         aria-haspopup="dialog"
         aria-controls={open ? id : undefined}

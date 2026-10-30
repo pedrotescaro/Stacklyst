@@ -1,0 +1,112 @@
+.picker {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.wheel {
+  position: relative;
+  width: min(180px, 100%);
+  aspect-ratio: 1;
+  margin: 4px auto;
+  border-radius: 50%;
+  background:
+    linear-gradient(rgb(0 0 0 / var(--wheel-darkness)), rgb(0 0 0 / var(--wheel-darkness))),
+    radial-gradient(circle closest-side, #fff, #fff0),
+    conic-gradient(from 90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+  cursor: crosshair;
+  touch-action: none;
+  user-select: none;
+}
+.marker {
+  position: absolute;
+  left: var(--marker-x);
+  top: var(--marker-y);
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  outline: 1px solid #111827;
+  border-radius: 50%;
+  background: var(--selected-color);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.sliders {
+  display: grid;
+  gap: 2px;
+}
+.sliderRow,
+.hexRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+}
+.sliderRow > span {
+  width: 64px;
+  flex-shrink: 0;
+}
+.range {
+  appearance: none;
+  flex: 1;
+  min-width: 0;
+  height: 10px;
+  margin-block: 14px;
+  border: 1px solid #71767b;
+  border-radius: 999px;
+  cursor: pointer;
+  touch-action: pan-y;
+}
+.range::-webkit-slider-thumb {
+  appearance: none;
+  width: 20px;
+  height: 20px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #111827;
+  cursor: grab;
+}
+.range::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: #111827;
+  cursor: grab;
+}
+.hue {
+  background: linear-gradient(to right, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00);
+}
+.hexRow {
+  justify-content: space-between;
+}
+.hexField {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 8px;
+}
+.preview {
+  width: 20px;
+  height: 20px;
+  border: 1px solid #71767b;
+  border-radius: 50%;
+}
+.hexField input {
+  width: 7ch;
+  min-width: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  font-size: 16px;
+  text-transform: uppercase;
+}
+.picker[data-disabled='true'] {
+  opacity: 0.5;
+}
+.picker[data-disabled='true'] .wheel,
+.range:disabled {
+  cursor: default;
+}

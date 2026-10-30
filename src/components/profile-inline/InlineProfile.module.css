@@ -154,6 +154,26 @@
   gap: 7px;
   min-width: 0;
 }
+.nameEditor {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  max-width: 100%;
+}
+.nameTools {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-shrink: 0;
+}
+.nameTools:empty {
+  display: none;
+}
+.nameTools .identityControl {
+  width: 44px;
+  min-height: 44px;
+}
 .name {
   font-size: 21px;
   line-height: 1.25;

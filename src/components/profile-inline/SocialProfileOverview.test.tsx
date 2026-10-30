@@ -152,6 +152,13 @@ describe('Inline social profile editing', () => {
   it('offers a separate frame picker and persists a pride frame without changing the photo', async () => {
     mount();
     await edit();
+    const frameButton = screen.getByRole('button', { name: 'Escolher moldura' });
+    const colorButton = screen.getByRole('button', { name: 'Cor e estilo do nome' });
+    expect(frameButton.textContent).toBe('');
+    expect(frameButton.parentElement).toBe(colorButton.parentElement);
+    expect(frameButton.parentElement?.previousElementSibling).toContainElement(
+      screen.getByRole('textbox', { name: 'Nome de exibição' })
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Editar foto' }));
     expect(screen.queryByRole('heading', { name: 'Molduras' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Escolher moldura' }));
@@ -164,6 +171,55 @@ describe('Inline social profile editing', () => {
     await screen.findByRole('button', { name: 'Editar perfil' });
     expect(writes[0].preferences.frameId).toBe('pride-trans');
     expect(writes[0].avatarUrl).toBeNull();
+  });
+  it('previews and saves a custom display-name color without changing the username', async () => {
+    const { saved } = mount();
+    await edit();
+    fireEvent.click(screen.getByRole('button', { name: 'Cor e estilo do nome' }));
+    fireEvent.change(screen.getByRole('slider', { name: 'Cor do nome: matiz' }), {
+      target: { value: '300' },
+    });
+    expect(screen.getByRole('textbox', { name: 'Cor do nome em hexadecimal' })).toHaveValue(
+      'fe00fe'
+    );
+    fireEvent.change(screen.getByRole('textbox', { name: 'Cor do nome em hexadecimal' }), {
+      target: { value: 'c45be8' },
+    });
+    const name = screen.getByRole('textbox', { name: 'Nome de exibição' });
+    expect(name.parentElement).toHaveStyle({ '--name-dark': '#c45be8' });
+    expect(screen.getByText('@developer')).toBeInTheDocument();
+    expect(writes).toHaveLength(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    await screen.findByText('Perfil atualizado.');
+    expect(writes[0].preferences.nameStyle.color).toBe('#c45be8');
+    expect(saved).toHaveBeenCalledWith(expect.objectContaining({ username: 'developer' }));
+  });
+  it('discards name-color edits on cancel and can restore the default color', async () => {
+    mount();
+    await edit();
+    fireEvent.click(screen.getByRole('button', { name: 'Cor e estilo do nome' }));
+    const hex = screen.getByRole('textbox', { name: 'Cor do nome em hexadecimal' });
+    fireEvent.change(hex, { target: { value: '12zzzz' } });
+    fireEvent.blur(hex);
+    expect(hex).toHaveValue('0083fe');
+    fireEvent.change(hex, { target: { value: 'c45be8' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(writes).toHaveLength(0);
+    expect(
+      screen.getByRole('heading', { name: 'Nome anterior' }).firstElementChild
+    ).not.toHaveStyle({
+      '--name-dark': '#c45be8',
+    });
+    await edit();
+    fireEvent.click(screen.getByRole('button', { name: 'Cor e estilo do nome' }));
+    fireEvent.change(screen.getByRole('textbox', { name: 'Cor do nome em hexadecimal' }), {
+      target: { value: 'c45be8' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Restaurar padrão' }));
+    expect(screen.getByRole('textbox', { name: 'Cor do nome em hexadecimal' })).toHaveValue(
+      '0083fe'
+    );
+    expect(screen.getByRole('button', { name: 'Salvar alterações' })).toBeDisabled();
   });
   it('keeps visitor controls read-only with social sections before content, without statistics or pencil controls', () => {
     mount('visitor');
