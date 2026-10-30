@@ -55,6 +55,7 @@ export const PROFILE_COLORS = [
 ] as const;
 
 interface Props {
+  className?: string;
   value: string;
   onChange: (event: { target: { value: string } }) => void;
   colors?: readonly string[];
@@ -66,6 +67,7 @@ interface Props {
 
 /** Fixed swatches. The change payload matches the value field used by form controls. */
 export function ColorPalette({
+  className = '',
   value,
   onChange,
   colors = PROFILE_COLORS,
@@ -75,7 +77,7 @@ export function ColorPalette({
   disabled,
 }: Props) {
   return (
-    <span id={id} className={styles.palette} role="group" aria-label={label}>
+    <span id={id} className={`${styles.palette} ${className}`} role="group" aria-label={label}>
       {colors.map((color, index) => (
         <button
           key={color}

@@ -127,11 +127,11 @@ afterEach(() => {
   cleanup();
   vi.unstubAllGlobals();
 });
-const mount = (owner = 'owner') => {
+const mount = (owner = 'owner', selectedProfile = profile) => {
   const saved = vi.fn();
   const view = render(
     <SocialProfileOverview
-      profile={profile}
+      profile={selectedProfile}
       currentUserId={owner}
       following={false}
       followers={42}
@@ -321,6 +321,69 @@ describe('Inline social profile editing', () => {
       clearBanner: true,
       preferences: { banner: { mode: 'default' } },
     });
+  });
+
+  it('previews a solid banner and restores the saved color when the profile is reopened', async () => {
+    const { saved, unmount } = mount();
+    await edit();
+    fireEvent.click(screen.getByRole('button', { name: 'Editar capa' }));
+    fireEvent.change(screen.getByLabelText('Tipo de capa'), { target: { value: 'color' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Cor do banner: #ec4899' }));
+    expect(writes).toHaveLength(0);
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar editar capa' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    await screen.findByText('Perfil atualizado.');
+    expect(writes[0].preferences.banner).toMatchObject({ mode: 'color', color: '#ec4899' });
+    const savedProfile = saved.mock.calls[0][0];
+    unmount();
+    mount('owner', savedProfile);
+    expect(
+      (screen.getByLabelText('Perfil social').firstElementChild as HTMLElement).style.background
+    ).toBe('rgb(236, 72, 153)');
+    expect(screen.queryByRole('img', { name: 'Capa do perfil' })).not.toBeInTheDocument();
+  });
+
+  it('selects each gradient stop independently and saves both colors', async () => {
+    const { saved, unmount } = mount();
+    await edit();
+    fireEvent.click(screen.getByRole('button', { name: 'Editar capa' }));
+    fireEvent.change(screen.getByLabelText('Tipo de capa'), { target: { value: 'gradient' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Cor do banner: #22c55e' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Escolher segunda cor do degradê' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Segunda cor do banner: #8e63ce' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Escolher primeira cor do degradê' }));
+    expect(screen.getByRole('button', { name: 'Cor do banner: #22c55e' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar editar capa' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    await screen.findByText('Perfil atualizado.');
+    expect(writes[0].preferences.banner).toMatchObject({
+      mode: 'gradient',
+      color: '#22c55e',
+      secondaryColor: '#8e63ce',
+    });
+    const savedProfile = saved.mock.calls[0][0];
+    unmount();
+    mount('owner', savedProfile);
+    expect(
+      (screen.getByLabelText('Perfil social').firstElementChild as HTMLElement).style.background
+    ).toContain('linear-gradient(120deg');
+  });
+
+  it('discards banner colors on cancel without publishing the draft', async () => {
+    mount();
+    await edit();
+    fireEvent.click(screen.getByRole('button', { name: 'Editar capa' }));
+    fireEvent.change(screen.getByLabelText('Tipo de capa'), { target: { value: 'gradient' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Cor do banner: #ec4899' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar editar capa' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
+    expect(writes).toHaveLength(0);
+    expect(
+      (screen.getByLabelText('Perfil social').firstElementChild as HTMLElement).style.background
+    ).toBe('');
   });
 
   it('blocks duplicate save requests while the first request is pending', async () => {

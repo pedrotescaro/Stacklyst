@@ -482,6 +482,29 @@ describe.skipIf(!process.env.STACKLYST_TEST_DATABASE_URL)(
         studyDetails: [],
       });
     });
+    it.each(['color', 'gradient'] as const)(
+      'persists a %s banner for the owner and visitors after reload',
+      async (mode) => {
+        const own = await getProfileCustomization(owner);
+        const next = structuredClone(own.preferences);
+        next.banner = { ...next.banner, mode, color: '#22c55e', secondaryColor: '#8e63ce' };
+        await prisma.user.update({ where: { id: owner }, data: { banner_url: ownedPhoto } });
+        await saveProfileCustomization(owner, { version: own.version, preferences: next });
+        const reloaded = await getProfileCustomization(owner);
+        expect(reloaded.preferences.banner).toMatchObject({
+          mode,
+          color: '#22c55e',
+          secondaryColor: '#8e63ce',
+        });
+        expect(reloaded.bannerUrl).toBeNull();
+        const publicProfile = await getPublicProfileCustomization(owner);
+        expect(publicProfile?.preferences.banner).toMatchObject({
+          mode,
+          color: '#22c55e',
+          secondaryColor: '#8e63ce',
+        });
+      }
+    );
     it('removes a saved image on default reset without losing an unchanged old banner', async () => {
       const own = await getProfileCustomization(owner);
       const image = {

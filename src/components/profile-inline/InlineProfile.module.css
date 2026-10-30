@@ -18,6 +18,15 @@
   position: absolute;
   right: 14px;
   bottom: 14px;
+  /* The overlapping avatar row must not intercept the banner camera button. */
+  z-index: 2;
+}
+.coverEdit .photoEditButton {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-dd-bg);
+  color: var(--color-dd-text);
 }
 .photoEditButton {
   width: 36px;
@@ -447,6 +456,58 @@
   font-size: 14px;
   font-weight: 650;
   margin: 0 0 5px;
+}
+.bannerColors {
+  min-width: 0;
+}
+.bannerMode {
+  min-height: 44px;
+  font-size: 16px;
+}
+.bannerColorLabel {
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+}
+.bannerColorStops {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.bannerColorStops button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 8px 10px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 8px;
+  font-size: 12px;
+  color: var(--color-dd-text);
+  cursor: pointer;
+}
+.bannerColorStops button[aria-pressed='true'] {
+  border-color: var(--color-dd-accent);
+  outline: 1px solid var(--color-dd-accent);
+}
+.bannerColorStops button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.bannerColorStops span {
+  width: 24px;
+  height: 24px;
+  border: 1px solid #8b949e80;
+  border-radius: 50%;
+}
+.bannerPalette button {
+  flex-basis: 44px;
+  width: 44px;
+  height: 44px;
+}
+.bannerPalette svg {
+  inset: 13px;
 }
 .appearanceColor {
   display: grid;

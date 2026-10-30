@@ -31,6 +31,7 @@ import {
   X,
 } from 'lucide-react';
 import { ProfileActions } from './ProfileActions';
+import { BannerColorPicker } from './BannerColorPicker';
 import {
   AvatarFrame,
   ProfileFlag,
@@ -568,25 +569,15 @@ export function SocialProfileOverview({
           <div className={styles.coverEdit}>
             <ContextPopover
               label="Editar capa"
-              triggerIcon={<Camera size={15} />}
+              triggerIcon={<Camera size={19} />}
               className={styles.photoEditButton}
               disabled={busy}
             >
               <div className={styles.popoverBody}>
-                <h3 className={styles.popoverHeading}>Capa do perfil</h3>
-                <label className={styles.field}>
-                  Imagem da capa
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/gif"
-                    onChange={chooseBanner}
-                    disabled={busy}
-                  />
-                </label>
                 <label className={styles.field}>
                   Tipo de capa
                   <select
-                    className={styles.select}
+                    className={`${styles.select} ${styles.bannerMode}`}
                     value={banner.mode}
                     onChange={(event) => {
                       setClearBanner(event.target.value === 'default');
@@ -602,42 +593,31 @@ export function SocialProfileOverview({
                     disabled={busy}
                   >
                     <option value="default">Padrão</option>
+                    <option value="color">Cor sólida</option>
+                    <option value="gradient">Degradê (duas cores)</option>
                     <option value="image">Imagem</option>
-                    <option value="color">Cor</option>
-                    <option value="gradient">Gradiente</option>
                   </select>
                 </label>
                 {(banner.mode === 'color' || banner.mode === 'gradient') && (
-                  <div className={styles.rowWrap}>
-                    <label className={styles.field}>
-                      Cor
-                      <ColorPalette
-                        aria-label="Cor do banner"
-                        value={banner.color}
-                        onChange={(event) =>
-                          updatePreference('banner', { ...banner, color: event.target.value })
-                        }
-                      />
-                    </label>
-                    {banner.mode === 'gradient' && (
-                      <label className={styles.field}>
-                        Segunda cor
-                        <ColorPalette
-                          aria-label="Segunda cor do banner"
-                          value={banner.secondaryColor}
-                          onChange={(event) =>
-                            updatePreference('banner', {
-                              ...banner,
-                              secondaryColor: event.target.value,
-                            })
-                          }
-                        />
-                      </label>
-                    )}
-                  </div>
+                  <BannerColorPicker
+                    banner={banner}
+                    disabled={busy}
+                    onChange={(field, value) =>
+                      updatePreference('banner', { ...banner, [field]: value })
+                    }
+                  />
                 )}
                 {banner.mode === 'image' && (
                   <>
+                    <label className={styles.field}>
+                      Imagem da capa
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/gif"
+                        onChange={chooseBanner}
+                        disabled={busy}
+                      />
+                    </label>
                     <label className={styles.field}>
                       Posição horizontal
                       <input
@@ -685,7 +665,8 @@ export function SocialProfileOverview({
                   </>
                 )}
                 <p className={styles.help}>
-                  Até 5 MB. A capa só será publicada ao salvar as alterações.
+                  {banner.mode === 'image' ? 'Imagens de até 5 MB. ' : ''}
+                  Escolha sua capa e clique em Salvar alterações no perfil para publicar.
                 </p>
               </div>
             </ContextPopover>
