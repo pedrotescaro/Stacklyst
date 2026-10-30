@@ -355,7 +355,7 @@ export default function World({
             >
               <span className="world-entity-badge">{o.name}</span>
               {o.id === 'guide' ? (
-                <PixelAvatar avatar={{ ...avatar, hairColor: 3, outfit: 1 }} />
+                <PixelAvatar avatar={{ ...avatar, hairColor: 3, hairTint: undefined, outfit: 1 }} />
               ) : o.id === 'chest' ? (
                 <TreasureChest />
               ) : (

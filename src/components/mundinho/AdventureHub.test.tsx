@@ -61,6 +61,48 @@ const openBattle = async (transport: AdventureTransport) => {
   fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
 };
 describe('Mundinho battle navigation', () => {
+  it('saves and reloads an expanded hair color without changing the hairstyle', async () => {
+    let saved = state(null);
+    saved = { ...saved, avatar: { ...DEFAULT_AVATAR, hair: 1 } };
+    const transport = vi.fn<AdventureTransport>().mockImplementation(async (action) => {
+      if (action?.type === 'avatar')
+        saved = { ...saved, avatar: action.avatar as typeof saved.avatar };
+      return saved;
+    });
+    const { unmount } = render(
+      <AdventureHub transport={transport} courses={[]} onCourse={() => {}} />
+    );
+    await screen.findByText('Nível 1');
+    fireEvent.click(screen.getByRole('button', { name: 'Personalizar avatar' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Cabelo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Cor do cabelo: #2563eb' }));
+    expect(screen.getByRole('button', { name: 'Cor do cabelo: #2563eb' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    await waitFor(() =>
+      expect(transport).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: 'avatar',
+          avatar: expect.objectContaining({ hair: 1, hairColor: 3, hairTint: '#2563eb' }),
+        })
+      )
+    );
+    unmount();
+    render(<AdventureHub transport={transport} courses={[]} onCourse={() => {}} />);
+    await screen.findByText('Nível 1');
+    fireEvent.click(screen.getByRole('button', { name: 'Personalizar avatar' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Cabelo' }));
+    expect(screen.getByRole('button', { name: 'Cor do cabelo: #2563eb' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Cor do cabelo: Preto' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    await waitFor(() => expect(saved.avatar.hairColor).toBe(0));
+    expect(saved.avatar.hairTint).toBeUndefined();
+  });
   it('previews and saves a selected hair color, including black', async () => {
     const initial = state(null);
     initial.avatar.hairColor = 1;

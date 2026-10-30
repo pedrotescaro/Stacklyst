@@ -25,6 +25,10 @@ const avatarSchema = z.object({
   eyes: z.number().int().min(0).max(4),
   hair: z.number().int().min(0).max(5),
   hairColor: z.number().int().min(0).max(5),
+  hairTint: z
+    .string()
+    .regex(/^#[\da-f]{6}$/i)
+    .optional(),
   outfit: z.number().int().min(0).max(5),
   accessory: z.number().int().min(0).max(5),
 });
@@ -257,7 +261,7 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
         else next[item.category] = item.id;
         const avatar = { ...DEFAULT_AVATAR, ...(player.avatar as Partial<Avatar>) };
         if (['outfit', 'hair', 'accessory'].includes(item.category))
-          avatar[item.category as keyof Avatar] = action.remove ? 0 : item.value;
+          avatar[item.category as 'outfit' | 'hair' | 'accessory'] = action.remove ? 0 : item.value;
         await tx.rpgPlayer.update({ where: { userId }, data: { equipped: next, avatar } });
       }
       if (action?.type === 'mission') {

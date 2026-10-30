@@ -16,6 +16,7 @@ export type Avatar = {
   eyes: number;
   hair: number;
   hairColor: number;
+  hairTint?: string;
   outfit: number;
   accessory: number;
 };

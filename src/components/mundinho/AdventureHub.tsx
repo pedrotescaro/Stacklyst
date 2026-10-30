@@ -41,13 +41,28 @@ import { canChallengeCreature, SKILLS } from '../../lib/mundinho/rules';
 import { BattleAudio } from '../../lib/mundinho/battleAudio';
 import { CodeBattle } from './CodeBattle';
 import { BattleEffects, CREATURE_ELEMENTS } from './BattleEffects';
-import { ColorPalette } from '../ColorPalette';
+import { ColorPalette, PROFILE_COLORS } from '../ColorPalette';
+import {
+  avatarHairColor,
+  LEGACY_HAIR_NAMES,
+  NATURAL_HAIR_OPTIONS,
+  withAvatarHairColor,
+} from '../../lib/mundinho/hair-colors';
 import { WORLD } from '../../lib/mundinho/world';
 import { Coin, HAIR, OUTFIT, PixelAvatar, PixelCreature, SKIN } from './PixelArt';
 import './mundinho.css';
 import { adventureAsset } from './assets';
 
 const World = lazy(() => import('./World'));
+const hairColors = [
+  ...new Set([...HAIR, ...NATURAL_HAIR_OPTIONS.map((item) => item.color), ...PROFILE_COLORS]),
+];
+const hairColorNames = hairColors.map(
+  (color) =>
+    LEGACY_HAIR_NAMES[HAIR.indexOf(color)] ??
+    NATURAL_HAIR_OPTIONS.find((item) => item.color === color)?.name ??
+    color
+);
 
 type View =
   | 'home'
@@ -183,7 +198,7 @@ export function AdventureHub({
 
   // Avatar Editor State
   const [draft, setDraft] = useState<Avatar>(DEFAULT_AVATAR);
-  const [category, setCategory] = useState<keyof Avatar>('skin');
+  const [category, setCategory] = useState<Exclude<keyof Avatar, 'hairTint'>>('skin');
   const [direction, setDirection] = useState(0); // 0: down, 1: right, 2: up, 3: left
   const [confirm, setConfirm] = useState<string | null>(null);
 
@@ -975,7 +990,7 @@ export function AdventureHub({
                 role="tab"
                 aria-selected={category === tab.id}
                 className={`ad-category-tab ${category === tab.id ? 'is-selected' : ''}`}
-                onClick={() => setCategory(tab.id as keyof Avatar)}
+                onClick={() => setCategory(tab.id as Exclude<keyof Avatar, 'hairTint'>)}
               >
                 {tab.label}
               </button>
@@ -987,12 +1002,10 @@ export function AdventureHub({
               <h2>Cor do cabelo</h2>
               <ColorPalette
                 aria-label="Cor do cabelo"
-                colors={HAIR}
-                names={['Preto', 'Castanho', 'Loiro', 'Prata', 'Roxo', 'Ruivo']}
-                value={HAIR[draft.hairColor] ?? HAIR[0]}
-                onChange={(event) =>
-                  setDraft({ ...draft, hairColor: HAIR.indexOf(event.target.value) })
-                }
+                colors={hairColors}
+                names={hairColorNames}
+                value={avatarHairColor(draft)}
+                onChange={(event) => setDraft(withAvatarHairColor(draft, event.target.value))}
               />
             </section>
           )}

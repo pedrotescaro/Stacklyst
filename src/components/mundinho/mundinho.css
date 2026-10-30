@@ -1904,6 +1904,13 @@
   image-rendering: pixelated;
   animation: hero-breathe 2.8s steps(1) infinite;
 }
+.sprite-color-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
 .sprite-avatar.is-walking .sprite-layer,
 .sprite-attack .sprite-layer {
   animation: hero-walk 0.8s steps(7) infinite;

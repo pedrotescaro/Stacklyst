@@ -21,7 +21,7 @@
   outline-offset: 2px;
 }
 .swatch:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid var(--color-dd-accent, #0083fe);
   outline-offset: 3px;
 }
 .swatch:disabled {

@@ -7,11 +7,14 @@ it('offers only fixed colors with a selected state and no free color or text inp
     <ColorPalette aria-label="Cor do perfil" value="#000000" onChange={changed} />
   );
   expect(screen.getAllByRole('button')).toHaveLength(PROFILE_COLORS.length);
+  expect(PROFILE_COLORS.length).toBe(48);
   expect(screen.getByRole('button', { name: 'Cor do perfil: #000000' })).toHaveAttribute(
     'aria-pressed',
     'true'
   );
   fireEvent.click(screen.getByRole('button', { name: 'Cor do perfil: #0083fe' }));
   expect(changed).toHaveBeenCalledWith({ target: { value: '#0083fe' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Cor do perfil: #93c5fd' }));
+  expect(changed).toHaveBeenLastCalledWith({ target: { value: '#93c5fd' } });
   expect(container.querySelector('input')).toBeNull();
 });

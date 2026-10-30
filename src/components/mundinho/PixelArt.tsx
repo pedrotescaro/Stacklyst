@@ -1,7 +1,12 @@
-import type { CSSProperties } from 'react';
+import { useId, type CSSProperties } from 'react';
 import { adventureAsset } from './assets';
 import { brandGeometry } from '../../lib/brand-geometry';
 import { DEFAULT_AVATAR, type Avatar } from '../../lib/mundinho/types';
+import {
+  avatarHairColor,
+  hairColorTransfer,
+  LEGACY_HAIR_COLORS,
+} from '../../lib/mundinho/hair-colors';
 
 export interface SkinPalette {
   id: string;
@@ -112,14 +117,7 @@ export const SKIN_PALETTES: SkinPalette[] = [
 
 export const SKIN = SKIN_PALETTES.map((p) => p.base);
 
-export const HAIR = [
-  '#17191f', // Preto
-  '#684331', // Castanho Chocolate
-  '#bd8240', // Loiro Âmbar
-  '#dcd8d4', // Prata Platina
-  '#805d9e', // Roxo Místico
-  '#c15e54', // Ruivo Carmim
-];
+export const HAIR = LEGACY_HAIR_COLORS;
 
 export const HAIR_SHADES = [
   { base: '#273047', highlight: '#425175', shadow: '#151c2e' },
@@ -172,12 +170,15 @@ export function PixelAvatar({
   effect?: boolean;
   motion?: 'idle' | 'attack' | 'hurt' | 'victory';
 }) {
+  const filterId = `hair-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
+  const tinted = typeof avatar.hairTint === 'string' && /^#[\da-f]{6}$/i.test(avatar.hairTint);
+  const transfer = tinted ? hairColorTransfer(avatarHairColor(avatar)) : null;
   const d = Math.max(0, ['down', 'right', 'up', 'left'].indexOf(direction));
   const layers = [
     ['body', avatar.skin, 9],
     ['outfit', avatar.outfit, 6],
     ['eyes', avatar.eyes, 5],
-    ['hair', avatar.hair * 6 + avatar.hairColor, 36],
+    ['hair', avatar.hair * 6 + (tinted ? 3 : avatar.hairColor), 36],
     ['accessory', avatar.accessory, 6],
   ] as const;
   return (
@@ -187,17 +188,39 @@ export function PixelAvatar({
       className={`pixel-avatar sprite-avatar ${walking ? 'is-walking' : ''} sprite-${motion} ${effect ? 'has-fireflies' : ''} ${className}`}
       style={style}
     >
+      {transfer && (
+        <svg aria-hidden="true" width="0" height="0" className="sprite-color-defs">
+          <defs>
+            <filter
+              id={filterId}
+              x="0%"
+              y="0%"
+              width="100%"
+              height="100%"
+              colorInterpolationFilters="sRGB"
+            >
+              <feComponentTransfer>
+                <feFuncR type="table" tableValues={transfer[0]} />
+                <feFuncG type="table" tableValues={transfer[1]} />
+                <feFuncB type="table" tableValues={transfer[2]} />
+              </feComponentTransfer>
+            </filter>
+          </defs>
+        </svg>
+      )}
       {layers
         .filter(([, value]) => value >= 0)
         .map(([layer, value, count]) => (
           <span
             aria-hidden="true"
             key={layer}
+            data-layer={layer}
             className="sprite-layer"
             style={{
               backgroundImage: `url(${adventureAsset(`hero-${layer}${motion === 'attack' && ['body', 'outfit'].includes(layer) ? '-attack' : ''}.png`, '/assets/mundinho')})`,
               backgroundSize: `800% ${count * 400}%`,
               backgroundPositionY: `${((Math.min(count - 1, value) * 4 + d) / (count * 4 - 1)) * 100}%`,
+              ...(layer === 'hair' && tinted ? { filter: `url(#${filterId})` } : {}),
             }}
           />
         ))}

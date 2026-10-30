@@ -9,7 +9,7 @@ vi.mock('@/lib/prisma', () => ({
 }));
 vi.mock('@/lib/code-execution/server', () => ({ executeCode: db.execute }));
 vi.mock('@/lib/learning/catalog', () => ({ LEARNING_LESSONS: new Map() }));
-import { adventure } from '../repository';
+import { actionSchema, adventure } from '../repository';
 beforeEach(() => {
   db.execute.mockReset().mockResolvedValue({
     ok: true,
@@ -69,6 +69,23 @@ beforeEach(() => {
   };
 });
 describe('Server encounter rules', () => {
+  it('persists an expanded hair tint while accepting unchanged legacy avatars', async () => {
+    const avatar = { ...DEFAULT_AVATAR, hairColor: 3, hairTint: '#2563eb' };
+    expect(actionSchema.parse({ type: 'avatar', avatar })).toMatchObject({
+      type: 'avatar',
+      avatar,
+    });
+    await adventure('user', { type: 'avatar', avatar });
+    expect(db.tx.rpgPlayer.update).toHaveBeenCalledWith({
+      where: { userId: 'user' },
+      data: { avatar },
+    });
+    expect(actionSchema.safeParse({ type: 'avatar', avatar: DEFAULT_AVATAR }).success).toBe(true);
+    expect(
+      actionSchema.safeParse({ type: 'avatar', avatar: { ...avatar, hairTint: 'url(script)' } })
+        .success
+    ).toBe(false);
+  });
   it('assigns practical code on every second completed encounter', async () => {
     db.tx.rpgBattle.count.mockResolvedValue(1);
     const result = await adventure('user', {
