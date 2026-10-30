@@ -122,6 +122,7 @@ export const NotificationService = {
             id: true,
             username: true,
             avatar_url: true,
+            avatar_config: true,
             total_xp: true,
           },
         },
@@ -150,6 +151,7 @@ export const NotificationService = {
             id: true,
             username: true,
             avatar_url: true,
+            avatar_config: true,
             total_xp: true,
           },
         },
@@ -263,6 +265,8 @@ export const NotificationService = {
           id: notif.id,
           user_id: notif.userId,
           type: mapApiType(notif.type),
+          source_type: notif.type,
+          resource_type: notif.resourceType,
           title: isAchievement
             ? 'Nova conquista desbloqueada'
             : notif.type === 'JOB_APPLICATION_UPDATE'
@@ -319,6 +323,16 @@ export const NotificationService = {
         read: true,
       },
     });
+  },
+
+  async deleteNotification(userId: string, notificationId: string) {
+    return prisma.notification.deleteMany({
+      where: { id: notificationId, userId },
+    });
+  },
+
+  async deleteAll(userId: string) {
+    return prisma.notification.deleteMany({ where: { userId } });
   },
 
   async getUnreadCount(userId: string): Promise<number> {

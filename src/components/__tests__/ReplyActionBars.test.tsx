@@ -85,13 +85,15 @@ describe('reply action bars', () => {
     expect(screen.getAllByText('Iniciante')).toHaveLength(2);
   });
 
-  it('navigates to the reply when its comment button is pressed', () => {
+  it('links to the reply from its comment action', () => {
     const reply = {
       ...answer,
       post: { id: 'post-1', body: 'Post original', author, created_at: '2026-01-01T00:00:00Z' },
     };
     render(<ProfileReplyThread reply={reply} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Ver resposta' }));
-    expect(router.push).toHaveBeenCalledWith('/post/post-1#answer-answer-1');
+    expect(screen.getByRole('link', { name: 'Abrir resposta' })).toHaveAttribute(
+      'href',
+      '/post/post-1#answer-answer-1'
+    );
   });
 });

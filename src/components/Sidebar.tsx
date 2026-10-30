@@ -209,8 +209,12 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       }
     };
     fetchUnreadCount();
+    window.addEventListener('stacklyst:notifications-changed', fetchUnreadCount);
     const interval = setInterval(fetchUnreadCount, 30000);
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('stacklyst:notifications-changed', fetchUnreadCount);
+    };
   }, [activeUser, pathname]);
 
   // Post creation modal state

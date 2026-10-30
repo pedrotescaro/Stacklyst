@@ -28,3 +28,9 @@ export const POST = apiHandler(async (_req) => {
 
   return NextResponse.json({ success: true });
 });
+
+export const DELETE = apiHandler(async () => {
+  const user = await requireAuth();
+  const { count } = await NotificationService.deleteAll(user.id);
+  return NextResponse.json({ success: true, count });
+});

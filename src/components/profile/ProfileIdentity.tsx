@@ -17,15 +17,19 @@ import { getProfileFlags } from '@/lib/profile-customization';
 import { readProfileIdentity, readableColor, type ProfileIdentityStyle } from '@/lib/profile-style';
 import styles from './ProfileIdentity.module.css';
 
+type IdentityBackgrounds = { light: string; dark: string };
+
 export function ProfileName({
   config,
   children,
   background,
+  backgrounds,
   className = '',
 }: {
   config?: unknown;
   children: ReactNode;
   background?: string | null;
+  backgrounds?: IdentityBackgrounds;
   className?: string;
 }) {
   const style = readProfileIdentity(config).nameStyle;
@@ -33,8 +37,8 @@ export function ProfileName({
   const variables = {
     ...(color
       ? {
-          '--name-light': readableColor(color, '#ffffff'),
-          '--name-dark': readableColor(color, '#000000'),
+          '--name-light': readableColor(color, backgrounds?.light ?? '#ffffff'),
+          '--name-dark': readableColor(color, backgrounds?.dark ?? '#000000'),
           ...(background ? { color: readableColor(color, background) } : {}),
         }
       : {}),
@@ -219,11 +223,14 @@ export function ProfileFlag({ code }: { code: string | null | undefined }) {
 export function ProfileTitle({
   title,
   background,
+  backgrounds,
 }: {
   title?: ProfileIdentityStyle['title'];
   background?: string | null;
+  backgrounds?: IdentityBackgrounds;
 }) {
   if (!title) return null;
+  const isBeginner = title.id === 'posts-1' || title.name.trim().toLowerCase() === 'iniciante';
   const Icon =
     (
       {
@@ -244,13 +251,13 @@ export function ProfileTitle({
       data-rarity={title.rarity}
       style={
         {
-          '--name-light': readableColor(title.color, '#ffffff'),
-          '--name-dark': readableColor(title.color, '#000000'),
+          '--name-light': readableColor(title.color, backgrounds?.light ?? '#ffffff'),
+          '--name-dark': readableColor(title.color, backgrounds?.dark ?? '#000000'),
           ...(background ? { color: readableColor(title.color, background) } : {}),
         } as CSSProperties
       }
     >
-      <Icon size={13} aria-hidden="true" />
+      {!isBeginner && <Icon size={13} aria-hidden="true" />}
       {title.name}
     </span>
   );
