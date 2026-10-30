@@ -4,6 +4,8 @@ import { getUserLanguageXp } from '@/lib/learning/language-xp';
 import { getEffectiveStreak } from '@/lib/streak';
 import { getAuthUser } from '@/lib/auth';
 import { ProfileContent } from './ProfileContent';
+import { BlockService } from '@/services/block.service';
+import { BlockedProfile } from '@/components/profile/BlockedProfile';
 import { getPublicProfileCustomization } from '@/services/profile-customization.service';
 
 export const revalidate = 0; // Desabilitar cache para dados dinâmicos do perfil
@@ -44,6 +46,19 @@ export default async function ProfilePage({
 
   if (!profileUser) {
     notFound();
+  }
+
+  if (await BlockService.hasBlock(user.id, profileUser.id)) {
+    const mine = await prisma.userBlock.findUnique({
+      where: { blockerId_blockedId: { blockerId: user.id, blockedId: profileUser.id } },
+    });
+    return (
+      <BlockedProfile
+        userId={profileUser.id}
+        username={profileUser.username}
+        blockedByMe={Boolean(mine)}
+      />
+    );
   }
 
   // Buscar todos os badges cadastrados no sistema

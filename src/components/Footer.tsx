@@ -9,7 +9,8 @@ const footerLinks = [
   { label: 'Feed', href: '/feed' },
   { label: 'Trilhas', href: '/trails' },
   { label: 'Duelos', href: '#' },
-  { label: 'Sobre', href: '#' },
+  { label: 'Sobre', href: '/about' },
+  { label: 'Diretrizes', href: '/guidelines' },
   { label: 'Privacidade', href: '/privacy' },
   { label: 'Termos', href: '/terms' },
 ];
@@ -56,6 +57,7 @@ export function Footer() {
           Trilhas: 'Trails',
           Duelos: 'Duels',
           Sobre: 'About',
+          Diretrizes: 'Guidelines',
           Privacidade: 'Privacy',
           Termos: 'Terms',
         } as Record<string, string>

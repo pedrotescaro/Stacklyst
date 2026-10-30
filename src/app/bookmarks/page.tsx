@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { visibleUserWhere } from '@/services/block.service';
 import { getAuthUser } from '@/lib/auth';
 import { BookmarksContent } from './BookmarksContent';
 import { publicQuiz } from '@/lib/quiz-public';
@@ -15,13 +16,14 @@ export default async function BookmarksPage() {
 
   // Buscar todos os bookmarks do usuário com os posts completos correspondentes
   const bookmarks = await prisma.bookmark.findMany({
-    where: { user_id: user.id },
+    where: { user_id: user.id, post: { author: visibleUserWhere(user.id) } },
     orderBy: { created_at: 'desc' },
     include: {
       post: {
         include: {
           author: {
             select: {
+              id: true,
               username: true,
               avatar_url: true,
               total_xp: true,

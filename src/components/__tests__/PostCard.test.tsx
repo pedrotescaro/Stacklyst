@@ -119,7 +119,7 @@ describe('PostCard', () => {
     expect(pushMock).not.toHaveBeenCalled();
   });
 
-  it('renders author display name, flags, title, username underneath, and hides low level badge', () => {
+  it('renders author display name, flags, title, username underneath, and low level badge', () => {
     const postWithProfile = {
       ...pythonPost,
       author: {
@@ -151,24 +151,26 @@ describe('PostCard', () => {
     expect(screen.getByAltText(/Bandeira: Brasil/i)).toBeInTheDocument();
     // Title shown
     expect(screen.getByText('Iniciante')).toBeInTheDocument();
-    // Level 2 should NOT be shown (minLevel 5)
-    expect(screen.queryByText(/Lvl 2/i)).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Nível 2')).toBeInTheDocument();
     // Language tag in header should NOT be present (the code block itself handles language in console)
     const pythonPills = screen.queryAllByText('PYTHON');
     // Only in code block console header, not as a standalone tag in header
     expect(pythonPills.length).toBeLessThanOrEqual(1);
   });
 
-  it('displays level badge when level is 5 or higher', () => {
-    const highLevelPost = {
-      ...pythonPost,
-      author: {
-        username: 'masterdev',
-        total_xp: 5000, // Level 6 (>= 5)
-      },
-    };
+  it.each([0, 1000, 2000, 3000, 4000, 5000, 29000, 99000])(
+    'displays the level at %i XP without a threshold',
+    (xp) => {
+      const highLevelPost = {
+        ...pythonPost,
+        author: {
+          username: 'masterdev',
+          total_xp: xp,
+        },
+      };
 
-    render(<PostCard post={highLevelPost} flat />);
-    expect(screen.getByText(/Lvl 6/i)).toBeInTheDocument();
-  });
+      render(<PostCard post={highLevelPost} flat />);
+      expect(screen.getByLabelText(`Nível ${Math.floor(xp / 1000) + 1}`)).toBeInTheDocument();
+    }
+  );
 });

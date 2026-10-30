@@ -1,5 +1,6 @@
 import { redirect, notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
+import { visibleUserWhere } from '@/services/block.service';
 import { publicQuiz } from '@/lib/quiz-public';
 import { getAuthUser } from '@/lib/auth';
 import { PostDetailContent } from './PostDetailContent';
@@ -7,6 +8,7 @@ import { PostDetailContent } from './PostDetailContent';
 export const revalidate = 0; // Desabilitar cache para dados dinâmicos de comentários/respostas
 
 const authorSelect = {
+  id: true,
   username: true,
   avatar_url: true,
   avatar_config: true,
@@ -21,28 +23,15 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   }
 
   // Incrementar visualizações do post no lado do servidor
-  const viewUpdatePromise = prisma.post
-    .update({
-      where: { id },
-      data: {
-        view_count: {
-          increment: 1,
-        },
-      },
-    })
-    .catch(() => {
-      // Silenciar erro se o ID for inválido
-    });
-
-  const postPromise = prisma.post.findUnique({
-    where: { id },
+  const postPromise = prisma.post.findFirst({
+    where: { id, author: visibleUserWhere(user.id) },
     include: {
       author: {
         select: authorSelect,
       },
       answers: {
         // Only top-level answers here; nested replies come embedded via `replies`.
-        where: { parent_id: null },
+        where: { parent_id: null, author: visibleUserWhere(user.id) },
         orderBy: { created_at: 'asc' },
         include: {
           author: {
@@ -53,16 +42,19 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           },
           // Nested replies up to 3 levels deep (matches the UI indent cap).
           replies: {
+            where: { author: visibleUserWhere(user.id) },
             orderBy: { created_at: 'asc' },
             include: {
               author: { select: authorSelect },
               votes: { where: { user_id: user.id } },
               replies: {
+                where: { author: visibleUserWhere(user.id) },
                 orderBy: { created_at: 'asc' },
                 include: {
                   author: { select: authorSelect },
                   votes: { where: { user_id: user.id } },
                   replies: {
+                    where: { author: visibleUserWhere(user.id) },
                     orderBy: { created_at: 'asc' },
                     include: {
                       author: { select: authorSelect },
@@ -97,11 +89,13 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
     },
   });
 
-  const [, post, bookmark] = await Promise.all([viewUpdatePromise, postPromise, bookmarkPromise]);
+  const [post, bookmark] = await Promise.all([postPromise, bookmarkPromise]);
 
   if (!post) {
     notFound();
   }
+
+  await prisma.post.update({ where: { id }, data: { view_count: { increment: 1 } } });
 
   // Verificar se o post está salvo nos bookmarks do usuário
   const initialIsSaved = !!bookmark;

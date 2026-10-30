@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from '@/services/block.service';
 import { getAuthUserId } from '@/lib/auth-session';
 import { getUserLanguageXp } from '@/lib/learning/language-xp';
 import { getEffectiveStreak } from '@/lib/streak';
@@ -8,6 +9,7 @@ import { getPublicProfileCustomization } from '@/services/profile-customization.
 export async function GET(request: Request, { params }: { params: Promise<{ username: string }> }) {
   try {
     const { username } = await params;
+    const viewerId = await getAuthUserId();
 
     const user = await prisma.user.findFirst({
       where: {
@@ -28,6 +30,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
     if (!user) {
       return NextResponse.json({ error: 'Usuário não encontrado' }, { status: 404 });
     }
+
+    if (viewerId && (await BlockService.hasBlock(viewerId, user.id)))
+      return NextResponse.json({ error: 'Perfil indisponível' }, { status: 404 });
 
     // Calcular estatísticas do usuário
     const answersCountPromise = prisma.answer.count({
@@ -60,8 +65,6 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
         cursorId = parts[1];
       }
     }
-
-    const viewerId = await getAuthUserId();
 
     const postWhereClause: any = { author_id: user.id };
     if (cursorTime && cursorId) {

@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from '@/services/block.service';
+import { AppError } from '@/lib/errors';
 import { getAuthUser } from '@/lib/auth';
 import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
 
@@ -17,6 +19,14 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     if (value !== 1 && value !== -1 && value !== 0) {
       return NextResponse.json({ error: 'Valor de voto inválido' }, { status: 400 });
     }
+
+    const answer = await prisma.answer.findUnique({
+      where: { id: answerId },
+      select: { author_id: true, post: { select: { author_id: true } } },
+    });
+    if (!answer) return NextResponse.json({ error: 'Resposta não encontrada' }, { status: 404 });
+    await BlockService.assertCanInteract(user.id, answer.author_id);
+    await BlockService.assertCanInteract(user.id, answer.post.author_id);
 
     // 1. Atualizar ou deletar o AnswerVote
     if (value === 0) {
@@ -67,6 +77,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     return NextResponse.json({ success: true, upvotes: newUpvotes });
   } catch (error: any) {
+    if (error instanceof AppError)
+      return NextResponse.json(
+        { error: error.code, message: error.message },
+        { status: error.statusCode }
+      );
     console.error('Error casting answer vote:', error);
     return NextResponse.json({ error: error.message || 'Erro ao votar' }, { status: 500 });
   }

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { BlockService } from './block.service';
 import { saveLessonAssessment, requireLessonAccess } from '@/lib/learning/lesson-progress';
 import { LEARNING_LESSONS } from '@/lib/learning/catalog';
 import { AppError } from '@/lib/errors';
@@ -25,6 +26,7 @@ export const QuizService = {
       );
     }
     const quiz = await prisma.quiz.findUnique({ where: { id: quizId }, include: { post: true } });
+    if (quiz?.post) await BlockService.assertCanInteract(userId, quiz.post.author_id);
     // Reward receipts are not answerable quizzes, even if a receipt exists in the legacy table.
     if (
       /^(trail-chest-|trail-jump-)|checkpoint/.test(quizId) ||

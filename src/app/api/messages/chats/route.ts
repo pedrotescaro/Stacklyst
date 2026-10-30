@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { visibleUserWhere } from '@/services/block.service';
 import { getAuthUser } from '@/lib/auth';
 
 export async function GET() {
@@ -28,6 +29,11 @@ export async function GET() {
         WHERE sender_id = ${user.id} OR receiver_id = ${user.id}
         ORDER BY CASE WHEN sender_id = ${user.id} THEN receiver_id ELSE sender_id END, created_at DESC, id DESC
       ) conversations
+      WHERE NOT EXISTS (
+        SELECT 1 FROM "user_blocks" b
+        WHERE (b."blockerId" = ${user.id} AND b."blockedId" = conversations."partnerId")
+           OR (b."blockedId" = ${user.id} AND b."blockerId" = conversations."partnerId")
+      )
       ORDER BY created_at DESC, id DESC
       LIMIT 100
     `;
@@ -36,6 +42,7 @@ export async function GET() {
     const partners = await prisma.user.findMany({
       where: {
         id: { in: chatsList.map((c) => c.partnerId) },
+        ...visibleUserWhere(user.id),
       },
       select: {
         id: true,

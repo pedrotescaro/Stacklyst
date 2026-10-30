@@ -9,6 +9,7 @@ vi.mock('@/lib/auth', () => ({
 }));
 vi.mock('@/lib/prisma', () => {
   const db = {
+    userBlock: { findFirst: vi.fn().mockResolvedValue(null) },
     $executeRaw: vi.fn(async () => 1),
     $transaction: vi.fn(async (work) => work(db)),
     quiz: { findUnique: vi.fn(), upsert: vi.fn() },

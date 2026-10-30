@@ -19,6 +19,7 @@ import {
 import { Sidebar } from '@/components/Sidebar';
 import { ProfileRightRail, type ProfileRailUser } from '@/components/profile/ProfileRightRail';
 import { PostCard } from '@/components/PostCard';
+import { BlockUserButton } from '@/components/BlockUserButton';
 import { ProfileReplyThread } from '@/components/ProfileReplyThread';
 import { FollowersModal } from '@/components/motion/FollowersModal';
 import { AchievementShowcase } from '@/components/AchievementShowcase';
@@ -384,6 +385,11 @@ export function ProfileContent({
               onSaved={(next) => setLocalProfile((previous) => ({ ...previous, ...next }))}
               onPreview={setPreviewPreferences}
             />
+            {user.id !== profileUser.id && (
+              <div className="flex justify-end px-4 pb-3">
+                <BlockUserButton userId={profileUser.id} username={profileUser.username} />
+              </div>
+            )}
             {/* Desktop Navigation (>= 768px): strictly preserved */}
             <div
               ref={tabsRef}

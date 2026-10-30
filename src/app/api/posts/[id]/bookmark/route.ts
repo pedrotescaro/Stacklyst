@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 
@@ -14,6 +15,8 @@ export const POST = apiHandler(async (req, { params }) => {
   if (!post) {
     return NextResponse.json({ error: 'Postagem não encontrada' }, { status: 404 });
   }
+
+  await BlockService.assertCanInteract(user.id, post.author_id);
 
   const existingBookmark = await prisma.bookmark.findFirst({
     where: {

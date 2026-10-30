@@ -1,9 +1,10 @@
 import { prisma } from '@/lib/prisma';
+import { visibleUserWhere } from './block.service';
 import { ValidationError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 
 export const SearchService = {
-  async searchPosts(query: string, cursor?: string, limit = 10) {
+  async searchPosts(query: string, cursor?: string, limit = 10, viewerId: string | null = null) {
     if (query.length > 100) {
       throw new ValidationError(
         'QUERY_TOO_LONG',
@@ -62,7 +63,11 @@ export const SearchService = {
                  )::float as rank
           FROM "Post" p
           JOIN "User" u ON p.author_id = u.id
-          WHERE to_tsvector('portuguese', p.title || ' ' || COALESCE(p.body, '')) @@ plainto_tsquery('portuguese', ${sanitized})
+          WHERE NOT EXISTS (
+            SELECT 1 FROM "user_blocks" b
+            WHERE (b."blockerId" = ${viewerId} AND b."blockedId" = p.author_id)
+               OR (b."blockedId" = ${viewerId} AND b."blockerId" = p.author_id)
+          ) AND to_tsvector('portuguese', p.title || ' ' || COALESCE(p.body, '')) @@ plainto_tsquery('portuguese', ${sanitized})
         )
         SELECT *
         FROM search_results
@@ -88,7 +93,11 @@ export const SearchService = {
                  )::float as rank
           FROM "Post" p
           JOIN "User" u ON p.author_id = u.id
-          WHERE to_tsvector('portuguese', p.title || ' ' || COALESCE(p.body, '')) @@ plainto_tsquery('portuguese', ${sanitized})
+          WHERE NOT EXISTS (
+            SELECT 1 FROM "user_blocks" b
+            WHERE (b."blockerId" = ${viewerId} AND b."blockedId" = p.author_id)
+               OR (b."blockedId" = ${viewerId} AND b."blockerId" = p.author_id)
+          ) AND to_tsvector('portuguese', p.title || ' ' || COALESCE(p.body, '')) @@ plainto_tsquery('portuguese', ${sanitized})
         )
         SELECT *
         FROM search_results
@@ -152,7 +161,7 @@ export const SearchService = {
     };
   },
 
-  async searchUsers(query: string, cursor?: string, limit = 10) {
+  async searchUsers(query: string, cursor?: string, limit = 10, viewerId: string | null = null) {
     if (query.length > 100) {
       throw new ValidationError(
         'QUERY_TOO_LONG',
@@ -162,6 +171,7 @@ export const SearchService = {
 
     const users = await prisma.user.findMany({
       where: {
+        ...visibleUserWhere(viewerId),
         OR: [
           { username: { contains: query, mode: 'insensitive' } },
           {

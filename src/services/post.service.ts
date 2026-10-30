@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { visibleUserWhere } from '@/services/block.service';
 import { Language } from '@prisma/client';
 import { CreatePostInput } from '@/lib/validators';
 import { encodeCursor, buildCursorWhere } from '@/lib/pagination';
@@ -164,7 +165,7 @@ export const PostService = {
     if (likedBy) {
       whereClause.votes = {
         some: {
-          user: { username: likedBy },
+          user: { username: likedBy, ...visibleUserWhere(userId) },
           value: 1,
         },
       };
@@ -172,7 +173,7 @@ export const PostService = {
     if (answeredBy) {
       whereClause.answers = {
         some: {
-          author: { username: answeredBy },
+          author: { username: answeredBy, ...visibleUserWhere(userId) },
         },
       };
     }
@@ -186,7 +187,7 @@ export const PostService = {
     }
 
     const cursorWhere = buildCursorWhere(cursor, 'created_at');
-    const finalWhere = { AND: [whereClause, cursorWhere] };
+    const finalWhere = { AND: [whereClause, cursorWhere, { author: visibleUserWhere(userId) }] };
 
     const posts = await prisma.post.findMany({
       where: finalWhere,
@@ -257,6 +258,6 @@ export const PostService = {
       where.language = { in: params.languages as Language[] };
     }
 
-    return prisma.post.count({ where });
+    return prisma.post.count({ where: { AND: [where, { author: visibleUserWhere(userId) }] } });
   },
 };

@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { BlockService } from './block.service';
 import { NotFoundError, ValidationError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
 import { syncProfileAchievementsSafely } from './profile-customization.service';
@@ -10,6 +11,7 @@ export const FollowService = {
     }
 
     const result = await prisma.$transaction(async (tx) => {
+      await BlockService.assertCanInteract(followerId, followingId, tx);
       // 1. Verify target user exists
       const targetUser = await tx.user.findUnique({
         where: { id: followingId },

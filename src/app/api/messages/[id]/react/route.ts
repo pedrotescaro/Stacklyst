@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { randomUUID } from 'crypto';
@@ -76,6 +77,10 @@ export const POST = apiHandler(async (req, { params }) => {
     );
   }
 
+  await BlockService.assertCanInteract(
+    user.id,
+    message.sender_id === user.id ? message.receiver_id : message.sender_id
+  );
   await ensureMessageReactionTable();
 
   // Check if user already reacted with this emoji on this message

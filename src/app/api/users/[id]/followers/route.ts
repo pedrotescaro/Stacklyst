@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { visibleUserWhere } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
 
 export const GET = apiHandler(async (req, { session, params }) => {
@@ -7,7 +8,11 @@ export const GET = apiHandler(async (req, { session, params }) => {
   const currentUser = session;
 
   const follows = await prisma.follow.findMany({
-    where: { followingId: id },
+    where: {
+      followingId: id,
+      following: visibleUserWhere(session?.id ?? null),
+      follower: visibleUserWhere(session?.id ?? null),
+    },
     include: {
       follower: {
         select: {

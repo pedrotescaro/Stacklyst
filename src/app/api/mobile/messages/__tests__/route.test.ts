@@ -14,6 +14,7 @@ vi.mock('@/lib/auth', () => ({
 }));
 vi.mock('@/lib/prisma', () => ({
   prisma: {
+    userBlock: { findFirst: vi.fn().mockResolvedValue(null) },
     message: {
       findUnique: mocks.findUnique,
       findUniqueOrThrow: mocks.findUniqueOrThrow,

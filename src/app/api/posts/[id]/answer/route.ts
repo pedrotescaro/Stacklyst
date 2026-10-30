@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { createAnswerSchema } from '@/lib/validators';
@@ -20,6 +21,8 @@ export const POST = apiHandler(async (req, { params }) => {
   if (!post) {
     throw new NotFoundError('POST_NOT_FOUND', 'Post não encontrado');
   }
+
+  await BlockService.assertCanInteract(user.id, post.author_id);
 
   const body = await req.json();
   const parsed = createAnswerSchema.parse(body);
@@ -44,6 +47,7 @@ export const POST = apiHandler(async (req, { params }) => {
       );
     }
 
+    await BlockService.assertCanInteract(user.id, parentAnswer.author_id);
     parentId = parentAnswer.id;
   }
 

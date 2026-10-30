@@ -1,5 +1,6 @@
 import { recordPeriodXp } from '@/lib/learning/xp-periods';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from './block.service';
 import { NotFoundError } from '@/lib/errors';
 import { awardXPInTransaction } from '@/lib/xp';
 import { calculateLevel } from '@/lib/learning/rewards';
@@ -24,6 +25,8 @@ export const ReactionService = {
       if (!post) {
         throw new NotFoundError('POST_NOT_FOUND', 'Postagem não encontrada');
       }
+
+      await BlockService.assertCanInteract(userId, post.author_id, tx);
 
       // 2. Fetch existing reaction
       const existingReaction = await tx.reaction.findUnique({

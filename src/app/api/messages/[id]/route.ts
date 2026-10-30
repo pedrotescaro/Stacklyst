@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from '@/services/block.service';
+import { AppError } from '@/lib/errors';
 import { getAuthUser } from '@/lib/auth';
 
 // PATCH /api/messages/[id] - Edit a message
@@ -35,6 +37,8 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       );
     }
 
+    await BlockService.assertCanInteract(user.id, message.receiver_id);
+
     // Update message
     const updatedMessage = await prisma.message.update({
       where: { id },
@@ -47,6 +51,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     return NextResponse.json(updatedMessage);
   } catch (error) {
+    if (error instanceof AppError)
+      return NextResponse.json(
+        { error: error.code, message: error.message },
+        { status: error.statusCode }
+      );
     console.error('Error editing message:', error);
     return NextResponse.json({ error: 'Erro interno do servidor' }, { status: 500 });
   }

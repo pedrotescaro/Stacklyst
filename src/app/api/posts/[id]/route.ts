@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { visibleUserWhere } from '@/services/block.service';
 import { getAuthUser } from '@/lib/auth';
 import { extractPostMetadata } from '@/lib/editor/extract-metadata';
 import { publicQuiz } from '@/lib/quiz-public';
@@ -10,21 +11,12 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const { id } = await params;
     const user = await getAuthUser();
 
-    // Incrementar visualizações do post
-    await prisma.post.update({
-      where: { id },
-      data: {
-        view_count: {
-          increment: 1,
-        },
-      },
-    });
-
-    const post = await prisma.post.findUnique({
-      where: { id },
+    const post = await prisma.post.findFirst({
+      where: { id, author: visibleUserWhere(user?.id ?? null) },
       include: {
         author: {
           select: {
+            id: true,
             username: true,
             avatar_url: true,
             avatar_config: true,
@@ -32,6 +24,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           },
         },
         answers: {
+          where: { author: visibleUserWhere(user?.id ?? null) },
           // Fetch the full thread once. A fixed nested include silently drops deep replies.
           orderBy: { created_at: 'asc' },
           include: {
@@ -59,6 +52,8 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     if (!post) {
       return NextResponse.json({ error: 'Post não encontrado' }, { status: 404 });
     }
+
+    await prisma.post.update({ where: { id }, data: { view_count: { increment: 1 } } });
 
     return NextResponse.json({
       ...post,

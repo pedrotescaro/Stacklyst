@@ -228,6 +228,8 @@ model User {
   reports                Report[]
   followers              Follow[]               @relation("Followers")
   following              Follow[]               @relation("Following")
+  blocks_made            UserBlock[]            @relation("Blocker")
+  blocks_received        UserBlock[]            @relation("Blocked")
   reactions              Reaction[]
   message_reactions      MessageReaction[]
   guilds_owned           Guild[]                @relation("OwnedGuilds")
@@ -248,6 +250,18 @@ model User {
 
   @@index([total_xp(sort: Desc)])
   @@index([role])
+}
+
+model UserBlock {
+  blockerId String
+  blockedId String
+  createdAt DateTime @default(now())
+  blocker   User     @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade)
+  blocked   User     @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade)
+
+  @@id([blockerId, blockedId])
+  @@index([blockedId])
+  @@map("user_blocks")
 }
 
 model RpgPlayer {

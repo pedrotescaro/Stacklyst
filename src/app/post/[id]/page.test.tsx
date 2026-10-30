@@ -12,7 +12,7 @@ vi.mock('@/lib/auth', () => ({
 }));
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    post: { findUnique: mocks.findPost, update: mocks.updatePost },
+    post: { findFirst: mocks.findPost, update: mocks.updatePost },
     bookmark: { findUnique: mocks.findBookmark },
   },
 }));
@@ -27,7 +27,13 @@ describe('post detail author identity', () => {
     await PostDetailPage({ params: Promise.resolve({ id: 'post-1' }) });
 
     const include = mocks.findPost.mock.calls[0][0].include;
-    const expected = { username: true, avatar_url: true, avatar_config: true, total_xp: true };
+    const expected = {
+      id: true,
+      username: true,
+      avatar_url: true,
+      avatar_config: true,
+      total_xp: true,
+    };
     expect(include.author.select).toEqual(expected);
     let answers = include.answers;
     for (let depth = 0; depth <= 3; depth++) {

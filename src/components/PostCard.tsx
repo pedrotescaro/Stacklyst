@@ -24,6 +24,7 @@ import { PostActionsBar, postActionClassName, InteractionCount } from '@/compone
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { LevelBadge } from '@/components/LevelBadge';
+import { BlockUserButton } from '@/components/BlockUserButton';
 import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { PostLocation, SensitiveContentGate } from './PostPresentation';
@@ -39,6 +40,7 @@ import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './PostCard.module.css';
 
 interface PostAuthor {
+  id?: string;
   name?: string | null;
   username: string;
   avatar_url?: string | null;
@@ -48,6 +50,7 @@ interface PostAuthor {
 
 interface Post {
   id: string;
+  author_id?: string;
   title: string;
   body: string;
   language?: string | null;
@@ -97,6 +100,16 @@ export function PostCard({
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const [authorBlocked, setAuthorBlocked] = useState(false);
+
+  useEffect(() => {
+    const onBlock = (event: Event) => {
+      const detail = (event as CustomEvent<{ userId: string; blocked: boolean }>).detail;
+      if (detail.userId === (post.author.id ?? post.author_id)) setAuthorBlocked(detail.blocked);
+    };
+    window.addEventListener('stacklyst:block-changed', onBlock);
+    return () => window.removeEventListener('stacklyst:block-changed', onBlock);
+  }, [post.author.id, post.author_id]);
 
   const [reportReason, setReportReason] = useState('');
   const [reporting, setReporting] = useState(false);
@@ -326,7 +339,11 @@ export function PostCard({
   const authorDisplayName = getAuthorDisplayName(post.author);
 
   return (
-    <div onClick={handleCardClick} className="block min-w-0 group cursor-pointer">
+    <div
+      hidden={authorBlocked}
+      onClick={handleCardClick}
+      className={authorBlocked ? 'hidden' : 'block min-w-0 group cursor-pointer'}
+    >
       <article
         className={cn(
           'relative min-w-0 transition-colors',
@@ -349,7 +366,7 @@ export function PostCard({
             />
           </Link>
           <div className="flex-1 min-w-0">
-            {/* Row 1: Name, Flags, Title, Level (>=5) */}
+            {/* Row 1: Name, Flags, Title, Level */}
             <div className="flex items-center gap-1.5 flex-wrap min-w-0">
               <Link
                 href={`/profile/${post.author.username}`}
@@ -368,7 +385,7 @@ export function PostCard({
                 </span>
               )}
               {authorIdentity.title && <ProfileTitle title={authorIdentity.title} />}
-              <LevelBadge totalXp={post.author.total_xp ?? 0} minLevel={5} />
+              <LevelBadge totalXp={post.author.total_xp ?? 0} />
             </div>
 
             {/* Row 2: @username · Postado há pouco / Postado ... */}
@@ -522,7 +539,7 @@ export function PostCard({
 
             {menuOpen && (
               <div
-                className="absolute right-0 bottom-full mb-1.5 w-44 rounded-2xl border border-dd-border/80 bg-dd-surface p-1.5 shadow-2xl z-40 animate-slide-up"
+                className="absolute right-0 bottom-full mb-1.5 w-64 max-w-[calc(100vw-3rem)] rounded-2xl border border-dd-border/80 bg-dd-surface p-1.5 shadow-2xl z-40 animate-slide-up"
                 onClick={(e) => {
                   e.stopPropagation();
                   e.preventDefault();
@@ -556,18 +573,27 @@ export function PostCard({
                     </button>
                   </>
                 ) : (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setReportModalOpen(true);
-                      setMenuOpen(false);
-                    }}
-                    className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
-                  >
-                    <Flag className="w-4 h-4 text-dd-muted" />
-                    <span>Denunciar</span>
-                  </button>
+                  <>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setReportModalOpen(true);
+                        setMenuOpen(false);
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
+                    >
+                      <Flag className="w-4 h-4 text-dd-muted" />
+                      <span>Denunciar</span>
+                    </button>
+                    {(post.author.id ?? post.author_id) && (
+                      <BlockUserButton
+                        userId={(post.author.id ?? post.author_id)!}
+                        username={post.author.username}
+                        className="w-full text-left"
+                      />
+                    )}
+                  </>
                 )}
               </div>
             )}

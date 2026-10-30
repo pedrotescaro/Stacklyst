@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { visibleUserWhere } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
 
 export const GET = apiHandler(async (req, { session, params }) => {
@@ -23,7 +24,10 @@ export const GET = apiHandler(async (req, { session, params }) => {
     const whereClause: any = {
       author: {
         username: { equals: username, mode: 'insensitive' },
+        ...visibleUserWhere(session?.id ?? null),
       },
+      post: { author: visibleUserWhere(session?.id ?? null) },
+      OR: [{ parent: null }, { parent: { author: visibleUserWhere(session?.id ?? null) } }],
     };
 
     if (search) {
@@ -40,9 +44,14 @@ export const GET = apiHandler(async (req, { session, params }) => {
     }
 
     if (cursorTime && cursorId) {
-      whereClause.OR = [
-        { created_at: { lt: cursorTime } },
-        { created_at: cursorTime, id: { lt: cursorId } },
+      whereClause.AND = [
+        ...(whereClause.AND ?? []),
+        {
+          OR: [
+            { created_at: { lt: cursorTime } },
+            { created_at: cursorTime, id: { lt: cursorId } },
+          ],
+        },
       ];
     }
 

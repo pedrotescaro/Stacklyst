@@ -17,6 +17,7 @@ describe('profile replies search pagination', () => {
       expect.objectContaining({
         where: {
           author: { username: { equals: 'developer', mode: 'insensitive' } },
+          post: { author: {} },
           AND: [
             {
               OR: expect.arrayContaining([
@@ -24,6 +25,7 @@ describe('profile replies search pagination', () => {
                 { post: { title: { contains: 'antigo', mode: 'insensitive' } } },
               ]),
             },
+            { OR: expect.any(Array) },
           ],
           OR: expect.any(Array),
         },

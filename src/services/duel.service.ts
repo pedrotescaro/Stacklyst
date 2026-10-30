@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { BlockService, visibleUserWhere } from './block.service';
 import { logger } from '@/lib/logger';
 import { Language } from '@prisma/client';
 import { getRandomDuelProblem } from '@/lib/duel-problems';
@@ -64,6 +65,7 @@ export const DuelService = {
     let candidate = await prisma.user.findFirst({
       where: {
         id: { not: userId },
+        ...visibleUserWhere(userId),
         total_xp: { gte: exactMinXp, lte: exactMaxXp },
         last_active_at: { gte: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000) },
       },
@@ -75,6 +77,7 @@ export const DuelService = {
       candidate = await prisma.user.findFirst({
         where: {
           id: { not: userId },
+          ...visibleUserWhere(userId),
           total_xp: {
             gte: Math.max(0, challenger.total_xp - 1000),
             lte: challenger.total_xp + 1000,
@@ -87,7 +90,7 @@ export const DuelService = {
     // 3. Fallback to any active user
     if (!candidate) {
       candidate = await prisma.user.findFirst({
-        where: { id: { not: userId } },
+        where: { id: { not: userId }, ...visibleUserWhere(userId) },
         orderBy: { total_xp: 'desc' },
       });
     }
@@ -107,6 +110,8 @@ export const DuelService = {
     if (senderId === receiverId) {
       throw new ValidationError('SELF_DUEL', 'Você não pode desafiar a si mesmo.');
     }
+
+    await BlockService.assertCanInteract(senderId, receiverId);
 
     const [sender, receiver] = await Promise.all([
       prisma.user.findUnique({ where: { id: senderId } }),
@@ -180,6 +185,8 @@ export const DuelService = {
     if (!request || request.receiver_id !== receiverId) {
       throw new ValidationError('DUEL_REQUEST_NOT_FOUND', 'Convite de duelo não encontrado.');
     }
+
+    await BlockService.assertCanInteract(receiverId, request.sender_id);
 
     if (request.status !== 'PENDING') {
       throw new ValidationError(

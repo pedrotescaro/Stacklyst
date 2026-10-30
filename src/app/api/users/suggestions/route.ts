@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { visibleUserWhere } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
 
 export const GET = apiHandler(async (req, { session }) => {
@@ -9,6 +10,7 @@ export const GET = apiHandler(async (req, { session }) => {
 
   const suggestions = await prisma.user.findMany({
     where: {
+      ...visibleUserWhere(session.id),
       NOT: {
         id: session.id,
       },

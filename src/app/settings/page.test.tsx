@@ -54,6 +54,14 @@ function renderSettings() {
 
 describe('SettingsPage', () => {
   beforeEach(() => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockReturnValue({
+        matches: false,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })
+    );
     localStorage.clear();
     document.documentElement.lang = 'pt-BR';
     document.documentElement.removeAttribute('data-language');
@@ -64,6 +72,7 @@ describe('SettingsPage', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    vi.unstubAllGlobals();
   });
 
   it('does not render the site footer in settings', async () => {

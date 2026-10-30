@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from '@/services/block.service';
+import { AppError } from '@/lib/errors';
 import { getAuthUser } from '@/lib/auth';
 import { awardXPInTransaction } from '@/lib/xp';
 import { learningTransaction } from '@/lib/learning/transaction';
@@ -33,6 +35,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
       );
     }
 
+    await BlockService.assertCanInteract(user.id, answer.author_id);
+
     // Se já foi aceita, não fazer nada
     if (answer.is_accepted) {
       return NextResponse.json({ error: 'Resposta já foi aceita' }, { status: 400 });
@@ -54,6 +58,11 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
     return NextResponse.json(result);
   } catch (error) {
+    if (error instanceof AppError)
+      return NextResponse.json(
+        { error: error.code, message: error.message },
+        { status: error.statusCode }
+      );
     console.error('Error accepting answer:', error);
     return NextResponse.json({ error: 'Erro ao aceitar resposta' }, { status: 500 });
   }

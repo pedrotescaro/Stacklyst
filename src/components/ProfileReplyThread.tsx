@@ -192,7 +192,7 @@ export function ProfileReplyThread({ reply }: ProfileReplyThreadProps) {
                 );
               })()}
               {parentAuthor.total_xp !== undefined && (
-                <LevelBadge totalXp={parentAuthor.total_xp} minLevel={5} />
+                <LevelBadge totalXp={parentAuthor.total_xp} />
               )}
             </div>
 
@@ -268,7 +268,7 @@ export function ProfileReplyThread({ reply }: ProfileReplyThreadProps) {
                 );
               })()}
               {reply.author.total_xp !== undefined && (
-                <LevelBadge totalXp={reply.author.total_xp} minLevel={5} />
+                <LevelBadge totalXp={reply.author.total_xp} />
               )}
             </div>
 

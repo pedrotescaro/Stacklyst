@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from '@/services/block.service';
 import { withCache } from '@/lib/cache';
 import { CACHE_TTL_DAILY_QUIZ } from '@/lib/config';
 import { generateDailyQuiz } from '@/services/daily-quiz.service';
@@ -23,6 +24,15 @@ export const GET = apiHandler(async (_req) => {
 
   if (!quiz) {
     return NextResponse.json({ quiz: null, attempt: null });
+  }
+
+  if (quiz.post_id) {
+    const post = await prisma.post.findUnique({
+      where: { id: quiz.post_id },
+      select: { author_id: true },
+    });
+    if (post && (await BlockService.hasBlock(user.id, post.author_id)))
+      return NextResponse.json({ quiz: null, attempt: null });
   }
 
   // Get user attempt (not cached — per-user)

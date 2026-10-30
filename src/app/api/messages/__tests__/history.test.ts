@@ -6,7 +6,11 @@ vi.mock('@/lib/auth', () => ({
   requireAuth: async () => ({ id: 'me' }),
 }));
 vi.mock('@/lib/prisma', () => ({
-  prisma: { message: { findMany: mocks.findMany }, $executeRawUnsafe: mocks.execute },
+  prisma: {
+    userBlock: { findFirst: vi.fn().mockResolvedValue(null) },
+    message: { findMany: mocks.findMany },
+    $executeRawUnsafe: mocks.execute,
+  },
 }));
 vi.mock('@/lib/ratelimit', () => ({ rateLimit: vi.fn() }));
 vi.mock('@/services/notification.service', () => ({ NotificationService: { create: vi.fn() } }));

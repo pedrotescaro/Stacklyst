@@ -1,9 +1,10 @@
 import { prisma } from '@/lib/prisma';
+import { visibleUserWhere } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
 import { z } from 'zod';
 import { ValidationError } from '@/lib/errors';
 
-export const GET = apiHandler(async (request, { params }) => {
+export const GET = apiHandler(async (request, { params, session }) => {
   const { username } = await params;
   const query = new URL(request.url).searchParams;
   const search = query.get('search')?.trim().slice(0, 200);
@@ -15,7 +16,10 @@ export const GET = apiHandler(async (request, { params }) => {
     .max(30)
     .parse(query.get('limit') || 18);
   const profile = await prisma.user.findFirst({
-    where: { username: { equals: username, mode: 'insensitive' } },
+    where: {
+      username: { equals: username, mode: 'insensitive' },
+      ...visibleUserWhere(session?.id ?? null),
+    },
     select: { id: true },
   });
   if (!profile) return Response.json({ error: 'Perfil não encontrado.' }, { status: 404 });

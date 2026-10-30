@@ -20,6 +20,7 @@ describe('profile post search pagination', () => {
               ]),
             },
             { OR: expect.any(Array) },
+            { author: {} },
           ],
         },
       })

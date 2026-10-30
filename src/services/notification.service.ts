@@ -1,4 +1,5 @@
 import { prisma } from '@/lib/prisma';
+import { BlockService, visibleUserWhere } from './block.service';
 import { sendMobilePush } from '@/lib/mobile/push';
 import { NotificationType } from '@prisma/client';
 import { encodeCursor, buildCursorWhere } from '@/lib/pagination';
@@ -105,6 +106,7 @@ function getNotificationLink({
 
 export const NotificationService = {
   async create(data: CreateNotificationInput) {
+    if (data.actorId && (await BlockService.hasBlock(data.userId, data.actorId))) return null;
     const notification = await prisma.notification.create({
       data: {
         userId: data.userId,
@@ -132,6 +134,7 @@ export const NotificationService = {
   async getUserNotifications(userId: string, cursor?: string, limit = 10, useCursor = true) {
     const where = {
       userId,
+      OR: [{ actorId: null }, { actor: { is: visibleUserWhere(userId) } }],
       ...buildCursorWhere(cursor, 'createdAt'),
     };
 
@@ -212,7 +215,7 @@ export const NotificationService = {
                 title: true,
                 body: true,
                 votes: {
-                  where: { value: 1 },
+                  where: { value: 1, user: visibleUserWhere(userId) },
                   include: {
                     user: {
                       select: {

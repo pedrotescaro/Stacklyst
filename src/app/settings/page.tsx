@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Sidebar } from '@/components/Sidebar';
+import { BlockedUsersSettings } from '@/components/BlockedUsersSettings';
 import { getCurrentUser, invalidateCurrentUser } from '@/lib/client/current-user';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AVATAR_BACKGROUNDS, normalizeAvatarConfig } from '@/lib/avatar';
@@ -26,9 +27,10 @@ import {
   Search,
   Volume2,
   Languages,
+  Ban,
 } from 'lucide-react';
 
-type SettingsTab = 'sua-conta' | 'aparencia' | 'sons' | 'idioma' | 'acoes';
+type SettingsTab = 'sua-conta' | 'aparencia' | 'sons' | 'idioma' | 'bloqueados' | 'acoes';
 type SoundFeedback = 'enabled' | 'disabled' | null;
 
 export default function SettingsPage() {
@@ -295,6 +297,24 @@ export default function SettingsPage() {
       description: t.settings.tabs.language.description,
       icon: Languages,
       keywords: ['idioma', 'lingua', 'linguagem', 'language', 'english', 'portugues', 'inglês'],
+    },
+    {
+      id: 'bloqueados',
+      title: language === 'en' ? 'Blocked users' : 'Usuários bloqueados',
+      description:
+        language === 'en'
+          ? 'Manage who can interact with you'
+          : 'Gerencie quem pode interagir com você',
+      icon: Ban,
+      keywords: [
+        'bloqueados',
+        'bloquear',
+        'desbloquear',
+        'privacidade',
+        'block',
+        'unblock',
+        'privacy',
+      ],
     },
     {
       id: 'acoes',
@@ -983,6 +1003,8 @@ export default function SettingsPage() {
                 </div>
               </div>
             )}
+
+            {activeTab === 'bloqueados' && <BlockedUsersSettings />}
 
             {activeTab === 'acoes' && (
               <div className="space-y-6">

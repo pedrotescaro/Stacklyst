@@ -6,7 +6,12 @@ const mocks = vi.hoisted(() => ({
   tx: { answer: { updateMany: vi.fn(), findUniqueOrThrow: vi.fn() } },
 }));
 vi.mock('@/lib/auth', () => ({ getAuthUser: vi.fn(async () => ({ id: 'owner' })) }));
-vi.mock('@/lib/prisma', () => ({ prisma: { answer: { findUnique: vi.fn() } } }));
+vi.mock('@/lib/prisma', () => ({
+  prisma: {
+    userBlock: { findFirst: vi.fn().mockResolvedValue(null) },
+    answer: { findUnique: vi.fn() },
+  },
+}));
 vi.mock('@/lib/xp', () => ({ awardXPInTransaction: vi.fn() }));
 vi.mock('@/lib/learning/transaction', () => ({
   learningTransaction: (work: (tx: unknown) => unknown) => work(mocks.tx),

@@ -4,7 +4,7 @@ import { requireAuth } from '@/lib/auth';
 import { SearchService } from '@/services/search.service';
 
 export const GET = apiHandler(async (req) => {
-  await requireAuth();
+  const user = await requireAuth();
 
   const { searchParams } = new URL(req.url);
   const q = searchParams.get('q') || '';
@@ -20,15 +20,15 @@ export const GET = apiHandler(async (req) => {
 
   let result;
   if (type === 'users') {
-    result = await SearchService.searchUsers(q, cursor, limit);
+    result = await SearchService.searchUsers(q, cursor, limit, user.id);
   } else {
-    result = await SearchService.searchPosts(q, cursor, limit);
+    result = await SearchService.searchPosts(q, cursor, limit, user.id);
   }
 
   const response = NextResponse.json(result);
 
   // Cache the identical query + cursor for 60 seconds
-  response.headers.set('Cache-Control', 'public, max-age=60, stale-while-revalidate=30');
+  response.headers.set('Cache-Control', 'private, no-store');
 
   return response;
 });

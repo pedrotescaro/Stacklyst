@@ -8,7 +8,13 @@ import { GET } from './route';
 
 vi.mock('@/lib/auth', () => ({ getAuthUser: vi.fn(), requireAuth: vi.fn() }));
 vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn(), error: vi.fn() } }));
-vi.mock('@/lib/prisma', () => ({ prisma: { quizAttempt: { findUnique: vi.fn() } } }));
+vi.mock('@/lib/prisma', () => ({
+  prisma: {
+    post: { findUnique: vi.fn().mockResolvedValue({ author_id: 'author' }) },
+    userBlock: { findFirst: vi.fn().mockResolvedValue(null) },
+    quizAttempt: { findUnique: vi.fn() },
+  },
+}));
 vi.mock('@/services/daily-quiz.service', () => ({ generateDailyQuiz: vi.fn() }));
 vi.mock('@/lib/cache', () => ({
   withCache: vi.fn(async (_key: string, _ttl: number, load: () => Promise<unknown>) => load()),

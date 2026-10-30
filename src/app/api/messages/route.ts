@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { NotificationService } from '@/services/notification.service';
@@ -64,6 +65,8 @@ export const POST = apiHandler(async (req) => {
     return NextResponse.json({ error: 'Destinatário não informado' }, { status: 400 });
   }
 
+  await BlockService.assertCanInteract(user.id, receiver_id);
+
   // Create message
   const message = await prisma.message.create({
     data: {
@@ -103,6 +106,7 @@ export const GET = apiHandler(async (req) => {
     return NextResponse.json({ error: 'receiver_id é obrigatório' }, { status: 400 });
   }
 
+  await BlockService.assertCanInteract(user.id, receiverId);
   await ensureMessageReactionTable();
 
   const where = {

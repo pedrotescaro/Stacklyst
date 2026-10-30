@@ -1,6 +1,7 @@
 import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from '@/services/block.service';
 import { z } from 'zod';
 import { AppError } from '@/lib/errors';
 import { rateLimit } from '@/lib/ratelimit';
@@ -14,6 +15,7 @@ const input = z.object({
 export const POST = apiHandler(async (req) => {
   const user = await requireAuth();
   const data = input.parse(await req.json());
+  await BlockService.assertCanInteract(user.id, data.receiver_id);
   await rateLimit(`messages:${user.id}`, {
     limit: 30,
     window: '1 m',
@@ -57,6 +59,7 @@ export const GET = apiHandler(async (req) => {
   const user = await requireAuth();
   const query = new URL(req.url).searchParams;
   const partner = z.string().uuid().parse(query.get('receiver_id'));
+  await BlockService.assertCanInteract(user.id, partner);
   const rows = await prisma.message.findMany({
     where: {
       AND: [

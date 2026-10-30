@@ -526,7 +526,7 @@ export function PostDetailContent({
                         </>
                       );
                     })()}
-                    <LevelBadge totalXp={post.author.total_xp ?? 0} minLevel={5} />
+                    <LevelBadge totalXp={post.author.total_xp ?? 0} />
                   </div>
 
                   {/* Bottom row: @username */}

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { BlockService } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { NotificationService } from '@/services/notification.service';
@@ -25,6 +26,8 @@ export const POST = apiHandler(async (req, { params }) => {
   if (!postExists) {
     throw new NotFoundError('POST_NOT_FOUND', 'Postagem não encontrada');
   }
+
+  await BlockService.assertCanInteract(user.id, postExists.author_id);
 
   // 2. Update or delete PostVote atomically
   if (value === 0) {

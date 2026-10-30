@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { visibleUserWhere } from '@/services/block.service';
 import { getAuthUser } from '@/lib/auth';
 
 export async function GET(request: Request) {
@@ -21,7 +22,7 @@ export async function GET(request: Request) {
     }
 
     const users = await prisma.user.findMany({
-      where: whereClause,
+      where: { AND: [whereClause, visibleUserWhere(user.id)] },
       select: {
         id: true,
         username: true,

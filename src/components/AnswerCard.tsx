@@ -264,7 +264,7 @@ export function AnswerCard({
                 );
               })()}
               {answer.author.total_xp !== undefined && (
-                <LevelBadge totalXp={answer.author.total_xp} minLevel={5} />
+                <LevelBadge totalXp={answer.author.total_xp} />
               )}
             </div>
 

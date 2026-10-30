@@ -3,6 +3,7 @@ import { ReactionService } from '../reaction.service';
 import { awardXPInTransaction } from '@/lib/xp';
 const mocks = vi.hoisted(() => ({
   tx: {
+    userBlock: { findFirst: vi.fn().mockResolvedValue(null) },
     $executeRaw: vi.fn(),
     post: { findUnique: vi.fn() },
     reaction: { findUnique: vi.fn(), create: vi.fn(), delete: vi.fn(), update: vi.fn() },
