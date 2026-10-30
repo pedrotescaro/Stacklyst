@@ -79,6 +79,38 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe('Compact social profile content', () => {
+  it('renders original posts and contextual replies together in Postagens and Curtidas', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json({
+          items: [
+            { id: 'original', kind: 'post', author_id: 'owner', body: 'Publicação própria' },
+            {
+              id: 'featured',
+              kind: 'reply',
+              author_id: 'owner',
+              body: 'Minha resposta como publicação',
+            },
+          ],
+          nextCursor: null,
+        })
+      )
+    );
+    render(<ProfileContent {...props} />);
+    await screen.findByText('Publicação própria');
+    expect(await screen.findByText('Minha resposta como publicação')).toBeInTheDocument();
+    fireEvent.click(
+      within(screen.getByTestId('profile-desktop-tabs')).getByRole('tab', { name: 'Curtidas' })
+    );
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/activity?tab=likes'),
+        expect.any(Object)
+      )
+    );
+    expect(await screen.findByText('Minha resposta como publicação')).toBeInTheDocument();
+  });
   it('shows the authenticated viewer in the personal rail when visiting a profile', () => {
     render(<ProfileContent {...props} />);
     expect(screen.getByLabelText('Painel pessoal')).toHaveTextContent('viewer');
@@ -137,7 +169,7 @@ describe('Compact social profile content', () => {
     await waitFor(() =>
       expect(fetch).toHaveBeenCalledWith(
         expect.stringContaining(
-          'author=developer&useCursor=true&limit=10&search=c%C3%B3digo%20antigo'
+          '/profile/developer/activity?tab=posts&limit=10&search=c%C3%B3digo%20antigo'
         ),
         expect.any(Object)
       )

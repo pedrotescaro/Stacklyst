@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { BlockService } from '@/services/block.service';
+import { getProfilePublicationCounts } from '@/services/profile-activity.service';
 import { getAuthUserId } from '@/lib/auth-session';
 import { getUserLanguageXp } from '@/lib/learning/language-xp';
 import { getEffectiveStreak } from '@/lib/streak';
@@ -35,9 +36,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
       return NextResponse.json({ error: 'Perfil indisponível' }, { status: 404 });
 
     // Calcular estatísticas do usuário
-    const answersCountPromise = prisma.answer.count({
-      where: { author_id: user.id },
-    });
+    const publicationCountsPromise = getProfilePublicationCounts(viewerId, user.id);
 
     const acceptedCountPromise = prisma.answer.count({
       where: { author_id: user.id, is_accepted: true },
@@ -95,9 +94,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
       },
     });
 
-    const [answersCount, acceptedCount, totalQuizAttempts, correctQuizAttempts, posts] =
+    const [publications, acceptedCount, totalQuizAttempts, correctQuizAttempts, posts] =
       await Promise.all([
-        answersCountPromise,
+        publicationCountsPromise,
         acceptedCountPromise,
         totalQuizAttemptsPromise,
         correctQuizAttemptsPromise,
@@ -153,7 +152,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
         })),
       },
       stats: {
-        answers_count: answersCount,
+        answers_count: publications.replies,
+        posts_count: publications.total,
+        original_posts_count: publications.posts,
         accuracy,
         accepted_count: acceptedCount,
       },

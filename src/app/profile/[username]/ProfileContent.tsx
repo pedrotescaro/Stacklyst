@@ -180,7 +180,7 @@ export function ProfileContent({
             ? `/api/profile/${name}/media?type=${target}&limit=18${afterQuery}${searchQuery}`
             : target === 'replies'
               ? `/api/profile/${name}/replies?limit=10${afterQuery}${searchQuery}`
-              : `/api/posts?${target === 'likes' ? 'likedBy' : 'author'}=${name}&useCursor=true&limit=10${afterQuery}${searchQuery}`;
+              : `/api/profile/${name}/activity?tab=${target}&limit=10${afterQuery}${searchQuery}`;
         const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
         const result = await response.json();
         if (!response.ok)
@@ -835,23 +835,27 @@ export function ProfileContent({
                   )}
                   {(activeTab === 'posts' || activeTab === 'likes' || activeTab === 'replies') &&
                     items.map((item) =>
-                      activeTab === 'replies' ? (
-                        <div key={item.id} className="border-b border-dd-border">
+                      activeTab === 'replies' || item.kind === 'reply' ? (
+                        <div key={`reply:${item.id}`} className="border-b border-dd-border">
                           <ProfileReplyThread reply={item} currentUser={user} />
                         </div>
                       ) : (
-                        <div key={item.id} className="border-b border-dd-border">
+                        <div key={`post:${item.id}`} className="border-b border-dd-border">
                           <PostCard
                             post={item}
                             isOwner={item.author_id === user.id}
                             flat
                             onDelete={(id) =>
-                              setItems((previous) => previous.filter((post) => post.id !== id))
+                              setItems((previous) =>
+                                previous.filter((post) => post.kind === 'reply' || post.id !== id)
+                              )
                             }
                             onEdit={(id, updated) =>
                               setItems((previous) =>
                                 previous.map((post) =>
-                                  post.id === id ? { ...post, ...updated } : post
+                                  post.kind !== 'reply' && post.id === id
+                                    ? { ...post, ...updated }
+                                    : post
                                 )
                               )
                             }

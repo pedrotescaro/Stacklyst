@@ -4,6 +4,7 @@ import { getUserLanguageXp } from '@/lib/learning/language-xp';
 import { getEffectiveStreak } from '@/lib/streak';
 import { getAuthUser } from '@/lib/auth';
 import { ProfileContent } from './ProfileContent';
+import { getProfilePublicationCounts } from '@/services/profile-activity.service';
 import { BlockService } from '@/services/block.service';
 import { BlockedProfile } from '@/components/profile/BlockedProfile';
 import { getPublicProfileCustomization } from '@/services/profile-customization.service';
@@ -66,19 +67,18 @@ export default async function ProfilePage({
 
   const [
     allBadges,
-    answersCount,
+    publications,
     acceptedCount,
     totalAttempts,
     correctAttempts,
     follow,
     followersCount,
     followingCount,
-    postsCount,
     postLikes,
     answerLikes,
   ] = await Promise.all([
     prisma.badge.findMany({ orderBy: { slug: 'asc' } }),
-    prisma.answer.count({ where: { author_id: profileId } }),
+    getProfilePublicationCounts(user.id, profileId),
     prisma.answer.count({ where: { author_id: profileId, is_accepted: true } }),
     prisma.quizAttempt.count({ where: { user_id: profileId } }),
     prisma.quizAttempt.count({ where: { user_id: profileId, is_correct: true } }),
@@ -92,7 +92,6 @@ export default async function ProfilePage({
     }),
     prisma.follow.count({ where: { followingId: profileId } }),
     prisma.follow.count({ where: { followerId: profileId } }),
-    prisma.post.count({ where: { author_id: profileId } }),
     prisma.postVote.count({ where: { value: 1, post: { author_id: profileId } } }),
     prisma.answerVote.count({ where: { value: 1, answer: { author_id: profileId } } }),
   ]);
@@ -252,10 +251,10 @@ export default async function ProfilePage({
       }}
       profileUser={serializedProfileUser}
       stats={{
-        answers_count: answersCount,
+        answers_count: publications.replies,
         accuracy,
         accepted_count: acceptedCount,
-        posts_count: postsCount,
+        posts_count: publications.total,
         likes_received: postLikes + answerLikes,
       }}
       trails={serializedTrails}
