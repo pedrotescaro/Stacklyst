@@ -56,18 +56,19 @@ const pixel = (sheet, variant, direction, frame, x, y) => {
   const index = (((variant * 4 + direction) * 32 + y) * sheet.info.width + frame * 32 + x) * 4;
   return sheet.data.subarray(index, index + 4);
 };
-// Compare the complete eye footprint, including lashes, against every hair colour/style.
+// Compare the complete eye footprint, including lashes, against every hair colour/style across front and profile views.
 for (let hair = 0; hair < 36; hair++)
   for (let eyes = 0; eyes < 10; eyes++)
-    for (let frame = 0; frame < 8; frame++)
-      for (let y = 9; y <= 12; y++)
-        for (let x = 0; x < 32; x++)
-          if (pixel(eyesSheet, eyes, 0, frame, x, y)[3])
-            assert.equal(
-              pixel(hairSheet, hair, 0, frame, x, y)[3],
-              0,
-              `hair ${hair} must not cover eye ${eyes} at ${x},${y}, frame ${frame}`
-            );
+    for (const direction of [0, 1, 3])
+      for (let frame = 0; frame < 8; frame++)
+        for (let y = 9; y <= 12; y++)
+          for (let x = 0; x < 32; x++)
+            if (pixel(eyesSheet, eyes, direction, frame, x, y)[3])
+              assert.equal(
+                pixel(hairSheet, hair, direction, frame, x, y)[3],
+                0,
+                `hair ${hair} must not cover eye ${eyes} in direction ${direction} at ${x},${y}, frame ${frame}`
+              );
 for (const name of ['hero-outfit', 'hero-outfit-attack']) {
   const sheet = await sharp(`${root}/${name}.png`)
     .ensureAlpha()

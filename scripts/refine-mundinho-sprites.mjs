@@ -407,15 +407,179 @@ function draw(layer, value, d, f, motion = 'walk') {
         box(19, 14, 3, style === 4 ? 7 : 3, dark);
       }
     } else if (side) {
-      box(8, 7, 6, style === 0 || style === 3 ? 6 : 9, color);
-      box(8, 7, 1, style === 0 || style === 3 ? 6 : 9, light);
-      const fringe = [2, 4, 3, 1, 5, 3][style];
-      box(14, 7, 7, 1, color);
-      box(19, 7, 3, fringe, color);
-      box(21, 7, 1, fringe, dark);
-      if (style === 2) {
-        box(15, 7, 2, 3, color);
-        box(18, 7, 2, 2, light);
+      // Continuous scalp coverage down from crown
+      box(8, 7, 13, 1, color); // y=7, x=8..20
+      box(8, 8, 11, 1, color); // y=8, x=8..18
+      box(8, 9, 10, 1, color); // y=9, x=8..17
+
+      // Mid-crown highlight sheen
+      box(11, 6, 5, 1, light);
+
+      if (style === 0) {
+        // 0: Short cropped / neat taper
+        // Airy fringe at brow
+        box(19, 7, 2, 1, color);
+        box(19, 8, 2, 1, color);
+        box(18, 9, 1, 1, color);
+        box(19, 8, 1, 1, light);
+
+        // Sideburn in front of ear
+        box(16, 9, 2, 2, color);
+        box(16, 11, 1, 1, color);
+
+        // Back of skull tapering neatly to nape
+        box(8, 10, 6, 1, color);
+        box(8, 11, 5, 1, color);
+        box(8, 12, 4, 1, color);
+        box(9, 13, 3, 1, dark);
+        box(9, 14, 2, 1, dark);
+      } else if (style === 1) {
+        // 1: Bob (Classic curved bob cupping the jaw)
+        // Rounded bangs above eye
+        box(19, 7, 3, 1, color);
+        box(18, 8, 3, 1, color);
+        box(19, 8, 1, 1, light);
+        box(17, 9, 2, 1, color);
+
+        // Full side covering ear and cheek
+        box(15, 9, 3, 1, color);
+        box(8, 10, 10, 1, color);
+        box(8, 11, 10, 1, color);
+        box(8, 12, 9, 1, color);
+        box(8, 13, 9, 1, color);
+
+        // Soft curved lower edge cupping jaw & nape
+        box(7, 7, 1, 6, color);
+        box(7, 10, 1, 3, dark);
+        box(8, 14, 8, 1, color);
+        box(14, 14, 2, 1, dark);
+        box(9, 15, 6, 1, dark);
+      } else if (style === 2) {
+        // 2: Curls / Wavy (Soft romantic textured curls)
+        // Scalloped bangs
+        box(19, 7, 3, 1, color);
+        box(18, 8, 3, 1, color);
+        box(19, 8, 1, 1, light);
+        box(17, 9, 2, 1, color);
+
+        // Side curl lock framing cheek
+        box(15, 9, 2, 1, color);
+        box(16, 10, 2, 3, color);
+        box(16, 13, 1, 1, dark);
+
+        // Textured back with curly ridges (solid, continuous)
+        box(7, 7, 1, 2, color);
+        box(8, 10, 9, 1, color);
+        box(7, 11, 10, 1, color);
+        box(7, 11, 1, 1, light);
+        box(7, 12, 10, 1, color);
+        box(8, 13, 8, 1, color);
+        box(7, 13, 1, 1, dark);
+        box(8, 14, 7, 1, dark);
+        box(9, 15, 4, 1, dark);
+      } else if (style === 3) {
+        // 3: Spiky / Swept Anime
+        // Top swept spikes
+        box(13, 1, 4, 2, color);
+        box(14, 1, 2, 1, light);
+        box(10, 2, 3, 1, light);
+        box(17, 2, 2, 2, dark);
+
+        // Sharp swept bangs
+        box(19, 7, 3, 1, color);
+        box(19, 8, 2, 1, color);
+        box(20, 8, 1, 1, light);
+        box(18, 9, 2, 1, color);
+
+        // Sharp sideburn lock
+        box(16, 9, 2, 2, color);
+        box(16, 11, 1, 2, color);
+        box(16, 13, 1, 1, dark);
+
+        // Swept tufts at back
+        box(7, 6, 1, 3, color);
+        box(6, 7, 1, 2, dark);
+        box(7, 9, 2, 2, color);
+        box(8, 10, 6, 1, color);
+        box(8, 11, 5, 1, color);
+        box(8, 12, 4, 1, dark);
+        box(9, 13, 3, 1, dark);
+      } else if (style === 4) {
+        // 4: Long Hair (Feminine long flowing locks)
+        // Elegant center-part fringe framing brow
+        box(19, 7, 3, 1, color);
+        box(18, 8, 3, 1, color);
+        box(19, 8, 1, 1, light);
+        box(17, 9, 2, 1, color);
+
+        // Graceful front lock falling over cheek and chest
+        box(16, 10, 2, 2, color);
+        box(15, 12, 2, 3, color);
+        box(15, 15, 2, 3, color);
+        box(16, 13, 1, 4, light);
+        box(15, 18, 1, 1, dark);
+
+        // Head coverage around ear (solid)
+        box(8, 10, 9, 1, color);
+        box(8, 11, 8, 1, color);
+        box(8, 12, 8, 1, color);
+        box(8, 13, 7, 1, color);
+
+        // Volume behind head
+        box(7, 7, 1, 6, color);
+        box(7, 8, 1, 4, light);
+
+        // Flowing mane down the back along torso
+        box(7, 13, 7, 1, color);
+        box(7, 14, 7, 1, color);
+        box(7, 15, 6, 1, color);
+        box(7, 16, 6, 1, color);
+        box(7, 17, 5, 1, color);
+        box(7, 18, 5, 1, color);
+        box(8, 19, 4, 1, color);
+        box(8, 20, 3, 1, color);
+        box(8, 21, 2, 1, dark);
+
+        // Sheen and shadow down the flowing hair
+        box(8, 14, 1, 5, light);
+        box(12, 13, 2, 2, dark);
+        box(11, 15, 2, 2, dark);
+        box(10, 17, 2, 2, dark);
+      } else if (style === 5) {
+        // 5: Side Ponytail (Lively anime ponytail)
+        // Swept asymmetric bangs
+        box(19, 7, 3, 1, color);
+        box(18, 8, 3, 1, color);
+        box(19, 8, 1, 1, light);
+        box(17, 9, 2, 1, color);
+        box(16, 10, 2, 2, color);
+
+        // Scalp pulled back smoothly
+        box(8, 10, 8, 1, color);
+        box(8, 11, 7, 1, color);
+        box(9, 12, 5, 1, color);
+        box(9, 13, 4, 1, dark);
+        box(10, 14, 2, 1, dark);
+
+        // Gather point & Hair tie (solidly connected to head)
+        box(8, 7, 2, 2, '#e4c473');
+
+        // Ponytail arching back and cascading down
+        box(6, 6, 3, 2, color);
+        box(6, 6, 2, 1, light);
+        box(4, 7, 3, 2, color);
+        box(5, 7, 1, 2, light);
+        box(4, 9, 3, 2, color);
+        box(4, 9, 1, 1, light);
+        box(6, 9, 1, 2, dark);
+        box(5, 11, 3, 2, color);
+        box(7, 11, 1, 2, dark);
+        box(5, 13, 3, 2, color);
+        box(6, 13, 1, 1, light);
+        box(7, 13, 1, 2, dark);
+        box(6, 15, 2, 1, color);
+        box(7, 15, 1, 1, dark);
+        box(6, 16, 1, 1, dark);
       }
     } else {
       box(8, 7, 2, 3, color);
@@ -470,22 +634,18 @@ function draw(layer, value, d, f, motion = 'walk') {
         box(23, 12, 2, 3, dark);
       }
     }
-    if (style === 3) {
+    if (style === 3 && !side) {
       box(11, 2, 3, 2, light);
       box(16, 1, 3, 3, color);
       box(20, 2, 3, 3, dark);
     }
-    if (style === 4 && side) {
-      box(8, 14, 5, 6, color);
-      box(8, 19, 3, 2, dark);
+    if (style === 5 && back) {
+      box(22, 6, 3, 9, color);
+      box(23, 14, 2, 2, dark);
     }
-    if (style === 5 && (side || back)) {
-      box(side ? 7 : 22, 6, 3, 9, color);
-      box(side ? 7 : 23, 14, 2, 2, dark);
-    }
-    if (!side && !back) {
+    if (!back) {
       // Hair must never crop one iris or lash differently from the other.
-      // Reserve the actual eye shapes for both silhouettes, not just their centres.
+      // Reserve the actual eye shapes for both silhouettes in front and profile views.
       const eyes = draw('eyes', 5, d, f);
       for (let i = 0; i < c.data.length; i += 4) if (eyes.data[i + 3]) c.data.fill(0, i, i + 4);
     }
