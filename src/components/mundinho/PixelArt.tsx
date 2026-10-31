@@ -2,6 +2,7 @@ import { useId, type CSSProperties } from 'react';
 import { adventureAsset } from './assets';
 import { brandGeometry } from '../../lib/brand-geometry';
 import { DEFAULT_AVATAR, type Avatar } from '../../lib/mundinho/types';
+import { EYE_COLORS, OUTFIT_SPECS, SKIN_PALETTES } from '../../lib/mundinho/avatar-palettes';
 import {
   avatarHairColor,
   hairColorTransfer,
@@ -39,10 +40,11 @@ export function PixelAvatar({
   const tinted = typeof avatar.hairTint === 'string' && /^#[\da-f]{6}$/i.test(avatar.hairTint);
   const transfer = tinted ? hairColorTransfer(avatarHairColor(avatar)) : null;
   const d = Math.max(0, ['down', 'right', 'up', 'left'].indexOf(direction));
+  const female = avatar.gender === 'feminine';
   const layers = [
-    ['body', avatar.skin, 9],
-    ['outfit', avatar.outfit, 6],
-    ['eyes', avatar.eyes, 5],
+    ['body', avatar.skin + (female ? SKIN_PALETTES.length : 0), SKIN_PALETTES.length * 2],
+    ['outfit', avatar.outfit, OUTFIT_SPECS.length],
+    ['eyes', avatar.eyes + (female ? EYE_COLORS.length : 0), EYE_COLORS.length * 2],
     ['hair', avatar.hair * 6 + (tinted ? 3 : avatar.hairColor), 36],
     ['accessory', avatar.accessory, 6],
   ] as const;
@@ -51,6 +53,7 @@ export function PixelAvatar({
       role="img"
       aria-label={`Avatar olhando para ${direction}`}
       className={`pixel-avatar sprite-avatar ${walking ? 'is-walking' : ''} sprite-${motion} ${effect ? 'has-fireflies' : ''} ${className}`}
+      data-silhouette={female ? 'feminine' : 'masculine'}
       style={style}
     >
       {transfer && (

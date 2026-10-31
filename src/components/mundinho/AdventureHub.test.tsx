@@ -62,6 +62,28 @@ const openBattle = async (transport: AdventureTransport) => {
   fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
 };
 describe('Mundinho battle navigation', () => {
+  it('offers twelve named outfits and saves a new outfit with the selected silhouette', async () => {
+    let saved = state(null);
+    const transport = vi.fn<AdventureTransport>().mockImplementation(async (action) => {
+      if (action?.type === 'avatar') saved = { ...saved, avatar: action.avatar as Avatar };
+      return saved;
+    });
+    render(<AdventureHub transport={transport} courses={[]} onCourse={() => {}} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Personalizar avatar' }));
+    fireEvent.click(screen.getByRole('radio', { name: 'Feminino' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Roupas' }));
+    expect(document.querySelectorAll('.ad-option-tile')).toHaveLength(12);
+    fireEvent.click(screen.getByRole('button', { name: 'Túnica do bosque' }));
+    expect(screen.getByRole('button', { name: 'Túnica do bosque' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    await waitFor(() =>
+      expect(saved.avatar).toEqual({ ...DEFAULT_AVATAR, gender: 'feminine', outfit: 11 })
+    );
+    expect(transport).toHaveBeenCalledWith({ type: 'avatar', avatar: saved.avatar });
+  });
   it('previews and saves the portrait silhouette with the existing wardrobe', async () => {
     let saved = state(null);
     const transport = vi.fn<AdventureTransport>().mockImplementation(async (action) => {

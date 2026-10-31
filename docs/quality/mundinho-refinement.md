@@ -2,6 +2,25 @@
 
 A revisão preserva os commits anteriores, o atlas original de criaturas e as regras de recompensas. Duelos volta à navegação principal, imediatamente após Trilhas; sai do menu Mais. O item da navegação inferior móvel permanece disponível.
 
+## Roupas, rostos e franjas — 30/10/2026
+
+O guarda-roupa passa de seis para doze peças: jaqueta de aventura, moletom, jaqueta tech, casaco florestal, suéter, traje dourado, bomber, jeans, cardigã, sobretudo, uniforme marinheiro e túnica. Cada peça tem detalhes próprios no sprite de caminhada/ataque e no retrato. Os índices antigos e as regras de aquisição das peças da loja foram preservados; a validação aceita as novas opções pelo tamanho do catálogo compartilhado.
+
+As seis franjas foram redesenhadas individualmente. O corpo pequeno não contém mais cabelo ou sobrancelhas fixos por baixo da camada escolhida. Os rostos têm nariz e boca menores, olhos com brilho e contornos seletivos coloridos. A opção feminino/masculino agora também escolhe as feições do personagem no mapa, além do retrato. A anatomia original abaixo da cabeça, as nove paletas de pele, as mãos expostas e as cores de cabelo continuam compatíveis.
+
+Fontes editáveis `.ase` e PNGs foram exportados pelo LibreSprite 1.3. O gerador dos retratos usa `scripts/lib/mundinho-portrait-art.mjs`; o gerador do personagem aceita `--characters-only` para conservar cenário e criaturas. Regeneração:
+
+```sh
+node scripts/refine-mundinho-sprites.mjs --characters-only
+node scripts/build-mundinho-portraits.mjs
+npm run test:mundinho-sprites
+npm run mobile:build-mundinho
+```
+
+O teste de sprites verifica dimensões dos atlas, seis franjas distintas, feições dos dois gêneros e composição de 18 corpos × 12 roupas × 4 direções × 8 quadros. As verificações de interface cobrem escolha e salvamento da última roupa, validação de índices e endereçamento dos atlas. Catálogos e capturas do editor em 1440 e 390 px ficam em `artifacts/mundinho/avatar-refinement/`; comparação dos retratos em `artifacts/mundinho/portrait-refinement/`. As prévias são locais com dados sintéticos e não representam teste autenticado ou aparelho físico.
+
+Validação: 37 testes relacionados passaram, assim como a checagem dos sprites, TypeScript web/mobile, ESLint e build de produção com smoke do executor. A fixture real de React/Chrome exibiu 24 combinações (doze roupas × dois gêneros) e o editor em desktop/celular, sem overflow horizontal nem erros JavaScript. O bundle offline mobile foi regenerado com os mesmos PNGs.
+
 ## Diálogos e retratos — 30/10/2026
 
 A conversa com Ada usa uma barra preta na parte inferior, com nome, retrato próprio e três temas: combate, aparência e exploração. Cada escolha mostra a fala e o retrato do jogador antes da resposta de Ada. WASD/setas selecionam respostas, Enter/Espaço confirmam e Escape fecha. O movimento pausa durante o diálogo; fechar devolve o foco ao mapa. No celular, as respostas são botões de toque de pelo menos 44 px.

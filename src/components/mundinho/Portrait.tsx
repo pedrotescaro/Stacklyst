@@ -2,6 +2,7 @@ import { useId } from 'react';
 import type { Avatar } from '../../lib/mundinho/types';
 import { avatarHairColor, hairColorTransfer } from '../../lib/mundinho/hair-colors';
 import { adventureAsset } from './assets';
+import { EYE_COLORS, OUTFIT_SPECS, SKIN_PALETTES } from '../../lib/mundinho/avatar-palettes';
 
 /** Independently drawn portrait layers; all indices share the avatar's saved wardrobe. */
 export function Portrait({
@@ -18,9 +19,9 @@ export function Portrait({
   const transfer = hairColorTransfer(avatarHairColor(avatar));
   const layers = [
     ['hair-back', avatar.hair, 6],
-    ['body', avatar.skin + (female ? 9 : 0), 18],
-    ['outfit', avatar.outfit + (female ? 6 : 0), 12],
-    ['eyes', avatar.eyes + (female ? 5 : 0), 10],
+    ['body', avatar.skin + (female ? SKIN_PALETTES.length : 0), SKIN_PALETTES.length * 2],
+    ['outfit', avatar.outfit + (female ? OUTFIT_SPECS.length : 0), OUTFIT_SPECS.length * 2],
+    ['eyes', avatar.eyes + (female ? EYE_COLORS.length : 0), EYE_COLORS.length * 2],
     ['hair', avatar.hair, 6],
     ['accessory', avatar.accessory, 6],
   ] as const;

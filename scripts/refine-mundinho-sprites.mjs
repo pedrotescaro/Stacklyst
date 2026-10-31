@@ -2,9 +2,18 @@ import fs from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { deflateSync } from 'node:zlib';
 import sharp from 'sharp';
+import ts from 'typescript';
 const dir = 'public/assets/mundinho',
   source = 'artifacts/mundinho/libresprite/refined';
 const sceneryOnly = process.argv.includes('--scenery-only');
+const charactersOnly = process.argv.includes('--characters-only');
+const paletteSource = await fs.readFile('src/lib/mundinho/avatar-palettes.ts', 'utf8');
+const { outputText } = ts.transpileModule(paletteSource, {
+  compilerOptions: { module: ts.ModuleKind.ESNext },
+});
+const { SKIN_PALETTES, OUTFIT_SPECS, EYE_COLORS } = await import(
+  `data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`
+);
 await fs.mkdir(source, { recursive: true });
 const skins = [
   '#fcd4b8',
@@ -18,7 +27,6 @@ const skins = [
   '#ba8b7a',
 ];
 const hairs = ['#17191f', '#684331', '#bd8240', '#dcd8d4', '#805d9e', '#c15e54'];
-const coats = ['#b94f57', '#498faa', '#344a5c', '#4e785d', '#934153', '#c59a45'];
 const shade = (c, n) =>
   '#' +
   [1, 3, 5]
@@ -108,7 +116,7 @@ async function exportAnimation(name, frames, columns = 8) {
     { stdio: 'pipe' }
   );
 }
-// The original skin pixels own the anatomy. Never redraw or stretch the front body.
+// Original skin pixels own the body anatomy; the face is independently refined below.
 const skinNames = [
   'peach_fair',
   'lilac_fantasy',
@@ -138,7 +146,7 @@ function draw(layer, value, d, f, motion = 'walk') {
     c.data.set(raw.subarray(source, source + 4), target);
   };
   if (layer === 'body') {
-    const raw = skinPixels[value];
+    const raw = skinPixels[value % 9];
     if (!side) {
       for (let y = 0; y < 32; y++)
         for (let x = 0; x < 32; x++) {
@@ -164,7 +172,7 @@ function draw(layer, value, d, f, motion = 'walk') {
       for (let y = 10; y <= 14; y++) for (let x = 9; x <= 21; x++) copyPixel(raw, x, 9, x, y);
       // A single eye at the leading edge, with the original eyebrow and catchlight.
       for (let y = 10; y <= 14; y++) for (let x = 19; x <= 20; x++) copyPixel(raw, x, y, x, y);
-      const base = skins[value],
+      const base = skins[value % 9],
         shadow = shade(base, -24),
         light = shade(base, 17),
         ink = '#000000';
@@ -192,74 +200,182 @@ function draw(layer, value, d, f, motion = 'walk') {
       }
     }
   }
+  if (layer === 'body') {
+    // Clean skin belongs to the body, never a baked fringe, eyebrow or eye.
+    // Keep the source silhouette and every body pixel below the chin intact.
+    const raw = skinPixels[value % 9],
+      p = SKIN_PALETTES[value % 9],
+      female = value >= 9;
+    for (let y = 3; y <= 15; y++)
+      for (let x = 0; x < 32; x++) {
+        if (!raw[(y * 32 + x) * 4 + 3]) continue;
+        const edge = x >= 21 || y === 15;
+        box(x, y, 1, 1, edge ? p.shadow : x <= 10 && y <= 9 ? p.highlight : p.base);
+      }
+    if (!back) {
+      if (!side) {
+        box(15, 14, 2, 1, shade(p.deepShadow, 20));
+        if (female) {
+          box(9, 13, 2, 1, p.blush);
+          box(20, 13, 2, 1, p.blush);
+        }
+      } else {
+        box(21, 14, 1, 1, shade(p.deepShadow, 20));
+        if (female) box(18, 13, 2, 1, p.blush);
+      }
+    }
+  }
   if (layer === 'eyes' && !back) {
-    const color = ['#000000', '#2f855a', '#2b6cb0', '#b7791f', '#805ad5'][value];
+    const female = value >= 5,
+      color = EYE_COLORS[value % 5],
+      ink = '#38303e';
     for (const x of side ? [19] : [10, 19]) {
-      box(x, 10, 2, 1, '#000000');
-      box(x, 12, 2, 2, color);
-      box(x, 13, 1, 1, '#000000');
-      box(x, 12, 1, 1, '#ffffff');
+      // One-pixel upper lash, open whites and a small catchlight rather than a black box.
+      box(x - (female ? 1 : 0), 10, female ? 4 : 3, 1, ink);
+      box(x, 11, 3, 2, '#fff8ee');
+      box(x + 1, 11, 2, 2, color);
+      box(x + 2, 12, 1, 1, shade(color, -28));
+      box(x + 1, 11, 1, 1, '#ffffff');
+      if (female) box(x + (side ? 2 : x < 15 ? -1 : 3), 9, 1, 1, ink);
+      else box(x, 8, 3, 1, '#6b5151');
     }
   }
   if (layer === 'outfit') {
-    const jacket = coats[value],
-      shadow = shade(jacket, -28),
-      ink = '#20232b';
-    // Clothing traces the original 16..22 torso and 23..25 legs. No elongated torso.
+    const p = OUTFIT_SPECS[value],
+      jacket = p.jacket,
+      shadow = p.shadow,
+      light = shade(jacket, 22),
+      edge = shade(shadow, -8),
+      kind = p.kind;
     if (!side) {
-      box(9, 16, 13, 1, jacket);
-      box(9, 17, 13, 2, jacket);
+      // Fine coloured seams replace the heavy black blocks at the sleeve and hem.
+      box(9, 16, 13, 2, jacket);
       box(8, 18, 15, 1, jacket);
       box(11, 19, 9, 4, jacket);
-      box(18, 17, 4, 2, shadow);
-      box(18, 19, 2, 4, shadow);
-      if (!back) {
-        box(14, 17, 3, 5, '#dae4ec');
-        box(13, 17, 1, 2, shade(jacket, 18));
-        box(17, 17, 1, 2, shadow);
-      }
+      box(19, 17, 2, 5, shadow);
       box(11, 22, 9, 1, shadow);
-      box(6, 19 + step, 1, 3, ink);
-      box(7, 18 + step, 2, 1, jacket);
-      box(6, 21 + step, 3, 1, ink);
-      box(22, 18 - step, 2, 1, shadow);
-      box(24, 19 - step, 1, 3, ink);
-      box(22, 21 - step, 3, 1, ink);
+      box(9, 16, 4, 1, light);
+      for (const [x, off] of [
+        [6, step],
+        [22, -step],
+      ]) {
+        box(x, 18 + off, 3, 2, jacket);
+        box(x, 18 + off, 1, 3, shadow);
+        box(x + 2, 21 + off, 1, 1, edge);
+      }
+      if (!back) {
+        if (['jacket', 'bomber', 'denim', 'cardigan', 'overcoat', 'coat'].includes(kind)) {
+          box(14, 17, 3, 5, p.shirt);
+          box(13, 17, 1, 3, light);
+          box(17, 17, 1, 4, shadow);
+        }
+        if (kind === 'hoodie') {
+          box(12, 16, 7, 1, p.shirt);
+          box(13, 17, 5, 1, shadow);
+          box(13, 18, 1, 2, p.shirt);
+          box(17, 18, 1, 2, p.shirt);
+          box(13, 21, 5, 1, light);
+        }
+        if (kind === 'tech') {
+          box(15, 17, 1, 5, p.shirt);
+          box(11, 19, 3, 1, p.shirt);
+        }
+        if (kind === 'sweater') {
+          box(12, 16, 7, 1, p.shirt);
+          box(11, 20, 9, 1, light);
+        }
+        if (kind === 'ceremonial') {
+          box(13, 16, 5, 1, p.shirt);
+          box(14, 17, 3, 3, p.shirt);
+          box(15, 17, 1, 3, '#6a3942');
+          box(11, 21, 9, 1, '#f4dd8e');
+        }
+        if (kind === 'denim') {
+          box(11, 18, 2, 1, light);
+          box(18, 18, 2, 1, light);
+        }
+        if (kind === 'bomber') {
+          box(11, 21, 9, 1, p.shirt);
+          box(6, 19 + step, 3, 1, p.shirt);
+        }
+        if (kind === 'sailor') {
+          box(12, 16, 7, 1, p.shirt);
+          box(13, 17, 5, 1, p.shirt);
+          box(14, 18, 3, 1, p.shirt);
+          box(15, 18, 1, 3, '#b84d69');
+        }
+        if (kind === 'tunic') {
+          box(12, 16, 7, 1, p.shirt);
+          box(15, 17, 1, 3, p.shirt);
+          box(11, 21, 9, 1, '#795342');
+          box(15, 21, 2, 1, '#dfbf78');
+        }
+      } else {
+        if (kind === 'hoodie') {
+          box(12, 16, 7, 2, shadow);
+          box(13, 16, 5, 1, light);
+        }
+        if (kind === 'sailor') {
+          box(11, 16, 9, 3, p.shirt);
+          box(12, 16, 7, 2, jacket);
+        }
+        if (kind === 'denim') box(11, 19, 9, 1, light);
+        if (kind === 'tech') box(13, 18, 5, 1, p.shirt);
+      }
+      if (['coat', 'cardigan', 'overcoat', 'tunic'].includes(kind)) {
+        box(10, 22, 11, kind === 'overcoat' ? 3 : 2, shadow);
+        box(10, 22, 3, 1, jacket);
+        box(18, 22, 3, 1, jacket);
+        if (!back) box(14, 22, 3, 1, p.pants);
+      }
       for (const [x, off] of [
         [11, step],
         [17, -step],
       ]) {
-        box(x, 23 + off, 3, 1, '#293346');
-        box(x, 24 + off, 3, 1, '#171e2d');
-        box(x, 25 + off, 3, 1, ink);
+        box(x, 23 + off, 3, 2, p.pants);
+        box(x, 24 + off, 1, 1, shade(p.pants, -15));
+        box(x - 1, 25 + off, 4, 1, p.shoes);
+        box(x, 25 + off, 2, 1, shade(p.shoes, 20));
       }
     } else {
       box(10, 16, 12, 1, shadow);
-      box(10, 17, 11, 2, ink);
-      box(11, 17, 9, 2, jacket);
-      box(11, 19, 10, 3, ink);
-      box(12, 19, 8, 3, jacket);
-      box(19, 19, 1, 3, shadow);
-      box(12, 22, 9, 1, ink);
-      box(13, 22, 7, 1, shadow);
-      box(19, 18, 1, 3, '#dae4ec');
-      // Sleeve stops above the hand. Transparent pixels expose the selected skin layer.
-      box(15, 18 + step, 1, 4, ink);
-      box(12, 22 + step, 4, 1, ink);
+      box(10, 17, 11, 2, jacket);
+      box(11, 19, 10, 3, jacket);
+      box(19, 18, 2, 4, shadow);
+      box(12, 22, 9, 1, shadow);
+      box(11, 17, 2, 1, light);
       box(12, 18 + step, 3, 2, jacket);
+      box(15, 18 + step, 1, 3, shadow);
+      box(12, 20 + step, 1, 1, light);
+      // Keep the near hand exposed in every pose.
       for (let y = 20 + step; y <= 21 + step; y++)
         for (let x = 12; x <= 14; x++) {
           const px = d === 3 ? 31 - x : x;
           c.data.fill(0, (y * 32 + px) * 4, (y * 32 + px) * 4 + 4);
         }
-      box(13, 23, 7, 1, '#293346');
-      box(13, 23 + step, 7, 1, '#293346');
-      box(13, 24 + step, 7, 1, '#171e2d');
-      box(12, 25 + step, 9, 1, ink);
+      if (['coat', 'cardigan', 'overcoat', 'tunic'].includes(kind))
+        box(11, 22, 10, kind === 'overcoat' ? 3 : 2, shadow);
+      if (!back) {
+        if (['jacket', 'bomber', 'denim', 'cardigan', 'overcoat', 'coat'].includes(kind))
+          box(20, 17, 1, 4, p.shirt);
+        if (kind === 'hoodie') {
+          box(12, 16, 5, 1, p.shirt);
+          box(18, 18, 1, 2, p.shirt);
+        }
+        if (kind === 'tech') box(18, 18, 2, 1, p.shirt);
+        if (kind === 'sweater' || kind === 'bomber') box(16, 21, 4, 1, p.shirt);
+        if (kind === 'sailor') {
+          box(12, 16, 7, 2, p.shirt);
+          box(19, 18, 1, 2, '#b84d69');
+        }
+        if (kind === 'tunic' || kind === 'ceremonial') box(16, 21, 5, 1, p.shirt);
+      }
+      box(13, 23, 7, 1, p.pants);
+      box(13, 23 + step, 7, 2, p.pants);
+      box(12, 25 + step, 9, 1, p.shoes);
       if (step) {
-        box(17, 23 - step, 3, 1, '#293346');
-        box(17, 24 - step, 4, 1, '#171e2d');
-        box(17, 25 - step, 4, 1, ink);
+        box(17, 23 - step, 3, 2, p.pants);
+        box(17, 25 - step, 4, 1, p.shoes);
       }
     }
     if (motion === 'attack') {
@@ -274,46 +390,95 @@ function draw(layer, value, d, f, motion = 'walk') {
       color = hairs[value % 6],
       light = shade(color, 25),
       dark = shade(color, -20);
-    // Fill the crown and corner pixels too; no floating fragments or missing head edges.
-    box(13, 3, 3, 1, color);
+    // Shared skull coverage stops at the crown; every fringe below it is authored separately.
+    box(10, 3, 11, 1, color);
     box(9, 4, 13, 1, color);
     box(8, 5, 15, 2, color);
-    box(9, 4, 6, 1, light);
+    box(10, 4, 6, 1, light);
+    box(9, 5, 2, 1, light);
     if (back) {
-      box(9, 7, 13, 8, color);
-      box(18, 7, 4, 8, dark);
+      box(9, 7, 13, style === 0 || style === 3 ? 7 : 9, color);
+      box(19, 7, 3, style === 0 || style === 3 ? 7 : 9, dark);
+      if ([1, 4, 5].includes(style)) {
+        box(9, 14, 13, style === 4 ? 7 : 3, color);
+        box(19, 14, 3, style === 4 ? 7 : 3, dark);
+      }
     } else if (side) {
-      box(8, 7, 6, 7, color);
-      box(14, 7, 3, 6, color);
-      box(8, 13, 6, 2, dark);
-      box(14, 13, 2, 1, dark);
-      box(21, 7, 2, 2, dark);
+      box(8, 7, 6, style === 0 || style === 3 ? 6 : 9, color);
+      box(8, 7, 1, style === 0 || style === 3 ? 6 : 9, light);
+      const fringe = [2, 4, 3, 1, 5, 3][style];
+      box(14, 7, 7, 1, color);
+      box(19, 7, 3, fringe, color);
+      box(21, 7, 1, fringe, dark);
+      if (style === 2) {
+        box(15, 7, 2, 3, color);
+        box(18, 7, 2, 2, light);
+      }
     } else {
-      box(8, 7, 2, 2, color);
-      box(13, 7, 2, 2, color);
-      box(21, 7, 2, 2, dark);
-      box(8, 9, 1, 2, color);
-      box(22, 9, 1, 2, dark);
-    }
-    if (style === 1) {
-      box(8, 7, 3, 10, color);
-      if (!side) box(21, 7, 3, 10, dark);
-    }
-    if (style === 2) {
-      for (let x = 8; x < 23; x += 4) box(x, 5 + (x % 2), 3, 4, color);
+      box(8, 7, 2, 3, color);
+      box(21, 7, 2, 3, dark);
+      if (style === 0) {
+        // cropped, airy split fringe
+        box(10, 7, 3, 1, color);
+        box(13, 7, 2, 2, color);
+        box(17, 7, 4, 1, color);
+        box(19, 8, 2, 1, dark);
+      } else if (style === 1) {
+        // bob, straight curved fringe
+        box(10, 7, 11, 2, color);
+        box(11, 9, 3, 1, color);
+        box(17, 9, 3, 1, dark);
+        box(8, 9, 3, 7, color);
+        box(21, 9, 3, 7, dark);
+      } else if (style === 2) {
+        // curls, scalloped forehead rather than the same bangs
+        for (const [x, y] of [
+          [9, 7],
+          [13, 7],
+          [17, 7],
+          [20, 6],
+        ]) {
+          box(x, y, 3, 2, color);
+          box(x, y, 1, 1, light);
+        }
+        box(8, 9, 2, 3, color);
+        box(22, 8, 2, 4, dark);
+      } else if (style === 3) {
+        // pointed swept fringe
+        box(10, 7, 5, 1, color);
+        box(14, 8, 4, 1, color);
+        box(16, 9, 3, 1, color);
+        box(18, 10, 2, 1, dark);
+      } else if (style === 4) {
+        // long hair with a visible centre part
+        box(10, 7, 3, 2, color);
+        box(11, 9, 2, 1, color);
+        box(18, 7, 3, 2, color);
+        box(18, 9, 2, 1, dark);
+        box(8, 9, 3, 11, color);
+        box(21, 9, 3, 11, dark);
+      } else {
+        // side ponytail, asymmetric fringe
+        box(10, 7, 9, 1, color);
+        box(10, 8, 6, 1, color);
+        box(10, 9, 4, 1, color);
+        box(10, 10, 2, 1, dark);
+        box(22, 6, 3, 7, color);
+        box(23, 12, 2, 3, dark);
+      }
     }
     if (style === 3) {
-      box(11, 2, 3, 3, light);
-      box(16, 1, 3, 4, color);
+      box(11, 2, 3, 2, light);
+      box(16, 1, 3, 3, color);
       box(20, 2, 3, 3, dark);
     }
-    if (style === 4) {
-      box(8, 7, 3, 14, color);
-      box(side ? 11 : 9, 20, 2, 2, dark);
+    if (style === 4 && side) {
+      box(8, 14, 5, 6, color);
+      box(8, 19, 3, 2, dark);
     }
-    if (style === 5) {
-      box(side ? 9 : 22, 6, 3, 7, color);
-      box(10, 6, 12, 2, color);
+    if (style === 5 && (side || back)) {
+      box(side ? 7 : 22, 6, 3, 9, color);
+      box(side ? 7 : 23, 14, 2, 2, dark);
     }
   }
   if (layer === 'accessory') {
@@ -427,14 +592,23 @@ function draw(layer, value, d, f, motion = 'walk') {
       box(tailX, 17, 2, 1, light);
     }
   }
+  if (layer === 'outfit' && side) {
+    // Long hems must never paint over the animated near hand.
+    for (let y = 20 + step; y <= 21 + step; y++)
+      for (let x = 12; x <= 14; x++) {
+        const px = d === 3 ? 31 - x : x;
+        c.data.fill(0, (y * 32 + px) * 4, (y * 32 + px) * 4 + 4);
+      }
+  }
   return c;
 }
 for (const [layer, count] of [
-  ['body', 9],
-  ['eyes', 5],
-  ['outfit', 6],
+  ['body', 18],
+  ['eyes', 10],
+  ['outfit', OUTFIT_SPECS.length],
   ['hair', 36],
-  ['accessory', 6],
+  // Accessories are exported separately from the character refinements.
+  ...(!charactersOnly ? [['accessory', 6]] : []),
 ]) {
   const frames = [];
   for (let v = 0; v < count; v++)
@@ -442,14 +616,37 @@ for (const [layer, count] of [
   await exportAnimation(`hero-${layer}`, frames);
 }
 for (const [layer, count] of [
-  ['outfit', 6],
-  ['body', 9],
+  ['outfit', OUTFIT_SPECS.length],
+  ['body', 18],
 ]) {
   const frames = [];
   for (let v = 0; v < count; v++)
     for (let d = 0; d < 4; d++)
       for (let f = 0; f < 8; f++) frames.push(draw(layer, v, d, f, 'attack'));
   await exportAnimation(`hero-${layer}-attack`, frames);
+}
+if (charactersOnly) {
+  for (const name of [
+    'hero-body',
+    'hero-body-attack',
+    'hero-eyes',
+    'hero-outfit',
+    'hero-outfit-attack',
+    'hero-hair',
+  ]) {
+    execFileSync(
+      process.execPath,
+      [
+        '.agents/skills/impeccable/scripts/embed-prompt.mjs',
+        `${dir}/${name}.png`,
+        '--prompt',
+        'Origin: original 32px character pixel artwork authored in scripts/refine-mundinho-sprites.mjs and exported from native animated ASE sources using LibreSprite 1.3. Twelve garments, independent hairstyle fringes, clean anime-inspired faces; original body anatomy below the face preserved.',
+      ],
+      { stdio: 'pipe' }
+    );
+  }
+  console.log('LibreSprite: refined character layers exported; scenery and creatures unchanged.');
+  process.exit(0);
 }
 // Preserve the user's creature drawings, add eight frames per species from those exact pixels.
 const { data: raw, info } = await sharp(`${dir}/creatures-atlas.png`)

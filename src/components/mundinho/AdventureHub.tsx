@@ -57,7 +57,7 @@ import {
   withAvatarHairColor,
 } from '../../lib/mundinho/hair-colors';
 import { WORLD } from '../../lib/mundinho/world';
-import { Coin, HAIR, OUTFIT, PixelAvatar, PixelCreature, SKIN } from './PixelArt';
+import { Coin, HAIR, OUTFIT, OUTFIT_SPECS, PixelAvatar, PixelCreature, SKIN } from './PixelArt';
 import './mundinho.css';
 import { adventureAsset } from './assets';
 import { PixelMeter } from './PixelMeter';
@@ -1071,7 +1071,8 @@ export function AdventureHub({
                 ))}
               </fieldset>
               <p className="ad-portrait-note">
-                Define a silhueta do retrato. Todas as peças podem ser usadas nas duas opções.
+                Define as feições do personagem e do retrato. Todas as peças podem ser usadas nas
+                duas opções.
               </p>
             </div>
           </section>
@@ -1132,6 +1133,13 @@ export function AdventureHub({
                   <button
                     key={i}
                     className={`ad-option-tile ${isSelected ? 'is-selected' : ''}`}
+                    aria-label={
+                      category === 'outfit'
+                        ? OUTFIT_SPECS[i].name
+                        : `${category === 'hair' ? 'Cabelo' : category === 'skin' ? 'Corpo' : category === 'eyes' ? 'Olhos' : 'Acessório'} ${i + 1}`
+                    }
+                    aria-pressed={isSelected}
+                    title={category === 'outfit' ? OUTFIT_SPECS[i].name : undefined}
                     onClick={() => {
                       if (locked) {
                         go('store');

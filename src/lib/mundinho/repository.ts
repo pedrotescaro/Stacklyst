@@ -25,6 +25,7 @@ import {
 } from './codeChallenges';
 import { executeCode } from '@/lib/code-execution/server';
 import type { CodeRun } from './types';
+import { OUTFIT_SPECS } from './avatar-palettes';
 
 const avatarSchema = z.object({
   gender: z.enum(['masculine', 'feminine']).optional(),
@@ -36,7 +37,11 @@ const avatarSchema = z.object({
     .string()
     .regex(/^#[\da-f]{6}$/i)
     .optional(),
-  outfit: z.number().int().min(0).max(5),
+  outfit: z
+    .number()
+    .int()
+    .min(0)
+    .max(OUTFIT_SPECS.length - 1),
   accessory: z.number().int().min(0).max(5),
 });
 export const actionSchema = z.discriminatedUnion('type', [

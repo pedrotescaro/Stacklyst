@@ -71,6 +71,27 @@ beforeEach(() => {
   };
 });
 describe('Server encounter rules', () => {
+  it('persists all expanded outfits while rejecting indices outside the exported wardrobe', async () => {
+    for (const outfit of [0, 5, 6, 11]) {
+      const avatar = { ...DEFAULT_AVATAR, outfit };
+      const parsed = actionSchema.parse({ type: 'avatar', avatar });
+      if (outfit === 5) continue; // Existing premium clothing retains its purchase rule.
+      await adventure('user', parsed);
+      expect(db.tx.rpgPlayer.update).toHaveBeenLastCalledWith({
+        where: { userId: 'user' },
+        data: { avatar },
+      });
+    }
+    expect(
+      actionSchema.safeParse({ type: 'avatar', avatar: { ...DEFAULT_AVATAR, outfit: 12 } }).success
+    ).toBe(false);
+    expect(
+      actionSchema.safeParse({ type: 'avatar', avatar: { ...DEFAULT_AVATAR, outfit: -1 } }).success
+    ).toBe(false);
+    await expect(
+      adventure('user', { type: 'avatar', avatar: { ...DEFAULT_AVATAR, outfit: 5 } })
+    ).rejects.toThrow('Adquira este cosmético');
+  });
   it('persists either portrait silhouette, accepts legacy avatars and rejects invalid values', async () => {
     for (const gender of ['masculine', 'feminine'] as const) {
       const avatar = { ...DEFAULT_AVATAR, gender };

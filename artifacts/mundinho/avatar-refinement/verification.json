@@ -1,0 +1,22 @@
+{
+  "date": "2026-10-30",
+  "exporter": "LibreSprite 1.3",
+  "outfits": 12,
+  "hairstylesWithDistinctFringes": 6,
+  "worldBodyVariants": 18,
+  "worldEyeVariants": 10,
+  "portraitOutfitVariants": 24,
+  "animationComposition": "18 bodies x 12 outfits x 4 directions x 8 frames",
+  "focusedTestsPassed": 37,
+  "productionBuild": "passed, including judge smoke",
+  "typecheck": { "web": "passed", "mobile": "passed" },
+  "visualFixture": {
+    "runtime": "React components in Chrome",
+    "widths": [1440, 390],
+    "combinations": 24,
+    "horizontalPageOverflow": false,
+    "javascriptErrors": [],
+    "screenshots": ["catalog-1440.png", "catalog-390.png", "editor-1440.png", "editor-390.png"]
+  },
+  "limits": "Synthetic local data; no authenticated production session or physical-device verification. Mobile HTML updated; no APK release."
+}

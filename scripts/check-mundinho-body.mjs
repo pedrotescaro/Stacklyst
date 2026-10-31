@@ -4,8 +4,8 @@ import sharp from 'sharp';
 
 const root = 'public/assets/mundinho';
 const skins = await fs.readdir(`${root}/skins`);
-for (let skin = 0; skin < 9; skin++) {
-  const file = skins.find((name) => name.startsWith(`skin_${skin}_`));
+for (let skin = 0; skin < 18; skin++) {
+  const file = skins.find((name) => name.startsWith(`skin_${skin % 9}_`));
   const original = await sharp(`${root}/skins/${file}`).ensureAlpha().raw().toBuffer();
   for (const sheet of ['hero-body', 'hero-body-attack']) {
     const base = await sharp(`${root}/${sheet}.png`)
@@ -14,9 +14,9 @@ for (let skin = 0; skin < 9; skin++) {
       .raw()
       .toBuffer();
     assert.deepEqual(
-      base,
-      original,
-      `${sheet}: preserve original skin ${skin} without redrawing its anatomy`
+      base.subarray(16 * 32 * 4),
+      original.subarray(16 * 32 * 4),
+      `${sheet}: preserve original body anatomy below the face for variant ${skin}`
     );
   }
   const profile = await sharp(`${root}/hero-body.png`)
@@ -48,8 +48,8 @@ const pixel = (sheet, variant, direction, frame, x, y) => {
   const index = (((variant * 4 + direction) * 32 + y) * sheet.info.width + frame * 32 + x) * 4;
   return sheet.data.subarray(index, index + 4);
 };
-for (let skin = 0; skin < 9; skin++)
-  for (let outfit = 0; outfit < 6; outfit++)
+for (let skin = 0; skin < 18; skin++)
+  for (let outfit = 0; outfit < 12; outfit++)
     for (let direction = 0; direction < 4; direction++)
       for (let frame = 0; frame < 8; frame++) {
         const step = [0, -1, 0, 1, 0, -1, 0, 1][frame];
@@ -86,6 +86,74 @@ for (let skin = 0; skin < 9; skin++)
               );
           }
       }
+// Validate shipped files directly: CI does not need a LibreSprite installation.
+const dimensions = {
+  'hero-body': [256, 18 * 128],
+  'hero-body-attack': [256, 18 * 128],
+  'hero-eyes': [256, 10 * 128],
+  'hero-outfit': [256, 12 * 128],
+  'hero-outfit-attack': [256, 12 * 128],
+  'hero-hair': [256, 36 * 128],
+  'hero-accessory': [256, 6 * 128],
+  'portrait-body': [96 * 18, 112],
+  'portrait-outfit': [96 * 24, 112],
+  'portrait-eyes': [96 * 10, 112],
+  'portrait-hair': [96 * 6, 112],
+  'portrait-hair-back': [96 * 6, 112],
+  'portrait-accessory': [96 * 6, 112],
+};
+for (const [name, [width, height]] of Object.entries(dimensions)) {
+  const metadata = await sharp(`${root}/${name}.png`).metadata();
+  assert.equal(metadata.width, width, `${name} atlas width`);
+  assert.equal(metadata.height, height, `${name} atlas height`);
+  assert.ok(metadata.hasAlpha, `${name} must preserve transparency`);
+}
+const crop = async (name, left, top, width, height) =>
+  sharp(`${root}/${name}.png`).extract({ left, top, width, height }).ensureAlpha().raw().toBuffer();
+const worldFringes = [],
+  portraitFringes = [];
+for (let style = 0; style < 6; style++) {
+  worldFringes.push((await crop('hero-hair', 9, (style * 6 + 3) * 128 + 7, 13, 4)).toString('hex'));
+  portraitFringes.push((await crop('portrait-hair', style * 96 + 28, 24, 40, 17)).toString('hex'));
+}
+assert.equal(
+  new Set(worldFringes).size,
+  6,
+  'all six world fringes must have different forehead pixels'
+);
+assert.equal(
+  new Set(portraitFringes).size,
+  6,
+  'all six portrait fringes must have different forehead pixels'
+);
+for (let skin = 0; skin < 9; skin++) {
+  assert.notDeepEqual(
+    await crop('hero-body', 0, skin * 128, 32, 16),
+    await crop('hero-body', 0, (skin + 9) * 128, 32, 16),
+    'world faces must reflect the selected silhouette'
+  );
+  assert.notDeepEqual(
+    await crop('portrait-body', skin * 96, 0, 96, 112),
+    await crop('portrait-body', (skin + 9) * 96, 0, 96, 112),
+    'portrait silhouettes must differ'
+  );
+}
+for (let eyes = 0; eyes < 5; eyes++) {
+  assert.notDeepEqual(
+    await crop('hero-eyes', 0, eyes * 128, 32, 32),
+    await crop('hero-eyes', 0, (eyes + 5) * 128, 32, 32),
+    'world eye shapes must reflect the selected silhouette'
+  );
+  assert.notDeepEqual(
+    await crop('portrait-eyes', eyes * 96, 0, 96, 112),
+    await crop('portrait-eyes', (eyes + 5) * 96, 0, 96, 112),
+    'portrait eye shapes must differ'
+  );
+}
+const wardrobe = [];
+for (let outfit = 0; outfit < 12; outfit++)
+  wardrobe.push((await crop('hero-outfit', 0, outfit * 128, 32, 32)).toString('hex'));
+assert.equal(new Set(wardrobe).size, 12, 'all twelve outfits must have different front sprites');
 console.log(
-  'PASS: original bodies preserved; mirrored profiles have continuous torsos; hands stay exposed across 9 skins, 6 outfits, 4 directions and 8 frames.'
+  'PASS: original body anatomy preserved below the face; mirrored profiles stay connected; hands remain exposed across 18 bodies � 12 outfits � 4 directions � 8 frames; atlas dimensions, gender variants and six independent fringes verified.'
 );
