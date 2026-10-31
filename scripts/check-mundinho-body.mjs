@@ -168,11 +168,18 @@ for (const [name, [width, height]] of Object.entries(dimensions)) {
 const crop = async (name, left, top, width, height) =>
   sharp(`${root}/${name}.png`).extract({ left, top, width, height }).ensureAlpha().raw().toBuffer();
 const worldFringes = [],
-  portraitFringes = [];
+  portraitFringes = [],
+  worldBacks = [];
 for (let style = 0; style < 6; style++) {
   worldFringes.push((await crop('hero-hair', 9, (style * 6 + 3) * 128 + 7, 13, 4)).toString('hex'));
   portraitFringes.push((await crop('portrait-hair', style * 96 + 28, 24, 40, 17)).toString('hex'));
+  worldBacks.push((await crop('hero-hair', 0, (style * 6 + 3) * 128 + 64, 32, 32)).toString('hex'));
 }
+assert.equal(
+  new Set(worldBacks).size,
+  6,
+  'all six hairstyles must have independent rear silhouettes'
+);
 assert.equal(
   new Set(worldFringes).size,
   6,

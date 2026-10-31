@@ -1,5 +1,9 @@
 # Refinamento do Mundinho
 
+## Cabelos de frente e costas
+
+Finalizadas as vistas baixo/cima dos seis penteados, acompanhando as laterais refinadas pelo proprietário. Bob com contorno arredondado, cachos com textura, corte curto afilado, pontas anime, cabelo longo com mechas e rabo lateral com curva e presilha. Os olhos continuam reservados para evitar sobreposição desigual. As laterais foram comparadas pixel por pixel com o atlas anterior: 36 variantes × duas direções × oito quadros permaneceram idênticas. O teste de sprites também verifica seis silhuetas traseiras distintas. Fonte `.ase` e PNG reexportados pelo LibreSprite; prévia em `artifacts/mundinho/hair-directions/four-directions.png`.
+
 ## Desafios compactos e objetos em pixel art
 
 A batalha limita sua coluna a 820 px, com arena de 210 px (200 px em contêiner estreito), cartões de vida compactos e editor de seis linhas iniciais, redimensionável. O tabuleiro usa casas de 76 px ou 64 px em contêiner estreito, sem esticar objetos pela largura disponível. Quando necessário, somente o tabuleiro rola horizontalmente e acompanha a posição do personagem.

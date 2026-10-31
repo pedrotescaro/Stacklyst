@@ -400,11 +400,140 @@ function draw(layer, value, d, f, motion = 'walk') {
     box(10, 4, 6, 1, light);
     box(9, 5, 2, 1, light);
     if (back) {
-      box(9, 7, 13, style === 0 || style === 3 ? 7 : 9, color);
-      box(19, 7, 3, style === 0 || style === 3 ? 7 : 9, dark);
-      if ([1, 4, 5].includes(style)) {
-        box(9, 14, 13, style === 4 ? 7 : 3, color);
-        box(19, 14, 3, style === 4 ? 7 : 3, dark);
+      // Independent rear silhouettes, matching the length/texture of the approved profiles.
+      const rows = [
+        [
+          [8, 23],
+          [8, 23],
+          [8, 23],
+          [8, 23],
+          [9, 22],
+          [9, 22],
+          [10, 21],
+          [11, 20],
+        ],
+        [
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [8, 23],
+          [8, 23],
+          [9, 22],
+        ],
+        [
+          [7, 24],
+          [8, 24],
+          [7, 23],
+          [7, 24],
+          [8, 24],
+          [7, 23],
+          [8, 23],
+          [9, 22],
+          [10, 21],
+        ],
+        [
+          [7, 24],
+          [7, 24],
+          [8, 23],
+          [7, 24],
+          [8, 23],
+          [9, 22],
+          [10, 21],
+          [11, 20],
+        ],
+        [
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [7, 24],
+          [8, 23],
+          [8, 23],
+          [9, 22],
+        ],
+        [
+          [8, 23],
+          [8, 23],
+          [8, 23],
+          [8, 23],
+          [9, 22],
+          [9, 22],
+          [10, 21],
+          [11, 20],
+        ],
+      ][style];
+      rows.forEach(([left, right], i) => {
+        box(left, 7 + i, right - left, 1, color);
+        box(right - 2, 7 + i, 2, 1, dark);
+      });
+      box(10, 6, 7, 1, light);
+      if (style === 0) {
+        box(9, 8, 1, 3, light);
+        box(17, 8, 1, 4, dark);
+        box(12, 13, 7, 1, dark);
+        box(13, 12, 3, 1, color);
+      } else if (style === 1) {
+        box(8, 7, 1, 6, light);
+        box(11, 9, 1, 5, light);
+        box(18, 8, 1, 7, dark);
+        box(10, 15, 11, 1, dark);
+        box(11, 14, 7, 1, color);
+      } else if (style === 2) {
+        for (const [x, y] of [
+          [8, 7],
+          [13, 8],
+          [19, 7],
+          [10, 11],
+          [16, 12],
+        ]) {
+          box(x, y, 3, 1, light);
+          box(x + 2, y + 1, 1, 2, dark);
+        }
+        box(8, 14, 3, 1, dark);
+        box(14, 14, 3, 1, dark);
+      } else if (style === 3) {
+        box(7, 6, 2, 2, color);
+        box(22, 6, 2, 2, dark);
+        box(9, 9, 3, 1, light);
+        box(12, 8, 2, 1, light);
+        box(13, 10, 2, 3, dark);
+        box(18, 11, 2, 2, dark);
+      } else if (style === 4) {
+        // Long locks taper individually instead of ending in one rectangular slab.
+        box(8, 7, 1, 12, light);
+        box(11, 9, 1, 10, light);
+        box(15, 8, 1, 11, dark);
+        box(19, 9, 1, 11, dark);
+        box(9, 20, 2, 2, color);
+        box(13, 20, 3, 2, color);
+        box(18, 20, 2, 2, dark);
+        box(12, 20, 1, 2, dark);
+        box(16, 19, 1, 2, dark);
+      } else {
+        box(9, 8, 3, 1, light);
+        box(12, 9, 5, 1, light);
+        box(18, 7, 2, 1, light);
+        box(19, 10, 2, 2, dark);
+        // Gathered side ponytail curves outward before falling beside the nape.
+        box(21, 7, 2, 2, '#e4c473');
+        box(23, 6, 3, 2, color);
+        box(25, 7, 2, 4, color);
+        box(24, 11, 3, 3, color);
+        box(24, 14, 2, 3, color);
+        box(23, 17, 2, 1, dark);
+        box(24, 7, 1, 3, light);
+        box(26, 9, 1, 4, dark);
+        box(25, 14, 1, 2, dark);
       }
     } else if (side) {
       // Continuous scalp coverage down from crown
@@ -582,66 +711,105 @@ function draw(layer, value, d, f, motion = 'walk') {
         box(6, 16, 1, 1, dark);
       }
     } else {
-      box(8, 7, 2, 3, color);
-      box(21, 7, 2, 3, dark);
       if (style === 0) {
-        // cropped, airy split fringe
-        box(10, 7, 3, 1, color);
-        box(13, 7, 2, 2, color);
+        // Short tapered cut with separated, soft swept bangs.
+        box(8, 7, 3, 2, color);
+        box(21, 7, 2, 3, dark);
+        box(10, 7, 5, 1, color);
+        box(13, 8, 2, 1, color);
         box(17, 7, 4, 1, color);
         box(19, 8, 2, 1, dark);
+        box(8, 9, 1, 3, color);
+        box(22, 10, 1, 2, dark);
+        box(11, 6, 4, 1, light);
       } else if (style === 1) {
-        // bob, straight curved fringe
-        box(10, 7, 11, 2, color);
+        // Rounded bob: level fringe, curved cheeks and an inward-turning hem.
+        box(7, 6, 2, 8, color);
+        box(22, 6, 2, 8, dark);
+        box(9, 7, 13, 2, color);
+        box(11, 8, 3, 1, light);
         box(11, 9, 3, 1, color);
-        box(17, 9, 3, 1, dark);
-        box(8, 9, 3, 7, color);
-        box(21, 9, 3, 7, dark);
+        box(17, 9, 3, 1, color);
+        box(7, 9, 1, 4, light);
+        box(8, 13, 2, 2, color);
+        box(21, 13, 2, 2, dark);
+        box(9, 15, 2, 1, dark);
+        box(20, 15, 2, 1, dark);
       } else if (style === 2) {
-        // curls, scalloped forehead rather than the same bangs
+        // Wavy crown and scalloped locks echo the curls in profile.
         for (const [x, y] of [
+          [8, 5],
+          [11, 4],
+          [15, 4],
+          [19, 5],
           [9, 7],
           [13, 7],
           [17, 7],
-          [20, 6],
+          [20, 7],
         ]) {
           box(x, y, 3, 2, color);
-          box(x, y, 1, 1, light);
+          box(x, y, 2, 1, light);
         }
-        box(8, 9, 2, 3, color);
-        box(22, 8, 2, 4, dark);
+        box(7, 8, 2, 3, color);
+        box(8, 11, 2, 2, color);
+        box(8, 13, 1, 1, dark);
+        box(22, 8, 2, 3, dark);
+        box(21, 11, 2, 2, color);
+        box(22, 13, 1, 1, dark);
       } else if (style === 3) {
-        // pointed swept fringe
+        // Layered anime sweep with a tapered outline, rather than a flat cap.
+        box(7, 6, 3, 3, color);
+        box(22, 6, 2, 3, dark);
         box(10, 7, 5, 1, color);
         box(14, 8, 4, 1, color);
         box(16, 9, 3, 1, color);
         box(18, 10, 2, 1, dark);
+        box(9, 9, 1, 3, color);
+        box(22, 10, 1, 2, dark);
+        box(11, 6, 4, 1, light);
+        box(18, 6, 3, 1, light);
       } else if (style === 4) {
-        // long hair with a visible centre part
+        // Centre-parted long hair falls in two shaped locks clear of both eyes.
+        box(7, 6, 3, 10, color);
+        box(22, 6, 3, 10, color);
         box(10, 7, 3, 2, color);
         box(11, 9, 2, 1, color);
-        box(18, 7, 3, 2, color);
+        box(18, 7, 4, 2, color);
         box(18, 9, 2, 1, dark);
-        box(8, 9, 3, 11, color);
-        box(21, 9, 3, 11, dark);
+        box(7, 8, 1, 8, light);
+        box(23, 8, 2, 9, dark);
+        box(8, 15, 3, 4, color);
+        box(21, 15, 3, 4, color);
+        box(9, 17, 1, 3, light);
+        box(22, 16, 1, 3, dark);
+        box(9, 19, 2, 2, color);
+        box(21, 19, 2, 2, dark);
+        box(10, 21, 1, 1, dark);
+        box(21, 21, 1, 1, dark);
       } else {
-        // side ponytail, asymmetric fringe
+        // Smooth swept bangs and the same arched ponytail seen in profile.
+        box(8, 7, 2, 3, color);
+        box(21, 7, 2, 3, dark);
         box(10, 7, 9, 1, color);
         box(10, 8, 6, 1, color);
         box(10, 9, 4, 1, color);
         box(10, 10, 2, 1, dark);
-        box(22, 6, 3, 7, color);
-        box(23, 12, 2, 3, dark);
+        box(11, 6, 5, 1, light);
+        box(21, 7, 2, 2, '#e4c473');
+        box(23, 6, 3, 2, color);
+        box(25, 7, 2, 4, color);
+        box(24, 11, 3, 3, color);
+        box(24, 14, 2, 3, color);
+        box(23, 17, 2, 1, dark);
+        box(24, 7, 1, 3, light);
+        box(26, 9, 1, 4, dark);
+        box(25, 14, 1, 2, dark);
       }
     }
     if (style === 3 && !side) {
       box(11, 2, 3, 2, light);
       box(16, 1, 3, 3, color);
       box(20, 2, 3, 3, dark);
-    }
-    if (style === 5 && back) {
-      box(22, 6, 3, 9, color);
-      box(23, 14, 2, 2, dark);
     }
     if (!back) {
       // Hair must never crop one iris or lash differently from the other.
