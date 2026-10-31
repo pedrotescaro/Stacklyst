@@ -146,7 +146,7 @@
 .world-shell .world-object:active:not(:disabled) {
   transform: translate(-50%, -100%);
 }
-.world-shell :is(.world-hud-btn, .world-entity-badge, .world-action-sword, .world-guide-modal) {
+.world-shell :is(.world-hud-btn, .world-action-sword, .world-guide-modal) {
   background: #000;
   color: #fff;
 }
@@ -1440,9 +1440,9 @@
   font-size: 10px;
   font-weight: 750;
   color: #fff;
-  background: rgba(15, 23, 42, 0.85);
-  padding: 2px 6px;
-  border-radius: 6px;
+  text-shadow:
+    1px 1px 2px #000,
+    -1px -1px 2px #000;
   margin-bottom: 2px;
   white-space: nowrap;
 }
@@ -1455,9 +1455,9 @@
   font-size: 11px;
   font-weight: 850;
   color: #fff;
-  background: rgba(0, 0, 0, 0.8);
-  padding: 2px 8px;
-  border-radius: 6px;
+  text-shadow:
+    1px 1px 2px #000,
+    -1px -1px 2px #000;
   margin-bottom: 2px;
   white-space: nowrap;
 }
@@ -2268,8 +2268,6 @@
 .world-player-name {
   font-size: 9px;
   font-weight: 550;
-  padding: 2px 5px;
-  background: #182c36bb;
 }
 .world-top-hud {
   padding: 12px;
@@ -2639,14 +2637,12 @@
   gap: 4px;
   align-items: center;
   min-width: 60px;
-  padding: 4px 5px;
-  background: #000;
   color: #f2ead4;
-  border: 2px solid;
-  border-color: #c6c1a3 #526c5c #526c5c #c6c1a3;
+  text-shadow:
+    1px 1px 2px #000,
+    -1px -1px 2px #000;
   font-size: 14px;
   line-height: 1.2;
-  border-radius: 0;
   white-space: nowrap;
   margin-bottom: 2px;
   z-index: 4;
@@ -2657,9 +2653,6 @@
   justify-content: space-between;
   gap: 8px;
   width: 100%;
-}
-.world-creature-level.is-locked {
-  border-color: #bf9d78 #615447 #615447 #bf9d78;
 }
 .world-creature-level.is-locked .world-creature-label > span:last-child {
   font-size: 12px;
@@ -3364,10 +3357,6 @@
 .world-shell .world-player-name {
   font-size: 14px;
   line-height: 1.2;
-  border: 1px solid #9aab8e;
-  border-radius: 0;
-  background: #000;
-  padding: 2px 5px;
 }
 .rpg-meter {
   --rpg-hp-light: #b6d779;
