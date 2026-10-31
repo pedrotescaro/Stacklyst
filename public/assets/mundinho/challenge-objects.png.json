@@ -1,0 +1,20 @@
+{
+  "origin": "Original pixel artwork authored in scripts/build-mundinho-challenge-sprites.mjs. Exported from objects.ase by LibreSprite 1.3. Transparent 24 x 24 frames.",
+  "frames": [
+    "Caminho",
+    "Cristal",
+    "Flor",
+    "Lanterna",
+    "Alavanca",
+    "Rocha",
+    "Baú",
+    "Canteiro",
+    "Bichinho",
+    "Máquina",
+    "Gaiola",
+    "Fruto",
+    "Muda",
+    "Altar",
+    "Concluído"
+  ]
+}

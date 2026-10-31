@@ -1,5 +1,13 @@
 # Refinamento do Mundinho
 
+## Desafios compactos e objetos em pixel art
+
+A batalha limita sua coluna a 820 px, com arena de 210 px (200 px em contêiner estreito), cartões de vida compactos e editor de seis linhas iniciais, redimensionável. O tabuleiro usa casas de 76 px ou 64 px em contêiner estreito, sem esticar objetos pela largura disponível. Quando necessário, somente o tabuleiro rola horizontalmente e acompanha a posição do personagem.
+
+Os objetos usam quinze sprites originais de 24 × 24 px: caminho, cristal, flor, lanterna, alavanca, rocha, baú, canteiro, bichinho, máquina, gaiola, fruto, muda, altar e conclusão. São exportados pelo LibreSprite a partir de `scripts/build-mundinho-challenge-sprites.mjs`, com fonte editável e manifesto em `artifacts/mundinho/libresprite/challenges/`. O HTML móvel incorpora o atlas `challenge-objects.png`.
+
+Validação local: 18 testes de CodeBattle/AdventureHub, TypeScript e ESLint passaram. Fixture com componentes reais em Chrome nas larguras 1440/820/390/320 px, sem overflow horizontal da página ou erros JavaScript; execução de teste e replay conferidos. Capturas em `artifacts/mundinho/challenge-responsive/`. Dados sintéticos, sem sessão autenticada ou aparelho físico.
+
 A revisão preserva os commits anteriores, o atlas original de criaturas e as regras de recompensas. Duelos volta à navegação principal, imediatamente após Trilhas; sai do menu Mais. O item da navegação inferior móvel permanece disponível.
 
 ## Roupas, rostos e franjas — 30/10/2026

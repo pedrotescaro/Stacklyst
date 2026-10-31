@@ -1,19 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
-import {
-  Check,
-  Droplets,
-  Flame,
-  Gem,
-  Hammer,
-  Heart,
-  KeyRound,
-  Play,
-  Sprout,
-  Swords,
-  Unlock,
-  Wrench,
-  Zap,
-} from 'lucide-react';
+import { Play, Swords } from 'lucide-react';
+import { adventureAsset } from './assets';
 import type {
   AdventureState,
   Avatar,
@@ -24,18 +11,23 @@ import type {
 import { replayTrace } from '../../lib/mundinho/codeChallenges';
 import { PixelAvatar } from './PixelArt';
 
-const ACTION_ICONS = {
-  coletar: Gem,
-  regar: Droplets,
-  acender: Flame,
-  ativar: Zap,
-  quebrar: Hammer,
-  abrir: KeyRound,
-  plantar: Sprout,
-  curar: Heart,
-  consertar: Wrench,
-  libertar: Unlock,
-};
+const OBJECT_SPRITES = [
+  'Caminho',
+  'Cristal',
+  'Flor',
+  'Lanterna',
+  'Alavanca',
+  'Rocha',
+  'Baú',
+  'Canteiro',
+  'Bichinho',
+  'Máquina',
+  'Gaiola',
+  'Fruto',
+  'Muda',
+  'Altar',
+  'Concluído',
+];
 
 export function CodeBattle({
   question,
@@ -103,22 +95,28 @@ export function CodeBattle({
           className="ad-code-board"
           role="img"
           aria-label={`Personagem na casa ${position + 1} de ${challenge.tiles.length}. ${completed.length} de ${challenge.target} objetivos concluídos. ${challenge.tiles.map((tile, index) => `Casa ${index + 1}: ${tile.label}${completed.includes(index) ? ' (concluído)' : ''}`).join('. ')}.`}
-          style={{ gridTemplateColumns: `repeat(${challenge.tiles.length}, minmax(70px, 1fr))` }}
+          style={{
+            gridTemplateColumns: `repeat(${challenge.tiles.length}, var(--code-tile-width))`,
+          }}
         >
           {challenge.tiles.map((tile, index) => {
-            const Icon = tile.action ? ACTION_ICONS[tile.action] : null;
             const done = completed.includes(index);
+            const sprite = OBJECT_SPRITES.indexOf(done ? 'Concluído' : tile.label);
             return (
               <div
                 key={index}
                 data-player={position === index ? '' : undefined}
                 className={`ad-code-tile${done ? ' is-complete' : ''}`}
               >
-                {Icon && (
-                  <span className="ad-code-object" aria-hidden="true">
-                    {done ? <Check size={21} /> : <Icon size={23} />}
-                  </span>
-                )}
+                <span
+                  className="ad-code-object"
+                  aria-hidden="true"
+                  data-object={tile.label}
+                  style={{
+                    backgroundImage: `url(${adventureAsset('challenge-objects.png', '/assets/mundinho')})`,
+                    backgroundPositionX: `${(Math.max(0, sprite) / (OBJECT_SPRITES.length - 1)) * 100}%`,
+                  }}
+                />
                 {position === index && <PixelAvatar avatar={avatar} direction="right" />}
                 <span className="ad-code-tile-label" aria-hidden="true">
                   {tile.label}
@@ -147,6 +145,7 @@ export function CodeBattle({
         <textarea
           aria-label="Código da batalha"
           wrap="off"
+          rows={6}
           value={source}
           spellCheck={false}
           autoCapitalize="off"
