@@ -1,22 +1,59 @@
-import { useEffect, useState } from 'react';
-import { Play, Swords } from 'lucide-react';
-import type { AdventureState, Avatar, CodeRun, PublicQuestion } from '../../lib/mundinho/types';
+import { useEffect, useRef, useState } from 'react';
+import {
+  Check,
+  Droplets,
+  Flame,
+  Gem,
+  Hammer,
+  Heart,
+  KeyRound,
+  Play,
+  Sprout,
+  Swords,
+  Unlock,
+  Wrench,
+  Zap,
+} from 'lucide-react';
+import type {
+  AdventureState,
+  Avatar,
+  BattleLanguage,
+  CodeRun,
+  PublicQuestion,
+} from '../../lib/mundinho/types';
+import { replayTrace } from '../../lib/mundinho/codeChallenges';
 import { PixelAvatar } from './PixelArt';
+
+const ACTION_ICONS = {
+  coletar: Gem,
+  regar: Droplets,
+  acender: Flame,
+  ativar: Zap,
+  quebrar: Hammer,
+  abrir: KeyRound,
+  plantar: Sprout,
+  curar: Heart,
+  consertar: Wrench,
+  libertar: Unlock,
+};
 
 export function CodeBattle({
   question,
   avatar,
   busy,
   onExecute,
+  battleLanguage,
 }: {
   question: PublicQuestion;
   avatar: Avatar;
   busy: boolean;
   onExecute: (code: string, submit: boolean) => Promise<AdventureState | undefined>;
+  battleLanguage?: BattleLanguage;
 }) {
   const [source, setSource] = useState(question.code!.starter);
   const [result, setResult] = useState<CodeRun | null>(null);
   const [step, setStep] = useState(0);
+  const boardScroll = useRef<HTMLDivElement>(null);
   useEffect(() => {
     setStep(0);
     if (!result) return;
@@ -37,37 +74,66 @@ export function CodeBattle({
     );
     return () => clearInterval(timer);
   }, [result]);
-  let position = 0;
-  const collected = new Set<number>();
-  for (const command of result?.trace.slice(0, step) ?? []) {
-    if (command === 'andar') position = Math.min(3, position + 1);
-    else if (command === 'coletar' && position > 0) collected.add(position);
-  }
+  const challenge = question.code!;
+  const { position, completed } = replayTrace(question, result?.trace.slice(0, step) ?? []);
+  useEffect(() => {
+    const scroll = boardScroll.current;
+    const player = scroll?.querySelector<HTMLElement>('[data-player]');
+    if (!scroll || !player || scroll.scrollWidth <= scroll.clientWidth) return;
+    scroll.scrollLeft = player.offsetLeft + player.offsetWidth / 2 - scroll.clientWidth / 2;
+  }, [position]);
   const execute = async (submit: boolean) => {
     const response = await onExecute(source, submit);
     if (response?.codeRun) setResult(response.codeRun);
   };
   return (
     <section className="ad-code-challenge" aria-label="Desafio de código da batalha">
-      <h3>Clareira dos cristais</h3>
+      <h3>{challenge.title}</h3>
       <p>{question.prompt}</p>
+      {(battleLanguage === 'HTML' || battleLanguage === 'CSS') && (
+        <p className="ad-code-language">Este desafio usa JavaScript para controlar o mundo.</p>
+      )}
       <div
-        className="ad-code-board"
-        role="img"
-        aria-label={`${collected.size} de 3 cristais coletados`}
+        ref={boardScroll}
+        className="ad-code-board-scroll"
+        tabIndex={0}
+        aria-label="Cenário do desafio"
       >
-        {Array.from({ length: 4 }, (_, index) => (
-          <div key={index} className="ad-code-tile">
-            {index > 0 && !collected.has(index) && (
-              <span className="ad-code-crystal" aria-label="Cristal" />
-            )}
-            {position === index && <PixelAvatar avatar={avatar} direction="right" />}
-          </div>
-        ))}
+        <div
+          className="ad-code-board"
+          role="img"
+          aria-label={`Personagem na casa ${position + 1} de ${challenge.tiles.length}. ${completed.length} de ${challenge.target} objetivos concluídos. ${challenge.tiles.map((tile, index) => `Casa ${index + 1}: ${tile.label}${completed.includes(index) ? ' (concluído)' : ''}`).join('. ')}.`}
+          style={{ gridTemplateColumns: `repeat(${challenge.tiles.length}, minmax(70px, 1fr))` }}
+        >
+          {challenge.tiles.map((tile, index) => {
+            const Icon = tile.action ? ACTION_ICONS[tile.action] : null;
+            const done = completed.includes(index);
+            return (
+              <div
+                key={index}
+                data-player={position === index ? '' : undefined}
+                className={`ad-code-tile${done ? ' is-complete' : ''}`}
+              >
+                {Icon && (
+                  <span className="ad-code-object" aria-hidden="true">
+                    {done ? <Check size={21} /> : <Icon size={23} />}
+                  </span>
+                )}
+                {position === index && <PixelAvatar avatar={avatar} direction="right" />}
+                <span className="ad-code-tile-label" aria-hidden="true">
+                  {tile.label}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
+      {challenge.tiles.length > 4 && (
+        <p className="ad-code-scroll-hint">Deslize para ver todo o caminho.</p>
+      )}
       <p className="ad-code-commands">
         Comandos:{' '}
-        {question.code!.commands.map((command) => (
+        {challenge.commands.map((command) => (
           <code key={command}>{command}</code>
         ))}
       </p>
@@ -113,7 +179,7 @@ export function CodeBattle({
       <p role="status" aria-live="polite" className="ad-code-result">
         {result
           ? result.passed
-            ? 'Três cristais coletados! Confirme para atacar.'
+            ? 'Objetivo concluído! Confirme para atacar.'
             : (result.error ?? 'Revise o código e execute novamente.')
           : 'Execute para testar. Testar não consome o turno.'}
       </p>

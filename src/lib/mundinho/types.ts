@@ -131,13 +131,33 @@ export const CREATURES = [
   { id: 'forest', name: 'Broto booleano', color: '#4dbb8b', level: 1, x: 420, y: 180 },
   { id: 'null-ghost', name: 'Sombra do nulo', color: '#a7b6cc', level: 3, x: 580, y: 620 },
 ];
+export type CodeAction =
+  | 'coletar'
+  | 'regar'
+  | 'acender'
+  | 'ativar'
+  | 'quebrar'
+  | 'abrir'
+  | 'plantar'
+  | 'curar'
+  | 'consertar'
+  | 'libertar';
+export type CodeTile = { label: string; action: CodeAction | null };
 export type PublicQuestion = {
   id: string;
   concept: string;
   prompt: string;
   options: string[];
   difficulty: string;
-  code?: { starter: string; commands: string[]; target: number };
+  code?: {
+    starter: string;
+    commands: string[];
+    target: number;
+    title: string;
+    tiles: CodeTile[];
+    start: number;
+    language: BattleLanguage;
+  };
 };
 export type CodeRun = { passed: boolean; trace: string[]; error?: string };
 export type BattleView = {

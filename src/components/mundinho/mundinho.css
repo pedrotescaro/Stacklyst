@@ -2934,33 +2934,77 @@
 .ad-code-challenge p {
   line-height: 1.5;
 }
+.ad-code-board-scroll {
+  margin: 16px 0;
+  overflow-x: auto;
+  border-radius: 10px;
+}
+.ad-code-board-scroll:focus-visible {
+  outline: 2px solid var(--ad-blue);
+  outline-offset: 2px;
+}
+.ad-code-scroll-hint {
+  display: none;
+}
+@media (max-width: 600px) {
+  .ad-code-scroll-hint {
+    display: block;
+    margin: -8px 0 12px;
+    color: var(--ad-muted);
+    font-size: 12px;
+  }
+}
 .ad-code-board {
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 4px;
   padding: 20px 12px;
-  margin: 16px 0;
   background: #315b40;
   border: 1px solid #5b845e;
   border-radius: 10px;
+  width: max-content;
+  min-width: 100%;
 }
 .ad-code-tile {
   position: relative;
   display: grid;
-  place-items: center;
-  height: 56px;
+  place-items: start center;
+  min-width: 0;
+  min-height: 92px;
+  padding: 8px 4px 24px;
   background: #48734b;
   border-bottom: 4px solid #28472d;
 }
 .ad-code-tile .sprite-avatar {
   position: absolute;
-  width: 48px;
+  bottom: 14px;
+  left: 2px;
+  width: 40px;
 }
-.ad-code-crystal {
-  width: 14px;
-  height: 22px;
-  background: #8be1e4;
-  clip-path: polygon(50% 0, 100% 35%, 75% 80%, 50% 100%, 25% 80%, 0 35%);
+.ad-code-object {
+  display: grid;
+  place-items: center;
+  color: #e2f7ed;
+}
+.ad-code-tile.is-complete .ad-code-object {
+  color: #d2edb1;
+}
+.ad-code-tile-label {
+  position: absolute;
+  bottom: 2px;
+  left: 2px;
+  right: 2px;
+  overflow: hidden;
+  color: #fff;
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ad-code-language {
+  font-size: 14px;
+  color: var(--ad-muted);
 }
 .ad-code-commands {
   display: flex;

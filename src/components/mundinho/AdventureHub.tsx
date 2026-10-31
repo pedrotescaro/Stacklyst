@@ -1373,6 +1373,7 @@ export function AdventureHub({
                     <CodeBattle
                       key={`${battle.id}:${battle.question.id}`}
                       question={battle.question}
+                      battleLanguage={battle.language}
                       avatar={equippedAvatar}
                       busy={busy}
                       onExecute={(code, submit) =>

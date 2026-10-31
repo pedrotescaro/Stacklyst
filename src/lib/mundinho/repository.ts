@@ -16,7 +16,13 @@ import {
 } from './types';
 import { canChallengeCreature, checkinStatus, dayKey, resolveTurn, SKILLS } from './rules';
 import { QUESTIONS, publicQuestion } from './questions';
-import { challengeProgram, codeChallenge, evaluateTrace } from './codeChallenges';
+import {
+  challengeExecutionLanguage,
+  challengeProgram,
+  codeChallenge,
+  codeChallenges,
+  evaluateTrace,
+} from './codeChallenges';
 import { executeCode } from '@/lib/code-execution/server';
 import type { CodeRun } from './types';
 
@@ -79,7 +85,7 @@ function fail(message: string): never {
 function battleView(b: RpgBattle | null): AdventureState['battle'] {
   if (!b) return null;
   const q = QUESTIONS.find((q) => q.id === b.questionId);
-  const challenge = codeChallenge(b.language as BattleLanguage);
+  const challenge = b.questionId ? codeChallenge(b.language as BattleLanguage, b.questionId) : null;
   return {
     id: b.id,
     language: b.language as BattleLanguage,
@@ -168,16 +174,16 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
       battle.questionId !== action.question
     )
       fail('Este desafio não está ativo. Atualize a batalha.');
-    const challenge = codeChallenge(battle.language as BattleLanguage);
+    const challenge = codeChallenge(battle.language as BattleLanguage, battle.questionId!);
     if (!challenge || challenge.id !== battle.questionId)
       fail('Este turno não é um desafio de código.');
     const execution = await executeCode(
       challengeProgram(battle.language as BattleLanguage, action.code),
-      battle.language
+      challengeExecutionLanguage(battle.language as BattleLanguage)
     );
     if (!execution.ok)
       fail(execution.error ?? 'Não foi possível executar o código. Tente novamente.');
-    codeRun = evaluateTrace(execution.output);
+    codeRun = evaluateTrace(execution.output, challenge);
   }
   return prisma.$transaction(
     async (tx) => {
@@ -284,19 +290,12 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
             fail(
               `Esta criatura requer nível ${creature.level}. Continue aprendendo para enfrentá-la.`
             );
-          const completed = await tx.rpgBattle.count({
-            where: { userId, status: { in: ['won', 'lost'] } },
-          });
-          const challenge = completed % 2 === 1 ? codeChallenge(action.language) : null;
           await tx.rpgBattle.create({
             data: {
               userId,
               language: action.language,
               creature: action.creature,
-              ...(challenge ? { questionId: challenge.id, skill: 'strike' } : {}),
-              feedback: challenge
-                ? 'Desafio de código! Colete os cristais e confirme seu ataque.'
-                : 'Escolha uma habilidade. Seu conhecimento dá força ao ataque.',
+              feedback: 'Escolha uma habilidade. Seu conhecimento dá força ao ataque.',
             },
           });
         }
@@ -324,23 +323,50 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
           if (a.type === 'battle-skill') {
             if (!b.questionId) {
               const used = b.used as string[];
-              const pool = QUESTIONS.filter(
-                (q) => q.language === b.language && !used.includes(q.id)
-              );
-              const available = pool.length
-                ? pool
-                : QUESTIONS.filter((q) => q.language === b.language);
-              const q = available[randomInt(available.length)];
+              const challenges = codeChallenges(b.language as BattleLanguage);
+              if (!challenges.length) fail('Não há desafios para esta linguagem.');
+              const pool = challenges.filter((q) => !used.includes(q.id));
+              const available = pool.length ? pool : challenges;
+              // Include recent battles so a new encounter does not immediately repeat a challenge.
+              // IDs share a scenario slug across languages; a language switch should not reset history.
+              const scenario = (id: string) =>
+                id.replace(/-(PYTHON|JS|TS|RUST|GO|JAVA|HTML|CSS)$/, '');
+              const history = await tx.rpgBattle.findMany({
+                where: { userId, id: { not: b.id } },
+                orderBy: { createdAt: 'desc' },
+                take: 30,
+                select: { used: true, questionId: true },
+              });
+              const recent = history.flatMap((previous) => [
+                ...(previous.questionId ? [scenario(previous.questionId)] : []),
+                ...(Array.isArray(previous.used)
+                  ? previous.used
+                      .filter((id): id is string => typeof id === 'string')
+                      .reverse()
+                      .map(scenario)
+                  : []),
+              ]);
+              const unseen = available.filter((q) => !recent.includes(scenario(q.id)));
+              // Once all scenarios have appeared, choose among the least recently used ones.
+              const oldest = Math.max(...available.map((q) => recent.indexOf(scenario(q.id))));
+              const candidates = unseen.length
+                ? unseen
+                : available.filter((q) => recent.indexOf(scenario(q.id)) === oldest);
+              const q = candidates[randomInt(candidates.length)];
               await tx.rpgBattle.update({
                 where: { id: b.id },
-                data: { skill: a.skill, questionId: q.id },
+                data: {
+                  skill: a.skill,
+                  questionId: q.id,
+                  feedback: 'Resolva o desafio de código e confirme seu ataque.',
+                },
               });
             }
           } else {
             if (!b.questionId || b.questionId !== a.question || !b.skill)
               fail('Selecione uma habilidade antes de responder.');
             const q = QUESTIONS.find((q) => q.id === b.questionId);
-            const challenge = codeChallenge(b.language as BattleLanguage);
+            const challenge = codeChallenge(b.language as BattleLanguage, b.questionId);
             if (a.type === 'battle-answer' && (!q || a.question !== q.id))
               fail('Responda este desafio com código.');
             if (
@@ -388,7 +414,7 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
                   questionId: null,
                   skill: null,
                   used: [...(b.used as string[]), b.questionId],
-                  feedback: `${correct ? `Correto! ${move.name} causou ${move.damage} de dano.` : 'Ainda não. O inimigo aproveitou a abertura.'} ${a.type === 'battle-code' ? (correct ? 'Seu laço coletou todos os cristais.' : (codeRun!.error ?? 'Revise a sequência dos comandos.')) : q!.explanation}`,
+                  feedback: `${correct ? `Correto! ${move.name} causou ${move.damage} de dano.` : 'Ainda não. O inimigo aproveitou a abertura.'} ${a.type === 'battle-code' ? (correct ? 'Desafio concluído!' : (codeRun!.error ?? 'Revise a sequência dos comandos.')) : q!.explanation}`,
                 },
               });
             }
