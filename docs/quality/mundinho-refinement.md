@@ -6,7 +6,7 @@ Finalizadas as vistas baixo/cima dos seis penteados, acompanhando as laterais re
 
 ## Desafios compactos e objetos em pixel art
 
-A batalha limita sua coluna a 820 px, com arena de 210 px (200 px em contêiner estreito), cartões de vida compactos e editor de seis linhas iniciais, redimensionável. O tabuleiro usa casas de 76 px ou 64 px em contêiner estreito, sem esticar objetos pela largura disponível. Quando necessário, somente o tabuleiro rola horizontalmente e acompanha a posição do personagem.
+A janela de batalha usa a mesma largura e altura disponíveis do Mundinho, com regras compartilhadas de viewport e sem o limite anterior de 820 px. Arena e personagens recuperam uma escala maior; a área de desafios rola dentro da janela quando necessário. O editor mantém seis linhas iniciais e pode ser redimensionado. O tabuleiro usa casas de 76 px ou 64 px em contêiner estreito, com rolagem horizontal própria que acompanha o personagem.
 
 Os objetos usam quinze sprites originais de 24 × 24 px: caminho, cristal, flor, lanterna, alavanca, rocha, baú, canteiro, bichinho, máquina, gaiola, fruto, muda, altar e conclusão. São exportados pelo LibreSprite a partir de `scripts/build-mundinho-challenge-sprites.mjs`, com fonte editável e manifesto em `artifacts/mundinho/libresprite/challenges/`. O HTML móvel incorpora o atlas `challenge-objects.png`.
 

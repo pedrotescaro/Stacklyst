@@ -2786,22 +2786,22 @@
   color: var(--ad-text);
 }
 
-/* Exploration owns the viewport; other adventure screens keep normal scrolling. */
-.adventure-platform:has(.adventure-world) {
+/* Exploration and battle share the same available game window. */
+.adventure-platform:has(:is(.adventure-world, .adventure-battle)) {
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
 }
-.adventure-platform:has(.adventure-world) > .mx-auto {
+.adventure-platform:has(:is(.adventure-world, .adventure-battle)) > .mx-auto {
   height: 100%;
   min-height: 0;
 }
-.adventure-platform:has(.adventure-world) main {
+.adventure-platform:has(:is(.adventure-world, .adventure-battle)) main {
   min-height: 0;
   padding-bottom: 0;
   overflow: hidden;
 }
-.adventure-world {
+:is(.adventure-world, .adventure-battle) {
   display: flex;
   flex-direction: column;
   height: 100dvh;
@@ -2810,12 +2810,12 @@
   overflow: hidden;
   overscroll-behavior: none;
 }
-.adventure-platform .adventure-world {
+.adventure-platform :is(.adventure-world, .adventure-battle) {
   height: 100%;
 }
-.adventure-world > .ad-page-heading,
-.adventure-world > .ad-notice,
-.adventure-world > .ad-error {
+:is(.adventure-world, .adventure-battle) > .ad-page-heading,
+:is(.adventure-world, .adventure-battle) > .ad-notice,
+:is(.adventure-world, .adventure-battle) > .ad-error {
   flex-shrink: 0;
 }
 .adventure-world .world-shell {
@@ -2834,7 +2834,7 @@
 .adventure-world .world-hint-footer {
   flex-shrink: 0;
 }
-.adventure-world > .ad-footer-badge {
+:is(.adventure-world, .adventure-battle) > .ad-footer-badge {
   display: none;
 }
 
@@ -3109,26 +3109,35 @@
   color: var(--ad-text);
 }
 
-/* Battle width follows its content column, including beside the desktop rails. */
+/* The full battle window matches the world; its console scrolls inside it. */
 .adventure-battle .ad-battle-view {
   width: 100%;
-  max-width: 820px;
-  margin-inline: auto;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
   container-type: inline-size;
 }
+.adventure-battle .ad-arena-container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
 .adventure-battle .ad-arena-scene {
-  height: 210px;
+  flex: 0 0 clamp(190px, 34%, 330px);
+  height: auto;
+  min-height: 190px;
 }
 .adventure-battle .ad-combatant {
   gap: 8px;
 }
 .adventure-battle .ad-combatant-card {
-  min-width: 138px;
-  max-width: 180px;
-  padding: 8px;
+  min-width: 174px;
+  max-width: 240px;
+  padding: 10px 12px;
 }
 .adventure-battle .ad-combatant-name {
-  font-size: 15px;
+  font-size: 17px;
 }
 .adventure-battle .ad-combatant-player {
   left: 4%;
@@ -3139,27 +3148,32 @@
   top: 12px;
 }
 .adventure-battle .ad-combatant-player .pixel-avatar {
-  width: 72px;
-  height: 72px !important;
+  width: 104px;
+  height: 104px !important;
 }
 .adventure-battle .ad-combatant-enemy .pixel-creature {
-  width: 52px;
-  height: 52px;
+  width: 76px;
+  height: 76px;
 }
 .adventure-battle .ad-battle-bottom-console {
   padding: 14px;
   gap: 12px;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-color: #62766a #000;
 }
 .adventure-battle .ad-battle-narrative {
   font-size: 15px;
 }
 @container (max-width: 480px) {
   .adventure-battle .ad-arena-scene {
-    height: 200px;
+    flex-basis: clamp(190px, 34%, 280px);
   }
   .adventure-battle .ad-combatant-card {
-    min-width: 120px;
-    max-width: 150px;
+    min-width: 136px;
+    max-width: 170px;
     padding: 6px;
     font-size: 12px;
     line-height: 1.25;
@@ -3178,12 +3192,12 @@
     margin: 4px 0;
   }
   .adventure-battle .ad-combatant-player .pixel-avatar {
-    width: 56px;
-    height: 56px !important;
+    width: 80px;
+    height: 80px !important;
   }
   .adventure-battle .ad-combatant-enemy .pixel-creature {
-    width: 40px;
-    height: 40px;
+    width: 60px;
+    height: 60px;
   }
   .adventure-battle .ad-battle-bottom-console {
     padding: 10px;
