@@ -245,7 +245,6 @@ function draw(layer, value, d, f, motion = 'walk') {
       jacket = p.jacket,
       shadow = p.shadow,
       light = shade(jacket, 22),
-      edge = shade(shadow, -8),
       kind = p.kind;
     if (!side) {
       // Fine coloured seams replace the heavy black blocks at the sleeve and hem.
@@ -255,13 +254,17 @@ function draw(layer, value, d, f, motion = 'walk') {
       box(19, 17, 2, 5, shadow);
       box(11, 22, 9, 1, shadow);
       box(9, 16, 4, 1, light);
-      for (const [x, off] of [
-        [6, step],
-        [22, -step],
+      for (const [right, off] of [
+        [false, step],
+        [true, -step],
       ]) {
-        box(x, 18 + off, 3, 2, jacket);
-        box(x, 18 + off, 1, 3, shadow);
-        box(x + 2, 21 + off, 1, 1, edge);
+        // Shoulder, upper arm and cuff form one sleeve, including the moving poses.
+        // The two skin pixels below each cuff stay uncovered.
+        box(right ? 19 : 8, 17 + off, 4, 3, jacket);
+        box(right ? 21 : 7, 18 + off, 3, 2, jacket);
+        box(right ? 24 : 6, 19 + off, 1, 2, shadow);
+        box(right ? 22 : 7, 19 + off, 2, 1, light);
+        box(right ? 20 : 9, 19 + off, 2, 2, shadow);
       }
       if (!back) {
         if (['jacket', 'bomber', 'denim', 'cardigan', 'overcoat', 'coat'].includes(kind)) {
@@ -479,6 +482,12 @@ function draw(layer, value, d, f, motion = 'walk') {
     if (style === 5 && (side || back)) {
       box(side ? 7 : 22, 6, 3, 9, color);
       box(side ? 7 : 23, 14, 2, 2, dark);
+    }
+    if (!side && !back) {
+      // Hair must never crop one iris or lash differently from the other.
+      // Reserve the actual eye shapes for both silhouettes, not just their centres.
+      const eyes = draw('eyes', 5, d, f);
+      for (let i = 0; i < c.data.length; i += 4) if (eyes.data[i + 3]) c.data.fill(0, i, i + 4);
     }
   }
   if (layer === 'accessory') {

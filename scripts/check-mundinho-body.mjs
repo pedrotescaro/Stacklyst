@@ -44,10 +44,66 @@ const clothesSheet = await sharp(`${root}/hero-outfit.png`)
   .ensureAlpha()
   .raw()
   .toBuffer({ resolveWithObject: true });
+const hairSheet = await sharp(`${root}/hero-hair.png`)
+  .ensureAlpha()
+  .raw()
+  .toBuffer({ resolveWithObject: true });
+const eyesSheet = await sharp(`${root}/hero-eyes.png`)
+  .ensureAlpha()
+  .raw()
+  .toBuffer({ resolveWithObject: true });
 const pixel = (sheet, variant, direction, frame, x, y) => {
   const index = (((variant * 4 + direction) * 32 + y) * sheet.info.width + frame * 32 + x) * 4;
   return sheet.data.subarray(index, index + 4);
 };
+// Compare the complete eye footprint, including lashes, against every hair colour/style.
+for (let hair = 0; hair < 36; hair++)
+  for (let eyes = 0; eyes < 10; eyes++)
+    for (let frame = 0; frame < 8; frame++)
+      for (let y = 9; y <= 12; y++)
+        for (let x = 0; x < 32; x++)
+          if (pixel(eyesSheet, eyes, 0, frame, x, y)[3])
+            assert.equal(
+              pixel(hairSheet, hair, 0, frame, x, y)[3],
+              0,
+              `hair ${hair} must not cover eye ${eyes} at ${x},${y}, frame ${frame}`
+            );
+for (const name of ['hero-outfit', 'hero-outfit-attack']) {
+  const sheet = await sharp(`${root}/${name}.png`)
+    .ensureAlpha()
+    .raw()
+    .toBuffer({ resolveWithObject: true });
+  for (let outfit = 0; outfit < 12; outfit++)
+    for (const direction of [0, 2])
+      for (let frame = 0; frame < 8; frame++) {
+        const step = [0, -1, 0, 1, 0, -1, 0, 1][frame];
+        for (const [right, off] of [
+          [false, step],
+          [true, -step],
+        ]) {
+          const shoulderX = right ? 21 : 9;
+          assert.equal(
+            pixel(sheet, outfit, direction, frame, shoulderX, 17 + off)[3],
+            255,
+            `${name} ${outfit}: upper sleeve must join the shoulder`
+          );
+          for (const x of right ? [22, 23] : [7, 8]) {
+            assert.equal(
+              pixel(sheet, outfit, direction, frame, x, 19 + off)[3],
+              255,
+              `${name} ${outfit}: cuff must remain present`
+            );
+            // The weapon arm has its own extended pose during an attack.
+            if (name !== 'hero-outfit-attack' || !right)
+              assert.equal(
+                pixel(sheet, outfit, direction, frame, x, 20 + off)[3],
+                0,
+                `${name} ${outfit}: both hand pixels must remain visible`
+              );
+          }
+        }
+      }
+}
 for (let skin = 0; skin < 18; skin++)
   for (let outfit = 0; outfit < 12; outfit++)
     for (let direction = 0; direction < 4; direction++)

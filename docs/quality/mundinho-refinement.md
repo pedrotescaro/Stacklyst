@@ -4,6 +4,8 @@ A revisão preserva os commits anteriores, o atlas original de criaturas e as re
 
 ## Roupas, rostos e franjas — 30/10/2026
 
+Correção após revisão visual: o cabelo frontal reserva a área completa dos dois olhos e cílios, eliminando a sobreposição desigual das mechas longas. As mangas de frente/costas agora ligam ombro, parte superior do braço e punho durante a caminhada. A checagem dos PNGs verifica todos os pixels dos olhos contra os 36 estilos/cores de cabelo e as mangas das 12 roupas nos oito quadros; as duas partes visíveis de cada mão permanecem descobertas na caminhada. A checagem da transparência das mãos admite a posição estendida do braço da arma durante o ataque. Prévia ampliada: `artifacts/mundinho/avatar-corrections/front-back.png`. PNGs e fontes `.ase` reexportados pelo LibreSprite e HTML móvel atualizado.
+
 O guarda-roupa passa de seis para doze peças: jaqueta de aventura, moletom, jaqueta tech, casaco florestal, suéter, traje dourado, bomber, jeans, cardigã, sobretudo, uniforme marinheiro e túnica. Cada peça tem detalhes próprios no sprite de caminhada/ataque e no retrato. Os índices antigos e as regras de aquisição das peças da loja foram preservados; a validação aceita as novas opções pelo tamanho do catálogo compartilhado.
 
 As seis franjas foram redesenhadas individualmente. O corpo pequeno não contém mais cabelo ou sobrancelhas fixos por baixo da camada escolhida. Os rostos têm nariz e boca menores, olhos com brilho e contornos seletivos coloridos. A opção feminino/masculino agora também escolhe as feições do personagem no mapa, além do retrato. A anatomia original abaixo da cabeça, as nove paletas de pele, as mãos expostas e as cores de cabelo continuam compatíveis.
