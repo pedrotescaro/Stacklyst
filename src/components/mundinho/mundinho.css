@@ -171,7 +171,9 @@
 }
 .ad-portrait-editor h2 {
   margin: 0 0 8px;
-  font: 700 22px/1.2 var(--rpg-font);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
 }
 .ad-portrait-editor p {
   margin: 0 0 12px;
@@ -3309,17 +3311,11 @@
   }
 }
 /* Pixel RPG presentation: readable HTML values, hard-edged frames and keyboard cursor. */
-.adventure-world,
-.adventure-battle,
-.world-shell {
+.world-viewport,
+.ad-battle-view {
   font-family: var(--rpg-font, 'Stacklyst Pixel', monospace);
   font-synthesis: none;
   font-size: 16px;
-}
-.adventure-battle .ad-page-heading h1,
-.adventure-world .ad-page-heading h1 {
-  font-size: 26px;
-  letter-spacing: 0;
 }
 .world-shell .world-player-name {
   font-size: 14px;
@@ -3328,9 +3324,6 @@
   border-radius: 0;
   background: #000;
   padding: 2px 5px;
-}
-.world-hint-footer {
-  font-size: 14px;
 }
 .rpg-meter {
   --rpg-hp-light: #b6d779;
