@@ -85,35 +85,72 @@ export function readProfileIdentity(config: unknown): ProfileIdentityStyle {
     parsed && typeof parsed === 'object' && !Array.isArray(parsed)
       ? (parsed as Record<string, unknown>)
       : null;
-  const value = (
-    rawObj?.profileStyle && typeof rawObj.profileStyle === 'object' ? rawObj.profileStyle : rawObj
-  ) as ProfileIdentityStyle | null;
-  if (!value || typeof value !== 'object') return {};
+  if (!rawObj) return {};
+
+  const profileStyle =
+    rawObj.profileStyle &&
+    typeof rawObj.profileStyle === 'object' &&
+    !Array.isArray(rawObj.profileStyle)
+      ? (rawObj.profileStyle as Record<string, unknown>)
+      : {};
+  const value = { ...rawObj, ...profileStyle } as Record<string, unknown>;
+  const nameStyle = (
+    value.nameStyle && typeof value.nameStyle === 'object' ? value.nameStyle : {}
+  ) as Record<string, unknown>;
+  const frame = (value.frame && typeof value.frame === 'object' ? value.frame : null) as Record<
+    string,
+    unknown
+  > | null;
+  const flagCandidate =
+    typeof value.flag === 'string'
+      ? value.flag
+      : typeof rawObj.flag === 'string'
+        ? rawObj.flag
+        : null;
+  const flagsCandidate = Array.isArray(value.flags)
+    ? value.flags
+    : Array.isArray(rawObj.flags)
+      ? rawObj.flags
+      : null;
+  const titleCandidate = (
+    value.title && typeof value.title === 'object'
+      ? value.title
+      : rawObj.title && typeof rawObj.title === 'object'
+        ? rawObj.title
+        : null
+  ) as Record<string, unknown> | null;
+
   return {
     nameStyle: {
-      color: validColor(value.nameStyle?.color) ? value.nameStyle.color : null,
-      bold: value.nameStyle?.bold === true,
-      italic: value.nameStyle?.italic === true,
-      underline: value.nameStyle?.underline === true,
+      color: validColor(nameStyle.color) ? nameStyle.color : null,
+      bold: nameStyle.bold === true,
+      italic: nameStyle.italic === true,
+      underline: nameStyle.underline === true,
     },
     frame:
-      value.frame && validColor(value.frame.color) && /^[a-z-]+$/.test(value.frame.decoration)
-        ? value.frame
+      frame &&
+      validColor(frame.color) &&
+      typeof frame.decoration === 'string' &&
+      /^[a-z-]+$/.test(frame.decoration)
+        ? { id: String(frame.id || 'frame'), decoration: frame.decoration, color: frame.color }
         : null,
-    flag: typeof value.flag === 'string' && isProfileFlagId(value.flag) ? value.flag : null,
-    flags: Array.isArray(value.flags)
-      ? value.flags
+    flag: flagCandidate && isProfileFlagId(flagCandidate) ? flagCandidate : null,
+    flags: Array.isArray(flagsCandidate)
+      ? flagsCandidate
           .filter((flag): flag is string => typeof flag === 'string' && isProfileFlagId(flag))
           .slice(0, 3)
-      : typeof value.flag === 'string' && isProfileFlagId(value.flag)
-        ? [value.flag]
+      : flagCandidate && isProfileFlagId(flagCandidate)
+        ? [flagCandidate]
         : [],
     title:
-      value.title &&
-      typeof value.title.name === 'string' &&
-      value.title.name.length <= 60 &&
-      validColor(value.title.color)
-        ? value.title
+      titleCandidate && typeof titleCandidate.name === 'string' && titleCandidate.name.length <= 60
+        ? {
+            id: typeof titleCandidate.id === 'string' ? titleCandidate.id : 'title',
+            name: titleCandidate.name,
+            color: validColor(titleCandidate.color) ? titleCandidate.color : '#0083fe',
+            rarity: typeof titleCandidate.rarity === 'string' ? titleCandidate.rarity : 'common',
+            icon: typeof titleCandidate.icon === 'string' ? titleCandidate.icon : undefined,
+          }
         : null,
   };
 }

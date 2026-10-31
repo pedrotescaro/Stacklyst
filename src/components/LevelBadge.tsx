@@ -1,6 +1,7 @@
 'use client';
 
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { cn } from '@/lib/cn';
 
 const LEVEL_STYLES = [
   { min: 30, background: '#ff4b4b', shadow: '#b83232', text: '#12212e' },
@@ -18,24 +19,34 @@ export function LevelBadge({
   totalXp,
   minLevel = 1,
   className = '',
+  variant = 'pill',
 }: {
   totalXp: number;
   minLevel?: number;
   className?: string;
+  variant?: 'pill' | 'badge';
 }) {
   const { text } = useLocalizedText();
   const level = getLevelFromTotalXp(totalXp);
   if (level < minLevel) return null;
   const style = LEVEL_STYLES.find((item) => level >= item.min) ?? LEVEL_STYLES.at(-1)!;
 
+  const isPill = variant === 'pill';
+
   return (
     <span
       aria-label={`${text('Nível', 'Level')} ${level}`}
-      className={`relative inline-flex shrink-0 items-center justify-center rounded-lg px-2 py-0.5 text-[9px] font-black uppercase leading-none tracking-tight select-none ${className}`}
+      className={cn(
+        'relative inline-flex shrink-0 items-center justify-center select-none',
+        isPill
+          ? 'rounded-full px-2.5 py-0.5 text-[11px] font-semibold leading-tight'
+          : 'rounded-lg px-2 py-0.5 text-[9px] font-black uppercase leading-none tracking-tight',
+        className
+      )}
       style={{
         backgroundColor: style.background,
         color: style.text,
-        boxShadow: `0 3px 0 ${style.shadow}`,
+        ...(isPill ? {} : { boxShadow: `0 3px 0 ${style.shadow}` }),
       }}
     >
       Lvl {level}

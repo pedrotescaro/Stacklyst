@@ -9,10 +9,26 @@
 .actions::before {
   content: '';
   position: absolute;
-  inset-inline: 12px;
   top: 0;
+  inset-inline: -12px;
   border-top: 1px solid color-mix(in srgb, var(--color-dd-border) 60%, transparent);
   pointer-events: none;
+}
+
+@media (min-width: 640px) {
+  .actionsFlat::before {
+    inset-inline: -16px;
+  }
+
+  .actionsCard::before {
+    inset-inline: -20px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .actionsFlat::before {
+    inset-inline: -20px;
+  }
 }
 
 @media (max-width: 767px) {

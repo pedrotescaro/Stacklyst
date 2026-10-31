@@ -439,7 +439,11 @@ export function PostCard({
 
         {/* Footer: Action bar (Twitter style) */}
         <PostActionsBar
-          className={cn('pt-2.5 mt-2', styles.actions)}
+          className={cn(
+            'pt-2.5 mt-2',
+            styles.actions,
+            flat ? styles.actionsFlat : styles.actionsCard
+          )}
           onClick={(e) => {
             e.stopPropagation();
           }}

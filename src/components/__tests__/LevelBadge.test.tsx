@@ -10,14 +10,24 @@ describe('LevelBadge', () => {
     expect(getLevelFromTotalXp(29_000)).toBe(30);
   });
 
-  it('usa cores e sombra diferentes conforme o nível', () => {
-    const { rerender } = render(<LevelBadge totalXp={0} />);
+  it('usa cores e sombra diferentes conforme o nível na variante badge', () => {
+    const { rerender } = render(<LevelBadge totalXp={0} variant="badge" />);
     const beginner = screen.getByLabelText('Nível 1');
     expect(beginner).toHaveStyle({ backgroundColor: '#1cb0f6', boxShadow: '0 3px 0 #087db5' });
 
-    rerender(<LevelBadge totalXp={19_000} />);
+    rerender(<LevelBadge totalXp={19_000} variant="badge" />);
     const advanced = screen.getByLabelText('Nível 20');
     expect(advanced).toHaveStyle({ backgroundColor: '#ffc800', boxShadow: '0 3px 0 #c79700' });
+  });
+
+  it('usa o design de pílula por padrão correspondendo ao estilo dos títulos', () => {
+    render(<LevelBadge totalXp={0} />);
+    const beginner = screen.getByLabelText('Nível 1');
+    expect(beginner).toHaveClass('rounded-full');
+    expect(beginner).toHaveClass('text-[11px]');
+    expect(beginner).toHaveClass('font-semibold');
+    expect(beginner).toHaveStyle({ backgroundColor: '#1cb0f6' });
+    expect(beginner.style.boxShadow).toBe('');
   });
   it('maintains readable small text in every level palette', () => {
     const { rerender } = render(<LevelBadge totalXp={0} />);

@@ -204,6 +204,42 @@ async function main() {
     },
   ];
 
+  const seedProfiles: Record<string, { flag: string; flags: string[]; title: any }> = {
+    pedrodev: {
+      flag: 'BR',
+      flags: ['BR'],
+      title: {
+        id: 'posts-1000',
+        name: 'Ícone do Stacklyst',
+        color: '#eab308',
+        rarity: 'legendary',
+        icon: 'award',
+      },
+    },
+    anak: {
+      flag: 'BR',
+      flags: ['BR'],
+      title: {
+        id: 'posts-50',
+        name: 'Pythonista',
+        color: '#38bdf8',
+        rarity: 'rare',
+        icon: 'code',
+      },
+    },
+    carlosm: {
+      flag: 'BR',
+      flags: ['BR'],
+      title: {
+        id: 'posts-10',
+        name: 'Rustacean',
+        color: '#f97316',
+        rarity: 'uncommon',
+        icon: 'code',
+      },
+    },
+  };
+
   const createdUsers: Record<string, any> = {};
 
   for (const u of usersToCreate) {
@@ -226,6 +262,7 @@ async function main() {
     }
 
     // Insert user into public.User
+    const profileData = seedProfiles[u.username];
     const dbUser = await prisma.user.create({
       data: {
         id: user.id,
@@ -239,6 +276,13 @@ async function main() {
               { id: 'alien', color: '#72b981', decoration: 'alien' },
               { id: 'neon-blue', color: '#0083fe', decoration: 'neon' },
             ][randomInt(3)],
+            ...(profileData
+              ? {
+                  flag: profileData.flag,
+                  flags: profileData.flags,
+                  title: profileData.title,
+                }
+              : {}),
           },
         },
         bio: u.bio,
