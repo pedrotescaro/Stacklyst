@@ -31,10 +31,12 @@ export function MusicSelector({
   value,
   onChange,
   disabled = false,
+  context = 'profile',
 }: {
   value: ProfilePreferences['music'];
   onChange: (value: ProfilePreferences['music']) => void;
   disabled?: boolean;
+  context?: 'profile' | 'post';
 }) {
   const [query, setQuery] = useState('');
   const [url, setUrl] = useState('');
@@ -303,8 +305,10 @@ export function MusicSelector({
         </button>
       </div>
       <p className={styles.help} style={{ marginTop: 12 }}>
-        A música muda só depois de salvar o perfil. A reprodução usa o player oficial e não começa
-        automaticamente.
+        {context === 'post'
+          ? 'A música será anexada ao publicar. '
+          : 'A música muda só depois de salvar o perfil. '}
+        A reprodução usa o player oficial e não começa automaticamente.
       </p>
     </div>
   );

@@ -6,6 +6,8 @@
   color: var(--color-dd-text, #e8e8ea);
   font-size: 1.05rem;
   line-height: 1.5;
+  overflow-wrap: anywhere;
+  caret-color: var(--color-dd-accent);
 }
 
 .notion-editor .ProseMirror p.is-editor-empty:first-child::before,
@@ -83,6 +85,15 @@
 
 .bubble-toolbar {
   z-index: 40;
+}
+
+.notion-editor-content ::selection {
+  background-color: color-mix(in srgb, var(--color-dd-accent) 25%, transparent);
+}
+
+.notion-code-block {
+  max-width: 100%;
+  min-width: 0;
 }
 
 .slash-menu {

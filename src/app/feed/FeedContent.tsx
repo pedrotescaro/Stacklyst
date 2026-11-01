@@ -12,26 +12,20 @@ import { PostCard } from '@/components/PostCard';
 import { LanguageTag } from '@/components/LanguageTag';
 import { Footer } from '@/components/Footer';
 import { AchievementShowcase } from '@/components/AchievementShowcase';
-import { PostComposerExtras } from '@/components/PostComposerExtras';
-import type { NotionEditorRef } from '@/components/MarkdownEditor';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
-import { extractPostMetadata } from '@/lib/editor/extract-metadata';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
-import { appendPostExtras, ReplyAudience, resetPostComposerExtras } from '@/lib/post-composer';
 import { PostSkeletonList } from '@/components/motion/PostSkeleton';
 import { NewPostsPill } from '@/components/motion/NewPostsPill';
-import { PublishButton, PublishState } from '@/components/motion/PublishButton';
 import { XPProgressBar } from '@/components/motion/XPProgressBar';
 import { FeedEngagementCard } from '@/app/feed/FeedEngagementCard';
 import { FeedControls } from '@/app/feed/FeedControls';
 import { MobilePullToRefresh } from '@/components/MobilePullToRefresh';
 import { feedRankingSurfaceClassName } from '@/components/FeedRankingSwitcher';
-import { CharCounter } from '@/components/motion/CharCounter';
-import { MentionDropdown } from '@/components/motion/MentionDropdown';
 import { EmptyState } from '@/components/motion/EmptyState';
 import { LevelUpOverlay } from '@/components/motion/LevelUpOverlay';
 import { FeedRightSidebar } from '@/components/FeedRightSidebar';
-import { POST_CHAR_LIMIT, crossfadeVariants, springGentle } from '@/lib/motion';
+import { crossfadeVariants, springGentle } from '@/lib/motion';
+import { openPostComposer } from '@/components/composer/PostComposerDialog';
 import { cn } from '@/lib/cn';
 import { getCurrentUser } from '@/lib/client/current-user';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -61,19 +55,6 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import type { OnboardingPreferences } from '@/lib/onboarding';
-
-const MarkdownEditor = dynamic(
-  () => import('@/components/MarkdownEditor').then((module) => module.MarkdownEditor),
-  {
-    ssr: false,
-    loading: () => (
-      <div className="dd-skeleton-post space-y-2 py-2" aria-label="Loading editor">
-        <div className="dd-skeleton h-3.5 w-4/5 rounded-full" />
-        <div className="dd-skeleton h-3.5 w-2/5 rounded-full" />
-      </div>
-    ),
-  }
-);
 
 const QuizWidget = dynamic(
   () => import('@/components/QuizWidget').then((module) => module.QuizWidget),
@@ -224,11 +205,6 @@ export function FeedContent({
   const [weeklyActivity, setWeeklyActivity] = useState<Map<number, number>>(new Map());
   const [currentWeekDate, setCurrentWeekDate] = useState(initialCurrentDate);
 
-  // Post Form state
-  const [postBody, setPostBody] = useState('');
-  const [publishState, setPublishState] = useState<PublishState>('idle');
-  const [composeFocused, setComposeFocused] = useState(false);
-  const [postError, setPostError] = useState<string | null>(null);
   const getInitialCursor = (items: any[]) => {
     if (items.length < 10) return null;
     const lastItem = items[items.length - 1];
@@ -259,11 +235,8 @@ export function FeedContent({
   const refreshRequestRef = useRef<AbortController | null>(null);
   const [newPostsCount, setNewPostsCount] = useState(0);
   const FEED_PAGE_SIZE = 10;
-  const [postImage, setPostImage] = useState('');
-  const [uploadingImage, setUploadingImage] = useState(false);
   const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
   useEffect(() => setSearchQuery(initialSearchQuery), [initialSearchQuery]);
-  const [quotePost, setQuotePost] = useState<any | null>(null);
   const [bookmarkedPostIds, setBookmarkedPostIds] =
     useState<Record<string, boolean>>(initialBookmarks);
   const [repostState, setRepostState] = useState<
@@ -328,43 +301,7 @@ export function FeedContent({
   const [dailyQuiz, setDailyQuiz] = useState<any>(null);
   const [dailyAttempt, setDailyAttempt] = useState<any>(null);
 
-  // Mention Suggestions state
-  const [mentionUsers, setMentionUsers] = useState<any[]>([]);
-  const [showMentionSuggestions, setShowMentionSuggestions] = useState(false);
-  const [focusedInput, setFocusedInput] = useState<'inline' | 'modal' | null>(null);
-  const postBodyEditorRef = useRef<NotionEditorRef>(null);
-  const composerContainerRef = useRef<HTMLDivElement>(null);
-  const [replyAudience, setReplyAudience] = useState<ReplyAudience>('everyone');
-  const [scheduledAt, setScheduledAt] = useState<string | null>(null);
-  const [postLocation, setPostLocation] = useState('');
-  const [isSensitive, setIsSensitive] = useState(false);
   const didMountFilterEffectRef = useRef(false);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        composerContainerRef.current &&
-        !composerContainerRef.current.contains(event.target as Node)
-      ) {
-        if (
-          !postBody.trim() &&
-          !quotePost &&
-          !postImage &&
-          !postLocation &&
-          !scheduledAt &&
-          !isSensitive &&
-          replyAudience === 'everyone'
-        ) {
-          setComposeFocused(false);
-        }
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [postBody, quotePost, postImage, postLocation, scheduledAt, isSensitive, replyAudience]);
 
   // Report post state
   const [reportModalOpen, setReportModalOpen] = useState(false);
@@ -692,60 +629,6 @@ export function FeedContent({
     return () => window.clearTimeout(timer);
   }, [refetchWeeklyActivity]);
 
-  const handleBodyChange = async (val: string, inputType: 'inline' | 'modal') => {
-    setPostBody(val);
-    const words = val.split(/\s+/);
-    const lastWord = words[words.length - 1];
-    if (lastWord.startsWith('@') && lastWord.length >= 1) {
-      const q = lastWord.slice(1);
-      try {
-        const res = await fetch(`/api/users/search?q=${q}`);
-        if (res.ok) {
-          const data = await res.json();
-          setMentionUsers(data);
-          setShowMentionSuggestions(true);
-          setFocusedInput(inputType);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    } else {
-      setShowMentionSuggestions(false);
-      setMentionUsers([]);
-    }
-  };
-
-  const handleSelectMention = (username: string) => {
-    const words = postBody.split(/\s+/);
-    words[words.length - 1] = `@${username} `;
-    setPostBody(words.join(' '));
-    setShowMentionSuggestions(false);
-    setMentionUsers([]);
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingImage(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setPostImage(data.url);
-      }
-    } catch (err) {
-      console.error('Image upload failed:', err);
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
   // Duel Form state
   const [duelTitle, setDuelTitle] = useState('');
   const [duelBody, setDuelBody] = useState('');
@@ -928,126 +811,6 @@ export function FeedContent({
     }
   }, [activeTab, leaderboardLanguage]);
 
-  const handleCreatePost = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!postBody.trim()) return;
-
-    // Client-side validation
-    if (postBody.trim().length < 10) {
-      setPostError(
-        text(
-          'O conteúdo deve ter pelo menos 10 caracteres',
-          'Content must be at least 10 characters long'
-        )
-      );
-      setTimeout(() => setPostError(null), 4000);
-      return;
-    }
-
-    setPublishState('submitting');
-    setPostError(null);
-
-    const isFirstPost = initialPosts.length === 0;
-    const tempId = `temp-${Date.now()}`;
-    const postMetadata = extractPostMetadata(postBody);
-
-    const optimisticPost = {
-      id: tempId,
-      title: postBody.trim().substring(0, 40) || 'Discussao Geral',
-      body: postBody,
-      language: postMetadata.language,
-      code_snippet: null,
-      image_url: postImage || null,
-      created_at: new Date().toISOString(),
-      view_count: 0,
-      upvotes: 0,
-      author: {
-        username: initialUser.username,
-        avatar_url: initialUser.avatar_url,
-        avatar_config: initialUser.avatar_config,
-        total_xp: initialUser.total_xp,
-      },
-      _count: { answers: 0 },
-      _pending: true,
-      votes: [],
-      quoted_post: quotePost,
-      _clientKey: tempId,
-    };
-
-    setPosts((prev) => [optimisticPost, ...prev]);
-
-    try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          body: appendPostExtras(postBody, {
-            location: postLocation,
-            scheduledAt,
-            replyAudience,
-            isSensitive,
-          }),
-          language: postMetadata.language,
-          code_snippet: null,
-          image_url: postImage || null,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setPosts((prev) =>
-          prev.map((p) =>
-            p.id === tempId
-              ? {
-                  ...data.post,
-                  created_at: data.post.created_at || new Date().toISOString(),
-                  author: optimisticPost.author,
-                  _count: { answers: 0 },
-                  upvotes: 0,
-                  view_count: 0,
-                  votes: [],
-                  quoted_post: quotePost,
-                  _pending: false,
-                  _clientKey: tempId,
-                }
-              : p
-          )
-        );
-        setPostBody('');
-        setPostImage('');
-        setQuotePost(null);
-        setComposeFocused(false);
-        const resetExtras = resetPostComposerExtras();
-        setReplyAudience(resetExtras.replyAudience);
-        setScheduledAt(resetExtras.scheduledAt);
-        setPostLocation(resetExtras.location);
-        setIsSensitive(resetExtras.isSensitive);
-        setPublishState('success');
-        playSound('post');
-        setTimeout(() => setPublishState('idle'), 1500);
-
-        if (data.xpResult?.xpEarned) {
-          showXPToast(data.xpResult.xpEarned, data.xpResult.language);
-        }
-        if (isFirstPost) {
-          setFirstPostToastVisible(true);
-          showXPToast(50, 'Primeira postagem');
-          setTimeout(() => setFirstPostToastVisible(false), 3000);
-        }
-      } else {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Erro ao postar');
-      }
-    } catch (err: any) {
-      console.error(err);
-      setPosts((prev) => prev.filter((p) => p.id !== tempId));
-      setPostError(err.message || 'Algo deu errado. Seu rascunho foi salvo automaticamente.');
-      setPublishState('idle');
-      // Auto-dismiss error after 4s
-      setTimeout(() => setPostError(null), 4000);
-    }
-  };
-
   const handleCreateDuel = async (e: React.FormEvent) => {
     e.preventDefault();
     setCreatingDuel(true);
@@ -1084,6 +847,22 @@ export function FeedContent({
       setToastXp(null);
     }, 4000);
   };
+
+  useEffect(() => {
+    const published = (event: Event) => {
+      playSound('post');
+      const detail = (event as CustomEvent<{ xpResult?: { xpEarned?: number; language?: string } }>)
+        .detail;
+      const amount = detail?.xpResult?.xpEarned;
+      if (amount) {
+        setToastXp({ amount, language: detail?.xpResult?.language || 'Global' });
+        setCurrentXp((current) => current + amount);
+        window.setTimeout(() => setToastXp(null), 4000);
+      }
+    };
+    window.addEventListener('stacklyst:post-created', published);
+    return () => window.removeEventListener('stacklyst:post-created', published);
+  }, [playSound]);
 
   useEffect(() => {
     const nextLevel = getLevelFromXp(currentXp);
@@ -1157,15 +936,7 @@ export function FeedContent({
     });
   };
 
-  const handleQuotePost = (post: any) => {
-    setQuotePost(post);
-    setComposeFocused(true);
-    setActiveTab('feed');
-    requestAnimationFrame(() => {
-      postBodyEditorRef.current?.focus();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-  };
+  const handleQuotePost = (post: any) => openPostComposer(post);
 
   // Upvote/Downvote handling with API
   const handleVote = async (postId: string, type: 'up' | 'down') => {
@@ -1256,8 +1027,6 @@ export function FeedContent({
   const activeDuels = duels.filter((d) => d.status === 'ACTIVE').slice(0, 2);
   const startedTrails = initialUser.trails.filter(hasStartedTrail);
 
-  const charRatio = postBody.length / POST_CHAR_LIMIT;
-  const xpReward = extractPostMetadata(postBody).language ? 10 : 5;
   return (
     <div
       data-testid="app-shell"
@@ -1326,207 +1095,33 @@ export function FeedContent({
             {activeTab === 'feed' && (
               <>
                 <div
-                  ref={composerContainerRef}
-                  onClick={() => setComposeFocused(true)}
                   data-testid="desktop-feed-composer"
-                  className="relative z-20 hidden border-b border-dd-border/60 bg-transparent px-3 pb-2 pt-3 transition-[border-color,box-shadow] duration-200 focus-within:border-blue-500/40 md:block sm:px-4 sm:pb-2.5 sm:pt-3.5"
+                  className="hidden border-b border-dd-border px-5 py-5 md:block"
                 >
-                  <form onSubmit={handleCreatePost} className="flex gap-2 sm:gap-3">
-                    <div className="shrink-0 pt-0.5">
-                      <AuthorAvatar
-                        username={initialUser.username}
-                        avatar_url={initialUser.avatar_url}
-                        avatar_config={initialUser.avatar_config}
-                        size="md"
-                        className="!h-9 !w-9 sm:!h-10 sm:!w-10"
-                      />
-                    </div>
-
-                    <div className="flex-1 min-w-0 flex flex-col justify-between">
-                      <div className="relative">
-                        <MarkdownEditor
-                          ref={postBodyEditorRef}
-                          value={postBody}
-                          onChange={(value) => handleBodyChange(value, 'inline')}
-                          onFocus={() => setComposeFocused(true)}
-                          maxLength={POST_CHAR_LIMIT}
-                          minHeight={
-                            composeFocused ||
-                            Boolean(postBody.trim()) ||
-                            Boolean(quotePost) ||
-                            Boolean(postLocation) ||
-                            Boolean(scheduledAt) ||
-                            isSensitive ||
-                            replyAudience !== 'everyone'
-                              ? '3.5rem'
-                              : '1.75rem'
-                          }
-                          placeholder={text(
-                            'O que você está construindo hoje?',
-                            'What are you building today?'
-                          )}
-                          className="feed-composer-editor"
-                        />
-                        {(composeFocused || postBody.trim().length > 0) && (
-                          <div className="absolute bottom-0 right-0">
-                            <CharCounter text={postBody} limit={POST_CHAR_LIMIT} />
-                          </div>
-                        )}
-                        <MentionDropdown
-                          query={postBody.split(/\s+/).at(-1)?.replace(/^@/, '') || ''}
-                          visible={showMentionSuggestions && focusedInput === 'inline'}
-                          onSelect={handleSelectMention}
-                          onClose={() => {
-                            setShowMentionSuggestions(false);
-                            setMentionUsers([]);
-                          }}
-                        />
-                      </div>
-
-                      {quotePost && (
-                        <div className="dd-quote-card my-2 rounded-2xl border border-dd-border bg-dd-bg/60 p-3">
-                          <div className="mb-2 flex items-center justify-between gap-3">
-                            <span className="text-[10px] font-bold uppercase tracking-[0.18em] text-dd-muted">
-                              Citando @{quotePost.author.username}
-                            </span>
-                            <button
-                              type="button"
-                              onClick={() => setQuotePost(null)}
-                              className="dd-touch rounded-full p-1 text-dd-muted transition-colors hover:bg-dd-surface hover:text-dd-text"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                          </div>
-                          <p className="line-clamp-2 text-xs text-dd-muted">
-                            {quotePost.body.replace(/```[\s\S]*?```/g, '').substring(0, 120)}
-                          </p>
-                        </div>
-                      )}
-
-                      {postError && (
-                        <p className="my-1 text-[11px] font-medium text-red-400">{postError}</p>
-                      )}
-
-                      {postImage && (
-                        <div className="relative my-2 rounded-xl overflow-hidden border border-dd-border max-h-60 bg-dd-bg">
-                          <Image
-                            src={postImage}
-                            alt="Preview"
-                            width={800}
-                            height={240}
-                            className="w-full h-full object-cover max-h-60"
-                          />
-                          <button
-                            type="button"
-                            onClick={() => setPostImage('')}
-                            className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white hover:bg-black/85 transition-colors cursor-pointer"
-                          >
-                            <X className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      )}
-
-                      {(composeFocused ||
-                        Boolean(postBody.trim()) ||
-                        Boolean(quotePost) ||
-                        Boolean(postLocation) ||
-                        Boolean(scheduledAt) ||
-                        isSensitive ||
-                        replyAudience !== 'everyone') && (
-                        <div className="my-2 border-b border-dd-border/40 pb-2 animate-slide-up">
-                          <PostComposerExtras
-                            section="meta"
-                            postBody={postBody}
-                            setPostBody={setPostBody}
-                            editorRef={postBodyEditorRef}
-                            replyAudience={replyAudience}
-                            setReplyAudience={setReplyAudience}
-                            scheduledAt={scheduledAt}
-                            setScheduledAt={setScheduledAt}
-                            location={postLocation}
-                            setLocation={setPostLocation}
-                            isSensitive={isSensitive}
-                            setIsSensitive={setIsSensitive}
-                          />
-                        </div>
-                      )}
-
-                      <div
-                        className={cn(
-                          'flex flex-wrap items-center gap-x-2 gap-y-1',
-                          composeFocused ||
-                            Boolean(postBody.trim()) ||
-                            Boolean(quotePost) ||
-                            Boolean(postLocation) ||
-                            Boolean(scheduledAt) ||
-                            isSensitive ||
-                            replyAudience !== 'everyone'
-                            ? 'pt-1'
-                            : 'pt-2'
-                        )}
-                      >
-                        <div className="flex min-w-0 items-center gap-1 text-blue-500">
-                          <div>
-                            <input
-                              type="file"
-                              accept="image/*"
-                              onChange={handleImageUpload}
-                              className="hidden"
-                              id="inline-file-upload"
-                            />
-                            <label
-                              htmlFor="inline-file-upload"
-                              className="dd-touch inline-flex items-center justify-center rounded-full p-2 transition-colors hover:bg-blue-500/10 cursor-pointer"
-                              title="Adicionar imagem"
-                            >
-                              <svg
-                                viewBox="0 0 24 24"
-                                className="w-5 h-5 fill-none stroke-current"
-                                strokeWidth="2"
-                              >
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                                <polyline points="21 15 16 10 5 21"></polyline>
-                              </svg>
-                            </label>
-                          </div>
-
-                          <PostComposerExtras
-                            section="tools"
-                            postBody={postBody}
-                            setPostBody={setPostBody}
-                            editorRef={postBodyEditorRef}
-                            replyAudience={replyAudience}
-                            setReplyAudience={setReplyAudience}
-                            scheduledAt={scheduledAt}
-                            setScheduledAt={setScheduledAt}
-                            location={postLocation}
-                            setLocation={setPostLocation}
-                            isSensitive={isSensitive}
-                            setIsSensitive={setIsSensitive}
-                          />
-                        </div>
-
-                        <div className="ml-auto flex shrink-0 items-center gap-2 sm:gap-3">
-                          {uploadingImage && (
-                            <span className="text-[10px] text-dd-muted animate-pulse font-semibold">
-                              Enviando imagem...
-                            </span>
-                          )}
-                          <PublishButton
-                            disabled={
-                              !postBody.trim() ||
-                              uploadingImage ||
-                              postBody.length >= POST_CHAR_LIMIT
-                            }
-                            state={publishState}
-                            xpReward={xpReward}
-                            className="px-3 text-xs sm:px-4 sm:text-sm"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </form>
+                  <button
+                    type="button"
+                    onClick={() => openPostComposer()}
+                    className="flex w-full items-center gap-3 text-left"
+                  >
+                    <AuthorAvatar
+                      username={initialUser.username}
+                      avatar_url={initialUser.avatar_url}
+                      avatar_config={initialUser.avatar_config}
+                      size="md"
+                    />
+                    <span className="flex-1 text-lg text-dd-muted">
+                      {text('O que você está pensando?', 'What are you thinking?')}
+                    </span>
+                    <span className="rounded-full bg-dd-accent px-5 py-2 text-sm font-semibold text-white">
+                      {text('Criar postagem', 'Create post')}
+                    </span>
+                  </button>
+                  <p className="mt-3 pl-13 text-xs text-dd-muted">
+                    {text(
+                      'Compartilhe uma ideia, um código ou uma descoberta.',
+                      'Share an idea, some code or a discovery.'
+                    )}
+                  </p>
                 </div>
 
                 {feedError && (

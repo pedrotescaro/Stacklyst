@@ -5,6 +5,8 @@ import { getAuthUser } from '@/lib/auth';
 import { extractPostMetadata } from '@/lib/editor/extract-metadata';
 import { publicQuiz } from '@/lib/quiz-public';
 import { buildAnswerThreads } from '@/lib/answer-threads';
+import { visiblePostWhere } from '@/services/post-access.service';
+import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -12,8 +14,9 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const user = await getAuthUser();
 
     const post = await prisma.post.findFirst({
-      where: { id, author: visibleUserWhere(user?.id ?? null) },
+      where: { AND: [{ id }, visiblePostWhere(user?.id ?? null)] },
       include: {
+        poll: { include: postPollInclude(user?.id ?? null) },
         author: {
           select: {
             id: true,
@@ -57,6 +60,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
 
     return NextResponse.json({
       ...post,
+      poll: publicPostPoll(post.poll),
       answers: buildAnswerThreads(post.answers),
       quizzes: post.quizzes.map(publicQuiz),
     });
@@ -77,7 +81,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
 
     const post = await prisma.post.findUnique({
       where: { id },
-      select: { author_id: true },
+      select: {
+        author_id: true,
+        attachments: true,
+        music: true,
+        image_url: true,
+        poll: { select: { id: true } },
+      },
     });
 
     if (!post) {
@@ -89,9 +99,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     const { body } = await request.json();
-    if (!body || body.trim().length < 10) {
+    if (
+      typeof body !== 'string' ||
+      body.length > 5000 ||
+      (!body.trim() && !post.attachments && !post.music && !post.image_url && !post.poll)
+    ) {
       return NextResponse.json(
-        { error: 'O conteúdo deve ter pelo menos 10 caracteres' },
+        { error: 'Adicione um conteúdo válido de até 5.000 caracteres.' },
         { status: 400 }
       );
     }
@@ -106,6 +120,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
         code_snippet: postMetadata.code || null,
       },
       include: {
+        poll: { include: postPollInclude(user.id) },
         author: {
           select: {
             username: true,
@@ -120,7 +135,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
       },
     });
 
-    return NextResponse.json({ ...updatedPost, quizzes: updatedPost.quizzes.map(publicQuiz) });
+    return NextResponse.json({
+      ...updatedPost,
+      poll: publicPostPoll(updatedPost.poll),
+      quizzes: updatedPost.quizzes.map(publicQuiz),
+    });
   } catch (error) {
     console.error('Error updating post:', error);
     return NextResponse.json({ error: 'Erro ao editar post' }, { status: 500 });

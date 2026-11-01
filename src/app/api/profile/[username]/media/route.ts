@@ -3,6 +3,8 @@ import { visibleUserWhere } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
 import { z } from 'zod';
 import { ValidationError } from '@/lib/errors';
+import { Prisma } from '@prisma/client';
+import { visiblePostWhere } from '@/services/post-access.service';
 
 export const GET = apiHandler(async (request, { params, session }) => {
   const { username } = await params;
@@ -45,10 +47,22 @@ export const GET = apiHandler(async (request, { params, session }) => {
   const rows = await prisma.post.findMany({
     where: {
       author_id: profile.id,
-      image_url: { not: null, notIn: [''] },
+      AND: [
+        visiblePostWhere(session?.id ?? null),
+        {
+          OR: [{ image_url: { not: null, notIn: [''] } }, { attachments: { not: Prisma.DbNull } }],
+        },
+      ],
       ...(search
         ? {
             AND: [
+              visiblePostWhere(session?.id ?? null),
+              {
+                OR: [
+                  { image_url: { not: null, notIn: [''] } },
+                  { attachments: { not: Prisma.DbNull } },
+                ],
+              },
               {
                 OR: [
                   { title: { contains: search, mode: 'insensitive' as const } },
@@ -70,7 +84,7 @@ export const GET = apiHandler(async (request, { params, session }) => {
     },
     orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
     take: limit + 1,
-    select: { id: true, title: true, image_url: true, created_at: true },
+    select: { id: true, title: true, image_url: true, attachments: true, created_at: true },
   });
   const items = rows.slice(0, limit);
   const last = items.at(-1);
@@ -81,7 +95,39 @@ export const GET = apiHandler(async (request, { params, session }) => {
         ).toString('base64url')
       : null;
   return Response.json(
-    { items, nextCursor },
+    {
+      items: items.flatMap((post) => {
+        const images = Array.isArray(post.attachments)
+          ? post.attachments.filter((entry): entry is Prisma.JsonObject =>
+              Boolean(
+                entry &&
+                typeof entry === 'object' &&
+                !Array.isArray(entry) &&
+                (entry.type === 'image' || entry.type === 'gif') &&
+                typeof entry.url === 'string'
+              )
+            )
+          : [];
+        return images.length
+          ? images.map((image) => ({
+              id: post.id,
+              title: post.title,
+              image_url: image.url,
+              created_at: post.created_at,
+            }))
+          : post.image_url
+            ? [
+                {
+                  id: post.id,
+                  title: post.title,
+                  image_url: post.image_url,
+                  created_at: post.created_at,
+                },
+              ]
+            : [];
+      }),
+      nextCursor,
+    },
     { headers: { 'Cache-Control': 'private, no-store' } }
   );
 });

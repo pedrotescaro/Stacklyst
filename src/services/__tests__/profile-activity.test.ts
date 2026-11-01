@@ -82,7 +82,9 @@ describe('profile publications include replies', () => {
     expect(mocks.replies.mock.calls[0][0].where.AND).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          post: { author: expect.objectContaining({ blocks_made: expect.any(Object) }) },
+          post: expect.objectContaining({
+            author: expect.objectContaining({ blocks_made: expect.any(Object) }),
+          }),
         }),
         {
           author: expect.objectContaining({

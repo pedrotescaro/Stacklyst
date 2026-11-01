@@ -18,10 +18,12 @@ import remarkGfm from 'remark-gfm';
 import 'highlight.js/styles/github.css';
 import 'highlight.js/styles/github-dark.css';
 import './MarkdownRenderer.css';
+import './editor/PostTextFormatting.css';
 import { cn } from '@/lib/cn';
 import { Play, Loader2 } from 'lucide-react';
 import { runCodeInSandbox } from '@/lib/code-runner';
 import { isRunnableLanguage } from '@/lib/editor/languages';
+import { remarkPostFormatting } from '@/lib/editor/safe-inline';
 
 interface MarkdownRendererProps {
   content: string;
@@ -491,7 +493,7 @@ export function MarkdownRenderer({ content, compact = false }: MarkdownRendererP
         )}
       >
         <ReactMarkdown
-          remarkPlugins={[remarkGfm, remarkMentions]}
+          remarkPlugins={[remarkGfm, remarkPostFormatting, remarkMentions]}
           rehypePlugins={[rehypeHighlight]}
           components={components}
         >

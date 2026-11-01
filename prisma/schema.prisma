@@ -209,6 +209,8 @@ model User {
 
   trails                 LanguageTrail[]
   posts                  Post[]
+  post_media             PostMedia[]
+  poll_votes             PostPollVote[]
   answers                Answer[]
   quiz_attempts          QuizAttempt[]
   badges                 UserBadge[]
@@ -694,6 +696,9 @@ model Post {
   language     Language?
   code_snippet String?
   image_url    String?
+  audience     String    @default("everyone")
+  attachments  Json?
+  music        Json?
   is_pinned    Boolean   @default(false)
   created_at   DateTime  @default(now())
   view_count   Int       @default(0)
@@ -707,9 +712,61 @@ model Post {
   bookmarks Bookmark[]
   reports   Report[]
   reactions Reaction[]
+  poll      PostPoll?
+  media     PostMedia[]
 
   @@unique([author_id, client_id])
   @@index([created_at(sort: Desc), id(sort: Desc)])
+}
+
+model PostMedia {
+  id           String   @id @default(uuid())
+  owner_id     String
+  post_id      String?
+  storage_path String   @unique
+  content_type String
+  size         Int
+  created_at   DateTime @default(now())
+  owner        User     @relation(fields: [owner_id], references: [id], onDelete: Cascade)
+  post         Post?    @relation(fields: [post_id], references: [id], onDelete: Cascade)
+
+  @@index([owner_id, created_at])
+  @@index([post_id])
+}
+
+model PostPoll {
+  id         String           @id @default(uuid())
+  post_id    String           @unique
+  question   String
+  expires_at DateTime
+  post       Post             @relation(fields: [post_id], references: [id], onDelete: Cascade)
+  options    PostPollOption[]
+  votes      PostPollVote[]
+}
+
+model PostPollOption {
+  id       String         @id @default(uuid())
+  poll_id  String
+  position Int
+  text     String
+  poll     PostPoll       @relation(fields: [poll_id], references: [id], onDelete: Cascade)
+  votes    PostPollVote[]
+
+  @@unique([poll_id, position])
+}
+
+model PostPollVote {
+  id        String         @id @default(uuid())
+  poll_id   String
+  option_id String
+  user_id   String
+  poll      PostPoll       @relation(fields: [poll_id], references: [id], onDelete: Cascade)
+  option    PostPollOption @relation(fields: [option_id], references: [id], onDelete: Cascade)
+  user      User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([poll_id, user_id])
+  @@index([option_id])
+  @@index([user_id])
 }
 
 model Answer {

@@ -33,6 +33,7 @@ import { BookmarkButton } from '@/components/motion/BookmarkButton';
 import { LikeButton } from '@/components/motion/LikeButton';
 import { PostComposerExtras } from '@/components/PostComposerExtras';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { PostAttachments } from '@/components/posts/PostAttachments';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { parsePostExtras, ReplyAudience } from '@/lib/post-composer';
@@ -544,6 +545,14 @@ export function PostDetailContent({
 
             <SensitiveContentGate isSensitive={presentedPost.isSensitive}>
               <MarkdownRenderer content={presentedPost.content} compact={false} />
+              <PostAttachments
+                postId={post.id}
+                attachments={post.attachments}
+                music={post.music}
+                poll={post.poll}
+                legacyImage={post.image_url}
+                audience={post.audience}
+              />
 
               {post.code_snippet && !presentedPost.content.includes('```') && (
                 <div className="rounded-lg border border-dd-border bg-dd-bg p-4 overflow-x-auto shadow-inner">

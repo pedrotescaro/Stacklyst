@@ -8,10 +8,15 @@ import { NotificationService } from './notification.service';
 import { logger } from '@/lib/logger';
 import { publicQuiz } from '@/lib/quiz-public';
 import { syncProfileAchievementsSafely } from './profile-customization.service';
+import { visiblePostWhere } from './post-access.service';
+import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
+import { ValidationError } from '@/lib/errors';
+import { Prisma } from '@prisma/client';
 
 export const PostService = {
   async create(userId: string, data: CreatePostInput, clientId?: string) {
-    const { title, body, language, code, image_url, type } = data;
+    const { title, body, language, code, image_url, type, audience, attachments, music, poll } =
+      data;
 
     // Idempotency check: if client_id already exists for this user, return existing post
     if (clientId) {
@@ -25,6 +30,35 @@ export const PostService = {
 
     let leveledUp = false;
     const result = await prisma.$transaction(async (tx) => {
+      const mediaIds = attachments.map((item) => item.url.split('/').at(-1)!);
+      if (new Set(mediaIds).size !== mediaIds.length)
+        throw new ValidationError(
+          'INVALID_MEDIA',
+          'Um mesmo anexo não pode ser adicionado duas vezes.'
+        );
+      if (mediaIds.length) {
+        const media = await tx.postMedia.findMany({
+          where: { id: { in: mediaIds }, owner_id: userId, post_id: null },
+        });
+        if (
+          media.length !== mediaIds.length ||
+          attachments.some((item) => {
+            const file = media.find((file) => file.id === item.url.split('/').at(-1));
+            return (
+              !file ||
+              (item.type === 'audio'
+                ? !file.content_type.startsWith('audio/')
+                : item.type === 'gif'
+                  ? file.content_type !== 'image/gif'
+                  : !file.content_type.startsWith('image/'))
+            );
+          })
+        )
+          throw new ValidationError(
+            'INVALID_MEDIA',
+            'Um anexo está indisponível. Envie o arquivo novamente.'
+          );
+      }
       // 1. Create Post
       const post = await tx.post.create({
         data: {
@@ -35,8 +69,34 @@ export const PostService = {
           code_snippet: code || null,
           image_url: image_url || null,
           client_id: clientId || null,
+          audience,
+          attachments: attachments.length ? attachments : Prisma.JsonNull,
+          music: music ? music : Prisma.JsonNull,
+          ...(poll
+            ? {
+                poll: {
+                  create: {
+                    question: poll.question,
+                    expires_at: new Date(Date.now() + poll.durationHours * 3600000),
+                    options: { create: poll.options.map((text, position) => ({ text, position })) },
+                  },
+                },
+              }
+            : {}),
         },
+        include: { poll: { include: postPollInclude(userId) } },
       });
+      if (mediaIds.length) {
+        const attached = await tx.postMedia.updateMany({
+          where: { id: { in: mediaIds }, owner_id: userId, post_id: null },
+          data: { post_id: post.id },
+        });
+        if (attached.count !== mediaIds.length)
+          throw new ValidationError(
+            'INVALID_MEDIA',
+            'Um anexo já foi publicado. Envie-o novamente.'
+          );
+      }
 
       // 2. Award XP directly using the SAME transaction tx!
       const xpAmount = language ? 10 : 5;
@@ -64,7 +124,12 @@ export const PostService = {
 
         // Trigger mentions notifications (idempotent: unique target users)
         for (const targetUser of usersToNotify) {
-          if (targetUser.id !== userId) {
+          const canSee =
+            audience !== 'followers' ||
+            (await tx.follow.findUnique({
+              where: { followerId_followingId: { followerId: targetUser.id, followingId: userId } },
+            }));
+          if (targetUser.id !== userId && canSee) {
             await tx.notification.create({
               data: {
                 userId: targetUser.id,
@@ -93,7 +158,7 @@ export const PostService = {
         xpAwarded: xpAmount,
       });
 
-      return { post, xpResult };
+      return { post: { ...post, poll: publicPostPoll(post.poll) }, xpResult };
     });
 
     if (leveledUp) {
@@ -187,13 +252,14 @@ export const PostService = {
     }
 
     const cursorWhere = buildCursorWhere(cursor, 'created_at');
-    const finalWhere = { AND: [whereClause, cursorWhere, { author: visibleUserWhere(userId) }] };
+    const finalWhere = { AND: [whereClause, cursorWhere, visiblePostWhere(userId)] };
 
     const posts = await prisma.post.findMany({
       where: finalWhere,
       orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
       take: limit + 1,
       include: {
+        poll: { include: postPollInclude(userId) },
         author: {
           select: {
             id: true,
@@ -230,7 +296,11 @@ export const PostService = {
     }
 
     return {
-      items: items.map((post) => ({ ...post, quizzes: post.quizzes.map(publicQuiz) })),
+      items: items.map((post) => ({
+        ...post,
+        poll: publicPostPoll(post.poll),
+        quizzes: post.quizzes.map(publicQuiz),
+      })),
       nextCursor,
     };
   },
@@ -258,6 +328,6 @@ export const PostService = {
       where.language = { in: params.languages as Language[] };
     }
 
-    return prisma.post.count({ where: { AND: [where, { author: visibleUserWhere(userId) }] } });
+    return prisma.post.count({ where: { AND: [where, visiblePostWhere(userId)] } });
   },
 };

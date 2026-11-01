@@ -1,0 +1,30 @@
+[data-post-color='blue'] {
+  color: #0062bf;
+}
+[data-post-color='purple'] {
+  color: #7542b8;
+}
+[data-post-color='green'] {
+  color: #087849;
+}
+[data-post-color='rose'] {
+  color: #b72f64;
+}
+[data-post-color='orange'] {
+  color: #a34c00;
+}
+.dark [data-post-color='blue'] {
+  color: #70b5ff;
+}
+.dark [data-post-color='purple'] {
+  color: #c2a0ff;
+}
+.dark [data-post-color='green'] {
+  color: #58dbaa;
+}
+.dark [data-post-color='rose'] {
+  color: #ff91b5;
+}
+.dark [data-post-color='orange'] {
+  color: #ffb467;
+}

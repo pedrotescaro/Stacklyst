@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
+import { visiblePostWhere } from '@/services/post-access.service';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -18,8 +19,8 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
     }
 
     // Verify post exists
-    const post = await prisma.post.findUnique({
-      where: { id: postId },
+    const post = await prisma.post.findFirst({
+      where: { AND: [{ id: postId }, visiblePostWhere(user.id)] },
     });
 
     if (!post) {

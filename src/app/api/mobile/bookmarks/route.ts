@@ -1,7 +1,8 @@
 import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { visibleUserWhere } from '@/services/block.service';
+import { visiblePostWhere } from '@/services/post-access.service';
+import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
 import { buildCursorWhere, encodeCursor } from '@/lib/pagination';
 export const GET = apiHandler(async (req) => {
   const user = await requireAuth();
@@ -9,7 +10,7 @@ export const GET = apiHandler(async (req) => {
   const rows = await prisma.bookmark.findMany({
     where: {
       user_id: user.id,
-      post: { author: visibleUserWhere(user.id) },
+      post: visiblePostWhere(user.id),
       ...buildCursorWhere(cursor, 'created_at'),
     },
     orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
@@ -17,6 +18,7 @@ export const GET = apiHandler(async (req) => {
     include: {
       post: {
         include: {
+          poll: { include: postPollInclude(user.id) },
           author: { select: { id: true, username: true, avatar_url: true, avatar_config: true } },
           _count: { select: { answers: true } },
           bookmarks: { where: { user_id: user.id }, select: { id: true } },
@@ -27,7 +29,7 @@ export const GET = apiHandler(async (req) => {
   const selected = rows.slice(0, 20),
     last = selected.at(-1);
   return Response.json({
-    items: selected.map((b) => b.post),
+    items: selected.map((b) => ({ ...b.post, poll: publicPostPoll(b.post.poll) })),
     nextCursor: rows.length > 20 && last ? encodeCursor(last.created_at, last.id) : null,
   });
 });

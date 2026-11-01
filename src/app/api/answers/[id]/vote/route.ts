@@ -4,6 +4,7 @@ import { BlockService } from '@/services/block.service';
 import { AppError } from '@/lib/errors';
 import { getAuthUser } from '@/lib/auth';
 import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
+import { assertPostAudience } from '@/services/post-access.service';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -22,11 +23,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
 
     const answer = await prisma.answer.findUnique({
       where: { id: answerId },
-      select: { author_id: true, post: { select: { author_id: true } } },
+      select: { author_id: true, post: { select: { author_id: true, audience: true } } },
     });
     if (!answer) return NextResponse.json({ error: 'Resposta não encontrada' }, { status: 404 });
     await BlockService.assertCanInteract(user.id, answer.author_id);
     await BlockService.assertCanInteract(user.id, answer.post.author_id);
+    await assertPostAudience(answer.post, user.id);
 
     // 1. Atualizar ou deletar o AnswerVote
     if (value === 0) {

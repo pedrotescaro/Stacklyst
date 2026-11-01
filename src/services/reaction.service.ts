@@ -5,6 +5,7 @@ import { NotFoundError } from '@/lib/errors';
 import { awardXPInTransaction } from '@/lib/xp';
 import { calculateLevel } from '@/lib/learning/rewards';
 import { logger } from '@/lib/logger';
+import { assertPostAudience } from './post-access.service';
 
 const VALID_REACTIONS = ['FIRE', 'HEART', 'LAUGH', 'CLAP', 'BULB'];
 
@@ -27,6 +28,7 @@ export const ReactionService = {
       }
 
       await BlockService.assertCanInteract(userId, post.author_id, tx);
+      await assertPostAudience(post, userId, tx);
 
       // 2. Fetch existing reaction
       const existingReaction = await tx.reaction.findUnique({

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import { visibleUserWhere } from '@/services/block.service';
+import { visiblePostWhere } from '@/services/post-access.service';
+import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
 import { getAuthUser } from '@/lib/auth';
 import { BookmarksContent } from './BookmarksContent';
 import { publicQuiz } from '@/lib/quiz-public';
@@ -16,11 +17,12 @@ export default async function BookmarksPage() {
 
   // Buscar todos os bookmarks do usuário com os posts completos correspondentes
   const bookmarks = await prisma.bookmark.findMany({
-    where: { user_id: user.id, post: { author: visibleUserWhere(user.id) } },
+    where: { user_id: user.id, post: visiblePostWhere(user.id) },
     orderBy: { created_at: 'desc' },
     include: {
       post: {
         include: {
+          poll: { include: postPollInclude(user.id) },
           author: {
             select: {
               id: true,
@@ -50,6 +52,7 @@ export default async function BookmarksPage() {
   // Mapear posts salvos
   const serializedPosts = bookmarks.map((b) => ({
     ...b.post,
+    poll: publicPostPoll(b.post.poll),
     quizzes: b.post.quizzes.map(publicQuiz),
     created_at: b.post.created_at.toISOString(),
     bookmarks: [{ id: b.id }], // Garante que a postagem seja identificada como salva no feed de bookmarks

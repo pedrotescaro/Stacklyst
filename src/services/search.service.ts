@@ -48,7 +48,7 @@ export const SearchService = {
     if (cursorRank !== null && cursorTime !== null && cursorId !== null) {
       posts = await prisma.$queryRaw`
         WITH search_results AS (
-          SELECT p.id, p.author_id, p.title, p.body, p.language, p.code_snippet, p.image_url, p.is_pinned, p.created_at, p.view_count, p.upvotes,
+          SELECT p.id, p.author_id, p.title, p.body, p.language, p.code_snippet, p.image_url, p.audience, p.attachments, p.music, p.is_pinned, p.created_at, p.view_count, p.upvotes,
                  u.username as "author_username", 
                  u.avatar_url as "author_avatar_url",
                  u.avatar_config as "author_avatar_config",
@@ -63,7 +63,9 @@ export const SearchService = {
                  )::float as rank
           FROM "Post" p
           JOIN "User" u ON p.author_id = u.id
-          WHERE NOT EXISTS (
+          WHERE (p.audience = 'everyone' OR p.author_id = ${viewerId} OR
+            (p.audience = 'followers' AND EXISTS (SELECT 1 FROM "Follow" f WHERE f."followerId" = ${viewerId} AND f."followingId" = p.author_id)))
+          AND NOT EXISTS (
             SELECT 1 FROM "user_blocks" b
             WHERE (b."blockerId" = ${viewerId} AND b."blockedId" = p.author_id)
                OR (b."blockedId" = ${viewerId} AND b."blockerId" = p.author_id)
@@ -78,7 +80,7 @@ export const SearchService = {
     } else {
       posts = await prisma.$queryRaw`
         WITH search_results AS (
-          SELECT p.id, p.author_id, p.title, p.body, p.language, p.code_snippet, p.image_url, p.is_pinned, p.created_at, p.view_count, p.upvotes,
+          SELECT p.id, p.author_id, p.title, p.body, p.language, p.code_snippet, p.image_url, p.audience, p.attachments, p.music, p.is_pinned, p.created_at, p.view_count, p.upvotes,
                  u.username as "author_username", 
                  u.avatar_url as "author_avatar_url",
                  u.avatar_config as "author_avatar_config",
@@ -93,7 +95,9 @@ export const SearchService = {
                  )::float as rank
           FROM "Post" p
           JOIN "User" u ON p.author_id = u.id
-          WHERE NOT EXISTS (
+          WHERE (p.audience = 'everyone' OR p.author_id = ${viewerId} OR
+            (p.audience = 'followers' AND EXISTS (SELECT 1 FROM "Follow" f WHERE f."followerId" = ${viewerId} AND f."followingId" = p.author_id)))
+          AND NOT EXISTS (
             SELECT 1 FROM "user_blocks" b
             WHERE (b."blockerId" = ${viewerId} AND b."blockedId" = p.author_id)
                OR (b."blockedId" = ${viewerId} AND b."blockerId" = p.author_id)
@@ -118,6 +122,9 @@ export const SearchService = {
       language: p.language,
       code_snippet: p.code_snippet,
       image_url: p.image_url,
+      audience: p.audience,
+      attachments: p.attachments,
+      music: p.music,
       is_pinned: p.is_pinned,
       created_at: p.created_at,
       view_count: p.view_count,

@@ -4,6 +4,8 @@ import { visibleUserWhere } from '@/services/block.service';
 import { publicQuiz } from '@/lib/quiz-public';
 import { getAuthUser } from '@/lib/auth';
 import { PostDetailContent } from './PostDetailContent';
+import { visiblePostWhere } from '@/services/post-access.service';
+import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
 
 export const revalidate = 0; // Desabilitar cache para dados dinâmicos de comentários/respostas
 
@@ -24,8 +26,9 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
 
   // Incrementar visualizações do post no lado do servidor
   const postPromise = prisma.post.findFirst({
-    where: { id, author: visibleUserWhere(user.id) },
+    where: { AND: [{ id }, visiblePostWhere(user.id)] },
     include: {
+      poll: { include: postPollInclude(user.id) },
       author: {
         select: authorSelect,
       },
@@ -103,6 +106,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   // Serializar datas
   const serializedPost = {
     ...post,
+    poll: publicPostPoll(post.poll),
     created_at: post.created_at.toISOString(),
     answers: post.answers.map((answer) => ({
       ...answer,

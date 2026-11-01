@@ -1,220 +1,176 @@
 import type { JSONContent } from '@tiptap/core';
+import type { Root } from 'mdast';
+import { unified } from 'unified';
+import remarkParse from 'remark-parse';
+import remarkStringify from 'remark-stringify';
+import remarkGfm from 'remark-gfm';
+import { isPostTextColor } from './text-colors';
+import { transformPostFormatting, type RichMarkdownNode } from './safe-inline';
 
-function serializeInline(nodes: JSONContent[] | undefined): string {
-  if (!nodes?.length) return '';
+const markdown = unified().use(remarkParse).use(remarkGfm).use(remarkStringify, {
+  bullet: '-',
+  emphasis: '*',
+  strong: '*',
+  fences: true,
+});
 
-  return nodes
-    .map((node) => {
-      if (node.type === 'text') {
-        let text = node.text ?? '';
-        if (node.marks?.some((mark) => mark.type === 'bold')) {
-          text = `**${text}**`;
-        }
-        if (node.marks?.some((mark) => mark.type === 'italic')) {
-          text = `*${text}*`;
-        }
-        if (node.marks?.some((mark) => mark.type === 'code')) {
-          text = `\`${text}\``;
-        }
-        if (node.marks?.some((mark) => mark.type === 'link')) {
-          const href = node.marks.find((mark) => mark.type === 'link')?.attrs?.href ?? '';
-          text = `[${text}](${href})`;
-        }
-        return text;
-      }
-
-      if (node.type === 'hardBreak') return '\n';
-      return '';
-    })
-    .join('');
+function serializeInline(nodes: JSONContent[] = []): RichMarkdownNode[] {
+  return nodes.flatMap((node): RichMarkdownNode[] => {
+    if (node.type === 'hardBreak') return [{ type: 'break' }];
+    if (node.type !== 'text' || !node.text) return [];
+    const marks = node.marks ?? [];
+    if (marks.some((mark) => mark.type === 'code'))
+      return [{ type: 'inlineCode', value: node.text }];
+    let children: RichMarkdownNode[] = [{ type: 'text', value: node.text }];
+    for (const [mark, type] of [
+      ['bold', 'strong'],
+      ['italic', 'emphasis'],
+      ['strike', 'delete'],
+    ]) {
+      if (marks.some((item) => item.type === mark)) children = [{ type, children }];
+    }
+    if (marks.some((mark) => mark.type === 'underline')) {
+      children = [{ type: 'html', value: '<u>' }, ...children, { type: 'html', value: '</u>' }];
+    }
+    const color = marks.find((mark) => mark.type === 'postColor')?.attrs?.color;
+    if (isPostTextColor(color)) {
+      children = [
+        { type: 'html', value: `<span data-post-color="${color}">` },
+        ...children,
+        { type: 'html', value: '</span>' },
+      ];
+    }
+    const href = marks.find((mark) => mark.type === 'link')?.attrs?.href;
+    if (typeof href === 'string') children = [{ type: 'link', url: href, children }];
+    return children;
+  });
 }
 
-function serializeBlock(node: JSONContent): string {
+function serializeBlock(node: JSONContent): RichMarkdownNode[] {
   switch (node.type) {
     case 'paragraph':
-      return serializeInline(node.content);
-    case 'heading': {
-      const level = node.attrs?.level ?? 2;
-      return `${'#'.repeat(level)} ${serializeInline(node.content)}`.trim();
-    }
+      return [{ type: 'paragraph', children: serializeInline(node.content) }];
+    case 'heading':
+      return [
+        { type: 'heading', depth: node.attrs?.level ?? 2, children: serializeInline(node.content) },
+      ];
     case 'bulletList':
-      return (node.content ?? [])
-        .map((item) => {
-          const text = item.content?.map(serializeBlock).join('\n') ?? '';
-          return text
-            .split('\n')
-            .map((line) => (line ? `- ${line}` : '-'))
-            .join('\n');
-        })
-        .join('\n');
     case 'orderedList':
-      return (node.content ?? [])
-        .map((item, index) => {
-          const text = item.content?.map(serializeBlock).join('\n') ?? '';
-          return text
-            .split('\n')
-            .map((line) => (line ? `${index + 1}. ${line}` : `${index + 1}.`))
-            .join('\n');
-        })
-        .join('\n');
-    case 'listItem':
-      return (node.content ?? []).map(serializeBlock).join('\n');
+      return [
+        {
+          type: 'list',
+          ordered: node.type === 'orderedList',
+          start: node.attrs?.start ?? 1,
+          children: (node.content ?? []).map((item) => ({
+            type: 'listItem',
+            children: (item.content ?? []).flatMap(serializeBlock),
+          })),
+        },
+      ];
     case 'codeBlock': {
       const language = node.attrs?.language || 'typescript';
-      const isExecutable = node.attrs?.isExecutable !== false;
-      const suffix = isExecutable ? '' : '-static';
-      const code = node.content?.map((child) => child.text ?? '').join('') ?? '';
-      return `\`\`\`${language}${suffix}\n${code}\n\`\`\``;
+      return [
+        {
+          type: 'code',
+          lang: `${language}${node.attrs?.isExecutable === false ? '-static' : ''}`,
+          value: (node.content ?? []).map((child) => child.text ?? '').join(''),
+        },
+      ];
     }
     case 'blockquote':
-      return (node.content ?? []).map((child) => `> ${serializeBlock(child)}`).join('\n');
+      return [{ type: 'blockquote', children: (node.content ?? []).flatMap(serializeBlock) }];
+    case 'horizontalRule':
+      return [{ type: 'thematicBreak' }];
     default:
-      return '';
+      return [];
   }
 }
 
 export function docToMarkdown(doc: JSONContent): string {
-  return (doc.content ?? []).map(serializeBlock).filter(Boolean).join('\n\n').trim();
+  const tree = { type: 'root', children: (doc.content ?? []).flatMap(serializeBlock) };
+  return markdown.stringify(tree as unknown as Root).trim();
 }
 
-function parseInline(text: string): JSONContent[] {
-  const nodes: JSONContent[] = [];
-  const pattern = /(\*\*([^*]+)\*\*)|(\*([^*]+)\*)|(`([^`]+)`)|(\[([^\]]+)\]\(([^)]+)\))/g;
-  let lastIndex = 0;
-  let match: RegExpExecArray | null;
-
-  while ((match = pattern.exec(text)) !== null) {
-    if (match.index > lastIndex) {
-      nodes.push({ type: 'text', text: text.slice(lastIndex, match.index) });
+function parseInline(
+  nodes: RichMarkdownNode[] = [],
+  marks: NonNullable<JSONContent['marks']> = []
+): JSONContent[] {
+  return nodes.flatMap((node): JSONContent[] => {
+    if (node.type === 'text' || node.type === 'html') {
+      return node.value
+        ? [{ type: 'text', text: node.value, ...(marks.length ? { marks } : {}) }]
+        : [];
     }
-
-    if (match[2]) {
-      nodes.push({ type: 'text', text: match[2], marks: [{ type: 'bold' }] });
-    } else if (match[4]) {
-      nodes.push({ type: 'text', text: match[4], marks: [{ type: 'italic' }] });
-    } else if (match[6]) {
-      nodes.push({ type: 'text', text: match[6], marks: [{ type: 'code' }] });
-    } else if (match[8] && match[9]) {
-      nodes.push({
-        type: 'text',
-        text: match[8],
-        marks: [{ type: 'link', attrs: { href: match[9] } }],
-      });
-    }
-
-    lastIndex = match.index + match[0].length;
-  }
-
-  if (lastIndex < text.length) {
-    nodes.push({ type: 'text', text: text.slice(lastIndex) });
-  }
-
-  return nodes.length ? nodes : [{ type: 'text', text }];
+    if (node.type === 'break') return [{ type: 'hardBreak' }];
+    if (node.type === 'inlineCode')
+      return [{ type: 'text', text: node.value ?? '', marks: [{ type: 'code' }] }];
+    const mark = {
+      strong: 'bold',
+      emphasis: 'italic',
+      delete: 'strike',
+      postUnderline: 'underline',
+      postColor: 'postColor',
+      link: 'link',
+    }[node.type];
+    if (!mark) return parseInline(node.children, marks);
+    const attrs =
+      mark === 'link'
+        ? { href: node.url }
+        : mark === 'postColor'
+          ? { color: node.data?.hProperties?.['data-post-color'] }
+          : undefined;
+    return parseInline(node.children, [...marks, { type: mark, ...(attrs ? { attrs } : {}) }]);
+  });
 }
 
-export function markdownToDoc(markdown: string): JSONContent {
-  const trimmed = markdown.trim();
-  if (!trimmed) return { type: 'doc', content: [{ type: 'paragraph' }] };
-
-  const blocks: JSONContent[] = [];
-  const lines = trimmed.split('\n');
-  let index = 0;
-
-  while (index < lines.length) {
-    const line = lines[index];
-
-    if (line.startsWith('```')) {
-      const rawLanguage = line.slice(3).trim() || 'typescript';
-      const isExecutable = !rawLanguage.endsWith('-static');
-      const language = isExecutable ? rawLanguage : rawLanguage.slice(0, -7);
-      const codeLines: string[] = [];
-      index += 1;
-      while (index < lines.length && !lines[index].startsWith('```')) {
-        codeLines.push(lines[index]);
-        index += 1;
-      }
-      blocks.push({
-        type: 'codeBlock',
-        attrs: { language, isExecutable },
-        content: codeLines.length ? [{ type: 'text', text: codeLines.join('\n') }] : [],
-      });
-      index += 1;
-      continue;
+function parseBlock(node: RichMarkdownNode): JSONContent[] {
+  switch (node.type) {
+    case 'paragraph':
+      return [{ type: 'paragraph', content: parseInline(node.children) }];
+    case 'heading':
+      return [
+        {
+          type: 'heading',
+          attrs: { level: Math.max(2, Math.min(3, node.depth ?? 2)) },
+          content: parseInline(node.children),
+        },
+      ];
+    case 'code': {
+      const raw = node.lang || 'typescript';
+      const isExecutable = !raw.endsWith('-static');
+      return [
+        {
+          type: 'codeBlock',
+          attrs: { language: isExecutable ? raw : raw.slice(0, -7), isExecutable },
+          content: node.value ? [{ type: 'text', text: node.value }] : [],
+        },
+      ];
     }
-
-    if (/^#{2,3}\s/.test(line)) {
-      const level = line.startsWith('###') ? 3 : 2;
-      blocks.push({
-        type: 'heading',
-        attrs: { level },
-        content: parseInline(line.replace(/^#{2,3}\s/, '')),
-      });
-      index += 1;
-      continue;
-    }
-
-    if (/^[-*]\s/.test(line)) {
-      const items: JSONContent[] = [];
-      while (index < lines.length && /^[-*]\s/.test(lines[index])) {
-        items.push({
-          type: 'listItem',
-          content: [
-            {
-              type: 'paragraph',
-              content: parseInline(lines[index].replace(/^[-*]\s/, '')),
-            },
-          ],
-        });
-        index += 1;
-      }
-      blocks.push({ type: 'bulletList', content: items });
-      continue;
-    }
-
-    if (/^\d+\.\s/.test(line)) {
-      const items: JSONContent[] = [];
-      while (index < lines.length && /^\d+\.\s/.test(lines[index])) {
-        items.push({
-          type: 'listItem',
-          content: [
-            {
-              type: 'paragraph',
-              content: parseInline(lines[index].replace(/^\d+\.\s/, '')),
-            },
-          ],
-        });
-        index += 1;
-      }
-      blocks.push({ type: 'orderedList', content: items });
-      continue;
-    }
-
-    if (line.trim() === '') {
-      index += 1;
-      continue;
-    }
-
-    const paragraphLines: string[] = [];
-    while (
-      index < lines.length &&
-      lines[index].trim() !== '' &&
-      !lines[index].startsWith('```') &&
-      !/^#{2,3}\s/.test(lines[index]) &&
-      !/^[-*]\s/.test(lines[index]) &&
-      !/^\d+\.\s/.test(lines[index])
-    ) {
-      paragraphLines.push(lines[index]);
-      index += 1;
-    }
-
-    blocks.push({
-      type: 'paragraph',
-      content: parseInline(paragraphLines.join('\n')),
-    });
+    case 'list':
+      return [
+        {
+          type: node.ordered ? 'orderedList' : 'bulletList',
+          ...(node.ordered ? { attrs: { start: node.start ?? 1 } } : {}),
+          content: (node.children ?? []).map((child) => ({
+            type: 'listItem',
+            content: (child.children ?? []).flatMap(parseBlock),
+          })),
+        },
+      ];
+    case 'blockquote':
+      return [{ type: 'blockquote', content: (node.children ?? []).flatMap(parseBlock) }];
+    case 'thematicBreak':
+      return [{ type: 'horizontalRule' }];
+    case 'html':
+      return [{ type: 'paragraph', content: [{ type: 'text', text: node.value ?? '' }] }];
+    default:
+      return node.children?.flatMap(parseBlock) ?? [];
   }
+}
 
-  return {
-    type: 'doc',
-    content: blocks.length ? blocks : [{ type: 'paragraph' }],
-  };
+export function markdownToDoc(value: string): JSONContent {
+  const tree = markdown.parse(value) as unknown as RichMarkdownNode;
+  transformPostFormatting(tree);
+  const content = (tree.children ?? []).flatMap(parseBlock);
+  return { type: 'doc', content: content.length ? content : [{ type: 'paragraph' }] };
 }

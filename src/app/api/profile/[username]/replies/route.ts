@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { visibleUserWhere } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
+import { visiblePostWhere } from '@/services/post-access.service';
+import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
 
 export const GET = apiHandler(async (req, { session, params }) => {
   try {
@@ -26,7 +28,7 @@ export const GET = apiHandler(async (req, { session, params }) => {
         username: { equals: username, mode: 'insensitive' },
         ...visibleUserWhere(session?.id ?? null),
       },
-      post: { author: visibleUserWhere(session?.id ?? null) },
+      post: visiblePostWhere(session?.id ?? null),
       OR: [{ parent: null }, { parent: { author: visibleUserWhere(session?.id ?? null) } }],
     };
 
@@ -72,6 +74,7 @@ export const GET = apiHandler(async (req, { session, params }) => {
         votes: session?.id ? { where: { user_id: session.id } } : { where: { id: 'none' } },
         post: {
           include: {
+            poll: { include: postPollInclude(session?.id ?? null) },
             author: {
               select: {
                 id: true,
@@ -112,7 +115,10 @@ export const GET = apiHandler(async (req, { session, params }) => {
     }
 
     return NextResponse.json({
-      items,
+      items: items.map((answer) => ({
+        ...answer,
+        post: { ...answer.post, poll: publicPostPoll(answer.post.poll) },
+      })),
       nextCursor,
     });
   } catch (error) {

@@ -29,10 +29,10 @@ describe('createPostSchema', () => {
     expect(result.success).toBe(false);
   });
 
-  it('should reject too short body', async () => {
+  it('should reject empty posts', async () => {
     const result = await createPostSchema.safeParseAsync({
       title: 'Valid Post Title',
-      body: 'Short',
+      body: '   ',
     });
     expect(result.success).toBe(false);
   });

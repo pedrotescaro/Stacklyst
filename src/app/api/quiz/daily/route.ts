@@ -6,6 +6,7 @@ import { BlockService } from '@/services/block.service';
 import { withCache } from '@/lib/cache';
 import { CACHE_TTL_DAILY_QUIZ } from '@/lib/config';
 import { generateDailyQuiz } from '@/services/daily-quiz.service';
+import { visiblePostWhere } from '@/services/post-access.service';
 
 export const GET = apiHandler(async (_req) => {
   const user = await requireAuth();
@@ -27,11 +28,11 @@ export const GET = apiHandler(async (_req) => {
   }
 
   if (quiz.post_id) {
-    const post = await prisma.post.findUnique({
-      where: { id: quiz.post_id },
+    const post = await prisma.post.findFirst({
+      where: { AND: [{ id: quiz.post_id }, visiblePostWhere(user.id)] },
       select: { author_id: true },
     });
-    if (post && (await BlockService.hasBlock(user.id, post.author_id)))
+    if (!post || (await BlockService.hasBlock(user.id, post.author_id)))
       return NextResponse.json({ quiz: null, attempt: null });
   }
 

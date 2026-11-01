@@ -4,6 +4,8 @@ import { ValidationError } from '@/lib/errors';
 import { decodeCursor, encodeCursor } from '@/lib/pagination';
 import { publicQuiz } from '@/lib/quiz-public';
 import { visibleUserWhere } from './block.service';
+import { visiblePostWhere } from './post-access.service';
+import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
 
 type ActivityKind = 'post' | 'reply';
 type ActivityTab = 'posts' | 'likes';
@@ -18,7 +20,7 @@ const authorSelect = {
 export function visibleProfileReplyWhere(viewerId: string | null): Prisma.AnswerWhereInput {
   return {
     author: visibleUserWhere(viewerId),
-    post: { author: visibleUserWhere(viewerId) },
+    post: visiblePostWhere(viewerId),
     OR: [{ parent: null }, { parent: { author: visibleUserWhere(viewerId) } }],
   };
 }
@@ -42,7 +44,7 @@ function activityCursorWhere(cursor: string | undefined, kind: ActivityKind) {
 
 export async function getProfilePublicationCounts(viewerId: string | null, authorId: string) {
   const [posts, replies] = await Promise.all([
-    prisma.post.count({ where: { author_id: authorId, author: visibleUserWhere(viewerId) } }),
+    prisma.post.count({ where: { AND: [{ author_id: authorId }, visiblePostWhere(viewerId)] } }),
     prisma.answer.count({
       where: { AND: [{ author_id: authorId }, visibleProfileReplyWhere(viewerId)] },
     }),
@@ -67,6 +69,7 @@ export async function getProfileActivity(
     ...visibleUserWhere(viewerId),
   };
   const postInclude = {
+    poll: { include: postPollInclude(viewerId) },
     author: { select: authorSelect },
     _count: { select: { answers: true } },
     quizzes: { include: { attempts: { where: { user_id: viewerId ?? '__anonymous__' } } } },
@@ -75,7 +78,7 @@ export async function getProfileActivity(
   } satisfies Prisma.PostInclude;
   const postWhere: Prisma.PostWhereInput = {
     AND: [
-      { author: visibleUserWhere(viewerId) },
+      visiblePostWhere(viewerId),
       tab === 'likes' ? { votes: { some: { value: 1, user: person } } } : { author: person },
       activityCursorWhere(cursor, 'post'),
       ...(search
@@ -134,12 +137,17 @@ export async function getProfileActivity(
     ...posts.map((post) => ({
       ...post,
       kind: 'post' as const,
+      poll: publicPostPoll(post.poll),
       quizzes: post.quizzes.map(publicQuiz),
     })),
     ...replies.map((reply) => ({
       ...reply,
       kind: 'reply' as const,
-      post: { ...reply.post, quizzes: reply.post.quizzes.map(publicQuiz) },
+      post: {
+        ...reply.post,
+        poll: publicPostPoll(reply.post.poll),
+        quizzes: reply.post.quizzes.map(publicQuiz),
+      },
     })),
   ].sort((a, b) => {
     const date = b.created_at.getTime() - a.created_at.getTime();

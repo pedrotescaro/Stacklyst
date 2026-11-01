@@ -13,6 +13,7 @@ interface PublishButtonProps {
   xpReward?: number;
   className?: string;
   label?: string;
+  form?: string;
 }
 
 const labels: Record<PublishState, string> = {
@@ -27,6 +28,7 @@ export function PublishButton({
   xpReward = 15,
   className,
   label,
+  form,
 }: PublishButtonProps) {
   const reduced = useReducedMotion();
   const isEmpty = disabled && state === 'idle';
@@ -36,7 +38,8 @@ export function PublishButton({
       <XPFloatToast amount={xpReward} visible={state === 'success'} />
       <motion.button
         type="submit"
-        disabled={disabled || state === 'submitting'}
+        form={form}
+        disabled={disabled || state !== 'idle'}
         className={cn(
           'dd-focus-ring dd-gpu relative flex items-center justify-center gap-1.5 bg-blue-500 text-white text-sm font-bold px-4 py-1.5 rounded-full',
           'shadow-sm transition-[opacity,background-color] duration-200 cursor-pointer',

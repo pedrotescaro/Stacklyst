@@ -8,6 +8,7 @@ import { XpService } from '@/services/xp.service';
 import { NotificationService } from '@/services/notification.service';
 import { NotFoundError } from '@/lib/errors';
 import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
+import { assertPostAudience } from '@/services/post-access.service';
 
 export const POST = apiHandler(async (req, { params }) => {
   const user = await requireAuth();
@@ -23,6 +24,7 @@ export const POST = apiHandler(async (req, { params }) => {
   }
 
   await BlockService.assertCanInteract(user.id, post.author_id);
+  await assertPostAudience(post, user.id);
 
   const body = await req.json();
   const parsed = createAnswerSchema.parse(body);

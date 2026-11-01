@@ -33,9 +33,10 @@ const securityHeaders = [
       // Note: 'unsafe-inline' é necessário para scripts inline do Next.js.
       // Para maior segurança, implementar nonce-based CSP (requer middleware).
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' blob: data: https://images.unsplash.com https://api.dicebear.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cdn.discordapp.com https://images-ext-1.discordapp.net https://assets.aceternity.com https://*.supabase.co https://*.scdn.co https://*.spotifycdn.com",
+      "img-src 'self' blob: data: https://images.unsplash.com https://api.dicebear.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cdn.discordapp.com https://images-ext-1.discordapp.net https://assets.aceternity.com https://*.supabase.co https://*.scdn.co https://*.spotifycdn.com https://*.giphy.com",
       "font-src 'self' data: https://fonts.gstatic.com",
-      "connect-src 'self' ws: wss: https://*.supabase.co https://api.github.com https://wandbox.org",
+      "connect-src 'self' ws: wss: https://*.supabase.co https://api.github.com https://wandbox.org https://api.giphy.com https://*.giphy.com",
+      "media-src 'self' blob:",
       "object-src 'none'",
       "frame-src 'self' https://open.spotify.com",
       "base-uri 'self'",

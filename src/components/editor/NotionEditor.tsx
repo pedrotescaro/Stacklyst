@@ -8,13 +8,30 @@ import { BubbleMenu } from '@tiptap/react/menus';
 import { Bold, Code, Italic, Link as LinkIcon } from 'lucide-react';
 import { ExecutableCodeBlock } from '@/components/editor/extensions/executable-code-block';
 import { SlashCommand } from '@/components/editor/extensions/slash-command';
+import { PostColor } from '@/components/editor/extensions/post-color';
 import { docToMarkdown, markdownToDoc } from '@/lib/editor/markdown';
+import { isPostTextColor } from '@/lib/editor/text-colors';
 import { cn } from '@/lib/cn';
 import './NotionEditor.css';
+import './PostTextFormatting.css';
 
 export interface NotionEditorRef {
   insertText: (text: string) => void;
   focus: () => void;
+  toggleBold: () => void;
+  toggleItalic: () => void;
+  toggleUnderline: () => void;
+  setTextColor: (color: string | null) => void;
+  clearFormatting: () => void;
+  insertCodeBlock: () => void;
+  insertBlock: (type: 'paragraph' | 'heading' | 'bulletList' | 'blockquote') => void;
+}
+
+export interface EditorFormattingState {
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  color: string | null;
 }
 
 interface NotionEditorProps {
@@ -25,11 +42,8 @@ interface NotionEditorProps {
   minHeight?: string;
   onFocus?: () => void;
   onBlur?: (event?: FocusEvent) => void;
+  onStateChange?: (state: EditorFormattingState) => void;
   className?: string;
-}
-
-function clampMarkdown(value: string, maxLength?: number) {
-  return typeof maxLength === 'number' ? value.slice(0, maxLength) : value;
 }
 
 export const NotionEditor = forwardRef<NotionEditorRef, NotionEditorProps>(function NotionEditor(
@@ -41,12 +55,17 @@ export const NotionEditor = forwardRef<NotionEditorRef, NotionEditorProps>(funct
     minHeight = '2.5rem',
     onFocus,
     onBlur,
+    onStateChange,
     className,
   },
   ref
 ) {
   const syncingRef = useRef(false);
   const lastEmittedRef = useRef(value);
+  const onStateChangeRef = useRef(onStateChange);
+  useEffect(() => {
+    onStateChangeRef.current = onStateChange;
+  }, [onStateChange]);
 
   const editor = useEditor({
     immediatelyRender: false,
@@ -70,21 +89,36 @@ export const NotionEditor = forwardRef<NotionEditorRef, NotionEditorProps>(funct
         emptyNodeClass: 'is-empty',
       }),
       SlashCommand,
+      PostColor,
     ],
     content: markdownToDoc(value),
     editorProps: {
       attributes: {
         class: 'notion-editor-content focus:outline-none',
+        role: 'textbox',
+        'aria-label': placeholder,
+        'aria-multiline': 'true',
+        ...(maxLength ? { 'data-max-length': String(maxLength) } : {}),
       },
     },
     onUpdate: ({ editor: currentEditor }) => {
       if (syncingRef.current) return;
-      const markdown = clampMarkdown(docToMarkdown(currentEditor.getJSON()), maxLength);
+      // Never truncate serialized markdown: it can cut a mark or code fence in half.
+      // The shared composer validates the complete body and shows its character limit.
+      const markdown = docToMarkdown(currentEditor.getJSON());
       lastEmittedRef.current = markdown;
       onChange(markdown);
     },
     onFocus: () => onFocus?.(),
     onBlur: () => onBlur?.(),
+    onTransaction: ({ editor: currentEditor }) => {
+      onStateChangeRef.current?.({
+        bold: currentEditor.isActive('bold'),
+        italic: currentEditor.isActive('italic'),
+        underline: currentEditor.isActive('underline'),
+        color: currentEditor.getAttributes('postColor').color ?? null,
+      });
+    },
   });
 
   useEffect(() => {
@@ -98,10 +132,48 @@ export const NotionEditor = forwardRef<NotionEditorRef, NotionEditorProps>(funct
 
   useImperativeHandle(ref, () => ({
     insertText: (text: string) => {
-      editor?.chain().focus().insertContent(text).run();
+      editor?.chain().focus().insertContent({ type: 'text', text }).run();
     },
     focus: () => {
       editor?.chain().focus().run();
+    },
+    toggleBold: () => {
+      editor?.chain().focus().toggleBold().run();
+    },
+    toggleItalic: () => {
+      editor?.chain().focus().toggleItalic().run();
+    },
+    toggleUnderline: () => {
+      editor?.chain().focus().toggleUnderline().run();
+    },
+    setTextColor: (color) => {
+      if (!editor) return;
+      if (isPostTextColor(color)) editor.chain().focus().setMark('postColor', { color }).run();
+      else editor.chain().focus().unsetMark('postColor').run();
+    },
+    clearFormatting: () => {
+      editor?.chain().focus().unsetAllMarks().run();
+    },
+    insertCodeBlock: () => {
+      if (!editor) return;
+      const { $to } = editor.state.selection;
+      const position = $to.depth > 0 ? $to.after(1) : editor.state.doc.content.size;
+      editor
+        .chain()
+        .focus()
+        .insertContentAt(position, [
+          { type: 'codeBlock', attrs: { language: 'typescript', isExecutable: true } },
+          { type: 'paragraph' },
+        ])
+        .run();
+    },
+    insertBlock: (type) => {
+      if (!editor) return;
+      const chain = editor.chain().focus();
+      if (type === 'heading') chain.toggleHeading({ level: 2 }).run();
+      else if (type === 'bulletList') chain.toggleBulletList().run();
+      else if (type === 'blockquote') chain.toggleBlockquote().run();
+      else chain.setParagraph().run();
     },
   }));
 
@@ -118,7 +190,7 @@ export const NotionEditor = forwardRef<NotionEditorRef, NotionEditorProps>(funct
   };
 
   return (
-    <div className={cn('notion-editor relative w-full', className)} style={{ minHeight }}>
+    <div className={cn('notion-editor relative min-w-0 w-full', className)} style={{ minHeight }}>
       {editor && (
         <BubbleMenu
           editor={editor}

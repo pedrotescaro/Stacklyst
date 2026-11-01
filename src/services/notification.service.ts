@@ -3,6 +3,7 @@ import { BlockService, visibleUserWhere } from './block.service';
 import { sendMobilePush } from '@/lib/mobile/push';
 import { NotificationType } from '@prisma/client';
 import { encodeCursor, buildCursorWhere } from '@/lib/pagination';
+import { visiblePostWhere } from './post-access.service';
 
 export interface CreateNotificationInput {
   userId: string;
@@ -211,8 +212,8 @@ export const NotificationService = {
 
         if (postId) {
           try {
-            const post = await prisma.post.findUnique({
-              where: { id: postId },
+            const post = await prisma.post.findFirst({
+              where: { AND: [{ id: postId }, visiblePostWhere(userId)] },
               select: {
                 title: true,
                 body: true,

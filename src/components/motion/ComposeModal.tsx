@@ -5,6 +5,8 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { modalContentVariants, fadeVariants, bottomSheetVariants } from '@/lib/motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { createPortal } from 'react-dom';
+import { cn } from '@/lib/cn';
 
 interface ComposeModalProps {
   open: boolean;
@@ -15,6 +17,8 @@ interface ComposeModalProps {
   children: ReactNode;
   headerExtra?: ReactNode;
   mobileTitle?: string;
+  composerLayout?: boolean;
+  busy?: boolean;
 }
 
 export function ComposeModal({
@@ -26,12 +30,16 @@ export function ComposeModal({
   children,
   headerExtra,
   mobileTitle,
+  composerLayout = false,
+  busy = false,
 }: ComposeModalProps) {
   const reduced = useReducedMotion();
   const [discardWarning, setDiscardWarning] = useState(false);
   const [saveError, setSaveError] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef<HTMLButtonElement>(null);
+  useEffect(() => setMounted(true), []);
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -42,11 +50,15 @@ export function ComposeModal({
       if (window.innerWidth < 768) {
         container.style.top = `${viewport.offsetTop}px`;
         container.style.height = `${viewport.height}px`;
+        container.style.width = `${viewport.width}px`;
+        container.style.left = `${viewport.offsetLeft}px`;
         container.style.bottom = 'auto';
       } else {
         container.style.removeProperty('top');
         container.style.removeProperty('height');
         container.style.removeProperty('bottom');
+        container.style.removeProperty('width');
+        container.style.removeProperty('left');
       }
     };
     updateViewport();
@@ -60,8 +72,10 @@ export function ComposeModal({
       container.style.removeProperty('top');
       container.style.removeProperty('height');
       container.style.removeProperty('bottom');
+      container.style.removeProperty('width');
+      container.style.removeProperty('left');
     };
-  }, [open]);
+  }, [open, mounted]);
 
   useEffect(() => {
     if (!open) return;
@@ -75,7 +89,10 @@ export function ComposeModal({
         dialogRef.current.querySelectorAll<HTMLElement>(
           'a[href], button:not([disabled]), input:not([disabled]):not([type="hidden"]):not([type="file"]), textarea:not([disabled]), [contenteditable="true"], [tabindex]:not([tabindex="-1"])'
         )
-      ).filter((element) => element.getAttribute('aria-hidden') !== 'true');
+      ).filter(
+        (element) =>
+          element.getAttribute('aria-hidden') !== 'true' && element.getClientRects().length > 0
+      );
       if (!elements.length) return;
       if (event.shiftKey && document.activeElement === elements[0]) {
         event.preventDefault();
@@ -91,16 +108,17 @@ export function ComposeModal({
       document.body.style.overflow = previousOverflow;
       previousFocus?.focus();
     };
-  }, [open]);
+  }, [open, mounted]);
 
   const handleClose = useCallback(() => {
+    if (busy) return;
     if (hasDraft) {
       setDiscardWarning(true);
       return;
     }
     setDiscardWarning(false);
     onClose();
-  }, [hasDraft, onClose]);
+  }, [busy, hasDraft, onClose]);
 
   useEffect(() => {
     if (!open) return;
@@ -121,12 +139,19 @@ export function ComposeModal({
     onClose();
   };
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {open && (
         <div
           ref={dialogRef}
-          className="fixed inset-0 z-[200] flex items-end justify-center sm:items-center sm:p-4"
+          className={cn(
+            'fixed inset-0 z-[200] flex justify-center',
+            composerLayout
+              ? 'items-stretch md:items-center md:p-6'
+              : 'items-end sm:items-center sm:p-4'
+          )}
         >
           <motion.div
             variants={fadeVariants}
@@ -144,21 +169,39 @@ export function ComposeModal({
             initial="hidden"
             animate="visible"
             exit="exit"
-            className="relative z-10 max-h-[calc(100%-1rem)] w-full max-w-xl space-y-4 overflow-y-auto overscroll-contain rounded-t-2xl border border-dd-border bg-dd-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] font-sans shadow-2xl sm:rounded-2xl sm:pb-4"
+            className={cn(
+              'relative z-10 w-full min-w-0 font-sans',
+              composerLayout
+                ? 'post-composer-dialog flex h-full max-h-full flex-col overflow-hidden bg-dd-bg md:h-[min(680px,90dvh)] md:max-w-2xl md:rounded-2xl md:border md:border-dd-border md:shadow-2xl'
+                : 'max-h-[calc(100%-1rem)] max-w-xl space-y-4 overflow-y-auto overscroll-contain rounded-t-2xl border border-dd-border bg-dd-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl sm:rounded-2xl sm:pb-4'
+            )}
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between pb-1">
+            <div
+              className={cn(
+                'flex shrink-0 items-center justify-between gap-3',
+                composerLayout
+                  ? 'px-3 pb-3 pt-[max(.75rem,env(safe-area-inset-top))] md:px-5 md:pt-4'
+                  : 'pb-1'
+              )}
+            >
               <button
                 ref={closeRef}
                 onClick={handleClose}
                 type="button"
                 aria-label="Fechar rascunho"
+                disabled={busy}
                 className="dd-focus-ring dd-touch flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-dd-text transition-all hover:bg-dd-surface/80 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
               {mobileTitle && (
-                <h2 className="flex-1 text-center text-base font-bold text-dd-text md:sr-only">
+                <h2
+                  className={cn(
+                    'flex-1 text-base font-semibold text-dd-text',
+                    composerLayout ? 'hidden md:block' : 'text-center md:sr-only'
+                  )}
+                >
                   {mobileTitle}
                 </h2>
               )}
@@ -235,6 +278,7 @@ export function ComposeModal({
           </AnimatePresence>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

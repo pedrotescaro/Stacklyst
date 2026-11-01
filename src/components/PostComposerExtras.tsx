@@ -27,6 +27,7 @@ interface PostComposerExtrasProps extends PostComposerExtrasState {
   setPostBody: (value: string) => void;
   editorRef: React.RefObject<NotionEditorRef | null>;
   section: 'meta' | 'tools';
+  contentToolsOnly?: boolean;
 }
 
 function useClickOutside(
@@ -61,6 +62,7 @@ export function PostComposerExtras({
   isSensitive,
   setIsSensitive,
   section,
+  contentToolsOnly = false,
 }: PostComposerExtrasProps) {
   const [openPanel, setOpenPanel] = useState<'emoji' | 'reply' | 'schedule' | 'location' | null>(
     null
@@ -141,52 +143,56 @@ export function PostComposerExtras({
           </div>
         )}
 
-        <div className="relative w-fit">
-          <button
-            type="button"
-            onClick={() => togglePanel('reply')}
-            className="flex items-center gap-2 text-blue-500 hover:text-blue-400 font-extrabold text-xs cursor-pointer w-fit py-1.5 px-3 hover:bg-blue-500/10 rounded-full transition-colors"
-          >
-            {replyAudience === 'everyone' && <Globe className="w-4 h-4 shrink-0" />}
-            {replyAudience === 'followers' && <Users className="w-4 h-4 shrink-0" />}
-            {replyAudience === 'mentioned' && <AtSign className="w-4 h-4 shrink-0" />}
-            <span>{replyLabel}</span>
-          </button>
+        {!contentToolsOnly && (
+          <div className="relative w-fit">
+            <button
+              type="button"
+              onClick={() => togglePanel('reply')}
+              className="flex items-center gap-2 text-blue-500 hover:text-blue-400 font-extrabold text-xs cursor-pointer w-fit py-1.5 px-3 hover:bg-blue-500/10 rounded-full transition-colors"
+            >
+              {replyAudience === 'everyone' && <Globe className="w-4 h-4 shrink-0" />}
+              {replyAudience === 'followers' && <Users className="w-4 h-4 shrink-0" />}
+              {replyAudience === 'mentioned' && <AtSign className="w-4 h-4 shrink-0" />}
+              <span>{replyLabel}</span>
+            </button>
 
-          {openPanel === 'reply' && (
-            <div className="fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[100] max-h-[min(60dvh,22rem)] overflow-y-auto rounded-2xl border border-dd-border/80 bg-dd-surface/95 p-2 shadow-2xl backdrop-blur-md animate-slide-up sm:absolute sm:inset-auto sm:left-0 sm:top-full sm:mt-1.5 sm:w-72 sm:max-h-none">
-              {REPLY_AUDIENCE_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => {
-                    setReplyAudience(option.value);
-                    setOpenPanel(null);
-                  }}
-                  className={`flex w-full items-start gap-3 rounded-xl px-3.5 py-2.5 text-left transition-colors cursor-pointer ${
-                    replyAudience === option.value
-                      ? 'bg-blue-500/10 text-blue-400 font-bold'
-                      : 'text-dd-text hover:bg-blue-500/5 hover:text-blue-400'
-                  }`}
-                >
-                  {option.value === 'everyone' && <Globe className="w-4.5 h-4.5 mt-0.5 shrink-0" />}
-                  {option.value === 'followers' && (
-                    <Users className="w-4.5 h-4.5 mt-0.5 shrink-0" />
-                  )}
-                  {option.value === 'mentioned' && (
-                    <AtSign className="w-4.5 h-4.5 mt-0.5 shrink-0" />
-                  )}
-                  <span>
-                    <span className="block text-xs font-bold">{option.label}</span>
-                    <span className="block text-[10px] text-dd-muted font-medium">
-                      {option.description}
+            {openPanel === 'reply' && (
+              <div className="fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[100] max-h-[min(60dvh,22rem)] overflow-y-auto rounded-2xl border border-dd-border/80 bg-dd-surface/95 p-2 shadow-2xl backdrop-blur-md animate-slide-up sm:absolute sm:inset-auto sm:left-0 sm:top-full sm:mt-1.5 sm:w-72 sm:max-h-none">
+                {REPLY_AUDIENCE_OPTIONS.map((option) => (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => {
+                      setReplyAudience(option.value);
+                      setOpenPanel(null);
+                    }}
+                    className={`flex w-full items-start gap-3 rounded-xl px-3.5 py-2.5 text-left transition-colors cursor-pointer ${
+                      replyAudience === option.value
+                        ? 'bg-blue-500/10 text-blue-400 font-bold'
+                        : 'text-dd-text hover:bg-blue-500/5 hover:text-blue-400'
+                    }`}
+                  >
+                    {option.value === 'everyone' && (
+                      <Globe className="w-4.5 h-4.5 mt-0.5 shrink-0" />
+                    )}
+                    {option.value === 'followers' && (
+                      <Users className="w-4.5 h-4.5 mt-0.5 shrink-0" />
+                    )}
+                    {option.value === 'mentioned' && (
+                      <AtSign className="w-4.5 h-4.5 mt-0.5 shrink-0" />
+                    )}
+                    <span>
+                      <span className="block text-xs font-bold">{option.label}</span>
+                      <span className="block text-[10px] text-dd-muted font-medium">
+                        {option.description}
+                      </span>
                     </span>
-                  </span>
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
     );
   }
@@ -235,51 +241,53 @@ export function PostComposerExtras({
         )}
       </div>
 
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => togglePanel('schedule')}
-          className={`p-2.5 rounded-full transition-colors cursor-pointer ${
-            openPanel === 'schedule' || scheduledAt
-              ? 'bg-blue-500/20 text-blue-400'
-              : 'text-blue-500 hover:bg-blue-500/10'
-          }`}
-          title="Agendar publicação"
-        >
-          <Calendar className="w-5 h-5" />
-        </button>
+      {!contentToolsOnly && (
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => togglePanel('schedule')}
+            className={`p-2.5 rounded-full transition-colors cursor-pointer ${
+              openPanel === 'schedule' || scheduledAt
+                ? 'bg-blue-500/20 text-blue-400'
+                : 'text-blue-500 hover:bg-blue-500/10'
+            }`}
+            title="Agendar publicação"
+          >
+            <Calendar className="w-5 h-5" />
+          </button>
 
-        {openPanel === 'schedule' && (
-          <div className="fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[100] max-h-[min(60dvh,22rem)] overflow-y-auto rounded-xl border border-dd-border/80 bg-dd-surface/95 p-3 shadow-2xl backdrop-blur-md animate-slide-up space-y-3 sm:absolute sm:inset-auto sm:left-0 sm:bottom-full sm:mb-2 sm:w-64 sm:max-h-none">
-            <p className="text-xs font-bold text-dd-text">Agendar publicação</p>
-            <input
-              type="datetime-local"
-              value={scheduledAt ?? ''}
-              onChange={(e) => setScheduledAt(e.target.value || null)}
-              className="w-full rounded-lg border border-dd-border bg-dd-bg px-2.5 py-2 text-xs text-dd-text focus:border-blue-500/65 focus:outline-none"
-            />
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setScheduledAt(null);
-                  setOpenPanel(null);
-                }}
-                className="flex-1 rounded-lg border border-dd-border px-2 py-1.5 text-[10px] font-bold text-dd-muted hover:text-dd-text cursor-pointer"
-              >
-                Limpar
-              </button>
-              <button
-                type="button"
-                onClick={() => setOpenPanel(null)}
-                className="flex-1 rounded-lg bg-blue-500 px-2 py-1.5 text-[10px] font-bold text-white hover:bg-blue-600 cursor-pointer"
-              >
-                Confirmar
-              </button>
+          {openPanel === 'schedule' && (
+            <div className="fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[100] max-h-[min(60dvh,22rem)] overflow-y-auto rounded-xl border border-dd-border/80 bg-dd-surface/95 p-3 shadow-2xl backdrop-blur-md animate-slide-up space-y-3 sm:absolute sm:inset-auto sm:left-0 sm:bottom-full sm:mb-2 sm:w-64 sm:max-h-none">
+              <p className="text-xs font-bold text-dd-text">Agendar publicação</p>
+              <input
+                type="datetime-local"
+                value={scheduledAt ?? ''}
+                onChange={(e) => setScheduledAt(e.target.value || null)}
+                className="w-full rounded-lg border border-dd-border bg-dd-bg px-2.5 py-2 text-xs text-dd-text focus:border-blue-500/65 focus:outline-none"
+              />
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setScheduledAt(null);
+                    setOpenPanel(null);
+                  }}
+                  className="flex-1 rounded-lg border border-dd-border px-2 py-1.5 text-[10px] font-bold text-dd-muted hover:text-dd-text cursor-pointer"
+                >
+                  Limpar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setOpenPanel(null)}
+                  className="flex-1 rounded-lg bg-blue-500 px-2 py-1.5 text-[10px] font-bold text-white hover:bg-blue-600 cursor-pointer"
+                >
+                  Confirmar
+                </button>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      )}
 
       <div className="relative">
         <button

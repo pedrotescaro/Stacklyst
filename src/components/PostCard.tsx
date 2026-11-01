@@ -35,6 +35,9 @@ import { MarkdownEditor, type NotionEditorRef } from '@/components/MarkdownEdito
 import { CharCounter } from '@/components/motion/CharCounter';
 import { POST_CHAR_LIMIT } from '@/lib/motion';
 import { parsePostExtras } from '@/lib/post-composer';
+import { PostAttachments } from '@/components/posts/PostAttachments';
+import type { PostAttachment, PostPoll } from '@/lib/post-content';
+import type { SpotifyProfileTrack } from '@/lib/profile-music';
 import { prismaLanguageToEditor } from '@/lib/editor/languages';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './PostCard.module.css';
@@ -56,6 +59,10 @@ interface Post {
   language?: string | null;
   code_snippet?: string | null;
   image_url?: string | null;
+  attachments?: PostAttachment[] | null;
+  music?: SpotifyProfileTrack | null;
+  poll?: PostPoll | null;
+  audience?: string | null;
   created_at: string;
   view_count: number;
   author: PostAuthor;
@@ -413,21 +420,14 @@ export function PostCard({
             <MarkdownRenderer content={presentedPost.content} compact />
           </div>
 
-          {/* Image preview */}
-          {post.image_url && (
-            <div className="mt-3 mb-3 relative rounded-xl overflow-hidden border border-dd-border max-h-80 bg-dd-surface/20">
-              <Image
-                src={post.image_url}
-                alt={`Post de @${post.author.username}`}
-                width={800}
-                height={320}
-                className="w-full h-full object-cover max-h-80"
-                onError={(e) => {
-                  (e.target as HTMLElement).style.display = 'none';
-                }}
-              />
-            </div>
-          )}
+          <PostAttachments
+            postId={post.id}
+            attachments={post.attachments}
+            music={post.music}
+            poll={post.poll}
+            legacyImage={post.image_url}
+            audience={post.audience}
+          />
 
           {/* Code snippet preview */}
           {snippetMarkdown && !presentedPost.content.includes('```') && (

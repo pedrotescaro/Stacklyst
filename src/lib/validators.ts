@@ -77,9 +77,36 @@ const mentionSchema = z.string().refine(
   { message: 'Máximo de 5 menções por post' }
 );
 
+const postAttachmentSchema = z.object({
+  type: z.enum(['image', 'gif', 'audio']),
+  url: z
+    .string()
+    .regex(/^\/api\/posts\/media\/[a-f0-9-]{36}$/i, 'Anexo inválido. Envie o arquivo novamente.'),
+  alt: z.string().trim().max(300).optional(),
+});
+
+export const postMusicSchema = z.object({
+  trackId: z.string().regex(/^[a-zA-Z0-9]{22}$/),
+  title: z.string().trim().min(1).max(200),
+  artist: z.string().trim().min(1).max(200),
+  artworkUrl: z
+    .string()
+    .url()
+    .max(2048)
+    .refine((value) => {
+      const url = new URL(value);
+      return url.protocol === 'https:' && /(^|\.)(scdn\.co|spotifycdn\.com)$/.test(url.hostname);
+    })
+    .nullable(),
+  album: z.string().max(200).nullable().optional(),
+  durationMs: z.number().int().min(0).max(86400000).nullable().optional(),
+  metadataUnavailable: z.boolean().optional(),
+});
+
 function deriveTitleFromBody(body: string): string {
   const plain = body
     .replace(/```[\s\S]*?```/g, '')
+    .replace(/<\/?u>|<span data-post-color="[a-z]+">|<\/span>/g, '')
     .replace(/[#*_`~>\[\]()]/g, '')
     .replace(/\s+/g, ' ')
     .trim();
@@ -98,17 +125,61 @@ export const createPostSchema = z
       .refine((val) => !val || val.length >= 5, {
         message: 'O título deve ter pelo menos 5 caracteres',
       }),
-    body: z
-      .string()
-      .trim()
-      .min(10, 'O conteúdo deve ter pelo menos 10 caracteres')
-      .max(5000)
-      .pipe(mentionSchema),
+    body: z.string().trim().max(5000).pipe(mentionSchema),
     language: z.nativeEnum(Language).optional().nullable(),
     code: z.string().max(10000).optional().nullable(),
     code_snippet: z.string().max(10000).optional().nullable(),
     image_url: imageUrlSchema,
     type: z.enum(['question', 'discussion']).optional().nullable(),
+    audience: z.enum(['everyone', 'followers']).default('everyone'),
+    attachments: z
+      .array(postAttachmentSchema)
+      .max(5)
+      .default([])
+      .refine(
+        (items) =>
+          items.filter((item) => item.type === 'audio').length <= 1 &&
+          items.filter((item) => item.type !== 'audio').length <= 4,
+        'Adicione até 4 imagens e 1 áudio.'
+      ),
+    music: postMusicSchema.nullish(),
+    poll: z
+      .object({
+        question: z.string().trim().min(1).max(200),
+        options: z
+          .array(z.string().trim().min(1).max(100))
+          .min(2)
+          .max(4)
+          .refine(
+            (options) =>
+              new Set(options.map((option) => option.toLocaleLowerCase())).size === options.length,
+            'As opções da enquete devem ser diferentes.'
+          ),
+        durationHours: z.number().int().min(1).max(168),
+      })
+      .nullish(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      !data.body.trim() &&
+      !data.image_url &&
+      !data.attachments.length &&
+      !data.music &&
+      !data.poll &&
+      !data.code &&
+      !data.code_snippet
+    )
+      ctx.addIssue({
+        code: 'custom',
+        path: ['body'],
+        message: 'Adicione texto ou um anexo para publicar.',
+      });
+    if (data.audience === 'followers' && data.image_url)
+      ctx.addIssue({
+        code: 'custom',
+        path: ['image_url'],
+        message: 'Envie imagens privadas pelo novo editor.',
+      });
   })
   .transform((data) => ({
     ...data,

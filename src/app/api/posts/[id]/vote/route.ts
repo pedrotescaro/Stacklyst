@@ -6,6 +6,7 @@ import { requireAuth } from '@/lib/auth';
 import { NotificationService } from '@/services/notification.service';
 import { ValidationError, NotFoundError } from '@/lib/errors';
 import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
+import { assertPostAudience } from '@/services/post-access.service';
 
 export const POST = apiHandler(async (req, { params }) => {
   const user = await requireAuth();
@@ -28,6 +29,7 @@ export const POST = apiHandler(async (req, { params }) => {
   }
 
   await BlockService.assertCanInteract(user.id, postExists.author_id);
+  await assertPostAudience(postExists, user.id);
 
   // 2. Update or delete PostVote atomically
   if (value === 0) {

@@ -6,10 +6,8 @@ import { BrandLogo } from '@/components/BrandLogo';
 import { MobileNavigationDrawer } from '@/components/MobileNavigationDrawer';
 import { ProfileName } from '@/components/profile/ProfileIdentity';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import dynamic from 'next/dynamic';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Plus,
@@ -33,27 +31,12 @@ import {
   Menu,
   Award,
 } from 'lucide-react';
-import { PostComposerExtras } from '@/components/PostComposerExtras';
-import type { NotionEditorRef } from '@/components/MarkdownEditor';
-import { extractPostMetadata } from '@/lib/editor/extract-metadata';
-import { ComposeModal } from '@/components/motion/ComposeModal';
 import { NotificationBellIcon } from '@/components/motion/NotificationBellIcon';
-import { PublishButton, PublishState } from '@/components/motion/PublishButton';
-import { CharCounter } from '@/components/motion/CharCounter';
-import { MentionDropdown } from '@/components/motion/MentionDropdown';
-import { appendPostExtras, ReplyAudience, resetPostComposerExtras } from '@/lib/post-composer';
-import { POST_CHAR_LIMIT } from '@/lib/motion';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { getCurrentUser, invalidateCurrentUser } from '@/lib/client/current-user';
 import { useLanguage } from '@/contexts/LanguageContext';
 
-const MarkdownEditor = dynamic(
-  () => import('@/components/MarkdownEditor').then((module) => module.MarkdownEditor),
-  {
-    ssr: false,
-    loading: () => <div className="dd-skeleton h-32 w-full rounded-xl" />,
-  }
-);
+import { PostComposerDialog, type ComposerQuote } from '@/components/composer/PostComposerDialog';
 
 interface SidebarUser {
   id: string;
@@ -218,59 +201,15 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
     };
   }, [activeUser, pathname]);
 
-  // Post creation modal state
-  const [postBody, setPostBody] = useState('');
-  const [, setSubmitting] = useState(false);
-  const [publishState, setPublishState] = useState<PublishState>('idle');
-  const [postError, setPostError] = useState<string | null>(null);
-  const [postImage, setPostImage] = useState('');
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const postBodyEditorRef = useRef<NotionEditorRef>(null);
-  const [replyAudience, setReplyAudience] = useState<ReplyAudience>('everyone');
-  const [scheduledAt, setScheduledAt] = useState<string | null>(null);
-  const [postLocation, setPostLocation] = useState('');
-  const [isSensitive, setIsSensitive] = useState(false);
-
-  // Drafts belong to the signed-in account and remain on this browser only.
+  const [composerQuote, setComposerQuote] = useState<ComposerQuote | null>(null);
   useEffect(() => {
-    if (!activeUser?.id) return;
-    try {
-      const raw = localStorage.getItem(`stacklyst-post-draft:${activeUser.id}`);
-      const draft = raw ? JSON.parse(raw) : null;
-      setPostBody(typeof draft?.body === 'string' ? draft.body : '');
-      setPostImage(typeof draft?.image === 'string' ? draft.image : '');
-      setPostLocation(typeof draft?.location === 'string' ? draft.location : '');
-      setScheduledAt(typeof draft?.scheduledAt === 'string' ? draft.scheduledAt : null);
-      setIsSensitive(draft?.isSensitive === true);
-      setReplyAudience(
-        draft?.replyAudience === 'followers' || draft?.replyAudience === 'mentioned'
-          ? draft.replyAudience
-          : 'everyone'
-      );
-    } catch {
-      // An unavailable or malformed local draft must not block the composer.
-    }
-  }, [activeUser?.id]);
-
-  const saveDraft = () => {
-    if (!activeUser?.id) return false;
-    try {
-      localStorage.setItem(
-        `stacklyst-post-draft:${activeUser.id}`,
-        JSON.stringify({
-          body: postBody,
-          image: postImage,
-          location: postLocation,
-          scheduledAt,
-          isSensitive,
-          replyAudience,
-        })
-      );
-      return true;
-    } catch {
-      return false;
-    }
-  };
+    const openComposer = (event: Event) => {
+      setComposerQuote((event as CustomEvent<{ quote?: ComposerQuote }>).detail?.quote ?? null);
+      setModalOpen(true);
+    };
+    window.addEventListener('stacklyst:open-composer', openComposer);
+    return () => window.removeEventListener('stacklyst:open-composer', openComposer);
+  }, []);
 
   // Custom sidebar item states
   const [toast, setToast] = useState<{ message: string; visible: boolean } | null>(null);
@@ -314,151 +253,6 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       router.refresh();
     } catch (err) {
       console.error('Error signing out:', err);
-    }
-  };
-
-  // Mention Suggestions state
-  const [showMentionSuggestions, setShowMentionSuggestions] = useState(false);
-
-  const handleBodyChange = async (val: string) => {
-    setPostBody(val);
-    const words = val.split(/\s+/);
-    const lastWord = words[words.length - 1];
-    if (lastWord.startsWith('@') && lastWord.length >= 1) {
-      const q = lastWord.slice(1);
-      try {
-        const res = await fetch(`/api/users/search?q=${q}`);
-        if (res.ok) {
-          await res.json();
-          setShowMentionSuggestions(true);
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    } else {
-      setShowMentionSuggestions(false);
-    }
-  };
-
-  const handleSelectMention = (username: string) => {
-    const words = postBody.split(/\s+/);
-    words[words.length - 1] = `@${username} `;
-    setPostBody(words.join(' '));
-    setShowMentionSuggestions(false);
-  };
-
-  const resetCompose = () => {
-    if (activeUser?.id) {
-      try {
-        localStorage.removeItem(`stacklyst-post-draft:${activeUser.id}`);
-      } catch {
-        /* Storage may be unavailable. */
-      }
-    }
-    setPostBody('');
-    setPostImage('');
-    setShowMentionSuggestions(false);
-    setPostError(null);
-    const resetExtras = resetPostComposerExtras();
-    setReplyAudience(resetExtras.replyAudience);
-    setScheduledAt(resetExtras.scheduledAt);
-    setPostLocation(resetExtras.location);
-    setIsSensitive(resetExtras.isSensitive);
-  };
-
-  const handleCreatePost = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!postBody.trim()) return;
-
-    if (postBody.trim().length < 10) {
-      setPostError('O conteúdo deve ter pelo menos 10 caracteres');
-      return;
-    }
-
-    setSubmitting(true);
-    setPublishState('submitting');
-    setPostError(null);
-
-    const postMetadata = extractPostMetadata(postBody);
-
-    try {
-      const res = await fetch('/api/posts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          body: appendPostExtras(postBody, {
-            location: postLocation,
-            scheduledAt,
-            replyAudience,
-            isSensitive,
-          }),
-          language: postMetadata.language,
-          code_snippet: null,
-          image_url: postImage || null,
-        }),
-      });
-
-      if (res.ok) {
-        resetCompose();
-        window.dispatchEvent(new Event('stacklyst:post-created'));
-        setPublishState('success');
-        setTimeout(() => {
-          setPublishState('idle');
-          setModalOpen(false);
-        }, 1500);
-        router.refresh();
-        if (pathname !== '/feed') {
-          router.push('/feed');
-        }
-      } else {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.error || 'Erro ao postar');
-      }
-    } catch (err: any) {
-      console.error('Error creating post from sidebar:', err);
-      setPostError(
-        err.message || 'Algo deu errado ao postar. Você pode salvar seu texto como rascunho.'
-      );
-      setPublishState('idle');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleCloseModal = () => {
-    setModalOpen(false);
-    setPostError(null);
-  };
-
-  const hasDraft = Boolean(
-    postBody.trim() ||
-    postImage ||
-    postLocation ||
-    scheduledAt ||
-    isSensitive ||
-    replyAudience !== 'everyone'
-  );
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingImage(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setPostImage(data.url);
-      }
-    } catch (err) {
-      console.error('Image upload failed:', err);
-    } finally {
-      setUploadingImage(false);
     }
   };
 
@@ -947,141 +741,17 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
         </nav>
       </div>
 
-      {/* GLOBAL TWEET/POST MODAL */}
-      <ComposeModal
-        open={modalOpen}
-        onClose={handleCloseModal}
-        hasDraft={hasDraft}
-        onDiscard={resetCompose}
-        onSaveDraft={saveDraft}
-        mobileTitle={isEnglish ? 'New post' : 'Nova postagem'}
-      >
-        <form onSubmit={handleCreatePost} className="space-y-4">
-          <div className="flex gap-3">
-            {/* Avatar */}
-            {activeUser && (
-              <AuthorAvatar
-                username={activeUser.username}
-                avatar_url={activeUser.avatar_url}
-                avatar_config={activeUser.avatar_config}
-                size="lg"
-              />
-            )}
-
-            {/* Textarea Area */}
-            <div className="flex-grow min-w-0 space-y-3 relative">
-              <MarkdownEditor
-                ref={postBodyEditorRef}
-                value={postBody}
-                onChange={handleBodyChange}
-                maxLength={POST_CHAR_LIMIT}
-                minHeight="8rem"
-                placeholder="O que você está construindo hoje? Digite / para inserir blocos..."
-              />
-              <div className="flex justify-end">
-                <CharCounter text={postBody} limit={POST_CHAR_LIMIT} />
-              </div>
-
-              {/* Mention Suggestions Popup */}
-              <MentionDropdown
-                query={postBody.split(/\s+/).at(-1)?.replace(/^@/, '') || ''}
-                visible={showMentionSuggestions}
-                onSelect={handleSelectMention}
-                onClose={() => {
-                  setShowMentionSuggestions(false);
-                }}
-              />
-
-              {postImage && (
-                <div className="relative rounded-xl overflow-hidden border border-dd-border max-h-40">
-                  <Image
-                    src={postImage}
-                    alt="Preview"
-                    width={600}
-                    height={200}
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setPostImage('')}
-                    className="absolute top-2 right-2 p-1 bg-black/60 rounded-full text-white hover:bg-black/80 transition-colors"
-                  >
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-              )}
-
-              <PostComposerExtras
-                section="meta"
-                postBody={postBody}
-                setPostBody={setPostBody}
-                editorRef={postBodyEditorRef}
-                replyAudience={replyAudience}
-                setReplyAudience={setReplyAudience}
-                scheduledAt={scheduledAt}
-                setScheduledAt={setScheduledAt}
-                location={postLocation}
-                setLocation={setPostLocation}
-                isSensitive={isSensitive}
-                setIsSensitive={setIsSensitive}
-              />
-            </div>
-          </div>
-
-          {/* Divider */}
-          <div className="flex flex-wrap items-center justify-between gap-2 border-t border-dd-border/50 pt-3">
-            {/* Left tools (Icons) */}
-            <div className="flex flex-wrap items-center gap-1 text-blue-500 sm:gap-2">
-              {/* Image input trigger */}
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageUpload}
-                className="hidden"
-                id="sidebar-tweet-image-upload"
-              />
-              <label
-                htmlFor="sidebar-tweet-image-upload"
-                className="p-2.5 hover:bg-blue-500/10 rounded-full transition-colors cursor-pointer"
-                title="Adicionar imagem"
-              >
-                <svg
-                  viewBox="0 0 24 24"
-                  className="w-5 h-5 fill-none stroke-current"
-                  strokeWidth="2"
-                >
-                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                  <polyline points="21 15 16 10 5 21"></polyline>
-                </svg>
-              </label>
-
-              <PostComposerExtras
-                section="tools"
-                postBody={postBody}
-                setPostBody={setPostBody}
-                editorRef={postBodyEditorRef}
-                replyAudience={replyAudience}
-                setReplyAudience={setReplyAudience}
-                scheduledAt={scheduledAt}
-                setScheduledAt={setScheduledAt}
-                location={postLocation}
-                setLocation={setPostLocation}
-                isSensitive={isSensitive}
-                setIsSensitive={setIsSensitive}
-              />
-            </div>
-
-            {/* Right submit button */}
-            <PublishButton
-              disabled={!postBody.trim() || uploadingImage || postBody.length >= POST_CHAR_LIMIT}
-              state={publishState}
-              xpReward={extractPostMetadata(postBody).language ? 10 : 5}
-            />
-          </div>
-          {postError && <p className="text-[11px] text-red-400 font-medium">{postError}</p>}
-        </form>
-      </ComposeModal>
+      {activeUser && (
+        <PostComposerDialog
+          open={modalOpen}
+          onClose={() => {
+            setModalOpen(false);
+            setComposerQuote(null);
+          }}
+          user={activeUser}
+          quote={composerQuote}
+        />
+      )}
 
       {/* ========================================== */}
       {/* PREMIUM UPGRADE MODAL */}

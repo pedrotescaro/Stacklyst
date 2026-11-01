@@ -8,6 +8,7 @@ import { findTrailQuestionById } from '@/lib/trailsData';
 import { XP_QUIZ_CORRECT } from '@/lib/config';
 import { findCurriculumLessonStepById } from '@/lib/lessons/registry';
 import { generateDailyQuiz } from './daily-quiz.service';
+import { assertPostAudience } from './post-access.service';
 
 export const QuizService = {
   generateDaily: generateDailyQuiz,
@@ -27,6 +28,7 @@ export const QuizService = {
     }
     const quiz = await prisma.quiz.findUnique({ where: { id: quizId }, include: { post: true } });
     if (quiz?.post) await BlockService.assertCanInteract(userId, quiz.post.author_id);
+    if (quiz?.post) await assertPostAudience(quiz.post, userId);
     // Reward receipts are not answerable quizzes, even if a receipt exists in the legacy table.
     if (
       /^(trail-chest-|trail-jump-)|checkpoint/.test(quizId) ||

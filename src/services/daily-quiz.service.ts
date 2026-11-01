@@ -18,9 +18,10 @@ export async function generateDailyQuiz(scheduledFor: Date) {
   const existing = await prisma.quiz.findUnique({ where });
   if (existing) return existing;
 
-  // Posts are public. Bound the scan to recent posts on or before the scheduled day.
+  // Daily quizzes are shared publicly; never derive them from follower-only posts.
   const posts = await prisma.post.findMany({
     where: {
+      audience: 'everyone',
       created_at: {
         gte: new Date(day.getTime() - 30 * DAY_MS),
         lt: new Date(day.getTime() + DAY_MS),

@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { BlockService } from '@/services/block.service';
 import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
+import { assertPostAudience } from '@/services/post-access.service';
 
 export const POST = apiHandler(async (req, { params }) => {
   const user = await requireAuth();
@@ -17,6 +18,7 @@ export const POST = apiHandler(async (req, { params }) => {
   }
 
   await BlockService.assertCanInteract(user.id, post.author_id);
+  await assertPostAudience(post, user.id);
 
   const existingBookmark = await prisma.bookmark.findFirst({
     where: {

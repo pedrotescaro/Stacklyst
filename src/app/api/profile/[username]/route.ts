@@ -6,6 +6,8 @@ import { getAuthUserId } from '@/lib/auth-session';
 import { getUserLanguageXp } from '@/lib/learning/language-xp';
 import { getEffectiveStreak } from '@/lib/streak';
 import { getPublicProfileCustomization } from '@/services/profile-customization.service';
+import { visiblePostWhere } from '@/services/post-access.service';
+import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
 
 export async function GET(request: Request, { params }: { params: Promise<{ username: string }> }) {
   try {
@@ -74,10 +76,11 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
     }
 
     const postsPromise = prisma.post.findMany({
-      where: postWhereClause,
+      where: { AND: [postWhereClause, visiblePostWhere(viewerId)] },
       orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
       take: limit + 1,
       include: {
+        poll: { include: postPollInclude(viewerId) },
         author: {
           select: {
             username: true,
@@ -163,7 +166,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ user
         ...trail,
       })),
       posts: {
-        items,
+        items: items.map((post) => ({ ...post, poll: publicPostPoll(post.poll) })),
         nextCursor,
       },
     });

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { visibleUserWhere } from '@/services/block.service';
+import { visiblePostWhere } from '@/services/post-access.service';
 import { getAuthUserId } from '@/lib/auth-session';
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -9,7 +9,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     const userId = await getAuthUserId();
 
     const quiz = await prisma.quiz.findFirst({
-      where: { post_id: id, post: { author: visibleUserWhere(userId) } },
+      where: { post_id: id, post: visiblePostWhere(userId) },
       include: {
         attempts: userId
           ? {
