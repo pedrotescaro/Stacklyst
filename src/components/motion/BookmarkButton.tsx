@@ -15,6 +15,7 @@ interface BookmarkButtonProps {
   className?: string;
   onViewAll?: () => void;
   appearance?: 'default' | 'post';
+  disabled?: boolean;
 }
 
 export function BookmarkButton({
@@ -23,10 +24,10 @@ export function BookmarkButton({
   className,
   onViewAll,
   appearance = 'default',
+  disabled = false,
 }: BookmarkButtonProps) {
   const { text } = useLocalizedText();
   const reduced = useReducedMotion();
-  const [saved, setSaved] = useState(isSaved);
   const [showToast, setShowToast] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -49,8 +50,8 @@ export function BookmarkButton({
   const { playSound } = useSoundEffects(soundEnabled);
 
   const handleClick = () => {
-    const willSave = !saved;
-    setSaved(willSave);
+    if (disabled) return;
+    const willSave = !isSaved;
     onToggle();
     if (willSave) {
       setShowToast(true);
@@ -64,11 +65,13 @@ export function BookmarkButton({
       <motion.button
         type="button"
         onClick={handleClick}
+        disabled={disabled}
+        aria-pressed={isSaved}
         className={cn(
           appearance === 'post'
             ? postActionClassName
             : 'dd-touch dd-focus-ring w-8 h-8 rounded-full flex items-center justify-center transition-colors cursor-pointer shrink-0',
-          saved
+          isSaved
             ? 'text-blue-500 hover:bg-blue-500/10'
             : 'text-dd-muted hover:text-blue-400 hover:bg-blue-500/10',
           className
@@ -77,9 +80,11 @@ export function BookmarkButton({
           reduced ? undefined : appearance === 'post' ? { scale: 0.96 } : { scale: [1, 1.2, 1] }
         }
         transition={{ duration: 0.3 }}
-        title={saved ? text('Remover dos salvos', 'Remove from bookmarks') : text('Salvar', 'Save')}
+        title={
+          isSaved ? text('Remover dos salvos', 'Remove from bookmarks') : text('Salvar', 'Save')
+        }
       >
-        <Bookmark className={cn('w-[18px] h-[18px]', saved && 'fill-current')} />
+        <Bookmark className={cn('w-[18px] h-[18px]', isSaved && 'fill-current')} />
       </motion.button>
 
       <AnimatePresence>

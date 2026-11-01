@@ -201,6 +201,8 @@ export function PostCard({
   const [bookmarked, setBookmarked] = useState<boolean>(
     !!(post.bookmarks && post.bookmarks.length > 0)
   );
+  const [bookmarkPending, setBookmarkPending] = useState(false);
+  const bookmarkRequestPending = useRef(false);
   const [repostsCount, setRepostsCount] = useState(0);
   const [reposted, setReposted] = useState(false);
 
@@ -239,6 +241,9 @@ export function PostCard({
   };
 
   const handleBookmarkToggle = async () => {
+    if (bookmarkRequestPending.current) return;
+    bookmarkRequestPending.current = true;
+    setBookmarkPending(true);
     const newBookmarked = !bookmarked;
     setBookmarked(newBookmarked);
     onBookmarkToggle?.(post.id, newBookmarked);
@@ -255,6 +260,9 @@ export function PostCard({
     } catch {
       setBookmarked(!newBookmarked);
       onBookmarkToggle?.(post.id, !newBookmarked);
+    } finally {
+      bookmarkRequestPending.current = false;
+      setBookmarkPending(false);
     }
   };
 
@@ -497,7 +505,12 @@ export function PostCard({
           />
 
           {/* 4. BookmarkButton */}
-          <BookmarkButton appearance="post" isSaved={bookmarked} onToggle={handleBookmarkToggle} />
+          <BookmarkButton
+            appearance="post"
+            isSaved={bookmarked}
+            onToggle={handleBookmarkToggle}
+            disabled={bookmarkPending}
+          />
 
           {/* 5. Share Button */}
           <div className="relative">

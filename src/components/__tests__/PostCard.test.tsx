@@ -119,6 +119,79 @@ describe('PostCard', () => {
     expect(pushMock).not.toHaveBeenCalled();
   });
 
+  it('restores the saved button appearance and callback state when removing a bookmark fails', async () => {
+    const user = userEvent.setup();
+    const onBookmarkToggle = vi.fn();
+    let completeRequest!: (response: Response) => void;
+    const fetchMock = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          completeRequest = resolve;
+        })
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    render(
+      <PostCard
+        post={{ ...pythonPost, bookmarks: [{ id: 'bookmark-1' }] }}
+        flat
+        onBookmarkToggle={onBookmarkToggle}
+      />
+    );
+
+    await user.click(screen.getByRole('button', { name: 'Remover dos salvos' }));
+    const pendingButton = screen.getByRole('button', { name: 'Salvar' });
+    expect(pendingButton.querySelector('svg')).not.toHaveClass('fill-current');
+    expect(onBookmarkToggle).toHaveBeenCalledWith('post-1', false);
+    completeRequest(Response.json({ error: 'Não foi possível remover.' }, { status: 400 }));
+
+    const restoredButton = await screen.findByRole('button', { name: 'Remover dos salvos' });
+    expect(restoredButton).not.toBeDisabled();
+    expect(restoredButton.querySelector('svg')).toHaveClass('fill-current');
+    expect(onBookmarkToggle.mock.calls).toEqual([
+      ['post-1', false],
+      ['post-1', true],
+    ]);
+    expect(fetchMock).toHaveBeenCalledExactlyOnceWith('/api/posts/post-1/bookmark', {
+      method: 'POST',
+    });
+  });
+
+  it('sends only one bookmark request for a double click while the first request is pending', async () => {
+    const user = userEvent.setup();
+    const onBookmarkToggle = vi.fn();
+    let completeRequest!: (response: Response) => void;
+    const fetchMock = vi.fn(
+      () =>
+        new Promise<Response>((resolve) => {
+          completeRequest = resolve;
+        })
+    );
+    vi.stubGlobal('fetch', fetchMock);
+    render(
+      <PostCard
+        post={{ ...pythonPost, bookmarks: [{ id: 'bookmark-1' }] }}
+        flat
+        onBookmarkToggle={onBookmarkToggle}
+      />
+    );
+
+    await user.dblClick(screen.getByRole('button', { name: 'Remover dos salvos' }));
+    const pendingButton = screen.getByRole('button', { name: 'Salvar' });
+    expect(pendingButton).toBeDisabled();
+    expect(fetchMock).toHaveBeenCalledExactlyOnceWith('/api/posts/post-1/bookmark', {
+      method: 'POST',
+    });
+    expect(onBookmarkToggle).toHaveBeenCalledExactlyOnceWith('post-1', false);
+    completeRequest(Response.json({ success: true, bookmarked: false }));
+
+    await waitFor(() => expect(pendingButton).not.toBeDisabled());
+    expect(screen.getByRole('button', { name: 'Salvar' }).querySelector('svg')).not.toHaveClass(
+      'fill-current'
+    );
+    expect(fetchMock).toHaveBeenCalledOnce();
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
   it('opens deletion outside animated feed items and cancels without deleting or navigating', async () => {
     const user = userEvent.setup();
     const fetchMock = vi.fn();
