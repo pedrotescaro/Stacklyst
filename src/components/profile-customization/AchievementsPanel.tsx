@@ -21,6 +21,7 @@ import type {
   ProfileMetric,
   ProfilePreferences,
 } from '@/lib/profile-customization';
+import { getAchievementInstructions } from '@/lib/profile-customization';
 import { readableColor } from '@/lib/profile-style';
 import styles from './Personalization.module.css';
 

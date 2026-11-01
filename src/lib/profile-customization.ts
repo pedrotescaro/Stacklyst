@@ -241,6 +241,8 @@ export const achievementDefinitionSchema = z
     id: z.string().regex(/^[a-z0-9][a-z0-9_-]{1,79}$/),
     name: safeText(60).min(2),
     description: safeText(200).min(5),
+    howToObtain: safeText(300).optional(),
+    flavorText: safeText(200).optional(),
     icon: z.enum([
       'award',
       'message',
@@ -356,6 +358,279 @@ export const profileCatalogSchema = z
       });
   });
 export type ProfileCatalog = z.infer<typeof profileCatalogSchema>;
+
+export interface AchievementInstructionInfo {
+  flavorText: string;
+  howToObtain: string;
+  isUnavailable: boolean;
+}
+
+export function getAchievementInstructions(
+  achievement: {
+    id: string;
+    name: string;
+    requirement: { metric: string; target: number; eventId?: string };
+    description?: string;
+    howToObtain?: string;
+    flavorText?: string;
+    category?: string;
+  },
+  events: ProfileCatalog['events'] = []
+): AchievementInstructionInfo {
+  const event = achievement.requirement.eventId
+    ? events.find((e) => e.id === achievement.requirement.eventId)
+    : undefined;
+
+  let isUnavailable = false;
+  if (event) {
+    const isPast = new Date(event.endsAt).getTime() < Date.now();
+    if (!event.enabled || isPast) {
+      isUnavailable = true;
+    }
+  }
+
+  const normalizedName = achievement.name.trim().toLowerCase();
+  const id = achievement.id.toLowerCase();
+
+  // Reference screenshots & special event mappings
+  const knownMap: Record<
+    string,
+    { flavorText: string; howToObtain: string; unavailable?: boolean }
+  > = {
+    abobora: {
+      flavorText: 'O que é melhor para representar o Halloween do que abóboras?',
+      howToObtain: 'Entre no Stacklyst no dia 31/10 para comemorar o Halloween.',
+    },
+    estrela: {
+      flavorText: 'Brilha, brilha, estrelinha ⭐',
+      howToObtain: 'Faça uma postagem com a hashtag #estrela para receber este título.',
+    },
+    bruxa: {
+      flavorText: 'Doces ou travessuras mágicas?',
+      howToObtain:
+        'Entre no Dia das Bruxas e faça uma postagem com a hashtag #bruxaria (31 de outubro).',
+    },
+    divindade: {
+      flavorText: 'Convidou amigos e expandiu os horizontes da comunidade com seu link.',
+      howToObtain: 'Convide com sucesso 250 pessoas para o aplicativo usando o link de convite.',
+    },
+    meangirl: {
+      flavorText: 'Às quartas usamos rosa 💅',
+      howToObtain: 'Entre no Stacklyst em qualquer horário na quarta-feira.',
+    },
+    oficial: {
+      flavorText: 'Essa pessoa é oficialmente ela mesma.',
+      howToObtain: 'Seja uma pessoa de grande relevância, influenciador ou conta oficial.',
+    },
+    docinho: {
+      flavorText: 'Um toque especial de doçura na timeline da comunidade.',
+      howToObtain: 'Espalhe boas vibrações e seja elogiado por colegas no feed.',
+    },
+    fogareu: {
+      flavorText: 'Uma prova de que o tempo constrói grandes chamas.',
+      howToObtain: 'Acumule uma sequência de ofensiva de check-in de 100 dias consecutivos.',
+    },
+    primordial: {
+      flavorText: 'Membro do Stacklyst desde antes do aniversário de 1 ano do aplicativo.',
+      howToObtain: 'Tenha criado a sua conta antes do aniversário de 1 ano da plataforma.',
+      unavailable: true,
+    },
+    muuuu: {
+      flavorText: "Wake up, it's the first of the month.",
+      howToObtain: 'Entre no Stacklyst no primeiro dia de qualquer mês.',
+    },
+    pastel: {
+      flavorText: 'Pastéis são realmente gostosos.',
+      howToObtain: 'Faça uma postagem no feed com a hashtag #pastel.',
+    },
+    apoiador: {
+      flavorText: 'Apoiando diretamente o ecossistema e os criadores do Stacklyst.',
+      howToObtain: 'Apoie o desenvolvimento contínuo da comunidade Stacklyst.',
+    },
+  };
+
+  for (const [key, meta] of Object.entries(knownMap)) {
+    if (id.includes(key) || normalizedName.includes(key)) {
+      return {
+        flavorText: achievement.flavorText || meta.flavorText,
+        howToObtain: achievement.howToObtain || meta.howToObtain,
+        isUnavailable: isUnavailable || !!meta.unavailable,
+      };
+    }
+  }
+
+  if (achievement.howToObtain && achievement.flavorText) {
+    return {
+      flavorText: achievement.flavorText,
+      howToObtain: achievement.howToObtain,
+      isUnavailable,
+    };
+  }
+
+  const target = achievement.requirement.target;
+  let flavorText = achievement.flavorText || '';
+  let howToObtain = achievement.howToObtain || '';
+
+  switch (achievement.requirement.metric) {
+    case 'posts':
+      if (target === 1) {
+        flavorText = flavorText || 'O primeiro passo para compartilhar conhecimento na comunidade.';
+        howToObtain =
+          howToObtain || 'Faça 1 postagem no feed da comunidade com pelo menos 40 caracteres.';
+      } else if (target <= 10) {
+        flavorText = flavorText || 'Marcando presença e contribuindo regularmente nas discussões.';
+        howToObtain =
+          howToObtain ||
+          `Faça ${target} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
+      } else if (target <= 50) {
+        flavorText = flavorText || 'Compartilhando ideias, dúvidas e aprendizados continuamente.';
+        howToObtain =
+          howToObtain ||
+          `Faça ${target} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
+      } else if (target <= 100) {
+        flavorText = flavorText || 'Um autor consistente com um acervo valioso de publicações.';
+        howToObtain =
+          howToObtain ||
+          `Faça ${target} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
+      } else if (target <= 200) {
+        flavorText = flavorText || 'Uma referência com centenas de discussões enriquecedoras.';
+        howToObtain =
+          howToObtain ||
+          `Faça ${target} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
+      } else if (target <= 500) {
+        flavorText = flavorText || 'Um pilar fundamental na construção do conteúdo do Stacklyst.';
+        howToObtain =
+          howToObtain ||
+          `Faça ${target} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
+      } else {
+        flavorText = flavorText || 'Lenda viva da comunidade com um histórico monumental.';
+        howToObtain =
+          howToObtain ||
+          `Faça ${target.toLocaleString('pt-BR')} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
+      }
+      break;
+
+    case 'comments':
+      if (target <= 5) {
+        flavorText = flavorText || 'Dando os primeiros passos em conversas e ajudando colegas.';
+      } else if (target <= 10) {
+        flavorText = flavorText || 'Engajando com regularidade nas publicações da comunidade.';
+      } else if (target <= 50) {
+        flavorText = flavorText || 'Sempre presente nas conversas com opiniões e soluções.';
+      } else {
+        flavorText = flavorText || 'Conexão constante e diálogo ativo com dezenas de devs.';
+      }
+      howToObtain =
+        howToObtain ||
+        `Escreva ${target} comentários com pelo menos 12 caracteres respondendo a publicações de outros membros.`;
+      break;
+
+    case 'peopleHelped':
+      flavorText =
+        flavorText ||
+        (target <= 5
+          ? 'Apoiando outros desenvolvedores em seus desafios diários.'
+          : 'Construindo pontes e fortalecendo a rede de desenvolvedores.');
+      howToObtain =
+        howToObtain ||
+        `Ajude ${target} pessoas diferentes respondendo a publicações ou dúvidas técnicas no feed.`;
+      break;
+
+    case 'likes':
+      flavorText =
+        flavorText ||
+        (target <= 100
+          ? 'Conteúdo reconhecido e valorizado pelos colegas da plataforma.'
+          : 'Reconhecimento massivo pelo impacto positivo na comunidade.');
+      howToObtain =
+        howToObtain ||
+        `Receba um total acumulado de ${target.toLocaleString('pt-BR')} curtidas em suas postagens e comentários.`;
+      break;
+
+    case 'followers':
+      flavorText =
+        flavorText ||
+        (target <= 100
+          ? 'Uma audiência fiel que acompanha suas contribuições de perto.'
+          : 'Uma voz influente acompanhada por uma legião de desenvolvedores.');
+      howToObtain =
+        howToObtain ||
+        `Alcance a marca de ${target.toLocaleString('pt-BR')} seguidores em seu perfil no Stacklyst.`;
+      break;
+
+    case 'learningActivities':
+      flavorText = flavorText || 'O primeiro código executado rumo à maestria técnica.';
+      howToObtain =
+        howToObtain ||
+        'Conclua seu primeiro exercício ou atividade prática com aprovação em qualquer trilha.';
+      break;
+
+    case 'completedTrails':
+      flavorText =
+        flavorText ||
+        (target <= 1
+          ? 'Conhecimento consolidado do início ao fim de uma trilha completa.'
+          : 'Domínio técnico multidisciplinar e dedicação incansável aos estudos.');
+      howToObtain =
+        howToObtain ||
+        `Complete todos os módulos, aulas e testes de ${target} ${target === 1 ? 'trilha inteira' : 'trilhas inteiras'} de aprendizagem.`;
+      break;
+
+    case 'eventPosts':
+      if (event) {
+        const startStr = new Date(event.startsAt).toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+        });
+        const endStr = new Date(event.endsAt).toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: '2-digit',
+        });
+        flavorText = flavorText || `Celebrando o evento ${event.name} com a comunidade.`;
+        howToObtain =
+          howToObtain ||
+          `Durante o evento (${startStr} até ${endStr}), faça uma postagem no feed contendo a hashtag #${event.hashtag}.`;
+      } else {
+        flavorText = flavorText || 'Participação especial em eventos do Stacklyst.';
+        howToObtain =
+          howToObtain ||
+          'Faça uma publicação no feed com a hashtag indicada durante o período do evento.';
+      }
+      break;
+
+    case 'eventComments':
+      if (event) {
+        flavorText = flavorText || `Ativo e presente nas discussões do evento ${event.name}.`;
+        howToObtain =
+          howToObtain ||
+          `Durante o evento ${event.name}, comente em pelo menos ${target} postagens diferentes marcadas com #${event.hashtag}.`;
+      } else {
+        flavorText = flavorText || 'Comentários ativos durante eventos temáticos.';
+        howToObtain = howToObtain || `Comente em pelo menos ${target} postagens do evento.`;
+      }
+      break;
+
+    case 'eventComplete':
+      flavorText = flavorText || 'Conquistou todas as missões especiais deste evento.';
+      howToObtain =
+        howToObtain ||
+        (event
+          ? `Conclua todas as metas e desafios do evento ${event.name} para desbloquear este título exclusivo.`
+          : 'Conclua todos os desafios e objetivos do evento.');
+      break;
+
+    default:
+      flavorText = flavorText || achievement.description || 'Título conquistável no Stacklyst.';
+      howToObtain =
+        howToObtain ||
+        achievement.description ||
+        'Participe ativamente da comunidade para desbloquear.';
+      break;
+  }
+
+  return { flavorText, howToObtain, isUnavailable };
+}
+
 const achievement = (
   id: string,
   name: string,
@@ -364,7 +639,9 @@ const achievement = (
   category: AchievementDefinition['category'],
   rarity: ProfileRarity,
   color: string,
-  eventId?: string
+  eventId?: string,
+  howToObtain?: string,
+  flavorText?: string
 ): AchievementDefinition => ({
   id,
   name,
@@ -388,6 +665,8 @@ const achievement = (
                     : metric === 'eventComments'
                       ? `Comente em ${target} publicações diferentes do evento.`
                       : 'Conclua todos os desafios deste evento.',
+  howToObtain,
+  flavorText,
   icon:
     id === 'posts-1'
       ? 'sprout'
