@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import type { ProfilePreferences, PrivateChatPreferences } from '@/lib/profile-customization';
 import { isProfileFlagId } from '@/lib/profile-flags';
+import { normalizeProfileTitleName } from '@/lib/profile-customization';
 
 const validColor = (value: unknown): value is string =>
   typeof value === 'string' && /^#[\da-f]{6}$/i.test(value);
@@ -146,7 +147,10 @@ export function readProfileIdentity(config: unknown): ProfileIdentityStyle {
       titleCandidate && typeof titleCandidate.name === 'string' && titleCandidate.name.length <= 60
         ? {
             id: typeof titleCandidate.id === 'string' ? titleCandidate.id : 'title',
-            name: titleCandidate.name,
+            name: normalizeProfileTitleName(
+              typeof titleCandidate.id === 'string' ? titleCandidate.id : 'title',
+              titleCandidate.name
+            ),
             color: validColor(titleCandidate.color) ? titleCandidate.color : '#0083fe',
             rarity: typeof titleCandidate.rarity === 'string' ? titleCandidate.rarity : 'common',
             icon: typeof titleCandidate.icon === 'string' ? titleCandidate.icon : undefined,

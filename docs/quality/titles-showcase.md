@@ -6,7 +6,7 @@ As instruções são calculadas a partir da regra de cada título. Elas explicit
 
 ## Novos títulos
 
-- **First of the Month:** um comentário ou resposta original, com pelo menos 12 caracteres, direcionado a outro membro, no dia 1 de qualquer mês em `America/Sao_Paulo`. O histórico também conta. Comentários próprios, curtos ou repetidos não qualificam.
+- **Muuuu:** um comentário ou resposta original, com pelo menos 12 caracteres, direcionado a outro membro, no dia 1 de qualquer mês em `America/Sao_Paulo`. O histórico também conta. Comentários próprios, curtos ou repetidos não qualificam.
 - **Estrela:** uma postagem válida com a hashtag exata `#estrela`, em qualquer data.
 - **Pastel:** uma postagem válida com a hashtag exata `#pastel`, em qualquer data.
 - **Abóbora:** uma postagem válida com a hashtag do evento Halloween 2026 durante o período configurado.

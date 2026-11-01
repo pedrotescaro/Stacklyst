@@ -32,6 +32,21 @@ describe('profile upload ownership', () => {
   });
 });
 describe('scoped profile and chat appearance', () => {
+  it('shows the monthly title as Muuuu for profiles saved with its previous label', () => {
+    expect(
+      readProfileIdentity({
+        profileStyle: {
+          title: {
+            id: 'first-of-month',
+            name: 'First of the Month',
+            color: '#f4f4f5',
+            rarity: 'special',
+          },
+        },
+      }).title
+    ).toMatchObject({ id: 'first-of-month', name: 'Muuuu' });
+  });
+
   it('keeps foreground readable across bright and dark custom backgrounds', () => {
     for (const background of ['#0083fe', '#ffffff', '#101112', '#ff9b00', '#6688aa']) {
       expect(contrastRatio(foregroundOn(background), background)).toBeGreaterThanOrEqual(4.5);

@@ -383,6 +383,9 @@ export interface AchievementInstructionInfo {
 
 export const PROFILE_ACHIEVEMENT_TIME_ZONE = 'America/Sao_Paulo';
 export const NEW_PROFILE_TITLE_IDS = ['first-of-month', 'estrela', 'pastel', 'abobora'] as const;
+export function normalizeProfileTitleName(id: string, name: string): string {
+  return id === 'first-of-month' && name === 'First of the Month' ? 'Muuuu' : name;
+}
 
 export function getAchievementInstructions(
   achievement: {
@@ -731,7 +734,7 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
     {
       ...achievement(
         'first-of-month',
-        'First of the Month',
+        'Muuuu',
         'firstDayComments',
         1,
         'comments',

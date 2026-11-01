@@ -468,6 +468,18 @@ describe('Profile persistence and awards', () => {
 });
 
 describe('reference-inspired title grants', () => {
+  it('renames the original monthly title in saved catalogs without replacing its ID or requirement', async () => {
+    const catalog = structuredClone(DEFAULT_PROFILE_CATALOG);
+    const title = catalog.achievements.find((item) => item.id === 'first-of-month')!;
+    title.name = 'First of the Month';
+    mocks.catalog.mockResolvedValue({ value: catalog });
+    const result = await getProfileCatalog();
+    expect(result.achievements.find((item) => item.id === 'first-of-month')).toMatchObject({
+      name: 'Muuuu',
+      requirement: { metric: 'firstDayComments', target: 1 },
+    });
+  });
+
   it('adds the new built-in titles to existing catalogs without replacing customized entries', async () => {
     const catalog = structuredClone(DEFAULT_PROFILE_CATALOG);
     catalog.achievements = catalog.achievements.filter(
@@ -482,7 +494,7 @@ describe('reference-inspired title grants', () => {
     for (const id of ['first-of-month', 'estrela', 'pastel', 'abobora'])
       expect(result.achievements.filter((item) => item.id === id)).toHaveLength(1);
   });
-  it('persists First of the Month once and retains it after the qualifying comment is removed', async () => {
+  it('persists Muuuu once and retains it after the qualifying comment is removed', async () => {
     const definition = DEFAULT_PROFILE_CATALOG.achievements.find(
       (item) => item.id === 'first-of-month'
     )!;

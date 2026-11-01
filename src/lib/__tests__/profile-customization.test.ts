@@ -273,7 +273,7 @@ describe('title instructions match enforced requirements', () => {
     expect(comments).toContain('outros membros');
     expect(comments).toContain('si mesmo não contam');
   });
-  it('describes First of the Month as a historical comment rule rather than a login', () => {
+  it('describes Muuuu as a historical comment rule rather than a login', () => {
     const result = describeTitle('first-of-month');
     expect(result.howToObtain).toContain('dia 1 de qualquer mês');
     expect(result.howToObtain).toContain('12 caracteres');

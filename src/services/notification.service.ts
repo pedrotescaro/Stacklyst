@@ -4,6 +4,7 @@ import { sendMobilePush } from '@/lib/mobile/push';
 import { NotificationType } from '@prisma/client';
 import { encodeCursor, buildCursorWhere } from '@/lib/pagination';
 import { visiblePostWhere } from './post-access.service';
+import { normalizeProfileTitleName } from '@/lib/profile-customization';
 
 export interface CreateNotificationInput {
   userId: string;
@@ -195,7 +196,10 @@ export const NotificationService = {
     const achievementNames = new Map(
       earnedAchievements.map((item) => [
         item.achievementId,
-        (item.definition as { name?: string })?.name || 'Nova conquista',
+        normalizeProfileTitleName(
+          item.achievementId,
+          (item.definition as { name?: string })?.name || 'Nova conquista'
+        ),
       ])
     );
 

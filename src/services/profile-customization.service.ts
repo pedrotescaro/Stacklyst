@@ -7,6 +7,7 @@ import {
   DEFAULT_PROFILE_CATALOG,
   NEW_PROFILE_TITLE_IDS,
   PROFILE_ACHIEVEMENT_TIME_ZONE,
+  normalizeProfileTitleName,
   DEFAULT_CHAT_PREFERENCES,
   profileCatalogSchema,
   profilePreferencesSchema,
@@ -106,7 +107,7 @@ export async function getProfileCatalog(): Promise<ProfileCatalog> {
       ...parsed.data.achievements.map((achievement) =>
         achievement.id === 'posts-1' && achievement.name === 'Primeiros Passos'
           ? { ...achievement, name: 'Iniciante' }
-          : achievement
+          : { ...achievement, name: normalizeProfileTitleName(achievement.id, achievement.name) }
       ),
       ...newTitles,
     ],
@@ -258,6 +259,7 @@ function unlockedDefinitions(
       ? [
           {
             ...parsed.data,
+            name: normalizeProfileTitleName(parsed.data.id, parsed.data.name),
             progress: parsed.data.requirement.target,
             unlocked: true,
             unlockedAt: row.unlockedAt.toISOString(),

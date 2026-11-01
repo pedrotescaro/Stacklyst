@@ -33,7 +33,7 @@ describe('ProfileTitle', () => {
       <ProfileTitle
         title={{
           id: 'first-of-month',
-          name: 'First of the Month',
+          name: 'Muuuu',
           color: '#ffffff',
           rarity: 'special',
           icon: 'sparkles',
@@ -42,7 +42,7 @@ describe('ProfileTitle', () => {
         className="catalog-pill"
       />
     );
-    const pill = screen.getByText('First of the Month');
+    const pill = screen.getByText('Muuuu');
     expect(pill.querySelector('svg')).toBeNull();
     expect(pill).toHaveClass('catalog-pill');
     expect(pill).toHaveStyle({ backgroundColor: '#ffffff', color: '#111827' });
