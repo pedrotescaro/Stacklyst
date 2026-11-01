@@ -466,3 +466,66 @@ describe('Profile persistence and awards', () => {
     ).rejects.toThrow('Remova a capa somente');
   });
 });
+
+describe('reference-inspired title grants', () => {
+  it('adds the new built-in titles to existing catalogs without replacing customized entries', async () => {
+    const catalog = structuredClone(DEFAULT_PROFILE_CATALOG);
+    catalog.achievements = catalog.achievements.filter(
+      (item) => !['first-of-month', 'estrela', 'pastel', 'abobora'].includes(item.id)
+    );
+    catalog.achievements[0].name = 'Meu título inicial';
+    mocks.catalog.mockResolvedValue({ value: catalog });
+    const result = await getProfileCatalog();
+    expect(result.achievements.find((item) => item.id === 'posts-1')?.name).toBe(
+      'Meu título inicial'
+    );
+    for (const id of ['first-of-month', 'estrela', 'pastel', 'abobora'])
+      expect(result.achievements.filter((item) => item.id === id)).toHaveLength(1);
+  });
+  it('persists First of the Month once and retains it after the qualifying comment is removed', async () => {
+    const definition = DEFAULT_PROFILE_CATALOG.achievements.find(
+      (item) => item.id === 'first-of-month'
+    )!;
+    const earned = {
+      userId: 'owner',
+      achievementId: definition.id,
+      definition,
+      unlockedAt: new Date(),
+      announcedAt: null,
+    };
+    mocks.metrics.mockResolvedValue([{ ...zero, firstDayComments: 1 }]);
+    mocks.awards.mockResolvedValueOnce([]).mockResolvedValueOnce([earned]);
+    await reconcileProfileAchievements('owner');
+    expect(mocks.createAwards).toHaveBeenCalledOnce();
+    expect(
+      mocks.createAwards.mock.calls[0][0].data.map(
+        (row: { achievementId: string }) => row.achievementId
+      )
+    ).toEqual(['first-of-month']);
+    expect(mocks.notify.mock.calls[0][0].data[0].resourceId).toBe('first-of-month');
+    mocks.metrics.mockResolvedValue([zero]);
+    mocks.awards.mockResolvedValue([earned]);
+    const state = await getProfileCustomization('owner');
+    expect(state.achievements.find((item) => item.id === 'first-of-month')).toMatchObject({
+      unlocked: true,
+      progress: 1,
+    });
+    expect(mocks.createAwards).toHaveBeenCalledOnce();
+  });
+  it('grants themed hashtag titles from their exact matching counters', async () => {
+    mocks.metrics.mockImplementation(async (strings: TemplateStringsArray) =>
+      strings.join('').includes('jsonb_array_elements_text')
+        ? [
+            { hashtag: 'pastel', amount: 1 },
+            { hashtag: 'estrela', amount: 0 },
+          ]
+        : [zero]
+    );
+    await reconcileProfileAchievements('owner');
+    expect(
+      mocks.createAwards.mock.calls[0][0].data.map(
+        (row: { achievementId: string }) => row.achievementId
+      )
+    ).toEqual(['pastel']);
+  });
+});

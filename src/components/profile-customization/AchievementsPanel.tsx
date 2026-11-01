@@ -51,6 +51,10 @@ const metricDetails: Record<ProfileMetric, string> = {
     'Publicações precisam ter título com pelo menos 4 caracteres e texto com pelo menos 40. Conteúdos repetidos contam uma vez, com limite de 5 por dia.',
   comments:
     'Comentários precisam ter pelo menos 12 caracteres e responder a outra pessoa. Textos repetidos contam uma vez.',
+  firstDayComments:
+    'Escreva um comentário original de pelo menos 12 caracteres para outro membro no dia 1 de qualquer mês, pelo horário de Brasília. Comentários históricos também contam.',
+  hashtagPosts:
+    'Publique com a hashtag exata exigida pelo título, com pelo menos 4 caracteres no título e 40 no texto. Conteúdos repetidos contam uma vez, até 5 por dia UTC.',
   peopleHelped:
     'Conte as pessoas diferentes às quais você respondeu. A resposta precisa ter pelo menos 12 caracteres e textos repetidos contam uma vez.',
   likes:

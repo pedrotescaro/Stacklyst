@@ -11,6 +11,7 @@ import {
   parseProfilePreferences,
   normalizeProfilePreferenceAliases,
   profileBasicsSchema,
+  getAchievementInstructions,
 } from '../profile-customization';
 describe('Profile customization domain', () => {
   it('accepts the complete default catalog and country flags', () => {
@@ -235,5 +236,86 @@ describe('Profile customization domain', () => {
       studies: ['Rust'],
       studyDetails: [{ subject: 'Rust', progress: 20 }],
     });
+  });
+});
+
+describe('title instructions match enforced requirements', () => {
+  const now = new Date('2026-10-31T18:00:00.000Z');
+  const describeTitle = (id: string) =>
+    getAchievementInstructions(
+      DEFAULT_PROFILE_CATALOG.achievements.find((item) => item.id === id)!,
+      DEFAULT_PROFILE_CATALOG.events,
+      DEFAULT_PROFILE_CATALOG.achievements,
+      now
+    );
+  it('uses the actual metric even if a title has a reference-inspired name or old custom copy', () => {
+    const result = getAchievementInstructions({
+      id: 'custom',
+      name: 'Divindade',
+      description: 'Convide amigos',
+      howToObtain: 'Convide 250 pessoas.',
+      requirement: { metric: 'followers', target: 100 },
+    });
+    expect(result.howToObtain).toContain('100 seguidores');
+    expect(result.howToObtain).toContain('24 horas');
+    expect(result.howToObtain).not.toContain('250');
+  });
+  it('states all real post and comment counting thresholds', () => {
+    const posts = describeTitle('posts-10').howToObtain;
+    expect(posts).toContain('10 postagens');
+    expect(posts).toContain('4 caracteres');
+    expect(posts).toContain('40');
+    expect(posts).toContain('repetidos');
+    expect(posts).toContain('5 por dia (UTC)');
+    const comments = describeTitle('comments-5').howToObtain;
+    expect(comments).toContain('5 comentários');
+    expect(comments).toContain('12 caracteres');
+    expect(comments).toContain('outros membros');
+    expect(comments).toContain('si mesmo não contam');
+  });
+  it('describes First of the Month as a historical comment rule rather than a login', () => {
+    const result = describeTitle('first-of-month');
+    expect(result.howToObtain).toContain('dia 1 de qualquer mês');
+    expect(result.howToObtain).toContain('12 caracteres');
+    expect(result.howToObtain).toContain('America/Sao_Paulo');
+    expect(result.howToObtain).toContain('meses anteriores');
+    expect(result.howToObtain).not.toMatch(/Entre no|login/i);
+    expect(result.isUnavailable).toBe(false);
+  });
+  it('uses exact evergreen hashtags and real event dates for the themed titles', () => {
+    expect(describeTitle('estrela').howToObtain).toContain('hashtag exata #estrela');
+    expect(describeTitle('pastel').howToObtain).toContain('hashtag exata #pastel');
+    const pumpkin = describeTitle('abobora');
+    expect(pumpkin.howToObtain).toContain('#Halloween');
+    expect(pumpkin.howToObtain).toContain('25/10/2026');
+    expect(pumpkin.howToObtain).toContain('01/11/2026');
+    expect(pumpkin.isUnavailable).toBe(false);
+  });
+  it('lists complete-event targets explicitly and respects the exclusive end', () => {
+    const result = describeTitle('halloween-legend');
+    expect(result.howToObtain).toContain('1 postagem(ns)');
+    expect(result.howToObtain).toContain('5 publicação(ões)');
+    expect(result.howToObtain).not.toContain('todos os desafios');
+    const event = DEFAULT_PROFILE_CATALOG.events[0];
+    expect(
+      getAchievementInstructions(
+        DEFAULT_PROFILE_CATALOG.achievements.find((item) => item.id === 'abobora')!,
+        [event],
+        DEFAULT_PROFILE_CATALOG.achievements,
+        new Date(event.endsAt)
+      ).isUnavailable
+    ).toBe(true);
+  });
+  it('rejects unconfigured hashtag goals and never invents a fallback unlock condition', () => {
+    const catalog = structuredClone(DEFAULT_PROFILE_CATALOG);
+    delete catalog.achievements.find((item) => item.id === 'pastel')!.requirement.hashtag;
+    expect(profileCatalogSchema.safeParse(catalog).success).toBe(false);
+    expect(
+      getAchievementInstructions({
+        id: 'unknown',
+        name: 'Oficial',
+        requirement: { metric: 'unrecognized', target: 1 },
+      }).isUnavailable
+    ).toBe(true);
   });
 });

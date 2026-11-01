@@ -5,6 +5,8 @@ import { AppError, ForbiddenError, NotFoundError, ValidationError } from '@/lib/
 import { logger } from '@/lib/logger';
 import {
   DEFAULT_PROFILE_CATALOG,
+  NEW_PROFILE_TITLE_IDS,
+  PROFILE_ACHIEVEMENT_TIME_ZONE,
   DEFAULT_CHAT_PREFERENCES,
   profileCatalogSchema,
   profilePreferencesSchema,
@@ -92,13 +94,22 @@ export async function getProfileCatalog(): Promise<ProfileCatalog> {
   if (!parsed.success) return structuredClone(DEFAULT_PROFILE_CATALOG);
   // Older persisted catalogs retain their custom entries and gain the new built-in options.
   const ids = new Set(parsed.data.frames.map((frame) => frame.id));
+  const titleIds = new Set(parsed.data.achievements.map((item) => item.id));
+  const newTitles = DEFAULT_PROFILE_CATALOG.achievements.filter(
+    (item) =>
+      NEW_PROFILE_TITLE_IDS.includes(item.id as (typeof NEW_PROFILE_TITLE_IDS)[number]) &&
+      !titleIds.has(item.id)
+  );
   return {
     ...parsed.data,
-    achievements: parsed.data.achievements.map((achievement) =>
-      achievement.id === 'posts-1' && achievement.name === 'Primeiros Passos'
-        ? { ...achievement, name: 'Iniciante' }
-        : achievement
-    ),
+    achievements: [
+      ...parsed.data.achievements.map((achievement) =>
+        achievement.id === 'posts-1' && achievement.name === 'Primeiros Passos'
+          ? { ...achievement, name: 'Iniciante' }
+          : achievement
+      ),
+      ...newTitles,
+    ],
     frames: [...parsed.data.frames, ...EXTRA_PROFILE_FRAMES.filter((frame) => !ids.has(frame.id))],
   };
 }
@@ -129,6 +140,7 @@ export async function profileActivityMetrics(tx: Transaction, userId: string): P
     Array<{
       posts: number;
       comments: number;
+      firstDayComments: number;
       peopleHelped: number;
       likes: number;
       followers: number;
@@ -144,7 +156,7 @@ export async function profileActivityMetrics(tx: Transaction, userId: string): P
       SELECT LEAST(COUNT(*),5)::int AS amount FROM normalized_posts GROUP BY date_trunc('day',created_at)
     ), valid_comments AS (
       SELECT DISTINCT ON (lower(regexp_replace(trim(a.body),'[[:space:]]+',' ','g')))
-        a.body, COALESCE(parent.author_id,p.author_id) AS target FROM "Answer" a
+        a.body, a.created_at, COALESCE(parent.author_id,p.author_id) AS target FROM "Answer" a
       JOIN "Post" p ON p.id=a.post_id LEFT JOIN "Answer" parent ON parent.id=a.parent_id
       WHERE a.author_id=${userId} AND COALESCE(parent.author_id,p.author_id)<>${userId}
         AND char_length(trim(a.body))>=12
@@ -162,6 +174,8 @@ export async function profileActivityMetrics(tx: Transaction, userId: string): P
     ) SELECT
       COALESCE((SELECT SUM(amount)::int FROM daily_posts),0) AS posts,
       (SELECT COUNT(DISTINCT lower(regexp_replace(trim(body),'[[:space:]]+',' ','g')))::int FROM valid_comments) AS comments,
+      (SELECT COUNT(*)::int FROM valid_comments WHERE
+        EXTRACT(DAY FROM (created_at AT TIME ZONE 'UTC') AT TIME ZONE ${PROFILE_ACHIEVEMENT_TIME_ZONE})=1) AS "firstDayComments",
       (SELECT COUNT(DISTINCT target)::int FROM valid_comments) AS "peopleHelped",
       COALESCE((SELECT SUM(amount)::int FROM daily_likes),0) AS likes,
       (SELECT COUNT(*)::int FROM "Follow" f JOIN "User" u ON u.id=f."followerId"
@@ -178,10 +192,30 @@ export async function profileActivityMetrics(tx: Transaction, userId: string): P
   return {
     ...row,
     completedTrails: row.completedTrails ?? 0,
+    firstDayComments: row.firstDayComments ?? 0,
+    hashtagPosts: 0,
     eventPosts: 0,
     eventComments: 0,
     eventComplete: 0,
   };
+}
+
+/** One bounded query for all evergreen hashtag goals, using the normal post quality rules. */
+export async function hashtagPostMetrics(tx: Transaction, userId: string, hashtags: string[]) {
+  const tags = [...new Set(hashtags)];
+  if (!tags.length) return new Map<string, number>();
+  const rows = await tx.$queryRaw<Array<{ hashtag: string; amount: number }>>`
+    SELECT requested.hashtag, COALESCE((SELECT SUM(amount)::int FROM (
+      SELECT LEAST(COUNT(*),5)::int AS amount FROM (
+        SELECT MIN(p.created_at) AS created_at FROM "Post" p
+        WHERE p.author_id=${userId} AND char_length(trim(p.title))>=4 AND char_length(trim(p.body))>=40
+          AND p.body ~* ('(^|[^[:alnum:]_])#'||requested.hashtag||'([^[:alnum:]_]|$)')
+        GROUP BY md5(lower(regexp_replace(trim(p.title)||' '||trim(p.body),'[[:space:]]+',' ','g')))
+      ) normalized GROUP BY date_trunc('day',created_at)
+    ) daily),0)::int AS amount
+    FROM jsonb_array_elements_text(${JSON.stringify(tags)}::jsonb) AS requested(hashtag)
+  `;
+  return new Map(rows.map((row) => [row.hashtag, row.amount]));
 }
 
 export function eventIsActive(event: ProfileCatalog['events'][number], now: Date) {
@@ -236,6 +270,10 @@ function unlockedDefinitions(
 async function reconcileInTransaction(tx: Transaction, userId: string, catalog: ProfileCatalog) {
   await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('stacklyst:profile:'||${userId}))`;
   const metrics = await profileActivityMetrics(tx, userId);
+  const hashtags = catalog.achievements
+    .filter((item) => item.requirement.metric === 'hashtagPosts')
+    .flatMap((item) => (item.requirement.hashtag ? [item.requirement.hashtag] : []));
+  const taggedPosts = await hashtagPostMetrics(tx, userId, hashtags);
   const now = new Date();
   const events = new Map<string, Awaited<ReturnType<typeof eventMetrics>>>();
   for (const event of catalog.events)
@@ -245,12 +283,15 @@ async function reconcileInTransaction(tx: Transaction, userId: string, catalog: 
       ? events.get(definition.requirement.eventId)
       : null;
     const metric = definition.requirement.metric;
+    if (metric === 'hashtagPosts')
+      return taggedPosts.get(definition.requirement.hashtag || '') || 0;
     if (metric === 'eventComplete') {
       if (!event) return 0;
       const challenges = catalog.achievements.filter(
         (item) =>
           item.requirement.eventId === definition.requirement.eventId &&
-          item.requirement.metric !== 'eventComplete'
+          item.requirement.metric !== 'eventComplete' &&
+          item.requirement.metric.startsWith('event')
       );
       return challenges.length &&
         challenges.every(

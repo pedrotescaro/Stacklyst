@@ -1,6 +1,7 @@
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Sidebar } from '@/components/Sidebar';
+import type { NotionEditorRef } from '@/components/editor/NotionEditor';
 
 const route = vi.hoisted(() => ({ pathname: '/feed' }));
 const user = { id: 'u1', username: 'pessoa', role: 'USER' as const };
@@ -18,17 +19,39 @@ vi.mock('next/navigation', () => ({
 vi.mock('next/link', () => ({
   default: ({ children, ...props }: React.ComponentProps<'a'>) => <a {...props}>{children}</a>,
 }));
-vi.mock('next/dynamic', () => ({
-  default:
-    () =>
-    ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
-      <textarea
-        aria-label="Texto da publicação"
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-      />
-    ),
-}));
+vi.mock('next/dynamic', async () => {
+  const { forwardRef, useImperativeHandle, useRef } = await import('react');
+  return {
+    default: () =>
+      forwardRef<
+        NotionEditorRef,
+        { value: string; onChange: (value: string) => void; placeholder?: string }
+      >(function MockEditor({ value, onChange, placeholder }, ref) {
+        const inputRef = useRef<HTMLTextAreaElement>(null);
+        useImperativeHandle(ref, () => ({
+          insertText: (text) => onChange(value + text),
+          focus: () => inputRef.current?.focus(),
+          toggleBold: vi.fn(),
+          toggleItalic: vi.fn(),
+          toggleUnderline: vi.fn(),
+          setTextColor: vi.fn(),
+          clearFormatting: vi.fn(),
+          insertCodeBlock: vi.fn(),
+          insertBlock: vi.fn(),
+        }));
+        return (
+          <textarea
+            ref={inputRef}
+            aria-label={placeholder}
+            value={value}
+            onChange={(event) => onChange(event.target.value)}
+          />
+        );
+      }),
+  };
+});
+
+afterEach(() => vi.unstubAllGlobals());
 
 describe('responsive web navigation', () => {
   it('offers only adding an account and logging out in the desktop account menu', () => {
@@ -89,9 +112,10 @@ describe('responsive web navigation', () => {
   });
 
   it('publishes the floating composer through the posts API', async () => {
-    const fetchMock = vi.fn(async (_url: RequestInfo | URL, _options?: RequestInit) => ({
+    const createdPost = { id: 'post-1', body: 'Minha nova postagem de teste' };
+    const fetchMock = vi.fn(async (url: RequestInfo | URL, _options?: RequestInit) => ({
       ok: true,
-      json: async () => ({ count: 0 }),
+      json: async () => (url === '/api/posts' ? createdPost : { count: 0 }),
     }));
     const onCreated = vi.fn();
     window.addEventListener('stacklyst:post-created', onCreated);
@@ -99,23 +123,45 @@ describe('responsive web navigation', () => {
     render(<Sidebar user={user} />);
     fireEvent.click(screen.getByRole('button', { name: 'Nova postagem' }));
     const dialog = await screen.findByRole('dialog', { name: 'Criar nova publicação' });
-    fireEvent.change(within(dialog).getByRole('textbox', { name: 'Texto da publicação' }), {
+    expect(within(dialog).getByRole('button', { name: 'Publicar' })).toBeDisabled();
+    fireEvent.change(within(dialog).getByRole('textbox', { name: 'O que você está pensando?' }), {
       target: { value: 'Minha nova postagem de teste' },
     });
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Postar' }));
+    fireEvent.click(within(dialog).getByRole('button', { name: 'Publicar' }));
     await waitFor(() =>
       expect(fetchMock).toHaveBeenCalledWith(
         '/api/posts',
-        expect.objectContaining({ method: 'POST' })
+        expect.objectContaining({
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-idempotency-key': expect.any(String),
+          },
+        })
       )
     );
     const postCall = fetchMock.mock.calls.find(([url]) => url === '/api/posts');
-    expect(JSON.parse((postCall?.[1] as RequestInit).body as string).body).toContain(
-      'Minha nova postagem de teste'
-    );
-    expect(onCreated).toHaveBeenCalledOnce();
+    expect(fetchMock.mock.calls.filter(([url]) => url === '/api/posts')).toHaveLength(1);
+    expect(JSON.parse((postCall?.[1] as RequestInit).body as string)).toEqual({
+      body: 'Minha nova postagem de teste',
+      language: null,
+      audience: 'everyone',
+      attachments: [],
+      music: null,
+      poll: null,
+    });
+    await waitFor(() => expect(onCreated).toHaveBeenCalledOnce());
+    expect((onCreated.mock.calls[0][0] as CustomEvent).detail).toEqual(createdPost);
+    expect(within(dialog).getByRole('button', { name: 'Publicado' })).toBeDisabled();
+    expect(localStorage.getItem('stacklyst-post-draft:u1')).toBeNull();
     window.removeEventListener('stacklyst:post-created', onCreated);
-    vi.unstubAllGlobals();
+    await waitFor(
+      () =>
+        expect(
+          screen.queryByRole('dialog', { name: 'Criar nova publicação' })
+        ).not.toBeInTheDocument(),
+      { timeout: 2000 }
+    );
   });
 
   it('opens the drawer with real destinations and closes with Escape, returning focus', async () => {
@@ -164,7 +210,7 @@ describe('responsive web navigation', () => {
         name: 'Rascunhos',
       })
     );
-    fireEvent.change(await screen.findByRole('textbox', { name: 'Texto da publicação' }), {
+    fireEvent.change(await screen.findByRole('textbox', { name: 'O que você está pensando?' }), {
       target: { value: 'Meu texto salvo' },
     });
     fireEvent.click(screen.getByRole('button', { name: 'Fechar rascunho' }));
@@ -181,7 +227,7 @@ describe('responsive web navigation', () => {
         name: 'Rascunhos',
       })
     );
-    expect(await screen.findByRole('textbox', { name: 'Texto da publicação' })).toHaveValue(
+    expect(await screen.findByRole('textbox', { name: 'O que você está pensando?' })).toHaveValue(
       'Meu texto salvo'
     );
   });

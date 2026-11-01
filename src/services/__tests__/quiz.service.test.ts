@@ -59,6 +59,7 @@ describe('QuizService.generateDaily without AI or an external scheduler', () => 
       expect(request).not.toHaveBeenCalled();
       expect(prisma.post.findMany).toHaveBeenCalledWith({
         where: {
+          audience: 'everyone',
           created_at: {
             gte: new Date('2026-07-22T00:00:00Z'),
             lt: new Date('2026-08-22T00:00:00Z'),

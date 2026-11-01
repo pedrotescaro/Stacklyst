@@ -17,6 +17,9 @@ type CatalogTab = 'events' | 'achievements' | 'frames' | 'advanced';
 const metricNames: Record<string, string> = {
   posts: 'Publicações válidas',
   comments: 'Comentários válidos',
+  firstDayComments: 'Comentários no primeiro dia do mês',
+  hashtagPosts: 'Publicações com hashtag',
+  completedTrails: 'Trilhas concluídas',
   peopleHelped: 'Pessoas respondidas',
   likes: 'Curtidas recebidas',
   followers: 'Seguidores',
@@ -469,6 +472,32 @@ export function ProfileCatalogEditor() {
                               />
                             </label>
                           </div>
+                          {achievement.requirement.metric === 'hashtagPosts' && (
+                            <label className={styles.field}>
+                              <span className={styles.label}>Hashtag exigida, sem #</span>
+                              <input
+                                className={styles.input}
+                                value={achievement.requirement.hashtag || ''}
+                                maxLength={40}
+                                onChange={(event) =>
+                                  setCatalog({
+                                    ...catalog,
+                                    achievements: catalog.achievements.map((row, i) =>
+                                      i === index
+                                        ? {
+                                            ...row,
+                                            requirement: {
+                                              ...row.requirement,
+                                              hashtag: event.target.value.replace(/^#/, ''),
+                                            },
+                                          }
+                                        : row
+                                    ),
+                                  })
+                                }
+                              />
+                            </label>
+                          )}
                           {achievement.requirement.metric.startsWith('event') && (
                             <label className={styles.field}>
                               <span className={styles.label}>Evento associado</span>

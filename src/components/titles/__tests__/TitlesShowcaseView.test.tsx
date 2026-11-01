@@ -5,11 +5,13 @@ import type { ProfileCustomizationState } from '@/lib/profile-customization';
 
 const mockPush = vi.fn();
 const mockBack = vi.fn();
+const mockRefresh = vi.fn();
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: mockPush,
     back: mockBack,
+    refresh: mockRefresh,
   }),
 }));
 
@@ -34,6 +36,7 @@ const mockEvents = [
 
 const mockInitialData: ProfileCustomizationState = {
   version: 1,
+  avatarUrl: null,
   preferences: {
     appearance: {
       backgroundColor: null,
@@ -57,6 +60,7 @@ const mockInitialData: ProfileCustomizationState = {
       positionX: 50,
       positionY: 50,
     },
+    music: null,
     flag: null,
     flags: [],
     frameId: 'none',
@@ -66,8 +70,10 @@ const mockInitialData: ProfileCustomizationState = {
     equippedTitleId: 'posts-1',
   },
   chat: {
-    background: '#0d0f12',
-    balloon: '#161922',
+    mode: 'default',
+    backgroundColor: '#0d0f12',
+    bubbleColor: '#161922',
+    accentColor: null,
   },
   catalog: {
     frames: [{ id: 'none', name: 'Sem moldura', color: '#64748b', decoration: 'none' }],
@@ -141,7 +147,7 @@ describe('TitlesShowcaseView', () => {
     vi.clearAllMocks();
     global.fetch = vi.fn().mockResolvedValue({
       ok: true,
-      json: async () => ({ success: true }),
+      json: async () => ({ success: true, version: 2 }),
     });
   });
 
@@ -159,12 +165,16 @@ describe('TitlesShowcaseView', () => {
 
     // Unambiguous instruction checks in "Como obter" boxes
     expect(
-      screen.getByText(/Faça 1 postagem no feed da comunidade com pelo menos 40 caracteres/)
+      screen.getByText(
+        /Publique 1 postagem no feed\. Título com pelo menos 4 caracteres e texto com pelo menos 40/
+      )
     ).toBeInTheDocument();
     expect(
-      screen.getByText(/Faça 10 postagens no feed da comunidade com pelo menos 40 caracteres/)
+      screen.getByText(
+        /Publique 10 postagens no feed\. Título com pelo menos 4 caracteres e texto com pelo menos 40/
+      )
     ).toBeInTheDocument();
-    expect(screen.getByText(/hashtag #Halloween/)).toBeInTheDocument();
+    expect(screen.getByText(/hashtag exata #Halloween/)).toBeInTheDocument();
   });
 
   it('displays correct ownership status rows', () => {
@@ -204,6 +214,43 @@ describe('TitlesShowcaseView', () => {
     await waitFor(() => {
       expect(screen.getByText('Título removido do perfil.')).toBeInTheDocument();
     });
+  });
+
+  it('uses the saved version for the next equip and refreshes shared profile identity', async () => {
+    const changed = vi.fn();
+    window.addEventListener('stacklyst:profile-customization', changed);
+    render(<TitlesShowcaseView initialData={mockInitialData} user={mockUser} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Retirar' }));
+    await waitFor(() => expect(screen.getByText('Título removido do perfil.')).toBeInTheDocument());
+    fireEvent.click(screen.getByRole('button', { name: 'Usar título Iniciante' }));
+    await waitFor(() => expect(global.fetch).toHaveBeenCalledTimes(2));
+    const first = JSON.parse(vi.mocked(global.fetch).mock.calls[0][1]!.body as string);
+    const second = JSON.parse(vi.mocked(global.fetch).mock.calls[1][1]!.body as string);
+    expect(first.version).toBe(1);
+    expect(second.version).toBe(2);
+    expect(second.preferences.equippedTitleId).toBe('posts-1');
+    await waitFor(() => expect(mockRefresh).toHaveBeenCalledTimes(2));
+    expect(changed).toHaveBeenCalledTimes(2);
+    window.removeEventListener('stacklyst:profile-customization', changed);
+  });
+
+  it('rolls back the equipped title on failed persistence', async () => {
+    vi.mocked(global.fetch).mockResolvedValueOnce({
+      ok: false,
+      status: 500,
+      json: async () => ({ message: 'Não foi possível salvar. Tente novamente.' }),
+    } as Response);
+    render(<TitlesShowcaseView initialData={mockInitialData} user={mockUser} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Retirar' }));
+    expect(screen.queryByText('Em uso')).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(screen.getByRole('alert')).toHaveTextContent(
+        'Não foi possível salvar. Tente novamente.'
+      )
+    );
+    expect(screen.getByText('Em uso')).toBeInTheDocument();
+    expect(mockRefresh).not.toHaveBeenCalled();
+    expect(screen.queryByRole('button', { name: 'Usar título Voz Ativa' })).not.toBeInTheDocument();
   });
 
   it('filters titles by ownership and search query', () => {

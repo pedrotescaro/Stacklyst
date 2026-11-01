@@ -226,7 +226,15 @@ export function ProfileFlag({ code }: { code: string | null | undefined }) {
   ) : null;
 }
 
-export function ProfileTitle({ title }: { title?: ProfileIdentityStyle['title'] }) {
+export function ProfileTitle({
+  title,
+  showIcon = true,
+  className,
+}: {
+  title?: ProfileIdentityStyle['title'];
+  showIcon?: boolean;
+  className?: string;
+}) {
   if (!title) return null;
   const foreground = foregroundOn(title.color);
   const textColor = contrastRatio(foreground, title.color) >= 4.5 ? foreground : '#000000';
@@ -247,11 +255,11 @@ export function ProfileTitle({ title }: { title?: ProfileIdentityStyle['title'] 
     )[title.icon || (title.id === 'posts-1' ? 'sprout' : 'award')] || Award;
   return (
     <span
-      className={styles.title}
+      className={[styles.title, className].filter(Boolean).join(' ')}
       data-rarity={title.rarity}
       style={{ backgroundColor: title.color, color: textColor }}
     >
-      {!isBeginner && <Icon size={13} aria-hidden="true" />}
+      {showIcon && !isBeginner && <Icon size={13} aria-hidden="true" />}
       {title.name}
     </span>
   );

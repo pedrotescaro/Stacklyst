@@ -65,17 +65,40 @@ describe('scoped profile and chat appearance', () => {
       })
     ).toMatchObject({ '--chat-bubble-text': '#111827', '--chat-accent-text': '#ffffff' });
   });
-  it('discards unsafe identity style values in legacy JSON', () => {
-    expect(
-      readProfileIdentity({
+  it('discards unsafe styles while preserving legacy title metadata with a safe color', () => {
+    const identity = readProfileIdentity(
+      JSON.stringify({
         profileStyle: {
           nameStyle: { color: 'url(evil)' },
           frame: { color: 'red', decoration: 'hack' },
           flag: '<svg>',
+          flags: ['<svg>'],
           title: { color: 'url(evil)', name: 'Fake' },
         },
       })
-    ).toMatchObject({ nameStyle: { color: null }, frame: null, flag: null, title: null });
+    );
+    expect(identity).toEqual({
+      nameStyle: { color: null, bold: false, italic: false, underline: false },
+      frame: null,
+      flag: null,
+      flags: [],
+      title: {
+        id: 'title',
+        name: 'Fake',
+        color: '#0083fe',
+        rarity: 'common',
+        icon: undefined,
+      },
+    });
+    expect(JSON.stringify(identity)).not.toMatch(/url\(|<svg>|"red"/);
+  });
+
+  it('rejects legacy titles without a valid bounded name even when their color is safe', () => {
+    for (const name of [undefined, 42, 'x'.repeat(61)]) {
+      expect(
+        readProfileIdentity({ profileStyle: { title: { name, color: '#0083fe' } } }).title
+      ).toBeNull();
+    }
   });
 
   it('correctly resolves display names from author config and fallback', () => {

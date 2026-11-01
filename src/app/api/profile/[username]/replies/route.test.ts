@@ -17,7 +17,7 @@ describe('profile replies search pagination', () => {
       expect.objectContaining({
         where: {
           author: { username: { equals: 'developer', mode: 'insensitive' } },
-          post: { author: {} },
+          post: { author: {}, OR: [{ audience: 'everyone' }] },
           AND: [
             {
               OR: expect.arrayContaining([
@@ -25,10 +25,17 @@ describe('profile replies search pagination', () => {
                 { post: { title: { contains: 'antigo', mode: 'insensitive' } } },
               ]),
             },
-            { OR: expect.any(Array) },
+            {
+              OR: [
+                { created_at: { lt: new Date(1793102400000) } },
+                { created_at: new Date(1793102400000), id: { lt: 'reply-id' } },
+              ],
+            },
           ],
-          OR: expect.any(Array),
+          OR: [{ parent: null }, { parent: { author: {} } }],
         },
+        orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
+        take: 11,
       })
     );
   });

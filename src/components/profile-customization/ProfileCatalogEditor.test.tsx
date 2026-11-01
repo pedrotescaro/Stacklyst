@@ -73,3 +73,17 @@ describe('profile catalog administration', () => {
     );
   });
 });
+
+it('edits hashtag title requirements without dropping their metric or count', async () => {
+  render(<ProfileCatalogEditor />);
+  await screen.findByText(`ID estável: ${catalog.events[0].id}`);
+  fireEvent.click(screen.getByRole('button', { name: 'Conquistas' }));
+  const inputs = screen.getAllByLabelText('Hashtag exigida, sem #');
+  expect(inputs[0]).toHaveValue('estrela');
+  fireEvent.change(inputs[0], { target: { value: '#codigo' } });
+  fireEvent.click(screen.getByRole('button', { name: 'Publicar' }));
+  await screen.findByText('Catálogo publicado. As regras já estão disponíveis no servidor.');
+  expect(writes[0].catalog.achievements.find((item) => item.id === 'estrela')?.requirement).toEqual(
+    { metric: 'hashtagPosts', target: 1, hashtag: 'codigo' }
+  );
+}, 15000);

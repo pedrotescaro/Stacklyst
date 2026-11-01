@@ -162,12 +162,12 @@ describe('Security and Platform Logic Hardening', () => {
       expect(parsedHttps.image_url).toBe('https://images.unsplash.com/photo-123.jpg');
     });
 
-    it('validates trim before min length on post body', async () => {
+    it('rejects whitespace-only posts without an attachment', async () => {
       await expect(
         createPostSchema.parseAsync({
           body: '          ', // 10 spaces
         })
-      ).rejects.toThrow('O conteúdo deve ter pelo menos 10 caracteres');
+      ).rejects.toThrow('Adicione texto ou um anexo para publicar.');
     });
   });
 

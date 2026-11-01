@@ -14,6 +14,8 @@ export const PROFILE_RARITIES = [
 export const PROFILE_METRICS = [
   'posts',
   'comments',
+  'firstDayComments',
+  'hashtagPosts',
   'peopleHelped',
   'likes',
   'followers',
@@ -263,6 +265,13 @@ export const achievementDefinitionSchema = z
         metric: z.enum(PROFILE_METRICS),
         target: z.number().int().min(1).max(1000000),
         eventId: z.string().max(80).optional(),
+        hashtag: z
+          .string()
+          .trim()
+          .min(2)
+          .max(40)
+          .regex(/^[\p{L}\p{N}_]+$/u)
+          .optional(),
       })
       .strict(),
   })
@@ -327,6 +336,13 @@ export const profileCatalogSchema = z
     for (const key of ['frames', 'achievements', 'events'] as const)
       if (new Set(catalog[key].map((value) => value.id)).size !== catalog[key].length)
         context.addIssue({ code: 'custom', message: `IDs duplicados em ${key}.`, path: [key] });
+    for (const achievement of catalog.achievements)
+      if (achievement.requirement.metric === 'hashtagPosts' && !achievement.requirement.hashtag)
+        context.addIssue({
+          code: 'custom',
+          message: 'Informe a hashtag exigida por este título.',
+          path: ['achievements'],
+        });
     const eventIds = new Set(catalog.events.map((value) => value.id));
     const achievementIds = new Set(catalog.achievements.map((value) => value.id));
     for (const achievement of catalog.achievements)
@@ -365,269 +381,130 @@ export interface AchievementInstructionInfo {
   isUnavailable: boolean;
 }
 
+export const PROFILE_ACHIEVEMENT_TIME_ZONE = 'America/Sao_Paulo';
+export const NEW_PROFILE_TITLE_IDS = ['first-of-month', 'estrela', 'pastel', 'abobora'] as const;
+
 export function getAchievementInstructions(
   achievement: {
     id: string;
     name: string;
-    requirement: { metric: string; target: number; eventId?: string };
+    requirement: { metric: string; target: number; eventId?: string; hashtag?: string };
     description?: string;
     howToObtain?: string;
     flavorText?: string;
     category?: string;
   },
-  events: ProfileCatalog['events'] = []
+  events: ProfileCatalog['events'] = [],
+  achievements: ReadonlyArray<AchievementDefinition> = DEFAULT_PROFILE_CATALOG.achievements,
+  now = new Date()
 ): AchievementInstructionInfo {
-  const event = achievement.requirement.eventId
-    ? events.find((e) => e.id === achievement.requirement.eventId)
-    : undefined;
-
-  let isUnavailable = false;
-  if (event) {
-    const isPast = new Date(event.endsAt).getTime() < Date.now();
-    if (!event.enabled || isPast) {
-      isUnavailable = true;
-    }
-  }
-
-  const normalizedName = achievement.name.trim().toLowerCase();
-  const id = achievement.id.toLowerCase();
-
-  // Reference screenshots & special event mappings
-  const knownMap: Record<
-    string,
-    { flavorText: string; howToObtain: string; unavailable?: boolean }
-  > = {
-    abobora: {
-      flavorText: 'O que é melhor para representar o Halloween do que abóboras?',
-      howToObtain: 'Entre no Stacklyst no dia 31/10 para comemorar o Halloween.',
-    },
-    estrela: {
-      flavorText: 'Brilha, brilha, estrelinha ⭐',
-      howToObtain: 'Faça uma postagem com a hashtag #estrela para receber este título.',
-    },
-    bruxa: {
-      flavorText: 'Doces ou travessuras mágicas?',
-      howToObtain:
-        'Entre no Dia das Bruxas e faça uma postagem com a hashtag #bruxaria (31 de outubro).',
-    },
-    divindade: {
-      flavorText: 'Convidou amigos e expandiu os horizontes da comunidade com seu link.',
-      howToObtain: 'Convide com sucesso 250 pessoas para o aplicativo usando o link de convite.',
-    },
-    meangirl: {
-      flavorText: 'Às quartas usamos rosa 💅',
-      howToObtain: 'Entre no Stacklyst em qualquer horário na quarta-feira.',
-    },
-    oficial: {
-      flavorText: 'Essa pessoa é oficialmente ela mesma.',
-      howToObtain: 'Seja uma pessoa de grande relevância, influenciador ou conta oficial.',
-    },
-    docinho: {
-      flavorText: 'Um toque especial de doçura na timeline da comunidade.',
-      howToObtain: 'Espalhe boas vibrações e seja elogiado por colegas no feed.',
-    },
-    fogareu: {
-      flavorText: 'Uma prova de que o tempo constrói grandes chamas.',
-      howToObtain: 'Acumule uma sequência de ofensiva de check-in de 100 dias consecutivos.',
-    },
-    primordial: {
-      flavorText: 'Membro do Stacklyst desde antes do aniversário de 1 ano do aplicativo.',
-      howToObtain: 'Tenha criado a sua conta antes do aniversário de 1 ano da plataforma.',
-      unavailable: true,
-    },
-    muuuu: {
-      flavorText: "Wake up, it's the first of the month.",
-      howToObtain: 'Entre no Stacklyst no primeiro dia de qualquer mês.',
-    },
-    pastel: {
-      flavorText: 'Pastéis são realmente gostosos.',
-      howToObtain: 'Faça uma postagem no feed com a hashtag #pastel.',
-    },
-    apoiador: {
-      flavorText: 'Apoiando diretamente o ecossistema e os criadores do Stacklyst.',
-      howToObtain: 'Apoie o desenvolvimento contínuo da comunidade Stacklyst.',
-    },
+  const { metric, target, eventId, hashtag } = achievement.requirement;
+  const event = eventId ? events.find((item) => item.id === eventId) : undefined;
+  const isEvent = metric.startsWith('event');
+  let isUnavailable =
+    isEvent &&
+    (!event || !event.enabled || now < new Date(event.startsAt) || now >= new Date(event.endsAt));
+  const plural = (one: string, many: string) => (target === 1 ? one : many);
+  const amount = target.toLocaleString('pt-BR');
+  const flavorByMetric: Record<string, string> = {
+    posts: 'Ideias e descobertas que passam a fazer parte da comunidade.',
+    comments: 'Toda boa conversa começa com uma contribuição.',
+    firstDayComments: 'Todo mês merece uma primeira conversa.',
+    hashtagPosts: 'Uma pequena tradição para compartilhar no feed.',
+    peopleHelped: 'Conhecimento faz mais sentido quando é compartilhado.',
+    likes: 'Suas contribuições encontraram reconhecimento na comunidade.',
+    followers: 'Pessoas que escolheram acompanhar suas próximas ideias.',
+    learningActivities: 'Aprender, praticar e demonstrar o que você sabe.',
+    completedTrails: 'Uma jornada de aprendizado concluída, etapa por etapa.',
+    eventPosts: event ? `Uma lembrança de ${event.name}.` : 'Uma celebração da comunidade.',
+    eventComments: event
+      ? `Conversas que marcaram ${event.name}.`
+      : 'Uma celebração da comunidade.',
+    eventComplete: event
+      ? `Todas as metas de ${event.name} na sua coleção.`
+      : 'Uma celebração da comunidade.',
   };
-
-  for (const [key, meta] of Object.entries(knownMap)) {
-    if (id.includes(key) || normalizedName.includes(key)) {
-      return {
-        flavorText: achievement.flavorText || meta.flavorText,
-        howToObtain: achievement.howToObtain || meta.howToObtain,
-        isUnavailable: isUnavailable || !!meta.unavailable,
-      };
-    }
-  }
-
-  if (achievement.howToObtain && achievement.flavorText) {
-    return {
-      flavorText: achievement.flavorText,
-      howToObtain: achievement.howToObtain,
-      isUnavailable,
-    };
-  }
-
-  const target = achievement.requirement.target;
-  let flavorText = achievement.flavorText || '';
-  let howToObtain = achievement.howToObtain || '';
-
-  switch (achievement.requirement.metric) {
+  const flavorText =
+    achievement.flavorText ||
+    flavorByMetric[metric] ||
+    achievement.description ||
+    'Um título para sua coleção.';
+  const postRules =
+    'Título com pelo menos 4 caracteres e texto com pelo menos 40. Conteúdos repetidos, ignorando maiúsculas e espaços, contam uma vez.';
+  const commentRules =
+    'Cada comentário precisa ter pelo menos 12 caracteres. Textos repetidos, ignorando maiúsculas e espaços, contam uma vez. Respostas a si mesmo não contam.';
+  const eventPeriod = event
+    ? `Período: de ${new Date(event.startsAt).toLocaleString('pt-BR', { timeZone: PROFILE_ACHIEVEMENT_TIME_ZONE, dateStyle: 'short', timeStyle: 'short' })} até ${new Date(event.endsAt).toLocaleString('pt-BR', { timeZone: PROFILE_ACHIEVEMENT_TIME_ZONE, dateStyle: 'short', timeStyle: 'short' })}, horário de Brasília (America/Sao_Paulo). O início está incluído; o horário de término não. O desbloqueio precisa ser conferido enquanto o evento está habilitado e dentro deste período.`
+    : 'O evento precisa estar configurado e habilitado no catálogo.';
+  let howToObtain: string;
+  switch (metric) {
     case 'posts':
-      if (target === 1) {
-        flavorText = flavorText || 'O primeiro passo para compartilhar conhecimento na comunidade.';
-        howToObtain =
-          howToObtain || 'Faça 1 postagem no feed da comunidade com pelo menos 40 caracteres.';
-      } else if (target <= 10) {
-        flavorText = flavorText || 'Marcando presença e contribuindo regularmente nas discussões.';
-        howToObtain =
-          howToObtain ||
-          `Faça ${target} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
-      } else if (target <= 50) {
-        flavorText = flavorText || 'Compartilhando ideias, dúvidas e aprendizados continuamente.';
-        howToObtain =
-          howToObtain ||
-          `Faça ${target} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
-      } else if (target <= 100) {
-        flavorText = flavorText || 'Um autor consistente com um acervo valioso de publicações.';
-        howToObtain =
-          howToObtain ||
-          `Faça ${target} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
-      } else if (target <= 200) {
-        flavorText = flavorText || 'Uma referência com centenas de discussões enriquecedoras.';
-        howToObtain =
-          howToObtain ||
-          `Faça ${target} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
-      } else if (target <= 500) {
-        flavorText = flavorText || 'Um pilar fundamental na construção do conteúdo do Stacklyst.';
-        howToObtain =
-          howToObtain ||
-          `Faça ${target} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
-      } else {
-        flavorText = flavorText || 'Lenda viva da comunidade com um histórico monumental.';
-        howToObtain =
-          howToObtain ||
-          `Faça ${target.toLocaleString('pt-BR')} postagens no feed da comunidade com pelo menos 40 caracteres cada.`;
-      }
+      howToObtain = `Publique ${amount} ${plural('postagem', 'postagens')} no feed. ${postRules} São contabilizadas no máximo 5 por dia (UTC).`;
       break;
-
     case 'comments':
-      if (target <= 5) {
-        flavorText = flavorText || 'Dando os primeiros passos em conversas e ajudando colegas.';
-      } else if (target <= 10) {
-        flavorText = flavorText || 'Engajando com regularidade nas publicações da comunidade.';
-      } else if (target <= 50) {
-        flavorText = flavorText || 'Sempre presente nas conversas com opiniões e soluções.';
-      } else {
-        flavorText = flavorText || 'Conexão constante e diálogo ativo com dezenas de devs.';
-      }
-      howToObtain =
-        howToObtain ||
-        `Escreva ${target} comentários com pelo menos 12 caracteres respondendo a publicações de outros membros.`;
+      howToObtain = `Escreva ${amount} ${plural('comentário ou resposta', 'comentários ou respostas')} para outros membros. ${commentRules}`;
       break;
-
+    case 'firstDayComments':
+      howToObtain = `Escreva ${amount} ${plural('comentário ou resposta original', 'comentários ou respostas originais')} para outro membro no dia 1 de qualquer mês, entre 00h e 23h59, horário de Brasília (America/Sao_Paulo). ${commentRules} Comentários de meses anteriores também são considerados.`;
+      break;
+    case 'hashtagPosts':
+      if (!hashtag) {
+        isUnavailable = true;
+        howToObtain = 'Este título está indisponível porque sua hashtag ainda não foi configurada.';
+        break;
+      }
+      howToObtain = `Publique ${amount} ${plural('postagem', 'postagens')} com a hashtag exata #${hashtag}, em qualquer data. A hashtag pode usar maiúsculas ou minúsculas. ${postRules} São contabilizadas no máximo 5 por dia (UTC).`;
+      break;
     case 'peopleHelped':
-      flavorText =
-        flavorText ||
-        (target <= 5
-          ? 'Apoiando outros desenvolvedores em seus desafios diários.'
-          : 'Construindo pontes e fortalecendo a rede de desenvolvedores.');
-      howToObtain =
-        howToObtain ||
-        `Ajude ${target} pessoas diferentes respondendo a publicações ou dúvidas técnicas no feed.`;
+      howToObtain = `Responda a ${amount} ${plural('pessoa diferente', 'pessoas diferentes')} em publicações ou respostas da comunidade. Cada pessoa conta uma vez. ${commentRules}`;
       break;
-
     case 'likes':
-      flavorText =
-        flavorText ||
-        (target <= 100
-          ? 'Conteúdo reconhecido e valorizado pelos colegas da plataforma.'
-          : 'Reconhecimento massivo pelo impacto positivo na comunidade.');
-      howToObtain =
-        howToObtain ||
-        `Receba um total acumulado de ${target.toLocaleString('pt-BR')} curtidas em suas postagens e comentários.`;
+      howToObtain = `Receba ${amount} ${plural('curtida', 'curtidas')} nas suas postagens e comentários. Só contam curtidas de outras contas que já tinham 24 horas de existência ao curtir, com limite de 20 curtidas da mesma pessoa por dia (UTC).`;
       break;
-
     case 'followers':
-      flavorText =
-        flavorText ||
-        (target <= 100
-          ? 'Uma audiência fiel que acompanha suas contribuições de perto.'
-          : 'Uma voz influente acompanhada por uma legião de desenvolvedores.');
-      howToObtain =
-        howToObtain ||
-        `Alcance a marca de ${target.toLocaleString('pt-BR')} seguidores em seu perfil no Stacklyst.`;
+      howToObtain = `Alcance ${amount} ${plural('seguidor', 'seguidores')} no seu perfil. Só contam contas que já tinham pelo menos 24 horas de existência quando começaram a seguir você. Deixar de seguir remove esse progresso, mas não um título já conquistado.`;
       break;
-
     case 'learningActivities':
-      flavorText = flavorText || 'O primeiro código executado rumo à maestria técnica.';
-      howToObtain =
-        howToObtain ||
-        'Conclua seu primeiro exercício ou atividade prática com aprovação em qualquer trilha.';
+      howToObtain = `Conclua ${amount} ${plural('exercício prático', 'exercícios práticos')} de trilhas com resultado aprovado. Cada exercício diferente conta uma vez; apenas abrir, executar ou tentar não conclui a meta.`;
       break;
-
     case 'completedTrails':
-      flavorText =
-        flavorText ||
-        (target <= 1
-          ? 'Conhecimento consolidado do início ao fim de uma trilha completa.'
-          : 'Domínio técnico multidisciplinar e dedicação incansável aos estudos.');
-      howToObtain =
-        howToObtain ||
-        `Complete todos os módulos, aulas e testes de ${target} ${target === 1 ? 'trilha inteira' : 'trilhas inteiras'} de aprendizagem.`;
+      howToObtain = `Conclua todas as etapas avaliadas de ${amount} ${plural('trilha', 'trilhas')} de aprendizagem. Cada questão, prática e desafio precisa estar registrado como aprovado. Etapas somente de leitura não exigem avaliação.`;
       break;
-
     case 'eventPosts':
-      if (event) {
-        const startStr = new Date(event.startsAt).toLocaleDateString('pt-BR', {
-          day: '2-digit',
-          month: '2-digit',
-        });
-        const endStr = new Date(event.endsAt).toLocaleDateString('pt-BR', {
-          day: '2-digit',
-          month: '2-digit',
-        });
-        flavorText = flavorText || `Celebrando o evento ${event.name} com a comunidade.`;
-        howToObtain =
-          howToObtain ||
-          `Durante o evento (${startStr} até ${endStr}), faça uma postagem no feed contendo a hashtag #${event.hashtag}.`;
-      } else {
-        flavorText = flavorText || 'Participação especial em eventos do Stacklyst.';
-        howToObtain =
-          howToObtain ||
-          'Faça uma publicação no feed com a hashtag indicada durante o período do evento.';
-      }
+      howToObtain = `Durante ${event?.name || 'o evento'}, publique ${amount} ${plural('postagem', 'postagens')} com a hashtag exata #${event?.hashtag || 'não-configurada'}. ${postRules} ${eventPeriod}`;
       break;
-
     case 'eventComments':
-      if (event) {
-        flavorText = flavorText || `Ativo e presente nas discussões do evento ${event.name}.`;
-        howToObtain =
-          howToObtain ||
-          `Durante o evento ${event.name}, comente em pelo menos ${target} postagens diferentes marcadas com #${event.hashtag}.`;
-      } else {
-        flavorText = flavorText || 'Comentários ativos durante eventos temáticos.';
-        howToObtain = howToObtain || `Comente em pelo menos ${target} postagens do evento.`;
+      howToObtain = `Comente em ${amount} ${plural('publicação diferente', 'publicações diferentes')} de outros membros com a hashtag exata #${event?.hashtag || 'não-configurada'}. A publicação e seu comentário devem ter sido criados durante o evento. Cada comentário precisa ter pelo menos 12 caracteres; textos repetidos contam uma vez. ${eventPeriod}`;
+      break;
+    case 'eventComplete': {
+      const goals = new Map<string, number>();
+      for (const item of achievements)
+        if (
+          item.requirement.eventId === eventId &&
+          ['eventPosts', 'eventComments'].includes(item.requirement.metric)
+        )
+          goals.set(
+            item.requirement.metric,
+            Math.max(goals.get(item.requirement.metric) || 0, item.requirement.target)
+          );
+      if (!goals.size) {
+        isUnavailable = true;
+        howToObtain = `Este título está indisponível porque não há metas configuradas para o evento. ${eventPeriod}`;
+        break;
       }
+      const descriptions = [...goals].map(([key, count]) =>
+        key === 'eventPosts'
+          ? `${count} postagem(ns) própria(s) com #${event?.hashtag || 'não-configurada'}, título de 4 ou mais caracteres e texto de 40 ou mais`
+          : `comentários de pelo menos 12 caracteres em ${count} publicação(ões) diferente(s) de outros membros com #${event?.hashtag || 'não-configurada'}, criadas durante o evento`
+      );
+      howToObtain = `Cumpra todas estas metas durante o evento: ${descriptions.join('; ')}. Conteúdos repetidos contam uma vez. ${eventPeriod}`;
       break;
-
-    case 'eventComplete':
-      flavorText = flavorText || 'Conquistou todas as missões especiais deste evento.';
-      howToObtain =
-        howToObtain ||
-        (event
-          ? `Conclua todas as metas e desafios do evento ${event.name} para desbloquear este título exclusivo.`
-          : 'Conclua todos os desafios e objetivos do evento.');
-      break;
-
+    }
     default:
-      flavorText = flavorText || achievement.description || 'Título conquistável no Stacklyst.';
+      isUnavailable = true;
       howToObtain =
-        howToObtain ||
-        achievement.description ||
-        'Participe ativamente da comunidade para desbloquear.';
-      break;
+        'Este título está indisponível porque não possui uma regra automática reconhecida no catálogo.';
   }
-
   return { flavorText, howToObtain, isUnavailable };
 }
 
@@ -851,6 +728,45 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
       '#0083fe',
       'birthday-template'
     ),
+    {
+      ...achievement(
+        'first-of-month',
+        'First of the Month',
+        'firstDayComments',
+        1,
+        'comments',
+        'special',
+        '#f4f4f5'
+      ),
+      description:
+        'Escreva um comentário original para outro membro no primeiro dia de qualquer mês.',
+      flavorText: 'Todo mês merece uma primeira conversa.',
+    },
+    {
+      ...achievement('estrela', 'Estrela', 'hashtagPosts', 1, 'posts', 'special', '#c72f3b'),
+      description: 'Publique uma postagem original com a hashtag #estrela.',
+      flavorText: 'Uma ideia que encontrou seu lugar no feed.',
+      requirement: { metric: 'hashtagPosts', target: 1, hashtag: 'estrela' },
+    },
+    {
+      ...achievement('pastel', 'Pastel', 'hashtagPosts', 1, 'posts', 'special', '#f3d663'),
+      description: 'Publique uma postagem original com a hashtag #pastel.',
+      flavorText: 'Uma pausa saborosa entre uma ideia e outra.',
+      requirement: { metric: 'hashtagPosts', target: 1, hashtag: 'pastel' },
+    },
+    {
+      ...achievement(
+        'abobora',
+        'Abóbora',
+        'eventPosts',
+        1,
+        'event',
+        'special',
+        '#e67e32',
+        'halloween-2026'
+      ),
+      flavorText: 'Um pouco de Halloween para a sua coleção.',
+    },
   ],
   events: [
     {

@@ -28,4 +28,23 @@ describe('ProfileTitle', () => {
     );
     expect(screen.getByText('Participativo').querySelector('svg')).not.toBeNull();
   });
+  it('supports compact text-only catalog pills without changing their persisted color', () => {
+    render(
+      <ProfileTitle
+        title={{
+          id: 'first-of-month',
+          name: 'First of the Month',
+          color: '#ffffff',
+          rarity: 'special',
+          icon: 'sparkles',
+        }}
+        showIcon={false}
+        className="catalog-pill"
+      />
+    );
+    const pill = screen.getByText('First of the Month');
+    expect(pill.querySelector('svg')).toBeNull();
+    expect(pill).toHaveClass('catalog-pill');
+    expect(pill).toHaveStyle({ backgroundColor: '#ffffff', color: '#111827' });
+  });
 });

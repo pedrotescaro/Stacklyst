@@ -10,7 +10,7 @@ vi.mock('@/lib/auth', () => ({ getAuthUser: vi.fn(), requireAuth: vi.fn() }));
 vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn(), error: vi.fn() } }));
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    post: { findUnique: vi.fn().mockResolvedValue({ author_id: 'author' }) },
+    post: { findFirst: vi.fn() },
     userBlock: { findFirst: vi.fn().mockResolvedValue(null) },
     quizAttempt: { findUnique: vi.fn() },
   },
@@ -45,6 +45,8 @@ describe('daily quiz HTTP contract', () => {
     vi.mocked(getAuthUser).mockResolvedValue({ id: 'viewer' } as never);
     vi.mocked(requireAuth).mockResolvedValue({ id: 'viewer' } as never);
     vi.mocked(generateDailyQuiz).mockResolvedValue(quiz as never);
+    vi.mocked(prisma.post.findFirst).mockResolvedValue({ author_id: 'author' } as never);
+    vi.mocked(prisma.userBlock.findFirst).mockResolvedValue(null);
     vi.mocked(prisma.quizAttempt.findUnique).mockResolvedValue(null);
   });
 
@@ -88,9 +90,42 @@ describe('daily quiz HTTP contract', () => {
     });
     expect(payload.quiz).not.toHaveProperty('correct_index');
     expect(payload.attempt).toBeNull();
+    expect(prisma.post.findFirst).toHaveBeenCalledExactlyOnceWith({
+      where: {
+        AND: [
+          { id: quiz.post_id },
+          {
+            author: {
+              blocks_made: { none: { blockedId: 'viewer' } },
+              blocks_received: { none: { blockerId: 'viewer' } },
+            },
+            OR: [
+              { audience: 'everyone' },
+              { author_id: 'viewer' },
+              {
+                audience: 'followers',
+                author: { followers: { some: { followerId: 'viewer' } } },
+              },
+            ],
+          },
+        ],
+      },
+      select: { author_id: true },
+    });
     expect(prisma.quizAttempt.findUnique).toHaveBeenCalledExactlyOnceWith({
       where: { user_id_quiz_id: { user_id: 'viewer', quiz_id: quiz.id } },
     });
+  });
+
+  it('hides a cached quiz when its source post is no longer visible to the viewer', async () => {
+    vi.mocked(prisma.post.findFirst).mockResolvedValue(null);
+
+    const response = await fetchDailyQuiz();
+
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ quiz: null, attempt: null });
+    expect(prisma.quizAttempt.findUnique).not.toHaveBeenCalled();
+    expect(prisma.userBlock.findFirst).not.toHaveBeenCalled();
   });
 
   it('reveals the answer only with the authenticated viewer attempt', async () => {
