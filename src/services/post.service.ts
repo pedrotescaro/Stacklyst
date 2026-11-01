@@ -12,6 +12,11 @@ import { visiblePostWhere } from './post-access.service';
 import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
 import { ValidationError } from '@/lib/errors';
 import { Prisma } from '@prisma/client';
+import {
+  rankRecentFeedPage,
+  buildPopularFeedCursorWhere,
+  encodePopularFeedCursor,
+} from '@/lib/feed-ranking';
 
 export const PostService = {
   async create(userId: string, data: CreatePostInput, clientId?: string) {
@@ -187,6 +192,7 @@ export const PostService = {
       search?: string;
       author?: string;
       filter?: string;
+      sort?: 'recent' | 'popular';
       cursor?: string;
       limit?: number;
       likedBy?: string;
@@ -199,6 +205,7 @@ export const PostService = {
       search,
       author,
       filter,
+      sort,
       cursor,
       limit = 10,
       likedBy,
@@ -221,8 +228,6 @@ export const PostService = {
 
     if (language) {
       whereClause.language = language as Language;
-    } else if (languages?.length && filter !== 'following') {
-      whereClause.language = { in: languages as Language[] };
     }
     if (author) {
       whereClause.author = { username: author };
@@ -251,12 +256,19 @@ export const PostService = {
       ];
     }
 
-    const cursorWhere = buildCursorWhere(cursor, 'created_at');
+    const personalized =
+      filter !== 'following' && !author && !likedBy && !answeredBy && !search && !language;
+    const popular = filter === 'following' && sort === 'popular';
+    const cursorWhere = popular
+      ? buildPopularFeedCursorWhere(cursor)
+      : buildCursorWhere(cursor, 'created_at');
     const finalWhere = { AND: [whereClause, cursorWhere, visiblePostWhere(userId)] };
 
     const posts = await prisma.post.findMany({
       where: finalWhere,
-      orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
+      orderBy: popular
+        ? [{ upvotes: 'desc' }, { created_at: 'desc' }, { id: 'desc' }]
+        : [{ created_at: 'desc' }, { id: 'desc' }],
       take: limit + 1,
       include: {
         poll: { include: postPollInclude(userId) },
@@ -292,11 +304,30 @@ export const PostService = {
     let nextCursor: string | null = null;
     if (hasNext && items.length > 0) {
       const lastItem = items[items.length - 1];
-      nextCursor = encodeCursor(lastItem.created_at, lastItem.id);
+      nextCursor = popular
+        ? encodePopularFeedCursor(lastItem)
+        : encodeCursor(lastItem.created_at, lastItem.id);
     }
 
+    const followedAuthors =
+      userId && personalized && items.length > 1
+        ? await prisma.follow.findMany({
+            where: {
+              followerId: userId,
+              followingId: { in: [...new Set(items.map((post) => post.author_id))] },
+            },
+            select: { followingId: true },
+          })
+        : [];
+    const orderedItems = personalized
+      ? rankRecentFeedPage(items, {
+          languages,
+          followingIds: new Set(followedAuthors.map((follow) => follow.followingId)),
+        })
+      : items;
+
     return {
-      items: items.map((post) => ({
+      items: orderedItems.map((post) => ({
         ...post,
         poll: publicPostPoll(post.poll),
         quizzes: post.quizzes.map(publicQuiz),
@@ -324,9 +355,7 @@ export const PostService = {
         };
       }
     }
-    if (params.languages?.length && params.filter !== 'following') {
-      where.language = { in: params.languages as Language[] };
-    }
+    // Interests are ranking signals, not an audience restriction. Count all visible new posts.
 
     return prisma.post.count({ where: { AND: [where, visiblePostWhere(userId)] } });
   },

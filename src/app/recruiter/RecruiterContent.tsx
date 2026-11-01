@@ -1,25 +1,21 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import Link from 'next/link';
 import {
-  Building2,
   Briefcase,
-  Users,
-  CheckCircle,
   ShieldCheck,
   RefreshCw,
   ExternalLink,
   ChevronDown,
   ChevronUp,
-  AlertCircle,
-  Sparkles,
   MapPin,
-  DollarSign,
-  UserCheck,
+  Building2,
+  Users,
 } from 'lucide-react';
-import { Sidebar } from '@/components/Sidebar';
+import { PlatformPageHeader, PlatformPageShell } from '@/components/PlatformPageShell';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
+import styles from './recruiter.module.css';
 
 interface JobApplicationItem {
   id: string;
@@ -73,17 +69,60 @@ interface RecruiterJobItem {
   };
 }
 
-const STATUS_LABELS: Record<string, { label: string; bg: string; text: string }> = {
-  APPLIED: { label: 'Inscrito', bg: 'bg-blue-500/15', text: 'text-blue-400' },
-  REVIEWING: { label: 'Em Análise', bg: 'bg-amber-500/15', text: 'text-amber-400' },
-  TESTING: { label: 'Desafio Técnico', bg: 'bg-purple-500/15', text: 'text-purple-400' },
-  INTERVIEW: { label: 'Entrevista', bg: 'bg-indigo-500/15', text: 'text-indigo-400' },
-  ACCEPTED: { label: 'Aprovado', bg: 'bg-emerald-500/15', text: 'text-emerald-400' },
-  REJECTED: { label: 'Recusado', bg: 'bg-rose-500/15', text: 'text-rose-400' },
+const STATUS_LABELS: Record<string, string> = {
+  APPLIED: 'Candidatura enviada',
+  IN_REVIEW: 'Em análise',
+  TECHNICAL_CHALLENGE: 'Desafio técnico',
+  DUEL: 'Duelo técnico',
+  EVALUATION: 'Avaliação técnica',
+  INTERVIEW: 'Entrevista',
+  OFFER: 'Proposta',
+  REJECTED: 'Não selecionado',
 };
+const normalizeStatus = (status: string) =>
+  (
+    ({ REVIEWING: 'IN_REVIEW', TESTING: 'TECHNICAL_CHALLENGE', ACCEPTED: 'OFFER' }) as Record<
+      string,
+      string
+    >
+  )[status] || status;
+const LEVEL_LABELS: Record<string, string> = {
+  ESTAGIO: 'Estágio',
+  JUNIOR: 'Júnior',
+  PLENO: 'Pleno',
+  SENIOR: 'Sênior',
+  ESPECIALISTA: 'Especialista',
+};
+const MODALITY_LABELS: Record<string, string> = {
+  REMOTE: 'Remoto',
+  HYBRID: 'Híbrido',
+  ONSITE: 'Presencial',
+};
+const JOB_STATUS_LABELS: Record<string, string> = {
+  OPEN: 'Aberta',
+  CLOSED: 'Encerrada',
+  DRAFT: 'Rascunho',
+};
+const money = (value: number) =>
+  value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+const salaryLabel = (job: RecruiterJobItem) =>
+  job.salary_min != null && job.salary_max != null
+    ? `${money(job.salary_min)} – ${money(job.salary_max)}`
+    : job.salary_min != null
+      ? `A partir de ${money(job.salary_min)}`
+      : job.salary_max != null
+        ? `Até ${money(job.salary_max)}`
+        : 'Remuneração não informada';
 
 export function RecruiterContent({ user }: { user: any }) {
   const [companies, setCompanies] = useState<any[]>([]);
+  const [loadingCompanies, setLoadingCompanies] = useState(true);
+  const [companiesError, setCompaniesError] = useState('');
+  const [jobsError, setJobsError] = useState('');
+  const [applicationsErrors, setApplicationsErrors] = useState<Record<string, string>>({});
+  const [activeSection, setActiveSection] = useState<'jobs' | 'companies' | 'create'>('jobs');
+  const jobsRequest = useRef(0);
+  const feedbackRef = useRef<HTMLParagraphElement>(null);
   const [companyName, setCompanyName] = useState('');
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyLocation, setCompanyLocation] = useState('');
@@ -95,13 +134,13 @@ export function RecruiterContent({ user }: { user: any }) {
   const [jobDescription, setJobDescription] = useState('');
   const [jobLevel, setJobLevel] = useState('JUNIOR');
   const [jobModality, setJobModality] = useState('REMOTE');
-  const [jobTechnologies, setJobTechnologies] = useState('React, TypeScript, Node.js');
-  const [jobSalaryMin, setJobSalaryMin] = useState(4000);
-  const [jobSalaryMax, setJobSalaryMax] = useState(7000);
-  const [jobRequirements, setJobRequirements] = useState('Conhecimento em React, Git, REST APIs');
-  const [jobBenefits, setJobBenefits] = useState(
-    'Vale Refeição, Convênio Médico, Horário Flexível'
-  );
+  const [jobLocation, setJobLocation] = useState('');
+  const [jobContract, setJobContract] = useState('CLT');
+  const [jobTechnologies, setJobTechnologies] = useState('');
+  const [jobSalaryMin, setJobSalaryMin] = useState('');
+  const [jobSalaryMax, setJobSalaryMax] = useState('');
+  const [jobRequirements, setJobRequirements] = useState('');
+  const [jobBenefits, setJobBenefits] = useState('');
   const [creatingJob, setCreatingJob] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -119,57 +158,73 @@ export function RecruiterContent({ user }: { user: any }) {
   >({});
 
   useEffect(() => {
+    if (successMsg || errorMsg) feedbackRef.current?.scrollIntoView?.({ block: 'nearest' });
+  }, [successMsg, errorMsg]);
+
+  useEffect(() => {
     loadCompanies();
   }, []);
 
-  useEffect(() => {
-    loadJobs();
+  const loadCompanies = async () => {
+    setLoadingCompanies(true);
+    setCompaniesError('');
+    try {
+      const response = await fetch('/api/companies?mine=true', { cache: 'no-store' });
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      const available = Array.isArray(data) ? data : [];
+      setCompanies(available);
+      setSelectedCompanyId((current) =>
+        available.some((company) => company.id === current) ? current : available[0]?.id || ''
+      );
+    } catch {
+      setCompaniesError('Não foi possível carregar suas empresas. Tente novamente.');
+    } finally {
+      setLoadingCompanies(false);
+    }
+  };
+
+  const loadJobs = useCallback(async () => {
+    const request = ++jobsRequest.current;
+    setLoadingJobs(true);
+    setJobsError('');
+    try {
+      const query = new URLSearchParams({ status: 'ALL', mine: 'true' });
+      if (selectedCompanyFilter !== 'ALL') query.set('company_id', selectedCompanyFilter);
+      const response = await fetch(`/api/jobs?${query}`, { cache: 'no-store' });
+      if (!response.ok) throw new Error();
+      const data = await response.json();
+      if (request === jobsRequest.current) setJobs(Array.isArray(data) ? data : []);
+    } catch {
+      if (request === jobsRequest.current)
+        setJobsError('Não foi possível carregar suas vagas. Atualize a lista e tente novamente.');
+    } finally {
+      if (request === jobsRequest.current) setLoadingJobs(false);
+    }
   }, [selectedCompanyFilter]);
 
-  const loadCompanies = async () => {
-    try {
-      const res = await fetch('/api/companies');
-      if (res.ok) {
-        const data = await res.json();
-        setCompanies(data);
-        if (data.length > 0 && !selectedCompanyId) {
-          setSelectedCompanyId(data[0].id);
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const loadJobs = async () => {
-    setLoadingJobs(true);
-    try {
-      const url =
-        selectedCompanyFilter && selectedCompanyFilter !== 'ALL'
-          ? `/api/jobs?company_id=${selectedCompanyFilter}&status=ALL`
-          : '/api/jobs?status=ALL';
-      const res = await fetch(url);
-      if (res.ok) {
-        const data = await res.json();
-        setJobs(data);
-      }
-    } catch (err) {
-      console.error('Error loading recruiter jobs:', err);
-    } finally {
-      setLoadingJobs(false);
-    }
-  };
+  useEffect(() => {
+    void loadJobs();
+  }, [loadJobs]);
 
   const loadApplications = async (jobId: string) => {
     setLoadingApplications((prev) => ({ ...prev, [jobId]: true }));
+    setApplicationsErrors((previous) => ({ ...previous, [jobId]: '' }));
     try {
-      const res = await fetch(`/api/jobs/${jobId}/applications`);
+      const res = await fetch(`/api/jobs/${jobId}/applications`, { cache: 'no-store' });
       if (res.ok) {
         const data = await res.json();
-        setApplicationsMap((prev) => ({ ...prev, [jobId]: data }));
+        setApplicationsMap((prev) => ({ ...prev, [jobId]: Array.isArray(data) ? data : [] }));
+      } else {
+        throw new Error();
       }
     } catch (err) {
       console.error('Error loading job applications:', err);
+      setApplicationsErrors((previous) => ({
+        ...previous,
+        [jobId]:
+          'Não foi possível carregar as candidaturas. Recarregue a lista para tentar novamente.',
+      }));
     } finally {
       setLoadingApplications((prev) => ({ ...prev, [jobId]: false }));
     }
@@ -192,8 +247,11 @@ export function RecruiterContent({ user }: { user: any }) {
     newStatus: string,
     details?: { stageId: string; feedback: string }
   ) => {
+    if (updatingAppId) return;
     setUpdatingAppId(applicationId);
+    newStatus = normalizeStatus(newStatus);
     setErrorMsg(null);
+    setSuccessMsg(null);
     try {
       const res = await fetch(`/api/jobs/${jobId}`, {
         method: 'PATCH',
@@ -216,6 +274,12 @@ export function RecruiterContent({ user }: { user: any }) {
               app.id === applicationId ? (result.application ?? { ...app, status: newStatus }) : app
             ) || [],
         }));
+        if (details)
+          setApplicationDrafts((previous) => {
+            const next = { ...previous };
+            delete next[applicationId];
+            return next;
+          });
         setSuccessMsg(
           details
             ? 'Etapa e feedback salvos com sucesso!'
@@ -224,7 +288,7 @@ export function RecruiterContent({ user }: { user: any }) {
         setTimeout(() => setSuccessMsg(null), 3500);
       } else {
         const errData = await res.json().catch(() => null);
-        setErrorMsg(errData?.error || 'Erro ao atualizar status do candidato.');
+        setErrorMsg(errData?.message || errData?.error || 'Erro ao atualizar status do candidato.');
       }
     } catch (err) {
       console.error(err);
@@ -238,6 +302,7 @@ export function RecruiterContent({ user }: { user: any }) {
     e.preventDefault();
     setCreatingCompany(true);
     setErrorMsg(null);
+    setSuccessMsg(null);
     try {
       const res = await fetch('/api/companies', {
         method: 'POST',
@@ -260,7 +325,7 @@ export function RecruiterContent({ user }: { user: any }) {
         setTimeout(() => setSuccessMsg(null), 4000);
       } else {
         const errData = await res.json().catch(() => null);
-        setErrorMsg(errData?.error || 'Erro ao cadastrar empresa.');
+        setErrorMsg(errData?.message || errData?.error || 'Erro ao cadastrar empresa.');
       }
     } catch (err) {
       console.error(err);
@@ -272,10 +337,15 @@ export function RecruiterContent({ user }: { user: any }) {
 
   const handleCreateJob = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedCompanyId) return;
+    if (!selectedCompanyId || creatingJob) return;
+    if (jobSalaryMin !== '' && jobSalaryMax !== '' && Number(jobSalaryMin) > Number(jobSalaryMax)) {
+      setErrorMsg('A remuneração máxima deve ser maior ou igual à mínima.');
+      return;
+    }
 
     setCreatingJob(true);
     setErrorMsg(null);
+    setSuccessMsg(null);
     try {
       const res = await fetch('/api/jobs', {
         method: 'POST',
@@ -286,12 +356,14 @@ export function RecruiterContent({ user }: { user: any }) {
           description: jobDescription,
           level: jobLevel,
           modality: jobModality,
+          location: jobLocation.trim() || undefined,
+          contract_type: jobContract,
           technologies: jobTechnologies
             .split(',')
             .map((t) => t.trim())
             .filter(Boolean),
-          salary_min: Number(jobSalaryMin),
-          salary_max: Number(jobSalaryMax),
+          ...(jobSalaryMin !== '' ? { salary_min: Number(jobSalaryMin) } : {}),
+          ...(jobSalaryMax !== '' ? { salary_max: Number(jobSalaryMax) } : {}),
           requirements: jobRequirements
             .split(',')
             .map((r) => r.trim())
@@ -304,14 +376,14 @@ export function RecruiterContent({ user }: { user: any }) {
       });
 
       if (res.ok) {
-        setSuccessMsg('Vaga publicada com sucesso e vinculada às etapas de testes do Stacklyst!');
+        setSuccessMsg('Vaga publicada com sucesso! As etapas do processo já estão disponíveis.');
         setJobTitle('');
         setJobDescription('');
         loadJobs(); // Instantly update jobs list
         setTimeout(() => setSuccessMsg(null), 4000);
       } else {
         const errData = await res.json().catch(() => null);
-        setErrorMsg(errData?.error || 'Erro ao publicar vaga.');
+        setErrorMsg(errData?.message || errData?.error || 'Erro ao publicar vaga.');
       }
     } catch (err) {
       console.error(err);
@@ -324,435 +396,366 @@ export function RecruiterContent({ user }: { user: any }) {
   const totalApplications = jobs.reduce((acc, curr) => acc + (curr._count?.applications || 0), 0);
 
   return (
-    <div className="dd-platform-shell min-h-screen">
-      <Sidebar user={user} />
-
-      <main className="flex-1 min-w-0 max-w-5xl mx-auto p-4 md:p-8 space-y-6 pb-28 md:pb-12">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-dd-border pb-5">
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="bg-blue-500/15 text-blue-400 border border-blue-500/30 px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider">
-                Painel Corporativo
-              </span>
-            </div>
-            <h1 className="text-2xl md:text-3xl font-black text-dd-text mt-2 tracking-tight">
-              Recrutamento Técnico Stacklyst
-            </h1>
-            <p className="text-xs sm:text-sm text-dd-muted font-medium mt-1 leading-relaxed">
-              Cadastre sua empresa, acompanhe o número de inscritos nas vagas e gerencie candidatos
-              com base em seus desafios práticos e duelos.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={() => {
-                loadCompanies();
-                loadJobs();
-              }}
-              disabled={loadingJobs}
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-dd-border bg-dd-surface hover:bg-dd-bg active:scale-95 text-xs font-bold text-dd-text transition-all disabled:opacity-50 cursor-pointer"
-              title="Atualizar painel"
-            >
-              <RefreshCw
-                className={`w-3.5 h-3.5 ${loadingJobs ? 'animate-spin text-blue-400' : ''}`}
-              />
-              <span>Atualizar Painel</span>
-            </button>
-          </div>
+    <PlatformPageShell user={user}>
+      <PlatformPageHeader
+        title="Painel do recrutador"
+        actions={
+          <button
+            type="button"
+            className={styles.secondary}
+            title="Atualizar painel"
+            aria-label="Atualizar painel"
+            disabled={loadingJobs || loadingCompanies}
+            onClick={() => {
+              void loadCompanies();
+              void loadJobs();
+            }}
+          >
+            <RefreshCw size={17} aria-hidden="true" />
+            <span>Atualizar</span>
+          </button>
+        }
+      />
+      <div className={styles.body}>
+        <div>
+          <h2>Da vaga à próxima contratação.</h2>
+          <p className={styles.muted} style={{ marginTop: 8 }}>
+            Gerencie suas empresas, publique oportunidades e acompanhe cada candidatura. Etapas e
+            feedback ajudam a pessoa candidata a entender o que vem a seguir.
+          </p>
         </div>
-
-        {/* Feedback alerts */}
         {successMsg && (
-          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs sm:text-sm flex items-center gap-3 animate-fade-in shadow-sm">
-            <CheckCircle className="w-5 h-5 shrink-0" />
-            <span>{successMsg}</span>
-          </div>
+          <p role="status" ref={feedbackRef} className={styles.notice}>
+            {successMsg}
+          </p>
         )}
-
         {errorMsg && (
-          <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 font-bold text-xs sm:text-sm flex items-center gap-3 animate-fade-in shadow-sm">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <span>{errorMsg}</span>
-          </div>
+          <p role="alert" ref={feedbackRef} className={styles.notice}>
+            {errorMsg}
+          </p>
         )}
-
-        {/* Metrics Overview Cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-          <div className="p-5 rounded-2xl bg-dd-surface border border-dd-border shadow-sm flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-500/15 border border-blue-500/30 text-blue-400">
-              <Users className="w-6 h-6" />
-            </div>
-            <div>
-              <div
-                className="text-2xl font-black text-dd-text tracking-tight"
-                data-testid="metric-total-applications"
-              >
-                {totalApplications}
-              </div>
-              <div className="text-xs font-bold text-dd-muted">Candidaturas Recebidas</div>
-            </div>
+        <dl className={styles.summary} aria-label="Resumo do recrutamento">
+          <div>
+            <dt>Candidaturas recebidas</dt>
+            <dd data-testid="metric-total-applications">{totalApplications}</dd>
           </div>
-
-          <div className="p-5 rounded-2xl bg-dd-surface border border-dd-border shadow-sm flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-              <Briefcase className="w-6 h-6" />
-            </div>
-            <div>
-              <div
-                className="text-2xl font-black text-dd-text tracking-tight"
-                data-testid="metric-total-jobs"
-              >
-                {jobs.length}
-              </div>
-              <div className="text-xs font-bold text-dd-muted">Vagas Publicadas</div>
-            </div>
+          <div>
+            <dt>Vagas publicadas</dt>
+            <dd data-testid="metric-total-jobs">{jobs.length}</dd>
           </div>
-
-          <div className="p-5 rounded-2xl bg-dd-surface border border-dd-border shadow-sm flex items-center gap-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-purple-500/15 border border-purple-500/30 text-purple-400">
-              <Building2 className="w-6 h-6" />
-            </div>
-            <div>
-              <div
-                className="text-2xl font-black text-dd-text tracking-tight"
-                data-testid="metric-total-companies"
-              >
-                {companies.length}
-              </div>
-              <div className="text-xs font-bold text-dd-muted">Empresas Gerenciadas</div>
-            </div>
+          <div>
+            <dt>Empresas gerenciadas</dt>
+            <dd data-testid="metric-total-companies">{companies.length}</dd>
           </div>
+        </dl>
+        <div className={styles.tabs} role="tablist" aria-label="Seções do recrutamento">
+          {(
+            [
+              ['jobs', 'Vagas e candidatos'],
+              ['companies', 'Empresas'],
+              ['create', 'Publicar vaga'],
+            ] as const
+          ).map(([id, label]) => (
+            <button
+              type="button"
+              key={id}
+              id={`recruiter-tab-${id}`}
+              role="tab"
+              aria-selected={activeSection === id}
+              tabIndex={activeSection === id ? 0 : -1}
+              onKeyDown={(event) => {
+                const sections = ['jobs', 'companies', 'create'] as const;
+                const current = sections.indexOf(id);
+                let next: number | null = null;
+                if (event.key === 'ArrowRight') next = (current + 1) % sections.length;
+                if (event.key === 'ArrowLeft')
+                  next = (current + sections.length - 1) % sections.length;
+                if (event.key === 'Home') next = 0;
+                if (event.key === 'End') next = sections.length - 1;
+                if (next == null) return;
+                event.preventDefault();
+                setActiveSection(sections[next]);
+                document.getElementById(`recruiter-tab-${sections[next]}`)?.focus();
+              }}
+              aria-controls={activeSection === id ? `recruiter-panel-${id}` : undefined}
+              onClick={() => setActiveSection(id)}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-
-        {/* SECTION: Vagas Publicadas e Inscritos */}
-        <section className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-dd-border/60 pb-3">
-            <div>
-              <h2 className="text-lg font-black text-dd-text flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-blue-400" />
-                Vagas Publicadas e Candidaturas
-              </h2>
-              <p className="text-xs text-dd-muted font-medium mt-0.5">
-                Veja o número de inscritos por vaga e acesse o perfil técnico de cada candidato.
-              </p>
-            </div>
-
-            {companies.length > 1 && (
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-dd-muted hidden sm:inline">Empresa:</span>
-                <select
-                  value={selectedCompanyFilter}
-                  onChange={(e) => setSelectedCompanyFilter(e.target.value)}
-                  className="bg-dd-surface border border-dd-border rounded-xl px-3 py-1.5 text-xs font-bold text-dd-text outline-none cursor-pointer"
-                >
-                  <option value="ALL">Todas as empresas</option>
-                  {companies.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name}
-                    </option>
-                  ))}
-                </select>
+        {activeSection === 'jobs' && (
+          <section
+            id="recruiter-panel-jobs"
+            role="tabpanel"
+            aria-labelledby="recruiter-tab-jobs"
+            className={styles.section}
+          >
+            <div className={styles.toolbar}>
+              <div>
+                <h2>Vagas publicadas e candidaturas</h2>
+                <p className={styles.muted}>
+                  {user.role === 'ADMIN'
+                    ? 'Visão administrativa das vagas das empresas.'
+                    : 'Somente as oportunidades das empresas que você gerencia aparecem aqui.'}
+                </p>
               </div>
-            )}
-          </div>
-
-          {loadingJobs ? (
-            <div className="p-8 text-center rounded-3xl bg-dd-surface/50 border border-dd-border animate-pulse">
-              <RefreshCw className="w-6 h-6 mx-auto animate-spin text-blue-400 mb-2" />
-              <p className="text-xs font-bold text-dd-muted">Carregando vagas publicadas...</p>
-            </div>
-          ) : jobs.length === 0 ? (
-            <div className="p-8 sm:p-12 text-center rounded-3xl bg-dd-surface border border-dd-border space-y-3 shadow-sm">
-              <div className="w-12 h-12 mx-auto rounded-2xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center">
-                <Briefcase className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-black text-dd-text">Nenhuma vaga publicada ainda</h3>
-              <p className="text-xs text-dd-muted font-medium max-w-md mx-auto leading-relaxed">
-                Publique sua primeira oportunidade técnica no formulário abaixo para começar a
-                receber candidaturas de desenvolvedores da plataforma.
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {jobs.map((job) => {
-                const isExpanded = expandedJobId === job.id;
-                const applicants = applicationsMap[job.id] || [];
-                const isLoadingApplicants = loadingApplications[job.id];
-                const applicantsCount = job._count?.applications || 0;
-
-                return (
-                  <div
-                    key={job.id}
-                    className="rounded-3xl bg-dd-surface border border-dd-border overflow-hidden transition-all shadow-sm"
+              {companies.length > 1 && (
+                <div className={styles.field}>
+                  <label htmlFor="company-filter">Filtrar empresa</label>
+                  <select
+                    id="company-filter"
+                    value={selectedCompanyFilter}
+                    onChange={(event) => setSelectedCompanyFilter(event.target.value)}
                   >
-                    {/* Job Card Header Info */}
-                    <div className="p-5 sm:p-6 space-y-4">
-                      <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-                        <div className="space-y-1.5 min-w-0">
-                          <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400 border border-blue-500/25">
-                              {job.level}
-                            </span>
-                            <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
-                              {job.modality}
-                            </span>
-                            <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-purple-500/15 text-purple-400 border border-purple-500/25">
-                              {job.contract_type}
-                            </span>
-                            <span
-                              className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full border ${
-                                job.status === 'OPEN'
-                                  ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/25'
-                                  : 'bg-dd-bg text-dd-muted border-dd-border'
-                              }`}
-                            >
-                              {job.status === 'OPEN' ? 'Aberta' : 'Encerrada'}
-                            </span>
-                          </div>
-
-                          <h3 className="text-lg sm:text-xl font-black text-dd-text tracking-tight">
-                            {job.title}
-                          </h3>
-
-                          <div className="flex items-center gap-2 text-xs font-bold text-dd-muted flex-wrap">
-                            <span className="text-dd-text flex items-center gap-1">
-                              {job.company.name}
-                              {job.company.is_verified && (
-                                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-                              )}
-                            </span>
-                            {job.location && (
-                              <>
-                                <span>•</span>
-                                <span className="flex items-center gap-1">
-                                  <MapPin className="w-3.5 h-3.5 text-dd-muted" />
-                                  {job.location}
-                                </span>
-                              </>
-                            )}
-                            {job.salary_min && job.salary_max && (
-                              <>
-                                <span>•</span>
-                                <span className="flex items-center gap-1 text-emerald-400">
-                                  <DollarSign className="w-3.5 h-3.5" />
-                                  R$ {job.salary_min.toLocaleString('pt-BR')} - R${' '}
-                                  {job.salary_max.toLocaleString('pt-BR')}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* APPLICANTS COUNTER BADGE */}
-                        <div className="flex items-center gap-3 shrink-0 self-start sm:self-auto">
-                          <div
-                            data-testid={`job-applicants-count-${job.id}`}
-                            className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl border font-bold text-xs sm:text-sm transition-all ${
-                              applicantsCount > 0
-                                ? 'bg-blue-500/15 border-blue-500/40 text-blue-400 shadow-sm'
-                                : 'bg-dd-bg/80 border-dd-border/80 text-dd-muted'
-                            }`}
-                          >
-                            <Users className="w-4 h-4 shrink-0" />
-                            <span>
-                              <strong className="font-black text-dd-text text-sm sm:text-base mr-1">
-                                {applicantsCount}
-                              </strong>
-                              {applicantsCount === 1 ? 'pessoa inscrita' : 'pessoas inscritas'}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Technologies Chips */}
-                      {job.technologies && job.technologies.length > 0 && (
-                        <div className="flex items-center gap-1.5 flex-wrap pt-1">
-                          {job.technologies.map((tech) => (
-                            <span
-                              key={tech}
-                              className="text-[11px] font-mono font-medium px-2 py-0.5 rounded-lg bg-dd-bg border border-dd-border/60 text-dd-muted"
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Card Footer Actions */}
-                      <div className="flex items-center justify-between gap-3 pt-3 border-t border-dd-border/50 flex-wrap">
-                        <button
-                          type="button"
-                          onClick={() => toggleExpandJob(job.id)}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-dd-border bg-dd-bg hover:bg-dd-surface active:scale-95 text-xs font-black text-dd-text transition-all cursor-pointer"
-                        >
-                          <Users className="w-3.5 h-3.5 text-blue-400" />
-                          <span>
-                            {isExpanded
-                              ? 'Ocultar Candidatos'
-                              : `Ver Inscritos (${applicantsCount})`}
-                          </span>
-                          {isExpanded ? (
-                            <ChevronUp className="w-3.5 h-3.5" />
-                          ) : (
-                            <ChevronDown className="w-3.5 h-3.5" />
+                    <option value="ALL">Todas as empresas</option>
+                    {companies.map((company) => (
+                      <option key={company.id} value={company.id}>
+                        {company.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+            </div>
+            {loadingJobs ? (
+              <div
+                aria-label="Carregando vagas publicadas"
+                role="status"
+                className={styles.skeleton}
+              >
+                <span />
+                <span />
+                <span />
+                <span className="sr-only">Carregando vagas publicadas...</span>
+              </div>
+            ) : jobsError ? (
+              <div role="alert" className={styles.notice}>
+                <p>{jobsError}</p>
+                <button type="button" className={styles.link} onClick={() => void loadJobs()}>
+                  Tentar novamente
+                </button>
+              </div>
+            ) : jobs.length === 0 ? (
+              <div className={styles.empty}>
+                <Briefcase size={30} aria-hidden="true" />
+                <h3>Nenhuma vaga publicada ainda</h3>
+                <p>
+                  Publique sua primeira oportunidade para receber candidaturas de desenvolvedores da
+                  plataforma.
+                </p>
+                <button
+                  type="button"
+                  className={styles.action}
+                  onClick={() => setActiveSection('create')}
+                >
+                  Publicar primeira vaga
+                </button>
+              </div>
+            ) : (
+              <div className={styles.jobList}>
+                {jobs.map((job) => {
+                  const expanded = expandedJobId === job.id;
+                  const applicants = applicationsMap[job.id] || [];
+                  const count = job._count?.applications || 0;
+                  return (
+                    <article key={job.id} className={styles.job}>
+                      <div className={styles.jobMeta}>
+                        <span className={styles.companyName}>
+                          {job.company.name}
+                          {job.company.is_verified && (
+                            <ShieldCheck size={15} aria-label="Empresa verificada" />
                           )}
-                        </button>
-
-                        <Link
-                          href={`/jobs/${job.id}`}
-                          className="inline-flex items-center gap-1.5 text-xs font-bold text-dd-muted hover:text-blue-400 transition-colors"
+                        </span>
+                        <span className={styles.status}>
+                          {JOB_STATUS_LABELS[job.status] || job.status}
+                        </span>
+                      </div>
+                      <h3>{job.title}</h3>
+                      <div className={styles.jobMeta}>
+                        <span>{LEVEL_LABELS[job.level] || job.level}</span>
+                        <span>
+                          <MapPin size={14} aria-hidden="true" />
+                          {MODALITY_LABELS[job.modality] || job.modality}
+                          {job.location ? ` · ${job.location}` : ''}
+                        </span>
+                        <span>{job.contract_type}</span>
+                        <span>{salaryLabel(job)}</span>
+                      </div>
+                      <div className={styles.tags}>
+                        {job.technologies.map((tech) => (
+                          <span key={tech} className={styles.tag}>
+                            {tech}
+                          </span>
+                        ))}
+                      </div>
+                      <div className={styles.jobActions}>
+                        <span
+                          className={styles.count}
+                          data-testid={`job-applicants-count-${job.id}`}
                         >
-                          <span>Ver vaga pública</span>
-                          <ExternalLink className="w-3.5 h-3.5" />
+                          <Users size={16} aria-hidden="true" />
+                          <span>
+                            <strong>{count}</strong>
+                            {count === 1 ? 'pessoa inscrita' : 'pessoas inscritas'}
+                          </span>
+                        </span>
+                        <Link href={`/jobs/${job.id}`} className={styles.link}>
+                          Ver vaga pública
+                          <ExternalLink size={15} aria-hidden="true" />
                         </Link>
                       </div>
-                    </div>
-
-                    {/* EXPANDED APPLICANTS DRAWER */}
-                    {isExpanded && (
-                      <div className="px-5 pb-6 pt-2 bg-dd-bg/40 border-t border-dd-border space-y-4 animate-fade-in">
-                        <div className="flex items-center justify-between gap-2 pt-2">
-                          <h4 className="text-xs sm:text-sm font-black text-dd-text uppercase tracking-wider flex items-center gap-2">
-                            <UserCheck className="w-4 h-4 text-emerald-400" />
-                            Candidatos Inscritos ({applicantsCount})
-                          </h4>
-                          <button
-                            type="button"
-                            onClick={() => loadApplications(job.id)}
-                            disabled={isLoadingApplicants}
-                            className="text-[11px] font-bold text-dd-muted hover:text-dd-text flex items-center gap-1 transition-colors cursor-pointer"
-                          >
-                            <RefreshCw
-                              className={`w-3 h-3 ${isLoadingApplicants ? 'animate-spin' : ''}`}
-                            />
-                            <span>Recarregar</span>
-                          </button>
-                        </div>
-
-                        {isLoadingApplicants ? (
-                          <div className="p-6 text-center text-xs font-bold text-dd-muted">
-                            <RefreshCw className="w-4 h-4 mx-auto animate-spin text-blue-400 mb-1" />
-                            Carregando perfil dos candidatos inscritos...
-                          </div>
-                        ) : applicants.length === 0 ? (
-                          <div className="p-6 text-center rounded-2xl bg-dd-surface border border-dd-border text-xs text-dd-muted font-medium">
-                            Nenhum candidato se inscreveu nesta vaga ainda.
-                          </div>
+                      <button
+                        type="button"
+                        aria-expanded={expanded}
+                        aria-controls={expanded ? `job-applicants-${job.id}` : undefined}
+                        className={styles.secondary}
+                        onClick={() => toggleExpandJob(job.id)}
+                      >
+                        {expanded ? 'Ocultar candidatos' : `Ver inscritos (${count})`}
+                        {expanded ? (
+                          <ChevronUp size={16} aria-hidden="true" />
                         ) : (
-                          <div className="space-y-3">
-                            {applicants.map((app) => {
-                              const statusConfig = STATUS_LABELS[app.status] || {
-                                label: app.status,
-                                bg: 'bg-dd-surface',
-                                text: 'text-dd-muted',
-                              };
-                              const isUpdating = updatingAppId === app.id;
+                          <ChevronDown size={16} aria-hidden="true" />
+                        )}
+                      </button>
+                      {expanded && (
+                        <section
+                          id={`job-applicants-${job.id}`}
+                          className={styles.applicants}
+                          aria-label={`Candidaturas de ${job.title}`}
+                        >
+                          <div className={styles.toolbar}>
+                            <h4>Candidatos inscritos ({count})</h4>
+                            <button
+                              type="button"
+                              className={styles.link}
+                              disabled={loadingApplications[job.id]}
+                              onClick={() => void loadApplications(job.id)}
+                            >
+                              <RefreshCw size={15} aria-hidden="true" />
+                              Recarregar
+                            </button>
+                          </div>
+                          {loadingApplications[job.id] ? (
+                            <p role="status" className={styles.muted}>
+                              Carregando perfil dos candidatos inscritos...
+                            </p>
+                          ) : applicationsErrors[job.id] ? (
+                            <p role="alert" className={styles.notice}>
+                              {applicationsErrors[job.id]}
+                            </p>
+                          ) : !applicants.length ? (
+                            <p className={styles.muted}>
+                              Nenhum candidato se inscreveu nesta vaga ainda.
+                            </p>
+                          ) : (
+                            applicants.map((app) => {
                               const draft = applicationDrafts[app.id] ?? {
                                 stageId: app.stage_id ?? '',
                                 feedback: app.feedback ?? '',
                               };
-
+                              const status = normalizeStatus(app.status);
+                              const busy = updatingAppId === app.id;
                               return (
-                                <div
+                                <article
                                   key={app.id}
-                                  className="p-4 rounded-2xl bg-dd-surface border border-dd-border flex flex-wrap justify-between gap-4 transition-all"
+                                  className={styles.candidate}
+                                  aria-label={`Candidatura de @${app.user.username}`}
                                 >
-                                  {/* Candidate Profile Details */}
-                                  <div className="flex items-center gap-3 min-w-0">
+                                  <div className={styles.candidateTop}>
                                     <AuthorAvatar
                                       username={app.user.username}
                                       avatar_url={app.user.avatar_url}
-                                      size="md"
-                                      className="!w-10 !h-10 border-dd-border"
+                                      size="lg"
                                     />
-                                    <div className="min-w-0">
-                                      <div className="flex items-center gap-2 flex-wrap">
-                                        <span className="text-sm font-black text-dd-text truncate">
-                                          @{app.user.username}
-                                        </span>
-                                        <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400 border border-emerald-500/25">
-                                          {app.user.total_xp} XP
-                                        </span>
+                                    <div>
+                                      <Link
+                                        href={`/profile/${app.user.username}`}
+                                        className={styles.candidateName}
+                                      >
+                                        @{app.user.username}
+                                      </Link>
+                                      <div className={styles.candidateLinks}>
+                                        <span>{app.user.total_xp} XP</span>
                                         {app.user.github_username && (
-                                          <span className="text-[10px] font-mono text-dd-muted">
+                                          <a
+                                            href={`https://github.com/${encodeURIComponent(app.user.github_username)}`}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                          >
                                             gh: @{app.user.github_username}
-                                          </span>
+                                            <ExternalLink size={12} aria-hidden="true" />
+                                          </a>
                                         )}
                                       </div>
-                                      <p className="text-[11px] text-dd-muted font-medium mt-0.5">
+                                      <p className={styles.candidateNote}>
                                         Inscrito em{' '}
                                         {new Date(app.created_at).toLocaleDateString('pt-BR')}
-                                        {app.stage && (
-                                          <span className="ml-2 text-blue-400 font-semibold">
-                                            • Etapa: {app.stage.title}
-                                          </span>
-                                        )}
+                                        {app.stage ? ` · Etapa: ${app.stage.title}` : ''}
                                       </p>
                                     </div>
                                   </div>
-
-                                  {/* Status Selector / Actions */}
-                                  <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
-                                    <span
-                                      className={`text-xs font-bold px-2.5 py-1 rounded-xl border border-current/30 ${statusConfig.bg} ${statusConfig.text}`}
-                                    >
-                                      {statusConfig.label}
-                                    </span>
-
+                                  {app.user.bio && <p className={styles.muted}>{app.user.bio}</p>}
+                                  <div className={styles.field}>
+                                    <label htmlFor={`status-${app.id}`}>
+                                      Status de @{app.user.username}
+                                    </label>
                                     <select
-                                      value={app.status}
-                                      disabled={isUpdating}
-                                      onChange={(e) =>
-                                        handleUpdateApplicationStatus(
+                                      id={`status-${app.id}`}
+                                      aria-label={`Atualizar status de @${app.user.username}`}
+                                      value={status}
+                                      disabled={Boolean(updatingAppId)}
+                                      onChange={(event) =>
+                                        void handleUpdateApplicationStatus(
                                           job.id,
                                           app.id,
-                                          e.target.value
+                                          event.target.value
                                         )
                                       }
-                                      className="bg-dd-bg border border-dd-border rounded-xl px-2.5 py-1 text-xs font-bold text-dd-text outline-none cursor-pointer focus:border-blue-500 disabled:opacity-50"
-                                      aria-label={`Atualizar status de @${app.user.username}`}
                                     >
-                                      <option value="APPLIED">Inscrito</option>
-                                      <option value="REVIEWING">Em Análise</option>
-                                      <option value="TESTING">Desafio Técnico</option>
-                                      <option value="INTERVIEW">Entrevista</option>
-                                      <option value="ACCEPTED">Aprovado</option>
-                                      <option value="REJECTED">Recusado</option>
+                                      {Object.entries(STATUS_LABELS).map(([value, label]) => (
+                                        <option key={value} value={value}>
+                                          {label}
+                                        </option>
+                                      ))}
                                     </select>
+                                    <small>
+                                      O status é salvo imediatamente. A pessoa candidata recebe uma
+                                      notificação.
+                                    </small>
                                   </div>
-
+                                  {app.technical_score != null && (
+                                    <p className={styles.muted}>
+                                      Nota técnica: {app.technical_score} / 100
+                                    </p>
+                                  )}
                                   <form
-                                    className="w-full space-y-3 border-t border-dd-border pt-3"
+                                    className={styles.form}
                                     onSubmit={(event) => {
                                       event.preventDefault();
                                       void handleUpdateApplicationStatus(
                                         job.id,
                                         app.id,
-                                        app.status,
+                                        status,
                                         draft
                                       );
                                     }}
                                   >
-                                    <div>
-                                      <label
-                                        htmlFor={`stage-${app.id}`}
-                                        className="mb-1 block text-xs font-semibold text-dd-text"
-                                      >
+                                    <div className={styles.field}>
+                                      <label htmlFor={`stage-${app.id}`}>
                                         Etapa de @{app.user.username}
                                       </label>
                                       <select
                                         id={`stage-${app.id}`}
                                         value={draft.stageId}
-                                        disabled={isUpdating || job.stages.length === 0}
+                                        disabled={Boolean(updatingAppId) || !job.stages.length}
                                         onChange={(event) =>
                                           setApplicationDrafts((previous) => ({
                                             ...previous,
                                             [app.id]: { ...draft, stageId: event.target.value },
                                           }))
                                         }
-                                        className="dd-focus-ring min-h-10 w-full rounded-xl border border-dd-border bg-dd-bg px-3 text-sm text-dd-text disabled:opacity-50"
                                       >
                                         <option value="">
                                           {job.stages.length
@@ -768,217 +771,400 @@ export function RecruiterContent({ user }: { user: any }) {
                                           ))}
                                       </select>
                                     </div>
-                                    <div>
-                                      <label
-                                        htmlFor={`feedback-${app.id}`}
-                                        className="mb-1 block text-xs font-semibold text-dd-text"
-                                      >
+                                    <div className={styles.field}>
+                                      <label htmlFor={`feedback-${app.id}`}>
                                         Feedback para @{app.user.username}
                                       </label>
                                       <textarea
                                         id={`feedback-${app.id}`}
-                                        value={draft.feedback}
-                                        maxLength={5000}
                                         rows={3}
-                                        disabled={isUpdating}
-                                        placeholder="Conte ao candidato como foi a avaliação e quais são os próximos passos."
+                                        maxLength={5000}
+                                        value={draft.feedback}
+                                        disabled={Boolean(updatingAppId)}
+                                        placeholder="Conte como foi a avaliação e quais são os próximos passos."
                                         onChange={(event) =>
                                           setApplicationDrafts((previous) => ({
                                             ...previous,
                                             [app.id]: { ...draft, feedback: event.target.value },
                                           }))
                                         }
-                                        className="dd-focus-ring w-full rounded-xl border border-dd-border bg-dd-bg p-3 text-sm text-dd-text placeholder:text-dd-muted disabled:opacity-50"
                                       />
+                                      <small>
+                                        Este parecer fica visível para a pessoa candidata. Revise o
+                                        texto antes de salvar.
+                                      </small>
                                     </div>
                                     <button
                                       type="submit"
-                                      disabled={isUpdating}
-                                      className="dd-focus-ring min-h-10 rounded-xl bg-dd-accent px-4 text-sm font-semibold text-white disabled:opacity-50"
+                                      aria-label={`Salvar etapa e feedback de @${app.user.username}`}
+                                      className={styles.action}
+                                      disabled={Boolean(updatingAppId)}
                                     >
-                                      {isUpdating
-                                        ? 'Salvando...'
-                                        : `Salvar etapa e feedback de @${app.user.username}`}
+                                      {busy ? 'Salvando...' : 'Salvar etapa e feedback'}
                                     </button>
                                   </form>
-                                </div>
+                                </article>
                               );
-                            })}
-                          </div>
-                        )}
-                      </div>
+                            })
+                          )}
+                        </section>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        )}
+        {activeSection === 'companies' && (
+          <section
+            id="recruiter-panel-companies"
+            role="tabpanel"
+            aria-labelledby="recruiter-tab-companies"
+            className={styles.section}
+          >
+            <div>
+              <h2>Empresas que você gerencia</h2>
+              <p className={styles.muted}>
+                Selecione uma empresa ao publicar uma vaga. A verificação de uma empresa é feita
+                pela administração.
+              </p>
+            </div>
+            {loadingCompanies ? (
+              <p role="status" className={styles.muted}>
+                Carregando empresas...
+              </p>
+            ) : companiesError ? (
+              <div role="alert" className={styles.notice}>
+                <p>{companiesError}</p>
+                <button type="button" className={styles.link} onClick={() => void loadCompanies()}>
+                  Tentar novamente
+                </button>
+              </div>
+            ) : companies.length ? (
+              <div>
+                {companies.map((company) => (
+                  <article key={company.id} className={styles.company}>
+                    <h3>
+                      <Building2 size={19} aria-hidden="true" />
+                      {company.name}
+                      {company.is_verified && (
+                        <ShieldCheck size={17} aria-label="Empresa verificada" />
+                      )}
+                    </h3>
+                    <p className={styles.muted}>
+                      {company.location || 'Localização não informada'} ·{' '}
+                      {company.is_verified ? 'Empresa verificada' : 'Empresa não verificada'}
+                    </p>
+                    {company.website && /^https?:\/\//i.test(company.website) && (
+                      <a
+                        href={company.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className={styles.link}
+                      >
+                        Visitar site
+                        <ExternalLink size={14} aria-hidden="true" />
+                      </a>
                     )}
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </section>
-
-        {/* Forms Grid: Register Company & Publish Job */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t border-dd-border/60">
-          {/* Register Company */}
-          <form
-            onSubmit={handleCreateCompany}
-            className="p-6 rounded-3xl bg-dd-surface border border-dd-border space-y-4 shadow-sm"
-          >
-            <h2 className="text-base font-black text-dd-text flex items-center gap-2">
-              <Building2 className="w-5 h-5 text-blue-400" />
-              1. Cadastrar Perfil da Empresa
-            </h2>
-
-            <div>
-              <label className="block text-xs font-bold text-dd-text mb-1">Nome da Empresa</label>
-              <input
-                type="text"
-                required
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                placeholder="Ex: TechCorp Brasil"
-                className="w-full bg-dd-bg border border-dd-border rounded-xl p-2.5 text-xs font-bold text-dd-text outline-none focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-dd-text mb-1">Website</label>
-              <input
-                type="url"
-                value={companyWebsite}
-                onChange={(e) => setCompanyWebsite(e.target.value)}
-                placeholder="https://techcorp.com.br"
-                className="w-full bg-dd-bg border border-dd-border rounded-xl p-2.5 text-xs font-bold text-dd-text outline-none focus:border-blue-500"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-dd-text mb-1">Localização</label>
-              <input
-                type="text"
-                value={companyLocation}
-                onChange={(e) => setCompanyLocation(e.target.value)}
-                placeholder="São Paulo, SP - Remoto"
-                className="w-full bg-dd-bg border border-dd-border rounded-xl p-2.5 text-xs font-bold text-dd-text outline-none focus:border-blue-500"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={creatingCompany}
-              className="w-full py-3 rounded-2xl bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white font-black text-xs transition-all shadow-md active:scale-95 cursor-pointer"
-            >
-              {creatingCompany ? 'Salvando...' : 'Cadastrar Empresa'}
-            </button>
-          </form>
-
-          {/* Publish Job */}
-          <form
-            onSubmit={handleCreateJob}
-            className="p-6 rounded-3xl bg-dd-surface border border-dd-border space-y-4 shadow-sm"
-          >
-            <h2 className="text-base font-black text-dd-text flex items-center gap-2">
-              <Briefcase className="w-5 h-5 text-emerald-400" />
-              2. Publicar Oportunidade Técnica
-            </h2>
-
-            <div>
-              <label className="block text-xs font-bold text-dd-text mb-1">Empresa</label>
-              <select
-                value={selectedCompanyId}
-                onChange={(e) => setSelectedCompanyId(e.target.value)}
-                className="w-full bg-dd-bg border border-dd-border rounded-xl p-2.5 text-xs font-bold text-dd-text outline-none cursor-pointer"
-              >
-                {companies.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.name}
-                  </option>
+                  </article>
                 ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-bold text-dd-text mb-1">Título da Vaga</label>
-              <input
-                type="text"
-                required
-                value={jobTitle}
-                onChange={(e) => setJobTitle(e.target.value)}
-                placeholder="Ex: Desenvolvedor Front-end React Júnior"
-                className="w-full bg-dd-bg border border-dd-border rounded-xl p-2.5 text-xs font-bold text-dd-text outline-none focus:border-blue-500"
-              />
-            </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label className="block text-xs font-bold text-dd-text mb-1">Nível</label>
-                <select
-                  value={jobLevel}
-                  onChange={(e) => setJobLevel(e.target.value)}
-                  className="w-full bg-dd-bg border border-dd-border rounded-xl p-2 text-xs font-bold text-dd-text outline-none"
-                >
-                  <option value="ESTAGIO">Estágio</option>
-                  <option value="JUNIOR">Júnior</option>
-                  <option value="PLENO">Pleno</option>
-                  <option value="SENIOR">Sênior</option>
-                </select>
               </div>
-
+            ) : (
+              <p className={styles.muted}>
+                Você ainda não tem uma empresa cadastrada. Preencha o formulário para começar.
+              </p>
+            )}
+            <section className={styles.formSection}>
               <div>
-                <label className="block text-xs font-bold text-dd-text mb-1">Modalidade</label>
-                <select
-                  value={jobModality}
-                  onChange={(e) => setJobModality(e.target.value)}
-                  className="w-full bg-dd-bg border border-dd-border rounded-xl p-2 text-xs font-bold text-dd-text outline-none"
-                >
-                  <option value="REMOTE">Remoto</option>
-                  <option value="HYBRID">Híbrido</option>
-                  <option value="ONSITE">Presencial</option>
-                </select>
+                <h3>Cadastrar empresa</h3>
+                <p className={styles.muted}>
+                  Informe os dados reais da empresa responsável pelas vagas.
+                </p>
               </div>
-            </div>
-
+              <form onSubmit={handleCreateCompany} className={styles.form}>
+                <div className={styles.field}>
+                  <label htmlFor="company-name">Nome da empresa</label>
+                  <input
+                    id="company-name"
+                    required
+                    minLength={2}
+                    value={companyName}
+                    disabled={creatingCompany}
+                    onChange={(event) => setCompanyName(event.target.value)}
+                    placeholder="Nome da sua empresa"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="company-website">
+                    Site <span className={styles.muted}>(opcional)</span>
+                  </label>
+                  <input
+                    id="company-website"
+                    type="url"
+                    value={companyWebsite}
+                    disabled={creatingCompany}
+                    onChange={(event) => setCompanyWebsite(event.target.value)}
+                    placeholder="https://suaempresa.com.br"
+                  />
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="company-location">
+                    Localização <span className={styles.muted}>(opcional)</span>
+                  </label>
+                  <input
+                    id="company-location"
+                    value={companyLocation}
+                    disabled={creatingCompany}
+                    onChange={(event) => setCompanyLocation(event.target.value)}
+                    placeholder="Cidade, estado ou país"
+                  />
+                </div>
+                <button type="submit" className={styles.action} disabled={creatingCompany}>
+                  {creatingCompany ? 'Salvando...' : 'Cadastrar empresa'}
+                </button>
+              </form>
+            </section>
+          </section>
+        )}
+        {activeSection === 'create' && (
+          <section
+            id="recruiter-panel-create"
+            role="tabpanel"
+            aria-labelledby="recruiter-tab-create"
+            className={styles.section}
+          >
             <div>
-              <label className="block text-xs font-bold text-dd-text mb-1">Tecnologias</label>
-              <input
-                type="text"
-                value={jobTechnologies}
-                onChange={(e) => setJobTechnologies(e.target.value)}
-                placeholder="React, TypeScript, CSS, Git"
-                className="w-full bg-dd-bg border border-dd-border rounded-xl p-2.5 text-xs font-bold text-dd-text outline-none focus:border-blue-500"
-              />
+              <h2>Publicar oportunidade técnica</h2>
+              <p className={styles.muted}>
+                A vaga fica visível no mural público. Preencha o que a pessoa precisa saber antes de
+                se candidatar.
+              </p>
             </div>
-
-            <div>
-              <label className="block text-xs font-bold text-dd-text mb-1">Descrição</label>
-              <textarea
-                rows={3}
-                required
-                value={jobDescription}
-                onChange={(e) => setJobDescription(e.target.value)}
-                placeholder="Detalhes sobre a posição, dia a dia e responsabilidades..."
-                className="w-full bg-dd-bg border border-dd-border rounded-xl p-2.5 text-xs font-medium text-dd-text outline-none focus:border-blue-500 resize-none"
-              />
-            </div>
-
-            <button
-              type="submit"
-              disabled={creatingJob || !selectedCompanyId}
-              className="w-full py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-black text-xs transition-all shadow-md active:scale-95 cursor-pointer flex items-center justify-center gap-2"
-            >
-              {creatingJob ? (
-                <>
-                  <RefreshCw className="w-4 h-4 animate-spin" />
-                  <span>Publicando...</span>
-                </>
-              ) : (
-                <>
-                  <Sparkles className="w-4 h-4 text-emerald-200" />
-                  <span>Publicar Vaga com Etapas Técnicas</span>
-                </>
-              )}
-            </button>
-          </form>
-        </div>
-      </main>
-    </div>
+            {loadingCompanies ? (
+              <p role="status" className={styles.muted}>
+                Carregando suas empresas...
+              </p>
+            ) : companiesError ? (
+              <div role="alert" className={styles.notice}>
+                <p>{companiesError}</p>
+                <button type="button" className={styles.link} onClick={() => void loadCompanies()}>
+                  Tentar novamente
+                </button>
+              </div>
+            ) : !companies.length ? (
+              <div className={styles.notice}>
+                <p>Cadastre uma empresa antes de publicar sua primeira vaga.</p>
+                <button
+                  type="button"
+                  className={styles.link}
+                  onClick={() => setActiveSection('companies')}
+                >
+                  Cadastrar empresa
+                  <ChevronDown size={15} aria-hidden="true" />
+                </button>
+              </div>
+            ) : (
+              <form onSubmit={handleCreateJob} className={styles.form}>
+                <div className={styles.field}>
+                  <label htmlFor="job-company">Empresa responsável</label>
+                  <select
+                    id="job-company"
+                    required
+                    value={selectedCompanyId}
+                    disabled={creatingJob}
+                    onChange={(event) => setSelectedCompanyId(event.target.value)}
+                  >
+                    {companies.map((company) => (
+                      <option key={company.id} value={company.id}>
+                        {company.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="job-title">Título da vaga</label>
+                  <input
+                    id="job-title"
+                    required
+                    minLength={3}
+                    value={jobTitle}
+                    disabled={creatingJob}
+                    onChange={(event) => setJobTitle(event.target.value)}
+                    placeholder="Ex.: Desenvolvedor front-end React"
+                  />
+                </div>
+                <div className={styles.twoFields}>
+                  <div className={styles.field}>
+                    <label htmlFor="job-level">Nível de experiência</label>
+                    <select
+                      id="job-level"
+                      value={jobLevel}
+                      disabled={creatingJob}
+                      onChange={(event) => setJobLevel(event.target.value)}
+                    >
+                      {Object.entries(LEVEL_LABELS).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className={styles.field}>
+                    <label htmlFor="job-modality">Modalidade de trabalho</label>
+                    <select
+                      id="job-modality"
+                      value={jobModality}
+                      disabled={creatingJob}
+                      onChange={(event) => setJobModality(event.target.value)}
+                    >
+                      {Object.entries(MODALITY_LABELS).map(([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+                <div className={styles.twoFields}>
+                  <div className={styles.field}>
+                    <label htmlFor="job-contract">Tipo de contrato</label>
+                    <select
+                      id="job-contract"
+                      value={jobContract}
+                      disabled={creatingJob}
+                      onChange={(event) => setJobContract(event.target.value)}
+                    >
+                      <option value="CLT">CLT</option>
+                      <option value="PJ">PJ</option>
+                      <option value="ESTAGIO">Estágio</option>
+                    </select>
+                  </div>
+                  <div className={styles.field}>
+                    <label htmlFor="job-location">
+                      Localização <span className={styles.muted}>(opcional)</span>
+                    </label>
+                    <input
+                      id="job-location"
+                      value={jobLocation}
+                      disabled={creatingJob}
+                      onChange={(event) => setJobLocation(event.target.value)}
+                      placeholder="Cidade, estado ou área de contratação"
+                    />
+                  </div>
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="job-technologies">Tecnologias</label>
+                  <input
+                    id="job-technologies"
+                    required
+                    value={jobTechnologies}
+                    disabled={creatingJob}
+                    onChange={(event) => setJobTechnologies(event.target.value)}
+                    placeholder="TypeScript, React, Node.js"
+                  />
+                  <small>Separe as tecnologias por vírgula.</small>
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="job-description">Descrição e responsabilidades</label>
+                  <textarea
+                    id="job-description"
+                    required
+                    minLength={10}
+                    rows={5}
+                    value={jobDescription}
+                    disabled={creatingJob}
+                    onChange={(event) => setJobDescription(event.target.value)}
+                    placeholder="Descreva o trabalho, o dia a dia da equipe e as responsabilidades da pessoa contratada."
+                  />
+                </div>
+                <div className={styles.twoFields}>
+                  <div className={styles.field}>
+                    <label htmlFor="job-salary-min">
+                      Remuneração mínima em R$ <span className={styles.muted}>(opcional)</span>
+                    </label>
+                    <input
+                      id="job-salary-min"
+                      type="number"
+                      min={0}
+                      value={jobSalaryMin}
+                      disabled={creatingJob}
+                      onChange={(event) => setJobSalaryMin(event.target.value)}
+                      placeholder="Ex.: 4000"
+                    />
+                  </div>
+                  <div className={styles.field}>
+                    <label htmlFor="job-salary-max">
+                      Remuneração máxima em R$ <span className={styles.muted}>(opcional)</span>
+                    </label>
+                    <input
+                      id="job-salary-max"
+                      type="number"
+                      min={0}
+                      value={jobSalaryMax}
+                      disabled={creatingJob}
+                      onChange={(event) => setJobSalaryMax(event.target.value)}
+                      placeholder="Ex.: 7000"
+                    />
+                  </div>
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="job-requirements">
+                    Requisitos <span className={styles.muted}>(opcional)</span>
+                  </label>
+                  <textarea
+                    id="job-requirements"
+                    rows={3}
+                    value={jobRequirements}
+                    disabled={creatingJob}
+                    onChange={(event) => setJobRequirements(event.target.value)}
+                    placeholder="Experiência com React, Conhecimento de Git, Comunicação clara"
+                  />
+                  <small>Separe cada requisito por vírgula.</small>
+                </div>
+                <div className={styles.field}>
+                  <label htmlFor="job-benefits">
+                    Benefícios <span className={styles.muted}>(opcional)</span>
+                  </label>
+                  <textarea
+                    id="job-benefits"
+                    rows={3}
+                    value={jobBenefits}
+                    disabled={creatingJob}
+                    onChange={(event) => setJobBenefits(event.target.value)}
+                    placeholder="Horário flexível, Auxílio para estudos"
+                  />
+                  <small>
+                    Informe somente benefícios oferecidos pela empresa, separados por vírgula.
+                  </small>
+                </div>
+                <details className={styles.steps}>
+                  <summary>Etapas criadas com a vaga</summary>
+                  <ol>
+                    <li>Inscrição</li>
+                    <li>Desafio técnico na plataforma</li>
+                    <li>Duelo técnico</li>
+                    <li>Avaliação técnica por especialista</li>
+                    <li>Entrevista</li>
+                    <li>Contratação</li>
+                  </ol>
+                  <p className={styles.muted}>
+                    Após a publicação, você acompanha a etapa de cada candidatura e registra o
+                    feedback neste painel.
+                  </p>
+                </details>
+                <button
+                  type="submit"
+                  disabled={creatingJob || !selectedCompanyId}
+                  className={styles.action}
+                >
+                  {creatingJob ? 'Publicando...' : 'Publicar vaga com etapas técnicas'}
+                </button>
+              </form>
+            )}
+          </section>
+        )}
+      </div>
+    </PlatformPageShell>
   );
 }

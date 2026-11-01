@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { apiHandler } from '@/lib/api-handler';
-import { getAuthUser, requireRole } from '@/lib/auth';
+import { requireRole } from '@/lib/auth';
 import { JobService } from '@/services/job.service';
 import { z } from 'zod';
 import { requireCompanyAccess } from '@/lib/mobile/company-access';
@@ -21,8 +21,8 @@ const createJobSchema = z.object({
   modality: z.nativeEnum(JobModality).default('REMOTE'),
   location: z.string().optional(),
   contract_type: z.nativeEnum(JobContract).default('CLT'),
-  salary_min: z.number().optional(),
-  salary_max: z.number().optional(),
+  salary_min: z.number().int().min(0).optional(),
+  salary_max: z.number().int().min(0).optional(),
   requirements: z.array(z.string()).default([]),
   benefits: z.array(z.string()).default([]),
   stages: z
@@ -49,6 +49,8 @@ export const GET = apiHandler(async (req) => {
   const statusParam = searchParams.get('status');
   const status = statusParam === 'ALL' ? 'ALL' : (statusParam as JobStatus) || 'OPEN';
   const companyId = searchParams.get('company_id') || undefined;
+  const managed = searchParams.get('mine') === 'true';
+  const manager = managed ? await requireRole(['RECRUITER', 'ADMIN']) : null;
 
   const jobs = await JobService.listJobs({
     search,
@@ -58,9 +60,12 @@ export const GET = apiHandler(async (req) => {
     technology,
     status,
     companyId,
+    ownerId: manager && manager.role !== 'ADMIN' ? manager.id : undefined,
   });
 
-  return NextResponse.json(jobs);
+  return NextResponse.json(jobs, {
+    headers: managed ? { 'Cache-Control': 'private, no-store' } : undefined,
+  });
 });
 
 // POST /api/jobs: Create new job (Recruiter or Admin)

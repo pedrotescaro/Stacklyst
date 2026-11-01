@@ -24,6 +24,7 @@ export const JobService = {
     technology?: string;
     status?: JobStatus | 'ALL';
     companyId?: string;
+    ownerId?: string;
   }) {
     const where: any = {};
 
@@ -34,6 +35,7 @@ export const JobService = {
     }
 
     if (filters?.companyId) where.company_id = filters.companyId;
+    if (filters?.ownerId) where.company = { owner_id: filters.ownerId };
     if (filters?.level) where.level = filters.level;
     if (filters?.modality) where.modality = filters.modality;
     if (filters?.contract) where.contract_type = filters.contract;

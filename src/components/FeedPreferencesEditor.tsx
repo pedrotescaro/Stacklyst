@@ -75,6 +75,10 @@ export function FeedPreferencesEditor() {
             </label>
             <fieldset>
               <legend className="mb-2">Linguagens</legend>
+              <p className="mb-3 text-sm leading-relaxed text-dd-muted">
+                Essas linguagens têm prioridade em Para você. Postagens gerais e outras descobertas
+                da comunidade também aparecem.
+              </p>
               <div className="flex flex-wrap gap-2">
                 {(['JS', 'TS', 'PYTHON', 'RUST', 'GO', 'JAVA'] as const).map((code) => (
                   <label

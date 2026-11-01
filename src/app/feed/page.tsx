@@ -28,6 +28,7 @@ export default async function FeedPage({
 
   // Só o conteúdo essencial bloqueia o primeiro paint. Duelos e atividade semanal
   // são carregados no cliente depois que o feed já está utilizável.
+  const feedStartedAt = new Date().toISOString();
   const [feed, allBadges] = await Promise.all([
     PostService.getFeed(user.id, {
       limit: 10,
@@ -57,7 +58,7 @@ export default async function FeedPage({
     <FeedContent
       initialSearchQuery={initialSearchQuery}
       initialPreferences={preferences}
-      initialCurrentDate={new Date().toISOString()}
+      initialCurrentDate={feedStartedAt}
       initialUser={{
         id: user.id,
         username: user.username,

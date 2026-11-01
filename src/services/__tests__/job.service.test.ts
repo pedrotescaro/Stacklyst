@@ -39,6 +39,20 @@ describe('JobService', () => {
   });
 
   describe('listJobs', () => {
+    it('keeps ownership restriction when a recruiter filters another company', async () => {
+      vi.mocked(prisma.job.findMany).mockResolvedValueOnce([]);
+      await JobService.listJobs({
+        ownerId: 'owner',
+        companyId: 'third-party-company',
+        status: 'ALL',
+      });
+      expect(prisma.job.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: { company_id: 'third-party-company', company: { owner_id: 'owner' } },
+        })
+      );
+    });
+
     it('filters by companyId and status ALL when specified', async () => {
       vi.mocked(prisma.job.findMany).mockResolvedValueOnce([
         { id: 'job-1', title: 'React Dev' } as any,

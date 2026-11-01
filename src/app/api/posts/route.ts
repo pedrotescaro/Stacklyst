@@ -16,6 +16,10 @@ export const GET = apiHandler(async (req, { session }) => {
   const search = searchParams.get('search') || undefined;
   const author = searchParams.get('author') || undefined;
   const filter = searchParams.get('filter') || undefined;
+  const sort = z
+    .enum(['recent', 'popular'])
+    .optional()
+    .parse(searchParams.get('sort') ?? undefined);
   const cursor = searchParams.get('cursor') || undefined;
   const requestedLimit = parseInt(searchParams.get('limit') || '10', 10);
   const limit = Number.isFinite(requestedLimit) ? Math.min(Math.max(requestedLimit, 1), 50) : 10;
@@ -47,6 +51,7 @@ export const GET = apiHandler(async (req, { session }) => {
     search,
     author,
     filter,
+    sort,
     cursor,
     limit,
     likedBy,

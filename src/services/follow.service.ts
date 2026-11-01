@@ -5,13 +5,16 @@ import { logger } from '@/lib/logger';
 import { syncProfileAchievementsSafely } from './profile-customization.service';
 
 export const FollowService = {
-  async toggleFollow(followerId: string, followingId: string) {
+  async toggleFollow(followerId: string, followingId: string, ensureFollowing = false) {
     if (followerId === followingId) {
       throw new ValidationError('SELF_FOLLOW', 'Você não pode seguir a si mesmo');
     }
 
     const result = await prisma.$transaction(async (tx) => {
       await BlockService.assertCanInteract(followerId, followingId, tx);
+      if (ensureFollowing) {
+        await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${followerId} FOR UPDATE`;
+      }
       // 1. Verify target user exists
       const targetUser = await tx.user.findUnique({
         where: { id: followingId },
@@ -32,6 +35,8 @@ export const FollowService = {
       });
 
       if (existingFollow) {
+        // A stale recommendation or a retry must never undo an existing follow.
+        if (ensureFollowing) return { following: true };
         // Unfollow
         await tx.follow.delete({
           where: {

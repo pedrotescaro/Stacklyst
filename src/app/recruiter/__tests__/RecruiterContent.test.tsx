@@ -1,10 +1,12 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RecruiterContent } from '../RecruiterContent';
 
 vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
+
+vi.mock('@/components/FeedRightSidebar', () => ({ FeedRightSidebar: () => null }));
 
 vi.mock('@/components/Sidebar', () => ({
   Sidebar: () => <aside aria-label="Sidebar" />,
@@ -236,14 +238,14 @@ describe('RecruiterContent Dashboard & Applicants', () => {
 
     // Change Alice status from APPLIED to REVIEWING
     const statusSelect = screen.getByLabelText(/atualizar status de @candidato_alice/i);
-    fireEvent.change(statusSelect, { target: { value: 'REVIEWING' } });
+    fireEvent.change(statusSelect, { target: { value: 'IN_REVIEW' } });
 
     expect(fetchMock).toHaveBeenCalledWith('/api/jobs/job-1', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         application_id: 'app-1',
-        status: 'REVIEWING',
+        status: 'IN_REVIEW',
       }),
     });
 
@@ -278,7 +280,7 @@ describe('RecruiterContent Dashboard & Applicants', () => {
     const fetchMock = vi
       .spyOn(global, 'fetch')
       .mockImplementation(async (url: any, options: any) => {
-        if (String(url) === '/api/companies')
+        if (String(url).startsWith('/api/companies'))
           return { ok: true, json: async () => mockCompanies } as Response;
         if (String(url) === '/api/jobs/job-1/applications')
           return { ok: true, json: async () => mockApplicants } as Response;
@@ -319,5 +321,91 @@ describe('RecruiterContent Dashboard & Applicants', () => {
       }),
     });
     expect(screen.getByLabelText('Etapa de @candidato_alice')).toHaveValue('st-2');
+  });
+  it('loads managed listings and recovers a failed jobs request', async () => {
+    let failure = true;
+    const fetchMock = vi.spyOn(global, 'fetch').mockImplementation(async (input) => {
+      if (String(input).startsWith('/api/companies'))
+        return { ok: true, json: async () => mockCompanies } as Response;
+      return { ok: !failure, json: async () => mockJobs } as Response;
+    });
+    render(<RecruiterContent user={mockUser} />);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Não foi possível carregar suas vagas'
+    );
+    failure = false;
+    fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
+    expect(await screen.findByText('Desenvolvedor Frontend React')).toBeInTheDocument();
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/companies?mine=true',
+      expect.objectContaining({ cache: 'no-store' })
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/jobs?status=ALL&mine=true',
+      expect.objectContaining({ cache: 'no-store' })
+    );
+  });
+
+  it('publishes the entered job without inventing salary, requirements or benefits', async () => {
+    const fetchMock = vi.spyOn(global, 'fetch').mockImplementation(async (input, init) => {
+      if (String(input).startsWith('/api/companies'))
+        return { ok: true, json: async () => mockCompanies } as Response;
+      if (init?.method === 'POST')
+        return { ok: true, json: async () => ({ success: true }) } as Response;
+      return { ok: true, json: async () => mockJobs } as Response;
+    });
+    render(<RecruiterContent user={mockUser} />);
+    await screen.findByText('Desenvolvedor Frontend React');
+    fireEvent.click(screen.getByRole('tab', { name: 'Publicar vaga' }));
+    fireEvent.change(screen.getByLabelText('Título da vaga'), {
+      target: { value: 'Desenvolvedor React' },
+    });
+    fireEvent.change(screen.getByLabelText('Tecnologias'), {
+      target: { value: 'React, TypeScript' },
+    });
+    fireEvent.change(screen.getByLabelText('Descrição e responsabilidades'), {
+      target: { value: 'Desenvolva interfaces acessíveis com a equipe.' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Publicar vaga com etapas técnicas' }));
+    expect(
+      await screen.findByText(
+        'Vaga publicada com sucesso! As etapas do processo já estão disponíveis.'
+      )
+    ).toBeInTheDocument();
+    const post = fetchMock.mock.calls.find(
+      ([input, init]) => input === '/api/jobs' && init?.method === 'POST'
+    );
+    expect(post).toBeDefined();
+    expect(JSON.parse(String(post?.[1]?.body))).toEqual({
+      company_id: 'comp-1',
+      title: 'Desenvolvedor React',
+      description: 'Desenvolva interfaces acessíveis com a equipe.',
+      level: 'JUNIOR',
+      modality: 'REMOTE',
+      contract_type: 'CLT',
+      technologies: ['React', 'TypeScript'],
+      requirements: [],
+      benefits: [],
+    });
+  });
+
+  it('supports keyboard navigation between management sections', async () => {
+    vi.spyOn(global, 'fetch').mockImplementation(
+      async (input) =>
+        ({
+          ok: true,
+          json: async () => (String(input).includes('/api/companies') ? mockCompanies : mockJobs),
+        }) as Response
+    );
+    render(<RecruiterContent user={mockUser} />);
+    await screen.findByText('Desenvolvedor Frontend React');
+    const initialTab = screen.getByRole('tab', { name: 'Vagas e candidatos' });
+    initialTab.focus();
+    fireEvent.keyDown(initialTab, { key: 'ArrowRight' });
+    expect(screen.getByRole('tab', { name: 'Empresas' })).toHaveFocus();
+    expect(screen.getByRole('tabpanel', { name: 'Empresas' })).toBeInTheDocument();
+    fireEvent.keyDown(screen.getByRole('tab', { name: 'Empresas' }), { key: 'End' });
+    expect(screen.getByRole('tab', { name: 'Publicar vaga' })).toHaveFocus();
+    expect(screen.getByLabelText('Título da vaga')).toBeInTheDocument();
   });
 });

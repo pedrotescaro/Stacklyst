@@ -11,3 +11,10 @@ export const POST = apiHandler(async (req, { params }) => {
 
   return NextResponse.json(result);
 });
+
+// Recommendations express the desired relationship, rather than toggling stale state.
+export const PUT = apiHandler(async (_req, { params }) => {
+  const user = await requireAuth();
+  const { id: targetUserId } = await params;
+  return NextResponse.json(await FollowService.toggleFollow(user.id, targetUserId, true));
+});

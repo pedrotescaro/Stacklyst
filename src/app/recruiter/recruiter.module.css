@@ -1,0 +1,463 @@
+.body {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  --recruiter-ink: color-mix(in srgb, var(--color-dd-accent) 72%, var(--color-dd-text));
+  --recruiter-fill: color-mix(in srgb, var(--color-dd-accent) 85%, black);
+}
+.body * {
+  min-width: 0;
+}
+.body h2 {
+  font-size: 20px;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+  font-weight: 750;
+}
+.body h3 {
+  font-size: 17px;
+  line-height: 1.4;
+  font-weight: 700;
+}
+.body p {
+  font-size: 14px;
+  line-height: 1.65;
+}
+.muted,
+.body small {
+  color: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+  font-size: 13px;
+  line-height: 1.6;
+}
+.summary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-bottom: 1px solid var(--color-dd-border);
+  padding-bottom: 22px;
+  gap: 16px;
+}
+.summary dt {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--color-dd-muted);
+}
+.summary dd {
+  margin-top: 6px;
+  font-size: 24px;
+  font-weight: 750;
+  line-height: 1.2;
+}
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-dd-border);
+  gap: 20px;
+}
+.tabs button {
+  position: relative;
+  flex: 1;
+  min-height: 48px;
+  padding: 10px 0 14px;
+  cursor: pointer;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--color-dd-muted);
+}
+.tabs button[aria-selected='true'] {
+  color: var(--color-dd-text);
+}
+.tabs button[aria-selected='true']::after {
+  position: absolute;
+  content: '';
+  bottom: -1px;
+  left: 10%;
+  right: 10%;
+  height: 3px;
+  border-radius: 3px;
+  background: var(--color-dd-accent);
+}
+.action,
+.secondary,
+.link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  font-size: 14px;
+  line-height: 1.45;
+  font-weight: 650;
+  cursor: pointer;
+  border-radius: 999px;
+  text-align: center;
+}
+.action {
+  background: var(--recruiter-fill, color-mix(in srgb, var(--color-dd-accent) 85%, black));
+  color: white;
+}
+.action:hover {
+  filter: brightness(0.94);
+}
+.secondary {
+  border: 1px solid var(--color-dd-border);
+  color: var(--color-dd-text);
+  background: var(--color-dd-bg);
+}
+.secondary:hover {
+  background: var(--color-dd-surface);
+}
+.link {
+  padding-inline: 0;
+  color: var(--recruiter-ink);
+  text-align: left;
+}
+.body button:focus-visible,
+.body a:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 3px;
+}
+.body button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.notice {
+  padding: 16px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 12px;
+  font-size: 14px;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.notice p + p {
+  margin-top: 8px;
+}
+.notice[role='alert'] {
+  border-color: color-mix(in srgb, #e03e3e 55%, var(--color-dd-border));
+}
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.toolbar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.toolbar h2 + p {
+  margin-top: 6px;
+}
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  font-size: 14px;
+  min-width: 0;
+}
+.field label {
+  font-weight: 650;
+  line-height: 1.45;
+}
+.field input,
+.field select,
+.field textarea {
+  min-height: 46px;
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 10px;
+  background: var(--color-dd-bg);
+  color: var(--color-dd-text);
+  font-size: 16px;
+  line-height: 1.5;
+  caret-color: var(--color-dd-accent);
+}
+.field input::placeholder,
+.field textarea::placeholder {
+  color: color-mix(in srgb, var(--color-dd-text) 60%, var(--color-dd-bg));
+}
+.field textarea {
+  min-height: 116px;
+  resize: vertical;
+}
+.field input:focus-visible,
+.field select:focus-visible,
+.field textarea:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 2px;
+}
+.field input:disabled,
+.field select:disabled,
+.field textarea:disabled {
+  opacity: 0.55;
+}
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 0;
+}
+.twoFields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+.jobList {
+  border-top: 1px solid var(--color-dd-border);
+}
+.job {
+  border-bottom: 1px solid var(--color-dd-border);
+  padding: 24px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+.job h3 {
+  overflow-wrap: anywhere;
+}
+.jobMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+  font-size: 13px;
+  color: var(--color-dd-muted);
+}
+.jobMeta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.companyName {
+  font-weight: 650;
+  color: var(--color-dd-text);
+}
+.status,
+.tag {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 6px;
+  padding: 3px 7px;
+  font-size: 12px;
+  line-height: 1.4;
+}
+.status {
+  color: var(--recruiter-ink);
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  color: var(--color-dd-muted);
+}
+.jobActions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+.count {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--color-dd-muted);
+}
+.count strong {
+  margin-right: 4px;
+  color: var(--color-dd-text);
+}
+.applicants {
+  border-top: 1px solid var(--color-dd-border);
+  padding-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.applicants h4 {
+  font-size: 15px;
+  font-weight: 700;
+}
+.candidate {
+  border-bottom: 1px solid var(--color-dd-border);
+  padding: 16px 0 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.candidate:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+.candidateTop {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.candidateTop > div {
+  flex: 1;
+}
+.candidateName {
+  font-size: 15px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.candidateLinks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 14px;
+  align-items: center;
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--color-dd-muted);
+  overflow-wrap: anywhere;
+}
+.candidateLinks a:hover {
+  text-decoration: underline;
+}
+.candidateLinks a {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+}
+.candidateNote {
+  margin-top: 5px;
+  color: var(--color-dd-muted);
+  font-size: 13px;
+}
+.empty {
+  padding: 28px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+}
+.empty svg {
+  color: var(--recruiter-ink);
+}
+.empty h3 {
+  font-size: 18px;
+}
+.empty p {
+  color: var(--color-dd-muted);
+}
+.company {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--color-dd-border);
+}
+.company h3 {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+}
+.company h3 svg {
+  color: var(--recruiter-ink);
+}
+.formSection {
+  border-top: 1px solid var(--color-dd-border);
+  padding-top: 24px;
+  margin-top: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.steps {
+  padding: 16px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 10px;
+}
+.steps summary {
+  min-height: 32px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 650;
+}
+.steps ol {
+  list-style: decimal;
+  padding-left: 20px;
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--color-dd-muted);
+}
+.steps p {
+  margin-top: 10px;
+}
+.skeleton {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px 0;
+}
+.skeleton span {
+  display: block;
+  height: 16px;
+  background: var(--color-dd-surface);
+  border-radius: 4px;
+}
+.skeleton span:nth-child(2) {
+  width: 72%;
+}
+.skeleton span:nth-child(3) {
+  width: 45%;
+}
+@media (max-width: 479px) {
+  .body {
+    padding: 20px 16px;
+    gap: 22px;
+  }
+  .summary {
+    gap: 12px;
+  }
+  .summary dt {
+    font-size: 12px;
+  }
+  .summary dd {
+    font-size: 22px;
+  }
+  .tabs {
+    gap: 14px;
+  }
+  .tabs button {
+    font-size: 13px;
+  }
+  .twoFields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .jobActions .secondary {
+    width: 100%;
+  }
+  .jobActions {
+    align-items: flex-start;
+  }
+  .action {
+    width: 100%;
+  }
+  .job {
+    padding-block: 20px;
+  }
+  .field textarea {
+    min-height: 130px;
+  }
+}

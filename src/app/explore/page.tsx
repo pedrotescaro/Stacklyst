@@ -8,22 +8,16 @@ import { motion } from 'framer-motion';
 import { Sidebar } from '@/components/Sidebar';
 import { PostCard } from '@/components/PostCard';
 import { FollowButton } from '@/components/motion/FollowButton';
+import { WhoToFollow } from '@/components/WhoToFollow';
 import { EmptyState } from '@/components/motion/EmptyState';
 import { LevelBadge } from '@/components/LevelBadge';
 import { getCurrentUser } from '@/lib/client/current-user';
 import { Search as SearchIcon, Settings, MoreHorizontal, ArrowLeft } from 'lucide-react';
 
-interface SuggestedUser {
-  id: string;
-  username: string;
-  avatar_url: string | null;
-  total_xp: number;
-}
-
 export default function ExplorePage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [suggestions, setSuggestions] = useState<SuggestedUser[]>([]);
+  const [followError, setFollowError] = useState('');
   const [activeTab, setActiveTab] = useState<
     'para_voce' | 'assuntos' | 'noticias' | 'open_source' | 'carreira'
   >('para_voce');
@@ -48,10 +42,7 @@ export default function ExplorePage() {
 
     const fetchPageData = async () => {
       try {
-        const [userData, resSuggestions] = await Promise.all([
-          getCurrentUser<any>(),
-          fetch('/api/users/suggestions', { signal: controller.signal }),
-        ]);
+        const userData = await getCurrentUser<any>();
 
         if (!userData) {
           router.replace('/login');
@@ -59,12 +50,6 @@ export default function ExplorePage() {
         }
 
         if (!active) return;
-        const suggestionsData = resSuggestions.ok
-          ? await resSuggestions.json().catch(() => [])
-          : [];
-
-        if (!active) return;
-        setSuggestions(suggestionsData);
         setUser(userData);
 
         const resFollowing = await fetch(`/api/users/${userData.id}/following`, {
@@ -144,6 +129,7 @@ export default function ExplorePage() {
   };
 
   const handleFollowToggle = async (targetUserId: string) => {
+    setFollowError('');
     const isCurrentlyFollowing = !!followingMap[targetUserId];
     const newFollowing = !isCurrentlyFollowing;
 
@@ -165,17 +151,6 @@ export default function ExplorePage() {
         ...prev,
         [targetUserId]: data.following,
       }));
-
-      if (data.following) {
-        // Refetch suggestions to fill spaces if followed
-        setTimeout(async () => {
-          const resSuggestions = await fetch('/api/users/suggestions');
-          if (resSuggestions.ok) {
-            const data = await resSuggestions.json();
-            setSuggestions(data);
-          }
-        }, 1000);
-      }
     } catch (err) {
       console.error('Failed to follow/unfollow:', err);
       // Rollback
@@ -183,6 +158,8 @@ export default function ExplorePage() {
         ...prev,
         [targetUserId]: isCurrentlyFollowing,
       }));
+      setFollowError('Não foi possível atualizar quem você segue. Tente novamente.');
+      throw err;
     }
   };
 
@@ -365,9 +342,16 @@ export default function ExplorePage() {
     <div className="dd-platform-shell">
       <Sidebar user={user} />
 
-      <div className="flex min-w-0 flex-grow flex-col md:flex-row xl:max-w-[950px]">
+      <div className="flex min-w-0 flex-grow flex-col items-center xl:items-start xl:flex-row xl:max-w-[1100px]">
         {/* Left Side: Search Feed & Trends (Matching image 2) */}
-        <main className="min-h-screen w-full max-w-[600px] flex-grow border-r border-dd-border/80 bg-dd-bg pb-24 md:pb-8">
+        <main
+          className={`w-full min-w-0 max-w-[720px] xl:max-w-[600px] flex-grow border-r border-dd-border/80 bg-dd-bg ${hasSearched ? 'min-h-screen pb-24 md:pb-8' : 'pb-6 xl:min-h-screen xl:pb-8'}`}
+        >
+          {followError && (
+            <p role="alert" className="border-b border-dd-border p-4 text-sm text-dd-text">
+              {followError}
+            </p>
+          )}
           {/* Header Search Bar */}
           <div className="sticky top-0 z-30 bg-dd-bg/95 backdrop-blur-md border-b border-dd-border/60 p-3 flex items-center gap-3">
             {hasSearched && (
@@ -609,60 +593,16 @@ export default function ExplorePage() {
           )}
         </main>
 
-        {/* Right Side: Who to Follow Widget (Matching image 2) */}
-        <aside className="hidden w-[350px] shrink-0 space-y-4 p-5 xl:block">
-          <div className="bg-dd-sidebar-bg border border-dd-border rounded-2xl p-4 space-y-4">
-            <h3 className="text-sm font-black text-dd-text">Quem seguir</h3>
-
-            <div className="space-y-4">
-              {suggestions.length === 0 ? (
-                <p className="text-xs text-dd-muted">Nenhuma sugestão disponível no momento.</p>
-              ) : (
-                suggestions.map((sugUser) => (
-                  <div key={sugUser.id} className="flex items-center justify-between gap-3">
-                    <Link
-                      href={`/profile/${sugUser.username}`}
-                      className="flex items-center gap-3 min-w-0 group"
-                    >
-                      {sugUser.avatar_url ? (
-                        <Image
-                          src={sugUser.avatar_url}
-                          alt={sugUser.username}
-                          width={40}
-                          height={40}
-                          className="w-10 h-10 rounded-full object-cover border border-dd-border group-hover:scale-105 transition-transform shrink-0"
-                        />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold border border-blue-500/10 group-hover:scale-105 transition-transform shrink-0">
-                          {sugUser.username.slice(0, 2).toUpperCase()}
-                        </div>
-                      )}
-                      <div className="min-w-0 text-left">
-                        <div className="flex items-center gap-1">
-                          <p className="text-xs font-black text-dd-text truncate group-hover:underline">
-                            {sugUser.username}
-                          </p>
-                        </div>
-                        <p className="text-[10px] text-dd-muted font-semibold truncate">
-                          @{sugUser.username.toLowerCase()}
-                        </p>
-                      </div>
-                    </Link>
-
-                    <FollowButton
-                      isFollowing={!!followingMap[sugUser.id]}
-                      onToggle={() => handleFollowToggle(sugUser.id)}
-                      size="sm"
-                    />
-                  </div>
-                ))
-              )}
-            </div>
-
-            <button className="text-xs font-bold text-blue-400 hover:text-blue-300 transition-colors block pt-2">
-              Mostrar mais
-            </button>
-          </div>
+        <aside
+          className={`w-full max-w-[720px] shrink-0 space-y-4 p-4 pb-[calc(6rem+env(safe-area-inset-bottom))] xl:w-[350px] xl:max-w-[350px] xl:p-5 ${hasSearched ? 'hidden xl:block' : ''}`}
+        >
+          <WhoToFollow
+            viewerId={user?.id}
+            followedUserIds={Object.keys(followingMap).filter((id) => followingMap[id])}
+            onFollowChange={(id, following) =>
+              setFollowingMap((current) => ({ ...current, [id]: following }))
+            }
+          />
 
           {/* Subtle footer */}
           <div className="px-4 text-[10px] text-dd-muted leading-normal space-y-2">

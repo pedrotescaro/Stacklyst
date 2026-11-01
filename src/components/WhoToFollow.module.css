@@ -1,0 +1,182 @@
+.widget {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 16px;
+  background: var(--color-dd-bg);
+  color: var(--color-dd-text);
+}
+.header {
+  padding: 20px 18px 14px;
+}
+.header h2 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 18px;
+  line-height: 1.4;
+  font-weight: 750;
+  letter-spacing: -0.015em;
+}
+.header h2 svg {
+  color: var(--color-dd-accent);
+  flex-shrink: 0;
+}
+.header p {
+  margin-top: 7px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+}
+.row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px 18px;
+  border-top: 1px solid var(--color-dd-border);
+}
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  flex: 1;
+  min-width: 0;
+  text-decoration: none;
+}
+.identity:focus-visible,
+.follow:focus-visible,
+.retry:focus-visible,
+.refresh:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 3px;
+  border-radius: 8px;
+}
+.identity:hover .name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.identity :global(.text-blue-400) {
+  color: color-mix(in srgb, var(--color-dd-accent) 72%, var(--color-dd-text));
+}
+.copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+}
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+.handle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+  font-size: 13px;
+  line-height: 1.5;
+}
+.reason {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  margin-top: 4px;
+  color: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+  font-size: 12px;
+  line-height: 1.5;
+}
+.follow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 76px;
+  min-height: 44px;
+  padding: 9px 14px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-dd-accent) 85%, black);
+  color: white;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.follow:hover {
+  filter: brightness(0.94);
+}
+.follow:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+.status {
+  padding: 0 18px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+.empty {
+  padding: 4px 18px 18px;
+  color: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+  font-size: 14px;
+  line-height: 1.6;
+}
+.retry,
+.refresh {
+  min-height: 44px;
+  font-size: 13px;
+  font-weight: 650;
+  color: color-mix(in srgb, var(--color-dd-accent) 72%, var(--color-dd-text));
+  cursor: pointer;
+}
+.retry {
+  display: block;
+  margin-top: 4px;
+}
+.refresh {
+  width: 100%;
+  border-top: 1px solid var(--color-dd-border);
+  text-align: left;
+  padding: 12px 18px;
+}
+.refresh:hover {
+  background: var(--color-dd-surface);
+}
+.refresh:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+.skeleton {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 8px;
+}
+.skeleton span {
+  height: 11px;
+  border-radius: 6px;
+  background: var(--color-dd-surface);
+}
+.skeleton span:last-child {
+  width: 65%;
+}
+@media (max-width: 359px) {
+  .header {
+    padding: 18px 14px 12px;
+  }
+  .row {
+    padding: 14px;
+    gap: 8px;
+  }
+  .identity {
+    gap: 8px;
+  }
+  .follow {
+    min-width: 70px;
+    padding-inline: 10px;
+  }
+}

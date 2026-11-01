@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { apiHandler } from '@/lib/api-handler';
-import { requireAuth } from '@/lib/auth';
+import { requireAuth, requireRole } from '@/lib/auth';
 import { JobService } from '@/services/job.service';
 import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
@@ -13,8 +13,11 @@ const createCompanySchema = z.object({
   location: z.string().optional(),
 });
 
-export const GET = apiHandler(async () => {
+export const GET = apiHandler(async (request) => {
+  const managed = new URL(request.url).searchParams.get('mine') === 'true';
+  const manager = managed ? await requireRole(['RECRUITER', 'ADMIN']) : null;
   const companies = await prisma.company.findMany({
+    where: manager && manager.role !== 'ADMIN' ? { owner_id: manager.id } : undefined,
     orderBy: { created_at: 'desc' },
     include: {
       _count: {
@@ -23,7 +26,9 @@ export const GET = apiHandler(async () => {
     },
   });
 
-  return NextResponse.json(companies);
+  return NextResponse.json(companies, {
+    headers: managed ? { 'Cache-Control': 'private, no-store' } : undefined,
+  });
 });
 
 export const POST = apiHandler(async (req) => {

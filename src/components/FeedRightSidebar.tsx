@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Search, Sparkles, Swords, ChevronRight, type LucideIcon } from 'lucide-react';
 import { FeedEngagementCard } from '@/app/feed/FeedEngagementCard';
-import { AchievementShowcase } from '@/components/AchievementShowcase';
+import { WhoToFollow } from '@/components/WhoToFollow';
 import { XPProgressBar } from '@/components/motion/XPProgressBar';
 import { LanguageTag } from '@/components/LanguageTag';
 import { cn } from '@/lib/cn';
@@ -228,17 +228,7 @@ export function FeedRightSidebar({
         />
       )}
 
-      {/* Achievement preview */}
-      {user && (
-        <section className="space-y-5 rounded-[22px] border-2 border-b-4 border-dd-border bg-dd-sidebar-bg p-5">
-          <AchievementShowcase
-            badges={user.badges ?? []}
-            variant="compact"
-            viewAllHref={`/profile/${user.username}?tab=badges`}
-            unframed
-          />
-        </section>
-      )}
+      {user && <WhoToFollow viewerId={user.id} />}
 
       {/* Language Trail Progress bar */}
       <section className="space-y-5 rounded-[22px] border-2 border-b-4 border-dd-border bg-dd-sidebar-bg p-5">
