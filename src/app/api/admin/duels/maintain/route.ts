@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { runDuelMaintenance } from '@/lib/duels/lifecycle';
+import { EvaluatorService } from '@/services/evaluator.service';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,5 +14,6 @@ export async function GET(request: Request) {
   }
 
   const result = await runDuelMaintenance();
-  return NextResponse.json({ success: true, ...result });
+  const notifications = await EvaluatorService.recoverPendingNotifications();
+  return NextResponse.json({ success: true, ...result, notifications });
 }

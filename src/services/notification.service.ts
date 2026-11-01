@@ -5,6 +5,7 @@ import { NotificationType } from '@prisma/client';
 import { encodeCursor, buildCursorWhere } from '@/lib/pagination';
 import { visiblePostWhere } from './post-access.service';
 import { normalizeProfileTitleName } from '@/lib/profile-customization';
+import { getEvaluatorNotificationPresentation } from '@/lib/evaluators/notifications';
 
 export interface CreateNotificationInput {
   userId: string;
@@ -251,6 +252,7 @@ export const NotificationService = {
         const job = notif.resourceType === 'JOB' ? jobsById.get(notif.resourceId ?? '') : undefined;
         const application = job?.applications[0];
         const isAchievement = notif.resourceType === 'PROFILE_ACHIEVEMENT';
+        const evaluatorNotice = getEvaluatorNotificationPresentation(notif);
         const applicationStatus: Record<string, string> = {
           APPLIED: 'Inscrito',
           REVIEWING: 'Em análise',
@@ -276,21 +278,22 @@ export const NotificationService = {
             ? 'Nova conquista desbloqueada'
             : notif.type === 'JOB_APPLICATION_UPDATE'
               ? `Candidatura: ${job?.title ?? 'vaga indisponível'}`
-              : getNotificationTitle(notif.type, isMessage),
+              : (evaluatorNotice?.title ?? getNotificationTitle(notif.type, isMessage)),
           content: isAchievement
             ? `Você conquistou ${achievementNames.get(notif.resourceId || '') || 'um novo título'}. Abra Minhas Conquistas para equipar.`
             : notif.type === 'JOB_APPLICATION_UPDATE'
               ? job
                 ? `${job.title} · ${job.company.name}. ${application ? `${applicationStatus[application.status] ?? application.status}${application.stage ? ` · ${application.stage.title}` : ''}. ` : ''}Veja sua etapa e o feedback da empresa.`
                 : 'Esta vaga foi removida. Explore as oportunidades disponíveis.'
-              : getNotificationContent(notif.type, actorName, isMessage),
+              : (evaluatorNotice?.content ??
+                getNotificationContent(notif.type, actorName, isMessage)),
           link: isAchievement
             ? '/achievements'
             : notif.type === 'JOB_APPLICATION_UPDATE'
               ? job
                 ? `/jobs/${encodeURIComponent(job.id)}#application`
                 : '/jobs'
-              : link,
+              : (evaluatorNotice?.link ?? link),
           is_read: notif.read,
           created_at: notif.createdAt.toISOString(),
           actor: notif.actor,

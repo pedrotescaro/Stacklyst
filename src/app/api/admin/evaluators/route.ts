@@ -19,8 +19,12 @@ const moderationSchema = z.object({
 export const GET = apiHandler(async (req) => {
   await requireAdmin();
   const { searchParams } = new URL(req.url);
-  const status = searchParams.get('status') as any;
+  const status = z
+    .enum(['PENDING', 'APPROVED', 'REJECTED'])
+    .optional()
+    .parse(searchParams.get('status') ?? undefined);
 
+  await EvaluatorService.recoverPendingNotifications();
   const applications = await EvaluatorService.listApplications(status);
   return NextResponse.json(applications);
 });

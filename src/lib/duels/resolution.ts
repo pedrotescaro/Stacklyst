@@ -10,6 +10,11 @@ import {
   type DuelResolutionDecision,
 } from '@/lib/duels/resolution-policy';
 import { getAbandonmentUpdate } from '@/lib/duels/participation-policy';
+import {
+  notifyDuelReviewers,
+  pushEvaluatorNotifications,
+  type EvaluatorPushTarget,
+} from '@/lib/evaluators/notifications';
 
 export { chooseBestDuelSubmission, decideDuelResolution } from '@/lib/duels/resolution-policy';
 
@@ -58,6 +63,7 @@ async function persistResolution(
   const targetStatus = decision.kind === 'review' ? 'REVIEW_PENDING' : 'CLOSED';
   const finishedAt = new Date();
   const xpAwardedAt = decision.kind === 'closed' && decision.winnerId ? finishedAt : null;
+  const pushTargets: EvaluatorPushTarget[] = [];
   const committed = await prisma.$transaction(async (tx) => {
     const claim = await tx.duel.updateMany({
       where: { id: duel.id, status: 'ACTIVE' },
@@ -115,6 +121,9 @@ async function persistResolution(
     if (decision.kind === 'closed' && decision.winnerId) {
       await awardXPInTransaction(tx, decision.winnerId, duel.language, 50);
     }
+    if (decision.kind === 'review') {
+      await notifyDuelReviewers(tx, duel, undefined, pushTargets);
+    }
 
     const participation = [
       { userId: duel.challenger_id, submitted: Boolean(first) },
@@ -147,6 +156,7 @@ async function persistResolution(
   });
 
   if (!committed) return null;
+  await pushEvaluatorNotifications(pushTargets);
 
   return prisma.duel.findUnique({
     where: { id: duel.id },

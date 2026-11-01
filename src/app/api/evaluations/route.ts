@@ -6,19 +6,20 @@ import { prisma } from '@/lib/prisma';
 import { z } from 'zod';
 import { getReviewableLanguages } from '@/lib/evaluators/policy';
 import { ForbiddenError } from '@/lib/errors';
+import type { Prisma } from '@prisma/client';
 
 const evaluationSchema = z.object({
-  duel_id: z.string(),
-  score_player1: z.number().min(0).max(1000),
-  score_player2: z.number().min(0).max(1000),
+  duel_id: z.string().min(1),
+  score_player1: z.number().int().min(0).max(1000),
+  score_player2: z.number().int().min(0).max(1000),
   winner_id: z.string().min(1),
-  human_feedback: z.string().min(5, 'Adicione um feedback explicativo'),
+  human_feedback: z.string().trim().min(5, 'Adicione um feedback explicativo'),
   strengths: z.array(z.string()).default([]),
   improvements: z.array(z.string()).default([]),
 });
 
 // GET /api/evaluations: List duels awaiting evaluation or recently evaluated
-export const GET = apiHandler(async () => {
+export const GET = apiHandler(async (req) => {
   const evaluator = await requireEvaluator();
   const profile = await prisma.evaluatorProfile.findUnique({
     where: { user_id: evaluator.id },
@@ -34,31 +35,49 @@ export const GET = apiHandler(async () => {
     );
   }
 
-  const pendingDuels = await prisma.duel.findMany({
-    where: {
-      status: 'REVIEW_PENDING',
-      challenger_id: { not: evaluator.id },
-      opponent_id: { not: evaluator.id },
-      solutions: { some: {} },
-      language: evaluator.role === 'ADMIN' ? undefined : { in: reviewableLanguages },
+  const requestedDuelId = z
+    .string()
+    .trim()
+    .min(1)
+    .max(128)
+    .optional()
+    .parse(new URL(req.url).searchParams.get('duel') ?? undefined);
+  const where: Prisma.DuelWhereInput = {
+    status: 'REVIEW_PENDING',
+    challenger_id: { not: evaluator.id },
+    opponent_id: { not: evaluator.id },
+    solutions: { some: {} },
+    language: evaluator.role === 'ADMIN' ? undefined : { in: reviewableLanguages },
+  };
+  const include = {
+    challenger: { select: { id: true, username: true, avatar_url: true, total_xp: true } },
+    opponent: { select: { id: true, username: true, avatar_url: true, total_xp: true } },
+    solutions: {
+      include: {
+        user: { select: { id: true, username: true } },
+      },
     },
+    evaluations: {
+      include: {
+        evaluator: { select: { id: true, username: true, avatar_url: true } },
+      },
+    },
+  } satisfies Prisma.DuelInclude;
+  const pendingDuels = await prisma.duel.findMany({
+    where,
     orderBy: { created_at: 'desc' },
     take: 20,
-    include: {
-      challenger: { select: { id: true, username: true, avatar_url: true, total_xp: true } },
-      opponent: { select: { id: true, username: true, avatar_url: true, total_xp: true } },
-      solutions: {
-        include: {
-          user: { select: { id: true, username: true } },
-        },
-      },
-      evaluations: {
-        include: {
-          evaluator: { select: { id: true, username: true, avatar_url: true } },
-        },
-      },
-    },
+    include,
   });
+  // Notifications may reference an older item beyond the first page. Apply exactly the
+  // same participant, profile and language restrictions before including that target.
+  if (requestedDuelId && !pendingDuels.some((duel) => duel.id === requestedDuelId)) {
+    const requested = await prisma.duel.findFirst({
+      where: { AND: [where, { id: requestedDuelId }] },
+      include,
+    });
+    if (requested) pendingDuels.unshift(requested);
+  }
 
   return NextResponse.json(pendingDuels);
 });

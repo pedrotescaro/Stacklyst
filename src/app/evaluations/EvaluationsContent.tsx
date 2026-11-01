@@ -2,24 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import {
-  CheckCircle,
-  CheckCircle2,
-  Clock,
-  ShieldCheck,
-  FileCode,
-  Copy,
-  Check,
-  RefreshCw,
-  Swords,
-  Columns,
-  User,
-  Sparkles,
-  AlertCircle,
-} from 'lucide-react';
-import { Sidebar } from '@/components/Sidebar';
-import { AuthorAvatar } from '@/components/AuthorAvatar';
+import { CheckCircle2, Copy, Check, RefreshCw, Columns2, Swords } from 'lucide-react';
+import { PlatformPageHeader, PlatformPageShell } from '@/components/PlatformPageShell';
 import { EvaluatorGuide } from '@/components/evaluators/EvaluatorGuide';
+import styles from '@/components/evaluators/EvaluatorPages.module.css';
 import { parseProblemFromJson } from '@/lib/duel-problems';
 import { getEvaluatorLevel } from '@/lib/evaluators/policy';
 
@@ -73,6 +59,13 @@ export function EvaluationsContent({ user }: { user: any }) {
 
   useEffect(() => {
     setWinnerId('');
+    setFeedback('');
+    setStrengths('');
+    setImprovements('');
+    setCodeViewMode('both');
+    setCopiedPlayer(null);
+    setScoreP1(800);
+    setScoreP2(800);
     setErrorMessage(null);
     const automatic = selectedDuel?.evaluations.find(
       (evaluation) => evaluation.type === 'AUTOMATIC'
@@ -82,12 +75,23 @@ export function EvaluationsContent({ user }: { user: any }) {
     setScoreP2(automatic.score_player2);
   }, [selectedDuel]);
 
+  const selectDuel = (duel: DuelToEvaluate) => {
+    setSelectedDuel(duel);
+  };
+
   const loadDuels = async () => {
     setLoading(true);
     setErrorMessage(null);
     try {
       const [res, profileRes] = await Promise.all([
-        fetch('/api/evaluations'),
+        fetch(
+          (() => {
+            const requestedId = new URLSearchParams(window.location.search).get('duel');
+            return requestedId
+              ? `/api/evaluations?duel=${encodeURIComponent(requestedId)}`
+              : '/api/evaluations';
+          })()
+        ),
         fetch('/api/evaluators/eligibility').catch(() => null),
       ]);
       if (res && 'ok' in res && res.ok) {
@@ -95,7 +99,10 @@ export function EvaluationsContent({ user }: { user: any }) {
         setDuels(data);
         if (data.length > 0) {
           setSelectedDuel((prev) => {
-            if (!prev) return data[0];
+            if (!prev) {
+              const requestedId = new URLSearchParams(window.location.search).get('duel');
+              return data.find((duel: DuelToEvaluate) => duel.id === requestedId) || data[0];
+            }
             const stillExists = data.find((d: DuelToEvaluate) => d.id === prev.id);
             return stillExists || data[0];
           });
@@ -131,12 +138,20 @@ export function EvaluationsContent({ user }: { user: any }) {
       }, 2000);
     } catch (err) {
       console.error('Erro ao copiar código:', err);
+      setErrorMessage('Não foi possível copiar. Selecione o código e copie manualmente.');
     }
   };
 
   const handleSubmitEvaluation = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedDuel || !winnerId) return;
+    if (
+      !selectedDuel ||
+      !winnerId ||
+      submitting ||
+      !selectedDuel.solutions.some((s) => s.user_id === selectedDuel.challenger.id) ||
+      !selectedDuel.solutions.some((s) => s.user_id === selectedDuel.opponent?.id)
+    )
+      return;
 
     setSubmitting(true);
     setErrorMessage(null);
@@ -186,626 +201,329 @@ export function EvaluationsContent({ user }: { user: any }) {
   const parsedProblem = selectedDuel ? parseProblemFromJson(selectedDuel.problem_body) : null;
   const problemDescription = parsedProblem?.description ?? selectedDuel?.problem_body ?? '';
 
+  const participants = selectedDuel
+    ? [selectedDuel.challenger, selectedDuel.opponent].filter(
+        (player): player is NonNullable<typeof player> => Boolean(player)
+      )
+    : [];
+  const solutionsReady = Boolean(p1Solution && p2Solution && selectedDuel?.opponent);
+
   return (
-    <div className="dd-platform-shell min-h-screen">
-      <Sidebar user={user} />
-
-      <main className="flex-1 min-w-0 max-w-6xl mx-auto p-3.5 sm:p-6 md:p-8 space-y-6 pb-28 md:pb-12">
-        {/* Header with responsive flex layout */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-dd-border pb-5">
-          <div className="min-w-0">
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="bg-purple-500/15 text-purple-400 border border-purple-500/30 px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider">
-                Avaliador de Código
-              </span>
-              {!loading && (
-                <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-dd-surface border border-dd-border text-dd-muted">
-                  {duels.length} {duels.length === 1 ? 'pendente' : 'pendentes'}
-                </span>
-              )}
-            </div>
-            <h1 className="text-2xl md:text-3xl font-black text-dd-text mt-2 tracking-tight">
-              Central de Avaliação Técnica
-            </h1>
-            <p className="text-xs sm:text-sm text-dd-muted font-medium mt-1 leading-relaxed max-w-2xl">
-              Revise soluções de duelos que aguardam desempate técnico, com critérios objetivos e
-              decisão humana fundamentada no código.
-            </p>
-          </div>
-
-          <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
-            <button
-              onClick={loadDuels}
-              disabled={loading}
-              title="Atualizar fila de duelos"
-              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-dd-border bg-dd-surface hover:bg-dd-bg active:scale-95 text-xs font-bold text-dd-text transition-all disabled:opacity-50 cursor-pointer"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin text-blue-400' : ''}`} />
-              <span className="hidden xs:inline">
-                {loading ? 'Atualizando...' : 'Atualizar Fila'}
-              </span>
-            </button>
-          </div>
-        </div>
-
-        {/* Feedback alerts */}
+    <PlatformPageShell user={user}>
+      <PlatformPageHeader
+        title="Central de avaliações"
+        actions={
+          <button
+            type="button"
+            className={styles.secondary}
+            onClick={() => void loadDuels()}
+            disabled={loading}
+            aria-label="Atualizar fila"
+            title="Atualizar fila de duelos"
+          >
+            <RefreshCw size={17} aria-hidden="true" />
+            <span>{loading ? 'Atualizando…' : 'Atualizar'}</span>
+          </button>
+        }
+      />
+      <div className={styles.body}>
+        <section className={styles.intro}>
+          <h2>Uma decisão bem fundamentada.</h2>
+          <p>
+            Revise os duelos encaminhados para análise humana nas suas tecnologias. Leia o desafio,
+            compare os códigos e explique o resultado aos participantes.
+          </p>
+        </section>
         {successMessage && (
-          <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs sm:text-sm flex items-center gap-3 animate-fade-in shadow-sm">
-            <CheckCircle className="w-5 h-5 shrink-0" />
-            <span>{successMessage}</span>
-          </div>
+          <p role="status" className={styles.notice}>
+            {successMessage}
+          </p>
         )}
-
         {errorMessage && (
-          <div className="p-4 rounded-2xl bg-rose-500/10 border border-rose-500/30 text-rose-400 font-bold text-xs sm:text-sm flex items-center gap-3 animate-fade-in shadow-sm">
-            <AlertCircle className="w-5 h-5 shrink-0" />
-            <span>{errorMessage}</span>
-          </div>
+          <p role="alert" className={`${styles.notice} ${styles.error}`}>
+            {errorMessage}
+          </p>
         )}
-
         {evaluatorProfile && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 p-4 rounded-2xl bg-dd-surface border border-dd-border text-xs">
-            <div>
-              <p className="text-dd-muted">Nível</p>
-              <p className="font-black text-dd-text">
-                {getEvaluatorLevel(evaluatorProfile.evaluations_count, evaluatorProfile.reputation)}
-              </p>
-            </div>
-            <div>
-              <p className="text-dd-muted">Reputação</p>
-              <p className="font-black text-dd-text">{evaluatorProfile.reputation}/100</p>
-            </div>
-            <div>
-              <p className="text-dd-muted">Avaliações</p>
-              <p className="font-black text-dd-text">{evaluatorProfile.evaluations_count}</p>
-            </div>
-            <div>
-              <p className="text-dd-muted">Status</p>
-              <p className="font-black text-dd-text">{evaluatorProfile.status}</p>
-            </div>
-            <p className="col-span-2 md:col-span-4 text-dd-muted">
-              Especialidades: {evaluatorProfile.tech_stack.join(', ') || 'nenhuma cadastrada'} · +10
-              XP por avaliação concluída.
+          <section aria-label="Seu perfil de avaliador">
+            <dl className={styles.metrics}>
+              <div>
+                <dt>Nível de avaliador</dt>
+                <dd>
+                  {getEvaluatorLevel(
+                    evaluatorProfile.evaluations_count,
+                    evaluatorProfile.reputation
+                  )}
+                </dd>
+              </div>
+              <div>
+                <dt>Reputação</dt>
+                <dd>{evaluatorProfile.reputation} / 100</dd>
+              </div>
+              <div>
+                <dt>Avaliações concluídas</dt>
+                <dd>{evaluatorProfile.evaluations_count}</dd>
+              </div>
+              <div>
+                <dt>Situação</dt>
+                <dd>
+                  {(
+                    {
+                      ACTIVE: 'Ativo',
+                      PROBATION: 'Em observação',
+                      SUSPENDED: 'Suspenso',
+                    } as Record<string, string>
+                  )[evaluatorProfile.status] || evaluatorProfile.status}
+                </dd>
+              </div>
+            </dl>
+            <p className={styles.muted} style={{ marginTop: 12 }}>
+              Tecnologias: {evaluatorProfile.tech_stack.join(', ')} · +10 XP por avaliação
+              concluída.
             </p>
-          </div>
+          </section>
         )}
-
-        {/* Collapsible Evaluator Guide */}
         <EvaluatorGuide context="evaluation" />
-
-        {/* Loading Skeleton */}
-        {loading && (
-          <div className="rounded-3xl border border-dd-border bg-dd-surface/50 p-8 sm:p-12 text-center space-y-3 animate-pulse">
-            <div className="mx-auto w-10 h-10 rounded-full border-2 border-blue-400 border-t-transparent animate-spin" />
-            <p className="text-xs sm:text-sm font-bold text-dd-muted">
-              Carregando duelos pendentes de avaliação...
+        {loading ? (
+          <p role="status" className={styles.muted}>
+            Carregando duelos pendentes de avaliação…
+          </p>
+        ) : !duels.length && !errorMessage ? (
+          <section className={styles.empty}>
+            <CheckCircle2 size={32} aria-hidden="true" />
+            <h2>Fila de Avaliações em Dia</h2>
+            <p>Nenhum duelo pendente de homologação</p>
+            <p>
+              Novos duelos compatíveis com suas tecnologias aparecerão aqui. Você também receberá
+              uma notificação quando houver uma revisão disponível.
             </p>
-          </div>
-        )}
-
-        {/* Empty State when queue is clear */}
-        {!loading && duels.length === 0 && (
-          <div className="rounded-3xl border border-dd-border bg-dd-surface/80 p-8 sm:p-12 text-center max-w-2xl mx-auto space-y-5 backdrop-blur-sm shadow-sm animate-fade-in">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-400">
-              <ShieldCheck className="h-8 w-8" />
-            </div>
-
-            <div className="space-y-2">
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/25 text-xs font-bold">
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                Fila de Avaliações em Dia
-              </div>
-              <h2 className="text-xl sm:text-2xl font-black text-dd-text">
-                Nenhum duelo pendente de homologação
-              </h2>
-              <p className="text-xs sm:text-sm text-dd-muted font-medium max-w-md mx-auto leading-relaxed">
-                Todos os duelos que aguardavam desempate técnico já foram revisados. Novos desafios
-                com empate ou contestação aparecerão automaticamente nesta fila.
-              </p>
-            </div>
-
-            <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3">
-              <button
-                onClick={loadDuels}
-                disabled={loading}
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-600 active:scale-95 text-white font-bold text-xs sm:text-sm transition-all shadow-md shadow-blue-500/20 cursor-pointer"
-              >
-                <RefreshCw className={`w-4 h-4 ${loading ? 'animate-spin' : ''}`} />
-                Atualizar Fila
-              </button>
-              <Link
-                href="/duels"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl border border-dd-border bg-dd-bg hover:bg-dd-surface active:scale-95 text-dd-text font-bold text-xs sm:text-sm transition-all"
-              >
-                <Swords className="w-4 h-4 text-purple-400" />
-                Ver Duelos na Plataforma
-              </Link>
-            </div>
-          </div>
-        )}
-
-        {/* Two-column layout: Duels List & Review Workspace */}
-        {!loading && duels.length > 0 && (
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            {/* Left Column: Duel Queue */}
-            <div className="lg:col-span-4 lg:sticky lg:top-6 lg:self-start lg:max-h-[calc(100vh-6rem)] lg:overflow-y-auto space-y-3">
-              <div className="flex items-center justify-between px-1">
-                <h2 className="text-xs sm:text-sm font-black text-dd-text uppercase tracking-wider flex items-center gap-2">
-                  <Clock className="w-4 h-4 text-blue-400" />
-                  Fila de Duelos ({duels.length})
-                </h2>
-              </div>
-
-              <div className="space-y-2">
-                {duels.map((d) => {
-                  const isSelected = selectedDuel?.id === d.id;
-                  return (
+            <Link href="/duels" className={styles.secondary}>
+              Ver duelos na plataforma
+            </Link>
+          </section>
+        ) : (
+          duels.length > 0 && (
+            <>
+              <section className={styles.section}>
+                <h2>Fila de duelos ({duels.length})</h2>
+                <p className={styles.muted}>
+                  Selecione um duelo para revisar. Cada decisão pode ser homologada uma única vez.
+                </p>
+                <div className={styles.queue}>
+                  {duels.map((duel) => (
                     <button
-                      key={d.id}
-                      onClick={() => setSelectedDuel(d)}
-                      className={`w-full p-3.5 sm:p-4 rounded-2xl border text-left transition-all cursor-pointer min-h-[64px] ${
-                        isSelected
-                          ? 'bg-blue-500/10 border-blue-500/60 ring-1 ring-blue-500/30 shadow-md'
-                          : 'bg-dd-surface border-dd-border/70 hover:border-dd-border hover:bg-dd-surface/90'
-                      }`}
+                      type="button"
+                      key={duel.id}
+                      className={styles.queueItem}
+                      aria-pressed={selectedDuel?.id === duel.id}
+                      disabled={submitting}
+                      onClick={() => selectDuel(duel)}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-xs sm:text-sm font-black text-dd-text truncate">
-                          {d.problem_title}
-                        </span>
-                        <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 shrink-0">
-                          {d.language}
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2 mt-2 pt-2 border-t border-dd-border/40 text-[11px] sm:text-xs text-dd-muted font-medium">
-                        <div className="flex items-center -space-x-1.5 shrink-0">
-                          <AuthorAvatar
-                            username={d.challenger.username}
-                            avatar_url={d.challenger.avatar_url}
-                            size="sm"
-                            className="!w-5 !h-5 border-dd-surface text-[8px]"
-                          />
-                          <AuthorAvatar
-                            username={d.opponent?.username || 'Oponente'}
-                            avatar_url={d.opponent?.avatar_url}
-                            size="sm"
-                            className="!w-5 !h-5 border-dd-surface text-[8px]"
-                          />
-                        </div>
-                        <span className="truncate">
-                          @{d.challenger.username} <span className="text-dd-muted/60">vs</span> @
-                          {d.opponent?.username || 'Oponente'}
-                        </span>
-                      </div>
+                      <span>{duel.language}</span>
+                      <strong>{duel.problem_title}</strong>
+                      <span>
+                        @{duel.challenger.username} × @{duel.opponent?.username || 'Sem oponente'}
+                      </span>
                     </button>
-                  );
-                })}
-              </div>
-            </div>
-
-            {/* Right Column: Code Inspection & Review Form */}
-            {selectedDuel && (
-              <div className="lg:col-span-8 space-y-6 min-w-0">
-                {/* Problem Statement Card */}
-                <div className="p-4 sm:p-5 rounded-2xl sm:rounded-3xl bg-dd-surface border border-dd-border space-y-3 shadow-sm">
-                  <div className="flex items-start justify-between gap-3 flex-wrap">
-                    <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-blue-400 bg-blue-500/10 px-2 py-0.5 rounded-md border border-blue-500/20">
-                        Enunciado do Duelo
-                      </span>
-                      <h3 className="text-base sm:text-lg font-black text-dd-text mt-1">
-                        {selectedDuel.problem_title}
-                      </h3>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {parsedProblem?.difficulty && (
-                        <span
-                          className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                            parsedProblem.difficulty === 'Fácil'
-                              ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
-                              : parsedProblem.difficulty === 'Médio'
-                                ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
-                                : 'bg-rose-500/15 text-rose-400 border-rose-500/30'
-                          }`}
-                        >
-                          {parsedProblem.difficulty}
-                        </span>
-                      )}
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-500/20 text-blue-400">
-                        {selectedDuel.language}
+                  ))}
+                </div>
+              </section>
+              {selectedDuel && (
+                <>
+                  <section className={styles.section}>
+                    <div className={styles.footer}>
+                      <h2>{selectedDuel.problem_title}</h2>
+                      <span className={styles.muted}>
+                        <span>{parsedProblem?.difficulty}</span> ·{' '}
+                        <span>{selectedDuel.language}</span>
                       </span>
                     </div>
-                  </div>
-
-                  <p className="text-xs sm:text-sm text-dd-muted font-medium whitespace-pre-wrap leading-relaxed">
-                    {problemDescription}
-                  </p>
-
-                  {parsedProblem?.constraints && parsedProblem.constraints.length > 0 && (
-                    <div className="pt-2 border-t border-dd-border/50">
-                      <span className="text-[11px] font-bold text-dd-text block mb-1">
-                        Restrições:
-                      </span>
-                      <ul className="list-disc list-inside text-[11px] text-dd-muted space-y-0.5">
-                        {parsedProblem.constraints.map((constraint, i) => (
-                          <li key={i}>{constraint}</li>
+                    <p className={styles.problem}>{problemDescription}</p>
+                    {parsedProblem?.constraints?.length ? (
+                      <ul className={styles.constraints}>
+                        {parsedProblem.constraints.map((constraint) => (
+                          <li key={constraint}>{constraint}</li>
                         ))}
                       </ul>
-                    </div>
-                  )}
-                </div>
-
-                {/* Code Inspection Section */}
-                <div className="space-y-3">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-                    <h4 className="text-xs sm:text-sm font-black text-dd-text uppercase tracking-wider flex items-center gap-2">
-                      <FileCode className="w-4 h-4 text-blue-400" />
-                      Comparação de Códigos
-                    </h4>
-
-                    {/* Responsive Segmented View Mode Toggle */}
-                    <div className="inline-flex items-center p-1 rounded-xl bg-dd-surface border border-dd-border text-xs font-bold self-start sm:self-auto">
+                    ) : null}
+                  </section>
+                  <section className={styles.section}>
+                    <h2>Compare as soluções</h2>
+                    <p className={styles.muted}>
+                      Use os mesmos critérios para os dois participantes. Códigos longos podem ser
+                      rolados dentro do bloco.
+                    </p>
+                    <div className={styles.chips} aria-label="Exibição dos códigos">
                       <button
                         type="button"
+                        className={styles.chip}
+                        aria-pressed={codeViewMode === 'both'}
                         onClick={() => setCodeViewMode('both')}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                          codeViewMode === 'both'
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'text-dd-muted hover:text-dd-text'
-                        }`}
                       >
-                        <Columns className="w-3.5 h-3.5" />
-                        <span className="hidden xs:inline">Lado a Lado</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setCodeViewMode('p1')}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                          codeViewMode === 'p1'
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'text-dd-muted hover:text-dd-text'
-                        }`}
-                      >
-                        <User className="w-3.5 h-3.5 text-blue-200" />
-                        <span>@{selectedDuel.challenger.username}</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setCodeViewMode('p2')}
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                          codeViewMode === 'p2'
-                            ? 'bg-orange-500 text-white shadow-sm'
-                            : 'text-dd-muted hover:text-dd-text'
-                        }`}
-                      >
-                        <User className="w-3.5 h-3.5 text-orange-200" />
-                        <span>@{selectedDuel.opponent?.username || 'Oponente'}</span>
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Code Blocks */}
-                  <div
-                    className={`grid gap-4 ${
-                      codeViewMode === 'both' ? 'grid-cols-1 md:grid-cols-2' : 'grid-cols-1'
-                    }`}
-                  >
-                    {/* Player 1 Code */}
-                    {(codeViewMode === 'both' || codeViewMode === 'p1') && (
-                      <div className="p-3.5 sm:p-4 rounded-2xl bg-dd-surface border border-dd-border space-y-2.5 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <AuthorAvatar
-                              username={selectedDuel.challenger.username}
-                              avatar_url={selectedDuel.challenger.avatar_url}
-                              size="sm"
-                              className="!w-6 !h-6"
-                            />
-                            <div className="min-w-0">
-                              <span className="text-xs font-bold text-dd-text truncate block">
-                                @{selectedDuel.challenger.username}
-                              </span>
-                              <span className="text-[10px] text-blue-400 font-semibold block">
-                                Jogador 1 (Desafiante)
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-[10px] font-mono text-dd-muted px-1.5 py-0.5 rounded bg-dd-bg">
-                              {p1Solution ? `${p1Solution.code.length} chars` : 'Sem envio'}
-                            </span>
-                            {p1Solution?.code && (
-                              <button
-                                type="button"
-                                onClick={() => handleCopyCode(p1Solution.code, 'p1')}
-                                className="inline-flex items-center gap-1 p-1 sm:px-2 sm:py-1 rounded-lg border border-dd-border bg-dd-bg hover:bg-dd-surface text-[10px] font-bold text-dd-muted hover:text-dd-text transition-all cursor-pointer"
-                                title="Copiar código do Jogador 1"
-                              >
-                                {copiedPlayer === 'p1' ? (
-                                  <>
-                                    <Check className="w-3 h-3 text-emerald-400" />
-                                    <span className="hidden sm:inline text-emerald-400">
-                                      Copiado
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="w-3 h-3" />
-                                    <span className="hidden sm:inline">Copiar</span>
-                                  </>
-                                )}
-                              </button>
-                            )}
-                          </div>
-                        </div>
-
-                        <pre className="p-3 sm:p-4 rounded-xl bg-dd-bg/90 border border-dd-border/60 text-[11px] sm:text-xs font-mono text-dd-text overflow-x-auto max-h-72 sm:max-h-96 md:max-h-[28rem] leading-relaxed select-text">
-                          {p1Solution?.code || '// Nenhum código enviado ainda pelo participante.'}
-                        </pre>
-                      </div>
-                    )}
-
-                    {/* Player 2 Code */}
-                    {(codeViewMode === 'both' || codeViewMode === 'p2') && (
-                      <div className="p-3.5 sm:p-4 rounded-2xl bg-dd-surface border border-dd-border space-y-2.5 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="flex items-center gap-2 min-w-0">
-                            <AuthorAvatar
-                              username={selectedDuel.opponent?.username || 'Oponente'}
-                              avatar_url={selectedDuel.opponent?.avatar_url}
-                              size="sm"
-                              className="!w-6 !h-6"
-                            />
-                            <div className="min-w-0">
-                              <span className="text-xs font-bold text-dd-text truncate block">
-                                @{selectedDuel.opponent?.username || 'Oponente'}
-                              </span>
-                              <span className="text-[10px] text-orange-400 font-semibold block">
-                                Jogador 2 (Oponente)
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center gap-1.5 shrink-0">
-                            <span className="text-[10px] font-mono text-dd-muted px-1.5 py-0.5 rounded bg-dd-bg">
-                              {p2Solution ? `${p2Solution.code.length} chars` : 'Sem envio'}
-                            </span>
-                            {p2Solution?.code && (
-                              <button
-                                type="button"
-                                onClick={() => handleCopyCode(p2Solution.code, 'p2')}
-                                className="inline-flex items-center gap-1 p-1 sm:px-2 sm:py-1 rounded-lg border border-dd-border bg-dd-bg hover:bg-dd-surface text-[10px] font-bold text-dd-muted hover:text-dd-text transition-all cursor-pointer"
-                                title="Copiar código do Jogador 2"
-                              >
-                                {copiedPlayer === 'p2' ? (
-                                  <>
-                                    <Check className="w-3 h-3 text-emerald-400" />
-                                    <span className="hidden sm:inline text-emerald-400">
-                                      Copiado
-                                    </span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <Copy className="w-3 h-3" />
-                                    <span className="hidden sm:inline">Copiar</span>
-                                  </>
-                                )}
-                              </button>
-                            )}
-                          </div>
-                        </div>
-
-                        <pre className="p-3 sm:p-4 rounded-xl bg-dd-bg/90 border border-dd-border/60 text-[11px] sm:text-xs font-mono text-dd-text overflow-x-auto max-h-72 sm:max-h-96 md:max-h-[28rem] leading-relaxed select-text">
-                          {p2Solution?.code || '// Nenhum código enviado ainda pelo participante.'}
-                        </pre>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Human Review Form */}
-                <form
-                  onSubmit={handleSubmitEvaluation}
-                  className="p-4 sm:p-6 md:p-7 rounded-2xl sm:rounded-3xl bg-dd-surface border border-dd-border space-y-5 shadow-sm"
-                >
-                  <div className="border-b border-dd-border pb-3.5">
-                    <h3 className="text-base sm:text-lg font-black text-dd-text flex items-center gap-2">
-                      <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0" />
-                      Formulário de Homologação da Avaliação
-                    </h3>
-                    <p className="text-xs text-dd-muted font-medium mt-1">
-                      Defina notas fundamentadas e selecione o participante vencedor do desempate.
-                    </p>
-                  </div>
-
-                  {/* Winner Selection with touch-friendly cards */}
-                  <fieldset className="space-y-2.5">
-                    <legend className="text-xs sm:text-sm font-bold text-dd-text">
-                      Vencedor do desempate <span className="text-rose-400">*</span>
-                    </legend>
-                    <p className="text-[11px] sm:text-xs text-dd-muted leading-relaxed">
-                      A decisão é explícita e soberana do avaliador humano, fundamentada na análise
-                      do código.
-                    </p>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                      <label
-                        className={`flex items-center gap-3 rounded-2xl border p-3.5 sm:p-4 transition-all cursor-pointer min-h-[52px] select-none ${
-                          winnerId === selectedDuel.challenger.id
-                            ? 'border-blue-500 bg-blue-500/10 ring-1 ring-blue-500/30 shadow-sm'
-                            : 'border-dd-border bg-dd-bg/60 hover:bg-dd-bg hover:border-dd-border'
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="duel-winner"
-                          value={selectedDuel.challenger.id}
-                          checked={winnerId === selectedDuel.challenger.id}
-                          onChange={(event) => setWinnerId(event.target.value)}
-                          className="accent-blue-500 w-4 h-4 shrink-0"
-                          required
+                        <Columns2
+                          size={15}
+                          style={{ display: 'inline', marginRight: 6 }}
+                          aria-hidden="true"
                         />
-                        <AuthorAvatar
-                          username={selectedDuel.challenger.username}
-                          avatar_url={selectedDuel.challenger.avatar_url}
-                          size="sm"
-                          className="!w-7 !h-7"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <span className="text-xs sm:text-sm font-black text-dd-text block truncate">
-                            @{selectedDuel.challenger.username}
-                          </span>
-                          <span className="text-[10px] text-blue-400 font-semibold block">
-                            Jogador 1 (Desafiante)
-                          </span>
-                        </div>
-                      </label>
-
-                      {selectedDuel.opponent && (
-                        <label
-                          className={`flex items-center gap-3 rounded-2xl border p-3.5 sm:p-4 transition-all cursor-pointer min-h-[52px] select-none ${
-                            winnerId === selectedDuel.opponent.id
-                              ? 'border-orange-500 bg-orange-500/10 ring-1 ring-orange-500/30 shadow-sm'
-                              : 'border-dd-border bg-dd-bg/60 hover:bg-dd-bg hover:border-dd-border'
-                          }`}
+                        Lado a lado
+                      </button>
+                      {participants.map((player, index) => (
+                        <button
+                          type="button"
+                          key={player.id}
+                          className={styles.chip}
+                          aria-pressed={codeViewMode === (index === 0 ? 'p1' : 'p2')}
+                          onClick={() => setCodeViewMode(index === 0 ? 'p1' : 'p2')}
                         >
-                          <input
-                            type="radio"
-                            name="duel-winner"
-                            value={selectedDuel.opponent.id}
-                            checked={winnerId === selectedDuel.opponent.id}
-                            onChange={(event) => setWinnerId(event.target.value)}
-                            className="accent-orange-500 w-4 h-4 shrink-0"
-                            required
-                          />
-                          <AuthorAvatar
-                            username={selectedDuel.opponent.username}
-                            avatar_url={selectedDuel.opponent.avatar_url}
-                            size="sm"
-                            className="!w-7 !h-7"
-                          />
-                          <div className="min-w-0 flex-1">
-                            <span className="text-xs sm:text-sm font-black text-dd-text block truncate">
-                              @{selectedDuel.opponent.username}
-                            </span>
-                            <span className="text-[10px] text-orange-400 font-semibold block">
-                              Jogador 2 (Oponente)
-                            </span>
-                          </div>
-                        </label>
-                      )}
+                          @{player.username}
+                        </button>
+                      ))}
                     </div>
-                  </fieldset>
-
-                  {/* Scores Inputs */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-dd-text mb-1.5">
-                        Nota Jogador 1 (@{selectedDuel.challenger.username}){' '}
-                        <span className="text-dd-muted font-normal">[0 - 1000]</span>
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        max={1000}
-                        value={scoreP1}
-                        onChange={(e) => setScoreP1(Number(e.target.value))}
-                        className="w-full bg-dd-bg border border-dd-border rounded-xl p-3 text-sm font-bold text-dd-text outline-none focus:border-blue-500 transition-colors"
-                      />
+                    <div className={styles.codeGrid} data-both={codeViewMode === 'both'}>
+                      {participants.map((player, index) => {
+                        const key = index === 0 ? 'p1' : 'p2';
+                        if (codeViewMode !== 'both' && codeViewMode !== key) return null;
+                        const solution = index === 0 ? p1Solution : p2Solution;
+                        return (
+                          <article key={player.id} className={styles.codeCard}>
+                            <header className={styles.codeHeader}>
+                              <strong>@{player.username}</strong>
+                              <button
+                                type="button"
+                                title={`Copiar código do Jogador ${index + 1}`}
+                                disabled={!solution}
+                                onClick={() => void handleCopyCode(solution?.code || '', key)}
+                              >
+                                {copiedPlayer === key ? <Check size={17} /> : <Copy size={17} />}
+                                <span>{copiedPlayer === key ? 'Copiado' : 'Copiar'}</span>
+                              </button>
+                            </header>
+                            <pre tabIndex={0} aria-label={`Código de @${player.username}`}>
+                              <code>
+                                {solution?.code || 'Este participante não enviou uma solução.'}
+                              </code>
+                            </pre>
+                          </article>
+                        );
+                      })}
                     </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-dd-text mb-1.5">
-                        Nota Jogador 2 (@{selectedDuel.opponent?.username || 'Oponente'}){' '}
-                        <span className="text-dd-muted font-normal">[0 - 1000]</span>
-                      </label>
-                      <input
-                        type="number"
-                        min={0}
-                        max={1000}
-                        value={scoreP2}
-                        onChange={(e) => setScoreP2(Number(e.target.value))}
-                        className="w-full bg-dd-bg border border-dd-border rounded-xl p-3 text-sm font-bold text-dd-text outline-none focus:border-blue-500 transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Technical Feedback Textarea */}
-                  <div>
-                    <label className="block text-xs font-bold text-dd-text mb-1.5">
-                      Feedback Geral e Critérios Técnicos <span className="text-rose-400">*</span>
-                    </label>
-                    <textarea
-                      rows={4}
-                      required
-                      value={feedback}
-                      onChange={(e) => setFeedback(e.target.value)}
-                      placeholder="Explique a avaliação de legibilidade, desempenho, casos limite e por que a solução vencedora se destacou..."
-                      className="w-full bg-dd-bg border border-dd-border rounded-xl p-3.5 text-sm font-medium text-dd-text outline-none focus:border-blue-500 resize-none leading-relaxed transition-colors"
-                    />
-                    <p className="text-[11px] text-dd-muted mt-1">
-                      Dica: cite funções, variáveis ou trechos de código específicos para
-                      fundamentar sua decisão.
+                  </section>
+                  <section className={styles.section}>
+                    <h2>Formulário de homologação da avaliação</h2>
+                    <p className={styles.muted}>
+                      Revise as notas de 0 a 1.000, escolha o vencedor e registre uma justificativa
+                      técnica. A decisão conclui o duelo e notifica os participantes.
                     </p>
-                  </div>
-
-                  {/* Strengths & Improvements */}
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-bold text-dd-text mb-1.5">
-                        Pontos Fortes{' '}
-                        <span className="text-dd-muted font-normal">(separados por vírgula)</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={strengths}
-                        onChange={(e) => setStrengths(e.target.value)}
-                        placeholder="Clean code, Tipagem estrita, Performance"
-                        className="w-full bg-dd-bg border border-dd-border rounded-xl p-3 text-sm font-medium text-dd-text outline-none focus:border-blue-500 transition-colors"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="block text-xs font-bold text-dd-text mb-1.5">
-                        Pontos de Melhoria{' '}
-                        <span className="text-dd-muted font-normal">(separados por vírgula)</span>
-                      </label>
-                      <input
-                        type="text"
-                        value={improvements}
-                        onChange={(e) => setImprovements(e.target.value)}
-                        placeholder="Tratamento de erros, Nomenclatura, Edge cases"
-                        className="w-full bg-dd-bg border border-dd-border rounded-xl p-3 text-sm font-medium text-dd-text outline-none focus:border-blue-500 transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={submitting || !winnerId}
-                    className="w-full min-h-[48px] py-3.5 px-6 rounded-2xl bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white font-black text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
-                  >
-                    {submitting ? (
-                      <>
-                        <RefreshCw className="w-4 h-4 animate-spin" />
-                        <span>Homologando Avaliação...</span>
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="w-4 h-4 text-blue-200" />
-                        <span>Homologar Avaliação e Concluir Duelo</span>
-                      </>
+                    {!solutionsReady && (
+                      <p role="alert" className={styles.notice}>
+                        Este duelo ainda não possui as duas soluções. Atualize a fila antes de
+                        avaliar.
+                      </p>
                     )}
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
+                    <form
+                      className={styles.form}
+                      style={{ marginTop: 20 }}
+                      onSubmit={handleSubmitEvaluation}
+                    >
+                      <fieldset disabled={submitting || !solutionsReady}>
+                        <legend style={{ marginBottom: 10 }}>Quem venceu?</legend>
+                        <div className={styles.twoFields}>
+                          {participants.map((player) => (
+                            <label key={player.id} className={styles.winner}>
+                              <input
+                                type="radio"
+                                required
+                                name="duel-winner"
+                                value={player.id}
+                                checked={winnerId === player.id}
+                                onChange={(event) => setWinnerId(event.target.value)}
+                              />
+                              @{player.username}
+                            </label>
+                          ))}
+                        </div>
+                      </fieldset>
+                      <div className={styles.twoFields}>
+                        {participants.map((player, index) => (
+                          <div className={styles.field} key={player.id}>
+                            <label htmlFor={`score-${index}`}>Nota de @{player.username}</label>
+                            <input
+                              id={`score-${index}`}
+                              type="number"
+                              required
+                              min={0}
+                              max={1000}
+                              step={1}
+                              value={index === 0 ? scoreP1 : scoreP2}
+                              disabled={submitting || !solutionsReady}
+                              onChange={(event) =>
+                                (index === 0 ? setScoreP1 : setScoreP2)(Number(event.target.value))
+                              }
+                            />
+                            <small>De 0 a 1.000 pontos</small>
+                          </div>
+                        ))}
+                      </div>
+                      <div className={styles.field}>
+                        <label htmlFor="human-feedback">Justificativa técnica</label>
+                        <textarea
+                          id="human-feedback"
+                          required
+                          minLength={5}
+                          maxLength={10000}
+                          disabled={submitting || !solutionsReady}
+                          value={feedback}
+                          onChange={(event) => setFeedback(event.target.value)}
+                          placeholder="Explique a avaliação de legibilidade, desempenho, casos limite e a escolha do vencedor."
+                        />
+                        <small>
+                          Cite cada participante e explique como o código sustenta sua decisão.
+                        </small>
+                      </div>
+                      <div className={styles.field}>
+                        <label htmlFor="strengths">
+                          Pontos fortes <span className={styles.muted}>(opcional)</span>
+                        </label>
+                        <input
+                          id="strengths"
+                          value={strengths}
+                          disabled={submitting || !solutionsReady}
+                          onChange={(event) => setStrengths(event.target.value)}
+                          placeholder="Clean code, tipagem estrita"
+                        />
+                        <small>Separe os pontos por vírgula.</small>
+                      </div>
+                      <div className={styles.field}>
+                        <label htmlFor="improvements">
+                          Oportunidades de melhoria <span className={styles.muted}>(opcional)</span>
+                        </label>
+                        <input
+                          id="improvements"
+                          value={improvements}
+                          disabled={submitting || !solutionsReady}
+                          onChange={(event) => setImprovements(event.target.value)}
+                          placeholder="Tratamento de erros, nomenclatura"
+                        />
+                        <small>Separe as sugestões por vírgula.</small>
+                      </div>
+                      <button
+                        type="submit"
+                        className={styles.button}
+                        disabled={
+                          submitting || !solutionsReady || !winnerId || feedback.trim().length < 5
+                        }
+                      >
+                        {submitting ? 'Homologando…' : 'Homologar avaliação e concluir duelo'}
+                        <Swords size={17} aria-hidden="true" />
+                      </button>
+                    </form>
+                  </section>
+                </>
+              )}
+            </>
+          )
         )}
-      </main>
-    </div>
+      </div>
+    </PlatformPageShell>
   );
 }

@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 import { logger } from '@/lib/logger';
-import { NotificationService } from './notification.service';
 import { TRAILS_DATA } from '@/lib/trailsData';
+import { LEARNING_COURSES } from '@/lib/learning/catalog';
 import { awardXPInTransaction } from '@/lib/xp';
 import {
   EVALUATOR_MIN_MOTIVATION_LENGTH,
@@ -12,8 +12,15 @@ import {
   getEvaluatorStanding,
   hasReviewableTechnology,
 } from '@/lib/evaluators/policy';
-import { ForbiddenError, ValidationError } from '@/lib/errors';
+import { ForbiddenError, NotFoundError, ValidationError } from '@/lib/errors';
 import { recordSecurityAudit } from '@/lib/security-audit';
+import {
+  findDuelReviewers,
+  notifyDuelReviewers,
+  notifyEvaluatorApplication,
+  pushEvaluatorNotifications,
+  type EvaluatorPushTarget,
+} from '@/lib/evaluators/notifications';
 
 export const EvaluatorService = {
   /**
@@ -50,6 +57,15 @@ export const EvaluatorService = {
       );
       if (allQuestionsCompleted && levels.length > 0) {
         completedTrails.push(lang);
+      }
+    }
+    // Current learning paths also award eligibility; legacy assessment IDs remain valid.
+    for (const course of LEARNING_COURSES) {
+      const steps = course.lessons.flatMap((lesson) =>
+        lesson.steps.filter((step) => step.type !== 'concept_explanation')
+      );
+      if (steps.length && steps.every((step) => completedQuizIds.has(step.id))) {
+        if (!completedTrails.includes(course.language)) completedTrails.push(course.language);
       }
     }
 
@@ -115,14 +131,40 @@ export const EvaluatorService = {
       );
     }
 
-    const application = await prisma.evaluatorApplication.create({
-      data: {
-        user_id: userId,
-        motivation: normalizedMotivation,
-        tech_stack: normalizedTechStack,
-        status: 'PENDING',
-      },
+    const pushTargets: EvaluatorPushTarget[] = [];
+    const application = await prisma.$transaction(async (tx) => {
+      // Serialize submissions for this account without a schema migration. A double tap or
+      // concurrent request must not create two pending applications and two admin alerts.
+      await tx.$queryRaw`SELECT id FROM "User" WHERE id = ${userId} FOR UPDATE`;
+      const current = await tx.user.findUnique({ where: { id: userId }, select: { role: true } });
+      if (!current || ['ADMIN', 'EVALUATOR'].includes(current.role)) {
+        throw new ValidationError(
+          'ALREADY_EVALUATOR',
+          'Você já possui a função de Avaliador de Código.'
+        );
+      }
+      const pending = await tx.evaluatorApplication.findFirst({
+        where: { user_id: userId, status: 'PENDING' },
+        select: { id: true },
+      });
+      if (pending) {
+        throw new ValidationError(
+          'EVALUATOR_APPLICATION_PENDING',
+          'Você já possui uma candidatura em análise.'
+        );
+      }
+      const created = await tx.evaluatorApplication.create({
+        data: {
+          user_id: userId,
+          motivation: normalizedMotivation,
+          tech_stack: normalizedTechStack,
+          status: 'PENDING',
+        },
+      });
+      await notifyEvaluatorApplication(tx, created, undefined, pushTargets);
+      return created;
     });
+    await pushEvaluatorNotifications(pushTargets);
 
     logger.info('Evaluator application submitted', { userId, applicationId: application.id });
     return application;
@@ -197,6 +239,7 @@ export const EvaluatorService = {
       }
     }
 
+    const pushTargets: EvaluatorPushTarget[] = [];
     const updated = await prisma.$transaction(async (tx) => {
       const claim = await tx.evaluatorApplication.updateMany({
         where: { id: applicationId, status: 'PENDING' },
@@ -241,35 +284,40 @@ export const EvaluatorService = {
             status: 'ACTIVE',
           },
         });
+        const pendingDuels = await tx.duel.findMany({
+          where: { status: 'REVIEW_PENDING', solutions: { some: {} } },
+          select: { id: true, language: true, challenger_id: true, opponent_id: true },
+        });
+        for (const duel of pendingDuels) {
+          await notifyDuelReviewers(
+            tx,
+            duel,
+            [
+              {
+                id: application.user_id,
+                role: application.user.role === 'ADMIN' ? 'ADMIN' : 'EVALUATOR',
+                evaluator_profile: { tech_stack: application.tech_stack },
+              },
+            ],
+            pushTargets
+          );
+        }
       }
+      const decisionNotice = await tx.notification.create({
+        data: {
+          id: `evaluator-decision:${applicationId}`,
+          userId: application.user_id,
+          type: decision === 'APPROVED' ? 'EVALUATOR_APPROVED' : 'EVALUATOR_REJECTED',
+          actorId: null,
+          resourceId: applicationId,
+          resourceType: 'EVALUATOR',
+        },
+        select: { id: true, userId: true },
+      });
+      pushTargets.push(decisionNotice);
       return tx.evaluatorApplication.findUniqueOrThrow({ where: { id: applicationId } });
     });
-
-    if (decision === 'APPROVED') {
-      try {
-        await NotificationService.create({
-          userId: application.user_id,
-          type: 'EVALUATOR_APPROVED',
-          actorId: adminId,
-          resourceId: applicationId,
-          resourceType: 'EVALUATOR',
-        });
-      } catch (err) {
-        logger.error('Failed to notify evaluator approval', { error: String(err) });
-      }
-    } else {
-      try {
-        await NotificationService.create({
-          userId: application.user_id,
-          type: 'EVALUATOR_REJECTED',
-          actorId: adminId,
-          resourceId: applicationId,
-          resourceType: 'EVALUATOR',
-        });
-      } catch (err) {
-        logger.error('Failed to notify evaluator rejection', { error: String(err) });
-      }
-    }
+    await pushEvaluatorNotifications(pushTargets);
 
     logger.info('Evaluator application reviewed', { applicationId, decision, adminId });
     return updated;
@@ -387,15 +435,40 @@ export const EvaluatorService = {
       include: { challenger: true, opponent: true },
     });
 
-    if (!duel) throw new Error('Duelo não encontrado.');
+    if (!duel) throw new NotFoundError('DUEL_NOT_FOUND', 'Duelo não encontrado.');
     if (duel.status !== 'REVIEW_PENDING') {
-      throw new Error('Este duelo não está aguardando desempate humano.');
+      throw new ValidationError(
+        'DUEL_NOT_PENDING',
+        'Este duelo não está aguardando desempate humano.'
+      );
     }
     if (duel.challenger_id === evaluatorId || duel.opponent_id === evaluatorId) {
-      throw new Error('Participantes não podem avaliar o próprio duelo.');
+      throw new ForbiddenError(
+        'DUEL_SELF_REVIEW',
+        'Participantes não podem avaliar o próprio duelo.'
+      );
     }
     if (winnerId !== duel.challenger_id && winnerId !== duel.opponent_id) {
-      throw new Error('O vencedor deve ser um dos participantes do duelo.');
+      throw new ValidationError(
+        'DUEL_INVALID_WINNER',
+        'O vencedor deve ser um dos participantes do duelo.'
+      );
+    }
+    if (
+      [scorePlayer1, scorePlayer2].some(
+        (score) => !Number.isInteger(score) || score < 0 || score > 1000
+      )
+    ) {
+      throw new ValidationError(
+        'EVALUATION_INVALID_SCORE',
+        'As notas devem estar entre 0 e 1.000.'
+      );
+    }
+    if (humanFeedback.trim().length < 5) {
+      throw new ValidationError(
+        'EVALUATION_FEEDBACK_REQUIRED',
+        'Adicione um feedback explicativo.'
+      );
     }
 
     const evaluator = await prisma.user.findUnique({
@@ -421,6 +494,7 @@ export const EvaluatorService = {
       }
     }
 
+    const pushTargets: EvaluatorPushTarget[] = [];
     const evaluation = await prisma.$transaction(async (tx) => {
       const claim = await tx.duel.updateMany({
         where: { id: duelId, status: 'REVIEW_PENDING' },
@@ -432,7 +506,12 @@ export const EvaluatorService = {
           xp_awarded_at: new Date(),
         },
       });
-      if (claim.count !== 1) throw new Error('Este duelo já foi avaliado por outra pessoa.');
+      if (claim.count !== 1) {
+        throw new ValidationError(
+          'DUEL_ALREADY_EVALUATED',
+          'Este duelo já foi avaliado por outra pessoa.'
+        );
+      }
 
       const rewards = [{ userId: winnerId, amount: 50 }];
       if (evaluator.evaluator_profile) {
@@ -449,7 +528,7 @@ export const EvaluatorService = {
         });
       }
 
-      return tx.duelEvaluation.create({
+      const created = await tx.duelEvaluation.create({
         data: {
           duel_id: duelId,
           evaluator_id: evaluatorId,
@@ -457,7 +536,7 @@ export const EvaluatorService = {
           score_player1: scorePlayer1,
           score_player2: scorePlayer2,
           system_analysis: { reason: 'human_tiebreak' },
-          human_feedback: humanFeedback,
+          human_feedback: humanFeedback.trim(),
           strengths,
           improvements,
         },
@@ -467,31 +546,61 @@ export const EvaluatorService = {
           },
         },
       });
-    });
-
-    // Notify duel participants
-    try {
-      await NotificationService.create({
-        userId: duel.challenger_id,
-        type: 'EVALUATION_COMPLETED',
-        actorId: evaluatorId,
-        resourceId: duelId,
-        resourceType: 'DUEL',
+      const notices = await tx.notification.createManyAndReturn({
+        data: [duel.challenger_id, duel.opponent_id]
+          .filter((id): id is string => Boolean(id))
+          .map((id) => ({
+            id: `duel-evaluated:${duelId}:${id}`,
+            userId: id,
+            type: 'EVALUATION_COMPLETED' as const,
+            actorId: null,
+            resourceId: duelId,
+            resourceType: 'DUEL',
+          })),
+        skipDuplicates: true,
+        select: { id: true, userId: true },
       });
-
-      if (duel.opponent_id) {
-        await NotificationService.create({
-          userId: duel.opponent_id,
-          type: 'EVALUATION_COMPLETED',
-          actorId: evaluatorId,
-          resourceId: duelId,
-          resourceType: 'DUEL',
-        });
-      }
-    } catch (err) {
-      logger.error('Failed to notify evaluation completion', { error: String(err) });
-    }
+      pushTargets.push(...notices);
+      return created;
+    });
+    await pushEvaluatorNotifications(pushTargets);
 
     return evaluation;
+  },
+
+  /** Repair earlier undelivered pending work. Deterministic notification IDs make retries safe. */
+  async recoverPendingNotifications() {
+    const pushTargets: EvaluatorPushTarget[] = [];
+    const result = await prisma.$transaction(
+      async (tx) => {
+        const applications = await tx.evaluatorApplication.findMany({
+          where: { status: 'PENDING' },
+          select: { id: true },
+        });
+        const duels = await tx.duel.findMany({
+          where: { status: 'REVIEW_PENDING', solutions: { some: {} } },
+          select: { id: true, language: true, challenger_id: true, opponent_id: true },
+        });
+        const reviewers = await findDuelReviewers(tx);
+        const admins = reviewers.filter((reviewer) => reviewer.role === 'ADMIN');
+        let applicationNotifications = 0;
+        let reviewNotifications = 0;
+        for (const application of applications) {
+          applicationNotifications += await notifyEvaluatorApplication(
+            tx,
+            application,
+            admins,
+            pushTargets
+          );
+        }
+        for (const duel of duels) {
+          reviewNotifications += await notifyDuelReviewers(tx, duel, reviewers, pushTargets);
+        }
+        return { applicationNotifications, reviewNotifications };
+      },
+      { timeout: 30000 }
+    );
+    await pushEvaluatorNotifications(pushTargets);
+    return result;
   },
 };

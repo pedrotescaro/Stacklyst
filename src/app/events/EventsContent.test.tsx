@@ -4,8 +4,23 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { EventsContent } from './EventsContent';
 import type { EventItem } from './EventsContent';
 
-vi.mock('@/components/Sidebar', () => ({
-  Sidebar: () => <aside data-testid="sidebar" />,
+vi.mock('@/components/PlatformPageShell', () => ({
+  PlatformPageShell: ({ children }: { children: React.ReactNode }) => <main>{children}</main>,
+  PlatformPageHeader: ({
+    title,
+    description,
+    actions,
+  }: {
+    title: string;
+    description?: string;
+    actions?: React.ReactNode;
+  }) => (
+    <header>
+      <h1>{title}</h1>
+      <p>{description}</p>
+      {actions}
+    </header>
+  ),
 }));
 
 const events: EventItem[] = [
@@ -75,6 +90,42 @@ afterEach(() => {
 });
 
 describe('EventsContent', () => {
+  it('shows the complete schedule, time zone, duration, entry requirement and an explicit cancellation action', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(eventsResponse([{ ...events[0], is_joined: true }]))
+    );
+    render(<EventsContent user={{ id: 'member-1', role: 'MEMBER' }} />);
+    const card = (await screen.findByRole('heading', { name: events[0].title })).closest(
+      'article'
+    )!;
+    expect(within(card).getByText('Horário de Brasília (UTC−3)')).toBeVisible();
+    expect(within(card).getByText('Duração: 1 dia')).toBeVisible();
+    expect(within(card).getByText('Nível 1 ou superior')).toBeVisible();
+    expect(card.querySelector('time[datetime="2026-09-12T12:00:00.000Z"]')).toHaveTextContent(
+      '09:00'
+    );
+    expect(card.querySelector('time[datetime="2026-09-13T12:00:00.000Z"]')).toHaveTextContent(
+      '09:00'
+    );
+    expect(within(card).getByRole('button', { name: 'Cancelar inscrição' })).toBeVisible();
+  });
+
+  it('names the creation dialog, labels the form controls, and supports Escape dismissal', async () => {
+    const user = userEvent.setup();
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(eventsResponse([])));
+    render(<EventsContent user={{ id: 'member-1', role: 'MEMBER' }} />);
+    const trigger = screen.getByRole('button', { name: 'Criar Evento' });
+    await user.click(trigger);
+    const dialog = screen.getByRole('dialog', { name: 'Criar Novo Evento' });
+    expect(dialog).toHaveFocus();
+    expect(within(dialog).getByLabelText('Título do Evento *')).toBeVisible();
+    expect(within(dialog).getByLabelText('Início *')).toHaveAttribute('type', 'datetime-local');
+    await user.keyboard('{Escape}');
+    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument());
+    expect(trigger).toHaveFocus();
+  });
+
   it('keeps the event list visible when a registration fails because an event has closed', async () => {
     const user = userEvent.setup();
     vi.stubGlobal(

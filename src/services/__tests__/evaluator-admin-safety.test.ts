@@ -6,6 +6,7 @@ vi.mock('@/lib/prisma', () => ({
   prisma: { $transaction: vi.fn(), evaluatorProfile: { findUnique: vi.fn() } },
 }));
 vi.mock('../notification.service', () => ({ NotificationService: { create: vi.fn() } }));
+vi.mock('@/lib/mobile/push', () => ({ sendMobilePush: vi.fn().mockResolvedValue(undefined) }));
 vi.mock('@/lib/logger', () => ({ logger: { info: vi.fn() } }));
 
 describe('evaluator moderation preserves administrators', () => {

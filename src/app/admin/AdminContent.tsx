@@ -77,6 +77,9 @@ export function AdminContent({ user }: { user: any }) {
   const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
 
   useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('tab') === 'evaluators') {
+      setActiveTab('evaluators');
+    }
     loadData();
   }, []);
 

@@ -1,10 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { CheckCircle, XCircle, Clock, ArrowRight, ShieldCheck, BookOpen, Zap } from 'lucide-react';
-import { Sidebar } from '@/components/Sidebar';
+import { useEffect, useState, type ComponentProps, type FormEvent } from 'react';
+import Link from 'next/link';
+import { ArrowRight, BookOpen, CheckCircle2, Clock3, ShieldCheck, Zap } from 'lucide-react';
+import { PlatformPageHeader, PlatformPageShell } from '@/components/PlatformPageShell';
 import { EvaluatorGuide } from '@/components/evaluators/EvaluatorGuide';
-import { EVALUATOR_MIN_MOTIVATION_LENGTH } from '@/lib/evaluators/policy';
+import { EVALUATOR_MIN_MOTIVATION_LENGTH, EVALUATOR_MIN_XP } from '@/lib/evaluators/policy';
+import styles from '@/components/evaluators/EvaluatorPages.module.css';
 
 interface EligibilityData {
   eligible: boolean;
@@ -12,300 +14,322 @@ interface EligibilityData {
   completedTrails: string[];
   isAlreadyEvaluator: boolean;
   hasPendingApplication: boolean;
-  requirements: {
-    hasCompletedTrail: boolean;
-    hasSufficientXp: boolean;
-  };
-  latestApplication?: any;
+  requirements: { hasCompletedTrail: boolean; hasSufficientXp: boolean };
+  latestApplication?: { status: string; reviewer_notes?: string | null } | null;
+  evaluatorProfile?: { status: string; sanction_reason?: string | null } | null;
 }
+const TECHNOLOGIES = [
+  'TypeScript',
+  'JavaScript',
+  'Python',
+  'Rust',
+  'Go',
+  'Java',
+  'Kotlin',
+  'Swift',
+  'C++',
+  'React',
+  'Node.js',
+];
 
-export function EvaluatorApplyContent({ user }: { user: any }) {
+export function EvaluatorApplyContent({
+  user,
+}: {
+  user: ComponentProps<typeof PlatformPageShell>['user'];
+}) {
   const [eligibility, setEligibility] = useState<EligibilityData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState('');
   const [motivation, setMotivation] = useState('');
-  const [selectedTechs, setSelectedTechs] = useState<string[]>(['TypeScript', 'JavaScript']);
+  const [selectedTechs, setSelectedTechs] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
-  const [feedbackMsg, setFeedbackMsg] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; message: string } | null>(
+    null
+  );
 
-  const ALL_TECHS = [
-    'TypeScript',
-    'JavaScript',
-    'Python',
-    'Rust',
-    'Go',
-    'Java',
-    'Kotlin',
-    'Swift',
-    'C++',
-    'React',
-    'Node.js',
-  ];
-
+  async function loadEligibility() {
+    setLoading(true);
+    setLoadError('');
+    try {
+      const response = await fetch('/api/evaluators/eligibility');
+      if (!response.ok) throw new Error('Falha na consulta');
+      setEligibility(await response.json());
+    } catch {
+      setLoadError(
+        'Não foi possível consultar os requisitos. Verifique sua conexão e tente novamente.'
+      );
+    } finally {
+      setLoading(false);
+    }
+  }
   useEffect(() => {
-    loadEligibility();
+    void loadEligibility();
   }, []);
 
-  const loadEligibility = async () => {
-    try {
-      const res = await fetch('/api/evaluators/eligibility');
-      if (res.ok) {
-        setEligibility(await res.json());
-      }
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const toggleTech = (tech: string) => {
-    setSelectedTechs((prev) =>
-      prev.includes(tech) ? prev.filter((t) => t !== tech) : [...prev, tech]
-    );
-  };
-
-  const handleApply = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!eligibility?.eligible) return;
-
+  async function handleApply(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!eligibility?.eligible || eligibility.hasPendingApplication || submitting) return;
     setSubmitting(true);
+    setFeedback(null);
     try {
-      const res = await fetch('/api/evaluators/apply', {
+      const response = await fetch('/api/evaluators/apply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          motivation,
-          tech_stack: selectedTechs,
-        }),
+        body: JSON.stringify({ motivation: motivation.trim(), tech_stack: selectedTechs }),
       });
-
-      const data = await res.json();
-      if (res.ok) {
-        setFeedbackMsg({
-          type: 'success',
-          message:
-            'Sua candidatura foi submetida com sucesso! O time administrativo irá analisá-la.',
-        });
-        loadEligibility();
-      } else {
-        setFeedbackMsg({
-          type: 'error',
-          message: data.message || data.error || 'Erro ao submeter candidatura.',
-        });
-      }
-    } catch (err: any) {
-      setFeedbackMsg({ type: 'error', message: err.message || 'Erro de conexão.' });
+      const data = await response.json();
+      if (!response.ok)
+        throw new Error(data.message || data.error || 'Não foi possível enviar a candidatura.');
+      setFeedback({
+        type: 'success',
+        message:
+          'Candidatura enviada. Acompanhe a análise nesta página e a decisão nas suas notificações.',
+      });
+      setEligibility((current) =>
+        current
+          ? { ...current, hasPendingApplication: true, latestApplication: { status: 'PENDING' } }
+          : current
+      );
+      void loadEligibility();
+    } catch (error) {
+      setFeedback({
+        type: 'error',
+        message: error instanceof Error ? error.message : 'Falha de conexão. Tente novamente.',
+      });
     } finally {
       setSubmitting(false);
     }
-  };
+  }
+  const suspended = user?.role !== 'ADMIN' && eligibility?.evaluatorProfile?.status === 'SUSPENDED';
+  const canApply =
+    eligibility?.eligible &&
+    !eligibility.isAlreadyEvaluator &&
+    !eligibility.hasPendingApplication &&
+    !suspended;
 
   return (
-    <div className="dd-platform-shell">
-      <Sidebar user={user} />
-
-      <main className="flex-1 min-w-0 max-w-4xl mx-auto p-4 md:p-8 space-y-6">
-        <div className="border-b border-dd-border pb-5">
-          <div className="flex items-center gap-2">
-            <span className="bg-purple-500/15 text-purple-400 border border-purple-500/30 px-2.5 py-0.5 rounded-full text-xs font-black uppercase tracking-wider">
-              Carreira & Comunidade
-            </span>
-          </div>
-          <h1 className="text-2xl md:text-3xl font-black text-dd-text mt-2">
-            Torne-se um Avaliador de Código
-          </h1>
-          <p className="text-sm text-dd-muted font-medium mt-1">
-            Ajude a comunidade avaliando soluções técnicas em duelos. Sua expertise e critérios
-            objetivos garantem a validação humana.
+    <PlatformPageShell user={user}>
+      <PlatformPageHeader title="Avaliador de código" />
+      <div className={styles.body}>
+        <section className={styles.intro}>
+          <h2>Ajude a decidir o próximo duelo.</h2>
+          <p>
+            Compare soluções, explique sua decisão e ajude outros desenvolvedores a melhorar. A
+            função exige aprovação da administração.
           </p>
-        </div>
-
-        {feedbackMsg && (
-          <div
-            className={`p-4 rounded-2xl border font-bold text-sm flex items-center gap-3 animate-fade-in ${
-              feedbackMsg.type === 'success'
-                ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                : 'bg-red-500/10 border-red-500/30 text-red-400'
-            }`}
+        </section>
+        {feedback && (
+          <p
+            role={feedback.type === 'error' ? 'alert' : 'status'}
+            className={`${styles.notice} ${feedback.type === 'error' ? styles.error : ''}`}
           >
-            {feedbackMsg.type === 'success' ? (
-              <CheckCircle className="w-5 h-5 shrink-0" />
-            ) : (
-              <XCircle className="w-5 h-5 shrink-0" />
-            )}
-            <span>{feedbackMsg.message}</span>
-          </div>
+            {feedback.message}
+          </p>
         )}
-
-        <EvaluatorGuide context="application" />
-
-        {/* Eligibility Requirements Box */}
-        {eligibility && (
-          <div className="p-6 rounded-3xl bg-dd-surface border border-dd-border space-y-4">
-            <h2 className="text-base font-black text-dd-text flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-blue-400" />
-              Critérios Mínimos de Elegibilidade
-            </h2>
-            <p className="text-xs text-dd-muted font-medium leading-relaxed">
-              Para se candidatar, basta cumprir uma das condições: concluir uma trilha completa{' '}
-              <strong className="text-dd-text">OU</strong> possuir pelo menos 1.000 XP. A atuação
-              como avaliador depende da aprovação administrativa da candidatura.
-            </p>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div
-                className={`p-4 rounded-2xl border flex items-center gap-3 ${
-                  eligibility.requirements.hasCompletedTrail
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                    : 'bg-dd-bg border-dd-border/60 text-dd-muted'
-                }`}
-              >
-                {eligibility.requirements.hasCompletedTrail ? (
-                  <CheckCircle className="w-5 h-5 shrink-0" />
-                ) : (
-                  <BookOpen className="w-5 h-5 shrink-0" />
-                )}
-                <div>
-                  <p className="text-xs font-bold text-dd-text">1 Trilha Completa (8 unidades)</p>
-                  <p className="text-[11px] text-dd-muted">
-                    {eligibility.completedTrails.length > 0
-                      ? `Concluída (${eligibility.completedTrails.join(', ')})`
-                      : 'Nenhuma trilha 100% finalizada'}
-                  </p>
-                </div>
-              </div>
-
-              <div
-                className={`p-4 rounded-2xl border flex items-center gap-3 ${
-                  eligibility.requirements.hasSufficientXp
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                    : 'bg-dd-bg border-dd-border/60 text-dd-muted'
-                }`}
-              >
-                {eligibility.requirements.hasSufficientXp ? (
-                  <CheckCircle className="w-5 h-5 shrink-0" />
-                ) : (
-                  <Zap className="w-5 h-5 shrink-0" />
-                )}
-                <div>
-                  <p className="text-xs font-bold text-dd-text">Mínimo de 1.000 XP</p>
-                  <p className="text-[11px] text-dd-muted">
-                    Você possui: {eligibility.totalXp.toLocaleString('pt-BR')} XP
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="pt-2 border-t border-dd-border/60 flex items-center justify-between text-xs">
-              <span className="text-dd-muted font-medium">Status de Elegibilidade:</span>
-              <span
-                className={`font-black uppercase px-2.5 py-0.5 rounded-full ${
-                  eligibility.eligible
-                    ? 'bg-emerald-500/15 text-emerald-400'
-                    : 'bg-orange-500/15 text-orange-400'
-                }`}
-              >
-                {eligibility.eligible ? 'Elegível para Candidatura' : 'Requisitos Pendentes'}
-              </span>
-            </div>
-          </div>
-        )}
-
-        {/* Application Form */}
-        {eligibility?.eligible &&
-          !eligibility.isAlreadyEvaluator &&
-          !eligibility.hasPendingApplication && (
-            <form
-              onSubmit={handleApply}
-              className="p-6 rounded-3xl bg-dd-surface border border-dd-border space-y-4"
+        {loading ? (
+          <p role="status" className={styles.muted}>
+            Consultando seus requisitos…
+          </p>
+        ) : loadError ? (
+          <div role="alert" className={`${styles.notice} ${styles.error}`}>
+            <p>{loadError}</p>
+            <button
+              type="button"
+              className={styles.secondary}
+              onClick={() => void loadEligibility()}
             >
-              <h2 className="text-base font-black text-dd-text">Formulário de Candidatura</h2>
-
-              <div>
-                <label className="block text-xs font-bold text-dd-text mb-1.5">
-                  Por que você deseja se tornar um avaliador de código?
-                </label>
-                <textarea
-                  rows={4}
-                  required
-                  value={motivation}
-                  minLength={EVALUATOR_MIN_MOTIVATION_LENGTH}
-                  onChange={(e) => setMotivation(e.target.value)}
-                  placeholder="Conte um pouco sobre sua experiência técnica, seus pontos fortes e por que deseja revisar soluções de outros desenvolvedores..."
-                  className="w-full bg-dd-bg border border-dd-border rounded-xl p-3 text-xs font-medium text-dd-text outline-none focus:border-blue-500 resize-none"
-                />
-                <p className="mt-1 text-[11px] text-dd-muted">
-                  {motivation.trim().length}/{EVALUATOR_MIN_MOTIVATION_LENGTH} caracteres mínimos.
-                </p>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-dd-text mb-2">
-                  Selecione as tecnologias que você domina:
-                </label>
-                <div className="flex flex-wrap gap-2">
-                  {ALL_TECHS.map((tech) => {
-                    const selected = selectedTechs.includes(tech);
-                    return (
+              Tentar novamente
+            </button>
+          </div>
+        ) : (
+          eligibility && (
+            <>
+              {suspended ? (
+                <section className={styles.notice}>
+                  <h2>
+                    <ShieldCheck size={20} />
+                    Função suspensa
+                  </h2>
+                  <p>
+                    Seu perfil de avaliador está suspenso. A administração precisa revisar a
+                    suspensão para liberar novas avaliações.
+                  </p>
+                  {eligibility.evaluatorProfile?.sanction_reason && (
+                    <p>Motivo: {eligibility.evaluatorProfile.sanction_reason}</p>
+                  )}
+                </section>
+              ) : eligibility.isAlreadyEvaluator ? (
+                <section className={styles.notice}>
+                  <h2>
+                    <CheckCircle2 className={styles.accent} size={20} />
+                    Você já pode avaliar
+                  </h2>
+                  <p>
+                    A central mostra os duelos disponíveis nas suas tecnologias. Você não pode
+                    avaliar seus próprios duelos.
+                  </p>
+                  {eligibility.latestApplication?.reviewer_notes && (
+                    <p>Parecer da administração: {eligibility.latestApplication.reviewer_notes}</p>
+                  )}
+                  <Link href="/evaluations" className={styles.button}>
+                    Abrir central de avaliações
+                    <ArrowRight size={17} />
+                  </Link>
+                </section>
+              ) : eligibility.hasPendingApplication ? (
+                <section className={styles.notice}>
+                  <h2>
+                    <Clock3 className={styles.accent} size={20} />
+                    Candidatura em análise
+                  </h2>
+                  <p>
+                    Sua candidatura está na fila da administração. Quando a análise for concluída,
+                    você receberá a decisão nas notificações.
+                  </p>
+                  <p className={styles.muted}>Não é preciso enviar outra candidatura.</p>
+                </section>
+              ) : (
+                <>
+                  {eligibility.latestApplication?.status === 'REJECTED' && (
+                    <section className={styles.notice}>
+                      <h2>Última candidatura não aprovada</h2>
+                      <p>
+                        {eligibility.latestApplication.reviewer_notes ||
+                          'A administração não informou uma observação nesta análise.'}
+                      </p>
+                      <p>
+                        Revise as informações e envie uma nova candidatura quando estiver pronto.
+                      </p>
+                    </section>
+                  )}
+                  <section className={styles.section}>
+                    <h2>O que você precisa</h2>
+                    <p className={styles.muted}>
+                      Basta cumprir um dos requisitos abaixo. A experiência nas tecnologias será
+                      analisada na candidatura.
+                    </p>
+                    <div className={styles.requirements}>
+                      <div className={styles.requirement}>
+                        <BookOpen size={22} className={styles.accent} />
+                        <strong>Concluir 1 trilha</strong>
+                        <p className={styles.muted}>
+                          Complete todas as atividades de uma trilha de linguagem.
+                        </p>
+                        <p>
+                          {eligibility.requirements.hasCompletedTrail
+                            ? `Concluída: ${eligibility.completedTrails.join(', ')}`
+                            : 'Você ainda não concluiu uma trilha.'}
+                        </p>
+                      </div>
+                      <span className={styles.muted}>ou</span>
+                      <div className={styles.requirement}>
+                        <Zap size={22} className={styles.accent} />
+                        <strong>Acumular 1.000 XP</strong>
+                        <p className={styles.muted}>
+                          Seu progresso: {eligibility.totalXp.toLocaleString('pt-BR')} /{' '}
+                          {EVALUATOR_MIN_XP.toLocaleString('pt-BR')} XP.
+                        </p>
+                        <p>
+                          {eligibility.requirements.hasSufficientXp
+                            ? 'Requisito cumprido.'
+                            : `Faltam ${Math.max(0, EVALUATOR_MIN_XP - eligibility.totalXp).toLocaleString('pt-BR')} XP.`}
+                        </p>
+                      </div>
+                    </div>
+                    {!eligibility.eligible && (
+                      <Link href="/trails" className={styles.secondary}>
+                        Continuar aprendendo
+                        <ArrowRight size={17} />
+                      </Link>
+                    )}
+                  </section>
+                </>
+              )}
+              {canApply && (
+                <section className={styles.section}>
+                  <h2>Sua candidatura</h2>
+                  <p className={styles.muted}>
+                    Conte o que você domina. Selecione apenas as tecnologias em que consegue revisar
+                    o código de outra pessoa.
+                  </p>
+                  <form className={styles.form} onSubmit={handleApply} style={{ marginTop: 20 }}>
+                    <fieldset disabled={submitting}>
+                      <legend>
+                        Tecnologias que você domina{' '}
+                        <span className={styles.muted}>(selecione pelo menos uma)</span>
+                      </legend>
+                      <div className={styles.chips}>
+                        {TECHNOLOGIES.map((tech) => (
+                          <button
+                            type="button"
+                            key={tech}
+                            aria-pressed={selectedTechs.includes(tech)}
+                            className={styles.chip}
+                            onClick={() =>
+                              setSelectedTechs((current) =>
+                                current.includes(tech)
+                                  ? current.filter((item) => item !== tech)
+                                  : [...current, tech]
+                              )
+                            }
+                          >
+                            {tech}
+                          </button>
+                        ))}
+                      </div>
+                    </fieldset>
+                    <div className={styles.field}>
+                      <label htmlFor="evaluator-motivation">Por que você quer ser avaliador?</label>
+                      <textarea
+                        id="evaluator-motivation"
+                        required
+                        minLength={EVALUATOR_MIN_MOTIVATION_LENGTH}
+                        maxLength={5000}
+                        disabled={submitting}
+                        value={motivation}
+                        onChange={(event) => setMotivation(event.target.value)}
+                        aria-describedby="motivation-help"
+                        placeholder="Conte sua experiência, como você revisa código e o que pode trazer para a comunidade."
+                      />
+                      <small id="motivation-help">
+                        {motivation.trim().length} / {EVALUATOR_MIN_MOTIVATION_LENGTH} caracteres
+                        mínimos. Cite sua experiência e como daria um feedback útil.
+                      </small>
+                    </div>
+                    <div className={styles.footer}>
+                      <span className={styles.muted}>A aprovação não é automática.</span>
                       <button
-                        key={tech}
-                        type="button"
-                        onClick={() => toggleTech(tech)}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                          selected
-                            ? 'bg-blue-500 text-white shadow-sm'
-                            : 'bg-dd-bg border border-dd-border text-dd-muted hover:text-dd-text'
-                        }`}
+                        className={styles.button}
+                        type="submit"
+                        disabled={
+                          submitting ||
+                          !selectedTechs.length ||
+                          motivation.trim().length < EVALUATOR_MIN_MOTIVATION_LENGTH
+                        }
                       >
-                        {tech}
+                        {submitting ? 'Enviando…' : 'Enviar candidatura'}
+                        <ArrowRight size={17} />
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                disabled={
-                  submitting ||
-                  selectedTechs.length === 0 ||
-                  motivation.trim().length < EVALUATOR_MIN_MOTIVATION_LENGTH
-                }
-                className="w-full py-3.5 rounded-2xl bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white font-black text-sm transition-all shadow-lg shadow-blue-500/20 active:scale-[0.99] cursor-pointer flex items-center justify-center gap-2"
-              >
-                <span>
-                  {submitting ? 'Enviando candidatura...' : 'Enviar Candidatura para Análise'}
-                </span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </form>
-          )}
-
-        {eligibility?.hasPendingApplication && (
-          <div className="p-6 rounded-3xl bg-orange-500/10 border border-orange-500/30 text-center space-y-2">
-            <Clock className="w-8 h-8 text-orange-400 mx-auto" />
-            <h3 className="text-base font-black text-dd-text">Candidatura em Análise</h3>
-            <p className="text-xs text-dd-muted font-medium max-w-md mx-auto">
-              Sua solicitação foi enviada aos administradores do Stacklyst. Você receberá uma
-              notificação assim que for avaliada.
-            </p>
-          </div>
+                    </div>
+                  </form>
+                </section>
+              )}
+            </>
+          )
         )}
-
-        {eligibility?.isAlreadyEvaluator && (
-          <div className="p-6 rounded-3xl bg-emerald-500/10 border border-emerald-500/30 text-center space-y-2">
-            <CheckCircle className="w-8 h-8 text-emerald-400 mx-auto" />
-            <h3 className="text-base font-black text-dd-text">Você já é um Avaliador de Código!</h3>
-            <p className="text-xs text-dd-muted font-medium max-w-md mx-auto">
-              Acesse a{' '}
-              <a href="/evaluations" className="text-blue-400 underline font-bold">
-                Central de Avaliações
-              </a>{' '}
-              para revisar soluções pendentes.
-            </p>
-          </div>
-        )}
-      </main>
-    </div>
+        <section className={styles.section}>
+          <h2>Como funciona</h2>
+          <ol className={styles.steps}>
+            <li>Você envia sua experiência e suas tecnologias para análise.</li>
+            <li>A administração aprova ou recusa a candidatura, e você recebe uma notificação.</li>
+            <li>
+              Após a aprovação, revise os duelos encaminhados para análise humana. Cada avaliação
+              concluída rende 10 XP.
+            </li>
+          </ol>
+        </section>
+        <EvaluatorGuide context="application" defaultExpanded={false} />
+      </div>
+    </PlatformPageShell>
   );
 }

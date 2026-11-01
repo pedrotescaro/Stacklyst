@@ -1,0 +1,148 @@
+.viewport {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.dialog {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 720px;
+  max-height: calc(100dvh - 48px);
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 18px;
+  background: var(--color-dd-bg);
+  color: var(--color-dd-text);
+  outline: none;
+}
+.dialog :global(button) {
+  min-height: 44px;
+}
+.dialog :global(button:focus-visible),
+.dialog :global(input:focus-visible),
+.dialog :global(select:focus-visible),
+.dialog :global(textarea:focus-visible) {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 2px;
+}
+.dialog :global(input),
+.dialog :global(select),
+.dialog :global(textarea) {
+  min-width: 0;
+  max-width: 100%;
+  font-size: 16px;
+}
+.dialog :global(input),
+.dialog :global(select) {
+  min-height: 44px;
+}
+.dialog :global(p),
+.dialog :global(h2),
+.dialog :global(h3),
+.dialog :global(span) {
+  overflow-wrap: anywhere;
+}
+.close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 44px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  color: var(--color-dd-muted);
+}
+.close:hover {
+  color: var(--color-dd-text);
+  background: var(--color-dd-surface);
+}
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 16px 10px 24px;
+  border-bottom: 1px solid var(--color-dd-border);
+  font-size: 14px;
+  font-weight: 700;
+}
+.detailHeading {
+  padding: 24px 24px 0;
+}
+.detailHeading h2 {
+  margin-top: 12px;
+  font-size: 24px;
+  line-height: 1.3;
+  font-weight: 750;
+  letter-spacing: -0.025em;
+}
+.detailBanner {
+  position: relative;
+  width: 100%;
+  height: 180px;
+  overflow: hidden;
+  background: var(--color-dd-surface);
+}
+.detailBanner img {
+  object-fit: cover;
+}
+.footer {
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+}
+.timezone {
+  margin-top: 10px;
+  color: var(--color-dd-muted);
+  font-size: 12px;
+  line-height: 20px;
+}
+@media (max-width: 639px) {
+  .viewport {
+    padding: 0;
+    align-items: stretch;
+  }
+  .dialog {
+    height: 100dvh;
+    max-height: 100dvh;
+    border: 0;
+    border-radius: 0;
+    padding-top: env(safe-area-inset-top);
+  }
+  .detailHeading {
+    padding: 20px 16px 0;
+  }
+  .detailHeading h2 {
+    font-size: 21px;
+  }
+  .dialog :global(form > div:last-child),
+  .footer {
+    padding-inline: 16px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .footer > div {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .topbar {
+    padding-left: 16px;
+  }
+}
+
+.dialog :global(.text-dd-accent),
+.dialog :global(.text-blue-400) {
+  color: color-mix(in srgb, var(--color-dd-accent) 72%, var(--color-dd-text));
+}
+.dialog :global(.text-dd-muted) {
+  color: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+}
+.dialog :global(.bg-dd-accent) {
+  background-color: color-mix(in srgb, var(--color-dd-accent) 85%, black);
+}

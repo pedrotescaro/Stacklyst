@@ -1,3 +1,4 @@
+import userEvent from '@testing-library/user-event';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import { EvaluatorGuide } from '../EvaluatorGuide';
@@ -36,14 +37,16 @@ describe('EvaluatorGuide Component', () => {
     expect(screen.queryByText('Checklist antes de homologar')).not.toBeInTheDocument();
   });
 
-  it('supports keyboard enter/space to toggle', () => {
+  it('supports keyboard enter/space to toggle', async () => {
+    const user = userEvent.setup();
     render(<EvaluatorGuide context="evaluation" />);
 
     const headerToggle = screen.getByRole('button', { name: /guia do avaliador/i });
-    fireEvent.keyDown(headerToggle, { key: 'Enter' });
+    headerToggle.focus();
+    await user.keyboard('{Enter}');
     expect(screen.getByText('Checklist antes de homologar')).toBeInTheDocument();
 
-    fireEvent.keyDown(headerToggle, { key: ' ' });
+    await user.keyboard(' ');
     expect(screen.queryByText('Checklist antes de homologar')).not.toBeInTheDocument();
   });
 });

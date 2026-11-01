@@ -2,157 +2,277 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import {
-  Briefcase,
-  Building2,
-  MapPin,
-  Clock,
-  ArrowLeft,
-  CheckCircle,
-  ShieldCheck,
-  Code,
-  Swords,
-  Award,
-  Users,
-  Send,
-  Zap,
-} from 'lucide-react';
-import { Sidebar } from '@/components/Sidebar';
+import { ArrowLeft, CheckCircle2, CircleAlert, Send, ShieldCheck } from 'lucide-react';
+import { PlatformPageShell } from '@/components/PlatformPageShell';
+import styles from '../jobs.module.css';
 
+interface RecruitmentStage {
+  id: string;
+  title: string;
+  description?: string | null;
+  order?: number;
+}
+interface Application {
+  status: string;
+  stage_id?: string | null;
+  stage?: { id?: string; title: string } | null;
+  feedback?: string | null;
+}
 interface JobDetailProps {
   user: any;
-  job: any;
+  job: {
+    id: string;
+    title: string;
+    description?: string;
+    level: string;
+    modality: string;
+    location?: string | null;
+    contract_type?: string;
+    salary_min?: number | null;
+    salary_max?: number | null;
+    status?: string;
+    company: { name: string; location?: string | null; is_verified?: boolean };
+    technologies: string[];
+    stages: RecruitmentStage[];
+    requirements?: string[];
+    benefits?: string[];
+    userApplication?: Application | null;
+  };
+}
+
+const STATUS_LABELS: Record<string, string> = {
+  APPLIED: 'Candidatura enviada',
+  IN_REVIEW: 'Em análise',
+  TECHNICAL_CHALLENGE: 'Desafio técnico',
+  DUEL: 'Duelo técnico',
+  EVALUATION: 'Avaliação técnica',
+  INTERVIEW: 'Entrevista',
+  OFFER: 'Proposta',
+  REJECTED: 'Não selecionado',
+  REVIEWING: 'Em análise',
+  TESTING: 'Desafio técnico',
+  ACCEPTED: 'Aprovado',
+};
+const NEXT_STEPS: Record<string, string> = {
+  APPLIED:
+    'Sua candidatura foi recebida. Aguarde a análise da empresa e acompanhe as atualizações nesta página.',
+  IN_REVIEW:
+    'A empresa está analisando sua candidatura. A próxima orientação aparecerá no feedback abaixo.',
+  TECHNICAL_CHALLENGE:
+    'Sua candidatura está na etapa de desafio técnico. Confira as orientações da empresa no feedback abaixo.',
+  DUEL: 'Sua candidatura está na etapa de duelo técnico. Confira as orientações da empresa no feedback abaixo.',
+  EVALUATION: 'Sua candidatura está em avaliação técnica. Acompanhe o feedback da empresa abaixo.',
+  INTERVIEW: 'Confira o feedback da empresa para saber as orientações da entrevista.',
+  OFFER:
+    'Sua candidatura avançou para a proposta. Confira os próximos passos no feedback da empresa.',
+  REJECTED:
+    'Sua participação nesta vaga foi encerrada pela empresa. Confira o feedback disponível abaixo.',
+};
+const LEVEL_LABELS: Record<string, string> = {
+  ESTAGIO: 'Estágio',
+  JUNIOR: 'Júnior',
+  PLENO: 'Pleno',
+  SENIOR: 'Sênior',
+  ESPECIALISTA: 'Especialista',
+};
+const MODALITY_LABELS: Record<string, string> = {
+  REMOTE: 'Remoto',
+  HYBRID: 'Híbrido',
+  ONSITE: 'Presencial',
+};
+const CONTRACT_LABELS: Record<string, string> = { CLT: 'CLT', PJ: 'PJ', ESTAGIO: 'Estágio' };
+
+function salaryLabel(job: JobDetailProps['job']) {
+  const format = (value: number) =>
+    new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+      maximumFractionDigits: 0,
+    }).format(value);
+  if (job.salary_min != null && job.salary_max != null) {
+    return job.salary_min === job.salary_max
+      ? format(job.salary_min)
+      : `${format(job.salary_min)} – ${format(job.salary_max)}`;
+  }
+  if (job.salary_min != null) return `A partir de ${format(job.salary_min)}`;
+  if (job.salary_max != null) return `Até ${format(job.salary_max)}`;
+  return 'Não informada pela empresa';
 }
 
 export function JobDetailContent({ user, job }: JobDetailProps) {
-  const [application, setApplication] = useState(job.userApplication || null);
+  const [application, setApplication] = useState<Application | null>(job.userApplication || null);
   const [applying, setApplying] = useState(false);
   const [applySuccess, setApplySuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const statusLabels: Record<string, string> = {
-    APPLIED: 'Inscrito',
-    REVIEWING: 'Em análise',
-    TESTING: 'Desafio técnico',
-    INTERVIEW: 'Entrevista',
-    ACCEPTED: 'Aprovado',
-    REJECTED: 'Recusado',
-  };
+  const acceptingApplications = !job.status || job.status === 'OPEN';
+  const stages = [...job.stages].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const currentStageId = application?.stage_id ?? application?.stage?.id;
+  const statusLabel = application
+    ? (STATUS_LABELS[application.status] ?? 'Em acompanhamento')
+    : null;
 
   const handleApply = async () => {
+    if (applying || application || !acceptingApplications) return;
     setApplying(true);
     setErrorMessage(null);
     try {
-      const res = await fetch(`/api/jobs/${job.id}/apply`, {
-        method: 'POST',
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setApplication(data.application);
-        setApplySuccess(true);
-      } else {
-        setErrorMessage(data.error || 'Erro ao realizar inscrição.');
+      const response = await fetch(`/api/jobs/${job.id}/apply`, { method: 'POST' });
+      const data = await response.json();
+      if (!response.ok || !data.application) {
+        const message = data.message || data.error;
+        setErrorMessage(
+          typeof message === 'string' &&
+            !/^[A-Z_]+$/.test(message) &&
+            message !== 'Internal server error'
+            ? message
+            : 'Não foi possível enviar sua candidatura. Tente novamente em instantes.'
+        );
+        return;
       }
-    } catch (err: any) {
-      setErrorMessage(err.message || 'Erro de conexão.');
+      setApplication(data.application);
+      setApplySuccess(true);
+    } catch {
+      setErrorMessage(
+        'Não foi possível conectar ao Stacklyst. Verifique sua conexão e tente novamente.'
+      );
     } finally {
       setApplying(false);
     }
   };
 
   return (
-    <div className="dd-platform-shell">
-      <Sidebar user={user} />
-
-      <main className="flex-1 min-w-0 max-w-4xl mx-auto p-4 md:p-8 space-y-6">
-        <Link
-          href="/jobs"
-          className="inline-flex items-center gap-1.5 text-xs font-bold text-dd-muted hover:text-dd-text transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          Voltar para Vagas
+    <PlatformPageShell user={user}>
+      <header className={styles.detailHeader}>
+        <Link href="/jobs" aria-label="Voltar para Vagas" className={styles.back}>
+          <ArrowLeft size={21} aria-hidden="true" />
         </Link>
+        <span>Detalhes da vaga</span>
+      </header>
+      <div className={styles.detail}>
+        <div className={styles.company}>
+          <div className={styles.companyAvatar} aria-hidden="true">
+            {job.company.name
+              .split(/\s+/)
+              .filter(Boolean)
+              .slice(0, 2)
+              .map((part) => part[0]?.toUpperCase())
+              .join('')}
+          </div>
+          <p>
+            {job.company.name}
+            {job.company.is_verified && (
+              <>
+                <ShieldCheck size={17} aria-hidden="true" />
+                <span className="sr-only">Empresa verificada</span>
+              </>
+            )}
+          </p>
+        </div>
+        <h1 className={styles.detailTitle}>{job.title}</h1>
+        <div className={styles.tags}>
+          <span className={styles.level}>{LEVEL_LABELS[job.level] ?? 'Nível a combinar'}</span>
+          <span>{acceptingApplications ? 'Inscrições abertas' : 'Inscrições encerradas'}</span>
+        </div>
+        <dl className={styles.facts}>
+          <div>
+            <dt>Modelo de trabalho</dt>
+            <dd>{MODALITY_LABELS[job.modality] ?? 'A combinar'}</dd>
+          </div>
+          <div>
+            <dt>Local de trabalho</dt>
+            <dd>{job.location || job.company.location || 'A combinar com a empresa'}</dd>
+          </div>
+          <div>
+            <dt>Contrato</dt>
+            <dd>
+              {job.contract_type
+                ? (CONTRACT_LABELS[job.contract_type] ?? job.contract_type)
+                : 'Não informado'}
+            </dd>
+          </div>
+          <div>
+            <dt>Remuneração</dt>
+            <dd>{salaryLabel(job)}</dd>
+          </div>
+        </dl>
 
-        {/* Job Header */}
-        <div className="p-6 md:p-8 rounded-3xl bg-dd-surface border border-dd-border space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-blue-500/15 text-blue-400">
-                  {job.level}
-                </span>
-                <span className="text-[10px] font-black uppercase px-2.5 py-0.5 rounded-full bg-emerald-500/15 text-emerald-400">
-                  {job.modality}
-                </span>
-              </div>
-              <h1 className="text-2xl md:text-3xl font-black text-dd-text">{job.title}</h1>
-              <div className="flex items-center gap-2 text-xs font-bold text-dd-muted">
-                <span className="text-dd-text">{job.company.name}</span>
-                {job.company.is_verified && <ShieldCheck className="w-4 h-4 text-blue-400" />}
-                <span>•</span>
-                <span>{job.location || 'Localização Flexível'}</span>
-                <span>•</span>
-                <span>{job.contract_type}</span>
-              </div>
-            </div>
-
-            {/* Apply Button */}
-            {!application ? (
-              <button
-                onClick={handleApply}
-                disabled={applying}
-                className="px-6 py-3 rounded-2xl bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white font-black text-sm transition-all shadow-lg shadow-blue-500/25 active:scale-95 cursor-pointer flex items-center gap-2 shrink-0"
-              >
-                <Send className="w-4 h-4" />
-                <span>{applying ? 'Inscrevendo...' : 'Candidatar-se com Stacklyst'}</span>
-              </button>
+        {!application ? (
+          <div className={styles.applyArea}>
+            {acceptingApplications ? (
+              <>
+                <button
+                  type="button"
+                  onClick={handleApply}
+                  disabled={applying}
+                  aria-busy={applying}
+                  className={styles.primaryButton}
+                >
+                  <Send size={17} aria-hidden="true" />
+                  {applying ? 'Enviando candidatura...' : 'Candidatar-se com Stacklyst'}
+                </button>
+                <p>
+                  Seu perfil do Stacklyst será vinculado à candidatura para avaliação da empresa.
+                </p>
+              </>
             ) : (
-              <div className="px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 font-bold text-xs flex items-center gap-2 shrink-0">
-                <CheckCircle className="w-4 h-4" />
-                <span>{statusLabels[application.status] ?? application.status}</span>
-              </div>
+              <p>
+                Esta vaga não aceita novas candidaturas.{' '}
+                <Link href="/jobs" className={styles.recruiterLink}>
+                  Ver vagas abertas
+                </Link>
+              </p>
             )}
           </div>
+        ) : (
+          <a href="#application" className={styles.secondaryButton}>
+            <CheckCircle2 size={17} aria-hidden="true" />
+            Acompanhar minha candidatura
+          </a>
+        )}
 
-          {errorMessage && (
-            <p className="text-xs font-bold text-red-400 bg-red-500/10 p-3 rounded-xl border border-red-500/20">
-              {errorMessage}
-            </p>
-          )}
-
-          {applySuccess && (
-            <p className="text-xs font-bold text-emerald-400 bg-emerald-500/10 p-3 rounded-xl border border-emerald-500/20">
-              Inscrição realizada com sucesso! Seu portfólio da plataforma foi vinculado ao
-              processo.
-            </p>
-          )}
-        </div>
+        {errorMessage && (
+          <p role="alert" className={styles.notice}>
+            <CircleAlert size={17} aria-hidden="true" />
+            {errorMessage}
+          </p>
+        )}
+        {applySuccess && (
+          <p role="status" className={styles.notice}>
+            <CheckCircle2 size={17} aria-hidden="true" />
+            Candidatura enviada! Acompanhe seu status e o feedback da empresa abaixo.
+          </p>
+        )}
 
         {application && (
           <section
             id="application"
             aria-labelledby="application-title"
-            className="scroll-mt-8 space-y-4 rounded-2xl border border-dd-border bg-dd-surface p-6"
+            className={styles.detailSection}
           >
-            <h2 id="application-title" className="text-lg font-bold text-dd-text">
-              Sua candidatura
-            </h2>
-            <dl className="grid gap-4 sm:grid-cols-2">
+            <div className={styles.applicationHeading}>
+              <h2 id="application-title">Sua candidatura</h2>
+              <span className={styles.status}>
+                <CheckCircle2 size={15} aria-hidden="true" />
+                {statusLabel}
+              </span>
+            </div>
+            <dl className={styles.applicationData}>
               <div>
-                <dt className="text-xs text-dd-muted">Status</dt>
-                <dd className="mt-1 text-sm font-semibold text-dd-text">
-                  {statusLabels[application.status] ?? application.status}
-                </dd>
+                <dt>Status</dt>
+                <dd>{statusLabel}</dd>
               </div>
               <div>
-                <dt className="text-xs text-dd-muted">Etapa atual</dt>
-                <dd className="mt-1 text-sm font-semibold text-dd-text">
-                  {application.stage?.title ?? 'Aguardando definição da empresa'}
-                </dd>
+                <dt>Etapa atual</dt>
+                <dd>{application.stage?.title ?? 'Aguardando definição da empresa'}</dd>
               </div>
             </dl>
-            <div>
-              <h3 className="text-sm font-semibold text-dd-text">Feedback da empresa</h3>
-              <p className="mt-2 whitespace-pre-wrap break-words text-sm leading-relaxed text-dd-muted">
+            <p className={styles.statusCopy}>
+              {NEXT_STEPS[application.status] ??
+                'Acompanhe o status da candidatura e as orientações da empresa nesta página.'}
+            </p>
+            <div className={styles.feedback}>
+              <h3>Feedback da empresa</h3>
+              <p className={styles.prose}>
                 {application.feedback ||
                   'A empresa ainda não enviou feedback. Acompanhe as atualizações por aqui.'}
               </p>
@@ -160,108 +280,88 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
           </section>
         )}
 
-        {/* Recruitment Stages Visual Pipeline */}
-        <div className="p-6 rounded-3xl bg-dd-surface border border-dd-border space-y-4">
-          <h2 className="text-base font-black text-dd-text flex items-center gap-2">
-            <Zap className="w-5 h-5 text-yellow-400" />
-            Etapas do Processo Seletivo Técnico
-          </h2>
-          <p className="text-xs text-dd-muted font-medium">
-            Esta empresa avalia candidatos utilizando os desafios práticos e duelos da plataforma.
+        <section aria-labelledby="job-description-title" className={styles.detailSection}>
+          <h2 id="job-description-title">Sobre a oportunidade</h2>
+          <p className={styles.prose}>
+            {job.description || 'A empresa ainda não adicionou uma descrição para esta vaga.'}
           </p>
+        </section>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 pt-2">
-            {job.stages.map((stage: any, index: number) => {
-              const isCurrent = application?.stage_id === stage.id;
-              return (
-                <div
-                  key={stage.id}
-                  className={`p-4 rounded-2xl border transition-all ${
-                    isCurrent
-                      ? 'bg-blue-500/15 border-blue-500 shadow-md'
-                      : 'bg-dd-bg border-dd-border/60'
-                  }`}
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] font-black uppercase text-blue-400">
-                      Etapa {index + 1}
-                    </span>
-                    {isCurrent && (
-                      <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-500 text-white">
-                        Sua Etapa
-                      </span>
-                    )}
-                  </div>
-                  <h4 className="text-xs font-bold text-dd-text">{stage.title}</h4>
-                  {stage.description && (
-                    <p className="text-[11px] text-dd-muted font-medium mt-1">
-                      {stage.description}
-                    </p>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Job Description & Requirements */}
-        <div className="p-6 md:p-8 rounded-3xl bg-dd-surface border border-dd-border space-y-6">
-          <div>
-            <h3 className="text-sm font-black text-dd-text uppercase tracking-wider mb-2">
-              Descrição da Oportunidade
-            </h3>
-            <p className="text-xs text-dd-text/90 font-medium leading-relaxed whitespace-pre-wrap">
-              {job.description}
-            </p>
-          </div>
-
-          <div>
-            <h3 className="text-sm font-black text-dd-text uppercase tracking-wider mb-2">
-              Tecnologias Utilizadas
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              {job.technologies.map((t: string) => (
-                <span
-                  key={t}
-                  className="px-3 py-1 rounded-xl bg-dd-bg border border-dd-border text-xs font-mono font-bold text-dd-text"
-                >
-                  {t}
-                </span>
+        <section aria-labelledby="job-technologies-title" className={styles.detailSection}>
+          <h2 id="job-technologies-title">Tecnologias</h2>
+          {job.technologies.length ? (
+            <div className={styles.tags}>
+              {job.technologies.map((technology) => (
+                <span key={technology}>{technology}</span>
               ))}
             </div>
-          </div>
+          ) : (
+            <p className={styles.sectionCopy}>A empresa não informou tecnologias específicas.</p>
+          )}
+        </section>
 
-          {job.requirements?.length > 0 && (
-            <div>
-              <h3 className="text-sm font-black text-dd-text uppercase tracking-wider mb-2">
-                Requisitos e Diferenciais
-              </h3>
-              <ul className="list-disc list-inside space-y-1 text-xs text-dd-muted font-medium">
-                {job.requirements.map((r: string, idx: number) => (
-                  <li key={idx} className="text-dd-text/90">
-                    {r}
+        {!!job.requirements?.length && (
+          <section aria-labelledby="job-requirements-title" className={styles.detailSection}>
+            <h2 id="job-requirements-title">Requisitos e diferenciais</h2>
+            <ul className={styles.plainList}>
+              {job.requirements.map((requirement, index) => (
+                <li key={`${index}-${requirement}`}>{requirement}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+        {!!job.benefits?.length && (
+          <section aria-labelledby="job-benefits-title" className={styles.detailSection}>
+            <h2 id="job-benefits-title">Benefícios</h2>
+            <ul className={styles.plainList}>
+              {job.benefits.map((benefit, index) => (
+                <li key={`${index}-${benefit}`}>{benefit}</li>
+              ))}
+            </ul>
+          </section>
+        )}
+
+        <section aria-labelledby="job-stages-title" className={styles.detailSection}>
+          <h2 id="job-stages-title">Etapas do processo</h2>
+          {stages.length ? (
+            <>
+              <p className={styles.sectionCopy}>
+                Esta é a sequência definida pela empresa. A etapa da sua candidatura aparece em
+                destaque.
+              </p>
+              <ol className={styles.stages}>
+                {stages.map((stage, index) => (
+                  <li
+                    key={stage.id}
+                    className={styles.stage}
+                    aria-current={currentStageId === stage.id ? 'step' : undefined}
+                  >
+                    <span className={styles.stageNumber} aria-label={`Etapa ${index + 1}`}>
+                      {index + 1}
+                    </span>
+                    <div className={styles.stageBody}>
+                      <div className={styles.stageTitle}>
+                        <h3>{stage.title}</h3>
+                        {currentStageId === stage.id && (
+                          <span className={styles.currentStage}>Etapa atual</span>
+                        )}
+                      </div>
+                      {stage.description && (
+                        <p className={styles.sectionCopy}>{stage.description}</p>
+                      )}
+                    </div>
                   </li>
                 ))}
-              </ul>
-            </div>
+              </ol>
+            </>
+          ) : (
+            <p className={styles.sectionCopy}>
+              A empresa ainda não definiu as etapas. As orientações serão exibidas na sua
+              candidatura.
+            </p>
           )}
-
-          {job.benefits?.length > 0 && (
-            <div>
-              <h3 className="text-sm font-black text-dd-text uppercase tracking-wider mb-2">
-                Benefícios
-              </h3>
-              <ul className="list-disc list-inside space-y-1 text-xs text-dd-muted font-medium">
-                {job.benefits.map((b: string, idx: number) => (
-                  <li key={idx} className="text-dd-text/90">
-                    {b}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      </main>
-    </div>
+        </section>
+      </div>
+    </PlatformPageShell>
   );
 }

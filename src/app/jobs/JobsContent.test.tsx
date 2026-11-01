@@ -18,9 +18,27 @@ vi.mock('next/link', () => ({
   ),
 }));
 
-vi.mock('@/components/Sidebar', () => ({
-  Sidebar: ({ user }: { user?: { role?: string } }) => (
-    <aside data-testid="sidebar" data-user-role={user?.role ?? 'unknown'} />
+vi.mock('@/components/PlatformPageShell', () => ({
+  PlatformPageShell: ({ user, children }: { user?: { role?: string }; children: ReactNode }) => (
+    <>
+      <aside data-testid="sidebar" data-user-role={user?.role ?? 'unknown'} />
+      <main>{children}</main>
+    </>
+  ),
+  PlatformPageHeader: ({
+    title,
+    description,
+    actions,
+  }: {
+    title: string;
+    description?: string;
+    actions?: ReactNode;
+  }) => (
+    <header>
+      <h1>{title}</h1>
+      <p>{description}</p>
+      {actions}
+    </header>
   ),
 }));
 
@@ -132,6 +150,12 @@ describe('JobsContent', () => {
     render(<JobsContent user={{ id: 'member-1', role: 'MEMBER' }} />);
     await screen.findByText('2 vagas encontradas');
 
+    const filterToggle = screen.getByRole('button', { name: 'Filtrar oportunidades' });
+    expect(filterToggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('searchbox', { name: 'Tecnologia' })).not.toBeInTheDocument();
+    await user.click(filterToggle);
+    expect(filterToggle).toHaveAttribute('aria-expanded', 'true');
+
     const technologyFilter = screen.getByRole('searchbox', { name: 'Tecnologia' });
     const remoteFilter = within(
       screen.getByRole('group', { name: 'Modelo de trabalho' })
@@ -167,6 +191,10 @@ describe('JobsContent', () => {
     expect(
       screen.getByRole('heading', { name: 'Pessoa Desenvolvedora Backend Sênior' })
     ).toBeVisible();
+
+    await user.click(filterToggle);
+    expect(filterToggle).toHaveAttribute('aria-expanded', 'false');
+    expect(screen.queryByRole('group', { name: 'Nível' })).not.toBeInTheDocument();
   });
 
   it('apresenta o erro de carregamento e refaz a consulta ao tentar novamente', async () => {
@@ -195,5 +223,22 @@ describe('JobsContent', () => {
     expect(
       screen.queryByRole('heading', { name: 'Falha ao carregar as vagas' })
     ).not.toBeInTheDocument();
+  });
+
+  it('informa remuneração máxima e diferencia salário não informado', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        jobsResponse([
+          { ...jobs[0], salary_min: null, salary_max: 9000 },
+          { ...jobs[1], salary_min: null, salary_max: null },
+        ])
+      )
+    );
+    render(<JobsContent user={{ id: 'member-1' }} />);
+    const frontend = await screen.findByRole('link', { name: /Desenvolvedora Front-end Júnior/ });
+    const backend = screen.getByRole('link', { name: /Pessoa Desenvolvedora Backend Sênior/ });
+    expect(frontend).toHaveTextContent(/Até R\$\s*9\.000/);
+    expect(backend).toHaveTextContent('Salário não informado');
   });
 });

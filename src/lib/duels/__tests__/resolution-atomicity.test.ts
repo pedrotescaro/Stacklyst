@@ -6,8 +6,12 @@ const mocks = vi.hoisted(() => ({
   solution: vi.fn(),
   evaluation: vi.fn(),
   userUpdate: vi.fn(),
+  reviewers: vi.fn(),
+  notification: vi.fn(),
   xp: vi.fn(),
+  push: vi.fn(),
 }));
+vi.mock('@/lib/mobile/push', () => ({ sendMobilePush: mocks.push }));
 vi.mock('@/lib/xp', () => ({ awardXPInTransaction: mocks.xp }));
 vi.mock('@/lib/prisma', () => ({
   prisma: {
@@ -17,7 +21,8 @@ vi.mock('@/lib/prisma', () => ({
         duel: { updateMany: mocks.claim },
         duelSolution: { upsert: mocks.solution },
         duelEvaluation: { create: mocks.evaluation },
-        user: { update: mocks.userUpdate },
+        user: { update: mocks.userUpdate, findMany: mocks.reviewers },
+        notification: { createManyAndReturn: mocks.notification },
       }),
   },
 }));
@@ -37,6 +42,10 @@ describe('duel resolution atomicity', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.claim.mockResolvedValue({ count: 1 });
+    mocks.reviewers.mockResolvedValue([
+      { id: 'reviewer', role: 'EVALUATOR', evaluator_profile: { tech_stack: ['TypeScript'] } },
+    ]);
+    mocks.notification.mockResolvedValue([{ id: 'duel-review:duel:reviewer', userId: 'reviewer' }]);
   });
 
   it('records an outage as no contest without XP, cooldowns or abandonment mutations', async () => {
@@ -83,5 +92,47 @@ describe('duel resolution atomicity', () => {
     expect(results.filter(Boolean)).toHaveLength(1);
     expect(mocks.xp).toHaveBeenCalledExactlyOnceWith(expect.anything(), 'a', 'TS', 50);
     expect(mocks.evaluation).toHaveBeenCalledTimes(1);
+  });
+
+  it('converges simultaneous technical ties to one durable review request', async () => {
+    let claimed = false;
+    mocks.claim.mockImplementation(async () => {
+      if (claimed) return { count: 0 };
+      claimed = true;
+      return { count: 1 };
+    });
+    mocks.findUnique.mockResolvedValue({
+      id: 'duel',
+      status: 'ACTIVE',
+      challenger_id: 'a',
+      opponent_id: 'b',
+      language: 'TS',
+      submissions: [submission('a', 950), submission('b', 950)],
+    });
+    const results = await Promise.all(
+      Array.from({ length: 50 }, () => resolveDuelAtDeadline('duel'))
+    );
+    expect(results.filter(Boolean)).toHaveLength(1);
+    expect(mocks.claim).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ status: 'REVIEW_PENDING', winner_id: null }),
+      })
+    );
+    expect(mocks.xp).not.toHaveBeenCalled();
+    expect(mocks.notification).toHaveBeenCalledExactlyOnceWith({
+      data: [
+        {
+          id: 'duel-review:duel:reviewer',
+          userId: 'reviewer',
+          type: 'DUEL_REQUEST',
+          resourceId: 'duel',
+          resourceType: 'DUEL_REVIEW',
+          actorId: null,
+        },
+      ],
+      skipDuplicates: true,
+      select: { id: true, userId: true },
+    });
+    expect(mocks.push).toHaveBeenCalledExactlyOnceWith('reviewer', 'duel-review:duel:reviewer');
   });
 });

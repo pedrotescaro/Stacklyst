@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion';
 import {
   X,
   Calendar,
@@ -16,6 +16,8 @@ import {
   Image as ImageIcon,
 } from 'lucide-react';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { useEventDialog } from './useEventDialog';
+import styles from './event-dialog.module.css';
 import type { EventType } from '@/app/events/EventsContent';
 
 interface CreateEventModalProps {
@@ -28,8 +30,10 @@ export function CreateEventModal({ open, onClose, onCreated }: CreateEventModalP
   const { isEnglish, text } = useLocalizedText();
 
   const now = new Date();
-  const defaultStart = new Date(now.getTime() + 24 * 60 * 60 * 1000).toISOString().slice(0, 16);
-  const defaultEnd = new Date(now.getTime() + 48 * 60 * 60 * 1000).toISOString().slice(0, 16);
+  const localInputDate = (date: Date) =>
+    new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+  const defaultStart = localInputDate(new Date(now.getTime() + 24 * 60 * 60 * 1000));
+  const defaultEnd = localInputDate(new Date(now.getTime() + 48 * 60 * 60 * 1000));
 
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
@@ -43,6 +47,8 @@ export function CreateEventModal({ open, onClose, onCreated }: CreateEventModalP
 
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const reduceMotion = useReducedMotion();
+  const dialogRef = useEventDialog(open, onClose, submitting);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -107,7 +113,9 @@ export function CreateEventModal({ open, onClose, onCreated }: CreateEventModalP
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error || data.message || 'Erro ao criar evento.');
+        throw new Error(
+          data.message || 'Não foi possível criar o evento. Revise os campos e tente novamente.'
+        );
       }
 
       onCreated(data.event);
@@ -123,31 +131,43 @@ export function CreateEventModal({ open, onClose, onCreated }: CreateEventModalP
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6"
-          initial={{ opacity: 0 }}
+          className={styles.viewport}
+          initial={reduceMotion ? false : { opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.15 }}
+          transition={{ duration: reduceMotion ? 0 : 0.15 }}
         >
           {/* Backdrop */}
-          <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
+          <div
+            className="absolute inset-0 bg-black/75 backdrop-blur-sm"
+            onClick={() => {
+              if (!submitting) onClose();
+            }}
+          />
 
           {/* Dialog */}
           <motion.div
-            className="relative flex flex-col w-full max-w-2xl max-h-[90vh] bg-dd-bg border border-dd-border rounded-2xl shadow-2xl overflow-hidden z-10"
-            initial={{ scale: 0.95, y: 15 }}
+            ref={dialogRef}
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-event-title"
+            tabIndex={-1}
+            className={styles.dialog}
+            initial={reduceMotion ? false : { scale: 0.95, y: 15 }}
             animate={{ scale: 1, y: 0 }}
             exit={{ scale: 0.95, y: 15 }}
-            transition={{ type: 'spring', stiffness: 350, damping: 28 }}
+            transition={
+              reduceMotion ? { duration: 0 } : { type: 'spring', stiffness: 350, damping: 28 }
+            }
           >
             {/* Header */}
             <div className="flex items-center justify-between px-5 py-4 border-b border-dd-border/80 bg-dd-surface shrink-0">
               <div className="flex items-center gap-3">
-                <div className="p-2 rounded-xl bg-purple-500/15 text-purple-400 border border-purple-500/30">
+                <div className="p-2 rounded-xl bg-dd-accent/10 text-dd-accent border border-dd-accent/20">
                   <Trophy className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-black text-dd-text">
+                  <h2 id="create-event-title" className="text-base font-black text-dd-text">
                     {text('Criar Novo Evento', 'Create New Event')}
                   </h2>
                   <p className="text-xs text-dd-muted font-medium">
@@ -162,17 +182,22 @@ export function CreateEventModal({ open, onClose, onCreated }: CreateEventModalP
               <button
                 type="button"
                 onClick={onClose}
-                className="p-1.5 rounded-lg text-dd-muted hover:text-dd-text hover:bg-dd-surface-subtle transition-colors cursor-pointer"
+                disabled={submitting}
+                aria-label={text('Fechar criação de evento', 'Close event creation')}
+                className={styles.close}
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-y-auto">
-              <div className="p-5 sm:p-6 space-y-5 flex-1">
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 min-h-0">
+              <div className="p-4 sm:p-6 space-y-5 flex-1 min-h-0 overflow-y-auto">
                 {error && (
-                  <div className="flex items-center gap-2.5 p-3.5 rounded-xl border border-red-500/30 bg-red-500/10 text-red-400 text-xs font-bold">
+                  <div
+                    role="alert"
+                    className="flex items-center gap-2.5 p-3.5 rounded-xl border border-red-500/30 bg-red-500/10 text-dd-text text-sm font-medium"
+                  >
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{error}</span>
                   </div>
@@ -180,10 +205,14 @@ export function CreateEventModal({ open, onClose, onCreated }: CreateEventModalP
 
                 {/* Title */}
                 <div>
-                  <label className="block text-xs font-bold text-dd-text mb-1.5">
+                  <label
+                    htmlFor="create-event-field-1"
+                    className="block text-xs font-bold text-dd-text mb-1.5"
+                  >
                     {text('Título do Evento *', 'Event Title *')}
                   </label>
                   <input
+                    id="create-event-field-1"
                     type="text"
                     required
                     value={title}
@@ -192,20 +221,24 @@ export function CreateEventModal({ open, onClose, onCreated }: CreateEventModalP
                       'Ex: Hackathon de Inteligência Artificial 2026',
                       'Ex: AI Hackathon 2026'
                     )}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text placeholder:text-dd-muted/60 focus:outline-none focus:border-purple-500 transition-colors"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text placeholder:text-dd-muted/60 focus:outline-none focus:border-dd-accent transition-colors"
                   />
                 </div>
 
                 {/* Type & XP Reward */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-dd-text mb-1.5">
+                    <label
+                      htmlFor="create-event-field-2"
+                      className="block text-xs font-bold text-dd-text mb-1.5"
+                    >
                       {text('Tipo de Evento', 'Event Type')}
                     </label>
                     <select
+                      id="create-event-field-2"
                       value={type}
                       onChange={(e) => setType(e.target.value as EventType)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text focus:outline-none focus:border-purple-500 transition-colors cursor-pointer"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text focus:outline-none focus:border-dd-accent transition-colors cursor-pointer"
                     >
                       <option value="HACKATHON">Hackathon</option>
                       <option value="CHAMPIONSHIP">
@@ -219,18 +252,22 @@ export function CreateEventModal({ open, onClose, onCreated }: CreateEventModalP
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-dd-text mb-1.5">
+                    <label
+                      htmlFor="create-event-field-3"
+                      className="block text-xs font-bold text-dd-text mb-1.5"
+                    >
                       {text('Recompensa (XP)', 'Reward (XP)')}
                     </label>
                     <div className="relative">
                       <Zap className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-yellow-400" />
                       <input
+                        id="create-event-field-3"
                         type="number"
                         min="0"
                         step="50"
                         value={xpReward}
                         onChange={(e) => setXpReward(Number(e.target.value))}
-                        className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm font-mono text-dd-text focus:outline-none focus:border-purple-500 transition-colors"
+                        className="w-full pl-10 pr-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm font-mono text-dd-text focus:outline-none focus:border-dd-accent transition-colors"
                       />
                     </div>
                   </div>
@@ -238,10 +275,14 @@ export function CreateEventModal({ open, onClose, onCreated }: CreateEventModalP
 
                 {/* Description */}
                 <div>
-                  <label className="block text-xs font-bold text-dd-text mb-1.5">
+                  <label
+                    htmlFor="create-event-field-4"
+                    className="block text-xs font-bold text-dd-text mb-1.5"
+                  >
                     {text('Descrição e Regras *', 'Description & Rules *')}
                   </label>
                   <textarea
+                    id="create-event-field-4"
                     rows={4}
                     required
                     value={description}
@@ -250,92 +291,121 @@ export function CreateEventModal({ open, onClose, onCreated }: CreateEventModalP
                       'Explique o objetivo do evento, regras de participação, critérios de avaliação e prazos...',
                       'Explain event objectives, participation rules, grading criteria and deadlines...'
                     )}
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text placeholder:text-dd-muted/60 focus:outline-none focus:border-purple-500 transition-colors resize-none"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text placeholder:text-dd-muted/60 focus:outline-none focus:border-dd-accent transition-colors resize-none"
                   />
                 </div>
 
                 {/* Dates */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-dd-text mb-1.5 flex items-center gap-1.5">
-                      <Calendar className="w-3.5 h-3.5 text-purple-400" />
+                    <label
+                      htmlFor="create-event-field-5"
+                      className="block text-xs font-bold text-dd-text mb-1.5 flex items-center gap-1.5"
+                    >
+                      <Calendar className="w-3.5 h-3.5 text-dd-accent" />
                       {text('Início *', 'Start *')}
                     </label>
                     <input
+                      id="create-event-field-5"
                       type="datetime-local"
                       required
                       value={startDate}
                       onChange={(e) => setStartDate(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-xs sm:text-sm text-dd-text focus:outline-none focus:border-purple-500 transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-xs sm:text-sm text-dd-text focus:outline-none focus:border-dd-accent transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-dd-text mb-1.5 flex items-center gap-1.5">
-                      <Clock className="w-3.5 h-3.5 text-purple-400" />
+                    <label
+                      htmlFor="create-event-field-6"
+                      className="block text-xs font-bold text-dd-text mb-1.5 flex items-center gap-1.5"
+                    >
+                      <Clock className="w-3.5 h-3.5 text-dd-accent" />
                       {text('Término *', 'End *')}
                     </label>
                     <input
+                      id="create-event-field-6"
                       type="datetime-local"
                       required
                       value={endDate}
                       onChange={(e) => setEndDate(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-xs sm:text-sm text-dd-text focus:outline-none focus:border-purple-500 transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-xs sm:text-sm text-dd-text focus:outline-none focus:border-dd-accent transition-colors"
                     />
                   </div>
                 </div>
 
+                <p className={styles.timezone}>
+                  {text(
+                    'As datas usam o horário do seu dispositivo. A lista de eventos mostra o horário de Brasília (UTC−3).',
+                    'Dates use your device time zone. The event list shows Brasília time (UTC−3).'
+                  )}
+                </p>
+
                 {/* Min Level & Max Participants */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-dd-text mb-1.5 flex items-center gap-1.5">
+                    <label
+                      htmlFor="create-event-field-7"
+                      className="block text-xs font-bold text-dd-text mb-1.5 flex items-center gap-1.5"
+                    >
                       <ShieldAlert className="w-3.5 h-3.5 text-cyan-400" />
                       {text('Nível Mínimo do Usuário', 'Minimum User Level')}
                     </label>
                     <input
+                      id="create-event-field-7"
                       type="number"
                       min="1"
-                      max="100"
+                      max="1000"
                       value={minLevel}
                       onChange={(e) => setMinLevel(Math.max(1, Number(e.target.value)))}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text focus:outline-none focus:border-purple-500 transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text focus:outline-none focus:border-dd-accent transition-colors"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-dd-text mb-1.5 flex items-center gap-1.5">
-                      <Users className="w-3.5 h-3.5 text-purple-400" />
+                    <label
+                      htmlFor="create-event-field-8"
+                      className="block text-xs font-bold text-dd-text mb-1.5 flex items-center gap-1.5"
+                    >
+                      <Users className="w-3.5 h-3.5 text-dd-accent" />
                       {text('Limite de Vagas (opcional)', 'Max Participants (optional)')}
                     </label>
                     <input
+                      id="create-event-field-8"
                       type="number"
                       min="1"
                       placeholder={text('Sem limite', 'No limit')}
                       value={maxParticipants}
                       onChange={(e) => setMaxParticipants(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text placeholder:text-dd-muted/60 focus:outline-none focus:border-purple-500 transition-colors"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text placeholder:text-dd-muted/60 focus:outline-none focus:border-dd-accent transition-colors"
                     />
                   </div>
                 </div>
 
                 {/* Banner URL (optional) */}
                 <div>
-                  <label className="block text-xs font-bold text-dd-text mb-1.5 flex items-center gap-1.5">
-                    <ImageIcon className="w-3.5 h-3.5 text-purple-400" />
+                  <label
+                    htmlFor="create-event-field-9"
+                    className="block text-xs font-bold text-dd-text mb-1.5 flex items-center gap-1.5"
+                  >
+                    <ImageIcon className="w-3.5 h-3.5 text-dd-accent" />
                     {text('URL do Banner (opcional)', 'Banner Image URL (optional)')}
                   </label>
                   <input
+                    id="create-event-field-9"
                     type="url"
                     value={bannerUrl}
                     onChange={(e) => setBannerUrl(e.target.value)}
                     placeholder="https://images.unsplash.com/..."
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text placeholder:text-dd-muted/60 focus:outline-none focus:border-purple-500 transition-colors"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-dd-surface border border-dd-border text-sm text-dd-text placeholder:text-dd-muted/60 focus:outline-none focus:border-dd-accent transition-colors"
                   />
                 </div>
               </div>
 
               {/* Footer Actions */}
-              <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-dd-border/80 bg-dd-surface shrink-0">
+              <div
+                className={`flex items-center justify-end gap-3 px-6 py-4 border-t border-dd-border bg-dd-bg shrink-0 ${styles.footer}`}
+              >
                 <button
                   type="button"
                   onClick={onClose}
@@ -348,7 +418,7 @@ export function CreateEventModal({ open, onClose, onCreated }: CreateEventModalP
                 <button
                   type="submit"
                   disabled={submitting}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 active:scale-95 text-white text-xs font-black shadow-lg shadow-purple-900/30 transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-dd-accent hover:brightness-110 text-white text-xs font-black transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {submitting ? (
                     <>

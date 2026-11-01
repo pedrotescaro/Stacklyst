@@ -7,6 +7,8 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }),
 }));
 
+vi.mock('@/components/FeedRightSidebar', () => ({ FeedRightSidebar: () => null }));
+
 vi.mock('@/components/Sidebar', () => ({
   Sidebar: () => <aside aria-label="Sidebar" />,
 }));
@@ -24,7 +26,7 @@ const mockDuel = {
   problem_title: problem.title,
   problem_body: JSON.stringify(problem),
   language: 'TS',
-  status: 'EVALUATION',
+  status: 'REVIEW_PENDING',
   challenger: {
     id: 'user-1',
     username: 'alice',
@@ -241,5 +243,38 @@ describe('EvaluationsContent Responsive Page', () => {
     await waitFor(() => {
       expect(screen.getByText('Avaliação de código homologada com sucesso!')).toBeInTheDocument();
     });
+  });
+  it('loads and selects the duel from a notification link, clearing draft fields on another duel', async () => {
+    window.history.replaceState({}, '', '/evaluations?duel=older-duel');
+    const older = {
+      ...mockDuel,
+      id: 'older-duel',
+      problem_title: 'Duelo notificado',
+      evaluations: [],
+    };
+    const fetchMock = vi.spyOn(global, 'fetch').mockImplementation(
+      async (input) =>
+        ({
+          ok: true,
+          json: async () =>
+            String(input).includes('eligibility') ? { evaluatorProfile: null } : [mockDuel, older],
+        }) as Response
+    );
+    render(<EvaluationsContent user={mockUser} />);
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /duelo notificado/i })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      )
+    );
+    expect(fetchMock).toHaveBeenCalledWith('/api/evaluations?duel=older-duel');
+    const feedback = screen.getByLabelText('Justificativa técnica');
+    fireEvent.change(feedback, { target: { value: 'Rascunho específico deste duelo.' } });
+    fireEvent.click(screen.getByRole('radio', { name: /@alice/i }));
+    fireEvent.click(screen.getByRole('button', { name: new RegExp(problem.title) }));
+    await waitFor(() => expect(screen.getByDisplayValue('850')).toBeInTheDocument());
+    expect(feedback).toHaveValue('');
+    expect(screen.getByRole('radio', { name: /@alice/i })).not.toBeChecked();
+    window.history.replaceState({}, '', '/evaluations');
   });
 });

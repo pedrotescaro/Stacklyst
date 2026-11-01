@@ -203,7 +203,7 @@ export function EventChallengesSection({ eventId }: { eventId: string }) {
   if (loading) {
     return (
       <div className="flex items-center gap-2 rounded-xl border border-dd-border bg-dd-surface p-4 text-xs font-bold text-dd-muted">
-        <Loader2 className="h-4 w-4 animate-spin text-purple-400" />
+        <Loader2 className="h-4 w-4 animate-spin text-dd-accent" />
         {text('Carregando desafios de código...', 'Loading coding challenges...')}
       </div>
     );
@@ -215,7 +215,7 @@ export function EventChallengesSection({ eventId }: { eventId: string }) {
         <div>
           <h3
             id="event-challenges-title"
-            className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-purple-400"
+            className="flex items-center gap-1.5 text-xs font-black uppercase tracking-wider text-dd-accent"
           >
             <Braces className="h-4 w-4" />
             {text('Desafios de código', 'Coding challenges')}
@@ -233,7 +233,7 @@ export function EventChallengesSection({ eventId }: { eventId: string }) {
           <button
             type="button"
             onClick={beginEditing}
-            className="dd-focus-ring inline-flex min-h-10 items-center gap-2 rounded-xl border border-purple-500/30 bg-purple-500/10 px-3 text-xs font-black text-purple-300 hover:bg-purple-500/20"
+            className="dd-focus-ring inline-flex min-h-10 items-center gap-2 rounded-xl border border-dd-accent/20 bg-dd-accent/10 px-3 text-xs font-black text-dd-accent hover:bg-dd-accent/15"
           >
             <Pencil className="h-3.5 w-3.5" />
             {data.challenges.length > 0
@@ -363,7 +363,7 @@ export function EventChallengesSection({ eventId }: { eventId: string }) {
                     type="button"
                     onClick={() => addExample(challengeIndex)}
                     disabled={challenge.examples.length >= MAX_EVENT_CHALLENGE_EXAMPLES}
-                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] font-black text-purple-300 hover:bg-purple-500/10 disabled:opacity-30"
+                    className="inline-flex items-center gap-1 rounded-lg px-2 py-1.5 text-[11px] font-black text-dd-accent hover:bg-dd-accent/10 disabled:opacity-30"
                   >
                     <Plus className="h-3.5 w-3.5" />
                     {text('Adicionar exemplo', 'Add example')}
@@ -430,9 +430,9 @@ export function EventChallengesSection({ eventId }: { eventId: string }) {
               type="button"
               onClick={() => setDrafts((current) => [...current, emptyChallenge()])}
               disabled={drafts.length >= MAX_EVENT_CHALLENGES}
-              className="dd-focus-ring inline-flex min-h-10 items-center gap-2 rounded-xl border border-dd-border px-3 text-xs font-black text-dd-text hover:border-purple-500/50 disabled:opacity-40"
+              className="dd-focus-ring inline-flex min-h-10 items-center gap-2 rounded-xl border border-dd-border px-3 text-xs font-black text-dd-text hover:border-dd-accent/50 disabled:opacity-40"
             >
-              <Plus className="h-4 w-4 text-purple-400" />
+              <Plus className="h-4 w-4 text-dd-accent" />
               {text('Adicionar desafio', 'Add challenge')} ({drafts.length}/{MAX_EVENT_CHALLENGES})
             </button>
 
@@ -449,7 +449,7 @@ export function EventChallengesSection({ eventId }: { eventId: string }) {
                 type="button"
                 onClick={saveChallenges}
                 disabled={saving}
-                className="dd-focus-ring inline-flex min-h-10 items-center gap-2 rounded-xl bg-purple-600 px-4 text-xs font-black text-white hover:bg-purple-500 disabled:opacity-50"
+                className="dd-focus-ring inline-flex min-h-10 items-center gap-2 rounded-xl bg-dd-accent px-4 text-xs font-black text-white hover:brightness-110 disabled:opacity-50"
               >
                 {saving ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -466,7 +466,7 @@ export function EventChallengesSection({ eventId }: { eventId: string }) {
           {data.challenges.map((challenge) => (
             <details
               key={challenge.id}
-              className="group rounded-xl border border-dd-border bg-dd-surface open:border-purple-500/35"
+              className="group rounded-xl border border-dd-border bg-dd-surface open:border-dd-accent/35"
             >
               <summary className="flex cursor-pointer list-none items-center justify-between gap-3 p-4">
                 <span className="min-w-0 text-xs font-black text-dd-text">

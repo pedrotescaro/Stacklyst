@@ -189,7 +189,11 @@ describe('TitlesShowcaseView', () => {
     expect(unownedStatusList.length).toBeGreaterThan(0);
 
     // Unavailable / limited event title status
-    expect(screen.getByText('Indisponível para obter')).toBeInTheDocument();
+    expect(
+      within(screen.getByRole('article', { name: 'Título Primordial' })).getByText(
+        'Indisponível para obter'
+      )
+    ).toBeInTheDocument();
   });
 
   it('equips and un-equips titles with instant optimistic feedback', async () => {
