@@ -244,9 +244,9 @@
   .guide {
     display: grid;
     gap: 16px;
-    width: 280px;
+    width: 380px;
     flex-shrink: 0;
-    padding: 28px 24px;
+    padding: 28px 20px;
     position: sticky;
     top: 0;
   }

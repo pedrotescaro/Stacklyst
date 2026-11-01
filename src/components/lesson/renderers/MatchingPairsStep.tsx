@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
-import { Layers, Check, Sparkles } from 'lucide-react';
-import type { LessonStep, MatchingPair } from '@/lib/lessons/types';
+import { useState, useMemo } from 'react';
+import { Layers, Check } from 'lucide-react';
+import type { LessonStep } from '@/lib/lessons/types';
 
 interface MatchingPairsStepProps {
   step: LessonStep;
@@ -68,14 +68,14 @@ export function MatchingPairsStep({
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in font-sans">
       <div className="flex items-center gap-3">
-        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-500 border border-purple-500/20 shadow-sm">
+        <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-purple-500/10 text-purple-500 border border-purple-500/20">
           <Layers className="h-6 w-6" />
         </div>
         <div>
-          <h2 className="text-xl md:text-2xl font-black text-dd-text dark:text-white tracking-tight">
+          <h2 className="text-xl font-bold leading-snug text-dd-text">
             {step.title || 'Combine os Pares'}
           </h2>
-          <p className="text-xs text-dd-muted dark:text-neutral-400 font-medium">
+          <p className="text-base text-dd-muted leading-relaxed">
             {step.instruction ||
               'Toque em um item da esquerda e depois no seu par correspondente à direita'}
           </p>
@@ -85,25 +85,23 @@ export function MatchingPairsStep({
       <div className="grid grid-cols-2 gap-4 pt-2">
         {/* Coluna da Esquerda */}
         <div className="space-y-3">
-          <p className="text-xs font-bold uppercase tracking-wider text-dd-muted px-1">
-            Conceito / Termo
-          </p>
+          <p className="text-sm font-medium text-dd-muted px-1">Conceito / Termo</p>
           {pairs.map((pair) => {
             const isMatched = Boolean(matchedPairs[pair.left]);
             const isSelected = selectedLeft === pair.left;
 
             let cardClasses =
-              'w-full flex items-center justify-between rounded-2xl border-2 p-3.5 text-left font-bold text-sm transition-all duration-150 cursor-pointer min-h-[56px] ';
+              'w-full flex items-center justify-between rounded-2xl border p-3.5 text-left font-semibold text-base transition-all duration-150 dd-focus-ring cursor-pointer min-h-[56px] ';
 
             if (isMatched) {
               cardClasses +=
-                'border-emerald-500/80 bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 shadow-sm';
+                'border-emerald-500/80 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ';
             } else if (isSelected) {
               cardClasses +=
-                'border-purple-500 bg-purple-500/15 text-purple-600 dark:text-purple-300 shadow-md scale-[1.02] ring-2 ring-purple-500/30';
+                'border-purple-500 bg-purple-500/15 text-purple-600 dark:text-purple-300  scale-[1.02] ring-2 ring-purple-500/30';
             } else {
               cardClasses +=
-                'border-dd-border bg-dd-surface/40 hover:border-purple-500/40 hover:bg-dd-surface text-dd-text dark:text-neutral-200';
+                'border-dd-border bg-dd-bg hover:border-purple-500/40 hover:bg-dd-surface text-dd-text';
             }
 
             return (
@@ -125,9 +123,7 @@ export function MatchingPairsStep({
 
         {/* Coluna da Direita */}
         <div className="space-y-3">
-          <p className="text-xs font-bold uppercase tracking-wider text-dd-muted px-1">
-            Correspondência
-          </p>
+          <p className="text-sm font-medium text-dd-muted px-1">Correspondência</p>
           {shuffledRights.map((rightText, idx) => {
             const matchedLeft = Object.keys(matchedPairs).find(
               (k) => matchedPairs[k] === rightText
@@ -136,17 +132,17 @@ export function MatchingPairsStep({
             const isSelected = selectedRight === rightText;
 
             let cardClasses =
-              'w-full flex items-center justify-between rounded-2xl border-2 p-3.5 text-left font-bold text-sm transition-all duration-150 cursor-pointer min-h-[56px] ';
+              'w-full flex items-center justify-between rounded-2xl border p-3.5 text-left font-semibold text-base transition-all duration-150 dd-focus-ring cursor-pointer min-h-[56px] ';
 
             if (isMatched) {
               cardClasses +=
-                'border-emerald-500/80 bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 shadow-sm';
+                'border-emerald-500/80 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 ';
             } else if (isSelected) {
               cardClasses +=
-                'border-purple-500 bg-purple-500/15 text-purple-600 dark:text-purple-300 shadow-md scale-[1.02] ring-2 ring-purple-500/30';
+                'border-purple-500 bg-purple-500/15 text-purple-600 dark:text-purple-300  scale-[1.02] ring-2 ring-purple-500/30';
             } else {
               cardClasses +=
-                'border-dd-border bg-dd-surface/40 hover:border-purple-500/40 hover:bg-dd-surface text-dd-text dark:text-neutral-200';
+                'border-dd-border bg-dd-bg hover:border-purple-500/40 hover:bg-dd-surface text-dd-text';
             }
 
             return (
@@ -161,7 +157,7 @@ export function MatchingPairsStep({
                 }
                 className={cardClasses}
               >
-                <span className="text-xs md:text-sm font-medium leading-snug">{rightText}</span>
+                <span className="text-base font-medium leading-snug">{rightText}</span>
                 {isMatched && <Check className="h-4 w-4 text-emerald-500 shrink-0" />}
               </button>
             );

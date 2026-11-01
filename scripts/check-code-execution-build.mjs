@@ -12,6 +12,8 @@ const executionRoutes = [
   'server/app/api/duels/[id]/run/route.js',
   'server/app/api/duels/[id]/solution/route.js',
   'server/app/api/lessons/[lessonId]/attempt/route.js',
+  'server/app/api/exercises/[exerciseId]/run/route.js',
+  'server/app/api/exercises/[exerciseId]/submit/route.js',
 ];
 for (const route of executionRoutes) {
   const trace = JSON.parse(readFileSync(path.join(buildDir, `${route}.nft.json`), 'utf8'));
@@ -100,12 +102,66 @@ const assessLessonStep = await builtExport(
   'server/app/api/lessons/[lessonId]/attempt/route.js',
   'assessLessonStep'
 );
+const evaluateExerciseCode = await builtExport(
+  'server/app/api/exercises/[exerciseId]/run/route.js',
+  'evaluateExerciseCode'
+);
 
 for (const language of ['javascript', 'typescript']) {
   const source = language === 'typescript' ? 'const answer: number = 42;' : 'const answer = 42;';
   const result = await executeCode(`${source} console.log(answer);`, language);
   assert.equal(result.ok, true, JSON.stringify(result));
   assert.equal(result.output, '42');
+}
+
+const asynchronous = await executeCode(
+  `const completed: number[] = [];
+  Promise.all([30, 5, 15].map(delay => new Promise<number>(resolve => {
+    setTimeout(() => { completed.push(delay); resolve(delay * 2); }, delay);
+  }))).then(values => console.log(JSON.stringify({ values, completed })));`,
+  'typescript'
+);
+assert.equal(asynchronous.ok, true, JSON.stringify(asynchronous));
+assert.deepEqual(JSON.parse(asynchronous.output), {
+  values: [60, 10, 30],
+  completed: [5, 15, 30],
+});
+
+const retryAfterTests = [
+  ['retry-seconds', ['120', 0], 120000, false],
+  ['retry-date', ['Wed, 21 Oct 2015 07:28:00 GMT', 1445412420000], 60000, false],
+  ['retry-limit', ['999', 0], 300000, true],
+  ['retry-invalid', [null, 0], null, true],
+].map(([id, input, expected_output, is_hidden], index) => ({
+  id,
+  label: id,
+  input,
+  expected_output,
+  is_hidden,
+  invocation_code: null,
+  position: index + 1,
+}));
+for (const includeHidden of [false, true]) {
+  const result = await evaluateExerciseCode({
+    language: 'TS',
+    functionName: 'parseRetryAfter',
+    code: `function parseRetryAfter(value: string | null, nowMs: number): number | null {
+      if (value === null || !value.trim()) return null;
+      const raw = value.trim();
+      if (/^-/.test(raw)) return null;
+      const delay = /^\\d+$/.test(raw) ? Number(raw) * 1000 : Date.parse(raw) - nowMs;
+      return Number.isFinite(delay) ? Math.min(300000, Math.max(0, delay)) : null;
+    }`,
+    testCases: retryAfterTests.filter((test) => includeHidden || !test.is_hidden),
+  });
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(result.passed, true, JSON.stringify(result));
+  assert.equal(result.passedTests, includeHidden ? 4 : 2);
+  assert.equal(result.consoleOutput, '');
+  for (const test of result.tests.filter((test) => test.hidden)) {
+    assert.equal(test.actual, undefined);
+    assert.equal(test.expected, undefined);
+  }
 }
 
 const lessonStep = {
@@ -156,5 +212,5 @@ assert.equal(wrong.status, 'WRONG_ANSWER', JSON.stringify(wrong));
 assert.equal(wrong.passedTests, 3);
 assert.equal(externalRequests, 0, 'The bundled judge fell back to an external execution provider.');
 console.log(
-  'Production judge smoke passed: JS, TS, lesson run/submit and code errors, public/hidden duel tests, and wrong-answer handling; no external requests.'
+  'Production judge smoke passed: JS, TS, Promise/timer scheduling, Retry-After exercise public/hidden tests, lesson run/submit and code errors, public/hidden duel tests, and wrong-answer handling; no external requests.'
 );

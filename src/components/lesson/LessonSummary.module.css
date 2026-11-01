@@ -1,0 +1,83 @@
+.summary {
+  width: 100%;
+  max-width: 520px;
+  padding: 32px 12px;
+  text-align: center;
+}
+.mascot {
+  width: 136px;
+  height: 136px;
+  margin: 0 auto 24px;
+  object-fit: contain;
+}
+.summary h1 {
+  color: var(--color-dd-text);
+  font-size: 28px;
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+.description {
+  margin-top: 12px;
+  color: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+  font-size: 16px;
+  line-height: 1.7;
+}
+.description strong {
+  color: var(--color-dd-text);
+  font-weight: 600;
+}
+.reward {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+  color: var(--color-dd-accent);
+  font-size: 20px;
+  font-weight: 700;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 28px;
+  padding: 24px 0;
+  border-block: 1px solid var(--color-dd-border);
+}
+.stats > div {
+  min-width: 0;
+  padding-inline: 8px;
+}
+.stats > div + div {
+  border-left: 1px solid var(--color-dd-border);
+}
+.stats dt {
+  color: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+  font-size: 13px;
+  line-height: 1.5;
+}
+.stats dd {
+  margin-top: 6px;
+  font-size: 22px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.finish {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 28px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  background: var(--color-dd-accent);
+  color: #fff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.finish:hover {
+  background: color-mix(in srgb, var(--color-dd-accent) 85%, #000);
+}

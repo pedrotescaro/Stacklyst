@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
+import { ArrowLeft, Heart, Zap } from 'lucide-react';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import type { Lesson, LessonSessionState, OrderItem } from '@/lib/lessons/types';
-import { LessonHeader } from '@/components/lesson/LessonHeader';
 import { LessonFooter } from '@/components/lesson/LessonFooter';
 import { LessonSummary } from '@/components/lesson/LessonSummary';
 import { ExitConfirmModal } from '@/components/lesson/ExitConfirmModal';
@@ -20,6 +20,7 @@ import { OutputPredictionStep } from '@/components/lesson/renderers/OutputPredic
 import { TerminalStep } from '@/components/lesson/renderers/TerminalStep';
 import { CodeBlockBuilderStep } from '@/components/lesson/renderers/CodeBlockBuilderStep';
 import { rememberTrailMascotReturn } from '@/app/trails/trailMascotProgress';
+import styles from './LessonClient.module.css';
 
 interface LessonClientProps {
   lesson: Lesson;
@@ -332,7 +333,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
 
   if (isCompleted) {
     return (
-      <div className="min-h-screen bg-dd-bg flex flex-col justify-center items-center p-4">
+      <div className={`${styles.surface} ${styles.completed}`}>
         <LessonSummary
           lesson={lesson}
           sessionState={sessionState}
@@ -343,27 +344,63 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
   }
 
   return (
-    <div className="min-h-screen bg-dd-bg text-dd-text flex flex-col justify-between selection:bg-blue-500/20 selection:text-blue-500">
-      {/* Header Gamificado */}
-      <LessonHeader
-        currentStepIndex={sessionState.currentStepIndex}
-        totalSteps={lesson.steps.length}
-        lives={sessionState.lives}
-        maxLives={sessionState.maxLives}
-        combo={sessionState.combo}
-        earnedXp={sessionState.earnedXp}
-        onExitClick={() => setExitModalOpen(true)}
-      />
+    <div className={styles.surface}>
+      <header className={styles.header}>
+        <div className={styles.toolbar}>
+          <button
+            type="button"
+            aria-label="Sair da lição"
+            onClick={() => setExitModalOpen(true)}
+            className={styles.iconButton}
+          >
+            <ArrowLeft size={21} aria-hidden="true" />
+          </button>
+          <div className={styles.heading}>
+            <h1>{lesson.title}</h1>
+            <p>
+              {lesson.language} · {lesson.estimatedTime}
+            </p>
+          </div>
+          <div className={styles.sessionStats}>
+            {sessionState.combo > 1 && (
+              <span>
+                <Zap size={17} aria-hidden="true" /> {sessionState.combo}× combo
+              </span>
+            )}
+            {sessionState.earnedXp > 0 && <span>+{sessionState.earnedXp} XP</span>}
+            <span aria-label={`${sessionState.lives} de ${sessionState.maxLives} vidas restantes`}>
+              <Heart size={18} aria-hidden="true" /> {sessionState.lives}
+            </span>
+          </div>
+        </div>
+        <div className={styles.progressRow}>
+          <div
+            className={styles.progressTrack}
+            role="progressbar"
+            aria-label="Progresso da lição"
+            aria-valuemin={0}
+            aria-valuemax={lesson.steps.length}
+            aria-valuenow={sessionState.currentStepIndex}
+          >
+            <span
+              style={{
+                width: `${Math.min(100, (sessionState.currentStepIndex / Math.max(1, lesson.steps.length)) * 100)}%`,
+              }}
+            />
+          </div>
+          <span>
+            Etapa {Math.min(sessionState.currentStepIndex + 1, lesson.steps.length)} de{' '}
+            {lesson.steps.length}
+          </span>
+        </div>
+      </header>
 
       {/* Área Central Interativa */}
-      <main className="flex-1 flex items-center justify-center px-4 py-8 md:py-12 w-full max-w-4xl mx-auto">
+      <main className={styles.lessonBody}>
         {currentStep && (
-          <div className="w-full">
+          <div className={styles.stepContent}>
             {lesson.project && currentStep.type === 'concept_explanation' && (
-              <section
-                className="mx-auto mb-8 max-w-2xl border-b border-dd-border pb-6"
-                aria-label="Plano do projeto"
-              >
+              <section className={styles.project} aria-label="Plano do projeto">
                 <h2 className="text-xl font-bold text-dd-text">Seu projeto</h2>
                 <p className="mt-2 text-dd-muted">{lesson.project.objective}</p>
                 <h3 className="mt-4 font-semibold text-dd-text">Requisitos</h3>

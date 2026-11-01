@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   getAuthUser: vi.fn(),
@@ -38,6 +38,15 @@ describe('GET /api/messages/chats', () => {
     mocks.userFindMany.mockResolvedValue([]);
   });
 
+  afterEach(() => vi.restoreAllMocks());
+
+  it('requires authentication before reading any private conversations', async () => {
+    mocks.getAuthUser.mockResolvedValue(null);
+    expect((await GET()).status).toBe(401);
+    expect(mocks.queryRaw).not.toHaveBeenCalled();
+    expect(mocks.userFindMany).not.toHaveBeenCalled();
+  });
+
   it('returns an empty list without creating automatic user messages', async () => {
     const response = await GET();
 
@@ -66,6 +75,52 @@ describe('GET /api/messages/chats', () => {
     const sql = mocks.queryRaw.mock.calls[0][0].join('');
     expect(sql).toContain('DISTINCT ON');
     expect(sql.indexOf('DISTINCT ON')).toBeLessThan(sql.indexOf('LIMIT 100'));
+    expect(mocks.userFindMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: {
+          id: { in: ['old-partner'] },
+          blocks_made: { none: { blockedId: 'current-user' } },
+          blocks_received: { none: { blockerId: 'current-user' } },
+        },
+      })
+    );
     expect(mocks.messageFindMany).not.toHaveBeenCalled();
+  });
+
+  it('keeps unavailable or blocked partners out of the response', async () => {
+    mocks.queryRaw.mockResolvedValue([
+      {
+        partnerId: 'hidden',
+        lastMessage: 'Private',
+        lastMessageTime: new Date(),
+        lastSenderId: 'hidden',
+      },
+    ]);
+    const response = await GET();
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual([]);
+  });
+
+  it('reports a temporary database failure without claiming an empty conversation list', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    mocks.queryRaw.mockRejectedValueOnce(
+      Object.assign(new Error('private database detail'), { code: 'P1001' })
+    );
+    const response = await GET();
+    expect(response.status).toBe(503);
+    expect(response.headers.get('retry-after')).toBe('5');
+    const payload = await response.json();
+    expect(payload).toMatchObject({ error: 'CHATS_UNAVAILABLE', message: expect.any(String) });
+    expect(JSON.stringify(payload)).not.toContain('private database detail');
+    expect(mocks.userFindMany).not.toHaveBeenCalled();
+  });
+
+  it('does not disguise query defects as a temporary connection failure', async () => {
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    mocks.queryRaw.mockRejectedValueOnce(
+      Object.assign(new Error('invalid query'), { code: '42P10' })
+    );
+    const response = await GET();
+    expect(response.status).toBe(500);
   });
 });

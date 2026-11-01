@@ -105,7 +105,9 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
         ? { sectionNumber, pathSlug, language }
         : undefined;
 
-    return <ExerciseWorkspace exercise={exercise} jumpChallenge={jumpChallenge} />;
+    return (
+      <ExerciseWorkspace exercise={exercise} jumpChallenge={jumpChallenge} returnTo={returnTo} />
+    );
   }
 
   const lessonFallback = getLessonById(lessonId);

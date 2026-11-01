@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import { Volume2, VolumeX, Sparkles, Code2 } from 'lucide-react';
+import { Volume2 } from 'lucide-react';
 import type { LessonStep } from '@/lib/lessons/types';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { DuolingoText } from '../DuolingoText';
@@ -30,9 +30,7 @@ export function CodeBlockBuilderStep({
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in font-sans select-none">
       {/* Título Principal */}
-      <h2 className="text-2xl md:text-3xl font-black text-dd-text dark:text-white tracking-tight">
-        Monte o código:
-      </h2>
+      <h2 className="text-xl font-bold leading-snug text-dd-text">Monte o código:</h2>
 
       {/* Mascote Robô com Balão de Fala estilo Duolingo */}
       <div className="flex items-center gap-4">
@@ -42,25 +40,25 @@ export function CodeBlockBuilderStep({
             alt="Mascote Stacklyst"
             fill
             sizes="80px"
-            className={`object-contain drop-shadow-md transition-transform duration-200 ${
+            className={`object-contain transition-transform duration-200 ${
               isSpeaking ? 'scale-105' : ''
             }`}
             priority
           />
         </div>
 
-        <div className="relative flex-1 rounded-2xl border-2 border-dd-border bg-dd-card px-5 py-4 shadow-sm flex items-center gap-3.5">
+        <div className="relative flex-1 rounded-2xl border border-dd-border bg-dd-bg px-5 py-4 flex items-center gap-3.5">
           {/* Seta do balão */}
           <span
             aria-hidden="true"
-            className="absolute -left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 rotate-45 border-b-2 border-l-2 border-dd-border bg-dd-card"
+            className="absolute -left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 rotate-45 border-b-2 border-l-2 border-dd-border bg-dd-bg"
           />
 
           <button
             type="button"
             onClick={handleSpeak}
             aria-label="Ouvir enunciado da questão"
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-500 text-white shadow-sm shadow-blue-500/20 hover:bg-blue-400 active:scale-95 transition-all cursor-pointer ${
+            className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white  hover:bg-blue-700 active:scale-95 transition-all dd-focus-ring cursor-pointer ${
               isSpeaking ? 'ring-4 ring-blue-400/40 scale-105 animate-pulse' : ''
             }`}
           >
@@ -69,7 +67,7 @@ export function CodeBlockBuilderStep({
 
           <DuolingoText
             text={step.instruction || step.title}
-            className="text-sm md:text-base font-bold text-dd-text dark:text-neutral-100"
+            className="text-base font-medium text-dd-text"
           />
         </div>
       </div>
@@ -84,7 +82,7 @@ export function CodeBlockBuilderStep({
 
         <div className="relative z-10 flex flex-wrap gap-2.5 items-center">
           {selectedTokenIndices.length === 0 ? (
-            <span className="text-xs font-medium text-dd-muted select-none py-3">
+            <span className="text-base text-dd-muted select-none py-3">
               Toque nos blocos abaixo para posicioná-los aqui...
             </span>
           ) : (
@@ -96,7 +94,7 @@ export function CodeBlockBuilderStep({
                   type="button"
                   disabled={disabled}
                   onClick={() => onToggleToken(tokenIdx)}
-                  className="group flex items-center justify-center rounded-2xl border-2 border-b-4 border-blue-500/80 border-b-blue-600 bg-blue-500/15 hover:bg-blue-500/25 px-4 py-2.5 font-mono text-sm md:text-base font-bold text-blue-400 dark:text-blue-300 shadow-sm cursor-pointer active:translate-y-[2px] active:border-b-2 transition-all animate-scale-up"
+                  className="group flex items-center justify-center rounded-2xl border border-blue-500/80 border-b-blue-600 bg-blue-500/15 hover:bg-blue-500/25 px-4 py-2.5 font-mono text-base font-bold text-blue-700 dark:text-blue-300 dd-focus-ring cursor-pointer transition-all animate-scale-up"
                 >
                   <span>{tokenText}</span>
                 </button>
@@ -115,7 +113,7 @@ export function CodeBlockBuilderStep({
             return (
               <div
                 key={`empty-${idx}`}
-                className="h-[46px] min-w-[70px] px-4 rounded-2xl border-2 border-dashed border-dd-border/50 bg-dd-surface/30 select-none opacity-40"
+                className="h-[46px] min-w-[70px] px-4 rounded-2xl border border-dashed border-dd-border/50 bg-dd-surface/30 select-none opacity-40"
               />
             );
           }
@@ -126,7 +124,7 @@ export function CodeBlockBuilderStep({
               type="button"
               disabled={disabled}
               onClick={() => onToggleToken(idx)}
-              className="flex items-center justify-center rounded-2xl border-2 border-b-4 border-dd-border border-b-dd-border/90 bg-dd-card hover:bg-dd-surface hover:border-dd-text/40 px-4 py-2.5 font-mono text-sm md:text-base font-bold text-dd-text dark:text-neutral-100 shadow-sm cursor-pointer active:translate-y-[2px] active:border-b-2 transition-all"
+              className="flex items-center justify-center rounded-2xl border border-dd-border border-b-dd-border/90 bg-dd-bg hover:bg-dd-surface hover:border-dd-text/40 px-4 py-2.5 font-mono text-base font-medium text-dd-text dd-focus-ring cursor-pointer transition-all"
             >
               <span>{tokenText}</span>
             </button>

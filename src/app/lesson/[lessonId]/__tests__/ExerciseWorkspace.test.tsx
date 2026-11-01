@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ExerciseWorkspace } from '@/app/lesson/[lessonId]/ExerciseWorkspace';
 import type { ExerciseWorkspaceData } from '@/lib/exercises/types';
@@ -61,12 +61,12 @@ describe('ExerciseWorkspace', () => {
   it('keeps documentation available in Hard and hides it in No Assist', () => {
     render(<ExerciseWorkspace exercise={exercise} />);
 
-    fireEvent.click(screen.getByLabelText(/Hard/));
+    fireEvent.click(screen.getByLabelText('Difícil'));
     expect(screen.getByRole('link', { name: /Documentação oficial/ })).toBeInTheDocument();
 
-    fireEvent.click(screen.getByLabelText(/No Assist/));
+    fireEvent.click(screen.getByLabelText('Sem ajuda'));
     expect(screen.queryByRole('link', { name: /Documentação oficial/ })).not.toBeInTheDocument();
-    expect(screen.getAllByText('100% XP')).toHaveLength(4);
+    expect(screen.getByText('100% XP em todos os modos')).toBeInTheDocument();
   });
 
   it('records Run separately and shows public test feedback', async () => {
@@ -92,15 +92,15 @@ describe('ExerciseWorkspace', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     render(<ExerciseWorkspace exercise={exercise} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Run' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Executar' }));
 
     await waitFor(() => expect(screen.getByText('Sobreposição')).toBeInTheDocument());
     expect(fetchMock).toHaveBeenCalledWith(
       '/api/exercises/exercise-1/run',
       expect.objectContaining({ method: 'POST' })
     );
-    expect(screen.getByText('Runs: 1')).toBeInTheDocument();
-    expect(screen.getByText('Submissions: 0')).toBeInTheDocument();
+    expect(screen.getByText('Execuções: 1')).toBeInTheDocument();
+    expect(screen.getByText('Envios: 0')).toBeInTheDocument();
   });
 
   it('locks section jump challenges to Hard and persists the unlocked section', async () => {
@@ -140,10 +140,10 @@ describe('ExerciseWorkspace', () => {
     expect(
       screen.getByRole('heading', { name: 'Desafio para pular à Seção 3' })
     ).toBeInTheDocument();
-    expect(screen.getByLabelText(/Hard/)).toBeChecked();
-    expect(screen.getByLabelText(/Hard/)).toBeDisabled();
+    expect(screen.getByLabelText('Difícil')).toBeChecked();
+    expect(screen.getByLabelText('Difícil')).toBeDisabled();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Submit' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar solução' }));
 
     await waitFor(() =>
       expect(screen.getByText('Desafio concluído. A Seção 3 foi liberada.')).toBeInTheDocument()
@@ -164,5 +164,49 @@ describe('ExerciseWorkspace', () => {
       'href',
       '/trails?view=trail&path=frontend-react&section=3'
     );
+  });
+
+  it('preserves the solution while switching panels and returns to the supplied trail context', () => {
+    render(
+      <ExerciseWorkspace
+        exercise={exercise}
+        returnTo="/trails?view=trail&path=frontend-react&section=2"
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Editor' }));
+    expect(screen.getByRole('button', { name: 'Editor' })).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.change(screen.getByRole('textbox', { name: 'Editor de código' }), {
+      target: { value: 'const solution = 42;' },
+    });
+    fireEvent.click(
+      within(screen.getByRole('navigation', { name: 'Área do exercício' })).getByRole('button', {
+        name: 'Problema',
+      })
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Editor' }));
+    expect(screen.getByRole('textbox', { name: 'Editor de código' })).toHaveValue(
+      'const solution = 42;'
+    );
+    expect(screen.getByRole('link', { name: 'Voltar à trilha' })).toHaveAttribute(
+      'href',
+      '/trails?view=trail&path=frontend-react&section=2'
+    );
+  });
+
+  it('shows an evaluation error without reporting unexecuted tests as approved', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        json: async () => ({ ok: false, message: 'Não foi possível compilar a solução.' }),
+      })
+    );
+    render(<ExerciseWorkspace exercise={exercise} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Executar' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Não foi possível compilar a solução.'
+    );
+    expect(screen.getByText('Avaliação não concluída')).toBeInTheDocument();
+    expect(screen.queryByText(/0\/0 aprovados/)).not.toBeInTheDocument();
+    expect(screen.getByText(/Os testes não foram executados/)).toBeInTheDocument();
   });
 });

@@ -1,0 +1,130 @@
+.footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 30;
+  width: 100%;
+  margin-top: auto;
+  border-top: 1px solid var(--color-dd-border);
+  background: var(--color-dd-bg);
+}
+.inner {
+  display: flex;
+  width: 100%;
+  max-width: 960px;
+  min-height: 100px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin-inline: auto;
+  padding: 20px 32px max(20px, env(safe-area-inset-bottom));
+}
+.guidance {
+  max-width: 38ch;
+  color: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+  font-size: 14px;
+  line-height: 1.6;
+}
+.actions {
+  display: flex;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.primaryButton,
+.secondaryButton {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.primaryButton {
+  color: #fff;
+  background: var(--color-dd-accent);
+}
+.primaryButton:hover {
+  background: color-mix(in srgb, var(--color-dd-accent) 85%, #000);
+}
+.primaryButton:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.secondaryButton {
+  border: 1px solid var(--color-dd-border);
+  color: var(--color-dd-text);
+}
+.secondaryButton:hover {
+  background: var(--color-dd-surface);
+}
+.feedback {
+  display: flex;
+  min-width: 0;
+  align-items: flex-start;
+  gap: 12px;
+}
+.feedback > svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #cf334b;
+}
+.feedback[data-correct='true'] > svg {
+  color: #159d69;
+}
+.feedback h3 {
+  color: var(--color-dd-text);
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.4;
+}
+.feedback p,
+.feedback pre {
+  margin-top: 6px;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  color: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+  font-size: 14px;
+  line-height: 1.6;
+}
+.feedback span {
+  display: block;
+  margin-top: 6px;
+  color: var(--color-dd-accent);
+  font-size: 13px;
+  font-weight: 650;
+}
+.spinner {
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 767px) {
+  .inner {
+    flex-wrap: wrap;
+    gap: 16px;
+    padding-inline: 20px;
+  }
+  .guidance {
+    max-width: none;
+    flex: 1 1 100%;
+  }
+  .actions {
+    width: 100%;
+  }
+  .primaryButton {
+    flex: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation: none;
+  }
+}

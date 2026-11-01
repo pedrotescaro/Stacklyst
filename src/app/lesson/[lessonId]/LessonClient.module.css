@@ -1,0 +1,199 @@
+.surface {
+  --lesson-muted: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+  display: flex;
+  width: 100%;
+  max-width: 1365px;
+  min-height: 100dvh;
+  margin-inline: auto;
+  flex-direction: column;
+  border-inline: 1px solid var(--color-dd-border);
+  background: var(--color-dd-bg);
+  color: var(--color-dd-text);
+}
+.completed {
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  border-bottom: 1px solid var(--color-dd-border);
+  background: var(--color-dd-bg);
+}
+.toolbar {
+  display: flex;
+  min-height: 84px;
+  align-items: center;
+  gap: 12px;
+  padding: max(14px, env(safe-area-inset-top)) 20px 14px;
+}
+.iconButton {
+  display: inline-flex;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.iconButton:hover {
+  background: var(--color-dd-surface);
+}
+.heading {
+  min-width: 0;
+  flex: 1;
+}
+.heading h1 {
+  overflow-wrap: anywhere;
+  font-size: 20px;
+  font-weight: 750;
+  line-height: 1.35;
+  letter-spacing: -0.02em;
+}
+.heading p {
+  margin-top: 3px;
+  color: var(--lesson-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.sessionStats {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 16px;
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.sessionStats > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.sessionStats svg {
+  color: var(--color-dd-accent);
+}
+.progressRow {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 24px 18px;
+}
+.progressRow > span {
+  flex-shrink: 0;
+  color: var(--lesson-muted);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.progressTrack {
+  height: 4px;
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  border-radius: 3px;
+  background: var(--color-dd-border);
+}
+.progressTrack > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--color-dd-accent);
+  transition: width 200ms ease-out;
+}
+.lessonBody {
+  width: 100%;
+  min-width: 0;
+  max-width: 960px;
+  flex: 1;
+  margin-inline: auto;
+  padding: 40px 32px 48px;
+}
+.stepContent {
+  min-width: 0;
+}
+.stepContent > div {
+  max-width: none;
+}
+.stepContent h2 {
+  color: var(--color-dd-text);
+  font-size: 22px;
+  font-weight: 750;
+  line-height: 1.4;
+  letter-spacing: -0.02em;
+}
+.stepContent :is(p, li) {
+  font-size: 16px;
+  line-height: 1.7;
+}
+.stepContent :global(.cm-editor),
+.stepContent :global(.cm-gutters) {
+  background: var(--color-dd-bg);
+}
+.stepContent :global(.cm-editor) {
+  font-size: 15px;
+  line-height: 1.7;
+}
+.project {
+  margin-bottom: 32px;
+  padding-bottom: 28px;
+  border-bottom: 1px solid var(--color-dd-border);
+}
+.project > p,
+.project :is(ul, ol) {
+  color: var(--lesson-muted);
+  font-size: 16px;
+  line-height: 1.7;
+}
+.surface button {
+  min-height: 44px;
+}
+.surface :is(button, a):focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 3px;
+}
+@media (max-width: 767px) {
+  .toolbar {
+    gap: 8px;
+    padding-inline: 12px;
+  }
+  .heading h1 {
+    font-size: 19px;
+  }
+  .sessionStats {
+    max-width: 115px;
+    gap: 6px 10px;
+    font-size: 13px;
+  }
+  .progressRow {
+    gap: 12px;
+    padding-inline: 20px;
+  }
+  .lessonBody {
+    padding: 28px 20px 36px;
+  }
+  .stepContent h2 {
+    font-size: 20px;
+  }
+  .stepContent :is(p, li) {
+    font-size: 16px;
+  }
+}
+@media (max-width: 359px) {
+  .heading h1 {
+    font-size: 18px;
+  }
+  .toolbar {
+    padding-inline: 8px;
+  }
+  .lessonBody {
+    padding-inline: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progressTrack > span {
+    transition: none;
+  }
+}

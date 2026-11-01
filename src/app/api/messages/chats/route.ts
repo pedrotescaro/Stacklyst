@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { visibleUserWhere } from '@/services/block.service';
 import { getAuthUser } from '@/lib/auth';
+import { isTransientConnectionError } from '@/lib/connection-errors';
 
 export async function GET() {
   try {
@@ -12,6 +13,8 @@ export async function GET() {
 
     // Select the latest row per partner before limiting. A busy conversation
     // must not push every older conversation out of the sidebar.
+    // DISTINCT ON and ORDER BY reuse the alias: repeating the parameterized
+    // CASE gives PostgreSQL different placeholders and breaks their match.
     const chatsList = await prisma.$queryRaw<
       Array<{
         partnerId: string;
@@ -22,12 +25,12 @@ export async function GET() {
     >`
       SELECT "partnerId", content AS "lastMessage", created_at AS "lastMessageTime", sender_id AS "lastSenderId"
       FROM (
-        SELECT DISTINCT ON (CASE WHEN sender_id = ${user.id} THEN receiver_id ELSE sender_id END)
+        SELECT DISTINCT ON ("partnerId")
           CASE WHEN sender_id = ${user.id} THEN receiver_id ELSE sender_id END AS "partnerId",
           content, created_at, sender_id, id
         FROM "Message"
         WHERE sender_id = ${user.id} OR receiver_id = ${user.id}
-        ORDER BY CASE WHEN sender_id = ${user.id} THEN receiver_id ELSE sender_id END, created_at DESC, id DESC
+        ORDER BY "partnerId", created_at DESC, id DESC
       ) conversations
       WHERE NOT EXISTS (
         SELECT 1 FROM "user_blocks" b
@@ -67,6 +70,15 @@ export async function GET() {
     return NextResponse.json(result);
   } catch (error) {
     console.error('Error fetching chats:', error);
+    if (isTransientConnectionError(error)) {
+      return NextResponse.json(
+        {
+          error: 'CHATS_UNAVAILABLE',
+          message: 'Não foi possível carregar suas conversas agora. Tente novamente em instantes.',
+        },
+        { status: 503, headers: { 'Cache-Control': 'private, no-store', 'Retry-After': '5' } }
+      );
+    }
     return NextResponse.json({ error: 'Erro ao buscar conversas' }, { status: 500 });
   }
 }

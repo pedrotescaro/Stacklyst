@@ -15,6 +15,7 @@ const JAVASCRIPT_TIMEOUT_MS = 5_000;
 const JAVASCRIPT_MEMORY_LIMIT_BYTES = 32 * 1024 * 1024;
 const JAVASCRIPT_STACK_LIMIT_BYTES = 512 * 1024;
 const JAVASCRIPT_OUTPUT_LIMIT_CHARS = 16_384;
+const JAVASCRIPT_TIMER_LIMIT = 1_024;
 
 interface SandboxOutput {
   chunks: string[];
@@ -82,6 +83,81 @@ function exposeOutputApi(vm: QuickJSContext, output: SandboxOutput) {
   stdoutObject.dispose();
   vm.setProp(vm.global, 'process', processObject);
   processObject.dispose();
+}
+
+function exposeTimerApi(vm: QuickJSContext) {
+  const timers = new Map<
+    number,
+    { dueAt: number; callback: QuickJSHandle; args: QuickJSHandle[] }
+  >();
+  let nextId = 1;
+  const disposeTimer = (timer: { callback: QuickJSHandle; args: QuickJSHandle[] }) => {
+    timer.callback.dispose();
+    timer.args.forEach((arg) => arg.dispose());
+  };
+  const schedule = vm.newFunction('setTimeout', (callback, delay, ...args) => {
+    if (!callback || vm.typeof(callback) !== 'function') {
+      return {
+        error: vm.newError({ name: 'TypeError', message: 'setTimeout espera uma função.' }),
+      };
+    }
+    if (timers.size >= JAVASCRIPT_TIMER_LIMIT) {
+      return {
+        error: vm.newError({ name: 'RangeError', message: 'Limite de timers pendentes atingido.' }),
+      };
+    }
+    const milliseconds = delay ? vm.getNumber(delay) : 0;
+    const id = nextId++;
+    timers.set(id, {
+      dueAt: Date.now() + Math.max(0, Number.isFinite(milliseconds) ? milliseconds : 0),
+      callback: callback.dup(),
+      args: args.map((arg) => arg.dup()),
+    });
+    return vm.newNumber(id);
+  });
+  const cancel = vm.newFunction('clearTimeout', (id) => {
+    const timerId = id ? vm.getNumber(id) : 0;
+    const timer = timers.get(timerId);
+    if (timer) {
+      timers.delete(timerId);
+      disposeTimer(timer);
+    }
+    return vm.undefined;
+  });
+  vm.setProp(vm.global, 'setTimeout', schedule);
+  vm.setProp(vm.global, 'clearTimeout', cancel);
+  schedule.dispose();
+  cancel.dispose();
+
+  return {
+    get size() {
+      return timers.size;
+    },
+    async runNext(deadline: number) {
+      const next = [...timers.entries()].sort((left, right) => left[1].dueAt - right[1].dueAt)[0];
+      if (!next) return;
+      const [id, timer] = next;
+      const waitMs = Math.min(timer.dueAt, deadline) - Date.now();
+      if (waitMs > 0) await new Promise((resolve) => setTimeout(resolve, waitMs));
+      if (Date.now() >= deadline) throw { name: 'InternalError', message: 'interrupted' };
+      timers.delete(id);
+      try {
+        const result = vm.callFunction(timer.callback, vm.undefined, timer.args);
+        if (result.error) {
+          const error = vm.dump(result.error);
+          result.error.dispose();
+          throw error;
+        }
+        result.value.dispose();
+      } finally {
+        disposeTimer(timer);
+      }
+    },
+    dispose() {
+      timers.forEach(disposeTimer);
+      timers.clear();
+    },
+  };
 }
 
 function executionError(
@@ -152,13 +228,17 @@ export async function runJavaScriptInSandbox(
   }
 
   const output: SandboxOutput = { chunks: [], length: 0 };
+  let timers: ReturnType<typeof exposeTimerApi> | undefined;
+  const deadline = Date.now() + timeoutMs;
   try {
     exposeOutputApi(vm, output);
-    runtime.setInterruptHandler(shouldInterruptAfterDeadline(Date.now() + timeoutMs));
+    timers = exposeTimerApi(vm);
+    runtime.setInterruptHandler(shouldInterruptAfterDeadline(deadline));
   } catch (error) {
     logger.error('JavaScript sandbox output setup failed', {
       errorMessage: error instanceof Error ? error.message : String(error),
     });
+    timers?.dispose();
     disposeSafely(vm);
     disposeSafely(runtime);
     return null;
@@ -167,20 +247,46 @@ export async function runJavaScriptInSandbox(
 
   try {
     const result = vm.evalCode(code, 'stacklyst-submission.js');
-    const executionMs = Math.max(0, Math.round(performance.now() - startedAt));
-    const capturedOutput = output.chunks.join('').trim();
 
     if (result.error) {
       const error = vm.dump(result.error);
       result.error.dispose();
-      return executionError(error, capturedOutput, executionMs, timeoutMs);
+      throw error;
     }
 
-    result.value.dispose();
+    try {
+      // QuickJS does not drain Promise continuations after evalCode. The exercise
+      // harness awaits every case, including calls to synchronous student code.
+      while (runtime.hasPendingJob() || timers.size) {
+        if (Date.now() >= deadline) throw { name: 'InternalError', message: 'interrupted' };
+        if (runtime.hasPendingJob()) {
+          const pending = runtime.executePendingJobs(128);
+          if (pending.error) {
+            const error = pending.error.context.dump(pending.error);
+            pending.error.dispose();
+            throw error;
+          }
+        } else {
+          await timers.runNext(deadline);
+        }
+      }
+      const state = vm.getPromiseState(result.value);
+      if (state.type === 'pending') {
+        throw new Error('A execução assíncrona não foi concluída.');
+      }
+      if (state.type === 'rejected') {
+        const error = vm.dump(state.error);
+        state.error.dispose();
+        throw error;
+      }
+      if (!state.notAPromise) state.value.dispose();
+    } finally {
+      result.value.dispose();
+    }
     return {
       ok: true,
-      output: capturedOutput || '(sem output)',
-      executionMs,
+      output: output.chunks.join('').trim() || '(sem output)',
+      executionMs: Math.max(0, Math.round(performance.now() - startedAt)),
     };
   } catch (error) {
     return executionError(
@@ -190,6 +296,7 @@ export async function runJavaScriptInSandbox(
       timeoutMs
     );
   } finally {
+    timers?.dispose();
     disposeSafely(vm);
     disposeSafely(runtime);
   }
