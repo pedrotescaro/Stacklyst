@@ -12,6 +12,12 @@ A abertura mantém símbolo e texto nas suas posições finais desde o início. 
 
 Essa revisão altera a marca e a abertura. Os tokens de produto, a estrutura de navegação e o mascote seguem a implementação existente. As novas telas de recuperação e onboarding usam os mesmos controles e cores operacionais.
 
+## Distribuição das páginas no desktop
+
+A partir de 768 px, a navegação e o conteúdo formam um único conjunto centralizado, com margens externas iguais. A sidebar encosta na coluna principal, compartilhando uma única divisória; a coluna direita conserva o espaçamento interno de seus painéis. A largura do conjunto fica limitada em telas grandes e no zoom reduzido, preservando a leitura dos posts em vez de espalhar as colunas pela viewport.
+
+As classes `dd-platform-shell`, `dd-platform-sidebar`, `dd-platform-body` e `dd-platform-main` compartilham as dimensões em `globals.css`. A navegação mantém 76, 250 e 265 px nos seus breakpoints existentes. O conteúdo padrão tem até 720 px antes da coluna direita aparecer; a partir de 1280 px, conteúdo e coluna direita compartilham 1100 px. Conversas, configurações, avatar e arena do duelo usam a variante `dd-platform-shell--workspace` para preservar espaço útil entre painéis nas larguras intermediárias. As regras desse conjunto não alteram a distribuição abaixo de 768 px.
+
 ## Mundinho — refinamento de sprites e escala
 
 O RPG usa atlas PNG animados exportados pelo LibreSprite, com camadas independentes para aparência. Sprites do mapa compartilham escala: jogador e guia em 40 px, criaturas em 28 px. Nomes dos encontros ficam ocultos até hover, reduzindo ruído. O HUD usa controles escuros de 40 px; no toque, um analógico proporcional substitui o direcional por setas. A arena posiciona adversário acima à direita e jogador abaixo à esquerda, com narrativa e habilidades abaixo do cenário. Vida e recompensas continuam autoritativas no servidor. Movimento reduzido desativa animações e transições. Fontes e navegação principal seguem a identidade existente.

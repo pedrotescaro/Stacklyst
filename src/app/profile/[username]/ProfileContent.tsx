@@ -289,12 +289,12 @@ export function ProfileContent({
     <div data-testid="profile-shell" className="dd-platform-shell dd-platform-shell--fullscreen">
       <Sidebar user={user} hideMobileHeader />
       <div
-        className={`min-w-0 flex-grow bg-dd-bg ${styles.pageLayout} ${profileStyles.scope}`}
+        className={`dd-platform-body min-w-0 flex-grow bg-dd-bg ${styles.pageLayout} ${profileStyles.scope}`}
         data-secondary={Boolean(preferences?.appearance.secondaryColor)}
         data-custom-card={Boolean(preferences?.appearance.cardColor)}
         style={preferences ? profileAppearanceStyle(preferences) : undefined}
       >
-        <main className={styles.pageMain}>
+        <main className={`dd-platform-main ${styles.pageMain}`}>
           <div className={styles.content} data-testid="profile-layout">
             <div className={headerStyles.sticky}>
               <header className={headerStyles.header}>

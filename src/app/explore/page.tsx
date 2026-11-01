@@ -342,10 +342,10 @@ export default function ExplorePage() {
     <div className="dd-platform-shell">
       <Sidebar user={user} />
 
-      <div className="flex min-w-0 flex-grow flex-col items-center xl:items-start xl:flex-row xl:max-w-[1100px]">
+      <div className="dd-platform-body flex min-w-0 flex-grow flex-col items-center xl:items-start xl:flex-row xl:max-w-[1100px]">
         {/* Left Side: Search Feed & Trends (Matching image 2) */}
         <main
-          className={`w-full min-w-0 max-w-[720px] xl:max-w-[600px] flex-grow border-r border-dd-border/80 bg-dd-bg ${hasSearched ? 'min-h-screen pb-24 md:pb-8' : 'pb-6 xl:min-h-screen xl:pb-8'}`}
+          className={`dd-platform-main w-full min-w-0 max-w-[720px] md:self-stretch xl:max-w-[600px] flex-grow border-r border-dd-border/80 bg-dd-bg ${hasSearched ? 'min-h-screen pb-24 md:pb-8' : 'pb-6 xl:min-h-screen xl:pb-8'}`}
         >
           {followError && (
             <p role="alert" className="border-b border-dd-border p-4 text-sm text-dd-text">

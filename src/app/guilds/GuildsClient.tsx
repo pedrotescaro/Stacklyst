@@ -370,8 +370,8 @@ export function GuildsClient({ initialGuilds = [], initialMyGuilds = [] }: Guild
     <div className="dd-platform-shell">
       <Sidebar user={user} />
 
-      <div className="flex min-w-0 flex-grow flex-col md:flex-row xl:max-w-[950px]">
-        <main className="min-h-screen w-full max-w-[600px] flex-grow border-r border-dd-border/80 pb-24 md:pb-8">
+      <div className="dd-platform-body flex min-w-0 flex-grow flex-col md:flex-row xl:max-w-[950px]">
+        <main className="dd-platform-main min-h-screen w-full max-w-[600px] flex-grow border-r border-dd-border/80 pb-24 md:pb-8">
           <header className="sticky top-0 z-30 border-b border-dd-border/70 bg-dd-bg/95 backdrop-blur-xl">
             <div className="flex h-14 items-center justify-between px-4 sm:px-5">
               <div>

@@ -49,13 +49,11 @@ function safeArtwork(value: unknown): string | null {
 
 let token: { value: string; expires: number } | null = null;
 let tokenRequest: Promise<string | null> | null = null;
-export type SpotifySearchReason = 'not_configured' | 'approval_required' | null;
+export type SpotifySearchReason = 'not_configured' | null;
 export function spotifySearchAvailability(): { configured: boolean; reason: SpotifySearchReason } {
   if (!process.env.SPOTIFY_CLIENT_ID?.trim() || !process.env.SPOTIFY_CLIENT_SECRET?.trim())
     return { configured: false, reason: 'not_configured' };
-  // A public social product must not silently treat development credentials as unlimited approval.
-  if (process.env.NODE_ENV === 'production' && process.env.SPOTIFY_SEARCH_MODE !== 'extended')
-    return { configured: false, reason: 'approval_required' };
+  // Credential availability is local; access and quota are decided by Spotify's response.
   return { configured: true, reason: null };
 }
 export function spotifySearchConfigured() {
@@ -108,7 +106,7 @@ async function spotifyToken(): Promise<string | null> {
       redirect: 'error',
       signal: AbortSignal.timeout(6000),
       headers: {
-        Authorization: `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`).toString('base64')}`,
+        Authorization: `Basic ${Buffer.from(`${process.env.SPOTIFY_CLIENT_ID!.trim()}:${process.env.SPOTIFY_CLIENT_SECRET!.trim()}`).toString('base64')}`,
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: 'grant_type=client_credentials',
@@ -135,8 +133,8 @@ function apiTrack(data: any): SpotifyProfileTrack | null {
   return {
     trackId,
     title: data.name.slice(0, 200),
-    artist: (data.artists || [])
-      .map((artist: any) => (typeof artist.name === 'string' ? artist.name : ''))
+    artist: (Array.isArray(data.artists) ? data.artists : [])
+      .map((artist: any) => (typeof artist?.name === 'string' ? artist.name : ''))
       .filter(Boolean)
       .join(', ')
       .slice(0, 200),
@@ -261,18 +259,17 @@ export async function searchSpotifyTrackPage(
   try {
     const params = new URLSearchParams({
       q: text,
-      type: 'track,artist',
+      type: 'track',
       market: 'BR',
       limit: '10',
       offset: String(offset),
     });
     const response = await authorizedSpotifyRequest(`search?${params}`);
     const data = await response.json();
-    const tracks: SpotifyProfileTrack[] = Array.isArray(data.tracks?.items)
-      ? data.tracks.items
-          .map(apiTrack)
-          .filter((item: SpotifyProfileTrack | null): item is SpotifyProfileTrack => Boolean(item))
-      : [];
+    if (!Array.isArray(data?.tracks?.items)) throw new SpotifyCatalogError('upstream', 502);
+    const tracks: SpotifyProfileTrack[] = data.tracks.items
+      .map(apiTrack)
+      .filter((item: SpotifyProfileTrack | null): item is SpotifyProfileTrack => Boolean(item));
     const total =
       Number.isInteger(data.tracks?.total) && data.tracks.total >= 0 ? data.tracks.total : 0;
     const nextOffset =

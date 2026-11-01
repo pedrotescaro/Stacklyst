@@ -36,6 +36,7 @@ import { CharCounter } from '@/components/motion/CharCounter';
 import { POST_CHAR_LIMIT } from '@/lib/motion';
 import { parsePostExtras } from '@/lib/post-composer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
+import { PostActionDialog } from '@/components/posts/PostActionDialog';
 import type { PostAttachment, PostPoll } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
 import { prismaLanguageToEditor } from '@/lib/editor/languages';
@@ -122,6 +123,7 @@ export function PostCard({
   const [reporting, setReporting] = useState(false);
   const [reported, setReported] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
 
   // Stateful copy of post fields for instant local updates
@@ -131,6 +133,7 @@ export function PostCard({
   const [editBody, setEditBody] = useState(post.body);
 
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
   const editBodyEditorRef = useRef<NotionEditorRef>(null);
 
   useEffect(() => {
@@ -289,7 +292,9 @@ export function PostCard({
   };
 
   const handleDelete = async () => {
+    if (deleting) return;
     setDeleting(true);
+    setDeleteError(null);
     try {
       const res = await fetch(`/api/posts/${post.id}`, {
         method: 'DELETE',
@@ -298,11 +303,26 @@ export function PostCard({
         setDeleteModalOpen(false);
         onDelete?.(post.id);
       } else {
-        alert('Falha ao deletar post.');
+        const data = await res.json().catch(() => null);
+        setDeleteError(
+          typeof data?.message === 'string'
+            ? data.message
+            : typeof data?.error === 'string'
+              ? data.error
+              : text(
+                  'Não foi possível excluir a publicação. Tente novamente.',
+                  'Could not delete the post. Try again.'
+                )
+        );
       }
     } catch (err) {
       console.error(err);
-      alert('Erro ao deletar post.');
+      setDeleteError(
+        text(
+          'Não foi possível conectar. Tente excluir novamente.',
+          'Could not connect. Try deleting again.'
+        )
+      );
     } finally {
       setDeleting(false);
     }
@@ -529,6 +549,7 @@ export function PostCard({
           {/* 6. More Options (...) */}
           <div className="relative" ref={menuRef}>
             <button
+              ref={menuButtonRef}
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
@@ -567,6 +588,7 @@ export function PostCard({
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
+                        setDeleteError(null);
                         setDeleteModalOpen(true);
                         setMenuOpen(false);
                       }}
@@ -606,141 +628,135 @@ export function PostCard({
       </article>
 
       {reportModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            setReportModalOpen(false);
-          }}
+        <PostActionDialog
+          titleId={`report-post-title-${post.id}`}
+          busy={reporting}
+          onClose={() => setReportModalOpen(false)}
+          returnFocusRef={menuButtonRef}
         >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={`report-post-title-${post.id}`}
-            className="w-full max-w-md bg-dd-surface border border-dd-border rounded-2xl p-5 space-y-4 text-left relative z-10"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 id={`report-post-title-${post.id}`} className="text-sm font-black text-dd-text">
-              {text('Denunciar postagem', 'Report post')}
-            </h3>
-            <p className="text-xs text-dd-muted font-semibold leading-relaxed">
-              {text(
-                'Ajude-nos a entender o que há de errado com esta postagem. Ela viola alguma de nossas diretrizes de comunidade?',
-                'Help us understand what is wrong with this post. Does it violate our community guidelines?'
-              )}
-            </p>
-
-            {reported ? (
-              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold p-3 rounded-lg text-center animate-pulse">
-                {text(
-                  'Denúncia enviada com sucesso. Obrigado por ajudar!',
-                  'Report sent. Thanks for helping!'
-                )}
-              </div>
-            ) : (
-              <form onSubmit={handleReportSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] text-dd-muted font-bold uppercase tracking-wider block">
-                    {text('Motivo da denúncia', 'Report reason')}
-                  </label>
-                  <select
-                    value={reportReason}
-                    onChange={(e) => setReportReason(e.target.value)}
-                    required
-                    className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg px-3 py-2.5 text-dd-text focus:border-red-500/50 focus:outline-none"
-                  >
-                    <option value="">Selecione um motivo...</option>
-                    <option value="Spam / Propaganda enganosa">Spam / Propaganda enganosa</option>
-                    <option value="Discurso de ódio / Ofensa">Discurso de ódio / Ofensa</option>
-                    <option value="Assédio / Bullying">Assédio / Bullying</option>
-                    <option value="Código / Conteúdo malicioso ou perigoso">
-                      Código / Conteúdo malicioso ou perigoso
-                    </option>
-                    <option value="Outro motivo">Outro motivo</option>
-                  </select>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2 border-t border-dd-border">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setReportModalOpen(false);
-                    }}
-                    className="text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
-                  >
-                    {text('Cancelar', 'Cancel')}
-                  </button>
-                  <button
-                    type="submit"
-                    onClick={(e) => e.stopPropagation()}
-                    disabled={reporting || !reportReason}
-                    className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
-                  >
-                    {reporting ? text('Enviando...', 'Sending...') : text('Denunciar', 'Report')}
-                  </button>
-                </div>
-              </form>
+          <h3 id={`report-post-title-${post.id}`} className="text-sm font-black text-dd-text">
+            {text('Denunciar postagem', 'Report post')}
+          </h3>
+          <p className="text-xs text-dd-muted font-semibold leading-relaxed">
+            {text(
+              'Ajude-nos a entender o que há de errado com esta postagem. Ela viola alguma de nossas diretrizes de comunidade?',
+              'Help us understand what is wrong with this post. Does it violate our community guidelines?'
             )}
-          </div>
-        </div>
+          </p>
+
+          {reported ? (
+            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold p-3 rounded-lg text-center animate-pulse">
+              {text(
+                'Denúncia enviada com sucesso. Obrigado por ajudar!',
+                'Report sent. Thanks for helping!'
+              )}
+            </div>
+          ) : (
+            <form onSubmit={handleReportSubmit} className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-[10px] text-dd-muted font-bold uppercase tracking-wider block">
+                  {text('Motivo da denúncia', 'Report reason')}
+                </label>
+                <select
+                  data-dialog-initial-focus
+                  value={reportReason}
+                  onChange={(e) => setReportReason(e.target.value)}
+                  required
+                  className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg px-3 py-2.5 text-dd-text focus:border-red-500/50 focus:outline-none"
+                >
+                  <option value="">Selecione um motivo...</option>
+                  <option value="Spam / Propaganda enganosa">Spam / Propaganda enganosa</option>
+                  <option value="Discurso de ódio / Ofensa">Discurso de ódio / Ofensa</option>
+                  <option value="Assédio / Bullying">Assédio / Bullying</option>
+                  <option value="Código / Conteúdo malicioso ou perigoso">
+                    Código / Conteúdo malicioso ou perigoso
+                  </option>
+                  <option value="Outro motivo">Outro motivo</option>
+                </select>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-dd-border">
+                <button
+                  type="button"
+                  disabled={reporting}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    setReportModalOpen(false);
+                  }}
+                  className="text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
+                >
+                  {text('Cancelar', 'Cancel')}
+                </button>
+                <button
+                  type="submit"
+                  onClick={(e) => e.stopPropagation()}
+                  disabled={reporting || !reportReason}
+                  className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+                >
+                  {reporting ? text('Enviando...', 'Sending...') : text('Denunciar', 'Report')}
+                </button>
+              </div>
+            </form>
+          )}
+        </PostActionDialog>
       )}
 
       {deleteModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            setDeleteModalOpen(false);
-          }}
+        <PostActionDialog
+          titleId={`delete-post-title-${post.id}`}
+          descriptionId={`delete-post-description-${post.id}`}
+          busy={deleting}
+          onClose={() => setDeleteModalOpen(false)}
+          returnFocusRef={menuButtonRef}
         >
-          <div
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby={`delete-post-title-${post.id}`}
-            className="w-full max-w-md bg-dd-surface border border-dd-border rounded-2xl p-5 space-y-4 text-left relative z-10"
-            onClick={(e) => e.stopPropagation()}
+          <h3 id={`delete-post-title-${post.id}`} className="text-sm font-black text-dd-text">
+            {text('Deletar postagem', 'Delete post')}
+          </h3>
+          <p
+            id={`delete-post-description-${post.id}`}
+            className="text-xs text-dd-muted font-semibold leading-relaxed"
           >
-            <h3 id={`delete-post-title-${post.id}`} className="text-sm font-black text-dd-text">
-              {text('Deletar postagem', 'Delete post')}
-            </h3>
-            <p className="text-xs text-dd-muted font-semibold leading-relaxed">
-              {text(
-                'Tem certeza que deseja deletar esta postagem? Esta ação não pode ser desfeita.',
-                'Are you sure you want to delete this post? This action cannot be undone.'
-              )}
-            </p>
+            {text(
+              'Tem certeza que deseja deletar esta postagem? Esta ação não pode ser desfeita.',
+              'Are you sure you want to delete this post? This action cannot be undone.'
+            )}
+          </p>
 
-            <div className="flex justify-end gap-2 pt-2 border-t border-dd-border">
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  setDeleteModalOpen(false);
-                }}
-                className="text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
-              >
-                {text('Cancelar', 'Cancel')}
-              </button>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  handleDelete();
-                }}
-                disabled={deleting}
-                className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
-              >
-                {deleting ? text('Deletando...', 'Deleting...') : text('Deletar', 'Delete')}
-              </button>
-            </div>
+          {deleteError && (
+            <p role="alert" className="text-sm text-red-400">
+              {deleteError}
+            </p>
+          )}
+
+          <div className="flex justify-end gap-2 pt-2 border-t border-dd-border">
+            <button
+              type="button"
+              data-dialog-initial-focus
+              disabled={deleting}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setDeleteModalOpen(false);
+              }}
+              className="dd-touch text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
+            >
+              {text('Cancelar', 'Cancel')}
+            </button>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleDelete();
+              }}
+              disabled={deleting}
+              className="dd-touch bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+            >
+              {deleting ? text('Deletando...', 'Deleting...') : text('Deletar', 'Delete')}
+            </button>
           </div>
-        </div>
+        </PostActionDialog>
       )}
 
       {/* EDIT POST MODAL */}

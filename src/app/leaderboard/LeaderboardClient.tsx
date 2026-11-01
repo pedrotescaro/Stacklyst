@@ -43,8 +43,8 @@ export function LeaderboardClient({
   return (
     <div className="dd-platform-shell dd-platform-shell--fullscreen">
       <Sidebar user={initialUser} />
-      <div className="mx-auto flex w-full min-w-0 flex-grow items-start justify-center xl:max-w-[1480px] 2xl:max-w-[1600px] xl:justify-start">
-        <main className="flex min-h-screen w-full min-w-0 max-w-[720px] flex-grow flex-col border-dd-border/60 bg-dd-bg pb-24 md:border-x md:pb-8 xl:max-w-[820px] 2xl:max-w-[920px]">
+      <div className="dd-platform-body mx-auto flex w-full min-w-0 flex-grow items-start justify-center xl:max-w-[1480px] 2xl:max-w-[1600px] xl:justify-start">
+        <main className="dd-platform-main flex min-h-screen w-full min-w-0 max-w-[720px] flex-grow flex-col border-dd-border/60 bg-dd-bg pb-24 md:border-x md:pb-8 xl:max-w-[820px] 2xl:max-w-[920px]">
           <h1 className="sr-only">Ranking de XP</h1>
           <MobileRankingBoard
             initialLeaderboard={initialLeaderboard}

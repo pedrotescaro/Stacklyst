@@ -334,10 +334,10 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="dd-platform-shell">
+      <div className="dd-platform-shell dd-platform-shell--workspace">
         <Sidebar user={user} />
-        <div className="flex min-w-0 flex-grow xl:max-w-[950px]">
-          <div className="flex min-h-screen w-full items-center justify-center border-r border-dd-border">
+        <div className="dd-platform-body flex min-w-0 flex-grow xl:max-w-[950px]">
+          <div className="dd-platform-main flex min-h-screen w-full items-center justify-center border-r border-dd-border">
             <div className="flex flex-col items-center gap-3">
               <div className="h-6 w-6 animate-spin rounded-full border-2 border-blue-500 border-t-transparent" />
               <p className="text-xs text-dd-muted">{t.settings.loading}</p>
@@ -349,10 +349,10 @@ export default function SettingsPage() {
   }
 
   return (
-    <div data-testid="settings-shell" className="dd-platform-shell">
+    <div data-testid="settings-shell" className="dd-platform-shell dd-platform-shell--workspace">
       <Sidebar user={user} />
 
-      <div className="flex min-w-0 flex-grow xl:max-w-[950px]">
+      <div className="dd-platform-body flex min-w-0 flex-grow xl:max-w-[950px]">
         {/* Central Settings List Column */}
         <div
           className={`w-full md:w-[350px] border-r border-dd-border flex-shrink-0 flex flex-col bg-dd-bg ${
@@ -435,7 +435,7 @@ export default function SettingsPage() {
 
         {/* Right-hand Detail Panel Column */}
         <div
-          className={`flex w-full max-w-[600px] min-w-0 flex-grow flex-col border-r border-dd-border bg-dd-bg ${
+          className={`dd-platform-main flex w-full max-w-[600px] min-w-0 flex-grow flex-col border-r border-dd-border bg-dd-bg ${
             !mobileShowDetails ? 'hidden md:flex' : 'flex'
           }`}
         >

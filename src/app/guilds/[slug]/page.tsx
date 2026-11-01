@@ -105,9 +105,9 @@ const COVER_THEME: Record<string, string> = {
 function CommunityDetailSkeleton() {
   return (
     <div className="dd-platform-shell">
-      <div className="hidden w-64 shrink-0 border-r border-dd-border md:block xl:w-[275px]" />
-      <div className="flex min-w-0 flex-1 xl:max-w-[950px]">
-        <main className="w-full max-w-[600px] border-r border-dd-border">
+      <div className="dd-platform-sidebar-placeholder hidden shrink-0 border-r border-dd-border md:block" />
+      <div className="dd-platform-body flex min-w-0 flex-1 xl:max-w-[950px]">
+        <main className="dd-platform-main w-full max-w-[600px] border-r border-dd-border">
           <div className="h-14 animate-pulse border-b border-dd-border bg-dd-surface/30" />
           <div className="h-40 animate-pulse bg-dd-surface/60" />
           <div className="space-y-4 px-5 py-6">
@@ -249,8 +249,8 @@ export default function GuildDetailPage({ params }: GuildDetailProps) {
     <div className="dd-platform-shell">
       <Sidebar user={user} />
 
-      <div className="flex min-w-0 flex-grow flex-col md:flex-row xl:max-w-[950px]">
-        <main className="min-h-screen w-full max-w-[600px] flex-grow border-r border-dd-border/80 pb-24 md:pb-8">
+      <div className="dd-platform-body flex min-w-0 flex-grow flex-col md:flex-row xl:max-w-[950px]">
+        <main className="dd-platform-main min-h-screen w-full max-w-[600px] flex-grow border-r border-dd-border/80 pb-24 md:pb-8">
           <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b border-dd-border/70 bg-dd-bg/95 px-4 backdrop-blur-xl">
             <button
               type="button"

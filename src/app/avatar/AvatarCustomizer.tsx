@@ -136,9 +136,9 @@ export function AvatarCustomizer({
   );
 
   return (
-    <div className="dd-platform-shell dd-platform-shell--fullscreen">
+    <div className="dd-platform-shell dd-platform-shell--fullscreen dd-platform-shell--workspace">
       <Sidebar user={{ ...user, avatar_config: config }} />
-      <main className="min-h-screen min-w-0 flex-1 bg-dd-bg px-4 pb-28 pt-6 sm:px-8 md:pb-10 lg:px-12">
+      <main className="dd-platform-body dd-platform-main min-h-screen min-w-0 flex-1 bg-dd-bg px-4 pb-28 pt-6 sm:px-8 md:pb-10 lg:px-12">
         <div className="mx-auto w-full max-w-[1120px]">
           <button
             type="button"

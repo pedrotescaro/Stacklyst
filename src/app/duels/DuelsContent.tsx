@@ -296,9 +296,9 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
     <div className="dd-platform-shell">
       <Sidebar user={user} />
 
-      <div className={styles.layout}>
+      <div className={`dd-platform-body ${styles.layout}`}>
         {/* Coluna Central */}
-        <main className={styles.arena}>
+        <main className={`dd-platform-main ${styles.arena}`}>
           {/* Header Fixo */}
           <div className={styles.header}>
             <div className="flex items-center gap-3">

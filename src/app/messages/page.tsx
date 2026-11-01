@@ -832,14 +832,14 @@ function MessagesContent() {
   );
 
   return (
-    <div className="dd-platform-shell h-screen overflow-hidden">
+    <div className="dd-platform-shell dd-platform-shell--workspace h-screen overflow-hidden">
       <Sidebar user={user} />
 
       <div
-        className="flex h-full min-w-0 flex-1 flex-grow overflow-hidden bg-dd-bg w-full"
+        className="dd-platform-body flex h-full min-w-0 flex-1 flex-grow overflow-hidden bg-dd-bg w-full"
         style={privateChatStyle(privateChat)}
       >
-        <div className="flex w-full h-full overflow-hidden">
+        <main className="dd-platform-main flex w-full min-w-0 h-full overflow-hidden">
           {/* Left Panel: Conversation List Sidebar */}
           <div
             className={cn(
@@ -1619,7 +1619,7 @@ function MessagesContent() {
               </div>
             )}
           </div>
-        </div>
+        </main>
       </div>
 
       {/* New Chat Selection Modal */}

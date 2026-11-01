@@ -361,9 +361,9 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
   if (duel.status === 'PENDING' || duel.status === 'EXPIRED') {
     const ownPending = duel.challenger_id === user.id;
     return (
-      <div className="dd-platform-shell dd-platform-shell--fullscreen selection:bg-blue-500/35 selection:text-white">
+      <div className="dd-platform-shell dd-platform-shell--fullscreen dd-platform-shell--workspace selection:bg-blue-500/35 selection:text-white">
         <Sidebar user={user} />
-        <main className="flex min-h-screen min-w-0 flex-1 items-center justify-center bg-dd-bg p-4 md:p-8">
+        <main className="dd-platform-body dd-platform-main flex min-h-screen min-w-0 flex-1 items-center justify-center bg-dd-bg p-4 md:p-8">
           <section className="w-full max-w-2xl rounded-2xl border border-dd-border bg-dd-card p-6 sm:p-8">
             <Link
               href="/duels"
@@ -463,9 +463,9 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
         : null;
 
   return (
-    <div className="dd-platform-shell dd-platform-shell--fullscreen h-dvh overflow-hidden bg-dd-bg selection:bg-blue-500/35 selection:text-white">
+    <div className="dd-platform-shell dd-platform-shell--fullscreen dd-platform-shell--workspace h-dvh overflow-hidden bg-dd-bg selection:bg-blue-500/35 selection:text-white">
       <Sidebar user={user} />
-      <main className="flex h-full min-h-0 min-w-0 flex-1 flex-col text-dd-text">
+      <main className="dd-platform-body dd-platform-main flex h-full min-h-0 min-w-0 flex-1 flex-col text-dd-text">
         <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-dd-border bg-dd-card px-3 sm:px-4">
           <Link
             href="/duels"

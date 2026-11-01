@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -116,6 +116,86 @@ describe('PostCard', () => {
     expect(event.defaultPrevented).toBe(false);
     expect(reply).toHaveAttribute('href', '/post/post-1');
     fireEvent.click(container.querySelector('pre')!);
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it('opens deletion outside animated feed items and cancels without deleting or navigating', async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const { container } = render(
+      <div style={{ transform: 'translateY(0)', overflow: 'hidden' }}>
+        <PostCard post={pythonPost} isOwner flat />
+      </div>
+    );
+    const menu = screen.getByRole('button', { name: 'Mais opções' });
+    await user.click(menu);
+    await user.click(screen.getByRole('button', { name: 'Excluir' }));
+
+    const dialog = screen.getByRole('dialog', { name: 'Deletar postagem' });
+    expect(container).not.toContainElement(dialog);
+    expect(dialog.parentElement?.parentElement).toBe(document.body);
+    const cancel = within(dialog).getByRole('button', { name: 'Cancelar' });
+    expect(cancel).toHaveFocus();
+    expect(document.body.style.overflow).toBe('hidden');
+    await user.tab({ shift: true });
+    expect(within(dialog).getByRole('button', { name: 'Deletar' })).toHaveFocus();
+    await user.tab();
+    expect(cancel).toHaveFocus();
+    await user.keyboard('{Escape}');
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(menu).toHaveFocus();
+    expect(document.body.style.overflow).not.toBe('hidden');
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
+  it('keeps a failed deletion visible for retry and removes the post after confirmation succeeds', async () => {
+    const user = userEvent.setup();
+    const onDelete = vi.fn();
+    let completeDelete!: (response: Response) => void;
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            error: 'TEMPORARY',
+            message: 'Servidor indisponível. Tente novamente.',
+          }),
+          {
+            status: 503,
+            headers: { 'Content-Type': 'application/json' },
+          }
+        )
+      )
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            completeDelete = resolve;
+          })
+      );
+    vi.stubGlobal('fetch', fetchMock);
+    render(<PostCard post={pythonPost} isOwner flat onDelete={onDelete} />);
+    await user.click(screen.getByRole('button', { name: 'Mais opções' }));
+    await user.click(screen.getByRole('button', { name: 'Excluir' }));
+    expect(fetchMock).not.toHaveBeenCalled();
+    await user.click(screen.getByRole('button', { name: 'Deletar' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Servidor indisponível');
+    expect(screen.getByRole('alert')).not.toHaveTextContent('TEMPORARY');
+    expect(onDelete).not.toHaveBeenCalled();
+
+    await user.click(screen.getByRole('button', { name: 'Deletar' }));
+    expect(screen.getByRole('button', { name: 'Deletando...' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled();
+    await user.keyboard('{Escape}');
+    expect(screen.getByRole('dialog', { name: 'Deletar postagem' })).toBeInTheDocument();
+    completeDelete(new Response(null, { status: 204 }));
+
+    await waitFor(() => expect(onDelete).toHaveBeenCalledWith('post-1'));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(fetchMock).toHaveBeenLastCalledWith('/api/posts/post-1', { method: 'DELETE' });
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(pushMock).not.toHaveBeenCalled();
   });
 

@@ -471,10 +471,10 @@ export function PostDetailContent({
 
       <Sidebar user={user} />
 
-      <div className="mx-auto flex w-full min-w-0 flex-grow items-start justify-center xl:max-w-[1480px] 2xl:max-w-[1600px] xl:justify-start">
+      <div className="dd-platform-body mx-auto flex w-full min-w-0 flex-grow items-start justify-center xl:max-w-[1480px] 2xl:max-w-[1600px] xl:justify-start">
         <main
           data-testid="primary-column"
-          className="flex min-h-screen w-full min-w-0 max-w-[720px] xl:max-w-[820px] 2xl:max-w-[920px] flex-grow flex-col border-dd-border/60 bg-dd-bg pb-24 md:border-x md:pb-8"
+          className="dd-platform-main flex min-h-screen w-full min-w-0 max-w-[720px] xl:max-w-[820px] 2xl:max-w-[920px] flex-grow flex-col border-dd-border/60 bg-dd-bg pb-24 md:border-x md:pb-8"
         >
           {/* Header (Twitter style: Back arrow + Title) */}
           <div className="sticky top-0 z-30 bg-dd-bg/95 backdrop-blur-md border-b border-dd-border/60 px-4 py-3 flex items-center gap-4">

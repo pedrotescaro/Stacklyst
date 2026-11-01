@@ -1144,14 +1144,14 @@ export function FeedContent({
 
       <Sidebar user={initialUser} />
 
-      <div className="mx-auto flex w-full min-w-0 flex-grow items-start justify-center xl:max-w-[1480px] 2xl:max-w-[1600px] xl:justify-start">
+      <div className="dd-platform-body mx-auto flex w-full min-w-0 flex-grow items-start justify-center xl:max-w-[1480px] 2xl:max-w-[1600px] xl:justify-start">
         {/* ========================================================================= */}
         {/* COLUNA CENTRAL: O Feed Principal e PostCard */}
         {/* ========================================================================= */}
         <main
           data-testid="primary-column"
           className={cn(
-            'flex min-h-screen w-full min-w-0 max-w-[720px] flex-grow flex-col border-dd-border/60 bg-dd-bg md:border-r pb-[calc(6rem+env(safe-area-inset-bottom))] md:border-l md:pb-8 xl:max-w-[820px] 2xl:max-w-[920px]',
+            'dd-platform-main flex min-h-screen w-full min-w-0 max-w-[720px] flex-grow flex-col border-dd-border/60 bg-dd-bg md:border-r pb-[calc(6rem+env(safe-area-inset-bottom))] md:border-l md:pb-8 xl:max-w-[820px] 2xl:max-w-[920px]',
             feedRankingSurfaceClassName
           )}
         >

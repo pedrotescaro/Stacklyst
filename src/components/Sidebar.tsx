@@ -415,7 +415,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       {/* DESKTOP SIDEBAR (Twitter-like) */}
       {/* ========================================== */}
       <aside
-        className={`z-40 hidden h-screen h-dvh min-h-0 w-[76px] shrink-0 select-none flex-col overflow-visible bg-dd-bg p-2 md:sticky md:top-0 md:flex xl:w-[250px] xl:p-4 2xl:w-[265px] ${
+        className={`dd-platform-sidebar z-40 hidden h-screen h-dvh min-h-0 w-[76px] shrink-0 select-none flex-col overflow-visible bg-dd-bg p-2 md:sticky md:top-0 md:flex xl:w-[250px] xl:p-4 2xl:w-[265px] ${
           showDivider ? 'border-r border-dd-border' : ''
         }`}
       >

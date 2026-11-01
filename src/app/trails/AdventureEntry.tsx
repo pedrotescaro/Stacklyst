@@ -89,9 +89,9 @@ export function AdventureEntry({
   return (
     <div className="dd-platform-shell adventure-platform relative min-h-screen bg-dd-bg">
       <Sidebar user={user} />
-      <div className="mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
+      <div className="dd-platform-body mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
         {/* Main Mundinho Area - Sits right adjacent to Sidebar divider */}
-        <main className="min-w-0 flex-1 pb-20">
+        <main className="dd-platform-main min-w-0 flex-1 pb-20">
           {preferenceError && (
             <p role="alert" className="px-6 py-2 text-sm text-amber-300">
               {preferenceError}

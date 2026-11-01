@@ -228,10 +228,10 @@ export default function NotificationsPage() {
       className="dd-platform-shell dd-platform-shell--fullscreen selection:bg-blue-500/35 selection:text-white"
     >
       <Sidebar user={user} />
-      <div className="mx-auto flex w-full min-w-0 flex-grow items-start justify-center xl:max-w-[1480px] 2xl:max-w-[1600px] xl:justify-start">
+      <div className="dd-platform-body mx-auto flex w-full min-w-0 flex-grow items-start justify-center xl:max-w-[1480px] 2xl:max-w-[1600px] xl:justify-start">
         <main
           data-testid="primary-column"
-          className={`flex min-h-screen w-full min-w-0 max-w-[720px] xl:max-w-[820px] 2xl:max-w-[920px] flex-grow flex-col border-r border-dd-border/80 bg-dd-bg pb-24 md:pb-8 ${styles.main}`}
+          className={`dd-platform-main flex min-h-screen w-full min-w-0 max-w-[720px] xl:max-w-[820px] 2xl:max-w-[920px] flex-grow flex-col border-r border-dd-border/80 bg-dd-bg pb-24 md:pb-8 ${styles.main}`}
         >
           <header className={styles.header}>
             <div className={styles.toolbar}>

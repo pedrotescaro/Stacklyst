@@ -61,12 +61,12 @@ describe('profile music search API', () => {
     expect(mock.limit).toHaveBeenCalledWith('profile-music-search:owner', expect.any(Object));
     expect(response.headers.get('cache-control')).toBe('private, no-store');
   });
-  it('reports missing public approval without pretending an empty query is a real search', async () => {
-    mock.availability.mockReturnValue({ configured: false, reason: 'approval_required' });
+  it('reports missing credentials without pretending an empty query is a real search', async () => {
+    mock.availability.mockReturnValue({ configured: false, reason: 'not_configured' });
     const response = await GET(req(), context);
     expect(await response.json()).toMatchObject({
       configured: false,
-      reason: 'approval_required',
+      reason: 'not_configured',
       tracks: [],
       nextOffset: null,
     });

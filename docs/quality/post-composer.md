@@ -12,7 +12,7 @@ A migração aditiva é `20261101021134_rich_post_composer`. Ela mantém o públ
 
 ## Integrações
 
-- Spotify reutiliza as rotas de catálogo e resolução de faixa existentes. A busca exige `SPOTIFY_CLIENT_ID` e `SPOTIFY_CLIENT_SECRET`; em produção, a configuração existente exige também `SPOTIFY_SEARCH_MODE=extended`, conforme a aprovação do aplicativo. Sem busca configurada, é possível vincular uma faixa por seu endereço oficial.
+- Spotify reutiliza as rotas de catálogo e resolução de faixa existentes. A busca exige `SPOTIFY_CLIENT_ID` e `SPOTIFY_CLIENT_SECRET` no servidor; permissões e quotas são determinadas pelas respostas do Spotify. A antiga flag `SPOTIFY_SEARCH_MODE` não bloqueia mais consultas em produção. Sem busca configurada, é possível vincular uma faixa por seu endereço oficial.
 - Busca de GIFs usa a chave pública `NEXT_PUBLIC_GIPHY_API_KEY`. Sem ela, o envio de GIF pelo dispositivo permanece disponível. GIFs escolhidos no catálogo são copiados para o armazenamento privado do post.
 - Gravação usa MediaRecorder e pede acesso ao microfone ao iniciar. Há prévia, nova gravação, remoção e limite de dois minutos; o arquivo também é validado pelo servidor.
 - O novo menu não oferece agendamento automático nem restrições de resposta que dependiam apenas dos antigos marcadores de texto. Sua leitura continua compatível com postagens antigas.
@@ -24,3 +24,11 @@ A migração aditiva é `20261101021134_rich_post_composer`. Ela mantém o públ
 Os testes em Vitest cobrem persistência de marcas, proteção contra HTML arbitrário, validação de publicação, votação válida/duplicada/expirada/inacessível e entrega de anexos com intervalos. O sandbox JavaScript existente também foi verificado.
 
 A conferência do navegador incluiu 320, 375, 390, 430, 768 e 1440 px, temas claro e escuro, ausência de rolagem horizontal, publicação com texto formatado/enquete/código e redução da viewport para 460 px. Essa simulação não substitui a conferência do teclado e do microfone em um aparelho físico.
+
+### Correções de música e exclusão — 1 de novembro de 2026
+
+Faixas válidas do Spotify podem ter artista vazio quando resolvidas pelo oEmbed; isso agora é aceito também na validação de publicações. Um post com música pode ter corpo vazio, e um post sem texto nem anexos continua sendo recusado. A busca por título ou artista mostra uma lista de faixas selecionáveis, com link oficial para cada resultado. Enter nos campos de busca e link não envia o formulário da publicação.
+
+As confirmações de exclusão usam um portal no body para sair dos ancestrais animados do feed. O diálogo permanece dentro da viewport após rolar, inicia o foco em Cancelar e permite tentar novamente se o DELETE falhar. A mensagem legível da API tem prioridade sobre seu código de erro.
+
+A revisão passou em 60 testes de validação, API e componentes, além de typecheck. Uma fixture temporária com componentes reais foi conferida no Chrome em 320 e 390 px no tema escuro e 1440 px no tema claro, sem rolagem horizontal nem erros JavaScript. Foram verificados publicação sem texto/artista, pesquisa com Enter, confirmação de exclusão após rolar, cancelamento e falha seguida de exclusão bem-sucedida. As respostas das APIs nessa fixture foram controladas; isso não comprova consulta real ao catálogo, sessão autenticada em produção ou aparelho físico. A fixture foi removida após a conferência.

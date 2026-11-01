@@ -110,8 +110,8 @@ export function TrailsContent({
   return (
     <div className="dd-platform-shell relative min-h-screen bg-dd-bg">
       <Sidebar user={user} />
-      <div className="mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
-        <main className="min-w-0 flex-1 pb-20">
+      <div className="dd-platform-body mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
+        <main className="dd-platform-main min-w-0 flex-1 pb-20">
           <header className="sticky top-0 z-30 border-b border-dd-border bg-dd-bg px-4 py-3">
             <Link
               href="/trails"

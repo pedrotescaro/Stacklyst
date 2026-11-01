@@ -146,4 +146,50 @@ describe('POST /api/posts integration', () => {
     expect(json.post.id).toBe('post-existing');
     expect(XpService.awardXPInTransaction).not.toHaveBeenCalled();
   });
+
+  it('creates a music-only post when Spotify does not return an artist', async () => {
+    vi.mocked(getAuthUser).mockResolvedValue({ id: 'user-music', username: 'testuser' } as any);
+    const music = {
+      trackId: '11dFghVXANMlKmJXsNCbNl',
+      title: 'Best Friend',
+      artist: '',
+      artworkUrl: 'https://i.scdn.co/image/album-artwork',
+    };
+    vi.mocked(prisma.post.create).mockResolvedValue({
+      id: 'post-music',
+      title: 'Discussao Geral',
+      body: '',
+      music,
+    } as any);
+
+    const response = await POST(
+      new Request('http://localhost:3000/api/posts', {
+        method: 'POST',
+        body: JSON.stringify({ body: '', music }),
+      }),
+      { params: Promise.resolve({}) }
+    );
+
+    expect(response.status).toBe(201);
+    expect(prisma.post.create).toHaveBeenCalledWith(
+      expect.objectContaining({ data: expect.objectContaining({ body: '', music }) })
+    );
+    expect((await response.json()).post).toMatchObject({ id: 'post-music', body: '', music });
+  });
+
+  it('rejects a post without text or attachments before writing to the database', async () => {
+    vi.mocked(getAuthUser).mockResolvedValue({ id: 'user-empty', username: 'testuser' } as any);
+
+    const response = await POST(
+      new Request('http://localhost:3000/api/posts', {
+        method: 'POST',
+        body: JSON.stringify({ body: '', music: null }),
+      }),
+      { params: Promise.resolve({}) }
+    );
+
+    expect(response.status).toBe(400);
+    expect((await response.json()).message).toBe('Adicione texto ou um anexo para publicar.');
+    expect(prisma.post.create).not.toHaveBeenCalled();
+  });
 });

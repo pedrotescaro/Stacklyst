@@ -2,6 +2,56 @@ import { describe, it, expect } from 'vitest';
 import { createPostSchema } from '../validators';
 
 describe('createPostSchema', () => {
+  const spotifyTrack = {
+    trackId: '11dFghVXANMlKmJXsNCbNl',
+    title: 'Best Friend',
+    artist: '',
+    artworkUrl: 'https://i.scdn.co/image/album-artwork',
+  };
+
+  it('accepts a music-only post resolved by Spotify oEmbed without artist metadata', () => {
+    const result = createPostSchema.parse({ body: '', music: spotifyTrack });
+
+    expect(result.body).toBe('');
+    expect(result.music).toEqual(spotifyTrack);
+  });
+
+  it('accepts a music-only post while Spotify metadata is unavailable', () => {
+    const result = createPostSchema.parse({
+      body: '   ',
+      music: {
+        ...spotifyTrack,
+        title: 'Faixa do Spotify',
+        artworkUrl: null,
+        metadataUnavailable: true,
+      },
+    });
+
+    expect(result.body).toBe('');
+    expect(result.music?.trackId).toBe(spotifyTrack.trackId);
+  });
+
+  it.each([
+    { trackId: 'invalid' },
+    { title: '' },
+    { artist: 'a'.repeat(201) },
+    { artworkUrl: 'https://example.com/artwork.png' },
+  ])('rejects malformed music even when the post has no text: %o', (invalidMetadata) => {
+    expect(
+      createPostSchema.safeParse({ body: '', music: { ...spotifyTrack, ...invalidMetadata } })
+        .success
+    ).toBe(false);
+  });
+
+  it('rejects an empty post after its music attachment is removed', () => {
+    const result = createPostSchema.safeParse({ body: '', music: null });
+
+    expect(result.success).toBe(false);
+    if (!result.success) {
+      expect(result.error.issues[0].message).toBe('Adicione texto ou um anexo para publicar.');
+    }
+  });
+
   it('should validate correct post data', async () => {
     const result = await createPostSchema.safeParseAsync({
       title: 'Valid Post Title',

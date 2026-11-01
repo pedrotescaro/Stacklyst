@@ -88,7 +88,8 @@ const postAttachmentSchema = z.object({
 export const postMusicSchema = z.object({
   trackId: z.string().regex(/^[a-zA-Z0-9]{22}$/),
   title: z.string().trim().min(1).max(200),
-  artist: z.string().trim().min(1).max(200),
+  // Spotify oEmbed resolves a valid track without returning an artist credit.
+  artist: z.string().trim().max(200),
   artworkUrl: z
     .string()
     .url()

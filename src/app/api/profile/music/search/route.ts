@@ -27,9 +27,7 @@ export const GET = apiHandler(async (request) => {
         offset: 0,
         reason,
         message:
-          reason === 'approval_required'
-            ? 'A pesquisa pública aguarda a aprovação do Spotify. Você pode adicionar uma faixa pelo link oficial.'
-            : 'A pesquisa do Spotify ainda não foi configurada. Adicione uma faixa pelo link oficial.',
+          'A pesquisa do Spotify ainda não foi configurada. Adicione uma faixa pelo link oficial.',
       },
       { headers }
     );
