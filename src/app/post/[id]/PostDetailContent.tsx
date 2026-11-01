@@ -5,6 +5,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { Sidebar } from '@/components/Sidebar';
+import { FeedRightSidebar } from '@/components/FeedRightSidebar';
+import type { AchievementBadge } from '@/components/AchievementShowcase';
 import { LevelBadge } from '@/components/LevelBadge';
 import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
@@ -45,8 +47,12 @@ interface PostDetailContentProps {
     id: string;
     username: string;
     avatar_url?: string | null;
+    avatar_config?: unknown;
     total_xp: number;
     streak?: number;
+    last_active_at?: string | null;
+    trails?: Array<{ id: string; language: string; level: number; xp: number; streak: number }>;
+    badges?: AchievementBadge[];
   };
   post: any;
   initialIsSaved?: boolean;
@@ -449,7 +455,7 @@ export function PostDetailContent({
   const presentedPost = parsePostExtras(post.body);
 
   return (
-    <div className="dd-platform-shell selection:bg-blue-500/35 selection:text-white">
+    <div className="dd-platform-shell dd-platform-shell--fullscreen selection:bg-blue-500/35 selection:text-white">
       {/* XP Toast */}
       {toastXp && (
         <div className="fixed top-20 right-6 z-50 animate-slide-in-right rounded-xl border border-emerald-500/30 bg-dd-surface/90 backdrop-blur-xl p-4 shadow-2xl flex items-center gap-3">
@@ -466,7 +472,10 @@ export function PostDetailContent({
       <Sidebar user={user} />
 
       <div className="mx-auto flex w-full min-w-0 flex-grow items-start justify-center xl:max-w-[1480px] 2xl:max-w-[1600px] xl:justify-start">
-        <main className="flex min-h-screen w-full min-w-0 max-w-[720px] xl:max-w-[820px] 2xl:max-w-[920px] flex-grow flex-col border-r border-dd-border/80 bg-dd-bg pb-24 md:pb-8">
+        <main
+          data-testid="primary-column"
+          className="flex min-h-screen w-full min-w-0 max-w-[720px] xl:max-w-[820px] 2xl:max-w-[920px] flex-grow flex-col border-dd-border/60 bg-dd-bg pb-24 md:border-x md:pb-8"
+        >
           {/* Header (Twitter style: Back arrow + Title) */}
           <div className="sticky top-0 z-30 bg-dd-bg/95 backdrop-blur-md border-b border-dd-border/60 px-4 py-3 flex items-center gap-4">
             <button
@@ -1016,6 +1025,7 @@ export function PostDetailContent({
             }}
           />
         </main>
+        <FeedRightSidebar user={user} />
       </div>
 
       {reportModalOpen && (

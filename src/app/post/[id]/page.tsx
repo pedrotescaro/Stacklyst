@@ -124,7 +124,34 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         id: user.id,
         username: user.username,
         avatar_url: user.avatar_url,
+        avatar_config: user.avatar_config,
         total_xp: user.total_xp,
+        streak: Math.max(
+          user.streak_days ?? 0,
+          ...(user.trails ?? []).map((trail: { streak: number }) => trail.streak)
+        ),
+        last_active_at: user.last_active_at?.toISOString() ?? null,
+        trails: (user.trails ?? []).map(
+          (trail: { id: string; language: string; level: number; xp: number; streak: number }) => ({
+            id: trail.id,
+            language: trail.language,
+            level: trail.level,
+            xp: trail.xp,
+            streak: trail.streak,
+          })
+        ),
+        badges: (user.badges ?? []).map(
+          (entry: {
+            badge: {
+              slug: string;
+              label: string;
+              description: string;
+              icon: string;
+              color: string;
+            };
+            earned_at: Date;
+          }) => ({ ...entry.badge, earned_at: entry.earned_at.toISOString() })
+        ),
       }}
       post={serializedPost}
       initialIsSaved={initialIsSaved}
