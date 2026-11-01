@@ -21,7 +21,8 @@ import { ProfileRightRail, type ProfileRailUser } from '@/components/profile/Pro
 import { PostCard } from '@/components/PostCard';
 import { ProfileReplyThread } from '@/components/ProfileReplyThread';
 import { FollowersModal } from '@/components/motion/FollowersModal';
-import { AchievementShowcase } from '@/components/AchievementShowcase';
+import { CredentialShowcase } from '@/components/credentials/CredentialCollection';
+import type { CredentialRecord } from '@/lib/credentials/types';
 import { LanguageTrailBar } from '@/components/LanguageTrailBar';
 import {
   SocialProfileOverview,
@@ -62,6 +63,7 @@ interface ProfileContentProps {
   };
   trails: Array<{ language: string; xp: number; level: number }>;
   allBadges: any[];
+  credentials?: CredentialRecord[];
   isFollowing: boolean;
   followersCount: number;
   followingCount: number;
@@ -78,7 +80,7 @@ export function ProfileContent({
   profileUser,
   stats,
   trails,
-  allBadges,
+  credentials = [],
   isFollowing,
   followersCount,
   followingCount,
@@ -283,7 +285,6 @@ export function ProfileContent({
   useEffect(() => {
     if (search) tabsRef.current?.scrollIntoView?.({ block: 'start' });
   }, [search]);
-  const badgeEarned = new Map(profileUser.badges.map((item) => [item.slug, item.earned_at]));
 
   return (
     <div data-testid="profile-shell" className="dd-platform-shell dd-platform-shell--fullscreen">
@@ -805,13 +806,8 @@ export function ProfileContent({
                     )}
                   </details>
                   <details className={styles.statisticsDetails} open={initialTab === 'badges'}>
-                    <summary>{text('Conquistas da aprendizagem', 'Learning achievements')}</summary>
-                    <AchievementShowcase
-                      badges={allBadges.map((badge) => ({
-                        ...badge,
-                        earned_at: badgeEarned.get(badge.slug) || null,
-                      }))}
-                    />
+                    <summary>{text('Badges e certificados', 'Badges and certificates')}</summary>
+                    <CredentialShowcase credentials={credentials} />
                   </details>
                 </section>
               ) : (

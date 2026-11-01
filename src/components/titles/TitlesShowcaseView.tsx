@@ -167,6 +167,7 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
       <div className={styles.collectionIntro}>
         <p>Conquiste um título e leve sua história para o perfil.</p>
         <Link href="/personalize?section=identity">Personalizar perfil</Link>
+        <Link href="/certificates">Badges e certificados de cursos</Link>
       </div>
       <div className={`${styles.search} ${searchOpen ? styles.searchOpen : ''}`}>
         <Search size={18} aria-hidden="true" />

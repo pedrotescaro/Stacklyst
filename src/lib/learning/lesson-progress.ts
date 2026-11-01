@@ -6,6 +6,7 @@ import { awardXPInTransaction } from '@/lib/xp';
 import { getLearningLesson, isLessonComplete } from './catalog';
 import type { Lesson, LessonStep } from '@/lib/lessons/types';
 import { learningTransaction } from './transaction';
+import { reconcileCredentialsInTransaction } from '@/lib/credentials/repository';
 
 export async function getLessonProgress(userId: string, lesson: Lesson) {
   const rows = await prisma.quizAttempt.findMany({
@@ -102,6 +103,7 @@ export async function saveLessonAssessment(
     if (firstCompletion) completedStepIds.push(step.id);
     const required = lesson.steps.filter((s) => s.type !== 'concept_explanation');
     const complete = required.length > 0 && required.every((s) => completedStepIds.includes(s.id));
+    if (complete && firstCompletion) await reconcileCredentialsInTransaction(tx, userId);
     const totalXp =
       xpResult?.totalXp ??
       (

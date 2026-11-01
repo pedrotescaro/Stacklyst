@@ -44,7 +44,8 @@ async function builtExport(routePath, exportName) {
 
   for (const chunk of chunks) {
     const chunkPath = path.join(buildDir, chunk);
-    const modules = require(path.join(buildDir, chunk));
+    // Some server chunks group their first module pairs in an inner array.
+    const modules = require(path.join(buildDir, chunk)).flat();
     const chunkSource = readFileSync(chunkPath, 'utf8');
     let sourceMap;
     for (let index = 0; index < modules.length - 1; index += 1) {
@@ -213,4 +214,47 @@ assert.equal(wrong.passedTests, 3);
 assert.equal(externalRequests, 0, 'The bundled judge fell back to an external execution provider.');
 console.log(
   'Production judge smoke passed: JS, TS, Promise/timer scheduling, Retry-After exercise public/hidden tests, lesson run/submit and code errors, public/hidden duel tests, and wrong-answer handling; no external requests.'
+);
+
+const certificateRoute = 'server/app/api/certificates/[id]/pdf/route.js';
+const certificateTrace = JSON.parse(
+  readFileSync(path.join(buildDir, `${certificateRoute}.nft.json`), 'utf8')
+);
+for (const asset of ['Sora-Regular.ttf', 'Sora-SemiBold.ttf', 'Sora-Bold.ttf', 'signature.png']) {
+  assert.ok(
+    certificateTrace.files.some((file) =>
+      file.replaceAll('\\', '/').endsWith(`/public/assets/credentials/${asset}`)
+    ),
+    `Certificate deployment is missing ${asset}`
+  );
+}
+const renderCredentialPdf = await builtExport(certificateRoute, 'renderCredentialPdf');
+const certificateBytes = await renderCredentialPdf(
+  {
+    id: '35ca5499-276b-4a56-8c20-9bc4d4de382f',
+    recipientName: 'João Luís Gonçalves de Almeida',
+    recipientUsername: 'synthetic-build-check',
+    issuedAt: '2026-11-01T12:00:00.000Z',
+    verifiedAt: '2026-11-01T12:00:00.000Z',
+    integrityHash: 'a'.repeat(64),
+    status: 'valid',
+    definition: {
+      id: 'synthetic:build-only',
+      version: 1,
+      kind: 'course',
+      language: 'TS',
+      title: 'TypeScript do zero',
+      description: 'Synthetic build check, never issued.',
+      estimatedMinutes: 60,
+      skills: ['Tipos e funções'],
+      requirements: [],
+    },
+  },
+  'https://stacklyst.vercel.app/certificates/35ca5499-276b-4a56-8c20-9bc4d4de382f'
+);
+assert.equal(Buffer.from(certificateBytes).subarray(0, 4).toString(), '%PDF');
+assert.ok(certificateBytes.byteLength > 1000);
+assert.equal(externalRequests, 0);
+console.log(
+  'Production certificate smoke passed: compiled PDF renderer, embedded fonts/signature, QR and deployed asset trace; no database or external requests.'
 );

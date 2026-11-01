@@ -14,6 +14,7 @@ import type { ExerciseWorkspaceData } from '@/lib/exercises/types';
 import type { KnowledgeProgressStatus } from '@/lib/learning/types';
 import { AppError } from '@/lib/errors';
 import { learningTransaction } from '@/lib/learning/transaction';
+import { reconcileCredentialsInTransaction } from '@/lib/credentials/repository';
 
 export async function requireExerciseAccess(userId: string, knowledgeNodeId: string) {
   const edges = await prisma.knowledgeEdge.findMany({
@@ -372,6 +373,7 @@ export async function recordExerciseSubmission(input: {
       }),
     ]);
 
+    if (firstCompletion) await reconcileCredentialsInTransaction(transaction, input.userId);
     return {
       submission,
       submissionCount,

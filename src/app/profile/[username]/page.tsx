@@ -8,6 +8,7 @@ import { getProfilePublicationCounts } from '@/services/profile-activity.service
 import { BlockService } from '@/services/block.service';
 import { BlockedProfile } from '@/components/profile/BlockedProfile';
 import { getPublicProfileCustomization } from '@/services/profile-customization.service';
+import { getEarnedCredentials } from '@/lib/credentials/repository';
 
 export const revalidate = 0; // Desabilitar cache para dados dinâmicos do perfil
 
@@ -62,11 +63,10 @@ export default async function ProfilePage({
     );
   }
 
-  // Buscar todos os badges cadastrados no sistema
   const profileId = profileUser.id;
 
   const [
-    allBadges,
+    credentials,
     publications,
     acceptedCount,
     totalAttempts,
@@ -77,7 +77,7 @@ export default async function ProfilePage({
     postLikes,
     answerLikes,
   ] = await Promise.all([
-    prisma.badge.findMany({ orderBy: { slug: 'asc' } }),
+    getEarnedCredentials(profileId),
     getProfilePublicationCounts(user.id, profileId),
     prisma.answer.count({ where: { author_id: profileId, is_accepted: true } }),
     prisma.quizAttempt.count({ where: { user_id: profileId } }),
@@ -129,21 +129,6 @@ export default async function ProfilePage({
   };
 
   const serializedTrails = await getUserLanguageXp(profileUser.id);
-
-  const serializedAllBadges = allBadges.map((b) => ({
-    slug: b.slug,
-    label: b.label,
-    description: b.description,
-    icon: b.icon,
-    color: b.color,
-  }));
-
-  const viewerBadgeDates = new Map<string, string | null>(
-    user.badges.map((entry: any): [string, string | null] => [
-      entry.badge.slug,
-      entry.earned_at?.toISOString() ?? null,
-    ])
-  );
 
   // Verificar se o usuário atual segue este perfil
   const isFollowing = follow !== null;
@@ -235,10 +220,7 @@ export default async function ProfilePage({
             xp: trail.xp,
             level: trail.level,
           })),
-        badges: serializedAllBadges.map((badge) => ({
-          ...badge,
-          earned_at: viewerBadgeDates.get(badge.slug) ?? null,
-        })),
+        badges: [],
       }}
       user={{
         id: user.id,
@@ -258,7 +240,8 @@ export default async function ProfilePage({
         likes_received: postLikes + answerLikes,
       }}
       trails={serializedTrails}
-      allBadges={serializedAllBadges}
+      allBadges={[]}
+      credentials={credentials}
       isFollowing={isFollowing}
       followersCount={followersCount}
       followingCount={followingCount}

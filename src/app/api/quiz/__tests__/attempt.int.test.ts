@@ -2,6 +2,11 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { POST } from '../[id]/attempt/route';
 import { prisma } from '@/lib/prisma';
 import { awardXPInTransaction } from '@/lib/xp';
+import { reconcileCredentialsInTransaction } from '@/lib/credentials/repository';
+
+vi.mock('@/lib/credentials/repository', () => ({
+  reconcileCredentialsInTransaction: vi.fn(async () => ({ items: [], earnedCount: 0 })),
+}));
 
 vi.mock('@/lib/auth', () => ({
   getAuthUser: vi.fn(async () => ({ id: 'user-123', total_xp: 100 })),
@@ -73,6 +78,7 @@ describe('quiz attempts use transactional assessment persistence', () => {
       })
     );
     expect(awardXPInTransaction).toHaveBeenCalledWith(prisma, 'user-123', 'TS', 15);
+    expect(reconcileCredentialsInTransaction).toHaveBeenCalledExactlyOnceWith(prisma, 'user-123');
   });
   it('promotes an incorrect attempt on a successful retry', async () => {
     vi.mocked(prisma.quizAttempt.findMany).mockResolvedValue([
@@ -85,6 +91,7 @@ describe('quiz attempts use transactional assessment persistence', () => {
       })
     );
     expect(awardXPInTransaction).toHaveBeenCalledTimes(1);
+    expect(reconcileCredentialsInTransaction).toHaveBeenCalledExactlyOnceWith(prisma, 'user-123');
   });
   it('does not award XP again for a completed answer', async () => {
     vi.mocked(prisma.quizAttempt.findMany).mockResolvedValue([
@@ -93,6 +100,19 @@ describe('quiz attempts use transactional assessment persistence', () => {
     expect((await submit('quiz-123')).status).toBe(200);
     expect(awardXPInTransaction).not.toHaveBeenCalled();
     expect(prisma.quizAttempt.update).not.toHaveBeenCalled();
+    expect(reconcileCredentialsInTransaction).not.toHaveBeenCalled();
+  });
+  it('keeps an incorrect answer without XP or credential reconciliation', async () => {
+    const response = await submit('quiz-123', 0);
+    expect(response.status).toBe(200);
+    expect((await response.json()).is_correct).toBe(false);
+    expect(prisma.quizAttempt.create).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ selected_index: 0, is_correct: false, xp_earned: 0 }),
+      })
+    );
+    expect(awardXPInTransaction).not.toHaveBeenCalled();
+    expect(reconcileCredentialsInTransaction).not.toHaveBeenCalled();
   });
   it('provisions a legacy curriculum choice using its original identity', async () => {
     vi.mocked(prisma.quiz.findUnique).mockResolvedValue(null);
@@ -111,5 +131,6 @@ describe('quiz attempts use transactional assessment persistence', () => {
     expect((await response.json()).error).toBe('ASSESSMENT_REQUIRED');
     expect(awardXPInTransaction).not.toHaveBeenCalled();
     expect(prisma.quizAttempt.create).not.toHaveBeenCalled();
+    expect(reconcileCredentialsInTransaction).not.toHaveBeenCalled();
   });
 });

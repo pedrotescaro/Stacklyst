@@ -184,6 +184,7 @@ model User {
   rpg_player                RpgPlayer?
   profile_customization     ProfileCustomization?
   profile_achievements      UserProfileAchievement[]
+  learning_credentials      LearningCredential[]
   mobile_state              MobileState[]
   mobile_devices            MobileDevice[]
   id                        String                   @id @default(uuid())
@@ -351,6 +352,24 @@ model UserProfileAchievement {
   @@id([userId, achievementId])
   @@index([userId, unlockedAt(sort: Desc)])
   @@map("user_profile_achievements")
+}
+
+model LearningCredential {
+  id                String    @id @default(uuid())
+  userId            String
+  definitionId      String
+  definitionVersion Int
+  snapshot          Json
+  integrityHash     String
+  issuedAt          DateTime  @default(now()) @db.Timestamptz(3)
+  verifiedAt        DateTime  @db.Timestamptz(3)
+  revokedAt         DateTime? @db.Timestamptz(3)
+  revocationReason  String?
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, definitionId, definitionVersion])
+  @@index([userId, issuedAt(sort: Desc)])
+  @@map("learning_credentials")
 }
 
 model EvaluatorApplication {
@@ -705,7 +724,7 @@ model Post {
   upvotes      Int       @default(0)
   client_id    String?
 
-  author    User       @relation(fields: [author_id], references: [id], onDelete: Cascade)
+  author    User        @relation(fields: [author_id], references: [id], onDelete: Cascade)
   answers   Answer[]
   quizzes   Quiz[]
   votes     PostVote[]

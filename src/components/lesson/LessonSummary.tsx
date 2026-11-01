@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import type { Lesson, LessonSessionState } from '@/lib/lessons/types';
 import styles from './LessonSummary.module.css';
@@ -50,6 +51,12 @@ export function LessonSummary({ lesson, sessionState, onFinish }: LessonSummaryP
       <button type="button" onClick={onFinish} className={styles.finish}>
         Voltar para a Trilha <ArrowRight size={19} aria-hidden="true" />
       </button>
+      <Link
+        href="/certificates"
+        className="inline-flex min-h-11 items-center text-sm font-semibold text-dd-accent underline-offset-4 hover:underline"
+      >
+        Ver badges e certificados
+      </Link>
     </section>
   );
 }
