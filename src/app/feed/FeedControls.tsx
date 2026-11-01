@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { FeedPreferencesEditor } from '@/components/FeedPreferencesEditor';
-import { Check, ChevronDown, RefreshCw } from 'lucide-react';
+import { Check, ChevronDown } from 'lucide-react';
 import { FeedRankingSwitcher } from '@/components/FeedRankingSwitcher';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
@@ -15,20 +15,9 @@ interface FeedControlsProps {
   onFilterChange: (filter: FeedFilter) => void;
   sort: FollowingSort;
   onSortChange: (sort: FollowingSort) => void;
-  refreshing: boolean;
-  refreshDisabled: boolean;
-  onRefresh: () => void;
 }
 
-export function FeedControls({
-  filter,
-  onFilterChange,
-  sort,
-  onSortChange,
-  refreshing,
-  refreshDisabled,
-  onRefresh,
-}: FeedControlsProps) {
+export function FeedControls({ filter, onFilterChange, sort, onSortChange }: FeedControlsProps) {
   const { text } = useLocalizedText();
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
@@ -137,16 +126,6 @@ export function FeedControls({
         )}
         <FeedPreferencesEditor />
       </div>
-      <button
-        type="button"
-        onClick={onRefresh}
-        disabled={refreshDisabled}
-        aria-label={text('Atualizar publicações', 'Refresh posts')}
-        title={text('Atualizar publicações', 'Refresh posts')}
-        className="dd-focus-ring hidden h-11 w-11 shrink-0 items-center justify-center text-dd-muted hover:bg-dd-surface hover:text-blue-500 disabled:cursor-wait disabled:opacity-60 md:absolute md:right-3 md:top-3 md:flex"
-      >
-        <RefreshCw className={cn('h-4 w-4', refreshing && 'animate-spin')} />
-      </button>
     </div>
   );
 }

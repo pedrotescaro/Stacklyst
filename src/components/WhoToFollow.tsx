@@ -4,6 +4,7 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
 import { UsersRound } from 'lucide-react';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
+import { ProfileFlag } from '@/components/profile/ProfileIdentity';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import type { FollowRecommendation } from '@/lib/follow-recommendations';
 import { cn } from '@/lib/cn';
@@ -225,11 +226,21 @@ export function WhoToFollow({
                     <AuthorAvatar
                       username={profile.username}
                       avatar_url={profile.avatar_url}
+                      avatar_config={profile.identity}
                       size="lg"
                     />
                     <span className={styles.copy}>
-                      <span className={styles.name}>
-                        {profile.display_name || profile.username}
+                      <span className={styles.nameRow}>
+                        <span className={styles.name}>
+                          {profile.display_name || profile.username}
+                        </span>
+                        {Boolean(profile.identity?.flags.length) && (
+                          <span className={styles.flags}>
+                            {profile.identity?.flags.map((flag) => (
+                              <ProfileFlag key={flag} code={flag} />
+                            ))}
+                          </span>
+                        )}
                       </span>
                       <span className={styles.handle}>@{profile.username}</span>
                       <span className={styles.reason}>{reasonLabel(profile.reason)}</span>

@@ -73,6 +73,24 @@
   font-weight: 700;
   line-height: 1.5;
 }
+.nameRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 3px 6px;
+  min-width: 0;
+}
+.nameRow .name {
+  min-width: 0;
+  max-width: 100%;
+}
+.flags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  flex-shrink: 0;
+  align-items: center;
+}
 .handle {
   overflow: hidden;
   text-overflow: ellipsis;

@@ -30,20 +30,13 @@ vi.mock('@/components/MobilePullToRefresh', () => ({
 }));
 vi.mock('../FeedControls', () => ({
   FeedControls: ({
-    onRefresh,
     onFilterChange,
     onSortChange,
-    refreshDisabled,
   }: {
-    onRefresh: () => void;
     onFilterChange: (value: string) => void;
     onSortChange: (value: string) => void;
-    refreshDisabled: boolean;
   }) => (
     <>
-      <button disabled={refreshDisabled} onClick={onRefresh}>
-        Atualizar
-      </button>
       <button onClick={() => onFilterChange('following')}>Seguindo</button>
       <button onClick={() => onSortChange('popular')}>Popular</button>
     </>
@@ -74,7 +67,7 @@ function fallback(input: RequestInfo | URL) {
   const url = String(input);
   return response(
     url.includes('mode=count')
-      ? { count: 0 }
+      ? { count: 1 }
       : url.includes('weekly-activity')
         ? { weekDays: [] }
         : {}
@@ -113,7 +106,7 @@ describe('Feed refresh and request ownership', () => {
           : fallback(input)
     );
     render(<FeedContent {...props} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Atualizar' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Ver 1 novo post/ }));
     expect(await screen.findByRole('article', { name: 'new' })).toHaveAttribute(
       'data-bookmarked',
       'true'
@@ -148,7 +141,7 @@ describe('Feed refresh and request ownership', () => {
     act(() => {
       pending = mocks.loadMore?.();
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Atualizar' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Ver 1 novo post/ }));
     expect(await screen.findByRole('article', { name: 'new' })).toBeInTheDocument();
     await act(async () => {
       resolveOld(response({ items: [post('stale-page')], nextCursor: 'stale-cursor' }));
@@ -181,7 +174,7 @@ describe('Feed refresh and request ownership', () => {
           : fallback(input)
     );
     render(<FeedContent {...props} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Atualizar' }));
+    fireEvent.click(await screen.findByRole('button', { name: /Ver 1 novo post/ }));
     fireEvent.click(screen.getByRole('button', { name: 'Seguindo' }));
     expect(await screen.findByRole('article', { name: 'followed' })).toBeInTheDocument();
     await act(async () => {

@@ -1,7 +1,11 @@
 import type { Language, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getAuthorDisplayName } from '@/lib/profile-style';
-import { scoreFollowCandidate, type FollowRecommendation } from '@/lib/follow-recommendations';
+import {
+  getFollowProfileIdentity,
+  scoreFollowCandidate,
+  type FollowRecommendation,
+} from '@/lib/follow-recommendations';
 import { visibleUserWhere } from './block.service';
 import { visiblePostWhere } from './post-access.service';
 
@@ -194,6 +198,7 @@ export async function getFollowRecommendations(
           username: candidate.username,
           display_name: getAuthorDisplayName(candidate).slice(0, 80),
           avatar_url: candidate.avatar_url,
+          identity: getFollowProfileIdentity(candidate.avatar_config),
           total_xp: candidate.total_xp,
           reason,
         },

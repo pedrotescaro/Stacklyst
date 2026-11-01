@@ -4,7 +4,6 @@ import { WhoToFollow } from '../WhoToFollow';
 vi.mock('@/i18n/useLocalizedText', () => ({
   useLocalizedText: () => ({ text: (pt: string) => pt }),
 }));
-vi.mock('@/components/AuthorAvatar', () => ({ AuthorAvatar: () => <span aria-hidden="true" /> }));
 const profiles = [
   {
     id: 'alice',
@@ -40,6 +39,31 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe('Who to follow', () => {
+  it('shows the selected frame and flags without showing a title or level', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(
+      response([
+        {
+          ...profiles[0],
+          total_xp: 99999,
+          identity: {
+            frame: { id: 'neon', color: '#0083fe', decoration: 'neon' },
+            flags: ['BR', 'pride-trans'],
+            title: { name: 'Hidden title' },
+            level: 99,
+          },
+        },
+      ])
+    );
+    render(<WhoToFollow viewerId="me" />);
+    const profile = await screen.findByRole('link', { name: /Alice/ });
+    expect(profile.querySelector('[data-decoration="neon"]')).toHaveStyle({
+      '--frame-color': '#0083fe',
+    });
+    expect(screen.getByRole('img', { name: 'Bandeira: Brasil' })).toBeInTheDocument();
+    expect(screen.getByRole('img', { name: 'Bandeira: Transgênero' })).toBeInTheDocument();
+    expect(screen.queryByText('Hidden title')).not.toBeInTheDocument();
+    expect(profile.textContent).not.toMatch(/lvl|nível|99999/i);
+  });
   it('shows three real profiles with working profile links and recommendation reasons', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(response(profiles));
     render(<WhoToFollow viewerId="me" />);

@@ -3,19 +3,11 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { FeedControls } from '../FeedControls';
 
-function Controls({ refresh = vi.fn() }: { refresh?: () => void }) {
+function Controls() {
   const [filter, setFilter] = useState<'for-you' | 'following'>('for-you');
   const [sort, setSort] = useState<'recent' | 'popular'>('recent');
   return (
-    <FeedControls
-      filter={filter}
-      onFilterChange={setFilter}
-      sort={sort}
-      onSortChange={setSort}
-      refreshing={false}
-      refreshDisabled={false}
-      onRefresh={refresh}
-    />
+    <FeedControls filter={filter} onFilterChange={setFilter} sort={sort} onSortChange={setSort} />
   );
 }
 
@@ -38,11 +30,9 @@ describe('Feed controls', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
   });
 
-  it('opens feed personalization and refreshes the posts', () => {
-    const refresh = vi.fn();
-    render(<Controls refresh={refresh} />);
+  it('keeps personalization without a duplicate refresh action in the header', () => {
+    render(<Controls />);
     expect(screen.getByRole('button', { name: 'Personalizar feed' })).toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Atualizar publicações' }));
-    expect(refresh).toHaveBeenCalledOnce();
+    expect(screen.queryByRole('button', { name: 'Atualizar publicações' })).not.toBeInTheDocument();
   });
 });

@@ -1165,11 +1165,6 @@ export function FeedContent({
               onFilterChange={setFeedFilter}
               sort={followingSort}
               onSortChange={setFollowingSort}
-              refreshing={refreshingPosts}
-              refreshDisabled={
-                refreshingPosts || loadingSearch || activeTab !== 'feed' || !!searchQuery.trim()
-              }
-              onRefresh={handleLoadNewPosts}
             />
 
             {/* Feed Tab View */}

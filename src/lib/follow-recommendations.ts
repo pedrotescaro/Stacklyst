@@ -1,4 +1,16 @@
 import type { Language } from '@prisma/client';
+import { readProfileIdentity, type ProfileIdentityStyle } from '@/lib/profile-style';
+
+export interface FollowProfileIdentity {
+  frame: ProfileIdentityStyle['frame'];
+  flags: string[];
+}
+
+/** Only the public decorations needed by a suggestion, never the full avatar config. */
+export function getFollowProfileIdentity(config: unknown): FollowProfileIdentity {
+  const identity = readProfileIdentity(config);
+  return { frame: identity.frame ?? null, flags: [...new Set(identity.flags ?? [])] };
+}
 
 export interface FollowRecommendation {
   id: string;
@@ -6,6 +18,7 @@ export interface FollowRecommendation {
   display_name?: string;
   avatar_url: string | null;
   total_xp: number;
+  identity?: FollowProfileIdentity;
   reason: {
     type: 'mutual' | 'language' | 'interaction' | 'active';
     language?: Language;

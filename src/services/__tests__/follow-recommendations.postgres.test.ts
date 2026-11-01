@@ -68,6 +68,11 @@ describe.skipIf(process.env.STACKLYST_SOCIAL_POSTGRES !== '1')(
                 avatar_config: {
                   displayName: 'Nome público de teste',
                   privateSecret: 'never-return-this',
+                  profileStyle: {
+                    frame: { id: 'frame-neon', decoration: 'neon', color: '#0083fe' },
+                    flags: ['BR', 'pride-trans'],
+                    title: { name: 'private-title-hidden' },
+                  },
                 },
               })),
             });
@@ -132,6 +137,13 @@ describe.skipIf(process.env.STACKLYST_SOCIAL_POSTGRES !== '1')(
             expect(serialized).not.toContain('never-return-this');
             expect(serialized).not.toContain('avatar_config');
             expect(serialized).not.toContain('@example.invalid');
+            expect(serialized).not.toContain('private-title-hidden');
+            expect(
+              recommendations.find((profile) => profile.id === ids.language)?.identity
+            ).toEqual({
+              frame: { id: 'frame-neon', decoration: 'neon', color: '#0083fe' },
+              flags: ['BR', 'pride-trans'],
+            });
             context.db = {
               $transaction: (callback: (transaction: typeof tx) => unknown) => callback(tx),
             };
