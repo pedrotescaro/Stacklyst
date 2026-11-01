@@ -41,6 +41,11 @@ import { PostLocation, SensitiveContentGate } from '@/components/PostPresentatio
 import { parsePostExtras, ReplyAudience } from '@/lib/post-composer';
 import { POST_CHAR_LIMIT } from '@/lib/motion';
 import { cn } from '@/lib/cn';
+import {
+  POST_BOOKMARK_CHANGED,
+  writePostBookmark,
+  type PostBookmarkChange,
+} from '@/lib/client/post-bookmarks';
 
 interface PostDetailContentProps {
   user: {
@@ -133,24 +138,40 @@ export function PostDetailContent({
   const answerBodyEditorRef = useRef<NotionEditorRef>(null);
 
   const [isSaved, setIsSaved] = useState(initialIsSaved);
+  const [bookmarkPending, setBookmarkPending] = useState(false);
+  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
+  const bookmarkLock = useRef(false);
+  useEffect(() => {
+    if (!bookmarkLock.current) setIsSaved(initialIsSaved);
+  }, [initialIsSaved]);
+  useEffect(() => {
+    const onChange = (event: Event) => {
+      const detail = (event as CustomEvent<PostBookmarkChange>).detail;
+      if (detail.postId === post.id) setIsSaved(detail.bookmarked);
+    };
+    window.addEventListener(POST_BOOKMARK_CHANGED, onChange);
+    return () => window.removeEventListener(POST_BOOKMARK_CHANGED, onChange);
+  }, [post.id]);
   const [repostState, setRepostState] = useState({
     count: post.reposts_count ?? 0,
     reposted: false,
   });
 
   const handleBookmarkToggle = async () => {
+    if (bookmarkLock.current) return;
+    bookmarkLock.current = true;
+    setBookmarkPending(true);
+    setBookmarkError(null);
     const nextSaved = !isSaved;
     setIsSaved(nextSaved);
     try {
-      const res = await fetch(`/api/posts/${post.id}/bookmark`, {
-        method: 'POST',
-      });
-      if (!res.ok) {
-        setIsSaved(!nextSaved);
-      }
+      setIsSaved(await writePostBookmark(post.id, nextSaved));
     } catch (err) {
-      console.error('Failed to toggle bookmark:', err);
       setIsSaved(!nextSaved);
+      setBookmarkError(err instanceof Error ? err.message : 'Não foi possível salvar.');
+    } finally {
+      bookmarkLock.current = false;
+      setBookmarkPending(false);
     }
   };
 
@@ -645,7 +666,13 @@ export function PostDetailContent({
                   appearance="post"
                   isSaved={isSaved}
                   onToggle={handleBookmarkToggle}
+                  disabled={bookmarkPending}
                 />
+                {bookmarkError && (
+                  <span role="alert" className="text-xs text-red-400">
+                    {bookmarkError}
+                  </span>
+                )}
 
                 {/* 5. Share Button */}
                 <div className="relative">

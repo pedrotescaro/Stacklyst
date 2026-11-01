@@ -153,6 +153,8 @@ describe('PostCard', () => {
     ]);
     expect(fetchMock).toHaveBeenCalledExactlyOnceWith('/api/posts/post-1/bookmark', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookmarked: false }),
     });
   });
 
@@ -180,6 +182,8 @@ describe('PostCard', () => {
     expect(pendingButton).toBeDisabled();
     expect(fetchMock).toHaveBeenCalledExactlyOnceWith('/api/posts/post-1/bookmark', {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookmarked: false }),
     });
     expect(onBookmarkToggle).toHaveBeenCalledExactlyOnceWith('post-1', false);
     completeRequest(Response.json({ success: true, bookmarked: false }));

@@ -88,7 +88,7 @@ export function BookmarkButton({
       </motion.button>
 
       <AnimatePresence>
-        {showToast && (
+        {showToast && isSaved && !disabled && (
           <motion.div
             key="bookmark-toast"
             initial={{ opacity: 0, y: 4 }}

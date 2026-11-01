@@ -979,29 +979,11 @@ export function FeedContent({
     await handleVote(postId, 'up');
   };
 
-  const handleBookmarkToggle = async (postId: string) => {
-    const isCurrentlySaved = !!bookmarkedPostIds[postId];
+  const handleBookmarkToggle = (postId: string, bookmarked: boolean) => {
     setBookmarkedPostIds((prev) => ({
       ...prev,
-      [postId]: !isCurrentlySaved,
+      [postId]: bookmarked,
     }));
-    try {
-      const res = await fetch(`/api/posts/${postId}/bookmark`, {
-        method: 'POST',
-      });
-      if (!res.ok) {
-        setBookmarkedPostIds((prev) => ({
-          ...prev,
-          [postId]: isCurrentlySaved,
-        }));
-      }
-    } catch (err) {
-      console.error('Failed to toggle bookmark:', err);
-      setBookmarkedPostIds((prev) => ({
-        ...prev,
-        [postId]: isCurrentlySaved,
-      }));
-    }
   };
 
   const handleRepost = (post: any) => {
@@ -1242,7 +1224,7 @@ export function FeedContent({
                               isOwner={post.author.username === initialUser.username}
                               flat={true}
                               onBookmarkToggle={(postId, isBookmarked) => {
-                                handleBookmarkToggle(postId);
+                                handleBookmarkToggle(postId, isBookmarked);
                               }}
                               onDelete={(postId) => {
                                 setPosts((prev) => prev.filter((p) => p.id !== postId));

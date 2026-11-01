@@ -46,6 +46,10 @@ export function BookmarksContent({ user, initialPosts }: BookmarksContentProps) 
   useEffect(() => {
     if (searchOpen) searchInput.current?.focus();
   }, [searchOpen]);
+  useEffect(() => {
+    setPosts(initialPosts);
+    setRemovedIds(new Set());
+  }, [initialPosts]);
 
   const savedPosts = posts.filter((post) => !removedIds.has(post.id));
   const query = searchQuery.trim().toLocaleLowerCase();

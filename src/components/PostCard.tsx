@@ -39,6 +39,11 @@ import { PostAttachments } from '@/components/posts/PostAttachments';
 import { PostActionDialog } from '@/components/posts/PostActionDialog';
 import type { PostAttachment, PostPoll } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
+import {
+  POST_BOOKMARK_CHANGED,
+  writePostBookmark,
+  type PostBookmarkChange,
+} from '@/lib/client/post-bookmarks';
 import { prismaLanguageToEditor } from '@/lib/editor/languages';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './PostCard.module.css';
@@ -203,6 +208,19 @@ export function PostCard({
   );
   const [bookmarkPending, setBookmarkPending] = useState(false);
   const bookmarkRequestPending = useRef(false);
+  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
+  const serverBookmarked = Boolean(post.bookmarks?.length);
+  useEffect(() => {
+    if (!bookmarkRequestPending.current) setBookmarked(serverBookmarked);
+  }, [serverBookmarked]);
+  useEffect(() => {
+    const onChange = (event: Event) => {
+      const detail = (event as CustomEvent<PostBookmarkChange>).detail;
+      if (detail.postId === post.id) setBookmarked(detail.bookmarked);
+    };
+    window.addEventListener(POST_BOOKMARK_CHANGED, onChange);
+    return () => window.removeEventListener(POST_BOOKMARK_CHANGED, onChange);
+  }, [post.id]);
   const [repostsCount, setRepostsCount] = useState(0);
   const [reposted, setReposted] = useState(false);
 
@@ -244,22 +262,19 @@ export function PostCard({
     if (bookmarkRequestPending.current) return;
     bookmarkRequestPending.current = true;
     setBookmarkPending(true);
+    setBookmarkError(null);
     const newBookmarked = !bookmarked;
     setBookmarked(newBookmarked);
     onBookmarkToggle?.(post.id, newBookmarked);
 
     try {
-      const res = await fetch(`/api/posts/${post.id}/bookmark`, {
-        method: 'POST',
-      });
-
-      if (!res.ok) {
-        setBookmarked(!newBookmarked);
-        onBookmarkToggle?.(post.id, !newBookmarked);
-      }
-    } catch {
+      const saved = await writePostBookmark(post.id, newBookmarked);
+      setBookmarked(saved);
+      if (saved !== newBookmarked) onBookmarkToggle?.(post.id, saved);
+    } catch (error) {
       setBookmarked(!newBookmarked);
       onBookmarkToggle?.(post.id, !newBookmarked);
+      setBookmarkError(error instanceof Error ? error.message : 'Não foi possível salvar.');
     } finally {
       bookmarkRequestPending.current = false;
       setBookmarkPending(false);
@@ -511,6 +526,11 @@ export function PostCard({
             onToggle={handleBookmarkToggle}
             disabled={bookmarkPending}
           />
+          {bookmarkError && (
+            <span role="alert" className="text-xs text-red-400">
+              {bookmarkError}
+            </span>
+          )}
 
           {/* 5. Share Button */}
           <div className="relative">

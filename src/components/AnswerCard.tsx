@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MessageCircle, BarChart2, Share2, Send } from 'lucide-react';
@@ -17,6 +17,12 @@ import { LevelBadge } from '@/components/LevelBadge';
 import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import type { AnswerNode } from '@/components/answer-types';
 import { MAX_ANSWER_DEPTH } from '@/components/answer-types';
+import {
+  POST_BOOKMARK_CHANGED,
+  readPostBookmark,
+  writePostBookmark,
+  type PostBookmarkChange,
+} from '@/lib/client/post-bookmarks';
 
 interface AnswerCardProps {
   answer: AnswerNode;
@@ -43,6 +49,49 @@ export function AnswerCard({
   const [voteCount, setVoteCount] = useState(answer.upvotes);
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(initialUserVote);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [bookmarkPending, setBookmarkPending] = useState(false);
+  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
+  const bookmarkLock = useRef(false);
+  const targetPostId = answer.post_id || postId;
+  useEffect(() => {
+    if (!targetPostId || !currentUser) return;
+    let active = true;
+    let changed = false;
+    const onChange = (event: Event) => {
+      const detail = (event as CustomEvent<PostBookmarkChange>).detail;
+      if (detail.postId === targetPostId) {
+        changed = true;
+        setIsBookmarked(detail.bookmarked);
+      }
+    };
+    window.addEventListener(POST_BOOKMARK_CHANGED, onChange);
+    void readPostBookmark(targetPostId)
+      .then((saved) => {
+        if (active && !changed && !bookmarkLock.current) setIsBookmarked(saved);
+      })
+      .catch(() => {});
+    return () => {
+      active = false;
+      window.removeEventListener(POST_BOOKMARK_CHANGED, onChange);
+    };
+  }, [targetPostId, currentUser]);
+  const handleBookmarkToggle = async () => {
+    if (!targetPostId || !currentUser || bookmarkLock.current) return;
+    bookmarkLock.current = true;
+    setBookmarkPending(true);
+    setBookmarkError(null);
+    const previous = isBookmarked;
+    setIsBookmarked(!previous);
+    try {
+      setIsBookmarked(await writePostBookmark(targetPostId, !previous));
+    } catch (error) {
+      setIsBookmarked(previous);
+      setBookmarkError(error instanceof Error ? error.message : 'Não foi possível salvar.');
+    } finally {
+      bookmarkLock.current = false;
+      setBookmarkPending(false);
+    }
+  };
   const [reposted, setReposted] = useState(false);
   const [repostCount, setRepostCount] = useState(0);
 
@@ -335,8 +384,14 @@ export function AnswerCard({
             <BookmarkButton
               appearance="post"
               isSaved={isBookmarked}
-              onToggle={() => setIsBookmarked(!isBookmarked)}
+              onToggle={handleBookmarkToggle}
+              disabled={bookmarkPending || !targetPostId || !currentUser}
             />
+            {bookmarkError && (
+              <span role="alert" className="text-xs text-red-400">
+                {bookmarkError}
+              </span>
+            )}
 
             {/* 6. Share button */}
             <button

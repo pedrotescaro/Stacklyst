@@ -87,7 +87,11 @@ describe('Bookmarks collection', () => {
     const first = screen.getAllByRole('article')[0];
     fireEvent.click(within(first).getByRole('button', { name: 'Remover dos salvos' }));
     expect(fetcher).toHaveBeenCalledTimes(1);
-    expect(fetcher).toHaveBeenCalledWith('/api/posts/z-first/bookmark', { method: 'POST' });
+    expect(fetcher).toHaveBeenCalledWith('/api/posts/z-first/bookmark', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ bookmarked: false }),
+    });
     expect(screen.getByLabelText('2 publicações salvas')).toBeInTheDocument();
     await act(async () => finish(Response.json({ message: 'Falhou' }, { status: 500 })));
     await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(3));
@@ -109,5 +113,14 @@ describe('Bookmarks collection', () => {
     expect(screen.getByRole('heading', { name: 'Guarde boas descobertas' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Explorar o feed' })).toHaveAttribute('href', '/feed');
     expect(fetcher).toHaveBeenCalledTimes(1);
+  });
+
+  it('reconciles refreshed server props instead of keeping an obsolete saved collection', async () => {
+    const view = render(<BookmarksContent user={user} initialPosts={posts} />);
+    expect(screen.getAllByRole('article')).toHaveLength(3);
+    view.rerender(<BookmarksContent user={user} initialPosts={[posts[1]]} />);
+    await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(1));
+    expect(screen.getByRole('article')).toHaveTextContent('Exemplo de TypeScript.');
+    expect(screen.getByLabelText('1 publicação salva')).toBeInTheDocument();
   });
 });

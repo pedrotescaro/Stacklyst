@@ -1,5 +1,5 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AnswerCard } from '@/components/AnswerCard';
 import { ProfileReplyThread } from '@/components/ProfileReplyThread';
 
@@ -25,9 +25,19 @@ const answer = {
 };
 
 describe('reply action bars', () => {
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllGlobals();
+  });
   beforeEach(() => {
     router.push.mockClear();
     localStorage.setItem('stacklyst-sound', 'false');
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_input: unknown, init?: RequestInit) =>
+        Response.json({ bookmarked: init?.method === 'POST' })
+      )
+    );
     window.matchMedia = vi.fn().mockImplementation((query: string) => ({
       matches: false,
       media: query,
@@ -39,7 +49,33 @@ describe('reply action bars', () => {
     }));
   });
 
-  it('keeps the reply composer and bookmark interaction on an answer', () => {
+  it('persists the parent post from an answer and reads the saved state after reload', async () => {
+    let saved = false;
+    const fetcher = vi.fn(async (_input: unknown, init?: RequestInit) => {
+      if (init?.method === 'POST') saved = JSON.parse(String(init.body)).bookmarked;
+      return Response.json({ bookmarked: saved });
+    });
+    vi.stubGlobal('fetch', fetcher);
+    const view = render(
+      <AnswerCard
+        answer={answer}
+        depth={0}
+        isPostAuthor={false}
+        currentUser={{ username: 'pedro' }}
+      />
+    );
+    await waitFor(() =>
+      expect(fetcher).toHaveBeenCalledWith('/api/posts/post-1/bookmark', { cache: 'no-store' })
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Responder a este comentário' }));
+    expect(screen.getByRole('textbox', { name: 'Resposta' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Remover dos salvos' })).not.toBeDisabled()
+    );
+    expect(saved).toBe(true);
+    expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'POST')).toHaveLength(1);
+    view.unmount();
     render(
       <AnswerCard
         answer={answer}
@@ -48,10 +84,30 @@ describe('reply action bars', () => {
         currentUser={{ username: 'pedro' }}
       />
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Responder a este comentário' }));
-    expect(screen.getByRole('textbox', { name: 'Resposta' })).toBeInTheDocument();
+    expect(await screen.findByRole('button', { name: 'Remover dos salvos' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+  });
+
+  it('restores the answer bookmark after a failed write and allows retry', async () => {
+    const fetcher = vi.fn(async (_input: unknown, init?: RequestInit) =>
+      init?.method === 'POST'
+        ? Response.json({ message: 'Falha ao salvar.' }, { status: 503 })
+        : Response.json({ bookmarked: false })
+    );
+    vi.stubGlobal('fetch', fetcher);
+    render(
+      <AnswerCard
+        answer={answer}
+        depth={0}
+        isPostAuthor={false}
+        currentUser={{ username: 'pedro' }}
+      />
+    );
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
-    expect(screen.getByRole('button', { name: 'Remover dos salvos' })).toBeInTheDocument();
+    expect(await screen.findByRole('alert')).toHaveTextContent('Falha ao salvar.');
+    expect(screen.getByRole('button', { name: 'Salvar' })).not.toBeDisabled();
   });
 
   it('shows the selected flags and title for comments and nested replies', () => {
