@@ -63,6 +63,8 @@ const metricDetails: Record<ProfileMetric, string> = {
     'Contam seguidores cujas contas foram criadas pelo menos 24 horas antes de seguir você.',
   learningActivities: 'Conclua exercícios diferentes com resultado aprovado.',
   completedTrails: 'Conclua todas as etapas obrigatórias dos quizzes da trilha.',
+  completedTrailPython: 'Conclua todas as etapas da trilha Python do Zero.',
+  completedTrailRust: 'Conclua todas as etapas da trilha Rust do Zero.',
   eventPosts:
     'Durante o evento, publique com a hashtag indicada, título com pelo menos 4 caracteres e texto com pelo menos 40. Conteúdos repetidos contam uma vez.',
   eventComments:

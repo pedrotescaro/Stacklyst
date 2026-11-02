@@ -12,6 +12,7 @@ import {
   normalizeProfilePreferenceAliases,
   profileBasicsSchema,
   getAchievementInstructions,
+  normalizeProfileTitleName,
 } from '../profile-customization';
 describe('Profile customization domain', () => {
   it('accepts the complete default catalog and country flags', () => {
@@ -317,5 +318,28 @@ describe('title instructions match enforced requirements', () => {
         requirement: { metric: 'unrecognized', target: 1 },
       }).isUnavailable
     ).toBe(true);
+  });
+
+  it('provides real instructions and normalization for Pythonista and Rustcean titles', () => {
+    const pythonista = DEFAULT_PROFILE_CATALOG.achievements.find(
+      (item) => item.id === 'pythonista'
+    )!;
+    expect(pythonista).toBeDefined();
+    expect(pythonista.requirement.metric).toBe('completedTrailPython');
+    const pythonInstructions = getAchievementInstructions(pythonista);
+    expect(pythonInstructions.howToObtain).toContain('Python do Zero');
+    expect(pythonInstructions.isUnavailable).toBe(false);
+
+    const rustcean = DEFAULT_PROFILE_CATALOG.achievements.find((item) => item.id === 'rustcean')!;
+    expect(rustcean).toBeDefined();
+    expect(rustcean.requirement.metric).toBe('completedTrailRust');
+    const rustInstructions = getAchievementInstructions(rustcean);
+    expect(rustInstructions.howToObtain).toContain('Rust do Zero');
+    expect(rustInstructions.isUnavailable).toBe(false);
+
+    expect(normalizeProfileTitleName('rustcean', 'Rustacean')).toBe('Rustcean');
+    expect(normalizeProfileTitleName('rustacean', 'Rustacean')).toBe('Rustcean');
+    expect(normalizeProfileTitleName('posts-10', 'Rustacean')).toBe('Rustcean');
+    expect(normalizeProfileTitleName('posts-50', 'Pythonista')).toBe('Pythonista');
   });
 });

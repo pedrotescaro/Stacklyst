@@ -4,6 +4,7 @@ import { requireAuth } from '@/lib/auth';
 import { quizAttemptSchema } from '@/lib/validators';
 import { QuizService } from '@/services/quiz.service';
 import { prisma } from '@/lib/prisma';
+import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
 
 export const POST = apiHandler(async (req, { params }) => {
   const user = await requireAuth();
@@ -29,6 +30,10 @@ export const POST = apiHandler(async (req, { params }) => {
       newLanguageXp: xpResult.newXp,
       newLanguageLevel: xpResult.newLevel,
     };
+  }
+
+  if (isCorrect) {
+    await syncProfileAchievementsSafely(user.id);
   }
 
   return NextResponse.json({

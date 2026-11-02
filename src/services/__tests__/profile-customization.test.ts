@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
   DEFAULT_PROFILE_PREFERENCES,
   DEFAULT_PROFILE_CATALOG,
+  NEW_PROFILE_TITLE_IDS,
   parseProfilePreferences,
 } from '@/lib/profile-customization';
 const mocks = vi.hoisted(() => ({
@@ -51,10 +52,14 @@ import {
 const zero = {
   posts: 0,
   comments: 0,
+  firstDayComments: 0,
   peopleHelped: 0,
   likes: 0,
   followers: 0,
   learningActivities: 0,
+  completedTrails: 0,
+  completedTrailPython: 0,
+  completedTrailRust: 0,
   eventPosts: 0,
   eventComments: 0,
 };
@@ -483,7 +488,7 @@ describe('reference-inspired title grants', () => {
   it('adds the new built-in titles to existing catalogs without replacing customized entries', async () => {
     const catalog = structuredClone(DEFAULT_PROFILE_CATALOG);
     catalog.achievements = catalog.achievements.filter(
-      (item) => !['first-of-month', 'estrela', 'pastel', 'abobora'].includes(item.id)
+      (item) => !NEW_PROFILE_TITLE_IDS.includes(item.id as (typeof NEW_PROFILE_TITLE_IDS)[number])
     );
     catalog.achievements[0].name = 'Meu título inicial';
     mocks.catalog.mockResolvedValue({ value: catalog });
@@ -491,7 +496,7 @@ describe('reference-inspired title grants', () => {
     expect(result.achievements.find((item) => item.id === 'posts-1')?.name).toBe(
       'Meu título inicial'
     );
-    for (const id of ['first-of-month', 'estrela', 'pastel', 'abobora'])
+    for (const id of NEW_PROFILE_TITLE_IDS)
       expect(result.achievements.filter((item) => item.id === id)).toHaveLength(1);
   });
   it('persists Muuuu once and retains it after the qualifying comment is removed', async () => {
@@ -539,5 +544,16 @@ describe('reference-inspired title grants', () => {
         (row: { achievementId: string }) => row.achievementId
       )
     ).toEqual(['pastel']);
+  });
+
+  it('unlocks Pythonista when completing the Python trail and Rustcean when completing the Rust trail', async () => {
+    mocks.metrics.mockResolvedValue([{ ...zero, completedTrailPython: 1, completedTrailRust: 1 }]);
+    await reconcileProfileAchievements('owner');
+    expect(mocks.createAwards).toHaveBeenCalledOnce();
+    const awardedIds = mocks.createAwards.mock.calls[0][0].data.map(
+      (row: { achievementId: string }) => row.achievementId
+    );
+    expect(awardedIds).toContain('pythonista');
+    expect(awardedIds).toContain('rustcean');
   });
 });

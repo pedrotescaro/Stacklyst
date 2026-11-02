@@ -20,6 +20,8 @@ const metricNames: Record<string, string> = {
   firstDayComments: 'Comentários no primeiro dia do mês',
   hashtagPosts: 'Publicações com hashtag',
   completedTrails: 'Trilhas concluídas',
+  completedTrailPython: 'Trilha Python do Zero concluída',
+  completedTrailRust: 'Trilha Rust do Zero concluída',
   peopleHelped: 'Pessoas respondidas',
   likes: 'Curtidas recebidas',
   followers: 'Seguidores',

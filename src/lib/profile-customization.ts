@@ -21,6 +21,8 @@ export const PROFILE_METRICS = [
   'followers',
   'learningActivities',
   'completedTrails',
+  'completedTrailPython',
+  'completedTrailRust',
   'eventPosts',
   'eventComments',
   'eventComplete',
@@ -382,9 +384,21 @@ export interface AchievementInstructionInfo {
 }
 
 export const PROFILE_ACHIEVEMENT_TIME_ZONE = 'America/Sao_Paulo';
-export const NEW_PROFILE_TITLE_IDS = ['first-of-month', 'estrela', 'pastel', 'abobora'] as const;
+export const NEW_PROFILE_TITLE_IDS = [
+  'first-of-month',
+  'estrela',
+  'pastel',
+  'abobora',
+  'pythonista',
+  'rustcean',
+] as const;
 export function normalizeProfileTitleName(id: string, name: string): string {
-  return id === 'first-of-month' && name === 'First of the Month' ? 'Muuuu' : name;
+  if (id === 'first-of-month' && name === 'First of the Month') return 'Muuuu';
+  if ((id === 'rustcean' || id === 'rustacean') && (name === 'Rustacean' || name === 'Rustcean'))
+    return 'Rustcean';
+  if (id === 'posts-50' && name === 'Pythonista') return 'Pythonista';
+  if (id === 'posts-10' && (name === 'Rustacean' || name === 'Rustcean')) return 'Rustcean';
+  return name;
 }
 
 export function getAchievementInstructions(
@@ -419,6 +433,8 @@ export function getAchievementInstructions(
     followers: 'Pessoas que escolheram acompanhar suas próximas ideias.',
     learningActivities: 'Aprender, praticar e demonstrar o que você sabe.',
     completedTrails: 'Uma jornada de aprendizado concluída, etapa por etapa.',
+    completedTrailPython: 'O caminho pitônico percorrido do início ao fim.',
+    completedTrailRust: 'Propriedade, tipos seguros e a forja do compilador dominados.',
     eventPosts: event ? `Uma lembrança de ${event.name}.` : 'Uma celebração da comunidade.',
     eventComments: event
       ? `Conversas que marcaram ${event.name}.`
@@ -472,6 +488,14 @@ export function getAchievementInstructions(
       break;
     case 'completedTrails':
       howToObtain = `Conclua todas as etapas avaliadas de ${amount} ${plural('trilha', 'trilhas')} de aprendizagem. Cada questão, prática e desafio precisa estar registrado como aprovado. Etapas somente de leitura não exigem avaliação.`;
+      break;
+    case 'completedTrailPython':
+      howToObtain =
+        'Conclua todas as etapas avaliadas da trilha Python do Zero. Cada questão, prática e desafio precisa estar registrado como aprovado.';
+      break;
+    case 'completedTrailRust':
+      howToObtain =
+        'Conclua todas as etapas avaliadas da trilha Rust do Zero. Cada questão, prática e desafio precisa estar registrado como aprovado.';
       break;
     case 'eventPosts':
       howToObtain = `Durante ${event?.name || 'o evento'}, publique ${amount} ${plural('postagem', 'postagens')} com a hashtag exata #${event?.hashtag || 'não-configurada'}. ${postRules} ${eventPeriod}`;
@@ -540,11 +564,15 @@ const achievement = (
                 ? 'Conclua uma atividade com sucesso.'
                 : metric === 'completedTrails'
                   ? `Conclua ${target} ${target === 1 ? 'trilha inteira' : 'trilhas inteiras'} de aprendizagem.`
-                  : metric === 'eventPosts'
-                    ? 'Publique com a hashtag do evento durante o período.'
-                    : metric === 'eventComments'
-                      ? `Comente em ${target} publicações diferentes do evento.`
-                      : 'Conclua todos os desafios deste evento.',
+                  : metric === 'completedTrailPython'
+                    ? 'Conclua a trilha Python do Zero.'
+                    : metric === 'completedTrailRust'
+                      ? 'Conclua a trilha Rust do Zero.'
+                      : metric === 'eventPosts'
+                        ? 'Publique com a hashtag do evento durante o período.'
+                        : metric === 'eventComments'
+                          ? `Comente em ${target} publicações diferentes do evento.`
+                          : 'Conclua todos os desafios deste evento.',
   howToObtain,
   flavorText,
   icon:
@@ -769,6 +797,36 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
         'halloween-2026'
       ),
       flavorText: 'Um pouco de Halloween para a sua coleção.',
+    },
+    {
+      ...achievement(
+        'pythonista',
+        'Pythonista',
+        'completedTrailPython',
+        1,
+        'learning',
+        'rare',
+        '#38bdf8'
+      ),
+      description: 'Conclua a trilha Python do Zero.',
+      flavorText: 'O caminho pitônico percorrido do início ao fim.',
+      howToObtain:
+        'Conclua todas as etapas avaliadas da trilha Python do Zero. Cada questão, prática e desafio precisa estar registrado como aprovado.',
+    },
+    {
+      ...achievement(
+        'rustcean',
+        'Rustcean',
+        'completedTrailRust',
+        1,
+        'learning',
+        'rare',
+        '#f97316'
+      ),
+      description: 'Conclua a trilha Rust do Zero.',
+      flavorText: 'Propriedade, tipos seguros e a forja do compilador dominados.',
+      howToObtain:
+        'Conclua todas as etapas avaliadas da trilha Rust do Zero. Cada questão, prática e desafio precisa estar registrado como aprovado.',
     },
   ],
   events: [

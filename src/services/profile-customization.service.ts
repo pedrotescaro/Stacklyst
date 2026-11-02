@@ -147,6 +147,8 @@ export async function profileActivityMetrics(tx: Transaction, userId: string): P
       followers: number;
       learningActivities: number;
       completedTrails: number;
+      completedTrailPython: number;
+      completedTrailRust: number;
     }>
   >`
     WITH normalized_posts AS (
@@ -188,12 +190,42 @@ export async function profileActivityMetrics(tx: Transaction, userId: string): P
           SELECT 1 FROM jsonb_array_elements_text(course->'steps') required_step
           WHERE NOT EXISTS (SELECT 1 FROM "QuizAttempt" attempt WHERE attempt.user_id=${userId}
             AND attempt.quiz_id=required_step.value AND attempt.is_correct=true)
-        )) AS "completedTrails"
+        )) AS "completedTrails",
+      (SELECT CASE WHEN EXISTS (
+        SELECT 1 FROM jsonb_array_elements(${completedTrailRequirements}::jsonb) course
+        WHERE (course->>'id' = 'foundations-python' OR course->>'id' = 'review-python')
+          AND jsonb_array_length(course->'steps') > 0
+          AND NOT EXISTS (
+            SELECT 1 FROM jsonb_array_elements_text(course->'steps') required_step
+            WHERE NOT EXISTS (
+              SELECT 1 FROM "QuizAttempt" attempt
+              WHERE attempt.user_id=${userId}
+                AND attempt.quiz_id=required_step.value
+                AND attempt.is_correct=true
+            )
+          )
+      ) THEN 1 ELSE 0 END)::int AS "completedTrailPython",
+      (SELECT CASE WHEN EXISTS (
+        SELECT 1 FROM jsonb_array_elements(${completedTrailRequirements}::jsonb) course
+        WHERE (course->>'id' = 'foundations-rust' OR course->>'id' = 'review-rust')
+          AND jsonb_array_length(course->'steps') > 0
+          AND NOT EXISTS (
+            SELECT 1 FROM jsonb_array_elements_text(course->'steps') required_step
+            WHERE NOT EXISTS (
+              SELECT 1 FROM "QuizAttempt" attempt
+              WHERE attempt.user_id=${userId}
+                AND attempt.quiz_id=required_step.value
+                AND attempt.is_correct=true
+            )
+          )
+      ) THEN 1 ELSE 0 END)::int AS "completedTrailRust"
   `;
   return {
     ...row,
-    completedTrails: row.completedTrails ?? 0,
-    firstDayComments: row.firstDayComments ?? 0,
+    completedTrails: row?.completedTrails ?? 0,
+    completedTrailPython: row?.completedTrailPython ?? 0,
+    completedTrailRust: row?.completedTrailRust ?? 0,
+    firstDayComments: row?.firstDayComments ?? 0,
     hashtagPosts: 0,
     eventPosts: 0,
     eventComments: 0,
@@ -305,7 +337,7 @@ async function reconcileInTransaction(tx: Transaction, userId: string, catalog: 
     }
     return metric.startsWith('event')
       ? event?.[metric as keyof typeof event] || 0
-      : metrics[metric];
+      : (metrics[metric] ?? 0);
   };
   let earned = await tx.userProfileAchievement.findMany({ where: { userId } });
   const owned = new Set(earned.map((item) => item.achievementId));

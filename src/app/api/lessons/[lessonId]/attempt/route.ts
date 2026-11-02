@@ -5,6 +5,7 @@ import { rateLimit } from '@/lib/ratelimit';
 import { getLessonById } from '@/lib/lessons/registry';
 import { assessLessonStep, lessonAnswerSchema } from '@/lib/learning/assessment';
 import { requireLessonAccess, saveLessonAssessment } from '@/lib/learning/lesson-progress';
+import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
 
 export const POST = apiHandler(async (request, { params, session: user }) => {
   if (!user) throw new UnauthorizedError();
@@ -37,5 +38,8 @@ export const POST = apiHandler(async (request, { params, session: user }) => {
     outcome.isCorrect,
     answer.selectedOption ?? 0
   );
+  if (outcome.isCorrect) {
+    await syncProfileAchievementsSafely(user.id);
+  }
   return NextResponse.json({ ...outcome, ...progress });
 });

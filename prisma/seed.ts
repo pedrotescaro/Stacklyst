@@ -6,6 +6,12 @@ import { prisma } from '../src/lib/prisma';
 import { createClient } from '@supabase/supabase-js';
 import demoAssets from './demo-profile-assets.json';
 import { randomInt } from 'node:crypto';
+import { FOUNDATION_COURSES } from '../src/lib/learning/foundations';
+import {
+  DEFAULT_PROFILE_CATALOG,
+  DEFAULT_PROFILE_PREFERENCES,
+  DEFAULT_CHAT_PREFERENCES,
+} from '../src/lib/profile-customization';
 
 async function main() {
   console.log('🌱 Seeding Stacklyst database...\n');
@@ -114,7 +120,7 @@ async function main() {
       flag: 'BR',
       flags: ['BR'],
       title: {
-        id: 'posts-50',
+        id: 'pythonista',
         name: 'Pythonista',
         color: '#38bdf8',
         rarity: 'rare',
@@ -125,10 +131,10 @@ async function main() {
       flag: 'BR',
       flags: ['BR'],
       title: {
-        id: 'posts-10',
-        name: 'Rustacean',
+        id: 'rustcean',
+        name: 'Rustcean',
         color: '#f97316',
-        rarity: 'uncommon',
+        rarity: 'rare',
         icon: 'code',
       },
     },
@@ -580,6 +586,141 @@ func debugHandler(w http.ResponseWriter, r *http.Request) {
   });
 
   console.log(`  ✅ Quiz Attempts: 2 created`);
+
+  // ─── Trail Completion & Earned Titles ──────────────────────────────────
+  const pythonCourse = FOUNDATION_COURSES.find((c) => c.id === 'foundations-python');
+  if (pythonCourse) {
+    const pythonSteps = pythonCourse.lessons.flatMap((lesson) =>
+      lesson.steps.filter((step) => step.type !== 'concept_explanation')
+    );
+    for (const step of pythonSteps) {
+      await prisma.quiz.upsert({
+        where: { id: step.id },
+        create: {
+          id: step.id,
+          question: step.title || step.id,
+          options: ['Avaliado no servidor'],
+          correct_index: 0,
+          is_daily: false,
+        },
+        update: {},
+      });
+      await prisma.quizAttempt.upsert({
+        where: { user_id_quiz_id: { user_id: ana.id, quiz_id: step.id } },
+        create: {
+          user_id: ana.id,
+          quiz_id: step.id,
+          selected_index: 0,
+          is_correct: true,
+          xp_earned: 10,
+        },
+        update: { is_correct: true },
+      });
+    }
+  }
+
+  const rustCourse = FOUNDATION_COURSES.find((c) => c.id === 'foundations-rust');
+  if (rustCourse) {
+    const rustSteps = rustCourse.lessons.flatMap((lesson) =>
+      lesson.steps.filter((step) => step.type !== 'concept_explanation')
+    );
+    for (const step of rustSteps) {
+      await prisma.quiz.upsert({
+        where: { id: step.id },
+        create: {
+          id: step.id,
+          question: step.title || step.id,
+          options: ['Avaliado no servidor'],
+          correct_index: 0,
+          is_daily: false,
+        },
+        update: {},
+      });
+      await prisma.quizAttempt.upsert({
+        where: { user_id_quiz_id: { user_id: carlos.id, quiz_id: step.id } },
+        create: {
+          user_id: carlos.id,
+          quiz_id: step.id,
+          selected_index: 0,
+          is_correct: true,
+          xp_earned: 10,
+        },
+        update: { is_correct: true },
+      });
+    }
+  }
+
+  const pythonistaDef = DEFAULT_PROFILE_CATALOG.achievements.find((a) => a.id === 'pythonista');
+  if (pythonistaDef) {
+    await prisma.userProfileAchievement.upsert({
+      where: { userId_achievementId: { userId: ana.id, achievementId: 'pythonista' } },
+      create: {
+        userId: ana.id,
+        achievementId: 'pythonista',
+        definition: pythonistaDef,
+        unlockedAt: new Date(),
+      },
+      update: { definition: pythonistaDef },
+    });
+    await prisma.profileCustomization.upsert({
+      where: { userId: ana.id },
+      create: {
+        userId: ana.id,
+        preferences: {
+          ...DEFAULT_PROFILE_PREFERENCES,
+          equippedTitleId: 'pythonista',
+          flag: 'BR',
+          flags: ['BR'],
+        },
+        chat: DEFAULT_CHAT_PREFERENCES,
+      },
+      update: {
+        preferences: {
+          ...DEFAULT_PROFILE_PREFERENCES,
+          equippedTitleId: 'pythonista',
+          flag: 'BR',
+          flags: ['BR'],
+        },
+      },
+    });
+  }
+
+  const rustceanDef = DEFAULT_PROFILE_CATALOG.achievements.find((a) => a.id === 'rustcean');
+  if (rustceanDef) {
+    await prisma.userProfileAchievement.upsert({
+      where: { userId_achievementId: { userId: carlos.id, achievementId: 'rustcean' } },
+      create: {
+        userId: carlos.id,
+        achievementId: 'rustcean',
+        definition: rustceanDef,
+        unlockedAt: new Date(),
+      },
+      update: { definition: rustceanDef },
+    });
+    await prisma.profileCustomization.upsert({
+      where: { userId: carlos.id },
+      create: {
+        userId: carlos.id,
+        preferences: {
+          ...DEFAULT_PROFILE_PREFERENCES,
+          equippedTitleId: 'rustcean',
+          flag: 'BR',
+          flags: ['BR'],
+        },
+        chat: DEFAULT_CHAT_PREFERENCES,
+      },
+      update: {
+        preferences: {
+          ...DEFAULT_PROFILE_PREFERENCES,
+          equippedTitleId: 'rustcean',
+          flag: 'BR',
+          flags: ['BR'],
+        },
+      },
+    });
+  }
+
+  console.log(`  ✅ Trail completions and titles seeded: Pythonista (Ana K), Rustcean (Carlos M)`);
 
   // ─── Duels ────────────────────────────────────────────────────────────
   const duel1 = await prisma.duel.create({
