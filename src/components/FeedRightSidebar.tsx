@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, Sparkles, Swords, ChevronRight, type LucideIcon } from 'lucide-react';
+import { Search, BookOpen, Swords, ChevronRight, type LucideIcon } from 'lucide-react';
 import { FeedEngagementCard } from '@/app/feed/FeedEngagementCard';
 import { WhoToFollow } from '@/components/WhoToFollow';
-import { XPProgressBar } from '@/components/motion/XPProgressBar';
+import { LanguageTrailBar } from '@/components/LanguageTrailBar';
+import { calculateLevel } from '@/lib/learning/rewards';
 import { LanguageTag } from '@/components/LanguageTag';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import styles from './FeedStudies.module.css';
 
 function RailSectionHeading({
   title,
@@ -38,36 +40,6 @@ function RailSectionHeading({
 
 function hasStartedTrail(trail: any) {
   return (trail.level ?? 1) > 1 || (trail.xp ?? 0) > 0;
-}
-
-function formatLangName(lang: string) {
-  const map: Record<string, string> = {
-    TS: 'TypeScript',
-    JS: 'JavaScript',
-    PYTHON: 'Python',
-    RUST: 'Rust',
-    GO: 'Go',
-    CPP: 'C++',
-    JAVA: 'Java',
-    KOTLIN: 'Kotlin',
-    SWIFT: 'Swift',
-  };
-  return map[lang] || lang;
-}
-
-function getLangColor(lang: string) {
-  const map: Record<string, string> = {
-    TS: 'bg-blue-500',
-    JS: 'bg-amber-500',
-    PYTHON: 'bg-emerald-500',
-    RUST: 'bg-blue-500',
-    GO: 'bg-cyan-500',
-    CPP: 'bg-blue-600',
-    JAVA: 'bg-red-500',
-    KOTLIN: 'bg-purple-500',
-    SWIFT: 'bg-blue-600',
-  };
-  return map[lang] || 'bg-slate-500';
 }
 
 interface FeedRightSidebarProps {
@@ -230,70 +202,44 @@ export function FeedRightSidebar({
 
       {user && <WhoToFollow viewerId={user.id} />}
 
-      {/* Language Trail Progress bar */}
-      <section className="space-y-5 rounded-[22px] border-2 border-b-4 border-dd-border bg-dd-sidebar-bg p-5">
-        <RailSectionHeading
-          title={text('Minhas Trilhas', 'My Trails')}
-          description={text('Seu progresso por linguagem', 'Your progress by language')}
-          icon={Sparkles}
-        />
-
+      {/* Study progress uses the same bar as the profile. */}
+      <section className={styles.widget} aria-labelledby="rail-studies-title">
+        <header className={styles.header}>
+          <h3 id="rail-studies-title">
+            <BookOpen size={20} aria-hidden="true" />
+            {text('Meus estudos', 'My studies')}
+          </h3>
+          <p>{text('Seu progresso por linguagem', 'Your progress by language')}</p>
+        </header>
         {startedTrails.length === 0 ? (
-          <p className="rounded-2xl bg-dd-surface p-4 text-xs font-bold text-dd-muted">
-            {text('Nenhuma trilha ativa ainda.', 'No active trails yet.')}
+          <p className={styles.empty}>
+            {text(
+              'Comece uma trilha para acompanhar seus estudos aqui.',
+              'Start a trail to follow your studies here.'
+            )}
           </p>
         ) : (
-          <div className="space-y-2.5">
-            {startedTrails.map((trail: any) => {
-              const nextLevelXp = Math.ceil(trail.level * 1000 * 1.5);
-              const currentLvlBaseXp = Math.ceil((trail.level - 1) * 1000 * 1.5);
-              const relativeXpEarned = Math.max(0, trail.xp - currentLvlBaseXp);
-              const relativeNextLvlXp = nextLevelXp - currentLvlBaseXp;
-              const percent = Math.min(
-                100,
-                Math.floor((relativeXpEarned / relativeNextLvlXp) * 100)
-              );
-
+          <div className={styles.list}>
+            {startedTrails.map((trail: { id?: string; language: string; xp: number }) => {
+              const progress = calculateLevel(trail.xp);
               return (
-                <div
-                  key={trail.id}
-                  className="group space-y-3 rounded-[20px] border-2 border-b-4 border-dd-border bg-dd-surface p-3.5 transition-all hover:-translate-y-0.5 hover:border-blue-500/45"
-                >
-                  <div className="flex items-center gap-3">
-                    <div
-                      aria-hidden="true"
-                      className={cn(
-                        'flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border-b-[4px] border-black/20 text-xs font-black text-white shadow-sm',
-                        getLangColor(trail.language)
-                      )}
-                    >
-                      {formatLangName(trail.language).slice(0, 2).toUpperCase()}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="truncate text-[15px] font-black leading-tight text-dd-text transition-colors group-hover:text-blue-400">
-                          {formatLangName(trail.language)}
-                        </span>
-                        <span className="shrink-0 rounded-xl border-b-[3px] border-blue-700 bg-blue-500 px-2.5 py-1.5 text-[10px] font-black uppercase tracking-wide text-white">
-                          Lvl {trail.level}
-                        </span>
-                      </div>
-                      <div className="mt-1.5 flex items-center justify-between text-[10px] font-black uppercase tracking-wide text-dd-muted">
-                        <span>{trail.xp.toLocaleString()} XP</span>
-                        <span>{percent}%</span>
-                      </div>
-                    </div>
-                  </div>
-                  <XPProgressBar
-                    percent={percent}
-                    colorClass={getLangColor(trail.language)}
-                    level={trail.level}
+                <div key={trail.id || trail.language} className={styles.row}>
+                  <LanguageTrailBar
+                    language={trail.language}
+                    xp={trail.xp}
+                    level={progress.level}
+                    maxXp={progress.nextLevelXp}
+                    compact
                   />
                 </div>
               );
             })}
           </div>
         )}
+        <Link href="/trails" className={styles.continue}>
+          {text('Continuar estudando', 'Continue studying')}
+          <ChevronRight size={16} aria-hidden="true" />
+        </Link>
       </section>
 
       {/* Featured Duels (votar em resoluções) */}

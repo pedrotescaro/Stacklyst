@@ -24,6 +24,7 @@ import { FollowersModal } from '@/components/motion/FollowersModal';
 import { CredentialShowcase } from '@/components/credentials/CredentialCollection';
 import type { CredentialRecord } from '@/lib/credentials/types';
 import { LanguageTrailBar } from '@/components/LanguageTrailBar';
+import { calculateLevel } from '@/lib/learning/rewards';
 import {
   SocialProfileOverview,
   type SocialProfile,
@@ -796,7 +797,7 @@ export function ProfileContent({
                         language={trail.language}
                         xp={trail.xp}
                         level={trail.level}
-                        maxXp={Math.max(500, trail.level * 500)}
+                        maxXp={calculateLevel(trail.xp).nextLevelXp}
                       />
                     ))}
                     {trails.length === 0 && (

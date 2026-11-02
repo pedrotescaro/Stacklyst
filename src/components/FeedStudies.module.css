@@ -1,0 +1,65 @@
+.widget {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 16px;
+  background: var(--color-dd-bg);
+  color: var(--color-dd-text);
+}
+.header {
+  padding: 20px 18px 16px;
+}
+.header h3 {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 18px;
+  font-weight: 750;
+  line-height: 1.4;
+  letter-spacing: -0.015em;
+}
+.header h3 svg {
+  flex-shrink: 0;
+  color: var(--color-dd-accent);
+}
+.header p {
+  margin-top: 7px;
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-dd-muted);
+}
+.list {
+  min-width: 0;
+}
+.row {
+  padding: 16px 18px;
+  border-top: 1px solid var(--color-dd-border);
+}
+.empty {
+  padding: 0 18px 20px;
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--color-dd-muted);
+}
+.continue {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 48px;
+  padding: 12px 18px;
+  border-top: 1px solid var(--color-dd-border);
+  color: color-mix(in srgb, var(--color-dd-accent) 75%, var(--color-dd-text));
+  font-size: 13px;
+  font-weight: 650;
+  text-underline-offset: 3px;
+  transition: background-color 150ms;
+}
+.continue:hover {
+  background: var(--color-dd-surface);
+}
+.continue:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: -4px;
+  border-radius: 8px;
+}

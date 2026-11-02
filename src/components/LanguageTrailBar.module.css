@@ -1,0 +1,41 @@
+.compact {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px 12px;
+  min-width: 0;
+}
+.label {
+  grid-column: 1;
+  grid-row: 1;
+  color: var(--color-dd-text);
+  font-size: 14px;
+  font-weight: 650;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.level {
+  grid-column: 2;
+  grid-row: 1;
+  color: var(--color-dd-muted);
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+.track {
+  grid-column: 1 / -1;
+  grid-row: 2;
+  height: 6px;
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--color-dd-surface);
+}
+.xp {
+  grid-column: 1 / -1;
+  grid-row: 3;
+  color: var(--color-dd-muted);
+  font-size: 12px;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
