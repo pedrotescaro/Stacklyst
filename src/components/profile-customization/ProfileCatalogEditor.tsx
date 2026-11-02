@@ -48,6 +48,8 @@ const icons = [
   'ghost',
   'gift',
   'cake',
+  'sprout',
+  'star',
 ] as const;
 const decorations = [
   'none',

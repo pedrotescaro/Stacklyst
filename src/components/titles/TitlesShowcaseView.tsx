@@ -196,7 +196,7 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
       {equippedTitle && (
         <div className={styles.equippedPreview}>
           <span>No seu perfil</span>
-          <ProfileTitle title={equippedTitle} showIcon={false} className={styles.titlePill} />
+          <ProfileTitle title={equippedTitle} className={styles.titlePill} />
         </div>
       )}
 
@@ -215,7 +215,7 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
                 aria-label={`Título ${achievement.name}`}
               >
                 <div className={styles.itemHeading}>
-                  <ProfileTitle title={achievement} showIcon={false} className={styles.titlePill} />
+                  <ProfileTitle title={achievement} className={styles.titlePill} />
                   {achievement.unlocked && (
                     <div className={styles.equipActions}>
                       {isEquipped && (

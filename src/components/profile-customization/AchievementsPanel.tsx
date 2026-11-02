@@ -13,6 +13,7 @@ import {
   Lock,
   MessageCircle,
   Sparkles,
+  Star,
   Users,
 } from 'lucide-react';
 import type {
@@ -44,6 +45,7 @@ const achievementIcons = {
   ghost: Ghost,
   gift: Gift,
   cake: Cake,
+  star: Star,
 };
 
 const metricDetails: Record<ProfileMetric, string> = {
@@ -132,7 +134,23 @@ export function AchievementsPanel({
                 style={{ color: achievement.color }}
                 aria-hidden="true"
               >
-                {achievement.unlocked ? <Icon size={21} /> : <Lock size={18} />}
+                {achievement.unlocked ? (
+                  achievement.id === 'first-of-month' ? (
+                    <span style={{ fontSize: '20px', lineHeight: 1 }}>🐮</span>
+                  ) : achievement.id === 'abobora' ? (
+                    <span style={{ fontSize: '20px', lineHeight: 1 }}>🎃</span>
+                  ) : achievement.id === 'pastel' ? (
+                    <span style={{ fontSize: '20px', lineHeight: 1 }}>🥟</span>
+                  ) : achievement.id === 'estrela' ? (
+                    <Star size={21} fill="currentColor" />
+                  ) : Icon ? (
+                    <Icon size={21} />
+                  ) : (
+                    <Award size={21} />
+                  )
+                ) : (
+                  <Lock size={18} />
+                )}
               </div>
               <div>
                 <h3 className={styles.achievementTitle}>

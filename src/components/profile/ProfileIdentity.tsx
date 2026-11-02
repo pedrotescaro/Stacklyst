@@ -12,6 +12,7 @@ import {
   Gift,
   Cake,
   Sparkles,
+  Star,
 } from 'lucide-react';
 import { getProfileFlags } from '@/lib/profile-customization';
 import {
@@ -226,6 +227,160 @@ export function ProfileFlag({ code }: { code: string | null | undefined }) {
   ) : null;
 }
 
+const TITLES_WITH_ICONS = new Set([
+  'pythonista',
+  'rustcean',
+  'rustacean',
+  'abobora',
+  'estrela',
+  'first-of-month',
+  'christmas-spirit',
+  'halloween-night',
+  'halloween-spirit',
+  'halloween-legend',
+  'trails-3',
+  'people-5',
+  'posts-1000',
+  'pastel',
+  'birthday-founder',
+]);
+
+const TITLE_NAMES_WITH_ICONS = new Set([
+  'pythonista',
+  'rustcean',
+  'rustacean',
+  'rust',
+  'abóbora',
+  'abobora',
+  'estrela',
+  'muuuu',
+  'mu',
+  'espírito do natal',
+  'espirito do natal',
+  'espírito santo de natal',
+  'espirito santo de natal',
+  'criatura da noite',
+  'espírito de halloween',
+  'espirito de halloween',
+  'lenda assombrada',
+  'maratonista',
+  'mão amiga',
+  'mao amiga',
+  'ícone do stacklyst',
+  'icone do stacklyst',
+  'ícone do stackblitz',
+  'icone do stackblitz',
+  'pastel',
+  'celebração stacklyst',
+  'celebracao stacklyst',
+  'celebrações stackblitz',
+  'celebracoes stackblitz',
+]);
+
+export function shouldShowTitleIcon(title: { id?: string; name?: string }): boolean {
+  const id = title.id?.toLowerCase() || '';
+  const name = title.name?.trim().toLowerCase() || '';
+  return TITLES_WITH_ICONS.has(id) || TITLE_NAMES_WITH_ICONS.has(name);
+}
+
+export function renderTitleIcon(title: { id?: string; name?: string; icon?: string }) {
+  const id = title.id?.toLowerCase() || '';
+  const name = title.name?.trim().toLowerCase() || '';
+
+  // 1. Muuuu / Mu -> Cow emoji
+  if (id === 'first-of-month' || name === 'muuuu' || name === 'mu') {
+    return (
+      <span className={styles.titleEmoji} role="img" aria-label="vaca" aria-hidden="true">
+        🐮
+      </span>
+    );
+  }
+
+  // 2. Estrela -> Real Star icon
+  if (id === 'estrela' || name === 'estrela') {
+    return <Star size={13} fill="currentColor" aria-hidden="true" />;
+  }
+
+  // 3. Abóbora -> Pumpkin emoji
+  if (id === 'abobora' || name === 'abóbora' || name === 'abobora') {
+    return (
+      <span className={styles.titleEmoji} role="img" aria-label="abóbora" aria-hidden="true">
+        🎃
+      </span>
+    );
+  }
+
+  // 4. Pastel -> Pastel emoji
+  if (id === 'pastel' || name === 'pastel') {
+    return (
+      <span className={styles.titleEmoji} role="img" aria-label="pastel" aria-hidden="true">
+        🥟
+      </span>
+    );
+  }
+
+  // 5. Pythonista -> Code2
+  if (id === 'pythonista' || name === 'pythonista') {
+    return <Code2 size={13} aria-hidden="true" />;
+  }
+
+  // 6. Rustcean -> Code2
+  if (
+    id === 'rustcean' ||
+    id === 'rustacean' ||
+    name === 'rustcean' ||
+    name === 'rustacean' ||
+    name === 'rust'
+  ) {
+    return <Code2 size={13} aria-hidden="true" />;
+  }
+
+  // 7. Espírito do Natal / Espírito Santo de Natal -> Gift
+  if (id === 'christmas-spirit' || name.includes('natal')) {
+    return <Gift size={13} aria-hidden="true" />;
+  }
+
+  // 8. Criatura da Noite, Espírito de Halloween, Lenda Assombrada -> Ghost
+  if (
+    id.startsWith('halloween-') ||
+    name.includes('halloween') ||
+    name.includes('noite') ||
+    name.includes('assombrada')
+  ) {
+    return <Ghost size={13} aria-hidden="true" />;
+  }
+
+  // 9. Maratonista -> Award
+  if (id === 'trails-3' || name === 'maratonista') {
+    return <Award size={13} aria-hidden="true" />;
+  }
+
+  // 10. Mão Amiga -> Heart
+  if (id === 'people-5' || name.includes('amiga')) {
+    return <Heart size={13} aria-hidden="true" />;
+  }
+
+  // 11. Celebração Stacklyst / StackBlitz -> Cake
+  if (id === 'birthday-founder' || name.includes('celebra')) {
+    return <Cake size={13} aria-hidden="true" />;
+  }
+
+  // 12. Ícone do Stacklyst / StackBlitz -> Award
+  if (id === 'posts-1000' || name.includes('stacklyst') || name.includes('stackblitz')) {
+    return <Award size={13} aria-hidden="true" />;
+  }
+
+  // Fallback by icon property if title qualifies
+  if (title.icon === 'ghost') return <Ghost size={13} aria-hidden="true" />;
+  if (title.icon === 'gift') return <Gift size={13} aria-hidden="true" />;
+  if (title.icon === 'cake') return <Cake size={13} aria-hidden="true" />;
+  if (title.icon === 'code') return <Code2 size={13} aria-hidden="true" />;
+  if (title.icon === 'heart') return <Heart size={13} aria-hidden="true" />;
+  if (title.icon === 'star') return <Star size={13} fill="currentColor" aria-hidden="true" />;
+  if (title.icon === 'sparkles') return <Sparkles size={13} aria-hidden="true" />;
+  return <Award size={13} aria-hidden="true" />;
+}
+
 export function ProfileTitle({
   title,
   showIcon = true,
@@ -238,29 +393,17 @@ export function ProfileTitle({
   if (!title) return null;
   const foreground = foregroundOn(title.color);
   const textColor = contrastRatio(foreground, title.color) >= 4.5 ? foreground : '#000000';
-  const isBeginner = title.id === 'posts-1' || title.name.trim().toLowerCase() === 'iniciante';
-  const Icon =
-    (
-      {
-        sprout: Sprout,
-        code: Code2,
-        ghost: Ghost,
-        heart: Heart,
-        message: MessageCircle,
-        users: Users,
-        gift: Gift,
-        cake: Cake,
-        sparkles: Sparkles,
-      } as Record<string, typeof Award>
-    )[title.icon || (title.id === 'posts-1' ? 'sprout' : 'award')] || Award;
+  const hasIcon = showIcon && shouldShowTitleIcon(title);
+  const iconElement = hasIcon ? renderTitleIcon(title) : null;
+
   return (
     <span
       className={[styles.title, className].filter(Boolean).join(' ')}
       data-rarity={title.rarity}
       style={{ backgroundColor: title.color, color: textColor }}
     >
-      {showIcon && !isBeginner && <Icon size={13} aria-hidden="true" />}
-      {title.name}
+      <span>{title.name}</span>
+      {iconElement}
     </span>
   );
 }

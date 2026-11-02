@@ -179,6 +179,14 @@
 .title > svg {
   flex-shrink: 0;
 }
+.titleEmoji {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  line-height: 1;
+  flex-shrink: 0;
+}
 
 @keyframes orbitSpin {
   to {

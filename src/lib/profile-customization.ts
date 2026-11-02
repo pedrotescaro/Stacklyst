@@ -258,6 +258,7 @@ export const achievementDefinitionSchema = z
       'gift',
       'cake',
       'sprout',
+      'star',
     ]),
     category: z.enum(['posts', 'comments', 'community', 'learning', 'event']),
     rarity: z.enum(PROFILE_RARITIES),
@@ -668,15 +669,18 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
         colors[rarity]
       )
     ),
-    achievement(
-      'people-5',
-      'Mão amiga',
-      'peopleHelped',
-      5,
-      'community',
-      'uncommon',
-      colors.uncommon
-    ),
+    {
+      ...achievement(
+        'people-5',
+        'Mão amiga',
+        'peopleHelped',
+        5,
+        'community',
+        'uncommon',
+        colors.uncommon
+      ),
+      icon: 'heart',
+    },
     achievement(
       'people-10',
       'Conecta pessoas',
@@ -739,26 +743,32 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
       '#f97316',
       'halloween-2026'
     ),
-    achievement(
-      'christmas-spirit',
-      'Espírito do Natal',
-      'eventPosts',
-      1,
-      'event',
-      'special',
-      '#ef4444',
-      'christmas-2026'
-    ),
-    achievement(
-      'birthday-founder',
-      'Celebração Stacklyst',
-      'eventPosts',
-      1,
-      'event',
-      'special',
-      '#0083fe',
-      'birthday-template'
-    ),
+    {
+      ...achievement(
+        'christmas-spirit',
+        'Espírito do Natal',
+        'eventPosts',
+        1,
+        'event',
+        'special',
+        '#ef4444',
+        'christmas-2026'
+      ),
+      icon: 'gift',
+    },
+    {
+      ...achievement(
+        'birthday-founder',
+        'Celebração Stacklyst',
+        'eventPosts',
+        1,
+        'event',
+        'special',
+        '#0083fe',
+        'birthday-template'
+      ),
+      icon: 'cake',
+    },
     {
       ...achievement(
         'first-of-month',
@@ -778,6 +788,7 @@ export const DEFAULT_PROFILE_CATALOG: ProfileCatalog = {
       description: 'Publique uma postagem original com a hashtag #estrela.',
       flavorText: 'Uma ideia que encontrou seu lugar no feed.',
       requirement: { metric: 'hashtagPosts', target: 1, hashtag: 'estrela' },
+      icon: 'star',
     },
     {
       ...achievement('pastel', 'Pastel', 'hashtagPosts', 1, 'posts', 'special', '#f3d663'),
