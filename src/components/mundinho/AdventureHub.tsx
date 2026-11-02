@@ -1279,7 +1279,7 @@ export function AdventureHub({
               <div
                 className={`ad-arena-scene combat-${combatPhase}`}
                 style={{
-                  backgroundImage: `url(${adventureAsset('forest-v2.png', assetBase)})`,
+                  backgroundImage: `url(${adventureAsset('battle-background.png', assetBase)})`,
                 }}
               >
                 {/* Enemy Combatant */}

@@ -157,6 +157,9 @@ export type PublicQuestion = {
     tiles: CodeTile[];
     start: number;
     language: BattleLanguage;
+    level?: number;
+    requiredStructures?: ('conditional' | 'loop')[];
+    hint?: string;
   };
 };
 export type CodeRun = { passed: boolean; trace: string[]; error?: string };

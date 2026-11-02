@@ -240,6 +240,39 @@ describe('Server encounter rules', () => {
     });
     expect(second.battle?.question?.id).not.toBe(first.battle?.question?.id);
   });
+  it.each([
+    ['blue-slime', 2],
+    ['null-ghost', 3],
+  ] as const)(
+    'assigns the learning tier of %s on the server and refuses plain sequences',
+    async (creature, level) => {
+      db.tx.user.findUniqueOrThrow.mockResolvedValue({ username: 'user', total_xp: 2000 });
+      await adventure('user', { type: 'battle-start', language: 'TS', creature });
+      const selected = await adventure('user', {
+        type: 'battle-skill',
+        battle: 'battle',
+        turn: 0,
+        skill: 'strike',
+      });
+      expect(selected.battle?.question?.id).toMatch(new RegExp(`^code-l${level}-`));
+      expect(selected.battle?.question?.code?.requiredStructures).toEqual(
+        level === 2 ? ['conditional'] : ['conditional', 'loop']
+      );
+      const result = await adventure('user', {
+        type: 'battle-code',
+        battle: 'battle',
+        turn: 0,
+        question: selected.battle!.question!.id,
+        code: 'mundo.andar_direita();',
+        submit: false,
+      });
+      expect(result.codeRun?.passed).toBe(false);
+      expect(result.codeRun?.error).toContain('if e else');
+      expect(db.execute).not.toHaveBeenCalled();
+      expect(result.battle?.turn).toBe(0);
+      expect(result.battle?.hp).toBe(100);
+    }
+  );
   it('keeps active legacy multiple-choice turns answerable', async () => {
     const question = QUESTIONS.find((q) => q.language === 'JS')!;
     await adventure('user', { type: 'battle-start', language: 'JS', creature: 'syntax-slime' });

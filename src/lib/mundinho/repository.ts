@@ -24,6 +24,7 @@ import {
   evaluateTrace,
 } from './codeChallenges';
 import { executeCode } from '@/lib/code-execution/server';
+import { instrumentChallengeSource } from './codeChallengeStructures';
 import type { CodeRun } from './types';
 import { OUTFIT_SPECS } from './avatar-palettes';
 
@@ -182,13 +183,22 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
     const challenge = codeChallenge(battle.language as BattleLanguage, battle.questionId!);
     if (!challenge || challenge.id !== battle.questionId)
       fail('Este turno não é um desafio de código.');
-    const execution = await executeCode(
-      challengeProgram(battle.language as BattleLanguage, action.code),
-      challengeExecutionLanguage(battle.language as BattleLanguage)
+    const prepared = instrumentChallengeSource(
+      battle.language as BattleLanguage,
+      action.code,
+      challenge
     );
-    if (!execution.ok)
-      fail(execution.error ?? 'Não foi possível executar o código. Tente novamente.');
-    codeRun = evaluateTrace(execution.output, challenge);
+    if (prepared.error) {
+      codeRun = { passed: false, trace: [], error: prepared.error };
+    } else {
+      const execution = await executeCode(
+        challengeProgram(battle.language as BattleLanguage, prepared.source, challenge),
+        challengeExecutionLanguage(battle.language as BattleLanguage)
+      );
+      if (!execution.ok)
+        fail(execution.error ?? 'Não foi possível executar o código. Tente novamente.');
+      codeRun = evaluateTrace(execution.output, challenge);
+    }
   }
   return prisma.$transaction(
     async (tx) => {
@@ -328,14 +338,17 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
           if (a.type === 'battle-skill') {
             if (!b.questionId) {
               const used = b.used as string[];
-              const challenges = codeChallenges(b.language as BattleLanguage);
+              const creature = CREATURES.find((entry) => entry.id === b.creature);
+              const challenges = codeChallenges(b.language as BattleLanguage, creature?.level ?? 1);
               if (!challenges.length) fail('Não há desafios para esta linguagem.');
               const pool = challenges.filter((q) => !used.includes(q.id));
               const available = pool.length ? pool : challenges;
               // Include recent battles so a new encounter does not immediately repeat a challenge.
               // IDs share a scenario slug across languages; a language switch should not reset history.
               const scenario = (id: string) =>
-                id.replace(/-(PYTHON|JS|TS|RUST|GO|JAVA|HTML|CSS)$/, '');
+                id
+                  .replace(/^code-l[23]-/, 'code-')
+                  .replace(/-(PYTHON|JS|TS|RUST|GO|JAVA|HTML|CSS)$/, '');
               const history = await tx.rpgBattle.findMany({
                 where: { userId, id: { not: b.id } },
                 orderBy: { createdAt: 'desc' },

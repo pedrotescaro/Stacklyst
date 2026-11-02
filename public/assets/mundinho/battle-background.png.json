@@ -1,0 +1,10 @@
+{
+  "origin": "Original pixel artwork authored in scripts/build-mundinho-battle-background.mjs, using the handheld battle composition supplied by the project owner. Exported from editable layered battle-background.ase by LibreSprite 1.3.",
+  "width": 480,
+  "height": 200,
+  "layers": [
+    "Pale battlefield",
+    "Horizontal pixel bands",
+    "Enemy and player stages"
+  ]
+}

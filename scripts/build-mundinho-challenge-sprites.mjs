@@ -3,23 +3,9 @@ import { execFileSync } from 'node:child_process';
 import sharp from 'sharp';
 import { canvas, aseDocument } from './lib/mundinho-pixel-art.mjs';
 
-const names = [
-  'Caminho',
-  'Cristal',
-  'Flor',
-  'Lanterna',
-  'Alavanca',
-  'Rocha',
-  'Baú',
-  'Canteiro',
-  'Bichinho',
-  'Máquina',
-  'Gaiola',
-  'Fruto',
-  'Muda',
-  'Altar',
-  'Concluído',
-];
+const names = JSON.parse(
+  await fs.readFile(new URL('../src/lib/mundinho/challenge-sprites.json', import.meta.url), 'utf8')
+);
 const frames = names.map((name) => {
   const c = canvas(24, 24),
     ink = '#293c38';
@@ -42,6 +28,43 @@ const frames = names.map((name) => {
       [15, 19],
     ])
       r(x, y, 3, 1, '#e1c795');
+  } else if (name === 'Caminho curto') {
+    c.polygon(
+      [
+        [8, 3],
+        [16, 3],
+        [19, 22],
+        [5, 22],
+      ],
+      '#bd9f71'
+    );
+    r(8, 10, 9, 5, '#796b54');
+    r(8, 9, 9, 4, '#dfc99e');
+    r(9, 9, 6, 1, '#f3e3bd');
+    r(10, 4, 2, 3, '#856b4e');
+    r(13, 17, 2, 3, '#856b4e');
+  } else if (name === 'Caminho longo') {
+    c.polygon(
+      [
+        [3, 4],
+        [12, 3],
+        [14, 10],
+        [21, 15],
+        [22, 22],
+        [13, 22],
+        [12, 16],
+        [5, 12],
+      ],
+      '#bd9f71'
+    );
+    r(3, 7, 9, 5, '#796b54');
+    r(3, 6, 9, 4, '#dfc99e');
+    r(4, 6, 6, 1, '#f3e3bd');
+    r(13, 17, 9, 5, '#796b54');
+    r(13, 16, 9, 4, '#dfc99e');
+    r(14, 16, 6, 1, '#f3e3bd');
+    r(10, 12, 2, 3, '#856b4e');
+    r(14, 11, 2, 3, '#856b4e');
   } else if (name === 'Cristal') {
     c.polygon(
       [
@@ -215,7 +238,7 @@ execFileSync(process.env.LIBRESPRITE_BIN || 'C:/Program Files/LibreSprite/libres
   '--sheet',
   'public/assets/mundinho/challenge-objects.png',
   '--sheet-width',
-  '360',
+  String(names.length * 24),
   '--data',
   `${source}/objects.json`,
   '--format',
@@ -238,7 +261,7 @@ await fs.writeFile(
   ) + '\n'
 );
 await sharp('public/assets/mundinho/challenge-objects.png')
-  .resize(1080, 72, { kernel: 'nearest' })
+  .resize(names.length * 72, 72, { kernel: 'nearest' })
   .png()
   .toFile(`${source}/review.png`);
-console.log('LibreSprite exported 15 original challenge object sprites.');
+console.log(`LibreSprite exported ${names.length} original challenge object sprites.`);

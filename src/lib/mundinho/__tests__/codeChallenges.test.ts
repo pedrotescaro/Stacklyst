@@ -13,6 +13,8 @@ import { spawnSync } from 'node:child_process';
 import { mkdtempSync, readdirSync, rmdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { instrumentChallengeSource } from '../codeChallengeStructures';
+import { challengeSolution } from './codeChallengeSolutions';
 
 function solve(question: PublicQuestion) {
   const board = question.code!;
@@ -151,5 +153,151 @@ describe('Desafios de código do Mundinho', () => {
       expect(challengeExecutionLanguage(language)).toBe('JS');
       expect(codeChallenges(language)[0].code!.language).toBe('JS');
     }
+  });
+
+  it.each(languages)(
+    'selects stable level-specific requirements and preserves old ids in %s',
+    (language) => {
+      const basic = codeChallenges(language);
+      for (const level of [2, 3]) {
+        const questions = codeChallenges(language, level);
+        expect(questions).toHaveLength(basic.length);
+        expect(questions[0].code!.level).toBe(level);
+        expect(questions[0].code!.requiredStructures).toEqual(
+          level === 2 ? ['conditional'] : ['conditional', 'loop']
+        );
+        expect(questions[0].code!.commands).toContain('mundo.precisa_coletar()');
+        expect(questions[0].code!.hint).toBeTruthy();
+        for (const question of questions) {
+          expect(codeChallenge(language, question.id)).toEqual(question);
+          expect(evaluateTrace(solve(question).join('\n'), question).passed).toBe(false);
+        }
+        expect(codeChallenge(language, undefined, level)).toEqual(questions[0]);
+        expect(codeChallenge(language, basic[0].id, level)).toEqual(basic[0]);
+      }
+      if (language !== 'HTML' && language !== 'CSS') {
+        const legacy = codeChallenge(language, `code-crystals-${language}`, 3)!;
+        expect(legacy.code!.requiredStructures).toEqual([]);
+        expect(evaluateTrace(solve(legacy).join('\n'), legacy).passed).toBe(true);
+      }
+    }
+  );
+
+  it.each(['JS', 'TS', 'HTML', 'CSS'] as const)(
+    'executes level-two and level-three solutions with real board sensors in %s',
+    async (language) => {
+      for (const level of [2, 3]) {
+        for (const slug of ['cristais', 'ponte', 'expedicao', 'trilha-invertida']) {
+          const question = codeChallenges(language, level).find((entry) =>
+            entry.id.includes(`-${slug}-`)
+          )!;
+          const prepared = instrumentChallengeSource(
+            language,
+            challengeSolution(question, language),
+            question
+          );
+          expect(prepared.error, question.id).toBeUndefined();
+          const execution = await executeCode(
+            challengeProgram(language, prepared.source, question),
+            challengeExecutionLanguage(language)
+          );
+          expect(execution.ok, execution.error).toBe(true);
+          const result = evaluateTrace(execution.output, question);
+          expect(result.passed, `${question.id}: ${result.error}`).toBe(true);
+          expect(result.trace.some((line) => line.startsWith('__mundinho'))).toBe(false);
+        }
+      }
+    },
+    60000
+  );
+
+  it.skipIf(spawnSync('python', ['--version']).status !== 0)(
+    'runs both advanced tiers with real Python sensors',
+    () => {
+      for (const level of [2, 3]) {
+        for (const question of codeChallenges('PYTHON', level)) {
+          const prepared = instrumentChallengeSource(
+            'PYTHON',
+            challengeSolution(question, 'PYTHON'),
+            question
+          );
+          expect(prepared.error, question.id).toBeUndefined();
+          const run = spawnSync(
+            'python',
+            ['-c', challengeProgram('PYTHON', prepared.source, question)],
+            { encoding: 'utf8' }
+          );
+          expect(run.status, `${question.id}: ${run.stderr}`).toBe(0);
+          const result = evaluateTrace(run.stdout, question);
+          expect(result.passed, `${question.id}: ${result.error}`).toBe(true);
+        }
+      }
+    },
+    60000
+  );
+
+  it.skipIf(spawnSync('rustc', ['--version']).status !== 0)(
+    'compiles both advanced tiers with real Rust sensors',
+    () => {
+      const directory = mkdtempSync(join(tmpdir(), 'mundinho-rust-structures-'));
+      try {
+        for (const level of [2, 3]) {
+          const question = codeChallenges('RUST', level).find((entry) =>
+            entry.id.includes('-expedicao-')
+          )!;
+          const prepared = instrumentChallengeSource(
+            'RUST',
+            challengeSolution(question, 'RUST'),
+            question
+          );
+          expect(prepared.error).toBeUndefined();
+          const input = join(directory, 'main.rs');
+          const output = join(directory, process.platform === 'win32' ? 'main.exe' : 'main');
+          writeFileSync(input, challengeProgram('RUST', prepared.source, question));
+          const compiled = spawnSync('rustc', [input, '-o', output], { encoding: 'utf8' });
+          expect(compiled.status, compiled.stderr).toBe(0);
+          const run = spawnSync(output, [], { encoding: 'utf8' });
+          expect(run.status, run.stderr).toBe(0);
+          expect(evaluateTrace(run.stdout, question).passed).toBe(true);
+        }
+      } finally {
+        for (const entry of readdirSync(directory)) rmSync(join(directory, entry), { force: true });
+        rmdirSync(directory);
+      }
+    },
+    30000
+  );
+
+  it('requires a reached condition and repeated loop actions instead of inert syntax', () => {
+    const question = codeChallenges('JS', 3)[0];
+    const solution = source(solve(question), 'JS');
+    const inert = `if (false) { if (mundo.tem_objeto()) { mundo.coletar(); } else { mundo.andar_direita(); } while (false) { mundo.andar_direita(); } }\n${solution}`;
+    const prepared = instrumentChallengeSource('JS', inert, question);
+    expect(prepared.error).toBeUndefined();
+    return executeCode(challengeProgram('JS', prepared.source, question), 'JS').then(
+      (execution) => {
+        expect(execution.ok).toBe(true);
+        expect(evaluateTrace(execution.output, question).passed).toBe(false);
+        expect(
+          evaluateTrace(
+            `__mundinho_condicional__\n__mundinho_laco__\n__mundinho_laco__\n${solve(question).join('\n')}`,
+            question
+          ).passed
+        ).toBe(false);
+      }
+    );
+  });
+  it('does not count two different one-iteration loops as a repeated loop', async () => {
+    const question = codeChallenges('JS', 3)[0];
+    const source = `if (mundo.tem_objeto()) { mundo.coletar(); } else {}
+for (let i = 0; i < 1; i++) { mundo.andar_direita(); mundo.coletar(); }
+for (let i = 0; i < 1; i++) { mundo.andar_direita(); mundo.coletar(); mundo.andar_direita(); mundo.coletar(); }`;
+    const prepared = instrumentChallengeSource('JS', source, question);
+    expect(prepared.error).toBeUndefined();
+    const execution = await executeCode(challengeProgram('JS', prepared.source, question), 'JS');
+    expect(execution.ok).toBe(true);
+    const result = evaluateTrace(execution.output, question);
+    expect(result.passed).toBe(false);
+    expect(result.error).toContain('pelo menos duas iterações');
   });
 });

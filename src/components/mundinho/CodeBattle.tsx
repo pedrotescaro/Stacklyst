@@ -9,25 +9,9 @@ import type {
   PublicQuestion,
 } from '../../lib/mundinho/types';
 import { replayTrace } from '../../lib/mundinho/codeChallenges';
+import { codePathInfo } from '../../lib/mundinho/code-paths';
+import OBJECT_SPRITES from '../../lib/mundinho/challenge-sprites.json';
 import { PixelAvatar } from './PixelArt';
-
-const OBJECT_SPRITES = [
-  'Caminho',
-  'Cristal',
-  'Flor',
-  'Lanterna',
-  'Alavanca',
-  'Rocha',
-  'Baú',
-  'Canteiro',
-  'Bichinho',
-  'Máquina',
-  'Gaiola',
-  'Fruto',
-  'Muda',
-  'Altar',
-  'Concluído',
-];
 
 export function CodeBattle({
   question,
@@ -82,6 +66,17 @@ export function CodeBattle({
     <section className="ad-code-challenge" aria-label="Desafio de código da batalha">
       <h3>{challenge.title}</h3>
       <p>{question.prompt}</p>
+      {!!challenge.requiredStructures?.length && (
+        <p className="ad-code-learning-hint">
+          <strong>
+            Nível {challenge.level}:{' '}
+            {challenge.requiredStructures.includes('loop')
+              ? 'condições e repetição'
+              : 'decisões com if e else'}
+          </strong>
+          {challenge.hint}
+        </p>
+      )}
       {(battleLanguage === 'HTML' || battleLanguage === 'CSS') && (
         <p className="ad-code-language">Este desafio usa JavaScript para controlar o mundo.</p>
       )}
@@ -94,18 +89,26 @@ export function CodeBattle({
         <div
           className="ad-code-board"
           role="img"
-          aria-label={`Personagem na casa ${position + 1} de ${challenge.tiles.length}. ${completed.length} de ${challenge.target} objetivos concluídos. ${challenge.tiles.map((tile, index) => `Casa ${index + 1}: ${tile.label}${completed.includes(index) ? ' (concluído)' : ''}`).join('. ')}.`}
+          aria-label={`Personagem na casa ${position + 1} de ${challenge.tiles.length}. ${completed.length} de ${challenge.target} objetivos concluídos. ${challenge.tiles
+            .map((tile, index) => {
+              const path = codePathInfo(question, index);
+              return `Casa ${index + 1}: ${path ? `Caminho ${path.kind === 'long' ? 'longo' : 'curto'}, trecho de ${path.steps} ${path.steps === 1 ? 'passo' : 'passos'}` : tile.label}${completed.includes(index) ? ' (concluído)' : ''}`;
+            })
+            .join('. ')}.`}
           style={{
             gridTemplateColumns: `repeat(${challenge.tiles.length}, var(--code-tile-width))`,
           }}
         >
           {challenge.tiles.map((tile, index) => {
             const done = completed.includes(index);
-            const sprite = OBJECT_SPRITES.indexOf(done ? 'Concluído' : tile.label);
+            const path = codePathInfo(question, index);
+            const label = path ? `Caminho ${path.kind === 'long' ? 'longo' : 'curto'}` : tile.label;
+            const sprite = OBJECT_SPRITES.indexOf(done ? 'Concluído' : label);
             return (
               <div
                 key={index}
                 data-player={position === index ? '' : undefined}
+                data-path={path?.kind}
                 className={`ad-code-tile${done ? ' is-complete' : ''}`}
               >
                 <span
@@ -115,17 +118,27 @@ export function CodeBattle({
                   style={{
                     backgroundImage: `url(${adventureAsset('challenge-objects.png', '/assets/mundinho')})`,
                     backgroundPositionX: `${(Math.max(0, sprite) / (OBJECT_SPRITES.length - 1)) * 100}%`,
+                    backgroundSize: `${OBJECT_SPRITES.length * 100}% 100%`,
                   }}
                 />
                 {position === index && <PixelAvatar avatar={avatar} direction="right" />}
-                <span className="ad-code-tile-label" aria-hidden="true">
-                  {tile.label}
+                <span className="ad-code-tile-label" aria-hidden="true" title={label}>
+                  {path ? (path.kind === 'long' ? 'Longo' : 'Curto') : label}
+                  {path && (
+                    <small>
+                      {path.steps} {path.steps === 1 ? 'passo' : 'passos'}
+                    </small>
+                  )}
                 </span>
               </div>
             );
           })}
         </div>
       </div>
+      <p className="ad-code-path-hint">
+        Cada comando de andar avança uma casa. Uma pedra indica trecho curto; duas, trecho longo. Os
+        passos indicados são entre objetivos.
+      </p>
       {challenge.tiles.length > 4 && (
         <p className="ad-code-scroll-hint">Deslize para ver todo o caminho.</p>
       )}

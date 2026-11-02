@@ -39,9 +39,9 @@
   overscroll-behavior: contain;
   background: #000;
   color: #fff;
-  border-top: 2px solid #b7b3a9;
+  border-top: 2px solid #fff;
   font-family: var(--rpg-font);
-  scrollbar-color: #8c887f #000;
+  scrollbar-color: #a3a3a3 #000;
 }
 .world-dialogue-panel.has-portrait {
   grid-template-columns: 192px minmax(0, 1fr);
@@ -58,7 +58,7 @@
   margin: 0 0 10px;
   font: 700 22px/1.15 var(--rpg-font);
   overflow-wrap: anywhere;
-  color: #ffe2a4;
+  color: #fff;
 }
 .world-dialogue-panel p {
   margin: 0;
@@ -82,13 +82,13 @@
   padding: 8px 4px;
   border: 0;
   background: #000;
-  color: #e1ddd3;
+  color: #e5e5e5;
   text-align: left;
   font-size: 16px;
   line-height: 1.25;
 }
 .world-dialogue-actions button:is(:focus-visible, :hover) {
-  color: #ffe2a4;
+  color: #fff;
 }
 .dialogue-choice-pointer {
   width: 8px;
@@ -115,7 +115,7 @@
 }
 .world-dialogue-panel button:focus-visible,
 .ad-gender-picker label:focus-within {
-  outline: 2px solid #ffe2a4;
+  outline: 2px solid #fff;
   outline-offset: 2px;
 }
 .world-dialogue-panel .world-dialogue-close {
@@ -159,7 +159,7 @@
   gap: 24px;
   padding: 16px 24px 0;
   background: #000;
-  border: 1px solid #77736b;
+  border: 1px solid #fff;
   color: #fff;
 }
 .ad-portrait-editor > div {
@@ -179,7 +179,7 @@
   margin: 0 0 12px;
   font-size: 14px;
   line-height: 1.5;
-  color: #ddd8ce;
+  color: #d4d4d4;
 }
 .ad-gender-picker {
   display: flex;
@@ -202,7 +202,7 @@
   cursor: pointer;
 }
 .ad-gender-picker input {
-  accent-color: #ffe2a4;
+  accent-color: #fff;
   width: 18px;
   height: 18px;
 }
@@ -1470,7 +1470,7 @@
   right: 6px;
   background: none;
   border: 0;
-  color: #73543b;
+  color: #fff;
 }
 
 /* Guide Modal */
@@ -2965,14 +2965,14 @@
   display: grid;
   place-items: start center;
   min-width: 0;
-  min-height: 88px;
-  padding: 8px 4px 24px;
+  min-height: 104px;
+  padding: 8px 4px 36px;
   background: #48734b;
   border-bottom: 4px solid #28472d;
 }
 .ad-code-tile .sprite-avatar {
   position: absolute;
-  bottom: 12px;
+  bottom: 28px;
   left: 0;
   width: 40px;
 }
@@ -2996,6 +2996,29 @@
   text-align: center;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.ad-code-tile-label small {
+  display: block;
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 400;
+}
+.ad-code-challenge .ad-code-path-hint {
+  max-width: 70ch;
+  color: var(--ad-muted);
+  font-size: 12px;
+}
+.ad-code-challenge .ad-code-learning-hint {
+  padding: 12px 0;
+  border-block: 1px solid #ffffff40;
+  color: #e5e5e5;
+  font-size: 14px;
+}
+.ad-code-learning-hint strong {
+  display: block;
+  margin-bottom: 4px;
+  color: #fff;
+  font-weight: 700;
 }
 .ad-code-language {
   font-size: 14px;
@@ -3124,28 +3147,56 @@
   min-height: 0;
 }
 .adventure-battle .ad-arena-scene {
-  flex: 0 0 clamp(190px, 34%, 330px);
+  flex: 0 0 clamp(230px, 38%, 330px);
   height: auto;
-  min-height: 190px;
+  min-height: 230px;
+  padding: 0;
+  background-size: 100% 100%;
+  background-color: #f4f7f5;
+  image-rendering: pixelated;
+}
+.adventure-battle .ad-arena-scene::after {
+  content: none;
 }
 .adventure-battle .ad-combatant {
-  gap: 8px;
+  display: block;
+  inset: 0;
+  margin: 0;
+  pointer-events: none;
+}
+.adventure-battle .ad-combatant::after {
+  content: none;
 }
 .adventure-battle .ad-combatant-card {
+  position: absolute;
   min-width: 174px;
+  width: 42%;
   max-width: 240px;
   padding: 10px 12px;
+  border-color: #fff #a3a3a3 #a3a3a3 #fff;
 }
 .adventure-battle .ad-combatant-name {
   font-size: 17px;
 }
-.adventure-battle .ad-combatant-player {
-  left: 4%;
-  bottom: 12px;
-}
-.adventure-battle .ad-combatant-enemy {
+.adventure-battle .ad-combatant-player .ad-combatant-card {
   right: 4%;
-  top: 12px;
+  bottom: 5%;
+}
+.adventure-battle .ad-combatant-enemy .ad-combatant-card {
+  left: 4%;
+  top: 5%;
+}
+.adventure-battle .battle-sprite {
+  position: absolute;
+  transform: translateX(-50%);
+}
+.adventure-battle .battle-sprite-player {
+  left: 23.3333%;
+  bottom: 18%;
+}
+.adventure-battle .battle-sprite-enemy {
+  left: 75.8333%;
+  bottom: 64%;
 }
 .adventure-battle .ad-combatant-player .pixel-avatar {
   width: 104px;
@@ -3169,10 +3220,11 @@
 }
 @container (max-width: 480px) {
   .adventure-battle .ad-arena-scene {
-    flex-basis: clamp(190px, 34%, 280px);
+    flex-basis: clamp(230px, 38%, 280px);
   }
   .adventure-battle .ad-combatant-card {
-    min-width: 136px;
+    min-width: 0;
+    width: 48%;
     max-width: 170px;
     padding: 6px;
     font-size: 12px;
@@ -3540,19 +3592,19 @@
   margin: 0;
 }
 .ad-skill-card-btn[data-selected='true'] {
-  border-color: #ecd18e;
+  border-color: #fff;
   background: #263732;
-  box-shadow: inset 0 2px #a88b53;
+  box-shadow: inset 0 2px #a3a3a3;
 }
 .ad-skill-card-btn:hover:not(:disabled) {
-  border-color: #b5be9f;
+  border-color: #c7c7c7;
 }
 .ad-skill-card-btn[data-selected='true']:hover:not(:disabled) {
-  border-color: #ecd18e;
+  border-color: #fff;
 }
 .ad-skill-card-btn:focus-visible,
 .ad-flee-btn:focus-visible {
-  outline: 2px solid #f0d28e;
+  outline: 2px solid #fff;
   outline-offset: 3px;
 }
 .adventure .ad-skill-card-btn:active:not(:disabled) {
@@ -3563,7 +3615,7 @@
   height: 12px;
   margin-top: 3px;
   visibility: hidden;
-  background: #f0d28e;
+  background: #fff;
   clip-path: polygon(
     0 0,
     4px 0,
@@ -3599,7 +3651,7 @@
 }
 .adventure-battle .ad-battle-narrative {
   font-size: 15px;
-  color: #eee6ce;
+  color: #e5e5e5;
 }
 .adventure-battle .ad-question-text {
   font-family: inherit;

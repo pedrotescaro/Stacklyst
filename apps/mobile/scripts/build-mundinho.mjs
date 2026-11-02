@@ -12,6 +12,7 @@ for (const file of [
   'forest-scenery.png',
   'chest.png',
   'challenge-objects.png',
+  'battle-background.png',
   'signpost.png',
   'habitats-back.png',
   'habitats-front.png',
