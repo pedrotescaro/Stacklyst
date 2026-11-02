@@ -1,4 +1,7 @@
 import type { Avatar, BattleLanguage, CodeRun, PublicQuestion } from './types';
+import type { CombatStats } from './equipment';
+import type { SKILLS } from './rules';
+export type ArenaSkill = (typeof SKILLS)[number]['id'];
 
 export type ArenaPosition = { x: number; y: number; direction: string; walking: boolean };
 export type ArenaMatch = {
@@ -13,6 +16,9 @@ export type ArenaMatch = {
   deadline: string;
   winnerId: string | null;
   log: string[];
+  stats?: Record<string, CombatStats>;
+  exerciseTurn?: number;
+  skill?: ArenaSkill;
 };
 export type ArenaPlayer = {
   id: string;
@@ -52,6 +58,7 @@ export type ArenaAction =
   | { type: 'sync'; roomId: string; position?: ArenaPosition; lobby?: boolean }
   | { type: 'leave'; roomId: string }
   | { type: 'ready'; roomId: string }
+  | { type: 'attack'; roomId: string; matchId: string; turn: number; skill?: ArenaSkill }
   | {
       type: 'run';
       roomId: string;

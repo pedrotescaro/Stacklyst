@@ -284,7 +284,7 @@ describe('Server encounter rules', () => {
     expect(repeated.notice).toContain('sem repetir o golpe');
     expect(repeated.battle).toMatchObject({ turn: 1, enemyHp: 82 });
     await adventure('user', { type: 'equip', item: 'title-debugger', remove: true });
-    expect((await adventure('user')).combatStats?.directChance).toBe(50);
+    expect((await adventure('user')).combatStats?.directChance).toBe(75);
   });
   it.each([
     ['TS', 'byte-bug'],
@@ -584,7 +584,7 @@ describe('Server encounter rules', () => {
       maxHp: 110,
       protection: 2,
       luck: 10,
-      directChance: 60,
+      directChance: 85,
       dropChance: 60,
     });
     const start = await adventure('user', {
@@ -596,7 +596,7 @@ describe('Server encounter rules', () => {
     const locked = await adventure('user', { type: 'equip', item: 'gear-heart', remove: true });
     expect(locked.notice).toContain('depois de encerrar');
     expect(locked.equipped.relic).toBe('gear-heart');
-    db.random.mockReturnValue(59); // Equipped luck extends the direct branch beyond the base 50%.
+    db.random.mockReturnValue(84); // Equipped luck extends the direct branch beyond the base 50%.
     const hit = await adventure('user', {
       type: 'battle-skill',
       battle: 'battle',

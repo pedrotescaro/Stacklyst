@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { MultiplayerArena } from './MultiplayerArena';
 import { DEFAULT_AVATAR } from '../../lib/mundinho/types';
@@ -69,4 +69,100 @@ describe('PvP presentation and Portuguese text', () => {
       expect(container.textContent).not.toMatch(/Ã[\u0080-\u00bf]|Â·|â€¦|\ufffd/);
     }
   );
+});
+
+function lobbyState(): ArenaState {
+  return {
+    selfId: 'a',
+    serverTime: new Date().toISOString(),
+    friends: [],
+    invitations: [],
+    room: {
+      id: 'room',
+      hostId: 'a',
+      version: 1,
+      invitedName: null,
+      question: null,
+      match: null,
+      players: ['a', 'b'].map((id) => ({
+        id,
+        name: id === 'a' ? 'Você' : 'Amigo',
+        username: id,
+        avatar: DEFAULT_AVATAR,
+        language: 'JS',
+        level: 4,
+        online: true,
+        position: { x: 320, y: 340, direction: 'down', walking: false },
+      })),
+    },
+  };
+}
+it('opens player details in a dismissible modal without a side panel', () => {
+  Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      this.setAttribute('open', '');
+    },
+  });
+  Object.defineProperty(HTMLDialogElement.prototype, 'close', {
+    configurable: true,
+    value: function (this: HTMLDialogElement) {
+      this.removeAttribute('open');
+    },
+  });
+  const data = lobbyState();
+  render(
+    <MultiplayerArena
+      initialState={data}
+      language="JS"
+      assetBase="/assets/mundinho"
+      onLeave={() => {}}
+      transport={vi.fn().mockResolvedValue(data)}
+    />
+  );
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: 'Adversário e batalha' }));
+  const dialog = screen.getByRole('dialog', { name: 'Seu adversário' });
+  expect(within(dialog).getByText('Amigo')).toBeInTheDocument();
+  expect(within(dialog).getByText(/Nível 4/)).toBeInTheDocument();
+  fireEvent.click(within(dialog).getByRole('button', { name: 'Fechar jogadores' }));
+  expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+});
+it.each([
+  ['Aplicar conceito', 'strike'],
+  ['Depurar', 'focus'],
+  ['Refatorar', 'burst'],
+])('submits the selected %s skill', (name, skill) => {
+  const data = lobbyState();
+  data.room!.match = {
+    id: 'battle',
+    status: 'active',
+    ready: ['a', 'b'],
+    hp: { a: 100, b: 100 },
+    actorId: 'a',
+    turn: 0,
+    scenario: 0,
+    level: 1,
+    deadline: new Date().toISOString(),
+    winnerId: null,
+    log: [],
+  };
+  const transport = vi.fn().mockResolvedValue(data);
+  render(
+    <MultiplayerArena
+      initialState={data}
+      language="JS"
+      assetBase="/assets/mundinho"
+      onLeave={() => {}}
+      transport={transport}
+    />
+  );
+  fireEvent.click(screen.getByRole('button', { name: new RegExp(name) }));
+  expect(transport).toHaveBeenCalledWith({
+    type: 'attack',
+    roomId: 'room',
+    matchId: 'battle',
+    turn: 0,
+    skill,
+  });
 });

@@ -1355,8 +1355,8 @@ export function AdventureHub({
                 <h2>Prepare sua aventura</h2>
                 <p>
                   Cada golpe pode sair direto ou pedir um exercício. Sem equipamentos, as chances
-                  são 50/50. Vença criaturas para encontrar equipamentos e fortalecer seu
-                  aventureiro.
+                  são 75% de golpe direto e 25% de exercício. Vença criaturas para encontrar
+                  equipamentos e fortalecer seu aventureiro.
                 </p>
               </div>
 

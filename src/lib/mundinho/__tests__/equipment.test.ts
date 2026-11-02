@@ -17,8 +17,8 @@ describe('Battle equipment rules', () => {
     ]);
     expect(hasBugHunterTitle([], { title: 'title-debugger' })).toBe(false);
     expect(hasBugHunterTitle(['title-debugger'], {})).toBe(false);
-    expect(equipmentStats([], { title: 'title-debugger' }).directChance).toBe(50);
-    expect(equipmentStats(['title-debugger'], {}).directChance).toBe(50);
+    expect(equipmentStats([], { title: 'title-debugger' }).directChance).toBe(75);
+    expect(equipmentStats(['title-debugger'], {}).directChance).toBe(75);
     expect(
       equipmentStats(['title-debugger', 'gear-star'], {
         title: 'title-debugger',
@@ -26,14 +26,14 @@ describe('Battle equipment rules', () => {
       })
     ).toMatchObject({ directChance: 100, dropChance: 65, luck: 15 });
   });
-  it('splits the 100 equally likely base outcomes into 50 direct hits and 50 exercises', () => {
+  it('splits the 100 equally likely base outcomes into 75 direct hits and 25 exercises', () => {
     const stats = equipmentStats([], {});
-    expect(stats).toEqual({ maxHp: 100, protection: 0, luck: 0, directChance: 50, dropChance: 50 });
+    expect(stats).toEqual({ maxHp: 100, protection: 0, luck: 0, directChance: 75, dropChance: 50 });
     expect(
       Array.from({ length: 100 }, (_, roll) => directAttack(stats, roll)).filter(Boolean)
-    ).toHaveLength(50);
-    expect(directAttack(stats, 49)).toBe(true);
-    expect(directAttack(stats, 50)).toBe(false);
+    ).toHaveLength(75);
+    expect(directAttack(stats, 74)).toBe(true);
+    expect(directAttack(stats, 75)).toBe(false);
   });
   it('counts only owned catalog gear in the correct slot', () => {
     expect(
@@ -50,7 +50,7 @@ describe('Battle equipment rules', () => {
         relic: 'gear-phoenix',
         extra: 'gear-moon',
       })
-    ).toEqual({ maxHp: 130, protection: 6, luck: 15, directChance: 65, dropChance: 65 });
+    ).toEqual({ maxHp: 130, protection: 6, luck: 15, directChance: 90, dropChance: 65 });
   });
   it('adds rarer items with tougher creatures and weights common, rare and epic drops 6:3:1', () => {
     const level1 = equipmentDropPool(1);

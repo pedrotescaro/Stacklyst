@@ -1285,9 +1285,9 @@ Fonte: [src/lib/mundinho/arena-rules.ts](../../../src/lib/mundinho/arena-rules.t
 
 Módulo de apoio: consulte seus símbolos, comentários e dependências para o papel exato no fluxo.
 
-Símbolos localizados: `arenaCanWalk`, `arenaMove`, `validArenaPosition`, `arenaOpponent`, `advanceArenaTurn`, `ARENA`, `ARENA_TURN_MS`, `ARENA_ONLINE_MS`, `ARENA_INVITE_MS`.
+Símbolos localizados: `arenaCanWalk`, `arenaMove`, `validArenaPosition`, `arenaOpponent`, `advanceArenaTurn`, `arenaNeedsExercise`, `arenaAttackDamage`, `chooseArenaAttack`, `ARENA`, `ARENA_TURN_MS`, `ARENA_ONLINE_MS`, `ARENA_INVITE_MS`.
 
-Dependências locais declaradas: `./arena-types`.
+Dependências locais declaradas: `./arena-types`, `./equipment`, `./rules`.
 
 Testes associados pelo nome: [src/lib/mundinho/**tests**/arena-rules.test.ts](../../../src/lib/mundinho/__tests__/arena-rules.test.ts). Outros testes de integração podem cobrir este módulo.
 
@@ -1297,9 +1297,9 @@ Fonte: [src/lib/mundinho/arena-types.ts](../../../src/lib/mundinho/arena-types.t
 
 Contratos, validação ou catálogo do domínio; distinguir tipos estáticos de validação runtime.
 
-Símbolos localizados: `ArenaPosition`, `ArenaMatch`, `ArenaPlayer`, `ArenaInvitation`, `ArenaState`, `ArenaAction`, `ArenaTransport`.
+Símbolos localizados: `ArenaSkill`, `ArenaPosition`, `ArenaMatch`, `ArenaPlayer`, `ArenaInvitation`, `ArenaState`, `ArenaAction`, `ArenaTransport`.
 
-Dependências locais declaradas: `./types`.
+Dependências locais declaradas: `./types`, `./equipment`, `./rules`.
 
 ## src/lib/mundinho/arena.ts
 
@@ -1309,7 +1309,7 @@ Módulo restrito ao servidor; regras ou infraestrutura não devem entrar no bund
 
 Símbolos localizados: `invalid`, `member`, `mutual`, `activeRoom`, `roomSnapshot`, `view`, `arena`, `arenaActionSchema`.
 
-Dependências locais declaradas: `@/lib/prisma`, `@/lib/errors`, `@/lib/profile-style`, `@/lib/code-execution/server`, `@/lib/ratelimit`, `./types`, `./codeChallenges`, `./codeChallengeStructures`, `./arena-rules`, `./arena-types`.
+Dependências locais declaradas: `@/lib/prisma`, `@/lib/errors`, `@/lib/profile-style`, `@/lib/code-execution/server`, `@/lib/ratelimit`, `./types`, `./codeChallenges`, `./equipment`, `./codeChallengeStructures`, `./arena-rules`, `./arena-types`.
 
 Integrações/imports externos: `server-only`, `node:crypto`, `@prisma/client`, `zod`.
 

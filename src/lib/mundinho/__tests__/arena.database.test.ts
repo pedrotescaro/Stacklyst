@@ -5,6 +5,10 @@ import type { PrismaClient } from '@prisma/client';
 import type { arena as ArenaService } from '../arena';
 import { DEFAULT_AVATAR } from '../types';
 import { challengeSolution } from './codeChallengeSolutions';
+vi.mock('node:crypto', async (original) => ({
+  ...(await original<typeof import('node:crypto')>()),
+  randomInt: (max: number) => max - 1,
+}));
 vi.mock('@/lib/ratelimit', () => ({ rateLimit: vi.fn() }));
 
 describe.runIf(process.env.RUN_MUNDINHO_DB_TEST === '1')(
@@ -101,6 +105,7 @@ describe.runIf(process.env.RUN_MUNDINHO_DB_TEST === '1')(
       for (let turn = 0; turn < 8; turn++) {
         const match = current.room!.match!;
         const actor = match.actorId;
+        await arena(actor, { type: 'attack', roomId, matchId: match.id, turn: match.turn });
         const own = await arena(actor, { type: 'sync', roomId });
         const question = own.room!.question!;
         const language = own.room!.players.find((p) => p.id === actor)!.language;
@@ -132,7 +137,39 @@ describe.runIf(process.env.RUN_MUNDINHO_DB_TEST === '1')(
         status: 'ready',
         hp: { [host]: 100, [guest]: 100 },
       });
-      await arena(guest, { type: 'ready', roomId });
+      await prisma.rpgPlayer.update({
+        where: { userId: host },
+        data: {
+          inventory: ['title-debugger', 'gear-heart'],
+          equipped: { title: 'title-debugger', relic: 'gear-heart' },
+        },
+      });
+      await prisma.rpgPlayer.update({
+        where: { userId: guest },
+        data: {
+          inventory: ['title-debugger', 'gear-iron', 'gear-orb'],
+          equipped: { title: 'title-debugger', armor: 'gear-iron', relic: 'gear-orb' },
+        },
+      });
+      let equippedMatch = await arena(guest, { type: 'ready', roomId });
+      expect(equippedMatch.room!.match!.hp).toEqual({ [host]: 110, [guest]: 120 });
+      for (let index = 0; index < 2; index++) {
+        const before = equippedMatch.room!.match!;
+        const actor = before.actorId;
+        const attack = {
+          type: 'attack' as const,
+          roomId,
+          matchId: before.id,
+          turn: before.turn,
+          skill: index === 0 ? ('burst' as const) : ('focus' as const),
+        };
+        equippedMatch = await arena(actor, attack);
+        expect(equippedMatch.room!.match!.turn).toBe(before.turn + 1);
+        expect(equippedMatch.room!.question).toBeNull();
+        const replay = await arena(actor, attack);
+        expect(replay.room!.match!.hp).toEqual(equippedMatch.room!.match!.hp);
+      }
+      expect(equippedMatch.room!.match!.hp).toEqual({ [host]: 84, [guest]: 99 });
       const resigned = await arena(guest, { type: 'leave', roomId });
       expect(resigned.room).toBeNull();
       expect((await arena(host, { type: 'sync', roomId })).room?.match).toMatchObject({

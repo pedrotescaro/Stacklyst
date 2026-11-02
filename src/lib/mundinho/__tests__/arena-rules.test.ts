@@ -1,5 +1,13 @@
 import { describe, expect, it } from 'vitest';
-import { advanceArenaTurn, arenaCanWalk, arenaMove, validArenaPosition } from '../arena-rules';
+import {
+  advanceArenaTurn,
+  arenaCanWalk,
+  arenaMove,
+  validArenaPosition,
+  chooseArenaAttack,
+  arenaNeedsExercise,
+} from '../arena-rules';
+import { equipmentStats } from '../equipment';
 import { arenaActionSchema } from '../arena';
 import type { ArenaMatch } from '../arena-types';
 import { creatureStats, resolveTurn } from '../rules';
@@ -22,6 +30,53 @@ const match = (): ArenaMatch => ({
   log: [],
 });
 describe('Arena movement and combat', () => {
+  it('shares all three NPC skills, caps healing, applies wear and locks the skill for exercises', () => {
+    const stats = { a: equipmentStats([], {}), b: equipmentStats([], {}) };
+    const m = { ...match(), stats, hp: { a: 90, b: 100 } };
+    const now = new Date();
+    expect(chooseArenaAttack(m, 0, now, 'strike').hp).toEqual({ a: 90, b: 70 });
+    expect(chooseArenaAttack(m, 0, now, 'focus').hp).toEqual({ a: 100, b: 82 });
+    expect(chooseArenaAttack(m, 0, now, 'burst').hp).toEqual({ a: 82, b: 55 });
+    const exercise = chooseArenaAttack(m, 99, now, 'focus');
+    expect(exercise.skill).toBe('focus');
+    expect(chooseArenaAttack(exercise, 0, now, 'burst')).toBe(exercise);
+    expect(advanceArenaTurn(exercise, true, now, 'Acertou').hp).toEqual({ a: 100, b: 82 });
+    expect(advanceArenaTurn(exercise, false, now, 'Errou').hp).toEqual(m.hp);
+    expect(chooseArenaAttack({ ...m, hp: { a: 5, b: 100 } }, 0, now, 'burst')).toMatchObject({
+      status: 'finished',
+      winnerId: 'b',
+    });
+  });
+  it('assigns exactly 25 exercise outcomes and never rerolls an assigned exercise', () => {
+    const m = { ...match(), stats: { a: equipmentStats([], {}), b: equipmentStats([], {}) } };
+    const now = new Date();
+    const outcomes = Array.from({ length: 100 }, (_, roll) => chooseArenaAttack(m, roll, now));
+    expect(outcomes.filter(arenaNeedsExercise)).toHaveLength(25);
+    expect(outcomes.filter((x) => x.turn === 1)).toHaveLength(75);
+    const exercise = chooseArenaAttack(m, 99, now);
+    expect(chooseArenaAttack(exercise, 0, now)).toBe(exercise);
+  });
+  it('applies each player’s owned title, luck, life and opposing protection', () => {
+    const a = equipmentStats(['title-debugger', 'gear-heart'], {
+      title: 'title-debugger',
+      relic: 'gear-heart',
+    });
+    const b = equipmentStats(['title-debugger', 'gear-crystal', 'gear-phoenix'], {
+      title: 'title-debugger',
+      armor: 'gear-crystal',
+      relic: 'gear-phoenix',
+    });
+    const m = { ...match(), stats: { a, b }, hp: { a: a.maxHp, b: b.maxHp } };
+    const hit = chooseArenaAttack(m, 99, new Date());
+    expect(hit.hp).toEqual({ a: 110, b: 106 });
+    expect(hit.turn).toBe(1);
+    expect(chooseArenaAttack(hit, 99, new Date()).hp).toEqual({ a: 80, b: 106 });
+    const lucky = equipmentStats(['gear-star'], { charm: 'gear-star' });
+    expect(lucky.directChance).toBe(90);
+    expect(equipmentStats([], { title: 'title-debugger', charm: 'gear-star' }).directChance).toBe(
+      75
+    );
+  });
   it('keeps players on the ring and permits reaching the exit', () => {
     expect(arenaCanWalk(320, 340)).toBe(true);
     expect(arenaCanWalk(384, 440)).toBe(true);
@@ -65,6 +120,15 @@ describe('Arena movement and combat', () => {
     });
   });
   it('ignores forged identity/damage/outfits and rejects invalid coordinates or languages', () => {
+    expect(() =>
+      arenaActionSchema.parse({
+        type: 'attack',
+        roomId: crypto.randomUUID(),
+        matchId: crypto.randomUUID(),
+        turn: 0,
+        skill: 'forged',
+      })
+    ).toThrow();
     expect(
       arenaActionSchema.parse({ type: 'enter', language: 'JS', userId: 'other', damage: 999 })
     ).toEqual({ type: 'enter', language: 'JS' });

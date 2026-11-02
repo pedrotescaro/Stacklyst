@@ -45,6 +45,8 @@ export default function World({
   onPortal,
   area = 'forest',
   peers = [],
+  onArenaPlayers,
+  overlayOpen = false,
 }: {
   avatar: Avatar;
   assetBase: string;
@@ -62,6 +64,8 @@ export default function World({
   onPortal?: () => void;
   area?: 'forest' | 'arena';
   peers?: ArenaPlayer[];
+  onArenaPlayers?: () => void;
+  overlayOpen?: boolean;
 }) {
   const dimensions = area === 'arena' ? ARENA : WORLD;
   const creatures = useMemo(() => (area === 'arena' ? [] : CREATURES), [area]);
@@ -105,7 +109,7 @@ export default function World({
     []
   );
   const chestOpened = chestClaimed || openedDay === chestDay;
-  const worldPaused = Boolean(dialogue || showGuide || chestPhase !== 'idle');
+  const worldPaused = Boolean(overlayOpen || dialogue || showGuide || chestPhase !== 'idle');
   const paused = useRef(false);
   paused.current = worldPaused;
   const closeDialogue = () => {
@@ -131,6 +135,12 @@ export default function World({
   useEffect(() => {
     interaction.current = (objectId) => {
       const target = objectId ? objects.find((object) => object.id === objectId) : nearest;
+      if (area === 'arena' && !objectId && !target) {
+        keys.current.clear();
+        stick.current = { x: 0, y: 0 };
+        onArenaPlayers?.();
+        return;
+      }
       if (!target || Math.hypot(target.x - player.current.x, target.y - player.current.y) >= 55) {
         setDialogue('Aproxime-se de uma criatura, da placa, do baú ou da Ada para interagir.');
         return;
@@ -207,6 +217,8 @@ export default function World({
     chestOpened,
     chestDay,
     onPortal,
+    onArenaPlayers,
+    area,
     creatures,
     objects,
   ]);
@@ -610,7 +622,13 @@ export default function World({
           {/* Big Action / Sword Button on Bottom Right */}
           <button
             className={`world-action-sword ${nearest ? 'is-target' : ''}`}
-            aria-label={isCreature ? 'Batalhar com criatura' : 'Interagir'}
+            aria-label={
+              area === 'arena' && !nearest
+                ? 'Amigos e batalha'
+                : isCreature
+                  ? 'Batalhar com criatura'
+                  : 'Interagir'
+            }
             onClick={() => interaction.current()}
           >
             <Swords size={28} />

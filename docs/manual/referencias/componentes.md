@@ -2109,9 +2109,11 @@ Componente de interface; símbolos e dependências abaixo mostram sua composiç�
 
 Símbolos localizados: `MultiplayerArena`.
 
-Dependências locais declaradas: `../../lib/mundinho/arena-types`, `../../lib/mundinho/types`, `../../lib/mundinho/arena-rules`, `./World`, `./PixelArt`, `./PixelMeter`, `./CodeBattle`, `./assets`.
+Dependências locais declaradas: `../../lib/mundinho/arena-types`, `../../lib/mundinho/types`, `../../lib/mundinho/arena-rules`, `../../lib/mundinho/rules`, `./World`, `./PixelArt`, `./PixelMeter`, `./CodeBattle`, `./assets`.
 
 Integrações/imports externos: `react`, `lucide-react`.
+
+Testes associados pelo nome: [src/components/mundinho/MultiplayerArena.test.tsx](../../../src/components/mundinho/MultiplayerArena.test.tsx). Outros testes de integração podem cobrir este módulo.
 
 ## src/components/mundinho/PixelArt.tsx
 

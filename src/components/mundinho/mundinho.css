@@ -2956,7 +2956,7 @@
 }
 .ad-arena-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 270px;
+  grid-template-columns: minmax(0, 1fr);
   gap: 24px;
 }
 .ad-arena-layout > .world-shell {
@@ -3403,21 +3403,22 @@
 }
 
 /* Exploration and battle share the same available game window. */
-.adventure-platform:has(:is(.adventure-world, .adventure-battle)) {
+.adventure-platform:has(:is(.adventure-world, .adventure-battle, .adventure-arena)) {
   height: 100dvh;
   min-height: 0;
   overflow: hidden;
 }
-.adventure-platform:has(:is(.adventure-world, .adventure-battle)) > .dd-platform-body {
+.adventure-platform:has(:is(.adventure-world, .adventure-battle, .adventure-arena))
+  > .dd-platform-body {
   height: 100%;
   min-height: 0;
 }
-.adventure-platform:has(:is(.adventure-world, .adventure-battle)) main {
+.adventure-platform:has(:is(.adventure-world, .adventure-battle, .adventure-arena)) main {
   min-height: 0;
   padding-bottom: 0;
   overflow: hidden;
 }
-:is(.adventure-world, .adventure-battle) {
+:is(.adventure-world, .adventure-battle, .adventure-arena) {
   display: flex;
   flex-direction: column;
   height: 100dvh;
@@ -3426,12 +3427,12 @@
   overflow: hidden;
   overscroll-behavior: none;
 }
-.adventure-platform :is(.adventure-world, .adventure-battle) {
+.adventure-platform :is(.adventure-world, .adventure-battle, .adventure-arena) {
   height: 100%;
 }
-:is(.adventure-world, .adventure-battle) > .ad-page-heading,
-:is(.adventure-world, .adventure-battle) > .ad-notice,
-:is(.adventure-world, .adventure-battle) > .ad-error {
+:is(.adventure-world, .adventure-battle, .adventure-arena) > .ad-page-heading,
+:is(.adventure-world, .adventure-battle, .adventure-arena) > .ad-notice,
+:is(.adventure-world, .adventure-battle, .adventure-arena) > .ad-error {
   flex-shrink: 0;
 }
 .adventure-world .world-shell {
@@ -3450,7 +3451,7 @@
 .adventure-world .world-hint-footer {
   flex-shrink: 0;
 }
-:is(.adventure-world, .adventure-battle) > .ad-footer-badge {
+:is(.adventure-world, .adventure-battle, .adventure-arena) > .ad-footer-badge {
   display: none;
 }
 
@@ -4418,4 +4419,80 @@
     width: 60px;
     height: 60px !important;
   }
+}
+
+/* The multiplayer lobby occupies the same game window as the forest. */
+.adventure-arena .ad-multiplayer {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+.ad-arena-exploring {
+  display: flex;
+  flex-direction: column;
+}
+.ad-arena-exploring > .ad-arena-heading {
+  display: none;
+}
+.ad-arena-exploring .ad-arena-layout {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  position: relative;
+  min-height: 0;
+}
+.adventure-arena .world-shell {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
+.adventure-arena .world-viewport {
+  flex: 1;
+  height: auto;
+  min-height: 0;
+  max-height: none;
+}
+.ad-arena-players-button {
+  position: absolute;
+  z-index: 12;
+  top: 64px;
+  right: 14px;
+  max-width: calc(100% - 28px);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ad-arena-dialog {
+  width: min(480px, calc(100% - 32px));
+  max-height: calc(100dvh - 48px);
+  margin: auto;
+  padding: 24px;
+  border: 1px solid #657e7a;
+  border-radius: 14px;
+  background: #101c20;
+  color: #f0f8f4;
+  overflow: auto;
+  scrollbar-color: #6e969a #101719;
+}
+.ad-arena-dialog::backdrop {
+  background: rgb(0 0 0 / 72%);
+}
+.ad-arena-dialog-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.ad-arena-dialog-heading h3 {
+  margin: 0;
+}
+.ad-arena-dialog .ad-arena-social {
+  border: 0;
+  padding: 0;
+}
+.ad-arena-dialog :focus-visible {
+  outline: 2px solid #a9dec6;
+  outline-offset: 3px;
 }

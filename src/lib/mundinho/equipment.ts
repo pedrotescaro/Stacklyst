@@ -157,7 +157,7 @@ export function equipmentStats(
     maxHp: 100 + Math.min(50, vitality),
     protection: Math.min(8, protection),
     luck,
-    directChance: hasBugHunterTitle(inventory, equipped) ? 100 : 50 + luck,
+    directChance: hasBugHunterTitle(inventory, equipped) ? 100 : Math.min(100, 75 + luck),
     dropChance: 50 + luck,
   };
 }

@@ -21,9 +21,13 @@ import {
   challengeExecutionLanguage,
   evaluateTrace,
 } from './codeChallenges';
+import { equipmentStats } from './equipment';
 import { instrumentChallengeSource } from './codeChallengeStructures';
 import {
   advanceArenaTurn,
+  arenaNeedsExercise,
+  arenaAttackDamage,
+  chooseArenaAttack,
   ARENA_INVITE_MS,
   ARENA_ONLINE_MS,
   ARENA_TURN_MS,
@@ -52,6 +56,13 @@ export const arenaActionSchema = z.discriminatedUnion('type', [
   }),
   z.object({ type: z.literal('leave'), roomId }),
   z.object({ type: z.literal('ready'), roomId }),
+  z.object({
+    type: z.literal('attack'),
+    roomId,
+    matchId: roomId,
+    turn: z.number().int().min(0),
+    skill: z.enum(['strike', 'focus', 'burst']).optional(),
+  }),
   z.object({
     type: z.literal('run'),
     roomId,
@@ -157,7 +168,10 @@ async function view(
   const match = room ? matchOf(room) : null;
   const ownLanguage = room?.hostId === userId ? room.hostLanguage : room?.guestLanguage;
   const question =
-    match?.status === 'active' && match.actorId === userId && ownLanguage
+    match?.status === 'active' &&
+    match.actorId === userId &&
+    arenaNeedsExercise(match) &&
+    ownLanguage
       ? codeChallenges(ownLanguage as BattleLanguage, match.level)[
           (match.scenario + Math.floor(match.turn / 2)) %
             codeChallenges(ownLanguage as BattleLanguage, match.level).length
@@ -248,6 +262,7 @@ export async function arena(userId: string, action: ArenaAction): Promise<ArenaS
       match.turn !== action.turn
     )
       invalid('Este turno já mudou. Atualize a arena.');
+    if (!arenaNeedsExercise(match)) invalid('Escolha atacar antes de executar um exercício.');
     const language = (
       room.hostId === userId ? room.hostLanguage : room.guestLanguage
     ) as BattleLanguage;
@@ -566,16 +581,50 @@ export async function arena(userId: string, action: ArenaAction): Promise<ArenaS
           };
         if (!match || match.status !== 'ready') invalid('Esta batalha já foi iniciada.');
         match = { ...match, ready: [...new Set([...match.ready, userId])] };
-        if (match.ready.length === 2)
+        if (match.ready.length === 2) {
+          const players = await tx.rpgPlayer.findMany({
+            where: { userId: { in: [room.hostId, room.guestId] } },
+            select: { userId: true, inventory: true, equipped: true },
+          });
+          const stats = Object.fromEntries(
+            [room.hostId, room.guestId].map((id) => {
+              const player = players.find((p) => p.userId === id);
+              return [
+                id,
+                equipmentStats(
+                  (player?.inventory ?? []) as string[],
+                  (player?.equipped ?? {}) as Record<string, string>
+                ),
+              ];
+            })
+          );
           match = {
             ...match,
             status: 'active',
             actorId: randomInt(2) ? room.hostId : room.guestId,
             deadline: new Date(now.getTime() + ARENA_TURN_MS).toISOString(),
-            log: ['Batalha iniciada! Resolva o desafio para causar 30 de dano.'],
+            stats,
+            exerciseTurn: -1,
+            skill: undefined,
+            hp: Object.fromEntries(Object.entries(stats).map(([id, value]) => [id, value.maxHp])),
+            log: ['Batalha iniciada! Seus equipamentos estão ativos. Escolha atacar.'],
           };
+        }
       }
       let notice: string | undefined;
+      if (action.type === 'attack') {
+        if (
+          !match ||
+          match.status !== 'active' ||
+          match.id !== action.matchId ||
+          match.turn !== action.turn ||
+          match.actorId !== userId
+        )
+          notice = 'O turno mudou. Nenhum golpe foi repetido.';
+        else if (!arenaNeedsExercise(match))
+          match = chooseArenaAttack(match, randomInt(100), now, action.skill);
+        else notice = 'O exercício deste turno já foi definido. Resolva-o para atacar.';
+      }
       if (action.type === 'run') {
         if (
           !match ||
@@ -592,7 +641,7 @@ export async function arena(userId: string, action: ArenaAction): Promise<ArenaS
             codeRun.passed,
             now,
             codeRun.passed
-              ? 'Código correto! 30 de dano no adversário.'
+              ? `Código correto! ${arenaAttackDamage(match)} de dano no adversário.`
               : 'O código não passou. Turno do adversário.'
           );
       }
