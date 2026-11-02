@@ -108,7 +108,9 @@ export function ProfileContent({
   );
   const [mediaMenuOpen, setMediaMenuOpen] = useState(false);
   const mediaTabRef = useRef<HTMLButtonElement>(null);
+  const desktopMediaTabRef = useRef<HTMLButtonElement>(null);
   const mediaMenuRef = useRef<HTMLDivElement>(null);
+  const [mediaMenuOrigin, setMediaMenuOrigin] = useState<'desktop' | 'mobile'>('mobile');
   const mobileTabsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -120,6 +122,12 @@ export function ProfileContent({
   }, [activeTab]);
 
   useEffect(() => {
+    if (mediaMenuOpen && mediaMenuOrigin === 'desktop') {
+      mediaMenuRef.current?.querySelector<HTMLButtonElement>('[aria-checked="true"]')?.focus();
+    }
+  }, [mediaMenuOpen, mediaMenuOrigin]);
+
+  useEffect(() => {
     if (!mediaMenuOpen) return;
     const handlePointerDown = (event: PointerEvent) => {
       const target = event.target as Node;
@@ -127,7 +135,8 @@ export function ProfileContent({
         mediaMenuRef.current &&
         !mediaMenuRef.current.contains(target) &&
         mediaTabRef.current &&
-        !mediaTabRef.current.contains(target)
+        !mediaTabRef.current.contains(target) &&
+        !desktopMediaTabRef.current?.contains(target)
       ) {
         setMediaMenuOpen(false);
       }
@@ -135,16 +144,19 @@ export function ProfileContent({
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         setMediaMenuOpen(false);
-        mediaTabRef.current?.focus();
+        (mediaMenuOrigin === 'desktop' ? desktopMediaTabRef : mediaTabRef).current?.focus();
       }
     };
+    const handleResize = () => setMediaMenuOpen(false);
     document.addEventListener('pointerdown', handlePointerDown);
     document.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('resize', handleResize);
     return () => {
       document.removeEventListener('pointerdown', handlePointerDown);
       document.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('resize', handleResize);
     };
-  }, [mediaMenuOpen]);
+  }, [mediaMenuOpen, mediaMenuOrigin]);
   const [items, setItems] = useState<any[]>([]);
   const [cursor, setCursor] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -283,6 +295,69 @@ export function ProfileContent({
     { id: 'replies' as const, label: text('Respostas', 'Replies'), icon: MessageCircle },
     { id: 'stats' as const, label: text('Estatísticas', 'Statistics'), icon: ChartNoAxesCombined },
   ];
+  const desktopTabDefinitions = [
+    tabDefinitions[0],
+    {
+      id: 'media' as const,
+      label: text('Mídias', 'Media'),
+      icon: selectedMedia === 'photos' ? ImageIcon : Video,
+    },
+    ...tabDefinitions.slice(3),
+  ];
+  const isMediaActive = activeTab === 'photos' || activeTab === 'videos';
+  const renderMediaMenu = (desktop: boolean) => (
+    <div
+      ref={mediaMenuRef}
+      role="menu"
+      aria-label={text('Opções de mídia', 'Media options')}
+      className={`${headerStyles.mediaDropdown} ${desktop ? headerStyles.desktopMediaDropdown : ''}`}
+      onKeyDown={(event) => {
+        if (!['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(event.key)) return;
+        event.preventDefault();
+        const options = Array.from(
+          event.currentTarget.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]')
+        );
+        const index = options.indexOf(document.activeElement as HTMLButtonElement);
+        const next =
+          event.key === 'Home'
+            ? 0
+            : event.key === 'End'
+              ? options.length - 1
+              : (index + (event.key === 'ArrowDown' ? 1 : -1) + options.length) % options.length;
+        options[next]?.focus();
+      }}
+    >
+      {(['videos', 'photos'] as const).map((media) => {
+        const Icon = media === 'videos' ? Video : ImageIcon;
+        return (
+          <button
+            key={media}
+            type="button"
+            role="menuitemradio"
+            aria-checked={selectedMedia === media}
+            className={`${headerStyles.mediaDropdownItem} ${selectedMedia === media ? headerStyles.mediaDropdownItemActive : ''}`}
+            onClick={() => {
+              setSelectedMedia(media);
+              setActiveTab(media);
+              setMediaMenuOpen(false);
+              (desktop ? desktopMediaTabRef : mediaTabRef).current?.focus();
+            }}
+          >
+            <Icon size={17} aria-hidden="true" className="shrink-0" />
+            <span>{media === 'videos' ? text('Vídeos', 'Videos') : text('Fotos', 'Photos')}</span>
+            {selectedMedia === media && (
+              <Check
+                size={16}
+                aria-hidden="true"
+                className={headerStyles.mediaCheckIcon}
+                strokeWidth={2.5}
+              />
+            )}
+          </button>
+        );
+      })}
+    </div>
+  );
   useEffect(() => {
     if (search) tabsRef.current?.scrollIntoView?.({ block: 'start' });
   }, [search]);
@@ -386,53 +461,75 @@ export function ProfileContent({
               onSaved={(next) => setLocalProfile((previous) => ({ ...previous, ...next }))}
               onPreview={setPreviewPreferences}
             />
-            {/* Desktop Navigation (>= 768px): strictly preserved */}
-            <div
-              ref={tabsRef}
-              className={`hidden md:flex ${styles.tabs} ${headerStyles.tabs} ${headerStyles.desktopTabs}`}
-              role="tablist"
-              aria-label={text('Conteúdo do perfil', 'Profile content')}
-              data-testid="profile-desktop-tabs"
-            >
-              {tabDefinitions.map(({ id, label, icon: Icon }, index) => (
-                <button
-                  key={id}
-                  type="button"
-                  role="tab"
-                  id={`profile-tab-${id}`}
-                  aria-controls={`profile-panel-${id}`}
-                  aria-selected={activeTab === id}
-                  tabIndex={activeTab === id ? 0 : -1}
-                  className={styles.tab}
-                  onClick={() => setActiveTab(id)}
-                  onKeyDown={(event) => {
-                    if (
-                      event.key !== 'ArrowLeft' &&
-                      event.key !== 'ArrowRight' &&
-                      event.key !== 'Home' &&
-                      event.key !== 'End'
-                    )
-                      return;
-                    event.preventDefault();
-                    const next =
-                      event.key === 'Home'
-                        ? 0
-                        : event.key === 'End'
-                          ? tabDefinitions.length - 1
-                          : (index +
-                              (event.key === 'ArrowRight' ? 1 : -1) +
-                              tabDefinitions.length) %
-                            tabDefinitions.length;
-                    setActiveTab(tabDefinitions[next].id);
-                    document.getElementById(`profile-tab-${tabDefinitions[next].id}`)?.focus();
-                  }}
-                >
-                  <Icon size={15} aria-hidden="true" />
-                  {label}
-                </button>
-              ))}
+            <div className={headerStyles.desktopNavigation}>
+              <div
+                ref={tabsRef}
+                className={`${styles.tabs} ${headerStyles.tabs} ${headerStyles.desktopTabs}`}
+                role="tablist"
+                aria-label={text('Conteúdo do perfil', 'Profile content')}
+                data-testid="profile-desktop-tabs"
+              >
+                {desktopTabDefinitions.map(({ id, label, icon: Icon }, index) => {
+                  const selected = id === 'media' ? isMediaActive : activeTab === id;
+                  return (
+                    <button
+                      key={id}
+                      ref={id === 'media' ? desktopMediaTabRef : undefined}
+                      type="button"
+                      role="tab"
+                      id={`profile-tab-${id}`}
+                      aria-controls={`profile-panel-${id === 'media' ? selectedMedia : id}`}
+                      aria-selected={selected}
+                      tabIndex={selected ? 0 : -1}
+                      className={styles.tab}
+                      aria-haspopup={id === 'media' ? 'menu' : undefined}
+                      aria-expanded={
+                        id === 'media' ? mediaMenuOpen && mediaMenuOrigin === 'desktop' : undefined
+                      }
+                      onClick={() => {
+                        if (id === 'media') {
+                          setMediaMenuOrigin('desktop');
+                          setActiveTab(selectedMedia);
+                          setMediaMenuOpen(mediaMenuOrigin === 'desktop' ? !mediaMenuOpen : true);
+                        } else {
+                          setActiveTab(id);
+                          setMediaMenuOpen(false);
+                        }
+                      }}
+                      onKeyDown={(event) => {
+                        if (id === 'media' && event.key === 'ArrowDown') {
+                          event.preventDefault();
+                          setMediaMenuOrigin('desktop');
+                          setActiveTab(selectedMedia);
+                          setMediaMenuOpen(true);
+                          return;
+                        }
+                        if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
+                        event.preventDefault();
+                        const next =
+                          event.key === 'Home'
+                            ? 0
+                            : event.key === 'End'
+                              ? desktopTabDefinitions.length - 1
+                              : (index +
+                                  (event.key === 'ArrowRight' ? 1 : -1) +
+                                  desktopTabDefinitions.length) %
+                                desktopTabDefinitions.length;
+                        const target = desktopTabDefinitions[next].id;
+                        setActiveTab(target === 'media' ? selectedMedia : target);
+                        setMediaMenuOpen(false);
+                        document.getElementById(`profile-tab-${target}`)?.focus();
+                      }}
+                    >
+                      <Icon size={15} aria-hidden="true" />
+                      {label}
+                      {id === 'media' && <ChevronDown size={14} aria-hidden="true" />}
+                    </button>
+                  );
+                })}
+              </div>
+              {mediaMenuOpen && mediaMenuOrigin === 'desktop' && renderMediaMenu(true)}
             </div>
-
             {/* Mobile Navigation (< 768px): Twitter/X responsive compact navigation */}
             {(() => {
               const mobileTabKeys = ['posts', 'likes', 'replies', 'stats', 'media'] as const;
@@ -629,10 +726,11 @@ export function ProfileContent({
                         aria-selected={isMediaActive}
                         aria-label={mediaLabel}
                         aria-haspopup="menu"
-                        aria-expanded={mediaMenuOpen}
+                        aria-expanded={mediaMenuOpen && mediaMenuOrigin === 'mobile'}
                         tabIndex={isMediaActive ? 0 : -1}
                         className={`${headerStyles.mobileTab} ${isMediaActive ? headerStyles.mobileTabActive : ''}`}
                         onClick={() => {
+                          setMediaMenuOrigin('mobile');
                           if (!isMediaActive) {
                             setActiveTab(selectedMedia);
                             setMediaMenuOpen(true);
@@ -668,69 +766,14 @@ export function ProfileContent({
                     );
                   })()}
 
-                  {/* Dropdown Menu para Vídeos e Fotos */}
-                  {mediaMenuOpen && (
-                    <div
-                      ref={mediaMenuRef}
-                      role="menu"
-                      aria-label={text('Opções de mídia', 'Media options')}
-                      className={headerStyles.mediaDropdown}
-                    >
-                      <button
-                        type="button"
-                        role="menuitemradio"
-                        aria-checked={selectedMedia === 'videos'}
-                        className={`${headerStyles.mediaDropdownItem} ${selectedMedia === 'videos' ? headerStyles.mediaDropdownItemActive : ''}`}
-                        onClick={() => {
-                          setSelectedMedia('videos');
-                          setActiveTab('videos');
-                          setMediaMenuOpen(false);
-                          mediaTabRef.current?.focus();
-                        }}
-                      >
-                        <Video size={17} aria-hidden="true" className="shrink-0" />
-                        <span>{text('Vídeos', 'Videos')}</span>
-                        {selectedMedia === 'videos' && (
-                          <Check
-                            size={16}
-                            aria-hidden="true"
-                            className={headerStyles.mediaCheckIcon}
-                            strokeWidth={2.5}
-                          />
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        role="menuitemradio"
-                        aria-checked={selectedMedia === 'photos'}
-                        className={`${headerStyles.mediaDropdownItem} ${selectedMedia === 'photos' ? headerStyles.mediaDropdownItemActive : ''}`}
-                        onClick={() => {
-                          setSelectedMedia('photos');
-                          setActiveTab('photos');
-                          setMediaMenuOpen(false);
-                          mediaTabRef.current?.focus();
-                        }}
-                      >
-                        <ImageIcon size={17} aria-hidden="true" className="shrink-0" />
-                        <span>{text('Fotos', 'Photos')}</span>
-                        {selectedMedia === 'photos' && (
-                          <Check
-                            size={16}
-                            aria-hidden="true"
-                            className={headerStyles.mediaCheckIcon}
-                            strokeWidth={2.5}
-                          />
-                        )}
-                      </button>
-                    </div>
-                  )}
+                  {mediaMenuOpen && mediaMenuOrigin === 'mobile' && renderMediaMenu(false)}
                 </div>
               );
             })()}
             <div
               role="tabpanel"
               id={`profile-panel-${activeTab}`}
-              aria-labelledby={`profile-tab-${activeTab}`}
+              aria-labelledby={`profile-tab-${isMediaActive ? 'media' : activeTab}`}
               aria-busy={loading}
             >
               {error && (

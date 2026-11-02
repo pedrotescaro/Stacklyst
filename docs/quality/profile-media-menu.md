@@ -1,0 +1,7 @@
+# Grouped profile media
+
+The desktop profile now has five tabs: Postagens, Mídias, Curtidas, Respostas and Estatísticas. Mídias opens the same Videos/Photos choice used on mobile. The desktop label remains Mídias after selection; mobile preserves its selected media label and compact navigation. Both layouts share the menu rendering and retain their separate existing media API requests, search and direct photo/video tab links.
+
+Only one menu is mounted at a time. Selecting a type closes the popup and restores focus to its trigger. Escape and outside clicks dismiss it; desktop options support arrow/Home/End navigation, and the popup closes on resize so it does not remain in a hidden breakpoint. Media panels reference the grouped tab for their accessible label.
+
+Validation: 12 profile tests passed, including desktop grouping, actual API selection, keyboard and focus behavior, outside dismissal and unchanged mobile scenarios. TypeScript passed and affected-file lint had no errors. Chromium checked 1440/dark, 1280/light, 390/dark and 320/light with real components and controlled API responses: menu bounds fit the viewport, photo/video requests succeeded, and no horizontal overflow or page errors occurred. Local screenshots and the report are in `.tmp/quality/profile-media/`. The temporary fixture was removed before the final production build; this does not establish an authenticated production session.

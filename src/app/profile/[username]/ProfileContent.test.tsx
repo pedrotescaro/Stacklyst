@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfileContent } from './ProfileContent';
 vi.mock('next/navigation', () => ({ useRouter: () => ({ back: vi.fn() }) }));
@@ -115,14 +116,13 @@ describe('Compact social profile content', () => {
     render(<ProfileContent {...props} />);
     expect(screen.getByLabelText('Painel pessoal')).toHaveTextContent('viewer');
   });
-  it('shows exactly six requested tabs and keeps all metrics inside Statistics', async () => {
+  it('shows exactly five desktop tabs and keeps all metrics inside Statistics', async () => {
     render(<ProfileContent {...props} />);
     await screen.findByText('Publicação real');
     const desktop = within(screen.getByTestId('profile-desktop-tabs'));
     expect(desktop.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
       'Postagens',
-      'Fotos',
-      'Vídeos',
+      'Mídias',
       'Curtidas',
       'Respostas',
       'Estatísticas',
@@ -144,19 +144,118 @@ describe('Compact social profile content', () => {
         Node.DOCUMENT_POSITION_FOLLOWING
     ).toBeTruthy();
   });
-  it('loads actual photos and replies and supports tab keyboard navigation', async () => {
+  it('loads actual photos and replies through the grouped desktop media tab', async () => {
     render(<ProfileContent {...props} />);
     await screen.findByText('Publicação real');
     const desktop = within(screen.getByTestId('profile-desktop-tabs'));
-    fireEvent.click(desktop.getByRole('tab', { name: 'Fotos' }));
+    const mediaTab = desktop.getByRole('tab', { name: 'Mídias' });
+    fireEvent.click(mediaTab);
+    fireEvent.click(
+      within(screen.getByRole('menu', { name: 'Opções de mídia' })).getByRole('menuitemradio', {
+        name: 'Fotos',
+      })
+    );
     const link = await screen.findByRole('link', { name: 'Abrir foto: Foto real' });
     expect(link).toHaveAttribute('href', '/post/photo-post');
-    fireEvent.keyDown(desktop.getByRole('tab', { name: 'Fotos' }), { key: 'ArrowRight' });
-    await waitFor(() =>
-      expect(desktop.getByRole('tab', { name: 'Vídeos' })).toHaveAttribute('aria-selected', 'true')
-    );
+    expect(mediaTab).toHaveAccessibleName('Mídias');
+    expect(mediaTab).toHaveAttribute('aria-selected', 'true');
     fireEvent.click(desktop.getByRole('tab', { name: 'Respostas' }));
     await screen.findByText('Resposta real');
+  });
+  it('keeps the desktop Mídias label while selecting photos and videos from a single menu', async () => {
+    render(<ProfileContent {...props} />);
+    await screen.findByText('Publicação real');
+    const desktop = within(screen.getByTestId('profile-desktop-tabs'));
+    const mediaTab = desktop.getByRole('tab', { name: 'Mídias' });
+
+    expect(mediaTab).toHaveAttribute('aria-haspopup', 'menu');
+    expect(mediaTab).toHaveAttribute('aria-expanded', 'false');
+    fireEvent.click(mediaTab);
+    expect(mediaTab).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getAllByRole('menu', { name: 'Opções de mídia' })).toHaveLength(1);
+    const menu = within(screen.getByRole('menu', { name: 'Opções de mídia' }));
+    expect(menu.getAllByRole('menuitemradio').map((option) => option.textContent)).toEqual([
+      'Vídeos',
+      'Fotos',
+    ]);
+    expect(menu.getByRole('menuitemradio', { name: 'Vídeos' })).toHaveAttribute(
+      'aria-checked',
+      'true'
+    );
+    fireEvent.click(menu.getByRole('menuitemradio', { name: 'Fotos' }));
+
+    await screen.findByRole('link', { name: 'Abrir foto: Foto real' });
+    expect(fetch).toHaveBeenCalledWith(
+      expect.stringContaining('/profile/developer/media?type=photos&limit=18'),
+      expect.any(Object)
+    );
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(mediaTab).toHaveAccessibleName('Mídias');
+    expect(mediaTab).toHaveTextContent('Mídias');
+    expect(mediaTab).toHaveAttribute('aria-expanded', 'false');
+    expect(mediaTab).toHaveFocus();
+
+    fireEvent.click(mediaTab);
+    const reopenedMenu = within(screen.getByRole('menu', { name: 'Opções de mídia' }));
+    expect(reopenedMenu.getByRole('menuitemradio', { name: 'Fotos' })).toHaveAttribute(
+      'aria-checked',
+      'true'
+    );
+    fireEvent.click(reopenedMenu.getByRole('menuitemradio', { name: 'Vídeos' }));
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith(
+        expect.stringContaining('/profile/developer/media?type=videos&limit=18'),
+        expect.any(Object)
+      )
+    );
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(mediaTab).toHaveAccessibleName('Mídias');
+    expect(mediaTab).toHaveAttribute('aria-selected', 'true');
+    expect(mediaTab).toHaveFocus();
+  });
+  it('closes the desktop media menu on Escape and an outside click with appropriate focus', async () => {
+    const user = userEvent.setup();
+    render(<ProfileContent {...props} />);
+    await screen.findByText('Publicação real');
+    const desktop = within(screen.getByTestId('profile-desktop-tabs'));
+    const mediaTab = desktop.getByRole('tab', { name: 'Mídias' });
+    await user.click(mediaTab);
+    expect(screen.getAllByRole('menu', { name: 'Opções de mídia' })).toHaveLength(1);
+    await user.keyboard('{Escape}');
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(mediaTab).toHaveAttribute('aria-expanded', 'false');
+    expect(mediaTab).toHaveFocus();
+
+    await user.click(mediaTab);
+    expect(screen.getByRole('menu', { name: 'Opções de mídia' })).toBeInTheDocument();
+    const postsTab = desktop.getByRole('tab', { name: 'Postagens' });
+    await user.click(postsTab);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    expect(mediaTab).toHaveAttribute('aria-expanded', 'false');
+    expect(postsTab).toHaveAttribute('aria-selected', 'true');
+    expect(postsTab).toHaveFocus();
+  });
+  it('navigates the five desktop tabs with media occupying one keyboard stop', async () => {
+    render(<ProfileContent {...props} />);
+    await screen.findByText('Publicação real');
+    const desktop = within(screen.getByTestId('profile-desktop-tabs'));
+    const postsTab = desktop.getByRole('tab', { name: 'Postagens' });
+    fireEvent.keyDown(postsTab, { key: 'ArrowRight' });
+    const mediaTab = desktop.getByRole('tab', { name: 'Mídias' });
+    expect(mediaTab).toHaveAttribute('aria-selected', 'true');
+    expect(mediaTab).toHaveFocus();
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+
+    fireEvent.keyDown(mediaTab, { key: 'ArrowRight' });
+    const likesTab = desktop.getByRole('tab', { name: 'Curtidas' });
+    expect(likesTab).toHaveAttribute('aria-selected', 'true');
+    expect(likesTab).toHaveFocus();
+    fireEvent.keyDown(likesTab, { key: 'ArrowLeft' });
+    expect(mediaTab).toHaveAttribute('aria-selected', 'true');
+    expect(mediaTab).toHaveFocus();
+    fireEvent.keyDown(mediaTab, { key: 'ArrowLeft' });
+    expect(postsTab).toHaveAttribute('aria-selected', 'true');
+    expect(postsTab).toHaveFocus();
   });
   it('searches the full server-backed list and keeps the query when changing tabs', async () => {
     render(<ProfileContent {...props} />);

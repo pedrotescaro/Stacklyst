@@ -93,7 +93,17 @@
 }
 
 /* Responsive Desktop Tabs */
+.desktopNavigation {
+  position: relative;
+  z-index: 20;
+}
+.desktopNavigation .desktopMediaDropdown {
+  right: auto;
+  left: 20%;
+  transform-origin: top left;
+}
 @media (max-width: 767px) {
+  .desktopNavigation,
   .desktopTabs {
     display: none !important;
   }
