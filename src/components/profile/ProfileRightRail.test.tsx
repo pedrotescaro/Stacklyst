@@ -16,7 +16,7 @@ afterEach(() => {
 
 describe('Feed search from another page', () => {
   it('navigates to the feed with the entered query', () => {
-    render(<FeedRightSidebar duels={[]} weeklyActivity={new Map()} />);
+    render(<FeedRightSidebar weeklyActivity={new Map()} />);
     const input = screen.getByRole('textbox', { name: 'Buscar' });
     fireEvent.change(input, { target: { value: '  typescript e react  ' } });
     fireEvent.keyDown(input, { key: 'Enter' });

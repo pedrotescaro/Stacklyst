@@ -1087,7 +1087,6 @@ export function FeedContent({
     }
   };
 
-  const activeDuels = duels.filter((d) => d.status === 'ACTIVE').slice(0, 2);
   const startedTrails = initialUser.trails.filter(hasStartedTrail);
 
   return (
@@ -1538,8 +1537,6 @@ export function FeedContent({
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           loadingSearch={loadingSearch}
-          duels={duels}
-          duelsLoading={duelsLoading}
           weeklyActivity={weeklyActivity}
           currentDate={currentWeekDate}
         />
