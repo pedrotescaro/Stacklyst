@@ -2,6 +2,7 @@ import { FeedRightSidebar } from '@/components/FeedRightSidebar';
 import type { AchievementBadge } from '@/components/AchievementShowcase';
 
 export interface ProfileRailUser {
+  id: string;
   username: string;
   streak: number;
   last_active_at: string | null;

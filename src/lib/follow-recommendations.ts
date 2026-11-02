@@ -1,5 +1,46 @@
 import type { Language } from '@prisma/client';
 import { readProfileIdentity, type ProfileIdentityStyle } from '@/lib/profile-style';
+import { z } from 'zod';
+
+export const FOLLOW_RECOMMENDATION_MAX_EXCLUDE = 50;
+export const FOLLOW_RECOMMENDATION_ID_MAX_LENGTH = 120;
+const excludedIdsSchema = z
+  .array(
+    z
+      .string()
+      .trim()
+      .min(1)
+      .max(FOLLOW_RECOMMENDATION_ID_MAX_LENGTH)
+      .regex(/^[a-zA-Z0-9][a-zA-Z0-9_-]*$/)
+  )
+  .max(FOLLOW_RECOMMENDATION_MAX_EXCLUDE);
+
+export function normalizeFollowRecommendationExclusions(ids: readonly string[] = []): string[] {
+  return [...new Set(excludedIdsSchema.parse(ids))];
+}
+
+/** UUIDs and existing text IDs are accepted without looking up or echoing them. */
+export function parseFollowRecommendationQuery(params: URLSearchParams): {
+  limit: number;
+  exclude: string[];
+} {
+  const limit = z.coerce
+    .number()
+    .int()
+    .min(1)
+    .max(10)
+    .default(5)
+    .parse(params.get('limit') ?? undefined);
+  if (params.getAll('exclude').length > 1) throw new Error('INVALID_SUGGESTION_QUERY');
+  const raw = z
+    .string()
+    .max(FOLLOW_RECOMMENDATION_MAX_EXCLUDE * (FOLLOW_RECOMMENDATION_ID_MAX_LENGTH + 1) - 1)
+    .parse(params.get('exclude') ?? '');
+  return {
+    limit,
+    exclude: normalizeFollowRecommendationExclusions(raw === '' ? [] : raw.split(',')),
+  };
+}
 
 export interface FollowProfileIdentity {
   frame: ProfileIdentityStyle['frame'];

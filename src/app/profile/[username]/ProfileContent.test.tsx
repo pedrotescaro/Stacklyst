@@ -30,7 +30,14 @@ vi.mock('@/components/profile-inline/SocialProfileOverview', () => ({
   ),
 }));
 const props = {
-  railUser: { username: 'viewer', streak: 0, last_active_at: null, trails: [], badges: [] },
+  railUser: {
+    id: 'viewer',
+    username: 'viewer',
+    streak: 0,
+    last_active_at: null,
+    trails: [],
+    badges: [],
+  },
   user: { id: 'owner', username: 'developer', total_xp: 30 },
   profileUser: {
     id: 'owner',

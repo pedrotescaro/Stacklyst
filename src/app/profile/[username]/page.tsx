@@ -203,6 +203,7 @@ export default async function ProfilePage({
   return (
     <ProfileContent
       railUser={{
+        id: user.id,
         username: user.username,
         streak: Math.max(
           user.streak_days,

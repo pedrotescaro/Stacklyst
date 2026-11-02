@@ -4,6 +4,7 @@ import { getAuthorDisplayName } from '@/lib/profile-style';
 import {
   getFollowProfileIdentity,
   scoreFollowCandidate,
+  normalizeFollowRecommendationExclusions,
   type FollowRecommendation,
 } from '@/lib/follow-recommendations';
 import { visibleUserWhere } from './block.service';
@@ -12,14 +13,20 @@ import { visiblePostWhere } from './post-access.service';
 export async function getFollowRecommendations(
   viewerId: string,
   limit = 5,
-  db: Pick<Prisma.TransactionClient, 'user' | 'follow' | 'post'> = prisma
+  db: Pick<Prisma.TransactionClient, 'user' | 'follow' | 'post'> = prisma,
+  options: { exclude?: readonly string[] } = {}
 ): Promise<FollowRecommendation[]> {
+  const excludedIds = normalizeFollowRecommendationExclusions(options.exclude);
+  const excluded = new Set([viewerId, ...excludedIds]);
   const now = Date.now();
   const visiblePosts = visiblePostWhere(viewerId);
   const eligible: Prisma.UserWhereInput = {
     AND: [
       visibleUserWhere(viewerId),
-      { id: { not: viewerId }, followers: { none: { followerId: viewerId } } },
+      {
+        id: { not: viewerId, ...(excludedIds.length ? { notIn: excludedIds } : {}) },
+        followers: { none: { followerId: viewerId } },
+      },
     ],
   };
   // Bounded reads: no loading the social graph or all posts into application memory.
@@ -135,7 +142,7 @@ export async function getFollowRecommendations(
       ...authorInteractions.keys(),
       ...discovery.map((row) => row.id),
     ]),
-  ];
+  ].filter((id) => !excluded.has(id));
   if (!candidateIds.length) return [];
   // Reapply visibility/follow exclusions after building the candidate pool, including races.
   const candidates = await db.user.findMany({
@@ -167,6 +174,7 @@ export async function getFollowRecommendations(
     take: 280,
   });
   return candidates
+    .filter((candidate) => !excluded.has(candidate.id))
     .map((candidate) => {
       const activityAt = Math.max(
         candidate.last_active_at?.getTime() ?? 0,

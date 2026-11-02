@@ -36,7 +36,7 @@ export function WhoToFollow({
   followedUserIds = [],
   onFollowChange,
 }: WhoToFollowProps) {
-  const { text } = useLocalizedText();
+  const { text, isEnglish } = useLocalizedText();
   const headingId = useId();
   const container = useRef<HTMLElement>(null);
   const request = useRef<AbortController | null>(null);
@@ -44,6 +44,9 @@ export function WhoToFollow({
   currentViewer.current = viewerId;
   const mounted = useRef(false);
   const pendingIds = useRef(new Set<string>());
+  const visibleIds = useRef<string[]>([]);
+  const lastRequestWasRefresh = useRef(false);
+  const displayLimit = Number.isFinite(limit) ? Math.max(1, Math.min(10, Math.floor(limit))) : 3;
   const [profiles, setProfiles] = useState<FollowRecommendation[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -52,27 +55,50 @@ export function WhoToFollow({
   const [followed, setFollowed] = useState<string[]>([]);
   const [pending, setPending] = useState<string[]>([]);
 
-  const load = useCallback(async () => {
-    if (!viewerId) return;
-    request.current?.abort();
-    const controller = new AbortController();
-    request.current = controller;
-    setLoading(true);
-    setLoadError(false);
-    try {
-      const response = await fetch('/api/users/suggestions', {
-        signal: controller.signal,
-        cache: 'no-store',
-      });
-      if (!response.ok) throw new Error('Suggestions unavailable');
-      const data: FollowRecommendation[] = await response.json();
-      if (!controller.signal.aborted) setProfiles(Array.isArray(data) ? data : []);
-    } catch {
-      if (!controller.signal.aborted) setLoadError(true);
-    } finally {
-      if (!controller.signal.aborted) setLoading(false);
-    }
-  }, [viewerId]);
+  const load = useCallback(
+    async (refresh = false) => {
+      if (!viewerId) return;
+      if (refresh && request.current && !request.current.signal.aborted) return;
+      request.current?.abort();
+      const controller = new AbortController();
+      request.current = controller;
+      lastRequestWasRefresh.current = refresh;
+      setLoading(true);
+      setLoadError(false);
+      if (refresh) setFeedback('');
+      const params = new URLSearchParams({ limit: String(displayLimit) });
+      const excluded = refresh ? visibleIds.current : [];
+      if (excluded.length) params.set('exclude', excluded.join(','));
+      try {
+        const response = await fetch(`/api/users/suggestions?${params}`, {
+          signal: controller.signal,
+          cache: 'no-store',
+        });
+        if (!response.ok) throw new Error('Suggestions unavailable');
+        const data: FollowRecommendation[] = await response.json();
+        if (!Array.isArray(data)) throw new Error('Invalid suggestions response');
+        if (!controller.signal.aborted) {
+          if (refresh && data.length === 0 && excluded.length > 0) {
+            setFeedback(
+              isEnglish
+                ? 'There are no other profiles to suggest right now.'
+                : 'Não há outros perfis para sugerir agora.'
+            );
+          } else {
+            setProfiles(data);
+            if (refresh)
+              setFeedback(isEnglish ? 'Suggestions refreshed.' : 'Sugestões atualizadas.');
+          }
+        }
+      } catch {
+        if (!controller.signal.aborted) setLoadError(true);
+      } finally {
+        if (!controller.signal.aborted) setLoading(false);
+        if (request.current === controller) request.current = null;
+      }
+    },
+    [viewerId, displayLimit, isEnglish]
+  );
 
   useEffect(() => {
     mounted.current = true;
@@ -84,6 +110,8 @@ export function WhoToFollow({
     setLoadError(false);
     setLoading(true);
     pendingIds.current.clear();
+    visibleIds.current = [];
+    lastRequestWasRefresh.current = false;
     if (!viewerId)
       return () => {
         mounted.current = false;
@@ -170,9 +198,8 @@ export function WhoToFollow({
   }
   if (!viewerId) return null;
   const excluded = new Set([...followed, ...followedUserIds, viewerId]);
-  const visible = profiles
-    .filter((profile) => !excluded.has(profile.id))
-    .slice(0, Math.max(1, Math.min(10, limit)));
+  const visible = profiles.filter((profile) => !excluded.has(profile.id)).slice(0, displayLimit);
+  visibleIds.current = visible.map((profile) => profile.id);
   return (
     <section ref={container} className={cn(styles.widget, className)} aria-labelledby={headingId}>
       <header className={styles.header}>
@@ -275,7 +302,11 @@ export function WhoToFollow({
               <p>
                 {text('Não foi possível carregar as sugestões.', 'Could not load suggestions.')}
               </p>
-              <button type="button" className={styles.retry} onClick={() => void load()}>
+              <button
+                type="button"
+                className={styles.retry}
+                onClick={() => void load(lastRequestWasRefresh.current)}
+              >
                 {text('Tentar novamente', 'Try again')}
               </button>
             </div>
@@ -285,7 +316,7 @@ export function WhoToFollow({
               type="button"
               className={styles.refresh}
               disabled={loading}
-              onClick={() => void load()}
+              onClick={() => void load(true)}
             >
               {loading
                 ? text('Atualizando…', 'Refreshing…')
