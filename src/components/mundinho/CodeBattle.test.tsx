@@ -109,3 +109,29 @@ it.each([2, 3])('shows the required learning structures for level %s', (level) =
   expect(question.code!.starter).toContain('else:');
   if (level === 3) expect(question.code!.starter).toContain('while mundo.pode_andar_direita():');
 });
+
+it('keeps line numbers synchronized with a long code editor when scrolling vertically and horizontally', () => {
+  window.matchMedia = vi.fn().mockReturnValue({ matches: true });
+  const { container } = render(
+    <CodeBattle
+      question={codeChallenges('TS')[0]}
+      avatar={DEFAULT_AVATAR}
+      busy={false}
+      onExecute={vi.fn()}
+    />
+  );
+  const editor = screen.getByRole('textbox', { name: 'Código da batalha' });
+  const code = Array.from(
+    { length: 80 },
+    (_, index) => `mundo.andar_direita(); // linha ${index + 1}`
+  ).join('\n');
+  fireEvent.change(editor, { target: { value: code } });
+  const numbers = container.querySelector('.ad-code-line-numbers pre')!;
+  expect(numbers.textContent?.split('\n')).toHaveLength(80);
+  fireEvent.scroll(editor, { target: { scrollTop: 144, scrollLeft: 90 } });
+  expect(numbers).toHaveStyle({ transform: 'translateY(-144px)' });
+  fireEvent.scroll(editor, { target: { scrollTop: 960, scrollLeft: 0 } });
+  expect(numbers).toHaveStyle({ transform: 'translateY(-960px)' });
+  expect(editor).toHaveAttribute('data-enable-grammarly', 'false');
+  expect(editor).toHaveAttribute('spellcheck', 'false');
+});

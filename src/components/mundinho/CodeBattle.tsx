@@ -30,6 +30,15 @@ export function CodeBattle({
   const [result, setResult] = useState<CodeRun | null>(null);
   const [step, setStep] = useState(0);
   const boardScroll = useRef<HTMLDivElement>(null);
+  const editor = useRef<HTMLTextAreaElement>(null);
+  const lineNumbers = useRef<HTMLPreElement>(null);
+  const sourceLines = source.split('\n');
+  const syncEditorScroll = (scrollTop: number) => {
+    if (lineNumbers.current) lineNumbers.current.style.transform = `translateY(${-scrollTop}px)`;
+  };
+  useEffect(() => {
+    syncEditorScroll(editor.current?.scrollTop ?? 0);
+  }, [source]);
   useEffect(() => {
     setStep(0);
     if (!result) return;
@@ -149,13 +158,15 @@ export function CodeBattle({
         ))}
       </p>
       <div className="ad-code-editor">
-        <pre aria-hidden="true">
-          {source
-            .split('\n')
-            .map((_, index) => index + 1)
-            .join('\n')}
-        </pre>
+        <div
+          className="ad-code-line-numbers"
+          aria-hidden="true"
+          style={{ width: `calc(${Math.max(2, String(sourceLines.length).length)}ch + 20px)` }}
+        >
+          <pre ref={lineNumbers}>{sourceLines.map((_, index) => index + 1).join('\n')}</pre>
+        </div>
         <textarea
+          ref={editor}
           aria-label="Código da batalha"
           wrap="off"
           rows={6}
@@ -163,7 +174,12 @@ export function CodeBattle({
           spellCheck={false}
           autoCapitalize="off"
           autoCorrect="off"
+          autoComplete="off"
+          data-gramm="false"
+          data-gramm_editor="false"
+          data-enable-grammarly="false"
           disabled={busy}
+          onScroll={(event) => syncEditorScroll(event.currentTarget.scrollTop)}
           onChange={(event) => {
             setSource(event.target.value);
             setResult(null);
