@@ -4,7 +4,6 @@ import { useEffect, useRef } from 'react';
 import Link from 'next/link';
 import {
   Award,
-  BadgeCheck,
   Bookmark,
   Briefcase,
   Calendar,
@@ -83,7 +82,6 @@ export function MobileNavigationDrawer({
   const items = [
     { href: '/bookmarks', label: t.nav.bookmarks, icon: Bookmark },
     { href: '/achievements', label: isEnglish ? 'Titles' : 'Títulos', icon: Award },
-    { href: '/certificates', label: isEnglish ? 'Certificates' : 'Certificados', icon: BadgeCheck },
     { href: '/jobs', label: t.nav.jobs, icon: Briefcase },
     { href: '/events', label: t.nav.events, icon: Calendar },
     { href: '/evaluations', label: t.nav.codeEvaluation, icon: Code2 },

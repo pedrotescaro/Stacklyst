@@ -182,6 +182,7 @@ describe('responsive web navigation', () => {
     }
     expect(within(drawer).queryByText('Indique amigos')).not.toBeInTheDocument();
     expect(within(drawer).queryByRole('link', { name: 'Duelos' })).not.toBeInTheDocument();
+    expect(within(drawer).queryByRole('link', { name: 'Certificados' })).not.toBeInTheDocument();
     fireEvent.keyDown(window, { key: 'Escape' });
     await waitFor(() =>
       expect(screen.queryByRole('dialog', { name: 'Menu de navegação' })).not.toBeInTheDocument()

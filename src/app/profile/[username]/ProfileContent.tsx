@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
+  BadgeCheck,
   ChartNoAxesCombined,
   Check,
   ChevronDown,
@@ -21,7 +22,7 @@ import { ProfileRightRail, type ProfileRailUser } from '@/components/profile/Pro
 import { PostCard } from '@/components/PostCard';
 import { ProfileReplyThread } from '@/components/ProfileReplyThread';
 import { FollowersModal } from '@/components/motion/FollowersModal';
-import { CredentialShowcase } from '@/components/credentials/CredentialCollection';
+import { ProfileCertificates } from '@/components/credentials/ProfileCertificates';
 import type { CredentialRecord } from '@/lib/credentials/types';
 import { LanguageTrailBar } from '@/components/LanguageTrailBar';
 import { calculateLevel } from '@/lib/learning/rewards';
@@ -38,7 +39,7 @@ import profileStyles from '@/components/profile/ProfilePublic.module.css';
 import styles from '@/components/profile-inline/InlineProfile.module.css';
 import headerStyles from './ProfileHeader.module.css';
 
-type ProfileTab = 'posts' | 'photos' | 'videos' | 'likes' | 'replies' | 'stats';
+type ProfileTab = 'posts' | 'photos' | 'videos' | 'likes' | 'replies' | 'stats' | 'certificates';
 interface ProfileContentProps {
   railUser: ProfileRailUser;
   user: {
@@ -101,7 +102,7 @@ export function ProfileContent({
   const [localProfile, setLocalProfile] = useState(profileUser);
   const [previewPreferences, setPreviewPreferences] = useState<ProfilePreferences | null>(null);
   const [activeTab, setActiveTab] = useState<ProfileTab>(
-    initialTab === 'trails' || initialTab === 'badges' ? 'stats' : initialTab
+    initialTab === 'trails' ? 'stats' : initialTab === 'badges' ? 'certificates' : initialTab
   );
   const [selectedMedia, setSelectedMedia] = useState<'videos' | 'photos'>(
     initialTab === 'photos' ? 'photos' : 'videos'
@@ -177,7 +178,7 @@ export function ProfileContent({
 
   const fetchContent = useCallback(
     async (target: ProfileTab, after: string | null, append = false) => {
-      if (target === 'stats') {
+      if (target === 'stats' || target === 'certificates') {
         setLoading(false);
         return;
       }
@@ -294,6 +295,7 @@ export function ProfileContent({
     { id: 'likes' as const, label: text('Curtidas', 'Likes'), icon: Heart },
     { id: 'replies' as const, label: text('Respostas', 'Replies'), icon: MessageCircle },
     { id: 'stats' as const, label: text('Estatísticas', 'Statistics'), icon: ChartNoAxesCombined },
+    { id: 'certificates' as const, label: text('Certificados', 'Certificates'), icon: BadgeCheck },
   ];
   const desktopTabDefinitions = [
     tabDefinitions[0],
@@ -398,7 +400,8 @@ export function ProfileContent({
                   onClick={() => {
                     setSearchOpen((open) => !open);
                     if (searchOpen) setSearchInput('');
-                    else if (activeTab === 'stats') setActiveTab('posts');
+                    else if (activeTab === 'stats' || activeTab === 'certificates')
+                      setActiveTab('posts');
                   }}
                   aria-expanded={searchOpen}
                   aria-controls="profile-search"
@@ -430,7 +433,7 @@ export function ProfileContent({
                     />
                   </div>
                   <p>
-                    {activeTab === 'stats'
+                    {activeTab === 'stats' || activeTab === 'certificates'
                       ? text(
                           'Selecione uma aba de conteúdo para pesquisar.',
                           'Select a content tab to search.'
@@ -532,7 +535,14 @@ export function ProfileContent({
             </div>
             {/* Mobile Navigation (< 768px): Twitter/X responsive compact navigation */}
             {(() => {
-              const mobileTabKeys = ['posts', 'likes', 'replies', 'stats', 'media'] as const;
+              const mobileTabKeys = [
+                'posts',
+                'likes',
+                'replies',
+                'stats',
+                'certificates',
+                'media',
+              ] as const;
               const isMediaActive = activeTab === 'videos' || activeTab === 'photos';
 
               const handleMobileTabKeyDown = (event: React.KeyboardEvent, index: number) => {
@@ -709,7 +719,41 @@ export function ProfileContent({
                     )}
                   </button>
 
-                  {/* 5. Mídia (Vídeos e Fotos agrupados) */}
+                  <button
+                    type="button"
+                    role="tab"
+                    id="profile-mobile-tab-certificates"
+                    aria-controls="profile-panel-certificates"
+                    aria-selected={activeTab === 'certificates'}
+                    aria-label={text('Certificados', 'Certificates')}
+                    tabIndex={activeTab === 'certificates' ? 0 : -1}
+                    className={`${headerStyles.mobileTab} ${activeTab === 'certificates' ? headerStyles.mobileTabActive : ''}`}
+                    onClick={() => {
+                      setActiveTab('certificates');
+                      setMediaMenuOpen(false);
+                    }}
+                    onKeyDown={(event) => handleMobileTabKeyDown(event, 4)}
+                  >
+                    <span className={headerStyles.mobileTabInner}>
+                      <BadgeCheck
+                        size={activeTab === 'certificates' ? 17 : 19}
+                        aria-hidden="true"
+                        className="shrink-0"
+                      />
+                      {activeTab === 'certificates' ? (
+                        <span className={headerStyles.mobileTabLabel}>
+                          {text('Certificados', 'Certificates')}
+                        </span>
+                      ) : (
+                        <span className="sr-only">{text('Certificados', 'Certificates')}</span>
+                      )}
+                    </span>
+                    {activeTab === 'certificates' && (
+                      <span className={headerStyles.mobileIndicator} aria-hidden="true" />
+                    )}
+                  </button>
+
+                  {/* Mídia (Vídeos e Fotos agrupados) */}
                   {(() => {
                     const MediaIcon = selectedMedia === 'videos' ? Video : ImageIcon;
                     const mediaLabel =
@@ -738,7 +782,7 @@ export function ProfileContent({
                             setMediaMenuOpen((open) => !open);
                           }
                         }}
-                        onKeyDown={(event) => handleMobileTabKeyDown(event, 4)}
+                        onKeyDown={(event) => handleMobileTabKeyDown(event, 5)}
                       >
                         <span className={headerStyles.mobileTabInner}>
                           <MediaIcon
@@ -794,17 +838,15 @@ export function ProfileContent({
                   <div className={styles.metrics}>
                     <Metric value={stats.posts_count ?? 0} label={text('Publicações', 'Posts')} />
                     <Metric value={stats.answers_count} label={text('Comentários', 'Comments')} />
-                    {stats.likes_received !== undefined && (
-                      <Metric
-                        value={stats.likes_received}
-                        label={text('Curtidas recebidas', 'Likes received')}
-                      />
-                    )}
+                    <Metric
+                      value={stats.likes_received ?? 0}
+                      label={text('Curtidas recebidas', 'Likes received')}
+                    />
                     <Metric value={localProfile.total_xp} label="XP" />
                   </div>
-                  <details className={styles.statisticsDetails} open={initialTab === 'trails'}>
-                    <summary>{text('Aprendizagem e atividade', 'Learning and activity')}</summary>
-                    <div className={styles.metrics}>
+                  <section className={styles.statisticsSection}>
+                    <h3>{text('Aprendizagem e atividade', 'Learning and activity')}</h3>
+                    <div className={styles.learningMetrics}>
                       <Metric
                         value={`${stats.accuracy}%`}
                         label={text('Precisão nos quizzes', 'Quiz accuracy')}
@@ -818,13 +860,16 @@ export function ProfileContent({
                         label={text('Dias de ofensiva', 'Streak days')}
                       />
                     </div>
+                  </section>
+                  <section className={styles.statisticsSection}>
+                    <h3>{text('Atividade semanal', 'Weekly activity')}</h3>
                     <div
                       className={styles.weekly}
                       aria-label={text('Atividade semanal de quizzes', 'Weekly quiz activity')}
                     >
                       {(isEnglish
-                        ? ['M', 'T', 'W', 'T', 'F', 'S', 'S']
-                        : ['S', 'T', 'Q', 'Q', 'S', 'S', 'D']
+                        ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+                        : ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
                       ).map((day, index) => (
                         <div key={index}>
                           <span>{day}</span>
@@ -834,25 +879,37 @@ export function ProfileContent({
                         </div>
                       ))}
                     </div>
-                    {trails.map((trail) => (
-                      <LanguageTrailBar
-                        key={trail.language}
-                        language={trail.language}
-                        xp={trail.xp}
-                        level={trail.level}
-                        maxXp={calculateLevel(trail.xp).nextLevelXp}
-                      />
-                    ))}
-                    {trails.length === 0 && (
-                      <p className={styles.empty}>
-                        {text('Nenhuma trilha iniciada.', 'No trails started.')}
-                      </p>
-                    )}
-                  </details>
-                  <details className={styles.statisticsDetails} open={initialTab === 'badges'}>
-                    <summary>{text('Badges e certificados', 'Badges and certificates')}</summary>
-                    <CredentialShowcase credentials={credentials} />
-                  </details>
+                  </section>
+                  <section className={styles.statisticsSection}>
+                    <h3>{text('Progresso por linguagem', 'Language progress')}</h3>
+                    <div className={styles.languageProgress}>
+                      {trails.map((trail) => (
+                        <LanguageTrailBar
+                          key={trail.language}
+                          language={trail.language}
+                          xp={trail.xp}
+                          level={trail.level}
+                          maxXp={calculateLevel(trail.xp).nextLevelXp}
+                          compact
+                        />
+                      ))}
+                      {trails.length === 0 && (
+                        <p className={styles.empty}>
+                          {text('Nenhuma trilha iniciada.', 'No trails started.')}
+                        </p>
+                      )}
+                    </div>
+                  </section>
+                </section>
+              ) : activeTab === 'certificates' ? (
+                <section aria-label={text('Certificados do perfil', 'Profile certificates')}>
+                  <h2 className={headerStyles.certificatesHeading}>
+                    {text('Badges e certificados', 'Badges and certificates')}
+                  </h2>
+                  <ProfileCertificates
+                    isOwner={user.id === profileUser.id}
+                    credentials={credentials}
+                  />
                 </section>
               ) : (
                 <>

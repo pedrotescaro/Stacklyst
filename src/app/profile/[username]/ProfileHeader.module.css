@@ -99,8 +99,23 @@
 }
 .desktopNavigation .desktopMediaDropdown {
   right: auto;
-  left: 20%;
+  left: 16.6667%;
   transform-origin: top left;
+}
+.desktopTabs > button {
+  min-width: max-content;
+  gap: 4px;
+  padding-inline: 8px;
+  white-space: nowrap;
+}
+.desktopTabs > button > svg {
+  flex-shrink: 0;
+}
+.certificatesHeading {
+  margin: 0;
+  padding: 24px 20px 0;
+  font-size: 17px;
+  font-weight: 650;
 }
 @media (max-width: 767px) {
   .desktopNavigation,
@@ -136,7 +151,7 @@
 
 .mobileTab {
   flex: 1 1 0;
-  min-width: 0;
+  min-width: 36px;
   min-height: 48px;
   display: flex;
   align-items: center;
@@ -165,7 +180,9 @@
 }
 
 .mobileTabActive {
-  flex: 1.5 1 0;
+  flex: 0 0 auto;
+  max-width: calc(100% - 180px);
+  padding-inline: 8px;
   color: var(--profile-button, var(--color-dd-accent, #0083fe));
   font-weight: 700;
 }

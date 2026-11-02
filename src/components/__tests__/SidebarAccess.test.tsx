@@ -64,10 +64,12 @@ describe('Sidebar role-aware navigation', () => {
     expect(desktopLinks[trails + 1]).toHaveAttribute('href', '/duels');
     expect(desktopLinks[trails + 2]).toHaveAttribute('href', '/achievements');
     expect(screen.getByRole('link', { name: 'Títulos' })).toHaveAttribute('href', '/achievements');
+    expect(screen.queryByRole('link', { name: 'Certificados' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Mais' }));
 
     expect(screen.queryByRole('menuitem', { name: 'Duelos' })).not.toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: 'Títulos' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('menuitem', { name: 'Certificados' })).not.toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Avaliação de Código' })).toBeInTheDocument();
     expect(
       screen.queryByRole('menuitem', { name: 'Painel Administrativo' })
@@ -104,6 +106,7 @@ describe('Sidebar role-aware navigation', () => {
     expect(screen.getAllByRole('link', { name: 'Notifications' })).toHaveLength(1);
     expect(screen.getByRole('link', { name: 'Bookmarks' })).toBeInTheDocument();
     expect(screen.getByRole('link', { name: 'Titles' })).toHaveAttribute('href', '/achievements');
+    expect(screen.queryByRole('link', { name: 'Certificates' })).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'More' })).toBeInTheDocument();
   });
 });

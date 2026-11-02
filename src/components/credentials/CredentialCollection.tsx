@@ -7,7 +7,13 @@ import { BadgeArt } from './BadgeArt';
 import type { CredentialCollection as Collection, CredentialRecord } from '@/lib/credentials/types';
 import styles from './Credentials.module.css';
 
-export function CredentialCollection({ collection }: { collection: Collection }) {
+export function CredentialCollection({
+  collection,
+  isOwner = true,
+}: {
+  collection: Collection;
+  isOwner?: boolean;
+}) {
   const [filter, setFilter] = useState('all');
   const [query, setQuery] = useState('');
   const [limit, setLimit] = useState(24);
@@ -33,8 +39,9 @@ export function CredentialCollection({ collection }: { collection: Collection })
     <div className={styles.collection}>
       <div className={styles.introduction}>
         <p>
-          Cada badge conta uma conquista sua. Conclua as atividades indicadas para receber uma
-          credencial com certificado e verificação pública.
+          {isOwner
+            ? 'Cada badge conta uma conquista sua. Conclua as atividades indicadas para receber uma credencial com certificado e verificação pública.'
+            : 'Certificados conquistados por este perfil, com atividades concluídas e verificação pública.'}
         </p>
         <span>
           <BadgeCheck size={19} aria-hidden="true" /> {collection.earnedCount}{' '}
@@ -85,17 +92,27 @@ export function CredentialCollection({ collection }: { collection: Collection })
       </div>
       {items.length === 0 ? (
         <div className={styles.empty}>
-          <Search size={30} aria-hidden="true" />
-          <h2>Nenhum certificado encontrado</h2>
-          <p>Tente outro nome ou exiba todas as conquistas.</p>
-          <button
-            onClick={() => {
-              setQuery('');
-              setFilter('all');
-            }}
-          >
-            Ver todas
-          </button>
+          {isOwner || collection.items.length ? (
+            <>
+              <Search size={30} aria-hidden="true" />
+              <h2>Nenhum certificado encontrado</h2>
+              <p>Tente outro nome ou exiba todas as conquistas.</p>
+              <button
+                onClick={() => {
+                  setQuery('');
+                  setFilter('all');
+                }}
+              >
+                Ver todas
+              </button>
+            </>
+          ) : (
+            <>
+              <BadgeCheck size={30} aria-hidden="true" />
+              <h2>Este perfil ainda não possui certificados</h2>
+              <p>As conquistas verificadas aparecerão aqui.</p>
+            </>
+          )}
         </div>
       ) : (
         <div className={styles.list}>
@@ -129,7 +146,7 @@ export function CredentialCollection({ collection }: { collection: Collection })
                 <p>{definition.description}</p>
                 <details className={styles.criteria}>
                   <summary>
-                    Como conquistar · {completed} de {total}{' '}
+                    {isOwner ? 'Como conquistar' : 'Atividades concluídas'} · {completed} de {total}{' '}
                     {total === 1 ? 'atividade' : 'atividades'}
                   </summary>
                   {definition.requirements.length ? (

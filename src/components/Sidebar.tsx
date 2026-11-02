@@ -30,7 +30,6 @@ import {
   SquarePen,
   Menu,
   Award,
-  BadgeCheck,
 } from 'lucide-react';
 import { NotificationBellIcon } from '@/components/motion/NotificationBellIcon';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
@@ -293,13 +292,6 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       href: '/achievements',
       icon: Award,
       active: pathname.startsWith('/achievements'),
-    },
-    {
-      id: 'certificates',
-      label: isEnglish ? 'Certificates' : 'Certificados',
-      href: '/certificates',
-      icon: BadgeCheck,
-      active: pathname.startsWith('/certificates'),
     },
     {
       id: 'notifications',

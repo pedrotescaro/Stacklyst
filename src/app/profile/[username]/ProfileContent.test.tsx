@@ -61,23 +61,25 @@ beforeEach(() => {
     'fetch',
     vi.fn(async (url: string) =>
       Response.json(
-        url.includes('type=photos')
-          ? {
-              items: [{ id: 'photo-post', title: 'Foto real', image_url: '/test-photo.png' }],
-              nextCursor: null,
-            }
-          : url.includes('weekly-activity')
-            ? { weekDays: [] }
-            : {
-                items: [
-                  {
-                    id: 'post',
-                    body: url.includes('/replies') ? 'Resposta real' : 'Publicação real',
-                    author_id: 'owner',
-                  },
-                ],
+        url === '/api/certificates'
+          ? { items: [], earnedCount: 0 }
+          : url.includes('type=photos')
+            ? {
+                items: [{ id: 'photo-post', title: 'Foto real', image_url: '/test-photo.png' }],
                 nextCursor: null,
               }
+            : url.includes('weekly-activity')
+              ? { weekDays: [] }
+              : {
+                  items: [
+                    {
+                      id: 'post',
+                      body: url.includes('/replies') ? 'Resposta real' : 'Publicação real',
+                      author_id: 'owner',
+                    },
+                  ],
+                  nextCursor: null,
+                }
       )
     )
   );
@@ -123,7 +125,7 @@ describe('Compact social profile content', () => {
     render(<ProfileContent {...props} />);
     expect(screen.getByLabelText('Painel pessoal')).toHaveTextContent('viewer');
   });
-  it('shows exactly five desktop tabs and keeps all metrics inside Statistics', async () => {
+  it('shows six desktop tabs and keeps all metrics inside Statistics', async () => {
     render(<ProfileContent {...props} />);
     await screen.findByText('Publicação real');
     const desktop = within(screen.getByTestId('profile-desktop-tabs'));
@@ -133,6 +135,7 @@ describe('Compact social profile content', () => {
       'Curtidas',
       'Respostas',
       'Estatísticas',
+      'Certificados',
     ]);
     expect(screen.queryByText('Publicações')).not.toBeInTheDocument();
     fireEvent.click(desktop.getByRole('tab', { name: 'Estatísticas' }));
@@ -242,7 +245,7 @@ describe('Compact social profile content', () => {
     expect(postsTab).toHaveAttribute('aria-selected', 'true');
     expect(postsTab).toHaveFocus();
   });
-  it('navigates the five desktop tabs with media occupying one keyboard stop', async () => {
+  it('navigates the six desktop tabs with media occupying one keyboard stop', async () => {
     render(<ProfileContent {...props} />);
     await screen.findByText('Publicação real');
     const desktop = within(screen.getByTestId('profile-desktop-tabs'));
@@ -291,18 +294,75 @@ describe('Compact social profile content', () => {
     await waitFor(() => expect(screen.queryByRole('searchbox')).not.toBeInTheDocument());
   });
 
+  it('opens the existing certificate collection inside the profile and keeps it out of Statistics', async () => {
+    render(<ProfileContent {...props} />);
+    await screen.findByText('Publicação real');
+    const desktop = within(screen.getByTestId('profile-desktop-tabs'));
+    fireEvent.click(desktop.getByRole('tab', { name: 'Estatísticas' }));
+    expect(screen.getByRole('heading', { name: 'Aprendizagem e atividade' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Atividade semanal' })).toBeVisible();
+    expect(screen.getByRole('heading', { name: 'Progresso por linguagem' })).toBeVisible();
+    expect(screen.queryByRole('heading', { name: 'Badges e certificados' })).toBeNull();
+
+    fireEvent.keyDown(desktop.getByRole('tab', { name: 'Estatísticas' }), { key: 'ArrowRight' });
+    const certificatesTab = desktop.getByRole('tab', { name: 'Certificados' });
+    expect(certificatesTab).toHaveFocus();
+    expect(certificatesTab).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('tabpanel')).toHaveAttribute('id', 'profile-panel-certificates');
+    expect(await screen.findByRole('textbox', { name: 'Buscar certificados' })).toBeInTheDocument();
+    expect(screen.getByRole('combobox', { name: 'Filtrar certificados' })).toBeInTheDocument();
+    expect(fetch).toHaveBeenCalledWith('/api/certificates', expect.any(Object));
+    expect(fetch).not.toHaveBeenCalledWith(
+      expect.stringContaining('/activity?tab=certificates'),
+      expect.any(Object)
+    );
+  });
+
+  it.each(['certificates', 'badges'] as const)(
+    'opens %s links directly in the certificates tab',
+    async (initialTab) => {
+      render(<ProfileContent {...props} initialTab={initialTab} />);
+      await screen.findByRole('textbox', { name: 'Buscar certificados' });
+      const desktop = within(screen.getByTestId('profile-desktop-tabs'));
+      expect(desktop.getByRole('tab', { name: 'Certificados' })).toHaveAttribute(
+        'aria-selected',
+        'true'
+      );
+      expect(fetch).not.toHaveBeenCalledWith(
+        expect.stringContaining('/api/profile/'),
+        expect.any(Object)
+      );
+    }
+  );
+
+  it('opens certificates from mobile without exposing the viewer collection on another profile', async () => {
+    render(<ProfileContent {...props} user={{ ...props.user, id: 'visitor' }} />);
+    await screen.findByText('Publicação real');
+    const mobile = within(screen.getByTestId('profile-mobile-tabs'));
+    const certificatesTab = mobile.getByRole('tab', { name: 'Certificados' });
+    fireEvent.click(certificatesTab);
+    expect(certificatesTab).toHaveAttribute('aria-selected', 'true');
+    expect(
+      screen.getByRole('heading', { name: 'Este perfil ainda não possui certificados' })
+    ).toBeVisible();
+    expect(fetch).not.toHaveBeenCalledWith('/api/certificates', expect.any(Object));
+    fireEvent.keyDown(certificatesTab, { key: 'ArrowRight' });
+    expect(mobile.getByRole('tab', { name: 'Vídeos' })).toHaveFocus();
+  });
+
   describe('Twitter/X style mobile profile navigation', () => {
-    it('displays exactly five main options on mobile: Postagens, Curtidas, Respostas, Estatísticas, Mídia', async () => {
+    it('includes certificates among the six mobile tabs', async () => {
       render(<ProfileContent {...props} />);
       await screen.findByText('Publicação real');
       const mobile = within(screen.getByTestId('profile-mobile-tabs'));
       const tabs = mobile.getAllByRole('tab');
-      expect(tabs).toHaveLength(5);
+      expect(tabs).toHaveLength(6);
       expect(tabs.map((tab) => tab.getAttribute('aria-label'))).toEqual([
         'Postagens',
         'Curtidas',
         'Respostas',
         'Estatísticas',
+        'Certificados',
         'Vídeos',
       ]);
     });
@@ -378,7 +438,7 @@ describe('Compact social profile content', () => {
       });
     });
 
-    it('supports mobile keyboard navigation between the 5 tabs', async () => {
+    it('supports mobile keyboard navigation between the six tabs', async () => {
       render(<ProfileContent {...props} />);
       await screen.findByText('Publicação real');
       const mobile = within(screen.getByTestId('profile-mobile-tabs'));

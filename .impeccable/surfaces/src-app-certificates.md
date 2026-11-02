@@ -9,11 +9,11 @@ related_targets: ["src/components/credentials","src/app/profile/[username]/Profi
 
 Modo: Operate. Extensão da plataforma existente, sem criar uma nova identidade visual.
 
-Escopo: coleção /certificates, registro público /certificates/[id], PDF e vitrine de badges do perfil. Relacionados: componentes de credenciais e integração do perfil. A identidade permanece em DESIGN.md; propósito e restrições duráveis permanecem em PRODUCT.md.
+Escopo: coleção na aba Certificados do perfil (/profile/[username]?tab=certificates), registro público /certificates/[id] e PDF. /certificates redireciona para a aba do perfil autenticado. Relacionados: componentes de credenciais e integração do perfil. A identidade permanece em DESIGN.md; propósito e restrições duráveis permanecem em PRODUCT.md.
 
-Referências confirmadas no brief: badges de curso profissional do tipo BadgeCert/Cisco, com escudo, aro e fita, desenhadas em vetor. Preservar Inter/Sora, preto e branco, Electric Blue #0083FE, coluna principal de até 720 px e sidebar adjacente do shell existente. Não alterar navegação ou identidade global para acomodar esta superfície.
+Referências confirmadas no brief: badges de curso profissional do tipo BadgeCert/Cisco, com escudo, aro e fita, desenhadas em vetor. Preservar Inter/Sora, preto e branco, Electric Blue #0083FE, coluna principal de até 720 px e sidebar adjacente do shell existente. Por solicitação do proprietário, o acesso Certificados fica nas abas do perfil, após Estatísticas, sem entrada na sidebar ou no menu móvel.
 
-Composição: lista de conquistas com badge, título, descrição, estado textual, progresso, critérios em details e ações de continuar, verificar ou baixar. Busca e filtros por linguagem/conquistadas; estado vazio com recuperação. Mobile empilha ferramentas e ações sem overflow. O perfil exibe somente credenciais verificadas ou orientação de conquista, sem badges de exemplo.
+Composição: lista de conquistas com badge, título, descrição, estado textual, progresso, critérios em details e ações de continuar, verificar ou baixar. Busca e filtros por linguagem/conquistadas; estado vazio com recuperação. Mobile empilha ferramentas e ações sem overflow. O próprio perfil reutiliza a coleção completa; outros perfis exibem somente as credenciais verificadas daquele titular. As estatísticas agrupam resumo, aprendizagem, semana e progresso por linguagem em uma aba separada, sem badges de exemplo.
 
 Conteúdo: marcos vinculados a progresso avaliado real — primeira lição, seções, curso do zero e práticas — para JavaScript, TypeScript, Python, Rust, Go e Java. Desenho atenuado com cadeado quando pendente; desenho da linguagem e confirmação quando conquistado. Sem emojis, caixas genéricas ou níveis inventados.
 

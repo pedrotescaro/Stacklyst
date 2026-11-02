@@ -202,6 +202,7 @@ export default async function ProfilePage({
 
   return (
     <ProfileContent
+      key={`${profileId}:${typeof resolvedSearchParams.tab === 'string' ? resolvedSearchParams.tab : 'posts'}`}
       railUser={{
         id: user.id,
         username: user.username,
@@ -249,9 +250,17 @@ export default async function ProfilePage({
       followedBy={followedBy}
       initialTab={
         typeof resolvedSearchParams.tab === 'string' &&
-        ['posts', 'photos', 'videos', 'likes', 'replies', 'stats', 'trails', 'badges'].includes(
-          resolvedSearchParams.tab
-        )
+        [
+          'posts',
+          'photos',
+          'videos',
+          'likes',
+          'replies',
+          'stats',
+          'certificates',
+          'trails',
+          'badges',
+        ].includes(resolvedSearchParams.tab)
           ? (resolvedSearchParams.tab as
               | 'posts'
               | 'photos'
@@ -259,6 +268,7 @@ export default async function ProfilePage({
               | 'likes'
               | 'replies'
               | 'stats'
+              | 'certificates'
               | 'trails'
               | 'badges')
           : 'posts'
