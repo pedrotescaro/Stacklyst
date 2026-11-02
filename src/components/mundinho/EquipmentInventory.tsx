@@ -2,6 +2,7 @@ import {
   EQUIPMENT,
   EQUIPMENT_SLOTS,
   equipmentBonusLabel,
+  hasBugHunterTitle,
   type CombatStats,
   type EquipmentSlot,
 } from '../../lib/mundinho/equipment';
@@ -25,10 +26,12 @@ export function EquipmentInventory({
   const owned = EQUIPMENT.filter((item) => inventory.includes(item.id));
   return (
     <section className="ad-equipment-inventory" aria-label="Equipamentos de batalha">
-      <h2>Equipamentos de batalha</h2>
+      <h2 id="ad-equipment-inventory-title" tabIndex={-1}>
+        Equipamentos de batalha
+      </h2>
       <p>
-        Vença criaturas para encontrar equipamentos. Equipe um item de cada tipo para melhorar seus
-        atributos.
+        Compre equipamentos na loja ou encontre-os ao vencer criaturas. Equipe um item de cada tipo
+        para melhorar seus atributos.
       </p>
       <dl className="ad-equipment-stats">
         <div>
@@ -48,6 +51,9 @@ export function EquipmentInventory({
         Golpe direto: {stats.directChance}% · Exercício: {100 - stats.directChance}% · Chance de
         drop: {stats.dropChance}%
       </p>
+      {hasBugHunterTitle(inventory, equipped) && (
+        <p>Caça-bugs equipado: exercícios de código são dispensados nas batalhas.</p>
+      )}
       <ul className="ad-equipment-slots">
         {(Object.entries(EQUIPMENT_SLOTS) as [EquipmentSlot, string][]).map(([slot, label]) => {
           const item = owned.find((entry) => entry.slot === slot && equipped[slot] === entry.id);
@@ -61,12 +67,13 @@ export function EquipmentInventory({
       </ul>
       {locked && (
         <p className="ad-equipment-lock" role="status">
-          Encerre a batalha para trocar equipamentos. Seus atributos ficam fixos durante o combate.
+          Encerre a batalha para trocar amuletos, proteções ou relíquias.
         </p>
       )}
       {owned.length === 0 ? (
         <p className="ad-equipment-empty">
-          Seu primeiro equipamento pode cair em uma vitória. Ele será guardado aqui automaticamente.
+          Compre seu primeiro equipamento na loja ou encontre um em uma vitória. Ele será guardado
+          aqui automaticamente.
         </p>
       ) : (
         <ul className="ad-equipment-list">

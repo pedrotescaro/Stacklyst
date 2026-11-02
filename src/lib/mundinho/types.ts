@@ -1,5 +1,5 @@
 import { calculateLevel } from '../learning/rewards';
-import type { CombatStats } from './equipment';
+import { BUG_HUNTER_TITLE_ID, type CombatStats } from './equipment';
 export const LANGUAGES = ['PYTHON', 'JS', 'TS', 'RUST', 'GO', 'JAVA', 'HTML', 'CSS'] as const;
 export type BattleLanguage = (typeof LANGUAGES)[number];
 export const LANGUAGE_NAMES: Record<string, string> = {
@@ -105,9 +105,9 @@ export const ITEMS: Item[] = [
     rarity: 'Raro',
   },
   {
-    id: 'title-debugger',
+    id: BUG_HUNTER_TITLE_ID,
     name: 'Caça-bugs',
-    description: 'Um título para levar ao seu perfil de aventureiro.',
+    description: 'Equipado, permite atacar sem resolver exercícios de código nas batalhas.',
     price: 120,
     category: 'title',
     value: 1,

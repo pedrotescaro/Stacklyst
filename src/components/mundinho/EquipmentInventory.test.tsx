@@ -15,7 +15,7 @@ describe('Battle equipment inventory', () => {
         onEquip={() => {}}
       />
     );
-    expect(screen.getByText(/Seu primeiro equipamento pode cair/)).toBeInTheDocument();
+    expect(screen.getByText(/Compre seu primeiro equipamento na loja/)).toBeInTheDocument();
     expect(
       screen.getByText(/Golpe direto: 50% · Exercício: 50% · Chance de drop: 50%/)
     ).toBeInTheDocument();

@@ -1,9 +1,31 @@
 import { describe, expect, it } from 'vitest';
-import { EQUIPMENT, directAttack, equipmentDropPool, equipmentStats } from '../equipment';
+import {
+  EQUIPMENT,
+  directAttack,
+  equipmentDropPool,
+  equipmentStats,
+  equipmentPrice,
+  hasBugHunterTitle,
+} from '../equipment';
 import SPRITES from '../equipment-sprites.json';
 import { resolveTurn } from '../rules';
 
 describe('Battle equipment rules', () => {
+  it('uses catalog prices and grants the title only when it is owned and equipped', () => {
+    expect(EQUIPMENT.map((item) => equipmentPrice(item))).toEqual([
+      100, 250, 500, 100, 250, 500, 100, 250, 500,
+    ]);
+    expect(hasBugHunterTitle([], { title: 'title-debugger' })).toBe(false);
+    expect(hasBugHunterTitle(['title-debugger'], {})).toBe(false);
+    expect(equipmentStats([], { title: 'title-debugger' }).directChance).toBe(50);
+    expect(equipmentStats(['title-debugger'], {}).directChance).toBe(50);
+    expect(
+      equipmentStats(['title-debugger', 'gear-star'], {
+        title: 'title-debugger',
+        charm: 'gear-star',
+      })
+    ).toMatchObject({ directChance: 100, dropChance: 65, luck: 15 });
+  });
   it('splits the 100 equally likely base outcomes into 50 direct hits and 50 exercises', () => {
     const stats = equipmentStats([], {});
     expect(stats).toEqual({ maxHp: 100, protection: 0, luck: 0, directChance: 50, dropChance: 50 });

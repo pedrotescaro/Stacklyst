@@ -124,6 +124,225 @@ beforeEach(() => {
   };
 });
 describe('Server encounter rules', () => {
+  it('charges the server catalog price once, stores the equipment and permits equipping it', async () => {
+    await db.tx.rpgPlayer.update({ data: { coins: 100 } });
+    expect(actionSchema.parse({ type: 'buy', item: 'gear-wood', price: 0 })).toEqual({
+      type: 'buy',
+      item: 'gear-wood',
+    });
+    await expect(adventure('user', { type: 'buy', item: 'gear-moon' })).rejects.toThrow(
+      'Moedas insuficientes'
+    );
+    expect(db.tx.rpgTransaction.create).not.toHaveBeenCalled();
+    const purchased = await adventure('user', { type: 'buy', item: 'gear-wood' });
+    expect(purchased.coins).toBe(0);
+    expect(purchased.inventory).toEqual(['gear-wood']);
+    expect(purchased.transactions).toEqual([
+      expect.objectContaining({ label: 'Escudo do bosque', amount: -100 }),
+    ]);
+    const repeated = await adventure('user', { type: 'buy', item: 'gear-wood' });
+    expect(repeated.coins).toBe(0);
+    expect(repeated.inventory).toEqual(['gear-wood']);
+    expect(db.tx.rpgTransaction.create).toHaveBeenCalledTimes(1);
+    const equipped = await adventure('user', { type: 'equip', item: 'gear-wood' });
+    expect(equipped.equipped.armor).toBe('gear-wood');
+    expect(equipped.combatStats?.protection).toBe(2);
+  });
+  it('converts an equipment drop purchased earlier to coins instead of duplicating it', async () => {
+    await db.tx.rpgPlayer.update({ data: { coins: 100 } });
+    await adventure('user', { type: 'buy', item: 'gear-clover' });
+    db.random.mockReturnValue(0);
+    await adventure('user', { type: 'battle-start', language: 'TS', creature: 'syntax-slime' });
+    for (const turn of [0, 1, 2])
+      await adventure('user', { type: 'battle-skill', battle: 'battle', turn, skill: 'burst' });
+    const result = await adventure('user');
+    expect(result.inventory).toEqual(['gear-clover']);
+    expect(result.battle?.drop).toEqual({ itemId: 'gear-clover', duplicateCoins: 5 });
+    expect(result.coins).toBe(20);
+  });
+  it.each(['PYTHON', 'JS', 'TS', 'RUST', 'GO', 'JAVA', 'HTML', 'CSS'] as const)(
+    'lets the equipped Caça-bugs title attack without code in %s without granting a correct answer',
+    async (language) => {
+      await db.tx.rpgPlayer.update({ data: { coins: 120 } });
+      await adventure('user', { type: 'buy', item: 'title-debugger' });
+      const ready = await adventure('user', { type: 'equip', item: 'title-debugger' });
+      expect(ready.combatStats?.directChance).toBe(100);
+      await adventure('user', { type: 'battle-start', language, creature: 'syntax-slime' });
+      db.random.mockClear();
+      const hit = await adventure('user', {
+        type: 'battle-skill',
+        battle: 'battle',
+        turn: 0,
+        skill: 'strike',
+      });
+      expect(hit.battle).toMatchObject({ turn: 1, enemyHp: 70, question: null, directChance: 100 });
+      expect(hit.battle?.feedback).toContain('Caça-bugs equipado!');
+      expect(db.random).not.toHaveBeenCalled();
+      expect(db.execute).not.toHaveBeenCalled();
+      expect(db.tx.rpgBattle.update).toHaveBeenLastCalledWith(
+        expect.objectContaining({ data: expect.objectContaining({ correct: { increment: 0 } }) })
+      );
+    }
+  );
+  it('skips a previously assigned code challenge only after equipping the owned title, once per turn', async () => {
+    await db.tx.rpgPlayer.update({ data: { inventory: ['title-debugger'], equipped: {} } });
+    await adventure('user', { type: 'battle-start', language: 'JS', creature: 'syntax-slime' });
+    const selected = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 0,
+      skill: 'focus',
+    });
+    const question = selected.battle!.question!.id;
+    const skip = { type: 'battle-skip' as const, battle: 'battle', turn: 0, question };
+    await expect(adventure('user', skip)).rejects.toThrow('Equipe o título Caça-bugs');
+    await adventure('user', { type: 'equip', item: 'title-debugger' });
+    const result = await adventure('user', skip);
+    expect(result.battle).toMatchObject({ turn: 1, enemyHp: 82, question: null, skill: null });
+    expect(result.battle?.feedback).toContain('Caça-bugs equipado!');
+    expect(db.execute).not.toHaveBeenCalled();
+    expect(db.tx.rpgBattle.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ correct: { increment: 0 }, used: [question] }),
+      })
+    );
+    const repeated = await adventure('user', skip);
+    expect(repeated.notice).toContain('sem repetir o golpe');
+    expect(repeated.battle).toMatchObject({ turn: 1, enemyHp: 82 });
+    await adventure('user', { type: 'equip', item: 'title-debugger', remove: true });
+    expect((await adventure('user')).combatStats?.directChance).toBe(50);
+  });
+  it.each([
+    ['TS', 'byte-bug'],
+    ['PYTHON', 'null-ghost'],
+  ] as const)(
+    'uses Caça-bugs against the higher-level creature %s/%s',
+    async (language, creature) => {
+      db.tx.user.findUniqueOrThrow.mockResolvedValue({ username: 'user', total_xp: 2000 });
+      await db.tx.rpgPlayer.update({
+        data: { inventory: ['title-debugger'], equipped: { title: 'title-debugger' } },
+      });
+      await adventure('user', { type: 'battle-start', language, creature });
+      const result = await adventure('user', {
+        type: 'battle-skill',
+        battle: 'battle',
+        turn: 0,
+        skill: 'strike',
+      });
+      expect(result.battle).toMatchObject({ turn: 1, question: null, enemyHp: 70 });
+      expect(result.battle?.feedback).toContain('Caça-bugs');
+    }
+  );
+  it('accepts the skip through the authenticated API and handles a repeated request safely', async () => {
+    const id = '11111111-1111-4111-8111-111111111111';
+    await db.tx.rpgPlayer.update({ data: { inventory: ['title-debugger'], equipped: {} } });
+    await adventure('user', { type: 'battle-start', language: 'JS', creature: 'syntax-slime' });
+    await db.tx.rpgBattle.update({ data: { id } });
+    const selected = await adventure('user', {
+      type: 'battle-skill',
+      battle: id,
+      turn: 0,
+      skill: 'strike',
+    });
+    await adventure('user', { type: 'equip', item: 'title-debugger' });
+    const payload = {
+      type: 'battle-skip',
+      battle: id,
+      turn: 0,
+      question: selected.battle!.question!.id,
+    };
+    const request = () =>
+      new Request('https://stacklyst.vercel.app/api/mundinho', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', origin: 'https://stacklyst.vercel.app' },
+        body: JSON.stringify(payload),
+      });
+    const response = await POST(request(), { params: Promise.resolve({}) });
+    expect(response.status).toBe(200);
+    expect((await response.json()).battle).toMatchObject({ turn: 1, enemyHp: 70 });
+    const repeated = await POST(request(), { params: Promise.resolve({}) });
+    const body = await repeated.json();
+    expect(repeated.status).toBe(200);
+    expect(body.notice).toContain('sem repetir o golpe');
+    expect(body.battle).toMatchObject({ turn: 1, enemyHp: 70 });
+  });
+  it('does not apply a compiler result if the same turn was already skipped from another session', async () => {
+    await db.tx.rpgPlayer.update({ data: { inventory: ['title-debugger'], equipped: {} } });
+    await adventure('user', { type: 'battle-start', language: 'JS', creature: 'syntax-slime' });
+    const selected = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 0,
+      skill: 'strike',
+    });
+    const question = selected.battle!.question!.id;
+    await adventure('user', { type: 'equip', item: 'title-debugger' });
+    db.execute.mockImplementationOnce(async () => {
+      await adventure('user', { type: 'battle-skip', battle: 'battle', turn: 0, question });
+      return { ok: true, output: 'andar\ncoletar\nandar\ncoletar', executionMs: 1 };
+    });
+    const result = await adventure('user', {
+      type: 'battle-code',
+      battle: 'battle',
+      turn: 0,
+      question,
+      code: 'mundo.andar_direita();',
+      submit: true,
+    });
+    expect(result.notice).toContain('sem repetir o golpe');
+    expect(result.battle).toMatchObject({ turn: 1, enemyHp: 70 });
+    expect(result.codeRun).toBeUndefined();
+  });
+  it('counts a victory earned with the title, without crediting exercises that were skipped', async () => {
+    await db.tx.rpgPlayer.update({
+      data: { inventory: ['title-debugger'], equipped: { title: 'title-debugger' } },
+    });
+    db.tx.rpgBattle.findMany.mockImplementation(async ({ where }: any) => {
+      if (where.id) return [];
+      const current = await db.tx.rpgBattle.findFirst({ where: { userId: 'user' } });
+      return current ? [current] : [];
+    });
+    await adventure('user', { type: 'battle-start', language: 'JS', creature: 'syntax-slime' });
+    let result;
+    for (const turn of [0, 1, 2, 3])
+      result = await adventure('user', {
+        type: 'battle-skill',
+        battle: 'battle',
+        turn,
+        skill: 'strike',
+      });
+    expect(result!.battle?.status).toBe('won');
+    expect(result!.missions.find((mission) => mission.id === 'answers')?.progress).toBe(0);
+    expect(result!.missions.find((mission) => mission.id === 'battle')?.progress).toBe(1);
+    expect(db.tx.user.update).toHaveBeenCalledTimes(1);
+  });
+  it('cannot use a forged equipped title or skip an old multiple-choice question', async () => {
+    await db.tx.rpgPlayer.update({
+      data: { inventory: [], equipped: { title: 'title-debugger' } },
+    });
+    await adventure('user', { type: 'battle-start', language: 'JS', creature: 'syntax-slime' });
+    const selected = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 0,
+      skill: 'strike',
+    });
+    await expect(
+      adventure('user', {
+        type: 'battle-skip',
+        battle: 'battle',
+        turn: 0,
+        question: selected.battle!.question!.id,
+      })
+    ).rejects.toThrow('Equipe o título Caça-bugs');
+    const old = QUESTIONS.find((q) => q.language === 'JS')!;
+    await db.tx.rpgPlayer.update({ data: { inventory: ['title-debugger'] } });
+    await db.tx.rpgBattle.update({ data: { questionId: old.id, skill: 'strike' } });
+    await expect(
+      adventure('user', { type: 'battle-skip', battle: 'battle', turn: 0, question: old.id })
+    ).rejects.toThrow('apenas exercícios de código');
+    expect((await adventure('user')).battle).toMatchObject({ turn: 0, enemyHp: 100 });
+  });
   it.each(['SyntaxError: comando inválido', 'Serviço indisponível'])(
     'returns HTTP 200 with in-battle feedback for execution failure: %s',
     async (message) => {

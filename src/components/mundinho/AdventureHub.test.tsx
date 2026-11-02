@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AdventureHub } from './AdventureHub';
 import { BattleAudio } from '../../lib/mundinho/battleAudio';
+import { codeChallenges } from '../../lib/mundinho/codeChallenges';
 import {
   DEFAULT_AVATAR,
   type AdventureState,
@@ -62,6 +63,95 @@ const openBattle = async (transport: AdventureTransport) => {
   fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
 };
 describe('Mundinho battle navigation', () => {
+  it('purchases an equipment item, equips it and shows it in the inventory', async () => {
+    let saved = state(null);
+    saved.coins = 500;
+    const transport = vi.fn<AdventureTransport>().mockImplementation(async (action) => {
+      if (action?.type === 'buy' && action.item === 'gear-wood')
+        saved = { ...saved, coins: 400, inventory: ['gear-wood'] };
+      if (action?.type === 'equip' && action.item === 'gear-wood')
+        saved = { ...saved, equipped: { armor: 'gear-wood' } };
+      return structuredClone(saved);
+    });
+    render(<AdventureHub transport={transport} courses={[]} onCourse={() => {}} />);
+    fireEvent.click(await screen.findByRole('button', { name: /Loja de Itens/ }));
+    const titleHeading = screen.getByRole('heading', { name: 'Títulos e cosméticos' });
+    expect(titleHeading.nextElementSibling?.querySelector('h3')).toHaveTextContent('Caça-bugs');
+    expect(screen.getByRole('button', { name: 'Comprar Caça-bugs por 120 moedas' })).toBeEnabled();
+    expect(
+      screen.getByText(/Equipado, permite atacar sem resolver exercícios/)
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Comprar Escudo do bosque por 100 moedas' })
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Confirmar compra de Escudo do bosque por 100 moedas' })
+    );
+    fireEvent.click(await screen.findByRole('button', { name: 'Equipar Escudo do bosque' }));
+    await screen.findByRole('button', { name: 'Desequipar Escudo do bosque' });
+    fireEvent.click(screen.getByRole('button', { name: 'Ver Meu Inventário' }));
+    expect(screen.getByRole('heading', { name: 'Escudo do bosque' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Desequipar Escudo do bosque' })).toBeEnabled();
+    expect(transport).toHaveBeenCalledWith({ type: 'buy', item: 'gear-wood' });
+    expect(transport).toHaveBeenCalledWith({ type: 'equip', item: 'gear-wood', remove: false });
+  });
+  it('uses Caça-bugs on an already assigned code exercise and animates the selected attack', async () => {
+    window.matchMedia = vi
+      .fn()
+      .mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() });
+    const active = state('active');
+    active.inventory = ['title-debugger'];
+    active.equipped = { title: 'title-debugger' };
+    const question = codeChallenges('JS')[0];
+    Object.assign(active.battle!, { language: 'JS', question, skill: 'focus', directChance: 100 });
+    const next = structuredClone(active);
+    Object.assign(next.battle!, {
+      turn: 1,
+      enemyHp: 82,
+      hp: 89,
+      question: null,
+      skill: null,
+      feedback: 'Caça-bugs equipado! Depurar aplicou um golpe direto, sem exercício: 18 de dano.',
+    });
+    const transport = vi
+      .fn<AdventureTransport>()
+      .mockImplementation(async (action) => (action?.type === 'battle-skip' ? next : active));
+    await openBattle(transport);
+    fireEvent.click(screen.getByRole('button', { name: 'Usar Caça-bugs e atacar' }));
+    await screen.findByText(/Caça-bugs equipado! Depurar/);
+    expect(transport).toHaveBeenCalledWith({
+      type: 'battle-skip',
+      battle: 'battle-id',
+      turn: 0,
+      question: question.id,
+    });
+    expect(
+      screen.queryByRole('region', { name: 'Desafio de código da batalha' })
+    ).not.toBeInTheDocument();
+  });
+  it('allows equipping an owned Caça-bugs title during an existing code challenge', async () => {
+    window.matchMedia = vi
+      .fn()
+      .mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() });
+    const active = state('active');
+    active.inventory = ['title-debugger'];
+    active.equipped = {};
+    const question = codeChallenges('JS')[0];
+    Object.assign(active.battle!, { language: 'JS', question, skill: 'strike' });
+    const equipped = structuredClone(active);
+    equipped.equipped = { title: 'title-debugger' };
+    equipped.battle!.directChance = 100;
+    const transport = vi
+      .fn<AdventureTransport>()
+      .mockImplementation(async (action) => (action?.type === 'equip' ? equipped : active));
+    await openBattle(transport);
+    expect(
+      screen.queryByRole('button', { name: 'Usar Caça-bugs e atacar' })
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Equipar Caça-bugs' }));
+    expect(await screen.findByRole('button', { name: 'Usar Caça-bugs e atacar' })).toBeEnabled();
+    expect(transport).toHaveBeenCalledWith({ type: 'equip', item: 'title-debugger' });
+  });
   it('animates a direct focus attack without opening an exercise and respects equipped maximum health', async () => {
     const active = state('active');
     active.battle!.hp = 110;

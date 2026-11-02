@@ -1944,6 +1944,82 @@
   background-repeat: no-repeat;
   image-rendering: pixelated;
 }
+.ad-equipment-store h2,
+.ad-store-section-heading {
+  margin: 8px 0;
+  color: var(--ad-text);
+  font-size: 20px;
+  font-weight: 700;
+}
+.ad-store-sections {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ad-store-sections button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid var(--ad-border);
+  border-radius: 10px;
+  background: var(--ad-card-inner);
+  color: var(--ad-text);
+  font-size: 13px;
+  font-weight: 700;
+}
+.ad-store-sections button:focus-visible {
+  outline: 2px solid var(--ad-blue);
+  outline-offset: 3px;
+}
+.ad-equipment-inventory h2,
+.ad-equipment-store h2,
+.ad-store-section-heading {
+  scroll-margin-top: 16px;
+}
+.ad-equipment-store > p {
+  margin: 8px 0 16px;
+  color: var(--ad-muted);
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ad-equipment-bonus {
+  color: var(--ad-text);
+  font-size: 13px;
+}
+.ad-equipment-store :is(.ad-buy-btn, .ad-equip-btn) {
+  min-height: 44px;
+}
+.ad-store-view .ad-buy-btn {
+  background: #1765ab;
+  color: #fff;
+}
+.ad-store-view .ad-buy-btn:hover:not(:disabled) {
+  background: #12568f;
+}
+.ad-equipment-store button:focus-visible,
+.ad-code-skip:focus-visible {
+  outline: 2px solid var(--ad-blue);
+  outline-offset: 3px;
+}
+.ad-code-skip {
+  min-height: 44px;
+  padding: 10px 16px;
+  color: #fff;
+  background: #000;
+  border: 1px solid #d4d4d4;
+  border-radius: 8px;
+}
+.ad-code-ability {
+  margin: 12px 0 16px;
+}
+.ad-code-ability p {
+  margin: 0 0 8px;
+  color: #fff;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.ad-code-skip:disabled {
+  opacity: 0.55;
+}
 .ad-equipment-inventory {
   min-width: 0;
 }
@@ -2145,7 +2221,39 @@
 .ad-item-rarity {
   font-size: 11px;
   font-weight: 700;
-  color: var(--ad-gold);
+  color: var(--ad-text);
+}
+.ad-confirm-box {
+  display: grid;
+  gap: 8px;
+}
+.ad-confirm-box p {
+  margin: 0;
+  color: var(--ad-text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.ad-confirm-box .ad-primary,
+.ad-confirm-box .ad-cancel-text {
+  min-height: 44px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.ad-confirm-box .ad-primary {
+  border: 0;
+  background: #1765ab;
+  color: #fff;
+}
+.ad-confirm-box .ad-cancel-text {
+  border: 1px solid var(--ad-border);
+  background: var(--ad-card-inner);
+  color: var(--ad-text);
+}
+.ad-confirm-box button:focus-visible {
+  outline: 2px solid var(--ad-blue);
+  outline-offset: 3px;
 }
 
 .ad-item-name {

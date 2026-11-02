@@ -18,12 +18,16 @@ export function CodeBattle({
   avatar,
   busy,
   onExecute,
+  onSkip,
+  onEquipBugHunter,
   battleLanguage,
 }: {
   question: PublicQuestion;
   avatar: Avatar;
   busy: boolean;
   onExecute: (code: string, submit: boolean) => Promise<AdventureState | undefined>;
+  onSkip?: () => void;
+  onEquipBugHunter?: () => void;
   battleLanguage?: BattleLanguage;
 }) {
   const [source, setSource] = useState(question.code!.starter);
@@ -75,6 +79,23 @@ export function CodeBattle({
     <section className="ad-code-challenge" aria-label="Desafio de código da batalha">
       <h3>{challenge.title}</h3>
       <p>{question.prompt}</p>
+      {(onSkip || onEquipBugHunter) && (
+        <div className="ad-code-ability">
+          <p>
+            {onSkip
+              ? 'Caça-bugs equipado: você pode atacar sem resolver este exercício.'
+              : 'Você já possui Caça-bugs. Equipe o título para dispensar este exercício.'}
+          </p>
+          <button
+            type="button"
+            className="ad-code-skip"
+            disabled={busy}
+            onClick={onSkip ?? onEquipBugHunter}
+          >
+            {onSkip ? 'Usar Caça-bugs e atacar' : 'Equipar Caça-bugs'}
+          </button>
+        </div>
+      )}
       {!!challenge.requiredStructures?.length && (
         <p className="ad-code-learning-hint">
           <strong>

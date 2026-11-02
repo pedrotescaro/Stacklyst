@@ -118,6 +118,18 @@ export const EQUIPMENT_SLOTS: Record<EquipmentSlot, string> = {
   armor: 'Proteção',
   relic: 'Relíquia',
 };
+
+/** Store prices are server-owned and shared with the client display. */
+export function equipmentPrice(item: Equipment) {
+  return { Comum: 100, Raro: 250, Épico: 500 }[item.rarity];
+}
+
+export const BUG_HUNTER_TITLE_ID = 'title-debugger';
+
+/** A forged equipped value never grants the title's ability. */
+export function hasBugHunterTitle(inventory: readonly string[], equipped: Record<string, string>) {
+  return inventory.includes(BUG_HUNTER_TITLE_ID) && equipped.title === BUG_HUNTER_TITLE_ID;
+}
 export type CombatStats = {
   maxHp: number;
   protection: number;
@@ -145,7 +157,7 @@ export function equipmentStats(
     maxHp: 100 + Math.min(50, vitality),
     protection: Math.min(8, protection),
     luck,
-    directChance: 50 + luck,
+    directChance: hasBugHunterTitle(inventory, equipped) ? 100 : 50 + luck,
     dropChance: 50 + luck,
   };
 }

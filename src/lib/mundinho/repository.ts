@@ -31,7 +31,9 @@ import {
   EQUIPMENT,
   directAttack,
   equipmentDropPool,
+  equipmentPrice,
   equipmentStats,
+  hasBugHunterTitle,
   type CombatStats,
 } from './equipment';
 
@@ -76,6 +78,12 @@ export const actionSchema = z.discriminatedUnion('type', [
     turn: z.number().int().min(0),
     question: z.string().max(60),
     answer: z.number().int().min(0).max(3),
+  }),
+  z.object({
+    type: z.literal('battle-skip'),
+    battle: z.string().uuid(),
+    turn: z.number().int().min(0),
+    question: z.string().max(60),
   }),
   z.object({ type: z.literal('battle-flee'), battle: z.string().uuid() }),
   z.object({
@@ -143,7 +151,7 @@ async function resolveBattleAction(
   correct: boolean,
   stats: CombatStats,
   now: Date,
-  direct = false,
+  direct: 'luck' | 'bug-hunter' | null = null,
   detail = ''
 ) {
   const creature = CREATURES.find((entry) => entry.id === battle.creature)!;
@@ -211,7 +219,7 @@ async function resolveBattleAction(
   }
   const move = SKILLS.find((entry) => entry.id === skill)!;
   const feedback = direct
-    ? `Sorte! ${move.name} aplicou um golpe direto, sem exercício: ${move.damage} de dano.`
+    ? `${direct === 'bug-hunter' ? 'Caça-bugs equipado!' : 'Sorte!'} ${move.name} aplicou um golpe direto, sem exercício: ${move.damage} de dano.`
     : correct
       ? `Correto! ${move.name} causou ${move.damage} de dano. ${detail}`
       : `Ainda não. O inimigo aproveitou a abertura. ${detail}`;
@@ -372,12 +380,16 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
       if (action?.type === 'chest')
         await credit(tx, userId, 'chest:forest:first', 'Baú da clareira', 10);
       if (action?.type === 'buy') {
-        const item = ITEMS.find((i) => i.id === action.item);
+        const cosmetic = ITEMS.find((i) => i.id === action.item);
+        const gear = EQUIPMENT.find((i) => i.id === action.item);
+        const item = cosmetic ?? gear;
         if (!item) fail('Este item não está disponível.');
+        const price = cosmetic ? cosmetic.price : equipmentPrice(gear!);
         if (!inventory.includes(item.id)) {
-          if (player.coins < item.price)
+          if (player.coins < price)
             fail('Moedas insuficientes. Complete atividades e faça check-in para ganhar mais.');
-          await credit(tx, userId, `purchase:${item.id}`, item.name, -item.price);
+          if (!(await credit(tx, userId, `purchase:${item.id}`, item.name, -price)))
+            fail('Esta compra já foi registrada. Atualize seu inventário.');
           await tx.rpgPlayer.update({
             where: { userId },
             data: { inventory: [...inventory, item.id] },
@@ -457,7 +469,9 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
       }
       if (
         action &&
-        ['battle-skill', 'battle-answer', 'battle-code', 'battle-flee'].includes(action.type)
+        ['battle-skill', 'battle-answer', 'battle-code', 'battle-skip', 'battle-flee'].includes(
+          action.type
+        )
       ) {
         const a = action as Extract<Action, { battle: string }>;
         const b = await tx.rpgBattle.findFirst({ where: { id: a.battle, userId } });
@@ -480,8 +494,18 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
             notice = 'Este turno já foi resolvido. A batalha foi atualizada sem repetir o golpe.';
             codeRun = undefined;
           } else if (a.type === 'battle-skill') {
-            if (!b.questionId && directAttack(stats, randomInt(100))) {
-              await resolveBattleAction(tx, userId, b, a.skill, true, stats, now, true);
+            const bugHunter = hasBugHunterTitle(inventory, equipped);
+            if (!b.questionId && (bugHunter || directAttack(stats, randomInt(100)))) {
+              await resolveBattleAction(
+                tx,
+                userId,
+                b,
+                a.skill,
+                true,
+                stats,
+                now,
+                bugHunter ? 'bug-hunter' : 'luck'
+              );
             } else if (!b.questionId) {
               const used = b.used as string[];
               const creature = CREATURES.find((entry) => entry.id === b.creature);
@@ -534,33 +558,42 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
             } else {
               const q = QUESTIONS.find((q) => q.id === b.questionId);
               const challenge = codeChallenge(b.language as BattleLanguage, b.questionId);
-              if (a.type === 'battle-answer' && (!q || a.question !== q.id))
-                fail('Responda este desafio com código.');
-              if (
-                a.type === 'battle-code' &&
-                (!challenge || challenge.id !== b.questionId || !codeRun)
-              )
-                fail('Este desafio de código não está ativo.');
-              // Preview and compiler/provider failures never consume a turn or roll luck again.
-              if ((a.type !== 'battle-code' || a.submit) && !codeRun?.retryable) {
-                const correct = a.type === 'battle-code' ? codeRun!.passed : q!.answer === a.answer;
-                const detail =
-                  a.type === 'battle-code'
-                    ? correct
-                      ? 'Desafio concluído!'
-                      : (codeRun!.error ?? 'Revise os comandos.')
-                    : q!.explanation;
-                await resolveBattleAction(
-                  tx,
-                  userId,
-                  b,
-                  b.skill,
-                  correct,
-                  stats,
-                  now,
-                  false,
-                  detail
-                );
+              if (a.type === 'battle-skip') {
+                if (!hasBugHunterTitle(inventory, equipped))
+                  fail('Equipe o título Caça-bugs para usar esta habilidade.');
+                if (!challenge || challenge.id !== b.questionId)
+                  fail('O Caça-bugs dispensa apenas exercícios de código.');
+                await resolveBattleAction(tx, userId, b, b.skill, true, stats, now, 'bug-hunter');
+              } else {
+                if (a.type === 'battle-answer' && (!q || a.question !== q.id))
+                  fail('Responda este desafio com código.');
+                if (
+                  a.type === 'battle-code' &&
+                  (!challenge || challenge.id !== b.questionId || !codeRun)
+                )
+                  fail('Este desafio de código não está ativo.');
+                // Preview and compiler/provider failures never consume a turn or roll luck again.
+                if ((a.type !== 'battle-code' || a.submit) && !codeRun?.retryable) {
+                  const correct =
+                    a.type === 'battle-code' ? codeRun!.passed : q!.answer === a.answer;
+                  const detail =
+                    a.type === 'battle-code'
+                      ? correct
+                        ? 'Desafio concluído!'
+                        : (codeRun!.error ?? 'Revise os comandos.')
+                      : q!.explanation;
+                  await resolveBattleAction(
+                    tx,
+                    userId,
+                    b,
+                    b.skill,
+                    correct,
+                    stats,
+                    now,
+                    null,
+                    detail
+                  );
+                }
               }
             }
           }

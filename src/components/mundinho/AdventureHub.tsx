@@ -62,8 +62,15 @@ import './mundinho.css';
 import { adventureAsset } from './assets';
 import { PixelMeter } from './PixelMeter';
 import { Portrait } from './Portrait';
-import { EQUIPMENT, equipmentStats, equipmentBonusLabel } from '../../lib/mundinho/equipment';
+import {
+  EQUIPMENT,
+  equipmentStats,
+  equipmentBonusLabel,
+  hasBugHunterTitle,
+  BUG_HUNTER_TITLE_ID,
+} from '../../lib/mundinho/equipment';
 import { EquipmentInventory } from './EquipmentInventory';
+import { EquipmentStore } from './EquipmentStore';
 import { EquipmentSprite } from './EquipmentSprite';
 
 const World = lazy(() => import('./World'));
@@ -283,7 +290,7 @@ export function AdventureHub({
         !next.notice &&
         (action.type === 'battle-answer' ||
           (action.type === 'battle-code' && action.submit && !next.codeRun?.retryable) ||
-          (action.type === 'battle-skill' &&
+          ((action.type === 'battle-skill' || action.type === 'battle-skip') &&
             data?.battle?.id === next.battle?.id &&
             (next.battle?.turn ?? 0) > (data?.battle?.turn ?? 0)));
       if (answered && data?.battle && next.battle) {
@@ -386,6 +393,7 @@ export function AdventureHub({
   const equippedAvatar = data?.avatar ?? DEFAULT_AVATAR;
   const combatStats =
     data?.combatStats ?? equipmentStats(data?.inventory ?? [], data?.equipped ?? {});
+  const bugHunter = hasBugHunterTitle(data?.inventory ?? [], data?.equipped ?? {});
   const battleDrop = EQUIPMENT.find((item) => item.id === battle?.drop?.itemId);
   const choosingSkill = view === 'battle' && battle?.status === 'active' && !battle.question;
   useEffect(() => {
@@ -880,7 +888,7 @@ export function AdventureHub({
               <TreasureChest className="text-amber-400" size={24} />
               <div>
                 <strong>Loja de Itens</strong>
-                <small>Compre cosméticos com suas moedas</small>
+                <small>Equipamentos e cosméticos com suas moedas</small>
               </div>
               <ChevronRight size={18} />
             </button>
@@ -889,7 +897,7 @@ export function AdventureHub({
               <Backpack className="text-indigo-400" size={24} />
               <div>
                 <strong>Meu Inventário</strong>
-                <small>Equipar títulos e molduras</small>
+                <small>Equipar itens, títulos e acessórios</small>
               </div>
               <ChevronRight size={18} />
             </button>
@@ -1414,6 +1422,26 @@ export function AdventureHub({
                       battleLanguage={battle.language}
                       avatar={equippedAvatar}
                       busy={busy}
+                      onSkip={
+                        bugHunter
+                          ? () =>
+                              void act({
+                                type: 'battle-skip',
+                                battle: battle.id,
+                                turn: battle.turn,
+                                question: battle.question!.id,
+                              })
+                          : undefined
+                      }
+                      onEquipBugHunter={
+                        !bugHunter && data?.inventory.includes(BUG_HUNTER_TITLE_ID)
+                          ? () =>
+                              void act(
+                                { type: 'equip', item: BUG_HUNTER_TITLE_ID },
+                                'Caça-bugs equipado. Use a habilidade para atacar.'
+                              )
+                          : undefined
+                      }
                       onExecute={(code, submit) =>
                         act({
                           type: 'battle-code',
@@ -1458,6 +1486,12 @@ export function AdventureHub({
                   ) : (
                     <>
                       <p className="ad-battle-odds">
+                        {bugHunter && (
+                          <strong>
+                            Caça-bugs equipado: exercícios de código dispensados.
+                            <br />
+                          </strong>
+                        )}
                         Golpe direto: {battle.directChance ?? combatStats.directChance}% ·
                         Exercício: {100 - (battle.directChance ?? combatStats.directChance)}%
                         <span>
@@ -1578,6 +1612,32 @@ export function AdventureHub({
               <ChevronRight size={16} />
             </button>
           </div>
+          {(view === 'store' || ITEMS.some((item) => data?.inventory.includes(item.id))) && (
+            <nav
+              className="ad-store-sections"
+              aria-label={view === 'store' ? 'Categorias da loja' : 'Seções do inventário'}
+            >
+              {[
+                [
+                  view === 'store' ? 'ad-equipment-store-title' : 'ad-equipment-inventory-title',
+                  'Equipamentos',
+                ],
+                ['ad-store-personalization-title', 'Títulos e cosméticos'],
+              ].map(([id, label]) => (
+                <button
+                  key={id}
+                  type="button"
+                  onClick={() => {
+                    const target = document.getElementById(id);
+                    target?.scrollIntoView({ block: 'start' });
+                    target?.focus({ preventScroll: true });
+                  }}
+                >
+                  {label}
+                </button>
+              ))}
+            </nav>
+          )}
           {view === 'inventory' && (
             <EquipmentInventory
               inventory={data?.inventory ?? []}
@@ -1593,9 +1653,43 @@ export function AdventureHub({
               }
             />
           )}
+          {view === 'store' && (
+            <EquipmentStore
+              inventory={data?.inventory ?? []}
+              equipped={data?.equipped ?? {}}
+              coins={data?.coins ?? 0}
+              busy={!data || busy}
+              locked={battle?.status === 'active'}
+              confirming={confirm}
+              onConfirmChange={setConfirm}
+              onBuy={async (item) => {
+                const result = await act(
+                  { type: 'buy', item },
+                  'Equipamento comprado e guardado no inventário!'
+                );
+                if (result) setConfirm(null);
+              }}
+              onEquip={(item, remove) =>
+                void act(
+                  { type: 'equip', item, remove },
+                  remove ? 'Equipamento removido.' : 'Equipamento pronto para a próxima batalha!'
+                )
+              }
+            />
+          )}
+          {(view === 'store' || ITEMS.some((item) => data?.inventory.includes(item.id))) && (
+            <h2
+              id="ad-store-personalization-title"
+              tabIndex={-1}
+              className="ad-store-section-heading"
+            >
+              Títulos e cosméticos
+            </h2>
+          )}
           <div className="ad-store-grid">
-            {ITEMS.filter((item) => view === 'store' || data?.inventory.includes(item.id)).map(
-              (item) => {
+            {ITEMS.filter((item) => view === 'store' || data?.inventory.includes(item.id))
+              .sort((a, b) => Number(b.category === 'title') - Number(a.category === 'title'))
+              .map((item) => {
                 const owned = data?.inventory.includes(item.id);
                 const worn = ['hair', 'outfit', 'accessory'].includes(item.category)
                   ? equippedAvatar[item.category as keyof Avatar] === item.value
@@ -1626,6 +1720,7 @@ export function AdventureHub({
                       <button
                         className={`ad-equip-btn ${worn ? 'is-worn' : ''}`}
                         disabled={busy}
+                        aria-label={`${worn ? 'Desequipar' : 'Equipar'} ${item.name}`}
                         onClick={() =>
                           void act(
                             { type: 'equip', item: item.id, remove: worn },
@@ -1641,6 +1736,7 @@ export function AdventureHub({
                         <button
                           className="ad-primary w-full text-xs py-2"
                           disabled={busy}
+                          aria-label={`Confirmar compra de ${item.name} por ${item.price} moedas`}
                           onClick={async () => {
                             await act(
                               { type: 'buy', item: item.id },
@@ -1659,17 +1755,17 @@ export function AdventureHub({
                       <button
                         className="ad-buy-btn"
                         disabled={!data || busy || data.coins < item.price}
+                        aria-label={`Comprar ${item.name} por ${item.price} moedas`}
                         onClick={() => setConfirm(item.id)}
                       >
                         <Coin />
-                        <span>{item.price}</span>
+                        <span>Comprar · {item.price}</span>
                         {data && data.coins < item.price && <small>(Saldo insuficiente)</small>}
                       </button>
                     )}
                   </article>
                 );
-              }
-            )}
+              })}
           </div>
         </div>
       )}
