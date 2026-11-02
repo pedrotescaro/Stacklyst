@@ -17,7 +17,7 @@ const topics = [
   {
     question: 'O que há nesta clareira?',
     answer:
-      'A placa tem uma dica de programação e o baú guarda uma recompensa. As criaturas aparecem nas moitas. Se alguma exigir um nível maior, continue suas lições nas Trilhas. E pode voltar aqui sempre que quiser conversar!',
+      'A placa tem uma dica de programação e o baú guarda 10 moedas por dia. O buraco com escadaria leva à arena: lá você pode convidar um amigo que também segue você. As criaturas aparecem nas moitas. O Titã do Vazio é nível 10; continue suas lições nas Trilhas para enfrentá-lo!',
   },
 ] as const;
 

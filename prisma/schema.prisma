@@ -181,6 +181,9 @@ enum EventStatus {
 }
 
 model User {
+  arenas_hosted             RpgArenaRoom[] @relation("ArenaHost")
+  arenas_joined             RpgArenaRoom[] @relation("ArenaGuest")
+  arena_invitations         RpgArenaRoom[] @relation("ArenaInvitee")
   rpg_player                RpgPlayer?
   profile_customization     ProfileCustomization?
   profile_achievements      UserProfileAchievement[]
@@ -306,6 +309,8 @@ model RpgBattle {
   status     String    @default("active")
   hp         Int       @default(100)
   enemyHp    Int       @default(100)
+  enemyLevel Int       @default(1)
+  enemyMaxHp Int       @default(100)
   turn       Int       @default(0)
   correct    Int       @default(0)
   questionId String?
@@ -319,6 +324,29 @@ model RpgBattle {
 
   @@index([userId, createdAt(sort: Desc)])
   @@map("rpg_battles")
+}
+
+model RpgArenaRoom {
+  id              String   @id @default(uuid())
+  hostId          String   @unique
+  guestId         String?  @unique
+  inviteeId       String?
+  inviteExpiresAt DateTime?
+  hostLanguage    String
+  guestLanguage   String?
+  hostPosition    Json     @default("{\"x\":320,\"y\":340,\"direction\":\"down\",\"walking\":false}")
+  guestPosition   Json     @default("{\"x\":448,\"y\":340,\"direction\":\"down\",\"walking\":false}")
+  hostSeenAt      DateTime @default(now())
+  guestSeenAt     DateTime?
+  match           Json?
+  version         Int      @default(0)
+  updatedAt       DateTime @updatedAt
+  host            User @relation("ArenaHost", fields: [hostId], references: [id], onDelete: Cascade)
+  guest           User? @relation("ArenaGuest", fields: [guestId], references: [id], onDelete: SetNull)
+  invitee         User? @relation("ArenaInvitee", fields: [inviteeId], references: [id], onDelete: SetNull)
+
+  @@index([inviteeId, inviteExpiresAt])
+  @@map("rpg_arena_rooms")
 }
 
 model ProfileCustomization {

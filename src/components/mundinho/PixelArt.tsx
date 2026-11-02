@@ -103,14 +103,20 @@ export function PixelCreature({
   kind?: string;
   className?: string;
 }) {
+  const variant = { 'iron-beetle': 'byte-bug', 'wild-ember': 'ember', 'null-titan': 'null-ghost' }[
+    kind
+  ];
   const row = Math.max(
     0,
-    ['syntax-slime', 'blue-slime', 'ember', 'byte-bug', 'forest', 'null-ghost'].indexOf(kind)
+    ['syntax-slime', 'blue-slime', 'ember', 'byte-bug', 'forest', 'null-ghost'].indexOf(
+      variant ?? kind
+    )
   );
   return (
     <span
       aria-hidden="true"
       className={`pixel-creature sprite-creature ${className}`}
+      data-creature={kind}
       style={{
         backgroundImage: `url(${adventureAsset('creatures-animated.png', '/assets/mundinho')})`,
         backgroundSize: '800% 600%',

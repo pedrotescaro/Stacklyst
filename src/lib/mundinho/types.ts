@@ -131,6 +131,9 @@ export const CREATURES = [
   { id: 'byte-bug', name: 'Besouro de bits', color: '#b39be8', level: 2, x: 290, y: 510 },
   { id: 'forest', name: 'Broto booleano', color: '#4dbb8b', level: 1, x: 420, y: 180 },
   { id: 'null-ghost', name: 'Sombra do nulo', color: '#a7b6cc', level: 3, x: 580, y: 620 },
+  { id: 'iron-beetle', name: 'Sentinela de ferro', color: '#b39be8', level: 4, x: 770, y: 510 },
+  { id: 'wild-ember', name: 'Chama indomável', color: '#f39a42', level: 5, x: 800, y: 260 },
+  { id: 'null-titan', name: 'Titã do vazio', color: '#a7b6cc', level: 10, x: 540, y: 130 },
 ];
 export type CodeAction =
   | 'coletar'
@@ -170,6 +173,8 @@ export type BattleView = {
   creature: string;
   hp: number;
   enemyHp: number;
+  enemyLevel?: number;
+  enemyMaxHp?: number;
   turn: number;
   status: 'active' | 'won' | 'lost' | 'fled';
   question: PublicQuestion | null;
@@ -201,6 +206,7 @@ export type AdventureState = {
   inventory: string[];
   equipped: Record<string, string>;
   checkin: { day: string; claimed: boolean; streak: number; cycle: number; reward: number };
+  chest?: { day: string; claimed: boolean; reward: number; awarded?: boolean };
   transactions: { id: string; label: string; amount: number; createdAt: string }[];
   missions: Mission[];
   battle: BattleView | null;

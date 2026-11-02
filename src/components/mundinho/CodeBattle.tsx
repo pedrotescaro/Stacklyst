@@ -25,7 +25,10 @@ export function CodeBattle({
   question: PublicQuestion;
   avatar: Avatar;
   busy: boolean;
-  onExecute: (code: string, submit: boolean) => Promise<AdventureState | undefined>;
+  onExecute: (
+    code: string,
+    submit: boolean
+  ) => Promise<Pick<AdventureState, 'codeRun'> | undefined>;
   onSkip?: () => void;
   onEquipBugHunter?: () => void;
   battleLanguage?: BattleLanguage;

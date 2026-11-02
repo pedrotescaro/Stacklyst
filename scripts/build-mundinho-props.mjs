@@ -3,6 +3,7 @@ import path from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { canvas, aseDocument } from './lib/mundinho-pixel-art.mjs';
 import sharp from 'sharp';
+import { chestArtwork } from './lib/mundinho-chest-art.mjs';
 
 const libreSprite = process.env.LIBRESPRITE_BIN || 'C:/Program Files/LibreSprite/libresprite.exe';
 const sources = 'artifacts/mundinho/libresprite/props';
@@ -11,133 +12,6 @@ const scratch = '.tmp/mundinho-props';
 await Promise.all([sources, output, scratch].map((dir) => fs.mkdir(dir, { recursive: true })));
 
 // Original, deliberately pixel-aligned artwork. No SVG rasterization or antialiasing.
-
-function chest() {
-  const shadow = canvas(48, 48),
-    wood = canvas(48, 48),
-    brass = canvas(48, 48);
-  shadow.ellipse(25, 40, 20, 4, '#17382d35');
-  shadow.ellipse(24, 40, 16, 3, '#17382d58');
-  // Rounded lid, three-quarter right side, and a recessed dark seam.
-  wood.polygon(
-    [
-      [5, 19],
-      [7, 13],
-      [12, 9],
-      [32, 8],
-      [39, 12],
-      [43, 18],
-      [43, 37],
-      [37, 41],
-      [8, 40],
-      [5, 37],
-    ],
-    '#332d25'
-  );
-  wood.polygon(
-    [
-      [7, 24],
-      [36, 25],
-      [41, 22],
-      [41, 36],
-      [36, 39],
-      [8, 38],
-    ],
-    '#805032'
-  );
-  wood.rect(8, 26, 28, 5, '#a36939');
-  wood.rect(8, 32, 28, 5, '#925a32');
-  wood.line(8, 31, 35, 31, '#633d2a');
-  wood.line(9, 32, 34, 32, '#bb8046');
-  wood.line(9, 37, 35, 38, '#bd8045');
-  wood.polygon(
-    [
-      [37, 25],
-      [41, 23],
-      [41, 36],
-      [37, 38],
-    ],
-    '#62412c'
-  );
-  wood.line(38, 30, 40, 29, '#a06b3d');
-  wood.line(38, 35, 40, 34, '#493525');
-  wood.polygon(
-    [
-      [7, 18],
-      [9, 14],
-      [14, 11],
-      [31, 10],
-      [37, 13],
-      [40, 18],
-      [40, 21],
-      [35, 24],
-      [7, 23],
-    ],
-    '#b77c44'
-  );
-  wood.line(10, 14, 33, 13, '#e3ad62');
-  wood.line(14, 11, 30, 11, '#f1c17b');
-  wood.line(8, 18, 35, 18, '#d59850');
-  wood.line(8, 21, 35, 21, '#8c542f');
-  wood.line(9, 22, 34, 22, '#ca8c49');
-  wood.polygon(
-    [
-      [36, 16],
-      [39, 18],
-      [39, 21],
-      [36, 23],
-    ],
-    '#815532'
-  );
-  wood.line(7, 24, 35, 25, '#3d2d24');
-  // Short irregular grain and knots; never a repeated checkerboard texture.
-  for (const [x, y, w] of [
-    [18, 16, 7],
-    [20, 20, 9],
-    [17, 28, 5],
-    [25, 35, 7],
-    [9, 35, 2],
-  ]) {
-    wood.line(x, y, x + w, y, '#74462d');
-    wood.pixel(x + w + 1, y - 1, '#89522d');
-  }
-  wood.line(18, 34, 21, 34, '#613c29');
-  wood.pixel(17, 35, '#613c29');
-  wood.line(18, 36, 20, 36, '#c28849');
-  // Brass straps curve over the lid. Their lit left edge follows the map light.
-  for (const x of [11, 30]) {
-    brass.polygon(
-      [
-        [x, 12],
-        [x + 2, 10],
-        [x + 4, 10],
-        [x + 3, 15],
-        [x + 3, 24],
-        [x, 24],
-      ],
-      '#5c482d'
-    );
-    brass.line(x + 1, 13, x + 1, 23, '#f0c56f');
-    brass.line(x + 2, 12, x + 2, 23, '#c49446');
-    brass.pixel(x + 2, 11, '#ffe5a2');
-    brass.rect(x, 26, 4, 12, '#61492b');
-    brass.rect(x + 1, 26, 2, 11, '#c89a4f');
-    brass.line(x + 1, 27, x + 1, 36, '#f1cb78');
-    brass.pixel(x + 2, 28, '#fff1b2');
-    brass.pixel(x + 2, 35, '#70552e');
-  }
-  brass.rect(20, 24, 8, 10, '#44362a');
-  brass.rect(21, 25, 6, 8, '#b2843e');
-  brass.line(21, 25, 26, 25, '#ffe5a0');
-  brass.line(21, 26, 21, 31, '#f4ce7c');
-  brass.rect(23, 27, 2, 2, '#3d3429');
-  brass.rect(24, 29, 1, 2, '#3d3429');
-  brass.line(23, 33, 25, 33, '#e3b66b');
-  brass.rect(7, 36, 4, 3, '#9b793e');
-  brass.pixel(8, 36, '#f1c879');
-  brass.rect(34, 37, 3, 2, '#a47d3f');
-  return { names: ['Sombra', 'Madeira', 'Ferragens'], frames: [[shadow, wood, brass]] };
-}
 
 function signpost() {
   const shadow = canvas(48, 48),
@@ -335,7 +209,7 @@ function habitats() {
 
 const manifest = [];
 for (const [name, document] of [
-  ['chest', chest()],
+  ['chest', chestArtwork()],
   ['signpost', signpost()],
   ['habitats', habitats()],
 ]) {
@@ -364,6 +238,16 @@ for (const [name, document] of [
       ],
       { stdio: 'pipe' }
     );
+    if (name === 'chest') {
+      for (const [state, frame] of [
+        ['closed', 0],
+        ['open', 7],
+      ]) {
+        await sharp(png)
+          .extract({ left: frame * 48, top: 0, width: 48, height: 48 })
+          .toFile(`${output}/chest-${state}.png`);
+      }
+    }
     const metadata = await sharp(png).metadata();
     if (
       metadata.width !== document.frames[0][0].width * document.frames.length ||
@@ -391,6 +275,7 @@ const samples = [];
 for (const item of manifest.filter((item) => !item.layer)) {
   samples.push(
     await sharp(item.file)
+      .extract({ left: 0, top: 0, width: item.width / item.frames, height: item.height })
       .extend({ top: 8, bottom: 8, left: 12, right: 12, background: '#40764f' })
       .png()
       .toBuffer()

@@ -14,7 +14,14 @@ import {
   type Avatar,
   type BattleLanguage,
 } from './types';
-import { canChallengeCreature, checkinStatus, dayKey, resolveTurn, SKILLS } from './rules';
+import {
+  canChallengeCreature,
+  checkinStatus,
+  creatureStats,
+  dayKey,
+  resolveTurn,
+  SKILLS,
+} from './rules';
 import { QUESTIONS, publicQuestion } from './questions';
 import {
   challengeExecutionLanguage,
@@ -103,6 +110,13 @@ const authoredIds = [...LEARNING_LESSONS.values()].flatMap((lesson) =>
 function fail(message: string): never {
   throw new ValidationError('MUNDINHO_RULE', message);
 }
+function encounterLevel(battle: RpgBattle) {
+  const catalogLevel = CREATURES.find((entry) => entry.id === battle.creature)?.level ?? 1;
+  // Older deployed clients omit the new snapshot fields and receive the DB default.
+  return !battle.enemyLevel || (battle.enemyLevel === 1 && catalogLevel > 1)
+    ? catalogLevel
+    : battle.enemyLevel;
+}
 function battleView(
   b: RpgBattle | null,
   stats: CombatStats,
@@ -117,6 +131,8 @@ function battleView(
     creature: b.creature,
     hp: b.hp,
     enemyHp: b.enemyHp,
+    enemyLevel: encounterLevel(b),
+    enemyMaxHp: b.enemyMaxHp ?? 100,
     turn: b.turn,
     status: b.status as NonNullable<AdventureState['battle']>['status'],
     question:
@@ -155,8 +171,9 @@ async function resolveBattleAction(
   detail = ''
 ) {
   const creature = CREATURES.find((entry) => entry.id === battle.creature)!;
-  const result = resolveTurn(battle.hp, battle.enemyHp, correct, skill, creature.level, stats);
-  if (battle.turn >= 11 && result.status === 'active') {
+  const enemyLevel = encounterLevel(battle);
+  const result = resolveTurn(battle.hp, battle.enemyHp, correct, skill, enemyLevel, stats);
+  if (battle.turn >= creatureStats(enemyLevel).turnLimit - 1 && result.status === 'active') {
     result.status = 'lost';
     result.hp = 0;
   }
@@ -188,7 +205,7 @@ async function resolveBattleAction(
         data: { userId, key: rollKey, label: 'Sorteio de equipamento da vitória', amount: 0 },
       });
       if (randomInt(100) < stats.dropChance) {
-        const pool = equipmentDropPool(creature.level);
+        const pool = equipmentDropPool(enemyLevel);
         const item = pool[randomInt(pool.length)];
         const player = await tx.rpgPlayer.findUniqueOrThrow({ where: { userId } });
         const inventory = player.inventory as string[];
@@ -334,6 +351,7 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
       // The database clock is authoritative; clients never supply dates, prices, damage or rewards.
       const [clock] = await tx.$queryRaw<{ now: Date }[]>`SELECT CURRENT_TIMESTAMP AS now`;
       const now = clock.now;
+      let chestAwarded: boolean | undefined;
       await tx.rpgPlayer.upsert({
         where: { userId },
         create: { userId, avatar: DEFAULT_AVATAR },
@@ -377,8 +395,20 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
           data: { lastCheckin: checkin.day, checkinStreak: checkin.streak + 1 },
         });
       }
-      if (action?.type === 'chest')
-        await credit(tx, userId, 'chest:forest:first', 'Baú da clareira', 10);
+      const chestKey = `chest:forest:${checkin.day}`;
+      // Preserve a legacy reward collected today without preventing future daily rewards.
+      const legacyChest = await tx.rpgTransaction.findUnique({
+        where: { userId_key: { userId, key: 'chest:forest:first' } },
+      });
+      const legacyChestToday = Boolean(
+        legacyChest && dayKey(legacyChest.createdAt) === checkin.day
+      );
+      if (action?.type === 'chest') {
+        chestAwarded =
+          !legacyChestToday && (await credit(tx, userId, chestKey, 'Baú diário da clareira', 10));
+        if (!chestAwarded)
+          notice = 'Você já abriu o baú hoje. Volte amanhã para ganhar mais 10 moedas.';
+      }
       if (action?.type === 'buy') {
         const cosmetic = ITEMS.find((i) => i.id === action.item);
         const gear = EQUIPMENT.find((i) => i.id === action.item);
@@ -461,6 +491,9 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
               userId,
               language: action.language,
               creature: action.creature,
+              enemyLevel: creature.level,
+              enemyHp: creatureStats(creature.level).maxHp,
+              enemyMaxHp: creatureStats(creature.level).maxHp,
               hp: stats.maxHp,
               feedback: `Escolha um golpe: ${stats.directChance}% de chance de ataque direto e ${100 - stats.directChance}% de exercício.`,
             },
@@ -508,8 +541,7 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
               );
             } else if (!b.questionId) {
               const used = b.used as string[];
-              const creature = CREATURES.find((entry) => entry.id === b.creature);
-              const challenges = codeChallenges(b.language as BattleLanguage, creature?.level ?? 1);
+              const challenges = codeChallenges(b.language as BattleLanguage, encounterLevel(b));
               if (!challenges.length) fail('Não há desafios para esta linguagem.');
               const pool = challenges.filter((q) => !used.includes(q.id));
               const available = pool.length ? pool : challenges;
@@ -637,6 +669,18 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
         inventory: current.inventory as string[],
         equipped: current.equipped as Record<string, string>,
         checkin: checkinStatus(current.lastCheckin, current.checkinStreak, now),
+        chest: {
+          day: checkin.day,
+          claimed:
+            legacyChestToday ||
+            Boolean(
+              await tx.rpgTransaction.findUnique({
+                where: { userId_key: { userId, key: chestKey } },
+              })
+            ),
+          reward: 10,
+          ...(chestAwarded === undefined ? {} : { awarded: chestAwarded }),
+        },
         transactions: transactions
           .filter((t) => !t.key.startsWith('loot-roll:'))
           .map((t) => ({

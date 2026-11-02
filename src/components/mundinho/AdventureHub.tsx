@@ -72,6 +72,8 @@ import {
 import { EquipmentInventory } from './EquipmentInventory';
 import { EquipmentStore } from './EquipmentStore';
 import { EquipmentSprite } from './EquipmentSprite';
+import { MultiplayerArena } from './MultiplayerArena';
+import type { ArenaInvitation, ArenaState, ArenaTransport } from '../../lib/mundinho/arena-types';
 
 const World = lazy(() => import('./World'));
 const hairColors = [
@@ -87,6 +89,7 @@ const hairColorNames = hairColors.map(
 type View =
   | 'home'
   | 'world'
+  | 'arena'
   | 'battle'
   | 'avatar'
   | 'wallet'
@@ -99,6 +102,7 @@ type View =
 const TITLES: Record<View, string> = {
   home: 'Trilhas de aprendizagem',
   world: 'Meu Mundinho',
+  arena: 'Arena multiplayer',
   battle: 'Batalha de Conceitos',
   avatar: 'Avatar',
   wallet: 'Moedas',
@@ -158,6 +162,35 @@ export function AdventureHub({
 }) {
   const [data, setData] = useState<AdventureState | null>(null);
   const [view, setView] = useState<View>('home');
+  const [arenaSeed, setArenaSeed] = useState<ArenaState | null>(null);
+  const [arenaInvitations, setArenaInvitations] = useState<ArenaInvitation[]>([]);
+  const arenaTransport = useCallback<ArenaTransport>(
+    async (action) => {
+      return (await transport({ type: 'arena', action })) as unknown as ArenaState;
+    },
+    [transport]
+  );
+  useEffect(() => {
+    if (view === 'arena') return;
+    let cancelled = false;
+    let querying = false;
+    const refreshInvites = async () => {
+      if (querying || document.visibilityState !== 'visible') return;
+      querying = true;
+      try {
+        const next = await arenaTransport({ type: 'inbox' });
+        if (!cancelled && Array.isArray(next.invitations)) setArenaInvitations(next.invitations);
+      } catch {
+      } finally {
+        querying = false;
+      }
+    };
+    const timer = setInterval(() => void refreshInvites(), 8000);
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
+  }, [view, arenaTransport]);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
@@ -260,6 +293,7 @@ export function AdventureHub({
   }, [load]);
 
   const go = (next: View) => {
+    if (view === 'arena' && next === 'world') worldPosition.current = { x: 600, y: 490 };
     setView(next);
     setError('');
     setNotice('');
@@ -445,6 +479,23 @@ export function AdventureHub({
     });
     if (next) go('battle');
   };
+  const acceptArenaInvite = async (roomId: string) => {
+    if (pending.current) return;
+    pending.current = true;
+    stateRevision.current++;
+    setBusy(true);
+    try {
+      const next = await arenaTransport({ type: 'accept', roomId, language });
+      setArenaSeed(next);
+      setArenaInvitations([]);
+      go('arena');
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Não foi possível aceitar o convite.');
+    } finally {
+      pending.current = false;
+      setBusy(false);
+    }
+  };
 
   const handleBattleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (
@@ -502,12 +553,16 @@ export function AdventureHub({
         {view !== 'home' ? (
           <button
             className="ad-back-button"
-            aria-label={view === 'battle' ? 'Voltar ao Mundinho' : 'Voltar para a tela inicial'}
+            aria-label={
+              view === 'battle' || view === 'arena'
+                ? 'Voltar ao Mundinho'
+                : 'Voltar para a tela inicial'
+            }
             disabled={busy}
             onClick={() => {
               if (view === 'battle' && battle?.status === 'active')
                 void act({ type: 'battle-flee', battle: battle.id });
-              else go(view === 'battle' ? 'world' : 'home');
+              else go(view === 'battle' || view === 'arena' ? 'world' : 'home');
             }}
           >
             <ArrowLeft size={22} />
@@ -558,6 +613,36 @@ export function AdventureHub({
           </button>
         )}
       </header>
+
+      {view !== 'arena' &&
+        arenaInvitations.map((invite) => (
+          <div className="ad-arena-invitation" role="status" key={invite.roomId}>
+            <Swords size={20} />
+            <p>
+              <strong>{invite.hostName}</strong> convidou você para a arena do Mundinho.
+            </p>
+            <button
+              type="button"
+              disabled={busy || (view === 'battle' && battle?.status === 'active')}
+              onClick={() => void acceptArenaInvite(invite.roomId)}
+            >
+              Aceitar e entrar
+            </button>
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() => {
+                void arenaTransport({ type: 'decline', roomId: invite.roomId })
+                  .then(() =>
+                    setArenaInvitations((items) => items.filter((i) => i.roomId !== invite.roomId))
+                  )
+                  .catch((e) => setError(e.message));
+              }}
+            >
+              Recusar
+            </button>
+          </div>
+        ))}
 
       {/* ERROR & SUCCESS NOTICES */}
       {error && (
@@ -1224,6 +1309,12 @@ export function AdventureHub({
             }}
             assetBase={assetBase}
             username={data?.username ?? 'Pedrolado'}
+            chestClaimed={data?.chest?.claimed ?? false}
+            chestDay={data?.chest?.day ?? data?.checkin.day ?? ''}
+            onPortal={() => {
+              setArenaSeed(null);
+              go('arena');
+            }}
             onBack={() => go('home')}
             onInventory={() => go('inventory')}
             onEncounter={(id) => {
@@ -1231,10 +1322,26 @@ export function AdventureHub({
               void startBattle(language, id);
             }}
             onChest={async () => {
-              await act({ type: 'chest' });
+              const next = await act({ type: 'chest' });
+              if (!next?.chest || next.chest.awarded === undefined)
+                throw new Error('Não foi possível confirmar o resgate. Tente novamente.');
+              return { awarded: next.chest.awarded, reward: next.chest.reward };
             }}
           />
         </Suspense>
+      )}
+
+      {view === 'arena' && (
+        <MultiplayerArena
+          transport={arenaTransport}
+          language={language}
+          initialState={arenaSeed}
+          assetBase={assetBase}
+          onLeave={() => {
+            setArenaSeed(null);
+            go('world');
+          }}
+        />
       )}
 
       {/* ============================================================ */}
@@ -1322,10 +1429,17 @@ export function AdventureHub({
                   <div className="ad-combatant-card">
                     <span className="ad-combatant-name">{opponent.name}</span>
                     <small className="ad-combatant-meta">
-                      Nível {opponent.level} · {LANGUAGE_NAMES[battle.language]}
+                      Inimigo · Nível {battle.enemyLevel ?? opponent.level} ·{' '}
+                      {LANGUAGE_NAMES[battle.language]}
                     </small>
-                    <PixelMeter value={battle.enemyHp} label={`Vida de ${opponent.name}`} />
-                    <span className="ad-hp-number">{battle.enemyHp} / 100 PV</span>
+                    <PixelMeter
+                      value={battle.enemyHp}
+                      max={battle.enemyMaxHp ?? 100}
+                      label={`Vida de ${opponent.name}`}
+                    />
+                    <span className="ad-hp-number">
+                      {battle.enemyHp} / {battle.enemyMaxHp ?? 100} PV
+                    </span>
                   </div>
                   <div className="battle-sprite battle-sprite-enemy">
                     <PixelCreature kind={opponent.id} color={opponent.color} />
@@ -1393,7 +1507,7 @@ export function AdventureHub({
                   </div>
                   <div className="ad-combatant-card">
                     <span className="ad-combatant-name">{data?.username}</span>
-                    <small className="ad-combatant-meta">Nível {xp.level}</small>
+                    <small className="ad-combatant-meta">Seu nível · {xp.level}</small>
                     <PixelMeter
                       value={battle.hp}
                       max={battle.maxHp ?? combatStats.maxHp}

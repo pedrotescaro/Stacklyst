@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ArrowLeft,
   Backpack,
@@ -25,6 +25,8 @@ import { WorldDialogue } from './WorldDialogue';
 import { adventureAsset } from './assets';
 import { TouchStick } from './TouchStick';
 import { canChallengeCreature } from '../../lib/mundinho/rules';
+import { ARENA, arenaMove } from '../../lib/mundinho/arena-rules';
+import type { ArenaPlayer, ArenaPosition } from '../../lib/mundinho/arena-types';
 
 export default function World({
   avatar,
@@ -32,23 +34,44 @@ export default function World({
   username,
   onEncounter,
   onChest,
+  chestClaimed = false,
+  chestDay = '',
   onBack,
   onInventory,
   playerLevel = 1,
   initialPosition = WORLD.spawn,
   onPositionChange,
+  onPoseChange,
+  onPortal,
+  area = 'forest',
+  peers = [],
 }: {
   avatar: Avatar;
   assetBase: string;
   username: string;
   onEncounter: (id: string) => void;
-  onChest: () => Promise<void>;
+  onChest: () => Promise<{ awarded: boolean; reward: number }>;
+  chestClaimed?: boolean;
+  chestDay?: string;
   onBack?: () => void;
   onInventory?: () => void;
   playerLevel?: number;
   initialPosition?: { x: number; y: number };
   onPositionChange?: (position: { x: number; y: number }) => void;
+  onPoseChange?: (position: ArenaPosition) => void;
+  onPortal?: () => void;
+  area?: 'forest' | 'arena';
+  peers?: ArenaPlayer[];
 }) {
+  const dimensions = area === 'arena' ? ARENA : WORLD;
+  const creatures = useMemo(() => (area === 'arena' ? [] : CREATURES), [area]);
+  const objects = useMemo(
+    () =>
+      area === 'arena'
+        ? [{ id: 'portal', name: 'Voltar para a clareira', ...ARENA.exit }]
+        : WORLD_OBJECTS,
+    [area]
+  );
   const viewport = useRef<HTMLDivElement>(null);
   const keys = useRef(new Set<string>());
   const stick = useRef({ x: 0, y: 0 });
@@ -61,15 +84,30 @@ export default function World({
   const [pose, setPose] = useState(player.current);
   useEffect(() => {
     onPositionChange?.({ x: pose.x, y: pose.y });
-  }, [pose.x, pose.y, onPositionChange]);
+    onPoseChange?.(pose);
+  }, [pose, onPositionChange, onPoseChange]);
   const [size, setSize] = useState({ width: 800, height: 480 });
   const [dialogue, setDialogue] = useState<string | null>(
-    'Explore a clareira. Aproxime-se de criaturas para iniciar batalhas de conceitos ou interaja com placas e baús.'
+    area === 'arena'
+      ? null
+      : 'Explore a clareira. Aproxime-se de criaturas para iniciar batalhas de conceitos ou interaja com placas e baús.'
   );
   const [showMap, setShowMap] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
+  const [chestPhase, setChestPhase] = useState<'idle' | 'pending' | 'opening'>('idle');
+  const [openedDay, setOpenedDay] = useState<string | null>(null);
+  const chestBusy = useRef(false);
+  const chestTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (chestTimer.current) clearTimeout(chestTimer.current);
+    },
+    []
+  );
+  const chestOpened = chestClaimed || openedDay === chestDay;
+  const worldPaused = Boolean(dialogue || showGuide || chestPhase !== 'idle');
   const paused = useRef(false);
-  paused.current = Boolean(dialogue || showGuide);
+  paused.current = worldPaused;
   const closeDialogue = () => {
     setDialogue(null);
     keys.current.clear();
@@ -77,21 +115,32 @@ export default function World({
     viewport.current?.focus({ preventScroll: true });
   };
 
-  const visibleCreatures = CREATURES.filter((_, i) => (clock + i * 7) % 64 < 52);
-  const targets = [...visibleCreatures, ...WORLD_OBJECTS];
+  const visibleCreatures = creatures.filter(
+    (creature, i) => creature.level >= 4 || (clock + i * 7) % 64 < 52
+  );
+  const targets = [...visibleCreatures, ...objects];
   const nearest = targets.find((e) => Math.hypot(e.x - pose.x, e.y - pose.y) < 55);
-  const isCreature = nearest && CREATURES.some((c) => c.id === nearest.id);
+  const isCreature = nearest && creatures.some((c) => c.id === nearest.id);
+  useEffect(() => {
+    const portal = objects.find((o) => o.id === 'portal');
+    if (!worldPaused && portal && Math.hypot(pose.x - portal.x, pose.y - portal.y) < 18)
+      onPortal?.();
+  }, [pose.x, pose.y, worldPaused, onPortal, objects]);
 
   const interaction = useRef<(objectId?: string) => void>(() => {});
   useEffect(() => {
     interaction.current = (objectId) => {
-      const target = objectId ? WORLD_OBJECTS.find((object) => object.id === objectId) : nearest;
+      const target = objectId ? objects.find((object) => object.id === objectId) : nearest;
       if (!target || Math.hypot(target.x - player.current.x, target.y - player.current.y) >= 55) {
         setDialogue('Aproxime-se de uma criatura, da placa, do baú ou da Ada para interagir.');
         return;
       }
-      if (CREATURES.some((c) => c.id === target.id)) {
-        const creature = CREATURES.find((c) => c.id === target.id)!;
+      if (target.id === 'portal') {
+        keys.current.clear();
+        stick.current = { x: 0, y: 0 };
+        onPortal?.();
+      } else if (creatures.some((c) => c.id === target.id)) {
+        const creature = creatures.find((c) => c.id === target.id)!;
         if (!canChallengeCreature(playerLevel, creature.level)) {
           setDialogue(
             `${creature.name} · nível ${creature.level}. Você está no nível ${playerLevel}. Continue suas lições para poder enfrentá-la.`
@@ -110,16 +159,57 @@ export default function World({
           'Placa: "Dica: Em Python ou JavaScript, compreenda a condição de parada antes de iniciar qualquer repetição."'
         );
       } else if (target.id === 'chest') {
+        if (chestBusy.current) return;
+        if (chestOpened) {
+          setDialogue('Você já abriu o baú hoje. Volte amanhã para ganhar mais 10 moedas.');
+          return;
+        }
+        chestBusy.current = true;
+        setChestPhase('pending');
+        keys.current.clear();
+        stick.current = { x: 0, y: 0 };
         void onChest()
-          .then(() =>
+          .then(({ awarded, reward }) => {
+            setOpenedDay(chestDay);
+            if (!awarded) {
+              chestBusy.current = false;
+              setChestPhase('idle');
+              setDialogue('Você já abriu o baú hoje. Volte amanhã para ganhar mais 10 moedas.');
+              return;
+            }
+            setChestPhase('opening');
+            const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            chestTimer.current = setTimeout(
+              () => {
+                chestBusy.current = false;
+                setChestPhase('idle');
+                setDialogue(
+                  `Baú aberto! ${reward} moedas creditadas no seu saldo. Volte amanhã para abrir de novo.`
+                );
+              },
+              reduced ? 0 : 900
+            );
+          })
+          .catch(() => {
+            chestBusy.current = false;
+            setChestPhase('idle');
             setDialogue(
-              'Você abriu o Baú da Clareira! Recompensa de 10 moedas creditada no seu extrato.'
-            )
-          )
-          .catch(() => setDialogue('Este baú já foi resgatado ou não pôde ser aberto no momento.'));
+              'Não foi possível abrir o baú. Suas moedas não foram confirmadas. Tente novamente.'
+            );
+          });
       }
     };
-  }, [nearest, onEncounter, onChest, playerLevel]);
+  }, [
+    nearest,
+    onEncounter,
+    onChest,
+    playerLevel,
+    chestOpened,
+    chestDay,
+    onPortal,
+    creatures,
+    objects,
+  ]);
 
   useEffect(() => {
     const el = viewport.current;
@@ -199,7 +289,9 @@ export default function World({
       }
 
       player.current = {
-        ...movePlayer(player.current.x, player.current.y, dx * 140 * dt, dy * 140 * dt),
+        ...(area === 'arena'
+          ? arenaMove(player.current, dx * 140 * dt, dy * 140 * dt)
+          : movePlayer(player.current.x, player.current.y, dx * 140 * dt, dy * 140 * dt)),
         direction,
         walking: Boolean(dx || dy),
       };
@@ -231,21 +323,36 @@ export default function World({
       document.removeEventListener('visibilitychange', clear);
       clear();
     };
-  }, []);
+  }, [area]);
 
   // Camera scale and offset to follow player smoothly
   const scale = showMap
-    ? Math.min(size.width / WORLD.width, size.height / WORLD.height)
-    : Math.max(0.85, Math.min(1.2, size.width / 850));
+    ? Math.min(size.width / dimensions.width, size.height / dimensions.height)
+    : area === 'arena'
+      ? Math.max(
+          0.85,
+          Math.min(1.3, Math.max(size.width / dimensions.width, size.height / dimensions.height))
+        )
+      : Math.max(0.85, Math.min(1.2, size.width / 850));
   const x = showMap
-    ? (size.width - WORLD.width * scale) / 2
-    : Math.min(0, Math.max(size.width - WORLD.width * scale, size.width / 2 - pose.x * scale));
+    ? (size.width - dimensions.width * scale) / 2
+    : dimensions.width * scale < size.width
+      ? (size.width - dimensions.width * scale) / 2
+      : Math.min(
+          0,
+          Math.max(size.width - dimensions.width * scale, size.width / 2 - pose.x * scale)
+        );
   const y = showMap
-    ? (size.height - WORLD.height * scale) / 2
-    : Math.min(0, Math.max(size.height - WORLD.height * scale, size.height / 2 - pose.y * scale));
+    ? (size.height - dimensions.height * scale) / 2
+    : dimensions.height * scale < size.height
+      ? (size.height - dimensions.height * scale) / 2
+      : Math.min(
+          0,
+          Math.max(size.height - dimensions.height * scale, size.height / 2 - pose.y * scale)
+        );
 
   return (
-    <div className="world-shell">
+    <div className="world-shell" data-area={area}>
       <div
         ref={viewport}
         className="world-viewport"
@@ -309,15 +416,15 @@ export default function World({
         {/* 2D TILEMAP & ENTITIES (Using LibreSprite exported scenery) */}
         <div
           className="world-map"
-          inert={Boolean(dialogue || showGuide)}
+          inert={worldPaused}
           style={{
-            width: WORLD.width,
-            height: WORLD.height,
+            width: dimensions.width,
+            height: dimensions.height,
             transform: `translate(${x}px, ${y}px) scale(${scale})`,
-            backgroundImage: `url(${adventureAsset('forest-ground.png', assetBase)})`,
+            backgroundImage: `url(${adventureAsset(area === 'arena' ? 'arena.png' : 'forest-ground.png', assetBase)})`,
           }}
         >
-          {SCENERY.objects.map((object) => (
+          {(area === 'arena' ? [] : SCENERY.objects).map((object) => (
             <div
               key={object.id}
               className="world-scenery"
@@ -335,13 +442,13 @@ export default function World({
               }}
             />
           ))}
-          {CREATURES.map((c, i) => (
+          {creatures.map((c, i) => (
             <HabitatSprite key={c.id} x={c.x} y={c.y} variant={i} assetBase={assetBase} />
           ))}
-          {CREATURES.map((c, i) => (
+          {creatures.map((c, i) => (
             <div
               key={c.id}
-              className={`world-entity world-habitat ${(clock + i * 7) % 64 < 52 ? 'is-visible' : 'is-hidden'}`}
+              className={`world-entity world-habitat ${c.level >= 4 || (clock + i * 7) % 64 < 52 ? 'is-visible' : 'is-hidden'}`}
               style={{ left: c.x, top: c.y, zIndex: worldDepth(c.y) }}
               onClick={() => {
                 if (Math.hypot(c.x - pose.x, c.y - pose.y) < 55 && visibleCreatures.includes(c)) {
@@ -371,26 +478,83 @@ export default function World({
             </div>
           ))}
 
-          {WORLD_OBJECTS.map((o) => (
+          {objects.map((o) => (
             <button
               type="button"
-              aria-label={o.id === 'guide' ? 'Conversar com Ada' : o.name}
+              aria-label={
+                o.id === 'guide'
+                  ? 'Conversar com Ada'
+                  : o.id === 'chest'
+                    ? `Baú da clareira, ${chestPhase === 'pending' ? 'confirmando resgate' : chestPhase === 'opening' ? 'abrindo' : chestOpened ? 'recompensa de hoje resgatada' : 'abrir e ganhar 10 moedas'}`
+                    : o.name
+              }
+              aria-busy={o.id === 'chest' && chestPhase !== 'idle' ? true : undefined}
               key={o.id}
               className="world-entity world-object"
               style={{ left: o.x, top: o.y, zIndex: worldDepth(o.y) }}
               onClick={() => interaction.current(o.id)}
             >
-              <span className="world-entity-badge">{o.name}</span>
+              <span className="world-entity-badge">
+                {o.id === 'chest'
+                  ? chestOpened
+                    ? 'Resgatado · volte amanhã'
+                    : 'Baú diário · 10 moedas'
+                  : o.name}
+              </span>
               {o.id === 'guide' ? (
                 <PixelAvatar avatar={ADA_AVATAR} />
+              ) : o.id === 'portal' && area === 'arena' ? (
+                <span className="world-arena-exit-hitbox" aria-hidden="true" />
               ) : (
                 <WorldPropSprite
-                  kind={o.id === 'chest' ? 'chest' : 'signpost'}
+                  kind={o.id === 'portal' ? 'portal-hole' : o.id === 'chest' ? 'chest' : 'signpost'}
                   assetBase={assetBase}
+                  chestState={
+                    chestPhase === 'opening'
+                      ? 'opening'
+                      : chestOpened && chestPhase !== 'pending'
+                        ? 'open'
+                        : 'closed'
+                  }
                 />
+              )}
+              {o.id === 'chest' && chestPhase === 'opening' && (
+                <span className="world-chest-reward" role="status">
+                  +10 moedas
+                </span>
               )}
             </button>
           ))}
+
+          {peers
+            .filter((peer) => peer.online)
+            .map((peer) => (
+              <div
+                key={peer.id}
+                className="world-entity world-peer"
+                style={{
+                  left: peer.position.x,
+                  top: peer.position.y,
+                  zIndex: worldDepth(peer.position.y),
+                }}
+              >
+                <span
+                  className="world-player-name"
+                  style={
+                    Math.hypot(peer.position.x - pose.x, peer.position.y - pose.y) < 90
+                      ? { transform: 'translateY(-18px)' }
+                      : undefined
+                  }
+                >
+                  {peer.name}
+                </span>
+                <PixelAvatar
+                  avatar={peer.avatar}
+                  direction={peer.position.direction}
+                  walking={peer.position.walking}
+                />
+              </div>
+            ))}
 
           {/* Player with Floating Username Tag (Matching Image 3) */}
           <div
@@ -437,7 +601,7 @@ export default function World({
         )}
 
         {/* CONTROLS (D-Pad + Sword Button, Matching Image 3) */}
-        <div className="world-controls" hidden={Boolean(dialogue || showGuide)}>
+        <div className="world-controls" hidden={worldPaused}>
           <TouchStick
             onMove={(x, y) => {
               stick.current = { x, y };
@@ -459,7 +623,10 @@ export default function World({
 
       <div className="world-hint-footer">
         <p>
-          WASD ou setas para mover · Espaço / E para ação · Criaturas iniciam batalhas educativas.
+          WASD ou setas para mover · Espaço / E para ação ·{' '}
+          {area === 'arena'
+            ? 'Convide um amigo mútuo para batalhar.'
+            : 'Criaturas iniciam batalhas educativas.'}
         </p>
       </div>
     </div>

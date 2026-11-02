@@ -2,6 +2,13 @@ import { CHECKIN_REWARDS } from './types';
 export function canChallengeCreature(playerLevel: number, creatureLevel: number) {
   return playerLevel >= creatureLevel;
 }
+export function creatureStats(level: number) {
+  return {
+    level,
+    maxHp: 100 + Math.max(0, level - 3) * 20,
+    turnLimit: Math.max(12, level * 2 + 4),
+  };
+}
 export function dayKey(now: Date) {
   return new Intl.DateTimeFormat('en-CA', {
     timeZone: 'America/Sao_Paulo',

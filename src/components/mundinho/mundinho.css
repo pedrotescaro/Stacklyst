@@ -2868,6 +2868,370 @@
   background-repeat: no-repeat;
   image-rendering: pixelated;
 }
+.world-prop-sprite[data-prop='chest'] {
+  background-size: 800% 100%;
+  background-position: 0 0;
+}
+.world-prop-sprite[data-prop='portal-hole'] {
+  width: 64px;
+  height: 48px;
+  background-size: 600% 100%;
+  animation: world-hole-shimmer 1800ms steps(5) infinite;
+}
+@keyframes world-hole-shimmer {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 100% 0;
+  }
+}
+.world-peer {
+  transition:
+    left 1000ms linear,
+    top 1000ms linear;
+  pointer-events: none;
+}
+.world-shell[data-area='arena'] .world-viewport {
+  background: #17272d;
+}
+.world-arena-exit-hitbox {
+  display: block;
+  width: 64px;
+  height: 48px;
+  transform: translateY(20px);
+}
+.ad-multiplayer .ad-primary,
+.ad-multiplayer .ad-secondary {
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid #657e7a;
+  border-radius: 8px;
+  background: #162625;
+  color: #f0f8f4;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.ad-multiplayer .ad-primary:hover:not(:disabled),
+.ad-multiplayer .ad-secondary:hover:not(:disabled) {
+  background: #28413c;
+  border-color: #aacbbe;
+}
+.sprite-creature[data-creature='iron-beetle'] {
+  filter: saturate(0.6) brightness(1.25);
+}
+.sprite-creature[data-creature='wild-ember'] {
+  filter: hue-rotate(-18deg) saturate(1.4);
+}
+.sprite-creature[data-creature='null-titan'] {
+  filter: hue-rotate(55deg) saturate(1.5);
+  transform: scale(1.5);
+  transform-origin: bottom center;
+}
+.ad-arena-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.ad-arena-heading h2 {
+  margin: 0 0 6px;
+  font-size: 24px;
+}
+.ad-arena-heading p,
+.ad-arena-social p {
+  margin: 0 0 16px;
+  color: #bfc9cc;
+  line-height: 1.6;
+}
+.ad-arena-heading button,
+.ad-arena-social button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.ad-arena-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 270px;
+  gap: 24px;
+}
+.ad-arena-layout > .world-shell {
+  min-width: 0;
+}
+.ad-arena-social {
+  min-width: 0;
+  padding-top: 8px;
+}
+.ad-arena-social h3 {
+  font-size: 20px;
+  margin: 0 0 16px;
+}
+.ad-arena-search {
+  display: grid;
+  gap: 8px;
+  font-size: 14px;
+}
+.ad-arena-search input {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid #49555b;
+  border-radius: 8px;
+  padding: 10px 12px;
+  background: #0c1216;
+  color: #fff;
+  font: inherit;
+}
+.ad-arena-friends {
+  list-style: none;
+  padding: 0;
+  margin: 12px 0;
+  max-height: 360px;
+  overflow-y: auto;
+  scrollbar-color: #6e969a #101719;
+}
+.ad-arena-friends li,
+.ad-arena-friend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 0;
+  border-bottom: 1px solid #303b40;
+}
+.ad-arena-friends li > div,
+.ad-arena-friend > div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
+}
+.ad-arena-friends strong,
+.ad-arena-friend strong {
+  overflow-wrap: anywhere;
+}
+.ad-arena-friends span,
+.ad-arena-friend span {
+  font-size: 13px;
+  color: #c0c9cd;
+}
+.ad-arena-friends button {
+  border: 1px solid #526268;
+  background: #111a1e;
+  color: #fff;
+  border-radius: 8px;
+  padding: 8px;
+}
+.ad-arena-friend {
+  margin-bottom: 16px;
+}
+.ad-arena-message {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 0;
+  line-height: 1.6;
+  color: #d3e4e5;
+}
+.ad-arena-rule {
+  color: #c1cbd0;
+  font-size: 13px;
+  line-height: 1.6;
+}
+.ad-arena-result {
+  padding: 16px 0 24px;
+}
+.ad-arena-result strong {
+  color: #9fe3ce;
+  font-size: 24px;
+}
+.ad-arena-result p {
+  margin: 8px 0 0;
+}
+.ad-arena-log {
+  margin: 20px 0 0;
+  padding: 16px 0 16px 20px;
+  border-top: 1px solid #354047;
+  color: #c2ced1;
+  font-size: 14px;
+  line-height: 1.7;
+}
+.ad-arena-invitation {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
+  border: 1px solid #638d85;
+  border-radius: 12px;
+  background: #101f20;
+  color: #f3faf6;
+}
+.ad-arena-invitation p {
+  flex: 1;
+  min-width: 180px;
+  margin: 0;
+  line-height: 1.5;
+}
+.ad-arena-invitation button {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 1px solid #7b9992;
+  border-radius: 8px;
+  background: #192e2c;
+  color: #fff;
+}
+.ad-pvp-scene {
+  min-height: 290px;
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  gap: 24px;
+  padding: 30px;
+  background-position: center;
+  background-size: cover;
+  image-rendering: pixelated;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.ad-pvp-player {
+  display: grid;
+  gap: 8px;
+  width: min(40%, 220px);
+  justify-items: center;
+  text-align: center;
+  color: #fff;
+  font: 16px var(--rpg-font);
+  text-shadow: 0 2px 3px #121e21;
+}
+.ad-pvp-name {
+  display: grid;
+  gap: 5px;
+  padding: 8px;
+  background: #102224;
+  border-radius: 8px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+.ad-pvp-name span {
+  font-size: 14px;
+}
+.ad-pvp-player .rpg-meter {
+  width: 100%;
+}
+.ad-pvp-player .sprite-avatar {
+  width: 64px;
+  height: 64px !important;
+}
+.ad-pvp-turn {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 18px 0;
+}
+.ad-pvp-turn > span {
+  color: #bacacf;
+  font-size: 14px;
+}
+.ad-multiplayer button:focus-visible,
+.ad-arena-search input:focus-visible,
+.ad-arena-invitation button:focus-visible {
+  outline: 2px solid #aadccc;
+  outline-offset: 3px;
+}
+.ad-multiplayer button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+@media (max-width: 1000px) {
+  .ad-arena-layout {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ad-arena-social {
+    border-top: 1px solid #344348;
+    padding-top: 20px;
+  }
+}
+@media (max-width: 540px) {
+  .ad-arena-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .ad-arena-heading h2 {
+    font-size: 22px;
+  }
+  .ad-pvp-scene {
+    gap: 12px;
+    padding: 16px;
+    min-height: 240px;
+  }
+  .ad-pvp-player {
+    width: 46%;
+    font-size: 14px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .world-prop-sprite[data-prop='portal-hole'] {
+    animation: none;
+  }
+  .world-peer {
+    transition: none;
+  }
+}
+.world-prop-sprite[data-chest-state='open'] {
+  background-position: 100% 0;
+}
+.world-prop-sprite[data-chest-state='opening'] {
+  animation: world-chest-open 700ms steps(7) 1 both;
+}
+@keyframes world-chest-open {
+  from {
+    background-position: 0 0;
+  }
+  to {
+    background-position: 100% 0;
+  }
+}
+.world-chest-reward {
+  position: absolute;
+  bottom: 52px;
+  left: 50%;
+  width: max-content;
+  color: #ffe7a0;
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 2px 3px #1d160d;
+  pointer-events: none;
+  animation: world-chest-coins 900ms ease-out both;
+}
+@keyframes world-chest-coins {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 6px);
+  }
+  30%,
+  75% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .world-prop-sprite[data-chest-state='opening'] {
+    animation: none;
+    background-position: 100% 0;
+  }
+  .world-chest-reward {
+    animation: none;
+    transform: translateX(-50%);
+  }
+}
 .world-foliage-sprite {
   position: absolute;
   width: 72px;
@@ -3976,5 +4340,82 @@
 @media (prefers-reduced-motion: reduce) {
   .rpg-meter-fill {
     transition: none;
+  }
+}
+
+/* PvP uses the same battlefield coordinates as creature encounters, for each viewer. */
+.ad-pvp-scene {
+  position: relative;
+  display: block;
+  height: 330px;
+  min-height: 330px;
+  padding: 0;
+  background-size: 100% 100%;
+  background-color: #f4f7f5;
+}
+.ad-pvp-player {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  display: block;
+  text-shadow: none;
+  font-family: var(--rpg-font);
+}
+.ad-pvp-player > .sprite-avatar {
+  position: absolute;
+  transform: translateX(-50%);
+}
+.ad-pvp-player[data-pvp-side='self'] > .sprite-avatar {
+  left: 23.3333%;
+  bottom: 18%;
+  width: 104px;
+  height: 104px !important;
+}
+.ad-pvp-player[data-pvp-side='opponent'] > .sprite-avatar {
+  left: 75.8333%;
+  bottom: 64%;
+  width: 76px;
+  height: 76px !important;
+}
+.ad-pvp-player .ad-pvp-name {
+  position: absolute;
+  width: 42%;
+  max-width: 240px;
+  padding: 10px 12px;
+  text-align: left;
+  background: #000;
+  color: #fff;
+}
+.ad-pvp-player[data-pvp-side='self'] .ad-pvp-name {
+  right: 4%;
+  bottom: 5%;
+}
+.ad-pvp-player[data-pvp-side='opponent'] .ad-pvp-name {
+  left: 4%;
+  top: 5%;
+}
+.ad-pvp-player .ad-pvp-name .rpg-meter {
+  margin: 4px 0;
+}
+@media (max-width: 540px) {
+  .ad-pvp-scene {
+    height: 260px;
+    min-height: 260px;
+  }
+  .ad-pvp-player .ad-pvp-name {
+    width: 48%;
+    padding: 6px;
+    font-size: 14px;
+  }
+  .ad-pvp-player .ad-pvp-name span {
+    font-size: 12px;
+  }
+  .ad-pvp-player[data-pvp-side='self'] > .sprite-avatar {
+    width: 80px;
+    height: 80px !important;
+  }
+  .ad-pvp-player[data-pvp-side='opponent'] > .sprite-avatar {
+    width: 60px;
+    height: 60px !important;
   }
 }

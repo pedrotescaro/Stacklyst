@@ -13,15 +13,35 @@ vi.mock('./World', () => ({
   default: ({
     initialPosition,
     onPositionChange,
+    onChest,
+    chestClaimed,
   }: {
     initialPosition: { x: number; y: number };
     onPositionChange: (p: { x: number; y: number }) => void;
+    onChest: () => Promise<{ awarded: boolean; reward: number }>;
+    chestClaimed: boolean;
   }) => (
     <section aria-label="Clareira">
       <p>
         Posição: {initialPosition.x}, {initialPosition.y}
       </p>
       <button onClick={() => onPositionChange({ x: 310, y: 330 })}>Mover</button>
+      <p>Baú: {chestClaimed ? 'resgatado' : 'disponível'}</p>
+      <button
+        onClick={async (event) => {
+          const button = event.currentTarget;
+          try {
+            const result = await onChest();
+            button.textContent = result.awarded
+              ? `${result.reward} moedas confirmadas`
+              : 'Já resgatado';
+          } catch {
+            button.textContent = 'Resgate não confirmado';
+          }
+        }}
+      >
+        Abrir baú
+      </button>
     </section>
   ),
 }));
@@ -63,6 +83,36 @@ const openBattle = async (transport: AdventureTransport) => {
   fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
 };
 describe('Mundinho battle navigation', () => {
+  it('passes only a confirmed chest award and updates the saved claim state', async () => {
+    const ready = state(null);
+    ready.chest = { day: '2026-11-02', claimed: false, reward: 10 };
+    const claimed = {
+      ...ready,
+      coins: 10,
+      chest: { ...ready.chest, claimed: true, awarded: true },
+    };
+    const transport = vi
+      .fn<AdventureTransport>()
+      .mockImplementation(async (action) => (action?.type === 'chest' ? claimed : ready));
+    render(<AdventureHub transport={transport} courses={[]} onCourse={() => {}} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Entrar no Mundinho' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Abrir baú' }));
+    await screen.findByRole('button', { name: '10 moedas confirmadas' });
+    expect(screen.getByText('Baú: resgatado')).toBeInTheDocument();
+    expect(transport).toHaveBeenCalledWith({ type: 'chest' });
+  });
+  it('propagates a failed chest request instead of confirming a reward', async () => {
+    const transport = vi.fn<AdventureTransport>().mockImplementation(async (action) => {
+      if (action?.type === 'chest') throw new Error('Sem conexão');
+      return state(null);
+    });
+    render(<AdventureHub transport={transport} courses={[]} onCourse={() => {}} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Entrar no Mundinho' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Abrir baú' }));
+    await screen.findByRole('button', { name: 'Resgate não confirmado' });
+    expect(screen.getByText('Baú: disponível')).toBeInTheDocument();
+    expect(screen.queryByText('10 moedas confirmadas')).not.toBeInTheDocument();
+  });
   it('purchases an equipment item, equips it and shows it in the inventory', async () => {
     let saved = state(null);
     saved.coins = 500;

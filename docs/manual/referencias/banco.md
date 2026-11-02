@@ -1,0 +1,1333 @@
+# Dicionário do banco
+
+Extraído do schema Prisma local. Tipo seguido de `?` permite ausência; `[]` representa coleção. `@id` identifica; `@unique` impede repetição; `@relation` vincula modelos; `@@map` informa a tabela física. O schema não comprova aplicação da migration no banco.
+
+## enum Language
+
+- `PYTHON`
+- `JS`
+- `TS`
+- `JAVA`
+- `RUST`
+- `GO`
+- `KOTLIN`
+- `SWIFT`
+- `CPP`
+
+## enum KnowledgeNodeType
+
+- `FOUNDATION`
+- `LANGUAGE`
+- `CONCEPT`
+- `FRAMEWORK`
+- `LIBRARY`
+- `TOOL`
+- `DATABASE`
+- `ARCHITECTURE`
+- `PROJECT`
+- `CHALLENGE`
+
+## enum KnowledgeRelation
+
+- `REQUIRED`
+- `RECOMMENDED`
+- `RELATED`
+- `BUILDS_ON`
+- `COMBINES`
+
+## enum KnowledgeProgressStatus
+
+- `NOT_STARTED`
+- `AVAILABLE`
+- `RECOMMENDED`
+- `IN_PROGRESS`
+- `COMPLETED`
+- `MASTERED`
+
+## enum AssistanceMode
+
+- `GUIDED`
+- `STANDARD`
+- `HARD`
+- `NO_ASSIST`
+
+## enum ExerciseSubmissionStatus
+
+- `PASSED`
+- `FAILED`
+- `ERROR`
+
+## enum LearningEventType
+
+- `HINT_OPENED`
+- `DOCUMENTATION_OPENED`
+- `EXERCISE_RUN`
+- `EXERCISE_SUBMIT`
+- `TEST_FAILED`
+- `TEST_PASSED`
+- `EXERCISE_COMPLETED`
+
+## enum UserRole
+
+- `USER`
+- `EVALUATOR`
+- `ADMIN`
+- `RECRUITER`
+
+## enum DuelStatus
+
+- `PENDING`
+- `ACTIVE`
+- `REVIEW_PENDING`
+- `CLOSED`
+- `EXPIRED`
+
+## enum DuelRequestStatus
+
+- `PENDING`
+- `ACCEPTED`
+- `REJECTED`
+- `EXPIRED`
+
+## enum EvaluationType
+
+- `AUTOMATIC`
+- `AI_SUGGESTED`
+- `HUMAN_EVALUATED`
+
+## enum DuelSubmissionStatus
+
+- `ACCEPTED`
+- `WRONG_ANSWER`
+- `COMPILE_ERROR`
+- `RUNTIME_ERROR`
+- `TIME_LIMIT_EXCEEDED`
+- `JUDGE_UNAVAILABLE`
+
+## enum EvaluatorStatus
+
+- `PENDING`
+- `APPROVED`
+- `REJECTED`
+
+## enum EvaluatorProfileStatus
+
+- `ACTIVE`
+- `PROBATION`
+- `SUSPENDED`
+- `REVOKED`
+
+## enum JobLevel
+
+- `ESTAGIO`
+- `JUNIOR`
+- `PLENO`
+- `SENIOR`
+- `ESPECIALISTA`
+
+## enum JobModality
+
+- `REMOTE`
+- `HYBRID`
+- `ONSITE`
+
+## enum JobContract
+
+- `CLT`
+- `PJ`
+- `ESTAGIO`
+
+## enum JobStatus
+
+- `OPEN`
+- `CLOSED`
+- `DRAFT`
+
+## enum ApplicationStatus
+
+- `APPLIED`
+- `IN_REVIEW`
+- `TECHNICAL_CHALLENGE`
+- `DUEL`
+- `EVALUATION`
+- `INTERVIEW`
+- `OFFER`
+- `REJECTED`
+
+## enum RecruitmentStageType
+
+- `INSCRICAO`
+- `DESAFIO_TECNICO`
+- `DUELO_TECNICO`
+- `AVALIACAO`
+- `ENTREVISTA`
+- `CONTRATACAO`
+
+## enum EventType
+
+- `HACKATHON`
+- `CHAMPIONSHIP`
+- `WORKSHOP`
+- `CHALLENGE`
+
+## enum EventStatus
+
+- `UPCOMING`
+- `ONGOING`
+- `COMPLETED`
+
+## model User
+
+| Campo                     | Tipo                     | Restrições, relações e defaults |
+| ------------------------- | ------------------------ | ------------------------------- |
+| arenas_hosted             | RpgArenaRoom[]           | @relation("ArenaHost")          |
+| arenas_joined             | RpgArenaRoom[]           | @relation("ArenaGuest")         |
+| arena_invitations         | RpgArenaRoom[]           | @relation("ArenaInvitee")       |
+| rpg_player                | RpgPlayer?               |                                 |
+| profile_customization     | ProfileCustomization?    |                                 |
+| profile_achievements      | UserProfileAchievement[] |                                 |
+| learning_credentials      | LearningCredential[]     |                                 |
+| mobile_state              | MobileState[]            |                                 |
+| mobile_devices            | MobileDevice[]           |                                 |
+| id                        | String                   | @id @default(uuid())            |
+| username                  | String                   | @unique                         |
+| email                     | String                   | @unique                         |
+| avatar_url                | String?                  |                                 |
+| avatar_config             | Json?                    |                                 |
+| bio                       | String?                  |                                 |
+| institution               | String?                  |                                 |
+| github_username           | String?                  |                                 |
+| discord_username          | String?                  |                                 |
+| banner_url                | String?                  |                                 |
+| pronouns                  | String?                  |                                 |
+| birthday                  | DateTime?                |                                 |
+| username_changed_at       | DateTime?                |                                 |
+| total_xp                  | Int                      | @default(0)                     |
+| streak_days               | Int                      | @default(0)                     |
+| role                      | UserRole                 | @default(USER)                  |
+| consecutive_duel_abandons | Int                      | @default(0)                     |
+| duel_cooldown_until       | DateTime?                |                                 |
+| last_active_at            | DateTime?                |                                 |
+| created_at                | DateTime                 | @default(now())                 |
+| trails                    | LanguageTrail[]          |                                 |
+| posts                     | Post[]                   |                                 |
+| post_media                | PostMedia[]              |                                 |
+| poll_votes                | PostPollVote[]           |                                 |
+| answers                   | Answer[]                 |                                 |
+| quiz_attempts             | QuizAttempt[]            |                                 |
+| badges                    | UserBadge[]              |                                 |
+| duels_as_challenger       | Duel[]                   | @relation("challenger")         |
+| duels_as_opponent         | Duel[]                   | @relation("opponent")           |
+| duels_won                 | Duel[]                   | @relation("duel_winner")        |
+| duel_solutions            | DuelSolution[]           |                                 |
+| duel_submissions          | DuelSubmission[]         |                                 |
+| duel_votes                | DuelVote[]               |                                 |
+| post_votes                | PostVote[]               |                                 |
+| answer_votes              | AnswerVote[]             |                                 |
+| sent_messages             | Message[]                | @relation("sent_messages")      |
+| received_messages         | Message[]                | @relation("received_messages")  |
+| bookmarks                 | Bookmark[]               |                                 |
+| notifications             | Notification[]           |                                 |
+| notifications_acted       | Notification[]           | @relation("NotificationActor")  |
+| reports                   | Report[]                 |                                 |
+| followers                 | Follow[]                 | @relation("Followers")          |
+| following                 | Follow[]                 | @relation("Following")          |
+| blocks_made               | UserBlock[]              | @relation("Blocker")            |
+| blocks_received           | UserBlock[]              | @relation("Blocked")            |
+| reactions                 | Reaction[]               |                                 |
+| message_reactions         | MessageReaction[]        |                                 |
+| guilds_owned              | Guild[]                  | @relation("OwnedGuilds")        |
+| guild_memberships         | GuildMember[]            |                                 |
+| evaluator_profile         | EvaluatorProfile?        |                                 |
+| evaluator_applications    | EvaluatorApplication[]   |                                 |
+| companies_owned           | Company[]                |                                 |
+| job_applications          | JobApplication[]         |                                 |
+| duel_evaluations          | DuelEvaluation[]         |                                 |
+| events_created            | Event[]                  |                                 |
+| event_participants        | EventParticipant[]       |                                 |
+| duel_requests_sent        | DuelRequest[]            | @relation("duel_requests_sent") |
+| duel_requests_recv        | DuelRequest[]            | @relation("duel_requests_recv") |
+| node_progress             | UserNodeProgress[]       |                                 |
+| exercise_runs             | ExerciseRun[]            |                                 |
+| exercise_submissions      | ExerciseSubmission[]     |                                 |
+| learning_events           | LearningEvent[]          |                                 |
+
+Configuração do modelo: `@@index([total_xp(sort: Desc)])`; `@@index([role])`.
+
+## model UserBlock
+
+| Campo     | Tipo     | Restrições, relações e defaults                                                |
+| --------- | -------- | ------------------------------------------------------------------------------ |
+| blockerId | String   |                                                                                |
+| blockedId | String   |                                                                                |
+| createdAt | DateTime | @default(now())                                                                |
+| blocker   | User     | @relation("Blocker", fields: [blockerId], references: [id], onDelete: Cascade) |
+| blocked   | User     | @relation("Blocked", fields: [blockedId], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@id([blockerId, blockedId])`; `@@index([blockedId])`; `@@map("user_blocks")`.
+
+## model RpgPlayer
+
+| Campo         | Tipo             | Restrições, relações e defaults                                  |
+| ------------- | ---------------- | ---------------------------------------------------------------- |
+| userId        | String           | @id                                                              |
+| coins         | Int              | @default(0)                                                      |
+| sourceCoins   | Int              | @default(0)                                                      |
+| avatar        | Json             | @default("{}")                                                   |
+| inventory     | Json             | @default("[]")                                                   |
+| equipped      | Json             | @default("{}")                                                   |
+| lastCheckin   | String?          |                                                                  |
+| checkinStreak | Int              | @default(0)                                                      |
+| updatedAt     | DateTime         | @updatedAt                                                       |
+| user          | User             | @relation(fields: [userId], references: [id], onDelete: Cascade) |
+| transactions  | RpgTransaction[] |                                                                  |
+| battles       | RpgBattle[]      |                                                                  |
+
+Configuração do modelo: `@@map("rpg_players")`.
+
+## model RpgTransaction
+
+| Campo     | Tipo      | Restrições, relações e defaults                                      |
+| --------- | --------- | -------------------------------------------------------------------- |
+| id        | String    | @id @default(uuid())                                                 |
+| userId    | String    |                                                                      |
+| key       | String    |                                                                      |
+| label     | String    |                                                                      |
+| amount    | Int       |                                                                      |
+| createdAt | DateTime  | @default(now())                                                      |
+| player    | RpgPlayer | @relation(fields: [userId], references: [userId], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([userId, key])`; `@@index([userId, createdAt(sort: Desc)])`; `@@map("rpg_transactions")`.
+
+## model RpgBattle
+
+| Campo      | Tipo      | Restrições, relações e defaults                                      |
+| ---------- | --------- | -------------------------------------------------------------------- |
+| id         | String    | @id @default(uuid())                                                 |
+| userId     | String    |                                                                      |
+| language   | String    |                                                                      |
+| creature   | String    |                                                                      |
+| status     | String    | @default("active")                                                   |
+| hp         | Int       | @default(100)                                                        |
+| enemyHp    | Int       | @default(100)                                                        |
+| enemyLevel | Int       | @default(1)                                                          |
+| enemyMaxHp | Int       | @default(100)                                                        |
+| turn       | Int       | @default(0)                                                          |
+| correct    | Int       | @default(0)                                                          |
+| questionId | String?   |                                                                      |
+| skill      | String?   |                                                                      |
+| used       | Json      | @default("[]")                                                       |
+| feedback   | String    | @default("")                                                         |
+| reward     | Int       | @default(0)                                                          |
+| createdAt  | DateTime  | @default(now())                                                      |
+| updatedAt  | DateTime  | @updatedAt                                                           |
+| player     | RpgPlayer | @relation(fields: [userId], references: [userId], onDelete: Cascade) |
+
+Configuração do modelo: `@@index([userId, createdAt(sort: Desc)])`; `@@map("rpg_battles")`.
+
+## model RpgArenaRoom
+
+| Campo           | Tipo      | Restrições, relações e defaults                                                     |
+| --------------- | --------- | ----------------------------------------------------------------------------------- |
+| id              | String    | @id @default(uuid())                                                                |
+| hostId          | String    | @unique                                                                             |
+| guestId         | String?   | @unique                                                                             |
+| inviteeId       | String?   |                                                                                     |
+| inviteExpiresAt | DateTime? |                                                                                     |
+| hostLanguage    | String    |                                                                                     |
+| guestLanguage   | String?   |                                                                                     |
+| hostPosition    | Json      | @default("{\"x\":320,\"y\":340,\"direction\":\"down\",\"walking\":false}")          |
+| guestPosition   | Json      | @default("{\"x\":448,\"y\":340,\"direction\":\"down\",\"walking\":false}")          |
+| hostSeenAt      | DateTime  | @default(now())                                                                     |
+| guestSeenAt     | DateTime? |                                                                                     |
+| match           | Json?     |                                                                                     |
+| version         | Int       | @default(0)                                                                         |
+| updatedAt       | DateTime  | @updatedAt                                                                          |
+| host            | User      | @relation("ArenaHost", fields: [hostId], references: [id], onDelete: Cascade)       |
+| guest           | User?     | @relation("ArenaGuest", fields: [guestId], references: [id], onDelete: SetNull)     |
+| invitee         | User?     | @relation("ArenaInvitee", fields: [inviteeId], references: [id], onDelete: SetNull) |
+
+Configuração do modelo: `@@index([inviteeId, inviteExpiresAt])`; `@@map("rpg_arena_rooms")`.
+
+## model ProfileCustomization
+
+| Campo       | Tipo     | Restrições, relações e defaults                                  |
+| ----------- | -------- | ---------------------------------------------------------------- |
+| userId      | String   | @id                                                              |
+| preferences | Json     | @default("{}")                                                   |
+| chat        | Json     | @default("{}")                                                   |
+| version     | Int      | @default(1)                                                      |
+| updatedAt   | DateTime | @updatedAt @db.Timestamptz(3)                                    |
+| user        | User     | @relation(fields: [userId], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@map("profile_customizations")`.
+
+## model ProfileAchievementCatalog
+
+| Campo     | Tipo     | Restrições, relações e defaults |
+| --------- | -------- | ------------------------------- |
+| id        | String   | @id                             |
+| value     | Json     |                                 |
+| version   | Int      | @default(1)                     |
+| updatedAt | DateTime | @updatedAt @db.Timestamptz(3)   |
+
+Configuração do modelo: `@@map("profile_achievement_catalogs")`.
+
+## model UserProfileAchievement
+
+| Campo         | Tipo      | Restrições, relações e defaults                                  |
+| ------------- | --------- | ---------------------------------------------------------------- |
+| userId        | String    |                                                                  |
+| achievementId | String    |                                                                  |
+| definition    | Json      |                                                                  |
+| unlockedAt    | DateTime  | @default(now()) @db.Timestamptz(3)                               |
+| announcedAt   | DateTime? | @db.Timestamptz(3)                                               |
+| user          | User      | @relation(fields: [userId], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@id([userId, achievementId])`; `@@index([userId, unlockedAt(sort: Desc)])`; `@@map("user_profile_achievements")`.
+
+## model LearningCredential
+
+| Campo             | Tipo      | Restrições, relações e defaults                                  |
+| ----------------- | --------- | ---------------------------------------------------------------- |
+| id                | String    | @id @default(uuid())                                             |
+| userId            | String    |                                                                  |
+| definitionId      | String    |                                                                  |
+| definitionVersion | Int       |                                                                  |
+| snapshot          | Json      |                                                                  |
+| integrityHash     | String    |                                                                  |
+| issuedAt          | DateTime  | @default(now()) @db.Timestamptz(3)                               |
+| verifiedAt        | DateTime  | @db.Timestamptz(3)                                               |
+| revokedAt         | DateTime? | @db.Timestamptz(3)                                               |
+| revocationReason  | String?   |                                                                  |
+| user              | User      | @relation(fields: [userId], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([userId, definitionId, definitionVersion])`; `@@index([userId, issuedAt(sort: Desc)])`; `@@map("learning_credentials")`.
+
+## model EvaluatorApplication
+
+| Campo          | Tipo            | Restrições, relações e defaults                                   |
+| -------------- | --------------- | ----------------------------------------------------------------- |
+| id             | String          | @id @default(uuid())                                              |
+| user_id        | String          |                                                                   |
+| motivation     | String          |                                                                   |
+| tech_stack     | String[]        |                                                                   |
+| status         | EvaluatorStatus | @default(PENDING)                                                 |
+| reviewed_by_id | String?         |                                                                   |
+| reviewer_notes | String?         |                                                                   |
+| created_at     | DateTime        | @default(now())                                                   |
+| reviewed_at    | DateTime?       |                                                                   |
+| user           | User            | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@index([status, created_at])`.
+
+## model EvaluatorProfile
+
+| Campo             | Tipo                   | Restrições, relações e defaults                                   |
+| ----------------- | ---------------------- | ----------------------------------------------------------------- |
+| id                | String                 | @id @default(uuid())                                              |
+| user_id           | String                 | @unique                                                           |
+| reputation        | Int                    | @default(100)                                                     |
+| evaluations_count | Int                    | @default(0)                                                       |
+| tech_stack        | String[]               | @default([])                                                      |
+| status            | EvaluatorProfileStatus | @default(ACTIVE)                                                  |
+| sanction_reason   | String?                |                                                                   |
+| approved_at       | DateTime               | @default(now())                                                   |
+| updated_at        | DateTime               | @updatedAt                                                        |
+| user              | User                   | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: .
+
+## model Company
+
+| Campo       | Tipo     | Restrições, relações e defaults                                    |
+| ----------- | -------- | ------------------------------------------------------------------ |
+| id          | String   | @id @default(uuid())                                               |
+| owner_id    | String   |                                                                    |
+| name        | String   |                                                                    |
+| slug        | String   | @unique                                                            |
+| description | String?  |                                                                    |
+| logo_url    | String?  |                                                                    |
+| website     | String?  |                                                                    |
+| location    | String?  |                                                                    |
+| is_verified | Boolean  | @default(false)                                                    |
+| created_at  | DateTime | @default(now())                                                    |
+| owner       | User     | @relation(fields: [owner_id], references: [id], onDelete: Cascade) |
+| jobs        | Job[]    |                                                                    |
+| events      | Event[]  |                                                                    |
+
+Configuração do modelo: `@@index([slug])`.
+
+## model Job
+
+| Campo         | Tipo                  | Restrições, relações e defaults                                      |
+| ------------- | --------------------- | -------------------------------------------------------------------- |
+| id            | String                | @id @default(uuid())                                                 |
+| company_id    | String                |                                                                      |
+| title         | String                |                                                                      |
+| description   | String                |                                                                      |
+| level         | JobLevel              | @default(JUNIOR)                                                     |
+| technologies  | String[]              |                                                                      |
+| modality      | JobModality           | @default(REMOTE)                                                     |
+| location      | String?               |                                                                      |
+| contract_type | JobContract           | @default(CLT)                                                        |
+| salary_min    | Int?                  |                                                                      |
+| salary_max    | Int?                  |                                                                      |
+| currency      | String                | @default("BRL")                                                      |
+| requirements  | String[]              |                                                                      |
+| benefits      | String[]              |                                                                      |
+| status        | JobStatus             | @default(OPEN)                                                       |
+| created_at    | DateTime              | @default(now())                                                      |
+| expires_at    | DateTime?             |                                                                      |
+| company       | Company               | @relation(fields: [company_id], references: [id], onDelete: Cascade) |
+| stages        | JobRecruitmentStage[] |                                                                      |
+| applications  | JobApplication[]      |                                                                      |
+
+Configuração do modelo: `@@index([status, created_at])`.
+
+## model JobRecruitmentStage
+
+| Campo        | Tipo                 | Restrições, relações e defaults                                  |
+| ------------ | -------------------- | ---------------------------------------------------------------- |
+| id           | String               | @id @default(uuid())                                             |
+| job_id       | String               |                                                                  |
+| title        | String               |                                                                  |
+| type         | RecruitmentStageType | @default(INSCRICAO)                                              |
+| order        | Int                  | @default(1)                                                      |
+| challenge_id | String?              |                                                                  |
+| description  | String?              |                                                                  |
+| job          | Job                  | @relation(fields: [job_id], references: [id], onDelete: Cascade) |
+| applications | JobApplication[]     |                                                                  |
+
+Configuração do modelo: `@@index([job_id, order])`.
+
+## model JobApplication
+
+| Campo           | Tipo                 | Restrições, relações e defaults                                    |
+| --------------- | -------------------- | ------------------------------------------------------------------ |
+| id              | String               | @id @default(uuid())                                               |
+| job_id          | String               |                                                                    |
+| user_id         | String               |                                                                    |
+| stage_id        | String?              |                                                                    |
+| status          | ApplicationStatus    | @default(APPLIED)                                                  |
+| technical_score | Int?                 |                                                                    |
+| feedback        | String?              |                                                                    |
+| created_at      | DateTime             | @default(now())                                                    |
+| updated_at      | DateTime             | @updatedAt                                                         |
+| job             | Job                  | @relation(fields: [job_id], references: [id], onDelete: Cascade)   |
+| user            | User                 | @relation(fields: [user_id], references: [id], onDelete: Cascade)  |
+| stage           | JobRecruitmentStage? | @relation(fields: [stage_id], references: [id], onDelete: SetNull) |
+
+Configuração do modelo: `@@unique([job_id, user_id])`; `@@index([job_id, status])`.
+
+## model LanguageTrail
+
+| Campo            | Tipo      | Restrições, relações e defaults                                   |
+| ---------------- | --------- | ----------------------------------------------------------------- |
+| id               | String    | @id @default(uuid())                                              |
+| user_id          | String    |                                                                   |
+| language         | Language  |                                                                   |
+| xp               | Int       | @default(0)                                                       |
+| level            | Int       | @default(1)                                                       |
+| streak           | Int       | @default(0)                                                       |
+| last_activity_at | DateTime? |                                                                   |
+| user             | User      | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([user_id, language])`.
+
+## model KnowledgeNode
+
+| Campo             | Tipo               | Restrições, relações e defaults    |
+| ----------------- | ------------------ | ---------------------------------- |
+| id                | String             | @id @default(uuid())               |
+| slug              | String             | @unique                            |
+| title             | String             |                                    |
+| description       | String             |                                    |
+| type              | KnowledgeNodeType  |                                    |
+| category          | String             |                                    |
+| language          | Language?          |                                    |
+| difficulty        | Int                |                                    |
+| xp_reward         | Int                |                                    |
+| estimated_minutes | Int?               |                                    |
+| position_x        | Int                |                                    |
+| position_y        | Int                |                                    |
+| is_published      | Boolean            | @default(false)                    |
+| created_at        | DateTime           | @default(now()) @db.Timestamptz(3) |
+| updated_at        | DateTime           | @updatedAt @db.Timestamptz(3)      |
+| outgoing_edges    | KnowledgeEdge[]    | @relation("KnowledgeEdgeSource")   |
+| incoming_edges    | KnowledgeEdge[]    | @relation("KnowledgeEdgeTarget")   |
+| path_nodes        | LearningPathNode[] |                                    |
+| exercises         | Exercise[]         |                                    |
+| user_progress     | UserNodeProgress[] |                                    |
+
+Configuração do modelo: `@@index([is_published, category])`; `@@index([language])`; `@@map("knowledge_nodes")`.
+
+## model KnowledgeEdge
+
+| Campo          | Tipo              | Restrições, relações e defaults                                                                 |
+| -------------- | ----------------- | ----------------------------------------------------------------------------------------------- |
+| id             | String            | @id @default(uuid())                                                                            |
+| source_node_id | String            |                                                                                                 |
+| target_node_id | String            |                                                                                                 |
+| relation       | KnowledgeRelation |                                                                                                 |
+| created_at     | DateTime          | @default(now()) @db.Timestamptz(3)                                                              |
+| source_node    | KnowledgeNode     | @relation("KnowledgeEdgeSource", fields: [source_node_id], references: [id], onDelete: Cascade) |
+| target_node    | KnowledgeNode     | @relation("KnowledgeEdgeTarget", fields: [target_node_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([source_node_id, target_node_id, relation])`; `@@index([source_node_id])`; `@@index([target_node_id])`; `@@map("knowledge_edges")`.
+
+## model LearningPath
+
+| Campo             | Tipo               | Restrições, relações e defaults    |
+| ----------------- | ------------------ | ---------------------------------- |
+| id                | String             | @id @default(uuid())               |
+| slug              | String             | @unique                            |
+| title             | String             |                                    |
+| description       | String             |                                    |
+| accent_color      | String             |                                    |
+| estimated_minutes | Int?               |                                    |
+| is_featured       | Boolean            | @default(false)                    |
+| is_published      | Boolean            | @default(false)                    |
+| created_at        | DateTime           | @default(now()) @db.Timestamptz(3) |
+| updated_at        | DateTime           | @updatedAt @db.Timestamptz(3)      |
+| nodes             | LearningPathNode[] |                                    |
+
+Configuração do modelo: `@@index([is_published, is_featured])`; `@@map("learning_paths")`.
+
+## model LearningPathNode
+
+| Campo             | Tipo          | Restrições, relações e defaults                                             |
+| ----------------- | ------------- | --------------------------------------------------------------------------- |
+| id                | String        | @id @default(uuid())                                                        |
+| learning_path_id  | String        |                                                                             |
+| knowledge_node_id | String        |                                                                             |
+| position          | Int           |                                                                             |
+| learning_path     | LearningPath  | @relation(fields: [learning_path_id], references: [id], onDelete: Cascade)  |
+| knowledge_node    | KnowledgeNode | @relation(fields: [knowledge_node_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([learning_path_id, knowledge_node_id])`; `@@unique([learning_path_id, position])`; `@@index([knowledge_node_id])`; `@@map("learning_path_nodes")`.
+
+## model Exercise
+
+| Campo             | Tipo                 | Restrições, relações e defaults                                             |
+| ----------------- | -------------------- | --------------------------------------------------------------------------- |
+| id                | String               | @id @default(uuid())                                                        |
+| slug              | String               | @unique                                                                     |
+| knowledge_node_id | String               |                                                                             |
+| title             | String               |                                                                             |
+| summary           | String               |                                                                             |
+| problem           | String               |                                                                             |
+| objective         | String               |                                                                             |
+| language          | Language             |                                                                             |
+| difficulty        | Int                  |                                                                             |
+| base_xp           | Int                  |                                                                             |
+| estimated_minutes | Int?                 |                                                                             |
+| starter_code      | String               |                                                                             |
+| function_name     | String               |                                                                             |
+| constraints       | String[]             |                                                                             |
+| hints             | String[]             |                                                                             |
+| documentation_url | String?              |                                                                             |
+| examples          | Json                 | @default("[]")                                                              |
+| is_published      | Boolean              | @default(false)                                                             |
+| created_at        | DateTime             | @default(now()) @db.Timestamptz(3)                                          |
+| updated_at        | DateTime             | @updatedAt @db.Timestamptz(3)                                               |
+| knowledge_node    | KnowledgeNode        | @relation(fields: [knowledge_node_id], references: [id], onDelete: Cascade) |
+| test_cases        | ExerciseTestCase[]   |                                                                             |
+| runs              | ExerciseRun[]        |                                                                             |
+| submissions       | ExerciseSubmission[] |                                                                             |
+| events            | LearningEvent[]      |                                                                             |
+
+Configuração do modelo: `@@index([knowledge_node_id, is_published])`; `@@index([language, difficulty])`; `@@map("exercises")`.
+
+## model ExerciseTestCase
+
+| Campo           | Tipo     | Restrições, relações e defaults                                       |
+| --------------- | -------- | --------------------------------------------------------------------- |
+| id              | String   | @id @default(uuid())                                                  |
+| exercise_id     | String   |                                                                       |
+| label           | String   |                                                                       |
+| input           | Json?    |                                                                       |
+| invocation_code | String?  |                                                                       |
+| expected_output | Json     |                                                                       |
+| is_hidden       | Boolean  | @default(false)                                                       |
+| position        | Int      |                                                                       |
+| exercise        | Exercise | @relation(fields: [exercise_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([exercise_id, position])`; `@@index([exercise_id, is_hidden])`; `@@map("exercise_test_cases")`.
+
+## model UserNodeProgress
+
+| Campo               | Tipo                    | Restrições, relações e defaults                                             |
+| ------------------- | ----------------------- | --------------------------------------------------------------------------- |
+| id                  | String                  | @id @default(uuid())                                                        |
+| user_id             | String                  |                                                                             |
+| knowledge_node_id   | String                  |                                                                             |
+| status              | KnowledgeProgressStatus | @default(NOT_STARTED)                                                       |
+| mastery             | Int                     | @default(0)                                                                 |
+| completed_exercises | Int                     | @default(0)                                                                 |
+| started_at          | DateTime?               | @db.Timestamptz(3)                                                          |
+| completed_at        | DateTime?               | @db.Timestamptz(3)                                                          |
+| last_activity_at    | DateTime                | @default(now()) @db.Timestamptz(3)                                          |
+| created_at          | DateTime                | @default(now()) @db.Timestamptz(3)                                          |
+| updated_at          | DateTime                | @updatedAt @db.Timestamptz(3)                                               |
+| user                | User                    | @relation(fields: [user_id], references: [id], onDelete: Cascade)           |
+| knowledge_node      | KnowledgeNode           | @relation(fields: [knowledge_node_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([user_id, knowledge_node_id])`; `@@index([user_id, status])`; `@@index([knowledge_node_id])`; `@@map("user_node_progress")`.
+
+## model ExerciseRun
+
+| Campo           | Tipo           | Restrições, relações e defaults                                       |
+| --------------- | -------------- | --------------------------------------------------------------------- |
+| id              | String         | @id @default(uuid())                                                  |
+| exercise_id     | String         |                                                                       |
+| user_id         | String         |                                                                       |
+| assistance_mode | AssistanceMode |                                                                       |
+| code            | String         |                                                                       |
+| passed_tests    | Int            |                                                                       |
+| total_tests     | Int            |                                                                       |
+| output          | String?        |                                                                       |
+| error_message   | String?        |                                                                       |
+| execution_ms    | Int?           |                                                                       |
+| created_at      | DateTime       | @default(now()) @db.Timestamptz(3)                                    |
+| exercise        | Exercise       | @relation(fields: [exercise_id], references: [id], onDelete: Cascade) |
+| user            | User           | @relation(fields: [user_id], references: [id], onDelete: Cascade)     |
+
+Configuração do modelo: `@@index([user_id, exercise_id, created_at(sort: Desc)])`; `@@index([exercise_id])`; `@@map("exercise_runs")`.
+
+## model ExerciseSubmission
+
+| Campo            | Tipo                     | Restrições, relações e defaults                                       |
+| ---------------- | ------------------------ | --------------------------------------------------------------------- |
+| id               | String                   | @id @default(uuid())                                                  |
+| exercise_id      | String                   |                                                                       |
+| user_id          | String                   |                                                                       |
+| assistance_mode  | AssistanceMode           |                                                                       |
+| status           | ExerciseSubmissionStatus |                                                                       |
+| code             | String                   |                                                                       |
+| passed_public    | Int                      |                                                                       |
+| total_public     | Int                      |                                                                       |
+| passed_hidden    | Int                      |                                                                       |
+| total_hidden     | Int                      |                                                                       |
+| xp_earned        | Int                      | @default(0)                                                           |
+| first_completion | Boolean                  | @default(false)                                                       |
+| error_message    | String?                  |                                                                       |
+| execution_ms     | Int?                     |                                                                       |
+| created_at       | DateTime                 | @default(now()) @db.Timestamptz(3)                                    |
+| exercise         | Exercise                 | @relation(fields: [exercise_id], references: [id], onDelete: Cascade) |
+| user             | User                     | @relation(fields: [user_id], references: [id], onDelete: Cascade)     |
+
+Configuração do modelo: `@@index([user_id, exercise_id, created_at(sort: Desc)])`; `@@index([exercise_id, status])`; `@@map("exercise_submissions")`.
+
+## model LearningEvent
+
+| Campo           | Tipo              | Restrições, relações e defaults                                       |
+| --------------- | ----------------- | --------------------------------------------------------------------- |
+| id              | String            | @id @default(uuid())                                                  |
+| user_id         | String            |                                                                       |
+| exercise_id     | String?           |                                                                       |
+| event_type      | LearningEventType |                                                                       |
+| assistance_mode | AssistanceMode?   |                                                                       |
+| metadata        | Json              | @default("{}")                                                        |
+| created_at      | DateTime          | @default(now()) @db.Timestamptz(3)                                    |
+| user            | User              | @relation(fields: [user_id], references: [id], onDelete: Cascade)     |
+| exercise        | Exercise?         | @relation(fields: [exercise_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@index([user_id, event_type, created_at(sort: Desc)])`; `@@index([exercise_id])`; `@@map("learning_events")`.
+
+## model Post
+
+| Campo        | Tipo        | Restrições, relações e defaults                                     |
+| ------------ | ----------- | ------------------------------------------------------------------- |
+| id           | String      | @id @default(uuid())                                                |
+| author_id    | String      |                                                                     |
+| title        | String      |                                                                     |
+| body         | String      |                                                                     |
+| language     | Language?   |                                                                     |
+| code_snippet | String?     |                                                                     |
+| image_url    | String?     |                                                                     |
+| audience     | String      | @default("everyone")                                                |
+| attachments  | Json?       |                                                                     |
+| music        | Json?       |                                                                     |
+| is_pinned    | Boolean     | @default(false)                                                     |
+| created_at   | DateTime    | @default(now())                                                     |
+| view_count   | Int         | @default(0)                                                         |
+| upvotes      | Int         | @default(0)                                                         |
+| client_id    | String?     |                                                                     |
+| author       | User        | @relation(fields: [author_id], references: [id], onDelete: Cascade) |
+| answers      | Answer[]    |                                                                     |
+| quizzes      | Quiz[]      |                                                                     |
+| votes        | PostVote[]  |                                                                     |
+| bookmarks    | Bookmark[]  |                                                                     |
+| reports      | Report[]    |                                                                     |
+| reactions    | Reaction[]  |                                                                     |
+| poll         | PostPoll?   |                                                                     |
+| media        | PostMedia[] |                                                                     |
+
+Configuração do modelo: `@@unique([author_id, client_id])`; `@@index([created_at(sort: Desc), id(sort: Desc)])`.
+
+## model PostMedia
+
+| Campo        | Tipo     | Restrições, relações e defaults                                    |
+| ------------ | -------- | ------------------------------------------------------------------ |
+| id           | String   | @id @default(uuid())                                               |
+| owner_id     | String   |                                                                    |
+| post_id      | String?  |                                                                    |
+| storage_path | String   | @unique                                                            |
+| content_type | String   |                                                                    |
+| size         | Int      |                                                                    |
+| created_at   | DateTime | @default(now())                                                    |
+| owner        | User     | @relation(fields: [owner_id], references: [id], onDelete: Cascade) |
+| post         | Post?    | @relation(fields: [post_id], references: [id], onDelete: Cascade)  |
+
+Configuração do modelo: `@@index([owner_id, created_at])`; `@@index([post_id])`.
+
+## model PostPoll
+
+| Campo      | Tipo             | Restrições, relações e defaults                                   |
+| ---------- | ---------------- | ----------------------------------------------------------------- |
+| id         | String           | @id @default(uuid())                                              |
+| post_id    | String           | @unique                                                           |
+| question   | String           |                                                                   |
+| expires_at | DateTime         |                                                                   |
+| post       | Post             | @relation(fields: [post_id], references: [id], onDelete: Cascade) |
+| options    | PostPollOption[] |                                                                   |
+| votes      | PostPollVote[]   |                                                                   |
+
+Configuração do modelo: .
+
+## model PostPollOption
+
+| Campo    | Tipo           | Restrições, relações e defaults                                   |
+| -------- | -------------- | ----------------------------------------------------------------- |
+| id       | String         | @id @default(uuid())                                              |
+| poll_id  | String         |                                                                   |
+| position | Int            |                                                                   |
+| text     | String         |                                                                   |
+| poll     | PostPoll       | @relation(fields: [poll_id], references: [id], onDelete: Cascade) |
+| votes    | PostPollVote[] |                                                                   |
+
+Configuração do modelo: `@@unique([poll_id, position])`.
+
+## model PostPollVote
+
+| Campo     | Tipo           | Restrições, relações e defaults                                     |
+| --------- | -------------- | ------------------------------------------------------------------- |
+| id        | String         | @id @default(uuid())                                                |
+| poll_id   | String         |                                                                     |
+| option_id | String         |                                                                     |
+| user_id   | String         |                                                                     |
+| poll      | PostPoll       | @relation(fields: [poll_id], references: [id], onDelete: Cascade)   |
+| option    | PostPollOption | @relation(fields: [option_id], references: [id], onDelete: Cascade) |
+| user      | User           | @relation(fields: [user_id], references: [id], onDelete: Cascade)   |
+
+Configuração do modelo: `@@unique([poll_id, user_id])`; `@@index([option_id])`; `@@index([user_id])`.
+
+## model Answer
+
+| Campo        | Tipo         | Restrições, relações e defaults                                                      |
+| ------------ | ------------ | ------------------------------------------------------------------------------------ |
+| id           | String       | @id @default(uuid())                                                                 |
+| post_id      | String       |                                                                                      |
+| author_id    | String       |                                                                                      |
+| parent_id    | String?      |                                                                                      |
+| body         | String       |                                                                                      |
+| code_snippet | String?      |                                                                                      |
+| is_accepted  | Boolean      | @default(false)                                                                      |
+| upvotes      | Int          | @default(0)                                                                          |
+| created_at   | DateTime     | @default(now())                                                                      |
+| post         | Post         | @relation(fields: [post_id], references: [id], onDelete: Cascade)                    |
+| author       | User         | @relation(fields: [author_id], references: [id], onDelete: Cascade)                  |
+| parent       | Answer?      | @relation("AnswerReplies", fields: [parent_id], references: [id], onDelete: Cascade) |
+| replies      | Answer[]     | @relation("AnswerReplies")                                                           |
+| votes        | AnswerVote[] |                                                                                      |
+
+Configuração do modelo: `@@index([parent_id])`.
+
+## model Quiz
+
+| Campo         | Tipo          | Restrições, relações e defaults                                   |
+| ------------- | ------------- | ----------------------------------------------------------------- |
+| id            | String        | @id @default(uuid())                                              |
+| post_id       | String?       |                                                                   |
+| question      | String        |                                                                   |
+| options       | Json          |                                                                   |
+| correct_index | Int           |                                                                   |
+| is_daily      | Boolean       | @default(false)                                                   |
+| scheduled_for | DateTime?     | @unique                                                           |
+| created_at    | DateTime      | @default(now())                                                   |
+| post          | Post?         | @relation(fields: [post_id], references: [id], onDelete: Cascade) |
+| attempts      | QuizAttempt[] |                                                                   |
+
+Configuração do modelo: `@@index([is_daily, created_at])`; `@@index([scheduled_for])`.
+
+## model QuizAttempt
+
+| Campo          | Tipo     | Restrições, relações e defaults                                   |
+| -------------- | -------- | ----------------------------------------------------------------- |
+| id             | String   | @id @default(uuid())                                              |
+| user_id        | String   |                                                                   |
+| quiz_id        | String   |                                                                   |
+| selected_index | Int      |                                                                   |
+| is_correct     | Boolean  |                                                                   |
+| xp_earned      | Int      | @default(0)                                                       |
+| created_at     | DateTime | @default(now())                                                   |
+| user           | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+| quiz           | Quiz     | @relation(fields: [quiz_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([user_id, quiz_id])`.
+
+## model DuelRequest
+
+| Campo             | Tipo              | Restrições, relações e defaults                                                                         |
+| ----------------- | ----------------- | ------------------------------------------------------------------------------------------------------- |
+| id                | String            | @id @default(uuid())                                                                                    |
+| sender_id         | String            |                                                                                                         |
+| receiver_id       | String            |                                                                                                         |
+| language          | Language          | @default(TS)                                                                                            |
+| status            | DuelRequestStatus | @default(PENDING)                                                                                       |
+| publish_on_expiry | Boolean           | @default(false)                                                                                         |
+| problem_id        | String?           |                                                                                                         |
+| problem_title     | String?           |                                                                                                         |
+| problem_body      | String?           |                                                                                                         |
+| published_duel_id | String?           | @unique                                                                                                 |
+| expires_at        | DateTime          |                                                                                                         |
+| created_at        | DateTime          | @default(now())                                                                                         |
+| sender            | User              | @relation("duel_requests_sent", fields: [sender_id], references: [id], onDelete: Cascade)               |
+| receiver          | User              | @relation("duel_requests_recv", fields: [receiver_id], references: [id], onDelete: Cascade)             |
+| published_duel    | Duel?             | @relation("PublishedDuelFromRequest", fields: [published_duel_id], references: [id], onDelete: SetNull) |
+
+Configuração do modelo: `@@index([receiver_id, status])`; `@@index([status, expires_at])`.
+
+## model Duel
+
+| Campo              | Tipo             | Restrições, relações e defaults                                                       |
+| ------------------ | ---------------- | ------------------------------------------------------------------------------------- |
+| id                 | String           | @id @default(uuid())                                                                  |
+| challenger_id      | String           |                                                                                       |
+| opponent_id        | String?          |                                                                                       |
+| problem_title      | String           |                                                                                       |
+| problem_body       | String           |                                                                                       |
+| problem_id         | String?          |                                                                                       |
+| language           | Language         |                                                                                       |
+| status             | DuelStatus       | @default(PENDING)                                                                     |
+| time_limit_seconds | Int              | @default(7200)                                                                        |
+| match_deadline     | DateTime?        |                                                                                       |
+| started_at         | DateTime?        |                                                                                       |
+| finished_at        | DateTime?        |                                                                                       |
+| winner_id          | String?          |                                                                                       |
+| closed_reason      | String?          |                                                                                       |
+| xp_awarded_at      | DateTime?        |                                                                                       |
+| created_at         | DateTime         | @default(now())                                                                       |
+| challenger         | User             | @relation("challenger", fields: [challenger_id], references: [id], onDelete: Cascade) |
+| opponent           | User?            | @relation("opponent", fields: [opponent_id], references: [id], onDelete: SetNull)     |
+| winner             | User?            | @relation("duel_winner", fields: [winner_id], references: [id], onDelete: SetNull)    |
+| solutions          | DuelSolution[]   |                                                                                       |
+| submissions        | DuelSubmission[] |                                                                                       |
+| votes              | DuelVote[]       |                                                                                       |
+| evaluations        | DuelEvaluation[] |                                                                                       |
+| source_request     | DuelRequest?     | @relation("PublishedDuelFromRequest")                                                 |
+
+Configuração do modelo: `@@index([status, match_deadline])`; `@@index([language, status, created_at])`.
+
+## model DuelSolution
+
+| Campo        | Tipo     | Restrições, relações e defaults                                   |
+| ------------ | -------- | ----------------------------------------------------------------- |
+| id           | String   | @id @default(uuid())                                              |
+| duel_id      | String   |                                                                   |
+| user_id      | String   |                                                                   |
+| code         | String   |                                                                   |
+| vote_count   | Int      | @default(0)                                                       |
+| score        | Int      | @default(0)                                                       |
+| runtime_ms   | Int?     |                                                                   |
+| complexity   | String?  |                                                                   |
+| submitted_at | DateTime | @default(now())                                                   |
+| duel         | Duel     | @relation(fields: [duel_id], references: [id], onDelete: Cascade) |
+| user         | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([duel_id, user_id])`.
+
+## model DuelSubmission
+
+| Campo            | Tipo                 | Restrições, relações e defaults                                   |
+| ---------------- | -------------------- | ----------------------------------------------------------------- |
+| id               | String               | @id @default(uuid())                                              |
+| duel_id          | String               |                                                                   |
+| user_id          | String               |                                                                   |
+| code             | String               |                                                                   |
+| status           | DuelSubmissionStatus |                                                                   |
+| passed_tests     | Int                  | @default(0)                                                       |
+| total_tests      | Int                  | @default(0)                                                       |
+| runtime_ms       | Int?                 |                                                                   |
+| complexity       | String?              |                                                                   |
+| complexity_score | Int                  | @default(0)                                                       |
+| score            | Int                  | @default(0)                                                       |
+| public_result    | Json?                |                                                                   |
+| created_at       | DateTime             | @default(now())                                                   |
+| duel             | Duel                 | @relation(fields: [duel_id], references: [id], onDelete: Cascade) |
+| user             | User                 | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@index([duel_id, user_id, created_at(sort: Desc)])`.
+
+## model DuelVote
+
+| Campo       | Tipo     | Restrições, relações e defaults                                   |
+| ----------- | -------- | ----------------------------------------------------------------- |
+| id          | String   | @id @default(uuid())                                              |
+| duel_id     | String   |                                                                   |
+| user_id     | String   |                                                                   |
+| solution_id | String   |                                                                   |
+| created_at  | DateTime | @default(now())                                                   |
+| duel        | Duel     | @relation(fields: [duel_id], references: [id], onDelete: Cascade) |
+| user        | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([duel_id, user_id])`.
+
+## model DuelEvaluation
+
+| Campo           | Tipo           | Restrições, relações e defaults                                        |
+| --------------- | -------------- | ---------------------------------------------------------------------- |
+| id              | String         | @id @default(uuid())                                                   |
+| duel_id         | String         |                                                                        |
+| evaluator_id    | String?        |                                                                        |
+| type            | EvaluationType | @default(AUTOMATIC)                                                    |
+| score_player1   | Int            | @default(0)                                                            |
+| score_player2   | Int            | @default(0)                                                            |
+| system_analysis | Json?          |                                                                        |
+| human_feedback  | String?        |                                                                        |
+| strengths       | String[]       |                                                                        |
+| improvements    | String[]       |                                                                        |
+| created_at      | DateTime       | @default(now())                                                        |
+| duel            | Duel           | @relation(fields: [duel_id], references: [id], onDelete: Cascade)      |
+| evaluator       | User?          | @relation(fields: [evaluator_id], references: [id], onDelete: SetNull) |
+
+Configuração do modelo: `@@index([duel_id])`.
+
+## model Event
+
+| Campo            | Tipo               | Restrições, relações e defaults                                      |
+| ---------------- | ------------------ | -------------------------------------------------------------------- |
+| id               | String             | @id @default(uuid())                                                 |
+| creator_id       | String             |                                                                      |
+| company_id       | String?            |                                                                      |
+| title            | String             |                                                                      |
+| slug             | String             | @unique                                                              |
+| description      | String             |                                                                      |
+| type             | EventType          | @default(CHALLENGE)                                                  |
+| status           | EventStatus        | @default(UPCOMING)                                                   |
+| banner_url       | String?            |                                                                      |
+| min_level        | Int                | @default(1)                                                          |
+| max_participants | Int?               |                                                                      |
+| xp_reward        | Int                | @default(250)                                                        |
+| start_date       | DateTime           |                                                                      |
+| end_date         | DateTime           |                                                                      |
+| created_at       | DateTime           | @default(now())                                                      |
+| creator          | User               | @relation(fields: [creator_id], references: [id], onDelete: Cascade) |
+| company          | Company?           | @relation(fields: [company_id], references: [id], onDelete: SetNull) |
+| participants     | EventParticipant[] |                                                                      |
+| challenges       | EventChallenge[]   |                                                                      |
+
+Configuração do modelo: `@@index([status, start_date])`.
+
+## model EventChallenge
+
+| Campo           | Tipo     | Restrições, relações e defaults                                    |
+| --------------- | -------- | ------------------------------------------------------------------ |
+| id              | String   | @id @default(uuid())                                               |
+| event_id        | String   |                                                                    |
+| position        | Int      |                                                                    |
+| title           | String   |                                                                    |
+| statement       | String   |                                                                    |
+| language        | Language |                                                                    |
+| expected_answer | String   |                                                                    |
+| examples        | Json     |                                                                    |
+| created_at      | DateTime | @default(now())                                                    |
+| updated_at      | DateTime | @updatedAt                                                         |
+| event           | Event    | @relation(fields: [event_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([event_id, position])`; `@@index([event_id])`.
+
+## model EventParticipant
+
+| Campo     | Tipo     | Restrições, relações e defaults                                    |
+| --------- | -------- | ------------------------------------------------------------------ |
+| id        | String   | @id @default(uuid())                                               |
+| event_id  | String   |                                                                    |
+| user_id   | String   |                                                                    |
+| score     | Int      | @default(0)                                                        |
+| rank      | Int?     |                                                                    |
+| joined_at | DateTime | @default(now())                                                    |
+| event     | Event    | @relation(fields: [event_id], references: [id], onDelete: Cascade) |
+| user      | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade)  |
+
+Configuração do modelo: `@@unique([event_id, user_id])`; `@@index([event_id, score(sort: Desc)])`.
+
+## model Badge
+
+| Campo       | Tipo        | Restrições, relações e defaults |
+| ----------- | ----------- | ------------------------------- |
+| id          | String      | @id @default(uuid())            |
+| slug        | String      | @unique                         |
+| label       | String      |                                 |
+| description | String      |                                 |
+| icon        | String      |                                 |
+| color       | String      |                                 |
+| users       | UserBadge[] |                                 |
+
+Configuração do modelo: .
+
+## model UserBadge
+
+| Campo     | Tipo     | Restrições, relações e defaults                                    |
+| --------- | -------- | ------------------------------------------------------------------ |
+| id        | String   | @id @default(uuid())                                               |
+| user_id   | String   |                                                                    |
+| badge_id  | String   |                                                                    |
+| earned_at | DateTime | @default(now())                                                    |
+| user      | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade)  |
+| badge     | Badge    | @relation(fields: [badge_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([user_id, badge_id])`.
+
+## model PostVote
+
+| Campo      | Tipo     | Restrições, relações e defaults                                   |
+| ---------- | -------- | ----------------------------------------------------------------- |
+| id         | String   | @id @default(uuid())                                              |
+| post_id    | String   |                                                                   |
+| user_id    | String   |                                                                   |
+| value      | Int      | // 1 for upvote, -1 for downvote                                  |
+| created_at | DateTime | @default(now())                                                   |
+| post       | Post     | @relation(fields: [post_id], references: [id], onDelete: Cascade) |
+| user       | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([post_id, user_id])`.
+
+## model AnswerVote
+
+| Campo      | Tipo     | Restrições, relações e defaults                                     |
+| ---------- | -------- | ------------------------------------------------------------------- |
+| id         | String   | @id @default(uuid())                                                |
+| answer_id  | String   |                                                                     |
+| user_id    | String   |                                                                     |
+| value      | Int      | // 1 for upvote, -1 for downvote                                    |
+| created_at | DateTime | @default(now())                                                     |
+| answer     | Answer   | @relation(fields: [answer_id], references: [id], onDelete: Cascade) |
+| user       | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade)   |
+
+Configuração do modelo: `@@unique([answer_id, user_id])`.
+
+## model Message
+
+| Campo       | Tipo              | Restrições, relações e defaults                                                            |
+| ----------- | ----------------- | ------------------------------------------------------------------------------------------ |
+| client_id   | String?           |                                                                                            |
+| id          | String            | @id @default(uuid())                                                                       |
+| sender_id   | String            |                                                                                            |
+| receiver_id | String            |                                                                                            |
+| content     | String            |                                                                                            |
+| image_url   | String?           |                                                                                            |
+| is_edited   | Boolean           | @default(false)                                                                            |
+| created_at  | DateTime          | @default(now())                                                                            |
+| updated_at  | DateTime?         |                                                                                            |
+| sender      | User              | @relation("sent_messages", fields: [sender_id], references: [id], onDelete: Cascade)       |
+| receiver    | User              | @relation("received_messages", fields: [receiver_id], references: [id], onDelete: Cascade) |
+| reactions   | MessageReaction[] |                                                                                            |
+
+Configuração do modelo: `@@unique([sender_id, client_id])`; `@@index([created_at])`; `@@index([sender_id, receiver_id, created_at(sort: Desc), id(sort: Desc)])`; `@@index([receiver_id, sender_id, created_at(sort: Desc), id(sort: Desc)])`.
+
+## model MobileState
+
+| Campo      | Tipo     | Restrições, relações e defaults                                   |
+| ---------- | -------- | ----------------------------------------------------------------- |
+| user_id    | String   |                                                                   |
+| key        | String   |                                                                   |
+| value      | Json     |                                                                   |
+| version    | Int      | @default(1)                                                       |
+| updated_at | DateTime | @updatedAt                                                        |
+| user       | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@id([user_id, key])`.
+
+## model MobileDevice
+
+| Campo      | Tipo     | Restrições, relações e defaults                                   |
+| ---------- | -------- | ----------------------------------------------------------------- |
+| token      | String   | @id                                                               |
+| user_id    | String   |                                                                   |
+| enabled    | Boolean  | @default(true)                                                    |
+| updated_at | DateTime | @updatedAt                                                        |
+| user       | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@index([user_id, enabled])`.
+
+## model MessageReaction
+
+| Campo      | Tipo     | Restrições, relações e defaults                                      |
+| ---------- | -------- | -------------------------------------------------------------------- |
+| id         | String   | @id @default(uuid())                                                 |
+| message_id | String   |                                                                      |
+| user_id    | String   |                                                                      |
+| emoji      | String   |                                                                      |
+| created_at | DateTime | @default(now())                                                      |
+| message    | Message  | @relation(fields: [message_id], references: [id], onDelete: Cascade) |
+| user       | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade)    |
+
+Configuração do modelo: `@@unique([message_id, user_id, emoji])`; `@@index([message_id])`; `@@index([user_id])`.
+
+## model Bookmark
+
+| Campo      | Tipo     | Restrições, relações e defaults                                   |
+| ---------- | -------- | ----------------------------------------------------------------- |
+| id         | String   | @id @default(uuid())                                              |
+| user_id    | String   |                                                                   |
+| post_id    | String   |                                                                   |
+| created_at | DateTime | @default(now())                                                   |
+| user       | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+| post       | Post     | @relation(fields: [post_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([user_id, post_id])`; `@@index([created_at])`.
+
+## enum GuildRole
+
+- `OWNER`
+- `ADMIN`
+- `MEMBER`
+
+## enum NotificationType
+
+- `LIKE`
+- `REACTION`
+- `COMMENT`
+- `MENTION`
+- `XP_MILESTONE`
+- `FOLLOW`
+- `QUIZ_CORRECT`
+- `LEVEL_UP`
+- `DUEL_CHALLENGE`
+- `DUEL_RESULT`
+- `DUEL_REQUEST`
+- `DUEL_ACCEPTED`
+- `DUEL_REJECTED`
+- `EVALUATION_COMPLETED`
+- `JOB_APPLICATION_UPDATE`
+- `EVENT_START`
+- `EVALUATOR_APPROVED`
+- `EVALUATOR_REJECTED`
+
+## model Notification
+
+| Campo        | Tipo             | Restrições, relações e defaults                                                        |
+| ------------ | ---------------- | -------------------------------------------------------------------------------------- |
+| id           | String           | @id @default(cuid())                                                                   |
+| userId       | String           |                                                                                        |
+| type         | NotificationType |                                                                                        |
+| actorId      | String?          |                                                                                        |
+| resourceId   | String?          |                                                                                        |
+| resourceType | String?          |                                                                                        |
+| read         | Boolean          | @default(false)                                                                        |
+| createdAt    | DateTime         | @default(now())                                                                        |
+| user         | User             | @relation(fields: [userId], references: [id], onDelete: Cascade)                       |
+| actor        | User?            | @relation("NotificationActor", fields: [actorId], references: [id], onDelete: SetNull) |
+
+Configuração do modelo: `@@index([userId, createdAt(sort: Desc)])`.
+
+## model Report
+
+| Campo      | Tipo     | Restrições, relações e defaults                                   |
+| ---------- | -------- | ----------------------------------------------------------------- |
+| id         | String   | @id @default(uuid())                                              |
+| user_id    | String   |                                                                   |
+| post_id    | String   |                                                                   |
+| reason     | String   |                                                                   |
+| created_at | DateTime | @default(now())                                                   |
+| user       | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+| post       | Post     | @relation(fields: [post_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([user_id, post_id])`; `@@index([created_at])`.
+
+## model SecurityAuditEvent
+
+| Campo        | Tipo     | Restrições, relações e defaults    |
+| ------------ | -------- | ---------------------------------- |
+| id           | String   | @id @default(uuid())               |
+| actor_id     | String?  |                                    |
+| action       | String   |                                    |
+| resource_id  | String   |                                    |
+| metadata     | Json     | @default("{}")                     |
+| created_at   | DateTime | @default(now()) @db.Timestamptz(3) |
+| retain_until | DateTime | @db.Timestamptz(3)                 |
+
+Configuração do modelo: `@@index([retain_until])`; `@@index([resource_id, created_at(sort: Desc)])`; `@@map("security_audit_events")`.
+
+## model Follow
+
+| Campo       | Tipo     | Restrições, relações e defaults                                                    |
+| ----------- | -------- | ---------------------------------------------------------------------------------- |
+| followerId  | String   |                                                                                    |
+| followingId | String   |                                                                                    |
+| createdAt   | DateTime | @default(now())                                                                    |
+| follower    | User     | @relation("Following", fields: [followerId], references: [id], onDelete: Cascade)  |
+| following   | User     | @relation("Followers", fields: [followingId], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@id([followerId, followingId])`; `@@index([followerId])`; `@@index([followingId])`.
+
+## model Reaction
+
+| Campo      | Tipo     | Restrições, relações e defaults                                   |
+| ---------- | -------- | ----------------------------------------------------------------- |
+| id         | String   | @id @default(uuid())                                              |
+| post_id    | String   |                                                                   |
+| user_id    | String   |                                                                   |
+| type       | String   | // FIRE/HEART/LAUGH/CLAP/BULB                                     |
+| created_at | DateTime | @default(now())                                                   |
+| post       | Post     | @relation(fields: [post_id], references: [id], onDelete: Cascade) |
+| user       | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
+
+Configuração do modelo: `@@unique([post_id, user_id])`; `@@index([post_id])`.
+
+## model Guild
+
+| Campo       | Tipo          | Restrições, relações e defaults                                                   |
+| ----------- | ------------- | --------------------------------------------------------------------------------- |
+| id          | String        | @id @default(uuid())                                                              |
+| name        | String        |                                                                                   |
+| slug        | String        | @unique                                                                           |
+| description | String?       |                                                                                   |
+| icon        | String?       |                                                                                   |
+| language    | Language?     |                                                                                   |
+| is_public   | Boolean       | @default(true)                                                                    |
+| created_at  | DateTime      | @default(now())                                                                   |
+| owner_id    | String        |                                                                                   |
+| owner       | User          | @relation("OwnedGuilds", fields: [owner_id], references: [id], onDelete: Cascade) |
+| members     | GuildMember[] |                                                                                   |
+
+Configuração do modelo: `@@index([slug])`; `@@index([created_at(sort: Desc)])`.
+
+## model GuildMember
+
+| Campo     | Tipo      | Restrições, relações e defaults                                    |
+| --------- | --------- | ------------------------------------------------------------------ |
+| id        | String    | @id @default(uuid())                                               |
+| guild_id  | String    |                                                                    |
+| user_id   | String    |                                                                    |
+| role      | GuildRole | @default(MEMBER)                                                   |
+| joined_at | DateTime  | @default(now())                                                    |
+| guild     | Guild     | @relation(fields: [guild_id], references: [id], onDelete: Cascade) |
+| user      | User      | @relation(fields: [user_id], references: [id], onDelete: Cascade)  |
+
+Configuração do modelo: `@@unique([guild_id, user_id])`; `@@index([user_id])`.
+
+## model QuizLibrary
+
+| Campo         | Tipo     | Restrições, relações e defaults |
+| ------------- | -------- | ------------------------------- |
+| id            | String   | @id @default(uuid())            |
+| question      | String   |                                 |
+| options       | Json     |                                 |
+| correct_index | Int      |                                 |
+| tags          | String[] |                                 |
+| created_at    | DateTime | @default(now())                 |
+
+Configuração do modelo: .

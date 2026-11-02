@@ -4,14 +4,17 @@ import { worldDepth } from '../../lib/mundinho/world';
 export function WorldPropSprite({
   kind,
   assetBase,
+  chestState = 'closed',
 }: {
-  kind: 'chest' | 'signpost';
+  kind: 'chest' | 'signpost' | 'portal-hole';
   assetBase: string;
+  chestState?: 'closed' | 'opening' | 'open';
 }) {
   return (
     <span
       className="world-prop-sprite"
       data-prop={kind}
+      data-chest-state={kind === 'chest' ? chestState : undefined}
       aria-hidden="true"
       style={{ backgroundImage: `url(${adventureAsset(`${kind}.png`, assetBase)})` }}
     />

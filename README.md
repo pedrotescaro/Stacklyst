@@ -2,12 +2,16 @@
 
 Plataforma para desenvolvedores compartilharem conhecimento, praticarem programação e acompanharem sua evolução.
 
+## Documentação completa
+
+Consulte o [manual técnico e funcional](docs/manual/README.md): Trilhas e Mundinho em profundidade, fluxos das áreas e referências pesquisáveis de código, APIs, banco e tecnologias.
+
 ## Recursos
 
 - **Comunidade:** feed, dúvidas técnicas, respostas, notificações, mensagens e perfis.
 - **Duelos de código:** desafios 1v1, matchmaking, convites diretos, editor CodeMirror e votação da comunidade.
 - **Aprendizado:** trilhas por linguagem, XP, quiz diário e ofensivas de atividade.
-- **Conquistas:** badges como Sobrevivente do Segfault, Mago do TypeScript e Git Push --force.
+- **Conquistas:** títulos, badges e certificados com critérios verificáveis.
 - **Interface:** tema escuro, identidade visual em azul e navegação adaptada para dispositivos móveis.
 
 Os convites para duelos duram 72 horas, com publicação opcional na arena após a expiração. Recusar ou ignorar um convite não reduz XP; o cooldown ocorre apenas após abandonos repetidos de duelos aceitos. Consulte as [regras de avaliadores e duelos](docs/RULES.md) para mais detalhes.

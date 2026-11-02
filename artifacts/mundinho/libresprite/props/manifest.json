@@ -3,13 +3,13 @@
     "file": "public/assets/mundinho/chest.png",
     "source": "artifacts/mundinho/libresprite/props/chest.ase",
     "layer": null,
-    "width": 48,
+    "width": 384,
     "height": 48,
-    "frames": 1,
+    "frames": 8,
     "layers": [
       "Sombra",
-      "Madeira",
-      "Ferragens"
+      "Baú de madeira e latão",
+      "Moeda e brilho"
     ],
     "exporter": "libresprite.exe"
   },

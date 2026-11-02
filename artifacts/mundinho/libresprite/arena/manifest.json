@@ -1,0 +1,12 @@
+{
+  "origin": "Original pixel art authored in scripts/build-mundinho-arena.mjs and exported from layered ASE documents by LibreSprite.",
+  "arena": {
+    "width": 768,
+    "height": 512
+  },
+  "portal": {
+    "frames": 6,
+    "frameWidth": 64,
+    "frameHeight": 48
+  }
+}

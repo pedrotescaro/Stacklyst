@@ -124,6 +124,80 @@ beforeEach(() => {
   };
 });
 describe('Server encounter rules', () => {
+  it('uses the same catalog level in the world, entry gate and battle, including a level 10 boss', async () => {
+    await expect(
+      adventure('user', { type: 'battle-start', language: 'JS', creature: 'null-titan' })
+    ).rejects.toThrow('nível 10');
+    db.tx.user.findUniqueOrThrow.mockResolvedValue({ username: 'user', total_xp: 1000000 });
+    for (const [creature, level, hp] of [
+      ['iron-beetle', 4, 120],
+      ['wild-ember', 5, 140],
+      ['null-titan', 10, 240],
+    ] as const) {
+      const result = await adventure('user', { type: 'battle-start', language: 'JS', creature });
+      expect(result.battle).toMatchObject({
+        creature,
+        enemyLevel: level,
+        enemyHp: hp,
+        enemyMaxHp: hp,
+      });
+      await adventure('user', { type: 'battle-flee', battle: 'battle' });
+    }
+  });
+  it('keeps the real creature level when an older deployed client inserts the default snapshot', async () => {
+    db.tx.user.findUniqueOrThrow.mockResolvedValue({ username: 'user', total_xp: 1000000 });
+    await adventure('user', { type: 'battle-start', language: 'JS', creature: 'null-ghost' });
+    await db.tx.rpgBattle.update({ data: { enemyLevel: 1 } });
+    expect((await adventure('user')).battle?.enemyLevel).toBe(3);
+  });
+  it('credits exactly 10 daily chest coins once and returns the saved state on reload/replay', async () => {
+    expect((await adventure('user')).chest).toEqual({
+      day: '2026-10-29',
+      claimed: false,
+      reward: 10,
+    });
+    const first = await adventure('user', { type: 'chest' });
+    expect(first.coins).toBe(10);
+    expect(first.chest).toMatchObject({ claimed: true, reward: 10, awarded: true });
+    expect(first.transactions).toEqual([
+      expect.objectContaining({ amount: 10, label: 'Baú diário da clareira' }),
+    ]);
+    const replay = await adventure('user', { type: 'chest' });
+    expect(replay.coins).toBe(10);
+    expect(replay.chest?.awarded).toBe(false);
+    expect(replay.notice).toContain('já abriu o baú hoje');
+    expect((await adventure('user')).chest).toMatchObject({ claimed: true });
+    expect(db.tx.rpgTransaction.create).toHaveBeenCalledTimes(1);
+  });
+  it('resets at midnight in São Paulo using the database clock, independently of check-in', async () => {
+    db.tx.$queryRaw.mockImplementation(async () => [{ now: new Date('2026-11-02T02:59:59Z') }]);
+    const first = await adventure('user', { type: 'chest' });
+    expect(first.chest?.day).toBe('2026-11-01');
+    db.tx.$queryRaw.mockImplementation(async () => [{ now: new Date('2026-11-02T03:00:00Z') }]);
+    expect((await adventure('user')).chest).toMatchObject({ day: '2026-11-02', claimed: false });
+    const second = await adventure('user', { type: 'chest' });
+    expect(second.coins).toBe(20);
+    expect(second.chest).toMatchObject({ day: '2026-11-02', awarded: true });
+    expect(second.checkin.claimed).toBe(false);
+    expect(db.tx.rpgTransaction.create).toHaveBeenCalledTimes(2);
+  });
+  it('preserves a legacy chest collected today and allows a reward the following day', async () => {
+    db.tx.$queryRaw.mockImplementation(async () => [{ now: new Date('2026-11-02T12:00:00Z') }]);
+    await db.tx.rpgTransaction.create({
+      data: { userId: 'user', key: 'chest:forest:first', label: 'Baú da clareira', amount: 10 },
+    });
+    await db.tx.rpgPlayer.update({ data: { coins: 10 } });
+    const sameDay = await adventure('user', { type: 'chest' });
+    expect(sameDay.chest).toMatchObject({ claimed: true, awarded: false });
+    expect(sameDay.coins).toBe(10);
+    db.tx.$queryRaw.mockImplementation(async () => [{ now: new Date('2026-11-03T12:00:00Z') }]);
+    expect((await adventure('user', { type: 'chest' })).coins).toBe(20);
+  });
+  it('looks up the daily reward independently of the limited transaction history', async () => {
+    await adventure('user', { type: 'chest' });
+    db.tx.rpgTransaction.findMany.mockResolvedValue([]);
+    expect((await adventure('user')).chest?.claimed).toBe(true);
+  });
   it('charges the server catalog price once, stores the equipment and permits equipping it', async () => {
     await db.tx.rpgPlayer.update({ data: { coins: 100 } });
     expect(actionSchema.parse({ type: 'buy', item: 'gear-wood', price: 0 })).toEqual({

@@ -11,6 +11,8 @@ for (const file of [
   'forest-ground.png',
   'forest-scenery.png',
   'chest.png',
+  'arena.png',
+  'portal-hole.png',
   'challenge-objects.png',
   'battle-background.png',
   'equipment.png',
@@ -77,7 +79,7 @@ const css = result.outputFiles
     '/assets/mundinho/pixelify-sans.ttf',
     `data:font/ttf;base64,${font.toString('base64')}`
   );
-const html = `<!doctype html><html lang="pt-BR"><head><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none';"><style>/* ${fontLicense} */body{margin:0;background:#070a0e;font-family:system-ui,sans-serif}button{font-family:inherit}${css}</style></head><body><div id="root"></div><script>globalThis.__MUNDINHO_ASSETS__=${JSON.stringify(assets)};${js}</script></body></html>`;
+const html = `<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none';"><style>/* ${fontLicense} */body{margin:0;background:#070a0e;font-family:system-ui,sans-serif}button{font-family:inherit}${css}</style></head><body><div id="root"></div><script>globalThis.__MUNDINHO_ASSETS__=${JSON.stringify(assets)};${js}</script></body></html>`;
 await mkdir('apps/mobile/src/mundinho', { recursive: true });
 await writeFile(
   'apps/mobile/src/mundinho/document.generated.ts',
