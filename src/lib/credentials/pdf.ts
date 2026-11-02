@@ -3,15 +3,10 @@ import path from 'node:path';
 import { PDFDocument, PDFName, PDFString, rgb, type PDFPage, type PDFFont } from 'pdf-lib';
 import fontkit from '@pdf-lib/fontkit';
 import QRCode from 'qrcode';
+import sharp from 'sharp';
 import { brandGeometry } from '@/lib/brand-geometry';
 import type { CredentialRecord } from '@/lib/credentials/types';
-import {
-  credentialBadgePaths as badge,
-  credentialBadgeLabel,
-  credentialBadgePalette,
-  credentialBadgeRibbon,
-  credentialLaurelLeaves,
-} from '@/lib/credentials/badge-art';
+import { renderCredentialBadgeSvg } from '@/lib/credentials/badge-art';
 
 const PAGE_WIDTH = 841.89;
 const PAGE_HEIGHT = 595.28;
@@ -106,79 +101,37 @@ function centerText(
   });
 }
 
-function drawBadge(page: PDFPage, record: CredentialRecord, font: PDFFont) {
-  const palette = credentialBadgePalette(record.definition.language);
-  const x = 727;
-  const top = 552;
-  const scale = 0.33;
-  const draw = (svgPath: string, hex: string) =>
-    page.drawSvgPath(svgPath, { x, y: top, scale, color: color(hex) });
-  draw(badge.shield, palette.rim);
-  draw(badge.shieldInset, palette.edge);
-  draw(badge.shieldField, palette.field);
-  page.drawCircle({
-    x: x + 120 * scale,
-    y: top - 101 * scale,
-    size: 43 * scale,
-    borderColor: color(palette.accent),
-    borderWidth: 0.5,
-  });
-  for (const stem of [badge.leftStem, badge.rightStem])
-    page.drawSvgPath(stem, {
-      x,
-      y: top,
-      scale,
-      borderColor: color(palette.accent),
-      borderWidth: 1.5,
-    });
-  for (const leaf of credentialLaurelLeaves) {
-    page.drawSvgPath(badge.leaf, {
-      x: x + leaf.x * scale,
-      y: top - leaf.y * scale,
-      scale,
-      color: color(palette.accent),
-    });
-    page.drawSvgPath('M0 0 C13 -2 18 -11 15 -17 C6 -16 0 -10 0 0 Z', {
-      x: x + (240 - leaf.x) * scale,
-      y: top - leaf.y * scale,
-      scale,
-      color: color(palette.accent),
-    });
+const badgeImages = new Map<string, Promise<Buffer>>();
+function loadBadge(record: CredentialRecord) {
+  const { language, kind } = record.definition;
+  const key = `${language}:${kind}`;
+  let pending = badgeImages.get(key);
+  if (!pending) {
+    // Share only the badge artwork with the browser; preserve the existing PDF template.
+    pending = sharp(
+      Buffer.from(renderCredentialBadgeSvg({ language, kind, idPrefix: 'certificate-badge' }))
+    )
+      .resize(720, 780)
+      .png()
+      .toBuffer()
+      .catch((error: unknown) => {
+        badgeImages.delete(key);
+        throw error;
+      });
+    badgeImages.set(key, pending);
   }
-  page.drawSvgPath(badge.star, {
-    x: x + 120 * scale,
-    y: top - 47 * scale,
-    scale: scale * 0.7,
-    color: color(palette.accent),
+  return pending;
+}
+
+async function drawBadge(page: PDFPage, document: PDFDocument, record: CredentialRecord) {
+  const artwork = await document.embedPng(await loadBadge(record));
+  const scale = 0.33;
+  page.drawImage(artwork, {
+    x: 727,
+    y: 552 - 260 * scale,
+    width: 240 * scale,
+    height: 260 * scale,
   });
-  const language = credentialBadgeLabel(record.definition.language);
-  centerText(
-    page,
-    language,
-    top - 112 * scale,
-    language === 'JAVA' ? 8.2 : 10.2,
-    font,
-    palette.accent,
-    x + 120 * scale
-  );
-  page.drawSvgPath(badge.check, {
-    x,
-    y: top,
-    scale,
-    borderColor: color(palette.accent),
-    borderWidth: 3,
-  });
-  draw(badge.ribbon, palette.rim);
-  draw(badge.ribbonFront, palette.edge);
-  centerText(
-    page,
-    credentialBadgeRibbon(record.definition.kind),
-    top - 182 * scale,
-    2.8,
-    font,
-    palette.ink,
-    x + 120 * scale
-  );
 }
 
 function dateLabel(value: string) {
@@ -254,7 +207,7 @@ export async function renderCredentialPdf(
     scale: logoScale,
     color: color(BLUE),
   });
-  drawBadge(page, record, bold);
+  await drawBadge(page, document, record);
 
   centerText(page, 'Certificado de conclusão', 474, 22, semiBold);
   const recipient = fittedText(record.recipientName, bold, 32, 18, 680, 2);

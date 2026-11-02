@@ -1,5 +1,5 @@
 // @vitest-environment node
-import { PDFDict, PDFDocument, PDFName, PDFString } from 'pdf-lib';
+import { PDFDict, PDFDocument, PDFName, PDFNumber, PDFRawStream, PDFString } from 'pdf-lib';
 import { describe, expect, it } from 'vitest';
 import { renderCredentialPdf } from './pdf';
 import type { CredentialRecord } from './types';
@@ -26,6 +26,28 @@ const record: CredentialRecord = {
 };
 
 describe('Credential PDF', () => {
+  it.each(['PYTHON', 'JS', 'TS', 'RUST', 'GO', 'JAVA', null] as const)(
+    'embeds the shared logo badge for %s without external assets',
+    async (language) => {
+      const bytes = await renderCredentialPdf(
+        { ...record, definition: { ...record.definition, language } },
+        `https://stacklyst.vercel.app/certificates/${record.id}`
+      );
+      const pdf = await PDFDocument.load(bytes);
+      const objects = pdf.getPage(0).node.Resources()!.lookup(PDFName.of('XObject'), PDFDict);
+      const images = objects.entries().map(([, reference]) => pdf.context.lookup(reference));
+      expect(
+        images.some(
+          (image) =>
+            image instanceof PDFRawStream &&
+            image.dict.lookup(PDFName.of('Width'), PDFNumber).asNumber() === 720 &&
+            image.dict.lookup(PDFName.of('Height'), PDFNumber).asNumber() === 780
+        )
+      ).toBe(true);
+      expect(pdf.getPageCount()).toBe(1);
+    }
+  );
+
   it('embeds the credential identity in one landscape page and makes both verification links usable', async () => {
     const url = `https://stacklyst.vercel.app/credentials/verify/${record.id}`;
     const bytes = await renderCredentialPdf(record, url);
