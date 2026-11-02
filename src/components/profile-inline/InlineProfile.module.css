@@ -263,6 +263,98 @@
   line-height: 1.5;
   margin-bottom: 7px;
 }
+.socialModeSelector {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 8px;
+  margin-bottom: 8px;
+}
+.socialSelectorTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-dd-muted);
+}
+.socialPills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.socialPill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 500;
+  border-radius: 8px;
+  border: 1px solid var(--color-dd-border);
+  background: var(--color-dd-surface);
+  color: var(--color-dd-muted);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.socialPill:hover {
+  background: var(--color-dd-border);
+  color: var(--color-dd-text);
+}
+.socialPillActive {
+  background: #0083fe;
+  color: #fff;
+  border-color: #0083fe;
+}
+.socialPillActive:hover {
+  background: #006ed6;
+  border-color: #006ed6;
+  color: #fff;
+}
+.pillIcon {
+  width: 13px;
+  height: 13px;
+  flex-shrink: 0;
+}
+.bothIcons {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+.socialFields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 8px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+.socialInputLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+}
+.socialFieldIcon {
+  width: 14px;
+  height: 14px;
+  color: var(--color-dd-muted);
+}
+.socialMetaLink,
+.socialMetaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--color-dd-muted);
+  text-decoration: none;
+  font-size: 12px;
+  transition: color 0.15s ease;
+}
+.socialMetaLink:hover {
+  color: var(--color-dd-accent);
+}
+.socialMetaIcon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
 .meta > span,
 .meta > a {
   display: inline-flex;

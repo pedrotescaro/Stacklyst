@@ -52,6 +52,7 @@ import type { PublicProfileCustomization } from '@/components/profile/ProfilePub
 import { ContextPopover } from './ContextPopover';
 import { FlagSelector } from './FlagSelector';
 import { MusicSelector } from './MusicSelector';
+import { DiscordIcon, GitHubIcon } from '@/components/auth/OAuthProviderIcons';
 import styles from './InlineProfile.module.css';
 
 export interface SocialProfile {
@@ -220,6 +221,12 @@ export function SocialProfileOverview({
   const [tagInput, setTagInput] = useState('');
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const [frameFilter, setFrameFilter] = useState('all');
+  const [socialMode, setSocialMode] = useState<'none' | 'github' | 'discord' | 'both'>(() => {
+    if (profile.github_username && profile.discord_username) return 'both';
+    if (profile.github_username) return 'github';
+    if (profile.discord_username) return 'discord';
+    return 'none';
+  });
   const savePending = useRef(false);
   const readRequest = useRef<AbortController | null>(null);
   const urls = useRef<Set<string>>(new Set());
@@ -233,6 +240,15 @@ export function SocialProfileOverview({
     setPreferences(parseProfilePreferences(profile.customization?.preferences));
     setBasics(initialBasics(profile));
     setAvatarUrl(profile.avatar_url || null);
+    setSocialMode(
+      profile.github_username && profile.discord_username
+        ? 'both'
+        : profile.github_username
+          ? 'github'
+          : profile.discord_username
+            ? 'discord'
+            : 'none'
+    );
   }, [profile, editing]);
   useEffect(() => {
     onPreview?.(editing ? preferences : null);
@@ -321,6 +337,15 @@ export function SocialProfileOverview({
     setClearBanner(false);
     setError('');
     setFeedback('Alterações descartadas.');
+    setSocialMode(
+      profile.github_username && profile.discord_username
+        ? 'both'
+        : profile.github_username
+          ? 'github'
+          : profile.discord_username
+            ? 'discord'
+            : 'none'
+    );
   };
   const save = async () => {
     if (!isOwner || !state || savePending.current) return;
@@ -422,6 +447,15 @@ export function SocialProfileOverview({
       };
       setPreferences(saved.preferences);
       setBasics(savedBasics);
+      setSocialMode(
+        savedBasics.github_username && savedBasics.discord_username
+          ? 'both'
+          : savedBasics.github_username
+            ? 'github'
+            : savedBasics.discord_username
+              ? 'discord'
+              : 'none'
+      );
       setAvatarUrl(saved.avatarUrl);
       setAvatarFile(null);
       setBannerFile(null);
@@ -794,6 +828,64 @@ export function SocialProfileOverview({
             <div className={styles.nameTools}>
               {editing && (
                 <ContextPopover
+                  label="Escolher título"
+                  triggerIcon={<Award size={17} aria-hidden="true" />}
+                  className={styles.identityControl}
+                  disabled={busy}
+                >
+                  <div className={styles.popoverBody}>
+                    <h3 className={styles.popoverHeading}>Seus títulos</h3>
+                    <p className={styles.help}>
+                      Equipe um título conquistado. Os demais mostram a condição de desbloqueio.
+                    </p>
+                    <button
+                      type="button"
+                      className={styles.button}
+                      onClick={() => updatePreference('equippedTitleId', null)}
+                    >
+                      Sem título
+                    </button>
+                    <div className={styles.collection}>
+                      {collections.map((item) => (
+                        <div className={styles.titleRow} key={item.id}>
+                          <Award size={18} style={{ color: item.color }} aria-hidden="true" />
+                          <div>
+                            <strong>{item.name}</strong>
+                            <small>{item.description}</small>
+                            {!item.unlocked && (
+                              <small>
+                                {item.progress} / {item.requirement.target}
+                              </small>
+                            )}
+                          </div>
+                          <button
+                            type="button"
+                            className={styles.button}
+                            disabled={!item.unlocked || busy}
+                            aria-pressed={preferences.equippedTitleId === item.id}
+                            onClick={() => updatePreference('equippedTitleId', item.id)}
+                          >
+                            {item.unlocked ? (
+                              preferences.equippedTitleId === item.id ? (
+                                'Equipado'
+                              ) : (
+                                'Usar'
+                              )
+                            ) : (
+                              <>
+                                <Lock size={12} />
+                                Bloqueado
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </ContextPopover>
+              )}
+              {editing && (
+                <ContextPopover
                   label="Escolher moldura"
                   triggerIcon={<CircleUserRound size={17} aria-hidden="true" />}
                   className={styles.identityControl}
@@ -948,81 +1040,155 @@ export function SocialProfileOverview({
               />
             </ContextPopover>
           )}
-          {editing && (
-            <ContextPopover
-              label="Escolher título"
-              triggerIcon={<Award size={14} />}
-              disabled={busy}
-            >
-              <div className={styles.popoverBody}>
-                <h3 className={styles.popoverHeading}>Seus títulos</h3>
-                <p className={styles.help}>
-                  Equipe um título conquistado. Os demais mostram a condição de desbloqueio.
-                </p>
-                <button
-                  type="button"
-                  className={styles.button}
-                  onClick={() => updatePreference('equippedTitleId', null)}
-                >
-                  Sem título
-                </button>
-                <div className={styles.collection}>
-                  {collections.map((item) => (
-                    <div className={styles.titleRow} key={item.id}>
-                      <Award size={18} style={{ color: item.color }} aria-hidden="true" />
-                      <div>
-                        <strong>{item.name}</strong>
-                        <small>{item.description}</small>
-                        {!item.unlocked && (
-                          <small>
-                            {item.progress} / {item.requirement.target}
-                          </small>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        className={styles.button}
-                        disabled={!item.unlocked || busy}
-                        aria-pressed={preferences.equippedTitleId === item.id}
-                        onClick={() => updatePreference('equippedTitleId', item.id)}
-                      >
-                        {item.unlocked ? (
-                          preferences.equippedTitleId === item.id ? (
-                            'Equipado'
-                          ) : (
-                            'Usar'
-                          )
-                        ) : (
-                          <>
-                            <Lock size={12} />
-                            Bloqueado
-                          </>
-                        )}
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </ContextPopover>
-          )}
         </div>
         <p className={styles.username}>@{profile.username}</p>
         {editing ? (
-          <label className={styles.field}>
-            <span className={styles.editAnchor}>
-              Biografia <Pencil size={12} aria-hidden="true" />
-            </span>
-            <textarea
-              className={styles.textarea}
-              rows={2}
-              maxLength={500}
-              value={basics.bio || ''}
-              onChange={(event) =>
-                setBasics((current) => ({ ...current, bio: event.target.value || null }))
-              }
-              disabled={saving}
-            />
-          </label>
+          <div>
+            <label className={styles.field}>
+              <span className={styles.editAnchor}>
+                Biografia <Pencil size={12} aria-hidden="true" />
+              </span>
+              <textarea
+                className={styles.textarea}
+                rows={2}
+                maxLength={500}
+                value={basics.bio || ''}
+                onChange={(event) =>
+                  setBasics((current) => ({ ...current, bio: event.target.value || null }))
+                }
+                disabled={saving}
+              />
+            </label>
+            <div
+              className={styles.socialModeSelector}
+              role="group"
+              aria-label="Redes sociais na descrição"
+            >
+              <span className={styles.socialSelectorTitle}>Redes sociais na descrição:</span>
+              <div className={styles.socialPills}>
+                <button
+                  type="button"
+                  className={`${styles.socialPill} ${socialMode === 'none' ? styles.socialPillActive : ''}`}
+                  onClick={() => {
+                    setSocialMode('none');
+                    setBasics((current) => ({
+                      ...current,
+                      github_username: null,
+                      discord_username: null,
+                    }));
+                  }}
+                  disabled={saving}
+                >
+                  Nenhuma
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.socialPill} ${socialMode === 'github' ? styles.socialPillActive : ''}`}
+                  onClick={() => {
+                    setSocialMode('github');
+                    setBasics((current) => ({ ...current, discord_username: null }));
+                  }}
+                  disabled={saving}
+                >
+                  <GitHubIcon className={styles.pillIcon} />
+                  GitHub
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.socialPill} ${socialMode === 'discord' ? styles.socialPillActive : ''}`}
+                  onClick={() => {
+                    setSocialMode('discord');
+                    setBasics((current) => ({ ...current, github_username: null }));
+                  }}
+                  disabled={saving}
+                >
+                  <DiscordIcon className={styles.pillIcon} />
+                  Discord
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.socialPill} ${socialMode === 'both' ? styles.socialPillActive : ''}`}
+                  onClick={() => {
+                    setSocialMode('both');
+                  }}
+                  disabled={saving}
+                >
+                  <span className={styles.bothIcons}>
+                    <GitHubIcon className={styles.pillIcon} />
+                    <DiscordIcon className={styles.pillIcon} />
+                  </span>
+                  Ambos
+                </button>
+              </div>
+              {(socialMode === 'github' || socialMode === 'both') && (
+                <div className={styles.socialFields}>
+                  <label className={styles.field}>
+                    <span className={styles.socialInputLabel}>
+                      <GitHubIcon className={styles.socialFieldIcon} />
+                      <span>Usuário do GitHub</span>
+                    </span>
+                    <input
+                      className={styles.input}
+                      placeholder="ex: killua"
+                      maxLength={39}
+                      value={basics.github_username || ''}
+                      onChange={(event) =>
+                        setBasics((current) => ({
+                          ...current,
+                          github_username: event.target.value.replace(/^@/, '').trim() || null,
+                        }))
+                      }
+                      disabled={saving}
+                    />
+                  </label>
+                  {socialMode === 'both' && (
+                    <label className={styles.field}>
+                      <span className={styles.socialInputLabel}>
+                        <DiscordIcon className={styles.socialFieldIcon} />
+                        <span>Usuário do Discord</span>
+                      </span>
+                      <input
+                        className={styles.input}
+                        placeholder="ex: killua ou killua#0001"
+                        maxLength={100}
+                        value={basics.discord_username || ''}
+                        onChange={(event) =>
+                          setBasics((current) => ({
+                            ...current,
+                            discord_username: event.target.value.trim() || null,
+                          }))
+                        }
+                        disabled={saving}
+                      />
+                    </label>
+                  )}
+                </div>
+              )}
+              {socialMode === 'discord' && (
+                <div className={styles.socialFields}>
+                  <label className={styles.field}>
+                    <span className={styles.socialInputLabel}>
+                      <DiscordIcon className={styles.socialFieldIcon} />
+                      <span>Usuário do Discord</span>
+                    </span>
+                    <input
+                      className={styles.input}
+                      placeholder="ex: killua ou killua#0001"
+                      maxLength={100}
+                      value={basics.discord_username || ''}
+                      onChange={(event) =>
+                        setBasics((current) => ({
+                          ...current,
+                          discord_username: event.target.value.trim() || null,
+                        }))
+                      }
+                      disabled={saving}
+                    />
+                  </label>
+                </div>
+              )}
+            </div>
+          </div>
         ) : (
           activeBasics.bio && <p className={styles.bio}>{activeBasics.bio}</p>
         )}
@@ -1039,11 +1205,24 @@ export function SocialProfileOverview({
               href={`https://github.com/${encodeURIComponent(activeBasics.github_username)}`}
               target="_blank"
               rel="noopener noreferrer"
+              className={styles.socialMetaLink}
+              title={`GitHub: @${activeBasics.github_username}`}
+              aria-label={`GitHub de ${activeBasics.github_username}`}
             >
-              GitHub: @{activeBasics.github_username}
+              <GitHubIcon className={styles.socialMetaIcon} />
+              <span>@{activeBasics.github_username}</span>
             </a>
           )}
-          {activeBasics.discord_username && <span>Discord: {activeBasics.discord_username}</span>}
+          {activeBasics.discord_username && (
+            <span
+              className={styles.socialMetaItem}
+              title={`Discord: ${activeBasics.discord_username}`}
+              aria-label={`Discord: ${activeBasics.discord_username}`}
+            >
+              <DiscordIcon className={styles.socialMetaIcon} />
+              <span>{activeBasics.discord_username}</span>
+            </span>
+          )}
           {activePreferences.socialLinks?.map((link, index) => (
             <a
               key={`${link.url}-${index}`}
@@ -1072,14 +1251,33 @@ export function SocialProfileOverview({
                   ] as const
                 ).map(([key, label, max]) => (
                   <label className={styles.field} key={key}>
-                    {label}
+                    <span className={styles.socialInputLabel}>
+                      {key === 'github_username' && (
+                        <GitHubIcon className={styles.socialFieldIcon} />
+                      )}
+                      {key === 'discord_username' && (
+                        <DiscordIcon className={styles.socialFieldIcon} />
+                      )}
+                      <span>{label}</span>
+                    </span>
                     <input
                       className={styles.input}
                       value={basics[key] || ''}
                       maxLength={max}
-                      onChange={(event) =>
-                        setBasics((current) => ({ ...current, [key]: event.target.value || null }))
-                      }
+                      onChange={(event) => {
+                        const val = event.target.value;
+                        const cleaned =
+                          key === 'github_username' ? val.replace(/^@/, '').trim() : val.trim();
+                        setBasics((current) => {
+                          const updated = { ...current, [key]: cleaned || null };
+                          if (updated.github_username && updated.discord_username)
+                            setSocialMode('both');
+                          else if (updated.github_username) setSocialMode('github');
+                          else if (updated.discord_username) setSocialMode('discord');
+                          else setSocialMode('none');
+                          return updated;
+                        });
+                      }}
                     />
                   </label>
                 ))}

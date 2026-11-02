@@ -468,4 +468,50 @@ describe('Inline social profile editing', () => {
     await screen.findByText('Perfil atualizado.');
     expect(writes).toHaveLength(1);
   });
+
+  it('positions title button in nameTools matching frame button size', async () => {
+    mount();
+    await edit();
+    const titleBtn = screen.getByRole('button', { name: 'Escolher título' });
+    const frameBtn = screen.getByRole('button', { name: 'Escolher moldura' });
+    expect(titleBtn).toBeInTheDocument();
+    expect(frameBtn).toBeInTheDocument();
+    expect(titleBtn.className).toContain('identityControl');
+    expect(frameBtn.className).toContain('identityControl');
+    expect(titleBtn.compareDocumentPosition(frameBtn)).toBe(Node.DOCUMENT_POSITION_FOLLOWING);
+  });
+
+  it('allows adding both GitHub and Discord usernames in the description area and displays both icons', async () => {
+    const { saved, unmount } = mount();
+    await edit();
+
+    const bothPill = screen.getByRole('button', { name: /Ambos/i });
+    fireEvent.click(bothPill);
+
+    const githubInput = screen.getByPlaceholderText('ex: killua');
+    const discordInput = screen.getByPlaceholderText('ex: killua ou killua#0001');
+    expect(githubInput).toBeInTheDocument();
+    expect(discordInput).toBeInTheDocument();
+
+    fireEvent.change(githubInput, { target: { value: 'killua-dev' } });
+    fireEvent.change(discordInput, { target: { value: 'killua#1234' } });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+    await screen.findByText('Perfil atualizado.');
+
+    expect(writes[0].profile).toMatchObject({
+      github_username: 'killua-dev',
+      discord_username: 'killua#1234',
+    });
+
+    const savedProfile = saved.mock.calls[0][0];
+    unmount();
+    mount('owner', savedProfile);
+
+    expect(screen.getByLabelText('GitHub de killua-dev')).toHaveAttribute(
+      'href',
+      'https://github.com/killua-dev'
+    );
+    expect(screen.getByLabelText('Discord: killua#1234')).toBeInTheDocument();
+  });
 });

@@ -17,6 +17,7 @@ import {
 } from '@/components/profile/ProfileIdentity';
 import { readProfileIdentity, foregroundOn } from '@/lib/profile-style';
 import type { PublicProfileCustomization } from '@/components/profile/ProfilePublic';
+import { DiscordIcon } from '@/components/auth/OAuthProviderIcons';
 
 interface ProfileHeroProps {
   currentUserId: string;
@@ -249,6 +250,15 @@ export function ProfileHero({
                 <Github className="h-4 w-4 text-sky-400 group-hover:scale-110 transition-transform" />
                 <span>@{profile.github_username}</span>
               </a>
+            )}
+            {profile.discord_username && (
+              <span
+                className="flex items-center gap-1.5 text-slate-300"
+                title={`Discord: ${profile.discord_username}`}
+              >
+                <DiscordIcon className="h-4 w-4 text-[#5865F2]" />
+                <span>{profile.discord_username}</span>
+              </span>
             )}
             {profile.institution && (
               <span className="flex items-center gap-2">
