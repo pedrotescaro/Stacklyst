@@ -395,9 +395,6 @@ export async function judgeDuelCode(input: {
     ? estimateCodeComplexity(input.code, input.language, contestantFunctionName)
     : null;
   const complexityScore = estimate ? scoreComplexity(estimate.label, spec.expectedComplexity) : 0;
-  const runtimeScore = accepted
-    ? Math.max(0, 100 - Math.min(100, Math.floor(result.executionMs / 20)))
-    : 0;
 
   return {
     status: accepted ? 'ACCEPTED' : timedOut ? 'TIME_LIMIT_EXCEEDED' : 'WRONG_ANSWER',
@@ -410,8 +407,9 @@ export async function judgeDuelCode(input: {
     complexityConfidence: estimate?.confidence ?? null,
     complexityReason: estimate?.reason ?? null,
     complexityScore,
-    score:
-      Math.round((passedTests / Math.max(1, totalTests)) * 700) + complexityScore + runtimeScore,
+    // Correctness only. Big-O and useful code size are ordered tie breakers in
+    // resolution-policy, never additive points that can outweigh a failed test.
+    score: Math.round((passedTests / Math.max(1, totalTests)) * 1000),
     publicResult,
     error: accepted
       ? undefined

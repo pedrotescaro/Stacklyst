@@ -8,6 +8,7 @@ const mocks = vi.hoisted(() => ({
   list: vi.fn(),
   target: vi.fn(),
   submit: vi.fn(),
+  reconcile: vi.fn(),
 }));
 vi.mock('@/lib/auth', () => ({ getAuthUser: mocks.auth, requireEvaluator: mocks.auth }));
 vi.mock('@/lib/prisma', () => ({
@@ -19,6 +20,7 @@ vi.mock('@/lib/prisma', () => ({
 vi.mock('@/services/evaluator.service', () => ({
   EvaluatorService: { submitDuelEvaluation: mocks.submit },
 }));
+vi.mock('@/lib/duels/resolution', () => ({ reconcileDuelReview: mocks.reconcile }));
 vi.mock('@/lib/logger', () => ({ logger: { warn: vi.fn(), error: vi.fn() } }));
 import { GET, POST } from './route';
 

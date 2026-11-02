@@ -26,6 +26,9 @@ import { CodeEditor } from '@/components/CodeEditor';
 import { cn } from '@/lib/cn';
 import { DUEL_PROBLEMS, parseProblemFromJson, type DuelProblem } from '@/lib/duel-problems';
 import { ACTIVE_DUEL_POLL_INTERVAL_MS, PENDING_DUEL_POLL_INTERVAL_MS } from '@/lib/duels/constants';
+import { DuelJudgingRules } from '@/components/duels/DuelJudgingRules';
+import { duelResultExplanation } from '@/lib/duels/result-presentation';
+import styles from './DuelDetailContent.module.css';
 
 type DuelStatus = 'PENDING' | 'ACTIVE' | 'REVIEW_PENDING' | 'CLOSED' | 'EXPIRED';
 type SubmissionStatus =
@@ -110,12 +113,13 @@ interface DuelData {
     score_player1: number;
     score_player2: number;
     human_feedback: string | null;
+    system_analysis?: unknown;
     created_at: string;
   }>;
 }
 
 interface DuelDetailContentProps {
-  user: Player & { total_xp: number };
+  user: Player & { total_xp: number; role?: 'USER' | 'EVALUATOR' | 'ADMIN' | 'RECRUITER' };
   initialDuel: DuelData;
 }
 
@@ -276,6 +280,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
     if (!editable || runningAction || !code.trim()) return;
     setRunningAction(action);
     setActionError(null);
+    setJudgment(null);
     setBottomTab('result');
     try {
       const response = await fetch(
@@ -288,6 +293,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
       );
       const data = await response.json();
       if (!response.ok) {
+        setBottomTab('console');
         setActionError(data.error ?? 'Não foi possível avaliar a solução.');
         setConsoleOutput(data.error ?? 'Falha na avaliação.');
         if (data.duel) setDuel((current) => ({ ...current, ...data.duel }));
@@ -315,6 +321,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
       }
       await refreshState();
     } catch {
+      setBottomTab('console');
       setActionError('Não foi possível conectar ao juiz. Tente novamente.');
       setConsoleOutput(
         'O serviço de avaliação não respondeu. Seu código continua salvo neste dispositivo.'
@@ -453,19 +460,25 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
 
   const outcome =
     duel.status === 'REVIEW_PENDING'
-      ? 'Empate técnico: avaliação humana solicitada'
+      ? duel.closed_reason === 'identical_code'
+        ? 'Códigos idênticos: revisão na fila de avaliações'
+        : 'Revisão pendente: análise em atualização'
       : duel.status === 'CLOSED'
         ? duel.winner_id === user.id
           ? 'Vitória confirmada'
           : duel.winner_id
             ? 'Duelo encerrado'
-            : 'Duelo encerrado sem vencedor'
+            : duel.closed_reason === 'technical_draw'
+              ? 'Empate automático'
+              : 'Duelo encerrado sem vencedor'
         : null;
 
   return (
     <div className="dd-platform-shell dd-platform-shell--fullscreen dd-platform-shell--workspace h-dvh overflow-hidden bg-dd-bg selection:bg-blue-500/35 selection:text-white">
       <Sidebar user={user} />
-      <main className="dd-platform-body dd-platform-main flex h-full min-h-0 min-w-0 flex-1 flex-col text-dd-text">
+      <main
+        className={`dd-platform-body dd-platform-main flex h-full min-h-0 min-w-0 flex-1 flex-col text-dd-text ${styles.workspace}`}
+      >
         <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-dd-border bg-dd-card px-3 sm:px-4">
           <Link
             href="/duels"
@@ -474,10 +487,6 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
           </Link>
-          <Swords
-            className="hidden h-4 w-4 text-blue-600 dark:text-blue-400 sm:block"
-            aria-hidden="true"
-          />
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-sm font-black tracking-[-0.015em]">{problem.title}</h1>
             <p className="truncate text-[11px] text-dd-muted">
@@ -531,20 +540,51 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
               'flex shrink-0 items-center gap-2 border-b px-4 py-2 text-xs font-bold',
               duel.status === 'REVIEW_PENDING'
                 ? 'border-amber-500/25 bg-amber-500/[0.08] text-amber-700 dark:text-amber-300'
-                : 'border-emerald-500/25 bg-emerald-500/[0.08] text-emerald-700 dark:text-emerald-300'
+                : duel.winner_id
+                  ? 'border-emerald-500/25 bg-emerald-500/[0.08] text-emerald-700 dark:text-emerald-300'
+                  : 'border-dd-border bg-dd-surface text-dd-text'
             )}
             role="status"
           >
             {duel.status === 'REVIEW_PENDING' ? (
               <CircleAlert className="h-4 w-4" aria-hidden="true" />
-            ) : (
+            ) : duel.winner_id ? (
               <Trophy className="h-4 w-4" aria-hidden="true" />
+            ) : (
+              <Users className="h-4 w-4" aria-hidden="true" />
             )}
-            {outcome}
-            {duel.winner?.username ? ` — ${duel.winner.username}` : ''}
+            <div className="min-w-0">
+              <p>
+                {outcome}
+                {duel.winner?.username ? ` — ${duel.winner.username}` : ''}
+              </p>
+              {duelResultExplanation(duel.evaluations[0]?.system_analysis) && (
+                <p className={styles.explanation}>
+                  {duelResultExplanation(duel.evaluations[0]?.system_analysis)}
+                </p>
+              )}
+              {duel.status === 'REVIEW_PENDING' &&
+                !isParticipant &&
+                ['ADMIN', 'EVALUATOR'].includes(user.role ?? '') && (
+                  <Link
+                    className="underline underline-offset-4"
+                    href={`/evaluations?duel=${encodeURIComponent(duel.id)}`}
+                  >
+                    Abrir na fila de avaliações
+                  </Link>
+                )}
+            </div>
           </div>
         )}
 
+        {actionError && (
+          <p
+            role="alert"
+            className="shrink-0 border-b border-red-500/30 bg-red-500/10 px-4 py-2 text-xs leading-5 text-red-700 dark:text-red-300"
+          >
+            {actionError}
+          </p>
+        )}
         <div
           className="flex shrink-0 border-b border-dd-border lg:hidden"
           aria-label="Área da arena"
@@ -663,17 +703,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                       </div>
                     ))}
                   </section>
-                  <section className="mt-8 border-t border-dd-border pt-5 text-xs leading-5 text-dd-muted">
-                    <p>
-                      O Submit avalia casos públicos e ocultos. A correção vale 700 pontos; a
-                      estimativa heurística de complexidade vale até 200; o tempo de execução vale
-                      até 100.
-                    </p>
-                    <p className="mt-2">
-                      A complexidade é uma estimativa estática, não uma prova formal de Big-O.
-                      Empates técnicos seguem para avaliação humana.
-                    </p>
-                  </section>
+                  <DuelJudgingRules />
                 </article>
               ) : duel.submissions.length > 0 ? (
                 <ol className="space-y-2">
@@ -692,7 +722,10 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                           </p>
                         </div>
                         <span className="font-mono text-sm font-bold tabular-nums">
-                          {submission.score}/1000
+                          {Math.round(
+                            (submission.passed_tests / Math.max(1, submission.total_tests)) * 1000
+                          )}
+                          /1000
                         </span>
                       </div>
                       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-dd-muted">
@@ -736,7 +769,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                   {editable ? 'Rascunho salvo localmente' : 'Somente leitura'}
                 </span>
               </div>
-              <div className="h-[calc(100%_-_2.5rem)]">
+              <div className={`h-[calc(100%_-_2.5rem)] ${styles.editor}`}>
                 <CodeEditor
                   value={code}
                   onChange={setCode}
@@ -893,8 +926,12 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                           />
                           <Metric label="Complexidade" value={judgment.complexity} />
                           <Metric
-                            label="Pontos de eficiência"
-                            value={`${judgment.complexityScore}/200`}
+                            label="Confiança da análise"
+                            value={
+                              judgment.complexityConfidence === 'medium'
+                                ? 'Comparável'
+                                : 'Inconclusiva'
+                            }
                           />
                         </div>
                         {judgment.error && (

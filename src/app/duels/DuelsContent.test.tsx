@@ -12,6 +12,15 @@ afterEach(() => {
 });
 
 describe('Duel lobby actions', () => {
+  it('keeps the lobby heading as plain text and preserves the quick-queue illustration', () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => Response.json([]))
+    );
+    render(<DuelsContent user={user} initialDuels={[]} />);
+    expect(screen.getByRole('heading', { name: 'Duelos' }).querySelector('svg')).toBeNull();
+    expect(document.querySelector('.lucide-swords')).not.toBeNull();
+  });
   it('preserves both participants profile frames in the duel listing', () => {
     vi.stubGlobal(
       'fetch',

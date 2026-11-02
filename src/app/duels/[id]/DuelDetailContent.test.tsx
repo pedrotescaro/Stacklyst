@@ -1,4 +1,4 @@
-import { act, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { getDuelProblemById } from '@/lib/duel-problems';
 import { DUEL_TIME_LIMIT_SECONDS } from '@/lib/duels/constants';
@@ -13,7 +13,14 @@ vi.mock('@/components/Sidebar', () => ({
 }));
 
 vi.mock('@/components/CodeEditor', () => ({
-  CodeEditor: () => <div aria-label="Editor de código" />,
+  CodeEditor: ({ value, onChange, readOnly }: any) => (
+    <textarea
+      aria-label="Editor de código"
+      value={value}
+      readOnly={readOnly}
+      onChange={(event) => onChange(event.target.value)}
+    />
+  ),
 }));
 
 const problem = getDuelProblemById('reverse-string');
@@ -48,6 +55,82 @@ function response(data: unknown) {
 }
 
 describe('DuelDetailContent matchmaking', () => {
+  it('announces executor failures immediately and keeps the submitted draft editable', async () => {
+    const duel = {
+      ...pendingDuel,
+      status: 'ACTIVE',
+      opponent_id: 'other',
+      opponent: { id: 'other', username: 'bia' },
+      started_at: new Date().toISOString(),
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (_url, init) =>
+        init?.method === 'POST'
+          ? { ok: false, json: async () => ({ error: 'Executor indisponível. Tente novamente.' }) }
+          : response(duel)
+      )
+    );
+    render(<DuelDetailContent user={{ ...challenger, total_xp: 0 }} initialDuel={duel as never} />);
+    fireEvent.change(screen.getByRole('textbox', { name: 'Editor de código' }), {
+      target: { value: 'function solve(){return 42}' },
+    });
+    fireEvent.click(screen.getAllByRole('button', { name: 'Executar' })[0]);
+    expect(await screen.findByRole('alert')).toHaveTextContent(
+      'Executor indisponível. Tente novamente.'
+    );
+    expect(screen.getByRole('tab', { name: 'Console' })).toHaveAttribute('aria-selected', 'true');
+    expect(screen.getByRole('textbox')).toHaveValue('function solve(){return 42}');
+  });
+  it('explains an automatic draw without claiming human review and removes the header swords', () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => response({}))
+    );
+    const opponent = { id: 'other', username: 'bia' };
+    const duel = {
+      ...pendingDuel,
+      status: 'CLOSED',
+      closed_reason: 'technical_draw',
+      opponent_id: 'other',
+      opponent,
+      evaluations: [{ type: 'AUTOMATIC', system_analysis: { comparison: { criterion: 'tie' } } }],
+    };
+    const { container } = render(
+      <DuelDetailContent user={{ ...challenger, total_xp: 0 }} initialDuel={duel as never} />
+    );
+    expect(screen.getByText('Empate automático')).toBeInTheDocument();
+    expect(screen.getByText(/O empate foi encerrado automaticamente/)).toBeInTheDocument();
+    expect(screen.getByRole('region', { name: 'Como o duelo é decidido' })).toBeInTheDocument();
+    expect(container.querySelector('header .lucide-swords')).toBeNull();
+  });
+  it('gives an eligible nonparticipant a direct link to the persisted review queue', () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => response({}))
+    );
+    const duel = {
+      ...pendingDuel,
+      status: 'REVIEW_PENDING',
+      closed_reason: 'identical_code',
+      opponent_id: 'other',
+      opponent: { id: 'other', username: 'bia' },
+      evaluations: [
+        { type: 'AUTOMATIC', system_analysis: { comparison: { criterion: 'identical_code' } } },
+      ],
+    };
+    render(
+      <DuelDetailContent
+        user={{ id: 'reviewer', username: 'avaliador', total_xp: 0, role: 'ADMIN' }}
+        initialDuel={duel as never}
+      />
+    );
+    expect(screen.getByRole('link', { name: 'Abrir na fila de avaliações' })).toHaveAttribute(
+      'href',
+      '/evaluations?duel=duel-1'
+    );
+    expect(screen.getByText(/isso não comprova cópia/)).toBeInTheDocument();
+  });
   afterEach(() => {
     vi.useRealTimers();
     vi.restoreAllMocks();

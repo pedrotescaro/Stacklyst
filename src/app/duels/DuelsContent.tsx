@@ -310,10 +310,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="text-base font-bold text-dd-text flex items-center gap-2">
-                  <Swords className="w-5 h-5 text-blue-500" />
-                  Duelos
-                </h1>
+                <h1 className="text-base font-bold text-dd-text flex items-center gap-2">Duelos</h1>
                 <p className={styles.headerSubtitle}>
                   {text('Desafios de código, um contra um', 'Coding challenges, one on one')}
                 </p>
@@ -833,10 +830,15 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                       {/* Left: Problem info and Language */}
                       <div className={styles.cardBody}>
                         <div className="flex items-center gap-2 flex-wrap">
-                          <LanguageTag language={duel.language} size="sm" flat />
+                          <LanguageTag
+                            language={duel.language}
+                            size="sm"
+                            flat
+                            className={styles.languageLabel}
+                          />
                           <span
                             className={cn(
-                              'text-xs font-bold  px-2.5 py-0.5 rounded-lg border ',
+                              `text-xs font-bold px-2.5 py-0.5 rounded-lg border ${styles.status}`,
                               isPending
                                 ? 'bg-blue-500/15 text-blue-600 dark:text-blue-300 border-blue-500/30 '
                                 : isActive

@@ -31,6 +31,7 @@ interface DuelToEvaluate {
 export function EvaluationsContent({ user }: { user: any }) {
   const [duels, setDuels] = useState<DuelToEvaluate[]>([]);
   const [loading, setLoading] = useState(true);
+  const [missingRequestedDuel, setMissingRequestedDuel] = useState<string | null>(null);
   const [selectedDuel, setSelectedDuel] = useState<DuelToEvaluate | null>(null);
 
   // Review Form state
@@ -96,6 +97,12 @@ export function EvaluationsContent({ user }: { user: any }) {
       ]);
       if (res && 'ok' in res && res.ok) {
         const data = await res.json();
+        const requestedId = new URLSearchParams(window.location.search).get('duel');
+        setMissingRequestedDuel(
+          requestedId && !data.some((duel: DuelToEvaluate) => duel.id === requestedId)
+            ? requestedId
+            : null
+        );
         setDuels(data);
         if (data.length > 0) {
           setSelectedDuel((prev) => {
@@ -237,6 +244,18 @@ export function EvaluationsContent({ user }: { user: any }) {
         {successMessage && (
           <p role="status" className={styles.notice}>
             {successMessage}
+          </p>
+        )}
+        {missingRequestedDuel && (
+          <p role="status" className={styles.notice}>
+            O duelo solicitado já foi resolvido ou não está disponível nesta fila.{' '}
+            <Link
+              className="underline underline-offset-4"
+              href={`/duels/${encodeURIComponent(missingRequestedDuel)}`}
+            >
+              Abrir o duelo e conferir o resultado
+            </Link>
+            .
           </p>
         )}
         {errorMessage && (

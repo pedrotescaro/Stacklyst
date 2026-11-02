@@ -1,7 +1,7 @@
 import 'server-only';
 
 import { prisma } from '@/lib/prisma';
-import { resolveDuelAtDeadline } from '@/lib/duels/resolution';
+import { resolveDuelAtDeadline, reconcileDuelReview } from '@/lib/duels/resolution';
 import { DUEL_TIME_LIMIT_SECONDS } from '@/lib/duels/constants';
 import { expireDuelInvitations } from '@/lib/duels/invitations';
 
@@ -107,5 +107,12 @@ export async function runDuelMaintenance(now = new Date()): Promise<DuelMaintena
     if (resolved) result.resolved += 1;
   }
 
+  const legacyReviews = await prisma.duel.findMany({
+    where: { status: 'REVIEW_PENDING', closed_reason: 'technical_tie' },
+    orderBy: { created_at: 'asc' },
+    take: 20,
+    select: { id: true },
+  });
+  for (const duel of legacyReviews) await reconcileDuelReview(duel.id);
   return result;
 }

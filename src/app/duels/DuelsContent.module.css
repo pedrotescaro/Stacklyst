@@ -7,6 +7,7 @@
   margin: 0;
 }
 .arena {
+  --color-dd-muted: color-mix(in srgb, var(--color-dd-text) 75%, var(--color-dd-bg));
   width: 100%;
   max-width: 760px;
   min-width: 0;
@@ -17,6 +18,21 @@
 }
 .arena * {
   min-width: 0;
+}
+.arena :global(.bg-blue-500):global(.text-white) {
+  background-color: #1765ab;
+}
+.arena :is(button, a):global(.bg-blue-500):hover {
+  background-color: #12568f;
+}
+.arena :is(:global(.text-blue-400), :global(.text-blue-500)) {
+  color: #1765ab;
+}
+:global(.dark) .arena :is(:global(.text-blue-400), :global(.text-blue-500)) {
+  color: #79b9ff;
+}
+.arena :global([aria-label^='Iniciais de']) {
+  color: var(--color-dd-text);
 }
 .arena button {
   min-height: 44px;
@@ -130,10 +146,14 @@
   font-size: 14px;
   font-weight: 600;
 }
-.filter[aria-pressed='true'] {
+.arena .filter[aria-pressed='true'] {
   color: var(--color-dd-text);
   background: transparent;
   border-bottom-color: var(--color-dd-accent);
+}
+.languageLabel > span,
+.arena .status {
+  color: var(--color-dd-text);
 }
 .filter:hover {
   background: var(--color-dd-surface);

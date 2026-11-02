@@ -99,6 +99,18 @@ describe('EvaluationsContent Responsive Page', () => {
       expect(screen.getByRole('link', { name: /ver duelos na plataforma/i })).toBeInTheDocument();
     });
   });
+  it('explains an old notification target that is no longer in the review queue', async () => {
+    window.history.replaceState({}, '', '/evaluations?duel=resolved-duel');
+    try {
+      render(<EvaluationsContent user={mockUser} />);
+      expect(await screen.findByText(/O duelo solicitado já foi resolvido/)).toBeInTheDocument();
+      expect(
+        screen.getByRole('link', { name: 'Abrir o duelo e conferir o resultado' })
+      ).toHaveAttribute('href', '/duels/resolved-duel');
+    } finally {
+      window.history.replaceState({}, '', '/');
+    }
+  });
 
   it('renders duels queue, code comparison, and allows switching view mode tabs', async () => {
     vi.spyOn(global, 'fetch').mockImplementation(async (input: RequestInfo | URL) => {

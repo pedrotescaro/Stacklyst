@@ -1,4 +1,6 @@
 import type { Language } from '@prisma/client';
+import type { SyntaxNode } from '@lezer/common';
+import { duelSourceTree } from './source-analysis';
 
 export type ComplexityClass =
   | 'O(1)'
@@ -7,9 +9,9 @@ export type ComplexityClass =
   | 'O(n log n)'
   | 'O(n²)'
   | 'O(n³)'
-  | 'O(2ⁿ)';
-
-const COMPLEXITY_RANK: Record<ComplexityClass, number> = {
+  | 'O(2ⁿ)'
+  | 'Indeterminada';
+const RANK: Record<ComplexityClass, number> = {
   'O(1)': 6,
   'O(log n)': 5,
   'O(n)': 4,
@@ -17,128 +19,235 @@ const COMPLEXITY_RANK: Record<ComplexityClass, number> = {
   'O(n²)': 2,
   'O(n³)': 1,
   'O(2ⁿ)': 0,
+  Indeterminada: -1,
 };
-
+export function complexityRank(label: ComplexityClass) {
+  return RANK[label];
+}
 export interface ComplexityEstimate {
   label: ComplexityClass;
   confidence: 'medium' | 'low';
   reason: string;
 }
 
-function stripCommentsAndStrings(code: string) {
-  return code
-    .replace(/\/\*[\s\S]*?\*\//g, ' ')
-    .replace(/\/\/.*$/gm, ' ')
-    .replace(/#.*$/gm, ' ')
-    .replace(/(['"`])(?:\\.|(?!\1)[\s\S])*\1/g, '""');
-}
-
-function maxBraceLoopDepth(code: string) {
-  const tokens = code.match(/\b(?:for|while)\b|\.(?:forEach|map|filter|reduce)\s*\(|[{}]/g) ?? [];
-  const stack: boolean[] = [];
-  let pendingLoop = false;
-  let activeLoops = 0;
-  let maximum = 0;
-
-  for (const token of tokens) {
-    if (/^(?:for|while)$/.test(token) || token.startsWith('.')) {
-      pendingLoop = true;
-      continue;
-    }
-    if (token === '{') {
-      stack.push(pendingLoop);
-      if (pendingLoop) activeLoops += 1;
-      pendingLoop = false;
-      maximum = Math.max(maximum, activeLoops);
-      continue;
-    }
-    if (token === '}') {
-      if (stack.pop()) activeLoops = Math.max(0, activeLoops - 1);
-      pendingLoop = false;
-    }
-  }
-
-  return maximum;
-}
-
-function maxPythonLoopDepth(code: string) {
-  const loopIndents: number[] = [];
-  let maximum = 0;
-
-  for (const rawLine of code.split('\n')) {
-    if (!rawLine.trim()) continue;
-    const indent = rawLine.match(/^\s*/)?.[0].replace(/\t/g, '    ').length ?? 0;
-    while (loopIndents.length && indent <= loopIndents.at(-1)!) loopIndents.pop();
-    if (/^\s*(?:for|while)\b.*:\s*$/.test(rawLine)) {
-      loopIndents.push(indent);
-      maximum = Math.max(maximum, loopIndents.length);
-    }
-  }
-
-  return maximum;
-}
-
-function snakeCase(value: string) {
-  return value.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
-}
-
+/** Structural upper-bound heuristic, never a formal Big-O proof. Parse real syntax
+ * (including unbraced loops, comprehensions and strings containing comment signs).
+ * Opaque calls/recursion stay low confidence and cannot decide a duel by Big-O. */
 export function estimateCodeComplexity(
   source: string,
   language: Language,
   functionName: string
 ): ComplexityEstimate {
-  const code = stripCommentsAndStrings(source);
-  const names = [functionName, snakeCase(functionName)];
-  const recursiveCalls = names.reduce((count, name) => {
-    const matches = code.match(
-      new RegExp(`\\b${name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\s*\\(`, 'g')
-    );
-    return Math.max(count, Math.max(0, (matches?.length ?? 0) - 1));
-  }, 0);
-
-  if (recursiveCalls >= 2) {
-    return { label: 'O(2ⁿ)', confidence: 'low', reason: 'múltiplas chamadas recursivas' };
+  const tree = duelSourceTree(source, language);
+  // Mask comments and literals before inspecting loop bounds; floor division in
+  // Python remains an operator, and strings such as "n /= 2" prove nothing.
+  const masked = source.split('');
+  tree.iterate({
+    enter(node) {
+      if (/Comment$|String$|TemplateString$|RegExp$/.test(node.name)) {
+        for (let index = node.from; index < node.to; index++)
+          if (masked[index] !== '\n') masked[index] = ' ';
+        return false;
+      }
+    },
+  });
+  const structuralSource = masked.join('');
+  let maximum = 0,
+    sort = false,
+    log = false,
+    uncertain = false,
+    recursive = 0;
+  const names = new Set(
+    [...structuralSource.matchAll(/\b(?:def|function)\s+(\w+)\s*\(/g)].map((match) => match[1])
+  );
+  if (functionName) names.add(functionName);
+  const linear = new Set([
+    'reverse',
+    'includes',
+    'indexOf',
+    'join',
+    'split',
+    'slice',
+    'some',
+    'every',
+    'map',
+    'filter',
+    'reduce',
+    'forEach',
+    'find',
+    'findIndex',
+    'repeat',
+    'sum',
+    'max',
+    'min',
+    'set',
+    'list',
+    'tuple',
+    'Counter',
+    'any',
+    'all',
+    'reversed',
+  ]);
+  const constant = new Set([
+    'len',
+    'range',
+    'enumerate',
+    'zip',
+    'abs',
+    'int',
+    'float',
+    'bool',
+    'str',
+    'Number',
+    'String',
+    'Boolean',
+    'parseInt',
+    'parseFloat',
+    'get',
+    'set',
+    'has',
+    'add',
+    'push',
+    'pop',
+    'append',
+    'isArray',
+  ]);
+  function text(node: SyntaxNode) {
+    return source.slice(node.from, node.to);
   }
-
-  const loopDepth = language === 'PYTHON' ? maxPythonLoopDepth(code) : maxBraceLoopDepth(code);
-  if (loopDepth >= 3) {
-    return { label: 'O(n³)', confidence: 'medium', reason: 'três laços aninhados' };
+  function walk(node: SyntaxNode, depth: number) {
+    if (node.type.isError) {
+      uncertain = true;
+      return;
+    }
+    if (/Comment$|String$|TemplateString$/.test(node.name)) return;
+    const loop = [
+      'ForStatement',
+      'ForInStatement',
+      'ForOfStatement',
+      'WhileStatement',
+      'DoStatement',
+    ].includes(node.name);
+    if (loop) {
+      const body = node.getChild('Body') ?? node.getChild('Block');
+      const header = structuralSource.slice(node.from, body?.from ?? node.to);
+      // Literal range/bounds are constant only when the whole bound is literal.
+      const fixed =
+        /\brange\(\s*\d+\s*\)/.test(header) ||
+        /\bfor\s*\(\s*(?:let|var|const)?\s*(\w+)\s*=\s*\d+\s*;\s*\1\s*[<]=?\s*\d+\s*;/.test(header);
+      const raw = structuralSource.slice(node.from, node.to);
+      const driver = header.match(/\bwhile\s*\(?\s*(\w+)\s*[><!]/)?.[1];
+      const halves = Boolean(
+        driver &&
+        !/\bif\b/.test(raw) &&
+        new RegExp(
+          `\\b${driver}\\s*(?:\\/\\/|\\/|>>)=\\s*[2-9]|\\b${driver}\\s*=\\s*(?:Math\\.floor\\()?\\s*${driver}\\s*\\/\\/?\\s*[2-9]`
+        ).test(raw)
+      );
+      const bounds = header.match(/\bwhile\s*\(?\s*(\w+)\s*<=?\s*(\w+)\s*\)?\s*(?:[:{]|$)/);
+      let binarySearch = false;
+      if (bounds) {
+        const [, left, right] = bounds;
+        const midpoint = raw.match(
+          new RegExp(
+            `\\b(\\w+)\\s*=\\s*(?:Math\\.floor\\s*\\()?\\s*\\(?\\s*${left}\\s*\\+\\s*${right}\\s*\\)?\\s*\\/\\/?\\s*2`
+          )
+        )?.[1];
+        binarySearch = Boolean(
+          midpoint &&
+          new RegExp(`\\b${left}\\s*=\\s*${midpoint}\\s*\\+\\s*1`).test(raw) &&
+          new RegExp(`\\b${right}\\s*=\\s*${midpoint}\\s*-\\s*1`).test(raw)
+        );
+      }
+      if (halves || binarySearch) {
+        if (depth === 0) log = true;
+        else uncertain = true;
+      } else if (!fixed) {
+        depth++;
+        if (
+          node.name === 'WhileStatement' &&
+          (!driver ||
+            !new RegExp(
+              `\\b${driver}\\s*(?:\\+\\+|--|[+-]=\\s*\\d+)|\\b${driver}\\s*=\\s*${driver}\\s*[+-]\\s*\\d+`
+            ).test(raw))
+        )
+          uncertain = true;
+      }
+      maximum = Math.max(maximum, depth);
+    }
+    if (/ComprehensionExpression$/.test(node.name)) {
+      let loops = 0;
+      for (let child = node.firstChild; child; child = child.nextSibling)
+        if (child.name === 'for') loops++;
+      depth += loops;
+      maximum = Math.max(maximum, depth);
+    }
+    if (node.name === 'CallExpression') {
+      const callee = node.firstChild ? text(node.firstChild) : '';
+      const name = callee.split('.').at(-1) ?? '';
+      if (names.has(callee)) {
+        recursive++;
+        uncertain = true;
+      } else if (name === 'sort' || callee === 'sorted') {
+        sort = true;
+        maximum = Math.max(maximum, depth + 1);
+        if (depth > 0) uncertain = true;
+      } else if (linear.has(name) && (!constant.has(name) || callee === 'set'))
+        maximum = Math.max(maximum, depth + 1);
+      else if (!constant.has(name) && !/^Math\.|^console\./.test(callee) && callee !== 'print')
+        uncertain = true;
+    }
+    if (node.name === 'SliceExpression' && /::/.test(text(node)))
+      maximum = Math.max(maximum, depth + 1);
+    // Collection callback bodies execute once per item, including concise arrows.
+    if (['ArrowFunction', 'FunctionExpression', 'LambdaExpression'].includes(node.name)) {
+      const call = node.parent?.parent;
+      const callee =
+        call?.name === 'CallExpression' && call.firstChild ? text(call.firstChild) : '';
+      if (/\.(?:map|filter|reduce|forEach|some|every|find|findIndex)$/.test(callee)) depth++;
+    }
+    for (let child = node.firstChild; child; child = child.nextSibling) walk(child, depth);
   }
-  if (loopDepth === 2) {
-    return { label: 'O(n²)', confidence: 'medium', reason: 'dois laços aninhados' };
-  }
-
-  const usesSort = /\.sort\s*\(|\bsorted\s*\(/.test(code);
-  if (usesSort) {
-    return { label: 'O(n log n)', confidence: 'medium', reason: 'ordenação dominante' };
-  }
-
-  const shrinksInput =
-    /(?:\/\s*=\s*2|>>\s*1|Math\.floor\s*\([^)]*\/\s*2)/.test(code) ||
-    /(?:\/\/\s*2|>>\s*1)/.test(code);
-  if (loopDepth === 1 && shrinksInput) {
-    return { label: 'O(log n)', confidence: 'low', reason: 'entrada reduzida pela metade' };
-  }
-
-  const linearBuiltIn =
-    /\.(?:reverse|includes|indexOf|join|split|slice|some|every)\s*\(|\b(?:sum|max|min|set|list|Counter)\s*\(|\[\s*::\s*-?1\s*\]/.test(
-      code
-    );
-  if (loopDepth === 1 || recursiveCalls === 1 || linearBuiltIn) {
+  walk(tree.topNode, 0);
+  if (recursive > 1)
     return {
-      label: 'O(n)',
-      confidence: recursiveCalls === 1 ? 'low' : 'medium',
-      reason: 'uma passagem dominante',
+      label: 'O(2ⁿ)',
+      confidence: 'low',
+      reason: 'recursão ou chamadas locais exigem análise adicional',
     };
-  }
-
-  return { label: 'O(1)', confidence: 'low', reason: 'nenhum crescimento estrutural detectado' };
+  if (uncertain || maximum > 3)
+    return {
+      label: 'Indeterminada',
+      confidence: 'low',
+      reason: 'chamadas, recursão ou estrutura sem limite demonstrável pela análise estática',
+    };
+  const label: ComplexityClass =
+    maximum >= 3
+      ? 'O(n³)'
+      : maximum === 2
+        ? 'O(n²)'
+        : sort
+          ? 'O(n log n)'
+          : maximum === 1
+            ? 'O(n)'
+            : log
+              ? 'O(log n)'
+              : 'O(1)';
+  return {
+    label,
+    confidence: 'medium',
+    reason: sort
+      ? 'ordenação dominante'
+      : log && maximum === 0
+        ? 'variável de controle reduzida por fator constante'
+        : maximum
+          ? `${maximum} passagem(ns) aninhada(s), incluindo operações de coleção`
+          : 'operações de custo constante reconhecidas',
+  };
 }
-
+/** Legacy diagnostic field; no longer added to correctness or used as match score. */
 export function scoreComplexity(estimated: ComplexityClass, expected: ComplexityClass) {
-  const gap = COMPLEXITY_RANK[expected] - COMPLEXITY_RANK[estimated];
-  if (gap <= 0) return 200;
-  if (gap === 1) return 140;
-  if (gap === 2) return 70;
-  return 20;
+  if (estimated === 'Indeterminada') return 0;
+  const gap = RANK[expected] - RANK[estimated];
+  return gap <= 0 ? 200 : gap === 1 ? 140 : gap === 2 ? 70 : 20;
 }

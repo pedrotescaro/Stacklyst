@@ -82,16 +82,18 @@ function CodeEditorInner({
 
     async function loadExtensions() {
       try {
-        const [themeModule, langModule] = await Promise.all([
+        const [themeModule, langModule, { EditorView }] = await Promise.all([
           import('@codemirror/theme-one-dark'),
           loadLanguageExtension(language),
+          import('@codemirror/view'),
         ]);
 
         if (!cancelled) {
           setDarkTheme(themeModule.oneDark);
-          if (langModule) {
-            setExtensions([langModule]);
-          }
+          setExtensions([
+            EditorView.contentAttributes.of({ 'aria-label': ariaLabel }),
+            ...(langModule ? [langModule] : []),
+          ]);
         }
       } catch {
         // Silently fail — editor works without extensions
@@ -102,7 +104,7 @@ function CodeEditorInner({
     return () => {
       cancelled = true;
     };
-  }, [language]);
+  }, [language, ariaLabel]);
 
   const activeTheme = isDarkMode ? (darkTheme ?? 'dark') : 'light';
 

@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { getAuthUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { resolveDuelAtDeadline } from '@/lib/duels/resolution';
+import { resolveDuelAtDeadline, reconcileDuelReview } from '@/lib/duels/resolution';
 import { DUEL_TIME_LIMIT_SECONDS } from '@/lib/duels/constants';
 import { getDuelCooldownMessage } from '@/lib/duels/participation-policy';
 
@@ -17,6 +17,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
     where: { id },
     select: { status: true, started_at: true, time_limit_seconds: true },
   });
+  if (active?.status === 'REVIEW_PENDING') await reconcileDuelReview(id);
   if (
     active?.status === 'ACTIVE' &&
     active.started_at &&
@@ -67,6 +68,7 @@ export async function GET(_request: Request, { params }: { params: Promise<{ id:
           score_player1: true,
           score_player2: true,
           human_feedback: true,
+          system_analysis: true,
           created_at: true,
         },
       },

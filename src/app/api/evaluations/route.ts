@@ -7,6 +7,7 @@ import { z } from 'zod';
 import { getReviewableLanguages } from '@/lib/evaluators/policy';
 import { ForbiddenError } from '@/lib/errors';
 import type { Prisma } from '@prisma/client';
+import { reconcileDuelReview } from '@/lib/duels/resolution';
 
 const evaluationSchema = z.object({
   duel_id: z.string().min(1),
@@ -63,6 +64,13 @@ export const GET = apiHandler(async (req) => {
       },
     },
   } satisfies Prisma.DuelInclude;
+  const repairs = await prisma.duel.findMany({
+    where: { ...where, ...(requestedDuelId ? { id: requestedDuelId } : {}) },
+    select: { id: true },
+    take: 20,
+    orderBy: { created_at: 'desc' },
+  });
+  for (const duel of repairs) await reconcileDuelReview(duel.id);
   const pendingDuels = await prisma.duel.findMany({
     where,
     orderBy: { created_at: 'desc' },

@@ -6,6 +6,7 @@ import { awardXPInTransaction } from '@/lib/xp';
 import {
   chooseBestDuelSubmission,
   decideDuelResolution,
+  DUEL_POLICY_VERSION,
   type ComparableSubmission,
   type DuelResolutionDecision,
 } from '@/lib/duels/resolution-policy';
@@ -25,11 +26,16 @@ export async function resolveDuelIfReady(duelId: string) {
   });
   if (!duel || duel.status !== 'ACTIVE' || !duel.opponent_id) return null;
 
-  const first = chooseBestDuelSubmission(duel.submissions, duel.challenger_id, true);
-  const second = chooseBestDuelSubmission(duel.submissions, duel.opponent_id, true);
+  const first = chooseBestDuelSubmission(duel.submissions, duel.challenger_id, true, duel.language);
+  const second = chooseBestDuelSubmission(duel.submissions, duel.opponent_id, true, duel.language);
   if (!first || !second) return null;
 
-  const decision = decideDuelResolution({ first, second, reason: 'automatic_score' });
+  const decision = decideDuelResolution({
+    first,
+    second,
+    reason: 'automatic_score',
+    language: duel.language,
+  });
   if (!decision) return null;
   return persistResolution(duel, first, second, decision);
 }
@@ -41,10 +47,61 @@ export async function resolveDuelAtDeadline(duelId: string) {
   });
   if (!duel || duel.status !== 'ACTIVE' || !duel.opponent_id) return null;
 
-  const first = chooseBestDuelSubmission(duel.submissions, duel.challenger_id);
-  const second = chooseBestDuelSubmission(duel.submissions, duel.opponent_id);
-  const decision = decideDuelResolution({ first, second, reason: 'deadline_score' });
+  const first = chooseBestDuelSubmission(
+    duel.submissions,
+    duel.challenger_id,
+    false,
+    duel.language
+  );
+  const second = chooseBestDuelSubmission(duel.submissions, duel.opponent_id, false, duel.language);
+  const decision = decideDuelResolution({
+    first,
+    second,
+    reason: 'deadline_score',
+    language: duel.language,
+  });
   if (!decision) return null;
+  return persistResolution(duel, first, second, decision);
+}
+
+/** Adopt the current policy for legacy pending ties only. Human decisions and
+ * already closed results remain immutable. The status/reason CAS below permits
+ * retries across workers without duplicate XP or requests. */
+export async function reconcileDuelReview(duelId: string) {
+  const duel = await prisma.duel.findUnique({
+    where: { id: duelId },
+    include: { submissions: { orderBy: { created_at: 'asc' } } },
+  });
+  if (!duel || duel.status !== 'REVIEW_PENDING' || !duel.opponent_id) return null;
+  if (duel.closed_reason === 'identical_code') {
+    const targets: EvaluatorPushTarget[] = [];
+    await prisma.$transaction(async (tx) => {
+      // Do not notify a stale queue item after a human closed it concurrently.
+      const pending = await tx.duel.updateMany({
+        where: { id: duelId, status: 'REVIEW_PENDING', closed_reason: 'identical_code' },
+        data: { closed_reason: 'identical_code' },
+      });
+      if (pending.count === 1) await notifyDuelReviewers(tx, duel, undefined, targets);
+    });
+    await pushEvaluatorNotifications(targets);
+    return null;
+  }
+  if (duel.closed_reason !== 'technical_tie') return null;
+  const first = chooseBestDuelSubmission(
+    duel.submissions,
+    duel.challenger_id,
+    false,
+    duel.language
+  );
+  const second = chooseBestDuelSubmission(duel.submissions, duel.opponent_id, false, duel.language);
+  // Missing historical submissions cannot be reconstructed from invented tests.
+  if (!first || !second) return null;
+  const decision = decideDuelResolution({
+    first,
+    second,
+    reason: 'automatic_score',
+    language: duel.language,
+  });
   return persistResolution(duel, first, second, decision);
 }
 
@@ -55,6 +112,7 @@ async function persistResolution(
     challenger_id: string;
     opponent_id: string | null;
     language: Language;
+    closed_reason?: string | null;
   },
   first: ComparableSubmission | null,
   second: ComparableSubmission | null,
@@ -66,7 +124,13 @@ async function persistResolution(
   const pushTargets: EvaluatorPushTarget[] = [];
   const committed = await prisma.$transaction(async (tx) => {
     const claim = await tx.duel.updateMany({
-      where: { id: duel.id, status: 'ACTIVE' },
+      where: {
+        id: duel.id,
+        status: duel.status as 'ACTIVE' | 'REVIEW_PENDING',
+        ...(duel.status === 'REVIEW_PENDING'
+          ? { closed_reason: 'technical_tie', evaluations: { none: { type: 'HUMAN_EVALUATED' } } }
+          : {}),
+      },
       data: {
         status: targetStatus,
         winner_id: decision.winnerId,
@@ -110,6 +174,8 @@ async function persistResolution(
         improvements: [],
         system_analysis: {
           reason: decision.reason,
+          policyVersion: DUEL_POLICY_VERSION,
+          comparison: decision.comparison,
           scoreGap: decision.scoreGap,
           runtimeGap: decision.runtimeGap,
           firstSubmissionId: first?.id ?? null,

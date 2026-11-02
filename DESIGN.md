@@ -32,6 +32,12 @@ Equipamentos caem nas vitórias e ficam no inventário. Há um amuleto de sorte,
 
 Roupas e rostos usam contornos seletivos finos e cores de sombra locais. Os retratos têm feições inspiradas em anime, com olhos expressivos e nariz/boca discretos. Os seis penteados possuem franjas independentes; o rosto base não inclui cabelo fixo. O catálogo compartilhado contém doze roupas com cortes e detalhes próprios, preservando os índices das escolhas antigas. A opção de gênero define as feições no retrato e no personagem pequeno, sem alongar a anatomia original. Fontes `.ase` e PNGs de produção são exportados pelo LibreSprite.
 
+## Duelos e avaliação de código
+
+A arena mantém o shell centralizado, preto/branco e azul operacional do produto. O limite direito do editor tem uma divisória contínua por toda a altura. Os títulos da listagem e do desafio são texto; espadas permanecem em ações e na fila rápida. O editor ocupa seu painel sem cantos arredondados internos, com sintaxe legível, foco e nome acessível no campo real de edição. No celular, Problema/Código preservam a ordem da tarefa e o console fica acessível no mesmo painel.
+
+O resultado informa o critério que decidiu o duelo. Correção vem antes de complexidade Big-O estimada e de linhas úteis. Códigos diferentes empatados encerram automaticamente; só sintaxe normalizada idêntica de duas soluções aceitas entra na fila humana, sem acusação automática de cópia. Empates usam estado neutro, vitórias usam sucesso e a fila humana tem aviso explícito. A descrição apresenta as regras e seus limites. Erros do juiz aparecem imediatamente, limpam o resultado anterior e preservam o rascunho. A política completa e seus exemplos estão em `docs/quality/duel-judging-policy.md`.
+
 ## Badges e certificados verificáveis
 
 A coleção de credenciais preserva Inter/Sora, preto e branco, Electric Blue #0083FE e o shell compartilhado. Badges usam os logos vetoriais originais de Python, JavaScript, TypeScript, Rust, Go e Java, provenientes do Devicon, em um medalhão claro central com aro fino, escudo, louros discretos e fita com o marco real, sem níveis inventados. Sem linguagem, o medalhão usa o monograma Stacklyst. Conquistas verificadas usam a paleta da linguagem e check; requisitos pendentes usam desenho atenuado e cadeado. Check e cadeado ficam separados do logo, acompanhados de estado textual explícito. A mesma arte é compartilhada pela web e pelo selo do PDF.

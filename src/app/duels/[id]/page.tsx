@@ -1,7 +1,7 @@
 import { notFound, redirect } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { resolveDuelAtDeadline } from '@/lib/duels/resolution';
+import { resolveDuelAtDeadline, reconcileDuelReview } from '@/lib/duels/resolution';
 import { DuelDetailContent } from './DuelDetailContent';
 
 export const revalidate = 0;
@@ -15,6 +15,7 @@ export default async function DuelDetailPage({ params }: { params: Promise<{ id:
     select: { status: true, started_at: true, time_limit_seconds: true },
   });
   if (!current) notFound();
+  if (current.status === 'REVIEW_PENDING') await reconcileDuelReview(id);
 
   if (
     current.status === 'ACTIVE' &&
@@ -66,6 +67,7 @@ export default async function DuelDetailPage({ params }: { params: Promise<{ id:
           score_player1: true,
           score_player2: true,
           human_feedback: true,
+          system_analysis: true,
           created_at: true,
         },
       },
@@ -90,6 +92,7 @@ export default async function DuelDetailPage({ params }: { params: Promise<{ id:
         username: user.username,
         avatar_url: user.avatar_url,
         total_xp: user.total_xp,
+        role: user.role,
       }}
       initialDuel={{
         ...duel,

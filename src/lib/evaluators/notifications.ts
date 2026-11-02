@@ -109,7 +109,7 @@ export function getEvaluatorNotificationPresentation(notification: {
     return {
       title: 'Duelo aguardando sua avaliação',
       content:
-        'Um empate técnico precisa de revisão humana. Compare as soluções e envie seu parecer na fila de avaliações.',
+        'Uma solicitação de revisão de código foi registrada. Abra a fila para conferir o estado atual, comparar as soluções e publicar seu parecer.',
       link: notification.resourceId
         ? `/evaluations?duel=${encodeURIComponent(notification.resourceId)}`
         : '/evaluations',
