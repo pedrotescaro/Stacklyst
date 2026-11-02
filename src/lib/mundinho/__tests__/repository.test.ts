@@ -1,6 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_AVATAR } from '../types';
-const db = vi.hoisted(() => ({ tx: {} as Record<string, any>, execute: vi.fn() }));
+const db = vi.hoisted(() => ({ tx: {} as Record<string, any>, execute: vi.fn(), random: vi.fn() }));
+vi.mock('node:crypto', async (original) => {
+  const actual = await original<typeof import('node:crypto')>();
+  return { ...actual, randomInt: db.random, default: { ...actual, randomInt: db.random } };
+});
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     $transaction: async (fn: (tx: unknown) => unknown) => fn(db.tx),
@@ -9,10 +13,13 @@ vi.mock('@/lib/prisma', () => ({
 }));
 vi.mock('@/lib/code-execution/server', () => ({ executeCode: db.execute }));
 vi.mock('@/lib/learning/catalog', () => ({ LEARNING_LESSONS: new Map() }));
+vi.mock('@/lib/auth', () => ({ getAuthUser: async () => ({ id: 'user' }) }));
 import { actionSchema, adventure } from '../repository';
+import { POST } from '@/app/api/mundinho/route';
 import { codeChallenge, codeChallenges } from '../codeChallenges';
 import { QUESTIONS } from '../questions';
 beforeEach(() => {
+  db.random.mockReset().mockImplementation((maximum: number) => maximum - 1);
   db.execute.mockReset().mockResolvedValue({
     ok: true,
     output: 'andar\ncoletar\nandar\ncoletar\nandar\ncoletar',
@@ -29,23 +36,61 @@ beforeEach(() => {
     checkinStreak: 0,
   };
   let battle: any = null;
+  const transactions: any[] = [];
   db.tx = {
     $queryRaw: vi.fn(async () => [{ now: new Date('2026-10-29T15:00:00Z') }]),
     rpgPlayer: {
       upsert: vi.fn(async () => player),
       findUniqueOrThrow: vi.fn(async () => player),
-      update: vi.fn(),
+      update: vi.fn(async ({ data }: any) => {
+        for (const [key, value] of Object.entries(data)) {
+          (player as any)[key] =
+            value && typeof value === 'object' && 'increment' in value
+              ? (player as any)[key] + (value as any).increment
+              : value;
+        }
+        return player;
+      }),
     },
     exerciseSubmission: { count: vi.fn(async () => 0) },
     quizAttempt: { count: vi.fn(async () => 0) },
-    rpgTransaction: { findMany: vi.fn(async () => []), create: vi.fn() },
+    rpgTransaction: {
+      findUnique: vi.fn(
+        async ({ where }: any) =>
+          transactions.find((item) => item.key === where.userId_key.key) ?? null
+      ),
+      count: vi.fn(
+        async ({ where }: any) =>
+          transactions.filter((item) => item.key.startsWith(where.key.startsWith)).length
+      ),
+      findMany: vi.fn(async ({ where }: any) =>
+        transactions
+          .filter((item) => !where.key || item.key.startsWith(where.key.startsWith))
+          .toReversed()
+      ),
+      create: vi.fn(async ({ data }: any) => {
+        const record = {
+          ...data,
+          id: `transaction-${transactions.length}`,
+          createdAt: new Date('2026-11-02T12:00:00Z'),
+        };
+        transactions.push(record);
+        return record;
+      }),
+    },
     user: {
       findUniqueOrThrow: vi.fn(async () => ({ username: 'user', total_xp: 0 })),
       update: vi.fn(),
     },
     rpgBattle: {
       count: vi.fn(async () => 0),
-      findFirst: vi.fn(async () => battle),
+      findFirst: vi.fn(async ({ where }: any) =>
+        battle &&
+        (!where.id || where.id === battle.id) &&
+        (!where.status || where.status === battle.status)
+          ? battle
+          : null
+      ),
       findMany: vi.fn(async () => []),
       create: vi.fn(async ({ data }: any) => {
         battle = {
@@ -56,6 +101,7 @@ beforeEach(() => {
           enemyHp: 100,
           turn: 0,
           reward: 0,
+          correct: 0,
           skill: null,
           questionId: null,
           used: [],
@@ -64,13 +110,239 @@ beforeEach(() => {
         return battle;
       }),
       update: vi.fn(async ({ data }: any) => {
-        battle = { ...battle, ...data };
+        battle = {
+          ...battle,
+          ...data,
+          correct:
+            data.correct?.increment !== undefined
+              ? battle.correct + data.correct.increment
+              : (data.correct ?? battle.correct),
+        };
         return battle;
       }),
     },
   };
 });
 describe('Server encounter rules', () => {
+  it.each(['SyntaxError: comando inválido', 'Serviço indisponível'])(
+    'returns HTTP 200 with in-battle feedback for execution failure: %s',
+    async (message) => {
+      const id = '11111111-1111-4111-8111-111111111111';
+      await adventure('user', { type: 'battle-start', language: 'JS', creature: 'syntax-slime' });
+      await db.tx.rpgBattle.update({ data: { id } });
+      const selected = await adventure('user', {
+        type: 'battle-skill',
+        battle: id,
+        turn: 0,
+        skill: 'strike',
+      });
+      db.execute.mockResolvedValue({ ok: false, error: message });
+      const response = await POST(
+        new Request('https://stacklyst.vercel.app/api/mundinho', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', origin: 'https://stacklyst.vercel.app' },
+          body: JSON.stringify({
+            type: 'battle-code',
+            battle: id,
+            turn: 0,
+            question: selected.battle!.question!.id,
+            code: 'mundo.andar_direita(;',
+            submit: true,
+          }),
+        }),
+        { params: Promise.resolve({}) }
+      );
+      expect(response.status).toBe(200);
+      expect(response.headers.get('Cache-Control')).toBe('private, no-store');
+      const body = await response.json();
+      expect(body.codeRun).toMatchObject({ passed: false, retryable: true });
+      expect(body.codeRun.error).toContain(message);
+      expect(body.battle).toMatchObject({ hp: 100, enemyHp: 100, turn: 0 });
+    }
+  );
+  it('applies lucky attacks once and does not count them as completed exercises', async () => {
+    db.random.mockReturnValue(0);
+    await adventure('user', { type: 'battle-start', language: 'TS', creature: 'syntax-slime' });
+    const hit = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 0,
+      skill: 'strike',
+    });
+    expect(hit.battle).toMatchObject({ turn: 1, hp: 89, enemyHp: 70, question: null, skill: null });
+    expect(hit.battle?.feedback).toContain('sem exercício');
+    expect(db.tx.rpgBattle.update).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({ correct: { increment: 0 }, used: [] }),
+      })
+    );
+    const rolls = db.random.mock.calls.length;
+    const repeated = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 0,
+      skill: 'burst',
+    });
+    expect(repeated.notice).toContain('sem repetir o golpe');
+    expect(repeated.battle).toMatchObject({ turn: 1, hp: 89, enemyHp: 70 });
+    expect(db.random).toHaveBeenCalledTimes(rolls);
+  });
+  it('keeps an assigned exercise and its original skill when selection is repeated', async () => {
+    await adventure('user', { type: 'battle-start', language: 'JS', creature: 'syntax-slime' });
+    const selected = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 0,
+      skill: 'focus',
+    });
+    expect(selected.battle?.question).not.toBeNull();
+    const rolls = db.random.mock.calls.length;
+    const repeated = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 0,
+      skill: 'burst',
+    });
+    expect(repeated.battle?.question?.id).toBe(selected.battle?.question?.id);
+    expect(repeated.battle?.skill).toBe('focus');
+    expect(db.random).toHaveBeenCalledTimes(rolls);
+  });
+  it('stores a victory drop and reward exactly once even when the final request is repeated', async () => {
+    db.random.mockReturnValue(0);
+    await adventure('user', { type: 'battle-start', language: 'TS', creature: 'syntax-slime' });
+    for (const turn of [0, 1])
+      await adventure('user', { type: 'battle-skill', battle: 'battle', turn, skill: 'burst' });
+    const won = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 2,
+      skill: 'burst',
+    });
+    expect(won.battle).toMatchObject({
+      status: 'won',
+      reward: 15,
+      drop: { itemId: 'gear-clover', duplicateCoins: 0 },
+    });
+    expect(won.inventory).toEqual(['gear-clover']);
+    expect(won.coins).toBe(15);
+    expect(
+      won.transactions.some((item) => item.label === 'Sorteio de equipamento da vitória')
+    ).toBe(false);
+    expect(db.tx.user.update).toHaveBeenCalledTimes(1);
+    const rolls = db.random.mock.calls.length;
+    const repeated = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 2,
+      skill: 'burst',
+    });
+    expect(repeated.notice).toContain('já terminou');
+    expect(repeated.inventory).toEqual(['gear-clover']);
+    expect(repeated.coins).toBe(15);
+    expect(db.tx.user.update).toHaveBeenCalledTimes(1);
+    expect(db.random).toHaveBeenCalledTimes(rolls);
+    expect((await adventure('user')).battle?.drop).toEqual(won.battle?.drop);
+  });
+  it('converts a duplicate drop into five coins without duplicating the owned item', async () => {
+    db.random.mockReturnValue(0);
+    await db.tx.rpgPlayer.update({ data: { inventory: ['gear-clover'] } });
+    await adventure('user', { type: 'battle-start', language: 'TS', creature: 'syntax-slime' });
+    for (const turn of [0, 1, 2])
+      await adventure('user', { type: 'battle-skill', battle: 'battle', turn, skill: 'burst' });
+    const won = await adventure('user');
+    expect(won.battle?.drop).toEqual({ itemId: 'gear-clover', duplicateCoins: 5 });
+    expect(won.inventory).toEqual(['gear-clover']);
+    expect(won.coins).toBe(20);
+  });
+  it('persists a failed loot roll so retries cannot find a different result', async () => {
+    db.random.mockReturnValue(0);
+    await adventure('user', { type: 'battle-start', language: 'TS', creature: 'syntax-slime' });
+    for (const turn of [0, 1])
+      await adventure('user', { type: 'battle-skill', battle: 'battle', turn, skill: 'burst' });
+    db.random.mockReturnValueOnce(0).mockReturnValueOnce(99);
+    const won = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 2,
+      skill: 'burst',
+    });
+    expect(won.battle?.drop).toBeNull();
+    expect(won.inventory).toEqual([]);
+    const rolls = db.random.mock.calls.length;
+    await adventure('user', { type: 'battle-skill', battle: 'battle', turn: 2, skill: 'burst' });
+    expect(db.random).toHaveBeenCalledTimes(rolls);
+  });
+  it('equips owned gear by slot, keeps gear fixed in combat and applies its health and protection', async () => {
+    await db.tx.rpgPlayer.update({
+      data: { inventory: ['gear-clover', 'gear-moon', 'gear-wood', 'gear-heart'] },
+    });
+    await adventure('user', { type: 'equip', item: 'gear-clover' });
+    await adventure('user', { type: 'equip', item: 'gear-moon' });
+    // Removing a replaced charm must not remove the new one.
+    await adventure('user', { type: 'equip', item: 'gear-clover', remove: true });
+    await adventure('user', { type: 'equip', item: 'gear-wood' });
+    const equipped = await adventure('user', { type: 'equip', item: 'gear-heart' });
+    expect(equipped.equipped).toEqual({
+      charm: 'gear-moon',
+      armor: 'gear-wood',
+      relic: 'gear-heart',
+    });
+    expect(equipped.combatStats).toEqual({
+      maxHp: 110,
+      protection: 2,
+      luck: 10,
+      directChance: 60,
+      dropChance: 60,
+    });
+    const start = await adventure('user', {
+      type: 'battle-start',
+      language: 'TS',
+      creature: 'syntax-slime',
+    });
+    expect(start.battle).toMatchObject({ hp: 110, maxHp: 110, protection: 2 });
+    const locked = await adventure('user', { type: 'equip', item: 'gear-heart', remove: true });
+    expect(locked.notice).toContain('depois de encerrar');
+    expect(locked.equipped.relic).toBe('gear-heart');
+    db.random.mockReturnValue(59); // Equipped luck extends the direct branch beyond the base 50%.
+    const hit = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 0,
+      skill: 'strike',
+    });
+    expect(hit.battle).toMatchObject({ hp: 101, enemyHp: 70, turn: 1, question: null });
+    await adventure('user', { type: 'battle-flee', battle: 'battle' });
+    const removed = await adventure('user', { type: 'equip', item: 'gear-heart', remove: true });
+    expect(removed.equipped.relic).toBeUndefined();
+    expect(removed.combatStats?.maxHp).toBe(100);
+    await expect(adventure('user', { type: 'equip', item: 'gear-star' })).rejects.toThrow(
+      'ainda não está'
+    );
+  });
+  it('discards compiler output when another request has already resolved the turn', async () => {
+    await adventure('user', { type: 'battle-start', language: 'JS', creature: 'syntax-slime' });
+    const selected = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 0,
+      skill: 'strike',
+    });
+    db.execute.mockImplementationOnce(async () => {
+      await db.tx.rpgBattle.update({ data: { turn: 1, questionId: null, hp: 89, enemyHp: 70 } });
+      return { ok: true, output: 'andar\ncoletar', executionMs: 1 };
+    });
+    const result = await adventure('user', {
+      type: 'battle-code',
+      battle: 'battle',
+      turn: 0,
+      question: selected.battle!.question!.id,
+      code: 'mundo.coletar();',
+      submit: true,
+    });
+    expect(result.notice).toContain('sem repetir o golpe');
+    expect(result.battle).toMatchObject({ turn: 1, hp: 89, enemyHp: 70 });
+    expect(result.codeRun).toBeUndefined();
+  });
   it('persists all expanded outfits while rejecting indices outside the exported wardrobe', async () => {
     for (const outfit of [0, 5, 6, 11]) {
       const avatar = { ...DEFAULT_AVATAR, outfit };
@@ -140,7 +412,7 @@ describe('Server encounter rules', () => {
       skill: 'focus',
     });
     expect(selected.battle?.skill).toBe('focus');
-    expect(selected.battle?.feedback).toBe('Resolva o desafio de código e confirme seu ataque.');
+    expect(selected.battle?.feedback).toContain('Resolva o exercício');
     expect(selected.battle?.question?.code?.starter).toBeTruthy();
     expect(codeChallenges('TS').map((q) => q.id)).toContain(selected.battle?.question?.id);
   });
@@ -198,16 +470,17 @@ describe('Server encounter rules', () => {
       })
     ).rejects.toThrow('com código');
     db.execute.mockResolvedValue({ ok: false, error: 'Serviço indisponível' });
-    await expect(
-      adventure('user', {
-        type: 'battle-code',
-        battle: 'battle',
-        turn: 0,
-        question: start.battle!.question!.id,
-        code: 'print(1)',
-        submit: true,
-      })
-    ).rejects.toThrow('Serviço indisponível');
+    const failed = await adventure('user', {
+      type: 'battle-code',
+      battle: 'battle',
+      turn: 0,
+      question: start.battle!.question!.id,
+      code: 'print(1)',
+      submit: true,
+    });
+    expect(failed.codeRun?.retryable).toBe(true);
+    expect(failed.codeRun?.error).toContain('Serviço indisponível');
+    expect(failed.battle?.turn).toBe(0);
     expect(db.tx.rpgBattle.update).not.toHaveBeenCalled();
   });
   it('avoids scenarios already used this battle and in recent battles', async () => {

@@ -170,6 +170,7 @@ export function CodeBattle({
           aria-label="Código da batalha"
           wrap="off"
           rows={6}
+          maxLength={8000}
           value={source}
           spellCheck={false}
           autoCapitalize="off"

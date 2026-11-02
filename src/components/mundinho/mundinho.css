@@ -1936,6 +1936,150 @@
   flex-direction: column;
   gap: 16px;
 }
+.ad-equipment-sprite {
+  display: inline-block;
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+}
+.ad-equipment-inventory {
+  min-width: 0;
+}
+.ad-equipment-inventory h2 {
+  margin: 8px 0;
+  color: var(--ad-text);
+  font-size: 22px;
+  font-weight: 700;
+}
+.ad-equipment-inventory > p {
+  margin: 8px 0 16px;
+  color: var(--ad-muted);
+  font-size: 14px;
+  line-height: 1.6;
+}
+.ad-equipment-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 20px 0 12px;
+  padding: 16px 0;
+  border-block: 1px solid var(--ad-border);
+}
+.ad-equipment-stats dt,
+.ad-equipment-slots span {
+  display: block;
+  color: var(--ad-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.ad-equipment-stats dd {
+  margin: 4px 0 0;
+  color: var(--ad-text);
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.ad-equipment-slots {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0;
+  padding: 0;
+  list-style: none;
+}
+.ad-equipment-slots li {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: 12px;
+  align-items: baseline;
+}
+.ad-equipment-slots strong {
+  font-size: 14px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.ad-equipment-list {
+  margin: 16px 0 24px;
+  padding: 0;
+  list-style: none;
+}
+.ad-equipment-list > li {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+  border-bottom: 1px solid var(--ad-border);
+}
+.ad-equipment-copy {
+  min-width: 0;
+}
+.ad-equipment-copy h3 {
+  margin: 0 0 4px;
+  color: var(--ad-text);
+  font-size: 16px;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+.ad-equipment-copy p {
+  margin: 4px 0;
+  color: var(--ad-muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+.ad-equipment-copy strong {
+  color: var(--ad-text);
+  font-size: 14px;
+  font-weight: 600;
+}
+.ad-equipment-list .ad-equip-btn {
+  width: auto;
+  min-height: 44px;
+  padding-inline: 16px;
+}
+.ad-equipment-list button:focus-visible {
+  outline: 2px solid var(--ad-blue);
+  outline-offset: 3px;
+}
+.ad-battle-odds {
+  color: #fff;
+  font-size: 15px;
+  line-height: 1.6;
+}
+.ad-battle-odds span {
+  display: block;
+  color: #d4d4d4;
+  font-size: 13px;
+}
+.ad-battle-drop {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 16px 0;
+  padding-block: 12px;
+  border-block: 1px solid var(--ad-border);
+  text-align: left;
+}
+.ad-battle-drop p {
+  margin: 4px 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+@media (max-width: 600px) {
+  .ad-equipment-list > li {
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
+  }
+  .ad-equipment-list .ad-equip-btn {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+  .ad-store-top-bar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+}
 
 .ad-store-top-bar {
   display: flex;
@@ -3660,6 +3804,22 @@
   background: #000;
   border: 2px solid #62766a;
   border-radius: 0;
+  --ad-text: #fff;
+  --ad-muted: #d4d4d4;
+  --ad-border: #62766a;
+  --ad-border-light: #8fa398;
+  --ad-card-inner: #151719;
+  --color-dd-text: #fff;
+  --color-dd-surface: #151719;
+  color: #fff;
+  color-scheme: dark;
+}
+.ad-battle-end-card .ad-primary {
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 2px solid #b8c6bd;
+  background: #000;
+  color: #fff;
 }
 .adventure-battle .ad-arena-container {
   border-radius: 0;

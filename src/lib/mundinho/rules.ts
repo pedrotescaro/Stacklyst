@@ -40,14 +40,15 @@ export function resolveTurn(
   enemyHp: number,
   correct: boolean,
   skill: string,
-  level: number
+  level: number,
+  equipment: { maxHp: number; protection: number } = { maxHp: 100, protection: 0 }
 ) {
   const move = SKILLS.find((s) => s.id === skill) ?? SKILLS[0];
   const nextEnemy = Math.max(0, enemyHp - (correct ? move.damage : 0));
   const nextHp = Math.max(
     0,
-    Math.min(100, hp + (correct ? move.heal : 0)) -
-      (nextEnemy > 0 ? (correct ? 9 : 18) + level * 2 : 0)
+    Math.min(equipment.maxHp, hp + (correct ? move.heal : 0)) -
+      (nextEnemy > 0 ? Math.max(1, (correct ? 9 : 18) + level * 2 - equipment.protection) : 0)
   );
   return {
     hp: nextHp,

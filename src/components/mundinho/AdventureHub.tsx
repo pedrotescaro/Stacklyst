@@ -62,6 +62,9 @@ import './mundinho.css';
 import { adventureAsset } from './assets';
 import { PixelMeter } from './PixelMeter';
 import { Portrait } from './Portrait';
+import { EQUIPMENT, equipmentStats, equipmentBonusLabel } from '../../lib/mundinho/equipment';
+import { EquipmentInventory } from './EquipmentInventory';
+import { EquipmentSprite } from './EquipmentSprite';
 
 const World = lazy(() => import('./World'));
 const hairColors = [
@@ -277,17 +280,27 @@ export function AdventureHub({
     try {
       const next = await transport(action);
       const answered =
-        action.type === 'battle-answer' || (action.type === 'battle-code' && action.submit);
+        !next.notice &&
+        (action.type === 'battle-answer' ||
+          (action.type === 'battle-code' && action.submit && !next.codeRun?.retryable) ||
+          (action.type === 'battle-skill' &&
+            data?.battle?.id === next.battle?.id &&
+            (next.battle?.turn ?? 0) > (data?.battle?.turn ?? 0)));
       if (answered && data?.battle && next.battle) {
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const pause = (ms: number) =>
           new Promise((resolve) => setTimeout(resolve, reduced ? 0 : ms));
         setImpact(data.battle.enemyHp - next.battle.enemyHp);
-        const skill = SKILLS.find((item) => item.id === data.battle?.skill) ?? SKILLS[0];
+        const skill =
+          SKILLS.find(
+            (item) =>
+              item.id === (action.type === 'battle-skill' ? action.skill : data.battle?.skill)
+          ) ?? SKILLS[0];
+        const maxHp = data.battle.maxHp ?? data.combatStats?.maxHp ?? 100;
         const landed = next.battle.enemyHp < data.battle.enemyHp;
         setAttackEffect(skill.id);
-        setHealing(landed ? Math.max(0, Math.min(100 - data.battle.hp, skill.heal)) : 0);
-        const recoveredHp = landed ? Math.min(100, data.battle.hp + skill.heal) : data.battle.hp;
+        setHealing(landed ? Math.max(0, Math.min(maxHp - data.battle.hp, skill.heal)) : 0);
+        const recoveredHp = landed ? Math.min(maxHp, data.battle.hp + skill.heal) : data.battle.hp;
         const counterDamage = Math.max(0, recoveredHp - next.battle.hp);
         setIncomingDamage(counterDamage);
         battleAudio.play('attack');
@@ -328,7 +341,8 @@ export function AdventureHub({
         return next;
       }
       setData(next);
-      if (success) setNotice(success);
+      if (next.notice) setNotice(next.notice);
+      else if (success) setNotice(success);
       return next;
     } catch (e) {
       setError(
@@ -370,6 +384,9 @@ export function AdventureHub({
     CREATURES.find((c) => c.id === creature) ??
     CREATURES[0];
   const equippedAvatar = data?.avatar ?? DEFAULT_AVATAR;
+  const combatStats =
+    data?.combatStats ?? equipmentStats(data?.inventory ?? [], data?.equipped ?? {});
+  const battleDrop = EQUIPMENT.find((item) => item.id === battle?.drop?.itemId);
   const choosingSkill = view === 'battle' && battle?.status === 'active' && !battle.question;
   useEffect(() => {
     if (!choosingSkill || busy) return;
@@ -388,15 +405,24 @@ export function AdventureHub({
   useEffect(() => {
     if (view !== 'battle' || battle?.status !== 'won') return;
     const reward = battle.reward;
-    const timer = setTimeout(() => {
-      go('world');
-      setNotice(
-        reward
-          ? `Vitória! +${reward} moedas e +30 XP. Recompensa registrada.`
-          : 'Vitória! Você voltou à clareira.'
-      );
-      setCombatPhase('idle');
-    }, 2000);
+    const timer = setTimeout(
+      () => {
+        go('world');
+        const drop = EQUIPMENT.find((item) => item.id === battle.drop?.itemId);
+        const dropText = drop
+          ? battle.drop?.duplicateCoins
+            ? ` ${drop.name} repetido: +${battle.drop.duplicateCoins} moedas.`
+            : ` ${drop.name} foi guardado no inventário!`
+          : '';
+        setNotice(
+          (reward
+            ? `Vitória! +${reward} moedas e +30 XP. Recompensa registrada.`
+            : 'Vitória! Você voltou à clareira.') + dropText
+        );
+        setCombatPhase('idle');
+      },
+      battle.drop ? 6000 : 2000
+    );
     return () => clearTimeout(timer);
     // Only the confirmed battle result owns this timer; changing screens cancels it.
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1213,8 +1239,9 @@ export function AdventureHub({
               <div className="ad-lobby-header">
                 <h2>Prepare sua aventura</h2>
                 <p>
-                  Desafie criaturas com perguntas e habilidades reais de programação. Cada acerto
-                  causa dano e ensina um fundamento.
+                  Cada golpe pode sair direto ou pedir um exercício. Sem equipamentos, as chances
+                  são 50/50. Vença criaturas para encontrar equipamentos e fortalecer seu
+                  aventureiro.
                 </p>
               </div>
 
@@ -1361,9 +1388,12 @@ export function AdventureHub({
                     <small className="ad-combatant-meta">Nível {xp.level}</small>
                     <PixelMeter
                       value={battle.hp}
+                      max={battle.maxHp ?? combatStats.maxHp}
                       label={`Vida de ${data?.username ?? 'jogador'}`}
                     />
-                    <span className="ad-hp-number">{battle.hp} / 100 PV</span>
+                    <span className="ad-hp-number">
+                      {battle.hp} / {battle.maxHp ?? combatStats.maxHp} PV
+                    </span>
                   </div>
                 </div>
               </div>
@@ -1427,6 +1457,14 @@ export function AdventureHub({
                     </div>
                   ) : (
                     <>
+                      <p className="ad-battle-odds">
+                        Golpe direto: {battle.directChance ?? combatStats.directChance}% ·
+                        Exercício: {100 - (battle.directChance ?? combatStats.directChance)}%
+                        <span>
+                          Proteção: −{battle.protection ?? combatStats.protection} por golpe · Vida
+                          máxima: {battle.maxHp ?? combatStats.maxHp} PV
+                        </span>
+                      </p>
                       <div
                         className="ad-skills-grid"
                         role="toolbar"
@@ -1469,16 +1507,36 @@ export function AdventureHub({
                   <div className="ad-battle-end-card">
                     <h2>
                       {battle.status === 'won'
-                        ? '🎉 Vitória! Você dominou o conceito!'
-                        : '💔 Batalha encerrada.'}
+                        ? 'Vitória! A criatura foi derrotada!'
+                        : 'Batalha encerrada.'}
                     </h2>
                     <p>
                       {battle.status === 'won'
                         ? battle.reward
                           ? `+${battle.reward} moedas · +30 XP creditados no seu perfil!`
-                          : 'Você venceu a batalha e praticou seus conhecimentos.'
+                          : 'Você venceu a batalha!'
                         : 'Revise o conceito e tente novamente! Suas lições continuam salvas.'}
                     </p>
+                    {battleDrop && (
+                      <div className="ad-battle-drop" role="status">
+                        <EquipmentSprite itemId={battleDrop.id} />
+                        <div>
+                          <strong>
+                            {battle.drop?.duplicateCoins
+                              ? 'Equipamento repetido'
+                              : 'Novo equipamento!'}
+                          </strong>
+                          <p>
+                            {battleDrop.name} · {battleDrop.rarity}
+                          </p>
+                          <p>
+                            {battle.drop?.duplicateCoins
+                              ? `Convertido em ${battle.drop.duplicateCoins} moedas.`
+                              : `${equipmentBonusLabel(battleDrop)} · Guardado no inventário.`}
+                          </p>
+                        </div>
+                      </div>
+                    )}
                     {battle.status === 'won' && (
                       <p role="status">Voltando ao Mundinho em instantes…</p>
                     )}
@@ -1520,7 +1578,21 @@ export function AdventureHub({
               <ChevronRight size={16} />
             </button>
           </div>
-
+          {view === 'inventory' && (
+            <EquipmentInventory
+              inventory={data?.inventory ?? []}
+              equipped={data?.equipped ?? {}}
+              stats={combatStats}
+              busy={busy}
+              locked={battle?.status === 'active'}
+              onEquip={(item, remove) =>
+                void act(
+                  { type: 'equip', item, remove },
+                  remove ? 'Equipamento removido.' : 'Equipamento pronto para a próxima batalha!'
+                )
+              }
+            />
+          )}
           <div className="ad-store-grid">
             {ITEMS.filter((item) => view === 'store' || data?.inventory.includes(item.id)).map(
               (item) => {

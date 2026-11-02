@@ -1,0 +1,14 @@
+{
+  "origin": "Original 32 x 32 pixel equipment artwork authored in scripts/build-mundinho-equipment.mjs. Exported from editable equipment.ase by LibreSprite 1.3.",
+  "frames": [
+    "gear-clover",
+    "gear-moon",
+    "gear-star",
+    "gear-wood",
+    "gear-iron",
+    "gear-crystal",
+    "gear-heart",
+    "gear-orb",
+    "gear-phoenix"
+  ]
+}

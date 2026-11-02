@@ -62,6 +62,70 @@ const openBattle = async (transport: AdventureTransport) => {
   fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
 };
 describe('Mundinho battle navigation', () => {
+  it('animates a direct focus attack without opening an exercise and respects equipped maximum health', async () => {
+    const active = state('active');
+    active.battle!.hp = 110;
+    active.battle!.maxHp = 130;
+    active.battle!.protection = 6;
+    active.battle!.directChance = 65;
+    const next = structuredClone(active);
+    Object.assign(next.battle!, {
+      hp: 125,
+      enemyHp: 82,
+      turn: 1,
+      feedback: 'Sorte! Depurar aplicou um golpe direto, sem exercício.',
+    });
+    await openBattle(async (action) => (action?.type === 'battle-skill' ? next : active));
+    expect(screen.getByText('110 / 130 PV')).toBeInTheDocument();
+    expect(screen.getByRole('progressbar', { name: 'Vida de Jogador' })).toHaveAttribute(
+      'aria-valuemax',
+      '130'
+    );
+    expect(screen.getByText(/Golpe direto: 65% · Exercício: 35%/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /^Depurar/ }));
+    await waitFor(() =>
+      expect(document.querySelector('[data-effect="focus-impact"]')).toBeInTheDocument()
+    );
+    expect(screen.getByText('+20')).toBeInTheDocument();
+    await screen.findByText('125 / 130 PV', {}, { timeout: 3000 });
+    expect(
+      screen.queryByRole('region', { name: 'Desafio de código da batalha' })
+    ).not.toBeInTheDocument();
+  });
+  it('shows stale-turn feedback without replaying a strike', async () => {
+    const active = state('active');
+    const refreshed = structuredClone(active);
+    refreshed.notice = 'Este turno já foi resolvido. A batalha foi atualizada sem repetir o golpe.';
+    refreshed.battle!.turn = 1;
+    refreshed.battle!.enemyHp = 70;
+    const sound = vi.spyOn(BattleAudio.prototype, 'play');
+    await openBattle(async (action) => (action ? refreshed : active));
+    fireEvent.click(screen.getByRole('button', { name: /^Aplicar conceito/ }));
+    await screen.findByText(refreshed.notice);
+    expect(sound).not.toHaveBeenCalledWith('attack');
+    expect(screen.getByText('70 / 100 PV')).toBeInTheDocument();
+    sound.mockRestore();
+  });
+  it('shows the saved loot on victory and keeps it available in inventory', async () => {
+    window.matchMedia = vi
+      .fn()
+      .mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() });
+    const active = state('active');
+    const won = state('won');
+    won.inventory = ['gear-heart'];
+    Object.assign(won.battle!, {
+      enemyHp: 0,
+      turn: 1,
+      drop: { itemId: 'gear-heart', duplicateCoins: 0 },
+    });
+    await openBattle(async (action) => (action ? won : active));
+    fireEvent.click(screen.getByRole('button', { name: /^Aplicar conceito/ }));
+    await screen.findByText('Novo equipamento!');
+    expect(screen.getByRole('img', { name: 'Pingente vital' })).toBeInTheDocument();
+    expect(screen.getByText(/Guardado no inventário/)).toHaveTextContent('+10 de vida máxima');
+    fireEvent.click(screen.getAllByRole('button', { name: 'Voltar ao Mundinho' })[0]);
+    await screen.findByRole('region', { name: 'Clareira' });
+  });
   it('offers twelve named outfits and saves a new outfit with the selected silhouette', async () => {
     let saved = state(null);
     const transport = vi.fn<AdventureTransport>().mockImplementation(async (action) => {

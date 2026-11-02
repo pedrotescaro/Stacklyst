@@ -1,4 +1,5 @@
 import { calculateLevel } from '../learning/rewards';
+import type { CombatStats } from './equipment';
 export const LANGUAGES = ['PYTHON', 'JS', 'TS', 'RUST', 'GO', 'JAVA', 'HTML', 'CSS'] as const;
 export type BattleLanguage = (typeof LANGUAGES)[number];
 export const LANGUAGE_NAMES: Record<string, string> = {
@@ -162,7 +163,7 @@ export type PublicQuestion = {
     hint?: string;
   };
 };
-export type CodeRun = { passed: boolean; trace: string[]; error?: string };
+export type CodeRun = { passed: boolean; trace: string[]; error?: string; retryable?: boolean };
 export type BattleView = {
   id: string;
   language: BattleLanguage;
@@ -176,6 +177,10 @@ export type BattleView = {
   correct?: boolean;
   reward: number;
   skill: string | null;
+  maxHp?: number;
+  protection?: number;
+  directChance?: number;
+  drop?: { itemId: string; duplicateCoins: number } | null;
 };
 export type Mission = {
   id: string;
@@ -186,6 +191,8 @@ export type Mission = {
   claimed: boolean;
 };
 export type AdventureState = {
+  notice?: string;
+  combatStats?: CombatStats;
   codeRun?: CodeRun;
   username: string;
   coins: number;

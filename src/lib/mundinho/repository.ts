@@ -27,6 +27,13 @@ import { executeCode } from '@/lib/code-execution/server';
 import { instrumentChallengeSource } from './codeChallengeStructures';
 import type { CodeRun } from './types';
 import { OUTFIT_SPECS } from './avatar-palettes';
+import {
+  EQUIPMENT,
+  directAttack,
+  equipmentDropPool,
+  equipmentStats,
+  type CombatStats,
+} from './equipment';
 
 const avatarSchema = z.object({
   gender: z.enum(['masculine', 'feminine']).optional(),
@@ -88,7 +95,11 @@ const authoredIds = [...LEARNING_LESSONS.values()].flatMap((lesson) =>
 function fail(message: string): never {
   throw new ValidationError('MUNDINHO_RULE', message);
 }
-function battleView(b: RpgBattle | null): AdventureState['battle'] {
+function battleView(
+  b: RpgBattle | null,
+  stats: CombatStats,
+  drop: NonNullable<AdventureState['battle']>['drop'] = null
+): AdventureState['battle'] {
   if (!b) return null;
   const q = QUESTIONS.find((q) => q.id === b.questionId);
   const challenge = b.questionId ? codeChallenge(b.language as BattleLanguage, b.questionId) : null;
@@ -111,6 +122,10 @@ function battleView(b: RpgBattle | null): AdventureState['battle'] {
     feedback: b.feedback,
     reward: b.reward,
     skill: b.skill,
+    maxHp: Math.max(stats.maxHp, b.hp),
+    protection: stats.protection,
+    directChance: stats.directChance,
+    drop,
   };
 }
 async function credit(tx: Tx, userId: string, key: string, label: string, amount: number) {
@@ -118,6 +133,103 @@ async function credit(tx: Tx, userId: string, key: string, label: string, amount
   await tx.rpgTransaction.create({ data: { userId, key, label, amount } });
   await tx.rpgPlayer.update({ where: { userId }, data: { coins: { increment: amount } } });
   return true;
+}
+
+async function resolveBattleAction(
+  tx: Tx,
+  userId: string,
+  battle: RpgBattle,
+  skill: string,
+  correct: boolean,
+  stats: CombatStats,
+  now: Date,
+  direct = false,
+  detail = ''
+) {
+  const creature = CREATURES.find((entry) => entry.id === battle.creature)!;
+  const result = resolveTurn(battle.hp, battle.enemyHp, correct, skill, creature.level, stats);
+  if (battle.turn >= 11 && result.status === 'active') {
+    result.status = 'lost';
+    result.hp = 0;
+  }
+  let reward = 0;
+  let lootFeedback = '';
+  if (result.status === 'won') {
+    const rewarded = await tx.rpgTransaction.count({
+      where: { userId, key: { startsWith: `battle:${dayKey(now)}:` } },
+    });
+    if (rewarded < 3) {
+      reward = 15;
+      if (
+        await credit(
+          tx,
+          userId,
+          `battle:${dayKey(now)}:${battle.id}`,
+          `Vitória · ${creature.name}`,
+          reward
+        )
+      )
+        await tx.user.update({ where: { id: userId }, data: { total_xp: { increment: 30 } } });
+    }
+    // The player row lock and unique roll key make a victory's loot roll permanent.
+    const rollKey = `loot-roll:${battle.id}`;
+    if (
+      !(await tx.rpgTransaction.findUnique({ where: { userId_key: { userId, key: rollKey } } }))
+    ) {
+      await tx.rpgTransaction.create({
+        data: { userId, key: rollKey, label: 'Sorteio de equipamento da vitória', amount: 0 },
+      });
+      if (randomInt(100) < stats.dropChance) {
+        const pool = equipmentDropPool(creature.level);
+        const item = pool[randomInt(pool.length)];
+        const player = await tx.rpgPlayer.findUniqueOrThrow({ where: { userId } });
+        const inventory = player.inventory as string[];
+        const duplicate = inventory.includes(item.id);
+        const coins = duplicate ? 5 : 0;
+        if (
+          await credit(
+            tx,
+            userId,
+            `loot:${battle.id}:${item.id}`,
+            duplicate
+              ? `${item.name} repetido · +5 moedas`
+              : `Equipamento encontrado · ${item.name}`,
+            coins
+          )
+        ) {
+          if (!duplicate)
+            await tx.rpgPlayer.update({
+              where: { userId },
+              data: { inventory: [...inventory, item.id] },
+            });
+          lootFeedback = duplicate
+            ? ` Equipamento repetido: ${item.name}, convertido em 5 moedas.`
+            : ` Você encontrou ${item.name}! Está no inventário.`;
+        }
+      } else lootFeedback = ' Nenhum equipamento caiu desta vez.';
+    }
+  }
+  const move = SKILLS.find((entry) => entry.id === skill)!;
+  const feedback = direct
+    ? `Sorte! ${move.name} aplicou um golpe direto, sem exercício: ${move.damage} de dano.`
+    : correct
+      ? `Correto! ${move.name} causou ${move.damage} de dano. ${detail}`
+      : `Ainda não. O inimigo aproveitou a abertura. ${detail}`;
+  await tx.rpgBattle.update({
+    where: { id: battle.id },
+    data: {
+      ...result,
+      reward,
+      turn: battle.turn + 1,
+      correct: { increment: correct && !direct ? 1 : 0 },
+      questionId: null,
+      skill: null,
+      used: battle.questionId
+        ? [...(battle.used as string[]), battle.questionId]
+        : (battle.used as string[]),
+      feedback: feedback + lootFeedback,
+    },
+  });
 }
 async function missions(tx: Tx, userId: string, now: Date) {
   const day = dayKey(now);
@@ -170,6 +282,7 @@ async function missions(tx: Tx, userId: string, now: Date) {
 /** All mutations for one player serialize on a database row, across servers/devices. */
 export async function adventure(userId: string, action?: Action): Promise<AdventureState> {
   let codeRun: CodeRun | undefined;
+  let notice: string | undefined;
   // Execute outside the transaction: an external compiler must not hold the player row lock.
   if (action?.type === 'battle-code') {
     const battle = await prisma.rpgBattle.findFirst({ where: { id: action.battle, userId } });
@@ -179,7 +292,10 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
       battle.turn !== action.turn ||
       battle.questionId !== action.question
     )
-      fail('Este desafio não está ativo. Atualize a batalha.');
+      return {
+        ...(await adventure(userId)),
+        notice: 'A batalha foi atualizada. Este turno já não está ativo.',
+      };
     const challenge = codeChallenge(battle.language as BattleLanguage, battle.questionId!);
     if (!challenge || challenge.id !== battle.questionId)
       fail('Este turno não é um desafio de código.');
@@ -195,9 +311,14 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
         challengeProgram(battle.language as BattleLanguage, prepared.source, challenge),
         challengeExecutionLanguage(battle.language as BattleLanguage)
       );
-      if (!execution.ok)
-        fail(execution.error ?? 'Não foi possível executar o código. Tente novamente.');
-      codeRun = evaluateTrace(execution.output, challenge);
+      if (!execution.ok) {
+        codeRun = {
+          passed: false,
+          trace: [],
+          retryable: true,
+          error: `${execution.error ?? 'Não foi possível executar o código.'}${execution.output && execution.output !== '(sem output)' ? `\n${execution.output.slice(0, 1800)}` : ''}\nSeu turno não foi consumido. Revise ou tente novamente.`,
+        };
+      } else codeRun = evaluateTrace(execution.output, challenge);
     }
   }
   return prisma.$transaction(
@@ -214,6 +335,7 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
       let player = await tx.rpgPlayer.findUniqueOrThrow({ where: { userId } });
       const inventory = player.inventory as string[];
       const equipped = player.equipped as Record<string, string>;
+      const stats = equipmentStats(inventory, equipped);
       const [exercises, quizzes] = await Promise.all([
         tx.exerciseSubmission.count({ where: { user_id: userId, first_completion: true } }),
         tx.quizAttempt.count({
@@ -275,16 +397,33 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
         await tx.rpgPlayer.update({ where: { userId }, data: { avatar: action.avatar } });
       }
       if (action?.type === 'equip') {
-        const item = ITEMS.find((i) => i.id === action.item);
-        if (!item || !inventory.includes(item.id))
-          fail('Este item ainda não está no seu inventário.');
-        const next = { ...equipped };
-        if (action.remove) delete next[item.category];
-        else next[item.category] = item.id;
-        const avatar = { ...DEFAULT_AVATAR, ...(player.avatar as Partial<Avatar>) };
-        if (['outfit', 'hair', 'accessory'].includes(item.category))
-          avatar[item.category as 'outfit' | 'hair' | 'accessory'] = action.remove ? 0 : item.value;
-        await tx.rpgPlayer.update({ where: { userId }, data: { equipped: next, avatar } });
+        const gear = EQUIPMENT.find((item) => item.id === action.item);
+        if (gear) {
+          if (!inventory.includes(gear.id))
+            fail('Este equipamento ainda não está no seu inventário.');
+          const active = await tx.rpgBattle.findFirst({ where: { userId, status: 'active' } });
+          if (active) notice = 'Troque seus equipamentos depois de encerrar a batalha.';
+          else {
+            const next = { ...equipped };
+            if (action.remove) {
+              if (next[gear.slot] === gear.id) delete next[gear.slot];
+            } else next[gear.slot] = gear.id;
+            await tx.rpgPlayer.update({ where: { userId }, data: { equipped: next } });
+          }
+        } else {
+          const item = ITEMS.find((i) => i.id === action.item);
+          if (!item || !inventory.includes(item.id))
+            fail('Este item ainda não está no seu inventário.');
+          const next = { ...equipped };
+          if (action.remove) delete next[item.category];
+          else next[item.category] = item.id;
+          const avatar = { ...DEFAULT_AVATAR, ...(player.avatar as Partial<Avatar>) };
+          if (['outfit', 'hair', 'accessory'].includes(item.category))
+            avatar[item.category as 'outfit' | 'hair' | 'accessory'] = action.remove
+              ? 0
+              : item.value;
+          await tx.rpgPlayer.update({ where: { userId }, data: { equipped: next, avatar } });
+        }
       }
       if (action?.type === 'mission') {
         const m = (await missions(tx, userId, now)).find((m) => m.id === action.mission)!;
@@ -310,7 +449,8 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
               userId,
               language: action.language,
               creature: action.creature,
-              feedback: 'Escolha uma habilidade. Seu conhecimento dá força ao ataque.',
+              hp: stats.maxHp,
+              feedback: `Escolha um golpe: ${stats.directChance}% de chance de ataque direto e ${100 - stats.directChance}% de exercício.`,
             },
           });
         }
@@ -321,9 +461,11 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
       ) {
         const a = action as Extract<Action, { battle: string }>;
         const b = await tx.rpgBattle.findFirst({ where: { id: a.battle, userId } });
-        if (!b || (b.status !== 'active' && !(a.type === 'battle-flee' && b.status === 'fled')))
-          fail('Esta batalha terminou. Atualize para ver o resultado.');
-        if (a.type === 'battle-flee') {
+        if (!b) fail('Batalha não encontrada. Atualize para continuar.');
+        if (b.status !== 'active' && !(a.type === 'battle-flee' && b.status === 'fled')) {
+          notice = 'Esta batalha já terminou. Seu resultado foi atualizado.';
+          codeRun = undefined;
+        } else if (a.type === 'battle-flee') {
           if (b.status === 'active')
             await tx.rpgBattle.update({
               where: { id: b.id },
@@ -334,9 +476,13 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
               },
             });
         } else {
-          if (a.turn !== b.turn) fail('Este turno já foi respondido. Atualize a batalha.');
-          if (a.type === 'battle-skill') {
-            if (!b.questionId) {
+          if (a.turn !== b.turn) {
+            notice = 'Este turno já foi resolvido. A batalha foi atualizada sem repetir o golpe.';
+            codeRun = undefined;
+          } else if (a.type === 'battle-skill') {
+            if (!b.questionId && directAttack(stats, randomInt(100))) {
+              await resolveBattleAction(tx, userId, b, a.skill, true, stats, now, true);
+            } else if (!b.questionId) {
               const used = b.used as string[];
               const creature = CREATURES.find((entry) => entry.id === b.creature);
               const challenges = codeChallenges(b.language as BattleLanguage, creature?.level ?? 1);
@@ -376,65 +522,46 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
                 data: {
                   skill: a.skill,
                   questionId: q.id,
-                  feedback: 'Resolva o desafio de código e confirme seu ataque.',
+                  feedback:
+                    'Desta vez o golpe precisa do seu conhecimento. Resolva o exercício e confirme o ataque.',
                 },
               });
             }
           } else {
-            if (!b.questionId || b.questionId !== a.question || !b.skill)
-              fail('Selecione uma habilidade antes de responder.');
-            const q = QUESTIONS.find((q) => q.id === b.questionId);
-            const challenge = codeChallenge(b.language as BattleLanguage, b.questionId);
-            if (a.type === 'battle-answer' && (!q || a.question !== q.id))
-              fail('Responda este desafio com código.');
-            if (
-              a.type === 'battle-code' &&
-              (!challenge || challenge.id !== b.questionId || !codeRun)
-            )
-              fail('Este desafio de código não está ativo.');
-            // A preview never consumes a turn or grants a reward.
-            if (a.type !== 'battle-code' || a.submit) {
-              const correct = a.type === 'battle-code' ? codeRun!.passed : q!.answer === a.answer;
-              const creature = CREATURES.find((c) => c.id === b.creature)!;
-              const result = resolveTurn(b.hp, b.enemyHp, correct, b.skill, creature.level);
-              if (b.turn >= 11 && result.status === 'active') {
-                result.status = 'lost';
-                result.hp = 0;
+            if (!b.questionId || b.questionId !== a.question || !b.skill) {
+              notice = 'O desafio deste turno mudou. A batalha foi atualizada.';
+              codeRun = undefined;
+            } else {
+              const q = QUESTIONS.find((q) => q.id === b.questionId);
+              const challenge = codeChallenge(b.language as BattleLanguage, b.questionId);
+              if (a.type === 'battle-answer' && (!q || a.question !== q.id))
+                fail('Responda este desafio com código.');
+              if (
+                a.type === 'battle-code' &&
+                (!challenge || challenge.id !== b.questionId || !codeRun)
+              )
+                fail('Este desafio de código não está ativo.');
+              // Preview and compiler/provider failures never consume a turn or roll luck again.
+              if ((a.type !== 'battle-code' || a.submit) && !codeRun?.retryable) {
+                const correct = a.type === 'battle-code' ? codeRun!.passed : q!.answer === a.answer;
+                const detail =
+                  a.type === 'battle-code'
+                    ? correct
+                      ? 'Desafio concluído!'
+                      : (codeRun!.error ?? 'Revise os comandos.')
+                    : q!.explanation;
+                await resolveBattleAction(
+                  tx,
+                  userId,
+                  b,
+                  b.skill,
+                  correct,
+                  stats,
+                  now,
+                  false,
+                  detail
+                );
               }
-              let reward = 0;
-              if (result.status === 'won') {
-                const rewarded = await tx.rpgTransaction.count({
-                  where: { userId, key: { startsWith: `battle:${checkin.day}:` } },
-                });
-                if (rewarded < 3) {
-                  reward = 15;
-                  await credit(
-                    tx,
-                    userId,
-                    `battle:${checkin.day}:${b.id}`,
-                    `Vitória · ${creature.name}`,
-                    reward
-                  );
-                  await tx.user.update({
-                    where: { id: userId },
-                    data: { total_xp: { increment: 30 } },
-                  });
-                }
-              }
-              const move = SKILLS.find((s) => s.id === b.skill)!;
-              await tx.rpgBattle.update({
-                where: { id: b.id },
-                data: {
-                  ...result,
-                  reward,
-                  turn: b.turn + 1,
-                  correct: { increment: correct ? 1 : 0 },
-                  questionId: null,
-                  skill: null,
-                  used: [...(b.used as string[]), b.questionId],
-                  feedback: `${correct ? `Correto! ${move.name} causou ${move.damage} de dano.` : 'Ainda não. O inimigo aproveitou a abertura.'} ${a.type === 'battle-code' ? (correct ? 'Desafio concluído!' : (codeRun!.error ?? 'Revise a sequência dos comandos.')) : q!.explanation}`,
-                },
-              });
             }
           }
         }
@@ -453,7 +580,22 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
         tx.rpgBattle.findFirst({ where: { userId }, orderBy: { createdAt: 'desc' } }),
         missions(tx, userId, now),
       ]);
+      const currentStats = equipmentStats(
+        current.inventory as string[],
+        current.equipped as Record<string, string>
+      );
+      const loot = battle
+        ? await tx.rpgTransaction.findMany({
+            where: { userId, key: { startsWith: `loot:${battle.id}:` } },
+            take: 1,
+          })
+        : [];
+      const lootItem = loot[0]
+        ? EQUIPMENT.find((item) => loot[0].key.endsWith(`:${item.id}`))
+        : null;
       return {
+        ...(notice ? { notice } : {}),
+        combatStats: currentStats,
         ...(codeRun ? { codeRun } : {}),
         username: user.username,
         coins: current.coins,
@@ -462,13 +604,19 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
         inventory: current.inventory as string[],
         equipped: current.equipped as Record<string, string>,
         checkin: checkinStatus(current.lastCheckin, current.checkinStreak, now),
-        transactions: transactions.map((t) => ({
-          id: t.id,
-          label: t.label,
-          amount: t.amount,
-          createdAt: t.createdAt.toISOString(),
-        })),
-        battle: battleView(battle),
+        transactions: transactions
+          .filter((t) => !t.key.startsWith('loot-roll:'))
+          .map((t) => ({
+            id: t.id,
+            label: t.label,
+            amount: t.amount,
+            createdAt: t.createdAt.toISOString(),
+          })),
+        battle: battleView(
+          battle,
+          currentStats,
+          lootItem ? { itemId: lootItem.id, duplicateCoins: loot[0].amount } : null
+        ),
         missions: dailyMissions,
       };
     },
