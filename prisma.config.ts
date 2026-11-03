@@ -11,6 +11,6 @@ export default defineConfig({
       'postgresql://placeholder:placeholder@localhost:5432/placeholder',
   },
   migrations: {
-    seed: 'npx ts-node --compiler-options {"module":"CommonJS"} prisma/seed.ts',
+    seed: 'npx ts-node --project prisma/tsconfig.seed.json -r tsconfig-paths/register prisma/seed.ts',
   },
 });

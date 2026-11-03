@@ -19,7 +19,8 @@
     "prepare": "husky",
     "mobile:install": "npm --prefix apps/mobile ci",
     "mobile:start": "npm --prefix apps/mobile run start",
-    "mobile:typecheck": "npm --prefix apps/mobile run typecheck"
+    "mobile:typecheck": "npm --prefix apps/mobile run typecheck",
+    "community:seed": "ts-node --project prisma/tsconfig.seed.json -r tsconfig-paths/register scripts/publish-demo-community.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -117,6 +118,7 @@
     "puppeteer": "^25.1.0",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
+    "tsconfig-paths": "3.15.0",
     "typescript": "^5",
     "vitest": "^4.1.12"
   },
@@ -130,6 +132,6 @@
     "qs": "6.16.0"
   },
   "prisma": {
-    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
+    "seed": "ts-node --project prisma/tsconfig.seed.json -r tsconfig-paths/register prisma/seed.ts"
   }
 }

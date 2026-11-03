@@ -1,10 +1,12 @@
 import dotenv from 'dotenv';
 dotenv.config({ path: '.env.local' });
 
-import { Language, DuelStatus } from '@prisma/client';
+import { Language, DuelStatus, type User } from '@prisma/client';
 import { prisma } from '../src/lib/prisma';
 import { createClient } from '@supabase/supabase-js';
 import demoAssets from './demo-profile-assets.json';
+import { COMMUNITY_PROFILES } from './demo-community/content';
+import { publishCommunity } from './demo-community/publish';
 import { randomInt } from 'node:crypto';
 import { FOUNDATION_COURSES } from '../src/lib/learning/foundations';
 import {
@@ -55,8 +57,22 @@ async function main() {
     throw new Error(`Error listing auth users: ${listError.message}`);
   }
 
-  const seedEmails = ['pedro@stacklyst.dev', 'ana@stacklyst.dev', 'carlos@stacklyst.dev'];
-  for (const email of seedEmails) {
+  const seedEmails = [
+    'pedro@stacklyst.dev',
+    'ana@stacklyst.dev',
+    'carlos@stacklyst.dev',
+    'lucas@stacklyst.dev',
+    'mariana@stacklyst.dev',
+    'beatriz@stacklyst.dev',
+    'camila@stacklyst.dev',
+    'thiago@stacklyst.dev',
+  ];
+  seedEmails.push(
+    ...COMMUNITY_PROFILES.map(
+      (p) => (demoAssets as Record<string, { emails: string[] }>)[p.username].emails.at(-1)!
+    )
+  );
+  for (const email of new Set(seedEmails)) {
     const existing = users.find((u) => u.email === email);
     if (existing) {
       console.log(`  🗑️ Deleting existing auth user for ${email} (${existing.id})`);
@@ -85,6 +101,8 @@ async function main() {
       bio: 'Fullstack dev apaixonado por TypeScript e sistemas distribuídos. Criador do Stacklyst.',
       institution: 'UFMG',
       total_xp: 4250,
+      github_username: 'pedrodev',
+      discord_username: 'pedro.ts',
     },
     {
       email: 'ana@stacklyst.dev',
@@ -93,6 +111,8 @@ async function main() {
       bio: 'Pythonista e entusiasta de ML. Sempre buscando o próximo desafio.',
       institution: 'USP',
       total_xp: 3100,
+      github_username: 'anak',
+      discord_username: 'ana.py',
     },
     {
       email: 'carlos@stacklyst.dev',
@@ -101,13 +121,97 @@ async function main() {
       bio: 'Rustacean 🦀 e competidor de maratona de programação.',
       institution: 'UNICAMP',
       total_xp: 2800,
+      github_username: 'carlosm',
+      discord_username: 'carlos.rs',
+    },
+    {
+      email: 'lucas@stacklyst.dev',
+      username: 'lucasv8',
+      password: seedPassword,
+      bio: 'Engenheiro de performance JavaScript & V8 internals. Compiladores, JIT e micro-otimizações.',
+      institution: 'UNICAMP',
+      total_xp: 3850,
+      github_username: 'lucasv8',
+      discord_username: 'lucas.v8',
+    },
+    {
+      email: 'mariana@stacklyst.dev',
+      username: 'maripython',
+      password: seedPassword,
+      bio: 'Python Core Enthusiast 🐍. Falando sobre GIL, CPython internals, metaclasses e estruturas de dados de alta performance.',
+      institution: 'USP',
+      total_xp: 3400,
+      github_username: 'maripython',
+      discord_username: 'mari_py',
+    },
+    {
+      email: 'beatriz@stacklyst.dev',
+      username: 'beatriztech',
+      password: seedPassword,
+      bio: 'Arquiteta Frontend & TypeScript. Explorando novas specs da ECMAScript, reatividade fina e design systems modernos ✨',
+      institution: 'UFSC',
+      total_xp: 2950,
+      github_username: 'beatriztech',
+      discord_username: 'bia.tech',
+    },
+    {
+      email: 'camila@stacklyst.dev',
+      username: 'camilacode',
+      password: seedPassword,
+      bio: 'Engenheira de dados & Pythonica. Apaixonada por streaming de pipelines, generators, itertools e big data com baixo consumo de RAM 📊',
+      institution: 'UFRJ',
+      total_xp: 3150,
+      github_username: 'camilacode',
+      discord_username: 'camila_code',
+    },
+    {
+      email: 'thiago@stacklyst.dev',
+      username: 'thiagorust',
+      password: seedPassword,
+      bio: 'Sistemas distribuídos e concorrência sem medo em Rust 🦀. Amante de atomics, zero-cost abstractions e Tokio.',
+      institution: 'UFPE',
+      total_xp: 3600,
+      github_username: 'thiagorust',
+      discord_username: 'thiago_rs',
     },
   ];
 
-  const seedProfiles: Record<string, { flag: string; flags: string[]; title: any }> = {
+  for (const profile of COMMUNITY_PROFILES) {
+    if (usersToCreate.some((u) => u.username === profile.username)) continue;
+    const asset = (demoAssets as Record<string, { emails: string[] }>)[profile.username];
+    usersToCreate.push({
+      email: asset.emails.at(-1)!,
+      username: profile.username,
+      password: seedPassword,
+      bio: profile.bio,
+      institution: 'Estudos independentes',
+      total_xp: profile.xp,
+      github_username: '',
+      discord_username: '',
+    });
+  }
+
+  type SeedProfile = {
+    flag: string;
+    flags: string[];
+    frame?: { id: string; color: string; decoration: string };
+    nameStyle?: { color: string | null; bold: boolean; italic: boolean; underline: boolean };
+    title: { id: string; name: string; color: string; rarity: string; icon?: string };
+    tags?: string[];
+    studies?: Array<{
+      subject: string;
+      description?: string | null;
+      status: 'studying' | 'paused' | 'completed';
+      progress: number;
+    }>;
+  };
+
+  const seedProfiles: Record<string, SeedProfile> = {
     pedrodev: {
       flag: 'BR',
       flags: ['BR'],
+      frame: { id: 'orbit', color: '#38bdf8', decoration: 'orbit' },
+      nameStyle: { color: '#0083fe', bold: true, italic: false, underline: false },
       title: {
         id: 'posts-1000',
         name: 'Ícone do Stacklyst',
@@ -115,10 +219,13 @@ async function main() {
         rarity: 'legendary',
         icon: 'award',
       },
+      tags: ['typescript', 'nextjs', 'postgres'],
     },
     anak: {
       flag: 'BR',
       flags: ['BR'],
+      frame: { id: 'alien', color: '#72b981', decoration: 'alien' },
+      nameStyle: { color: '#38bdf8', bold: true, italic: false, underline: false },
       title: {
         id: 'pythonista',
         name: 'Pythonista',
@@ -126,10 +233,13 @@ async function main() {
         rarity: 'rare',
         icon: 'code',
       },
+      tags: ['python', 'machine-learning', 'fastapi'],
     },
     carlosm: {
       flag: 'BR',
       flags: ['BR'],
+      frame: { id: 'neon-blue', color: '#0083fe', decoration: 'neon' },
+      nameStyle: { color: '#f97316', bold: true, italic: false, underline: false },
       title: {
         id: 'rustcean',
         name: 'Rustcean',
@@ -137,10 +247,94 @@ async function main() {
         rarity: 'rare',
         icon: 'code',
       },
+      tags: ['rust', 'competitive-programming', 'algorithms'],
+    },
+    lucasv8: {
+      flag: 'BR',
+      flags: ['BR'],
+      frame: { id: 'circuit', color: '#06b6d4', decoration: 'circuit' },
+      nameStyle: { color: '#00e5ff', bold: true, italic: false, underline: false },
+      title: {
+        id: 'posts-1000',
+        name: 'Ícone do Stacklyst',
+        color: '#eab308',
+        rarity: 'legendary',
+        icon: 'award',
+      },
+      tags: ['javascript', 'v8', 'nodejs', 'performance'],
+      studies: [{ subject: 'V8 Engine & TurboFan Internals', status: 'studying', progress: 85 }],
+    },
+    maripython: {
+      flag: 'BR',
+      flags: ['BR'],
+      frame: { id: 'cyberpunk', color: '#ec4899', decoration: 'cyberpunk' },
+      nameStyle: { color: '#38bdf8', bold: true, italic: false, underline: false },
+      title: {
+        id: 'pythonista',
+        name: 'Pythonista',
+        color: '#38bdf8',
+        rarity: 'rare',
+        icon: 'code',
+      },
+      tags: ['python', 'cpython', 'backend'],
+      studies: [{ subject: 'CPython Memory Allocator & GIL', status: 'studying', progress: 92 }],
+    },
+    beatriztech: {
+      flag: 'BR',
+      flags: ['BR'],
+      frame: { id: 'neon-purple', color: '#a855f7', decoration: 'neon' },
+      nameStyle: { color: '#ec4899', bold: true, italic: false, underline: false },
+      title: {
+        id: 'pastel',
+        name: 'Pastel',
+        color: '#f59e0b',
+        rarity: 'uncommon',
+        icon: 'cake',
+      },
+      tags: ['frontend', 'typescript', 'react', 'ecmascript'],
+      studies: [{ subject: 'Modern ECMAScript Specs & TC39', status: 'studying', progress: 78 }],
+    },
+    camilacode: {
+      flag: 'BR',
+      flags: ['BR'],
+      frame: { id: 'galaxy', color: '#8b5cf6', decoration: 'galaxy' },
+      nameStyle: { color: '#a855f7', bold: true, italic: false, underline: false },
+      title: {
+        id: 'estrela',
+        name: 'Estrela',
+        color: '#f59e0b',
+        rarity: 'rare',
+        icon: 'star',
+      },
+      tags: ['python', 'bigdata', 'pipeline', 'generators'],
+      studies: [
+        {
+          subject: 'Streaming Pipelines com Itertools & Generators',
+          status: 'studying',
+          progress: 95,
+        },
+      ],
+    },
+    thiagorust: {
+      flag: 'BR',
+      flags: ['BR'],
+      frame: { id: 'hacker', color: '#22c55e', decoration: 'hacker' },
+      nameStyle: { color: '#f97316', bold: true, italic: false, underline: false },
+      title: {
+        id: 'rustcean',
+        name: 'Rustcean',
+        color: '#f97316',
+        rarity: 'rare',
+        icon: 'code',
+      },
+      tags: ['rust', 'concurrency', 'systems', 'tokio'],
+      studies: [
+        { subject: 'Atomics & Lock-free Data Structures', status: 'studying', progress: 88 },
+      ],
     },
   };
 
-  const createdUsers: Record<string, any> = {};
+  const createdUsers: Record<string, User> = {};
 
   for (const u of usersToCreate) {
     const {
@@ -163,24 +357,29 @@ async function main() {
 
     // Insert user into public.User
     const profileData = seedProfiles[u.username];
+    const userAvatar = (demoAssets as Record<string, { avatar_url: string }>)[u.username]
+      ?.avatar_url;
     const dbUser = await prisma.user.create({
       data: {
         id: user.id,
         username: u.username,
         email: u.email,
-        avatar_url: demoAssets[u.username as keyof typeof demoAssets].avatar_url,
+        avatar_url: userAvatar,
         avatar_config: {
           profileStyle: {
-            frame: [
-              { id: 'orbit', color: '#38bdf8', decoration: 'orbit' },
-              { id: 'alien', color: '#72b981', decoration: 'alien' },
-              { id: 'neon-blue', color: '#0083fe', decoration: 'neon' },
-            ][randomInt(3)],
+            frame:
+              profileData?.frame ??
+              [
+                { id: 'orbit', color: '#38bdf8', decoration: 'orbit' },
+                { id: 'alien', color: '#72b981', decoration: 'alien' },
+                { id: 'neon-blue', color: '#0083fe', decoration: 'neon' },
+              ][randomInt(3)],
             ...(profileData
               ? {
                   flag: profileData.flag,
                   flags: profileData.flags,
                   title: profileData.title,
+                  nameStyle: profileData.nameStyle,
                 }
               : {}),
           },
@@ -188,6 +387,8 @@ async function main() {
         bio: u.bio,
         institution: u.institution,
         total_xp: u.total_xp,
+        github_username: u.github_username ?? null,
+        discord_username: u.discord_username ?? null,
       },
     });
 
@@ -199,7 +400,7 @@ async function main() {
   const ana = createdUsers.anak;
   const carlos = createdUsers.carlosm;
 
-  console.log(`  ✅ Users: pedrodev, anak, carlosm`);
+  console.log(`  ✅ Users: ${Object.keys(createdUsers).join(', ')}`);
 
   // ─── Language Trails ──────────────────────────────────────────────────
   const trailData = [
@@ -395,8 +596,6 @@ async function UserProfile({ userId }: { userId: string }) {
     },
   });
 
-  console.log(`  ✅ Posts: 5 created`);
-
   // ─── Answers ──────────────────────────────────────────────────────────
   await prisma.answer.create({
     data: {
@@ -461,8 +660,6 @@ func debugHandler(w http.ResponseWriter, r *http.Request) {
       upvotes: 5,
     },
   });
-
-  console.log(`  ✅ Answers: 4 created`);
 
   // ─── Quizzes ──────────────────────────────────────────────────────────
   const quiz1 = await prisma.quiz.create({
@@ -650,77 +847,52 @@ func debugHandler(w http.ResponseWriter, r *http.Request) {
     }
   }
 
-  const pythonistaDef = DEFAULT_PROFILE_CATALOG.achievements.find((a) => a.id === 'pythonista');
-  if (pythonistaDef) {
-    await prisma.userProfileAchievement.upsert({
-      where: { userId_achievementId: { userId: ana.id, achievementId: 'pythonista' } },
-      create: {
-        userId: ana.id,
-        achievementId: 'pythonista',
-        definition: pythonistaDef,
-        unlockedAt: new Date(),
-      },
-      update: { definition: pythonistaDef },
-    });
-    await prisma.profileCustomization.upsert({
-      where: { userId: ana.id },
-      create: {
-        userId: ana.id,
-        preferences: {
-          ...DEFAULT_PROFILE_PREFERENCES,
-          equippedTitleId: 'pythonista',
-          flag: 'BR',
-          flags: ['BR'],
+  for (const [uname, prof] of Object.entries(seedProfiles)) {
+    const user = createdUsers[uname];
+    if (!user || !prof.title?.id) continue;
+
+    const achDef = DEFAULT_PROFILE_CATALOG.achievements.find((a) => a.id === prof.title.id);
+    if (achDef) {
+      await prisma.userProfileAchievement.upsert({
+        where: { userId_achievementId: { userId: user.id, achievementId: prof.title.id } },
+        create: {
+          userId: user.id,
+          achievementId: prof.title.id,
+          definition: achDef,
+          unlockedAt: new Date(),
         },
+        update: { definition: achDef },
+      });
+    }
+
+    const prefPayload = {
+      ...DEFAULT_PROFILE_PREFERENCES,
+      frameId: prof.frame?.id ?? 'none',
+      equippedTitleId: prof.title.id,
+      nameStyle: prof.nameStyle ?? DEFAULT_PROFILE_PREFERENCES.nameStyle,
+      flag: prof.flag,
+      flags: prof.flags,
+      tags: prof.tags ?? [],
+      studies: prof.studies?.map((study) => study.subject) ?? [],
+      studyDetails: prof.studies ?? [],
+    };
+
+    await prisma.profileCustomization.upsert({
+      where: { userId: user.id },
+      create: {
+        userId: user.id,
+        preferences: prefPayload,
         chat: DEFAULT_CHAT_PREFERENCES,
       },
       update: {
-        preferences: {
-          ...DEFAULT_PROFILE_PREFERENCES,
-          equippedTitleId: 'pythonista',
-          flag: 'BR',
-          flags: ['BR'],
-        },
+        preferences: prefPayload,
       },
     });
   }
 
-  const rustceanDef = DEFAULT_PROFILE_CATALOG.achievements.find((a) => a.id === 'rustcean');
-  if (rustceanDef) {
-    await prisma.userProfileAchievement.upsert({
-      where: { userId_achievementId: { userId: carlos.id, achievementId: 'rustcean' } },
-      create: {
-        userId: carlos.id,
-        achievementId: 'rustcean',
-        definition: rustceanDef,
-        unlockedAt: new Date(),
-      },
-      update: { definition: rustceanDef },
-    });
-    await prisma.profileCustomization.upsert({
-      where: { userId: carlos.id },
-      create: {
-        userId: carlos.id,
-        preferences: {
-          ...DEFAULT_PROFILE_PREFERENCES,
-          equippedTitleId: 'rustcean',
-          flag: 'BR',
-          flags: ['BR'],
-        },
-        chat: DEFAULT_CHAT_PREFERENCES,
-      },
-      update: {
-        preferences: {
-          ...DEFAULT_PROFILE_PREFERENCES,
-          equippedTitleId: 'rustcean',
-          flag: 'BR',
-          flags: ['BR'],
-        },
-      },
-    });
-  }
-
-  console.log(`  ✅ Trail completions and titles seeded: Pythonista (Ana K), Rustcean (Carlos M)`);
+  console.log(
+    `  ✅ Profile customizations and titles seeded for all ${Object.keys(seedProfiles).length} profiles`
+  );
 
   // ─── Duels ────────────────────────────────────────────────────────────
   const duel1 = await prisma.duel.create({
@@ -966,6 +1138,12 @@ func debugHandler(w http.ResponseWriter, r *http.Request) {
     }
   }
   console.log(`  ✅ Quiz Library: ${quizLibraryItems.length} items seeded`);
+
+  await publishCommunity(
+    prisma,
+    Object.fromEntries(Object.entries(createdUsers).map(([name, user]) => [name, user.id])),
+    COMMUNITY_PROFILES.map((profile) => profile.username)
+  );
 
   console.log('\n🎉 Seed complete!');
 }

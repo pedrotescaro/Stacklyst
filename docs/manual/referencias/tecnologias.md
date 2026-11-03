@@ -14,25 +14,26 @@ Next.js/React: páginas e componentes. Prisma/pg/PostgreSQL: persistência. Supa
 
 ### Comandos
 
-| Comando               | Execução declarada                          |
-| --------------------- | ------------------------------------------- |
-| dev                   | next dev --webpack                          |
-| build                 | next build                                  |
-| postbuild             | node scripts/check-code-execution-build.mjs |
-| start                 | next start                                  |
-| postinstall           | prisma generate                             |
-| lint                  | eslint                                      |
-| typecheck             | tsc --noEmit                                |
-| format                | prettier --write .                          |
-| format:check          | prettier --check .                          |
-| test                  | vitest run                                  |
-| test:watch            | vitest                                      |
-| test:mundinho-sprites | node scripts/check-mundinho-body.mjs        |
-| mobile:build-mundinho | node apps/mobile/scripts/build-mundinho.mjs |
-| prepare               | husky                                       |
-| mobile:install        | npm --prefix apps/mobile ci                 |
-| mobile:start          | npm --prefix apps/mobile run start          |
-| mobile:typecheck      | npm --prefix apps/mobile run typecheck      |
+| Comando               | Execução declarada                                                                                       |
+| --------------------- | -------------------------------------------------------------------------------------------------------- |
+| dev                   | next dev --webpack                                                                                       |
+| build                 | next build                                                                                               |
+| postbuild             | node scripts/check-code-execution-build.mjs                                                              |
+| start                 | next start                                                                                               |
+| postinstall           | prisma generate                                                                                          |
+| lint                  | eslint                                                                                                   |
+| typecheck             | tsc --noEmit                                                                                             |
+| format                | prettier --write .                                                                                       |
+| format:check          | prettier --check .                                                                                       |
+| test                  | vitest run                                                                                               |
+| test:watch            | vitest                                                                                                   |
+| test:mundinho-sprites | node scripts/check-mundinho-body.mjs                                                                     |
+| mobile:build-mundinho | node apps/mobile/scripts/build-mundinho.mjs                                                              |
+| prepare               | husky                                                                                                    |
+| mobile:install        | npm --prefix apps/mobile ci                                                                              |
+| mobile:start          | npm --prefix apps/mobile run start                                                                       |
+| mobile:typecheck      | npm --prefix apps/mobile run typecheck                                                                   |
+| community:seed        | ts-node --project prisma/tsconfig.seed.json -r tsconfig-paths/register scripts/publish-demo-community.ts |
 
 ### dependencies
 
@@ -136,6 +137,7 @@ Next.js/React: páginas e componentes. Prisma/pg/PostgreSQL: persistência. Supa
 | puppeteer                       | ^25.1.0             |
 | tailwindcss                     | ^4                  |
 | ts-node                         | ^10.9.2             |
+| tsconfig-paths                  | 3.15.0              |
 | typescript                      | ^5                  |
 | vitest                          | ^4.1.12             |
 

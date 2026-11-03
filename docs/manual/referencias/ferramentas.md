@@ -234,6 +234,18 @@ Símbolos localizados: `run`.
 
 Integrações/imports externos: `fs`, `path`, `dotenv`, `@supabase/supabase-js`, `@prisma/client`, `@prisma/adapter-pg`, `pg`.
 
+## scripts/publish-demo-community.ts
+
+Fonte: [scripts/publish-demo-community.ts](../../../scripts/publish-demo-community.ts)
+
+Ferramenta executável de desenvolvimento/geração/verificação; leia efeitos e entradas antes de rodar.
+
+Símbolos localizados: `main`.
+
+Dependências locais declaradas: `../prisma/demo-profile-assets.json`, `../prisma/demo-community/content`, `../prisma/demo-community/publish`.
+
+Integrações/imports externos: `dotenv`, `node:crypto`, `@supabase/supabase-js`.
+
 ## scripts/refine-mundinho-sprites.mjs
 
 Fonte: [scripts/refine-mundinho-sprites.mjs](../../../scripts/refine-mundinho-sprites.mjs)
