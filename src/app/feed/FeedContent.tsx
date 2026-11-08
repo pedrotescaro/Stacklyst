@@ -55,6 +55,7 @@ import {
 import type { LucideIcon } from 'lucide-react';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import type { OnboardingPreferences } from '@/lib/onboarding';
+import { getFeedSettings } from '@/lib/feed-preferences';
 
 const QuizWidget = dynamic(
   () => import('@/components/QuizWidget').then((module) => module.QuizWidget),
@@ -205,11 +206,22 @@ export function FeedContent({
     initialPreferences?.feed || 'for-you'
   );
   const [feedLanguages, setFeedLanguages] = useState(initialPreferences?.languages.join(',') || '');
+  const [feedSettings, setFeedSettings] = useState(initialPreferences?.feedSettings);
+  const [activeFeedId, setActiveFeedId] = useState(
+    getFeedSettings(initialPreferences).defaultFeedId
+  );
+  const [feedRevision, setFeedRevision] = useState(0);
+  const feedRequestSuffix = feedSettings
+    ? `&feedId=${encodeURIComponent(activeFeedId)}&feedRevision=${feedRevision}`
+    : '';
   useEffect(() => {
     const update = (e: Event) => {
       const prefs = (e as CustomEvent<OnboardingPreferences>).detail;
       setFeedLanguages(prefs.languages.join(','));
       setFeedFilter(prefs.feed);
+      setFeedSettings(prefs.feedSettings);
+      setActiveFeedId(getFeedSettings(prefs).defaultFeedId);
+      setFeedRevision((value) => value + 1);
     };
     window.addEventListener('stacklyst:feed-preferences', update);
     return () => window.removeEventListener('stacklyst:feed-preferences', update);
@@ -376,7 +388,10 @@ export function FeedContent({
             : feedFilter === 'following'
               ? `/api/posts?filter=following&sort=${followingSort}&limit=${FEED_PAGE_SIZE}&useCursor=true`
               : `/api/posts?limit=${FEED_PAGE_SIZE}&useCursor=true${feedLanguages ? `&languages=${encodeURIComponent(feedLanguages)}` : ''}`;
-          const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
+          const response = await fetch(query ? url : url + feedRequestSuffix, {
+            signal: controller.signal,
+            cache: 'no-store',
+          });
           if (!response.ok) throw new Error('Feed unavailable');
           const data = await response.json();
           if (controller.signal.aborted || generation !== feedGenerationRef.current) return;
@@ -409,7 +424,15 @@ export function FeedContent({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [feedFilter, followingSort, searchQuery, feedLanguages, text, initialPosts]);
+  }, [
+    feedFilter,
+    followingSort,
+    searchQuery,
+    feedLanguages,
+    text,
+    initialPosts,
+    feedRequestSuffix,
+  ]);
 
   // Next router.refresh keeps Client Component state. Adopt a new server snapshot
   // rather than leaving the old useState(initialPosts) list on screen forever.
@@ -418,6 +441,8 @@ export function FeedContent({
     initialSnapshotRef.current = initialPosts;
     if (
       searchQuery.trim() ||
+      activeFeedId !== getFeedSettings(initialPreferences).defaultFeedId ||
+      feedRevision > 0 ||
       (feedFilter === 'following' && followingSort === 'popular') ||
       feedFilter !== (initialPreferences?.feed || 'for-you') ||
       feedLanguages !== (initialPreferences?.languages.join(',') || '')
@@ -449,6 +474,8 @@ export function FeedContent({
     searchQuery,
     feedFilter,
     feedLanguages,
+    activeFeedId,
+    feedRevision,
   ]);
 
   const loadMorePosts = useCallback(async () => {
@@ -468,7 +495,10 @@ export function FeedContent({
             ? `/api/posts?filter=following&sort=${followingSort}&useCursor=true&limit=${FEED_PAGE_SIZE}${nextCursor ? `&cursor=${nextCursor}` : ''}`
             : `/api/posts?useCursor=true&limit=${FEED_PAGE_SIZE}${nextCursor ? `&cursor=${nextCursor}` : ''}${feedLanguages ? `&languages=${encodeURIComponent(feedLanguages)}` : ''}`;
       }
-      const res = await fetch(url, { cache: 'no-store', signal: controller.signal });
+      const res = await fetch(searchQuery.trim() ? url : url + feedRequestSuffix, {
+        cache: 'no-store',
+        signal: controller.signal,
+      });
       if (res.ok) {
         const data = await res.json();
         if (controller.signal.aborted || generation !== feedGenerationRef.current) return;
@@ -503,6 +533,7 @@ export function FeedContent({
     feedLanguages,
     refreshingPosts,
     loadingSearch,
+    feedRequestSuffix,
   ]);
 
   const scrollSentinelRef = useInfiniteScroll({
@@ -530,8 +561,8 @@ export function FeedContent({
     } else if (feedLanguages) {
       params.set('languages', feedLanguages);
     }
-    return `/api/posts?${params.toString()}`;
-  }, [feedFilter, followingSort, feedLanguages]);
+    return `/api/posts?${params.toString()}${feedRequestSuffix}`;
+  }, [feedFilter, followingSort, feedLanguages, feedRequestSuffix]);
 
   useEffect(() => {
     if (activeTab !== 'feed' || searchQuery.trim()) return;
@@ -550,7 +581,7 @@ export function FeedContent({
         if (feedFilter === 'following') params.set('filter', 'following');
         else if (feedLanguages) params.set('languages', feedLanguages);
 
-        const res = await fetch(`/api/posts?${params.toString()}`, {
+        const res = await fetch(`/api/posts?${params.toString()}${feedRequestSuffix}`, {
           cache: 'no-store',
           signal: controller.signal,
         });
@@ -587,6 +618,7 @@ export function FeedContent({
     searchQuery,
     feedLanguages,
     initialCurrentDate,
+    feedRequestSuffix,
   ]);
 
   const handleLoadNewPosts = useCallback(async () => {
@@ -1146,6 +1178,15 @@ export function FeedContent({
               onFilterChange={setFeedFilter}
               sort={followingSort}
               onSortChange={setFollowingSort}
+              feeds={feedSettings?.feeds}
+              activeFeedId={activeFeedId}
+              onFeedSelect={(id) => {
+                const feed = feedSettings?.feeds.find((item) => item.id === id);
+                if (feed) {
+                  setActiveFeedId(id);
+                  setFeedFilter(feed.source);
+                }
+              }}
             />
 
             {/* Feed Tab View */}

@@ -1,10 +1,12 @@
 import { z } from 'zod';
+import { feedLanguageSchema, feedSettingsSchema } from './feed-preferences';
 
 export const ONBOARDING_STATE_KEY = 'web:onboarding';
-export const onboardingLanguageSchema = z.enum(['JS', 'TS', 'PYTHON', 'RUST', 'GO', 'JAVA']);
+export const onboardingLanguageSchema = feedLanguageSchema;
 export const onboardingSchema = z.object({
   feed: z.enum(['for-you', 'following']),
   languages: z.array(onboardingLanguageSchema).min(1, 'Escolha pelo menos uma linguagem.').max(6),
+  feedSettings: feedSettingsSchema.optional(),
 });
 export type OnboardingPreferences = z.infer<typeof onboardingSchema>;
 

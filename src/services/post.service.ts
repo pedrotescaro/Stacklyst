@@ -12,6 +12,7 @@ import { visiblePostWhere } from './post-access.service';
 import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
 import { ValidationError } from '@/lib/errors';
 import { Prisma } from '@prisma/client';
+import { loadFeedDefinition, feedDefinitionWhere } from './feed-preferences.service';
 import {
   rankRecentFeedPage,
   buildPopularFeedCursorWhere,
@@ -197,8 +198,10 @@ export const PostService = {
       limit?: number;
       likedBy?: string;
       answeredBy?: string;
+      feedId?: string;
     }
   ) {
+    const definition = await loadFeedDefinition(userId, params.feedId);
     const {
       language,
       languages,
@@ -210,7 +213,10 @@ export const PostService = {
       limit = 10,
       likedBy,
       answeredBy,
-    } = params;
+    } = {
+      ...params,
+      ...(definition ? { filter: definition.source, languages: definition.languages } : {}),
+    };
 
     const whereClause: any = {};
 
@@ -262,7 +268,9 @@ export const PostService = {
     const cursorWhere = popular
       ? buildPopularFeedCursorWhere(cursor)
       : buildCursorWhere(cursor, 'created_at');
-    const finalWhere = { AND: [whereClause, cursorWhere, visiblePostWhere(userId)] };
+    const finalWhere = {
+      AND: [whereClause, cursorWhere, visiblePostWhere(userId), feedDefinitionWhere(definition)],
+    };
 
     const posts = await prisma.post.findMany({
       where: finalWhere,
@@ -338,13 +346,14 @@ export const PostService = {
 
   async countNewer(
     userId: string | null,
-    params: { after: Date; filter?: string; languages?: string[] }
+    params: { after: Date; filter?: string; languages?: string[]; feedId?: string }
   ) {
+    const definition = await loadFeedDefinition(userId, params.feedId);
     const where: any = {
       created_at: { gt: params.after },
     };
 
-    if (params.filter === 'following') {
+    if ((definition?.source ?? params.filter) === 'following') {
       if (!userId) {
         where.id = { equals: '__anonymous_following_feed__' };
       } else {
@@ -357,6 +366,8 @@ export const PostService = {
     }
     // Interests are ranking signals, not an audience restriction. Count all visible new posts.
 
-    return prisma.post.count({ where: { AND: [where, visiblePostWhere(userId)] } });
+    return prisma.post.count({
+      where: { AND: [where, visiblePostWhere(userId), feedDefinitionWhere(definition)] },
+    });
   },
 };

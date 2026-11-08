@@ -34,6 +34,7 @@ export default async function FeedPage({
       limit: 10,
       filter: preferences.feed,
       languages: preferences.languages,
+      feedId: preferences.feedSettings?.defaultFeedId,
     }),
     prisma.badge.findMany({ orderBy: { slug: 'asc' } }),
   ]);

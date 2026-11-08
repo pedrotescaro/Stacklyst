@@ -21,6 +21,26 @@ export const GET = apiHandler(async () => {
 export const PUT = apiHandler(async (request) => {
   const user = await requireAuth();
   const parsed = onboardingSchema.parse(await request.json());
+  // Older onboarding clients only send the original two fields.
+  if (!parsed.feedSettings) {
+    const previous = await prisma.mobileState.findUnique({
+      where: { user_id_key: { user_id: user.id, key: ONBOARDING_STATE_KEY } },
+    });
+    const oldPreferences = parseOnboarding(previous?.value);
+    const settings = oldPreferences?.feedSettings;
+    if (settings)
+      parsed.feedSettings = {
+        ...settings,
+        defaultFeedId: parsed.feed === oldPreferences.feed ? settings.defaultFeedId : parsed.feed,
+        feeds: settings.feeds.map((feed) => ({
+          ...feed,
+          ...(feed.id === 'for-you' ? { languages: [...new Set(parsed.languages)] } : {}),
+          ...(feed.id === parsed.feed && parsed.feed !== oldPreferences.feed
+            ? { visible: true }
+            : {}),
+        })),
+      };
+  }
   const preferences = { ...parsed, languages: [...new Set(parsed.languages)] };
   await prisma.mobileState.upsert({
     where: { user_id_key: { user_id: user.id, key: ONBOARDING_STATE_KEY } },

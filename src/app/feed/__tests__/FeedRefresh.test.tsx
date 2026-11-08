@@ -43,6 +43,7 @@ vi.mock('../FeedControls', () => ({
   ),
 }));
 import { FeedContent } from '../FeedContent';
+import { getFeedSettings } from '@/lib/feed-preferences';
 
 function post(id: string, created_at = '2026-11-01T10:00:00Z') {
   return {
@@ -94,6 +95,38 @@ afterEach(() => {
 });
 
 describe('Feed refresh and request ownership', () => {
+  it('reloads the current feed when only its content preferences change', async () => {
+    const preferences = {
+      feed: 'for-you' as const,
+      languages: ['JS' as const],
+      feedSettings: getFeedSettings(),
+    };
+    const fetchMock = vi
+      .mocked(fetch)
+      .mockImplementation(async (input) =>
+        String(input).includes('feedRevision=1') && !String(input).includes('mode=count')
+          ? response({ items: [post('filtered')], nextCursor: null })
+          : fallback(input)
+      );
+    render(<FeedContent {...props} initialPreferences={preferences} />);
+    await act(async () => {
+      window.dispatchEvent(
+        new CustomEvent('stacklyst:feed-preferences', {
+          detail: {
+            ...preferences,
+            feedSettings: {
+              ...preferences.feedSettings,
+              feeds: preferences.feedSettings.feeds.map((feed) => ({ ...feed, showCode: false })),
+            },
+          },
+        })
+      );
+    });
+    expect(await screen.findByRole('article', { name: 'filtered' })).toBeInTheDocument();
+    expect(
+      fetchMock.mock.calls.some(([url]) => String(url).includes('feedId=for-you&feedRevision=1'))
+    ).toBe(true);
+  });
   it('replaces the snapshot and pagination when refreshed, instead of retaining removed posts', async () => {
     const fetchMock = vi.mocked(fetch).mockImplementation(async (input) =>
       String(input).startsWith('/api/posts?limit=')

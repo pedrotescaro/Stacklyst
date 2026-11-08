@@ -6,6 +6,7 @@ import { Check, ChevronDown } from 'lucide-react';
 import { FeedRankingSwitcher } from '@/components/FeedRankingSwitcher';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { type FeedDefinition } from '@/lib/feed-preferences';
 
 type FeedFilter = 'for-you' | 'following';
 type FollowingSort = 'recent' | 'popular';
@@ -15,9 +16,20 @@ interface FeedControlsProps {
   onFilterChange: (filter: FeedFilter) => void;
   sort: FollowingSort;
   onSortChange: (sort: FollowingSort) => void;
+  feeds?: FeedDefinition[];
+  activeFeedId?: string;
+  onFeedSelect?: (id: string) => void;
 }
 
-export function FeedControls({ filter, onFilterChange, sort, onSortChange }: FeedControlsProps) {
+export function FeedControls({
+  filter,
+  onFilterChange,
+  sort,
+  onSortChange,
+  feeds,
+  activeFeedId,
+  onFeedSelect,
+}: FeedControlsProps) {
   const { text } = useLocalizedText();
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
@@ -53,36 +65,63 @@ export function FeedControls({ filter, onFilterChange, sort, onSortChange }: Fee
           role="tablist"
           aria-label={text('Filtros do feed', 'Feed filters')}
           data-testid="feed-tabs"
-          className="relative flex min-w-0 items-center gap-2 "
+          className="relative flex min-w-0 flex-1 items-center gap-2 overflow-x-auto py-1"
         >
-          <button
-            type="button"
-            role="tab"
-            aria-selected={filter === 'for-you'}
-            onClick={() => selectFilter('for-you')}
-            className={cn(
-              'dd-focus-ring order-2 min-h-11 rounded-full border px-4 text-xs font-bold transition-colors',
-              filter === 'for-you'
-                ? 'border-dd-accent bg-dd-accent text-white'
-                : 'border-dd-border text-dd-muted hover:text-dd-text'
-            )}
-          >
-            {text('Para você', 'For you')}
-          </button>
-          <button
-            type="button"
-            role="tab"
-            aria-selected={filter === 'following'}
-            onClick={() => selectFilter('following')}
-            className={cn(
-              'dd-focus-ring order-1 min-h-11 rounded-full border px-4 text-xs font-bold transition-colors',
-              filter === 'following'
-                ? 'border-dd-accent bg-dd-accent text-white'
-                : 'border-dd-border text-dd-muted hover:text-dd-text'
-            )}
-          >
-            {text('Seguindo', 'Following')}
-          </button>
+          {feeds ? (
+            feeds
+              .filter((feed) => feed.visible)
+              .map((feed) => (
+                <button
+                  key={feed.id}
+                  type="button"
+                  role="tab"
+                  aria-selected={activeFeedId === feed.id}
+                  onClick={() => {
+                    setSortOpen(false);
+                    onFeedSelect?.(feed.id);
+                  }}
+                  className={cn(
+                    'dd-focus-ring min-h-11 shrink-0 rounded-full border px-4 text-xs font-bold transition-colors',
+                    activeFeedId === feed.id
+                      ? 'border-dd-accent bg-dd-accent text-white'
+                      : 'border-dd-border text-dd-muted hover:text-dd-text'
+                  )}
+                >
+                  {feed.name}
+                </button>
+              ))
+          ) : (
+            <>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={filter === 'for-you'}
+                onClick={() => selectFilter('for-you')}
+                className={cn(
+                  'dd-focus-ring order-2 min-h-11 rounded-full border px-4 text-xs font-bold transition-colors',
+                  filter === 'for-you'
+                    ? 'border-dd-accent bg-dd-accent text-white'
+                    : 'border-dd-border text-dd-muted hover:text-dd-text'
+                )}
+              >
+                {text('Para você', 'For you')}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={filter === 'following'}
+                onClick={() => selectFilter('following')}
+                className={cn(
+                  'dd-focus-ring order-1 min-h-11 rounded-full border px-4 text-xs font-bold transition-colors',
+                  filter === 'following'
+                    ? 'border-dd-accent bg-dd-accent text-white'
+                    : 'border-dd-border text-dd-muted hover:text-dd-text'
+                )}
+              >
+                {text('Seguindo', 'Following')}
+              </button>
+            </>
+          )}
         </div>
         {filter === 'following' && (
           <div ref={sortRef} className="relative shrink-0">

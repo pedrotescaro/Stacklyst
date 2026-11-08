@@ -13,6 +13,7 @@ vi.mock('@/lib/prisma', () => ({
   prisma: { mobileState: { findUnique: mocks.findUnique, upsert: mocks.upsert } },
 }));
 import { GET, PUT } from './route';
+import { getFeedSettings } from '@/lib/feed-preferences';
 const context = { params: Promise.resolve({}) };
 const body = { feed: 'for-you', languages: ['JS', 'PYTHON', 'JS'] };
 const request = (value: unknown) =>
@@ -25,9 +26,23 @@ beforeEach(() => {
   vi.clearAllMocks();
   mocks.auth.mockResolvedValue({ id: 'current-user' });
   mocks.upsert.mockResolvedValue({});
+  mocks.findUnique.mockResolvedValue(null);
 });
 
 describe('Persistent onboarding', () => {
+  it('round-trips feed settings and preserves them for legacy language updates', async () => {
+    const settings = getFeedSettings();
+    settings.feeds[1].blockedTerms = ['spam'];
+    const response = await PUT(request({ ...body, feedSettings: settings }), context);
+    expect((await response.json()).feedSettings).toEqual(settings);
+    mocks.findUnique.mockResolvedValue({ value: { ...body, feedSettings: settings } });
+    const legacy = await PUT(request(body), context);
+    const restored = (await legacy.json()).feedSettings;
+    expect(restored.feeds[1]).toMatchObject({
+      blockedTerms: ['spam'],
+      languages: ['JS', 'PYTHON'],
+    });
+  });
   it('persists preferences under the authenticated owner and initializes language trail selection', async () => {
     const response = await PUT(request({ ...body, user_id: 'another-user' }), context);
     expect(response.status).toBe(200);

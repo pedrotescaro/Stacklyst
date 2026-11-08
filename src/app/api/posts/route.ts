@@ -16,6 +16,11 @@ export const GET = apiHandler(async (req, { session }) => {
   const search = searchParams.get('search') || undefined;
   const author = searchParams.get('author') || undefined;
   const filter = searchParams.get('filter') || undefined;
+  const feedId = z
+    .string()
+    .regex(/^[a-zA-Z0-9-]{1,64}$/)
+    .optional()
+    .parse(searchParams.get('feedId') ?? undefined);
   const sort = z
     .enum(['recent', 'popular'])
     .optional()
@@ -37,6 +42,7 @@ export const GET = apiHandler(async (req, { session }) => {
       after: afterDate,
       filter,
       languages,
+      feedId,
     });
 
     return NextResponse.json(
@@ -56,6 +62,7 @@ export const GET = apiHandler(async (req, { session }) => {
     limit,
     likedBy,
     answeredBy,
+    feedId,
   });
 
   return NextResponse.json(feed, {
