@@ -18,13 +18,19 @@ export function MobileRefreshHeader({ children }: { children: ReactNode }) {
   }, []);
   const distance = state.refreshing ? 44 : state.progress * 64;
   return (
-    <header
-      className={`${styles.header} sticky top-0 z-[100] grid w-full grid-cols-3 items-center border-b border-dd-border bg-dd-bg/95 px-3 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-md`}
-      data-pulling={state.progress > 0 && !state.refreshing}
-      data-refreshing={state.refreshing}
-      style={{ '--header-pull': `${distance}px` } as CSSProperties}
-    >
-      {children}
-    </header>
+    <>
+      <header
+        className={`${styles.header} fixed top-0 left-0 right-0 z-[100] grid w-full grid-cols-3 items-center border-b border-dd-border bg-dd-bg/95 px-3 pt-[max(0.5rem,env(safe-area-inset-top))] backdrop-blur-md`}
+        data-pulling={state.progress > 0 && !state.refreshing}
+        data-refreshing={state.refreshing}
+        style={{ '--header-pull': `${distance}px` } as CSSProperties}
+      >
+        {children}
+      </header>
+      <div
+        className="h-[calc(3.25rem+max(0.5rem,env(safe-area-inset-top)))] w-full shrink-0 pointer-events-none md:hidden"
+        aria-hidden="true"
+      />
+    </>
   );
 }

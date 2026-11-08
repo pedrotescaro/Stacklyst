@@ -120,21 +120,28 @@ function getFilterCount(filters: JobFilters) {
     filters.contracts.length
   );
 }
-function formatJobAge(createdAt: string) {
+function formatJobAge(createdAt: string, text: (pt: string, en: string) => string) {
   const timestamp = new Date(createdAt).getTime();
-  if (!Number.isFinite(timestamp)) return 'Publicação recente';
+  if (!Number.isFinite(timestamp)) return text('Publicação recente', 'Recently posted');
   const days = Math.max(0, Math.floor((Date.now() - timestamp) / 86_400_000));
-  if (days === 0) return 'Hoje';
-  if (days === 1) return 'Há 1 dia';
-  if (days < 30) return `Há ${days} dias`;
+  if (days === 0) return text('Hoje', 'Today');
+  if (days === 1) return text('Há 1 dia', '1 day ago');
+  if (days < 30) return text(`Há ${days} dias`, `${days} days ago`);
   const months = Math.max(1, Math.floor(days / 30));
-  if (months < 12) return `Há ${months} ${months === 1 ? 'mês' : 'meses'}`;
+  if (months < 12)
+    return text(
+      `Há ${months} ${months === 1 ? 'mês' : 'meses'}`,
+      `${months} ${months === 1 ? 'month' : 'months'} ago`
+    );
   const years = Math.floor(months / 12);
-  return `Há ${years} ${years === 1 ? 'ano' : 'anos'}`;
+  return text(
+    `Há ${years} ${years === 1 ? 'ano' : 'anos'}`,
+    `${years} ${years === 1 ? 'year' : 'years'} ago`
+  );
 }
-function formatSalary(job: JobItem) {
+function formatSalary(job: JobItem, text: (pt: string, en: string) => string, locale: string) {
   const format = (value: number) =>
-    new Intl.NumberFormat('pt-BR', {
+    new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: 'BRL',
       maximumFractionDigits: 0,
@@ -144,9 +151,9 @@ function formatSalary(job: JobItem) {
       ? format(job.salary_min)
       : `${format(job.salary_min)} – ${format(job.salary_max)}`;
   }
-  if (job.salary_min != null) return `A partir de ${format(job.salary_min)}`;
-  if (job.salary_max != null) return `Até ${format(job.salary_max)}`;
-  return 'Salário não informado';
+  if (job.salary_min != null) return `${text('A partir de', 'From')} ${format(job.salary_min)}`;
+  if (job.salary_max != null) return `${text('Até', 'Up to')} ${format(job.salary_max)}`;
+  return text('Salário não informado', 'Salary undisclosed');
 }
 function getCompanyInitials(name: string) {
   return name
@@ -224,7 +231,25 @@ function CheckboxGroup<T extends string>({
   );
 }
 function JobCard({ job }: { job: JobItem }) {
-  const location = job.location || job.company.location || 'Local a combinar';
+  const { text, locale } = useLocalizedText();
+  const location = job.location || job.company.location || text('Local a combinar', 'Location TBD');
+  const levelLabels: Record<JobLevel, string> = {
+    ESTAGIO: text('Estágio', 'Internship'),
+    JUNIOR: text('Júnior', 'Junior'),
+    PLENO: text('Pleno', 'Mid-level'),
+    SENIOR: text('Sênior', 'Senior'),
+    ESPECIALISTA: text('Especialista', 'Specialist'),
+  };
+  const modalityLabels: Record<JobModality, string> = {
+    REMOTE: text('Remoto', 'Remote'),
+    HYBRID: text('Híbrido', 'Hybrid'),
+    ONSITE: text('Presencial', 'On-site'),
+  };
+  const contractLabels: Record<JobContract, string> = {
+    CLT: text('CLT', 'Full-time (CLT)'),
+    PJ: text('PJ', 'Contractor (PJ)'),
+    ESTAGIO: text('Estágio', 'Internship'),
+  };
   return (
     <li>
       <Link href={`/jobs/${job.id}`} className={styles.jobLink}>
@@ -239,40 +264,44 @@ function JobCard({ job }: { job: JobItem }) {
                 {job.company.is_verified && (
                   <span className={styles.verified}>
                     <CheckCircle2 size={15} aria-hidden="true" />
-                    <span className="sr-only">Empresa verificada</span>
+                    <span className="sr-only">
+                      {text('Empresa verificada', 'Verified company')}
+                    </span>
                   </span>
                 )}
               </p>
-              <span className={styles.age}>{formatJobAge(job.created_at)}</span>
+              <span className={styles.age}>{formatJobAge(job.created_at, text)}</span>
             </div>
             <h3>{job.title}</h3>
             <div className={styles.meta}>
               <span>
                 <MapPin size={15} aria-hidden="true" />
-                {getOptionLabel(MODALITY_OPTIONS, job.modality)} · {location}
+                {modalityLabels[job.modality] ?? job.modality} · {location}
               </span>
               <span>
                 <BriefcaseBusiness size={15} aria-hidden="true" />
-                {getOptionLabel(CONTRACT_OPTIONS, job.contract_type)}
+                {contractLabels[job.contract_type] ?? job.contract_type}
               </span>
               <span>
                 <Layers3 size={15} aria-hidden="true" />
                 {job.stages.length === 0
-                  ? 'Etapas a definir'
-                  : `${job.stages.length} ${job.stages.length === 1 ? 'etapa' : 'etapas'}`}
+                  ? text('Etapas a definir', 'Stages TBD')
+                  : `${job.stages.length} ${job.stages.length === 1 ? text('etapa', 'stage') : text('etapas', 'stages')}`}
               </span>
             </div>
             <p className={styles.salary}>
               <BadgeDollarSign size={16} aria-hidden="true" />
-              {formatSalary(job)}
+              {formatSalary(job, text, locale)}
             </p>
             <div className={styles.tags}>
-              <span className={styles.level}>{getOptionLabel(LEVEL_OPTIONS, job.level)}</span>
+              <span className={styles.level}>{levelLabels[job.level] ?? job.level}</span>
               {job.technologies.slice(0, 4).map((technology) => (
                 <span key={technology}>{technology}</span>
               ))}
               {job.technologies.length > 4 && (
-                <span>+{job.technologies.length - 4} tecnologias</span>
+                <span>
+                  +{job.technologies.length - 4} {text('tecnologias', 'more')}
+                </span>
               )}
             </div>
           </div>
@@ -354,26 +383,32 @@ export function JobsContent({ user }: { user: any }) {
     <PlatformPageShell user={user}>
       <PlatformPageHeader
         title={text('Vagas', 'Jobs')}
-        description="Encontre sua próxima oportunidade em tecnologia. Confira os requisitos, a remuneração e as etapas antes de se candidatar."
+        description={text(
+          'Encontre sua próxima oportunidade em tecnologia. Confira os requisitos, a remuneração e as etapas antes de se candidatar.',
+          'Find your next software engineering opportunity. Check requirements, compensation, and stages before applying.'
+        )}
         actions={
           (user?.role === 'RECRUITER' || user?.role === 'ADMIN') && (
             <Link
               href="/recruiter"
-              aria-label="Painel do recrutador"
+              aria-label={text('Painel do recrutador', 'Recruiter dashboard')}
               className={styles.recruiterLink}
             >
-              Recrutador
+              {text('Recrutador', 'Recruiter')}
               <ChevronRight size={16} aria-hidden="true" />
             </Link>
           )
         }
       />
       <div className={styles.content}>
-        <section className={styles.searchArea} aria-label="Buscar e filtrar vagas">
+        <section
+          className={styles.searchArea}
+          aria-label={text('Buscar e filtrar vagas', 'Search and filter jobs')}
+        >
           <FilterTextField
             id="jobs-query"
-            label="Cargo, empresa ou tecnologia"
-            placeholder="Buscar oportunidades"
+            label={text('Cargo, empresa ou tecnologia', 'Role, company, or technology')}
+            placeholder={text('Buscar oportunidades', 'Search opportunities')}
             value={filters.query}
             onChange={(value) => updateTextFilter('query', value)}
             icon={Search}
@@ -399,13 +434,13 @@ export function JobsContent({ user }: { user: any }) {
             </button>
             {activeFilterCount > 0 && (
               <button type="button" onClick={clearFilters} className={styles.clearButton}>
-                Limpar filtros
+                {text('Limpar filtros', 'Clear filters')}
               </button>
             )}
           </div>
           <div id="jobs-filter-panel" hidden={!filtersOpen} className={styles.filterPanel}>
             <div className={styles.panelHeader}>
-              <h2>Refinar busca</h2>
+              <h2>{text('Refinar busca', 'Refine search')}</h2>
               <button
                 type="button"
                 onClick={clearFilters}
@@ -413,14 +448,14 @@ export function JobsContent({ user }: { user: any }) {
                 className={styles.clearButton}
               >
                 <RefreshCw size={14} aria-hidden="true" />
-                Limpar
+                {text('Limpar', 'Clear')}
               </button>
             </div>
             <div className={styles.filterFields}>
               <FilterTextField
                 id="jobs-technology"
-                label="Tecnologia"
-                placeholder="Ex.: React, Java"
+                label={text('Tecnologia', 'Technology')}
+                placeholder={text('Ex.: React, Java', 'e.g. React, Java')}
                 value={filters.technology}
                 onChange={(value) => updateTextFilter('technology', value)}
                 icon={Code2}
@@ -428,7 +463,7 @@ export function JobsContent({ user }: { user: any }) {
               <FilterTextField
                 id="jobs-location"
                 label={text('Localização', 'Location')}
-                placeholder="Cidade ou estado"
+                placeholder={text('Cidade ou estado', 'City or state')}
                 value={filters.location}
                 onChange={(value) => updateTextFilter('location', value)}
                 icon={MapPin}
@@ -436,7 +471,7 @@ export function JobsContent({ user }: { user: any }) {
             </div>
             <div className={styles.filterGroups}>
               <CheckboxGroup
-                legend="Modelo de trabalho"
+                legend={text('Modelo de trabalho', 'Work modality')}
                 name="modality"
                 options={MODALITY_OPTIONS}
                 selected={filters.modalities}
@@ -450,7 +485,7 @@ export function JobsContent({ user }: { user: any }) {
                 onToggle={(value) => toggleFilter('levels', value)}
               />
               <CheckboxGroup
-                legend="Modelo de contrato"
+                legend={text('Modelo de contrato', 'Contract type')}
                 name="contract"
                 options={CONTRACT_OPTIONS}
                 selected={filters.contracts}
@@ -462,17 +497,17 @@ export function JobsContent({ user }: { user: any }) {
         <section aria-labelledby="jobs-results-title" className={styles.results}>
           <div className={styles.resultsHeader}>
             <div>
-              <h2 id="jobs-results-title">Oportunidades abertas</h2>
+              <h2 id="jobs-results-title">{text('Oportunidades abertas', 'Open opportunities')}</h2>
               <p aria-live="polite">
                 {loading
-                  ? 'Atualizando oportunidades...'
+                  ? text('Atualizando oportunidades...', 'Updating opportunities...')
                   : error
-                    ? 'Consulta indisponível'
-                    : `${filteredJobs.length} ${filteredJobs.length === 1 ? 'vaga encontrada' : 'vagas encontradas'}`}
+                    ? text('Consulta indisponível', 'Search unavailable')
+                    : `${filteredJobs.length} ${filteredJobs.length === 1 ? text('vaga encontrada', 'job found') : text('vagas encontradas', 'jobs found')}`}
               </p>
             </div>
             {!loading && !error && filteredJobs.length > 0 && (
-              <span className={styles.sortLabel}>Mais recentes</span>
+              <span className={styles.sortLabel}>{text('Mais recentes', 'Most recent')}</span>
             )}
           </div>
           {loading ? (
@@ -480,7 +515,7 @@ export function JobsContent({ user }: { user: any }) {
           ) : error ? (
             <div className={styles.empty} role="alert">
               <CircleAlert size={30} aria-hidden="true" />
-              <h3>Falha ao carregar as vagas</h3>
+              <h3>{text('Falha ao carregar as vagas', 'Failed to load jobs')}</h3>
               <p>{error}</p>
               <button
                 type="button"
@@ -488,7 +523,7 @@ export function JobsContent({ user }: { user: any }) {
                 className={styles.secondaryButton}
               >
                 <RefreshCw size={16} aria-hidden="true" />
-                Tentar novamente
+                {text('Tentar novamente', 'Try again')}
               </button>
             </div>
           ) : filteredJobs.length === 0 ? (
@@ -496,17 +531,26 @@ export function JobsContent({ user }: { user: any }) {
               <BriefcaseBusiness size={30} aria-hidden="true" />
               <h3>
                 {jobs.length === 0
-                  ? 'Nenhuma vaga aberta no momento'
-                  : 'Nenhuma vaga combina com os filtros'}
+                  ? text('Nenhuma vaga aberta no momento', 'No open jobs at the moment')
+                  : text(
+                      'Nenhuma vaga combina com os filtros',
+                      'No jobs match the selected filters'
+                    )}
               </h3>
               <p>
                 {jobs.length === 0
-                  ? 'Novas oportunidades aparecerão aqui assim que forem publicadas.'
-                  : 'Remova um ou mais filtros para ampliar os resultados da busca.'}
+                  ? text(
+                      'Novas oportunidades aparecerão aqui assim que forem publicadas.',
+                      'New opportunities will appear here as soon as they are published.'
+                    )
+                  : text(
+                      'Remova um ou mais filtros para ampliar os resultados da busca.',
+                      'Remove one or more filters to broaden your search results.'
+                    )}
               </p>
               {activeFilterCount > 0 && (
                 <button type="button" onClick={clearFilters} className={styles.secondaryButton}>
-                  Mostrar todas as vagas
+                  {text('Mostrar todas as vagas', 'Show all jobs')}
                 </button>
               )}
             </div>

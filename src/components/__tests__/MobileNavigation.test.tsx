@@ -54,15 +54,17 @@ vi.mock('next/dynamic', async () => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('responsive web navigation', () => {
-  it('offers only adding an account and logging out in the desktop account menu', () => {
+  it('offers active account, adding an account and logging out in the desktop account menu', () => {
     render(<Sidebar user={user} />);
     fireEvent.click(screen.getByRole('button', { name: 'Abrir menu do perfil' }));
     const menu = screen.getByRole('menu');
-    expect(within(menu).getAllByRole('menuitem')).toHaveLength(2);
+    expect(within(menu).getAllByRole('menuitem')).toHaveLength(3);
     expect(
       within(menu).getByRole('menuitem', { name: 'Adicionar uma conta existente' })
     ).toBeInTheDocument();
-    expect(within(menu).getByRole('menuitem', { name: 'Sair da conta atual' })).toBeInTheDocument();
+    expect(
+      within(menu).getByRole('menuitem', { name: `Sair de @${user.username}` })
+    ).toBeInTheDocument();
   });
   beforeEach(() => {
     route.pathname = '/feed';

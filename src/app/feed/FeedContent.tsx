@@ -1208,7 +1208,7 @@ export function FeedContent({
                       size="md"
                     />
                     <span className="flex-1 text-lg text-dd-muted">
-                      {text('O que você está pensando?', 'What are you thinking?')}
+                      {text('O que você está pensando?', "What's on your mind?")}
                     </span>
                     <span className="rounded-full bg-dd-accent px-5 py-2 text-sm font-semibold text-white">
                       {text('Criar postagem', 'Create post')}
@@ -1217,7 +1217,7 @@ export function FeedContent({
                   <p className="mt-3 pl-13 text-xs text-dd-muted">
                     {text(
                       'Compartilhe uma ideia, um código ou uma descoberta.',
-                      'Share an idea, some code or a discovery.'
+                      'Share an idea, code snippet, or insight.'
                     )}
                   </p>
                 </div>

@@ -7,6 +7,7 @@ import { PlatformPageShell } from '@/components/PlatformPageShell';
 import styles from '../jobs.module.css';
 import { isJobAcceptingApplications } from '@/lib/job-availability';
 import { JobStageActivity } from '@/components/jobs/JobStageActivity';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface RecruitmentStage {
   id: string;
@@ -43,51 +44,61 @@ interface JobDetailProps {
   };
 }
 
-const STATUS_LABELS: Record<string, string> = {
-  APPLIED: 'Candidatura enviada',
-  IN_REVIEW: 'Em análise',
-  TECHNICAL_CHALLENGE: 'Desafio técnico',
-  DUEL: 'Duelo técnico',
-  EVALUATION: 'Avaliação técnica',
-  INTERVIEW: 'Entrevista',
-  OFFER: 'Proposta',
-  REJECTED: 'Não selecionado',
-  REVIEWING: 'Em análise',
-  TESTING: 'Desafio técnico',
-  ACCEPTED: 'Aprovado',
-};
-const NEXT_STEPS: Record<string, string> = {
-  APPLIED:
+const getStatusLabels = (text: (pt: string, en: string) => string): Record<string, string> => ({
+  APPLIED: text('Candidatura enviada', 'Application submitted'),
+  IN_REVIEW: text('Em análise', 'Under review'),
+  TECHNICAL_CHALLENGE: text('Desafio técnico', 'Technical challenge'),
+  DUEL: text('Duelo técnico', 'Technical duel'),
+  EVALUATION: text('Avaliação técnica', 'Technical evaluation'),
+  INTERVIEW: text('Entrevista', 'Interview'),
+  OFFER: text('Proposta', 'Offer'),
+  REJECTED: text('Não selecionado', 'Not selected'),
+  REVIEWING: text('Em análise', 'Under review'),
+  TESTING: text('Desafio técnico', 'Technical challenge'),
+  ACCEPTED: text('Aprovado', 'Accepted'),
+});
+const getNextSteps = (text: (pt: string, en: string) => string): Record<string, string> => ({
+  APPLIED: text(
     'Sua candidatura foi recebida. Aguarde a análise da empresa e acompanhe as atualizações nesta página.',
-  IN_REVIEW:
+    'Your application was received. Please wait for the company review and check back here for updates.'
+  ),
+  IN_REVIEW: text(
     'A empresa está analisando sua candidatura. A próxima orientação aparecerá no feedback abaixo.',
-  TECHNICAL_CHALLENGE:
+    'The company is reviewing your application. Next instructions will appear in the feedback section below.'
+  ),
+  TECHNICAL_CHALLENGE: text(
     'Sua candidatura está na etapa de desafio técnico. Confira as orientações da empresa no feedback abaixo.',
-  DUEL: 'Sua candidatura está na etapa de duelo técnico. Confira as orientações da empresa no feedback abaixo.',
-  EVALUATION: 'Sua candidatura está em avaliação técnica. Acompanhe o feedback da empresa abaixo.',
-  INTERVIEW: 'Confira o feedback da empresa para saber as orientações da entrevista.',
-  OFFER:
+    'Your application is in the technical challenge stage. Check the feedback section below for details.'
+  ),
+  DUEL: text(
+    'Sua candidatura está na etapa de duelo técnico. Confira as orientações da empresa no feedback abaixo.',
+    'Your application is in the technical duel stage. Check the feedback section below for details.'
+  ),
+  EVALUATION: text(
+    'Sua candidatura está em avaliação técnica. Acompanhe o feedback da empresa abaixo.',
+    'Your application is in technical evaluation. Check the feedback section below.'
+  ),
+  INTERVIEW: text(
+    'Confira o feedback da empresa para saber as orientações da entrevista.',
+    'Check the company feedback below for interview details.'
+  ),
+  OFFER: text(
     'Sua candidatura avançou para a proposta. Confira os próximos passos no feedback da empresa.',
-  REJECTED:
+    'Your application reached the offer stage. Check the next steps in the feedback section below.'
+  ),
+  REJECTED: text(
     'Sua participação nesta vaga foi encerrada pela empresa. Confira o feedback disponível abaixo.',
-};
-const LEVEL_LABELS: Record<string, string> = {
-  ESTAGIO: 'Estágio',
-  JUNIOR: 'Júnior',
-  PLENO: 'Pleno',
-  SENIOR: 'Sênior',
-  ESPECIALISTA: 'Especialista',
-};
-const MODALITY_LABELS: Record<string, string> = {
-  REMOTE: 'Remoto',
-  HYBRID: 'Híbrido',
-  ONSITE: 'Presencial',
-};
-const CONTRACT_LABELS: Record<string, string> = { CLT: 'CLT', PJ: 'PJ', ESTAGIO: 'Estágio' };
+    'Your application for this role was concluded by the company. Check any feedback available below.'
+  ),
+});
 
-function salaryLabel(job: JobDetailProps['job']) {
+function salaryLabel(
+  job: JobDetailProps['job'],
+  text: (pt: string, en: string) => string,
+  locale: string
+) {
   const format = (value: number) =>
-    new Intl.NumberFormat('pt-BR', {
+    new Intl.NumberFormat(locale, {
       style: 'currency',
       currency: 'BRL',
       maximumFractionDigits: 0,
@@ -97,12 +108,13 @@ function salaryLabel(job: JobDetailProps['job']) {
       ? format(job.salary_min)
       : `${format(job.salary_min)} – ${format(job.salary_max)}`;
   }
-  if (job.salary_min != null) return `A partir de ${format(job.salary_min)}`;
-  if (job.salary_max != null) return `Até ${format(job.salary_max)}`;
-  return 'Não informada pela empresa';
+  if (job.salary_min != null) return `${text('A partir de', 'From')} ${format(job.salary_min)}`;
+  if (job.salary_max != null) return `${text('Até', 'Up to')} ${format(job.salary_max)}`;
+  return text('Não informada pela empresa', 'Not disclosed by company');
 }
 
 export function JobDetailContent({ user, job }: JobDetailProps) {
+  const { text, locale } = useLocalizedText();
   const [application, setApplication] = useState<Application | null>(job.userApplication || null);
   const [applying, setApplying] = useState(false);
   const [applySuccess, setApplySuccess] = useState(false);
@@ -110,8 +122,27 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
   const acceptingApplications = isJobAcceptingApplications(job);
   const stages = [...job.stages].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const currentStageId = application?.stage_id ?? application?.stage?.id;
+  const statusLabels = getStatusLabels(text);
+  const nextSteps = getNextSteps(text);
+  const levelLabels: Record<string, string> = {
+    ESTAGIO: text('Estágio', 'Internship'),
+    JUNIOR: text('Júnior', 'Junior'),
+    PLENO: text('Pleno', 'Mid-level'),
+    SENIOR: text('Sênior', 'Senior'),
+    ESPECIALISTA: text('Especialista', 'Specialist'),
+  };
+  const modalityLabels: Record<string, string> = {
+    REMOTE: text('Remoto', 'Remote'),
+    HYBRID: text('Híbrido', 'Hybrid'),
+    ONSITE: text('Presencial', 'On-site'),
+  };
+  const contractLabels: Record<string, string> = {
+    CLT: text('CLT', 'Full-time (CLT)'),
+    PJ: text('PJ', 'Contractor (PJ)'),
+    ESTAGIO: text('Estágio', 'Internship'),
+  };
   const statusLabel = application
-    ? (STATUS_LABELS[application.status] ?? 'Em acompanhamento')
+    ? (statusLabels[application.status] ?? text('Em acompanhamento', 'In progress'))
     : null;
 
   const handleApply = async () => {
@@ -128,7 +159,10 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
             !/^[A-Z_]+$/.test(message) &&
             message !== 'Internal server error'
             ? message
-            : 'Não foi possível enviar sua candidatura. Tente novamente em instantes.'
+            : text(
+                'Não foi possível enviar sua candidatura. Tente novamente em instantes.',
+                'Could not submit your application. Please try again shortly.'
+              )
         );
         return;
       }
@@ -136,7 +170,10 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
       setApplySuccess(true);
     } catch {
       setErrorMessage(
-        'Não foi possível conectar ao Stacklyst. Verifique sua conexão e tente novamente.'
+        text(
+          'Não foi possível conectar ao Stacklyst. Verifique sua conexão e tente novamente.',
+          'Could not connect to Stacklyst. Please check your connection and try again.'
+        )
       );
     } finally {
       setApplying(false);
@@ -146,10 +183,14 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
   return (
     <PlatformPageShell user={user}>
       <header className={styles.detailHeader}>
-        <Link href="/jobs" aria-label="Voltar para Vagas" className={styles.back}>
+        <Link
+          href="/jobs"
+          aria-label={text('Voltar para Vagas', 'Back to Jobs')}
+          className={styles.back}
+        >
           <ArrowLeft size={21} aria-hidden="true" />
         </Link>
-        <span>Detalhes da vaga</span>
+        <span>{text('Detalhes da vaga', 'Job details')}</span>
       </header>
       <div className={styles.detail}>
         <div className={styles.company}>
@@ -166,36 +207,46 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
             {job.company.is_verified && (
               <>
                 <ShieldCheck size={17} aria-hidden="true" />
-                <span className="sr-only">Empresa verificada</span>
+                <span className="sr-only">{text('Empresa verificada', 'Verified company')}</span>
               </>
             )}
           </p>
         </div>
         <h1 className={styles.detailTitle}>{job.title}</h1>
         <div className={styles.tags}>
-          <span className={styles.level}>{LEVEL_LABELS[job.level] ?? 'Nível a combinar'}</span>
-          <span>{acceptingApplications ? 'Inscrições abertas' : 'Inscrições encerradas'}</span>
+          <span className={styles.level}>
+            {levelLabels[job.level] ?? text('Nível a combinar', 'Level TBD')}
+          </span>
+          <span>
+            {acceptingApplications
+              ? text('Inscrições abertas', 'Applications open')
+              : text('Inscrições encerradas', 'Applications closed')}
+          </span>
         </div>
         <dl className={styles.facts}>
           <div>
-            <dt>Modelo de trabalho</dt>
-            <dd>{MODALITY_LABELS[job.modality] ?? 'A combinar'}</dd>
+            <dt>{text('Modelo de trabalho', 'Work modality')}</dt>
+            <dd>{modalityLabels[job.modality] ?? text('A combinar', 'To be discussed')}</dd>
           </div>
           <div>
-            <dt>Local de trabalho</dt>
-            <dd>{job.location || job.company.location || 'A combinar com a empresa'}</dd>
-          </div>
-          <div>
-            <dt>Contrato</dt>
+            <dt>{text('Local de trabalho', 'Workplace')}</dt>
             <dd>
-              {job.contract_type
-                ? (CONTRACT_LABELS[job.contract_type] ?? job.contract_type)
-                : 'Não informado'}
+              {job.location ||
+                job.company.location ||
+                text('A combinar com a empresa', 'To be discussed with company')}
             </dd>
           </div>
           <div>
-            <dt>Remuneração</dt>
-            <dd>{salaryLabel(job)}</dd>
+            <dt>{text('Contrato', 'Contract')}</dt>
+            <dd>
+              {job.contract_type
+                ? (contractLabels[job.contract_type] ?? job.contract_type)
+                : text('Não informado', 'Not specified')}
+            </dd>
+          </div>
+          <div>
+            <dt>{text('Remuneração', 'Compensation')}</dt>
+            <dd>{salaryLabel(job, text, locale)}</dd>
           </div>
         </dl>
 
@@ -211,17 +262,25 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
                   className={styles.primaryButton}
                 >
                   <Send size={17} aria-hidden="true" />
-                  {applying ? 'Enviando candidatura...' : 'Candidatar-se com Stacklyst'}
+                  {applying
+                    ? text('Enviando candidatura...', 'Submitting application...')
+                    : text('Candidatar-se com Stacklyst', 'Apply with Stacklyst')}
                 </button>
                 <p>
-                  Seu perfil do Stacklyst será vinculado à candidatura para avaliação da empresa.
+                  {text(
+                    'Seu perfil do Stacklyst será vinculado à candidatura para avaliação da empresa.',
+                    'Your Stacklyst profile will be attached to the application for company review.'
+                  )}
                 </p>
               </>
             ) : (
               <p>
-                Esta vaga não aceita novas candidaturas.{' '}
+                {text(
+                  'Esta vaga não aceita novas candidaturas.',
+                  'This position is no longer accepting applications.'
+                )}{' '}
                 <Link href="/jobs" className={styles.recruiterLink}>
-                  Ver vagas abertas
+                  {text('Ver vagas abertas', 'View open jobs')}
                 </Link>
               </p>
             )}
@@ -229,7 +288,7 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
         ) : (
           <a href="#application" className={styles.secondaryButton}>
             <CheckCircle2 size={17} aria-hidden="true" />
-            Acompanhar minha candidatura
+            {text('Acompanhar minha candidatura', 'Track my application')}
           </a>
         )}
 
@@ -242,7 +301,10 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
         {applySuccess && (
           <p role="status" className={styles.notice}>
             <CheckCircle2 size={17} aria-hidden="true" />
-            Candidatura enviada! Acompanhe seu status e o feedback da empresa abaixo.
+            {text(
+              'Candidatura enviada! Acompanhe seu status e o feedback da empresa abaixo.',
+              'Application submitted! Track your status and company feedback below.'
+            )}
           </p>
         )}
 
@@ -253,7 +315,7 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
             className={styles.detailSection}
           >
             <div className={styles.applicationHeading}>
-              <h2 id="application-title">Sua candidatura</h2>
+              <h2 id="application-title">{text('Sua candidatura', 'Your application')}</h2>
               <span className={styles.status}>
                 <CheckCircle2 size={15} aria-hidden="true" />
                 {statusLabel}
@@ -261,17 +323,23 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
             </div>
             <dl className={styles.applicationData}>
               <div>
-                <dt>Status</dt>
+                <dt>{text('Status', 'Status')}</dt>
                 <dd>{statusLabel}</dd>
               </div>
               <div>
-                <dt>Etapa atual</dt>
-                <dd>{application.stage?.title ?? 'Aguardando definição da empresa'}</dd>
+                <dt>{text('Etapa atual', 'Current stage')}</dt>
+                <dd>
+                  {application.stage?.title ??
+                    text('Aguardando definição da empresa', 'Awaiting company definition')}
+                </dd>
               </div>
             </dl>
             <p className={styles.statusCopy}>
-              {NEXT_STEPS[application.status] ??
-                'Acompanhe o status da candidatura e as orientações da empresa nesta página.'}
+              {nextSteps[application.status] ??
+                text(
+                  'Acompanhe o status da candidatura e as orientações da empresa nesta página.',
+                  'Track application status and company instructions on this page.'
+                )}
             </p>
             {application.stage?.type &&
               ['DESAFIO_TECNICO', 'DUELO_TECNICO'].includes(application.stage.type) &&
@@ -279,24 +347,31 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
                 <JobStageActivity key={application.stage.id} jobId={job.id} />
               )}
             <div className={styles.feedback}>
-              <h3>Feedback da empresa</h3>
+              <h3>{text('Feedback da empresa', 'Company feedback')}</h3>
               <p className={styles.prose}>
                 {application.feedback ||
-                  'A empresa ainda não enviou feedback. Acompanhe as atualizações por aqui.'}
+                  text(
+                    'A empresa ainda não enviou feedback. Acompanhe as atualizações por aqui.',
+                    'The company has not submitted feedback yet. Check back here for updates.'
+                  )}
               </p>
             </div>
           </section>
         )}
 
         <section aria-labelledby="job-description-title" className={styles.detailSection}>
-          <h2 id="job-description-title">Sobre a oportunidade</h2>
+          <h2 id="job-description-title">{text('Sobre a oportunidade', 'About the role')}</h2>
           <p className={styles.prose}>
-            {job.description || 'A empresa ainda não adicionou uma descrição para esta vaga.'}
+            {job.description ||
+              text(
+                'A empresa ainda não adicionou uma descrição para esta vaga.',
+                'No description added for this job yet.'
+              )}
           </p>
         </section>
 
         <section aria-labelledby="job-technologies-title" className={styles.detailSection}>
-          <h2 id="job-technologies-title">Tecnologias</h2>
+          <h2 id="job-technologies-title">{text('Tecnologias', 'Technologies')}</h2>
           {job.technologies.length ? (
             <div className={styles.tags}>
               {job.technologies.map((technology) => (
@@ -304,13 +379,20 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
               ))}
             </div>
           ) : (
-            <p className={styles.sectionCopy}>A empresa não informou tecnologias específicas.</p>
+            <p className={styles.sectionCopy}>
+              {text(
+                'A empresa não informou tecnologias específicas.',
+                'No specific technologies listed by the company.'
+              )}
+            </p>
           )}
         </section>
 
         {!!job.requirements?.length && (
           <section aria-labelledby="job-requirements-title" className={styles.detailSection}>
-            <h2 id="job-requirements-title">Requisitos e diferenciais</h2>
+            <h2 id="job-requirements-title">
+              {text('Requisitos e diferenciais', 'Requirements & qualifications')}
+            </h2>
             <ul className={styles.plainList}>
               {job.requirements.map((requirement, index) => (
                 <li key={`${index}-${requirement}`}>{requirement}</li>
@@ -320,7 +402,7 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
         )}
         {!!job.benefits?.length && (
           <section aria-labelledby="job-benefits-title" className={styles.detailSection}>
-            <h2 id="job-benefits-title">Benefícios</h2>
+            <h2 id="job-benefits-title">{text('Benefícios', 'Benefits')}</h2>
             <ul className={styles.plainList}>
               {job.benefits.map((benefit, index) => (
                 <li key={`${index}-${benefit}`}>{benefit}</li>
@@ -330,12 +412,14 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
         )}
 
         <section aria-labelledby="job-stages-title" className={styles.detailSection}>
-          <h2 id="job-stages-title">Etapas do processo</h2>
+          <h2 id="job-stages-title">{text('Etapas do processo', 'Hiring stages')}</h2>
           {stages.length ? (
             <>
               <p className={styles.sectionCopy}>
-                Esta é a sequência definida pela empresa. A etapa da sua candidatura aparece em
-                destaque.
+                {text(
+                  'Esta é a sequência definida pela empresa. A etapa da sua candidatura aparece em destaque.',
+                  'This is the sequence defined by the company. Your current stage is highlighted.'
+                )}
               </p>
               <ol className={styles.stages}>
                 {stages.map((stage, index) => (
@@ -344,14 +428,19 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
                     className={styles.stage}
                     aria-current={currentStageId === stage.id ? 'step' : undefined}
                   >
-                    <span className={styles.stageNumber} aria-label={`Etapa ${index + 1}`}>
+                    <span
+                      className={styles.stageNumber}
+                      aria-label={`${text('Etapa', 'Stage')} ${index + 1}`}
+                    >
                       {index + 1}
                     </span>
                     <div className={styles.stageBody}>
                       <div className={styles.stageTitle}>
                         <h3>{stage.title}</h3>
                         {currentStageId === stage.id && (
-                          <span className={styles.currentStage}>Etapa atual</span>
+                          <span className={styles.currentStage}>
+                            {text('Etapa atual', 'Current stage')}
+                          </span>
                         )}
                       </div>
                       {stage.description && (
@@ -364,8 +453,10 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
             </>
           ) : (
             <p className={styles.sectionCopy}>
-              A empresa ainda não definiu as etapas. As orientações serão exibidas na sua
-              candidatura.
+              {text(
+                'A empresa ainda não definiu as etapas. As orientações serão exibidas na sua candidatura.',
+                'The company has not defined stages yet. Instructions will appear under your application.'
+              )}
             </p>
           )}
         </section>

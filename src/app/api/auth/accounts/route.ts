@@ -46,9 +46,90 @@ async function currentAccount() {
 export async function GET() {
   const current = await currentAccount();
   if (!current) return json({ error: 'Sessão indisponível.' }, 401);
-  const saved = openAccount((await cookies()).get(ACCOUNT_COOKIE)?.value);
+  const store = await cookies();
+  const saved = openAccount(store.get(ACCOUNT_COOKIE)?.value);
+
+  let currentUser: {
+    id: string;
+    username: string;
+    avatar_url: string | null;
+    avatar_config: unknown;
+  } | null = null;
+  let currentUnread = 0;
+  let savedUser: {
+    id: string;
+    username: string;
+    avatar_url: string | null;
+    avatar_config: unknown;
+  } | null = null;
+  let savedUnread = 0;
+
+  try {
+    const { prisma } = await import('@/lib/prisma');
+    if (prisma?.user) {
+      currentUser = await prisma.user.findUnique({
+        where: { id: current.account.id },
+        select: {
+          id: true,
+          username: true,
+          avatar_url: true,
+          avatar_config: true,
+        },
+      });
+      currentUnread = await prisma.notification.count({
+        where: { userId: current.account.id, read: false },
+      });
+      if (saved && saved.id !== current.account.id) {
+        savedUser = await prisma.user.findUnique({
+          where: { id: saved.id },
+          select: {
+            id: true,
+            username: true,
+            avatar_url: true,
+            avatar_config: true,
+          },
+        });
+        savedUnread = await prisma.notification.count({
+          where: { userId: saved.id, read: false },
+        });
+      }
+    }
+  } catch {
+    // Keep fallback when database is not available
+  }
+
+  const getDisplayName = (user: { username: string; avatar_config: unknown } | null) => {
+    if (!user) return null;
+    const cfg = user.avatar_config as { name?: string } | null;
+    return cfg?.name || user.username;
+  };
+
+  const savedAccountData =
+    saved && saved.id !== current.account.id
+      ? {
+          id: saved.id,
+          label: saved.label,
+          username: savedUser?.username ?? saved.label,
+          name: getDisplayName(savedUser),
+          avatar_url: savedUser?.avatar_url ?? null,
+          avatar_config: savedUser?.avatar_config ?? null,
+          unreadCount: savedUnread,
+        }
+      : null;
+
+  const currentAccountData = {
+    id: current.account.id,
+    label: current.account.label,
+    username: currentUser?.username ?? current.account.label,
+    name: getDisplayName(currentUser),
+    avatar_url: currentUser?.avatar_url ?? null,
+    avatar_config: currentUser?.avatar_config ?? null,
+    unreadCount: currentUnread,
+  };
+
   return json({
-    saved: saved && saved.id !== current.account.id ? { id: saved.id, label: saved.label } : null,
+    saved: savedAccountData,
+    current: currentAccountData,
   });
 }
 

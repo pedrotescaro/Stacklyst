@@ -26,36 +26,50 @@ import {
   type FeedDefinition,
   type FeedSettings,
 } from '@/lib/feed-preferences';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './FeedPreferencesEditor.module.css';
 
-const options = [
+const getFeedOptions = (text: (pt: string, en: string) => string) => [
   {
-    key: 'showCode',
-    name: 'Publicações com código',
-    description: 'Trechos de código, soluções e exemplos compartilhados pela comunidade.',
+    key: 'showCode' as const,
+    name: text('Publicações com código', 'Posts with code'),
+    description: text(
+      'Trechos de código, soluções e exemplos compartilhados pela comunidade.',
+      'Code snippets, solutions, and examples shared by the community.'
+    ),
     icon: Code2,
   },
   {
-    key: 'showMedia',
-    name: 'Imagens e outros anexos',
-    description: 'Publicações com imagens, GIFs, áudio ou música.',
+    key: 'showMedia' as const,
+    name: text('Imagens e outros anexos', 'Images & attachments'),
+    description: text(
+      'Publicações com imagens, GIFs, áudio ou música.',
+      'Posts with images, GIFs, audio, or music.'
+    ),
     icon: Image,
   },
   {
-    key: 'showPolls',
-    name: 'Enquetes',
-    description: 'Perguntas com opções de voto para participar das conversas.',
+    key: 'showPolls' as const,
+    name: text('Enquetes', 'Polls'),
+    description: text(
+      'Perguntas com opções de voto para participar das conversas.',
+      'Questions with voting options to join discussions.'
+    ),
     icon: Vote,
   },
   {
-    key: 'showGeneral',
-    name: 'Publicações gerais',
-    description: 'Conversas e textos sem código, anexos ou enquete.',
+    key: 'showGeneral' as const,
+    name: text('Publicações gerais', 'General discussions'),
+    description: text(
+      'Conversas e textos sem código, anexos ou enquete.',
+      'Conversations and text posts without code, media, or polls.'
+    ),
     icon: MessageSquare,
   },
-] as const;
+];
 
 export function FeedPreferencesEditor() {
+  const { text } = useLocalizedText();
   const [open, setOpen] = useState(false);
   const [prefs, setPrefs] = useState<OnboardingPreferences | null>(null);
   const [settings, setSettings] = useState<FeedSettings | null>(null);
@@ -70,6 +84,7 @@ export function FeedPreferencesEditor() {
   const dragged = useRef<string | null>(null);
   const heading = useRef<HTMLHeadingElement>(null);
   const editing = settings?.feeds.find((feed) => feed.id === editingId);
+  const options = getFeedOptions(text);
 
   useEffect(() => {
     if (!open) return;
@@ -104,7 +119,13 @@ export function FeedPreferencesEditor() {
         cache: 'no-store',
         signal: controller.signal,
       });
-      if (!response.ok) throw new Error('Não foi possível carregar seus feeds. Tente novamente.');
+      if (!response.ok)
+        throw new Error(
+          text(
+            'Não foi possível carregar seus feeds. Tente novamente.',
+            'Could not load your feeds. Please try again.'
+          )
+        );
       const loaded = parseOnboarding(await response.json()) ?? {
         feed: 'for-you',
         languages: ['JS'],
@@ -137,7 +158,7 @@ export function FeedPreferencesEditor() {
   function toggleVisibility(feed: FeedDefinition) {
     if (!settings) return;
     if (feed.visible && settings.feeds.filter((item) => item.visible).length === 1) {
-      setError('Mantenha pelo menos um feed visível.');
+      setError(text('Mantenha pelo menos um feed visível.', 'Keep at least one feed visible.'));
       return;
     }
     const feeds = settings.feeds.map((item) =>
@@ -164,7 +185,12 @@ export function FeedPreferencesEditor() {
     const value = term.trim();
     if (!value || !editing) return;
     if (value.length > 60 || editing.blockedTerms.length >= 50) {
-      setError('Use até 50 termos, com no máximo 60 caracteres cada.');
+      setError(
+        text(
+          'Use até 50 termos, com no máximo 60 caracteres cada.',
+          'Use up to 50 terms, with a maximum of 60 characters each.'
+        )
+      );
       return;
     }
     if (
@@ -178,17 +204,29 @@ export function FeedPreferencesEditor() {
   async function save() {
     if (!prefs || !settings) return;
     if (term.trim()) {
-      setError('Adicione o termo bloqueado ou limpe o campo antes de salvar.');
+      setError(
+        text(
+          'Adicione o termo bloqueado ou limpe o campo antes de salvar.',
+          'Add the blocked term or clear the field before saving.'
+        )
+      );
       return;
     }
     if (settings.feeds.some((feed) => !feed.name.trim())) {
-      setError('Dê um nome a todos os feeds antes de salvar.');
+      setError(
+        text('Dê um nome a todos os feeds antes de salvar.', 'Name all feeds before saving.')
+      );
       return;
     }
     const defaultFeed = settings.feeds.find((feed) => feed.id === settings.defaultFeedId)!;
     const forYou = settings.feeds.find((feed) => feed.id === 'for-you')!;
     if (!forYou.languages.length) {
-      setError('Escolha pelo menos uma linguagem em Para você.');
+      setError(
+        text(
+          'Escolha pelo menos uma linguagem em Para você.',
+          'Choose at least one language for For You.'
+        )
+      );
       return;
     }
     setBusy(true);
@@ -206,7 +244,10 @@ export function FeedPreferencesEditor() {
       });
       if (!response.ok)
         throw new Error(
-          'Não foi possível salvar seus feeds. Suas alterações continuam aqui para tentar novamente.'
+          text(
+            'Não foi possível salvar seus feeds. Suas alterações continuam aqui para tentar novamente.',
+            'Could not save your feeds. Your changes were preserved to try again.'
+          )
         );
       const saved = await response.json();
       window.dispatchEvent(new CustomEvent('stacklyst:feed-preferences', { detail: saved }));
@@ -225,8 +266,8 @@ export function FeedPreferencesEditor() {
         ref={trigger}
         type="button"
         onClick={show}
-        aria-label="Personalizar feed"
-        title="Gerenciar feeds"
+        aria-label={text('Personalizar feed', 'Customize feed')}
+        title={text('Gerenciar feeds', 'Manage feeds')}
         className="dd-focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-dd-border text-dd-text hover:bg-dd-surface"
       >
         <Pencil size={16} />
@@ -248,20 +289,24 @@ export function FeedPreferencesEditor() {
                 className={styles.iconButton}
                 disabled={busy}
                 aria-label={
-                  editing ? 'Voltar para gerenciar feeds' : 'Fechar gerenciamento de feeds'
+                  editing
+                    ? text('Voltar para gerenciar feeds', 'Back to manage feeds')
+                    : text('Fechar gerenciamento de feeds', 'Close feed management')
                 }
                 onClick={() => (editing ? edit(null) : close())}
               >
                 <ArrowLeft size={23} />
               </button>
               <h2 ref={heading} tabIndex={-1} id="feed-settings-title">
-                {editing ? `Editar ${editing.name || 'feed'}` : 'Gerenciar feeds'}
+                {editing
+                  ? `${text('Editar', 'Edit')} ${editing.name || text('feed', 'feed')}`
+                  : text('Gerenciar feeds', 'Manage feeds')}
               </h2>
               <button
                 type="button"
                 className={`${styles.iconButton} ${styles.desktopClose}`}
                 disabled={busy}
-                aria-label="Fechar gerenciamento de feeds"
+                aria-label={text('Fechar gerenciamento de feeds', 'Close feed management')}
                 onClick={close}
               >
                 <X size={21} />
@@ -270,14 +315,17 @@ export function FeedPreferencesEditor() {
             <div className={`${styles.body} ${editing ? styles.isEditing : ''}`}>
               {settings && prefs ? (
                 <>
-                  <section className={styles.manager} aria-label="Seus feeds">
+                  <section className={styles.manager} aria-label={text('Seus feeds', 'Your feeds')}>
                     <p className={styles.intro}>
-                      Crie, ordene e edite seus feeds da página inicial.
+                      {text(
+                        'Crie, ordene e edite seus feeds da página inicial.',
+                        'Create, reorder, and edit your home page feeds.'
+                      )}
                     </p>
                     <div className={styles.toolbar}>
                       <span
                         className={styles.counter}
-                        aria-label={`${settings.feeds.length} de 12 feeds`}
+                        aria-label={`${settings.feeds.length} ${text('de 12 feeds', 'of 12 feeds')}`}
                       >
                         {settings.feeds.length}/12
                       </span>
@@ -291,7 +339,7 @@ export function FeedPreferencesEditor() {
                           edit(feed.id);
                         }}
                       >
-                        Criar feed
+                        {text('Criar feed', 'New feed')}
                       </button>
                     </div>
                     <ol className={styles.feedList}>
@@ -306,12 +354,14 @@ export function FeedPreferencesEditor() {
                             dragged.current = null;
                           }}
                         >
-                          <span className={styles.feedName}>{feed.name || 'Novo feed'}</span>
+                          <span className={styles.feedName}>
+                            {feed.name || text('Novo feed', 'New feed')}
+                          </span>
                           <div className={styles.rowActions}>
                             <button
                               type="button"
                               className={styles.iconButton}
-                              aria-label={`Editar ${feed.name}`}
+                              aria-label={`${text('Editar', 'Edit')} ${feed.name}`}
                               onClick={() => edit(feed.id)}
                               disabled={busy}
                             >
@@ -320,7 +370,7 @@ export function FeedPreferencesEditor() {
                             <button
                               type="button"
                               className={styles.iconButton}
-                              aria-label={`${feed.visible ? 'Ocultar' : 'Mostrar'} ${feed.name}`}
+                              aria-label={`${feed.visible ? text('Ocultar', 'Hide') : text('Mostrar', 'Show')} ${feed.name}`}
                               aria-pressed={feed.visible}
                               onClick={() => toggleVisibility(feed)}
                               disabled={busy}
@@ -330,7 +380,7 @@ export function FeedPreferencesEditor() {
                             <button
                               type="button"
                               className={styles.iconButton}
-                              aria-label={`Reordenar ${feed.name}`}
+                              aria-label={`${text('Reordenar', 'Reorder')} ${feed.name}`}
                               aria-expanded={reordering === feed.id}
                               draggable={!busy}
                               onDragStart={() => {
@@ -358,14 +408,14 @@ export function FeedPreferencesEditor() {
                                 disabled={index === 0}
                                 onClick={() => move(feed.id, index - 1)}
                               >
-                                <ArrowUp size={16} /> Mover acima
+                                <ArrowUp size={16} /> {text('Mover acima', 'Move up')}
                               </button>
                               <button
                                 type="button"
                                 disabled={index === settings.feeds.length - 1}
                                 onClick={() => move(feed.id, index + 1)}
                               >
-                                <ArrowDown size={16} /> Mover abaixo
+                                <ArrowDown size={16} /> {text('Mover abaixo', 'Move down')}
                               </button>
                             </div>
                           )}
@@ -373,7 +423,7 @@ export function FeedPreferencesEditor() {
                       ))}
                     </ol>
                     <label className={styles.defaultFeed}>
-                      Feed inicial
+                      {text('Feed inicial', 'Default feed')}
                       <select
                         value={settings.defaultFeedId}
                         onChange={(event) =>
@@ -395,13 +445,13 @@ export function FeedPreferencesEditor() {
                     <section
                       key={editing.id}
                       className={styles.editor}
-                      aria-label={`Preferências de ${editing.name}`}
+                      aria-label={`${text('Preferências de', 'Preferences for')} ${editing.name}`}
                     >
                       <fieldset disabled={busy} className={styles.fields}>
                         {!['for-you', 'following'].includes(editing.id) && (
                           <div className={styles.customFields}>
                             <label>
-                              Nome do feed
+                              {text('Nome do feed', 'Feed name')}
                               <input
                                 autoComplete="off"
                                 maxLength={32}
@@ -410,7 +460,7 @@ export function FeedPreferencesEditor() {
                               />
                             </label>
                             <label>
-                              Publicações de
+                              {text('Publicações de', 'Posts from')}
                               <select
                                 value={editing.source}
                                 onChange={(event) =>
@@ -419,17 +469,23 @@ export function FeedPreferencesEditor() {
                                   })
                                 }
                               >
-                                <option value="for-you">Toda a comunidade</option>
-                                <option value="following">Pessoas que sigo</option>
+                                <option value="for-you">
+                                  {text('Toda a comunidade', 'Entire community')}
+                                </option>
+                                <option value="following">
+                                  {text('Pessoas que sigo', 'People I follow')}
+                                </option>
                               </select>
                             </label>
                           </div>
                         )}
                         <div className={styles.sectionHeading}>
-                          <h3>Exibição de publicações</h3>
+                          <h3>{text('Exibição de publicações', 'Post display')}</h3>
                           <p>
-                            Selecione os tipos de publicação que você quer ver neste feed. As opções
-                            desmarcadas não serão exibidas.
+                            {text(
+                              'Selecione os tipos de publicação que você quer ver neste feed. As opções desmarcadas não serão exibidas.',
+                              'Select the types of posts you want to see in this feed. Unchecked types will be hidden.'
+                            )}
                           </p>
                         </div>
                         <div className={styles.options}>
@@ -456,11 +512,19 @@ export function FeedPreferencesEditor() {
                           aria-labelledby="feed-languages-heading"
                         >
                           <div className={styles.sectionHeading}>
-                            <h3 id="feed-languages-heading">Linguagens de programação</h3>
+                            <h3 id="feed-languages-heading">
+                              {text('Linguagens de programação', 'Programming languages')}
+                            </h3>
                             <p>
                               {editing.id === 'for-you'
-                                ? 'Escolha pelo menos uma. Elas têm prioridade; outras descobertas da comunidade também aparecem.'
-                                : 'Selecione as linguagens deste feed. Sem seleção, publicações de todas as linguagens aparecem.'}
+                                ? text(
+                                    'Escolha pelo menos uma. Elas têm prioridade; outras descobertas da comunidade também aparecem.',
+                                    'Choose at least one. These take priority; other community discoveries will also appear.'
+                                  )
+                                : text(
+                                    'Selecione as linguagens deste feed. Sem seleção, publicações de todas as linguagens aparecem.',
+                                    'Select languages for this feed. When none are selected, all languages will appear.'
+                                  )}
                             </p>
                           </div>
                           <div className={styles.languages}>
@@ -484,21 +548,25 @@ export function FeedPreferencesEditor() {
                         </section>
                         <section className={styles.section} aria-labelledby="blocked-terms-heading">
                           <div className={styles.sectionHeading}>
-                            <h3 id="blocked-terms-heading">Termos bloqueados</h3>
+                            <h3 id="blocked-terms-heading">
+                              {text('Termos bloqueados', 'Blocked terms')}
+                            </h3>
                             <p>
-                              Adicione um termo por vez para ocultar publicações que o contenham no
-                              título, texto, código ou pergunta da enquete.
+                              {text(
+                                'Adicione um termo por vez para ocultar publicações que o contenham no título, texto, código ou pergunta da enquete.',
+                                'Add one term at a time to hide posts containing it in the title, text, code, or poll question.'
+                              )}
                             </p>
                           </div>
                           <label className={styles.termLabel} htmlFor="feed-blocked-term">
-                            Palavra para bloquear
+                            {text('Palavra para bloquear', 'Word to block')}
                           </label>
                           <div className={styles.termInput}>
                             <input
                               id="feed-blocked-term"
                               value={term}
                               maxLength={60}
-                              placeholder="Ex.: futebol"
+                              placeholder={text('Ex.: futebol', 'e.g. crypto')}
                               onChange={(event) => setTerm(event.target.value)}
                               onKeyDown={(event) => {
                                 if (event.key === 'Enter') {
@@ -511,7 +579,7 @@ export function FeedPreferencesEditor() {
                               type="button"
                               className={styles.iconButton}
                               disabled={!term.trim() || editing.blockedTerms.length >= 50}
-                              aria-label="Adicionar termo bloqueado"
+                              aria-label={text('Adicionar termo bloqueado', 'Add blocked term')}
                               onClick={addTerm}
                             >
                               <Plus size={22} />
@@ -523,7 +591,7 @@ export function FeedPreferencesEditor() {
                                 {value}
                                 <button
                                   type="button"
-                                  aria-label={`Desbloquear ${value}`}
+                                  aria-label={`${text('Desbloquear', 'Unblock')} ${value}`}
                                   onClick={() =>
                                     updateFeed({
                                       blockedTerms: editing.blockedTerms.filter(
@@ -556,7 +624,7 @@ export function FeedPreferencesEditor() {
                               edit(null);
                             }}
                           >
-                            <Trash2 size={18} /> Excluir feed
+                            <Trash2 size={18} /> {text('Excluir feed', 'Delete feed')}
                           </button>
                         )}
                       </fieldset>
@@ -566,7 +634,7 @@ export function FeedPreferencesEditor() {
               ) : (
                 !error && (
                   <p className={styles.loading} role="status">
-                    Carregando seus feeds…
+                    {text('Carregando seus feeds…', 'Loading your feeds…')}
                   </p>
                 )
               )}
@@ -579,7 +647,7 @@ export function FeedPreferencesEditor() {
               )}
               {!settings && error ? (
                 <button type="button" className={styles.primary} onClick={show}>
-                  Tentar novamente
+                  {text('Tentar novamente', 'Try again')}
                 </button>
               ) : (
                 <div className={styles.footerActions}>
@@ -589,7 +657,7 @@ export function FeedPreferencesEditor() {
                     onClick={close}
                     disabled={busy}
                   >
-                    Cancelar
+                    {text('Cancelar', 'Cancel')}
                   </button>
                   <button
                     type="button"
@@ -597,7 +665,9 @@ export function FeedPreferencesEditor() {
                     onClick={save}
                     disabled={busy || !settings}
                   >
-                    {busy ? 'Salvando…' : 'Salvar alterações'}
+                    {busy
+                      ? text('Salvando…', 'Saving…')
+                      : text('Salvar alterações', 'Save changes')}
                   </button>
                 </div>
               )}

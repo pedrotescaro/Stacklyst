@@ -131,7 +131,11 @@ export function MobileRankingBoard({
       aria-label={text('Ranking', 'Ranking')}
     >
       <FeedRankingSwitcher active="ranking" />
-      <div className="my-2 flex items-center gap-2" role="group" aria-label="Período do ranking">
+      <div
+        className="my-2 flex items-center gap-2"
+        role="group"
+        aria-label={text('Período do ranking', 'Ranking period')}
+      >
         {(['daily', 'weekly', 'monthly'] as const).map((value, i) => (
           <button
             type="button"
@@ -140,12 +144,12 @@ export function MobileRankingBoard({
             onClick={() => setPeriod(period === value ? null : value)}
             className={`min-h-11 rounded-full border px-3 text-xs font-bold ${period === value ? 'border-dd-accent bg-dd-accent text-white' : 'border-dd-border text-dd-muted'}`}
           >
-            {['Diário', 'Semanal', 'Mensal'][i]}
+            {[text('Diário', 'Daily'), text('Semanal', 'Weekly'), text('Mensal', 'Monthly')][i]}
           </button>
         ))}
         <button
           type="button"
-          aria-label="Escolher linguagem do ranking"
+          aria-label={text('Escolher linguagem do ranking', 'Choose ranking language')}
           aria-expanded={editing}
           onClick={() => setEditing(!editing)}
           className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-dd-border"
@@ -155,9 +159,9 @@ export function MobileRankingBoard({
       </div>
       {editing && (
         <label className="block mb-3 text-sm">
-          Linguagem
+          {text('Linguagem', 'Language')}
           <select
-            aria-label="Classificação"
+            aria-label={text('Classificação', 'Ranking')}
             className="block w-full bg-dd-surface border border-dd-border rounded-xl p-3"
             value={scope}
             onChange={(e) => {
@@ -177,8 +181,14 @@ export function MobileRankingBoard({
       <p className="mb-4 text-xs text-dd-muted">
         {scope === 'GLOBAL' ? 'Global' : getTrailLanguageMetadata(scope).label} ·{' '}
         {period
-          ? 'XP do período. O histórico anterior inclui exercícios registrados; outras atividades anteriores podem faltar.'
-          : 'XP acumulado desde o início da plataforma.'}
+          ? text(
+              'XP do período. O histórico anterior inclui exercícios registrados; outras atividades anteriores podem faltar.',
+              'Period XP. Earlier history includes recorded exercises; older activities may be omitted.'
+            )
+          : text(
+              'XP acumulado desde o início da plataforma.',
+              'All-time XP accumulated across the platform.'
+            )}
       </p>
       <div aria-busy={loading} aria-live="polite">
         {loading ? (

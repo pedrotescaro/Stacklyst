@@ -39,6 +39,15 @@ describe('LanguageContext', () => {
     expect(result.current.isEnglish).toBe(true);
     expect(result.current.t.nav.howItWorks).toBe('How it works');
     expect(result.current.t.hero.titleLine1).toBe('Unlock the best of Stacklyst.');
+    expect(result.current.t.hero.titleLine2).toBe('The developer community of the future.');
+    expect(result.current.t.hero.subtitle).toBe(
+      'Where developers build and prove exceptional craft.'
+    );
+    expect(result.current.t.showcase.howItWorks.proofCard.title).toBe(
+      'Let your code speak for you'
+    );
+    expect(result.current.t.showcase.cta.titlePart1).toBe("Don't just claim skills. ");
+    expect(result.current.t.showcase.cta.titleShowIt).toBe('Prove them.');
     expect(localStorage.getItem('site-language')).toBe('en');
     expect(document.documentElement.lang).toBe('en');
     expect(document.documentElement.dataset.language).toBe('en');

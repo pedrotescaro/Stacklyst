@@ -40,6 +40,7 @@ import type { PostAttachment, PostAudience, PostPollDraft } from '@/lib/post-con
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
 import { extractPostMetadata } from '@/lib/editor/extract-metadata';
 import { POST_CHAR_LIMIT } from '@/lib/motion';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { cn } from '@/lib/cn';
 import './PostComposer.css';
 
@@ -131,6 +132,7 @@ export function PostComposerDialog({
   user: ComposerUser;
   quote?: ComposerQuote | null;
 }) {
+  const { text } = useLocalizedText();
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [state, setState] = useState<PublishState>('idle');
   const [error, setError] = useState<string | null>(null);
@@ -257,7 +259,12 @@ export function PostComposerDialog({
       const data = await response.json().catch(() => ({}));
       if (!response.ok)
         throw new Error(
-          data.message || data.error || 'Não foi possível publicar. Tente novamente.'
+          data.message ||
+            data.error ||
+            text(
+              'Não foi possível publicar. Tente novamente.',
+              'Could not publish. Please try again.'
+            )
         );
       discard();
       setState('success');
@@ -272,7 +279,10 @@ export function PostComposerDialog({
       setError(
         cause instanceof Error
           ? cause.message
-          : 'Não foi possível publicar. Seu rascunho continua aqui.'
+          : text(
+              'Não foi possível publicar. Seu rascunho continua aqui.',
+              'Could not publish. Your draft was saved.'
+            )
       );
       setState('idle');
     } finally {
@@ -307,7 +317,7 @@ export function PostComposerDialog({
       onSaveDraft={saveDraft}
       composerLayout
       busy={busy || state !== 'idle'}
-      mobileTitle="Nova postagem"
+      mobileTitle={text('Nova postagem', 'New post')}
       headerExtra={
         <PublishButton
           form={formId}
@@ -315,7 +325,11 @@ export function PostComposerDialog({
           state={state}
           xpReward={extractPostMetadata(draft.body).language ? 10 : 5}
           label={
-            state === 'idle' ? 'Publicar' : state === 'submitting' ? 'Publicando…' : 'Publicado'
+            state === 'idle'
+              ? text('Publicar', 'Post')
+              : state === 'submitting'
+                ? text('Publicando…', 'Posting…')
+                : text('Publicado', 'Posted')
           }
           className="min-h-10 px-5"
         />
@@ -325,7 +339,7 @@ export function PostComposerDialog({
         id={formId}
         onSubmit={submit}
         className="post-composer-form"
-        aria-label="Criar postagem"
+        aria-label={text('Criar postagem', 'Create post')}
       >
         <div className="composer-scroll">
           <div className="composer-writing-row">
@@ -347,7 +361,7 @@ export function PostComposerDialog({
                   setShowMentions(true);
                 }}
                 onStateChange={setFormat}
-                placeholder="O que você está pensando?"
+                placeholder={text('O que você está pensando?', "What's on your mind?")}
                 minHeight="10rem"
                 className="post-composer-editor"
               />
@@ -377,12 +391,14 @@ export function PostComposerDialog({
           <div className="composer-attachments-area">
             {draft.quote && (
               <div className="relative mb-3 rounded-xl border border-dd-border p-4 pr-12 text-sm">
-                <span className="text-dd-muted">Citando @{draft.quote.author.username}</span>
+                <span className="text-dd-muted">
+                  {text('Citando', 'Quoting')} @{draft.quote.author.username}
+                </span>
                 <p className="mt-2 line-clamp-3 break-words">{draft.quote.body}</p>
                 <button
                   type="button"
                   onClick={() => update('quote', null)}
-                  aria-label="Remover citação"
+                  aria-label={text('Remover citação', 'Remove quote')}
                   className="composer-tool absolute right-1 top-1"
                 >
                   <X />
@@ -413,7 +429,7 @@ export function PostComposerDialog({
         )}
         {busy && (
           <p role="status" className="px-4 pb-2 text-xs text-dd-muted">
-            Preparando anexo…
+            {text('Preparando anexo…', 'Preparing attachment…')}
           </p>
         )}
         <div className="composer-footer">
@@ -423,27 +439,27 @@ export function PostComposerDialog({
               role="region"
               aria-label={
                 panel === 'audience'
-                  ? 'Público da postagem'
+                  ? text('Público da postagem', 'Post audience')
                   : panel === 'color'
-                    ? 'Cor do texto'
+                    ? text('Cor do texto', 'Text color')
                     : panel === 'text'
-                      ? 'Blocos de texto'
-                      : 'Mais opções'
+                      ? text('Blocos de texto', 'Text blocks')
+                      : text('Mais opções', 'More options')
               }
             >
               <div className="flex items-center justify-between gap-3 mb-2">
                 <p className="text-sm font-semibold">
                   {panel === 'audience'
-                    ? 'Quem pode ver?'
+                    ? text('Quem pode ver?', 'Who can see this?')
                     : panel === 'color'
-                      ? 'Cor do texto'
+                      ? text('Cor do texto', 'Text color')
                       : panel === 'text'
-                        ? 'Blocos de texto'
-                        : 'Mais opções'}
+                        ? text('Blocos de texto', 'Text blocks')
+                        : text('Mais opções', 'More options')}
                 </p>
                 <button
                   type="button"
-                  aria-label="Fechar opções"
+                  aria-label={text('Fechar opções', 'Close options')}
                   className="composer-tool !h-8 !w-8"
                   onClick={() => setPanel(null)}
                 >
@@ -456,14 +472,20 @@ export function PostComposerDialog({
                     [
                       {
                         value: 'everyone',
-                        label: 'Todos',
-                        description: 'Qualquer pessoa pode ver sua postagem.',
+                        label: text('Todos', 'Everyone'),
+                        description: text(
+                          'Qualquer pessoa pode ver sua postagem.',
+                          'Anyone can see your post.'
+                        ),
                         icon: Globe,
                       },
                       {
                         value: 'followers',
-                        label: 'Apenas seguidores',
-                        description: 'Você e as pessoas que seguem você.',
+                        label: text('Apenas seguidores', 'Followers only'),
+                        description: text(
+                          'Você e as pessoas que seguem você.',
+                          'You and people who follow you.'
+                        ),
                         icon: Users,
                       },
                     ] as const
@@ -521,17 +543,17 @@ export function PostComposerDialog({
                     }}
                   >
                     <Baseline className="h-4 w-4" />
-                    Cor padrão
+                    {text('Cor padrão', 'Default color')}
                   </button>
                 </>
               )}
               {panel === 'text' && (
                 <div className="grid grid-cols-2 gap-1">
                   {[
-                    { label: 'Texto', icon: Pilcrow, value: 'paragraph' as const },
-                    { label: 'Título', icon: Heading2, value: 'heading' as const },
-                    { label: 'Lista', icon: List, value: 'bulletList' as const },
-                    { label: 'Citação', icon: Quote, value: 'blockquote' as const },
+                    { label: text('Texto', 'Text'), icon: Pilcrow, value: 'paragraph' as const },
+                    { label: text('Título', 'Heading'), icon: Heading2, value: 'heading' as const },
+                    { label: text('Lista', 'List'), icon: List, value: 'bulletList' as const },
+                    { label: text('Citação', 'Quote'), icon: Quote, value: 'blockquote' as const },
                   ].map((item) => (
                     <button
                       type="button"
@@ -558,7 +580,7 @@ export function PostComposerDialog({
                       onClick={() => setPanel('text')}
                     >
                       <AlignLeft className="h-4 w-4 text-dd-accent" />
-                      Texto e blocos
+                      {text('Texto e blocos', 'Text & blocks')}
                     </button>
                     <button
                       type="button"
@@ -566,7 +588,7 @@ export function PostComposerDialog({
                       onClick={() => setPanel('gif')}
                     >
                       <ImagePlay className="h-4 w-4 text-dd-accent" />
-                      Adicionar GIF
+                      {text('Adicionar GIF', 'Add GIF')}
                     </button>
                   </div>
                   <button
@@ -579,7 +601,7 @@ export function PostComposerDialog({
                     }}
                   >
                     <Eraser className="h-4 w-4 text-dd-accent" />
-                    Remover formatação
+                    {text('Remover formatação', 'Clear formatting')}
                   </button>
                   <PostComposerExtras {...extras} section="tools" />
                   <PostComposerExtras {...extras} section="meta" />
@@ -587,41 +609,49 @@ export function PostComposerDialog({
               )}
             </div>
           )}
-          <div className="composer-formatting" role="toolbar" aria-label="Formatação do texto">
+          <div
+            className="composer-formatting"
+            role="toolbar"
+            aria-label={text('Formatação do texto', 'Text formatting')}
+          >
             <button
               type="button"
               onClick={() => toggle('audience')}
               aria-expanded={panel === 'audience'}
               className="composer-audience"
-              title="Público da postagem"
+              title={text('Público da postagem', 'Post audience')}
             >
               {draft.audience === 'everyone' ? <Globe /> : <Users />}
-              <span>{draft.audience === 'everyone' ? 'Todos' : 'Seguidores'}</span>
+              <span>
+                {draft.audience === 'everyone'
+                  ? text('Todos', 'Everyone')
+                  : text('Seguidores', 'Followers')}
+              </span>
               <ChevronDown className="!h-3 !w-3" />
             </button>
             <Tool
-              label="Negrito"
+              label={text('Negrito', 'Bold')}
               active={format.bold}
               onClick={() => editorRef.current?.toggleBold()}
             >
               <Bold />
             </Tool>
             <Tool
-              label="Itálico"
+              label={text('Itálico', 'Italic')}
               active={format.italic}
               onClick={() => editorRef.current?.toggleItalic()}
             >
               <Italic />
             </Tool>
             <Tool
-              label="Sublinhado"
+              label={text('Sublinhado', 'Underline')}
               active={format.underline}
               onClick={() => editorRef.current?.toggleUnderline()}
             >
               <Underline />
             </Tool>
             <Tool
-              label="Cor do texto"
+              label={text('Cor do texto', 'Text color')}
               active={panel === 'color' || Boolean(format.color)}
               onClick={() => toggle('color')}
             >
@@ -636,9 +666,13 @@ export function PostComposerDialog({
               />
             </Tool>
           </div>
-          <div className="composer-content-tools" role="toolbar" aria-label="Adicionar conteúdo">
+          <div
+            className="composer-content-tools"
+            role="toolbar"
+            aria-label={text('Adicionar conteúdo', 'Add content')}
+          >
             <Tool
-              label="Texto e blocos"
+              label={text('Texto e blocos', 'Text & blocks')}
               className="composer-secondary-tool"
               active={panel === 'text'}
               onClick={() => toggle('text')}
@@ -646,7 +680,7 @@ export function PostComposerDialog({
               <AlignLeft />
             </Tool>
             <Tool
-              label="Adicionar GIF"
+              label={text('Adicionar GIF', 'Add GIF')}
               className="composer-secondary-tool"
               active={panel === 'gif'}
               onClick={() => toggle('gif')}
@@ -655,24 +689,28 @@ export function PostComposerDialog({
               <span className="sr-only">GIF</span>
             </Tool>
             <Tool
-              label="Adicionar imagens"
+              label={text('Adicionar imagens', 'Add images')}
               active={panel === 'image'}
               onClick={() => toggle('image')}
             >
               <ImageIcon />
             </Tool>
             <Tool
-              label="Adicionar música"
+              label={text('Adicionar música', 'Add music')}
               active={panel === 'music' || Boolean(draft.music)}
               onClick={() => toggle('music')}
             >
               <Music2 />
             </Tool>
-            <Tool label="Gravar áudio" active={panel === 'audio'} onClick={() => toggle('audio')}>
+            <Tool
+              label={text('Gravar áudio', 'Record audio')}
+              active={panel === 'audio'}
+              onClick={() => toggle('audio')}
+            >
               <Mic />
             </Tool>
             <Tool
-              label="Criar enquete"
+              label={text('Criar enquete', 'Create poll')}
               active={Boolean(draft.poll)}
               onClick={() => {
                 if (!draft.poll)
@@ -683,7 +721,7 @@ export function PostComposerDialog({
               <ChartNoAxesColumnIncreasing />
             </Tool>
             <Tool
-              label="Inserir código executável"
+              label={text('Inserir código executável', 'Insert executable code')}
               onClick={() => {
                 editorRef.current?.insertCodeBlock();
                 setPanel(null);
@@ -691,7 +729,11 @@ export function PostComposerDialog({
             >
               <Code2 />
             </Tool>
-            <Tool label="Mais opções" active={panel === 'more'} onClick={() => toggle('more')}>
+            <Tool
+              label={text('Mais opções', 'More options')}
+              active={panel === 'more'}
+              onClick={() => toggle('more')}
+            >
               <MoreHorizontal />
             </Tool>
           </div>

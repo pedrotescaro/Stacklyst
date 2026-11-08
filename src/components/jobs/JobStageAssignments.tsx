@@ -1,6 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
 import styles from '@/app/recruiter/recruiter.module.css';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface Stage {
   id: string;
@@ -21,6 +22,7 @@ export function JobStageAssignments({
   stages: Stage[];
   onSaved: (stageId: string, assignment: string) => void;
 }) {
+  const { text } = useLocalizedText();
   const [catalog, setCatalog] = useState<{ exercises: Option[]; duels: Option[] } | null>(null);
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState('');
@@ -37,15 +39,19 @@ export function JobStageAssignments({
         const data = await response.json();
         if (!response.ok) throw new Error(data.message ?? data.error);
         if (!Array.isArray(data.exercises) || !Array.isArray(data.duels))
-          throw new Error('Catálogo inválido. Tente novamente.');
+          throw new Error(
+            text('Catálogo inválido. Tente novamente.', 'Invalid catalog. Please try again.')
+          );
         setCatalog(data);
       })
       .catch((e) => {
         if (!controller.signal.aborted)
-          setError(e.message || 'Não foi possível carregar o catálogo.');
+          setError(
+            e.message || text('Não foi possível carregar o catálogo.', 'Could not load catalog.')
+          );
       });
     return () => controller.abort();
-  }, [jobId, technical.length, retry]);
+  }, [jobId, technical.length, retry, text]);
   if (!technical.length) return null;
   async function save(stageId: string, assignment: string) {
     setBusy(stageId);
@@ -58,32 +64,49 @@ export function JobStageAssignments({
         body: JSON.stringify({ assignment }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.message ?? data.error ?? 'Não foi possível salvar.');
+      if (!response.ok)
+        throw new Error(
+          data.message ?? data.error ?? text('Não foi possível salvar.', 'Could not save.')
+        );
       onSaved(stageId, data.challenge_id);
-      setNotice('Atividade atribuída. Candidatos nesta etapa poderão iniciá-la na vaga.');
+      setNotice(
+        text(
+          'Atividade atribuída. Candidatos nesta etapa poderão iniciá-la na vaga.',
+          'Activity assigned. Candidates in this stage will be able to start it.'
+        )
+      );
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Não foi possível salvar.');
+      setError(
+        e instanceof Error ? e.message : text('Não foi possível salvar.', 'Could not save.')
+      );
     } finally {
       setBusy('');
     }
   }
   return (
-    <section aria-label="Atividades das etapas técnicas" className="mb-6 grid gap-4">
-      <h3>Atividades das etapas técnicas</h3>
+    <section
+      aria-label={text('Atividades das etapas técnicas', 'Technical stage activities')}
+      className="mb-6 grid gap-4"
+    >
+      <h3>{text('Atividades das etapas técnicas', 'Technical stage activities')}</h3>
       <p className={styles.muted}>
-        Defina o exercício ou duelo de cada etapa antes de encaminhar candidatos. A atividade fica
-        fixa após o primeiro início.
+        {text(
+          'Defina o exercício ou duelo de cada etapa antes de encaminhar candidatos. A atividade fica fixa após o primeiro início.',
+          'Define the exercise or duel for each stage before routing candidates. The activity becomes fixed after first start.'
+        )}
       </p>
       {notice && <p role="status">{notice}</p>}
       {error && <p role="alert">{error}</p>}
-      {!catalog && !error && <p role="status">Carregando catálogo…</p>}
+      {!catalog && !error && (
+        <p role="status">{text('Carregando catálogo…', 'Loading catalog…')}</p>
+      )}
       {!catalog && error && (
         <button
           type="button"
           className={styles.secondary}
           onClick={() => setRetry((value) => value + 1)}
         >
-          Tentar novamente
+          {text('Tentar novamente', 'Try again')}
         </button>
       )}
       {catalog &&
@@ -108,9 +131,11 @@ export function JobStageAssignments({
                   value={value}
                   onChange={(e) => setDrafts((d) => ({ ...d, [stage.id]: e.target.value }))}
                 >
-                  <option value="">Selecione uma atividade</option>
+                  <option value="">{text('Selecione uma atividade', 'Select an activity')}</option>
                   {value && !options.some((o) => o.id === value) && (
-                    <option value={value}>Atividade indisponível</option>
+                    <option value={value}>
+                      {text('Atividade indisponível', 'Activity unavailable')}
+                    </option>
                   )}
                   {options.map((o) => (
                     <option key={o.id} value={o.id}>
@@ -124,7 +149,9 @@ export function JobStageAssignments({
                 type="submit"
                 disabled={!!busy || !value || value === stage.challenge_id}
               >
-                {busy === stage.id ? 'Salvando…' : 'Salvar atividade'}
+                {busy === stage.id
+                  ? text('Salvando…', 'Saving…')
+                  : text('Salvar atividade', 'Save activity')}
               </button>
             </form>
           );

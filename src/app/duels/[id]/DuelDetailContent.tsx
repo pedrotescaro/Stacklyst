@@ -28,6 +28,7 @@ import { DUEL_PROBLEMS, parseProblemFromJson, type DuelProblem } from '@/lib/due
 import { ACTIVE_DUEL_POLL_INTERVAL_MS, PENDING_DUEL_POLL_INTERVAL_MS } from '@/lib/duels/constants';
 import { DuelJudgingRules } from '@/components/duels/DuelJudgingRules';
 import { duelResultExplanation } from '@/lib/duels/result-presentation';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './DuelDetailContent.module.css';
 
 type DuelStatus = 'PENDING' | 'ACTIVE' | 'REVIEW_PENDING' | 'CLOSED' | 'EXPIRED';
@@ -123,14 +124,16 @@ interface DuelDetailContentProps {
   initialDuel: DuelData;
 }
 
-const STATUS_LABELS: Record<SubmissionStatus, string> = {
-  ACCEPTED: 'Aceita',
-  WRONG_ANSWER: 'Resposta incorreta',
-  COMPILE_ERROR: 'Erro de compilação',
-  RUNTIME_ERROR: 'Erro de execução',
-  TIME_LIMIT_EXCEEDED: 'Tempo excedido',
-  JUDGE_UNAVAILABLE: 'Juiz indisponível',
-};
+const getSubmissionStatusLabels = (
+  text: (pt: string, en: string) => string
+): Record<SubmissionStatus, string> => ({
+  ACCEPTED: text('Aceita', 'Accepted'),
+  WRONG_ANSWER: text('Resposta incorreta', 'Wrong answer'),
+  COMPILE_ERROR: text('Erro de compilação', 'Compile error'),
+  RUNTIME_ERROR: text('Erro de execução', 'Runtime error'),
+  TIME_LIMIT_EXCEEDED: text('Tempo excedido', 'Time limit exceeded'),
+  JUDGE_UNAVAILABLE: text('Juiz indisponível', 'Judge unavailable'),
+});
 
 function secondsUntil(iso: string | null) {
   if (!iso) return 0;
@@ -153,6 +156,8 @@ function statusTone(status: SubmissionStatus) {
 }
 
 export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps) {
+  const { text } = useLocalizedText();
+  const STATUS_LABELS = getSubmissionStatusLabels(text);
   const router = useRouter();
   const [duel, setDuel] = useState(initialDuel);
   const [leftTab, setLeftTab] = useState<'problem' | 'submissions'>('problem');
@@ -161,7 +166,9 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
   const [mobilePane, setMobilePane] = useState<'problem' | 'code'>('problem');
   const [runningAction, setRunningAction] = useState<'run' | 'submit' | null>(null);
   const [judgment, setJudgment] = useState<Judgment | null>(null);
-  const [consoleOutput, setConsoleOutput] = useState('Execute o código para ver o resultado.');
+  const [consoleOutput, setConsoleOutput] = useState(
+    text('Execute o código para ver o resultado.', 'Run code to see test output.')
+  );
   const [actionError, setActionError] = useState<string | null>(null);
   const [joining, setJoining] = useState(false);
   const [deleting, setDeleting] = useState(false);
@@ -294,8 +301,14 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
       const data = await response.json();
       if (!response.ok) {
         setBottomTab('console');
-        setActionError(data.message ?? data.error ?? 'Não foi possível avaliar a solução.');
-        setConsoleOutput(data.message ?? data.error ?? 'Falha na avaliação.');
+        setActionError(
+          data.message ??
+            data.error ??
+            text('Não foi possível avaliar a solução.', 'Could not evaluate solution.')
+        );
+        setConsoleOutput(
+          data.message ?? data.error ?? text('Falha na avaliação.', 'Evaluation failed.')
+        );
         if (data.duel) setDuel((current) => ({ ...current, ...data.duel }));
         return;
       }
@@ -304,7 +317,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
       setJudgment(result);
       setConsoleOutput(
         result.error ??
-          `${result.publicPassedTests}/${result.publicTotalTests} testes públicos concluídos em ${result.runtimeMs ?? 0} ms.`
+          `${result.publicPassedTests}/${result.publicTotalTests} ${text('testes públicos concluídos em', 'public tests completed in')} ${result.runtimeMs ?? 0} ms.`
       );
       if (action === 'submit' && data.submission) {
         setDuel((current) => ({
@@ -322,9 +335,17 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
       await refreshState();
     } catch {
       setBottomTab('console');
-      setActionError('Não foi possível conectar ao juiz. Tente novamente.');
+      setActionError(
+        text(
+          'Não foi possível conectar ao juiz. Tente novamente.',
+          'Could not connect to judge. Please try again.'
+        )
+      );
       setConsoleOutput(
-        'O serviço de avaliação não respondeu. Seu código continua salvo neste dispositivo.'
+        text(
+          'O serviço de avaliação não respondeu. Seu código continua salvo neste dispositivo.',
+          'The evaluation service did not respond. Your draft is still saved on this device.'
+        )
       );
     } finally {
       setRunningAction(null);
@@ -341,19 +362,28 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
         body: JSON.stringify({ action: 'join' }),
       });
       const data = await response.json();
-      if (!response.ok) throw new Error(data.error ?? 'Não foi possível entrar no duelo.');
+      if (!response.ok)
+        throw new Error(
+          data.error ?? text('Não foi possível entrar no duelo.', 'Could not join duel.')
+        );
       setDuel((current) => ({ ...current, ...data.duel }));
       setMobilePane('code');
     } catch (error) {
-      setActionError(error instanceof Error ? error.message : 'Não foi possível entrar no duelo.');
+      setActionError(
+        error instanceof Error
+          ? error.message
+          : text('Não foi possível entrar no duelo.', 'Could not join duel.')
+      );
     } finally {
       setJoining(false);
     }
   };
 
   const deleteDuel = async () => {
-    if (!window.confirm('Excluir este duelo permanentemente?')) return;
-    setDeleting(true);
+    if (
+      !window.confirm(text('Excluir este duelo permanentemente?', 'Delete this duel permanently?'))
+    )
+      setDeleting(true);
     const response = await fetch(`/api/duels/${duel.id}`, { method: 'DELETE' });
     if (response.ok) {
       router.push('/duels');
@@ -361,7 +391,9 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
       return;
     }
     const data = await response.json().catch(() => ({}));
-    setActionError(data.error ?? 'Não foi possível excluir o duelo.');
+    setActionError(
+      data.error ?? text('Não foi possível excluir o duelo.', 'Could not delete duel.')
+    );
     setDeleting(false);
   };
 
@@ -376,20 +408,32 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
               href="/duels"
               className="dd-focus-ring inline-flex items-center gap-2 text-sm font-bold text-dd-muted hover:text-dd-text"
             >
-              <ArrowLeft className="h-4 w-4" aria-hidden="true" /> Voltar à arena
+              <ArrowLeft className="h-4 w-4" aria-hidden="true" />{' '}
+              {text('Voltar à arena', 'Back to arena')}
             </Link>
             <div className="mt-8 flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400">
               <Users className="h-6 w-6" aria-hidden="true" />
             </div>
             <h1 className="mt-5 text-balance text-2xl font-black tracking-[-0.025em] text-dd-text sm:text-3xl">
-              {duel.status === 'EXPIRED' ? 'Este duelo foi encerrado' : 'Aguardando um oponente'}
+              {duel.status === 'EXPIRED'
+                ? text('Este duelo foi encerrado', 'This duel has ended')
+                : text('Aguardando um oponente', 'Waiting for an opponent')}
             </h1>
             <p className="mt-3 max-w-[65ch] text-sm leading-6 text-dd-muted">
               {duel.status === 'EXPIRED'
-                ? 'Nenhum jogador compatível foi encontrado em 24 horas. O duelo não será iniciado.'
+                ? text(
+                    'Nenhum jogador compatível foi encontrado em 24 horas. O duelo não será iniciado.',
+                    'No compatible opponent was found within 24 hours. The duel will not start.'
+                  )
                 : ownPending
-                  ? 'A arena procura um jogador compatível e abrirá o desafio automaticamente assim que alguém entrar. Depois do início, vocês terão 2 horas para responder.'
-                  : 'Entre agora para assumir a segunda vaga e iniciar o cronômetro do desafio.'}
+                  ? text(
+                      'A arena procura um jogador compatível e abrirá o desafio automaticamente assim que alguém entrar. Depois do início, vocês terão 2 horas para responder.',
+                      'The arena is searching for a matched opponent and will start automatically once someone joins. You will then have 2 hours to submit.'
+                    )
+                  : text(
+                      'Entre agora para assumir a segunda vaga e iniciar o cronômetro do desafio.',
+                      'Join now to claim the second slot and start the challenge timer.'
+                    )}
             </p>
             {duel.status === 'PENDING' && ownPending && (
               <div
@@ -401,14 +445,19 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                   className="h-2 w-2 rounded-full bg-blue-500 animate-pulse motion-reduce:animate-none"
                   aria-hidden="true"
                 />
-                Sala sincronizada — você não precisa atualizar a página
+                {text(
+                  'Sala sincronizada — você não precisa atualizar a página',
+                  'Room synchronized — no need to refresh'
+                )}
               </div>
             )}
             {duel.status === 'PENDING' && (
               <div className="mt-6 flex items-center gap-3 rounded-xl border border-dd-border bg-dd-surface px-4 py-3">
                 <Clock3 className="h-5 w-5 text-blue-600 dark:text-blue-400" aria-hidden="true" />
                 <div>
-                  <p className="text-xs font-bold text-dd-muted">Janela de pareamento</p>
+                  <p className="text-xs font-bold text-dd-muted">
+                    {text('Janela de pareamento', 'Matchmaking window')}
+                  </p>
                   <p className="font-mono text-lg font-bold tabular-nums text-dd-text">
                     {formatTime(timeLeft)}
                   </p>
@@ -433,7 +482,9 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                   ) : (
                     <Swords className="h-4 w-4" aria-hidden="true" />
                   )}
-                  {joining ? 'Entrando…' : 'Aceitar e entrar'}
+                  {joining
+                    ? text('Entrando…', 'Joining…')
+                    : text('Aceitar e entrar', 'Accept & join')}
                 </button>
               )}
               {(ownPending || duel.status === 'EXPIRED') && (
@@ -448,7 +499,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                   ) : (
                     <Trash2 className="h-4 w-4" aria-hidden="true" />
                   )}
-                  Excluir duelo
+                  {text('Excluir duelo', 'Delete duel')}
                 </button>
               )}
             </div>
@@ -461,16 +512,19 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
   const outcome =
     duel.status === 'REVIEW_PENDING'
       ? duel.closed_reason === 'identical_code'
-        ? 'Códigos idênticos: revisão na fila de avaliações'
-        : 'Revisão pendente: análise em atualização'
+        ? text(
+            'Códigos idênticos: revisão na fila de avaliações',
+            'Identical code: queued for evaluation'
+          )
+        : text('Revisão pendente: análise em atualização', 'Review pending: analysis in progress')
       : duel.status === 'CLOSED'
         ? duel.winner_id === user.id
-          ? 'Vitória confirmada'
+          ? text('Vitória confirmada', 'Victory confirmed')
           : duel.winner_id
-            ? 'Duelo encerrado'
+            ? text('Duelo encerrado', 'Duel completed')
             : duel.closed_reason === 'technical_draw'
-              ? 'Empate automático'
-              : 'Duelo encerrado sem vencedor'
+              ? text('Empate automático', 'Automatic draw')
+              : text('Duelo encerrado sem vencedor', 'Duel closed without a winner')
         : null;
 
   return (
@@ -482,7 +536,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
         <header className="flex min-h-14 shrink-0 items-center gap-3 border-b border-dd-border bg-dd-card px-3 sm:px-4">
           <Link
             href="/duels"
-            aria-label="Voltar à arena"
+            aria-label={text('Voltar à arena', 'Back to arena')}
             className="dd-focus-ring flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-dd-muted transition hover:bg-dd-surface hover:text-dd-text"
           >
             <ArrowLeft className="h-4 w-4" aria-hidden="true" />
@@ -490,7 +544,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
           <div className="min-w-0 flex-1">
             <h1 className="truncate text-sm font-black tracking-[-0.015em]">{problem.title}</h1>
             <p className="truncate text-[11px] text-dd-muted">
-              {user.username} vs. {opponent?.username ?? 'aguardando'}
+              {user.username} vs. {opponent?.username ?? text('aguardando', 'waiting')}
             </p>
           </div>
           <span className="hidden rounded-md bg-dd-surface px-2 py-1 text-[10px] font-black uppercase text-dd-muted sm:inline">
@@ -517,7 +571,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
             ) : (
               <Play className="h-3.5 w-3.5" aria-hidden="true" />
             )}{' '}
-            Executar
+            {text('Executar', 'Run')}
           </button>
           <button
             type="button"
@@ -570,7 +624,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                     className="underline underline-offset-4"
                     href={`/evaluations?duel=${encodeURIComponent(duel.id)}`}
                   >
-                    Abrir na fila de avaliações
+                    {text('Abrir na fila de avaliações', 'Open evaluation queue')}
                   </Link>
                 )}
             </div>
@@ -587,7 +641,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
         )}
         <div
           className="flex shrink-0 border-b border-dd-border lg:hidden"
-          aria-label="Área da arena"
+          aria-label={text('Área da arena', 'Arena workspace')}
         >
           {(['problem', 'code'] as const).map((pane) => (
             <button
@@ -601,7 +655,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                   : 'text-dd-muted'
               )}
             >
-              {pane === 'problem' ? 'Problema' : 'Código'}
+              {pane === 'problem' ? text('Problema', 'Problem') : text('Código', 'Code')}
             </button>
           ))}
         </div>
@@ -616,7 +670,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
             <div
               className="flex h-11 items-end gap-1 border-b border-dd-border px-3"
               role="tablist"
-              aria-label="Detalhes do desafio"
+              aria-label={text('Detalhes do desafio', 'Challenge details')}
             >
               <button
                 type="button"
@@ -630,7 +684,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                     : 'border-transparent text-dd-muted'
                 )}
               >
-                Descrição
+                {text('Descrição', 'Description')}
               </button>
               <button
                 type="button"
@@ -644,7 +698,8 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                     : 'border-transparent text-dd-muted'
                 )}
               >
-                Submissões <span className="ml-1 text-dd-muted">{duel.submissions.length}</span>
+                {text('Submissões', 'Submissions')}{' '}
+                <span className="ml-1 text-dd-muted">{duel.submissions.length}</span>
               </button>
             </div>
             <div className="h-[calc(100%_-_2.75rem)] overflow-y-auto p-5 sm:p-6">
@@ -671,7 +726,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                   {problem.constraints && problem.constraints.length > 0 && (
                     <section className="mt-8">
                       <h3 className="text-xs font-black uppercase tracking-[0.12em] text-dd-muted">
-                        Restrições
+                        {text('Restrições', 'Constraints')}
                       </h3>
                       <ul className="mt-3 space-y-2 text-sm text-dd-muted">
                         {problem.constraints.map((item) => (
@@ -685,18 +740,24 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                   )}
                   <section className="mt-8 space-y-4">
                     <h3 className="text-xs font-black uppercase tracking-[0.12em] text-dd-muted">
-                      Exemplos
+                      {text('Exemplos', 'Examples')}
                     </h3>
                     {problem.testCases.map((testCase, index) => (
                       <div key={testCase.id} className="border-t border-dd-border pt-4">
-                        <p className="text-xs font-black text-dd-text">Exemplo {index + 1}</p>
+                        <p className="text-xs font-black text-dd-text">
+                          {text('Exemplo', 'Example')} {index + 1}
+                        </p>
                         <dl className="mt-2 grid gap-2 font-mono text-xs">
                           <div>
-                            <dt className="inline font-bold text-dd-muted">Entrada: </dt>
+                            <dt className="inline font-bold text-dd-muted">
+                              {text('Entrada: ', 'Input: ')}
+                            </dt>
                             <dd className="inline text-dd-text">{testCase.inputDisplay}</dd>
                           </div>
                           <div>
-                            <dt className="inline font-bold text-dd-muted">Saída: </dt>
+                            <dt className="inline font-bold text-dd-muted">
+                              {text('Saída: ', 'Output: ')}
+                            </dt>
                             <dd className="inline text-dd-text">{testCase.expectedDisplay}</dd>
                           </div>
                         </dl>
@@ -730,10 +791,11 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                       </div>
                       <div className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs text-dd-muted">
                         <span>
-                          {submission.passed_tests}/{submission.total_tests} testes
+                          {submission.passed_tests}/{submission.total_tests}{' '}
+                          {text('testes', 'tests')}
                         </span>
                         <span>{submission.runtime_ms ?? '—'} ms</span>
-                        <span>{submission.complexity ?? 'Não medida'}</span>
+                        <span>{submission.complexity ?? text('Não medida', 'Not measured')}</span>
                       </div>
                     </li>
                   ))}
@@ -741,9 +803,14 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
               ) : (
                 <div className="flex h-full min-h-64 flex-col items-center justify-center text-center">
                   <Send className="h-7 w-7 text-dd-muted" aria-hidden="true" />
-                  <p className="mt-3 text-sm font-bold">Nenhuma submissão ainda</p>
+                  <p className="mt-3 text-sm font-bold">
+                    {text('Nenhuma submissão ainda', 'No submissions yet')}
+                  </p>
                   <p className="mt-1 text-xs text-dd-muted">
-                    Execute casos públicos e envie quando estiver pronto.
+                    {text(
+                      'Execute casos públicos e envie quando estiver pronto.',
+                      'Run public test cases and submit when ready.'
+                    )}
                   </p>
                 </div>
               )}
@@ -760,13 +827,15 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
               <div className="flex h-10 items-center justify-between border-b border-dd-border bg-dd-card px-3">
                 <div className="flex items-center gap-2 text-xs font-bold">
                   <Code2 className="h-4 w-4 text-blue-600 dark:text-blue-400" aria-hidden="true" />
-                  Código{' '}
+                  {text('Código', 'Code')}{' '}
                   <span className="rounded bg-dd-surface px-1.5 py-0.5 text-[10px] text-dd-muted">
                     {language}
                   </span>
                 </div>
                 <span className="text-[11px] text-dd-muted">
-                  {editable ? 'Rascunho salvo localmente' : 'Somente leitura'}
+                  {editable
+                    ? text('Rascunho salvo localmente', 'Draft saved locally')
+                    : text('Somente leitura', 'Read-only')}
                 </span>
               </div>
               <div className={`h-[calc(100%_-_2.5rem)] ${styles.editor}`}>
@@ -776,7 +845,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                   language={language}
                   height="100%"
                   readOnly={!editable}
-                  ariaLabel={`Editor de solução em ${language}`}
+                  ariaLabel={`${text('Editor de solução em', 'Solution editor in')} ${language}`}
                 />
               </div>
             </div>
@@ -784,13 +853,13 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
               <div
                 className="flex h-10 items-end gap-1 border-b border-dd-border px-3"
                 role="tablist"
-                aria-label="Resultados da execução"
+                aria-label={text('Resultados da execução', 'Execution results')}
               >
                 {(
                   [
-                    ['cases', 'Casos de teste'],
-                    ['result', 'Resultado'],
-                    ['console', 'Console'],
+                    ['cases', text('Casos de teste', 'Test cases')],
+                    ['result', text('Resultado', 'Result')],
+                    ['console', text('Console', 'Console')],
                   ] as const
                 ).map(([tab, label]) => (
                   <button
@@ -849,7 +918,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                           ) : (
                             <FlaskConical className="h-3.5 w-3.5" aria-hidden="true" />
                           )}
-                          Caso {index + 1}
+                          {text('Caso', 'Case')} {index + 1}
                         </button>
                       );
                     })}
@@ -861,7 +930,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                       <section className="rounded-xl border border-dd-border bg-dd-card p-4">
                         <div className="flex flex-wrap items-center justify-between gap-2">
                           <h3 className="text-xs font-black text-dd-text">
-                            Caso {selectedTestCaseIndex + 1}
+                            {text('Caso', 'Case')} {selectedTestCaseIndex + 1}
                           </h3>
                           <span
                             className={cn(
@@ -874,10 +943,10 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                             )}
                           >
                             {selectedTestResult?.passed
-                              ? 'Passou'
+                              ? text('Passou', 'Passed')
                               : selectedTestResult
-                                ? 'Não passou'
-                                : 'Ainda não executado'}
+                                ? text('Não passou', 'Failed')
+                                : text('Ainda não executado', 'Not run yet')}
                           </span>
                         </div>
                         <p className="mt-1 text-[11px] leading-5 text-dd-muted">
@@ -885,13 +954,15 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                         </p>
                         <dl className="mt-3 grid gap-3 text-xs sm:grid-cols-2">
                           <div className="rounded-lg border border-dd-border/70 bg-dd-bg p-3">
-                            <dt className="font-bold text-dd-muted">Entrada</dt>
+                            <dt className="font-bold text-dd-muted">{text('Entrada', 'Input')}</dt>
                             <dd className="mt-1 whitespace-pre-wrap font-mono text-dd-text">
                               {selectedTestCase.inputDisplay}
                             </dd>
                           </div>
                           <div className="rounded-lg border border-dd-border/70 bg-dd-bg p-3">
-                            <dt className="font-bold text-dd-muted">Saída esperada</dt>
+                            <dt className="font-bold text-dd-muted">
+                              {text('Saída esperada', 'Expected output')}
+                            </dt>
                             <dd className="mt-1 whitespace-pre-wrap font-mono text-emerald-700 dark:text-emerald-300">
                               {selectedTestCase.expectedDisplay}
                             </dd>
@@ -917,20 +988,23 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                         </div>
                         <div className="mt-4 grid grid-cols-2 gap-3 text-xs sm:grid-cols-4">
                           <Metric
-                            label="Testes"
+                            label={text('Testes', 'Tests')}
                             value={`${judgment.passedTests}/${judgment.totalTests}`}
                           />
                           <Metric
-                            label="Execução"
+                            label={text('Execução', 'Runtime')}
                             value={judgment.runtimeMs === null ? '—' : `${judgment.runtimeMs} ms`}
                           />
-                          <Metric label="Complexidade" value={judgment.complexity} />
                           <Metric
-                            label="Confiança da análise"
+                            label={text('Complexidade', 'Complexity')}
+                            value={judgment.complexity}
+                          />
+                          <Metric
+                            label={text('Confiança da análise', 'Analysis confidence')}
                             value={
                               judgment.complexityConfidence === 'medium'
-                                ? 'Comparável'
-                                : 'Inconclusiva'
+                                ? text('Comparável', 'Comparable')
+                                : text('Inconclusiva', 'Inconclusive')
                             }
                           />
                         </div>
@@ -941,7 +1015,8 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                         )}
                         {judgment.complexityReason && (
                           <p className="mt-3 text-[11px] leading-5 text-dd-muted">
-                            Estimativa heurística: {judgment.complexityReason}
+                            {text('Estimativa heurística: ', 'Heuristic estimate: ')}
+                            {judgment.complexityReason}
                           </p>
                         )}
                       </section>
@@ -973,7 +1048,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
             className="dd-focus-ring flex flex-1 items-center justify-center gap-2 rounded-lg border border-dd-border px-3 py-2.5 text-xs font-bold disabled:opacity-45"
           >
             <Play className="h-4 w-4" aria-hidden="true" />
-            Executar
+            {text('Executar', 'Run')}
           </button>
           <button
             type="button"
@@ -1000,10 +1075,16 @@ function Metric({ label, value }: { label: string; value: string }) {
 }
 
 function EmptyResult() {
+  const { text } = useLocalizedText();
   return (
     <div className="flex h-full min-h-24 flex-col items-center justify-center text-center">
       <FlaskConical className="h-6 w-6 text-dd-muted" aria-hidden="true" />
-      <p className="mt-2 text-xs text-dd-muted">Execute o código para avaliar os casos públicos.</p>
+      <p className="mt-2 text-xs text-dd-muted">
+        {text(
+          'Execute o código para avaliar os casos públicos.',
+          'Run code to evaluate public test cases.'
+        )}
+      </p>
     </div>
   );
 }

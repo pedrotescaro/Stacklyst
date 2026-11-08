@@ -11,6 +11,8 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
   Plus,
+  Check,
+  Trash2,
   BookOpen,
   Swords,
   Trophy,
@@ -35,6 +37,7 @@ import { NotificationBellIcon } from '@/components/motion/NotificationBellIcon';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { getCurrentUser, invalidateCurrentUser } from '@/lib/client/current-user';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useSavedAccounts } from '@/hooks/useSavedAccounts';
 
 import { PostComposerDialog, type ComposerQuote } from '@/components/composer/PostComposerDialog';
 
@@ -76,6 +79,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   const router = useRouter();
   const { t, isEnglish } = useLanguage();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [managingAccounts, setManagingAccounts] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const shouldHideMobileHeader = hideMobileHeader || !['/feed', '/ranking'].includes(pathname);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -92,6 +96,14 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
     // so we can immediately return the user prop or the in-memory cache to be instant.
     return user || inMemoryUser;
   });
+
+  const {
+    savedAccount,
+    busy: accountsBusy,
+    switchAccount,
+    addAccount,
+    removeSavedAccount,
+  } = useSavedAccounts(activeUser?.id);
 
   useEffect(() => {
     isInitiallyMounted = true;
@@ -629,35 +641,126 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                 />
                 <div
                   role="menu"
-                  className="absolute bottom-full left-0 z-[120] mb-2 w-[290px] max-w-[calc(100vw-2rem)] origin-bottom-left overflow-hidden rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.4)] animate-slide-up"
+                  className="absolute bottom-full left-0 z-[120] mb-2 w-[300px] max-w-[calc(100vw-2rem)] origin-bottom-left overflow-hidden rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.4)] animate-slide-up"
                 >
+                  {/* Active Account */}
+                  <div
+                    role="menuitem"
+                    className="flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06]"
+                  >
+                    <AuthorAvatar
+                      username={activeUser.username}
+                      avatar_url={activeUser.avatar_url}
+                      avatar_config={activeUser.avatar_config}
+                      size="md"
+                      className="!h-10 !w-10 shrink-0"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-[15px] font-bold leading-snug text-dd-text dark:text-white">
+                        <ProfileName config={activeUser.avatar_config}>
+                          {activeUser.name ||
+                            (activeUser.avatar_config as any)?.name ||
+                            activeUser.username}
+                        </ProfileName>
+                      </p>
+                      <p className="truncate text-xs font-normal text-dd-muted dark:text-neutral-400">
+                        @{activeUser.username}
+                      </p>
+                    </div>
+                    <div
+                      className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-white"
+                      title={isEnglish ? 'Active account' : 'Conta ativa'}
+                    >
+                      <Check className="h-3.5 w-3.5 stroke-[3]" />
+                    </div>
+                  </div>
+
+                  {/* Saved / Secondary Account (if exists) */}
+                  {savedAccount && (
+                    <button
+                      type="button"
+                      role="menuitem"
+                      onClick={async () => {
+                        setDropdownOpen(false);
+                        await switchAccount();
+                      }}
+                      disabled={accountsBusy}
+                      className="flex w-full cursor-pointer items-center gap-3 rounded-xl p-3 text-left transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06] disabled:opacity-50"
+                    >
+                      <AuthorAvatar
+                        username={savedAccount.username}
+                        avatar_url={savedAccount.avatar_url}
+                        avatar_config={savedAccount.avatar_config}
+                        size="md"
+                        className="!h-10 !w-10 shrink-0"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-[15px] font-bold leading-snug text-dd-text dark:text-white">
+                          <ProfileName config={savedAccount.avatar_config}>
+                            {savedAccount.name || savedAccount.username}
+                          </ProfileName>
+                        </p>
+                        <p className="truncate text-xs font-normal text-dd-muted dark:text-neutral-400">
+                          @{savedAccount.username}
+                        </p>
+                      </div>
+                      {typeof savedAccount.unreadCount === 'number' &&
+                        savedAccount.unreadCount > 0 && (
+                          <span className="flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-blue-500 px-1.5 text-[11px] font-black text-white">
+                            {savedAccount.unreadCount > 99 ? '99+' : savedAccount.unreadCount}
+                          </span>
+                        )}
+                    </button>
+                  )}
+
+                  <div className="my-1.5 h-px bg-dd-border/60" />
+
+                  {/* Add an existing account */}
                   <button
                     type="button"
                     role="menuitem"
                     onClick={async () => {
-                      try {
-                        const response = await fetch('/api/auth/accounts', {
-                          method: 'POST',
-                          headers: { 'Content-Type': 'application/json' },
-                          body: JSON.stringify({ action: 'save' }),
-                        });
-                        const result = await response.json();
-                        if (!response.ok)
-                          throw new Error(result.error || 'Não foi possível adicionar a conta.');
-                        router.push('/login?addAccount=1');
-                      } catch (error) {
-                        showToast(
-                          error instanceof Error
-                            ? error.message
-                            : 'Não foi possível adicionar a conta.'
-                        );
-                      }
+                      setDropdownOpen(false);
+                      await addAccount();
                     }}
-                    className="flex w-full items-center gap-4 rounded-xl px-4 py-3.5 text-left text-sm font-bold text-dd-text hover:bg-dd-bg"
+                    disabled={accountsBusy}
+                    className="flex w-full items-center px-4 py-3 text-left text-[15px] font-bold text-dd-text transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06] rounded-xl disabled:opacity-50"
                   >
-                    <Plus className="h-5 w-5" />
                     {isEnglish ? 'Add an existing account' : 'Adicionar uma conta existente'}
                   </button>
+
+                  {/* Manage accounts */}
+                  {savedAccount &&
+                    (managingAccounts ? (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={async () => {
+                          await removeSavedAccount();
+                          setManagingAccounts(false);
+                        }}
+                        disabled={accountsBusy}
+                        className="flex w-full items-center justify-between rounded-xl px-4 py-3 text-left text-[14px] font-bold text-amber-500 transition-colors hover:bg-amber-500/10"
+                      >
+                        <span>
+                          {isEnglish
+                            ? `Remove @${savedAccount.username}`
+                            : `Remover @${savedAccount.username}`}
+                        </span>
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => setManagingAccounts(true)}
+                        className="flex w-full items-center px-4 py-3 text-left text-[15px] font-bold text-dd-text transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06] rounded-xl"
+                      >
+                        {isEnglish ? 'Manage accounts' : 'Gerenciar contas'}
+                      </button>
+                    ))}
+
+                  {/* Log out of @username */}
                   <button
                     type="button"
                     role="menuitem"
@@ -665,10 +768,13 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                       setDropdownOpen(false);
                       handleSignOut();
                     }}
-                    className="flex w-full cursor-pointer items-center gap-4 rounded-xl px-4 py-3.5 text-left text-[15px] font-extrabold leading-none text-red-500 transition-colors hover:bg-red-500/10 focus-visible:bg-red-500/10 focus-visible:outline-none"
+                    className="flex w-full cursor-pointer items-center px-4 py-3 text-left text-[15px] font-bold text-dd-text transition-colors hover:bg-black/[0.04] dark:hover:bg-white/[0.06] rounded-xl focus-visible:outline-none"
                   >
-                    <LogOut className="h-5.5 w-5.5 shrink-0" />
-                    <span>{isEnglish ? 'Log out of current account' : 'Sair da conta atual'}</span>
+                    <span>
+                      {isEnglish
+                        ? `Log out of @${activeUser.username}`
+                        : `Sair de @${activeUser.username}`}
+                    </span>
                   </button>
                 </div>
               </>
