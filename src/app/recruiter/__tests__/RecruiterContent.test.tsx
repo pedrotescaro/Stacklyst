@@ -132,6 +132,8 @@ describe('RecruiterContent Dashboard & Applicants', () => {
   it('renders overview metrics and published jobs with applicant counters', async () => {
     vi.spyOn(global, 'fetch').mockImplementation(async (url: any) => {
       const urlStr = String(url);
+      if (urlStr === '/api/jobs/activities')
+        return { ok: true, json: async () => ({ exercises: [], duels: [] }) } as Response;
       if (urlStr.includes('/api/companies')) {
         return { ok: true, json: async () => mockCompanies } as Response;
       }
@@ -166,6 +168,8 @@ describe('RecruiterContent Dashboard & Applicants', () => {
   it('expands job applicants drawer and lists candidate details', async () => {
     vi.spyOn(global, 'fetch').mockImplementation(async (url: any) => {
       const urlStr = String(url);
+      if (urlStr === '/api/jobs/activities')
+        return { ok: true, json: async () => ({ exercises: [], duels: [] }) } as Response;
       if (urlStr.includes('/api/companies')) {
         return { ok: true, json: async () => mockCompanies } as Response;
       }
@@ -205,6 +209,8 @@ describe('RecruiterContent Dashboard & Applicants', () => {
       .spyOn(global, 'fetch')
       .mockImplementation(async (url: any, options: any) => {
         const urlStr = String(url);
+        if (urlStr === '/api/jobs/activities')
+          return { ok: true, json: async () => ({ exercises: [], duels: [] }) } as Response;
         if (urlStr.includes('/api/companies')) {
           return { ok: true, json: async () => mockCompanies } as Response;
         }
@@ -257,6 +263,8 @@ describe('RecruiterContent Dashboard & Applicants', () => {
   it('renders empty state when recruiter has no jobs published', async () => {
     vi.spyOn(global, 'fetch').mockImplementation(async (url: any) => {
       const urlStr = String(url);
+      if (urlStr === '/api/jobs/activities')
+        return { ok: true, json: async () => ({ exercises: [], duels: [] }) } as Response;
       if (urlStr.includes('/api/companies')) {
         return { ok: true, json: async () => mockCompanies } as Response;
       }

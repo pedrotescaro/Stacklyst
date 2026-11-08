@@ -45,6 +45,7 @@ describe('JobService', () => {
         ownerId: 'owner',
         companyId: 'third-party-company',
         status: 'ALL',
+        includeExpired: true,
       });
       expect(prisma.job.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -61,6 +62,7 @@ describe('JobService', () => {
       const jobs = await JobService.listJobs({
         companyId: 'comp-123',
         status: 'ALL',
+        includeExpired: true,
       });
 
       expect(prisma.job.findMany).toHaveBeenCalledWith({

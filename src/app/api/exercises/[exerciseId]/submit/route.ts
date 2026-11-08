@@ -11,6 +11,7 @@ import {
 } from '@/lib/exercises/repository';
 import { rateLimit } from '@/lib/ratelimit';
 import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
+import { syncRecruitmentResultsSafely } from '@/services/job-activity.service';
 
 const submissionSchema = z.object({
   code: z.string().min(1).max(20_000),
@@ -32,7 +33,7 @@ export const POST = apiHandler(async (request, { session, params }) => {
 
   const exercise = await getExerciseForEvaluation(exerciseId, true);
   if (!exercise) throw new NotFoundError('EXERCISE_NOT_FOUND', 'Exercício não encontrado.');
-  await requireExerciseAccess(session.id, exercise.knowledge_node_id);
+  await requireExerciseAccess(session.id, exercise.knowledge_node_id, exercise.id);
 
   const evaluation = await evaluateExerciseCode({
     code,
@@ -48,6 +49,7 @@ export const POST = apiHandler(async (request, { session, params }) => {
     evaluation,
   });
   if (evaluation.ok && evaluation.passed) await syncProfileAchievementsSafely(session.id);
+  if (evaluation.ok && evaluation.passed) await syncRecruitmentResultsSafely(session.id);
 
   return NextResponse.json(
     {

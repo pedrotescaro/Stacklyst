@@ -161,6 +161,38 @@ describe('Administrative workflow', () => {
     expect(await screen.findByRole('status')).toHaveTextContent('Função do usuário atualizada.');
   });
 
+  it('dismisses a report with justification while preserving the publication', async () => {
+    const fetchMock = vi
+      .spyOn(global, 'fetch')
+      .mockImplementation(async (input, init) =>
+        init?.method === 'PATCH' ? response({ success: true }) : defaultResponse(input)
+      );
+    render(<AdminContent user={user} />);
+    fireEvent.click(await screen.findByRole('button', { name: /Denúncias/ }));
+    const submit = await screen.findByRole('button', {
+      name: 'Encerrar denúncia e manter publicação',
+    });
+    expect(submit).toBeDisabled();
+    fireEvent.change(screen.getByLabelText('Justificativa para manter a publicação'), {
+      target: { value: 'Conteúdo permitido após revisão.' },
+    });
+    fireEvent.click(submit);
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/api/admin/reports',
+        expect.objectContaining({
+          method: 'PATCH',
+          body: JSON.stringify({
+            report_id: 'report',
+            justification: 'Conteúdo permitido após revisão.',
+          }),
+        })
+      )
+    );
+    expect(await screen.findByRole('status')).toHaveTextContent('publicação foi mantida');
+    expect(fetchMock.mock.calls.some(([, init]) => init?.method === 'DELETE')).toBe(false);
+  });
+
   it('requires confirmation before deleting a reported post', async () => {
     const fetchMock = vi
       .mocked(global.fetch)

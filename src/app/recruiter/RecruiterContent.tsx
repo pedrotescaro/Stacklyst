@@ -16,6 +16,7 @@ import {
 import { PlatformPageHeader, PlatformPageShell } from '@/components/PlatformPageShell';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import styles from './recruiter.module.css';
+import { JobStageAssignments } from '@/components/jobs/JobStageAssignments';
 
 interface JobApplicationItem {
   id: string;
@@ -63,7 +64,13 @@ interface RecruiterJobItem {
     location: string | null;
     is_verified: boolean;
   };
-  stages: { id: string; title: string; type: string; order: number }[];
+  stages: {
+    id: string;
+    title: string;
+    type: string;
+    order: number;
+    challenge_id?: string | null;
+  }[];
   _count: {
     applications: number;
   };
@@ -625,6 +632,26 @@ export function RecruiterContent({ user }: { user: any }) {
                           className={styles.applicants}
                           aria-label={`Candidaturas de ${job.title}`}
                         >
+                          <JobStageAssignments
+                            jobId={job.id}
+                            stages={job.stages}
+                            onSaved={(stageId, assignment) =>
+                              setJobs((current) =>
+                                current.map((item) =>
+                                  item.id === job.id
+                                    ? {
+                                        ...item,
+                                        stages: item.stages.map((stage) =>
+                                          stage.id === stageId
+                                            ? { ...stage, challenge_id: assignment }
+                                            : stage
+                                        ),
+                                      }
+                                    : item
+                                )
+                              )
+                            }
+                          />
                           <div className={styles.toolbar}>
                             <h4>Candidatos inscritos ({count})</h4>
                             <button

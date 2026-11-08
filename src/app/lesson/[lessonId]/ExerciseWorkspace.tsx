@@ -233,7 +233,7 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                 ? `/trails?view=trail&path=${encodeURIComponent(jumpChallenge.pathSlug)}`
                 : '/trails')
             }
-            aria-label="Voltar à trilha"
+            aria-label={returnTo?.startsWith('/jobs/') ? 'Voltar à vaga' : 'Voltar à trilha'}
             className={styles.iconButton}
           >
             <ArrowLeft size={21} aria-hidden="true" />

@@ -147,3 +147,17 @@ Fonte: [consulta](../../src/services/post.service.ts#L271).
 - Logs e JSONs de diagnóstico ficam em `.tmp/site-audit-*`. Eles incluem as execuções principal e de integração, respostas HTTP resumidas, inventário de esquema, executores e renderização do certificado. Credenciais de conexão e dados privados de candidatos não são reproduzidos neste relatório.
 
 Ordem sugerida de trabalho: restaurar desafios de eventos; completar o vínculo das etapas técnicas; corrigir as respostas de quota e denúncias; adicionar resolução improcedente; tratar filtros e expiração de vagas; ajustar o disparo do CI.
+
+## Resolução dos problemas da auditoria (A01 a A08)
+
+Todos os oito problemas identificados na auditoria foram corrigidos e validados:
+
+- **A01 (Desafios de eventos):** Migration `20261108161652_restore_event_challenges` criada e aplicada com Row Level Security (RLS) habilitada e reconciliação no histórico do Prisma. A rota `/api/events/[id]/challenges` responde 200 com a coleção de desafios e limites.
+- **A02 (Etapas técnicas de vagas):** Implementado serviço `JobActivityService` e componentes `JobStageActivity` e `JobStageAssignments`, permitindo que recrutadores vinculem exercícios ou duelos a etapas seletivas, que candidatos iniciem e concluam suas atividades e que as notas persistam diretamente no processo seletivo.
+- **A03 (Quota de duelos 429):** Rotas de execução e submissão de duelos agora tratam `RateLimitError` propagando o status HTTP 429, cabeçalho `Retry-After` e mensagem legível ao usuário.
+- **A04 (Validação e concorrência em denúncias):** Esquema Zod adicionado para validar tipo e tamanho do motivo (1 a 1000 caracteres) e tratamento idempotente de concorrência sobre a restrição única.
+- **A05 (Resolução de denúncias sem exclusão):** Adicionada rota PATCH `/api/admin/reports` e ação no painel administrativo para encerrar denúncia improcedente com justificativa obrigatória e evento de auditoria, mantendo o post intacto.
+- **A06 (Filtros de vagas inválidos):** Parâmetros de consulta (`level`, `modality`, `contract`, `status`) validados via Zod na rota `/api/jobs`, rejeitando valores desconhecidos com HTTP 400.
+- **A07 (Expiração de vagas):** Verificação de `expires_at` integrada à listagem pública e ao envio de candidatura, rejeitando candidaturas para vagas vencidas com código `JOB_CLOSED` (HTTP 409).
+- **A08 (Disparo do CI):** Configurado evento `push: branches: [main]` no workflow `.github/workflows/ci.yml`.
+

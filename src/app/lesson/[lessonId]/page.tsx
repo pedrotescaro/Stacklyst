@@ -54,7 +54,11 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
   }
 
   const isExplicitWorkspace = firstSearchValue(query.mode) === 'workspace';
-  const returnTo = getSafeTrailReturnHref(firstSearchValue(query.returnTo));
+  const recruitmentJob = firstSearchValue(query.recruitmentJob);
+  const returnTo =
+    isExplicitWorkspace && recruitmentJob && /^[a-zA-Z0-9_-]{1,128}$/.test(recruitmentJob)
+      ? `/jobs/${recruitmentJob}`
+      : getSafeTrailReturnHref(firstSearchValue(query.returnTo));
 
   if (!isExplicitWorkspace) {
     const lesson = getLessonById(lessonId);

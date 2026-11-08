@@ -222,6 +222,14 @@ async function persistResolution(
   });
 
   if (!committed) return null;
+  if (targetStatus === 'CLOSED') {
+    const { syncRecruitmentResultsSafely } = await import('@/services/job-activity.service');
+    await Promise.all(
+      [duel.challenger_id, duel.opponent_id]
+        .filter((id): id is string => !!id)
+        .map(syncRecruitmentResultsSafely)
+    );
+  }
   await pushEvaluatorNotifications(pushTargets);
 
   return prisma.duel.findUnique({

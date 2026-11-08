@@ -246,6 +246,27 @@ export const AdminService = {
     });
   },
 
+  /** Resolve a false positive while keeping the post and retaining the decision. */
+  async dismissReport(reportId: string, justification: string, actorId: string) {
+    await prisma.$transaction(async (tx) => {
+      const report = await tx.report.findUnique({
+        where: { id: reportId },
+        select: { post_id: true, reason: true },
+      });
+      if (!report) throw new NotFoundError('REPORT_NOT_FOUND', 'Denúncia não encontrada.');
+      const claim = await tx.report.deleteMany({ where: { id: reportId } });
+      if (claim.count !== 1)
+        throw new NotFoundError('REPORT_NOT_FOUND', 'Esta denúncia já foi resolvida.');
+      await recordSecurityAudit(tx, {
+        actorId,
+        action: 'REPORT_DISMISSED',
+        resourceId: report.post_id,
+        metadata: { report_id: reportId, reason: report.reason, justification },
+      });
+    });
+    return { success: true };
+  },
+
   /**
    * Delete reported post and resolve report.
    */

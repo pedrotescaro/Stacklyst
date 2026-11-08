@@ -15,13 +15,19 @@ import type { KnowledgeProgressStatus } from '@/lib/learning/types';
 import { AppError } from '@/lib/errors';
 import { learningTransaction } from '@/lib/learning/transaction';
 import { reconcileCredentialsInTransaction } from '@/lib/credentials/repository';
+import { hasRecruitmentExerciseAccess } from '@/lib/recruitment-exercise-access';
 
-export async function requireExerciseAccess(userId: string, knowledgeNodeId: string) {
+export async function requireExerciseAccess(
+  userId: string,
+  knowledgeNodeId: string,
+  exerciseId?: string
+) {
   const edges = await prisma.knowledgeEdge.findMany({
     where: { target_node_id: knowledgeNodeId, relation: 'REQUIRED' },
     select: { source_node_id: true, source_node: { select: { title: true } } },
   });
   if (!edges.length) return;
+  if (exerciseId && (await hasRecruitmentExerciseAccess(userId, exerciseId))) return;
   const progress = await prisma.userNodeProgress.findMany({
     where: {
       user_id: userId,

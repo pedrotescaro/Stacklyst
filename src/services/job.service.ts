@@ -11,6 +11,8 @@ import {
 } from '@prisma/client';
 import { NotificationService } from './notification.service';
 import { recordSecurityAudit } from '@/lib/security-audit';
+import { isJobAcceptingApplications } from '@/lib/job-availability';
+import { AppError } from '@/lib/errors';
 
 export const JobService = {
   /**
@@ -25,6 +27,7 @@ export const JobService = {
     status?: JobStatus | 'ALL';
     companyId?: string;
     ownerId?: string;
+    includeExpired?: boolean;
   }) {
     const where: any = {};
 
@@ -33,6 +36,8 @@ export const JobService = {
     } else if (!filters?.status) {
       where.status = 'OPEN';
     }
+    if (!filters?.includeExpired)
+      where.AND = [{ OR: [{ expires_at: null }, { expires_at: { gt: new Date() } }] }];
 
     if (filters?.companyId) where.company_id = filters.companyId;
     if (filters?.ownerId) where.company = { owner_id: filters.ownerId };
@@ -264,7 +269,7 @@ export const JobService = {
     });
 
     if (existing) {
-      throw new Error('Você já se candidatou a esta vaga.');
+      throw new AppError('ALREADY_APPLIED', 'Você já se candidatou a esta vaga.', 409);
     }
 
     const job = await prisma.job.findUnique({
@@ -275,8 +280,8 @@ export const JobService = {
       },
     });
 
-    if (!job || job.status !== 'OPEN') {
-      throw new Error('Esta vaga não está mais aceitando inscrições.');
+    if (!job || !isJobAcceptingApplications(job)) {
+      throw new AppError('JOB_CLOSED', 'Esta vaga não está mais aceitando inscrições.', 409);
     }
 
     const firstStage = job.stages[0];

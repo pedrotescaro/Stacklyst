@@ -7,15 +7,16 @@ import { judgeDuelCode } from '@/lib/duels/judge';
 import { findTrustedDuelProblemByTitle } from '@/lib/duels/problems';
 import { rateLimit } from '@/lib/ratelimit';
 import { resolveDuelAtDeadline } from '@/lib/duels/resolution';
+import { apiHandler } from '@/lib/api-handler';
 
 const runSchema = z.object({ code: z.string().trim().min(1).max(20_000) });
 
-export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
+export const POST = apiHandler(async (request, { params }) => {
   const user = await getAuthUser();
   if (!user) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
   const { id: duelId } = await params;
-  const parsed = runSchema.safeParse(await request.json());
+  const parsed = runSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) {
     return NextResponse.json({ error: 'Envie um código válido para executar.' }, { status: 400 });
   }
@@ -55,4 +56,4 @@ export async function POST(request: Request, { params }: { params: Promise<{ id:
   });
 
   return NextResponse.json({ success: true, judgment });
-}
+});

@@ -33,6 +33,17 @@ beforeEach(() => {
 });
 
 describe('Recruiter managed listings', () => {
+  it.each(['level', 'modality', 'contract', 'status'])(
+    'validates invalid %s before querying vacancies',
+    async (parameter) => {
+      const response = await jobs(
+        new Request(`https://stacklyst.test/api/jobs?${parameter}=INVALID`),
+        context
+      );
+      expect(response.status).toBe(400);
+      expect(mocks.jobs).not.toHaveBeenCalled();
+    }
+  );
   it('scopes companies to the authenticated owner and ignores a forged owner query', async () => {
     const response = await companies(
       new Request('https://stacklyst.test/api/companies?mine=true&owner_id=another-owner'),

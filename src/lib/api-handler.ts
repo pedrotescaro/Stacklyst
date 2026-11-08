@@ -110,6 +110,15 @@ export function apiHandler(
           response.headers.set('X-RateLimit-Reset', String(Math.ceil(store.reset / 1000)));
         }
 
+        if (statusCode === 429) {
+          const reset = store.reset ?? e.details?.reset;
+          if (typeof reset === 'number' && Number.isFinite(reset))
+            response.headers.set(
+              'Retry-After',
+              String(Math.max(1, Math.ceil((reset - Date.now()) / 1000)))
+            );
+        }
+
         return response;
       }
     });

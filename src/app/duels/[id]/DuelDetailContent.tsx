@@ -294,8 +294,8 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
       const data = await response.json();
       if (!response.ok) {
         setBottomTab('console');
-        setActionError(data.error ?? 'Não foi possível avaliar a solução.');
-        setConsoleOutput(data.error ?? 'Falha na avaliação.');
+        setActionError(data.message ?? data.error ?? 'Não foi possível avaliar a solução.');
+        setConsoleOutput(data.message ?? data.error ?? 'Falha na avaliação.');
         if (data.duel) setDuel((current) => ({ ...current, ...data.duel }));
         return;
       }

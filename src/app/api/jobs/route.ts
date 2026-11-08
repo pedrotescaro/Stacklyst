@@ -42,12 +42,21 @@ const createJobSchema = z.object({
 export const GET = apiHandler(async (req) => {
   const { searchParams } = new URL(req.url);
   const search = searchParams.get('search') || undefined;
-  const level = (searchParams.get('level') as JobLevel) || undefined;
-  const modality = (searchParams.get('modality') as JobModality) || undefined;
-  const contract = (searchParams.get('contract') as JobContract) || undefined;
+  const level = z
+    .nativeEnum(JobLevel)
+    .optional()
+    .parse(searchParams.get('level') || undefined);
+  const modality = z
+    .nativeEnum(JobModality)
+    .optional()
+    .parse(searchParams.get('modality') || undefined);
+  const contract = z
+    .nativeEnum(JobContract)
+    .optional()
+    .parse(searchParams.get('contract') || undefined);
   const technology = searchParams.get('technology') || undefined;
   const statusParam = searchParams.get('status');
-  const status = statusParam === 'ALL' ? 'ALL' : (statusParam as JobStatus) || 'OPEN';
+  const status = z.union([z.nativeEnum(JobStatus), z.literal('ALL')]).parse(statusParam || 'OPEN');
   const companyId = searchParams.get('company_id') || undefined;
   const managed = searchParams.get('mine') === 'true';
   const manager = managed ? await requireRole(['RECRUITER', 'ADMIN']) : null;
@@ -61,6 +70,7 @@ export const GET = apiHandler(async (req) => {
     status,
     companyId,
     ownerId: manager && manager.role !== 'ADMIN' ? manager.id : undefined,
+    includeExpired: managed,
   });
 
   return NextResponse.json(jobs, {

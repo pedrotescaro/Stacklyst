@@ -30,7 +30,7 @@ export const POST = apiHandler(async (request, { session, params }) => {
 
   const exercise = await getExerciseForEvaluation(exerciseId, false);
   if (!exercise) throw new NotFoundError('EXERCISE_NOT_FOUND', 'Exercício não encontrado.');
-  await requireExerciseAccess(session.id, exercise.knowledge_node_id);
+  await requireExerciseAccess(session.id, exercise.knowledge_node_id, exercise.id);
 
   const evaluation = await evaluateExerciseCode({
     code,

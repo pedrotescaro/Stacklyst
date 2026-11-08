@@ -23,3 +23,18 @@ export const DELETE = apiHandler(async (req) => {
   const result = await AdminService.deleteReportedPost(parsed.report_id, parsed.post_id, actor.id);
   return NextResponse.json(result);
 });
+
+export const PATCH = apiHandler(async (req) => {
+  const actor = await requireAdmin();
+  const { report_id, justification } = z
+    .object({
+      report_id: z.string().trim().min(1).max(128),
+      justification: z
+        .string()
+        .trim()
+        .min(5, 'Explique por que a publicação deve ser mantida.')
+        .max(1000),
+    })
+    .parse(await req.json().catch(() => null));
+  return NextResponse.json(await AdminService.dismissReport(report_id, justification, actor.id));
+});

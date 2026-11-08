@@ -102,6 +102,7 @@ export function AdminContent({ user }: { user: ComponentProps<typeof PlatformPag
   const [evaluatorApps, setEvaluatorApps] = useState<EvaluatorApp[]>([]);
   const [usersList, setUsersList] = useState<AdminUser[]>([]);
   const [reportsList, setReportsList] = useState<ReportItem[]>([]);
+  const [dismissNotes, setDismissNotes] = useState<Record<string, string>>({});
   const [searchDraft, setSearchDraft] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [usersPage, setUsersPage] = useState(1);
@@ -854,6 +855,49 @@ export function AdminContent({ user }: { user: ComponentProps<typeof PlatformPag
                         <ArrowRight size={16} aria-hidden="true" />
                       </Link>
                       <p className={styles.postBody}>{report.post.body}</p>
+                      <form
+                        className={styles.review}
+                        onSubmit={(event) => {
+                          event.preventDefault();
+                          void performAction(
+                            report.id,
+                            '/api/admin/reports',
+                            'PATCH',
+                            {
+                              report_id: report.id,
+                              justification: dismissNotes[report.id]?.trim(),
+                            },
+                            'Denúncia encerrada. A publicação foi mantida.'
+                          );
+                        }}
+                      >
+                        <label htmlFor={`dismiss-${report.id}`}>
+                          Justificativa para manter a publicação
+                        </label>
+                        <textarea
+                          id={`dismiss-${report.id}`}
+                          maxLength={1000}
+                          value={dismissNotes[report.id] ?? ''}
+                          disabled={Boolean(pendingAction)}
+                          onChange={(event) =>
+                            setDismissNotes((current) => ({
+                              ...current,
+                              [report.id]: event.target.value,
+                            }))
+                          }
+                          placeholder="Explique por que o conteúdo não deve ser removido."
+                        />
+                        <button
+                          className={styles.secondary}
+                          type="submit"
+                          disabled={
+                            Boolean(pendingAction) ||
+                            (dismissNotes[report.id]?.trim().length ?? 0) < 5
+                          }
+                        >
+                          Encerrar denúncia e manter publicação
+                        </button>
+                      </form>
                       {confirmDeleteId === report.id ? (
                         <div className={styles.confirmation}>
                           <p>

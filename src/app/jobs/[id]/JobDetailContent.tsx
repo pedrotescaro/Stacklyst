@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, CircleAlert, Send, ShieldCheck } from 'lucide-react';
 import { PlatformPageShell } from '@/components/PlatformPageShell';
 import styles from '../jobs.module.css';
+import { isJobAcceptingApplications } from '@/lib/job-availability';
+import { JobStageActivity } from '@/components/jobs/JobStageActivity';
 
 interface RecruitmentStage {
   id: string;
@@ -15,7 +17,7 @@ interface RecruitmentStage {
 interface Application {
   status: string;
   stage_id?: string | null;
-  stage?: { id?: string; title: string } | null;
+  stage?: { id?: string; title: string; type?: string } | null;
   feedback?: string | null;
 }
 interface JobDetailProps {
@@ -31,6 +33,7 @@ interface JobDetailProps {
     salary_min?: number | null;
     salary_max?: number | null;
     status?: string;
+    expires_at?: string | Date | null;
     company: { name: string; location?: string | null; is_verified?: boolean };
     technologies: string[];
     stages: RecruitmentStage[];
@@ -104,7 +107,7 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
   const [applying, setApplying] = useState(false);
   const [applySuccess, setApplySuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const acceptingApplications = !job.status || job.status === 'OPEN';
+  const acceptingApplications = isJobAcceptingApplications(job);
   const stages = [...job.stages].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
   const currentStageId = application?.stage_id ?? application?.stage?.id;
   const statusLabel = application
@@ -270,6 +273,11 @@ export function JobDetailContent({ user, job }: JobDetailProps) {
               {NEXT_STEPS[application.status] ??
                 'Acompanhe o status da candidatura e as orientações da empresa nesta página.'}
             </p>
+            {application.stage?.type &&
+              ['DESAFIO_TECNICO', 'DUELO_TECNICO'].includes(application.stage.type) &&
+              !['REJECTED', 'OFFER'].includes(application.status) && (
+                <JobStageActivity key={application.stage.id} jobId={job.id} />
+              )}
             <div className={styles.feedback}>
               <h3>Feedback da empresa</h3>
               <p className={styles.prose}>
