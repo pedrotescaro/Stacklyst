@@ -76,12 +76,14 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [isAddAccount, setIsAddAccount] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.add('lp-landing-page');
 
     if (typeof window !== 'undefined') {
       const queryParams = new URLSearchParams(window.location.search);
+      setIsAddAccount(queryParams.get('addAccount') === '1');
       const queryError = queryParams.get('error');
       if (queryError) {
         setError(queryError);
@@ -111,15 +113,19 @@ export default function LoginPage() {
   // may have rotated its refresh token while the login page was loading.
   const preserveCurrentAccount = async () => {
     if (new URLSearchParams(window.location.search).get('addAccount') !== '1') return true;
-    const response = await fetch('/api/auth/accounts', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'save' }),
-    });
-    if (response.ok) return true;
-    const result = await response.json().catch(() => null);
-    setError(result?.error || copy.signInError);
-    return false;
+    try {
+      const response = await fetch('/api/auth/accounts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'save' }),
+      });
+      if (response.ok || response.status === 409) return true;
+      const result = await response.json().catch(() => null);
+      setError(result?.error || copy.signInError);
+      return false;
+    } catch {
+      return true;
+    }
   };
 
   const handleOAuthLogin = async (provider: OAuthProvider) => {
@@ -239,10 +245,18 @@ export default function LoginPage() {
           <div className="w-full max-w-[466px] my-auto lg:my-0 pb-6 lg:pb-0">
             <header className="text-center">
               <h2 className="text-2xl sm:text-[28px] font-semibold leading-tight tracking-[-0.045em] text-white">
-                {copy.heading}
+                {isAddAccount
+                  ? isEnglish
+                    ? 'Add an existing account'
+                    : 'Adicionar uma conta existente'
+                  : copy.heading}
               </h2>
               <p className="mt-2 sm:mt-3 text-sm sm:text-[15px] leading-6 text-zinc-300">
-                {copy.subtitle}
+                {isAddAccount
+                  ? isEnglish
+                    ? 'Log in with another account to switch between them anytime'
+                    : 'Entre com outra conta para alternar entre elas a qualquer momento'
+                  : copy.subtitle}
               </p>
             </header>
 

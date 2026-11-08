@@ -254,6 +254,15 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   };
 
   const handleSignOut = async () => {
+    if (savedAccount) {
+      await switchAccount();
+      try {
+        await fetch('/api/auth/accounts', { method: 'DELETE' });
+      } catch {
+        // ignore
+      }
+      return;
+    }
     try {
       await fetch('/api/auth/logout', { method: 'POST' });
       inMemoryUser = null;
@@ -641,8 +650,12 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                 />
                 <div
                   role="menu"
-                  className="absolute bottom-full left-0 z-[120] mb-2 w-[300px] max-w-[calc(100vw-2rem)] origin-bottom-left overflow-hidden rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.4)] animate-slide-up"
+                  className="absolute bottom-full left-0 z-[120] mb-3 w-[300px] max-w-[calc(100vw-2rem)] origin-bottom-left rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.6)] animate-slide-up"
                 >
+                  <div
+                    aria-hidden="true"
+                    className="absolute -bottom-1.5 left-10 h-3 w-3 rotate-45 border-b border-r border-dd-border/70 bg-dd-surface"
+                  />
                   {/* Active Account */}
                   <div
                     role="menuitem"

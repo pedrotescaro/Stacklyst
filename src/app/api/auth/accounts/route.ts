@@ -23,13 +23,84 @@ function json(data: object, status = 200) {
   return NextResponse.json(data, { status, headers: { 'Cache-Control': 'private, no-store' } });
 }
 
+async function extractRefreshToken(client: any): Promise<string | null> {
+  // 1. Try getSession() (populated in Vitest mocks or when initialized)
+  try {
+    const sessionRes = await client.auth.getSession();
+    if (sessionRes?.data?.session?.refresh_token) {
+      return sessionRes.data.session.refresh_token;
+    }
+  } catch {
+    // ignore
+  }
+
+  // 2. Try storage adapter from @supabase/ssr
+  try {
+    const storage = client?.auth?.storage;
+    const storageKey = client?.auth?.storageKey;
+    if (storage && storageKey) {
+      const raw = await storage.getItem(storageKey);
+      if (raw) {
+        const parsed = typeof raw === 'string' ? JSON.parse(raw) : raw;
+        if (parsed?.refresh_token) return parsed.refresh_token;
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  // 3. Fallback: Parse cookies directly from store (handles direct and chunked base64url)
+  try {
+    const cookieStore = await cookies();
+    const all = cookieStore.getAll();
+    const authCookies = all.filter((c) => c.name.includes('-auth-token'));
+    if (authCookies.length > 0) {
+      const baseNames = new Set(authCookies.map((c) => c.name.replace(/\.\d+$/, '')));
+      for (const baseName of baseNames) {
+        const direct = authCookies.find((c) => c.name === baseName);
+        let combined = direct ? direct.value : '';
+        if (!combined) {
+          const chunks = authCookies
+            .filter((c) => c.name.startsWith(baseName + '.'))
+            .sort((a, b) => {
+              const idxA = parseInt(a.name.split('.').pop() || '0', 10);
+              const idxB = parseInt(b.name.split('.').pop() || '0', 10);
+              return idxA - idxB;
+            });
+          combined = chunks.map((c) => c.value).join('');
+        }
+        if (combined) {
+          let raw = combined;
+          if (raw.startsWith('base64-')) {
+            try {
+              raw = Buffer.from(raw.slice(7), 'base64url').toString('utf8');
+            } catch {
+              // ignore
+            }
+          }
+          try {
+            const parsed = JSON.parse(raw);
+            if (parsed?.refresh_token) return parsed.refresh_token;
+          } catch {
+            // ignore
+          }
+        }
+      }
+    }
+  } catch {
+    // ignore
+  }
+
+  return null;
+}
+
 async function currentAccount() {
   const client = await createClient();
   const { data: verified, error } = await client.auth.getUser();
-  if (error || !verified.user) return null;
-  const { data } = await client.auth.getSession();
-  if (!data.session || data.session.user.id !== verified.user.id) return null;
-  const session: Session = data.session;
+  if (error || !verified?.user) return null;
+
+  const refreshToken = (await extractRefreshToken(client)) || '';
+
   return {
     client,
     account: {
@@ -38,7 +109,7 @@ async function currentAccount() {
         0,
         160
       ),
-      refreshToken: session.refresh_token,
+      refreshToken,
     } satisfies SavedAccount,
   };
 }

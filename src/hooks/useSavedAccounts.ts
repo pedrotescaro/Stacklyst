@@ -75,8 +75,10 @@ export function useSavedAccounts(activeUserId?: string) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'save' }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Não foi possível adicionar a conta.');
+      if (!response.ok && response.status !== 409) {
+        const data = await response.json().catch(() => null);
+        throw new Error(data?.error || 'Não foi possível adicionar a conta.');
+      }
       window.dispatchEvent(new CustomEvent('stacklyst:accounts-updated'));
       window.location.assign('/login?addAccount=1');
     } catch (err) {
