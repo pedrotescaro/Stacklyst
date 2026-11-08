@@ -1,4 +1,5 @@
 import { credentialLanguageLogo } from './language-logos';
+import { credentialRibbonOutlines } from './badge-lettering';
 
 /** Shared vector paths for the credential badge and the printed certificate seal. */
 export const credentialBadgePaths = {
@@ -104,6 +105,7 @@ export function renderCredentialBadgeContents({
     ? { rim: '#8795a7', edge: '#d3dce6', field: '#233346', accent: '#b7c4d3', ink: '#233346' }
     : credentialBadgePalette(language);
   const logo = credentialLanguageLogo(language);
+  const ribbon = credentialBadgeRibbon(kind) as keyof typeof credentialRibbonOutlines;
   const [x, y, width, height] = logo.placement;
   const logoContents = logo.contents
     .replace(/\bid="([^"]+)"/g, (_match, id: string) => `id="${prefix}-logo-${id}"`)
@@ -135,7 +137,7 @@ export function renderCredentialBadgeContents({
 <path d="M40 198 L52 207 V198 Z M200 198 L188 207 V198 Z" fill="${palette.field}"/>
 <path d="${credentialBadgePaths.ribbonFront}" fill="${palette.edge}"/>
 <path d="M47 174 Q120 186 193 174 M47 193 Q120 205 193 193" fill="none" stroke="${palette.ink}" stroke-width=".6" opacity=".25"/>
-<text x="120" y="191" text-anchor="middle" fill="${palette.ink}" font-size="10" font-weight="700" font-family="Sora, Inter, Arial, sans-serif" letter-spacing=".3">${escapeXml(credentialBadgeRibbon(kind))}</text>
+<path data-credential-ribbon="${escapeXml(ribbon)}" d="${credentialRibbonOutlines[ribbon]}" fill="${palette.ink}"/>
 <g data-credential-status="${locked ? 'locked' : 'earned'}">${status}</g>`;
 }
 

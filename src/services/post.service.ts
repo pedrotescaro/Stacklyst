@@ -269,7 +269,12 @@ export const PostService = {
       ? buildPopularFeedCursorWhere(cursor)
       : buildCursorWhere(cursor, 'created_at');
     const finalWhere = {
-      AND: [whereClause, cursorWhere, visiblePostWhere(userId), feedDefinitionWhere(definition)],
+      AND: [
+        whereClause,
+        cursorWhere,
+        visiblePostWhere(userId),
+        ...(definition ? [feedDefinitionWhere(definition)] : []),
+      ],
     };
 
     const posts = await prisma.post.findMany({
@@ -367,7 +372,13 @@ export const PostService = {
     // Interests are ranking signals, not an audience restriction. Count all visible new posts.
 
     return prisma.post.count({
-      where: { AND: [where, visiblePostWhere(userId), feedDefinitionWhere(definition)] },
+      where: {
+        AND: [
+          where,
+          visiblePostWhere(userId),
+          ...(definition ? [feedDefinitionWhere(definition)] : []),
+        ],
+      },
     });
   },
 };

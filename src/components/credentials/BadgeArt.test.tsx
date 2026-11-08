@@ -18,5 +18,6 @@ it('gives copied badges independent accessible titles, gradients and lock filter
   const references = Array.from(container.innerHTML.matchAll(/url\(#([^)]+)\)/g));
   for (const [, id] of references) expect(ids).toContain(id);
   expect(container.querySelectorAll('[data-credential-logo="PYTHON"]')).toHaveLength(2);
-  expect(container.querySelectorAll('text')).toHaveLength(2);
+  expect(container.querySelectorAll('[data-credential-ribbon]')).toHaveLength(2);
+  expect(container.querySelector('text')).toBeNull();
 });

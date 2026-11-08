@@ -28,9 +28,10 @@ describe('shared credential badge SVG', () => {
       const logo = document.querySelector(`[data-credential-logo="${language}"]`)!;
       expect(logo).not.toBeNull();
       expect(paths(parse(logo.outerHTML))).toEqual(paths(parse(source)));
-      expect(Array.from(document.querySelectorAll('text')).map((text) => text.textContent)).toEqual(
-        ['CURSO CONCLUÍDO']
-      );
+      expect(
+        document.querySelector('[data-credential-ribbon]')?.getAttribute('data-credential-ribbon')
+      ).toBe('CURSO CONCLUÍDO');
+      expect(document.querySelector('text')).toBeNull();
       expect(document.querySelector('image, use, script, foreignObject')).toBeNull();
       expect(document.documentElement.getAttribute('viewBox')).toBe('0 0 240 260');
       expect(document.documentElement.getAttribute('width')).toBe('240');
@@ -46,8 +47,10 @@ describe('shared credential badge SVG', () => {
       const document = parse(renderCredentialBadgeSvg({ language, kind: 'practice' }));
       const logo = document.querySelector('[data-credential-logo="STACKLYST"]')!;
       expect(paths(parse(logo.outerHTML))).toEqual(paths(source));
-      expect(document.querySelectorAll('text')).toHaveLength(1);
-      expect(document.querySelector('text')?.textContent).toBe('PRÁTICA CONCLUÍDA');
+      expect(document.querySelectorAll('[data-credential-ribbon]')).toHaveLength(1);
+      expect(
+        document.querySelector('[data-credential-ribbon]')?.getAttribute('data-credential-ribbon')
+      ).toBe('PRÁTICA CONCLUÍDA');
     }
   });
 
@@ -98,7 +101,9 @@ describe('shared credential badge SVG', () => {
     });
     const document = parse(svg);
     expect(document.querySelector('title')?.textContent).toBe(title);
-    expect(document.querySelector('text')?.textContent).toBe('CONQUISTA');
+    expect(
+      document.querySelector('[data-credential-ribbon]')?.getAttribute('data-credential-ribbon')
+    ).toBe('CONQUISTA');
     expect(document.querySelector('script, [onload]')).toBeNull();
     expect(svg).toContain('&lt;script onload=&quot;bad()&quot;&gt;');
     expect(svg).not.toContain('<script');
@@ -114,4 +119,29 @@ describe('shared credential badge SVG', () => {
     expect(info.height).toBe(780);
     expect(info.format).toBe('png');
   });
+
+  it.each([
+    ['first_lesson', 'PRIMEIRO PASSO'],
+    ['section', 'SEÇÃO CONCLUÍDA'],
+    ['course', 'CURSO CONCLUÍDO'],
+    ['practice', 'PRÁTICA CONCLUÍDA'],
+    ['path', 'TRILHA CONCLUÍDA'],
+    ['unknown', 'CONQUISTA'],
+  ])(
+    'renders %s lettering without font lookup or unsupported glyph substitution',
+    async (kind, label) => {
+      const svg = renderCredentialBadgeSvg({ language: 'PYTHON', kind });
+      const document = parse(svg);
+      const ribbon = document.querySelector('[data-credential-ribbon]')!;
+      expect(ribbon.tagName).toBe('path');
+      expect(ribbon.getAttribute('data-credential-ribbon')).toBe(label);
+      expect(ribbon.getAttribute('d')!.length).toBeGreaterThan(200);
+      expect(svg).not.toMatch(/<text\b|font-family|@font-face/);
+      const { info } = await sharp(Buffer.from(svg))
+        .resize(720, 780)
+        .png()
+        .toBuffer({ resolveWithObject: true });
+      expect([info.width, info.height]).toEqual([720, 780]);
+    }
+  );
 });
