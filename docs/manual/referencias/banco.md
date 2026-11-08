@@ -1,6 +1,6 @@
 # Dicionário do banco
 
-Extraído do schema Prisma local. Tipo seguido de `?` permite ausência; `[]` representa coleção. `@id` identifica; `@unique` impede repetição; `@relation` vincula modelos; `@@map` informa a tabela física. O schema não comprova aplicação da migration no banco.
+Extraído do schema Prisma local para o escopo funcional documentado. Estruturas residuais fora desse escopo não são apresentadas como recursos atuais; o schema continua sendo o inventário físico completo. Tipo seguido de `?` permite ausência; `[]` representa coleção. `@id` identifica; `@unique` impede repetição; `@relation` vincula modelos; `@@map` informa a tabela física. O schema não comprova aplicação da migration no banco.
 
 ## enum Language
 
@@ -236,8 +236,6 @@ Extraído do schema Prisma local. Tipo seguido de `?` permite ausência; `[]` re
 | blocks_received           | UserBlock[]              | @relation("Blocked")            |
 | reactions                 | Reaction[]               |                                 |
 | message_reactions         | MessageReaction[]        |                                 |
-| guilds_owned              | Guild[]                  | @relation("OwnedGuilds")        |
-| guild_memberships         | GuildMember[]            |                                 |
 | evaluator_profile         | EvaluatorProfile?        |                                 |
 | evaluator_applications    | EvaluatorApplication[]   |                                 |
 | companies_owned           | Company[]                |                                 |
@@ -1189,12 +1187,6 @@ Configuração do modelo: `@@unique([message_id, user_id, emoji])`; `@@index([me
 
 Configuração do modelo: `@@unique([user_id, post_id])`; `@@index([created_at])`.
 
-## enum GuildRole
-
-- `OWNER`
-- `ADMIN`
-- `MEMBER`
-
 ## enum NotificationType
 
 - `LIKE`
@@ -1286,38 +1278,6 @@ Configuração do modelo: `@@id([followerId, followingId])`; `@@index([followerI
 | user       | User     | @relation(fields: [user_id], references: [id], onDelete: Cascade) |
 
 Configuração do modelo: `@@unique([post_id, user_id])`; `@@index([post_id])`.
-
-## model Guild
-
-| Campo       | Tipo          | Restrições, relações e defaults                                                   |
-| ----------- | ------------- | --------------------------------------------------------------------------------- |
-| id          | String        | @id @default(uuid())                                                              |
-| name        | String        |                                                                                   |
-| slug        | String        | @unique                                                                           |
-| description | String?       |                                                                                   |
-| icon        | String?       |                                                                                   |
-| language    | Language?     |                                                                                   |
-| is_public   | Boolean       | @default(true)                                                                    |
-| created_at  | DateTime      | @default(now())                                                                   |
-| owner_id    | String        |                                                                                   |
-| owner       | User          | @relation("OwnedGuilds", fields: [owner_id], references: [id], onDelete: Cascade) |
-| members     | GuildMember[] |                                                                                   |
-
-Configuração do modelo: `@@index([slug])`; `@@index([created_at(sort: Desc)])`.
-
-## model GuildMember
-
-| Campo     | Tipo      | Restrições, relações e defaults                                    |
-| --------- | --------- | ------------------------------------------------------------------ |
-| id        | String    | @id @default(uuid())                                               |
-| guild_id  | String    |                                                                    |
-| user_id   | String    |                                                                    |
-| role      | GuildRole | @default(MEMBER)                                                   |
-| joined_at | DateTime  | @default(now())                                                    |
-| guild     | Guild     | @relation(fields: [guild_id], references: [id], onDelete: Cascade) |
-| user      | User      | @relation(fields: [user_id], references: [id], onDelete: Cascade)  |
-
-Configuração do modelo: `@@unique([guild_id, user_id])`; `@@index([user_id])`.
 
 ## model QuizLibrary
 

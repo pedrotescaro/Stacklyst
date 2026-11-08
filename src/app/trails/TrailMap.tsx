@@ -27,6 +27,7 @@ import {
 import { TransformWrapper, TransformComponent, useControls } from 'react-zoom-pan-pinch';
 import { TrailMapLessonPopover } from '@/app/trails/TrailMapLessonPopover';
 import { cn } from '@/lib/cn';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { getTrailSectorAccent, getTrailSectorRegionLabel } from '@/app/trails/trailSectorVisuals';
 import type {
   KnowledgeMapEdge,
@@ -142,7 +143,7 @@ function getSectorAngle(index: number, count: number) {
   return 100 + (index - angles.length + 1) * 32;
 }
 
-function buildVisualSectors(paths: LearningPathSummary[]): VisualSector[] {
+function buildVisualSectors(paths: LearningPathSummary[], isEnglish = false): VisualSector[] {
   if (paths.length === 4) {
     const frontend = paths[0]!;
     const systems = paths[1]!;
@@ -153,7 +154,7 @@ function buildVisualSectors(paths: LearningPathSummary[]): VisualSector[] {
         id: `${frontend.id}-west`,
         path: frontend,
         title: frontend.title,
-        regionLabel: 'Setor Oeste',
+        regionLabel: isEnglish ? 'West Sector' : 'Setor Oeste',
         angle: 180,
         accent: getTrailSectorAccent(0, paths.length, frontend.accentColor),
         sectorIndex: 0,
@@ -162,7 +163,7 @@ function buildVisualSectors(paths: LearningPathSummary[]): VisualSector[] {
         id: `${systems.id}-north`,
         path: systems,
         title: systems.title,
-        regionLabel: 'Setor Norte',
+        regionLabel: isEnglish ? 'North Sector' : 'Setor Norte',
         angle: -90,
         accent: getTrailSectorAccent(1, paths.length, systems.accentColor),
         sectorIndex: 1,
@@ -171,7 +172,7 @@ function buildVisualSectors(paths: LearningPathSummary[]): VisualSector[] {
         id: `${algorithms.id}-east`,
         path: algorithms,
         title: algorithms.title,
-        regionLabel: 'Setor Leste',
+        regionLabel: isEnglish ? 'East Sector' : 'Setor Leste',
         angle: 0,
         accent: getTrailSectorAccent(2, paths.length, algorithms.accentColor),
         sectorIndex: 2,
@@ -180,7 +181,7 @@ function buildVisualSectors(paths: LearningPathSummary[]): VisualSector[] {
         id: `${backend.id}-south`,
         path: backend,
         title: backend.title,
-        regionLabel: 'Setor Sul',
+        regionLabel: isEnglish ? 'South Sector' : 'Setor Sul',
         angle: 90,
         accent: getTrailSectorAccent(3, paths.length, backend.accentColor),
         sectorIndex: 3,
@@ -192,7 +193,7 @@ function buildVisualSectors(paths: LearningPathSummary[]): VisualSector[] {
     id: `${path.id}-sector-${pathIndex}`,
     path,
     title: path.title,
-    regionLabel: getTrailSectorRegionLabel(pathIndex, paths.length),
+    regionLabel: getTrailSectorRegionLabel(pathIndex, paths.length, isEnglish),
     angle: getSectorAngle(pathIndex, paths.length),
     accent: getTrailSectorAccent(pathIndex, paths.length, path.accentColor),
     sectorIndex: pathIndex,
@@ -531,11 +532,7 @@ function MobilePath({
   );
 }
 
-function TrailMapCameraController({
-  targetPlacement,
-}: {
-  targetPlacement?: PlacedNode;
-}) {
+function TrailMapCameraController({ targetPlacement }: { targetPlacement?: PlacedNode }) {
   const { zoomToElement } = useControls();
   const lastTargetKey = useRef<string | null>(null);
 
@@ -560,6 +557,7 @@ function TrailMapCameraController({
 }
 
 function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode }) {
+  const { text } = useLocalizedText();
   const { zoomIn, zoomOut, resetTransform, zoomToElement } = useControls();
 
   const handleFocusActiveNode = () => {
@@ -588,8 +586,8 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
       <button
         type="button"
         onClick={() => zoomIn(0.12)}
-        aria-label="Aumentar zoom"
-        title="Aumentar zoom"
+        aria-label={text('Aumentar zoom', 'Zoom in')}
+        title={text('Aumentar zoom', 'Zoom in')}
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
       >
         <Plus className="h-4 w-4" />
@@ -597,8 +595,8 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
       <button
         type="button"
         onClick={() => zoomOut(0.12)}
-        aria-label="Diminuir zoom"
-        title="Diminuir zoom"
+        aria-label={text('Diminuir zoom', 'Zoom out')}
+        title={text('Diminuir zoom', 'Zoom out')}
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
       >
         <Minus className="h-4 w-4" />
@@ -607,8 +605,8 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
       <button
         type="button"
         onClick={handleFocusActiveNode}
-        aria-label="Focar na lição atual"
-        title="Focar na lição atual"
+        aria-label={text('Focar na lição atual', 'Focus on current lesson')}
+        title={text('Focar na lição atual', 'Focus on current lesson')}
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
       >
         <Target className="h-4 w-4" />
@@ -616,8 +614,8 @@ function TrailMapControls({ activePlacement }: { activePlacement?: PlacedNode })
       <button
         type="button"
         onClick={() => resetTransform()}
-        aria-label="Centralizar visualização"
-        title="Centralizar visualização"
+        aria-label={text('Centralizar visualização', 'Reset view')}
+        title={text('Centralizar visualização', 'Reset view')}
         className="dd-focus-ring flex h-8 w-8 items-center justify-center rounded-xl text-dd-muted transition hover:bg-dd-surface hover:text-dd-text active:scale-95 cursor-pointer"
       >
         <RotateCcw className="h-4 w-4" />
@@ -637,7 +635,8 @@ export function TrailMap({
   onPreviewNode,
   onDismissNodePreview,
 }: TrailMapProps) {
-  const visualSectors = buildVisualSectors(paths);
+  const { isEnglish, text } = useLocalizedText();
+  const visualSectors = buildVisualSectors(paths, isEnglish);
   const placements = buildPlacedNodes(nodes, visualSectors);
   const placementsBySector = new Map(
     visualSectors.map((sector) => [
@@ -665,8 +664,7 @@ export function TrailMap({
         placement.primary &&
         placement.node.id === selectedNodeId &&
         placement.path.id === selectedPathId
-    ) ??
-    placements.find((placement) => placement.node.id === selectedNodeId);
+    ) ?? placements.find((placement) => placement.node.id === selectedNodeId);
 
   const nextNode =
     nodes.find(
@@ -718,242 +716,245 @@ export function TrailMap({
             wrapperClass="!w-full !h-full select-none"
             contentClass="!w-[1400px] !h-[800px] relative"
           >
-            <div
-              className="relative h-[800px] w-[1400px]"
-              onClick={() => setIsPopoverOpen(false)}
-            >
-        <svg
-          className="pointer-events-none absolute inset-0 h-full w-full"
-          viewBox={`0 0 ${GRAPH_WIDTH} ${GRAPH_HEIGHT}`}
-          preserveAspectRatio="none"
-          role="img"
-          aria-label="Árvore de habilidades dividida em setores"
-        >
-          <g fill="none" opacity="0.2">
-            {edges.map((edge) => {
-              const source = firstPlacementByNode.get(edge.sourceNodeId);
-              const target = firstPlacementByNode.get(edge.targetNodeId);
-              if (!source || !target) return null;
-              return (
-                <path
-                  key={edge.id}
-                  data-relation={edge.relation}
-                  d={`M ${source.point.x} ${source.point.y} Q ${HUB.x} ${HUB.y}, ${target.point.x} ${target.point.y}`}
-                  stroke={RELATION_ACCENT[edge.relation]}
-                  strokeWidth="1"
-                  strokeDasharray="3 9"
-                />
-              );
-            })}
-          </g>
-
-          {visualSectors.map((sector) => {
-            const { path } = sector;
-            const pathPlacements = placementsBySector.get(sector.id) ?? [];
-            if (pathPlacements.length === 0) return null;
-            const accent = sector.accent;
-            const connections = buildSectorConnections(pathPlacements);
-            return (
-              <g key={sector.id}>
-                {connections.map((connection, connectionIndex) => (
-                  <path
-                    key={`${sector.id}-connection-${connectionIndex}`}
-                    d={`M ${connection.source.x} ${connection.source.y} L ${connection.target.x} ${connection.target.y}`}
-                    fill="none"
-                    stroke={accent}
-                    strokeWidth={selectedPathId === path.id ? 2.2 : 1.4}
-                    strokeLinecap="round"
-                    opacity={selectedPathId === path.id ? 0.85 : 0.45}
-                  />
-                ))}
-              </g>
-            );
-          })}
-        </svg>
-
-        {placements.map((placement) => (
-          <GamifiedSkillNode
-            key={`${placement.sectorId}-${placement.node.id}-${placement.nodeIndex}-${placement.stageIndex}`}
-            placement={placement}
-            selected={
-              placement.primary &&
-              selectedNodeId === placement.node.id &&
-              selectedPathId === placement.path.id &&
-              firstSectorIndexByPath.get(placement.path.id) === placement.pathIndex
-            }
-            onSelect={() => {
-              onSelectPath(placement.path.id);
-              onSelectNode(placement.node.id);
-              setIsPopoverOpen(true);
-            }}
-          />
-        ))}
-
-        {activePlacement && isPopoverOpen && (
-          <div
-            className="absolute pointer-events-auto z-50"
-            style={{
-              left: `${(activePlacement.point.x / GRAPH_WIDTH) * 100}%`,
-              top: `${(activePlacement.point.y / GRAPH_HEIGHT) * 100}%`,
-            }}
-          >
-            <TrailMapLessonPopover
-              placement={activePlacement}
-              onClose={() => setIsPopoverOpen(false)}
-            />
-          </div>
-        )}
-
-        {visualSectors.map((sector) => {
-          const { path } = sector;
-          const point = sectorLabelPoint(sector.angle);
-          const accent = sector.accent;
-          const isVertical = Math.abs(Math.cos((sector.angle * Math.PI) / 180)) > 0.92;
-          const isWest = sector.angle > 90 && sector.angle < 270;
-          const isSelected = selectedPathId === path.id;
-          const sectorPlacements = placementsBySector.get(sector.id) ?? [];
-          const totalCount = sectorPlacements.length;
-          const completedCount = sectorPlacements.filter(
-            (placement) =>
-              placement.node.status === 'COMPLETED' || placement.node.status === 'MASTERED'
-          ).length;
-          const progressPercent =
-            totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
-
-          if (isVertical) {
-            return (
-              <button
-                key={`${sector.id}-label`}
-                type="button"
-                aria-pressed={isSelected}
-                onClick={() => onSelectPath(path.id)}
-                className={cn(
-                  'dd-focus-ring absolute z-[60] -translate-x-1/2 -translate-y-1/2 rounded-2xl transition duration-150 select-none cursor-pointer',
-                  'flex flex-col items-center justify-between py-4 px-1.5 min-h-[260px] w-[42px] bg-dd-card/95 hover:bg-dd-surface border border-dd-border/80 text-dd-text shadow-sm',
-                  isSelected
-                    ? 'shadow-[0_0_20px_-3px_rgba(0,0,0,0.15)] dark:shadow-[0_0_20px_-3px_rgba(0,0,0,0.6)]'
-                    : 'hover:border-dd-border hover:shadow-md'
+            <div className="relative h-[800px] w-[1400px]" onClick={() => setIsPopoverOpen(false)}>
+              <svg
+                className="pointer-events-none absolute inset-0 h-full w-full"
+                viewBox={`0 0 ${GRAPH_WIDTH} ${GRAPH_HEIGHT}`}
+                preserveAspectRatio="none"
+                role="img"
+                aria-label={text(
+                  'Árvore de habilidades dividida em setores',
+                  'Skill tree divided into sectors'
                 )}
+              >
+                <g fill="none" opacity="0.2">
+                  {edges.map((edge) => {
+                    const source = firstPlacementByNode.get(edge.sourceNodeId);
+                    const target = firstPlacementByNode.get(edge.targetNodeId);
+                    if (!source || !target) return null;
+                    return (
+                      <path
+                        key={edge.id}
+                        data-relation={edge.relation}
+                        d={`M ${source.point.x} ${source.point.y} Q ${HUB.x} ${HUB.y}, ${target.point.x} ${target.point.y}`}
+                        stroke={RELATION_ACCENT[edge.relation]}
+                        strokeWidth="1"
+                        strokeDasharray="3 9"
+                      />
+                    );
+                  })}
+                </g>
+
+                {visualSectors.map((sector) => {
+                  const { path } = sector;
+                  const pathPlacements = placementsBySector.get(sector.id) ?? [];
+                  if (pathPlacements.length === 0) return null;
+                  const accent = sector.accent;
+                  const connections = buildSectorConnections(pathPlacements);
+                  return (
+                    <g key={sector.id}>
+                      {connections.map((connection, connectionIndex) => (
+                        <path
+                          key={`${sector.id}-connection-${connectionIndex}`}
+                          d={`M ${connection.source.x} ${connection.source.y} L ${connection.target.x} ${connection.target.y}`}
+                          fill="none"
+                          stroke={accent}
+                          strokeWidth={selectedPathId === path.id ? 2.2 : 1.4}
+                          strokeLinecap="round"
+                          opacity={selectedPathId === path.id ? 0.85 : 0.45}
+                        />
+                      ))}
+                    </g>
+                  );
+                })}
+              </svg>
+
+              {placements.map((placement) => (
+                <GamifiedSkillNode
+                  key={`${placement.sectorId}-${placement.node.id}-${placement.nodeIndex}-${placement.stageIndex}`}
+                  placement={placement}
+                  selected={
+                    placement.primary &&
+                    selectedNodeId === placement.node.id &&
+                    selectedPathId === placement.path.id &&
+                    firstSectorIndexByPath.get(placement.path.id) === placement.pathIndex
+                  }
+                  onSelect={() => {
+                    onSelectPath(placement.path.id);
+                    onSelectNode(placement.node.id);
+                    setIsPopoverOpen(true);
+                  }}
+                />
+              ))}
+
+              {activePlacement && isPopoverOpen && (
+                <div
+                  className="absolute pointer-events-auto z-50"
+                  style={{
+                    left: `${(activePlacement.point.x / GRAPH_WIDTH) * 100}%`,
+                    top: `${(activePlacement.point.y / GRAPH_HEIGHT) * 100}%`,
+                  }}
+                >
+                  <TrailMapLessonPopover
+                    placement={activePlacement}
+                    onClose={() => setIsPopoverOpen(false)}
+                  />
+                </div>
+              )}
+
+              {visualSectors.map((sector) => {
+                const { path } = sector;
+                const point = sectorLabelPoint(sector.angle);
+                const accent = sector.accent;
+                const isVertical = Math.abs(Math.cos((sector.angle * Math.PI) / 180)) > 0.92;
+                const isWest = sector.angle > 90 && sector.angle < 270;
+                const isSelected = selectedPathId === path.id;
+                const sectorPlacements = placementsBySector.get(sector.id) ?? [];
+                const totalCount = sectorPlacements.length;
+                const completedCount = sectorPlacements.filter(
+                  (placement) =>
+                    placement.node.status === 'COMPLETED' || placement.node.status === 'MASTERED'
+                ).length;
+                const progressPercent =
+                  totalCount > 0 ? Math.round((completedCount / totalCount) * 100) : 0;
+
+                if (isVertical) {
+                  return (
+                    <button
+                      key={`${sector.id}-label`}
+                      type="button"
+                      aria-pressed={isSelected}
+                      onClick={() => onSelectPath(path.id)}
+                      className={cn(
+                        'dd-focus-ring absolute z-[60] -translate-x-1/2 -translate-y-1/2 rounded-2xl transition duration-150 select-none cursor-pointer',
+                        'flex flex-col items-center justify-between py-4 px-1.5 min-h-[260px] w-[42px] bg-dd-card/95 hover:bg-dd-surface border border-dd-border/80 text-dd-text shadow-sm',
+                        isSelected
+                          ? 'shadow-[0_0_20px_-3px_rgba(0,0,0,0.15)] dark:shadow-[0_0_20px_-3px_rgba(0,0,0,0.6)]'
+                          : 'hover:border-dd-border hover:shadow-md'
+                      )}
+                      style={{
+                        left: `${(point.x / GRAPH_WIDTH) * 100}%`,
+                        top: `${(point.y / GRAPH_HEIGHT) * 100}%`,
+                        borderColor: isSelected ? `${accent}cc` : undefined,
+                        boxShadow: isSelected ? `0 0 20px ${accent}28` : undefined,
+                      }}
+                    >
+                      <div
+                        className={cn(
+                          'flex [writing-mode:vertical-rl] items-center gap-2.5 my-auto whitespace-nowrap',
+                          isWest && 'rotate-180'
+                        )}
+                      >
+                        <span
+                          className="text-[9px] font-black uppercase tracking-[0.18em]"
+                          style={{ color: accent }}
+                        >
+                          {sector.regionLabel}
+                        </span>
+                        <span className="h-1 w-1 rounded-full bg-dd-muted/30 shrink-0" />
+                        <span className="text-[11px] font-bold uppercase tracking-wider text-dd-text">
+                          {sector.title}
+                        </span>
+                      </div>
+                      <div
+                        className={cn(
+                          'flex [writing-mode:vertical-rl] items-center whitespace-nowrap',
+                          isWest && 'rotate-180'
+                        )}
+                      >
+                        <span className="text-[9.5px] font-semibold text-dd-muted tabular-nums">
+                          {completedCount}/{totalCount} · {progressPercent}%
+                        </span>
+                      </div>
+                    </button>
+                  );
+                }
+
+                return (
+                  <button
+                    key={`${sector.id}-label`}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => onSelectPath(path.id)}
+                    className={cn(
+                      'dd-focus-ring absolute z-[60] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-dd-card/95 hover:bg-dd-surface px-4 py-2 transition border border-dd-border/80 text-dd-text shadow-sm min-w-[270px] max-w-[340px] flex items-center justify-between gap-4 cursor-pointer select-none',
+                      isSelected
+                        ? 'shadow-[0_0_20px_-3px_rgba(0,0,0,0.15)] dark:shadow-[0_0_20px_-3px_rgba(0,0,0,0.6)]'
+                        : 'hover:border-dd-border hover:shadow-md'
+                    )}
+                    style={{
+                      left: `${(point.x / GRAPH_WIDTH) * 100}%`,
+                      top: `${(point.y / GRAPH_HEIGHT) * 100}%`,
+                      borderColor: isSelected ? `${accent}cc` : undefined,
+                      boxShadow: isSelected ? `0 0 20px ${accent}28` : undefined,
+                    }}
+                  >
+                    <div className="min-w-0 text-left">
+                      <span
+                        className="block text-[9px] font-black uppercase tracking-[0.14em]"
+                        style={{ color: accent }}
+                      >
+                        {sector.regionLabel}
+                      </span>
+                      <span className="block text-xs font-bold uppercase tracking-wide text-dd-text truncate">
+                        {sector.title}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-semibold text-dd-muted tabular-nums shrink-0">
+                      {completedCount}/{totalCount} · {progressPercent}%
+                    </span>
+                  </button>
+                );
+              })}
+
+              <div
+                className="absolute z-40 flex flex-col items-center -translate-x-1/2 -translate-y-1/2 pointer-events-none"
                 style={{
-                  left: `${(point.x / GRAPH_WIDTH) * 100}%`,
-                  top: `${(point.y / GRAPH_HEIGHT) * 100}%`,
-                  borderColor: isSelected ? `${accent}cc` : undefined,
-                  boxShadow: isSelected ? `0 0 20px ${accent}28` : undefined,
+                  left: `${(HUB.x / GRAPH_WIDTH) * 100}%`,
+                  top: `${(HUB.y / GRAPH_HEIGHT) * 100}%`,
                 }}
               >
-                <div
-                  className={cn(
-                    'flex [writing-mode:vertical-rl] items-center gap-2.5 my-auto whitespace-nowrap',
-                    isWest && 'rotate-180'
+                <button
+                  type="button"
+                  aria-label={text(
+                    'Início da jornada. Ir para a próxima habilidade disponível',
+                    'Journey start. Go to next available skill'
                   )}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (nextNode) {
+                      onSelectNode(nextNode.id);
+                      setIsPopoverOpen(true);
+                    }
+                  }}
+                  className="dd-focus-ring pointer-events-auto flex h-16 w-16 items-center justify-center rounded-[22px] border-2 border-b-[6px] border-amber-200 border-b-amber-700 bg-amber-400 text-white shadow-[0_12px_28px_-12px_rgba(250,204,21,0.72)] transition hover:-translate-y-0.5 active:translate-y-0.5"
                 >
-                  <span
-                    className="text-[9px] font-black uppercase tracking-[0.18em]"
-                    style={{ color: accent }}
-                  >
-                    {sector.regionLabel}
-                  </span>
-                  <span className="h-1 w-1 rounded-full bg-dd-muted/30 shrink-0" />
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-dd-text">
-                    {sector.title}
-                  </span>
+                  <Crown
+                    className="h-8 w-8 fill-white drop-shadow-sm"
+                    strokeWidth={2.5}
+                    aria-hidden="true"
+                  />
+                </button>
+                <div className="mt-2 rounded-full border border-amber-500/40 bg-dd-card/95 px-3 py-1 text-center shadow-lg backdrop-blur-sm">
+                  <p className="text-xs font-bold leading-tight text-amber-600 dark:text-amber-300">
+                    Início
+                  </p>
+                  <p className="whitespace-nowrap text-[9px] font-medium leading-tight text-dd-muted">
+                    Jornada de programação
+                  </p>
                 </div>
-                <div
-                  className={cn(
-                    'flex [writing-mode:vertical-rl] items-center whitespace-nowrap',
-                    isWest && 'rotate-180'
-                  )}
-                >
-                  <span className="text-[9.5px] font-semibold text-dd-muted tabular-nums">
-                    {completedCount}/{totalCount} · {progressPercent}%
-                  </span>
-                </div>
-              </button>
-            );
-          }
-
-          return (
-            <button
-              key={`${sector.id}-label`}
-              type="button"
-              aria-pressed={isSelected}
-              onClick={() => onSelectPath(path.id)}
-              className={cn(
-                'dd-focus-ring absolute z-[60] -translate-x-1/2 -translate-y-1/2 rounded-2xl bg-dd-card/95 hover:bg-dd-surface px-4 py-2 transition border border-dd-border/80 text-dd-text shadow-sm min-w-[270px] max-w-[340px] flex items-center justify-between gap-4 cursor-pointer select-none',
-                isSelected
-                  ? 'shadow-[0_0_20px_-3px_rgba(0,0,0,0.15)] dark:shadow-[0_0_20px_-3px_rgba(0,0,0,0.6)]'
-                  : 'hover:border-dd-border hover:shadow-md'
-              )}
-              style={{
-                left: `${(point.x / GRAPH_WIDTH) * 100}%`,
-                top: `${(point.y / GRAPH_HEIGHT) * 100}%`,
-                borderColor: isSelected ? `${accent}cc` : undefined,
-                boxShadow: isSelected ? `0 0 20px ${accent}28` : undefined,
-              }}
-            >
-              <div className="min-w-0 text-left">
-                <span
-                  className="block text-[9px] font-black uppercase tracking-[0.14em]"
-                  style={{ color: accent }}
-                >
-                  {sector.regionLabel}
-                </span>
-                <span className="block text-xs font-bold uppercase tracking-wide text-dd-text truncate">
-                  {sector.title}
-                </span>
               </div>
-              <span className="text-[10px] font-semibold text-dd-muted tabular-nums shrink-0">
-                {completedCount}/{totalCount} · {progressPercent}%
-              </span>
-            </button>
-          );
-        })}
+            </div>
+          </TransformComponent>
+        </TransformWrapper>
 
-        <div
-          className="absolute z-40 flex flex-col items-center -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-          style={{
-            left: `${(HUB.x / GRAPH_WIDTH) * 100}%`,
-            top: `${(HUB.y / GRAPH_HEIGHT) * 100}%`,
-          }}
-        >
-          <button
-            type="button"
-            aria-label="Início da jornada. Ir para a próxima habilidade disponível"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (nextNode) {
-                onSelectNode(nextNode.id);
-                setIsPopoverOpen(true);
-              }
-            }}
-            className="dd-focus-ring pointer-events-auto flex h-16 w-16 items-center justify-center rounded-[22px] border-2 border-b-[6px] border-amber-200 border-b-amber-700 bg-amber-400 text-white shadow-[0_12px_28px_-12px_rgba(250,204,21,0.72)] transition hover:-translate-y-0.5 active:translate-y-0.5"
-          >
-            <Crown
-              className="h-8 w-8 fill-white drop-shadow-sm"
-              strokeWidth={2.5}
-              aria-hidden="true"
-            />
-          </button>
-          <div className="mt-2 rounded-full border border-amber-500/40 bg-dd-card/95 px-3 py-1 text-center shadow-lg backdrop-blur-sm">
-            <p className="text-xs font-bold leading-tight text-amber-600 dark:text-amber-300">
-              Início
-            </p>
-            <p className="whitespace-nowrap text-[9px] font-medium leading-tight text-dd-muted">
-              Jornada de programação
-            </p>
-          </div>
-        </div>
-      </div>
-    </TransformComponent>
-  </TransformWrapper>
-
-  <div className="absolute bottom-3 left-3 z-20 pointer-events-none select-none">
+        <div className="absolute bottom-3 left-3 z-20 pointer-events-none select-none">
           <div className="relative inline-block">
             {/* Mascot Leaning on top of Legenda */}
             <div className="absolute bottom-[calc(100%-10px)] left-0 z-0 w-24 drop-shadow-md">
               <Image
                 src="/assets/trails/devdeck-robot-peeking.png"
-                alt="Robô mascote do setor roxo"
+                alt={text('Robô mascote do setor roxo', 'Mascot robot')}
                 width={120}
                 height={97}
                 className="h-auto w-full object-contain"
@@ -964,7 +965,7 @@ export function TrailMap({
 
             {/* Legenda Box */}
             <div className="relative z-10 pointer-events-auto rounded-xl border border-dd-border/80 bg-dd-card/95 px-3 py-2.5 text-[9px] font-medium text-dd-muted shadow-sm backdrop-blur-xs">
-              <p className="mb-2 text-[11px] font-bold text-dd-text">Legenda</p>
+              <p className="mb-2 text-[11px] font-bold text-dd-text">{text('Legenda', 'Legend')}</p>
               <div className="grid grid-cols-2 gap-x-3 gap-y-1.5">
                 {visualSectors.slice(0, 6).map((sector) => (
                   <span key={sector.id} className="flex items-center gap-2">

@@ -1,0 +1,60 @@
+erDiagram
+  User {
+    String id PK
+    String username
+    String email
+    String avatar_url
+    Json avatar_config
+    String bio
+    String institution
+    String github_username
+    String discord_username
+  }
+  Company {
+    String id PK
+    String owner_id FK
+    String name
+    String slug
+    String description
+    String logo_url
+    String website
+    String location
+    Boolean is_verified
+  }
+  Job {
+    String id PK
+    String company_id FK
+    String title
+    String description
+    JobLevel level
+    StringArray technologies
+    JobModality modality
+    String location
+    JobContract contract_type
+  }
+  JobRecruitmentStage {
+    String id PK
+    String job_id FK
+    String title
+    RecruitmentStageType type
+    Int order
+    String challenge_id
+    String description
+  }
+  JobApplication {
+    String id PK
+    String job_id FK
+    String user_id FK
+    String stage_id FK
+    ApplicationStatus status
+    Int technical_score
+    String feedback
+    DateTime created_at
+    DateTime updated_at
+  }
+  User ||--o{ Company : "owner_id"
+  Company ||--o{ Job : "company_id"
+  Job ||--o{ JobRecruitmentStage : "job_id"
+  Job ||--o{ JobApplication : "job_id"
+  User ||--o{ JobApplication : "user_id"
+  JobRecruitmentStage o|--o{ JobApplication : "stage_id"

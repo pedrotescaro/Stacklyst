@@ -1,0 +1,2350 @@
+[
+  {
+    "id": "UC001",
+    "title": "Cadastrar conta",
+    "lines": [
+      "Descrição: Criar uma conta individual para acessar funções autenticadas.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Usuário",
+      "Atores secundários: Provedor de identidade",
+      "Pré-condições: Usuário sem sessão autenticada. A disponibilidade do e-mail e do nome de usuário é verificada durante o fluxo.",
+      "Pós-condições: Identidade e perfil inicial criados; o usuário pode fazer login.",
+      "Entradas: Username, e-mail, senha e campos opcionais permitidos.",
+      "Saídas: Confirmação de cadastro ou erros por campo.",
+      "Fluxo Principal",
+      "1. O usuário abre a tela de cadastro e informa os dados solicitados.",
+      "2. O Stacklyst valida formato, força da senha e unicidade.",
+      "3. O sistema solicita ao serviço de autenticação a criação da identidade.",
+      "4. Após confirmação, o Stacklyst cria o registro local e perfil inicial.",
+      "5. O sistema confirma o cadastro e direciona o usuário ao acesso apropriado.",
+      "Fluxos Alternativos",
+      "• A1 — Dado inválido: o sistema destaca o campo sem criar a conta.",
+      "• A2 — E-mail ou username existente: o sistema recusa duplicidade.",
+      "• A3 — Serviço indisponível: o sistema informa falha temporária sem expor detalhes."
+    ],
+    "area": "Conta e acesso",
+    "actor": "U",
+    "sources": [
+      "src/app/api/auth/register/route.ts"
+    ],
+    "scenarioIds": [
+      "C01"
+    ],
+    "rules": [
+      "R01",
+      "R02"
+    ],
+    "definition": "Objetivo consolidado: Cadastrar conta\nVariantes: Cadastrar conta\nDescrição: Criar uma conta individual para acessar funções autenticadas.\nTipo: Condução\nAtor iniciador ou caso chamador: Usuário\nAtores secundários: Provedor de identidade\nPré-condições: Usuário sem sessão autenticada. A disponibilidade do e-mail e do nome de usuário é verificada durante o fluxo.\nPós-condições: Identidade e perfil inicial criados; o usuário pode fazer login.\nEntradas: Username, e-mail, senha e campos opcionais permitidos.\nSaídas: Confirmação de cadastro ou erros por campo.\nFluxo Principal\n1. O usuário abre a tela de cadastro e informa os dados solicitados.\n2. O Stacklyst valida formato, força da senha e unicidade.\n3. O sistema solicita ao serviço de autenticação a criação da identidade.\n4. Após confirmação, o Stacklyst cria o registro local e perfil inicial.\n5. O sistema confirma o cadastro e direciona o usuário ao acesso apropriado.\nFluxos Alternativos\n• A1 — Dado inválido: o sistema destaca o campo sem criar a conta.\n• A2 — E-mail ou username existente: o sistema recusa duplicidade.\n• A3 — Serviço indisponível: o sistema informa falha temporária sem expor detalhes.\nImplementação: src/app/api/auth/register/route.ts",
+    "subflows": [
+      {
+        "historicalId": "UC001",
+        "title": "Cadastrar conta",
+        "lines": [
+          "Descrição: Criar uma conta individual para acessar funções autenticadas.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário",
+          "Atores secundários: Provedor de identidade",
+          "Pré-condições: Usuário sem sessão autenticada. A disponibilidade do e-mail e do nome de usuário é verificada durante o fluxo.",
+          "Pós-condições: Identidade e perfil inicial criados; o usuário pode fazer login.",
+          "Entradas: Username, e-mail, senha e campos opcionais permitidos.",
+          "Saídas: Confirmação de cadastro ou erros por campo.",
+          "Fluxo Principal",
+          "1. O usuário abre a tela de cadastro e informa os dados solicitados.",
+          "2. O Stacklyst valida formato, força da senha e unicidade.",
+          "3. O sistema solicita ao serviço de autenticação a criação da identidade.",
+          "4. Após confirmação, o Stacklyst cria o registro local e perfil inicial.",
+          "5. O sistema confirma o cadastro e direciona o usuário ao acesso apropriado.",
+          "Fluxos Alternativos",
+          "• A1 — Dado inválido: o sistema destaca o campo sem criar a conta.",
+          "• A2 — E-mail ou username existente: o sistema recusa duplicidade.",
+          "• A3 — Serviço indisponível: o sistema informa falha temporária sem expor detalhes."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC002",
+    "title": "Fazer login",
+    "lines": [
+      "Descrição: Permitir que o usuário faça login e inicie uma sessão com as permissões da sua conta.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Usuário",
+      "Atores secundários: Provedor de identidade",
+      "Pré-condições: Conta existente e não bloqueada.",
+      "Pós-condições: Sessão válida criada; rotas autorizadas ficam disponíveis.",
+      "Entradas: Credencial ou provedor OAuth.",
+      "Saídas: Sessão, perfil básico e redirecionamento.",
+      "Fluxo Principal",
+      "1. O usuário abre a tela de login e informa suas credenciais ou seleciona um provedor de identidade.",
+      "2. O Stacklyst envia a solicitação ao serviço de autenticação.",
+      "3. O serviço verifica a identidade e retorna o resultado.",
+      "4. O Stacklyst cria/atualiza cookies de sessão e carrega o papel.",
+      "5. O sistema redireciona para a área permitida.",
+      "Fluxos Alternativos",
+      "• A1 — Credencial inválida: o sistema mantém a sessão encerrada.",
+      "• A2 — Provedor OAuth não configurado: o sistema informa indisponibilidade.",
+      "• A3 — Conexão temporária: o sistema permite nova tentativa sem revelar segredo."
+    ],
+    "area": "Conta e acesso",
+    "actor": "U",
+    "sources": [
+      "src/app/api/auth/reset-password/route.ts",
+      "src/lib/auth.ts"
+    ],
+    "scenarioIds": [
+      "C02",
+      "C03"
+    ],
+    "rules": [
+      "R01",
+      "R02",
+      "R03"
+    ],
+    "definition": "Objetivo consolidado: Fazer login\nVariantes: Fazer login, Encerrar sessão, Confirmar e recuperar acesso\nDescrição: Permitir que o usuário faça login e inicie uma sessão com as permissões da sua conta.\nTipo: Condução\nAtor iniciador ou caso chamador: Usuário\nAtores secundários: Provedor de identidade\nPré-condições: Conta existente e não bloqueada.\nPós-condições: Sessão válida criada; rotas autorizadas ficam disponíveis.\nEntradas: Credencial ou provedor OAuth.\nSaídas: Sessão, perfil básico e redirecionamento.\nFluxo Principal\n1. O usuário abre a tela de login e informa suas credenciais ou seleciona um provedor de identidade.\n2. O Stacklyst envia a solicitação ao serviço de autenticação.\n3. O serviço verifica a identidade e retorna o resultado.\n4. O Stacklyst cria/atualiza cookies de sessão e carrega o papel.\n5. O sistema redireciona para a área permitida.\nFluxos Alternativos\n• A1 — Credencial inválida: o sistema mantém a sessão encerrada.\n• A2 — Provedor OAuth não configurado: o sistema informa indisponibilidade.\n• A3 — Conexão temporária: o sistema permite nova tentativa sem revelar segredo.\nImplementação: src/lib/auth.ts",
+    "subflows": [
+      {
+        "historicalId": "UC002",
+        "title": "Fazer login",
+        "lines": [
+          "Descrição: Permitir que o usuário faça login e inicie uma sessão com as permissões da sua conta.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário",
+          "Atores secundários: Provedor de identidade",
+          "Pré-condições: Conta existente e não bloqueada.",
+          "Pós-condições: Sessão válida criada; rotas autorizadas ficam disponíveis.",
+          "Entradas: Credencial ou provedor OAuth.",
+          "Saídas: Sessão, perfil básico e redirecionamento.",
+          "Fluxo Principal",
+          "1. O usuário abre a tela de login e informa suas credenciais ou seleciona um provedor de identidade.",
+          "2. O Stacklyst envia a solicitação ao serviço de autenticação.",
+          "3. O serviço verifica a identidade e retorna o resultado.",
+          "4. O Stacklyst cria/atualiza cookies de sessão e carrega o papel.",
+          "5. O sistema redireciona para a área permitida.",
+          "Fluxos Alternativos",
+          "• A1 — Credencial inválida: o sistema mantém a sessão encerrada.",
+          "• A2 — Provedor OAuth não configurado: o sistema informa indisponibilidade.",
+          "• A3 — Conexão temporária: o sistema permite nova tentativa sem revelar segredo."
+        ]
+      },
+      {
+        "historicalId": "UC030",
+        "title": "Encerrar sessão",
+        "lines": [
+          "Descrição: Encerrar a sessão atual e retornar à área pública.",
+          "Tipo: Condução",
+          "Ator iniciador: Usuário autenticado, incluindo Avaliador, Administrador e Recrutador.",
+          "Atores secundários: Provedor de identidade.",
+          "Pré-condições: Usuário com sessão ativa.",
+          "Pós-condições: Sessão encerrada e estado local de autenticação removido; novas operações protegidas exigem autenticação.",
+          "Entradas: Solicitação de saída e sessão atual.",
+          "Saídas: Confirmação de encerramento ou informação de falha.",
+          "Fluxo Principal",
+          "1. O usuário solicita sair da conta.",
+          "2. O Stacklyst solicita o encerramento da sessão ao provedor de identidade.",
+          "3. Após confirmação, o sistema remove o estado local de autenticação.",
+          "4. O sistema apresenta a área pública e exige novo login para as funções protegidas.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão já encerrada: o sistema apresenta a área pública.",
+          "• A2 — Falha ao encerrar a sessão: o sistema informa a falha, sem confirmar sucesso, e permite nova tentativa.",
+          "Rastreabilidade: RF003; RN017 e RN025. Referência de interface: ação Sair da conta já existente. Representado nas vistas UC00 e UC01 do projeto Astah."
+        ]
+      },
+      {
+        "historicalId": "UC057",
+        "title": "Confirmar e recuperar acesso",
+        "lines": [
+          "Descrição: Confirmar e recuperar acesso.",
+          "Ator principal: Titular da conta",
+          "Pré-condições: Token ou pedido de recuperação correspondente à própria conta",
+          "Pós-condições: Titular recebe resultado do fluxo, sem expor senha anterior",
+          "Fluxo principal",
+          "1. Solicitar confirmação ou recuperação",
+          "2. Processar o link no fluxo autorizado",
+          "3. Conferir token e dados necessários",
+          "4. Concluir acesso ou alteração de senha conforme resultado",
+          "Fluxos alternativos: Token inválido/expirado e falha do provedor devem ter tratamento próprio"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC003",
+    "title": "Gerenciar perfil e preferências",
+    "lines": [
+      "Descrição: Consultar e atualizar dados permitidos do próprio perfil.",
+      "Tipo: Configuração",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Usuário autenticado.",
+      "Pós-condições: Campos válidos persistidos e perfil público atualizado.",
+      "Entradas: Bio, avatar, banner, pronomes e demais campos suportados.",
+      "Saídas: Perfil atualizado ou erros de validação.",
+      "Fluxo Principal",
+      "1. O usuário acessa o próprio perfil ou as configurações.",
+      "2. O Stacklyst exibe os dados editáveis e a visualização atual.",
+      "3. O usuário altera campos e confirma.",
+      "4. O sistema valida propriedade, formato e limites e persiste os dados.",
+      "5. O Stacklyst recarrega o perfil e confirma a atualização.",
+      "Fluxos Alternativos",
+      "• A1 — Usuário sem permissão: o sistema nega alteração em perfil alheio.",
+      "• A2 — Campo inválido: o sistema preserva dados anteriores.",
+      "• A3 — Upload indisponível: o sistema mantém a imagem anterior."
+    ],
+    "area": "Perfil",
+    "actor": "U",
+    "sources": [
+      "src/app/api/upload/route.ts",
+      "src/app/settings/page.tsx",
+      "src/services/block.service.ts",
+      "src/services/follow.service.ts",
+      "src/services/profile-customization.service.ts"
+    ],
+    "scenarioIds": [
+      "C22",
+      "C23",
+      "C24",
+      "C28",
+      "C54"
+    ],
+    "rules": [
+      "R01",
+      "R02",
+      "R03",
+      "R05",
+      "R06",
+      "R28",
+      "R93"
+    ],
+    "definition": "Objetivo consolidado: Gerenciar perfil e preferências\nVariantes: Editar perfil, Consultar perfil público, Seguir ou deixar de seguir usuário, Configurar preferências pessoais, Personalizar avatar, Bloquear conta, Enviar imagem compatível\nDescrição: Consultar e atualizar dados permitidos do próprio perfil.\nTipo: Configuração\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Nenhum.\nPré-condições: Usuário autenticado.\nPós-condições: Campos válidos persistidos e perfil público atualizado.\nEntradas: Bio, avatar, banner, pronomes e demais campos suportados.\nSaídas: Perfil atualizado ou erros de validação.\nFluxo Principal\n1. O usuário acessa o próprio perfil ou as configurações.\n2. O Stacklyst exibe os dados editáveis e a visualização atual.\n3. O usuário altera campos e confirma.\n4. O sistema valida propriedade, formato e limites e persiste os dados.\n5. O Stacklyst recarrega o perfil e confirma a atualização.\nFluxos Alternativos\n• A1 — Usuário sem permissão: o sistema nega alteração em perfil alheio.\n• A2 — Campo inválido: o sistema preserva dados anteriores.\n• A3 — Upload indisponível: o sistema mantém a imagem anterior.\nImplementação: src/services/profile-customization.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC003",
+        "title": "Editar perfil",
+        "lines": [
+          "Descrição: Consultar e atualizar dados permitidos do próprio perfil.",
+          "Tipo: Configuração",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Usuário autenticado.",
+          "Pós-condições: Campos válidos persistidos e perfil público atualizado.",
+          "Entradas: Bio, avatar, banner, pronomes e demais campos suportados.",
+          "Saídas: Perfil atualizado ou erros de validação.",
+          "Fluxo Principal",
+          "1. O usuário acessa o próprio perfil ou as configurações.",
+          "2. O Stacklyst exibe os dados editáveis e a visualização atual.",
+          "3. O usuário altera campos e confirma.",
+          "4. O sistema valida propriedade, formato e limites e persiste os dados.",
+          "5. O Stacklyst recarrega o perfil e confirma a atualização.",
+          "Fluxos Alternativos",
+          "• A1 — Usuário sem permissão: o sistema nega alteração em perfil alheio.",
+          "• A2 — Campo inválido: o sistema preserva dados anteriores.",
+          "• A3 — Upload indisponível: o sistema mantém a imagem anterior."
+        ]
+      },
+      {
+        "historicalId": "UC032",
+        "title": "Consultar perfil público",
+        "lines": [
+          "Descrição: Consultar perfil público.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: Dados privados de conta não compõem a resposta pública.",
+          "Fluxo Principal",
+          "1. Selecionar usuário.",
+          "2. Consultar perfil e indicadores públicos.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: RF037, RF038.",
+          "Referência de implementação: src/app/profile/[username]; src/app/api/profile/[username]."
+        ]
+      },
+      {
+        "historicalId": "UC033",
+        "title": "Seguir ou deixar de seguir usuário",
+        "lines": [
+          "Descrição: Seguir ou deixar de seguir usuário.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: A ação usa a identidade autenticada e as regras de FollowService.",
+          "Fluxo Principal",
+          "1. Selecionar usuário.",
+          "2. Alternar acompanhamento.",
+          "3. Confirmar estado.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: Ampliação: relações sociais.",
+          "Referência de implementação: src/app/explore/page.tsx; src/app/api/users/[id]/follow."
+        ]
+      },
+      {
+        "historicalId": "UC050",
+        "title": "Configurar preferências pessoais",
+        "lines": [
+          "Descrição: Configurar preferências pessoais.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: Preferências locais não representam mudança de permissão no servidor.",
+          "Fluxo Principal",
+          "1. Abrir configurações.",
+          "2. Alterar aparência, sons ou idioma suportado.",
+          "3. Aplicar preferência.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: Ampliação: preferências.",
+          "Referência de implementação: src/app/settings/page.tsx."
+        ]
+      },
+      {
+        "historicalId": "UC051",
+        "title": "Personalizar avatar",
+        "lines": [
+          "Descrição: Personalizar avatar.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: A alteração pertence à própria conta.",
+          "Fluxo Principal",
+          "1. Escolher características do avatar.",
+          "2. Salvar configuração.",
+          "3. Visualizar perfil atualizado.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: RF004.",
+          "Referência de implementação: src/app/avatar/AvatarCustomizer.tsx; src/app/api/avatar."
+        ]
+      },
+      {
+        "historicalId": "UC063",
+        "title": "Bloquear conta",
+        "lines": [
+          "Descrição: Bloquear conta.",
+          "Ator principal: Usuário",
+          "Pré-condições: Identidade do alvo e sessão válidas",
+          "Pós-condições: Bloqueio influencia consultas e interações",
+          "Fluxo principal",
+          "1. Solicitar bloqueio",
+          "2. Aplicar regra de interação",
+          "3. Persistir relação de bloqueio",
+          "4. Refletir restrições nos fluxos afetados",
+          "Fluxos alternativos: Ocultar um botão sem filtrar as APIs não implementa a regra"
+        ]
+      },
+      {
+        "historicalId": "UC075",
+        "title": "Enviar imagem compatível",
+        "lines": [
+          "Descrição: Enviar imagem compatível.",
+          "Ator principal: Usuário",
+          "Pré-condições: Sessão e arquivo aceito pela rota de upload",
+          "Pós-condições: Referência de mídia após envio processado",
+          "Fluxo principal",
+          "1. Enviar multipart",
+          "2. Conferir tamanho e tipo",
+          "3. Validar assinatura do arquivo e processamento",
+          "4. Persistir no armazenamento e devolver referência",
+          "Fluxos alternativos: MIME declarado não basta; esta rota aceita raster e limite próprio, não todo tipo de anexo"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC004",
+    "title": "Consultar e selecionar trilha",
+    "lines": [
+      "Descrição: Selecionar uma trilha e iniciar ou retomar o percurso.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Usuário autenticado; trilha disponível.",
+      "Pós-condições: Preferência registrada e lição elegível apresentada.",
+      "Entradas: Linguagem/trilha e etapa selecionada.",
+      "Saídas: Mapa atualizado e acesso à próxima lição.",
+      "Fluxo Principal",
+      "1. O usuário abre Trilhas e consulta as opções.",
+      "2. O Stacklyst carrega progresso, níveis e bloqueios.",
+      "3. O usuário seleciona a trilha desejada.",
+      "4. O sistema registra a preferência e determina a etapa elegível.",
+      "5. O Stacklyst abre a lição ou apresenta o próximo passo.",
+      "Fluxos Alternativos",
+      "• A1 — Trilha indisponível: o sistema impede o início e informa o motivo.",
+      "• A2 — Pré-requisito não cumprido: o sistema mantém a etapa bloqueada.",
+      "• A3 — Progresso não carregado: o sistema não sobrescreve dados existentes."
+    ],
+    "area": "Trilhas",
+    "actor": "U",
+    "sources": [
+      "src/app/trails/TrailsContent.tsx",
+      "src/lib/learning/progress.ts"
+    ],
+    "scenarioIds": [
+      "C04",
+      "C05"
+    ],
+    "rules": [
+      "R08",
+      "R09",
+      "R10"
+    ],
+    "definition": "Objetivo consolidado: Consultar e selecionar trilha\nVariantes: Selecionar trilha, Consultar disponibilidade de conhecimentos\nDescrição: Selecionar uma trilha e iniciar ou retomar o percurso.\nTipo: Condução\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Nenhum.\nPré-condições: Usuário autenticado; trilha disponível.\nPós-condições: Preferência registrada e lição elegível apresentada.\nEntradas: Linguagem/trilha e etapa selecionada.\nSaídas: Mapa atualizado e acesso à próxima lição.\nFluxo Principal\n1. O usuário abre Trilhas e consulta as opções.\n2. O Stacklyst carrega progresso, níveis e bloqueios.\n3. O usuário seleciona a trilha desejada.\n4. O sistema registra a preferência e determina a etapa elegível.\n5. O Stacklyst abre a lição ou apresenta o próximo passo.\nFluxos Alternativos\n• A1 — Trilha indisponível: o sistema impede o início e informa o motivo.\n• A2 — Pré-requisito não cumprido: o sistema mantém a etapa bloqueada.\n• A3 — Progresso não carregado: o sistema não sobrescreve dados existentes.\nImplementação: src/app/trails/TrailsContent.tsx",
+    "subflows": [
+      {
+        "historicalId": "UC004",
+        "title": "Selecionar trilha",
+        "lines": [
+          "Descrição: Selecionar uma trilha e iniciar ou retomar o percurso.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Usuário autenticado; trilha disponível.",
+          "Pós-condições: Preferência registrada e lição elegível apresentada.",
+          "Entradas: Linguagem/trilha e etapa selecionada.",
+          "Saídas: Mapa atualizado e acesso à próxima lição.",
+          "Fluxo Principal",
+          "1. O usuário abre Trilhas e consulta as opções.",
+          "2. O Stacklyst carrega progresso, níveis e bloqueios.",
+          "3. O usuário seleciona a trilha desejada.",
+          "4. O sistema registra a preferência e determina a etapa elegível.",
+          "5. O Stacklyst abre a lição ou apresenta o próximo passo.",
+          "Fluxos Alternativos",
+          "• A1 — Trilha indisponível: o sistema impede o início e informa o motivo.",
+          "• A2 — Pré-requisito não cumprido: o sistema mantém a etapa bloqueada.",
+          "• A3 — Progresso não carregado: o sistema não sobrescreve dados existentes."
+        ]
+      },
+      {
+        "historicalId": "UC058",
+        "title": "Consultar disponibilidade de conhecimentos",
+        "lines": [
+          "Descrição: Consultar disponibilidade de conhecimentos.",
+          "Ator principal: Estudante",
+          "Pré-condições: Nós, caminhos e relações carregados",
+          "Pós-condições: Estados concluídos legítimos são preservados",
+          "Fluxo principal",
+          "1. Carregar estados persistidos",
+          "2. Consultar requisitos obrigatórios",
+          "3. Derivar disponibilidade/recomendação",
+          "4. Calcular percentual e próximo nó",
+          "Fluxos alternativos: Caminho vazio retorna percentual seguro; requisito ausente não é ignorado por recomendação"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC005",
+    "title": "Estudar lição",
+    "lines": [
+      "Descrição: Carregar uma lição, validar o acesso e apresentar seu conteúdo, suas etapas interativas e o progresso à interface.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Usuário autenticado; lição existente e elegível.",
+      "Pós-condições: Conteúdo e progresso da lição apresentados após a validação do acesso; exercícios podem ser realizados.",
+      "Entradas: Identificador da lição.",
+      "Saídas: Conteúdo, etapas e progresso da sessão.",
+      "Fluxo Principal",
+      "1. O usuário escolhe uma lição liberada na trilha.",
+      "2. O Stacklyst resolve o identificador no registro de lições.",
+      "3. O sistema verifica conteúdo e estado da etapa.",
+      "4. A página apresenta explicação, exemplos e interação correspondente.",
+      "5. O usuário navega pelas etapas e decide resolver o exercício ou pedir ajuda opcional.",
+      "Fluxos Alternativos",
+      "• A1 — Lição inexistente: o sistema apresenta estado de não encontrada.",
+      "• A2 — Lição bloqueada: o sistema orienta o pré-requisito.",
+      "• A3 — Falha ao consultar progresso: informar indisponibilidade sem confirmar conclusão."
+    ],
+    "area": "Trilhas",
+    "actor": "U",
+    "sources": [
+      "src/app/api/trails/chest/route.ts",
+      "src/lib/learning/lesson-progress.ts"
+    ],
+    "scenarioIds": [
+      "C06",
+      "C13"
+    ],
+    "rules": [
+      "R11",
+      "R12",
+      "R14",
+      "R20",
+      "R21"
+    ],
+    "definition": "Objetivo consolidado: Estudar lição\nVariantes: Estudar lição, Resgatar etapa especial da trilha\nDescrição: Carregar uma lição, validar o acesso e apresentar seu conteúdo, suas etapas interativas e o progresso à interface.\nTipo: Condução\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Nenhum.\nPré-condições: Usuário autenticado; lição existente e elegível.\nPós-condições: Conteúdo e progresso da lição apresentados após a validação do acesso; exercícios podem ser realizados.\nEntradas: Identificador da lição.\nSaídas: Conteúdo, etapas e progresso da sessão.\nFluxo Principal\n1. O usuário escolhe uma lição liberada na trilha.\n2. O Stacklyst resolve o identificador no registro de lições.\n3. O sistema verifica conteúdo e estado da etapa.\n4. A página apresenta explicação, exemplos e interação correspondente.\n5. O usuário navega pelas etapas e decide resolver o exercício ou pedir ajuda opcional.\nFluxos Alternativos\n• A1 — Lição inexistente: o sistema apresenta estado de não encontrada.\n• A2 — Lição bloqueada: o sistema orienta o pré-requisito.\n• A3 — Falha ao consultar progresso: informar indisponibilidade sem confirmar conclusão.\nImplementação: src/lib/learning/lesson-progress.ts",
+    "subflows": [
+      {
+        "historicalId": "UC005",
+        "title": "Estudar lição",
+        "lines": [
+          "Descrição: Carregar uma lição, validar o acesso e apresentar seu conteúdo, suas etapas interativas e o progresso à interface.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Usuário autenticado; lição existente e elegível.",
+          "Pós-condições: Conteúdo e progresso da lição apresentados após a validação do acesso; exercícios podem ser realizados.",
+          "Entradas: Identificador da lição.",
+          "Saídas: Conteúdo, etapas e progresso da sessão.",
+          "Fluxo Principal",
+          "1. O usuário escolhe uma lição liberada na trilha.",
+          "2. O Stacklyst resolve o identificador no registro de lições.",
+          "3. O sistema verifica conteúdo e estado da etapa.",
+          "4. A página apresenta explicação, exemplos e interação correspondente.",
+          "5. O usuário navega pelas etapas e decide resolver o exercício ou pedir ajuda opcional.",
+          "Fluxos Alternativos",
+          "• A1 — Lição inexistente: o sistema apresenta estado de não encontrada.",
+          "• A2 — Lição bloqueada: o sistema orienta o pré-requisito.",
+          "• A3 — Falha ao consultar progresso: informar indisponibilidade sem confirmar conclusão."
+        ]
+      },
+      {
+        "historicalId": "UC059",
+        "title": "Resgatar etapa especial da trilha",
+        "lines": [
+          "Descrição: Resgatar etapa especial da trilha.",
+          "Ator principal: Estudante",
+          "Pré-condições: Requisitos do resgate correspondente satisfeitos",
+          "Pós-condições: Resgate associado à regra específica",
+          "Fluxo principal",
+          "1. Solicitar checkpoint, baú ou salto pela rota própria",
+          "2. Conferir evidências exigidas",
+          "3. Registrar recibo idempotente",
+          "4. Retornar benefício confirmado",
+          "Fluxos alternativos: Não usar validação de quiz genérico para responder um recibo de recompensa"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC006",
+    "title": "Resolver exercício",
+    "lines": [
+      "Descrição: Elaborar e submeter uma solução para avaliação no servidor, incluindo UC028 Avaliar resposta. Ponto de extensão consultar ajuda: durante a elaboração, UC012 pode ser executado se o usuário solicitar ajuda permitida pelo modo. Testar código antes da submissão, em UC052, não concede XP nem conclui a etapa.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Executor de código, por meio de UC029 quando a atividade exigir programação.",
+      "Pré-condições: Exercício disponível, pré-requisitos atendidos e usuário autenticado para registrar a tentativa.",
+      "Pós-condições: Tentativa e feedback registrados quando a gravação for concluída; XP e progresso atualizados somente se elegíveis. Em falha técnica, nenhum novo acerto é confirmado.",
+      "Entradas: Resposta, código, pares, ordem, lacunas, comando ou blocos.",
+      "Saídas: Resultado, feedback, saída e XP quando aplicável.",
+      "Fluxo Principal",
+      "1. O usuário elabora a solução. Durante esta etapa, pode consultar ajuda pelo ponto de extensão consultar ajuda.",
+      "2. O usuário submete a resposta; o Stacklyst verifica completude, acesso e pré-requisitos.",
+      "3. O Stacklyst executa UC028 Avaliar resposta, que trata o tipo da atividade e retorna o resultado.",
+      "4. O sistema registra a tentativa e, em acerto inédito elegível, a recompensa e o progresso na mesma operação.",
+      "5. O Stacklyst apresenta feedback e progresso confirmado; o usuário decide prosseguir ou realizar nova tentativa.",
+      "Fluxos Alternativos",
+      "• A1 — Dado inválido: o sistema solicita correção antes da avaliação.",
+      "• A2 — Executor indisponível ou timeout: o sistema não marca acerto nem concede XP.",
+      "• A3 — Resposta incorreta: o sistema exibe feedback e permite nova tentativa.",
+      "• A4 — Falha ao salvar: o sistema informa indisponibilidade, preserva a solução e permite reenvio sem duplicar recompensa."
+    ],
+    "area": "Trilhas",
+    "actor": "U",
+    "sources": [
+      "src/app/api/lessons/[lessonId]/attempt/route.ts",
+      "src/lib/duels/judge.ts",
+      "src/lib/exercises/repository.ts",
+      "src/lib/learning/assessment.ts",
+      "src/lib/learning/lesson-progress.ts"
+    ],
+    "scenarioIds": [
+      "C07",
+      "C08",
+      "C09",
+      "C10",
+      "C11",
+      "C37"
+    ],
+    "rules": [
+      "R12",
+      "R13",
+      "R14",
+      "R15",
+      "R16",
+      "R17",
+      "R18",
+      "R19",
+      "R25",
+      "R63",
+      "R64"
+    ],
+    "definition": "Objetivo consolidado: Resolver exercício\nVariantes: Resolver exercício, Testar código antes da submissão\nDescrição: Elaborar e submeter uma solução para avaliação no servidor, incluindo UC028 Avaliar resposta. Ponto de extensão consultar ajuda: durante a elaboração, UC012 pode ser executado se o usuário solicitar ajuda permitida pelo modo. Testar código antes da submissão, em UC052, não concede XP nem conclui a etapa.\nTipo: Condução\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Executor de código, por meio de UC029 quando a atividade exigir programação.\nPré-condições: Exercício disponível, pré-requisitos atendidos e usuário autenticado para registrar a tentativa.\nPós-condições: Tentativa e feedback registrados quando a gravação for concluída; XP e progresso atualizados somente se elegíveis. Em falha técnica, nenhum novo acerto é confirmado.\nEntradas: Resposta, código, pares, ordem, lacunas, comando ou blocos.\nSaídas: Resultado, feedback, saída e XP quando aplicável.\nFluxo Principal\n1. O usuário elabora a solução. Durante esta etapa, pode consultar ajuda pelo ponto de extensão consultar ajuda.\n2. O usuário submete a resposta; o Stacklyst verifica completude, acesso e pré-requisitos.\n3. O Stacklyst executa UC028 Avaliar resposta, que trata o tipo da atividade e retorna o resultado.\n4. O sistema registra a tentativa e, em acerto inédito elegível, a recompensa e o progresso na mesma operação.\n5. O Stacklyst apresenta feedback e progresso confirmado; o usuário decide prosseguir ou realizar nova tentativa.\nFluxos Alternativos\n• A1 — Dado inválido: o sistema solicita correção antes da avaliação.\n• A2 — Executor indisponível ou timeout: o sistema não marca acerto nem concede XP.\n• A3 — Resposta incorreta: o sistema exibe feedback e permite nova tentativa.\n• A4 — Falha ao salvar: o sistema informa indisponibilidade, preserva a solução e permite reenvio sem duplicar recompensa.\nImplementação: src/lib/exercises/repository.ts, src/lib/learning/assessment.ts, src/lib/learning/lesson-progress.ts",
+    "subflows": [
+      {
+        "historicalId": "UC006",
+        "title": "Resolver exercício",
+        "lines": [
+          "Descrição: Elaborar e submeter uma solução para avaliação no servidor, incluindo UC028 Avaliar resposta. Ponto de extensão consultar ajuda: durante a elaboração, UC012 pode ser executado se o usuário solicitar ajuda permitida pelo modo. Testar código antes da submissão, em UC052, não concede XP nem conclui a etapa.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Executor de código, por meio de UC029 quando a atividade exigir programação.",
+          "Pré-condições: Exercício disponível, pré-requisitos atendidos e usuário autenticado para registrar a tentativa.",
+          "Pós-condições: Tentativa e feedback registrados quando a gravação for concluída; XP e progresso atualizados somente se elegíveis. Em falha técnica, nenhum novo acerto é confirmado.",
+          "Entradas: Resposta, código, pares, ordem, lacunas, comando ou blocos.",
+          "Saídas: Resultado, feedback, saída e XP quando aplicável.",
+          "Fluxo Principal",
+          "1. O usuário elabora a solução. Durante esta etapa, pode consultar ajuda pelo ponto de extensão consultar ajuda.",
+          "2. O usuário submete a resposta; o Stacklyst verifica completude, acesso e pré-requisitos.",
+          "3. O Stacklyst executa UC028 Avaliar resposta, que trata o tipo da atividade e retorna o resultado.",
+          "4. O sistema registra a tentativa e, em acerto inédito elegível, a recompensa e o progresso na mesma operação.",
+          "5. O Stacklyst apresenta feedback e progresso confirmado; o usuário decide prosseguir ou realizar nova tentativa.",
+          "Fluxos Alternativos",
+          "• A1 — Dado inválido: o sistema solicita correção antes da avaliação.",
+          "• A2 — Executor indisponível ou timeout: o sistema não marca acerto nem concede XP.",
+          "• A3 — Resposta incorreta: o sistema exibe feedback e permite nova tentativa.",
+          "• A4 — Falha ao salvar: o sistema informa indisponibilidade, preserva a solução e permite reenvio sem duplicar recompensa."
+        ]
+      },
+      {
+        "historicalId": "UC052",
+        "title": "Testar código antes da submissão",
+        "lines": [
+          "Descrição: Testar código antes da submissão.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: Execução de teste não implica conclusão nem concessão de XP.",
+          "Fluxo Principal",
+          "1. Preparar código.",
+          "2. Solicitar execução de teste.",
+          "3. Analisar saída e ajustar solução.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: RF008, RF019.",
+          "Referência de implementação: src/app/api/exercises/[exerciseId]/run; src/app/api/duels/[id]/run."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC007",
+    "title": "Consultar evolução e reconhecimento",
+    "lines": [
+      "Descrição: Apresentar XP, nível, sequência, trilhas, tentativas e conquistas permitidas.",
+      "Tipo: Análise",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Sessão válida para consultar o próprio progresso. A consulta do progresso de outro usuário limita-se às informações de seu perfil público.",
+      "Pós-condições: Nenhuma alteração obrigatória; visão consolidada exibida.",
+      "Entradas: Usuário, período e trilha opcionais.",
+      "Saídas: Indicadores e histórico permitido.",
+      "Fluxo Principal",
+      "1. O usuário abre perfil, trilha ou visão de atividade.",
+      "2. O Stacklyst identifica o titular e as permissões de visualização.",
+      "3. O sistema consulta XP, trilhas, sequência, tentativas e badges.",
+      "4. Os dados são consolidados sem expor campos privados.",
+      "5. O Stacklyst apresenta evolução atual e próximos marcos.",
+      "Fluxos Alternativos",
+      "• A1 — Perfil privado ou dado não permitido: o sistema oculta o campo.",
+      "• A2 — Histórico indisponível: o sistema mostra o último estado confirmado.",
+      "• A3 — Período sem atividade: o sistema retorna estado vazio claro."
+    ],
+    "area": "Trilhas",
+    "actor": "U",
+    "sources": [
+      "src/lib/credentials/pdf.ts",
+      "src/lib/credentials/repository.ts",
+      "src/lib/learning/rewards.ts"
+    ],
+    "scenarioIds": [
+      "C14",
+      "C15",
+      "C16",
+      "C25"
+    ],
+    "rules": [
+      "R22",
+      "R23",
+      "R24",
+      "R25",
+      "R26",
+      "R27",
+      "R28"
+    ],
+    "definition": "Objetivo consolidado: Consultar evolução e reconhecimento\nVariantes: Consultar progresso, Consultar ranking de XP, Consultar e emitir credencial elegível, Verificar credencial pública, Gerar PDF de credencial\nDescrição: Apresentar XP, nível, sequência, trilhas, tentativas e conquistas permitidas.\nTipo: Análise\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Nenhum.\nPré-condições: Sessão válida para consultar o próprio progresso. A consulta do progresso de outro usuário limita-se às informações de seu perfil público.\nPós-condições: Nenhuma alteração obrigatória; visão consolidada exibida.\nEntradas: Usuário, período e trilha opcionais.\nSaídas: Indicadores e histórico permitido.\nFluxo Principal\n1. O usuário abre perfil, trilha ou visão de atividade.\n2. O Stacklyst identifica o titular e as permissões de visualização.\n3. O sistema consulta XP, trilhas, sequência, tentativas e badges.\n4. Os dados são consolidados sem expor campos privados.\n5. O Stacklyst apresenta evolução atual e próximos marcos.\nFluxos Alternativos\n• A1 — Perfil privado ou dado não permitido: o sistema oculta o campo.\n• A2 — Histórico indisponível: o sistema mostra o último estado confirmado.\n• A3 — Período sem atividade: o sistema retorna estado vazio claro.\nImplementação: ",
+    "subflows": [
+      {
+        "historicalId": "UC007",
+        "title": "Consultar progresso",
+        "lines": [
+          "Descrição: Apresentar XP, nível, sequência, trilhas, tentativas e conquistas permitidas.",
+          "Tipo: Análise",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Sessão válida para consultar o próprio progresso. A consulta do progresso de outro usuário limita-se às informações de seu perfil público.",
+          "Pós-condições: Nenhuma alteração obrigatória; visão consolidada exibida.",
+          "Entradas: Usuário, período e trilha opcionais.",
+          "Saídas: Indicadores e histórico permitido.",
+          "Fluxo Principal",
+          "1. O usuário abre perfil, trilha ou visão de atividade.",
+          "2. O Stacklyst identifica o titular e as permissões de visualização.",
+          "3. O sistema consulta XP, trilhas, sequência, tentativas e badges.",
+          "4. Os dados são consolidados sem expor campos privados.",
+          "5. O Stacklyst apresenta evolução atual e próximos marcos.",
+          "Fluxos Alternativos",
+          "• A1 — Perfil privado ou dado não permitido: o sistema oculta o campo.",
+          "• A2 — Histórico indisponível: o sistema mostra o último estado confirmado.",
+          "• A3 — Período sem atividade: o sistema retorna estado vazio claro."
+        ]
+      },
+      {
+        "historicalId": "UC011",
+        "title": "Consultar ranking de XP",
+        "lines": [
+          "Descrição: Exibir classificação global ou por linguagem.",
+          "Tipo: Análise",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Dados de XP disponíveis.",
+          "Pós-condições: Ranking exibido sem alterar pontuação.",
+          "Entradas: Filtro de linguagem opcional.",
+          "Saídas: Posição, usuário, XP, nível e divisão quando aplicável.",
+          "Fluxo Principal",
+          "1. O usuário abre o ranking.",
+          "2. O Stacklyst recebe o filtro global ou por linguagem.",
+          "3. O sistema consulta os maiores valores de XP no escopo.",
+          "4. A posição e o nível exibido são calculados.",
+          "5. O Stacklyst apresenta a classificação e a posição disponível.",
+          "Fluxos Alternativos",
+          "• A1 — Filtro inválido: o sistema usa opção válida ou informa erro.",
+          "• A2 — Ranking vazio: o sistema exibe estado sem participantes.",
+          "• A3 — Empate em XP: ordenar por username e id crescentes."
+        ]
+      },
+      {
+        "historicalId": "UC060",
+        "title": "Consultar e emitir credencial elegível",
+        "lines": [
+          "Descrição: Consultar e emitir credencial elegível.",
+          "Ator principal: Estudante",
+          "Pré-condições: Evidências pedagógicas registradas",
+          "Pós-condições: Credencial vinculada às evidências e versão",
+          "Fluxo principal",
+          "1. Consultar metas",
+          "2. Reconciliar requisitos em contexto autorizado",
+          "3. Emitir snapshot elegível uma vez",
+          "4. Mostrar coleção e validade",
+          "Fluxos alternativos: XP ou estudo declarado não substitui requisito; leitura pública não emite"
+        ]
+      },
+      {
+        "historicalId": "UC061",
+        "title": "Verificar credencial pública",
+        "lines": [
+          "Descrição: Verificar credencial pública.",
+          "Ator principal: Usuário",
+          "Pré-condições: Identificador de credencial",
+          "Pós-condições: Verificação mostra o estado do registro",
+          "Fluxo principal",
+          "1. Consultar identificador",
+          "2. Carregar registro e snapshot",
+          "3. Conferir integridade e revogação",
+          "4. Apresentar validade",
+          "Fluxos alternativos: ID inválido, ausência, revogação e falha de integridade não são certificados válidos"
+        ]
+      },
+      {
+        "historicalId": "UC062",
+        "title": "Gerar PDF de credencial",
+        "lines": [
+          "Descrição: Gerar PDF de credencial.",
+          "Ator principal: Titular ou usuário sem sessão autorizado pelo fluxo",
+          "Pré-condições: Credencial disponível para consulta/geração",
+          "Pós-condições: PDF corresponde ao registro consultável",
+          "Fluxo principal",
+          "1. Solicitar o documento",
+          "2. Carregar definição e dados válidos",
+          "3. Compor PDF, assinatura visual e QR",
+          "4. Devolver documento",
+          "Fluxos alternativos: A aparência da assinatura não é uma assinatura criptográfica nem mede horas reais"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC008",
+    "title": "Disputar duelo de programação",
+    "lines": [
+      "Descrição: Disponibilizar um duelo aberto com uma linguagem e um desafio do catálogo, aguardando a entrada de outro usuário. Se já houver uma vaga compatível, o sistema pode iniciar o confronto nessa vaga.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Nenhum. O segundo participante entra no duelo por meio de UC009.",
+      "Pré-condições: Usuário autenticado; linguagem suportada e desafio verificável do catálogo.",
+      "Pós-condições: Duelo aberto no estado PENDING, vinculado ao criador e sem oponente, ou duelo compatível iniciado no estado ACTIVE.",
+      "Entradas: Linguagem e desafio do catálogo. Não há destinatário a selecionar.",
+      "Saídas: Identificador do duelo, estado e prazo de espera por participante.",
+      "Fluxo Principal",
+      "1. O usuário abre a área de duelos, solicita criar um duelo e escolhe linguagem e desafio.",
+      "2. O sistema verifica a sessão, a linguagem suportada e a existência do desafio no catálogo.",
+      "3. O sistema consulta se há uma vaga aberta de outro usuário na mesma linguagem; se houver, segue a alternativa A1.",
+      "4. Sem vaga compatível, o sistema registra o usuário como criador de um duelo PENDING, sem oponente, com prazo de espera de até 24 horas.",
+      "5. O sistema exibe o duelo aberto. O confronto começa quando outro usuário ocupa a vaga por UC009, com duração de duas horas.",
+      "Fluxos Alternativos",
+      "• A1 — Vaga compatível encontrada: o sistema reserva a vaga, registra o usuário como oponente e inicia o duelo existente, utilizando o desafio dessa vaga.",
+      "• A2 — Dados ou desafio inválidos: o sistema informa o erro e solicita correção antes de criar o duelo.",
+      "• A3 — Sessão ausente ou expirada: o usuário precisa fazer login para concluir a solicitação.",
+      "• A4 — Espera expirada: a vaga deixa de ser elegível para pareamento; a manutenção atualiza o estado do duelo conforme sua execução."
+    ],
+    "area": "Duelos",
+    "actor": "U",
+    "sources": [
+      "src/lib/duels/resolution-policy.ts",
+      "src/services/duel.service.ts"
+    ],
+    "scenarioIds": [
+      "C36",
+      "C38"
+    ],
+    "rules": [
+      "R61",
+      "R62",
+      "R64",
+      "R65",
+      "R66",
+      "R67",
+      "R68",
+      "R69",
+      "R70",
+      "R71"
+    ],
+    "definition": "Objetivo consolidado: Disputar duelo de programação\nVariantes: Criar duelo aberto, Entrar em duelo, Consultar resultado de duelo, Excluir duelo elegível\nDescrição: Disponibilizar um duelo aberto com uma linguagem e um desafio do catálogo, aguardando a entrada de outro usuário. Se já houver uma vaga compatível, o sistema pode iniciar o confronto nessa vaga.\nTipo: Condução\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Nenhum. O segundo participante entra no duelo por meio de UC009.\nPré-condições: Usuário autenticado; linguagem suportada e desafio verificável do catálogo.\nPós-condições: Duelo aberto no estado PENDING, vinculado ao criador e sem oponente, ou duelo compatível iniciado no estado ACTIVE.\nEntradas: Linguagem e desafio do catálogo. Não há destinatário a selecionar.\nSaídas: Identificador do duelo, estado e prazo de espera por participante.\nFluxo Principal\n1. O usuário abre a área de duelos, solicita criar um duelo e escolhe linguagem e desafio.\n2. O sistema verifica a sessão, a linguagem suportada e a existência do desafio no catálogo.\n3. O sistema consulta se há uma vaga aberta de outro usuário na mesma linguagem; se houver, segue a alternativa A1.\n4. Sem vaga compatível, o sistema registra o usuário como criador de um duelo PENDING, sem oponente, com prazo de espera de até 24 horas.\n5. O sistema exibe o duelo aberto. O confronto começa quando outro usuário ocupa a vaga por UC009, com duração de duas horas.\nFluxos Alternativos\n• A1 — Vaga compatível encontrada: o sistema reserva a vaga, registra o usuário como oponente e inicia o duelo existente, utilizando o desafio dessa vaga.\n• A2 — Dados ou desafio inválidos: o sistema informa o erro e solicita correção antes de criar o duelo.\n• A3 — Sessão ausente ou expirada: o usuário precisa fazer login para concluir a solicitação.\n• A4 — Espera expirada: a vaga deixa de ser elegível para pareamento; a manutenção atualiza o estado do duelo conforme sua execução.\nImplementação: src/services/duel.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC008",
+        "title": "Criar duelo aberto",
+        "lines": [
+          "Descrição: Disponibilizar um duelo aberto com uma linguagem e um desafio do catálogo, aguardando a entrada de outro usuário. Se já houver uma vaga compatível, o sistema pode iniciar o confronto nessa vaga.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Nenhum. O segundo participante entra no duelo por meio de UC009.",
+          "Pré-condições: Usuário autenticado; linguagem suportada e desafio verificável do catálogo.",
+          "Pós-condições: Duelo aberto no estado PENDING, vinculado ao criador e sem oponente, ou duelo compatível iniciado no estado ACTIVE.",
+          "Entradas: Linguagem e desafio do catálogo. Não há destinatário a selecionar.",
+          "Saídas: Identificador do duelo, estado e prazo de espera por participante.",
+          "Fluxo Principal",
+          "1. O usuário abre a área de duelos, solicita criar um duelo e escolhe linguagem e desafio.",
+          "2. O sistema verifica a sessão, a linguagem suportada e a existência do desafio no catálogo.",
+          "3. O sistema consulta se há uma vaga aberta de outro usuário na mesma linguagem; se houver, segue a alternativa A1.",
+          "4. Sem vaga compatível, o sistema registra o usuário como criador de um duelo PENDING, sem oponente, com prazo de espera de até 24 horas.",
+          "5. O sistema exibe o duelo aberto. O confronto começa quando outro usuário ocupa a vaga por UC009, com duração de duas horas.",
+          "Fluxos Alternativos",
+          "• A1 — Vaga compatível encontrada: o sistema reserva a vaga, registra o usuário como oponente e inicia o duelo existente, utilizando o desafio dessa vaga.",
+          "• A2 — Dados ou desafio inválidos: o sistema informa o erro e solicita correção antes de criar o duelo.",
+          "• A3 — Sessão ausente ou expirada: o usuário precisa fazer login para concluir a solicitação.",
+          "• A4 — Espera expirada: a vaga deixa de ser elegível para pareamento; a manutenção atualiza o estado do duelo conforme sua execução."
+        ]
+      },
+      {
+        "historicalId": "UC009",
+        "title": "Entrar em duelo",
+        "lines": [
+          "Descrição: Entrar voluntariamente em um duelo aberto ou usar a fila rápida para localizar uma vaga na linguagem selecionada.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Usuário autenticado que criou o duelo, no contexto de outro participante.",
+          "Pré-condições: Usuário autenticado; para entrada direta, duelo pendente com vaga de oponente disponível e criado por outro usuário.",
+          "Pós-condições: Vaga ocupada uma única vez e duelo ACTIVE, ou nova espera PENDING quando a fila rápida não encontra oponente.",
+          "Entradas: Duelo escolhido na entrada direta ou linguagem selecionada na fila rápida.",
+          "Saídas: Duelo ativo com participantes e prazo, ou confirmação de espera por oponente.",
+          "Fluxo Principal",
+          "1. O usuário seleciona um duelo aberto e solicita entrar.",
+          "2. O sistema verifica a sessão e confirma que o usuário não é o criador desse duelo.",
+          "3. O sistema verifica se o duelo continua pendente e com a vaga de oponente disponível.",
+          "4. O sistema reserva a vaga de forma condicional para impedir que dois usuários a ocupem ao mesmo tempo.",
+          "5. O sistema registra o oponente, ativa o duelo e apresenta o desafio e o prazo de duas horas aos participantes.",
+          "Fluxos Alternativos",
+          "• A1 — Fila rápida: o usuário escolhe JavaScript, TypeScript ou Python; o sistema busca a vaga pendente mais antiga e disponível na mesma linguagem, criada por outro usuário. Se não houver vaga, cria uma espera com desafio do catálogo e prazo de até 24 horas.",
+          "• A2 — Vaga ocupada ou duelo indisponível: o sistema informa que a entrada não pode ser concluída. Na fila rápida, pode buscar outra vaga ou criar uma espera.",
+          "• A3 — Próprio duelo, sessão ausente ou linguagem não suportada: o sistema recusa a entrada e informa a condição a corrigir."
+        ]
+      },
+      {
+        "historicalId": "UC053",
+        "title": "Consultar resultado de duelo",
+        "lines": [
+          "Descrição: Consultar resultado de duelo.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: Duelo ativo restringe acesso a participantes, avaliadores e administradores.",
+          "Fluxo Principal",
+          "1. Abrir duelo permitido.",
+          "2. Consultar estado, envios próprios e parecer disponível.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: RF020, RF021.",
+          "Referência de implementação: src/app/api/duels/[id]/route.ts; src/app/duels/[id]."
+        ]
+      },
+      {
+        "historicalId": "UC054",
+        "title": "Excluir duelo elegível",
+        "lines": [
+          "Descrição: Excluir duelo elegível.",
+          "Ator iniciador: Criador do duelo ou Administrador autorizado.",
+          "Pré-condições e autorização: Somente criador ou Administrador. Estados permitidos: PENDING, EXPIRED e CLOSED.",
+          "Fluxo Principal",
+          "1. Criador seleciona duelo.",
+          "2. Solicita exclusão.",
+          "3. Servidor valida estado e propriedade.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: Ampliação: manutenção de duelo.",
+          "Referência de implementação: src/app/api/duels/[id]/route.ts."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC010",
+    "title": "Enviar solução de duelo",
+    "lines": [
+      "Descrição: Executar e registrar solução para resolução do duelo.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Participante do duelo",
+      "Atores secundários: Executor de código",
+      "Pré-condições: Participante autenticado, duelo ativo e dentro do prazo.",
+      "Pós-condições: Solução registrada e resolução do duelo processada quando houver elementos suficientes; empate técnico permanece pendente de avaliação humana.",
+      "Entradas: Código e duelo.",
+      "Saídas: Resultados de testes e estado do duelo.",
+      "Fluxo Principal",
+      "1. Enviar código.",
+      "2. Verificar sessão, participante, estado e prazo.",
+      "3. O Stacklyst executa UC029 Executar código e testes com os testes públicos e privados do desafio.",
+      "4. Salvar submissão e aplicar política de resolução.",
+      "5. Retornar resultado sem revelar testes privados.",
+      "Fluxos Alternativos",
+      "• A1 — Fora do prazo ou não participante: negar submissão.",
+      "• A2 — Executor indisponível: não conceder vitória.",
+      "• A3 — Empate técnico: encaminhar para revisão humana."
+    ],
+    "area": "Duelos",
+    "actor": "U",
+    "sources": [
+      "src/lib/duels/judge.ts"
+    ],
+    "scenarioIds": [
+      "C37"
+    ],
+    "rules": [
+      "R63",
+      "R64"
+    ],
+    "definition": "Objetivo consolidado: Enviar solução de duelo\nVariantes: Enviar solução de duelo\nDescrição: Executar e registrar solução para resolução do duelo.\nTipo: Condução\nAtor iniciador ou caso chamador: Participante do duelo\nAtores secundários: Executor de código\nPré-condições: Participante autenticado, duelo ativo e dentro do prazo.\nPós-condições: Solução registrada e resolução do duelo processada quando houver elementos suficientes; empate técnico permanece pendente de avaliação humana.\nEntradas: Código e duelo.\nSaídas: Resultados de testes e estado do duelo.\nFluxo Principal\n1. Enviar código.\n2. Verificar sessão, participante, estado e prazo.\n3. O Stacklyst executa UC029 Executar código e testes com os testes públicos e privados do desafio.\n4. Salvar submissão e aplicar política de resolução.\n5. Retornar resultado sem revelar testes privados.\nFluxos Alternativos\n• A1 — Fora do prazo ou não participante: negar submissão.\n• A2 — Executor indisponível: não conceder vitória.\n• A3 — Empate técnico: encaminhar para revisão humana.\nImplementação: src/lib/duels/judge.ts",
+    "subflows": [
+      {
+        "historicalId": "UC010",
+        "title": "Enviar solução de duelo",
+        "lines": [
+          "Descrição: Executar e registrar solução para resolução do duelo.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Participante do duelo",
+          "Atores secundários: Executor de código",
+          "Pré-condições: Participante autenticado, duelo ativo e dentro do prazo.",
+          "Pós-condições: Solução registrada e resolução do duelo processada quando houver elementos suficientes; empate técnico permanece pendente de avaliação humana.",
+          "Entradas: Código e duelo.",
+          "Saídas: Resultados de testes e estado do duelo.",
+          "Fluxo Principal",
+          "1. Enviar código.",
+          "2. Verificar sessão, participante, estado e prazo.",
+          "3. O Stacklyst executa UC029 Executar código e testes com os testes públicos e privados do desafio.",
+          "4. Salvar submissão e aplicar política de resolução.",
+          "5. Retornar resultado sem revelar testes privados.",
+          "Fluxos Alternativos",
+          "• A1 — Fora do prazo ou não participante: negar submissão.",
+          "• A2 — Executor indisponível: não conceder vitória.",
+          "• A3 — Empate técnico: encaminhar para revisão humana."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC012",
+    "title": "Consultar ajuda do exercício",
+    "lines": [
+      "Descrição: Consultar material de apoio durante UC006, no ponto de extensão consultar ajuda, quando houver solicitação do usuário e o modo permitir.",
+      "Tipo: Análise",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Exercício carregado.",
+      "Pós-condições: Material exibido sem recompensa adicional.",
+      "Entradas: Modo e tipo de ajuda.",
+      "Saídas: Dica ou documentação.",
+      "Fluxo Principal",
+      "1. Abrir um exercício e selecionar o modo de assistência.",
+      "2. Verificar se o modo permite a ajuda solicitada.",
+      "3. Abrir dica ou documentação editorial.",
+      "4. O Stacklyst apresenta o material editorial correspondente à solicitação.",
+      "5. O usuário interpreta a orientação e retorna à elaboração da solução em UC006.",
+      "Fluxos Alternativos",
+      "• A1 — Modo bloqueia ajuda: trocar modo ou continuar sem ajuda."
+    ],
+    "area": "Trilhas",
+    "actor": "U",
+    "sources": [
+      "src/lib/exercises/repository.ts"
+    ],
+    "scenarioIds": [
+      "C12"
+    ],
+    "rules": [
+      "R18",
+      "R19"
+    ],
+    "definition": "Objetivo consolidado: Consultar ajuda do exercício\nVariantes: Consultar ajuda do exercício\nDescrição: Consultar material de apoio durante UC006, no ponto de extensão consultar ajuda, quando houver solicitação do usuário e o modo permitir.\nTipo: Análise\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Nenhum.\nPré-condições: Exercício carregado.\nPós-condições: Material exibido sem recompensa adicional.\nEntradas: Modo e tipo de ajuda.\nSaídas: Dica ou documentação.\nFluxo Principal\n1. Abrir um exercício e selecionar o modo de assistência.\n2. Verificar se o modo permite a ajuda solicitada.\n3. Abrir dica ou documentação editorial.\n4. O Stacklyst apresenta o material editorial correspondente à solicitação.\n5. O usuário interpreta a orientação e retorna à elaboração da solução em UC006.\nFluxos Alternativos\n• A1 — Modo bloqueia ajuda: trocar modo ou continuar sem ajuda.\nImplementação: src/lib/exercises/repository.ts",
+    "subflows": [
+      {
+        "historicalId": "UC012",
+        "title": "Consultar ajuda do exercício",
+        "lines": [
+          "Descrição: Consultar material de apoio durante UC006, no ponto de extensão consultar ajuda, quando houver solicitação do usuário e o modo permitir.",
+          "Tipo: Análise",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Exercício carregado.",
+          "Pós-condições: Material exibido sem recompensa adicional.",
+          "Entradas: Modo e tipo de ajuda.",
+          "Saídas: Dica ou documentação.",
+          "Fluxo Principal",
+          "1. Abrir um exercício e selecionar o modo de assistência.",
+          "2. Verificar se o modo permite a ajuda solicitada.",
+          "3. Abrir dica ou documentação editorial.",
+          "4. O Stacklyst apresenta o material editorial correspondente à solicitação.",
+          "5. O usuário interpreta a orientação e retorna à elaboração da solução em UC006.",
+          "Fluxos Alternativos",
+          "• A1 — Modo bloqueia ajuda: trocar modo ou continuar sem ajuda."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC013",
+    "title": "Gerenciar publicação própria",
+    "lines": [
+      "Descrição: Publicar dúvida, conteúdo ou código no feed, gravando a publicação e a recompensa de XP na mesma transação.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Usuário autenticado e dentro do limite de publicação.",
+      "Pós-condições: Publicação e recompensa de XP persistidas na mesma transação; publicação exibida no feed após a confirmação.",
+      "Entradas: Título, corpo, linguagem, código e imagem opcional.",
+      "Saídas: Publicação criada ou erros de validação.",
+      "Fluxo Principal",
+      "1. O usuário abre o compositor do feed.",
+      "2. O usuário informa o conteúdo e confirma a publicação.",
+      "3. O Stacklyst valida autenticação, tamanho, formato e limite.",
+      "4. O sistema persiste a publicação, seus metadados e a recompensa de XP na mesma transação.",
+      "5. O feed é atualizado e a publicação fica disponível para interação.",
+      "Fluxos Alternativos",
+      "• A1 — Conteúdo inválido ou vazio: o sistema solicita correção.",
+      "• A2 — Limite excedido: o sistema recusa temporariamente.",
+      "• A3 — Upload falha: o usuário pode corrigir ou publicar sem a mídia, se permitido."
+    ],
+    "area": "Comunidade",
+    "actor": "U",
+    "sources": [
+      "src/services/post.service.ts"
+    ],
+    "scenarioIds": [
+      "C17"
+    ],
+    "rules": [
+      "R29",
+      "R30"
+    ],
+    "definition": "Objetivo consolidado: Gerenciar publicação própria\nVariantes: Criar publicação, Editar ou excluir publicação própria\nDescrição: Publicar dúvida, conteúdo ou código no feed, gravando a publicação e a recompensa de XP na mesma transação.\nTipo: Condução\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Nenhum.\nPré-condições: Usuário autenticado e dentro do limite de publicação.\nPós-condições: Publicação e recompensa de XP persistidas na mesma transação; publicação exibida no feed após a confirmação.\nEntradas: Título, corpo, linguagem, código e imagem opcional.\nSaídas: Publicação criada ou erros de validação.\nFluxo Principal\n1. O usuário abre o compositor do feed.\n2. O usuário informa o conteúdo e confirma a publicação.\n3. O Stacklyst valida autenticação, tamanho, formato e limite.\n4. O sistema persiste a publicação, seus metadados e a recompensa de XP na mesma transação.\n5. O feed é atualizado e a publicação fica disponível para interação.\nFluxos Alternativos\n• A1 — Conteúdo inválido ou vazio: o sistema solicita correção.\n• A2 — Limite excedido: o sistema recusa temporariamente.\n• A3 — Upload falha: o usuário pode corrigir ou publicar sem a mídia, se permitido.\nImplementação: src/services/post.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC013",
+        "title": "Criar publicação",
+        "lines": [
+          "Descrição: Publicar dúvida, conteúdo ou código no feed, gravando a publicação e a recompensa de XP na mesma transação.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Usuário autenticado e dentro do limite de publicação.",
+          "Pós-condições: Publicação e recompensa de XP persistidas na mesma transação; publicação exibida no feed após a confirmação.",
+          "Entradas: Título, corpo, linguagem, código e imagem opcional.",
+          "Saídas: Publicação criada ou erros de validação.",
+          "Fluxo Principal",
+          "1. O usuário abre o compositor do feed.",
+          "2. O usuário informa o conteúdo e confirma a publicação.",
+          "3. O Stacklyst valida autenticação, tamanho, formato e limite.",
+          "4. O sistema persiste a publicação, seus metadados e a recompensa de XP na mesma transação.",
+          "5. O feed é atualizado e a publicação fica disponível para interação.",
+          "Fluxos Alternativos",
+          "• A1 — Conteúdo inválido ou vazio: o sistema solicita correção.",
+          "• A2 — Limite excedido: o sistema recusa temporariamente.",
+          "• A3 — Upload falha: o usuário pode corrigir ou publicar sem a mídia, se permitido."
+        ]
+      },
+      {
+        "historicalId": "UC035",
+        "title": "Editar ou excluir publicação própria",
+        "lines": [
+          "Descrição: Editar ou excluir publicação própria.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: O servidor valida author_id; edição exige conteúdo com pelo menos 10 caracteres.",
+          "Fluxo Principal",
+          "1. Selecionar publicação própria.",
+          "2. Solicitar edição ou exclusão.",
+          "3. Confirmar resultado.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: Ampliação: manutenção de publicação.",
+          "Referência de implementação: src/app/api/posts/[id]/route.ts."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC014",
+    "title": "Consultar e interagir com a comunidade",
+    "lines": [
+      "Descrição: Reagir, votar, responder, salvar ou denunciar uma publicação.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Autor da publicação",
+      "Pré-condições: Usuário autenticado; publicação existente.",
+      "Pós-condições: Interação registrada e contadores/notificações atualizados.",
+      "Entradas: Publicação, ação, reação ou resposta.",
+      "Saídas: Novo estado da interação e eventual notificação.",
+      "Fluxo Principal",
+      "1. O usuário seleciona uma publicação no feed.",
+      "2. O usuário escolhe a interação permitida e informa dados adicionais quando necessário.",
+      "3. O Stacklyst valida alvo, sessão e duplicidade.",
+      "4. O sistema registra ou alterna a interação e atualiza contadores.",
+      "5. O autor recebe notificação quando a regra prevê.",
+      "Fluxos Alternativos",
+      "• A1 — Publicação removida: o sistema interrompe a ação.",
+      "• A2 — Ação duplicada: o sistema mantém unicidade ou alterna o estado.",
+      "• A3 — Conteúdo denunciado: o sistema cria item para moderação."
+    ],
+    "area": "Comunidade",
+    "actor": "U",
+    "sources": [
+      "src/app/api/posts/[id]/answer/route.ts",
+      "src/app/api/posts/[id]/poll/route.ts",
+      "src/app/api/posts/[id]/report/route.ts",
+      "src/app/bookmarks/page.tsx",
+      "src/services/daily-quiz.service.ts",
+      "src/services/post.service.ts",
+      "src/services/reaction.service.ts"
+    ],
+    "scenarioIds": [
+      "C18",
+      "C19",
+      "C20",
+      "C21",
+      "C50",
+      "C52",
+      "C53"
+    ],
+    "rules": [
+      "R02",
+      "R07",
+      "R12",
+      "R14",
+      "R29",
+      "R31",
+      "R32",
+      "R33",
+      "R34",
+      "R89",
+      "R91",
+      "R92"
+    ],
+    "definition": "Objetivo consolidado: Consultar e interagir com a comunidade\nVariantes: Interagir com publicação, Consultar e pesquisar feed, Consultar publicações salvas, Aceitar resposta de uma publicação, Responder quiz diário, Votar em enquete, Denunciar publicação\nDescrição: Reagir, votar, responder, salvar ou denunciar uma publicação.\nTipo: Condução\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Autor da publicação\nPré-condições: Usuário autenticado; publicação existente.\nPós-condições: Interação registrada e contadores/notificações atualizados.\nEntradas: Publicação, ação, reação ou resposta.\nSaídas: Novo estado da interação e eventual notificação.\nFluxo Principal\n1. O usuário seleciona uma publicação no feed.\n2. O usuário escolhe a interação permitida e informa dados adicionais quando necessário.\n3. O Stacklyst valida alvo, sessão e duplicidade.\n4. O sistema registra ou alterna a interação e atualiza contadores.\n5. O autor recebe notificação quando a regra prevê.\nFluxos Alternativos\n• A1 — Publicação removida: o sistema interrompe a ação.\n• A2 — Ação duplicada: o sistema mantém unicidade ou alterna o estado.\n• A3 — Conteúdo denunciado: o sistema cria item para moderação.\nImplementação: src/app/api/posts/[id]/answer/route.ts, src/services/reaction.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC014",
+        "title": "Interagir com publicação",
+        "lines": [
+          "Descrição: Reagir, votar, responder, salvar ou denunciar uma publicação.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Autor da publicação",
+          "Pré-condições: Usuário autenticado; publicação existente.",
+          "Pós-condições: Interação registrada e contadores/notificações atualizados.",
+          "Entradas: Publicação, ação, reação ou resposta.",
+          "Saídas: Novo estado da interação e eventual notificação.",
+          "Fluxo Principal",
+          "1. O usuário seleciona uma publicação no feed.",
+          "2. O usuário escolhe a interação permitida e informa dados adicionais quando necessário.",
+          "3. O Stacklyst valida alvo, sessão e duplicidade.",
+          "4. O sistema registra ou alterna a interação e atualiza contadores.",
+          "5. O autor recebe notificação quando a regra prevê.",
+          "Fluxos Alternativos",
+          "• A1 — Publicação removida: o sistema interrompe a ação.",
+          "• A2 — Ação duplicada: o sistema mantém unicidade ou alterna o estado.",
+          "• A3 — Conteúdo denunciado: o sistema cria item para moderação."
+        ]
+      },
+      {
+        "historicalId": "UC031",
+        "title": "Consultar e pesquisar feed",
+        "lines": [
+          "Descrição: Consultar e pesquisar feed.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: Exibir somente o conteúdo autorizado.",
+          "Fluxo Principal",
+          "1. Informar filtro ou termo.",
+          "2. Consultar publicações e abrir conteúdo de interesse.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: RF031.",
+          "Referência de implementação: src/app/feed; src/app/api/posts; src/app/api/search."
+        ]
+      },
+      {
+        "historicalId": "UC034",
+        "title": "Consultar publicações salvas",
+        "lines": [
+          "Descrição: Consultar publicações salvas.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: A coleção pertence ao usuário autenticado.",
+          "Fluxo Principal",
+          "1. Abrir itens salvos.",
+          "2. Selecionar publicação.",
+          "3. Remover marcação se desejado.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: RF032.",
+          "Referência de implementação: src/app/bookmarks/page.tsx; src/app/api/posts/[id]/bookmark."
+        ]
+      },
+      {
+        "historicalId": "UC036",
+        "title": "Aceitar resposta de uma publicação",
+        "lines": [
+          "Descrição: Aceitar resposta de uma publicação.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: Somente autor da publicação; transação impede recompensa duplicada do mesmo aceite.",
+          "Fluxo Principal",
+          "1. Autor seleciona resposta.",
+          "2. Confirma aceite.",
+          "3. Sistema registra aceite e recompensa elegível.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: Ampliação: resposta aceita.",
+          "Referência de implementação: src/app/api/answers/[id]/accept/route.ts."
+        ]
+      },
+      {
+        "historicalId": "UC037",
+        "title": "Responder quiz diário",
+        "lines": [
+          "Descrição: Responder quiz diário.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: A correção ocorre no servidor; repetição não duplica a primeira recompensa.",
+          "Fluxo Principal",
+          "1. Consultar quiz disponível.",
+          "2. Selecionar resposta.",
+          "3. Enviar e analisar resultado.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: RF008, RF009, RF011.",
+          "Referência de implementação: src/app/api/quiz/daily; src/app/api/quiz/[id]/attempt."
+        ]
+      },
+      {
+        "historicalId": "UC073",
+        "title": "Votar em enquete",
+        "lines": [
+          "Descrição: Votar em enquete.",
+          "Ator principal: Usuário",
+          "Pré-condições: Post acessível e enquete válida",
+          "Pós-condições: Voto pertence à opção correta e ao votante autorizado",
+          "Fluxo principal",
+          "1. Abrir enquete",
+          "2. Escolher opção",
+          "3. Validar voto e vínculo da opção",
+          "4. Persistir e apresentar contagem",
+          "Fluxos alternativos: Reações do post não são votos de enquete; consultar a rota para mudança/fechamento"
+        ]
+      },
+      {
+        "historicalId": "UC074",
+        "title": "Denunciar publicação",
+        "lines": [
+          "Descrição: Denunciar publicação.",
+          "Ator principal: Usuário",
+          "Pré-condições: Post e motivo admitidos pelo fluxo",
+          "Pós-condições: Denúncia disponível para a gestão autorizada",
+          "Fluxo principal",
+          "1. Identificar conteúdo",
+          "2. Enviar denúncia",
+          "3. Conferir contrato e identidade",
+          "4. Registrar para consulta administrativa",
+          "Fluxos alternativos: Denunciar não concede ao denunciante direito de apagar a publicação"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC015",
+    "title": "Gerenciar eventos e desafios",
+    "lines": [
+      "Descrição: Permitir que qualquer usuário autenticado crie um evento comunitário com descrição, período e requisitos de participação, tornando-se o organizador responsável pelo cadastro.",
+      "Tipo: Configuração",
+      "Ator iniciador ou caso chamador: Usuário autenticado, no contexto de organizador do evento.",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Usuário autenticado e dados obrigatórios do evento preenchidos. A criação não exige o papel de Administrador ou Recrutador.",
+      "Pós-condições: Evento criado no estado UPCOMING e vinculado à conta que o cadastrou como criadora.",
+      "Entradas: Título, descrição, tipo, datas de início e término, nível mínimo, capacidade opcional, recompensa de XP e imagem opcional.",
+      "Saídas: Confirmação de criação e evento disponível na listagem com seu estado e requisitos.",
+      "Fluxo Principal",
+      "1. O usuário acessa Eventos e seleciona Criar evento.",
+      "2. O sistema verifica se há uma sessão válida e apresenta o formulário.",
+      "3. O usuário preenche a descrição, o tipo, o período e os requisitos de participação.",
+      "4. O formulário verifica os dados obrigatórios e a ordem das datas; o servidor valida os dados recebidos para a criação.",
+      "5. O sistema registra o evento com o usuário como criador, define o estado inicial UPCOMING e confirma a criação.",
+      "Fluxos Alternativos",
+      "• A1 — Sessão ausente ou expirada: o sistema solicita que o usuário faça login antes de concluir a criação.",
+      "• A2 — Campos obrigatórios ou datas inválidos no formulário: o sistema solicita a correção e mantém os dados para nova tentativa.",
+      "• A3 — Falha ao salvar o evento: o sistema informa a falha e não apresenta confirmação de criação."
+    ],
+    "area": "Eventos",
+    "actor": "U",
+    "sources": [
+      "src/services/event-challenge.service.ts",
+      "src/services/event.service.ts"
+    ],
+    "scenarioIds": [
+      "C44",
+      "C46"
+    ],
+    "rules": [
+      "R83",
+      "R84",
+      "R85",
+      "R86",
+      "R87"
+    ],
+    "definition": "Objetivo consolidado: Gerenciar eventos e desafios\nVariantes: Criar evento, Consultar eventos e desafios, Excluir evento sob responsabilidade, Gerenciar desafios de evento\nDescrição: Permitir que qualquer usuário autenticado crie um evento comunitário com descrição, período e requisitos de participação, tornando-se o organizador responsável pelo cadastro.\nTipo: Configuração\nAtor iniciador ou caso chamador: Usuário autenticado, no contexto de organizador do evento.\nAtores secundários: Nenhum.\nPré-condições: Usuário autenticado e dados obrigatórios do evento preenchidos. A criação não exige o papel de Administrador ou Recrutador.\nPós-condições: Evento criado no estado UPCOMING e vinculado à conta que o cadastrou como criadora.\nEntradas: Título, descrição, tipo, datas de início e término, nível mínimo, capacidade opcional, recompensa de XP e imagem opcional.\nSaídas: Confirmação de criação e evento disponível na listagem com seu estado e requisitos.\nFluxo Principal\n1. O usuário acessa Eventos e seleciona Criar evento.\n2. O sistema verifica se há uma sessão válida e apresenta o formulário.\n3. O usuário preenche a descrição, o tipo, o período e os requisitos de participação.\n4. O formulário verifica os dados obrigatórios e a ordem das datas; o servidor valida os dados recebidos para a criação.\n5. O sistema registra o evento com o usuário como criador, define o estado inicial UPCOMING e confirma a criação.\nFluxos Alternativos\n• A1 — Sessão ausente ou expirada: o sistema solicita que o usuário faça login antes de concluir a criação.\n• A2 — Campos obrigatórios ou datas inválidos no formulário: o sistema solicita a correção e mantém os dados para nova tentativa.\n• A3 — Falha ao salvar o evento: o sistema informa a falha e não apresenta confirmação de criação.\nImplementação: src/services/event.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC015",
+        "title": "Criar evento",
+        "lines": [
+          "Descrição: Permitir que qualquer usuário autenticado crie um evento comunitário com descrição, período e requisitos de participação, tornando-se o organizador responsável pelo cadastro.",
+          "Tipo: Configuração",
+          "Ator iniciador ou caso chamador: Usuário autenticado, no contexto de organizador do evento.",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Usuário autenticado e dados obrigatórios do evento preenchidos. A criação não exige o papel de Administrador ou Recrutador.",
+          "Pós-condições: Evento criado no estado UPCOMING e vinculado à conta que o cadastrou como criadora.",
+          "Entradas: Título, descrição, tipo, datas de início e término, nível mínimo, capacidade opcional, recompensa de XP e imagem opcional.",
+          "Saídas: Confirmação de criação e evento disponível na listagem com seu estado e requisitos.",
+          "Fluxo Principal",
+          "1. O usuário acessa Eventos e seleciona Criar evento.",
+          "2. O sistema verifica se há uma sessão válida e apresenta o formulário.",
+          "3. O usuário preenche a descrição, o tipo, o período e os requisitos de participação.",
+          "4. O formulário verifica os dados obrigatórios e a ordem das datas; o servidor valida os dados recebidos para a criação.",
+          "5. O sistema registra o evento com o usuário como criador, define o estado inicial UPCOMING e confirma a criação.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ausente ou expirada: o sistema solicita que o usuário faça login antes de concluir a criação.",
+          "• A2 — Campos obrigatórios ou datas inválidos no formulário: o sistema solicita a correção e mantém os dados para nova tentativa.",
+          "• A3 — Falha ao salvar o evento: o sistema informa a falha e não apresenta confirmação de criação."
+        ]
+      },
+      {
+        "historicalId": "UC046",
+        "title": "Consultar eventos e desafios",
+        "lines": [
+          "Descrição: Consultar eventos e desafios.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: Respostas esperadas dos desafios ficam restritas ao gestor autorizado.",
+          "Fluxo Principal",
+          "1. Consultar eventos.",
+          "2. Abrir detalhes e desafios.",
+          "3. Analisar datas e condições.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: RF041, RF049.",
+          "Referência de implementação: src/app/events; src/app/api/events; src/app/api/events/[id]/challenges."
+        ]
+      },
+      {
+        "historicalId": "UC047",
+        "title": "Excluir evento sob responsabilidade",
+        "lines": [
+          "Descrição: Excluir evento sob responsabilidade.",
+          "Ator iniciador: Criador do evento ou Administrador autorizado.",
+          "Pré-condições e autorização: Somente criador ou Administrador, conforme regras de EventService.",
+          "Fluxo Principal",
+          "1. Selecionar evento.",
+          "2. Solicitar exclusão.",
+          "3. Validar responsabilidade.",
+          "4. Confirmar remoção.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: RF041.",
+          "Referência de implementação: src/app/api/events/[id]/route.ts; src/services/event.service.ts."
+        ]
+      },
+      {
+        "historicalId": "UC048",
+        "title": "Gerenciar desafios de evento",
+        "lines": [
+          "Descrição: Gerenciar desafios de evento.",
+          "Ator iniciador: Criador do evento ou Administrador autorizado.",
+          "Pré-condições e autorização: Criador ou Administrador; evento concluído não admite alteração; respostas privadas não são públicas.",
+          "Fluxo Principal",
+          "1. Criador define conjunto de desafios.",
+          "2. Valida dados.",
+          "3. Salva e consulta conjunto.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: Ampliação: desafios de evento.",
+          "Referência de implementação: src/app/api/events/[id]/challenges; src/services/event-challenge.service.ts."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC016",
+    "title": "Avaliar duelo autorizado",
+    "lines": [
+      "Descrição: Emitir parecer humano sobre soluções de duelo.",
+      "Tipo: Análise",
+      "Ator iniciador ou caso chamador: Avaliador ou Administrador.",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Avaliador aprovado ou Administrador autenticado, que não participou do duelo; duelo no estado REVIEW_PENDING, com soluções disponíveis para análise.",
+      "Pós-condições: Parecer registrado e duelo concluído; a notificação é solicitada. Falha de notificação não desfaz a decisão, conforme RN022.",
+      "Entradas: Pontuações de 0 a 1.000, vencedor obrigatório, feedback com pelo menos 5 caracteres, pontos fortes e melhorias.",
+      "Saídas: Parecer persistido e resultado.",
+      "Fluxo Principal",
+      "1. O avaliador ou administrador abre a fila de avaliações pendentes.",
+      "2. O Stacklyst autoriza o papel e apresenta as soluções.",
+      "3. O avaliador compara código e resultados dos testes.",
+      "4. O avaliador informa pontuações e feedback explicativo.",
+      "5. O sistema valida, registra o parecer, fecha o duelo e notifica.",
+      "Fluxos Alternativos",
+      "• A1 — Papel ausente ou tentativa de avaliar o próprio duelo: o sistema nega a avaliação.",
+      "• A2 — Duelo já fechado: o sistema impede nova decisão conflitante.",
+      "• A3 — Feedback/pontuação inválidos: o sistema solicita correção."
+    ],
+    "area": "Avaliadores",
+    "actor": "E",
+    "sources": [
+      "src/services/evaluator.service.ts"
+    ],
+    "scenarioIds": [
+      "C40"
+    ],
+    "rules": [
+      "R73",
+      "R74",
+      "R75"
+    ],
+    "definition": "Objetivo consolidado: Avaliar duelo autorizado\nVariantes: Avaliar empate técnico\nDescrição: Emitir parecer humano sobre soluções de duelo.\nTipo: Análise\nAtor iniciador ou caso chamador: Avaliador ou Administrador.\nAtores secundários: Nenhum.\nPré-condições: Avaliador aprovado ou Administrador autenticado, que não participou do duelo; duelo no estado REVIEW_PENDING, com soluções disponíveis para análise.\nPós-condições: Parecer registrado e duelo concluído; a notificação é solicitada. Falha de notificação não desfaz a decisão, conforme RN022.\nEntradas: Pontuações de 0 a 1.000, vencedor obrigatório, feedback com pelo menos 5 caracteres, pontos fortes e melhorias.\nSaídas: Parecer persistido e resultado.\nFluxo Principal\n1. O avaliador ou administrador abre a fila de avaliações pendentes.\n2. O Stacklyst autoriza o papel e apresenta as soluções.\n3. O avaliador compara código e resultados dos testes.\n4. O avaliador informa pontuações e feedback explicativo.\n5. O sistema valida, registra o parecer, fecha o duelo e notifica.\nFluxos Alternativos\n• A1 — Papel ausente ou tentativa de avaliar o próprio duelo: o sistema nega a avaliação.\n• A2 — Duelo já fechado: o sistema impede nova decisão conflitante.\n• A3 — Feedback/pontuação inválidos: o sistema solicita correção.\nImplementação: src/services/evaluator.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC016",
+        "title": "Avaliar empate técnico",
+        "lines": [
+          "Descrição: Emitir parecer humano sobre soluções de duelo.",
+          "Tipo: Análise",
+          "Ator iniciador ou caso chamador: Avaliador ou Administrador.",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Avaliador aprovado ou Administrador autenticado, que não participou do duelo; duelo no estado REVIEW_PENDING, com soluções disponíveis para análise.",
+          "Pós-condições: Parecer registrado e duelo concluído; a notificação é solicitada. Falha de notificação não desfaz a decisão, conforme RN022.",
+          "Entradas: Pontuações de 0 a 1.000, vencedor obrigatório, feedback com pelo menos 5 caracteres, pontos fortes e melhorias.",
+          "Saídas: Parecer persistido e resultado.",
+          "Fluxo Principal",
+          "1. O avaliador ou administrador abre a fila de avaliações pendentes.",
+          "2. O Stacklyst autoriza o papel e apresenta as soluções.",
+          "3. O avaliador compara código e resultados dos testes.",
+          "4. O avaliador informa pontuações e feedback explicativo.",
+          "5. O sistema valida, registra o parecer, fecha o duelo e notifica.",
+          "Fluxos Alternativos",
+          "• A1 — Papel ausente ou tentativa de avaliar o próprio duelo: o sistema nega a avaliação.",
+          "• A2 — Duelo já fechado: o sistema impede nova decisão conflitante.",
+          "• A3 — Feedback/pontuação inválidos: o sistema solicita correção."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC017",
+    "title": "Gerenciar empresa e vagas",
+    "lines": [
+      "Descrição: Criar uma oportunidade vinculada a empresa autorizada.",
+      "Tipo: Configuração",
+      "Ator iniciador ou caso chamador: Recrutador; Administrador",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Ator autenticado com papel RECRUITER ou ADMIN e acesso autorizado à empresa selecionada. A verificação requireCompanyAccess valida o vínculo e as permissões antes da criação da vaga.",
+      "Pós-condições: Vaga aberta com etapas de recrutamento.",
+      "Entradas: Empresa, título, descrição, nível, tecnologias, modalidade, contrato e etapas.",
+      "Saídas: Vaga publicada ou erros por campo.",
+      "Fluxo Principal",
+      "1. O recrutador seleciona a empresa sob sua responsabilidade.",
+      "2. O ator informa dados da vaga e etapas.",
+      "3. O Stacklyst valida o papel de recrutador ou administrador, o acesso autorizado à empresa e os campos obrigatórios.",
+      "4. O sistema cria a vaga e as etapas em ordem.",
+      "5. A oportunidade é disponibilizada para consulta e candidatura.",
+      "Fluxos Alternativos",
+      "• A1 — Sem papel ou vínculo autorizado: o servidor nega a operação. A rota de vagas verifica o papel e aplica requireCompanyAccess para a empresa selecionada.",
+      "• A2 — Vaga inválida: o sistema destaca campos e não publica.",
+      "• A3 — Salário omitido: o sistema aplica a política definida sem inventar valor."
+    ],
+    "area": "Recrutamento",
+    "actor": "R",
+    "sources": [
+      "src/services/job.service.ts"
+    ],
+    "scenarioIds": [
+      "C41"
+    ],
+    "rules": [
+      "R04",
+      "R79"
+    ],
+    "definition": "Objetivo consolidado: Gerenciar empresa e vagas\nVariantes: Publicar vaga, Consultar vagas, Cadastrar empresa\nDescrição: Criar uma oportunidade vinculada a empresa autorizada.\nTipo: Configuração\nAtor iniciador ou caso chamador: Recrutador; Administrador\nAtores secundários: Nenhum.\nPré-condições: Ator autenticado com papel RECRUITER ou ADMIN e acesso autorizado à empresa selecionada. A verificação requireCompanyAccess valida o vínculo e as permissões antes da criação da vaga.\nPós-condições: Vaga aberta com etapas de recrutamento.\nEntradas: Empresa, título, descrição, nível, tecnologias, modalidade, contrato e etapas.\nSaídas: Vaga publicada ou erros por campo.\nFluxo Principal\n1. O recrutador seleciona a empresa sob sua responsabilidade.\n2. O ator informa dados da vaga e etapas.\n3. O Stacklyst valida o papel de recrutador ou administrador, o acesso autorizado à empresa e os campos obrigatórios.\n4. O sistema cria a vaga e as etapas em ordem.\n5. A oportunidade é disponibilizada para consulta e candidatura.\nFluxos Alternativos\n• A1 — Sem papel ou vínculo autorizado: o servidor nega a operação. A rota de vagas verifica o papel e aplica requireCompanyAccess para a empresa selecionada.\n• A2 — Vaga inválida: o sistema destaca campos e não publica.\n• A3 — Salário omitido: o sistema aplica a política definida sem inventar valor.\nImplementação: src/services/job.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC017",
+        "title": "Publicar vaga",
+        "lines": [
+          "Descrição: Criar uma oportunidade vinculada a empresa autorizada.",
+          "Tipo: Configuração",
+          "Ator iniciador ou caso chamador: Recrutador; Administrador",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Ator autenticado com papel RECRUITER ou ADMIN e acesso autorizado à empresa selecionada. A verificação requireCompanyAccess valida o vínculo e as permissões antes da criação da vaga.",
+          "Pós-condições: Vaga aberta com etapas de recrutamento.",
+          "Entradas: Empresa, título, descrição, nível, tecnologias, modalidade, contrato e etapas.",
+          "Saídas: Vaga publicada ou erros por campo.",
+          "Fluxo Principal",
+          "1. O recrutador seleciona a empresa sob sua responsabilidade.",
+          "2. O ator informa dados da vaga e etapas.",
+          "3. O Stacklyst valida o papel de recrutador ou administrador, o acesso autorizado à empresa e os campos obrigatórios.",
+          "4. O sistema cria a vaga e as etapas em ordem.",
+          "5. A oportunidade é disponibilizada para consulta e candidatura.",
+          "Fluxos Alternativos",
+          "• A1 — Sem papel ou vínculo autorizado: o servidor nega a operação. A rota de vagas verifica o papel e aplica requireCompanyAccess para a empresa selecionada.",
+          "• A2 — Vaga inválida: o sistema destaca campos e não publica.",
+          "• A3 — Salário omitido: o sistema aplica a política definida sem inventar valor."
+        ]
+      },
+      {
+        "historicalId": "UC018",
+        "title": "Consultar vagas",
+        "lines": [
+          "Descrição: Listar e detalhar oportunidades disponíveis.",
+          "Tipo: Análise",
+          "Ator iniciador ou caso chamador: Usuário autenticado; Recrutador",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Acesso ao módulo; vagas cadastradas.",
+          "Pós-condições: Lista/detalhe exibido sem alteração obrigatória.",
+          "Entradas: Busca, tecnologia, nível, modalidade e contrato.",
+          "Saídas: Vagas filtradas, empresa, requisitos e etapas.",
+          "Fluxo Principal",
+          "1. O ator abre a listagem de vagas.",
+          "2. O Stacklyst carrega vagas abertas e filtros.",
+          "3. O ator informa critérios ou seleciona uma oportunidade.",
+          "4. O sistema aplica filtros e carrega os detalhes permitidos.",
+          "5. A vaga, empresa e opção de candidatura são apresentadas.",
+          "Fluxos Alternativos",
+          "• A1 — Nenhuma vaga: o sistema exibe estado vazio.",
+          "• A2 — Vaga encerrada: o sistema exibe status e desabilita candidatura.",
+          "• A3 — Filtro inválido: o sistema solicita correção."
+        ]
+      },
+      {
+        "historicalId": "UC025",
+        "title": "Cadastrar empresa",
+        "lines": [
+          "Descrição: Criar perfil de empresa vinculado a responsável autorizado.",
+          "Tipo: Configuração",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Usuário autenticado; dados da empresa disponíveis para preenchimento e validação.",
+          "Pós-condições: Empresa criada e vinculada ao responsável; conta USER passa a RECRUITER. A criação de eventos já é permitida a qualquer usuário autenticado.",
+          "Entradas: Nome, slug, descrição, localização, site e imagens opcionais.",
+          "Saídas: Cadastro da empresa.",
+          "Fluxo Principal",
+          "1. O usuário abre o cadastro de empresa e informa os dados solicitados.",
+          "2. O Stacklyst valida a sessão, os campos obrigatórios e a unicidade aplicável.",
+          "3. O sistema cria a empresa e vincula o usuário como proprietário.",
+          "4. O sistema atribui o papel RECRUITER à conta USER, preservando os demais papéis existentes.",
+          "5. O Stacklyst confirma o cadastro e apresenta a empresa ao responsável.",
+          "Fluxos Alternativos",
+          "• A1 — Sem permissão: o sistema nega o cadastro.",
+          "• A2 — Slug/nome conflitante: o sistema solicita alteração.",
+          "• A3 — Verificação oficial: não disponível; a empresa permanece com is_verified=false."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC019",
+    "title": "Administrar usuários e recursos",
+    "lines": [
+      "Descrição: Pesquisar usuários e alterar papéis autorizados.",
+      "Tipo: Configuração",
+      "Ator iniciador ou caso chamador: Administrador",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Administrador autenticado.",
+      "Pós-condições: Papel atualizado ou operação recusada; o serviço registra log da alteração.",
+      "Entradas: Busca, paginação, usuário e novo papel.",
+      "Saídas: Lista de usuários ou registro atualizado.",
+      "Fluxo Principal",
+      "1. O administrador abre o painel de usuários.",
+      "2. O Stacklyst valida a sessão administrativa e lista os registros.",
+      "3. O administrador pesquisa e seleciona o usuário.",
+      "4. O administrador escolhe o novo papel e confirma.",
+      "5. O sistema valida a transição, atualiza e registra a ação.",
+      "Fluxos Alternativos",
+      "• A1 — Sem permissão: o sistema nega acesso.",
+      "• A2 — Papel inválido: o sistema não altera o usuário.",
+      "• A3 — Alteração que removeria o último administrador: recusar a operação."
+    ],
+    "area": "Administração",
+    "actor": "AD",
+    "sources": [
+      "prisma/demo-community/publish.ts",
+      "src/services/admin.service.ts",
+      "src/services/evaluator.service.ts"
+    ],
+    "scenarioIds": [
+      "C39",
+      "C47",
+      "C49"
+    ],
+    "rules": [
+      "R02",
+      "R03",
+      "R72",
+      "R75",
+      "R88"
+    ],
+    "definition": "Objetivo consolidado: Administrar usuários e recursos\nVariantes: Gerenciar permissões de usuários, Tratar denúncias, Aprovar ou rejeitar candidatura de avaliador, Consultar métricas administrativas, Importar perfis e threads editoriais\nDescrição: Pesquisar usuários e alterar papéis autorizados.\nTipo: Configuração\nAtor iniciador ou caso chamador: Administrador\nAtores secundários: Nenhum.\nPré-condições: Administrador autenticado.\nPós-condições: Papel atualizado ou operação recusada; o serviço registra log da alteração.\nEntradas: Busca, paginação, usuário e novo papel.\nSaídas: Lista de usuários ou registro atualizado.\nFluxo Principal\n1. O administrador abre o painel de usuários.\n2. O Stacklyst valida a sessão administrativa e lista os registros.\n3. O administrador pesquisa e seleciona o usuário.\n4. O administrador escolhe o novo papel e confirma.\n5. O sistema valida a transição, atualiza e registra a ação.\nFluxos Alternativos\n• A1 — Sem permissão: o sistema nega acesso.\n• A2 — Papel inválido: o sistema não altera o usuário.\n• A3 — Alteração que removeria o último administrador: recusar a operação.\nImplementação: src/services/admin.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC019",
+        "title": "Gerenciar permissões de usuários",
+        "lines": [
+          "Descrição: Pesquisar usuários e alterar papéis autorizados.",
+          "Tipo: Configuração",
+          "Ator iniciador ou caso chamador: Administrador",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Administrador autenticado.",
+          "Pós-condições: Papel atualizado ou operação recusada; o serviço registra log da alteração.",
+          "Entradas: Busca, paginação, usuário e novo papel.",
+          "Saídas: Lista de usuários ou registro atualizado.",
+          "Fluxo Principal",
+          "1. O administrador abre o painel de usuários.",
+          "2. O Stacklyst valida a sessão administrativa e lista os registros.",
+          "3. O administrador pesquisa e seleciona o usuário.",
+          "4. O administrador escolhe o novo papel e confirma.",
+          "5. O sistema valida a transição, atualiza e registra a ação.",
+          "Fluxos Alternativos",
+          "• A1 — Sem permissão: o sistema nega acesso.",
+          "• A2 — Papel inválido: o sistema não altera o usuário.",
+          "• A3 — Alteração que removeria o último administrador: recusar a operação."
+        ]
+      },
+      {
+        "historicalId": "UC020",
+        "title": "Tratar denúncias",
+        "lines": [
+          "Descrição: Analisar denúncia e aplicar ação de moderação permitida.",
+          "Tipo: Análise",
+          "Ator iniciador ou caso chamador: Administrador",
+          "Atores secundários: Usuário denunciante; Autor do conteúdo",
+          "Pré-condições: Administrador autenticado; denúncia registrada.",
+          "Pós-condições: Denúncia tratada e ação registrada.",
+          "Entradas: Denúncia, conteúdo, contexto, decisão e justificativa.",
+          "Saídas: Resultado de moderação e eventual notificação.",
+          "Fluxo Principal",
+          "1. O administrador abre a fila de denúncias.",
+          "2. O Stacklyst apresenta denúncia, conteúdo e dados mínimos necessários.",
+          "3. O administrador analisa motivo e contexto.",
+          "4. O administrador seleciona decisão permitida e registra justificativa.",
+          "5. Aplicar a operação suportada e atualizar o registro da denúncia; não há trilha universal de auditoria.",
+          "Fluxos Alternativos",
+          "• A1 — Denúncia improcedente: o sistema encerra sem remover conteúdo.",
+          "• A2 — Conteúdo já removido: o sistema registra o estado encontrado.",
+          "• A3 — Sanção adicional ou recurso: fora do fluxo atual; registrar a solicitação para tratamento administrativo."
+        ]
+      },
+      {
+        "historicalId": "UC027",
+        "title": "Aprovar ou rejeitar candidatura de avaliador",
+        "lines": [
+          "Descrição: Aprovar ou rejeitar candidatura.",
+          "Tipo: Configuração",
+          "Ator iniciador ou caso chamador: Administrador",
+          "Atores secundários: Candidato",
+          "Pré-condições: Administrador autenticado; candidatura pendente.",
+          "Pós-condições: Decisão registrada; aprovação atribui papel.",
+          "Entradas: Candidatura e decisão.",
+          "Saídas: Status.",
+          "Fluxo Principal",
+          "1. O administrador seleciona uma candidatura pendente.",
+          "2. O administrador analisa os critérios de elegibilidade e as informações do candidato.",
+          "3. O administrador informa a aprovação ou rejeição.",
+          "4. O Stacklyst valida a autorização e o estado da candidatura, registra a decisão e atribui o papel de avaliador quando aprovada.",
+          "Fluxos Alternativos",
+          "• A1 — Candidatura já decidida: informar estado.",
+          "• A2 — Sem papel ADMIN: negar."
+        ]
+      },
+      {
+        "historicalId": "UC049",
+        "title": "Consultar métricas administrativas",
+        "lines": [
+          "Descrição: Consultar métricas administrativas.",
+          "Ator iniciador: Administrador.",
+          "Pré-condições e autorização: Exige Administrador; indicadores não equivalem a prova de segurança ou aceitação.",
+          "Fluxo Principal",
+          "1. Abrir painel.",
+          "2. Solicitar métricas.",
+          "3. Analisar indicadores consolidados.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: Ampliação: indicadores administrativos.",
+          "Referência de implementação: src/app/api/admin/metrics/route.ts; src/services/admin.service.ts."
+        ]
+      },
+      {
+        "historicalId": "UC072",
+        "title": "Importar perfis e threads editoriais",
+        "lines": [
+          "Descrição: Importar perfis e threads editoriais.",
+          "Ator principal: Operador autorizado",
+          "Pré-condições: Credenciais locais e nomes reservados sem conflito",
+          "Pós-condições: Coleção atualizada sem duplicar ou apagar comunidade",
+          "Fluxo principal",
+          "1. Consultar plano",
+          "2. Provisionar só identidades faltantes",
+          "3. Aplicar coleção em transação com IDs estáveis",
+          "4. Conferir quantidades e visibilidade",
+          "Fluxos alternativos: Colisão com conta comum interrompe; seed destrutivo é outro comando"
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC021",
+    "title": "Acompanhar notificações",
+    "lines": [
+      "Descrição: Consultar notificações destinadas à própria conta e marcá-las como lidas.",
+      "Tipo: Análise",
+      "Ator iniciador ou caso chamador: Usuário autenticado, incluindo Avaliador, Administrador e Recrutador.",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Ator autenticado.",
+      "Pós-condições: Notificações exibidas; estado de leitura atualizado apenas quando solicitado.",
+      "Entradas: Cursor, limite e ação de leitura.",
+      "Saídas: Lista, próximo cursor e contagem não lida.",
+      "Fluxo Principal",
+      "1. O ator abre a central de notificações.",
+      "2. O Stacklyst identifica o usuário da sessão.",
+      "3. O sistema busca somente notificações do destinatário com paginação.",
+      "4. O ator abre itens ou solicita marcar como lidos.",
+      "5. O Stacklyst atualiza leitura e a contagem não lida.",
+      "Fluxos Alternativos",
+      "• A1 — Conexão indisponível: o sistema preserva o estado e permite nova tentativa.",
+      "• A2 — Notificação removida: o sistema ignora o item sem acessar recurso inexistente.",
+      "• A3 — Fora da aplicação web: o usuário deve acessar a central de notificações pelo navegador."
+    ],
+    "area": "Recursos pessoais",
+    "actor": "U",
+    "sources": [
+      "src/services/notification.service.ts"
+    ],
+    "scenarioIds": [
+      "C26"
+    ],
+    "rules": [
+      "R35",
+      "R38"
+    ],
+    "definition": "Objetivo consolidado: Acompanhar notificações\nVariantes: Consultar notificações, Marcar notificações como lidas\nDescrição: Consultar notificações destinadas à própria conta e marcá-las como lidas.\nTipo: Análise\nAtor iniciador ou caso chamador: Usuário autenticado, incluindo Avaliador, Administrador e Recrutador.\nAtores secundários: Nenhum.\nPré-condições: Ator autenticado.\nPós-condições: Notificações exibidas; estado de leitura atualizado apenas quando solicitado.\nEntradas: Cursor, limite e ação de leitura.\nSaídas: Lista, próximo cursor e contagem não lida.\nFluxo Principal\n1. O ator abre a central de notificações.\n2. O Stacklyst identifica o usuário da sessão.\n3. O sistema busca somente notificações do destinatário com paginação.\n4. O ator abre itens ou solicita marcar como lidos.\n5. O Stacklyst atualiza leitura e a contagem não lida.\nFluxos Alternativos\n• A1 — Conexão indisponível: o sistema preserva o estado e permite nova tentativa.\n• A2 — Notificação removida: o sistema ignora o item sem acessar recurso inexistente.\n• A3 — Fora da aplicação web: o usuário deve acessar a central de notificações pelo navegador.\nImplementação: src/services/notification.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC021",
+        "title": "Consultar notificações",
+        "lines": [
+          "Descrição: Consultar notificações destinadas à própria conta e marcá-las como lidas.",
+          "Tipo: Análise",
+          "Ator iniciador ou caso chamador: Usuário autenticado, incluindo Avaliador, Administrador e Recrutador.",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Ator autenticado.",
+          "Pós-condições: Notificações exibidas; estado de leitura atualizado apenas quando solicitado.",
+          "Entradas: Cursor, limite e ação de leitura.",
+          "Saídas: Lista, próximo cursor e contagem não lida.",
+          "Fluxo Principal",
+          "1. O ator abre a central de notificações.",
+          "2. O Stacklyst identifica o usuário da sessão.",
+          "3. O sistema busca somente notificações do destinatário com paginação.",
+          "4. O ator abre itens ou solicita marcar como lidos.",
+          "5. O Stacklyst atualiza leitura e a contagem não lida.",
+          "Fluxos Alternativos",
+          "• A1 — Conexão indisponível: o sistema preserva o estado e permite nova tentativa.",
+          "• A2 — Notificação removida: o sistema ignora o item sem acessar recurso inexistente.",
+          "• A3 — Fora da aplicação web: o usuário deve acessar a central de notificações pelo navegador."
+        ]
+      },
+      {
+        "historicalId": "UC055",
+        "title": "Marcar notificações como lidas",
+        "lines": [
+          "Descrição: Marcar notificações como lidas.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: Operação afeta apenas as notificações do usuário autenticado.",
+          "Fluxo Principal",
+          "1. Abrir notificações.",
+          "2. Solicitar marcação.",
+          "3. Atualizar estado de leitura.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: RF046.",
+          "Referência de implementação: src/app/api/notifications/route.ts."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC022",
+    "title": "Candidatar-se a vaga",
+    "lines": [
+      "Descrição: Registrar candidatura de usuário em vaga aberta.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Recrutador",
+      "Pré-condições: Usuário autenticado e vaga identificada. A abertura da vaga e a ausência de candidatura anterior são verificadas durante o fluxo.",
+      "Pós-condições: Candidatura criada, vinculada ao usuário, à vaga aberta e à etapa inicial do processo.",
+      "Entradas: Identificador da vaga e sessão.",
+      "Saídas: Confirmação e situação da candidatura.",
+      "Fluxo Principal",
+      "1. O usuário consulta o detalhe de uma vaga aberta.",
+      "2. O usuário seleciona a opção de candidatura.",
+      "3. O Stacklyst verifica sessão, status da vaga e duplicidade.",
+      "4. O sistema cria a candidatura vinculada ao usuário, à vaga e à etapa inicial do processo de seleção.",
+      "5. O Stacklyst confirma e passa a exibir a situação no processo.",
+      "Fluxos Alternativos",
+      "• A1 — Vaga encerrada: o sistema recusa candidatura.",
+      "• A2 — Candidatura duplicada: o sistema informa o registro existente.",
+      "• A3 — Perfil incompleto: permitir candidatura com os dados obrigatórios da vaga e indicar os campos públicos ausentes."
+    ],
+    "area": "Recrutamento",
+    "actor": "U",
+    "sources": [
+      "src/services/job.service.ts"
+    ],
+    "scenarioIds": [
+      "C42"
+    ],
+    "rules": [
+      "R76",
+      "R77",
+      "R78"
+    ],
+    "definition": "Objetivo consolidado: Candidatar-se a vaga\nVariantes: Candidatar-se a vaga\nDescrição: Registrar candidatura de usuário em vaga aberta.\nTipo: Condução\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Recrutador\nPré-condições: Usuário autenticado e vaga identificada. A abertura da vaga e a ausência de candidatura anterior são verificadas durante o fluxo.\nPós-condições: Candidatura criada, vinculada ao usuário, à vaga aberta e à etapa inicial do processo.\nEntradas: Identificador da vaga e sessão.\nSaídas: Confirmação e situação da candidatura.\nFluxo Principal\n1. O usuário consulta o detalhe de uma vaga aberta.\n2. O usuário seleciona a opção de candidatura.\n3. O Stacklyst verifica sessão, status da vaga e duplicidade.\n4. O sistema cria a candidatura vinculada ao usuário, à vaga e à etapa inicial do processo de seleção.\n5. O Stacklyst confirma e passa a exibir a situação no processo.\nFluxos Alternativos\n• A1 — Vaga encerrada: o sistema recusa candidatura.\n• A2 — Candidatura duplicada: o sistema informa o registro existente.\n• A3 — Perfil incompleto: permitir candidatura com os dados obrigatórios da vaga e indicar os campos públicos ausentes.\nImplementação: src/services/job.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC022",
+        "title": "Candidatar-se a vaga",
+        "lines": [
+          "Descrição: Registrar candidatura de usuário em vaga aberta.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Recrutador",
+          "Pré-condições: Usuário autenticado e vaga identificada. A abertura da vaga e a ausência de candidatura anterior são verificadas durante o fluxo.",
+          "Pós-condições: Candidatura criada, vinculada ao usuário, à vaga aberta e à etapa inicial do processo.",
+          "Entradas: Identificador da vaga e sessão.",
+          "Saídas: Confirmação e situação da candidatura.",
+          "Fluxo Principal",
+          "1. O usuário consulta o detalhe de uma vaga aberta.",
+          "2. O usuário seleciona a opção de candidatura.",
+          "3. O Stacklyst verifica sessão, status da vaga e duplicidade.",
+          "4. O sistema cria a candidatura vinculada ao usuário, à vaga e à etapa inicial do processo de seleção.",
+          "5. O Stacklyst confirma e passa a exibir a situação no processo.",
+          "Fluxos Alternativos",
+          "• A1 — Vaga encerrada: o sistema recusa candidatura.",
+          "• A2 — Candidatura duplicada: o sistema informa o registro existente.",
+          "• A3 — Perfil incompleto: permitir candidatura com os dados obrigatórios da vaga e indicar os campos públicos ausentes."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC023",
+    "title": "Participar de evento",
+    "lines": [
+      "Descrição: Inscrever o usuário em um evento elegível, cancelar sua própria participação e consultar o estado da inscrição.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Nenhum.",
+      "Pré-condições: Usuário autenticado e evento identificado. Encerramento, capacidade, nível e participação prévia são verificados durante o fluxo.",
+      "Pós-condições: Participação registrada uma única vez na inscrição ou vínculo de participação removido no cancelamento.",
+      "Entradas: Identificador do evento, sessão e ação de inscrição ou cancelamento.",
+      "Saídas: Confirmação, regras e estado da inscrição.",
+      "Fluxo Principal",
+      "1. O usuário abre a listagem e seleciona um evento.",
+      "2. O Stacklyst apresenta período, nível e capacidade.",
+      "3. O usuário solicita participação.",
+      "4. O sistema verifica se o evento não está encerrado, confere nível e capacidade e mantém a unicidade da participação.",
+      "5. O Stacklyst registra o participante pela operação POST e confirma a inscrição.",
+      "Fluxos Alternativos",
+      "• A1 — Nível insuficiente: o sistema informa o requisito.",
+      "• A2 — Evento lotado ou encerrado: o sistema recusa a inscrição.",
+      "• A3 — Inscrição já registrada: o sistema não cria duplicidade; apresenta a participação existente quando o evento continua elegível.",
+      "• A4 — Cancelar participação: antes do encerramento do evento, o usuário solicita retirar a própria inscrição; a operação DELETE remove o vínculo e atualiza o estado exibido."
+    ],
+    "area": "Eventos",
+    "actor": "U",
+    "sources": [
+      "src/services/event.service.ts"
+    ],
+    "scenarioIds": [
+      "C45"
+    ],
+    "rules": [
+      "R81",
+      "R82",
+      "R83",
+      "R84"
+    ],
+    "definition": "Objetivo consolidado: Participar de evento\nVariantes: Inscrever-se ou cancelar participação em evento\nDescrição: Inscrever o usuário em um evento elegível, cancelar sua própria participação e consultar o estado da inscrição.\nTipo: Condução\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Nenhum.\nPré-condições: Usuário autenticado e evento identificado. Encerramento, capacidade, nível e participação prévia são verificados durante o fluxo.\nPós-condições: Participação registrada uma única vez na inscrição ou vínculo de participação removido no cancelamento.\nEntradas: Identificador do evento, sessão e ação de inscrição ou cancelamento.\nSaídas: Confirmação, regras e estado da inscrição.\nFluxo Principal\n1. O usuário abre a listagem e seleciona um evento.\n2. O Stacklyst apresenta período, nível e capacidade.\n3. O usuário solicita participação.\n4. O sistema verifica se o evento não está encerrado, confere nível e capacidade e mantém a unicidade da participação.\n5. O Stacklyst registra o participante pela operação POST e confirma a inscrição.\nFluxos Alternativos\n• A1 — Nível insuficiente: o sistema informa o requisito.\n• A2 — Evento lotado ou encerrado: o sistema recusa a inscrição.\n• A3 — Inscrição já registrada: o sistema não cria duplicidade; apresenta a participação existente quando o evento continua elegível.\n• A4 — Cancelar participação: antes do encerramento do evento, o usuário solicita retirar a própria inscrição; a operação DELETE remove o vínculo e atualiza o estado exibido.\nImplementação: src/services/event.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC023",
+        "title": "Inscrever-se ou cancelar participação em evento",
+        "lines": [
+          "Descrição: Inscrever o usuário em um evento elegível, cancelar sua própria participação e consultar o estado da inscrição.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Nenhum.",
+          "Pré-condições: Usuário autenticado e evento identificado. Encerramento, capacidade, nível e participação prévia são verificados durante o fluxo.",
+          "Pós-condições: Participação registrada uma única vez na inscrição ou vínculo de participação removido no cancelamento.",
+          "Entradas: Identificador do evento, sessão e ação de inscrição ou cancelamento.",
+          "Saídas: Confirmação, regras e estado da inscrição.",
+          "Fluxo Principal",
+          "1. O usuário abre a listagem e seleciona um evento.",
+          "2. O Stacklyst apresenta período, nível e capacidade.",
+          "3. O usuário solicita participação.",
+          "4. O sistema verifica se o evento não está encerrado, confere nível e capacidade e mantém a unicidade da participação.",
+          "5. O Stacklyst registra o participante pela operação POST e confirma a inscrição.",
+          "Fluxos Alternativos",
+          "• A1 — Nível insuficiente: o sistema informa o requisito.",
+          "• A2 — Evento lotado ou encerrado: o sistema recusa a inscrição.",
+          "• A3 — Inscrição já registrada: o sistema não cria duplicidade; apresenta a participação existente quando o evento continua elegível.",
+          "• A4 — Cancelar participação: antes do encerramento do evento, o usuário solicita retirar a própria inscrição; a operação DELETE remove o vínculo e atualiza o estado exibido."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC024",
+    "title": "Solicitar credenciamento de avaliador",
+    "lines": [
+      "Descrição: Verificar elegibilidade e enviar candidatura para papel de avaliador.",
+      "Tipo: Condução",
+      "Ator iniciador ou caso chamador: Usuário autenticado",
+      "Atores secundários: Administrador",
+      "Pré-condições: Usuário autenticado. Elegibilidade, papel atual e existência de candidatura pendente são verificados durante o fluxo.",
+      "Pós-condições: Candidatura pendente criada ou inelegibilidade informada.",
+      "Entradas: Motivação e tecnologias de domínio.",
+      "Saídas: Elegibilidade e status da candidatura.",
+      "Fluxo Principal",
+      "1. O usuário abre a área de candidatura a avaliador.",
+      "2. O Stacklyst calcula trilhas completas e XP.",
+      "3. Se elegível, o usuário informa motivação e tecnologias.",
+      "4. O sistema valida e registra a candidatura pendente.",
+      "5. O administrador passa a visualizar a candidatura para decisão.",
+      "Fluxos Alternativos",
+      "• A1 — Critério não atendido: o sistema mostra requisitos atuais.",
+      "• A2 — Candidatura já pendente: o sistema não duplica.",
+      "• A3 — Usuário já é avaliador/administrador: o sistema informa o papel existente."
+    ],
+    "area": "Avaliadores",
+    "actor": "U",
+    "sources": [
+      "src/services/evaluator.service.ts"
+    ],
+    "scenarioIds": [
+      "C39"
+    ],
+    "rules": [
+      "R03",
+      "R72",
+      "R75"
+    ],
+    "definition": "Objetivo consolidado: Solicitar credenciamento de avaliador\nVariantes: Candidatar-se a avaliador\nDescrição: Verificar elegibilidade e enviar candidatura para papel de avaliador.\nTipo: Condução\nAtor iniciador ou caso chamador: Usuário autenticado\nAtores secundários: Administrador\nPré-condições: Usuário autenticado. Elegibilidade, papel atual e existência de candidatura pendente são verificados durante o fluxo.\nPós-condições: Candidatura pendente criada ou inelegibilidade informada.\nEntradas: Motivação e tecnologias de domínio.\nSaídas: Elegibilidade e status da candidatura.\nFluxo Principal\n1. O usuário abre a área de candidatura a avaliador.\n2. O Stacklyst calcula trilhas completas e XP.\n3. Se elegível, o usuário informa motivação e tecnologias.\n4. O sistema valida e registra a candidatura pendente.\n5. O administrador passa a visualizar a candidatura para decisão.\nFluxos Alternativos\n• A1 — Critério não atendido: o sistema mostra requisitos atuais.\n• A2 — Candidatura já pendente: o sistema não duplica.\n• A3 — Usuário já é avaliador/administrador: o sistema informa o papel existente.\nImplementação: src/services/evaluator.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC024",
+        "title": "Candidatar-se a avaliador",
+        "lines": [
+          "Descrição: Verificar elegibilidade e enviar candidatura para papel de avaliador.",
+          "Tipo: Condução",
+          "Ator iniciador ou caso chamador: Usuário autenticado",
+          "Atores secundários: Administrador",
+          "Pré-condições: Usuário autenticado. Elegibilidade, papel atual e existência de candidatura pendente são verificados durante o fluxo.",
+          "Pós-condições: Candidatura pendente criada ou inelegibilidade informada.",
+          "Entradas: Motivação e tecnologias de domínio.",
+          "Saídas: Elegibilidade e status da candidatura.",
+          "Fluxo Principal",
+          "1. O usuário abre a área de candidatura a avaliador.",
+          "2. O Stacklyst calcula trilhas completas e XP.",
+          "3. Se elegível, o usuário informa motivação e tecnologias.",
+          "4. O sistema valida e registra a candidatura pendente.",
+          "5. O administrador passa a visualizar a candidatura para decisão.",
+          "Fluxos Alternativos",
+          "• A1 — Critério não atendido: o sistema mostra requisitos atuais.",
+          "• A2 — Candidatura já pendente: o sistema não duplica.",
+          "• A3 — Usuário já é avaliador/administrador: o sistema informa o papel existente."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC026",
+    "title": "Gerenciar candidaturas",
+    "lines": [
+      "Descrição: Atualizar a etapa de uma candidatura autorizada e solicitar automaticamente a notificação ao candidato associado.",
+      "Tipo: Configuração",
+      "Ator iniciador: Recrutador responsável ou Administrador autorizado.",
+      "Atores secundários: Candidato",
+      "Pré-condições: Ator autenticado e autorizado; candidatura existente, vinculada à vaga da empresa sob sua responsabilidade; etapa de destino pertencente ao processo da vaga.",
+      "Pós-condições: Etapa persistida e notificação automática solicitada somente ao candidato associado à candidatura. Falha de notificação não desfaz a atualização.",
+      "Entradas: Candidatura e etapa.",
+      "Saídas: Novo estado.",
+      "Fluxo Principal",
+      "1. O recrutador seleciona a candidatura e informa a etapa desejada.",
+      "2. O Stacklyst confere o acesso à empresa e o vínculo da candidatura com a vaga sob responsabilidade do ator.",
+      "3. O sistema valida a etapa de destino e os dados informados.",
+      "4. O sistema salva a alteração, confirma o resultado e solicita a notificação JOB_APPLICATION_UPDATE para o usuário associado à candidatura, como comportamento interno de UC026.",
+      "Fluxos Alternativos",
+      "• A1 — Sem vínculo ou etapa inválida: recusar.",
+      "• A2 — Notificação falha: registrar erro; a etapa permanece salva."
+    ],
+    "area": "Recrutamento",
+    "actor": "R",
+    "sources": [
+      "src/services/job.service.ts"
+    ],
+    "scenarioIds": [
+      "C41",
+      "C43"
+    ],
+    "rules": [
+      "R04",
+      "R79",
+      "R80"
+    ],
+    "definition": "Objetivo consolidado: Gerenciar candidaturas\nVariantes: Atualizar etapa de candidatura, Consultar candidaturas de uma vaga\nDescrição: Atualizar a etapa de uma candidatura autorizada e solicitar automaticamente a notificação ao candidato associado.\nTipo: Configuração\nAtor iniciador: Recrutador responsável ou Administrador autorizado.\nAtores secundários: Candidato\nPré-condições: Ator autenticado e autorizado; candidatura existente, vinculada à vaga da empresa sob sua responsabilidade; etapa de destino pertencente ao processo da vaga.\nPós-condições: Etapa persistida e notificação automática solicitada somente ao candidato associado à candidatura. Falha de notificação não desfaz a atualização.\nEntradas: Candidatura e etapa.\nSaídas: Novo estado.\nFluxo Principal\n1. O recrutador seleciona a candidatura e informa a etapa desejada.\n2. O Stacklyst confere o acesso à empresa e o vínculo da candidatura com a vaga sob responsabilidade do ator.\n3. O sistema valida a etapa de destino e os dados informados.\n4. O sistema salva a alteração, confirma o resultado e solicita a notificação JOB_APPLICATION_UPDATE para o usuário associado à candidatura, como comportamento interno de UC026.\nFluxos Alternativos\n• A1 — Sem vínculo ou etapa inválida: recusar.\n• A2 — Notificação falha: registrar erro; a etapa permanece salva.\nImplementação: src/services/job.service.ts",
+    "subflows": [
+      {
+        "historicalId": "UC026",
+        "title": "Atualizar etapa de candidatura",
+        "lines": [
+          "Descrição: Atualizar a etapa de uma candidatura autorizada e solicitar automaticamente a notificação ao candidato associado.",
+          "Tipo: Configuração",
+          "Ator iniciador: Recrutador responsável ou Administrador autorizado.",
+          "Atores secundários: Candidato",
+          "Pré-condições: Ator autenticado e autorizado; candidatura existente, vinculada à vaga da empresa sob sua responsabilidade; etapa de destino pertencente ao processo da vaga.",
+          "Pós-condições: Etapa persistida e notificação automática solicitada somente ao candidato associado à candidatura. Falha de notificação não desfaz a atualização.",
+          "Entradas: Candidatura e etapa.",
+          "Saídas: Novo estado.",
+          "Fluxo Principal",
+          "1. O recrutador seleciona a candidatura e informa a etapa desejada.",
+          "2. O Stacklyst confere o acesso à empresa e o vínculo da candidatura com a vaga sob responsabilidade do ator.",
+          "3. O sistema valida a etapa de destino e os dados informados.",
+          "4. O sistema salva a alteração, confirma o resultado e solicita a notificação JOB_APPLICATION_UPDATE para o usuário associado à candidatura, como comportamento interno de UC026.",
+          "Fluxos Alternativos",
+          "• A1 — Sem vínculo ou etapa inválida: recusar.",
+          "• A2 — Notificação falha: registrar erro; a etapa permanece salva."
+        ]
+      },
+      {
+        "historicalId": "UC056",
+        "title": "Consultar candidaturas de uma vaga",
+        "lines": [
+          "Descrição: Consultar as candidaturas de uma vaga sob gestão, após validar o papel autorizado e a responsabilidade pela empresa.",
+          "Ator iniciador: Recrutador responsável ou Administrador autorizado.",
+          "Pré-condições e autorização: Recrutador responsável ou Administrador autenticado. A rota exige papel autorizado e JobService valida a responsabilidade pela empresa da vaga.",
+          "Fluxo Principal",
+          "1. Selecionar vaga sob gestão.",
+          "2. Listar candidaturas.",
+          "3. Analisar informações autorizadas.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: RF035, RF038, RF048.",
+          "Referência de implementação: src/app/api/jobs/[id]/applications; src/services/job.service.ts."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC028",
+    "title": "Avaliar resposta",
+    "lines": [
+      "Descrição: Avaliar a resposta conforme o conteúdo e os critérios canônicos da atividade. A comparação de respostas conceituais é completa por si. O ponto de extensão avaliar código é alcançado quando o tipo exige execução de programa.",
+      "Tipo: Análise; comportamento reutilizado por UC006.",
+      "Ator iniciador ou caso chamador: UC006 Resolver exercício",
+      "Atores secundários: Executor de código, por meio de UC029 nas atividades de programação.",
+      "Pré-condições: Resposta válida e acesso autorizado.",
+      "Pós-condições: Resultado da avaliação e feedback retornados, ou falha técnica informada sem aprovação. O caso chamador é responsável pela gravação.",
+      "Entradas: Resposta e atividade canônica.",
+      "Saídas: Avaliação e feedback.",
+      "Fluxo Principal",
+      "1. O Stacklyst identifica o tipo da atividade e os critérios de avaliação aplicáveis.",
+      "2. Para respostas conceituais, compara a escolha, as lacunas, a ordem, os pares, os blocos ou o comando com o conteúdo canônico.",
+      "3. Para atividades de programação, no ponto avaliar código, executa UC029 e utiliza os resultados dos testes para determinar acerto ou erro. Falha técnica não equivale a resposta correta.",
+      "4. O Stacklyst retorna a avaliação e o feedback a UC006, sem conceder XP diretamente.",
+      "Fluxos Alternativos",
+      "• A1 — Configuração de avaliação ausente: não aprovar.",
+      "• A2 — Executor indisponível: retornar falha controlada.",
+      "Sem tela própria: comportamento reutilizado pelo caso chamador; o resultado é apresentado no editor ou no feedback da atividade."
+    ],
+    "area": "Trilhas",
+    "actor": "U",
+    "sources": [
+      "src/lib/learning/assessment.ts"
+    ],
+    "scenarioIds": [
+      "C07"
+    ],
+    "rules": [
+      "R12",
+      "R13",
+      "R17"
+    ],
+    "definition": "Objetivo consolidado: Avaliar resposta\nVariantes: Avaliar resposta\nDescrição: Avaliar a resposta conforme o conteúdo e os critérios canônicos da atividade. A comparação de respostas conceituais é completa por si. O ponto de extensão avaliar código é alcançado quando o tipo exige execução de programa.\nTipo: Análise; comportamento reutilizado por UC006.\nAtor iniciador ou caso chamador: UC006 Resolver exercício\nAtores secundários: Executor de código, por meio de UC029 nas atividades de programação.\nPré-condições: Resposta válida e acesso autorizado.\nPós-condições: Resultado da avaliação e feedback retornados, ou falha técnica informada sem aprovação. O caso chamador é responsável pela gravação.\nEntradas: Resposta e atividade canônica.\nSaídas: Avaliação e feedback.\nFluxo Principal\n1. O Stacklyst identifica o tipo da atividade e os critérios de avaliação aplicáveis.\n2. Para respostas conceituais, compara a escolha, as lacunas, a ordem, os pares, os blocos ou o comando com o conteúdo canônico.\n3. Para atividades de programação, no ponto avaliar código, executa UC029 e utiliza os resultados dos testes para determinar acerto ou erro. Falha técnica não equivale a resposta correta.\n4. O Stacklyst retorna a avaliação e o feedback a UC006, sem conceder XP diretamente.\nFluxos Alternativos\n• A1 — Configuração de avaliação ausente: não aprovar.\n• A2 — Executor indisponível: retornar falha controlada.\nSem tela própria: comportamento reutilizado pelo caso chamador; o resultado é apresentado no editor ou no feedback da atividade.\nImplementação: src/lib/learning/assessment.ts",
+    "subflows": [
+      {
+        "historicalId": "UC028",
+        "title": "Avaliar resposta",
+        "lines": [
+          "Descrição: Avaliar a resposta conforme o conteúdo e os critérios canônicos da atividade. A comparação de respostas conceituais é completa por si. O ponto de extensão avaliar código é alcançado quando o tipo exige execução de programa.",
+          "Tipo: Análise; comportamento reutilizado por UC006.",
+          "Ator iniciador ou caso chamador: UC006 Resolver exercício",
+          "Atores secundários: Executor de código, por meio de UC029 nas atividades de programação.",
+          "Pré-condições: Resposta válida e acesso autorizado.",
+          "Pós-condições: Resultado da avaliação e feedback retornados, ou falha técnica informada sem aprovação. O caso chamador é responsável pela gravação.",
+          "Entradas: Resposta e atividade canônica.",
+          "Saídas: Avaliação e feedback.",
+          "Fluxo Principal",
+          "1. O Stacklyst identifica o tipo da atividade e os critérios de avaliação aplicáveis.",
+          "2. Para respostas conceituais, compara a escolha, as lacunas, a ordem, os pares, os blocos ou o comando com o conteúdo canônico.",
+          "3. Para atividades de programação, no ponto avaliar código, executa UC029 e utiliza os resultados dos testes para determinar acerto ou erro. Falha técnica não equivale a resposta correta.",
+          "4. O Stacklyst retorna a avaliação e o feedback a UC006, sem conceder XP diretamente.",
+          "Fluxos Alternativos",
+          "• A1 — Configuração de avaliação ausente: não aprovar.",
+          "• A2 — Executor indisponível: retornar falha controlada.",
+          "Sem tela própria: comportamento reutilizado pelo caso chamador; o resultado é apresentado no editor ou no feedback da atividade."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC029",
+    "title": "Executar código e testes",
+    "lines": [
+      "Descrição: Executar código em ambiente isolado, usando o sandbox interno ou um provedor externo conforme a linguagem, com testes definidos no servidor.",
+      "Tipo: Análise; comportamento reutilizado por UC010 e UC028.",
+      "Ator iniciador ou caso chamador: UC010, por inclusão; UC028, pela extensão no ponto avaliar código.",
+      "Atores secundários: Executor de código",
+      "Pré-condições: Código e linguagem suportados; contrato de teste carregado.",
+      "Pós-condições: Saída e resultado de execução retornados.",
+      "Entradas: Código, linguagem e testes aplicáveis.",
+      "Saídas: Saída, erros e tempo de execução.",
+      "Fluxo Principal",
+      "1. Preparar código e testes.",
+      "2. Selecionar o executor suportado pela linguagem. JavaScript/TypeScript podem usar QuickJS interno; outras linguagens usam o provedor configurado.",
+      "3. Tratar saída, compilação ou tempo limite.",
+      "4. Retornar resultados sem expor testes ocultos.",
+      "Fluxos Alternativos",
+      "• A1 — Provedor indisponível: falhar sem confirmar acerto.",
+      "• A2 — Código inválido: retornar erro de compilação ou execução.",
+      "Sem tela própria: comportamento reutilizado pelo caso chamador; o resultado é apresentado no editor ou no feedback da atividade."
+    ],
+    "area": "Trilhas",
+    "actor": "U",
+    "sources": [
+      "src/app/api/lessons/[lessonId]/attempt/route.ts",
+      "src/lib/duels/judge.ts",
+      "src/lib/exercises/repository.ts"
+    ],
+    "scenarioIds": [
+      "C08",
+      "C10",
+      "C37"
+    ],
+    "rules": [
+      "R12",
+      "R13",
+      "R16",
+      "R17",
+      "R63",
+      "R64"
+    ],
+    "definition": "Objetivo consolidado: Executar código e testes\nVariantes: Executar código e testes\nDescrição: Executar código em ambiente isolado, usando o sandbox interno ou um provedor externo conforme a linguagem, com testes definidos no servidor.\nTipo: Análise; comportamento reutilizado por UC010 e UC028.\nAtor iniciador ou caso chamador: UC010, por inclusão; UC028, pela extensão no ponto avaliar código.\nAtores secundários: Executor de código\nPré-condições: Código e linguagem suportados; contrato de teste carregado.\nPós-condições: Saída e resultado de execução retornados.\nEntradas: Código, linguagem e testes aplicáveis.\nSaídas: Saída, erros e tempo de execução.\nFluxo Principal\n1. Preparar código e testes.\n2. Selecionar o executor suportado pela linguagem. JavaScript/TypeScript podem usar QuickJS interno; outras linguagens usam o provedor configurado.\n3. Tratar saída, compilação ou tempo limite.\n4. Retornar resultados sem expor testes ocultos.\nFluxos Alternativos\n• A1 — Provedor indisponível: falhar sem confirmar acerto.\n• A2 — Código inválido: retornar erro de compilação ou execução.\nSem tela própria: comportamento reutilizado pelo caso chamador; o resultado é apresentado no editor ou no feedback da atividade.\nImplementação: src/app/api/lessons/[lessonId]/attempt/route.ts, src/lib/duels/judge.ts, src/lib/exercises/repository.ts",
+    "subflows": [
+      {
+        "historicalId": "UC029",
+        "title": "Executar código e testes",
+        "lines": [
+          "Descrição: Executar código em ambiente isolado, usando o sandbox interno ou um provedor externo conforme a linguagem, com testes definidos no servidor.",
+          "Tipo: Análise; comportamento reutilizado por UC010 e UC028.",
+          "Ator iniciador ou caso chamador: UC010, por inclusão; UC028, pela extensão no ponto avaliar código.",
+          "Atores secundários: Executor de código",
+          "Pré-condições: Código e linguagem suportados; contrato de teste carregado.",
+          "Pós-condições: Saída e resultado de execução retornados.",
+          "Entradas: Código, linguagem e testes aplicáveis.",
+          "Saídas: Saída, erros e tempo de execução.",
+          "Fluxo Principal",
+          "1. Preparar código e testes.",
+          "2. Selecionar o executor suportado pela linguagem. JavaScript/TypeScript podem usar QuickJS interno; outras linguagens usam o provedor configurado.",
+          "3. Tratar saída, compilação ou tempo limite.",
+          "4. Retornar resultados sem expor testes ocultos.",
+          "Fluxos Alternativos",
+          "• A1 — Provedor indisponível: falhar sem confirmar acerto.",
+          "• A2 — Código inválido: retornar erro de compilação ou execução.",
+          "Sem tela própria: comportamento reutilizado pelo caso chamador; o resultado é apresentado no editor ou no feedback da atividade."
+        ]
+      }
+    ]
+  },
+  {
+    "id": "UC038",
+    "title": "Trocar mensagens privadas",
+    "lines": [
+      "Descrição: Consultar conversas e mensagens.",
+      "Ator iniciador: Usuário autenticado.",
+      "Pré-condições e autorização: O histórico envolve o usuário autenticado como remetente ou destinatário.",
+      "Fluxo Principal",
+      "1. Abrir conversas.",
+      "2. Selecionar interlocutor.",
+      "3. Consultar histórico permitido.",
+      "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+      "Fluxos Alternativos",
+      "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+      "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+      "Rastreabilidade: Ampliação: mensagens.",
+      "Referência de implementação: src/app/messages/page.tsx; src/app/api/messages/chats; src/app/api/messages."
+    ],
+    "area": "Recursos pessoais",
+    "actor": "U",
+    "sources": [
+      "src/app/api/messages/route.ts"
+    ],
+    "scenarioIds": [
+      "C27"
+    ],
+    "rules": [
+      "R06",
+      "R36",
+      "R37",
+      "R38"
+    ],
+    "definition": "Objetivo consolidado: Trocar mensagens privadas\nVariantes: Consultar conversas e mensagens, Enviar mensagem privada, Editar ou excluir mensagem própria, Reagir a mensagem\nDescrição: Consultar conversas e mensagens.\nAtor iniciador: Usuário autenticado.\nPré-condições e autorização: O histórico envolve o usuário autenticado como remetente ou destinatário.\nFluxo Principal\n1. Abrir conversas.\n2. Selecionar interlocutor.\n3. Consultar histórico permitido.\nPós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.\nFluxos Alternativos\n• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.\n• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.\nRastreabilidade: Ampliação: mensagens.\nReferência de implementação: src/app/messages/page.tsx; src/app/api/messages/chats; src/app/api/messages.\nImplementação: src/app/api/messages/route.ts",
+    "subflows": [
+      {
+        "historicalId": "UC038",
+        "title": "Consultar conversas e mensagens",
+        "lines": [
+          "Descrição: Consultar conversas e mensagens.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: O histórico envolve o usuário autenticado como remetente ou destinatário.",
+          "Fluxo Principal",
+          "1. Abrir conversas.",
+          "2. Selecionar interlocutor.",
+          "3. Consultar histórico permitido.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: Ampliação: mensagens.",
+          "Referência de implementação: src/app/messages/page.tsx; src/app/api/messages/chats; src/app/api/messages."
+        ]
+      },
+      {
+        "historicalId": "UC039",
+        "title": "Enviar mensagem privada",
+        "lines": [
+          "Descrição: Enviar mensagem privada.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: Sessão válida e destinatário informado; envio sujeito a limite de frequência.",
+          "Fluxo Principal",
+          "1. Selecionar interlocutor.",
+          "2. Escrever texto ou anexar imagem.",
+          "3. Enviar e consultar retorno.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: Ampliação: mensagens.",
+          "Referência de implementação: src/app/messages/page.tsx; src/app/api/messages/route.ts."
+        ]
+      },
+      {
+        "historicalId": "UC040",
+        "title": "Editar ou excluir mensagem própria",
+        "lines": [
+          "Descrição: Editar ou excluir mensagem própria.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: Somente remetente; edição não admite texto vazio.",
+          "Fluxo Principal",
+          "1. Selecionar mensagem enviada.",
+          "2. Editar conteúdo ou excluir.",
+          "3. Atualizar conversa.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: Ampliação: mensagens.",
+          "Referência de implementação: src/app/api/messages/[id]/route.ts."
+        ]
+      },
+      {
+        "historicalId": "UC041",
+        "title": "Reagir a mensagem",
+        "lines": [
+          "Descrição: Reagir a mensagem.",
+          "Ator iniciador: Usuário autenticado.",
+          "Pré-condições e autorização: Somente remetente ou destinatário da mensagem.",
+          "Fluxo Principal",
+          "1. Selecionar mensagem.",
+          "2. Escolher emoji.",
+          "3. Adicionar ou remover reação.",
+          "Pós-condições: Resultado da consulta apresentado ou alteração autorizada confirmada ao usuário, conforme a operação solicitada.",
+          "Fluxos Alternativos",
+          "• A1 — Sessão ou permissão insuficiente: recusar acesso à operação protegida e informar a condição, sem aplicar a alteração solicitada.",
+          "• A2 — Dados inválidos, recurso indisponível ou falha de processamento: informar o resultado e permitir a correção ou nova tentativa; não apresentar sucesso sem confirmação.",
+          "Rastreabilidade: Ampliação: mensagens.",
+          "Referência de implementação: src/app/api/messages/[id]/react/route.ts."
+        ]
+      }
+    ]
+  }
+]

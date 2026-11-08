@@ -1,0 +1,227 @@
+[
+  {
+    "id": "UC-GERAL",
+    "name": "UC-GERAL Visão geral do sistema",
+    "type": "casos de uso UML"
+  },
+  {
+    "id": "UC-APRENDIZAGEM",
+    "name": "UC-APRENDIZAGEM Casos de uso aprendizagem",
+    "type": "casos de uso UML"
+  },
+  {
+    "id": "UC-COMUNIDADE",
+    "name": "UC-COMUNIDADE Casos de uso comunidade",
+    "type": "casos de uso UML"
+  },
+  {
+    "id": "UC-DUELOS",
+    "name": "UC-DUELOS Casos de uso duelos",
+    "type": "casos de uso UML"
+  },
+  {
+    "id": "UC-OPORTUNIDADES",
+    "name": "UC-OPORTUNIDADES Casos de uso oportunidades",
+    "type": "casos de uso UML"
+  },
+  {
+    "id": "UC-CONTA",
+    "name": "UC-CONTA Casos de uso conta",
+    "type": "casos de uso UML"
+  },
+  {
+    "id": "UC-TRILHAS-DEMO",
+    "name": "UC-TRILHAS-DEMO Lição, avaliação e ajuda",
+    "type": "casos de uso UML"
+  },
+  {
+    "id": "UC-VAGA-DEMO",
+    "name": "UC-VAGA-DEMO Publicar empresa e vaga",
+    "type": "casos de uso UML"
+  },
+  {
+    "id": "UC-CANDIDATURA-DEMO",
+    "name": "UC-CANDIDATURA-DEMO Candidatura e movimentação",
+    "type": "casos de uso UML"
+  },
+  {
+    "id": "CL-GERAL",
+    "name": "CL-GERAL Classes geral",
+    "type": "classes conceituais em português"
+  },
+  {
+    "id": "CL-APRENDIZAGEM",
+    "name": "CL-APRENDIZAGEM Classes aprendizagem",
+    "type": "classes conceituais em português"
+  },
+  {
+    "id": "CL-COMUNIDADE",
+    "name": "CL-COMUNIDADE Classes comunidade",
+    "type": "classes conceituais em português"
+  },
+  {
+    "id": "CL-DUELOS",
+    "name": "CL-DUELOS Classes duelos",
+    "type": "classes conceituais em português"
+  },
+  {
+    "id": "CL-RECRUTAMENTO",
+    "name": "CL-RECRUTAMENTO Classes recrutamento",
+    "type": "classes conceituais em português"
+  },
+  {
+    "id": "CL-EVENTOS",
+    "name": "CL-EVENTOS Classes eventos",
+    "type": "classes conceituais em português"
+  },
+  {
+    "id": "CL-IDENTIDADE",
+    "name": "CL-IDENTIDADE Classes identidade",
+    "type": "classes conceituais em português"
+  },
+  {
+    "id": "DER-GERAL",
+    "name": "DER-GERAL Dados geral",
+    "type": "visão relacional reduzida em português"
+  },
+  {
+    "id": "DER-APRENDIZAGEM",
+    "name": "DER-APRENDIZAGEM Dados aprendizagem",
+    "type": "visão relacional reduzida em português"
+  },
+  {
+    "id": "DER-COMUNIDADE",
+    "name": "DER-COMUNIDADE Dados comunidade",
+    "type": "visão relacional reduzida em português"
+  },
+  {
+    "id": "DER-DUELOS",
+    "name": "DER-DUELOS Dados duelos",
+    "type": "visão relacional reduzida em português"
+  },
+  {
+    "id": "DER-RECRUTAMENTO",
+    "name": "DER-RECRUTAMENTO Dados recrutamento",
+    "type": "visão relacional reduzida em português"
+  },
+  {
+    "id": "DER-EVENTOS",
+    "name": "DER-EVENTOS Dados eventos",
+    "type": "visão relacional reduzida em português"
+  },
+  {
+    "id": "DER-IDENTIDADE",
+    "name": "DER-IDENTIDADE Dados identidade",
+    "type": "visão relacional reduzida em português"
+  },
+  {
+    "id": "SQ01",
+    "name": "SQ01 Submeter etapa de lição",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ02",
+    "name": "SQ02 Executar e submeter exercício",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ03",
+    "name": "SQ03 Reconciliar e verificar credencial",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ04",
+    "name": "SQ04 Publicar e consultar fluxo de publicações",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ05",
+    "name": "SQ05 Enviar mensagem e recuperar histórico",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ06",
+    "name": "SQ06 Resgatar baú diário",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ07",
+    "name": "SQ07 Convidar e entrar na arena",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ08",
+    "name": "SQ08 Turno entre jogadores com exercício",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ09",
+    "name": "SQ09 Julgar e encerrar duelo competitivo",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ10",
+    "name": "SQ10 Emitir parecer humano",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ11",
+    "name": "SQ11 Candidatar e mover no recrutamento",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ12",
+    "name": "SQ12 Inscrever em evento com limite",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ01-A",
+    "name": "SQ01-A Receber e avaliar resposta",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ01-B",
+    "name": "SQ01-B Separar prévia de submissão",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ01-C",
+    "name": "SQ01-C Creditar primeira conclusão",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ11-A",
+    "name": "SQ11-A Autorizar publicação de vaga",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ11-B",
+    "name": "SQ11-B Gravar vaga e etapas",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ11-C",
+    "name": "SQ11-C Confirmar publicação",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ11-D",
+    "name": "SQ11-D Registrar candidatura",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ11-E",
+    "name": "SQ11-E Conferir gestão da candidatura",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ11-F",
+    "name": "SQ11-F Atualizar e notificar",
+    "type": "sequência UML"
+  },
+  {
+    "id": "SQ13",
+    "name": "SQ13 Publicar vaga da empresa",
+    "type": "sequência UML"
+  }
+]

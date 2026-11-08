@@ -808,7 +808,8 @@ export function TrailPathView({
       setInfoModal({
         open: true,
         title: level.title,
-        description: level.description || 'Lição pronta para praticar.',
+        description:
+          level.description || text('Lição pronta para praticar.', 'Lesson ready to practice.'),
         level,
       });
     }
@@ -1202,7 +1203,7 @@ export function TrailPathView({
                                     unitNumber
                                   )
                                 }
-                                aria-label={`Baú da trilha, ${chestClaimed ? 'recompensa resgatada' : chestUnlocked ? '50 XP disponíveis' : 'bloqueado'}`}
+                                aria-label={`${text('Baú da trilha', 'Trail chest')}, ${chestClaimed ? text('recompensa resgatada', 'reward claimed') : chestUnlocked ? text('50 XP disponíveis', '50 XP available') : text('bloqueado', 'locked')}`}
                                 className="dd-focus-ring group relative flex h-[80px] w-[80px] cursor-pointer items-center justify-center transition-transform duration-150 hover:-translate-y-1 active:scale-95"
                               >
                                 <Image
@@ -1211,7 +1212,7 @@ export function TrailPathView({
                                       ? '/assets/trails/trail-chest-open.png'
                                       : '/assets/trails/trail-chest.png'
                                   }
-                                  alt="Baú da trilha"
+                                  alt={text('Baú da trilha', 'Trail chest')}
                                   width={78}
                                   height={78}
                                   className="relative z-10 h-[78px] w-[78px] object-contain transition-transform group-hover:scale-105"
@@ -1363,7 +1364,7 @@ export function TrailPathView({
                       onClick={() =>
                         void handleOpenChestReward(chestId, chestUnlocked, theme, unitNumber)
                       }
-                      aria-label={`Baú da trilha, ${chestClaimed ? 'recompensa resgatada' : chestUnlocked ? '50 XP disponíveis' : 'bloqueado'}`}
+                      aria-label={`${text('Baú da trilha', 'Trail chest')}, ${chestClaimed ? text('recompensa resgatada', 'reward claimed') : chestUnlocked ? text('50 XP disponíveis', '50 XP available') : text('bloqueado', 'locked')}`}
                       className="dd-focus-ring group relative flex h-[80px] w-[80px] cursor-pointer items-center justify-center transition-transform duration-150 hover:-translate-y-1 active:scale-95"
                     >
                       <Image
@@ -1372,7 +1373,7 @@ export function TrailPathView({
                             ? '/assets/trails/trail-chest-open.png'
                             : '/assets/trails/trail-chest.png'
                         }
-                        alt="Baú da trilha"
+                        alt={text('Baú da trilha', 'Trail chest')}
                         width={78}
                         height={78}
                         className="relative z-10 h-[78px] w-[78px] object-contain transition-transform group-hover:scale-105"

@@ -1,0 +1,167 @@
+erDiagram
+  User {
+    String id PK
+    String username
+    String email
+    String avatar_url
+    Json avatar_config
+    String bio
+    String institution
+    String github_username
+    String discord_username
+  }
+  LearningCredential {
+    String id PK
+    String userId FK
+    String definitionId
+    Int definitionVersion
+    Json snapshot
+    String integrityHash
+    DateTime issuedAt
+    DateTime verifiedAt
+    DateTime revokedAt
+  }
+  LanguageTrail {
+    String id PK
+    String user_id FK
+    Language language
+    Int xp
+    Int level
+    Int streak
+    DateTime last_activity_at
+  }
+  KnowledgeNode {
+    String id PK
+    String slug
+    String title
+    String description
+    KnowledgeNodeType type
+    String category
+    Language language
+    Int difficulty
+    Int xp_reward
+  }
+  KnowledgeEdge {
+    String id PK
+    String source_node_id FK
+    String target_node_id FK
+    KnowledgeRelation relation
+    DateTime created_at
+  }
+  LearningPath {
+    String id PK
+    String slug
+    String title
+    String description
+    String accent_color
+    Int estimated_minutes
+    Boolean is_featured
+    Boolean is_published
+    DateTime created_at
+  }
+  LearningPathNode {
+    String id PK
+    String learning_path_id FK
+    String knowledge_node_id FK
+    Int position
+  }
+  Exercise {
+    String id PK
+    String slug
+    String knowledge_node_id FK
+    String title
+    String summary
+    String problem
+    String objective
+    Language language
+    Int difficulty
+  }
+  ExerciseTestCase {
+    String id PK
+    String exercise_id FK
+    String label
+    Json input
+    String invocation_code
+    Json expected_output
+    Boolean is_hidden
+    Int position
+  }
+  UserNodeProgress {
+    String id PK
+    String user_id FK
+    String knowledge_node_id FK
+    KnowledgeProgressStatus status
+    Int mastery
+    Int completed_exercises
+    DateTime started_at
+    DateTime completed_at
+    DateTime last_activity_at
+  }
+  ExerciseRun {
+    String id PK
+    String exercise_id FK
+    String user_id FK
+    AssistanceMode assistance_mode
+    String code
+    Int passed_tests
+    Int total_tests
+    String output
+    String error_message
+  }
+  ExerciseSubmission {
+    String id PK
+    String exercise_id FK
+    String user_id FK
+    AssistanceMode assistance_mode
+    ExerciseSubmissionStatus status
+    String code
+    Int passed_public
+    Int total_public
+    Int passed_hidden
+  }
+  LearningEvent {
+    String id PK
+    String user_id FK
+    String exercise_id FK
+    LearningEventType event_type
+    AssistanceMode assistance_mode
+    Json metadata
+    DateTime created_at
+  }
+  Quiz {
+    String id PK
+    String post_id FK
+    String question
+    Json options
+    Int correct_index
+    Boolean is_daily
+    DateTime scheduled_for
+    DateTime created_at
+  }
+  QuizAttempt {
+    String id PK
+    String user_id FK
+    String quiz_id FK
+    Int selected_index
+    Boolean is_correct
+    Int xp_earned
+    DateTime created_at
+  }
+  User ||--o{ LearningCredential : "userId"
+  User ||--o{ LanguageTrail : "user_id"
+  KnowledgeNode ||--o{ KnowledgeEdge : "source_node_id"
+  KnowledgeNode ||--o{ KnowledgeEdge : "target_node_id"
+  LearningPath ||--o{ LearningPathNode : "learning_path_id"
+  KnowledgeNode ||--o{ LearningPathNode : "knowledge_node_id"
+  KnowledgeNode ||--o{ Exercise : "knowledge_node_id"
+  Exercise ||--o{ ExerciseTestCase : "exercise_id"
+  User ||--o{ UserNodeProgress : "user_id"
+  KnowledgeNode ||--o{ UserNodeProgress : "knowledge_node_id"
+  Exercise ||--o{ ExerciseRun : "exercise_id"
+  User ||--o{ ExerciseRun : "user_id"
+  Exercise ||--o{ ExerciseSubmission : "exercise_id"
+  User ||--o{ ExerciseSubmission : "user_id"
+  User ||--o{ LearningEvent : "user_id"
+  Exercise o|--o{ LearningEvent : "exercise_id"
+  User ||--o{ QuizAttempt : "user_id"
+  Quiz ||--o{ QuizAttempt : "quiz_id"

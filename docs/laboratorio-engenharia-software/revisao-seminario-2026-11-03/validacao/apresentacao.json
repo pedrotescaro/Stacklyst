@@ -1,0 +1,16 @@
+{
+  "slides": 51,
+  "approvedActivitySlidesPreserved": [
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10
+  ],
+  "source": "Stacklyst-seminario-revisado-2026-10-20.pptx",
+  "updated": "Stacklyst-seminario-atualizado-2026-11-03.pptx",
+  "authoringFallback": "Original-deck OOXML edit after installed artifact-tool Presentation.load failed: missing @oai/granola/node Node API. Office render required.",
+  "sha256": "f182e1da764a2e30df97da309f2d992907f65c708d7565fbe4f723037178b035"
+}

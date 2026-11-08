@@ -1,0 +1,1077 @@
+[
+  {
+    "i": 0,
+    "kind": "p",
+    "style": "Ttulo",
+    "text": "Stacklyst",
+    "pictures": []
+  },
+  {
+    "i": 1,
+    "kind": "p",
+    "style": "Subttulo",
+    "text": "Requisitos e regras do sistema",
+    "pictures": []
+  },
+  {
+    "i": 2,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Laboratório de Engenharia de SoftwareRevisão de 3 de novembro de 2026Base de código 6a2bfce e documentação local revisada",
+    "pictures": []
+  },
+  {
+    "i": 3,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Pedro Antonio Silvestre TescaroGuilherme Alves de CamposPaulo Henrique Leal dos Santos",
+    "pictures": []
+  },
+  {
+    "i": 4,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Esta edição atualiza os modelos e a especificação do sistema. Os diagramas de atividades do negócio aprovados permanecem no documento 02, preservado integralmente. Os modelos revisados são editáveis no Astah UML. Cadastro e acesso usam o ator Usuário e declaram as pré-condições de sessão em cada caso.",
+    "pictures": []
+  },
+  {
+    "i": 5,
+    "kind": "p",
+    "style": "Normal",
+    "text": "As afirmações descrevem a fonte de implementação. Credenciais, infraestrutura externa, dispositivos e migrations dependem das verificações de ambiente indicadas. Esta revisão documental não representa execução de todos os fluxos em produção.",
+    "pictures": []
+  },
+  {
+    "i": 6,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 7,
+    "kind": "p",
+    "style": "Ttulo1",
+    "text": "Roteiro de leitura",
+    "pictures": []
+  },
+  {
+    "i": 8,
+    "kind": "p",
+    "style": "Sumrio1",
+    "text": "Roteiro de leitura2",
+    "pictures": []
+  },
+  {
+    "i": 9,
+    "kind": "p",
+    "style": "Sumrio1",
+    "text": "Requisitos funcionais, qualidade e regras de negócio3",
+    "pictures": []
+  },
+  {
+    "i": 10,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Diferença entre os três conceitos3",
+    "pictures": []
+  },
+  {
+    "i": 11,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Capacidades por área3",
+    "pictures": []
+  },
+  {
+    "i": 12,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Regras de identidade e acesso6",
+    "pictures": []
+  },
+  {
+    "i": 13,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Regras pedagógicas e de progresso6",
+    "pictures": []
+  },
+  {
+    "i": 14,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "XP, ranking e reconhecimento8",
+    "pictures": []
+  },
+  {
+    "i": 15,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Regras sociais8",
+    "pictures": []
+  },
+  {
+    "i": 16,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Mundinho e multiplayer9",
+    "pictures": []
+  },
+  {
+    "i": 17,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Duelos e avaliadores11",
+    "pictures": []
+  },
+  {
+    "i": 18,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Recrutamento e eventos12",
+    "pictures": []
+  },
+  {
+    "i": 19,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Regras complementares de comunidade13",
+    "pictures": []
+  },
+  {
+    "i": 20,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Qualidade: propriedades e evidências necessárias13",
+    "pictures": []
+  },
+  {
+    "i": 21,
+    "kind": "p",
+    "style": "Sumrio1",
+    "text": "Qualidade do sistema e classificação dos requisitos não funcionais14",
+    "pictures": []
+  },
+  {
+    "i": 22,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Como ler requisitos de qualidade14",
+    "pictures": []
+  },
+  {
+    "i": 23,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Requisitos do produto15",
+    "pictures": []
+  },
+  {
+    "i": 24,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Requisitos organizacionais15",
+    "pictures": []
+  },
+  {
+    "i": 25,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Requisitos externos16",
+    "pictures": []
+  },
+  {
+    "i": 26,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Fatores de qualidade de McCall16",
+    "pictures": []
+  },
+  {
+    "i": 27,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Registro de verificação17",
+    "pictures": []
+  },
+  {
+    "i": 28,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Referências fornecidas17",
+    "pictures": []
+  },
+  {
+    "i": 29,
+    "kind": "p",
+    "style": "Sumrio1",
+    "text": "Contratos, segurança, falhas e operação18",
+    "pictures": []
+  },
+  {
+    "i": 30,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Caminho de uma requisição18",
+    "pictures": []
+  },
+  {
+    "i": 31,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Identidade e banco18",
+    "pictures": []
+  },
+  {
+    "i": 32,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Contratos públicos e internos18",
+    "pictures": []
+  },
+  {
+    "i": 33,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Erros HTTP18",
+    "pictures": []
+  },
+  {
+    "i": 34,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Concorrência e idempotência19",
+    "pictures": []
+  },
+  {
+    "i": 35,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Rede e recuperação19",
+    "pictures": []
+  },
+  {
+    "i": 36,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Rate limit, logs e auditoria20",
+    "pictures": []
+  },
+  {
+    "i": 37,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Banco, migrations e seeds20",
+    "pictures": []
+  },
+  {
+    "i": 38,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Testes e significado das evidências20",
+    "pictures": []
+  },
+  {
+    "i": 39,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Mobile21",
+    "pictures": []
+  },
+  {
+    "i": 40,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Manutenção da documentação21",
+    "pictures": []
+  },
+  {
+    "i": 41,
+    "kind": "p",
+    "style": "Sumrio1",
+    "text": "Matriz de rastreabilidade1",
+    "pictures": []
+  },
+  {
+    "i": 42,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Capacidades, casos e código17",
+    "pictures": []
+  },
+  {
+    "i": 43,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 44,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O sumário é atualizado na exportação pelo Word. As fontes editáveis e a matriz de rastreabilidade acompanham o pacote.",
+    "pictures": []
+  },
+  {
+    "i": 45,
+    "kind": "p",
+    "style": "Ttulo1",
+    "text": "Requisitos funcionais, qualidade e regras de negócio",
+    "pictures": []
+  },
+  {
+    "i": 46,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Esta identificação é própria do manual de novembro; não renumera os RF/RNF da entrega de outubro. Os IDs permitem referenciar regras em demonstrações, casos de uso e alterações futuras. As fontes citadas nos capítulos e recortes representam a implementação; os objetivos de qualidade não são automaticamente medições aprovadas.",
+    "pictures": []
+  },
+  {
+    "i": 47,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Diferença entre os três conceitos",
+    "pictures": []
+  },
+  {
+    "i": 48,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Requisito funcional descreve uma capacidade: permitir submeter uma atividade. Regra de negócio limita ou decide esse comportamento: a primeira conclusão elegível pode render XP, mas uma repetição correta não rende o mesmo crédito de novo. Requisito não funcional descreve uma propriedade de qualidade: resistir a pedidos concorrentes sem duplicar recompensa.",
+    "pictures": []
+  },
+  {
+    "i": 49,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Capacidades por área",
+    "pictures": []
+  },
+  {
+    "i": 50,
+    "kind": "table",
+    "text": "IDCapacidade funcionalPrincipal ponto de entradaF01Apresentar a plataforma e encaminhar a experiênci"
+  },
+  {
+    "i": 51,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 52,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Regras de identidade e acesso",
+    "pictures": []
+  },
+  {
+    "i": 53,
+    "kind": "table",
+    "text": "IDRegraFonte de decisãoR01A identidade de uma operação protegida vem da sessão, não de userId livre "
+  },
+  {
+    "i": 54,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 55,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Regras pedagógicas e de progresso",
+    "pictures": []
+  },
+  {
+    "i": 56,
+    "kind": "table",
+    "text": "IDRegraConsequênciaR08Nó e lição têm representações e regras de acesso distintasNão substituir pré-r"
+  },
+  {
+    "i": 57,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 58,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Os valores-base em LEARNING_XP são 0 para conceito, 10 para recordação, 15 para atividade guiada, 25 para código e 40 para projeto; o catálogo pode declarar valores próprios. O valor efetivamente creditado vem da atividade elegível, não de uma multiplicação escolhida pela interface.",
+    "pictures": []
+  },
+  {
+    "i": 59,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "XP, ranking e reconhecimento",
+    "pictures": []
+  },
+  {
+    "i": 60,
+    "kind": "table",
+    "text": "IDRegraFonteR22XP total, XP por linguagem e movimentações por período não são a mesma consultaxp.ts,"
+  },
+  {
+    "i": 61,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 62,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Limites numéricos de nível: 1 começa em 0; 2 em 500; 3 em 800; 4 em 1.100; 5 em 1.500; 6 em 2.000. A partir daí, o primeiro incremento é 600 e cresce 100 por nível. As faixas visuais começam em 0, 500, 1.200, 2.500 e 5.000 XP. Portanto, “nível 3” e “faixa Ouro” não são sinônimos.",
+    "pictures": []
+  },
+  {
+    "i": 63,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Regras sociais",
+    "pictures": []
+  },
+  {
+    "i": 64,
+    "kind": "table",
+    "text": "IDRegraFonteR29audience e bloqueios são aplicados antes de entregar conteúdovisiblePostWhere, assert"
+  },
+  {
+    "i": 65,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 66,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Mundinho e multiplayer",
+    "pictures": []
+  },
+  {
+    "i": 67,
+    "kind": "table",
+    "text": "IDRegraFonteR39Saldo e inventário são confirmados no servidormundinho/repository.tsR40Créditos usam "
+  },
+  {
+    "i": 68,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 69,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Duelos e avaliadores",
+    "pictures": []
+  },
+  {
+    "i": 70,
+    "kind": "table",
+    "text": "IDRegraFonteR61Convite direto expira em 72 h; publicação opcional usa janela pública de 24 hduels/co"
+  },
+  {
+    "i": 71,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 72,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Recrutamento e eventos",
+    "pictures": []
+  },
+  {
+    "i": 73,
+    "kind": "table",
+    "text": "IDRegraFonteR76Vaga deve existir e estar aberta para aceitar candidaturaapplyForJobR77Usuário/vaga é"
+  },
+  {
+    "i": 74,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 75,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Regras complementares de comunidade",
+    "pictures": []
+  },
+  {
+    "i": 76,
+    "kind": "table",
+    "text": "IDRegraFonteR89Quiz diário seleciona no máximo uma questão revisada relacionada a posts por dia UTC,"
+  },
+  {
+    "i": 77,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 78,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Qualidade: propriedades e evidências necessárias",
+    "pictures": []
+  },
+  {
+    "i": 79,
+    "kind": "table",
+    "text": "IDPropriedade esperadaEvidência adequada e limiteQ01Controle de acesso por recursoTestes com proprie"
+  },
+  {
+    "i": 80,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 81,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Não se atribui SLA, tempo de resposta garantido ou conformidade legal integral sem medição e avaliação específica. Documentar a intenção não comprova que todas as propriedades foram testadas nesta edição.",
+    "pictures": []
+  },
+  {
+    "i": 82,
+    "kind": "p",
+    "style": "Ttulo1",
+    "text": "Qualidade do sistema e classificação dos requisitos não funcionais",
+    "pictures": []
+  },
+  {
+    "i": 83,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Esta seção aplica as duas referências visuais fornecidas pelo grupo: a classificação de requisitos não funcionais em produto, organização e fatores externos; e a divisão dos fatores de McCall em operação, revisão e transição do produto. Elas complementam a referência de UML de Gilleanes Guedes. As imagens orientam a análise; não são evidência de que a plataforma já atingiu todos os critérios.",
+    "pictures": []
+  },
+  {
+    "i": 84,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Como ler requisitos de qualidade",
+    "pictures": []
+  },
+  {
+    "i": 85,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Um RF informa a capacidade oferecida. Uma RN define uma política de decisão do domínio. Um RNF caracteriza a qualidade, uma restrição técnica ou uma condição de operação. A matriz conserva F, R e Q como IDs dessas três categorias. Por exemplo, submeter uma resposta é RF; creditar apenas a primeira conclusão elegível é RN; preservar esse limite sob pedidos concorrentes é RNF de integridade/confiabilidade.",
+    "pictures": []
+  },
+  {
+    "i": 86,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O exemplo de matriz enviado pelo grupo usa termos de um sistema de cinema. Seus conteúdos não foram transferidos como requisitos da Stacklyst. Também se evita classificar qualquer ação de “controlar” ou “contar” automaticamente como RNF: a classificação depende do que a exigência especifica.",
+    "pictures": []
+  },
+  {
+    "i": 87,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Requisitos do produto",
+    "pictures": []
+  },
+  {
+    "i": 88,
+    "kind": "table",
+    "text": "Categoria da referênciaRNF relacionadosAplicação à StacklystEvidência de aceitaçãoUsabilidadeQ04, Q1"
+  },
+  {
+    "i": 89,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 90,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Requisitos organizacionais",
+    "pictures": []
+  },
+  {
+    "i": 91,
+    "kind": "table",
+    "text": "Categoria da referênciaRNF relacionadosRegra de trabalho documentadaEvidênciaDesenvolvimentoQ08, Q10"
+  },
+  {
+    "i": 92,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 93,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Requisitos externos",
+    "pictures": []
+  },
+  {
+    "i": 94,
+    "kind": "p",
+    "style": "Normal",
+    "text": "A referência também cita categorias regulatórias, éticas, legislativas, contábeis e de segurança. Não se deve preencher todas com afirmações inventadas. O documento identifica o que exige decisão do grupo e mantém a aceitação verificável.",
+    "pictures": []
+  },
+  {
+    "i": 95,
+    "kind": "table",
+    "text": "CategoriaTratamento no projetoÉticosDistinguir conteúdo editorial de pessoas reais; tratar bloqueio,"
+  },
+  {
+    "i": 96,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 97,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Fatores de qualidade de McCall",
+    "pictures": []
+  },
+  {
+    "i": 98,
+    "kind": "table",
+    "text": "Dimensão da imagemFatorRelação com o sistemaRNF de apoioOperação do produtoCorreçãoResultado da aval"
+  },
+  {
+    "i": 99,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 100,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Registro de verificação",
+    "pictures": []
+  },
+  {
+    "i": 101,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Para cada Q, registrar cenário, ambiente, versão do código, entrada, resultado esperado, resultado observado e evidência. Marcar como atendido somente após verificar o critério. Metas numéricas de desempenho precisam informar carga, amostra e infraestrutura. Esta revisão verifica documentos e modelos; a existência de um requisito não substitui homologação funcional ou medição em produção.",
+    "pictures": []
+  },
+  {
+    "i": 102,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Referências fornecidas",
+    "pictures": []
+  },
+  {
+    "i": 103,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "GUEDES, Gilleanes T. A. UML 2: uma abordagem prática. 3. ed. São Paulo: Novatec, 2018. Fundamentação da modelagem e documentação.",
+    "pictures": []
+  },
+  {
+    "i": 104,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "Imagem “Tipos de requisitos não funcionais”, fornecida pelo grupo: classificação em produto, organização e fatores externos. A imagem não inclui referência bibliográfica completa.",
+    "pictures": []
+  },
+  {
+    "i": 105,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "Imagem “Os Fatores da Qualidade de McCall (CHRISSIS, 2006)”, fornecida pelo grupo: dimensões e fatores transcritos na tabela acima. A indicação bibliográfica visível na imagem é preservada sem presumir título ou edição não informados.",
+    "pictures": []
+  },
+  {
+    "i": 106,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "Documento “exemplo de matriz de rastreabilidade.docx”, fornecido pelo grupo: estrutura das seis colunas da matriz.",
+    "pictures": []
+  },
+  {
+    "i": 107,
+    "kind": "p",
+    "style": "Ttulo1",
+    "text": "Contratos, segurança, falhas e operação",
+    "pictures": []
+  },
+  {
+    "i": 108,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Caminho de uma requisição",
+    "pictures": []
+  },
+  {
+    "i": 109,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Interface → rota → identidade → validação → autorização do recurso → regra de domínio → persistência/efeitos → serialização → resposta. Nem todos os arquivos seguem exatamente a mesma distribuição, mas essas responsabilidades precisam ser localizadas antes de alterar o fluxo.",
+    "pictures": []
+  },
+  {
+    "i": 110,
+    "kind": "p",
+    "style": "Normal",
+    "text": "apiHandler [../../../src/lib/api-handler.ts] envolve rotas compatíveis, resolve sessão quando habilitado, oferece contexto e padroniza parte dos erros. Também cria request ID e associa informações de rate limit à execução por AsyncLocalStorage. A presença do wrapper não garante que a rota exigiu usuário: confira a condição do próprio endpoint.",
+    "pictures": []
+  },
+  {
+    "i": 111,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Identidade e banco",
+    "pictures": []
+  },
+  {
+    "i": 112,
+    "kind": "p",
+    "style": "Normal",
+    "text": "auth-session.ts [../../../src/lib/auth-session.ts] participa da leitura de sessão; auth.ts [../../../src/lib/auth.ts] resolve o usuário de domínio e oferece exigências de acesso. A implementação pode usar Prisma e fallback pela API de dados quando a conexão do banco falha em determinadas condições.",
+    "pictures": []
+  },
+  {
+    "i": 113,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O ID validado pelo provedor precisa corresponder ao usuário usado no domínio. Metadata editável de perfil, nome de exibição e papel enviado no corpo não são prova de autorização. Checagens de administrador, avaliador, dono e participante pertencem ao servidor.",
+    "pictures": []
+  },
+  {
+    "i": 114,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O runtime prioriza DATABASE_URL quando configurada; DIRECT_URL atende fluxos Prisma/administrativos e fallback previsto. Uma porta do banco inacessível e uma sessão inválida são falhas diferentes, mesmo quando ambas impedem uma página de carregar.",
+    "pictures": []
+  },
+  {
+    "i": 115,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Contratos públicos e internos",
+    "pictures": []
+  },
+  {
+    "i": 116,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Um modelo Prisma descreve o registro persistido. Um DTO público é uma seleção segura e útil de dados. Exemplos de dados internos que exigem cuidado: soluções, respostas esperadas ocultas, feedback privado de candidatura, tokens, preferências privadas de chat e detalhes operacionais.",
+    "pictures": []
+  },
+  {
+    "i": 117,
+    "kind": "p",
+    "style": "Normal",
+    "text": "TypeScript ajuda durante desenvolvimento. Zod e verificações de domínio validam a entrada real. Mesmo após schema aprovado, podem faltar autorização, saldo, capacidade ou pré-requisito. Nunca trate safeParse(...).success como aprovação completa da ação.",
+    "pictures": []
+  },
+  {
+    "i": 118,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Erros HTTP",
+    "pictures": []
+  },
+  {
+    "i": 119,
+    "kind": "table",
+    "text": "StatusInterpretação típica neste códigoO que conferir400Forma/valor de entrada inválidoSchema, tipo "
+  },
+  {
+    "i": 120,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 121,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O catálogo extraído de erros [erros-do-codigo.md] apresenta literais encontrados na fonte. Não é uma promessa de que toda rota sempre usa o mesmo envelope: há endpoints que retornam NextResponse.json diretamente. Consulte o adaptador concreto.",
+    "pictures": []
+  },
+  {
+    "i": 122,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Concorrência e idempotência",
+    "pictures": []
+  },
+  {
+    "i": 123,
+    "kind": "table",
+    "text": "OperaçãoRecurso disputadoProteção relevanteCrédito pedagógicoTotal/histórico do usuárioTransação, lo"
+  },
+  {
+    "i": 124,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 125,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Uma transação protege suas operações de banco, não a Internet inteira. Compilar código, fazer upload ou entregar push pode falhar independentemente. Não mantenha um lock de banco durante espera de compilador se o fluxo pode executar externamente e revalidar ao voltar.",
+    "pictures": []
+  },
+  {
+    "i": 126,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Rede e recuperação",
+    "pictures": []
+  },
+  {
+    "i": 127,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Erros recuperáveis precisam preservar o que já foi confirmado. Uma submissão antiga que volta depois de mudar o turno não deve causar dano novo. Uma notificação que falhou não deve desfazer a candidatura confirmada. Uma execução indisponível não deve conceder progresso nem consumir uma chance pedagógica como se o aluno tivesse errado.",
+    "pictures": []
+  },
+  {
+    "i": 128,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O cliente deve distinguir enviar, aguardando, confirmado, falhou e estado desatualizado. “Tente de novo” só é seguro quando a operação reconhece repetição ou quando a interface consegue identificar que o primeiro pedido não foi confirmado.",
+    "pictures": []
+  },
+  {
+    "i": 129,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Rate limit, logs e auditoria",
+    "pictures": []
+  },
+  {
+    "i": 130,
+    "kind": "p",
+    "style": "Normal",
+    "text": "ratelimit.ts usa Redis quando configurado e fallback local por instância. Fallback local não é um limite global distribuído entre todas as instâncias. As rotas escolhem seus limites; os exemplos de 30/min de lição e mensagens não são uma regra universal para todas as APIs.",
+    "pictures": []
+  },
+  {
+    "i": 131,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Logs operacionais ajudam a depurar indisponibilidade. SecurityAuditEvent registra operações sensíveis do domínio. Os registros devem permitir investigação sem copiar credenciais ou todo o conteúdo privado. Request ID ajuda a correlacionar uma resposta com a execução que a produziu.",
+    "pictures": []
+  },
+  {
+    "i": 132,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Banco, migrations e seeds",
+    "pictures": []
+  },
+  {
+    "i": 133,
+    "kind": "p",
+    "style": "Normal",
+    "text": "schema.prisma e migrations descrevem a evolução. A situação do schema local não comprova aplicação em produção. Confira histórico/checksum e ambiente antes de migrar. Não substitua esse processo por um reset de produção para “alinhar tudo”.",
+    "pictures": []
+  },
+  {
+    "i": 134,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O seed de desenvolvimento atual limpa tabelas. A comunidade editorial tem importador incremental próprio. Ambos podem criar dados, mas seus escopos são radicalmente diferentes. Para documentação, não há necessidade de executar nenhum dos dois.",
+    "pictures": []
+  },
+  {
+    "i": 135,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Testes e significado das evidências",
+    "pictures": []
+  },
+  {
+    "i": 136,
+    "kind": "table",
+    "text": "VerificaçãoO que demonstraO que não demonstra sozinhaTypecheckCompatibilidade estática dos tipos com"
+  },
+  {
+    "i": 137,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 138,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Esta tarefa documental não precisa repetir testes caros da aplicação quando não altera sua execução. Os controles pertinentes são consistência de fontes, links, trechos, diagramas e ausência de credenciais no material produzido.",
+    "pictures": []
+  },
+  {
+    "i": 139,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Mobile",
+    "pictures": []
+  },
+  {
+    "i": 140,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O cliente Expo usa contratos e estado próprios em apps/mobile. Os endpoints mobile reaproveitam partes do domínio e têm adaptadores de sessão e serialização. O documento gerado do Mundinho precisa ser atualizado quando muda a experiência embarcada; mudar apenas Markdown não exige regenerar arte ou APK.",
+    "pictures": []
+  },
+  {
+    "i": 141,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Manutenção da documentação",
+    "pictures": []
+  },
+  {
+    "i": 142,
+    "kind": "p",
+    "style": "Normal",
+    "text": "1. Atualize explicação e regra identificada.",
+    "pictures": []
+  },
+  {
+    "i": 143,
+    "kind": "p",
+    "style": "Normal",
+    "text": "2. Ajuste o catálogo de casos de uso se o fluxo mudou.",
+    "pictures": []
+  },
+  {
+    "i": 144,
+    "kind": "p",
+    "style": "Normal",
+    "text": "3. Atualize a sequência e os recortes associados.",
+    "pictures": []
+  },
+  {
+    "i": 145,
+    "kind": "p",
+    "style": "Normal",
+    "text": "4. Regenere inventários e diagramas derivados.",
+    "pictures": []
+  },
+  {
+    "i": 146,
+    "kind": "p",
+    "style": "Normal",
+    "text": "5. Confira links e leia uma amostra dos trechos contra a fonte.",
+    "pictures": []
+  },
+  {
+    "i": 147,
+    "kind": "p",
+    "style": "Normal",
+    "text": "6. Registre a data/base e o que foi efetivamente verificado.",
+    "pictures": []
+  },
+  {
+    "i": 148,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Não copie .env.local, connection strings com senha, service keys ou tokens para exemplos. Nomes de variáveis bastam para explicar a operação.",
+    "pictures": []
+  },
+  {
+    "i": 149,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 150,
+    "kind": "p",
+    "style": "Ttulo1",
+    "text": "Matriz de rastreabilidade",
+    "pictures": []
+  },
+  {
+    "i": 151,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Formato baseado no arquivo “exemplo de matriz de rastreabilidade.docx” fornecido pelo grupo. Os exemplos de cinema do arquivo servem apenas para a estrutura das colunas. Os relacionamentos abaixo pertencem à Stacklyst.",
+    "pictures": []
+  },
+  {
+    "i": 152,
+    "kind": "p",
+    "style": "Normal",
+    "text": "IDs preservados: F identifica RF, Q identifica RNF e R identifica RN. Intervalos como F01-F03 significam F01, F02 e F03. A relação significa participação no mesmo fluxo ou critério de qualidade aplicável, sem afirmar que um requisito chama outro. Células “A revisar” indicam lacuna de rastreio, não cobertura comprovada. As relações com Q são critérios de revisão a verificar, não resultados de teste.",
+    "pictures": []
+  },
+  {
+    "i": 153,
+    "kind": "table",
+    "text": "IDDescriçãoTipoRequisitos funcionais relacionadosRequisitos não funcionais relacionadosRegras de neg"
+  },
+  {
+    "i": 154,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 155,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Capacidades, casos e código",
+    "pictures": []
+  },
+  {
+    "i": 156,
+    "kind": "p",
+    "style": "Normal",
+    "text": "A lista complementar permite chegar da capacidade funcional à especificação do caso de uso e ao ponto de implementação. O catálogo de casos contém as pré-condições, o fluxo, as alternativas e as regras completas.",
+    "pictures": []
+  },
+  {
+    "i": 157,
+    "kind": "table",
+    "text": "RFCasos de uso relacionadosFonte de implementação dos casosF01Ponto de entrada, sem caso independent"
+  },
+  {
+    "i": 158,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  }
+]

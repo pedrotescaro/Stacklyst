@@ -1,0 +1,423 @@
+{
+  "conceptual": {
+    "usuario": {
+      "name": "Usuário",
+      "attributes": [
+        "identificador: Texto",
+        "nome: Texto"
+      ],
+      "operations": [
+        "atualizarPerfil()"
+      ],
+      "source": "User"
+    },
+    "trilha": {
+      "name": "Trilha",
+      "attributes": [
+        "código: Texto",
+        "linguagem: Texto"
+      ],
+      "operations": [
+        "consultarPercurso()"
+      ],
+      "source": "src/lib/learning"
+    },
+    "licao": {
+      "name": "Lição",
+      "attributes": [
+        "identificador: Texto",
+        "título: Texto"
+      ],
+      "operations": [
+        "abrirConteúdo()"
+      ],
+      "source": "src/lib/learning/catalog.ts"
+    },
+    "atividade": {
+      "name": "Atividade",
+      "attributes": [
+        "identificador: Texto",
+        "pontos: Inteiro"
+      ],
+      "operations": [
+        "avaliarResposta()"
+      ],
+      "source": "Quiz / Exercise"
+    },
+    "tentativa": {
+      "name": "Tentativa",
+      "attributes": [
+        "acertou: Lógico",
+        "pontosGanhos: Inteiro"
+      ],
+      "operations": [
+        "registrarResultado()"
+      ],
+      "source": "QuizAttempt / ExerciseSubmission"
+    },
+    "credencial": {
+      "name": "Credencial",
+      "attributes": [
+        "identificador: Texto",
+        "situação: Texto"
+      ],
+      "operations": [
+        "verificarValidade()"
+      ],
+      "source": "LearningCredential"
+    },
+    "duelo": {
+      "name": "Duelo",
+      "attributes": [
+        "identificador: Texto",
+        "situação: Texto"
+      ],
+      "operations": [
+        "resolverResultado()"
+      ],
+      "source": "Duel"
+    },
+    "solucao": {
+      "name": "Solução",
+      "attributes": [
+        "código: Texto",
+        "aprovada: Lógico"
+      ],
+      "operations": [
+        "submeter()"
+      ],
+      "source": "DuelSubmission"
+    },
+    "parecer": {
+      "name": "Parecer",
+      "attributes": [
+        "justificativa: Texto",
+        "decisão: Texto"
+      ],
+      "operations": [
+        "registrarDecisão()"
+      ],
+      "source": "DuelEvaluation"
+    },
+    "avaliador": {
+      "name": "Perfil de avaliador",
+      "attributes": [
+        "reputação: Inteiro",
+        "situação: Texto"
+      ],
+      "operations": [
+        "conferirHabilitação()"
+      ],
+      "source": "EvaluatorProfile"
+    },
+    "publicacao": {
+      "name": "Publicação",
+      "attributes": [
+        "identificador: Texto",
+        "conteúdo: Texto"
+      ],
+      "operations": [
+        "publicar()"
+      ],
+      "source": "Post"
+    },
+    "comentario": {
+      "name": "Comentário",
+      "attributes": [
+        "conteúdo: Texto",
+        "data: DataHora"
+      ],
+      "operations": [
+        "responder()"
+      ],
+      "source": "Answer"
+    },
+    "perfil": {
+      "name": "Perfil",
+      "attributes": [
+        "biografia: Texto",
+        "aparência: Dados"
+      ],
+      "operations": [
+        "personalizar()"
+      ],
+      "source": "User / ProfileCustomization"
+    },
+    "empresa": {
+      "name": "Empresa",
+      "attributes": [
+        "identificador: Texto",
+        "nome: Texto"
+      ],
+      "operations": [
+        "conferirResponsável()"
+      ],
+      "source": "Company"
+    },
+    "vaga": {
+      "name": "Vaga",
+      "attributes": [
+        "identificador: Texto",
+        "situação: Texto"
+      ],
+      "operations": [
+        "publicar()"
+      ],
+      "source": "Job"
+    },
+    "etapa": {
+      "name": "Etapa da seleção",
+      "attributes": [
+        "ordem: Inteiro",
+        "título: Texto"
+      ],
+      "operations": [
+        "conferirVínculo()"
+      ],
+      "source": "JobRecruitmentStage"
+    },
+    "candidatura": {
+      "name": "Candidatura",
+      "attributes": [
+        "situação: Texto",
+        "retorno: Texto"
+      ],
+      "operations": [
+        "movimentar()"
+      ],
+      "source": "JobApplication"
+    },
+    "evento": {
+      "name": "Evento",
+      "attributes": [
+        "identificador: Texto",
+        "início: DataHora"
+      ],
+      "operations": [
+        "conferirInscrição()"
+      ],
+      "source": "Event"
+    },
+    "inscricao": {
+      "name": "Inscrição",
+      "attributes": [
+        "pontuação: Inteiro",
+        "posição: Inteiro"
+      ],
+      "operations": [
+        "confirmar()"
+      ],
+      "source": "EventParticipant"
+    },
+    "desafio": {
+      "name": "Desafio de evento",
+      "attributes": [
+        "título: Texto",
+        "ordem: Inteiro"
+      ],
+      "operations": [
+        "validarContrato()"
+      ],
+      "source": "EventChallenge"
+    },
+    "mensagem": {
+      "name": "Mensagem",
+      "attributes": [
+        "conteúdo: Texto",
+        "enviadaEm: DataHora"
+      ],
+      "operations": [
+        "enviar()"
+      ],
+      "source": "Message"
+    },
+    "notificacao": {
+      "name": "Notificação",
+      "attributes": [
+        "tipo: Texto",
+        "lida: Lógico"
+      ],
+      "operations": [
+        "marcarComoLida()"
+      ],
+      "source": "Notification"
+    },
+    "preferencia": {
+      "name": "Preferência",
+      "attributes": [
+        "chave: Texto",
+        "valor: Dados"
+      ],
+      "operations": [
+        "alterar()"
+      ],
+      "source": "User metadata / MobileState"
+    }
+  },
+  "tables": {
+    "User": "Usuário",
+    "LanguageTrail": "Progresso da linguagem",
+    "Quiz": "Atividade",
+    "QuizAttempt": "Tentativa",
+    "LearningCredential": "Credencial",
+    "Post": "Publicação",
+    "Answer": "Comentário",
+    "Message": "Mensagem",
+    "Notification": "Notificação",
+    "Company": "Empresa",
+    "Job": "Vaga",
+    "JobRecruitmentStage": "Etapa da seleção",
+    "JobApplication": "Candidatura",
+    "Duel": "Duelo",
+    "DuelSubmission": "Solução enviada",
+    "DuelEvaluation": "Parecer",
+    "EvaluatorProfile": "Perfil de avaliador",
+    "Event": "Evento",
+    "EventParticipant": "Inscrição",
+    "EventChallenge": "Desafio de evento",
+    "ProfileCustomization": "Personalização",
+    "UserProfileAchievement": "Título conquistado",
+    "ProfileAchievementCatalog": "Título disponível"
+  },
+  "sequenceParticipants": {
+    "SQ01": {
+      "Estudante": "Aluno",
+      "Interface da lição": "Interface da licao",
+      "Rota de tentativa": "Rota de tentativa",
+      "Avaliador da atividade": "assessLessonStep",
+      "Serviço de progresso": "saveLessonAssessment",
+      "Banco de dados": "PostgreSQL"
+    },
+    "SQ02": {
+      "Estudante": "Aluno",
+      "Rota do exercício": "API de exercicio",
+      "Repositório": "Repositorio",
+      "Avaliador de casos": "Avaliador de casos",
+      "Executor": "Executor",
+      "Banco de dados": "PostgreSQL"
+    },
+    "SQ03": {
+      "Titular": "Titular",
+      "Fluxo de credenciais": "Fluxo de credenciais",
+      "Repositório de credenciais": "Repositorio de credenciais",
+      "Banco de dados": "PostgreSQL",
+      "Usuário": "Usuário"
+    },
+    "SQ04": {
+      "Autor": "Autor",
+      "Editor": "Editor",
+      "Rota de publicações": "API de posts",
+      "Serviço de publicações": "PostService",
+      "Banco de dados": "PostgreSQL"
+    },
+    "SQ05": {
+      "Remetente": "Remetente",
+      "Rota de mensagens": "API de mensagens",
+      "Controle de bloqueios": "BlockService",
+      "Banco de dados": "PostgreSQL",
+      "Serviço de notificações": "NotificationService"
+    },
+    "SQ06": {
+      "Jogador": "Jogador",
+      "Interface do mundo": "World e AdventureHub",
+      "Rota do mundo": "API mundinho",
+      "Serviço do mundo": "adventure",
+      "Banco de dados": "PostgreSQL"
+    },
+    "SQ07": {
+      "Anfitrião": "Anfitriao",
+      "Rota da arena": "API mundinho arena",
+      "Banco de dados": "PostgreSQL",
+      "Amigo": "Amigo"
+    },
+    "SQ08": {
+      "Jogador": "Jogador",
+      "Interface da arena": "MultiplayerArena",
+      "Serviço da arena": "arena",
+      "Regras puras": "Regras puras",
+      "Executor": "Executor",
+      "Banco de dados": "PostgreSQL"
+    },
+    "SQ09": {
+      "Participante": "Participante",
+      "Rota de solução": "Rota de solucao",
+      "Juiz e executor": "Juiz e executor",
+      "Política de resolucao": "Politica de resolucao",
+      "Persistência da decisão": "Persistencia da decisao",
+      "Banco de dados": "PostgreSQL"
+    },
+    "SQ10": {
+      "Avaliador": "Avaliador",
+      "Adaptador de avaliação": "Adaptador de avaliacao",
+      "Serviço de avaliadores": "EvaluatorService",
+      "Banco de dados": "PostgreSQL"
+    },
+    "SQ11": {
+      "Candidato": "Candidato",
+      "Rotas de vagas": "APIs de vagas",
+      "Serviço de vagas": "JobService",
+      "Banco de dados": "PostgreSQL",
+      "Gestor": "Gestor",
+      "conferir acesso à empresa": "requireCompanyAccess"
+    },
+    "SQ12": {
+      "Usuário": "Usuario",
+      "Rota de inscrição": "API de participacao",
+      "Serviço de eventos": "EventService",
+      "Banco de dados": "PostgreSQL"
+    },
+    "SQ01-A": {
+      "Interface": "UI",
+      "Rota da aplicação": "API",
+      "Controle de acesso": "Acesso",
+      "Avaliador da atividade": "Avaliador"
+    },
+    "SQ01-B": {
+      "Rota da aplicação": "API",
+      "Interface": "UI",
+      "Serviço de progresso": "Progresso"
+    },
+    "SQ01-C": {
+      "Serviço de progresso": "Progresso",
+      "Banco de dados": "DB"
+    },
+    "SQ11-A": {
+      "Interface": "UI",
+      "Rota da aplicação": "API",
+      "Controle de acesso": "Acesso",
+      "Serviço de vagas": "JobService"
+    },
+    "SQ11-B": {
+      "Serviço de vagas": "JobService",
+      "Banco de dados": "DB"
+    },
+    "SQ11-C": {
+      "Interface": "UI",
+      "Rota da aplicação": "API"
+    },
+    "SQ11-D": {
+      "Rota da aplicação": "API",
+      "Serviço de vagas": "JobService",
+      "Banco de dados": "DB"
+    },
+    "SQ11-E": {
+      "Rota da aplicação": "API",
+      "Controle de acesso": "Acesso",
+      "Banco de dados": "DB",
+      "Serviço de vagas": "JobService"
+    },
+    "SQ11-F": {
+      "Serviço de vagas": "JobService",
+      "Banco de dados": "DB",
+      "Serviço de notificações": "Notificacoes",
+      "Rota da aplicação": "API"
+    },
+    "SQ13": {
+      "Recrutador": "Recrutador",
+      "Painel do recrutador": "RecruiterContent",
+      "Rota de publicação de vaga": "POST /api/jobs",
+      "Controle de autorização": "requireRole / requireCompanyAccess",
+      "Banco de dados": "PostgreSQL"
+    }
+  }
+}

@@ -2,18 +2,10 @@
 
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  BookOpen,
-  Check,
-  Clock3,
-  Gauge,
-  Lock,
-  Play,
-  Sparkles,
-  X,
-} from 'lucide-react';
+import { BookOpen, Check, Clock3, Gauge, Lock, Play, Sparkles, X } from 'lucide-react';
 import type { PlacedNode } from '@/app/trails/TrailMap';
 import { cn } from '@/lib/cn';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 export interface TrailMapLessonPopoverProps {
   placement: PlacedNode;
@@ -26,6 +18,7 @@ export function TrailMapLessonPopover({
   onClose,
   onStartLesson,
 }: TrailMapLessonPopoverProps) {
+  const { text } = useLocalizedText();
   const router = useRouter();
   const popoverRef = useRef<HTMLDivElement>(null);
   const { node, path, accent, stageLabel, point } = placement;
@@ -37,7 +30,8 @@ export function TrailMapLessonPopover({
   const isLocked = node.status === 'NOT_STARTED' || missingRequired.length > 0;
   const firstExercise = node.exercises[0];
   const totalXp = node.xpReward || (firstExercise ? firstExercise.baseXp : 50);
-  const estimatedMinutes = node.estimatedMinutes || (firstExercise ? firstExercise.estimatedMinutes : 15);
+  const estimatedMinutes =
+    node.estimatedMinutes || (firstExercise ? firstExercise.estimatedMinutes : 15);
   const difficulty = node.difficulty || (firstExercise ? firstExercise.difficulty : 1);
 
   const showBelow = point.y < 230;
@@ -56,12 +50,12 @@ export function TrailMapLessonPopover({
         : 'right-6';
 
   const actionLabel = completed
-    ? 'Revisar'
+    ? text('Revisar', 'Review')
     : isLocked
-      ? 'Bloqueado'
+      ? text('Bloqueado', 'Locked')
       : node.status === 'IN_PROGRESS'
-        ? 'Continuar'
-        : 'Começar lição';
+        ? text('Continuar', 'Continue')
+        : text('Começar lição', 'Start lesson');
 
   const handleStart = () => {
     if (isLocked) return;
@@ -121,7 +115,7 @@ export function TrailMapLessonPopover({
           e.stopPropagation();
           onClose();
         }}
-        aria-label="Fechar resumo da lição"
+        aria-label={text('Fechar resumo da lição', 'Close lesson summary')}
         className="dd-focus-ring absolute right-2 top-2 cursor-pointer rounded-md p-0.5 text-white/80 transition hover:bg-black/15 hover:text-white"
       >
         <X className="h-3.5 w-3.5" />
@@ -149,13 +143,11 @@ export function TrailMapLessonPopover({
       {/* Stats Line */}
       <div className="mt-1.5 flex items-center gap-2 text-[9.5px] font-black uppercase tracking-wide text-white/90">
         <span className="flex items-center gap-0.5">
-          <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />
-          +{totalXp} XP
+          <Sparkles className="h-2.5 w-2.5" aria-hidden="true" />+{totalXp} XP
         </span>
         {estimatedMinutes && (
           <span className="flex items-center gap-0.5">
-            <Clock3 className="h-2.5 w-2.5" aria-hidden="true" />
-            ~{estimatedMinutes}m
+            <Clock3 className="h-2.5 w-2.5" aria-hidden="true" />~{estimatedMinutes}m
           </span>
         )}
       </div>

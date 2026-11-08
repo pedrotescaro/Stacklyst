@@ -140,6 +140,20 @@ Símbolos localizados: `walk`, `responsibility`, `symbols`.
 
 Integrações/imports externos: `node:fs/promises`, `node:path`.
 
+## scripts/build-system-handbook.mjs
+
+Fonte: [scripts/build-system-handbook.mjs](../../../scripts/build-system-handbook.mjs)
+
+Ferramenta executável de desenvolvimento/geração/verificação; leia efeitos e entradas antes de rodar.
+
+Símbolos localizados: `visit`, `walk`.
+
+Integrações/imports externos: `node:fs/promises`, `node:path`, `node:crypto`, `node:child_process`, `typescript`.
+
+Comentários de contrato presentes na fonte:
+
+> Builds documentation only. Never connects to a database or executes application actions.
+
 ## scripts/build-web-icons.mjs
 
 Fonte: [scripts/build-web-icons.mjs](../../../scripts/build-web-icons.mjs)
@@ -179,6 +193,20 @@ Ferramenta executável de desenvolvimento/geração/verificação; leia efeitos 
 Símbolos localizados: `scan`.
 
 Integrações/imports externos: `node:fs/promises`, `node:path`.
+
+## scripts/check-system-handbook.mjs
+
+Fonte: [scripts/check-system-handbook.mjs](../../../scripts/check-system-handbook.mjs)
+
+Ferramenta executável de desenvolvimento/geração/verificação; leia efeitos e entradas antes de rodar.
+
+Símbolos localizados: sem declaração nomeada reconhecida; ler a composição do arquivo.
+
+Integrações/imports externos: `node:fs/promises`, `node:path`, `node:assert/strict`, `node:crypto`.
+
+Comentários de contrato presentes na fonte:
+
+> Checks documentation consistency without executing product flows.
 
 ## scripts/generate-mundinho-atlas.mjs
 
@@ -255,6 +283,16 @@ Ferramenta executável de desenvolvimento/geração/verificação; leia efeitos 
 Símbolos localizados: `canvas`, `exportAnimation`, `draw`, `sceneryObject`, `stamp`, `tree`.
 
 Integrações/imports externos: `node:fs/promises`, `node:child_process`, `node:zlib`, `sharp`, `typescript`.
+
+## scripts/render-system-handbook.mjs
+
+Fonte: [scripts/render-system-handbook.mjs](../../../scripts/render-system-handbook.mjs)
+
+Ferramenta executável de desenvolvimento/geração/verificação; leia efeitos e entradas antes de rodar.
+
+Símbolos localizados: sem declaração nomeada reconhecida; ler a composição do arquivo.
+
+Integrações/imports externos: `node:fs/promises`, `node:crypto`, `node:path`, `puppeteer`.
 
 ## scripts/update-demo-profile-assets.mjs
 

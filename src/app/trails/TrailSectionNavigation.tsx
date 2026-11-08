@@ -224,7 +224,10 @@ export function TrailSectionNavigation({
                 <div className="relative flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                   <div className="min-w-0">
                     <p className="text-[10px] font-black uppercase tracking-[0.1em] text-blue-400">
-                      {section.name} · {section.levels.length} unidades
+                      {section.name} · {section.levels.length}{' '}
+                      {section.levels.length === 1
+                        ? text('unidade', 'unit')
+                        : text('unidades', 'units')}
                     </p>
                     <h2 className="mt-2 text-xl font-black text-dd-text">
                       {text('Seção', 'Section')} {section.number} · {section.title}

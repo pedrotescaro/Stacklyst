@@ -1,0 +1,59 @@
+erDiagram
+  User {
+    String id PK
+    String username
+    String email
+    String avatar_url
+    Json avatar_config
+    String bio
+    String institution
+    String github_username
+    String discord_username
+  }
+  Company {
+    String id PK
+    String owner_id FK
+    String name
+    String slug
+    String description
+    String logo_url
+    String website
+    String location
+    Boolean is_verified
+  }
+  Event {
+    String id PK
+    String creator_id FK
+    String company_id FK
+    String title
+    String slug
+    String description
+    EventType type
+    EventStatus status
+    String banner_url
+  }
+  EventChallenge {
+    String id PK
+    String event_id FK
+    Int position
+    String title
+    String statement
+    Language language
+    String expected_answer
+    Json examples
+    DateTime created_at
+  }
+  EventParticipant {
+    String id PK
+    String event_id FK
+    String user_id FK
+    Int score
+    Int rank
+    DateTime joined_at
+  }
+  User ||--o{ Company : "owner_id"
+  User ||--o{ Event : "creator_id"
+  Company o|--o{ Event : "company_id"
+  Event ||--o{ EventChallenge : "event_id"
+  Event ||--o{ EventParticipant : "event_id"
+  User ||--o{ EventParticipant : "user_id"

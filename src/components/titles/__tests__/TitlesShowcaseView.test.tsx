@@ -1,5 +1,6 @@
 import { render, screen, fireEvent, waitFor, within } from '@testing-library/react';
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { LanguageProvider } from '@/contexts/LanguageContext';
 import { TitlesShowcaseView } from '../TitlesShowcaseView';
 import type { ProfileCustomizationState } from '@/lib/profile-customization';
 
@@ -281,5 +282,25 @@ describe('TitlesShowcaseView', () => {
 
     expect(screen.getByText('Espírito de Halloween')).toBeInTheDocument();
     expect(screen.queryByText('Voz Ativa')).not.toBeInTheDocument();
+  });
+
+  it('renders localized terms and title names when in English', () => {
+    localStorage.setItem('site-language', 'en');
+    render(
+      <LanguageProvider>
+        <TitlesShowcaseView initialData={mockInitialData} user={mockUser} />
+      </LanguageProvider>
+    );
+
+    expect(screen.getByRole('heading', { level: 1, name: 'Titles' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'All titles' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'You own' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'You do not own' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Event titles' })).toBeInTheDocument();
+    expect(
+      screen.getAllByRole('heading', { level: 2, name: 'How to obtain' }).length
+    ).toBeGreaterThan(0);
+    expect(screen.getByRole('article', { name: 'Title Beginner' })).toBeInTheDocument();
+    expect(screen.getByRole('article', { name: 'Title Active Voice' })).toBeInTheDocument();
   });
 });

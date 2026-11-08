@@ -1,0 +1,27 @@
+﻿Caso de uso;Cenários de implementação;Regras relacionadas
+UC001 Cadastrar Conta;C01;R01, R02
+UC002 Fazer Login;C02, C03;R01, R02, R03
+UC003 Gerenciar Perfil;C22, C28, C54;R01, R02, R03, R28, R93
+UC004 Consultar Trilhas de Estudo;C04, C05;R08, R09, R10
+UC005 Realizar Lição;C06;R11, R12, R20
+UC006 Resolver exercício;C07, C08, C09, C10, C11, C50;R12, R13, R14, R15, R16, R17, R18, R19, R25, R89
+UC007 Emitir Classificação e Desempenho;C14, C15, C16, C25;R22, R23, R24, R25, R26, R27, R28
+UC008 Realizar Duelo;C36, C38;R61, R62, R64, R65, R66, R67, R68, R69, R70, R71
+UC010 Enviar Solução de Duelo;C37;R63, R64
+UC012 Consultar Ajuda de Exercício;C12;R18, R19
+UC013 Gerenciar Publicações;C17, C18;R02, R07, R29, R30
+UC014 Registrar Interação;C19, C20, C21, C52;R07, R29, R31, R32, R33, R34, R91
+UC015 Gerenciar Eventos;C44, C45, C46;R81, R82, R83, R84, R85, R86, R87
+UC016 Avaliar Duelo;C40;R73, R74, R75
+UC017 Gerenciar Empresas;C41;R04, R79
+UC018 Gerenciar Vagas;C41;R04, R79
+UC019 Gerenciar Usuários;C47;R02, R03
+UC021 Notificar Usuário;C26;R35, R38
+UC022 Registrar Candidatura;C42;R76, R77, R78
+UC023 Criar evento;C44;R83, R84, R87
+UC024 Apresentar Pedido de Credenciamento;C39;R03, R72, R75
+UC025 Gerenciar Candidaturas;C43;R04, R79, R80
+UC026 Avaliar Resposta;C07, C08, C09, C10, C11;R12, R13, R14, R15, R16, R17, R18, R19, R25
+UC027 Executar Código e Testes;C08, C10, C37;R12, R13, R16, R17, R63, R64
+UC028 Gerenciar Denúncias;C47, C53;R02, R03, R92
+UC029 Fazer Denúncia;C53;R02, R92

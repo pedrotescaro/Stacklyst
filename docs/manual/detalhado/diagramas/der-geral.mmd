@@ -1,0 +1,352 @@
+erDiagram
+  User {
+    String id PK
+  }
+  UserBlock {
+    String blockerId PK
+    String blockedId PK
+  }
+  RpgPlayer {
+    String userId PK
+  }
+  RpgTransaction {
+    String id PK
+    String userId FK
+  }
+  RpgBattle {
+    String id PK
+    String userId FK
+  }
+  RpgArenaRoom {
+    String id PK
+    String hostId FK
+    String guestId FK
+    String inviteeId FK
+  }
+  ProfileCustomization {
+    String userId PK
+  }
+  ProfileAchievementCatalog {
+    String id PK
+  }
+  UserProfileAchievement {
+    String userId PK
+    String achievementId PK
+  }
+  LearningCredential {
+    String id PK
+    String userId FK
+  }
+  EvaluatorApplication {
+    String id PK
+    String user_id FK
+  }
+  EvaluatorProfile {
+    String id PK
+    String user_id FK
+  }
+  Company {
+    String id PK
+    String owner_id FK
+  }
+  Job {
+    String id PK
+    String company_id FK
+  }
+  JobRecruitmentStage {
+    String id PK
+    String job_id FK
+  }
+  JobApplication {
+    String id PK
+    String job_id FK
+    String user_id FK
+    String stage_id FK
+  }
+  LanguageTrail {
+    String id PK
+    String user_id FK
+  }
+  KnowledgeNode {
+    String id PK
+  }
+  KnowledgeEdge {
+    String id PK
+    String source_node_id FK
+    String target_node_id FK
+  }
+  LearningPath {
+    String id PK
+  }
+  LearningPathNode {
+    String id PK
+    String learning_path_id FK
+    String knowledge_node_id FK
+  }
+  Exercise {
+    String id PK
+    String knowledge_node_id FK
+  }
+  ExerciseTestCase {
+    String id PK
+    String exercise_id FK
+  }
+  UserNodeProgress {
+    String id PK
+    String user_id FK
+    String knowledge_node_id FK
+  }
+  ExerciseRun {
+    String id PK
+    String exercise_id FK
+    String user_id FK
+  }
+  ExerciseSubmission {
+    String id PK
+    String exercise_id FK
+    String user_id FK
+  }
+  LearningEvent {
+    String id PK
+    String user_id FK
+    String exercise_id FK
+  }
+  Post {
+    String id PK
+    String author_id FK
+  }
+  PostMedia {
+    String id PK
+    String owner_id FK
+    String post_id FK
+  }
+  PostPoll {
+    String id PK
+    String post_id FK
+  }
+  PostPollOption {
+    String id PK
+    String poll_id FK
+  }
+  PostPollVote {
+    String id PK
+    String poll_id FK
+    String option_id FK
+    String user_id FK
+  }
+  Answer {
+    String id PK
+    String post_id FK
+    String author_id FK
+    String parent_id FK
+  }
+  Quiz {
+    String id PK
+    String post_id FK
+  }
+  QuizAttempt {
+    String id PK
+    String user_id FK
+    String quiz_id FK
+  }
+  DuelRequest {
+    String id PK
+    String sender_id FK
+    String receiver_id FK
+    String published_duel_id FK
+  }
+  Duel {
+    String id PK
+    String challenger_id FK
+    String opponent_id FK
+    String winner_id FK
+  }
+  DuelSolution {
+    String id PK
+    String duel_id FK
+    String user_id FK
+  }
+  DuelSubmission {
+    String id PK
+    String duel_id FK
+    String user_id FK
+  }
+  DuelVote {
+    String id PK
+    String duel_id FK
+    String user_id FK
+  }
+  DuelEvaluation {
+    String id PK
+    String duel_id FK
+    String evaluator_id FK
+  }
+  Event {
+    String id PK
+    String creator_id FK
+    String company_id FK
+  }
+  EventChallenge {
+    String id PK
+    String event_id FK
+  }
+  EventParticipant {
+    String id PK
+    String event_id FK
+    String user_id FK
+  }
+  Badge {
+    String id PK
+  }
+  UserBadge {
+    String id PK
+    String user_id FK
+    String badge_id FK
+  }
+  PostVote {
+    String id PK
+    String post_id FK
+    String user_id FK
+  }
+  AnswerVote {
+    String id PK
+    String answer_id FK
+    String user_id FK
+  }
+  Message {
+    String id PK
+    String sender_id FK
+    String receiver_id FK
+  }
+  MobileState {
+    String user_id PK
+    String key PK
+  }
+  MobileDevice {
+    String token PK
+    String user_id FK
+  }
+  MessageReaction {
+    String id PK
+    String message_id FK
+    String user_id FK
+  }
+  Bookmark {
+    String id PK
+    String user_id FK
+    String post_id FK
+  }
+  Notification {
+    String id PK
+    String userId FK
+    String actorId FK
+  }
+  Report {
+    String id PK
+    String user_id FK
+    String post_id FK
+  }
+  SecurityAuditEvent {
+    String id PK
+  }
+  Follow {
+    String followerId PK
+    String followingId PK
+  }
+  Reaction {
+    String id PK
+    String post_id FK
+    String user_id FK
+  }
+  QuizLibrary {
+    String id PK
+  }
+  User ||--o{ UserBlock : "blockerId"
+  User ||--o{ UserBlock : "blockedId"
+  User ||--o{ RpgPlayer : "userId"
+  RpgPlayer ||--o{ RpgTransaction : "userId"
+  RpgPlayer ||--o{ RpgBattle : "userId"
+  User ||--o| RpgArenaRoom : "hostId"
+  User o|--o| RpgArenaRoom : "guestId"
+  User o|--o{ RpgArenaRoom : "inviteeId"
+  User ||--o{ ProfileCustomization : "userId"
+  User ||--o{ UserProfileAchievement : "userId"
+  User ||--o{ LearningCredential : "userId"
+  User ||--o{ EvaluatorApplication : "user_id"
+  User ||--o| EvaluatorProfile : "user_id"
+  User ||--o{ Company : "owner_id"
+  Company ||--o{ Job : "company_id"
+  Job ||--o{ JobRecruitmentStage : "job_id"
+  Job ||--o{ JobApplication : "job_id"
+  User ||--o{ JobApplication : "user_id"
+  JobRecruitmentStage o|--o{ JobApplication : "stage_id"
+  User ||--o{ LanguageTrail : "user_id"
+  KnowledgeNode ||--o{ KnowledgeEdge : "source_node_id"
+  KnowledgeNode ||--o{ KnowledgeEdge : "target_node_id"
+  LearningPath ||--o{ LearningPathNode : "learning_path_id"
+  KnowledgeNode ||--o{ LearningPathNode : "knowledge_node_id"
+  KnowledgeNode ||--o{ Exercise : "knowledge_node_id"
+  Exercise ||--o{ ExerciseTestCase : "exercise_id"
+  User ||--o{ UserNodeProgress : "user_id"
+  KnowledgeNode ||--o{ UserNodeProgress : "knowledge_node_id"
+  Exercise ||--o{ ExerciseRun : "exercise_id"
+  User ||--o{ ExerciseRun : "user_id"
+  Exercise ||--o{ ExerciseSubmission : "exercise_id"
+  User ||--o{ ExerciseSubmission : "user_id"
+  User ||--o{ LearningEvent : "user_id"
+  Exercise o|--o{ LearningEvent : "exercise_id"
+  User ||--o{ Post : "author_id"
+  User ||--o{ PostMedia : "owner_id"
+  Post o|--o{ PostMedia : "post_id"
+  Post ||--o| PostPoll : "post_id"
+  PostPoll ||--o{ PostPollOption : "poll_id"
+  PostPoll ||--o{ PostPollVote : "poll_id"
+  PostPollOption ||--o{ PostPollVote : "option_id"
+  User ||--o{ PostPollVote : "user_id"
+  Post ||--o{ Answer : "post_id"
+  User ||--o{ Answer : "author_id"
+  Answer o|--o{ Answer : "parent_id"
+  Post o|--o{ Quiz : "post_id"
+  User ||--o{ QuizAttempt : "user_id"
+  Quiz ||--o{ QuizAttempt : "quiz_id"
+  User ||--o{ DuelRequest : "sender_id"
+  User ||--o{ DuelRequest : "receiver_id"
+  Duel o|--o| DuelRequest : "published_duel_id"
+  User ||--o{ Duel : "challenger_id"
+  User o|--o{ Duel : "opponent_id"
+  User o|--o{ Duel : "winner_id"
+  Duel ||--o{ DuelSolution : "duel_id"
+  User ||--o{ DuelSolution : "user_id"
+  Duel ||--o{ DuelSubmission : "duel_id"
+  User ||--o{ DuelSubmission : "user_id"
+  Duel ||--o{ DuelVote : "duel_id"
+  User ||--o{ DuelVote : "user_id"
+  Duel ||--o{ DuelEvaluation : "duel_id"
+  User o|--o{ DuelEvaluation : "evaluator_id"
+  User ||--o{ Event : "creator_id"
+  Company o|--o{ Event : "company_id"
+  Event ||--o{ EventChallenge : "event_id"
+  Event ||--o{ EventParticipant : "event_id"
+  User ||--o{ EventParticipant : "user_id"
+  User ||--o{ UserBadge : "user_id"
+  Badge ||--o{ UserBadge : "badge_id"
+  Post ||--o{ PostVote : "post_id"
+  User ||--o{ PostVote : "user_id"
+  Answer ||--o{ AnswerVote : "answer_id"
+  User ||--o{ AnswerVote : "user_id"
+  User ||--o{ Message : "sender_id"
+  User ||--o{ Message : "receiver_id"
+  User ||--o{ MobileState : "user_id"
+  User ||--o{ MobileDevice : "user_id"
+  Message ||--o{ MessageReaction : "message_id"
+  User ||--o{ MessageReaction : "user_id"
+  User ||--o{ Bookmark : "user_id"
+  Post ||--o{ Bookmark : "post_id"
+  User ||--o{ Notification : "userId"
+  User o|--o{ Notification : "actorId"
+  User ||--o{ Report : "user_id"
+  Post ||--o{ Report : "post_id"
+  User ||--o{ Follow : "followerId"
+  User ||--o{ Follow : "followingId"
+  Post ||--o{ Reaction : "post_id"
+  User ||--o{ Reaction : "user_id"

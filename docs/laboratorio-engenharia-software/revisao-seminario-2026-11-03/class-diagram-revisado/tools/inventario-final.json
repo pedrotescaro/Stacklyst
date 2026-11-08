@@ -1,0 +1,1190 @@
+{
+  "classes": [
+    {
+      "id": "t9-05753f97928409d6bfa149b16a7462e9",
+      "name": "string",
+      "attributes": [],
+      "operations": []
+    },
+    {
+      "id": "wl-05753f97928409d6bfa149b16a7462e9",
+      "name": "int",
+      "attributes": [],
+      "operations": []
+    },
+    {
+      "id": "wn-05753f97928409d6bfa149b16a7462e9",
+      "name": "boolean",
+      "attributes": [],
+      "operations": []
+    },
+    {
+      "id": "v8-05753f97928409d6bfa149b16a7462e9",
+      "name": "DateTime",
+      "attributes": [],
+      "operations": []
+    },
+    {
+      "id": "ys-05753f97928409d6bfa149b16a7462e9",
+      "name": "Usuário",
+      "attributes": [
+        {
+          "id": "q3-05753f97928409d6bfa149b16a7462e9",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "id": "qu-05753f97928409d6bfa149b16a7462e9",
+          "name": "nomeUsuario",
+          "type": "string"
+        },
+        {
+          "id": "yn-05753f97928409d6bfa149b16a7462e9",
+          "name": "criadoEm",
+          "type": "DateTime"
+        },
+        {
+          "id": "wy-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Empresa"
+        },
+        {
+          "id": "x0-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Candidatura"
+        },
+        {
+          "id": "10m-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Publicação"
+        },
+        {
+          "id": "10d-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Tentativa"
+        },
+        {
+          "id": "x1-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Duelo"
+        },
+        {
+          "id": "nu-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Inscrição"
+        },
+        {
+          "id": "xe-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Mensagem"
+        }
+      ],
+      "operations": [
+        {
+          "id": "6j-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "cadastrar",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "6u-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "autenticar",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "75-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "atualizarPerfil",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "7g-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "calcularPontos",
+          "type": "int",
+          "parameters": []
+        },
+        {
+          "id": "7r-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "consultarTrilhas",
+          "type": "List<string>",
+          "parameters": []
+        }
+      ]
+    },
+    {
+      "id": "10r-05753f97928409d6bfa149b16a7462e9",
+      "name": "Empresa",
+      "attributes": [
+        {
+          "id": "10b-05753f97928409d6bfa149b16a7462e9",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "id": "q4-05753f97928409d6bfa149b16a7462e9",
+          "name": "responsavelId",
+          "type": "string"
+        },
+        {
+          "id": "103-05753f97928409d6bfa149b16a7462e9",
+          "name": "nome",
+          "type": "string"
+        },
+        {
+          "id": "cu-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "criadoEm",
+          "type": "DateTime"
+        },
+        {
+          "id": "ym-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Usuário"
+        },
+        {
+          "id": "10p-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Vaga"
+        }
+      ],
+      "operations": [
+        {
+          "id": "cy-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "cadastrarEmpresa",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "dc-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "alterarEmpresa",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "dq-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "associarResponsavel",
+          "type": "boolean",
+          "parameters": [
+            {
+              "name": "usuarioId",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "id": "ed-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "buscarPorId",
+          "type": "Empresa",
+          "parameters": [
+            {
+              "name": "id",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ns-05753f97928409d6bfa149b16a7462e9",
+      "name": "Vaga",
+      "attributes": [
+        {
+          "id": "rw-05753f97928409d6bfa149b16a7462e9",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "id": "wc-05753f97928409d6bfa149b16a7462e9",
+          "name": "empresaId",
+          "type": "string"
+        },
+        {
+          "id": "q7-05753f97928409d6bfa149b16a7462e9",
+          "name": "titulo",
+          "type": "string"
+        },
+        {
+          "id": "nx-05753f97928409d6bfa149b16a7462e9",
+          "name": "nivel",
+          "type": "string"
+        },
+        {
+          "id": "qe-05753f97928409d6bfa149b16a7462e9",
+          "name": "situacao",
+          "type": "string"
+        },
+        {
+          "id": "yq-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Empresa"
+        },
+        {
+          "id": "qn-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Candidatura"
+        }
+      ],
+      "operations": [
+        {
+          "id": "f0-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "cadastrarVaga",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "fe-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "alterarVaga",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "fs-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "publicarVaga",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "g6-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "encerrarVaga",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "gk-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "buscarVagas",
+          "type": "List<Vaga>",
+          "parameters": [
+            {
+              "name": "filtro",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "s1-05753f97928409d6bfa149b16a7462e9",
+      "name": "Candidatura",
+      "attributes": [
+        {
+          "id": "qr-05753f97928409d6bfa149b16a7462e9",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "id": "109-05753f97928409d6bfa149b16a7462e9",
+          "name": "vagaId",
+          "type": "string"
+        },
+        {
+          "id": "yz-05753f97928409d6bfa149b16a7462e9",
+          "name": "usuarioId",
+          "type": "string"
+        },
+        {
+          "id": "vf-05753f97928409d6bfa149b16a7462e9",
+          "name": "etapaId",
+          "type": "string"
+        },
+        {
+          "id": "t4-05753f97928409d6bfa149b16a7462e9",
+          "name": "situacao",
+          "type": "string"
+        },
+        {
+          "id": "xi-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Vaga"
+        },
+        {
+          "id": "102-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Usuário"
+        }
+      ],
+      "operations": [
+        {
+          "id": "8b-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "submeterCandidatura",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "8n-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "atualizarEtapa",
+          "type": "boolean",
+          "parameters": [
+            {
+              "name": "etapa",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "id": "96-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "cancelarCandidatura",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "9i-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "consultarPorUsuario",
+          "type": "List<Candidatura>",
+          "parameters": [
+            {
+              "name": "usuarioId",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "yx-05753f97928409d6bfa149b16a7462e9",
+      "name": "Publicação",
+      "attributes": [
+        {
+          "id": "u8-05753f97928409d6bfa149b16a7462e9",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "id": "wp-05753f97928409d6bfa149b16a7462e9",
+          "name": "autorId",
+          "type": "string"
+        },
+        {
+          "id": "qq-05753f97928409d6bfa149b16a7462e9",
+          "name": "titulo",
+          "type": "string"
+        },
+        {
+          "id": "nr-05753f97928409d6bfa149b16a7462e9",
+          "name": "conteudo",
+          "type": "string"
+        },
+        {
+          "id": "10g-05753f97928409d6bfa149b16a7462e9",
+          "name": "criadoEm",
+          "type": "DateTime"
+        },
+        {
+          "id": "x2-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Usuário"
+        }
+      ],
+      "operations": [
+        {
+          "id": "ab-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "criarPublicacao",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "ao-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "editarPublicacao",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "b1-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "excluirPublicacao",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "be-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "registrarReacao",
+          "type": "void",
+          "parameters": [
+            {
+              "name": "tipo",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "id": "bz-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "buscarPorAutor",
+          "type": "List<Publicação>",
+          "parameters": [
+            {
+              "name": "autorId",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "nk-05753f97928409d6bfa149b16a7462e9",
+      "name": "Tentativa",
+      "attributes": [
+        {
+          "id": "10h-05753f97928409d6bfa149b16a7462e9",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "id": "yr-05753f97928409d6bfa149b16a7462e9",
+          "name": "usuarioId",
+          "type": "string"
+        },
+        {
+          "id": "wi-05753f97928409d6bfa149b16a7462e9",
+          "name": "atividadeId",
+          "type": "string"
+        },
+        {
+          "id": "wd-05753f97928409d6bfa149b16a7462e9",
+          "name": "opcaoSelecionada",
+          "type": "int"
+        },
+        {
+          "id": "x4-05753f97928409d6bfa149b16a7462e9",
+          "name": "acertou",
+          "type": "boolean"
+        },
+        {
+          "id": "x6-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Usuário"
+        }
+      ],
+      "operations": [
+        {
+          "id": "3q-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "registrarTentativa",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "3z-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "avaliarResposta",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "48-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "consultarHistorico",
+          "type": "List<Tentativa>",
+          "parameters": [
+            {
+              "name": "usuarioId",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "10k-05753f97928409d6bfa149b16a7462e9",
+      "name": "Duelo",
+      "attributes": [
+        {
+          "id": "o5-05753f97928409d6bfa149b16a7462e9",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "id": "nv-05753f97928409d6bfa149b16a7462e9",
+          "name": "desafianteId",
+          "type": "string"
+        },
+        {
+          "id": "10e-05753f97928409d6bfa149b16a7462e9",
+          "name": "adversarioId",
+          "type": "string"
+        },
+        {
+          "id": "z0-05753f97928409d6bfa149b16a7462e9",
+          "name": "vencedorId",
+          "type": "string"
+        },
+        {
+          "id": "xf-05753f97928409d6bfa149b16a7462e9",
+          "name": "situacao",
+          "type": "string"
+        },
+        {
+          "id": "wj-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Usuário"
+        }
+      ],
+      "operations": [
+        {
+          "id": "51-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "iniciarDuelo",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "5b-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "registrarResultado",
+          "type": "void",
+          "parameters": [
+            {
+              "name": "vencedorId",
+              "type": "string"
+            }
+          ]
+        },
+        {
+          "id": "5q-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "realizarDesempate",
+          "type": "void",
+          "parameters": []
+        },
+        {
+          "id": "60-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "buscarDuelos",
+          "type": "List<Duelo>",
+          "parameters": []
+        }
+      ]
+    },
+    {
+      "id": "np-05753f97928409d6bfa149b16a7462e9",
+      "name": "Evento",
+      "attributes": [
+        {
+          "id": "nm-05753f97928409d6bfa149b16a7462e9",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "id": "wq-05753f97928409d6bfa149b16a7462e9",
+          "name": "criadorId",
+          "type": "string"
+        },
+        {
+          "id": "zy-05753f97928409d6bfa149b16a7462e9",
+          "name": "empresaId",
+          "type": "string"
+        },
+        {
+          "id": "x7-05753f97928409d6bfa149b16a7462e9",
+          "name": "titulo",
+          "type": "string"
+        },
+        {
+          "id": "s8-05753f97928409d6bfa149b16a7462e9",
+          "name": "situacao",
+          "type": "string"
+        },
+        {
+          "id": "qd-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Inscrição"
+        }
+      ],
+      "operations": [
+        {
+          "id": "19-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "cadastrar",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "1i-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "alterar",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "1r-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "publicar",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "20-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "cancelar",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "29-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "buscarPorId",
+          "type": "Evento",
+          "parameters": [
+            {
+              "name": "id",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "ta-05753f97928409d6bfa149b16a7462e9",
+      "name": "Inscrição",
+      "attributes": [
+        {
+          "id": "rx-05753f97928409d6bfa149b16a7462e9",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "id": "va-05753f97928409d6bfa149b16a7462e9",
+          "name": "eventoId",
+          "type": "string"
+        },
+        {
+          "id": "u7-05753f97928409d6bfa149b16a7462e9",
+          "name": "usuarioId",
+          "type": "string"
+        },
+        {
+          "id": "10s-05753f97928409d6bfa149b16a7462e9",
+          "name": "pontuacao",
+          "type": "int"
+        },
+        {
+          "id": "wo-05753f97928409d6bfa149b16a7462e9",
+          "name": "posicao",
+          "type": "int"
+        },
+        {
+          "id": "ny-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Evento"
+        },
+        {
+          "id": "xm-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Usuário"
+        }
+      ],
+      "operations": [
+        {
+          "id": "2m-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "realizarInscricao",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "2v-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "cancelarInscricao",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "34-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "atualizarPontuacao",
+          "type": "void",
+          "parameters": [
+            {
+              "name": "pontos",
+              "type": "int"
+            }
+          ]
+        },
+        {
+          "id": "3h-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "obterClassificacao",
+          "type": "int",
+          "parameters": []
+        }
+      ]
+    },
+    {
+      "id": "rq-05753f97928409d6bfa149b16a7462e9",
+      "name": "Mensagem",
+      "attributes": [
+        {
+          "id": "nf-05753f97928409d6bfa149b16a7462e9",
+          "name": "id",
+          "type": "string"
+        },
+        {
+          "id": "qf-05753f97928409d6bfa149b16a7462e9",
+          "name": "remetenteId",
+          "type": "string"
+        },
+        {
+          "id": "o4-05753f97928409d6bfa149b16a7462e9",
+          "name": "destinatarioId",
+          "type": "string"
+        },
+        {
+          "id": "rs-05753f97928409d6bfa149b16a7462e9",
+          "name": "conteudo",
+          "type": "string"
+        },
+        {
+          "id": "wz-05753f97928409d6bfa149b16a7462e9",
+          "name": "criadoEm",
+          "type": "DateTime"
+        },
+        {
+          "id": "px-05753f97928409d6bfa149b16a7462e9",
+          "name": "",
+          "type": "Usuário"
+        }
+      ],
+      "operations": [
+        {
+          "id": "hh-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "enviarMensagem",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "hw-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "excluirMensagem",
+          "type": "boolean",
+          "parameters": []
+        },
+        {
+          "id": "ib-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "marcarComoLida",
+          "type": "void",
+          "parameters": []
+        },
+        {
+          "id": "iq-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+          "name": "buscarConversas",
+          "type": "List<Mensagem>",
+          "parameters": [
+            {
+              "name": "remetenteId",
+              "type": "string"
+            },
+            {
+              "name": "destinatarioId",
+              "type": "string"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "4d-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+      "name": "List",
+      "attributes": [],
+      "operations": []
+    },
+    {
+      "id": "4k-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+      "name": "",
+      "attributes": [],
+      "operations": []
+    },
+    {
+      "id": "67-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+      "name": "",
+      "attributes": [],
+      "operations": []
+    },
+    {
+      "id": "7z-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+      "name": "",
+      "attributes": [],
+      "operations": []
+    },
+    {
+      "id": "9r-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+      "name": "",
+      "attributes": [],
+      "operations": []
+    },
+    {
+      "id": "c9-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+      "name": "",
+      "attributes": [],
+      "operations": []
+    },
+    {
+      "id": "gv-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+      "name": "",
+      "attributes": [],
+      "operations": []
+    },
+    {
+      "id": "j2-6d2e6ce75b2cc0fc779266e9f7d9b2fb",
+      "name": "",
+      "attributes": [],
+      "operations": []
+    }
+  ],
+  "diagrams": [
+    {
+      "id": "3-05753f97928409d6bfa149b16a7462e9",
+      "name": "Classes principais do Stacklyst",
+      "presentations": [
+        {
+          "type": "Frame",
+          "label": "pkg  ",
+          "x": 10,
+          "y": 10,
+          "width": 1790,
+          "height": 1290
+        },
+        {
+          "type": "Class",
+          "label": "Usuário",
+          "model": "ys-05753f97928409d6bfa149b16a7462e9",
+          "x": 620,
+          "y": 620,
+          "width": 420,
+          "height": 162.84375
+        },
+        {
+          "type": "Class",
+          "label": "Tentativa",
+          "model": "nk-05753f97928409d6bfa149b16a7462e9",
+          "x": 620,
+          "y": 50,
+          "width": 420,
+          "height": 162.84375
+        },
+        {
+          "type": "Class",
+          "label": "Duelo",
+          "model": "10k-05753f97928409d6bfa149b16a7462e9",
+          "x": 1130,
+          "y": 50,
+          "width": 430,
+          "height": 177.9375
+        },
+        {
+          "type": "Class",
+          "label": "Publicação",
+          "model": "yx-05753f97928409d6bfa149b16a7462e9",
+          "x": 1130,
+          "y": 620,
+          "width": 470,
+          "height": 193.03125
+        },
+        {
+          "type": "Class",
+          "label": "Empresa",
+          "model": "10r-05753f97928409d6bfa149b16a7462e9",
+          "x": 620,
+          "y": 1000,
+          "width": 420,
+          "height": 162.84375
+        },
+        {
+          "type": "Class",
+          "label": "Vaga",
+          "model": "ns-05753f97928409d6bfa149b16a7462e9",
+          "x": 40,
+          "y": 1000,
+          "width": 470,
+          "height": 193.03125
+        },
+        {
+          "type": "Class",
+          "label": "Candidatura",
+          "model": "s1-05753f97928409d6bfa149b16a7462e9",
+          "x": 40,
+          "y": 620,
+          "width": 470,
+          "height": 177.9375
+        },
+        {
+          "type": "Class",
+          "label": "Evento",
+          "model": "np-05753f97928409d6bfa149b16a7462e9",
+          "x": 40,
+          "y": 50,
+          "width": 355,
+          "height": 193.03125
+        },
+        {
+          "type": "Class",
+          "label": "Inscrição",
+          "model": "ta-05753f97928409d6bfa149b16a7462e9",
+          "x": 180,
+          "y": 335,
+          "width": 420,
+          "height": 177.9375
+        },
+        {
+          "type": "Class",
+          "label": "Mensagem",
+          "model": "rq-05753f97928409d6bfa149b16a7462e9",
+          "x": 1130,
+          "y": 1000,
+          "width": 610,
+          "height": 177.9375
+        },
+        {
+          "type": "Association",
+          "label": "responsável",
+          "model": "wx-05753f97928409d6bfa149b16a7462e9",
+          "source": "Usuário",
+          "target": "Empresa",
+          "points": [
+            [
+              830,
+              701.421875
+            ],
+            [
+              830,
+              1081.421875
+            ]
+          ],
+          "ends": [
+            {
+              "name": "Usuário",
+              "multiplicity": "1"
+            },
+            {
+              "name": "Empresa",
+              "multiplicity": "0..*"
+            }
+          ]
+        },
+        {
+          "type": "Association",
+          "label": "empresa",
+          "model": "ng-05753f97928409d6bfa149b16a7462e9",
+          "source": "Empresa",
+          "target": "Vaga",
+          "points": [
+            [
+              830,
+              1081.421875
+            ],
+            [
+              275,
+              1096.515625
+            ]
+          ],
+          "ends": [
+            {
+              "name": "Empresa",
+              "multiplicity": "1"
+            },
+            {
+              "name": "Vaga",
+              "multiplicity": "0..*"
+            }
+          ]
+        },
+        {
+          "type": "Association",
+          "label": "vaga",
+          "model": "o2-05753f97928409d6bfa149b16a7462e9",
+          "source": "Vaga",
+          "target": "Candidatura",
+          "points": [
+            [
+              275,
+              1096.515625
+            ],
+            [
+              275,
+              708.96875
+            ]
+          ],
+          "ends": [
+            {
+              "name": "Vaga",
+              "multiplicity": "1"
+            },
+            {
+              "name": "Candidatura",
+              "multiplicity": "0..*"
+            }
+          ]
+        },
+        {
+          "type": "Association",
+          "label": "usuário",
+          "model": "nl-05753f97928409d6bfa149b16a7462e9",
+          "source": "Usuário",
+          "target": "Candidatura",
+          "points": [
+            [
+              830,
+              701.421875
+            ],
+            [
+              275,
+              708.96875
+            ]
+          ],
+          "ends": [
+            {
+              "name": "Usuário",
+              "multiplicity": "1"
+            },
+            {
+              "name": "Candidatura",
+              "multiplicity": "0..*"
+            }
+          ]
+        },
+        {
+          "type": "Association",
+          "label": "autor",
+          "model": "xl-05753f97928409d6bfa149b16a7462e9",
+          "source": "Usuário",
+          "target": "Publicação",
+          "points": [
+            [
+              830,
+              701.421875
+            ],
+            [
+              1365,
+              716.515625
+            ]
+          ],
+          "ends": [
+            {
+              "name": "Usuário",
+              "multiplicity": "1"
+            },
+            {
+              "name": "Publicação",
+              "multiplicity": "0..*"
+            }
+          ]
+        },
+        {
+          "type": "Association",
+          "label": "usuário",
+          "model": "xk-05753f97928409d6bfa149b16a7462e9",
+          "source": "Usuário",
+          "target": "Tentativa",
+          "points": [
+            [
+              830,
+              701.421875
+            ],
+            [
+              830,
+              131.421875
+            ]
+          ],
+          "ends": [
+            {
+              "name": "Usuário",
+              "multiplicity": "1"
+            },
+            {
+              "name": "Tentativa",
+              "multiplicity": "0..*"
+            }
+          ]
+        },
+        {
+          "type": "Association",
+          "label": "desafiante",
+          "model": "qh-05753f97928409d6bfa149b16a7462e9",
+          "source": "Usuário",
+          "target": "Duelo",
+          "points": [
+            [
+              830,
+              701.421875
+            ],
+            [
+              1345,
+              138.96875
+            ]
+          ],
+          "ends": [
+            {
+              "name": "Usuário",
+              "multiplicity": "1"
+            },
+            {
+              "name": "Duelo",
+              "multiplicity": "0..*"
+            }
+          ]
+        },
+        {
+          "type": "Association",
+          "label": "evento",
+          "model": "q5-05753f97928409d6bfa149b16a7462e9",
+          "source": "Evento",
+          "target": "Inscrição",
+          "points": [
+            [
+              217.5,
+              146.515625
+            ],
+            [
+              390,
+              423.96875
+            ]
+          ],
+          "ends": [
+            {
+              "name": "Evento",
+              "multiplicity": "1"
+            },
+            {
+              "name": "Inscrição",
+              "multiplicity": "0..*"
+            }
+          ]
+        },
+        {
+          "type": "Association",
+          "label": "usuário",
+          "model": "xa-05753f97928409d6bfa149b16a7462e9",
+          "source": "Usuário",
+          "target": "Inscrição",
+          "points": [
+            [
+              830,
+              701.421875
+            ],
+            [
+              390,
+              423.96875
+            ]
+          ],
+          "ends": [
+            {
+              "name": "Usuário",
+              "multiplicity": "1"
+            },
+            {
+              "name": "Inscrição",
+              "multiplicity": "0..*"
+            }
+          ]
+        },
+        {
+          "type": "Association",
+          "label": "remetente",
+          "model": "wm-05753f97928409d6bfa149b16a7462e9",
+          "source": "Usuário",
+          "target": "Mensagem",
+          "points": [
+            [
+              830,
+              701.421875
+            ],
+            [
+              1435,
+              1088.96875
+            ]
+          ],
+          "ends": [
+            {
+              "name": "Usuário",
+              "multiplicity": "1"
+            },
+            {
+              "name": "Mensagem",
+              "multiplicity": "0..*"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "associations": []
+}

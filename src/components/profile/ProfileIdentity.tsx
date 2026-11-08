@@ -1,3 +1,5 @@
+'use client';
+
 import type { CSSProperties, ReactNode } from 'react';
 import { FrameDetails } from './FrameDetails';
 import { getFrameRingBackground } from '@/lib/profile-frames';
@@ -14,7 +16,8 @@ import {
   Sparkles,
   Star,
 } from 'lucide-react';
-import { getProfileFlags } from '@/lib/profile-customization';
+import { getProfileFlags, getLocalizedTitleName } from '@/lib/profile-customization';
+import { useLanguage } from '@/contexts/LanguageContext';
 import {
   contrastRatio,
   foregroundOn,
@@ -390,11 +393,13 @@ export function ProfileTitle({
   showIcon?: boolean;
   className?: string;
 }) {
+  const { isEnglish } = useLanguage();
   if (!title) return null;
   const foreground = foregroundOn(title.color);
   const textColor = contrastRatio(foreground, title.color) >= 4.5 ? foreground : '#000000';
   const hasIcon = showIcon && shouldShowTitleIcon(title);
   const iconElement = hasIcon ? renderTitleIcon(title) : null;
+  const displayName = isEnglish ? getLocalizedTitleName(title, true) : title.name;
 
   return (
     <span
@@ -402,7 +407,7 @@ export function ProfileTitle({
       data-rarity={title.rarity}
       style={{ backgroundColor: title.color, color: textColor }}
     >
-      <span>{title.name}</span>
+      <span>{displayName}</span>
       {iconElement}
     </span>
   );

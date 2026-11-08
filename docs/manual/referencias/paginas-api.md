@@ -650,62 +650,6 @@ Integrações/imports externos: `next/server`, `zod`.
 
 Testes associados pelo nome: [src/app/api/answers/[id]/accept/route.test.ts](../../../src/app/api/answers/[id]/accept/route.test.ts), [src/app/api/auth/accounts/route.test.ts](../../../src/app/api/auth/accounts/route.test.ts), [src/app/api/auth/callback/route.test.ts](../../../src/app/api/auth/callback/route.test.ts), [src/app/api/auth/reset-password/route.test.ts](../../../src/app/api/auth/reset-password/route.test.ts), [src/app/api/avatar/route.test.ts](../../../src/app/api/avatar/route.test.ts), [src/app/api/certificates/[id]/pdf/route.test.ts](../../../src/app/api/certificates/[id]/pdf/route.test.ts), [src/app/api/certificates/route.test.ts](../../../src/app/api/certificates/route.test.ts), [src/app/api/cron/security-audit/route.test.ts](../../../src/app/api/cron/security-audit/route.test.ts), [src/app/api/evaluations/route.test.ts](../../../src/app/api/evaluations/route.test.ts), [src/app/api/jobs/[id]/**tests**/route.test.ts](../../../src/app/api/jobs/[id]/__tests__/route.test.ts), [src/app/api/jobs/[id]/applications/**tests**/route.test.ts](../../../src/app/api/jobs/[id]/applications/__tests__/route.test.ts), [src/app/api/leaderboard/route.test.ts](../../../src/app/api/leaderboard/route.test.ts), [src/app/api/lessons/[lessonId]/attempt/route.test.ts](../../../src/app/api/lessons/[lessonId]/attempt/route.test.ts), [src/app/api/messages/chats/**tests**/route.test.ts](../../../src/app/api/messages/chats/__tests__/route.test.ts), [src/app/api/mobile/auth/bootstrap/route.test.ts](../../../src/app/api/mobile/auth/bootstrap/route.test.ts), [src/app/api/mobile/messages/**tests**/route.test.ts](../../../src/app/api/mobile/messages/__tests__/route.test.ts), [src/app/api/mobile/state/[key]/**tests**/route.test.ts](../../../src/app/api/mobile/state/[key]/__tests__/route.test.ts), [src/app/api/mundinho/route.test.ts](../../../src/app/api/mundinho/route.test.ts), [src/app/api/notifications/route.test.ts](../../../src/app/api/notifications/route.test.ts), [src/app/api/onboarding/route.test.ts](../../../src/app/api/onboarding/route.test.ts), [src/app/api/posts/[id]/bookmark/route.test.ts](../../../src/app/api/posts/[id]/bookmark/route.test.ts), [src/app/api/posts/[id]/poll/route.test.ts](../../../src/app/api/posts/[id]/poll/route.test.ts), [src/app/api/posts/media/[id]/route.test.ts](../../../src/app/api/posts/media/[id]/route.test.ts), [src/app/api/presence/route.test.ts](../../../src/app/api/presence/route.test.ts), [src/app/api/profile/[username]/media/route.test.ts](../../../src/app/api/profile/[username]/media/route.test.ts), [src/app/api/profile/[username]/replies/route.test.ts](../../../src/app/api/profile/[username]/replies/route.test.ts), [src/app/api/profile/customization/route.test.ts](../../../src/app/api/profile/customization/route.test.ts), [src/app/api/profile/music/search/route.test.ts](../../../src/app/api/profile/music/search/route.test.ts), [src/app/api/profile/update/route.test.ts](../../../src/app/api/profile/update/route.test.ts), [src/app/api/quiz/daily/route.test.ts](../../../src/app/api/quiz/daily/route.test.ts), [src/app/api/run/**tests**/route.test.ts](../../../src/app/api/run/__tests__/route.test.ts), [src/app/api/users/suggestions/route.test.ts](../../../src/app/api/users/suggestions/route.test.ts). Outros testes de integração podem cobrir este módulo.
 
-## src/app/api/guilds/[id]/members/route.ts
-
-Fonte: [src/app/api/guilds/[id]/members/route.ts](../../../src/app/api/guilds/[id]/members/route.ts)
-
-Adaptador HTTP: métodos, validação e chamada ao domínio; conferir autorização no corpo.
-
-Símbolos localizados: `POST`, `DELETE`.
-
-Dependências locais declaradas: `@/lib/api-handler`, `@/lib/auth`, `@/lib/prisma`, `@/lib/errors`.
-
-Integrações/imports externos: `next/server`.
-
-Testes associados pelo nome: [src/app/api/answers/[id]/accept/route.test.ts](../../../src/app/api/answers/[id]/accept/route.test.ts), [src/app/api/auth/accounts/route.test.ts](../../../src/app/api/auth/accounts/route.test.ts), [src/app/api/auth/callback/route.test.ts](../../../src/app/api/auth/callback/route.test.ts), [src/app/api/auth/reset-password/route.test.ts](../../../src/app/api/auth/reset-password/route.test.ts), [src/app/api/avatar/route.test.ts](../../../src/app/api/avatar/route.test.ts), [src/app/api/certificates/[id]/pdf/route.test.ts](../../../src/app/api/certificates/[id]/pdf/route.test.ts), [src/app/api/certificates/route.test.ts](../../../src/app/api/certificates/route.test.ts), [src/app/api/cron/security-audit/route.test.ts](../../../src/app/api/cron/security-audit/route.test.ts), [src/app/api/evaluations/route.test.ts](../../../src/app/api/evaluations/route.test.ts), [src/app/api/jobs/[id]/**tests**/route.test.ts](../../../src/app/api/jobs/[id]/__tests__/route.test.ts), [src/app/api/jobs/[id]/applications/**tests**/route.test.ts](../../../src/app/api/jobs/[id]/applications/__tests__/route.test.ts), [src/app/api/leaderboard/route.test.ts](../../../src/app/api/leaderboard/route.test.ts), [src/app/api/lessons/[lessonId]/attempt/route.test.ts](../../../src/app/api/lessons/[lessonId]/attempt/route.test.ts), [src/app/api/messages/chats/**tests**/route.test.ts](../../../src/app/api/messages/chats/__tests__/route.test.ts), [src/app/api/mobile/auth/bootstrap/route.test.ts](../../../src/app/api/mobile/auth/bootstrap/route.test.ts), [src/app/api/mobile/messages/**tests**/route.test.ts](../../../src/app/api/mobile/messages/__tests__/route.test.ts), [src/app/api/mobile/state/[key]/**tests**/route.test.ts](../../../src/app/api/mobile/state/[key]/__tests__/route.test.ts), [src/app/api/mundinho/route.test.ts](../../../src/app/api/mundinho/route.test.ts), [src/app/api/notifications/route.test.ts](../../../src/app/api/notifications/route.test.ts), [src/app/api/onboarding/route.test.ts](../../../src/app/api/onboarding/route.test.ts), [src/app/api/posts/[id]/bookmark/route.test.ts](../../../src/app/api/posts/[id]/bookmark/route.test.ts), [src/app/api/posts/[id]/poll/route.test.ts](../../../src/app/api/posts/[id]/poll/route.test.ts), [src/app/api/posts/media/[id]/route.test.ts](../../../src/app/api/posts/media/[id]/route.test.ts), [src/app/api/presence/route.test.ts](../../../src/app/api/presence/route.test.ts), [src/app/api/profile/[username]/media/route.test.ts](../../../src/app/api/profile/[username]/media/route.test.ts), [src/app/api/profile/[username]/replies/route.test.ts](../../../src/app/api/profile/[username]/replies/route.test.ts), [src/app/api/profile/customization/route.test.ts](../../../src/app/api/profile/customization/route.test.ts), [src/app/api/profile/music/search/route.test.ts](../../../src/app/api/profile/music/search/route.test.ts), [src/app/api/profile/update/route.test.ts](../../../src/app/api/profile/update/route.test.ts), [src/app/api/quiz/daily/route.test.ts](../../../src/app/api/quiz/daily/route.test.ts), [src/app/api/run/**tests**/route.test.ts](../../../src/app/api/run/__tests__/route.test.ts), [src/app/api/users/suggestions/route.test.ts](../../../src/app/api/users/suggestions/route.test.ts). Outros testes de integração podem cobrir este módulo.
-
-## src/app/api/guilds/[id]/route.ts
-
-Fonte: [src/app/api/guilds/[id]/route.ts](../../../src/app/api/guilds/[id]/route.ts)
-
-Adaptador HTTP: métodos, validação e chamada ao domínio; conferir autorização no corpo.
-
-Símbolos localizados: `GET`, `PATCH`, `DELETE`.
-
-Dependências locais declaradas: `@/lib/api-handler`, `@/lib/auth`, `@/lib/prisma`, `@/lib/errors`.
-
-Integrações/imports externos: `next/server`.
-
-Testes associados pelo nome: [src/app/api/answers/[id]/accept/route.test.ts](../../../src/app/api/answers/[id]/accept/route.test.ts), [src/app/api/auth/accounts/route.test.ts](../../../src/app/api/auth/accounts/route.test.ts), [src/app/api/auth/callback/route.test.ts](../../../src/app/api/auth/callback/route.test.ts), [src/app/api/auth/reset-password/route.test.ts](../../../src/app/api/auth/reset-password/route.test.ts), [src/app/api/avatar/route.test.ts](../../../src/app/api/avatar/route.test.ts), [src/app/api/certificates/[id]/pdf/route.test.ts](../../../src/app/api/certificates/[id]/pdf/route.test.ts), [src/app/api/certificates/route.test.ts](../../../src/app/api/certificates/route.test.ts), [src/app/api/cron/security-audit/route.test.ts](../../../src/app/api/cron/security-audit/route.test.ts), [src/app/api/evaluations/route.test.ts](../../../src/app/api/evaluations/route.test.ts), [src/app/api/jobs/[id]/**tests**/route.test.ts](../../../src/app/api/jobs/[id]/__tests__/route.test.ts), [src/app/api/jobs/[id]/applications/**tests**/route.test.ts](../../../src/app/api/jobs/[id]/applications/__tests__/route.test.ts), [src/app/api/leaderboard/route.test.ts](../../../src/app/api/leaderboard/route.test.ts), [src/app/api/lessons/[lessonId]/attempt/route.test.ts](../../../src/app/api/lessons/[lessonId]/attempt/route.test.ts), [src/app/api/messages/chats/**tests**/route.test.ts](../../../src/app/api/messages/chats/__tests__/route.test.ts), [src/app/api/mobile/auth/bootstrap/route.test.ts](../../../src/app/api/mobile/auth/bootstrap/route.test.ts), [src/app/api/mobile/messages/**tests**/route.test.ts](../../../src/app/api/mobile/messages/__tests__/route.test.ts), [src/app/api/mobile/state/[key]/**tests**/route.test.ts](../../../src/app/api/mobile/state/[key]/__tests__/route.test.ts), [src/app/api/mundinho/route.test.ts](../../../src/app/api/mundinho/route.test.ts), [src/app/api/notifications/route.test.ts](../../../src/app/api/notifications/route.test.ts), [src/app/api/onboarding/route.test.ts](../../../src/app/api/onboarding/route.test.ts), [src/app/api/posts/[id]/bookmark/route.test.ts](../../../src/app/api/posts/[id]/bookmark/route.test.ts), [src/app/api/posts/[id]/poll/route.test.ts](../../../src/app/api/posts/[id]/poll/route.test.ts), [src/app/api/posts/media/[id]/route.test.ts](../../../src/app/api/posts/media/[id]/route.test.ts), [src/app/api/presence/route.test.ts](../../../src/app/api/presence/route.test.ts), [src/app/api/profile/[username]/media/route.test.ts](../../../src/app/api/profile/[username]/media/route.test.ts), [src/app/api/profile/[username]/replies/route.test.ts](../../../src/app/api/profile/[username]/replies/route.test.ts), [src/app/api/profile/customization/route.test.ts](../../../src/app/api/profile/customization/route.test.ts), [src/app/api/profile/music/search/route.test.ts](../../../src/app/api/profile/music/search/route.test.ts), [src/app/api/profile/update/route.test.ts](../../../src/app/api/profile/update/route.test.ts), [src/app/api/quiz/daily/route.test.ts](../../../src/app/api/quiz/daily/route.test.ts), [src/app/api/run/**tests**/route.test.ts](../../../src/app/api/run/__tests__/route.test.ts), [src/app/api/users/suggestions/route.test.ts](../../../src/app/api/users/suggestions/route.test.ts). Outros testes de integração podem cobrir este módulo.
-
-## src/app/api/guilds/by-slug/[slug]/route.ts
-
-Fonte: [src/app/api/guilds/by-slug/[slug]/route.ts](../../../src/app/api/guilds/by-slug/[slug]/route.ts)
-
-Adaptador HTTP: métodos, validação e chamada ao domínio; conferir autorização no corpo.
-
-Símbolos localizados: `GET`.
-
-Dependências locais declaradas: `@/lib/api-handler`, `@/lib/auth`, `@/lib/prisma`, `@/lib/errors`.
-
-Integrações/imports externos: `next/server`.
-
-Testes associados pelo nome: [src/app/api/answers/[id]/accept/route.test.ts](../../../src/app/api/answers/[id]/accept/route.test.ts), [src/app/api/auth/accounts/route.test.ts](../../../src/app/api/auth/accounts/route.test.ts), [src/app/api/auth/callback/route.test.ts](../../../src/app/api/auth/callback/route.test.ts), [src/app/api/auth/reset-password/route.test.ts](../../../src/app/api/auth/reset-password/route.test.ts), [src/app/api/avatar/route.test.ts](../../../src/app/api/avatar/route.test.ts), [src/app/api/certificates/[id]/pdf/route.test.ts](../../../src/app/api/certificates/[id]/pdf/route.test.ts), [src/app/api/certificates/route.test.ts](../../../src/app/api/certificates/route.test.ts), [src/app/api/cron/security-audit/route.test.ts](../../../src/app/api/cron/security-audit/route.test.ts), [src/app/api/evaluations/route.test.ts](../../../src/app/api/evaluations/route.test.ts), [src/app/api/jobs/[id]/**tests**/route.test.ts](../../../src/app/api/jobs/[id]/__tests__/route.test.ts), [src/app/api/jobs/[id]/applications/**tests**/route.test.ts](../../../src/app/api/jobs/[id]/applications/__tests__/route.test.ts), [src/app/api/leaderboard/route.test.ts](../../../src/app/api/leaderboard/route.test.ts), [src/app/api/lessons/[lessonId]/attempt/route.test.ts](../../../src/app/api/lessons/[lessonId]/attempt/route.test.ts), [src/app/api/messages/chats/**tests**/route.test.ts](../../../src/app/api/messages/chats/__tests__/route.test.ts), [src/app/api/mobile/auth/bootstrap/route.test.ts](../../../src/app/api/mobile/auth/bootstrap/route.test.ts), [src/app/api/mobile/messages/**tests**/route.test.ts](../../../src/app/api/mobile/messages/__tests__/route.test.ts), [src/app/api/mobile/state/[key]/**tests**/route.test.ts](../../../src/app/api/mobile/state/[key]/__tests__/route.test.ts), [src/app/api/mundinho/route.test.ts](../../../src/app/api/mundinho/route.test.ts), [src/app/api/notifications/route.test.ts](../../../src/app/api/notifications/route.test.ts), [src/app/api/onboarding/route.test.ts](../../../src/app/api/onboarding/route.test.ts), [src/app/api/posts/[id]/bookmark/route.test.ts](../../../src/app/api/posts/[id]/bookmark/route.test.ts), [src/app/api/posts/[id]/poll/route.test.ts](../../../src/app/api/posts/[id]/poll/route.test.ts), [src/app/api/posts/media/[id]/route.test.ts](../../../src/app/api/posts/media/[id]/route.test.ts), [src/app/api/presence/route.test.ts](../../../src/app/api/presence/route.test.ts), [src/app/api/profile/[username]/media/route.test.ts](../../../src/app/api/profile/[username]/media/route.test.ts), [src/app/api/profile/[username]/replies/route.test.ts](../../../src/app/api/profile/[username]/replies/route.test.ts), [src/app/api/profile/customization/route.test.ts](../../../src/app/api/profile/customization/route.test.ts), [src/app/api/profile/music/search/route.test.ts](../../../src/app/api/profile/music/search/route.test.ts), [src/app/api/profile/update/route.test.ts](../../../src/app/api/profile/update/route.test.ts), [src/app/api/quiz/daily/route.test.ts](../../../src/app/api/quiz/daily/route.test.ts), [src/app/api/run/**tests**/route.test.ts](../../../src/app/api/run/__tests__/route.test.ts), [src/app/api/users/suggestions/route.test.ts](../../../src/app/api/users/suggestions/route.test.ts). Outros testes de integração podem cobrir este módulo.
-
-## src/app/api/guilds/route.ts
-
-Fonte: [src/app/api/guilds/route.ts](../../../src/app/api/guilds/route.ts)
-
-Adaptador HTTP: métodos, validação e chamada ao domínio; conferir autorização no corpo.
-
-Símbolos localizados: `GET`, `POST`.
-
-Dependências locais declaradas: `@/lib/api-handler`, `@/lib/auth`, `@/lib/prisma`, `@/lib/errors`.
-
-Integrações/imports externos: `next/server`.
-
-Testes associados pelo nome: [src/app/api/answers/[id]/accept/route.test.ts](../../../src/app/api/answers/[id]/accept/route.test.ts), [src/app/api/auth/accounts/route.test.ts](../../../src/app/api/auth/accounts/route.test.ts), [src/app/api/auth/callback/route.test.ts](../../../src/app/api/auth/callback/route.test.ts), [src/app/api/auth/reset-password/route.test.ts](../../../src/app/api/auth/reset-password/route.test.ts), [src/app/api/avatar/route.test.ts](../../../src/app/api/avatar/route.test.ts), [src/app/api/certificates/[id]/pdf/route.test.ts](../../../src/app/api/certificates/[id]/pdf/route.test.ts), [src/app/api/certificates/route.test.ts](../../../src/app/api/certificates/route.test.ts), [src/app/api/cron/security-audit/route.test.ts](../../../src/app/api/cron/security-audit/route.test.ts), [src/app/api/evaluations/route.test.ts](../../../src/app/api/evaluations/route.test.ts), [src/app/api/jobs/[id]/**tests**/route.test.ts](../../../src/app/api/jobs/[id]/__tests__/route.test.ts), [src/app/api/jobs/[id]/applications/**tests**/route.test.ts](../../../src/app/api/jobs/[id]/applications/__tests__/route.test.ts), [src/app/api/leaderboard/route.test.ts](../../../src/app/api/leaderboard/route.test.ts), [src/app/api/lessons/[lessonId]/attempt/route.test.ts](../../../src/app/api/lessons/[lessonId]/attempt/route.test.ts), [src/app/api/messages/chats/**tests**/route.test.ts](../../../src/app/api/messages/chats/__tests__/route.test.ts), [src/app/api/mobile/auth/bootstrap/route.test.ts](../../../src/app/api/mobile/auth/bootstrap/route.test.ts), [src/app/api/mobile/messages/**tests**/route.test.ts](../../../src/app/api/mobile/messages/__tests__/route.test.ts), [src/app/api/mobile/state/[key]/**tests**/route.test.ts](../../../src/app/api/mobile/state/[key]/__tests__/route.test.ts), [src/app/api/mundinho/route.test.ts](../../../src/app/api/mundinho/route.test.ts), [src/app/api/notifications/route.test.ts](../../../src/app/api/notifications/route.test.ts), [src/app/api/onboarding/route.test.ts](../../../src/app/api/onboarding/route.test.ts), [src/app/api/posts/[id]/bookmark/route.test.ts](../../../src/app/api/posts/[id]/bookmark/route.test.ts), [src/app/api/posts/[id]/poll/route.test.ts](../../../src/app/api/posts/[id]/poll/route.test.ts), [src/app/api/posts/media/[id]/route.test.ts](../../../src/app/api/posts/media/[id]/route.test.ts), [src/app/api/presence/route.test.ts](../../../src/app/api/presence/route.test.ts), [src/app/api/profile/[username]/media/route.test.ts](../../../src/app/api/profile/[username]/media/route.test.ts), [src/app/api/profile/[username]/replies/route.test.ts](../../../src/app/api/profile/[username]/replies/route.test.ts), [src/app/api/profile/customization/route.test.ts](../../../src/app/api/profile/customization/route.test.ts), [src/app/api/profile/music/search/route.test.ts](../../../src/app/api/profile/music/search/route.test.ts), [src/app/api/profile/update/route.test.ts](../../../src/app/api/profile/update/route.test.ts), [src/app/api/quiz/daily/route.test.ts](../../../src/app/api/quiz/daily/route.test.ts), [src/app/api/run/**tests**/route.test.ts](../../../src/app/api/run/__tests__/route.test.ts), [src/app/api/users/suggestions/route.test.ts](../../../src/app/api/users/suggestions/route.test.ts). Outros testes de integração podem cobrir este módulo.
-
 ## src/app/api/health/route.ts
 
 Fonte: [src/app/api/health/route.ts](../../../src/app/api/health/route.ts)
@@ -2053,44 +1997,6 @@ Símbolos localizados: `GuidelinesPage`, `metadata`.
 Dependências locais declaradas: `@/components/community/CommunityPage`.
 
 Integrações/imports externos: `next`.
-
-Testes associados pelo nome: [src/app/certificates/page.test.tsx](../../../src/app/certificates/page.test.tsx), [src/app/feed/page.test.tsx](../../../src/app/feed/page.test.tsx), [src/app/notifications/page.test.tsx](../../../src/app/notifications/page.test.tsx), [src/app/post/[id]/page.test.tsx](../../../src/app/post/[id]/page.test.tsx), [src/app/settings/page.test.tsx](../../../src/app/settings/page.test.tsx). Outros testes de integração podem cobrir este módulo.
-
-## src/app/guilds/GuildsClient.tsx
-
-Fonte: [src/app/guilds/GuildsClient.tsx](../../../src/app/guilds/GuildsClient.tsx)
-
-Módulo de apoio: consulte seus símbolos, comentários e dependências para o papel exato no fluxo.
-
-Símbolos localizados: `getCommunityTheme`, `CommunityLogo`, `CommunityCard`, `CommunityGridSkeleton`, `GuildsClient`.
-
-Dependências locais declaradas: `@/components/Sidebar`, `@/components/LanguageTag`, `@/components/AuthorAvatar`, `@/lib/cn`, `@/lib/client/current-user`.
-
-Integrações/imports externos: `react`, `next/link`, `next/navigation`, `@prisma/client`, `lucide-react`.
-
-## src/app/guilds/[slug]/page.tsx
-
-Fonte: [src/app/guilds/[slug]/page.tsx](../../../src/app/guilds/[slug]/page.tsx)
-
-Entrada de página do App Router; carrega ou compõe a experiência desta rota.
-
-Símbolos localizados: `CommunityDetailSkeleton`, `GuildDetailPage`.
-
-Dependências locais declaradas: `@/components/Sidebar`, `@/components/LanguageTag`, `@/components/AuthorAvatar`, `@/lib/cn`, `@/lib/client/current-user`.
-
-Integrações/imports externos: `react`, `next/navigation`, `next/link`, `@prisma/client`, `lucide-react`.
-
-Testes associados pelo nome: [src/app/certificates/page.test.tsx](../../../src/app/certificates/page.test.tsx), [src/app/feed/page.test.tsx](../../../src/app/feed/page.test.tsx), [src/app/notifications/page.test.tsx](../../../src/app/notifications/page.test.tsx), [src/app/post/[id]/page.test.tsx](../../../src/app/post/[id]/page.test.tsx), [src/app/settings/page.test.tsx](../../../src/app/settings/page.test.tsx). Outros testes de integração podem cobrir este módulo.
-
-## src/app/guilds/page.tsx
-
-Fonte: [src/app/guilds/page.tsx](../../../src/app/guilds/page.tsx)
-
-Entrada de página do App Router; carrega ou compõe a experiência desta rota.
-
-Símbolos localizados: `GuildsPage`, `dynamic`.
-
-Dependências locais declaradas: `./GuildsClient`.
 
 Testes associados pelo nome: [src/app/certificates/page.test.tsx](../../../src/app/certificates/page.test.tsx), [src/app/feed/page.test.tsx](../../../src/app/feed/page.test.tsx), [src/app/notifications/page.test.tsx](../../../src/app/notifications/page.test.tsx), [src/app/post/[id]/page.test.tsx](../../../src/app/post/[id]/page.test.tsx), [src/app/settings/page.test.tsx](../../../src/app/settings/page.test.tsx). Outros testes de integração podem cobrir este módulo.
 

@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import {
   getProfileFlags,
+  getLocalizedTitleName,
   DEFAULT_CHAT_PREFERENCES,
   DEFAULT_PROFILE_PREFERENCES,
   profilePreferencesSchema,
@@ -36,6 +37,7 @@ import {
   type ProfilePreferences,
   type PrivateChatPreferences,
 } from '@/lib/profile-customization';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { invalidateCurrentUser } from '@/lib/client/current-user';
 import { AvatarFrame, ProfileName, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { AchievementsPanel } from './AchievementsPanel';
@@ -51,6 +53,19 @@ export interface PersonalizationUser {
   banner_url?: string | null;
   role?: string;
 }
+
+const sectionLabels: Record<string, { pt: string; en: string }> = {
+  appearance: { pt: 'Aparência', en: 'Appearance' },
+  name: { pt: 'Nome e cores', en: 'Name & colors' },
+  identity: { pt: 'Bandeira e título', en: 'Flag & title' },
+  achievements: { pt: 'Conquistas', en: 'Achievements' },
+  frames: { pt: 'Avatar e molduras', en: 'Avatar & frames' },
+  banner: { pt: 'Banner', en: 'Banner' },
+  tags: { pt: 'Tags e interesses', en: 'Tags & interests' },
+  music: { pt: 'Música do perfil', en: 'Profile music' },
+  studies: { pt: 'Estudando atualmente', en: 'Currently studying' },
+  chat: { pt: 'Cores do chat', en: 'Chat colors' },
+};
 
 const sections = [
   { id: 'appearance', label: 'Aparência', icon: Palette },
@@ -389,6 +404,7 @@ export function ProfilePersonalizationEditor({
   user: PersonalizationUser;
   initialSection?: SectionId;
 }) {
+  const { isEnglish, text } = useLocalizedText();
   const [state, setState] = useState<ProfileCustomizationState | null>(null);
   const [preferences, setPreferences] = useState<ProfilePreferences>(DEFAULT_PROFILE_PREFERENCES);
   const [chat, setChat] = useState<PrivateChatPreferences>(DEFAULT_CHAT_PREFERENCES);
@@ -777,7 +793,10 @@ export function ProfilePersonalizationEditor({
         </main>
       ) : (
         <div className={styles.layout}>
-          <nav className={styles.navigation} aria-label="Categorias de personalização">
+          <nav
+            className={styles.navigation}
+            aria-label={text('Categorias de personalização', 'Customization categories')}
+          >
             {sections.map(({ id, label, icon: Icon }) => (
               <button
                 type="button"
@@ -787,12 +806,14 @@ export function ProfilePersonalizationEditor({
                 onClick={() => changeSection(id)}
               >
                 <Icon size={17} aria-hidden="true" />
-                {label}
+                {sectionLabels[id]?.[isEnglish ? 'en' : 'pt'] || label}
               </button>
             ))}
           </nav>
           <main ref={editorRef} className={styles.editor}>
-            <h2 className={styles.sectionTitle}>{heading.label}</h2>
+            <h2 className={styles.sectionTitle}>
+              {sectionLabels[heading.id]?.[isEnglish ? 'en' : 'pt'] || heading.label}
+            </h2>
             <p className={styles.sectionDescription}>
               {
                 {
@@ -1010,7 +1031,9 @@ export function ProfilePersonalizationEditor({
                     ))}
                   </div>
                   <label className={styles.field}>
-                    <span className={styles.label}>Título principal</span>
+                    <span className={styles.label}>
+                      {text('Título principal', 'Primary title')}
+                    </span>
                     <select
                       className={styles.select}
                       value={preferences.equippedTitleId || ''}
@@ -1021,18 +1044,20 @@ export function ProfilePersonalizationEditor({
                         })
                       }
                     >
-                      <option value="">Sem título</option>
+                      <option value="">{text('Sem título', 'No title')}</option>
                       {unlocked.map((item) => (
                         <option key={item.id} value={item.id}>
-                          {item.name}
+                          {isEnglish ? getLocalizedTitleName(item, true) : item.name}
                         </option>
                       ))}
                     </select>
                   </label>
                   {unlocked.length === 0 && (
                     <p className={styles.notice}>
-                      Seus títulos aparecerão aqui conforme você conquistar metas. Consulte a seção
-                      Conquistas para acompanhar o progresso.
+                      {text(
+                        'Seus títulos aparecerão aqui conforme você conquistar metas. Consulte a seção Conquistas para acompanhar o progresso.',
+                        'Your titles will appear here as you reach goals. Check the Achievements section to track progress.'
+                      )}
                     </p>
                   )}
                 </>

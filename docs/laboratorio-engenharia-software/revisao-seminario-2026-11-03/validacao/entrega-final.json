@@ -1,0 +1,41 @@
+{
+  "academicUseCases": 24,
+  "overviewClasses": 8,
+  "specificClassLimit": 6,
+  "overviewTables": 10,
+  "nativeDiagrams": 45,
+  "codeExcerptsVerified": 9,
+  "approvedActivityDocumentUnchanged": true,
+  "files": [
+    {
+      "name": "01-documento-de-visao-atualizado.docx",
+      "bytes": 737201,
+      "sha256": "9d01429aaedccbf945868c304c86bcd58e30af95ecabfdf5e9cb557b909d6eaf"
+    },
+    {
+      "name": "02-atividades-do-negocio-stacklyst-astah.docx",
+      "bytes": 280875,
+      "sha256": "a35dcd3ca873c0a579a51e626a16861b4114dd9ca74458f80b2b32045555141f"
+    },
+    {
+      "name": "03-requisitos-e-regras-atualizados.docx",
+      "bytes": 436776,
+      "sha256": "9a366d798a3245981d29751ff97da3a350c62a1d43deb994338af054571f25ae"
+    },
+    {
+      "name": "04-casos-de-uso-e-modelos-atualizados.docx",
+      "bytes": 4039184,
+      "sha256": "a060f9e868c7cc4922e55aed0dec9474210ad184e6ef1a30dfb0fe49347fa636"
+    },
+    {
+      "name": "05-manual-tecnico-da-plataforma.docx",
+      "bytes": 1153804,
+      "sha256": "ec1d25dca49b988f1cc456134022dde7152208ccb645a8d4211a5a3af88b834a"
+    },
+    {
+      "name": "Stacklyst-seminario-atualizado-2026-11-03.pptx",
+      "bytes": 5583598,
+      "sha256": "f182e1da764a2e30df97da309f2d992907f65c708d7565fbe4f723037178b035"
+    }
+  ]
+}

@@ -562,7 +562,7 @@ export const translations: Record<Language, Translations> = {
     nav: {
       howItWorks: 'How it works',
       platform: 'Platform',
-      tracks: 'Tracks',
+      tracks: 'Trails',
       duels: 'Duels',
       home: 'Home',
       feed: 'Feed',
@@ -648,9 +648,9 @@ export const translations: Record<Language, Translations> = {
         proofCard: {
           label: 'Verifiable proof',
           title: 'Let your code speak for you',
-          description: 'Tracks, duels, and contributions create a living picture of your growth.',
+          description: 'Trails, duels, and contributions create a living picture of your growth.',
           duelWon: 'Duel won',
-          trackCompleted: 'TypeScript track 100%',
+          trackCompleted: 'TypeScript trail 100%',
           streak12: '12-day streak',
           level19: 'Level 19',
         },
@@ -660,7 +660,7 @@ export const translations: Record<Language, Translations> = {
         titlePart1: 'Everything happens in ',
         titleOneFlow: 'one flow.',
         description:
-          'Feed, tracks, quizzes, duels, and profile work together so every action strengthens your technical identity.',
+          'Feed, trails, quizzes, duels, and profile work together so every action strengthens your technical identity.',
         mockup: {
           communityFeed: 'Community feed',
           home: 'Home',
@@ -698,18 +698,18 @@ export const translations: Record<Language, Translations> = {
           levelProgress: 'LEVEL PROGRESS',
           achievements: 'ACHIEVEMENTS',
           locked: 'Locked',
-          myTracks: 'MY TRACKS',
+          myTracks: 'MY TRAILS',
           search: 'Search',
           dayOfMastery: '1 day of mastery',
         },
       },
       tracks: {
-        eyebrow: 'Tracks and progression',
+        eyebrow: 'Trails and progression',
         titlePart1: 'Growth you can ',
         titleSee: 'see.',
         description:
           'Each technology has its own path, level, and evidence. You always know where you are and what to master next.',
-        trackPrefix: 'Track',
+        trackPrefix: 'Trail',
         modules: 'modules',
         nextTopic: 'Next: advanced patterns',
         gamifyBadge: 'Progression system',

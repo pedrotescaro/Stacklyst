@@ -13,6 +13,7 @@ import type { TrailLanguageCode } from './TrailLanguageLogo';
 import { getCourseKnowledgeNodes, getCourseLearningPaths } from './trailCourseKnowledge';
 import type { KnowledgeMapData } from '@/lib/learning/types';
 import { LearningJourney } from './LearningJourney';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import {
   Select,
   SelectContent,
@@ -56,6 +57,7 @@ export function TrailsContent({
   initialPathSlug,
 }: TrailsContentProps) {
   const router = useRouter();
+  const { text } = useLocalizedText();
   const [viewMode, setViewMode] = useState(initialViewMode);
   const [activeLanguage, setActiveLanguage] = useState(initialActiveLanguage);
   const [pathId, setPathId] = useState(initialPathSlug ?? '');
@@ -117,7 +119,7 @@ export function TrailsContent({
               href="/trails"
               className="dd-focus-ring mb-2 inline-flex min-h-10 items-center text-sm font-semibold text-dd-accent"
             >
-              ← Meu Mundinho e recompensas
+              {text('← Meu Mundinho e recompensas', '← My World & rewards')}
             </Link>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <TrailViewSwitcher active={viewMode} onChange={changeMode} />
@@ -134,7 +136,7 @@ export function TrailsContent({
               </div>
             </div>
             <div className="mt-3 flex items-center gap-3 text-sm text-dd-muted">
-              <span className="shrink-0 font-medium text-dd-muted">Caminho</span>
+              <span className="shrink-0 font-medium text-dd-muted">{text('Caminho', 'Path')}</span>
               <div className="min-w-0 flex-1">
                 <Select
                   value={path?.id ?? ''}
@@ -143,17 +145,17 @@ export function TrailsContent({
                   }}
                 >
                   <SelectTrigger
-                    aria-label="Caminho de aprendizado"
+                    aria-label={text('Caminho de aprendizado', 'Learning path')}
                     className="min-h-11 min-w-0 w-full rounded-xl border border-dd-border bg-dd-bg px-3.5 text-sm text-dd-text transition-colors hover:border-dd-accent/60"
                   >
-                    <SelectValue placeholder="Selecione um caminho...">
+                    <SelectValue placeholder={text('Selecione um caminho...', 'Select a path...')}>
                       {path ? (
                         <div className="flex min-w-0 flex-1 items-center gap-2">
                           <span className="min-w-0 truncate font-semibold text-dd-text">
                             {path.title}
                           </span>
                           <span className="shrink-0 text-xs text-dd-muted">
-                            · {path.completedNodes}/{path.totalNodes} lições
+                            · {path.completedNodes}/{path.totalNodes} {text('lições', 'lessons')}
                           </span>
                         </div>
                       ) : null}
@@ -164,7 +166,7 @@ export function TrailsContent({
                       <SelectItem
                         key={p.id}
                         value={p.id}
-                        label={`${p.title} · ${p.completedNodes}/${p.totalNodes} lições`}
+                        label={`${p.title} · ${p.completedNodes}/${p.totalNodes} ${text('lições', 'lessons')}`}
                         className="min-h-12"
                       >
                         <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-1">
@@ -172,7 +174,7 @@ export function TrailsContent({
                             {p.title}
                           </span>
                           <span className="shrink-0 text-xs tabular-nums text-dd-muted">
-                            {p.completedNodes}/{p.totalNodes} lições
+                            {p.completedNodes}/{p.totalNodes} {text('lições', 'lessons')}
                           </span>
                         </div>
                       </SelectItem>
@@ -194,7 +196,12 @@ export function TrailsContent({
           ) : (
             <div className="p-8 text-dd-muted">
               <MapPinned className="mb-3" />
-              <p>Nenhum conteúdo publicado nesta linguagem.</p>
+              <p>
+                {text(
+                  'Nenhum conteúdo publicado nesta linguagem.',
+                  'No content published in this language.'
+                )}
+              </p>
             </div>
           )}
         </main>

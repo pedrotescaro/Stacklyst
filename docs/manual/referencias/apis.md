@@ -45,10 +45,6 @@ Métodos extraídos das declarações exportadas, sem inventar contrato de respo
 | /api/exercises/[exerciseId]/events | POST               | [src/app/api/exercises/[exerciseId]/events/route.ts](../../../src/app/api/exercises/[exerciseId]/events/route.ts) | eventSchema                        |
 | /api/exercises/[exerciseId]/run    | POST               | [src/app/api/exercises/[exerciseId]/run/route.ts](../../../src/app/api/exercises/[exerciseId]/run/route.ts)       | attemptSchema                      |
 | /api/exercises/[exerciseId]/submit | POST               | [src/app/api/exercises/[exerciseId]/submit/route.ts](../../../src/app/api/exercises/[exerciseId]/submit/route.ts) | submissionSchema                   |
-| /api/guilds/[id]/members           | POST, DELETE       | [src/app/api/guilds/[id]/members/route.ts](../../../src/app/api/guilds/[id]/members/route.ts)                     |                                    |
-| /api/guilds/[id]                   | GET, PATCH, DELETE | [src/app/api/guilds/[id]/route.ts](../../../src/app/api/guilds/[id]/route.ts)                                     |                                    |
-| /api/guilds/by-slug/[slug]         | GET                | [src/app/api/guilds/by-slug/[slug]/route.ts](../../../src/app/api/guilds/by-slug/[slug]/route.ts)                 |                                    |
-| /api/guilds                        | GET, POST          | [src/app/api/guilds/route.ts](../../../src/app/api/guilds/route.ts)                                               |                                    |
 | /api/health                        | GET, HEAD          | [src/app/api/health/route.ts](../../../src/app/api/health/route.ts)                                               |                                    |
 | /api/jobs/[id]/applications        | GET                | [src/app/api/jobs/[id]/applications/route.ts](../../../src/app/api/jobs/[id]/applications/route.ts)               |                                    |
 | /api/jobs/[id]/apply               | POST               | [src/app/api/jobs/[id]/apply/route.ts](../../../src/app/api/jobs/[id]/apply/route.ts)                             |                                    |
@@ -140,8 +136,6 @@ Métodos extraídos das declarações exportadas, sem inventar contrato de respo
 | /feed                  | [src/app/feed/page.tsx](../../../src/app/feed/page.tsx)                                   |
 | /forgot-password       | [src/app/forgot-password/page.tsx](../../../src/app/forgot-password/page.tsx)             |
 | /guidelines            | [src/app/guidelines/page.tsx](../../../src/app/guidelines/page.tsx)                       |
-| /guilds/[slug]         | [src/app/guilds/[slug]/page.tsx](../../../src/app/guilds/[slug]/page.tsx)                 |
-| /guilds                | [src/app/guilds/page.tsx](../../../src/app/guilds/page.tsx)                               |
 | /jobs/[id]             | [src/app/jobs/[id]/page.tsx](../../../src/app/jobs/[id]/page.tsx)                         |
 | /jobs                  | [src/app/jobs/page.tsx](../../../src/app/jobs/page.tsx)                                   |
 | /knowledge             | [src/app/knowledge/page.tsx](../../../src/app/knowledge/page.tsx)                         |

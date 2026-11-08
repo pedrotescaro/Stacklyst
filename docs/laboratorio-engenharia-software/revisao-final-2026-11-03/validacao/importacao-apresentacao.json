@@ -1,0 +1,1 @@
+{"ok":false,"error":"Error: Presentation.load(path) is only available after the Node API is installed.\nLoad it with:\n  const { installNode } = await import('@oai/granola/node');\n  installNode();"}

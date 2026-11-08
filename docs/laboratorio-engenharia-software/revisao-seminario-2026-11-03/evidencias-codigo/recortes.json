@@ -1,0 +1,74 @@
+[
+  {
+    "id": "SQ01-A",
+    "title": "Receber e avaliar resposta",
+    "file": "src/app/api/lessons/[lessonId]/attempt/route.ts",
+    "start": 10,
+    "end": 31,
+    "code": "export const POST = apiHandler(async (request, { params, session: user }) => {\n  if (!user) throw new UnauthorizedError();\n  const { lessonId } = await params;\n  await rateLimit(`lesson:${user.id}`, {\n    limit: 30,\n    window: '1 m',\n    endpoint: '/api/lessons/attempt',\n  });\n  const parsed = lessonAnswerSchema.safeParse(await request.json().catch(() => null));\n  if (!parsed.success)\n    throw new ValidationError('INVALID_ANSWER', 'Confira os dados da resposta e tente novamente.');\n  const answer = parsed.data;\n  const lesson = getLessonById(lessonId);\n  const step = lesson?.steps.find((s) => s.id === answer.stepId);\n  if (!lesson || !step) throw new AppError('LESSON_NOT_FOUND', 'Atividade não encontrada.', 404);\n  await requireLessonAccess(user.id, lesson);\n  const outcome = await assessLessonStep(lesson, step, answer);\n  if ('unavailable' in outcome && outcome.unavailable)\n    throw new AppError(\n      'RUNNER_UNAVAILABLE',\n      'Serviço de execução indisponível. Seu progresso não foi alterado; tente novamente.',\n      503"
+  },
+  {
+    "id": "SQ01-B",
+    "title": "Separar prévia de submissão",
+    "file": "src/app/api/lessons/[lessonId]/attempt/route.ts",
+    "start": 33,
+    "end": 45,
+    "code": "  if (answer.action === 'run') return NextResponse.json({ ...outcome, xpEarned: 0 });\n  const progress = await saveLessonAssessment(\n    user.id,\n    lesson,\n    step,\n    outcome.isCorrect,\n    answer.selectedOption ?? 0\n  );\n  if (outcome.isCorrect) {\n    await syncProfileAchievementsSafely(user.id);\n  }\n  return NextResponse.json({ ...outcome, ...progress });\n});"
+  },
+  {
+    "id": "SQ01-C",
+    "title": "Creditar primeira conclusão",
+    "file": "src/lib/learning/lesson-progress.ts",
+    "start": 62,
+    "end": 83,
+    "code": "    const firstCompletion = isCorrect && !previous?.is_correct;\n    const xpEarned = firstCompletion ? Math.max(0, step.xp) : 0;\n    if (!previous)\n      await tx.quiz.upsert({\n        where: { id: step.id },\n        create: {\n          id: step.id,\n          question: step.question ?? step.instruction ?? step.title,\n          options: step.options ?? ['Avaliado no servidor'],\n          correct_index: step.correctOptionIndex ?? 0,\n          is_daily: false,\n        },\n        update: {},\n      });\n    if (!previous)\n      await tx.quizAttempt.create({\n        data: {\n          user_id: userId,\n          quiz_id: step.id,\n          selected_index: selectedIndex,\n          is_correct: isCorrect,\n          xp_earned: xpEarned,"
+  },
+  {
+    "id": "SQ11-A",
+    "title": "Autorizar publicação de vaga",
+    "file": "src/app/api/jobs/route.ts",
+    "start": 72,
+    "end": 95,
+    "code": "export const POST = apiHandler(async (req) => {\n  const user = await requireRole(['RECRUITER', 'ADMIN']);\n  const body = await req.json();\n  const parsed = createJobSchema.parse(body);\n  await requireCompanyAccess(parsed.company_id, user);\n\n  const job = await JobService.createJob({\n    companyId: parsed.company_id,\n    title: parsed.title,\n    description: parsed.description,\n    level: parsed.level,\n    technologies: parsed.technologies,\n    modality: parsed.modality,\n    location: parsed.location,\n    contractType: parsed.contract_type,\n    salaryMin: parsed.salary_min,\n    salaryMax: parsed.salary_max,\n    requirements: parsed.requirements,\n    benefits: parsed.benefits,\n    stages: parsed.stages,\n  });\n\n  return NextResponse.json({\n    success: true,"
+  },
+  {
+    "id": "SQ11-B",
+    "title": "Gravar vaga e etapas",
+    "file": "src/services/job.service.ts",
+    "start": 218,
+    "end": 247,
+    "code": "    const job = await prisma.job.create({\n      data: {\n        company_id: companyId,\n        title,\n        description,\n        level,\n        technologies,\n        modality,\n        location,\n        contract_type: contractType,\n        salary_min: salaryMin,\n        salary_max: salaryMax,\n        requirements,\n        benefits,\n        status: 'OPEN',\n        stages: {\n          create: defaultStages.map((st) => ({\n            title: st.title,\n            type: st.type,\n            order: st.order,\n            challenge_id: st.challengeId,\n            description: st.description,\n          })),\n        },\n      },\n      include: {\n        stages: true,\n        company: true,\n      },\n    });"
+  },
+  {
+    "id": "SQ11-C",
+    "title": "Confirmar publicação",
+    "file": "src/app/recruiter/RecruiterContent.tsx",
+    "start": 378,
+    "end": 394,
+    "code": "      if (res.ok) {\n        setSuccessMsg('Vaga publicada com sucesso! As etapas do processo já estão disponíveis.');\n        setJobTitle('');\n        setJobDescription('');\n        loadJobs(); // Instantly update jobs list\n        setTimeout(() => setSuccessMsg(null), 4000);\n      } else {\n        const errData = await res.json().catch(() => null);\n        setErrorMsg(errData?.message || errData?.error || 'Erro ao publicar vaga.');\n      }\n    } catch (err) {\n      console.error(err);\n      setErrorMsg('Erro de conexão ao publicar vaga.');\n    } finally {\n      setCreatingJob(false);\n    }\n  };"
+  },
+  {
+    "id": "SQ11-D",
+    "title": "Registrar candidatura",
+    "file": "src/services/job.service.ts",
+    "start": 282,
+    "end": 304,
+    "code": "    const firstStage = job.stages[0];\n\n    const application = await prisma.jobApplication.create({\n      data: {\n        job_id: jobId,\n        user_id: userId,\n        stage_id: firstStage?.id,\n        status: 'APPLIED',\n      },\n      include: {\n        stage: true,\n        job: { include: { company: true } },\n      },\n    });\n\n    logger.info('User applied for job', { userId, jobId, applicationId: application.id });\n    return application;\n  },\n\n  /**\n   * Advance or update candidate application status in recruitment pipeline.\n   */\n  async updateApplicationStage(params: {"
+  },
+  {
+    "id": "SQ11-E",
+    "title": "Conferir gestão da candidatura",
+    "file": "src/app/api/jobs/[id]/route.ts",
+    "start": 30,
+    "end": 62,
+    "code": "export const PATCH = apiHandler(async (req, { params }) => {\n  const user = await requireRole(['RECRUITER', 'ADMIN']);\n  const { id } = await params;\n  const job = await prisma.job.findUniqueOrThrow({ where: { id } });\n  await requireCompanyAccess(job.company_id, user);\n  const body = await req.json();\n  const parsed = updateStageSchema.parse(body);\n  const application = await prisma.jobApplication.findFirst({\n    where: { id: parsed.application_id, job_id: id },\n  });\n  if (!application)\n    return NextResponse.json({ error: 'Candidatura não encontrada nesta vaga.' }, { status: 404 });\n  if (\n    parsed.stage_id &&\n    !(await prisma.jobRecruitmentStage.findFirst({ where: { id: parsed.stage_id, job_id: id } }))\n  )\n    return NextResponse.json({ error: 'Etapa inválida para esta vaga.' }, { status: 400 });\n\n  const updatedApplication = await JobService.updateApplicationStage({\n    applicationId: parsed.application_id,\n    stageId: parsed.stage_id,\n    status: parsed.status,\n    feedback: parsed.feedback,\n    technicalScore: parsed.technical_score,\n    actorId: user.id,\n  });\n\n  return NextResponse.json({\n    success: true,\n    message: 'Etapa do candidato atualizada com sucesso!',\n    application: updatedApplication,\n  });\n});"
+  },
+  {
+    "id": "SQ11-F",
+    "title": "Atualizar e notificar",
+    "file": "src/services/job.service.ts",
+    "start": 314,
+    "end": 359,
+    "code": "    const application = await prisma.$transaction(async (tx) => {\n      const updated = await tx.jobApplication.update({\n        where: { id: applicationId },\n        data: {\n          stage_id: stageId,\n          status,\n          feedback,\n          technical_score: technicalScore,\n        },\n        include: {\n          stage: true,\n          user: {\n            select: {\n              id: true,\n              username: true,\n              avatar_url: true,\n              total_xp: true,\n              bio: true,\n              github_username: true,\n            },\n          },\n        },\n      });\n      await recordSecurityAudit(tx, {\n        actorId: params.actorId,\n        action: 'JOB_APPLICATION_UPDATED',\n        resourceId: applicationId,\n        metadata: { job_id: updated.job_id, status, stage_id: updated.stage_id },\n      });\n      return updated;\n    });\n\n    try {\n      await NotificationService.create({\n        userId: application.user_id,\n        type: 'JOB_APPLICATION_UPDATE',\n        resourceId: application.job_id,\n        resourceType: 'JOB',\n      });\n    } catch (err) {\n      logger.error('Failed to notify job application update', { error: String(err) });\n    }\n\n    return application;\n  },\n"
+  }
+]

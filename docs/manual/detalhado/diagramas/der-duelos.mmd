@@ -1,0 +1,114 @@
+erDiagram
+  User {
+    String id PK
+    String username
+    String email
+    String avatar_url
+    Json avatar_config
+    String bio
+    String institution
+    String github_username
+    String discord_username
+  }
+  EvaluatorApplication {
+    String id PK
+    String user_id FK
+    String motivation
+    StringArray tech_stack
+    EvaluatorStatus status
+    String reviewed_by_id
+    String reviewer_notes
+    DateTime created_at
+    DateTime reviewed_at
+  }
+  EvaluatorProfile {
+    String id PK
+    String user_id FK
+    Int reputation
+    Int evaluations_count
+    StringArray tech_stack
+    EvaluatorProfileStatus status
+    String sanction_reason
+    DateTime approved_at
+    DateTime updated_at
+  }
+  DuelRequest {
+    String id PK
+    String sender_id FK
+    String receiver_id FK
+    Language language
+    DuelRequestStatus status
+    Boolean publish_on_expiry
+    String problem_id
+    String problem_title
+    String problem_body
+    String published_duel_id FK
+  }
+  Duel {
+    String id PK
+    String challenger_id FK
+    String opponent_id FK
+    String problem_title
+    String problem_body
+    String problem_id
+    Language language
+    DuelStatus status
+    Int time_limit_seconds
+    String winner_id FK
+  }
+  DuelSolution {
+    String id PK
+    String duel_id FK
+    String user_id FK
+    String code
+    Int vote_count
+    Int score
+    Int runtime_ms
+    String complexity
+    DateTime submitted_at
+  }
+  DuelSubmission {
+    String id PK
+    String duel_id FK
+    String user_id FK
+    String code
+    DuelSubmissionStatus status
+    Int passed_tests
+    Int total_tests
+    Int runtime_ms
+    String complexity
+  }
+  DuelVote {
+    String id PK
+    String duel_id FK
+    String user_id FK
+    String solution_id
+    DateTime created_at
+  }
+  DuelEvaluation {
+    String id PK
+    String duel_id FK
+    String evaluator_id FK
+    EvaluationType type
+    Int score_player1
+    Int score_player2
+    Json system_analysis
+    String human_feedback
+    StringArray strengths
+  }
+  User ||--o{ EvaluatorApplication : "user_id"
+  User ||--o| EvaluatorProfile : "user_id"
+  User ||--o{ DuelRequest : "sender_id"
+  User ||--o{ DuelRequest : "receiver_id"
+  Duel o|--o| DuelRequest : "published_duel_id"
+  User ||--o{ Duel : "challenger_id"
+  User o|--o{ Duel : "opponent_id"
+  User o|--o{ Duel : "winner_id"
+  Duel ||--o{ DuelSolution : "duel_id"
+  User ||--o{ DuelSolution : "user_id"
+  Duel ||--o{ DuelSubmission : "duel_id"
+  User ||--o{ DuelSubmission : "user_id"
+  Duel ||--o{ DuelVote : "duel_id"
+  User ||--o{ DuelVote : "user_id"
+  Duel ||--o{ DuelEvaluation : "duel_id"
+  User o|--o{ DuelEvaluation : "evaluator_id"

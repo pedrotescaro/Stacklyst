@@ -7,7 +7,8 @@ import { ArrowLeft, Check, CheckCircle2, Circle, Lock, Search, X } from 'lucide-
 import { ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { invalidateCurrentUser } from '@/lib/client/current-user';
 import type { ProfileCustomizationState, ProfilePreferences } from '@/lib/profile-customization';
-import { getAchievementInstructions } from '@/lib/profile-customization';
+import { getAchievementInstructions, getLocalizedTitleName } from '@/lib/profile-customization';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './TitlesShowcaseView.module.css';
 
 interface TitlesShowcaseViewProps {
@@ -16,15 +17,10 @@ interface TitlesShowcaseViewProps {
 }
 
 type FilterType = 'all' | 'owned' | 'unowned' | 'events';
-const filters: { value: FilterType; label: string; accessibleLabel: string }[] = [
-  { value: 'all', label: 'Todos', accessibleLabel: 'Todos os títulos' },
-  { value: 'owned', label: 'Seus', accessibleLabel: 'Você possui' },
-  { value: 'unowned', label: 'A conquistar', accessibleLabel: 'Você não possui' },
-  { value: 'events', label: 'Eventos', accessibleLabel: 'Títulos de eventos' },
-];
 
 export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
   const router = useRouter();
+  const { isEnglish, text, locale } = useLocalizedText();
   const [preferences, setPreferences] = useState<ProfilePreferences>(initialData.preferences);
   const [version, setVersion] = useState(initialData.version);
   const [searchQuery, setSearchQuery] = useState('');
@@ -35,6 +31,32 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
   const saving = useRef(false);
   const searchInput = useRef<HTMLInputElement>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const filters = useMemo<{ value: FilterType; label: string; accessibleLabel: string }[]>(
+    () => [
+      {
+        value: 'all',
+        label: text('Todos', 'All'),
+        accessibleLabel: text('Todos os títulos', 'All titles'),
+      },
+      {
+        value: 'owned',
+        label: text('Seus', 'Unlocked'),
+        accessibleLabel: text('Você possui', 'You own'),
+      },
+      {
+        value: 'unowned',
+        label: text('A conquistar', 'Locked'),
+        accessibleLabel: text('Você não possui', 'You do not own'),
+      },
+      {
+        value: 'events',
+        label: text('Eventos', 'Events'),
+        accessibleLabel: text('Títulos de eventos', 'Event titles'),
+      },
+    ],
+    [text]
+  );
 
   useEffect(
     () => () => {
@@ -77,8 +99,15 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
       if (!response.ok)
         throw new Error(
           response.status === 409
-            ? 'Seu perfil mudou em outra aba. Recarregue a página antes de escolher outro título.'
-            : result.message || 'Não foi possível salvar o título. Tente novamente.'
+            ? text(
+                'Seu perfil mudou em outra aba. Recarregue a página antes de escolher outro título.',
+                'Your profile changed in another tab. Reload the page before choosing another title.'
+              )
+            : result.message ||
+                text(
+                  'Não foi possível salvar o título. Tente novamente.',
+                  'Could not save title. Please try again.'
+                )
         );
       if (typeof result.version === 'number') setVersion(result.version);
       if (result.preferences) setPreferences(result.preferences);
@@ -86,14 +115,21 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
       window.dispatchEvent(new Event('stacklyst:profile-customization'));
       router.refresh();
       showToast(
-        title ? `Título “${title.name}” equipado no seu perfil.` : 'Título removido do perfil.'
+        title
+          ? isEnglish
+            ? `Title “${getLocalizedTitleName(title, true)}” equipped on your profile.`
+            : `Título “${title.name}” equipado no seu perfil.`
+          : text('Título removido do perfil.', 'Title removed from profile.')
       );
     } catch (failure) {
       setPreferences(previousPreferences);
       showToast(
         failure instanceof Error
           ? failure.message
-          : 'Não foi possível salvar o título. Tente novamente.',
+          : text(
+              'Não foi possível salvar o título. Tente novamente.',
+              'Could not save title. Please try again.'
+            ),
         'error'
       );
     } finally {
@@ -108,39 +144,50 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
         if (filter === 'owned' && !item.unlocked) return false;
         if (filter === 'unowned' && item.unlocked) return false;
         if (filter === 'events' && item.category !== 'event') return false;
-        const query = searchQuery.trim().toLocaleLowerCase('pt-BR');
+        const query = searchQuery.trim().toLocaleLowerCase();
         if (!query) return true;
-        const instructions = getAchievementInstructions(item, events, achievements);
-        return [item.name, instructions.flavorText, instructions.howToObtain].some((value) =>
-          value.toLocaleLowerCase('pt-BR').includes(query)
+        const instructions = getAchievementInstructions(
+          item,
+          events,
+          achievements,
+          undefined,
+          isEnglish
+        );
+        const localizedName = getLocalizedTitleName(item, isEnglish);
+        return [item.name, localizedName, instructions.flavorText, instructions.howToObtain].some(
+          (value) => value.toLocaleLowerCase().includes(query)
         );
       }),
-    [achievements, events, searchQuery, filter]
+    [achievements, events, searchQuery, filter, isEnglish]
   );
 
   return (
-    <section className={styles.surface} aria-label="Coleção de títulos">
+    <section className={styles.surface} aria-label={text('Coleção de títulos', 'Title collection')}>
       <header className={styles.header}>
         <div className={styles.toolbar}>
           <button
             type="button"
             onClick={() => (window.history.length > 1 ? router.back() : router.push('/feed'))}
-            aria-label="Voltar"
+            aria-label={text('Voltar', 'Back')}
             className={styles.iconButton}
           >
             <ArrowLeft size={21} />
           </button>
-          <h1>Títulos</h1>
+          <h1>{text('Títulos', 'Titles')}</h1>
           <span
             className={styles.collectionCount}
-            aria-label={`${unlockedCount} de ${achievements.length} títulos conquistados`}
+            aria-label={`${unlockedCount} ${text('de', 'of')} ${achievements.length} ${text('títulos conquistados', 'titles unlocked')}`}
           >
             {unlockedCount}
             <span aria-hidden="true"> / {achievements.length}</span>
           </span>
           <button
             type="button"
-            aria-label={searchOpen ? 'Fechar busca' : 'Buscar títulos'}
+            aria-label={
+              searchOpen
+                ? text('Fechar busca', 'Close search')
+                : text('Buscar títulos', 'Search titles')
+            }
             aria-expanded={searchOpen}
             onClick={() => setSearchOpen((value) => !value)}
             className={styles.iconButton}
@@ -148,7 +195,11 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
             {searchOpen ? <X size={20} /> : <Search size={20} />}
           </button>
         </div>
-        <div className={styles.tabs} role="group" aria-label="Filtrar títulos">
+        <div
+          className={styles.tabs}
+          role="group"
+          aria-label={text('Filtrar títulos', 'Filter titles')}
+        >
           {filters.map((item) => (
             <button
               key={item.value}
@@ -165,24 +216,36 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
       </header>
 
       <div className={styles.collectionIntro}>
-        <p>Conquiste um título e leve sua história para o perfil.</p>
-        <Link href="/personalize?section=identity">Personalizar perfil</Link>
-        <Link href="/certificates">Badges e certificados de cursos</Link>
+        <p>
+          {text(
+            'Conquiste um título e leve sua história para o perfil.',
+            'Earn a title and bring your story to your profile.'
+          )}
+        </p>
+        <Link href="/personalize?section=identity">
+          {text('Personalizar perfil', 'Customize profile')}
+        </Link>
+        <Link href="/certificates">
+          {text('Badges e certificados de cursos', 'Course badges and certificates')}
+        </Link>
       </div>
       <div className={`${styles.search} ${searchOpen ? styles.searchOpen : ''}`}>
         <Search size={18} aria-hidden="true" />
         <input
           ref={searchInput}
           type="search"
-          aria-label="Buscar títulos"
-          placeholder="Buscar por título, objetivo ou hashtag..."
+          aria-label={text('Buscar títulos', 'Search titles')}
+          placeholder={text(
+            'Buscar por título, objetivo ou hashtag...',
+            'Search by title, objective, or hashtag...'
+          )}
           value={searchQuery}
           onChange={(event) => setSearchQuery(event.target.value)}
         />
         {searchQuery && (
           <button
             type="button"
-            aria-label="Limpar busca"
+            aria-label={text('Limpar busca', 'Clear search')}
             className={styles.iconButton}
             onClick={() => {
               setSearchQuery('');
@@ -195,15 +258,24 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
       </div>
       {equippedTitle && (
         <div className={styles.equippedPreview}>
-          <span>No seu perfil</span>
+          <span>{text('No seu perfil', 'On your profile')}</span>
           <ProfileTitle title={equippedTitle} className={styles.titlePill} />
         </div>
       )}
 
       {filteredAchievements.length ? (
-        <div className={styles.list} aria-label="Títulos disponíveis">
+        <div className={styles.list} aria-label={text('Títulos disponíveis', 'Available titles')}>
           {filteredAchievements.map((achievement) => {
-            const instructions = getAchievementInstructions(achievement, events, achievements);
+            const instructions = getAchievementInstructions(
+              achievement,
+              events,
+              achievements,
+              undefined,
+              isEnglish
+            );
+            const localizedTitleName = isEnglish
+              ? getLocalizedTitleName(achievement, true)
+              : achievement.name;
             const isEquipped = preferences.equippedTitleId === achievement.id;
             const target = achievement.requirement.target;
             const progress = Math.max(0, Math.min(achievement.progress, target));
@@ -212,7 +284,7 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
               <article
                 key={achievement.id}
                 className={styles.item}
-                aria-label={`Título ${achievement.name}`}
+                aria-label={`${text('Título', 'Title')} ${localizedTitleName}`}
               >
                 <div className={styles.itemHeading}>
                   <ProfileTitle title={achievement} className={styles.titlePill} />
@@ -221,7 +293,7 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
                       {isEquipped && (
                         <span className={styles.inUse}>
                           <Check size={13} aria-hidden="true" />
-                          Em uso
+                          {text('Em uso', 'Equipped')}
                         </span>
                       )}
                       <button
@@ -229,9 +301,17 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
                         disabled={equippingId !== null}
                         className={styles.equipButton}
                         onClick={() => void handleEquipTitle(isEquipped ? null : achievement.id)}
-                        aria-label={isEquipped ? 'Retirar' : `Usar título ${achievement.name}`}
+                        aria-label={
+                          isEquipped
+                            ? text('Retirar', 'Remove')
+                            : `${text('Usar título', 'Equip title')} ${localizedTitleName}`
+                        }
                       >
-                        {busy ? 'Salvando…' : isEquipped ? 'Retirar' : 'Usar título'}
+                        {busy
+                          ? text('Salvando…', 'Saving…')
+                          : isEquipped
+                            ? text('Retirar', 'Remove')
+                            : text('Usar título', 'Equip title')}
                       </button>
                     </div>
                   )}
@@ -245,22 +325,29 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
                     <Circle size={20} aria-hidden="true" />
                   )}
                   <div>
-                    <p>{achievement.unlocked ? 'Você possui' : 'Você não possui'}</p>
+                    <p>
+                      {achievement.unlocked
+                        ? text('Você possui', 'Unlocked')
+                        : text('Você não possui', 'Locked')}
+                    </p>
                     {!achievement.unlocked && instructions.isUnavailable && (
-                      <span>Indisponível para obter</span>
+                      <span>{text('Indisponível para obter', 'Unavailable to unlock')}</span>
                     )}
                   </div>
                 </div>
                 <p className={styles.description}>{instructions.flavorText}</p>
                 <div className={styles.instructions}>
-                  <h2>Como obter</h2>
+                  <h2>{text('Como obter', 'How to obtain')}</h2>
                   <p>{instructions.howToObtain}</p>
                   {!achievement.unlocked && !instructions.isUnavailable && target > 1 && (
                     <p className={styles.progress}>
                       <span>
-                        {progress.toLocaleString('pt-BR')} de {target.toLocaleString('pt-BR')}
+                        {progress.toLocaleString(locale)} {text('de', 'of')}{' '}
+                        {target.toLocaleString(locale)}
                       </span>
-                      <span>Faltam {(target - progress).toLocaleString('pt-BR')}</span>
+                      <span>
+                        {text('Faltam', 'Remaining:')} {(target - progress).toLocaleString(locale)}
+                      </span>
                     </p>
                   )}
                 </div>
@@ -271,8 +358,13 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
       ) : (
         <div className={styles.empty}>
           <Search size={27} aria-hidden="true" />
-          <h2>Nenhum título encontrado</h2>
-          <p>Tente outro nome, objetivo ou hashtag.</p>
+          <h2>{text('Nenhum título encontrado', 'No titles found')}</h2>
+          <p>
+            {text(
+              'Tente outro nome, objetivo ou hashtag.',
+              'Try another name, objective, or hashtag.'
+            )}
+          </p>
           <button
             type="button"
             onClick={() => {
@@ -280,7 +372,7 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
               setFilter('all');
             }}
           >
-            Limpar filtros
+            {text('Limpar filtros', 'Clear filters')}
           </button>
         </div>
       )}
@@ -292,7 +384,11 @@ export function TitlesShowcaseView({ initialData }: TitlesShowcaseViewProps) {
             <Circle size={18} aria-hidden="true" />
           )}
           <p>{toast.message}</p>
-          <button type="button" aria-label="Fechar aviso" onClick={() => setToast(null)}>
+          <button
+            type="button"
+            aria-label={text('Fechar aviso', 'Close notification')}
+            onClick={() => setToast(null)}
+          >
             <X size={17} />
           </button>
         </div>

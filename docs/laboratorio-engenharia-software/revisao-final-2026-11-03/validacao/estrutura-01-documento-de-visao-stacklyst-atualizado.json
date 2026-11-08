@@ -1,0 +1,953 @@
+[
+  {
+    "i": 0,
+    "kind": "p",
+    "style": "Ttulo",
+    "text": "Stacklyst",
+    "pictures": []
+  },
+  {
+    "i": 1,
+    "kind": "p",
+    "style": "Subttulo",
+    "text": "Documento de visão do sistema",
+    "pictures": []
+  },
+  {
+    "i": 2,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Laboratório de Engenharia de SoftwareRevisão de 3 de novembro de 2026Base de código 6a2bfce e documentação local revisada",
+    "pictures": []
+  },
+  {
+    "i": 3,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Pedro Antonio Silvestre TescaroGuilherme Alves de CamposPaulo Henrique Leal dos Santos",
+    "pictures": []
+  },
+  {
+    "i": 4,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Esta edição atualiza os modelos e a especificação do sistema. Os diagramas de atividades do negócio aprovados permanecem no documento 02, preservado integralmente. Os modelos revisados são editáveis no Astah UML. Cadastro e acesso usam o ator Usuário e declaram as pré-condições de sessão em cada caso.",
+    "pictures": []
+  },
+  {
+    "i": 5,
+    "kind": "p",
+    "style": "Normal",
+    "text": "As afirmações descrevem a fonte de implementação. Credenciais, infraestrutura externa, dispositivos e migrations dependem das verificações de ambiente indicadas. Esta revisão documental não representa execução de todos os fluxos em produção.",
+    "pictures": []
+  },
+  {
+    "i": 6,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 7,
+    "kind": "p",
+    "style": "Ttulo1",
+    "text": "Roteiro de leitura",
+    "pictures": []
+  },
+  {
+    "i": 8,
+    "kind": "p",
+    "style": "Sumrio1",
+    "text": "Roteiro de leitura2",
+    "pictures": []
+  },
+  {
+    "i": 9,
+    "kind": "p",
+    "style": "Sumrio1",
+    "text": "Visão do sistema e do negócio2",
+    "pictures": []
+  },
+  {
+    "i": 10,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Problema e proposta2",
+    "pictures": []
+  },
+  {
+    "i": 11,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Atores3",
+    "pictures": []
+  },
+  {
+    "i": 12,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Jornada principal4",
+    "pictures": []
+  },
+  {
+    "i": 13,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Principais objetos de informação4",
+    "pictures": []
+  },
+  {
+    "i": 14,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Fronteiras importantes4",
+    "pictures": []
+  },
+  {
+    "i": 15,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "O que não concluir a partir do produto5",
+    "pictures": []
+  },
+  {
+    "i": 16,
+    "kind": "p",
+    "style": "Sumrio1",
+    "text": "Guia para entender a programação5",
+    "pictures": []
+  },
+  {
+    "i": 17,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Linguagens e ferramentas, sem misturar seus papéis5",
+    "pictures": []
+  },
+  {
+    "i": 18,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Estrutura das pastas5",
+    "pictures": []
+  },
+  {
+    "i": 19,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Convenções de arquivo6",
+    "pictures": []
+  },
+  {
+    "i": 20,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Como ler uma função6",
+    "pictures": []
+  },
+  {
+    "i": 21,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Sintaxe recorrente7",
+    "pictures": []
+  },
+  {
+    "i": 22,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "React: estado, referência e efeitos7",
+    "pictures": []
+  },
+  {
+    "i": 23,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Prisma: consultas e persistência7",
+    "pictures": []
+  },
+  {
+    "i": 24,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Três registros que costumam ser confundidos8",
+    "pictures": []
+  },
+  {
+    "i": 25,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Como alterar uma regra com segurança8",
+    "pictures": []
+  },
+  {
+    "i": 26,
+    "kind": "p",
+    "style": "Sumrio1",
+    "text": "Referência de UML e critérios de modelagem8",
+    "pictures": []
+  },
+  {
+    "i": 27,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Casos de uso e sua especificação8",
+    "pictures": []
+  },
+  {
+    "i": 28,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Herança dos atores9",
+    "pictures": []
+  },
+  {
+    "i": 29,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Inclusão, extensão e pontos de extensão9",
+    "pictures": []
+  },
+  {
+    "i": 30,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Classes e persistência9",
+    "pictures": []
+  },
+  {
+    "i": 31,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Sequências e ligação com o código10",
+    "pictures": []
+  },
+  {
+    "i": 32,
+    "kind": "p",
+    "style": "Sumrio2",
+    "text": "Uso no seminário10",
+    "pictures": []
+  },
+  {
+    "i": 33,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 34,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O sumário é atualizado na exportação pelo Word. As fontes editáveis e a matriz de rastreabilidade acompanham o pacote.",
+    "pictures": []
+  },
+  {
+    "i": 35,
+    "kind": "p",
+    "style": "Ttulo1",
+    "text": "Visão do sistema e do negócio",
+    "pictures": []
+  },
+  {
+    "i": 36,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Problema e proposta",
+    "pictures": []
+  },
+  {
+    "i": 37,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O Stacklyst reúne aprendizagem e prática de programação, troca de conhecimento, competição e oportunidades profissionais. O usuário pode estudar uma linguagem, executar exercícios, acompanhar evidências de progresso, compartilhar conteúdo e participar de atividades sociais e competitivas. Empresas e recrutadores organizam vagas e candidaturas. Avaliadores aprovados realizam os pareceres permitidos pelo fluxo de revisão.",
+    "pictures": []
+  },
+  {
+    "i": 38,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O centro pedagógico está nas trilhas: o sistema precisa distinguir exposição a um conteúdo, tentativa, execução de código, primeira conclusão e evidência de aprendizagem. A gamificação apresenta incentivos; não substitui essas distinções. XP, moedas do Mundinho, reputação de avaliador e certificado são registros diferentes.",
+    "pictures": []
+  },
+  {
+    "i": 39,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Atores",
+    "pictures": []
+  },
+  {
+    "i": 40,
+    "kind": "table",
+    "text": "AtorO que representaLimite relevanteUsuárioPessoa sem sessão autenticadaAcesso depende da rota; a ex"
+  },
+  {
+    "i": 41,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 42,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Os quatro valores de UserRole são USER, EVALUATOR, ADMIN e RECRUITER. Amizade, inscrição, dono de empresa e participante são relações e condições adicionais. Não se pode resolver todas as permissões por um único if (role).",
+    "pictures": []
+  },
+  {
+    "i": 43,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Jornada principal",
+    "pictures": []
+  },
+  {
+    "i": 44,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Esse diagrama representa atividade do negócio. Não descreve a ordem de funções em uma única requisição. Publicar, competir e estudar são caminhos disponíveis conforme permissões; não são etapas obrigatórias de um funil único.",
+    "pictures": []
+  },
+  {
+    "i": 45,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Principais objetos de informação",
+    "pictures": []
+  },
+  {
+    "i": 46,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "Conta: identidade, papel, perfil, preferências e relações sociais.",
+    "pictures": []
+  },
+  {
+    "i": 47,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "Conteúdo pedagógico: curso, lição, etapa, nó, caminho, exercício e caso de teste.",
+    "pictures": []
+  },
+  {
+    "i": 48,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "Evidência pedagógica: tentativa, execução, submissão, conclusão e evento de aprendizagem.",
+    "pictures": []
+  },
+  {
+    "i": 49,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "Reconhecimento: XP, nível, faixa, título e credencial com snapshot verificável.",
+    "pictures": []
+  },
+  {
+    "i": 50,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "Comunidade: publicação, resposta encadeada, reação, enquete, mídia, salvamento e mensagem.",
+    "pictures": []
+  },
+  {
+    "i": 51,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "Competição: convite, duelo, submissão, solução, decisão e parecer.",
+    "pictures": []
+  },
+  {
+    "i": 52,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "Mundinho: jogador RPG, inventário, equipamento, saldo, extrato, batalha e sala multiplayer.",
+    "pictures": []
+  },
+  {
+    "i": 53,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "Oportunidade: empresa, vaga, etapa, candidatura, evento, desafio e participação.",
+    "pictures": []
+  },
+  {
+    "i": 54,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O schema relaciona esses objetos, mas não contém sozinho todas as regras: algumas estão em Zod, nos serviços, nos repositórios e nas funções puras.",
+    "pictures": []
+  },
+  {
+    "i": 55,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Fronteiras importantes",
+    "pictures": []
+  },
+  {
+    "i": 56,
+    "kind": "p",
+    "style": "Ttulo3",
+    "text": "Aprendizagem versus competição",
+    "pictures": []
+  },
+  {
+    "i": 57,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Executar uma solução de exercício verifica o contrato daquele exercício. Comparar duas soluções de duelo aplica política competitiva. No Mundinho, o código precisa produzir o traço e cumprir estruturas do cenário. Aprovação em um desses contextos não implica aprovação automática nos outros.",
+    "pictures": []
+  },
+  {
+    "i": 58,
+    "kind": "p",
+    "style": "Ttulo3",
+    "text": "Aparência versus autoridade",
+    "pictures": []
+  },
+  {
+    "i": 59,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Nome colorido, moldura, roupa e título são apresentação. Não concedem papel de administrador ou avaliador. Na coleção editorial, os perfis são fictícios e identificados como demonstração; títulos e XP ilustrativos não equivalem a credenciais de formação.",
+    "pictures": []
+  },
+  {
+    "i": 60,
+    "kind": "p",
+    "style": "Ttulo3",
+    "text": "Interface versus confirmação",
+    "pictures": []
+  },
+  {
+    "i": 61,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Um botão pode mostrar carregamento ou atualizar estado temporariamente. Confirmação de compra, XP, resgate ou candidatura depende da resposta do servidor e do commit. Atualizar um número na tela não basta para provar persistência.",
+    "pictures": []
+  },
+  {
+    "i": 62,
+    "kind": "p",
+    "style": "Ttulo3",
+    "text": "Web versus mobile",
+    "pictures": []
+  },
+  {
+    "i": 63,
+    "kind": "p",
+    "style": "Normal",
+    "text": "A aplicação web usa Next.js. O aplicativo está em apps/mobile, com Expo/React Native e pontes autenticadas. O Mundinho embarca interface e arte; operar sem carregar a arte da rede não torna duelos, saldo e presença multiplayer independentes do servidor.",
+    "pictures": []
+  },
+  {
+    "i": 64,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "O que não concluir a partir do produto",
+    "pictures": []
+  },
+  {
+    "i": 65,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Uma posição no ranking representa a métrica e o período selecionados, não uma certificação absoluta de competência. Tempo estimado de aula não é medição de horas estudadas. Uma assinatura desenhada em PDF não é uma assinatura digital criptográfica. Uma estimativa de Big-O não é demonstração formal de complexidade.",
+    "pictures": []
+  },
+  {
+    "i": 66,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Essas fronteiras ajudam tanto na apresentação acadêmica quanto na manutenção: cada afirmação deve ser sustentada pelo fluxo implementado e pela evidência adequada.",
+    "pictures": []
+  },
+  {
+    "i": 67,
+    "kind": "p",
+    "style": "Ttulo1",
+    "text": "Guia para entender a programação",
+    "pictures": []
+  },
+  {
+    "i": 68,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Linguagens e ferramentas, sem misturar seus papéis",
+    "pictures": []
+  },
+  {
+    "i": 69,
+    "kind": "table",
+    "text": "TecnologiaPapel no repositórioO que não significaTypeScriptTipos, regras, serviços, rotas, component"
+  },
+  {
+    "i": 70,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 71,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Python, JavaScript, TypeScript, Java, Rust, Go, Kotlin, Swift e C++ também aparecem como linguagens de estudo/execução. A lista de conteúdos, a lista de runtimes configurados e as linguagens usadas para implementar a plataforma são conjuntos diferentes. Veja o inventário dos manifests [../referencias/tecnologias.md].",
+    "pictures": []
+  },
+  {
+    "i": 72,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Estrutura das pastas",
+    "pictures": []
+  },
+  {
+    "i": 73,
+    "kind": "table",
+    "text": "PastaPergunta que ela ajuda a respondersrc/appQual URL entrega esta tela ou esta API?src/componentsC"
+  },
+  {
+    "i": 74,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 75,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Convenções de arquivo",
+    "pictures": []
+  },
+  {
+    "i": 76,
+    "kind": "p",
+    "style": "Normal",
+    "text": "page.tsx é a entrada de uma página. layout.tsx compõe descendentes. route.ts implementa métodos HTTP. Um arquivo com 'use client' define uma fronteira de componente interativo; isso não quer dizer que todo dado disponível nele é privado. server-only impede importações indevidas de módulos de servidor no cliente.",
+    "pictures": []
+  },
+  {
+    "i": 77,
+    "kind": "p",
+    "style": "Normal",
+    "text": "@/ resolve para src/. Para scripts executados por ts-node, o projeto usa configuração própria e tsconfig-paths/register quando precisa resolver esses imports fora do Next.js. O importador editorial [../../../scripts/publish-demo-community.ts] é um exemplo.",
+    "pictures": []
+  },
+  {
+    "i": 78,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Como ler uma função",
+    "pictures": []
+  },
+  {
+    "i": 79,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Faça seis perguntas, nesta ordem:",
+    "pictures": []
+  },
+  {
+    "i": 80,
+    "kind": "p",
+    "style": "Normal",
+    "text": "1. Entrada: os argumentos vieram de sessão, banco, catálogo ou cliente?",
+    "pictures": []
+  },
+  {
+    "i": 81,
+    "kind": "p",
+    "style": "Normal",
+    "text": "2. Contrato: tipos estáticos e validação em runtime conferem quais propriedades?",
+    "pictures": []
+  },
+  {
+    "i": 82,
+    "kind": "p",
+    "style": "Normal",
+    "text": "3. Permissão: quem pode acessar este recurso específico?",
+    "pictures": []
+  },
+  {
+    "i": 83,
+    "kind": "p",
+    "style": "Normal",
+    "text": "4. Decisão: qual condição muda o resultado ou produz erro?",
+    "pictures": []
+  },
+  {
+    "i": 84,
+    "kind": "p",
+    "style": "Normal",
+    "text": "5. Efeito: quais linhas são gravadas, quais chamadas externas acontecem e em que transação?",
+    "pictures": []
+  },
+  {
+    "i": 85,
+    "kind": "p",
+    "style": "Normal",
+    "text": "6. Saída: o retorno é público? Há gabarito, dado privado ou detalhe interno a remover?",
+    "pictures": []
+  },
+  {
+    "i": 86,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Na função saveLessonAssessment, por exemplo, o ID do usuário vem da sessão resolvida pela rota, o tipo de etapa vem do catálogo, a correção vem do avaliador, e a própria persistência decide se a conclusão rende XP pela primeira vez. O cliente não escolhe diretamente esse crédito.",
+    "pictures": []
+  },
+  {
+    "i": 87,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Sintaxe recorrente",
+    "pictures": []
+  },
+  {
+    "i": 88,
+    "kind": "p",
+    "style": "Normal",
+    "text": "// Exemplo didático; não é um endpoint adicional do projeto.",
+    "pictures": []
+  },
+  {
+    "i": 89,
+    "kind": "p",
+    "style": "Normal",
+    "text": "type Entrada = { id: string; action?: 'run' | 'submit' };",
+    "pictures": []
+  },
+  {
+    "i": 90,
+    "kind": "p",
+    "style": "Normal",
+    "text": "async function exemplo(entrada: Entrada) {",
+    "pictures": []
+  },
+  {
+    "i": 91,
+    "kind": "p",
+    "style": "Normal",
+    "text": "  const action = entrada.action ?? 'submit';",
+    "pictures": []
+  },
+  {
+    "i": 92,
+    "kind": "p",
+    "style": "Normal",
+    "text": "  return { action, id: entrada.id };",
+    "pictures": []
+  },
+  {
+    "i": 93,
+    "kind": "p",
+    "style": "Normal",
+    "text": "}",
+    "pictures": []
+  },
+  {
+    "i": 94,
+    "kind": "p",
+    "style": "Normal",
+    "text": "type descreve uma estrutura para o compilador. ? torna a propriedade opcional. Uma união com | limita alternativas no tipo. ?? usa o segundo valor apenas quando o primeiro é null ou undefined; não equivale a ||, que trata todos os valores falsy como ausência. async devolve uma Promise. await espera sua resolução naquele fluxo.",
+    "pictures": []
+  },
+  {
+    "i": 95,
+    "kind": "p",
+    "style": "Normal",
+    "text": "?. permite acessar condicionalmente uma propriedade; não demonstra que a propriedade existe. ! depois de uma expressão é uma asserção ao compilador e não insere checagem em runtime. as também não converte magicamente um payload. Por isso Zod e verificações de domínio continuam necessários.",
+    "pictures": []
+  },
+  {
+    "i": 96,
+    "kind": "p",
+    "style": "Normal",
+    "text": "map transforma uma coleção; filter seleciona; find procura um elemento; some verifica existência; every exige todos; reduce acumula. Um map(async ...) produz Promises: a coordenação exige aguardar o conjunto quando a operação admite concorrência. Não se deve paralelizar gravações que dependem da ordem.",
+    "pictures": []
+  },
+  {
+    "i": 97,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "React: estado, referência e efeitos",
+    "pictures": []
+  },
+  {
+    "i": 98,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "useState guarda um estado cuja alteração agenda nova renderização.",
+    "pictures": []
+  },
+  {
+    "i": 99,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "useRef conserva uma referência mutável entre renderizações, sem renderizar por si.",
+    "pictures": []
+  },
+  {
+    "i": 100,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "useEffect sincroniza com sistemas externos e deve liberar timers, listeners e conexões que criou.",
+    "pictures": []
+  },
+  {
+    "i": 101,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "useCallback preserva a referência de uma função conforme dependências; não prova que seu corpo é puro.",
+    "pictures": []
+  },
+  {
+    "i": 102,
+    "kind": "p",
+    "style": "Commarcadores1",
+    "text": "key identifica elementos para reconciliação; não substitui unicidade no banco.",
+    "pictures": []
+  },
+  {
+    "i": 103,
+    "kind": "p",
+    "style": "Normal",
+    "text": "No multiplayer, posição corrente e versão recebida usam referências para evitar que callbacks antigos sobrescrevam estado novo. O efeito de sincronização limita requisições concorrentes e limpa o timer ao sair. Isso é diferente de manter uma conexão WebSocket.",
+    "pictures": []
+  },
+  {
+    "i": 104,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Prisma: consultas e persistência",
+    "pictures": []
+  },
+  {
+    "i": 105,
+    "kind": "p",
+    "style": "Normal",
+    "text": "findUnique busca uma chave única; findMany lista; select limita campos; include agrega relações. create insere; update exige registro; updateMany permite uma condição e retorna contagem; upsert escolhe inserção ou atualização por chave única. deleteMany com filtro vazio pode atingir uma tabela inteira.",
+    "pictures": []
+  },
+  {
+    "i": 106,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Uma consulta where: { id } só identifica o recurso. A autorização pode exigir ainda user_id, participante, audiência, ausência de bloqueio e propriedade de empresa. As restrições @@unique apoiam a idempotência, mas não substituem toda a lógica.",
+    "pictures": []
+  },
+  {
+    "i": 107,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Uma transação agrupa alterações de banco. Um bloqueio por usuário serializa recompensas concorrentes. Um bloqueio por evento protege a capacidade compartilhada. Uma atualização condicional de estado evita que duas resoluções fechem o mesmo duelo. O escopo do lock deve representar o recurso em disputa.",
+    "pictures": []
+  },
+  {
+    "i": 108,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Três registros que costumam ser confundidos",
+    "pictures": []
+  },
+  {
+    "i": 109,
+    "kind": "table",
+    "text": "RegistroSignificadoExecução de códigoO programa foi processado e produziu saída/erroAvaliaçãoO resul"
+  },
+  {
+    "i": 110,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 111,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Um console sem erro pode ainda produzir a resposta errada. Testes públicos passando podem não cobrir os ocultos. Uma avaliação correta em run pode não registrar conclusão. O código e a documentação devem conservar essas separações.",
+    "pictures": []
+  },
+  {
+    "i": 112,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Como alterar uma regra com segurança",
+    "pictures": []
+  },
+  {
+    "i": 113,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Localize a regra no capítulo e na fonte; confira chamadores; altere contrato, regra e serialização quando necessário; adapte interface e cliente mobile; execute testes do domínio; atualize documentação e gerados. Para currículo, confira IDs publicados e compatibilidade do progresso. Para economia, confira extrato e repetição concorrente. Para permissão, use pelo menos proprietário, usuário sem acesso e papel privilegiado quando aplicável.",
+    "pictures": []
+  },
+  {
+    "i": 114,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Os recortes comentados [codigo-comentado.md] e as sequências [sequencias.md] mostram como fazer essa leitura em fluxos reais.",
+    "pictures": []
+  },
+  {
+    "i": 115,
+    "kind": "p",
+    "style": "Ttulo1",
+    "text": "Referência de UML e critérios de modelagem",
+    "pictures": []
+  },
+  {
+    "i": 116,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Referência principal: GUEDES, Gilleanes T. A. UML 2: uma abordagem prática. 3. ed. São Paulo: Novatec, 2018. ISBN 978-85-7522-644-5. Consultado no PDF fornecido pelo grupo. Os números de página abaixo são a posição no PDF de 657 páginas; podem diferir da paginação impressa.",
+    "pictures": []
+  },
+  {
+    "i": 117,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O livro orienta a notação e a organização da documentação. As regras da Stacklyst são verificadas no código do projeto; os exemplos bancários e demais sistemas do livro não são requisitos desta plataforma. Os textos e diagramas desta revisão são próprios do projeto.",
+    "pictures": []
+  },
+  {
+    "i": 118,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Casos de uso e sua especificação",
+    "pictures": []
+  },
+  {
+    "i": 119,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Conforme a seção 3.4 (PDF, pp. 65-67), um caso de uso deve explicar o objetivo do ator e a resposta do sistema em linguagem compreensível. O catálogo identifica nome e ID, ator principal, pré-condições, fluxo principal, resultado esperado e alternativas. Referências de código e regras de negócio complementam a especificação e permitem verificar a implementação. A UML admite formatos diferentes para essa documentação; a estrutura adotada é uma adaptação ao projeto.",
+    "pictures": []
+  },
+  {
+    "i": 120,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Cada passo do catálogo deve ser lido como interação entre ator e sistema. No diagrama, as elipses representam objetivos ou comportamentos reutilizados. Tabelas, componentes React, rotas e consultas são detalhados nos modelos estruturais e nas sequências, sem transformá-los em atores humanos.",
+    "pictures": []
+  },
+  {
+    "i": 121,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Herança dos atores",
+    "pictures": []
+  },
+  {
+    "i": 122,
+    "kind": "p",
+    "style": "Normal",
+    "text": "A generalização/especialização segue a seção 3.7 (PDF, pp. 70-73). Avaliador, Recrutador e Administrador especializam Usuário. A linha contínua termina em triângulo vazio voltado para Usuário, o ator geral. Um papel especializado participa das interações comuns de Usuário e acrescenta as interações autorizadas ao seu papel.",
+    "pictures": []
+  },
+  {
+    "i": 123,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Essa generalização representa papéis de interação. Não afirma que existam subclasses TypeScript desses nomes nem concede permissões em execução: o servidor continua validando sessão, papel, propriedade e escopo. Uma mesma pessoa pode exercer mais de um papel. Cadastro, recuperação e verificação pública são interações de Usuário cujas pré-condições permitem ausência de sessão.",
+    "pictures": []
+  },
+  {
+    "i": 124,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Inclusão, extensão e pontos de extensão",
+    "pictures": []
+  },
+  {
+    "i": 125,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Na inclusão, o comportamento chamado é obrigatório no contexto do caso que o inclui (seção 3.8; PDF, pp. 74-75). A dependência tracejada com «include» aponta do caso base para o incluído. Na visão geral, Resolver exercícios inclui Avaliar resposta; Submeter solução de duelo inclui Executar código. A validação das entradas e a autorização antecedem a execução efetiva, conforme os fluxos alternativos documentados.",
+    "pictures": []
+  },
+  {
+    "i": 126,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Na extensão, o comportamento adicional ocorre sob uma condição, em um ponto identificável do caso base (seções 3.9 a 3.11; PDF, pp. 76-80). A dependência tracejada com «extend» aponta da extensão para o caso base. Executar código estende Avaliar resposta quando a atividade é de código, no ponto avaliar código. Consultar ajuda estende Resolver exercícios se o usuário solicitar e o modo permitir, no ponto consultar ajuda. Atividades objetivas podem ser avaliadas sem execução de código; a ajuda não é uma etapa obrigatória de todos os exercícios.",
+    "pictures": []
+  },
+  {
+    "i": 127,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Relações de inclusão e extensão descrevem dependência comportamental. Não indicam ordem cronológica de navegação. Autenticação é pré-condição dos fluxos protegidos; não se repete um «include Fazer login» para toda operação.",
+    "pictures": []
+  },
+  {
+    "i": 128,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Classes e persistência",
+    "pictures": []
+  },
+  {
+    "i": 129,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Os capítulos 2 e 4 fundamentam classes, atributos, operações e multiplicidades. A seção 4.15 (PDF, pp. 213-218) distingue classes de tabelas e discute o mapeamento para persistência. As vistas CL desta revisão são conceituais, com nomes em português e responsabilidades do domínio. A visão geral tem oito classes; as vistas específicas têm quatro a seis. Uma classe conceitual não afirma que exista uma declaração TypeScript class com o mesmo nome.",
+    "pictures": []
+  },
+  {
+    "i": 130,
+    "kind": "p",
+    "style": "Normal",
+    "text": "As vistas DER são recortes relacionais em notação de classes UML: dez tabelas na visão geral e quatro ou cinco nas vistas específicas. CP significa chave primária e CE, chave estrangeira. Os nomes visíveis são traduções; a tabela de correspondência identifica as tabelas e campos reais. Campos e relações auxiliares permanecem no dicionário completo do banco. O Astah UML instalado não oferece o editor ER da edição Professional; a notação utilizada está explícita. A redução é de apresentação, sem alteração do schema.",
+    "pictures": []
+  },
+  {
+    "i": 131,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Sequências e ligação com o código",
+    "pictures": []
+  },
+  {
+    "i": 132,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O capítulo 7 orienta participantes, linhas de vida, mensagens, retornos e condições. As seções 7.3.3 e 7.8 (PDF, pp. 272-273 e 286-293) apoiam a leitura de respostas e alternativas. A ordem vertical mostra a progressão da interação; a posição horizontal separa responsabilidades.",
+    "pictures": []
+  },
+  {
+    "i": 133,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Nas vistas nativas desta revisão, chamadas são mensagens UML editáveis e condições são guardas nas mensagens e notas de resposta. As respostas podem ser expressas nos valores de retorno das chamadas e em notas de resultado, dispensando setas de retorno redundantes. As sequências completas devem ser lidas junto ao fluxo textual e suas alternativas. Os recortes SQ01-A a SQ01-C e SQ11-A a SQ11-F relacionam uma parte da interação ao arquivo e às linhas reais da implementação.",
+    "pictures": []
+  },
+  {
+    "i": 134,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O cenário principal, os caminhos alternativos e as falhas previstas precisam concordar com a especificação. Um retorno de erro não comprova sucesso, uma prévia não concede recompensa de submissão e uma repetição não deve ser documentada como novo crédito de XP. Essas são regras da implementação conferidas separadamente da referência bibliográfica.",
+    "pictures": []
+  },
+  {
+    "i": 135,
+    "kind": "p",
+    "style": "Ttulo2",
+    "text": "Uso no seminário",
+    "pictures": []
+  },
+  {
+    "i": 136,
+    "kind": "p",
+    "style": "Normal",
+    "text": "A sequência de exposição segue a orientação da professora: protótipo, RF/RNF/RN, modelos estruturais, sequência completa, recortes com código e demonstração prática. A referência de Guedes fundamenta os modelos; a ordem, o tempo e a divisão dos integrantes provêm da orientação do seminário. Os diagramas de atividades previamente aprovados permanecem preservados.",
+    "pictures": []
+  }
+]

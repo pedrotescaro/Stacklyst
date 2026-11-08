@@ -1,0 +1,155 @@
+erDiagram
+  User {
+    String id PK
+    String username
+    String email
+    String avatar_url
+    Json avatar_config
+    String bio
+    String institution
+    String github_username
+    String discord_username
+  }
+  UserBlock {
+    String blockerId PK
+    String blockedId PK
+    DateTime createdAt
+  }
+  Post {
+    String id PK
+    String author_id FK
+    String title
+    String body
+    Language language
+    String code_snippet
+    String image_url
+    String audience
+    Json attachments
+  }
+  PostMedia {
+    String id PK
+    String owner_id FK
+    String post_id FK
+    String storage_path
+    String content_type
+    Int size
+    DateTime created_at
+  }
+  PostPoll {
+    String id PK
+    String post_id FK
+    String question
+    DateTime expires_at
+  }
+  PostPollOption {
+    String id PK
+    String poll_id FK
+    Int position
+    String text
+  }
+  PostPollVote {
+    String id PK
+    String poll_id FK
+    String option_id FK
+    String user_id FK
+  }
+  Answer {
+    String id PK
+    String post_id FK
+    String author_id FK
+    String parent_id FK
+    String body
+    String code_snippet
+    Boolean is_accepted
+    Int upvotes
+    DateTime created_at
+  }
+  PostVote {
+    String id PK
+    String post_id FK
+    String user_id FK
+    Int value
+    DateTime created_at
+  }
+  AnswerVote {
+    String id PK
+    String answer_id FK
+    String user_id FK
+    Int value
+    DateTime created_at
+  }
+  Message {
+    String client_id
+    String id PK
+    String sender_id FK
+    String receiver_id FK
+    String content
+    String image_url
+    Boolean is_edited
+    DateTime created_at
+    DateTime updated_at
+  }
+  MessageReaction {
+    String id PK
+    String message_id FK
+    String user_id FK
+    String emoji
+    DateTime created_at
+  }
+  Bookmark {
+    String id PK
+    String user_id FK
+    String post_id FK
+    DateTime created_at
+  }
+  Notification {
+    String id PK
+    String userId FK
+    NotificationType type
+    String actorId FK
+    String resourceId
+    String resourceType
+    Boolean read
+    DateTime createdAt
+  }
+  Follow {
+    String followerId PK
+    String followingId PK
+    DateTime createdAt
+  }
+  Reaction {
+    String id PK
+    String post_id FK
+    String user_id FK
+    String type
+    DateTime created_at
+  }
+  User ||--o{ UserBlock : "blockerId"
+  User ||--o{ UserBlock : "blockedId"
+  User ||--o{ Post : "author_id"
+  User ||--o{ PostMedia : "owner_id"
+  Post o|--o{ PostMedia : "post_id"
+  Post ||--o| PostPoll : "post_id"
+  PostPoll ||--o{ PostPollOption : "poll_id"
+  PostPoll ||--o{ PostPollVote : "poll_id"
+  PostPollOption ||--o{ PostPollVote : "option_id"
+  User ||--o{ PostPollVote : "user_id"
+  Post ||--o{ Answer : "post_id"
+  User ||--o{ Answer : "author_id"
+  Answer o|--o{ Answer : "parent_id"
+  Post ||--o{ PostVote : "post_id"
+  User ||--o{ PostVote : "user_id"
+  Answer ||--o{ AnswerVote : "answer_id"
+  User ||--o{ AnswerVote : "user_id"
+  User ||--o{ Message : "sender_id"
+  User ||--o{ Message : "receiver_id"
+  Message ||--o{ MessageReaction : "message_id"
+  User ||--o{ MessageReaction : "user_id"
+  User ||--o{ Bookmark : "user_id"
+  Post ||--o{ Bookmark : "post_id"
+  User ||--o{ Notification : "userId"
+  User o|--o{ Notification : "actorId"
+  User ||--o{ Follow : "followerId"
+  User ||--o{ Follow : "followingId"
+  Post ||--o{ Reaction : "post_id"
+  User ||--o{ Reaction : "user_id"

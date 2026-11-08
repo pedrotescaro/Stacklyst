@@ -1,6 +1,10 @@
 # Manual técnico e funcional do Stacklyst
 
-Referência do código local em 2 de novembro de 2026. Descreve implementação, não comprova publicação nem configuração de produção. Os capítulos explicam comportamentos; os inventários extraem estrutura do repositório, sem deduzir regras só pelo nome de uma função.
+Referência do código local em 3 de novembro de 2026. Descreve implementação, não comprova publicação nem configuração de produção. Os capítulos explicam comportamentos; os inventários extraem estrutura do repositório, sem deduzir regras só pelo nome de uma função.
+
+## Documentação aprofundada
+
+A [edição detalhada de novembro](detalhado/README.md) reúne requisitos, regras de negócio, casos de uso, explicação da programação, recortes reais de código, DERs por domínio e sequências completas. Inclui um roteiro de apresentação baseado no material acadêmico fornecido.
 
 ## Roteiro de leitura
 

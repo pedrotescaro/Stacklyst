@@ -1,0 +1,908 @@
+[
+  {
+    "id": "C01",
+    "area": "Conta e acesso",
+    "title": "Criar conta",
+    "actor": "Usuário",
+    "preconditions": "Cadastro disponível e dados válidos",
+    "steps": [
+      "Informar os dados de cadastro",
+      "Enviar à rota de registro",
+      "Validar os campos e tratar identidade no provedor",
+      "Preparar a conta para o fluxo de confirmação/acesso"
+    ],
+    "success": "Conta processada conforme confirmação exigida pelo fluxo",
+    "alternatives": "Dados inválidos, conta já existente ou provedor indisponível não equivalem a cadastro confirmado",
+    "source": "src/app/api/auth/register/route.ts",
+    "rules": ["R01", "R02"]
+  },
+  {
+    "id": "C02",
+    "area": "Conta e acesso",
+    "title": "Confirmar e recuperar acesso",
+    "actor": "Titular da conta",
+    "preconditions": "Token ou pedido de recuperação correspondente à própria conta",
+    "steps": [
+      "Solicitar confirmação ou recuperação",
+      "Processar o link no fluxo autorizado",
+      "Conferir token e dados necessários",
+      "Concluir acesso ou alteração de senha conforme resultado"
+    ],
+    "success": "Titular recebe resultado do fluxo, sem expor senha anterior",
+    "alternatives": "Token inválido/expirado e falha do provedor devem ter tratamento próprio",
+    "source": "src/app/api/auth/reset-password/route.ts",
+    "rules": ["R01", "R02"]
+  },
+  {
+    "id": "C03",
+    "area": "Conta e acesso",
+    "title": "Resolver identidade de uma requisição",
+    "actor": "Usuário",
+    "preconditions": "Sessão fornecida pelos mecanismos admitidos",
+    "steps": [
+      "Ler a sessão",
+      "Identificar o usuário no provedor",
+      "Carregar o usuário de domínio",
+      "Exigir papel quando a operação pedir"
+    ],
+    "success": "Operação utiliza identidade autorizada do servidor",
+    "alternatives": "Ausência de sessão, falta de usuário de domínio e falha de conexão são causas diferentes",
+    "source": "src/lib/auth.ts",
+    "rules": ["R01", "R02", "R03"]
+  },
+  {
+    "id": "C04",
+    "area": "Trilhas",
+    "title": "Escolher curso e navegar no percurso",
+    "actor": "Estudante",
+    "preconditions": "Conteúdo publicado disponível",
+    "steps": [
+      "Abrir a área de trilhas",
+      "Selecionar o curso",
+      "Consultar progresso e caminhos",
+      "Abrir a atividade apresentada como acessível"
+    ],
+    "success": "Interface mostra o contexto escolhido e o progresso conhecido",
+    "alternatives": "Preferência de visualização não concede acesso a conteúdo bloqueado",
+    "source": "src/app/trails/TrailsContent.tsx",
+    "rules": ["R08", "R09", "R10"]
+  },
+  {
+    "id": "C05",
+    "area": "Trilhas",
+    "title": "Consultar disponibilidade de conhecimentos",
+    "actor": "Estudante",
+    "preconditions": "Nós, caminhos e relações carregados",
+    "steps": [
+      "Carregar estados persistidos",
+      "Consultar requisitos obrigatórios",
+      "Derivar disponibilidade/recomendação",
+      "Calcular percentual e próximo nó"
+    ],
+    "success": "Estados concluídos legítimos são preservados",
+    "alternatives": "Caminho vazio retorna percentual seguro; requisito ausente não é ignorado por recomendação",
+    "source": "src/lib/learning/progress.ts",
+    "rules": ["R09", "R10"]
+  },
+  {
+    "id": "C06",
+    "area": "Trilhas",
+    "title": "Abrir lição e conferir pré-requisitos",
+    "actor": "Estudante",
+    "preconditions": "Lição existente no catálogo",
+    "steps": [
+      "Identificar a lição",
+      "Consultar acertos da lição e pré-requisitos",
+      "Permitir revisão de lição já concluída",
+      "Liberar acesso ou retornar LESSON_LOCKED"
+    ],
+    "success": "Acesso coerente com o histórico",
+    "alternatives": "ID inexistente e pré-requisito ausente produzem resultados diferentes",
+    "source": "src/lib/learning/lesson-progress.ts",
+    "rules": ["R11", "R12", "R20"]
+  },
+  {
+    "id": "C07",
+    "area": "Trilhas",
+    "title": "Responder etapa objetiva ou interativa",
+    "actor": "Estudante",
+    "preconditions": "Sessão, lição e etapa elegíveis",
+    "steps": [
+      "Enviar stepId e resposta do tipo apropriado",
+      "Validar schema e acesso",
+      "Aplicar avaliador do tipo de etapa",
+      "Submeter para persistência quando solicitado"
+    ],
+    "success": "Resposta recebe feedback e resultado confirmado",
+    "alternatives": "Formato válido pode estar pedagogicamente errado; tokens/lacunas/pares não usam o mesmo critério",
+    "source": "src/lib/learning/assessment.ts",
+    "rules": ["R12", "R13", "R17"]
+  },
+  {
+    "id": "C08",
+    "area": "Trilhas",
+    "title": "Executar código de lição como prévia",
+    "actor": "Estudante",
+    "preconditions": "Etapa de código com contrato configurado",
+    "steps": [
+      "Enviar action run",
+      "Conferir acesso",
+      "Executar casos públicos ou saída configurada",
+      "Retornar feedback com XP zero"
+    ],
+    "success": "Prévia entregue sem conclusão por submissão",
+    "alternatives": "Indisponibilidade do runner gera erro operacional e não altera progresso",
+    "source": "src/app/api/lessons/[lessonId]/attempt/route.ts",
+    "rules": ["R13", "R16"]
+  },
+  {
+    "id": "C09",
+    "area": "Trilhas",
+    "title": "Submeter e concluir etapa pela primeira vez",
+    "actor": "Estudante",
+    "preconditions": "Resposta avaliada e usuário autorizado",
+    "steps": [
+      "Avaliar resposta",
+      "Abrir transação e lock por usuário",
+      "Consultar tentativa anterior",
+      "Registrar primeiro acerto e recompensa elegível",
+      "Conferir fechamento da lição e credenciais"
+    ],
+    "success": "Progresso e XP confirmados sem crédito duplicado",
+    "alternatives": "Repetição de acerto mantém XP zero; erro anterior pode ser promovido a acerto",
+    "source": "src/lib/learning/lesson-progress.ts",
+    "rules": ["R14", "R15", "R25"]
+  },
+  {
+    "id": "C10",
+    "area": "Trilhas",
+    "title": "Executar exercício persistido",
+    "actor": "Estudante",
+    "preconditions": "Acesso ao nó e exercício disponível",
+    "steps": [
+      "Carregar workspace público",
+      "Escrever solução",
+      "Avaliar contra os casos de prévia",
+      "Registrar execução e devolver resultado"
+    ],
+    "success": "Execução separada da conclusão",
+    "alternatives": "Ver console não comprova retorno correto; gabaritos ocultos não são devolvidos",
+    "source": "src/lib/exercises/repository.ts",
+    "rules": ["R12", "R13", "R17"]
+  },
+  {
+    "id": "C11",
+    "area": "Trilhas",
+    "title": "Submeter exercício e atualizar nó",
+    "actor": "Estudante",
+    "preconditions": "Exercício elegível e avaliação válida",
+    "steps": [
+      "Executar contrato de submissão",
+      "Validar resultado",
+      "Registrar submissão sob proteção concorrente",
+      "Creditar primeira conclusão",
+      "Atualizar progresso do nó"
+    ],
+    "success": "Submissão e efeitos pedagógicos persistidos",
+    "alternatives": "Repetição não duplica primeira conclusão; resultado indisponível não é sucesso",
+    "source": "src/lib/exercises/repository.ts",
+    "rules": ["R14", "R15", "R18", "R19"]
+  },
+  {
+    "id": "C12",
+    "area": "Trilhas",
+    "title": "Consultar ajuda e registrar assistência",
+    "actor": "Estudante",
+    "preconditions": "Modo e recurso de ajuda compatíveis",
+    "steps": [
+      "Abrir o workspace",
+      "Solicitar a ajuda permitida",
+      "Registrar evento correspondente",
+      "Continuar tentativa com o mesmo contrato de correção"
+    ],
+    "success": "Assistência registrada sem inventar bônus de XP",
+    "alternatives": "Modo de ajuda não mede por si domínio independente",
+    "source": "src/lib/exercises/repository.ts",
+    "rules": ["R18", "R19"]
+  },
+  {
+    "id": "C13",
+    "area": "Trilhas",
+    "title": "Resgatar etapa especial do percurso",
+    "actor": "Estudante",
+    "preconditions": "Requisitos do resgate correspondente satisfeitos",
+    "steps": [
+      "Solicitar checkpoint, baú ou salto pela rota própria",
+      "Conferir evidências exigidas",
+      "Registrar recibo idempotente",
+      "Retornar benefício confirmado"
+    ],
+    "success": "Resgate associado à regra específica",
+    "alternatives": "Não usar validação de quiz genérico para responder um recibo de recompensa",
+    "source": "src/app/api/trails/chest/route.ts",
+    "rules": ["R14", "R21"]
+  },
+  {
+    "id": "C14",
+    "area": "Reconhecimento",
+    "title": "Consultar e emitir credencial elegível",
+    "actor": "Estudante",
+    "preconditions": "Evidências pedagógicas registradas",
+    "steps": [
+      "Consultar metas",
+      "Reconciliar requisitos em contexto autorizado",
+      "Emitir snapshot elegível uma vez",
+      "Mostrar coleção e validade"
+    ],
+    "success": "Credencial vinculada às evidências e versão",
+    "alternatives": "XP ou estudo declarado não substitui requisito; leitura pública não emite",
+    "source": "src/lib/credentials/repository.ts",
+    "rules": ["R25", "R26", "R28"]
+  },
+  {
+    "id": "C15",
+    "area": "Reconhecimento",
+    "title": "Verificar credencial pública",
+    "actor": "Usuário",
+    "preconditions": "Identificador de credencial",
+    "steps": [
+      "Consultar identificador",
+      "Carregar registro e snapshot",
+      "Conferir integridade e revogação",
+      "Apresentar validade"
+    ],
+    "success": "Verificação mostra o estado do registro",
+    "alternatives": "ID inválido, ausência, revogação e falha de integridade não são certificados válidos",
+    "source": "src/lib/credentials/repository.ts",
+    "rules": ["R25", "R26", "R27"]
+  },
+  {
+    "id": "C16",
+    "area": "Reconhecimento",
+    "title": "Gerar PDF de credencial",
+    "actor": "Titular ou usuário sem sessão autorizado pelo fluxo",
+    "preconditions": "Credencial disponível para consulta/geração",
+    "steps": [
+      "Solicitar o documento",
+      "Carregar definição e dados válidos",
+      "Compor PDF, assinatura visual e QR",
+      "Devolver documento"
+    ],
+    "success": "PDF corresponde ao registro consultável",
+    "alternatives": "A aparência da assinatura não é uma assinatura criptográfica nem mede horas reais",
+    "source": "src/lib/credentials/pdf.ts",
+    "rules": ["R25", "R27", "R28"]
+  },
+  {
+    "id": "C17",
+    "area": "Comunidade",
+    "title": "Criar publicação",
+    "actor": "Usuário",
+    "preconditions": "Sessão e payload válidos; anexos próprios quando usados",
+    "steps": [
+      "Compor conteúdo",
+      "Enviar com identificação de repetição",
+      "Validar propriedade e contrato",
+      "Persistir publicação e efeitos",
+      "Atualizar tela com resultado"
+    ],
+    "success": "Post criado uma vez para o pedido identificado",
+    "alternatives": "Reenvio com mesmo client_id retorna a publicação existente; anexo incompatível é rejeitado",
+    "source": "src/services/post.service.ts",
+    "rules": ["R29", "R30"]
+  },
+  {
+    "id": "C18",
+    "area": "Comunidade",
+    "title": "Consultar feed e buscar conteúdo",
+    "actor": "Usuário conforme rota",
+    "preconditions": "Contexto de audiência e filtros definidos",
+    "steps": [
+      "Selecionar filtros",
+      "Aplicar visibilidade e paginação na consulta",
+      "Carregar página limitada",
+      "Ordenar/apresentar os resultados e cursor"
+    ],
+    "success": "Página coerente com acesso e consulta",
+    "alternatives": "Bloqueios, audiência e cursor podem explicar item ausente; ID não remove restrições",
+    "source": "src/services/post.service.ts",
+    "rules": ["R02", "R07", "R29"]
+  },
+  {
+    "id": "C19",
+    "area": "Comunidade",
+    "title": "Responder e encadear conversa",
+    "actor": "Usuário",
+    "preconditions": "Publicação acessível e pai válido quando houver",
+    "steps": [
+      "Abrir o post",
+      "Escrever resposta",
+      "Conferir acesso e vínculo com o pai",
+      "Persistir resposta e apresentar na conversa"
+    ],
+    "success": "Mensagem vinculada ao post e à sequência correta",
+    "alternatives": "Responder não dá direito de alterar o post; conhecer parent_id não basta",
+    "source": "src/app/api/posts/[id]/answer/route.ts",
+    "rules": ["R29", "R31"]
+  },
+  {
+    "id": "C20",
+    "area": "Comunidade",
+    "title": "Reagir a publicação",
+    "actor": "Usuário",
+    "preconditions": "Post acessível e tipo de reação aceito",
+    "steps": [
+      "Selecionar reação",
+      "Conferir interação e audiência",
+      "Criar, trocar ou remover associação",
+      "Manter recompensa/reversão consistente"
+    ],
+    "success": "Uma reação por usuário/post no estado atual",
+    "alternatives": "Tipo inválido é rejeitado; repetir o mesmo tipo não cria outro crédito",
+    "source": "src/services/reaction.service.ts",
+    "rules": ["R29", "R32", "R33"]
+  },
+  {
+    "id": "C21",
+    "area": "Comunidade",
+    "title": "Salvar e consultar publicação",
+    "actor": "Usuário",
+    "preconditions": "Post acessível no momento da ação",
+    "steps": [
+      "Solicitar salvamento",
+      "Atualizar associação usuário/post",
+      "Consultar itens salvos com controles de acesso",
+      "Abrir ou remover referência"
+    ],
+    "success": "Item salvo representa o recurso original",
+    "alternatives": "Excluir ou restringir o post pode impedir acesso posterior",
+    "source": "src/app/bookmarks/page.tsx",
+    "rules": ["R07", "R29", "R34"]
+  },
+  {
+    "id": "C22",
+    "area": "Perfil",
+    "title": "Personalizar identidade e equipar título",
+    "actor": "Usuário",
+    "preconditions": "Catálogo e versão de preferências conhecidos",
+    "steps": [
+      "Editar campos e aparência",
+      "Validar schema e itens disponíveis",
+      "Conferir versão e titular",
+      "Persistir e apresentar identidade normalizada"
+    ],
+    "success": "Perfil usa configuração autorizada",
+    "alternatives": "Nome estilizado não altera papel; título indisponível não é concedido pelo payload",
+    "source": "src/services/profile-customization.service.ts",
+    "rules": ["R03", "R28"]
+  },
+  {
+    "id": "C23",
+    "area": "Perfil",
+    "title": "Seguir e consultar sugestões",
+    "actor": "Usuário",
+    "preconditions": "Outra conta acessível e interação permitida",
+    "steps": [
+      "Consultar perfil/sugestões",
+      "Solicitar seguir ou deixar de seguir",
+      "Conferir bloqueios e regra da relação",
+      "Atualizar associação direcional"
+    ],
+    "success": "Relação atualizada sem criar mutualidade fictícia",
+    "alternatives": "Seguir numa direção não torna as contas amigas mútuas",
+    "source": "src/services/follow.service.ts",
+    "rules": ["R05", "R06"]
+  },
+  {
+    "id": "C24",
+    "area": "Perfil",
+    "title": "Bloquear conta",
+    "actor": "Usuário",
+    "preconditions": "Identidade do alvo e sessão válidas",
+    "steps": [
+      "Solicitar bloqueio",
+      "Aplicar regra de interação",
+      "Persistir relação de bloqueio",
+      "Refletir restrições nos fluxos afetados"
+    ],
+    "success": "Bloqueio influencia consultas e interações",
+    "alternatives": "Ocultar um botão sem filtrar as APIs não implementa a regra",
+    "source": "src/services/block.service.ts",
+    "rules": ["R02", "R06"]
+  },
+  {
+    "id": "C25",
+    "area": "Recursos pessoais",
+    "title": "Consultar ranking",
+    "actor": "Usuário ou usuário sem sessão conforme superfície",
+    "preconditions": "Métrica, linguagem e período escolhidos",
+    "steps": [
+      "Consultar fonte adequada de XP",
+      "Aplicar filtros de período/linguagem",
+      "Ordenar com desempates",
+      "Mostrar posição correspondente"
+    ],
+    "success": "Ranking contextual, reproduzível pela métrica",
+    "alternatives": "Posição geral e posição mensal podem divergir legitimamente",
+    "source": "src/lib/learning/rewards.ts",
+    "rules": ["R22", "R23", "R24"]
+  },
+  {
+    "id": "C26",
+    "area": "Recursos pessoais",
+    "title": "Consultar e marcar notificações",
+    "actor": "Usuário",
+    "preconditions": "Sessão do destinatário",
+    "steps": [
+      "Consultar página de notificações",
+      "Aplicar visibilidade e paginação",
+      "Marcar leitura na própria lista",
+      "Conferir acesso ao abrir destino"
+    ],
+    "success": "Lista/contador refletem registros do destinatário",
+    "alternatives": "Push ausente não prova ausência de registro; notificação não autoriza o recurso",
+    "source": "src/services/notification.service.ts",
+    "rules": ["R35", "R38"]
+  },
+  {
+    "id": "C27",
+    "area": "Recursos pessoais",
+    "title": "Enviar e consultar mensagem",
+    "actor": "Usuário",
+    "preconditions": "Destinatário informado e sem bloqueio impeditivo",
+    "steps": [
+      "Conferir sessão e limite",
+      "Validar interação",
+      "Gravar mensagem",
+      "Tentar notificação",
+      "Consultar histórico entre os dois participantes"
+    ],
+    "success": "Mensagem persistida e histórico privado",
+    "alternatives": "Terceiro não recebe conversa por conhecer ID; notificação pode falhar após gravação",
+    "source": "src/app/api/messages/route.ts",
+    "rules": ["R06", "R36", "R37", "R38"]
+  },
+  {
+    "id": "C28",
+    "area": "Recursos pessoais",
+    "title": "Alterar configurações",
+    "actor": "Titular da conta",
+    "preconditions": "Sessão e preferência editável",
+    "steps": [
+      "Abrir seção de configuração",
+      "Editar e validar dados",
+      "Persistir pela API correspondente quando necessário",
+      "Sincronizar estado da interface"
+    ],
+    "success": "Preferência passa a valer no escopo implementado",
+    "alternatives": "Tema local não concede autorização nem garante sincronização em todos os dispositivos",
+    "source": "src/app/settings/page.tsx",
+    "rules": ["R01", "R03"]
+  },
+  {
+    "id": "C29",
+    "area": "Mundinho",
+    "title": "Explorar clareira com personagem",
+    "actor": "Jogador",
+    "preconditions": "Estado RPG e aparência carregados",
+    "steps": [
+      "Entrar no mundo",
+      "Mover no espaço permitido",
+      "Aproximar-se de alvo",
+      "Interagir com objeto ou criatura"
+    ],
+    "success": "Mundo apresenta interações compatíveis com estado",
+    "alternatives": "Animação e posição local não confirmam recompensa do servidor",
+    "source": "src/components/mundinho/World.tsx",
+    "rules": ["R39", "R46"]
+  },
+  {
+    "id": "C30",
+    "area": "Mundinho",
+    "title": "Resgatar baú diário e check-in",
+    "actor": "Jogador",
+    "preconditions": "Sessão e dia calculado pelo servidor",
+    "steps": [
+      "Solicitar resgate específico",
+      "Conferir recibo/chave do evento",
+      "Creditar benefício elegível em transação",
+      "Devolver confirmação e atualizar visual"
+    ],
+    "success": "Um crédito por origem elegível",
+    "alternatives": "Baú repetido no mesmo dia não duplica 10 moedas; check-in tem ciclo distinto",
+    "source": "src/lib/mundinho/repository.ts",
+    "rules": ["R40", "R41", "R42", "R43"]
+  },
+  {
+    "id": "C31",
+    "area": "Mundinho",
+    "title": "Comprar e equipar item",
+    "actor": "Jogador",
+    "preconditions": "Item de catálogo e saldo/posse suficientes",
+    "steps": [
+      "Escolher item",
+      "Conferir catálogo, preço e inventário",
+      "Aplicar compra ou equipar slot compatível",
+      "Recalcular estatísticas autorizadas"
+    ],
+    "success": "Saldo, posse e bônus coerentes",
+    "alternatives": "Preço ou inventário enviados livremente pelo cliente não concedem vantagem",
+    "source": "src/lib/mundinho/equipment.ts",
+    "rules": ["R44", "R45", "R48", "R49", "R50"]
+  },
+  {
+    "id": "C32",
+    "area": "Mundinho",
+    "title": "Enfrentar criatura",
+    "actor": "Jogador",
+    "preconditions": "Nível e encontro elegíveis",
+    "steps": [
+      "Selecionar criatura",
+      "Persistir nível e vida do encontro",
+      "Escolher golpe e resolver exercício quando sorteado",
+      "Aplicar dano/efeitos e resultado"
+    ],
+    "success": "Batalha usa o mesmo nível apresentado no mapa",
+    "alternatives": "Erro/indisponibilidade seguem regras distintas; chefe não deve herdar nível do jogador",
+    "source": "src/lib/mundinho/repository.ts",
+    "rules": ["R46", "R47", "R48", "R49"]
+  },
+  {
+    "id": "C33",
+    "area": "Mundinho",
+    "title": "Convidar amigo para arena",
+    "actor": "Jogador e amigo mútuo",
+    "preconditions": "Relações mútuas e ausência de bloqueio",
+    "steps": [
+      "Entrar pelo portal",
+      "Abrir pop-up e selecionar amigo",
+      "Criar convite com validade",
+      "Convidado aceita e entra na sala"
+    ],
+    "success": "Sala privada com participantes autorizados",
+    "alternatives": "Convite expirado, amizade removida ou bloqueio impedem a operação",
+    "source": "src/lib/mundinho/arena.ts",
+    "rules": ["R05", "R51", "R52"]
+  },
+  {
+    "id": "C34",
+    "area": "Mundinho",
+    "title": "Sincronizar presença e aparência",
+    "actor": "Dois jogadores",
+    "preconditions": "Sala acessível e identidades válidas",
+    "steps": [
+      "Enviar snapshot de posição",
+      "Conferir limites e participação",
+      "Derivar aparência do banco",
+      "Aplicar somente versão mais nova no cliente"
+    ],
+    "success": "Cada jogador vê nome e roupas autorizadas do outro",
+    "alternatives": "Pacote de movimento não pode forjar identidade; resposta velha é descartada",
+    "source": "src/lib/mundinho/arena-rules.ts",
+    "rules": ["R52", "R60"]
+  },
+  {
+    "id": "C35",
+    "area": "Mundinho",
+    "title": "Disputar PvP com equipamentos",
+    "actor": "Dois jogadores",
+    "preconditions": "Ambos confirmaram e bônus foram capturados",
+    "steps": [
+      "Sortear ator inicial",
+      "Escolher golpe no próprio turno",
+      "Resolver golpe direto ou exercício travado",
+      "Aplicar efeitos e alternar",
+      "Encerrar ou aguardar turno seguinte"
+    ],
+    "success": "Resultado consistente com vida, proteção, cura e desgaste",
+    "alternatives": "Repetir ataque não refaz chance; submissão atrasada não repete dano",
+    "source": "src/lib/mundinho/arena-rules.ts",
+    "rules": ["R53", "R54", "R55", "R56", "R57", "R58", "R59"]
+  },
+  {
+    "id": "C36",
+    "area": "Duelos",
+    "title": "Convidar e aceitar duelo competitivo",
+    "actor": "Dois usuários",
+    "preconditions": "Convite/partida compatível com estado e política",
+    "steps": [
+      "Enviar convite",
+      "Aguardar resposta dentro da validade",
+      "Aceitar e iniciar compromisso",
+      "Resolver expiração/publicação opcional conforme regra"
+    ],
+    "success": "Duelo entra no ciclo apropriado",
+    "alternatives": "Recusa/expiração do convite não é abandono de partida aceita",
+    "source": "src/services/duel.service.ts",
+    "rules": ["R61", "R62", "R71"]
+  },
+  {
+    "id": "C37",
+    "area": "Duelos",
+    "title": "Executar e submeter solução competitiva",
+    "actor": "Participante do duelo",
+    "preconditions": "Partida ativa e usuário participante",
+    "steps": [
+      "Escrever solução",
+      "Testar como prévia",
+      "Submeter pelo endpoint de solução",
+      "Registrar avaliação e considerar melhor submissão"
+    ],
+    "success": "Resultado competitivo passa pelo juiz e pela política",
+    "alternatives": "Terceiro, prazo encerrado e juiz indisponível não são solução aceita",
+    "source": "src/lib/duels/judge.ts",
+    "rules": ["R63", "R64"]
+  },
+  {
+    "id": "C38",
+    "area": "Duelos",
+    "title": "Resolver vencedor, empate ou revisão",
+    "actor": "Serviço de resolução",
+    "preconditions": "Resultados ou prazo elegíveis para encerramento",
+    "steps": [
+      "Escolher submissões representativas",
+      "Comparar correção e critérios ordenados",
+      "Decidir fechamento ou revisão",
+      "Persistir estado e crédito único"
+    ],
+    "success": "Resultado registrado uma vez",
+    "alternatives": "Sintaxe normalizada igual leva a revisão; runtime isolado não escolhe vencedor",
+    "source": "src/lib/duels/resolution-policy.ts",
+    "rules": ["R64", "R65", "R66", "R67", "R68", "R69", "R70"]
+  },
+  {
+    "id": "C39",
+    "area": "Avaliadores",
+    "title": "Solicitar e analisar candidatura",
+    "actor": "Candidato e administrador",
+    "preconditions": "Evidências e motivação compatíveis",
+    "steps": [
+      "Conferir elegibilidade",
+      "Registrar candidatura com tecnologias",
+      "Administrador analisa com justificativa",
+      "Atualizar registros e situação"
+    ],
+    "success": "Acesso de avaliador segue processo autorizado",
+    "alternatives": "Bio ou edição genérica de papel não substitui aprovação válida",
+    "source": "src/services/evaluator.service.ts",
+    "rules": ["R03", "R72", "R75"]
+  },
+  {
+    "id": "C40",
+    "area": "Avaliadores",
+    "title": "Emitir parecer humano",
+    "actor": "Avaliador autorizado",
+    "preconditions": "Revisão pendente, tecnologia e ausência de conflito",
+    "steps": [
+      "Conferir papel/situação",
+      "Conferir participantes e tecnologia",
+      "Validar notas e feedback",
+      "Persistir parecer e recompensa prevista"
+    ],
+    "success": "Parecer autorizado registrado",
+    "alternatives": "Participante, suspenso ou tecnologia incompatível não pode avaliar o caso",
+    "source": "src/services/evaluator.service.ts",
+    "rules": ["R73", "R74", "R75"]
+  },
+  {
+    "id": "C41",
+    "area": "Recrutamento",
+    "title": "Criar empresa e vaga",
+    "actor": "Gestor autorizado",
+    "preconditions": "Conta e acesso à empresa conforme fluxo",
+    "steps": [
+      "Criar/selecionar empresa",
+      "Conferir acesso",
+      "Definir vaga e etapas",
+      "Persistir oportunidade"
+    ],
+    "success": "Vaga vinculada à empresa do gestor",
+    "alternatives": "Criar empresa não dá acesso à de outro recrutador",
+    "source": "src/services/job.service.ts",
+    "rules": ["R04", "R79"]
+  },
+  {
+    "id": "C42",
+    "area": "Recrutamento",
+    "title": "Candidatar-se a vaga",
+    "actor": "Candidato",
+    "preconditions": "Vaga aberta e sem candidatura anterior",
+    "steps": [
+      "Consultar vaga",
+      "Enviar candidatura",
+      "Conferir estado e unicidade",
+      "Criar APPLIED e etapa inicial"
+    ],
+    "success": "Candidatura vinculada à pessoa e vaga",
+    "alternatives": "Vaga fechada/inexistente e duplicata são rejeitadas",
+    "source": "src/services/job.service.ts",
+    "rules": ["R76", "R77", "R78"]
+  },
+  {
+    "id": "C43",
+    "area": "Recrutamento",
+    "title": "Movimentar candidatura no funil",
+    "actor": "Recrutador ou administrador",
+    "preconditions": "Acesso à empresa e candidatura existente",
+    "steps": [
+      "Consultar candidatos autorizados",
+      "Escolher etapa/status",
+      "Gravar mudança e auditoria",
+      "Tentar notificar candidato"
+    ],
+    "success": "Funil confirmado sem expor feedback privado na listagem pública",
+    "alternatives": "Falha de push não implica rollback; etapa de outra vaga não deve ser aceita pela fronteira",
+    "source": "src/services/job.service.ts",
+    "rules": ["R04", "R79", "R80"]
+  },
+  {
+    "id": "C44",
+    "area": "Eventos",
+    "title": "Criar evento ou hackathon",
+    "actor": "Gestor autorizado no fluxo",
+    "preconditions": "Dados e vínculo organizacional admitidos pela rota",
+    "steps": [
+      "Definir tipo, datas, capacidade e nível",
+      "Validar autorização",
+      "Persistir evento",
+      "Consultar status efetivo"
+    ],
+    "success": "Evento consultável com regras declaradas",
+    "alternatives": "Tipo hackathon não cria automaticamente equipes e juiz de submissões",
+    "source": "src/services/event.service.ts",
+    "rules": ["R83", "R84", "R87"]
+  },
+  {
+    "id": "C45",
+    "area": "Eventos",
+    "title": "Inscrever-se e cancelar participação",
+    "actor": "Usuário",
+    "preconditions": "Evento elegível e acesso válido",
+    "steps": [
+      "Consultar participação",
+      "Serializar nova inscrição por evento",
+      "Conferir encerramento/capacidade/nível",
+      "Criar participação ou cancelar conforme regra"
+    ],
+    "success": "Participação única e capacidade preservada",
+    "alternatives": "Repetir inscrição devolve existente; evento lotado/encerrado rejeita nova participação",
+    "source": "src/services/event.service.ts",
+    "rules": ["R81", "R82", "R83", "R84"]
+  },
+  {
+    "id": "C46",
+    "area": "Eventos",
+    "title": "Gerenciar desafios de evento",
+    "actor": "Criador ou administrador autorizado",
+    "preconditions": "Evento editável e conjunto dentro dos limites",
+    "steps": [
+      "Validar gestor",
+      "Validar 3–20 desafios e seus exemplos",
+      "Substituir conjunto em transação",
+      "Ocultar respostas esperadas de não gestores"
+    ],
+    "success": "Conjunto ordenado e protegido",
+    "alternatives": "Evento encerrado ou conjunto fora dos limites não é aceito",
+    "source": "src/services/event-challenge.service.ts",
+    "rules": ["R85", "R86", "R87"]
+  },
+  {
+    "id": "C47",
+    "area": "Administração",
+    "title": "Administrar e auditar operações",
+    "actor": "Administrador",
+    "preconditions": "Papel e recurso elegíveis",
+    "steps": [
+      "Abrir painel",
+      "Conferir autorização da operação",
+      "Aplicar gestão permitida",
+      "Registrar auditoria sensível"
+    ],
+    "success": "Alteração rastreável",
+    "alternatives": "Edição de papel não deve contornar processo de avaliador",
+    "source": "src/services/admin.service.ts",
+    "rules": ["R02", "R03"]
+  },
+  {
+    "id": "C48",
+    "area": "Mobile",
+    "title": "Usar o domínio pelo aplicativo",
+    "actor": "Usuário mobile",
+    "preconditions": "Sessão e versão compatíveis; rede para operações remotas",
+    "steps": [
+      "Abrir recurso no aplicativo",
+      "Encaminhar operação pela API/ponte",
+      "Aplicar regras do servidor",
+      "Atualizar apresentação nativa ou embarcada"
+    ],
+    "success": "Cliente reflete resposta do mesmo domínio",
+    "alternatives": "Arte embarcada não torna saldo ou PvP offline",
+    "source": "apps/mobile/src/mundinho/AdventureScreen.tsx",
+    "rules": ["R01", "R39", "R51"]
+  },
+  {
+    "id": "C49",
+    "area": "Conteúdo editorial",
+    "title": "Importar perfis e threads sem reset",
+    "actor": "Operador autorizado",
+    "preconditions": "Credenciais locais e nomes reservados sem conflito",
+    "steps": [
+      "Consultar plano",
+      "Provisionar só identidades faltantes",
+      "Aplicar coleção em transação com IDs estáveis",
+      "Conferir quantidades e visibilidade"
+    ],
+    "success": "Coleção atualizada sem duplicar ou apagar comunidade",
+    "alternatives": "Colisão com conta comum interrompe; seed destrutivo é outro comando",
+    "source": "prisma/demo-community/publish.ts",
+    "rules": ["R88"]
+  },
+  {
+    "id": "C50",
+    "area": "Quizzes",
+    "title": "Consultar e responder quiz diário",
+    "actor": "Usuário",
+    "preconditions": "Questão diária disponível para o período",
+    "steps": [
+      "Obter questão do dia",
+      "Conferir acesso ao conteúdo relacionado",
+      "Enviar alternativa",
+      "Validar acerto e primeira tentativa conforme contrato"
+    ],
+    "success": "Tentativa registrada com recompensa elegível",
+    "alternatives": "Dia UTC do quiz não é o dia de São Paulo usado no baú; conteúdo privado não alimenta o quiz público",
+    "source": "src/services/daily-quiz.service.ts",
+    "rules": ["R12", "R14", "R89"]
+  },
+  {
+    "id": "C52",
+    "area": "Comunidade",
+    "title": "Votar em enquete",
+    "actor": "Usuário",
+    "preconditions": "Post acessível e enquete válida",
+    "steps": [
+      "Abrir enquete",
+      "Escolher opção",
+      "Validar voto e vínculo da opção",
+      "Persistir e apresentar contagem"
+    ],
+    "success": "Voto pertence à opção correta e ao votante autorizado",
+    "alternatives": "Reações do post não são votos de enquete; consultar a rota para mudança/fechamento",
+    "source": "src/app/api/posts/[id]/poll/route.ts",
+    "rules": ["R29", "R91"]
+  },
+  {
+    "id": "C53",
+    "area": "Comunidade",
+    "title": "Denunciar publicação",
+    "actor": "Usuário",
+    "preconditions": "Post e motivo admitidos pelo fluxo",
+    "steps": [
+      "Identificar conteúdo",
+      "Enviar denúncia",
+      "Conferir contrato e identidade",
+      "Registrar para consulta administrativa"
+    ],
+    "success": "Denúncia disponível para a gestão autorizada",
+    "alternatives": "Denunciar não concede ao denunciante direito de apagar a publicação",
+    "source": "src/app/api/posts/[id]/report/route.ts",
+    "rules": ["R02", "R92"]
+  },
+  {
+    "id": "C54",
+    "area": "Mídia",
+    "title": "Enviar imagem de perfil ou recurso compatível",
+    "actor": "Usuário",
+    "preconditions": "Sessão e arquivo aceito pela rota de upload",
+    "steps": [
+      "Enviar multipart",
+      "Conferir tamanho e tipo",
+      "Validar assinatura do arquivo e processamento",
+      "Persistir no armazenamento e devolver referência"
+    ],
+    "success": "Referência de mídia após envio processado",
+    "alternatives": "MIME declarado não basta; esta rota aceita raster e limite próprio, não todo tipo de anexo",
+    "source": "src/app/api/upload/route.ts",
+    "rules": ["R02", "R93"]
+  }
+]

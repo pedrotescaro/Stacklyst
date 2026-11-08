@@ -402,6 +402,93 @@ export function normalizeProfileTitleName(id: string, name: string): string {
   return name;
 }
 
+export const TITLE_NAMES_EN: Record<string, string> = {
+  Iniciante: 'Beginner',
+  'Voz Ativa': 'Active Voice',
+  'Criador Ativo': 'Active Creator',
+  'Criador Frequente': 'Frequent Creator',
+  'Criador Consistente': 'Consistent Creator',
+  Veterano: 'Veteran',
+  'Ícone do Stacklyst': 'Stacklyst Icon',
+  Participativo: 'Engaged',
+  Comunicativo: 'Communicative',
+  Conversador: 'Conversationalist',
+  'Voz da Comunidade': 'Community Voice',
+  'Mão amiga': 'Helping Hand',
+  'Conecta pessoas': 'People Connector',
+  'Em Destaque': 'Featured',
+  Apreciado: 'Appreciated',
+  Popular: 'Popular',
+  Comunicador: 'Communicator',
+  'Aprendiz em ação': 'Learner in Action',
+  Explorador: 'Explorer',
+  Maratonista: 'Marathoner',
+  'Espírito de Halloween': 'Halloween Spirit',
+  'Criatura da Noite': 'Creature of the Night',
+  'Lenda Assombrada': 'Haunted Legend',
+  'Espírito do Natal': 'Christmas Spirit',
+  'Celebração Stacklyst': 'Stacklyst Celebration',
+  Muuuu: 'Muuuu',
+  Estrela: 'Star',
+  Pastel: 'Pastel',
+  Abóbora: 'Pumpkin',
+  Pythonista: 'Pythonista',
+  Rustcean: 'Rustacean',
+  'Caça-bugs': 'Bug Hunter',
+  Primordial: 'Primordial',
+  'Título Primordial': 'Primordial Title',
+
+  'posts-1': 'Beginner',
+  'posts-10': 'Active Voice',
+  'posts-50': 'Active Creator',
+  'posts-100': 'Frequent Creator',
+  'posts-200': 'Consistent Creator',
+  'posts-500': 'Veteran',
+  'posts-1000': 'Stacklyst Icon',
+  'comments-5': 'Engaged',
+  'comments-10': 'Communicative',
+  'comments-50': 'Conversationalist',
+  'comments-100': 'Community Voice',
+  'people-5': 'Helping Hand',
+  'people-10': 'People Connector',
+  'likes-100': 'Featured',
+  'likes-1000': 'Appreciated',
+  'followers-100': 'Popular',
+  'followers-1000': 'Communicator',
+  'learning-first': 'Learner in Action',
+  'trails-1': 'Explorer',
+  'trails-3': 'Marathoner',
+  'halloween-spirit': 'Halloween Spirit',
+  'halloween-night': 'Creature of the Night',
+  'halloween-legend': 'Haunted Legend',
+  'christmas-spirit': 'Christmas Spirit',
+  'birthday-founder': 'Stacklyst Celebration',
+  'first-of-month': 'Muuuu',
+  estrela: 'Star',
+  pastel: 'Pastel',
+  abobora: 'Pumpkin',
+  pythonista: 'Pythonista',
+  rustcean: 'Rustacean',
+  'bug-hunter': 'Bug Hunter',
+  primordial: 'Primordial',
+};
+
+export function getLocalizedTitleName(
+  title: { id?: string; name: string } | string,
+  isEnglish = false
+): string {
+  if (!isEnglish) {
+    return typeof title === 'string' ? title : title.name;
+  }
+  if (typeof title === 'string') {
+    return TITLE_NAMES_EN[title] ?? title;
+  }
+  if (title.id && TITLE_NAMES_EN[title.id]) {
+    return TITLE_NAMES_EN[title.id];
+  }
+  return TITLE_NAMES_EN[title.name] ?? title.name;
+}
+
 export function getAchievementInstructions(
   achievement: {
     id: string;
@@ -414,7 +501,8 @@ export function getAchievementInstructions(
   },
   events: ProfileCatalog['events'] = [],
   achievements: ReadonlyArray<AchievementDefinition> = DEFAULT_PROFILE_CATALOG.achievements,
-  now = new Date()
+  now = new Date(),
+  isEnglish = false
 ): AchievementInstructionInfo {
   const { metric, target, eventId, hashtag } = achievement.requirement;
   const event = eventId ? events.find((item) => item.id === eventId) : undefined;
@@ -423,7 +511,137 @@ export function getAchievementInstructions(
     isEvent &&
     (!event || !event.enabled || now < new Date(event.startsAt) || now >= new Date(event.endsAt));
   const plural = (one: string, many: string) => (target === 1 ? one : many);
-  const amount = target.toLocaleString('pt-BR');
+  const amount = target.toLocaleString(isEnglish ? 'en-US' : 'pt-BR');
+
+  if (isEnglish) {
+    const flavorByMetricEn: Record<string, string> = {
+      posts: 'Ideas and discoveries that become part of the community.',
+      comments: 'Every good conversation starts with a contribution.',
+      firstDayComments: 'Every month deserves a first conversation.',
+      hashtagPosts: 'A small tradition to share in the feed.',
+      peopleHelped: 'Knowledge makes more sense when shared.',
+      likes: 'Your contributions found recognition in the community.',
+      followers: 'People who chose to follow your next ideas.',
+      learningActivities: 'Learn, practice, and demonstrate what you know.',
+      completedTrails: 'A learning journey completed, step by step.',
+      completedTrailPython: 'The Pythonic path traveled from start to finish.',
+      completedTrailRust: 'Ownership, safe types, and the compiler forge mastered.',
+      eventPosts: event ? `A keepsake from ${event.name}.` : 'A community celebration.',
+      eventComments: event
+        ? `Conversations that marked ${event.name}.`
+        : 'A community celebration.',
+      eventComplete: event
+        ? `All goals from ${event.name} in your collection.`
+        : 'A community celebration.',
+    };
+
+    let customFlavorEn: string | undefined;
+    let customDescEn: string | undefined;
+    let customHowEn: string | undefined;
+
+    if (achievement.id === 'first-of-month') {
+      customFlavorEn = 'Every month deserves a first conversation.';
+      customDescEn = 'Write an original comment to another member on the first day of any month.';
+    } else if (achievement.id === 'estrela') {
+      customFlavorEn = 'An idea that found its place in the feed.';
+      customDescEn = 'Publish an original post with the #star hashtag.';
+    } else if (achievement.id === 'pastel') {
+      customFlavorEn = 'A tasty break between one idea and the next.';
+      customDescEn = 'Publish an original post with the #pastel hashtag.';
+    } else if (achievement.id === 'abobora') {
+      customFlavorEn = 'A touch of Halloween for your collection.';
+    } else if (achievement.id === 'pythonista') {
+      customFlavorEn = 'The Pythonic path traveled from start to finish.';
+      customDescEn = 'Complete the Python from Scratch trail.';
+      customHowEn =
+        'Complete all evaluated steps of the Python from Scratch trail. Every question, practice, and challenge must be recorded as approved.';
+    } else if (achievement.id === 'rustcean') {
+      customFlavorEn = 'Ownership, safe types, and the compiler forge mastered.';
+      customDescEn = 'Complete the Rust from Scratch trail.';
+      customHowEn =
+        'Complete all evaluated steps of the Rust from Scratch trail. Every question, practice, and challenge must be recorded as approved.';
+    }
+
+    const flavorText =
+      customFlavorEn || flavorByMetricEn[metric] || customDescEn || 'A title for your collection.';
+
+    const postRulesEn =
+      'Title with at least 4 characters and body with at least 40. Duplicate posts, ignoring case and spaces, count once.';
+    const commentRulesEn =
+      'Each comment must have at least 12 characters. Duplicate comments, ignoring case and spaces, count once. Replies to yourself do not count.';
+    const eventPeriodEn = event
+      ? `Period: from ${new Date(event.startsAt).toLocaleString('en-US', { timeZone: PROFILE_ACHIEVEMENT_TIME_ZONE, dateStyle: 'short', timeStyle: 'short' })} to ${new Date(event.endsAt).toLocaleString('en-US', { timeZone: PROFILE_ACHIEVEMENT_TIME_ZONE, dateStyle: 'short', timeStyle: 'short' })}, Brasília time (America/Sao_Paulo). The event must be active.`
+      : 'The event must be configured and enabled in the catalog.';
+
+    let howToObtain: string;
+    if (customHowEn) {
+      howToObtain = customHowEn;
+    } else {
+      switch (metric) {
+        case 'posts':
+          howToObtain = `Publish ${amount} ${plural('post', 'posts')} in the feed. ${postRulesEn} At most 5 per day (UTC) are counted.`;
+          break;
+        case 'comments':
+          howToObtain = `Write ${amount} ${plural('comment or reply', 'comments or replies')} to other members. ${commentRulesEn}`;
+          break;
+        case 'firstDayComments':
+          howToObtain = `Write ${amount} ${plural('original comment or reply', 'original comments or replies')} to another member on day 1 of any month, between 12:00 AM and 11:59 PM (America/Sao_Paulo). ${commentRulesEn} Comments from previous months also count.`;
+          break;
+        case 'hashtagPosts':
+          if (!hashtag) {
+            isUnavailable = true;
+            howToObtain = 'This title is unavailable because its hashtag has not been configured.';
+            break;
+          }
+          howToObtain = `Publish ${amount} ${plural('post', 'posts')} with the exact hashtag #${hashtag}, on any date. Case-insensitive. ${postRulesEn} At most 5 per day (UTC) are counted.`;
+          break;
+        case 'peopleHelped':
+          howToObtain = `Reply to ${amount} different ${plural('person', 'people')} in community posts or replies. Each person counts once. ${commentRulesEn}`;
+          break;
+        case 'likes':
+          howToObtain = `Receive ${amount} ${plural('like', 'likes')} on your posts and comments. Only likes from accounts created at least 24 hours earlier count, up to 20 per person per day (UTC).`;
+          break;
+        case 'followers':
+          howToObtain = `Reach ${amount} ${plural('follower', 'followers')} on your profile. Only accounts created at least 24 hours before following you count. Unfollowing reduces this progress, but does not remove an already unlocked title.`;
+          break;
+        case 'learningActivities':
+          howToObtain = `Complete ${amount} practical ${plural('exercise', 'exercises')} from trails with passing results. Each distinct exercise counts once.`;
+          break;
+        case 'completedTrails':
+          howToObtain = `Complete all evaluated steps of ${amount} learning ${plural('trail', 'trails')}. Every quiz, practice, and challenge must be recorded as approved.`;
+          break;
+        case 'completedTrailPython':
+          howToObtain =
+            'Complete all evaluated steps of the Python from Scratch trail. Every question, practice, and challenge must be recorded as approved.';
+          break;
+        case 'completedTrailRust':
+          howToObtain =
+            'Complete all evaluated steps of the Rust from Scratch trail. Every question, practice, and challenge must be recorded as approved.';
+          break;
+        case 'eventPosts':
+          howToObtain = `During ${event?.name || 'the event'}, publish ${amount} ${plural('post', 'posts')} with the exact hashtag #${event?.hashtag || 'unconfigured'}. ${postRulesEn} ${eventPeriodEn}`;
+          break;
+        case 'eventComments':
+          howToObtain = `Comment on ${amount} different ${plural('post', 'posts')} by other members with #${event?.hashtag || 'unconfigured'}. Posts and comments must be made during the event. ${commentRulesEn} ${eventPeriodEn}`;
+          break;
+        case 'eventComplete': {
+          howToObtain = `Complete all challenges of ${event?.name || 'the event'} during its active period. ${eventPeriodEn}`;
+          break;
+        }
+        default:
+          isUnavailable = true;
+          howToObtain =
+            'This title is unavailable because it has no automatic rule recognized in the catalog.';
+      }
+    }
+
+    return {
+      flavorText,
+      howToObtain,
+      isUnavailable,
+    };
+  }
+
   const flavorByMetric: Record<string, string> = {
     posts: 'Ideias e descobertas que passam a fazer parte da comunidade.',
     comments: 'Toda boa conversa começa com uma contribuição.',

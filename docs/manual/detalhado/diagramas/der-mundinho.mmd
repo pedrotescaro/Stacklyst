@@ -1,0 +1,59 @@
+erDiagram
+  User {
+    String id PK
+    String username
+    String email
+    String avatar_url
+    Json avatar_config
+    String bio
+    String institution
+    String github_username
+    String discord_username
+  }
+  RpgPlayer {
+    String userId PK
+    Int coins
+    Int sourceCoins
+    Json avatar
+    Json inventory
+    Json equipped
+    String lastCheckin
+    Int checkinStreak
+    DateTime updatedAt
+  }
+  RpgTransaction {
+    String id PK
+    String userId FK
+    String key
+    String label
+    Int amount
+    DateTime createdAt
+  }
+  RpgBattle {
+    String id PK
+    String userId FK
+    String language
+    String creature
+    String status
+    Int hp
+    Int enemyHp
+    Int enemyLevel
+    Int enemyMaxHp
+  }
+  RpgArenaRoom {
+    String id PK
+    String hostId FK
+    String guestId FK
+    String inviteeId FK
+    DateTime inviteExpiresAt
+    String hostLanguage
+    String guestLanguage
+    Json hostPosition
+    Json guestPosition
+  }
+  User ||--o{ RpgPlayer : "userId"
+  RpgPlayer ||--o{ RpgTransaction : "userId"
+  RpgPlayer ||--o{ RpgBattle : "userId"
+  User ||--o| RpgArenaRoom : "hostId"
+  User o|--o| RpgArenaRoom : "guestId"
+  User o|--o{ RpgArenaRoom : "inviteeId"

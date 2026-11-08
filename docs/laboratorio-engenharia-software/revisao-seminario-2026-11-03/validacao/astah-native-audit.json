@@ -1,0 +1,132 @@
+{
+  "actors": [
+    "Usuário",
+    "Avaliador",
+    "Recrutador",
+    "Administrador",
+    "Executor de código"
+  ],
+  "actorModelIds": {
+    "Usuário": [
+      "b-633950d865f5c7d85d55390653b73f5f"
+    ],
+    "Avaliador": [
+      "e-633950d865f5c7d85d55390653b73f5f"
+    ],
+    "Recrutador": [
+      "h-633950d865f5c7d85d55390653b73f5f"
+    ],
+    "Administrador": [
+      "k-633950d865f5c7d85d55390653b73f5f"
+    ],
+    "Executor de código": [
+      "ry-633950d865f5c7d85d55390653b73f5f"
+    ]
+  },
+  "includes": [
+    "UC006\nResolver exercício -> UC028\nAvaliar resposta",
+    "UC010\nEnviar solução de duelo -> UC029\nExecutar código e testes"
+  ],
+  "extends": [
+    "UC001\nCadastrar conta -> UC002\nFazer login",
+    "UC006\nResolver exercício -> UC005\nEstudar lição",
+    "UC012\nConsultar ajuda do exercício -> UC006\nResolver exercício",
+    "UC029\nExecutar código e testes -> UC028\nAvaliar resposta"
+  ],
+  "generalizations": [
+    "Avaliador -> Usuário",
+    "Recrutador -> Usuário",
+    "Administrador -> Usuário"
+  ],
+  "diagrams": [
+    "UC-GERAL Visão geral do sistema",
+    "UC-APRENDIZAGEM Casos de uso aprendizagem",
+    "UC-COMUNIDADE Casos de uso comunidade",
+    "UC-DUELOS Casos de uso duelos",
+    "UC-OPORTUNIDADES Casos de uso oportunidades",
+    "UC-CONTA Casos de uso conta",
+    "UC-TRILHAS-DEMO Lição, avaliação e ajuda",
+    "UC-VAGA-DEMO Publicar empresa e vaga",
+    "UC-CANDIDATURA-DEMO Candidatura e movimentação",
+    "CL-GERAL Classes geral",
+    "CL-APRENDIZAGEM Classes aprendizagem",
+    "CL-COMUNIDADE Classes comunidade",
+    "CL-DUELOS Classes duelos",
+    "CL-RECRUTAMENTO Classes recrutamento",
+    "CL-EVENTOS Classes eventos",
+    "CL-IDENTIDADE Classes identidade",
+    "DER-GERAL Dados geral",
+    "DER-APRENDIZAGEM Dados aprendizagem",
+    "DER-COMUNIDADE Dados comunidade",
+    "DER-DUELOS Dados duelos",
+    "DER-RECRUTAMENTO Dados recrutamento",
+    "DER-EVENTOS Dados eventos",
+    "DER-IDENTIDADE Dados identidade",
+    "SQ01 Submeter etapa de lição",
+    "SQ02 Executar e submeter exercício",
+    "SQ03 Reconciliar e verificar credencial",
+    "SQ04 Publicar e consultar fluxo de publicações",
+    "SQ05 Enviar mensagem e recuperar histórico",
+    "SQ06 Resgatar baú diário",
+    "SQ07 Convidar e entrar na arena",
+    "SQ08 Turno entre jogadores com exercício",
+    "SQ09 Julgar e encerrar duelo competitivo",
+    "SQ10 Emitir parecer humano",
+    "SQ11 Candidatar e mover no recrutamento",
+    "SQ12 Inscrever em evento com limite",
+    "SQ01-A Receber e avaliar resposta",
+    "SQ01-B Separar prévia de submissão",
+    "SQ01-C Creditar primeira conclusão",
+    "SQ11-A Autorizar publicação de vaga",
+    "SQ11-B Gravar vaga e etapas",
+    "SQ11-C Confirmar publicação",
+    "SQ11-D Registrar candidatura",
+    "SQ11-E Conferir gestão da candidatura",
+    "SQ11-F Atualizar e notificar",
+    "SQ13 Publicar vaga da empresa"
+  ],
+  "structuralClassCounts": {
+    "CL-GERAL Classes geral": 8,
+    "CL-APRENDIZAGEM Classes aprendizagem": 6,
+    "CL-COMUNIDADE Classes comunidade": 6,
+    "CL-DUELOS Classes duelos": 5,
+    "CL-RECRUTAMENTO Classes recrutamento": 5,
+    "CL-EVENTOS Classes eventos": 4,
+    "CL-IDENTIDADE Classes identidade": 4,
+    "DER-GERAL Dados geral": 10,
+    "DER-APRENDIZAGEM Dados aprendizagem": 5,
+    "DER-COMUNIDADE Dados comunidade": 5,
+    "DER-DUELOS Dados duelos": 5,
+    "DER-RECRUTAMENTO Dados recrutamento": 5,
+    "DER-EVENTOS Dados eventos": 4,
+    "DER-IDENTIDADE Dados identidade": 4
+  },
+  "catalogCount": 24,
+  "generalUseCases": [
+    "UC001",
+    "UC002",
+    "UC003",
+    "UC004",
+    "UC005",
+    "UC006",
+    "UC007",
+    "UC008",
+    "UC010",
+    "UC012",
+    "UC013",
+    "UC014",
+    "UC015",
+    "UC016",
+    "UC017",
+    "UC019",
+    "UC021",
+    "UC022",
+    "UC023",
+    "UC024",
+    "UC026",
+    "UC028",
+    "UC029",
+    "UC038"
+  ],
+  "allCatalogCasesInGeneral": true
+}

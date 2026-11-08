@@ -1,0 +1,1055 @@
+[
+  {
+    "i": 0,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 1,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 2,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 3,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 4,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 5,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 6,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 7,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Stacklyst",
+    "pictures": []
+  },
+  {
+    "i": 8,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Documento de Atividades do Negócio",
+    "pictures": []
+  },
+  {
+    "i": 9,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Laboratório de Engenharia de SoftwareProjeto acadêmicoRevisão documental: 19/10/2026Modelos atuais: stacklyst-seminario.asta e seminário Astah",
+    "pictures": []
+  },
+  {
+    "i": 10,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 11,
+    "kind": "p",
+    "style": "Normal",
+    "text": "1. Índice",
+    "pictures": []
+  },
+  {
+    "i": 13,
+    "kind": "p",
+    "style": "Heading1",
+    "text": "2. Objetivo",
+    "pictures": []
+  },
+  {
+    "i": 14,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Este documento descreve os processos humanos de estudo, prática, colaboração, avaliação, recrutamento e participação em eventos relacionados ao Stacklyst. Os diagramas do seminário retratam como as pessoas realizam essas atividades, inclusive com livros, portais, agendas e contatos externos. A relação com os requisitos indica o apoio oferecido pelo Stacklyst, sem atribuir ao software todas as ações do processo humano.",
+    "pictures": []
+  },
+  {
+    "i": 15,
+    "kind": "p",
+    "style": "Heading1",
+    "text": "3. Atividades do Negócio",
+    "pictures": []
+  },
+  {
+    "i": 16,
+    "kind": "p",
+    "style": "Normal",
+    "text": "AN01, AN02, AN03, AN04, AN05A, AN05B e AN06 foram atualizados com os diagramas apresentados no seminário. AN06 identifica agora a descoberta e participação em eventos.",
+    "pictures": []
+  },
+  {
+    "i": 17,
+    "kind": "p",
+    "style": "Heading2",
+    "text": "3.1 AN01 — Estudar programação",
+    "pictures": []
+  },
+  {
+    "i": 18,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Objetivo: Organizar o estudo de programação e verificar se o estudante consegue explicar e aplicar o conteúdo.",
+    "pictures": []
+  },
+  {
+    "i": 19,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Participantes: Estudante ou desenvolvedor em formação.",
+    "pictures": []
+  },
+  {
+    "i": 20,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Pré-condições: Interesse em aprender um assunto e disponibilidade de fontes de estudo e exercícios.",
+    "pictures": []
+  },
+  {
+    "i": 21,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.1.1 Fluxo principal",
+    "pictures": []
+  },
+  {
+    "i": 22,
+    "kind": "p",
+    "style": "Normal",
+    "text": "1. O estudante define o assunto e o objetivo de estudo.",
+    "pictures": []
+  },
+  {
+    "i": 23,
+    "kind": "p",
+    "style": "Normal",
+    "text": "2. O estudante organiza os horários e o cronograma.",
+    "pictures": []
+  },
+  {
+    "i": 24,
+    "kind": "p",
+    "style": "Normal",
+    "text": "3. O estudante pesquisa materiais no Google, no YouTube ou em uma ferramenta de IA.",
+    "pictures": []
+  },
+  {
+    "i": 25,
+    "kind": "p",
+    "style": "Normal",
+    "text": "4. O estudante assiste à aula ou lê o material selecionado.",
+    "pictures": []
+  },
+  {
+    "i": 26,
+    "kind": "p",
+    "style": "Normal",
+    "text": "5. O estudante procura exercícios e tenta resolvê-los, conforme AN02.",
+    "pictures": []
+  },
+  {
+    "i": 27,
+    "kind": "p",
+    "style": "Normal",
+    "text": "6. Se ainda não consegue explicar e aplicar o conteúdo, revise o material ou busque ajuda e retome a prática.",
+    "pictures": []
+  },
+  {
+    "i": 28,
+    "kind": "p",
+    "style": "Normal",
+    "text": "7. Quando compreende o assunto, anota o que aprendeu e planeja a revisão.",
+    "pictures": []
+  },
+  {
+    "i": 29,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Decisões: O estudante conseguiu explicar e aplicar o conteúdo? Precisa revisar o material ou buscar ajuda?",
+    "pictures": []
+  },
+  {
+    "i": 30,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Exceções: Material insuficiente leva à busca de outra fonte ou de ajuda. A dificuldade na prática conduz à revisão, sem presumir aprendizagem concluída.",
+    "pictures": []
+  },
+  {
+    "i": 31,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Resultado final: Conteúdo compreendido e aplicado, com registro do aprendizado e revisão planejada.",
+    "pictures": []
+  },
+  {
+    "i": 32,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Rastreabilidade: RF005–RF010; UC004–UC007. O Stacklyst apoia o percurso com trilhas, lições, exercícios e progresso. Pesquisa externa, agenda pessoal e uso de IA no processo humano não constituem funcionalidades adicionais do sistema.",
+    "pictures": []
+  },
+  {
+    "i": 33,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.1.2 Diagrama de Atividades",
+    "pictures": []
+  },
+  {
+    "i": 34,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "AN01 — Estudar programação",
+    "pictures": []
+  },
+  {
+    "i": 35,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": [
+      "rId7"
+    ]
+  },
+  {
+    "i": 36,
+    "kind": "p",
+    "style": "Normal",
+    "text": "AN01 — Estudar programação.",
+    "pictures": []
+  },
+  {
+    "i": 37,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Fonte editável: stacklyst-seminario.asta / AN01 Estudar programação. Exportação atual do projeto do seminário.",
+    "pictures": []
+  },
+  {
+    "i": 38,
+    "kind": "p",
+    "style": "Heading2",
+    "text": "3.2 AN02 — Praticar exercícios de programação",
+    "pictures": []
+  },
+  {
+    "i": 39,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Objetivo: Resolver problemas de programação, comparar os resultados e compreender os erros encontrados.",
+    "pictures": []
+  },
+  {
+    "i": 40,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Participantes: Estudante ou desenvolvedor em formação.",
+    "pictures": []
+  },
+  {
+    "i": 41,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Pré-condições: Exercício disponível em livro ou site e conhecimentos iniciais para interpretar o enunciado.",
+    "pictures": []
+  },
+  {
+    "i": 42,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.2.1 Fluxo principal",
+    "pictures": []
+  },
+  {
+    "i": 43,
+    "kind": "p",
+    "style": "Normal",
+    "text": "1. O estudante escolhe um exercício em um livro ou site.",
+    "pictures": []
+  },
+  {
+    "i": 44,
+    "kind": "p",
+    "style": "Normal",
+    "text": "2. O estudante lê o enunciado e identifica as entradas e os resultados esperados.",
+    "pictures": []
+  },
+  {
+    "i": 45,
+    "kind": "p",
+    "style": "Normal",
+    "text": "3. O estudante escreve a solução em papel ou editor.",
+    "pictures": []
+  },
+  {
+    "i": 46,
+    "kind": "p",
+    "style": "Normal",
+    "text": "4. O estudante testa exemplos e compara os resultados obtidos.",
+    "pictures": []
+  },
+  {
+    "i": 47,
+    "kind": "p",
+    "style": "Normal",
+    "text": "5. Se o resultado estiver incorreto, investiga o erro, revisa a solução e repete os testes.",
+    "pictures": []
+  },
+  {
+    "i": 48,
+    "kind": "p",
+    "style": "Normal",
+    "text": "6. Quando obtém o resultado correto, explica a solução e registra as dúvidas restantes.",
+    "pictures": []
+  },
+  {
+    "i": 49,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Decisões: O resultado está correto? É necessário investigar o erro e revisar a solução?",
+    "pictures": []
+  },
+  {
+    "i": 50,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Exceções: Enunciado pouco compreendido ou dúvida conceitual exige revisão ou ajuda. Um teste sem resultado conclusivo não confirma a solução.",
+    "pictures": []
+  },
+  {
+    "i": 51,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Resultado final: Solução compreendida e verificada com os exemplos, com dúvidas registradas para estudo.",
+    "pictures": []
+  },
+  {
+    "i": 52,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Rastreabilidade: RF008–RF009; UC006, UC028, UC029 e UC052. No Stacklyst, testar código antes da submissão não conclui a atividade nem concede XP. Avaliação, execução isolada e registro do progresso pertencem ao comportamento do sistema.",
+    "pictures": []
+  },
+  {
+    "i": 53,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.2.2 Diagrama de Atividades",
+    "pictures": []
+  },
+  {
+    "i": 54,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "AN02 — Praticar exercícios de programação",
+    "pictures": []
+  },
+  {
+    "i": 55,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": [
+      "rId8"
+    ]
+  },
+  {
+    "i": 56,
+    "kind": "p",
+    "style": "Normal",
+    "text": "AN02 — Praticar exercícios de programação.",
+    "pictures": []
+  },
+  {
+    "i": 57,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Fonte editável: stacklyst-seminario.asta / AN02 Praticar exercícios de programação. Exportação atual do projeto do seminário.",
+    "pictures": []
+  },
+  {
+    "i": 58,
+    "kind": "p",
+    "style": "Heading2",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 59,
+    "kind": "p",
+    "style": "Heading2",
+    "text": "3.3 AN03 — Acompanhar a própria aprendizagem",
+    "pictures": []
+  },
+  {
+    "i": 60,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Objetivo: Comparar os resultados do estudo com os objetivos e ajustar o planejamento de aprendizagem.",
+    "pictures": []
+  },
+  {
+    "i": 61,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Participantes: Estudante ou desenvolvedor em formação.",
+    "pictures": []
+  },
+  {
+    "i": 62,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Pré-condições: Anotações, exercícios realizados e objetivos de estudo disponíveis para análise.",
+    "pictures": []
+  },
+  {
+    "i": 63,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.3.1 Fluxo principal",
+    "pictures": []
+  },
+  {
+    "i": 64,
+    "kind": "p",
+    "style": "Normal",
+    "text": "1. O estudante reúne as anotações e os exercícios feitos.",
+    "pictures": []
+  },
+  {
+    "i": 65,
+    "kind": "p",
+    "style": "Normal",
+    "text": "2. O estudante compara os resultados aos objetivos de estudo.",
+    "pictures": []
+  },
+  {
+    "i": 66,
+    "kind": "p",
+    "style": "Normal",
+    "text": "3. O estudante identifica se existe dificuldade recorrente.",
+    "pictures": []
+  },
+  {
+    "i": 67,
+    "kind": "p",
+    "style": "Normal",
+    "text": "4. Se houver dificuldade recorrente, reserva um horário para revisão.",
+    "pictures": []
+  },
+  {
+    "i": 68,
+    "kind": "p",
+    "style": "Normal",
+    "text": "5. Se não houver dificuldade recorrente, define o próximo assunto de estudo.",
+    "pictures": []
+  },
+  {
+    "i": 69,
+    "kind": "p",
+    "style": "Normal",
+    "text": "6. O estudante atualiza o cronograma em agenda ou planilha.",
+    "pictures": []
+  },
+  {
+    "i": 70,
+    "kind": "p",
+    "style": "Normal",
+    "text": "O planejamento revisto orienta o próximo ciclo de estudo.",
+    "pictures": []
+  },
+  {
+    "i": 71,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Decisões: Há dificuldade recorrente? Deve-se reservar horário para revisão ou definir o próximo assunto?",
+    "pictures": []
+  },
+  {
+    "i": 72,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Exceções: Sem registros suficientes, o estudante reúne mais evidências antes de avaliar a evolução. Uma dificuldade exige revisão do planejamento.",
+    "pictures": []
+  },
+  {
+    "i": 73,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Resultado final: Cronograma atualizado conforme a necessidade de revisão ou o próximo assunto escolhido.",
+    "pictures": []
+  },
+  {
+    "i": 74,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Rastreabilidade: RF009–RF015; UC007 e UC011. O Stacklyst fornece histórico e indicadores, incluindo XP e ranking, para apoiar a análise. A agenda ou planilha citada no processo é uma ferramenta pessoal, sem integração pressuposta.",
+    "pictures": []
+  },
+  {
+    "i": 75,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.3.2 Diagrama de Atividades",
+    "pictures": []
+  },
+  {
+    "i": 76,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "AN03 — Acompanhar a própria aprendizagem",
+    "pictures": []
+  },
+  {
+    "i": 77,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": [
+      "rId9"
+    ]
+  },
+  {
+    "i": 78,
+    "kind": "p",
+    "style": "Normal",
+    "text": "AN03 — Acompanhar a própria aprendizagem.",
+    "pictures": []
+  },
+  {
+    "i": 79,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Fonte editável: stacklyst-seminario.asta / AN03 Acompanhar a própria aprendizagem. Exportação atual do projeto do seminário.",
+    "pictures": []
+  },
+  {
+    "i": 80,
+    "kind": "p",
+    "style": "Heading2",
+    "text": "3.4 AN04 — Buscar ajuda para uma dúvida",
+    "pictures": []
+  },
+  {
+    "i": 81,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Objetivo: Esclarecer uma dúvida de programação e conferir a explicação por meio de um exemplo.",
+    "pictures": []
+  },
+  {
+    "i": 82,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Participantes: Estudante; colega ou professor, quando necessário.",
+    "pictures": []
+  },
+  {
+    "i": 83,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Pré-condições: Dúvida identificada e tentativa inicial disponível para explicar o problema.",
+    "pictures": []
+  },
+  {
+    "i": 84,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.4.1 Fluxo principal",
+    "pictures": []
+  },
+  {
+    "i": 85,
+    "kind": "p",
+    "style": "Normal",
+    "text": "1. O estudante descreve a dúvida e o que já tentou.",
+    "pictures": []
+  },
+  {
+    "i": 86,
+    "kind": "p",
+    "style": "Normal",
+    "text": "2. O estudante consulta documentação, vídeo ou ferramenta de IA.",
+    "pictures": []
+  },
+  {
+    "i": 87,
+    "kind": "p",
+    "style": "Normal",
+    "text": "3. O estudante verifica se a dúvida foi esclarecida.",
+    "pictures": []
+  },
+  {
+    "i": 88,
+    "kind": "p",
+    "style": "Normal",
+    "text": "4. Se a dúvida persistir, pede ajuda a um colega ou professor, apresentando o enunciado e a tentativa; a pessoa consultada analisa a dúvida e explica o raciocínio.",
+    "pictures": []
+  },
+  {
+    "i": 89,
+    "kind": "p",
+    "style": "Normal",
+    "text": "5. O estudante confere a explicação com um exemplo e retoma o estudo.",
+    "pictures": []
+  },
+  {
+    "i": 90,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Decisões: A dúvida foi esclarecida pela consulta inicial? É necessário pedir ajuda a outra pessoa?",
+    "pictures": []
+  },
+  {
+    "i": 91,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Exceções: Uma explicação insuficiente exige nova consulta ou esclarecimento. A resposta de uma ferramenta ou pessoa deve ser conferida em um exemplo.",
+    "pictures": []
+  },
+  {
+    "i": 92,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Resultado final: Dúvida esclarecida e explicação conferida na prática.",
+    "pictures": []
+  },
+  {
+    "i": 93,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Rastreabilidade: RF022–RF025; UC012 e ponto de extensão de ajuda de UC006. O sistema oferece dicas, documentação e sugestões conforme o modo de assistência. A consulta externa a IA, colega ou professor descreve o processo humano e não implica um serviço de IA implementado no Stacklyst.",
+    "pictures": []
+  },
+  {
+    "i": 94,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.4.2 Diagrama de Atividades",
+    "pictures": []
+  },
+  {
+    "i": 95,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "AN04 — Buscar ajuda para uma dúvida",
+    "pictures": []
+  },
+  {
+    "i": 96,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": [
+      "rId10"
+    ]
+  },
+  {
+    "i": 97,
+    "kind": "p",
+    "style": "Normal",
+    "text": "AN04 — Buscar ajuda para uma dúvida.",
+    "pictures": []
+  },
+  {
+    "i": 98,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Fonte editável: stacklyst-seminario.asta / AN04 Buscar ajuda para uma dúvida. Exportação atual do projeto do seminário.",
+    "pictures": []
+  },
+  {
+    "i": 99,
+    "kind": "p",
+    "style": "Heading2",
+    "text": "3.5 AN05 — Divulgar oportunidade e acompanhar a seleção",
+    "pictures": []
+  },
+  {
+    "i": 100,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Objetivo: Divulgar uma oportunidade profissional e acompanhar a candidatura e o retorno da seleção.",
+    "pictures": []
+  },
+  {
+    "i": 101,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Participantes: Representante da empresa; recrutador responsável; candidato.",
+    "pictures": []
+  },
+  {
+    "i": 102,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Pré-condições: Empresa e responsável identificados para divulgar a vaga. Para candidatar-se, o interessado conhece os requisitos e o canal de envio.",
+    "pictures": []
+  },
+  {
+    "i": 103,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.5.1 Fluxos de divulgação e candidatura",
+    "pictures": []
+  },
+  {
+    "i": 104,
+    "kind": "p",
+    "style": "Normal",
+    "text": "A1. O representante identifica a empresa e o responsável e define o perfil, as condições e os requisitos da vaga.",
+    "pictures": []
+  },
+  {
+    "i": 105,
+    "kind": "p",
+    "style": "Normal",
+    "text": "A2. O recrutador redige a oportunidade e confere as informações.",
+    "pictures": []
+  },
+  {
+    "i": 106,
+    "kind": "p",
+    "style": "Normal",
+    "text": "A3. Se houver erro, o recrutador corrige as informações e confere novamente.",
+    "pictures": []
+  },
+  {
+    "i": 107,
+    "kind": "p",
+    "style": "Normal",
+    "text": "A4. Com as informações corretas, divulga a vaga em portais, redes ou contatos e procura currículos ou contata candidatos. Esse processo pode terminar sem candidatura imediata.",
+    "pictures": []
+  },
+  {
+    "i": 108,
+    "kind": "p",
+    "style": "Normal",
+    "text": "B1. O candidato encontra uma vaga em portal, rede ou indicação, confere os requisitos e envia seu currículo pelo canal informado.",
+    "pictures": []
+  },
+  {
+    "i": 109,
+    "kind": "p",
+    "style": "Normal",
+    "text": "B2. O recrutador recebe e analisa o currículo e informa o retorno ou os próximos passos; o candidato acompanha o e-mail e os contatos recebidos.",
+    "pictures": []
+  },
+  {
+    "i": 110,
+    "kind": "p",
+    "style": "Normal",
+    "text": "B3. Se houver próxima etapa, o candidato responde e a realiza, e o recrutador analisa o resultado. O ciclo se repete até não haver outra etapa, quando o candidato registra o resultado da candidatura.",
+    "pictures": []
+  },
+  {
+    "i": 111,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Decisões: As informações da vaga estão corretas? Há uma próxima etapa da seleção?",
+    "pictures": []
+  },
+  {
+    "i": 112,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Exceções: Informações incorretas retornam à revisão. A ausência de retorno exige acompanhamento pelo candidato. No Stacklyst, vaga encerrada não recebe candidatura e a mesma candidatura não deve ser duplicada.",
+    "pictures": []
+  },
+  {
+    "i": 113,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Resultado final: Oportunidade divulgada e resultado da candidatura acompanhado. Contato externo, entrevista, contratação e pagamento permanecem sob responsabilidade das pessoas envolvidas.",
+    "pictures": []
+  },
+  {
+    "i": 114,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Rastreabilidade: RF034–RF038, RF044–RF048; UC017, UC018, UC022, UC025, UC026 e UC056. No Stacklyst, o responsável autorizado publica a vaga e consulta as candidaturas; o usuário envia sua candidatura e acompanha as etapas. UC026 gera notificação ao candidato da candidatura alterada, sem alerta geral por intenção de vaga ou garantia de envio de e-mail.",
+    "pictures": []
+  },
+  {
+    "i": 115,
+    "kind": "table",
+    "text": "Regra do processo: somente o responsável autorizado divulga a vaga e conduz a seleção; o candidato a"
+  },
+  {
+    "i": 116,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 117,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.5.2 Diagrama de Atividades",
+    "pictures": []
+  },
+  {
+    "i": 118,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "AN05A — Divulgar oportunidade de trabalho",
+    "pictures": []
+  },
+  {
+    "i": 119,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": [
+      "rId11"
+    ]
+  },
+  {
+    "i": 120,
+    "kind": "p",
+    "style": "Normal",
+    "text": "AN05A — Divulgar oportunidade de trabalho.",
+    "pictures": []
+  },
+  {
+    "i": 121,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Fonte editável: stacklyst-seminario.asta / AN05A Divulgar oportunidade de trabalho. Exportação atual do projeto do seminário.",
+    "pictures": []
+  },
+  {
+    "i": 122,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "AN05B — Candidatar-se e acompanhar a seleção",
+    "pictures": []
+  },
+  {
+    "i": 123,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": [
+      "rId12"
+    ]
+  },
+  {
+    "i": 124,
+    "kind": "p",
+    "style": "Normal",
+    "text": "AN05B — Candidatar-se e acompanhar a seleção.",
+    "pictures": []
+  },
+  {
+    "i": 125,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Fonte editável: stacklyst-seminario.asta / AN05B Candidatar-se e acompanhar a seleção. Exportação atual do projeto do seminário.",
+    "pictures": []
+  },
+  {
+    "i": 126,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 127,
+    "kind": "p",
+    "style": "Heading2",
+    "text": "3.6 AN06 — Descobrir e participar de um evento",
+    "pictures": []
+  },
+  {
+    "i": 128,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Objetivo: Encontrar um evento compatível com os interesses e as condições da pessoa e organizar sua participação.",
+    "pictures": []
+  },
+  {
+    "i": 129,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Participantes: Pessoa interessada; organizador do evento.",
+    "pictures": []
+  },
+  {
+    "i": 130,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Pré-condições: Evento divulgado com tema, data, local, condições e canal de inscrição informados.",
+    "pictures": []
+  },
+  {
+    "i": 131,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.6.1 Fluxo principal",
+    "pictures": []
+  },
+  {
+    "i": 132,
+    "kind": "p",
+    "style": "Normal",
+    "text": "1. A pessoa interessada pesquisa eventos em redes, sites ou por indicação.",
+    "pictures": []
+  },
+  {
+    "i": 133,
+    "kind": "p",
+    "style": "Normal",
+    "text": "2. A pessoa confere o tema, a data, o local e as condições de participação.",
+    "pictures": []
+  },
+  {
+    "i": 134,
+    "kind": "p",
+    "style": "Normal",
+    "text": "3. Se não puder participar, encerre a busca por esse evento; se puder, inscreva-se pelo canal informado.",
+    "pictures": []
+  },
+  {
+    "i": 135,
+    "kind": "p",
+    "style": "Normal",
+    "text": "4. O organizador confirma a inscrição e envia as orientações.",
+    "pictures": []
+  },
+  {
+    "i": 136,
+    "kind": "p",
+    "style": "Normal",
+    "text": "5. A pessoa anota o compromisso na agenda e comparece ao evento.",
+    "pictures": []
+  },
+  {
+    "i": 137,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Decisões: A pessoa pode participar conforme as datas e condições do evento?",
+    "pictures": []
+  },
+  {
+    "i": 138,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Exceções: A impossibilidade de participação encerra o processo sem inscrição. Se não houver confirmação, a pessoa verifica a situação com o organizador antes de considerar a inscrição concluída.",
+    "pictures": []
+  },
+  {
+    "i": 139,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Resultado final: Inscrição confirmada e participação organizada, ou processo encerrado sem inscrição.",
+    "pictures": []
+  },
+  {
+    "i": 140,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Rastreabilidade: RF041, RF049 e RF044–RF046; UC015, UC023 e UC046. No Stacklyst, UC023 permite inscrever-se e cancelar a própria inscrição antes do encerramento, respeitando o nível mínimo, a capacidade e a ausência de duplicidade. Agenda, comparecimento e comunicação externa do organizador não implicam funcionalidades adicionais de presença ou envio de e-mail.",
+    "pictures": []
+  },
+  {
+    "i": 141,
+    "kind": "p",
+    "style": "Heading3",
+    "text": "3.6.2 Diagrama de Atividades",
+    "pictures": []
+  },
+  {
+    "i": 142,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": [
+      "rId13"
+    ]
+  },
+  {
+    "i": 143,
+    "kind": "p",
+    "style": "Normal",
+    "text": "AN06 — Descobrir e participar de um evento.",
+    "pictures": []
+  },
+  {
+    "i": 144,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Fonte editável: stacklyst-seminario.asta / AN06 Descobrir e participar de um evento. Exportação atual do projeto do seminário.",
+    "pictures": []
+  },
+  {
+    "i": 145,
+    "kind": "p",
+    "style": "Heading1",
+    "text": "4. Relação entre atividades e requisitos",
+    "pictures": []
+  },
+  {
+    "i": 146,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 147,
+    "kind": "table",
+    "text": "AtividadeRequisitos relacionadosApoio do sistema ao processo humanoAN01 — Estudar programaçãoRF005–R"
+  },
+  {
+    "i": 148,
+    "kind": "p",
+    "style": "Normal",
+    "text": "",
+    "pictures": []
+  },
+  {
+    "i": 149,
+    "kind": "p",
+    "style": "Normal",
+    "text": "Fontes dos diagramas atualizados: exportações do projeto stacklyst-seminario.asta fornecidas nesta revisão e imagens correspondentes do seminário.",
+    "pictures": []
+  }
+]

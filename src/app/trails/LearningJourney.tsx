@@ -8,6 +8,7 @@ import { isKnowledgeCompleted } from '@/lib/learning/progress';
 import { TrailMascot } from './TrailMascot';
 import styles from './LearningJourney.module.css';
 import { JourneyOverview } from './JourneyOverview';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 export function getJourneyItems(path: LearningPathSummary, nodes: KnowledgeMapNode[]) {
   const byId = new Map(nodes.map((node) => [node.id, node]));
@@ -24,7 +25,6 @@ function nodeHref(node: KnowledgeMapNode, returnTo: string) {
       ? `/lesson/${exercise.slug}?mode=workspace&returnTo=${encodeURIComponent(returnTo)}`
       : undefined;
 }
-const labels = { lesson: 'Lição', review: 'Revisão', project: 'Projeto' };
 export function LearningJourney({
   nodes,
   path,
@@ -38,6 +38,12 @@ export function LearningJourney({
   language: string;
   userId: string;
 }) {
+  const { text } = useLocalizedText();
+  const labels = {
+    lesson: text('Lição', 'Lesson'),
+    review: text('Revisão', 'Review'),
+    project: text('Projeto', 'Project'),
+  };
   const items = useMemo(() => getJourneyItems(path, nodes), [path, nodes]);
   const mapRef = useRef<HTMLDivElement>(null);
   const next = items.find(
@@ -82,14 +88,20 @@ export function LearningJourney({
             {next && (
               <Link onClick={() => remember(next.id)} href={nodeHref(next, returnTo) ?? '#'}>
                 <span>
-                  {next.status === 'IN_PROGRESS' ? 'Continuar' : 'Começar'}: {next.title}
+                  {next.status === 'IN_PROGRESS'
+                    ? text('Continuar', 'Continue')
+                    : text('Começar', 'Start')}
+                  : {next.title}
                 </span>
                 <ArrowRight className="h-4 w-4 shrink-0" />
               </Link>
             )}
             {!next && path.completedNodes === items.length && (
               <p role="status" className="mt-4 font-semibold text-emerald-500">
-                Caminho concluído. Você pode revisar qualquer lição.
+                {text(
+                  'Caminho concluído. Você pode revisar qualquer lição.',
+                  'Path completed. You can review any lesson.'
+                )}
               </p>
             )}
           </>
@@ -113,12 +125,13 @@ export function LearningJourney({
             >
               <header className="relative z-10 mb-4 rounded-2xl border-b-[6px] border-blue-700 bg-blue-500 px-5 py-5 text-white sm:px-7">
                 <h2 id={`unit-heading-${unitIndex}`} className="text-xl font-extrabold">
-                  Unidade {unitIndex + 1} · {unit}
+                  {text('Unidade', 'Unit')} {unitIndex + 1} · {unit}
                 </h2>
                 <p className="mt-1 text-sm text-white">
-                  {unitCompleted}/{unitItems.length} lições ·{' '}
+                  {unitCompleted}/{unitItems.length} {text('lições', 'lessons')} ·{' '}
                   {unitItems.reduce((n, l) => n + l.completedExercises, 0)}/
-                  {unitItems.reduce((n, l) => n + l.exercises.length, 0)} exercícios
+                  {unitItems.reduce((n, l) => n + l.exercises.length, 0)}{' '}
+                  {text('exercícios', 'exercises')}
                 </p>
               </header>
               <ol className={mode === 'map' ? styles.path : 'mb-8 divide-y divide-dd-border'}>
@@ -199,7 +212,7 @@ export function LearningJourney({
                           <Link
                             href={href}
                             onClick={() => remember(node.id)}
-                            aria-label={`${node.title}: ${completed ? 'revisar' : active ? 'próxima lição' : 'abrir'}`}
+                            aria-label={`${node.title}: ${completed ? text('revisar', 'review') : active ? text('próxima lição', 'next lesson') : text('abrir', 'open')}`}
                             className={actionClass}
                             data-trail-waypoint="true"
                             data-trail-mascot-node={node.id}
@@ -214,8 +227,12 @@ export function LearningJourney({
                           </h3>
                           <p className="mt-1 text-xs font-medium text-dd-muted">
                             {labels[node.activityKind ?? 'lesson']} · {node.completedExercises}/
-                            {node.exercises.length} exercícios
-                            {completed ? ' · Concluída' : active ? ' · Você está aqui' : ''}
+                            {node.exercises.length} {text('exercícios', 'exercises')}
+                            {completed
+                              ? text(' · Concluída', ' · Completed')
+                              : active
+                                ? text(' · Você está aqui', ' · You are here')
+                                : ''}
                           </p>
                           {locked ? (
                             <p
@@ -224,8 +241,10 @@ export function LearningJourney({
                                 mode === 'map' ? 'sr-only' : 'mt-2 text-sm leading-5 text-dd-muted'
                               }
                             >
-                              Conclua primeiro:{' '}
-                              {missing.map((p) => p.title).join(', ') || 'a lição anterior'}.
+                              {text('Conclua primeiro:', 'Complete first:')}{' '}
+                              {missing.map((p) => p.title).join(', ') ||
+                                text('a lição anterior', 'the previous lesson')}
+                              .
                             </p>
                           ) : (
                             mode === 'trail' && (
@@ -236,10 +255,14 @@ export function LearningJourney({
                           )}
                           {mode === 'map' && locked && (
                             <details className={styles.requirements}>
-                              <summary className="dd-focus-ring">Como desbloquear</summary>
+                              <summary className="dd-focus-ring">
+                                {text('Como desbloquear', 'How to unlock')}
+                              </summary>
                               <p>
-                                Conclua:{' '}
-                                {missing.map((p) => p.title).join(', ') || 'a lição anterior'}.
+                                {text('Conclua:', 'Complete:')}{' '}
+                                {missing.map((p) => p.title).join(', ') ||
+                                  text('a lição anterior', 'the previous lesson')}
+                                .
                               </p>
                             </details>
                           )}

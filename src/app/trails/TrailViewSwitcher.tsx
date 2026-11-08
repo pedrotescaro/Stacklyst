@@ -1,6 +1,7 @@
 'use client';
 
 import { List, Network } from 'lucide-react';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './TrailViewSwitcher.module.css';
 
 export function TrailViewSwitcher({
@@ -10,12 +11,17 @@ export function TrailViewSwitcher({
   active: 'map' | 'trail';
   onChange: (mode: 'map' | 'trail') => void;
 }) {
+  const { text } = useLocalizedText();
   const options = [
-    { id: 'map' as const, label: 'Mapa', Icon: Network },
-    { id: 'trail' as const, label: 'Trilha', Icon: List },
+    { id: 'map' as const, label: text('Mapa', 'Map'), Icon: Network },
+    { id: 'trail' as const, label: text('Trilha', 'Trail'), Icon: List },
   ];
   return (
-    <div className={styles.switcher} role="group" aria-label="Visualização do aprendizado">
+    <div
+      className={styles.switcher}
+      role="group"
+      aria-label={text('Visualização do aprendizado', 'Learning view')}
+    >
       {options.map(({ id, label, Icon }) => (
         <button
           key={id}

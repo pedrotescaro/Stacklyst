@@ -1,0 +1,155 @@
+﻿ID;Descrição;Tipo;Requisitos funcionais relacionados;Requisitos não funcionais relacionados;Regras de negócio relacionadas
+F01;Apresentar a plataforma e encaminhar a experiência conforme identidade;RF;—;"Q01; Q04; Q06-Q08; Q10-Q12";—
+F02;Registrar conta e confirmar identidade;RF;—;"Q01; Q04; Q06; Q08; Q10-Q12";R01-R02
+F03;Entrar, sair e recuperar acesso;RF;—;"Q01; Q04; Q06; Q08; Q10-Q12";R01-R03
+F04;Escolher curso/linguagem e modo de navegação das trilhas;RF;—;"Q01-Q02; Q04-Q12";R08-R10
+F05;Consultar caminhos, nós, pré-requisitos e recomendações;RF;—;"Q01-Q02; Q04-Q12";R09-R10
+F06;Abrir lições e consultar progresso;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";"R11-R12; R20"
+F07;Responder atividades de tipos diferentes;RF;—;"Q01-Q06; Q08-Q12";"R12-R15; R17; R25"
+F08;Executar código de exercício como prévia;RF;—;"Q01-Q06; Q08-Q12";"R12-R13; R16-R17"
+F09;Submeter exercício e registrar evidência;RF;—;"Q01-Q06; Q08-Q12";"R14-R15; R18-R19; R25"
+F10;Apresentar ajuda conforme modo de assistência;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";R18-R19
+F11;Conferir etapas especiais de trilha, baús e saltos;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";"R14; R21"
+F12;Acompanhar XP, nível, faixa e posição;RF;—;"Q01-Q02; Q04-Q12";R22-R24
+F13;Emitir e consultar credenciais elegíveis;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";"R25-R26; R28"
+F14;Verificar credencial publicamente e gerar PDF;RF;—;"Q01-Q06; Q08-Q12";R25-R28
+F15;Criar publicações com conteúdo e recursos permitidos;RF;—;"Q01; Q04; Q06; Q08; Q10-Q12";R29-R30
+F16;Consultar feed por filtros, busca e paginação;RF;—;"Q01; Q03-Q04; Q06-Q08; Q10-Q12";"R02; R07; R29"
+F17;Responder e encadear comentários;RF;—;"Q01; Q03-Q04; Q06; Q08; Q10-Q12";"R29; R31"
+F18;Reagir, votar em enquete e salvar publicações;RF;—;"Q01; Q04; Q06; Q08; Q10-Q12";"R07; R29; R32-R34; R91"
+F19;Personalizar perfil e consultar conquistas;RF;—;"Q01; Q04; Q06; Q08; Q10-Q12";"R03; R28"
+F20;Seguir, descobrir sugestões e bloquear contas;RF;—;"Q01; Q03-Q04; Q06-Q08; Q10-Q12";"R02; R05-R06"
+F21;Consultar e marcar notificações;RF;—;"Q01; Q04; Q06-Q08; Q10-Q12";"R35; R38"
+F22;Enviar mensagens, consultar conversas e histórico;RF;—;"Q01; Q03-Q04; Q06-Q08; Q10-Q12";"R06; R36-R38"
+F23;Consultar e remover itens salvos;RF;—;"Q01; Q04; Q06-Q08; Q10-Q12";"R07; R29; R34"
+F24;Configurar preferências da aplicação e da conta;RF;—;"Q01; Q04; Q06; Q08; Q10-Q12";"R01; R03"
+F25;Entrar no Mundinho e personalizar personagem;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";"R39; R46"
+F26;Consultar saldo, inventário, equipamentos e extrato;RF;—;"Q01-Q02; Q04-Q12";"R44-R45; R48-R50"
+F27;Resgatar check-in e baú da clareira;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";R40-R43
+F28;Enfrentar criaturas e resolver desafios de código;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";R46-R49
+F29;Convidar amigo mútuo para arena privada;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";"R05; R51-R52"
+F30;Sincronizar presença, aparência e movimento;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";"R52; R60"
+F31;Disputar combate PvP por turnos com equipamentos;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";R53-R59
+F32;Convidar e aceitar duelo competitivo;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";"R61-R62; R71"
+F33;Executar, submeter e comparar soluções de duelo;RF;—;"Q01-Q06; Q08-Q12";R63-R64
+F34;Resolver prazo, abandono, empate e revisão;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";R64-R70
+F35;Solicitar credenciamento como avaliador;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";"R03; R72; R75"
+F36;Administrar candidaturas e situação de avaliadores;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";"R03; R72; R75"
+F37;Emitir parecer humano quando autorizado;RF;—;"Q01-Q06; Q08-Q12";R73-R75
+F38;Criar e gerir empresa autorizada;RF;—;"Q01; Q04; Q06; Q08; Q10-Q12";"R04; R79"
+F39;Criar e listar vagas com etapas;RF;—;"Q01; Q04; Q06-Q08; Q10-Q12";"R04; R79"
+F40;Candidatar-se e consultar a própria candidatura;RF;—;"Q01-Q06; Q08-Q12";R76-R78
+F41;Acompanhar e movimentar candidatura no funil;RF;—;Q01-Q12;"R04; R79-R80"
+F42;Consultar eventos e hackathons;RF;—;"Q01; Q04; Q06-Q08; Q10-Q12";"R83-R84; R87"
+F43;Inscrever-se e cancelar participação elegível;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";R81-R84
+F44;Gerenciar desafios de evento;RF;—;"Q01; Q03-Q04; Q06; Q08; Q10-Q12";R85-R87
+F45;Gerir recursos administrativos e registrar auditoria;RF;—;"Q01; Q04; Q06; Q08; Q10-Q12";R02-R03
+F46;Utilizar recursos equivalentes no cliente mobile;RF;—;"Q01; Q04; Q06; Q08; Q10-Q12";"R01; R39; R51"
+F47;Importar comunidade editorial sem resetar o banco;RF;—;"Q01; Q04; Q06; Q08; Q10-Q12";R88
+F48;Consultar e responder quiz diário;RF;—;"Q01-Q02; Q04-Q06; Q08-Q12";"R12; R14; R89"
+F50;Votar em enquetes e denunciar conteúdo;RF;—;"Q01; Q03-Q04; Q06; Q08; Q10-Q12";"R02; R29; R91-R92"
+F51;Enviar mídia pelo contrato do endpoint correspondente;RF;—;"Q01; Q03-Q04; Q06; Q08; Q10-Q12";"R02; R93"
+Q01;Controle de acesso por recurso;RNF;"F01-F48; F50-F51";—;"R01-R89; R91-R93"
+Q02;Integridade de recompensas;RNF;"F04-F14; F25-F37; F40-F41; F43; F48";—;"R03-R05; R08-R28; R39-R84; R89"
+Q03;Privacidade de gabaritos e candidaturas;RNF;"F07-F09; F14; F16-F17; F20; F22; F33; F37; F40-F41; F44; F50-F51";—;"R02; R04-R07; R12-R19; R25-R29; R31; R36-R38; R63-R64; R73-R80; R85-R87; R91-R93"
+Q04;Responsividade e uso por teclado;RNF;"F01-F48; F50-F51";—;"R01-R89; R91-R93"
+Q05;Resistência a falhas externas;RNF;"F04-F14; F25-F37; F40-F41; F43; F48";—;"R03-R05; R08-R28; R39-R84; R89"
+Q06;Observabilidade sem segredos;RNF;"F01-F48; F50-F51";—;"R01-R89; R91-R93"
+Q07;Consultas limitadas e paginação;RNF;"F01; F04-F05; F12; F16; F20-F23; F26; F39; F41-F42";—;"R02; R04-R10; R22-R24; R29; R34-R38; R44-R45; R48-R50; R79-R80; R83-R84; R87"
+Q08;Manutenibilidade;RNF;"F01-F48; F50-F51";—;"R01-R89; R91-R93"
+Q09;Compatibilidade de histórico;RNF;"F04-F14; F25-F37; F40-F41; F43; F48";—;"R03-R05; R08-R28; R39-R84; R89"
+Q10;Integridade documental;RNF;"F01-F48; F50-F51";—;"R01-R89; R91-R93"
+Q11;Reprodutibilidade;RNF;"F01-F48; F50-F51";—;"R01-R89; R91-R93"
+Q12;Confirmação clara na interface;RNF;"F01-F48; F50-F51";—;"R01-R89; R91-R93"
+R01;A identidade de uma operação protegida vem da sessão, não de userId livre no payload;RN;"F02-F03; F24; F46";"Q01; Q04; Q06; Q08; Q10-Q12";—
+R02;Permissão depende também do recurso: propriedade, participação, audiência e bloqueios;RN;"F02-F03; F16; F20; F45; F50-F51";"Q01; Q03-Q04; Q06-Q08; Q10-Q12";—
+R03;Papel e estado de avaliador não são concedidos por nome, título, cor ou metadata editável;RN;"F03; F19; F24; F35-F36; F45";"Q01-Q02; Q04-Q06; Q08-Q12";—
+R04;Recrutador não pode administrar automaticamente qualquer empresa;RN;"F38-F39; F41";Q01-Q12;—
+R05;"Seguir é direcional; amizade mútua requer ambas as relações";RN;"F20; F29";Q01-Q12;—
+R06;Bloqueio interfere em interações e consultas, não somente na apresentação;RN;"F20; F22";"Q01; Q03-Q04; Q06-Q08; Q10-Q12";—
+R07;Paginação e conhecimento do ID não concedem acesso ao recurso;RN;"F16; F18; F23";"Q01; Q03-Q04; Q06-Q08; Q10-Q12";—
+R08;Nó e lição têm representações e regras de acesso distintas;RN;F04;"Q01-Q02; Q04-Q12";—
+R09;MASTERED, COMPLETED e IN_PROGRESS persistidos são preservados na derivação de disponibilidade do nó;RN;F04-F05;"Q01-Q02; Q04-Q12";—
+R10;Requisito obrigatório não concluído mantém o nó ainda não iniciado indisponível na derivação;RN;F04-F05;"Q01-Q02; Q04-Q12";—
+R11;Lição já concluída legitimamente continua revisável após mudança de pré-requisitos;RN;F06;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R12;A API identifica a etapa no catálogo e avalia no servidor;RN;"F06-F08; F48";"Q01-Q06; Q08-Q12";—
+R13;run de lição retorna prévia com xpEarned: 0;RN;F07-F08;"Q01-Q06; Q08-Q12";—
+R14;Primeiro acerto elegível é determinado sob lock por usuário;RN;"F07; F09; F11; F48";"Q01-Q06; Q08-Q12";—
+R15;Repetir uma etapa já correta não concede novamente seu XP;RN;"F07; F09";"Q01-Q06; Q08-Q12";—
+R16;Falha operacional do executor retorna indisponibilidade, sem converter isso em conclusão ou erro pedagógico confirmado;RN;F08;"Q01-Q06; Q08-Q12";—
+R17;A serialização pública remove soluções, gabaritos e testes internos;RN;F07-F08;"Q01-Q06; Q08-Q12";—
+R18;Os multiplicadores atuais de assistência são todos 1 e os bônus de domínio são 0;RN;F09-F10;"Q01-Q06; Q08-Q12";—
+R19;Completar exercícios não prova domínio independente medido;RN;F09-F10;"Q01-Q06; Q08-Q12";—
+R20;IDs de etapas ligam currículo a registros persistidos;RN;F06;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R21;Resgates especiais de trilha não podem ser respondidos como quiz comum;RN;F11;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R22;XP total, XP por linguagem e movimentações por período não são a mesma consulta;RN;F12;"Q01-Q02; Q04-Q12";—
+R23;Ranking geral ordena XP decrescente, username crescente e ID crescente;RN;F12;"Q01-Q02; Q04-Q12";—
+R24;Faixa competitiva visual e nível numérico usam limites diferentes;RN;F12;"Q01-Q02; Q04-Q12";—
+R25;Credencial depende de evidência e snapshot de requisitos;RN;"F07; F09; F13-F14";"Q01-Q06; Q08-Q12";—
+R26;Ler credenciais de perfil público não deve emitir novas credenciais;RN;F13-F14;"Q01-Q06; Q08-Q12";—
+R27;Revogação ou falha de integridade muda a validade consultada;RN;F14;"Q01-Q06; Q08-Q12";—
+R28;Título visual não equivale a certificado e não concede autorização;RN;"F13-F14; F19";"Q01-Q06; Q08-Q12";—
+R29;audience e bloqueios são aplicados antes de entregar conteúdo;RN;"F15-F18; F23; F50";"Q01; Q03-Q04; Q06-Q08; Q10-Q12";—
+R30;client_id identifica repetição da criação de post por autor;RN;F15;"Q01; Q04; Q06; Q08; Q10-Q12";—
+R31;Resposta pode apontar para outra resposta, mas continua vinculada ao mesmo post;RN;F17;"Q01; Q03-Q04; Q06; Q08; Q10-Q12";—
+R32;"Reação de post é única por usuário/post; troca não significa nova reação independente";RN;F18;"Q01; Q04; Q06; Q08; Q10-Q12";—
+R33;Remover uma reação reverte seu crédito limitado, sem tornar XP negativo;RN;F18;"Q01; Q04; Q06; Q08; Q10-Q12";—
+R34;Salvar é uma referência ao post, não uma cópia que elimina restrições de acesso;RN;"F18; F23";"Q01; Q04; Q06-Q08; Q10-Q12";—
+R35;"Notificação pertence ao destinatário; o destino continua protegido";RN;F21;"Q01; Q04; Q06-Q08; Q10-Q12";—
+R36;Mensagem é consultada entre os dois participantes identificados e sujeita a bloqueios;RN;F22;"Q01; Q03-Q04; Q06-Q08; Q10-Q12";—
+R37;Chat, reações de mensagem e reações de post têm associações distintas;RN;F22;"Q01; Q03-Q04; Q06-Q08; Q10-Q12";—
+R38;Falha na notificação posterior não desfaz automaticamente uma mensagem/candidatura já gravada;RN;F21-F22;"Q01; Q03-Q04; Q06-Q08; Q10-Q12";—
+R39;Saldo e inventário são confirmados no servidor;RN;"F25; F46";"Q01-Q02; Q04-Q06; Q08-Q12";—
+R40;Créditos usam chave única por usuário no extrato;RN;F27;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R41;Baú da clareira concede 10 moedas uma vez por dia civil de São Paulo;RN;F27;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R42;Check-in tem ciclo próprio e não é o mesmo resgate do baú;RN;F27;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R43;Aprendizagem elegível pode originar moedas por reconciliação incremental;RN;F27;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R44;Compra verifica catálogo, posse e preço do servidor;RN;F26;"Q01-Q02; Q04-Q12";—
+R45;Bônus só contam para itens possuídos e equipados no slot compatível;RN;F26;"Q01-Q02; Q04-Q12";—
+R46;Nível do encontro mostrado e nível salvo da batalha devem corresponder;RN;"F25; F28";"Q01-Q02; Q04-Q06; Q08-Q12";—
+R47;"Criaturas de níveis 1–5 e chefe 10 pertencem ao catálogo; o chefe 10 tem 240 PV";RN;F28;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R48;"Chance-base de golpe direto é 75%; exercício é 25%";RN;"F26; F28";"Q01-Q02; Q04-Q12";—
+R49;"Sorte adiciona pontos percentuais ao golpe direto; Caça-bugs possuído e equipado o torna 100%";RN;"F26; F28";"Q01-Q02; Q04-Q12";—
+R50;Chance de drop é um cálculo separado, base 50% mais sorte;RN;F26;"Q01-Q02; Q04-Q12";—
+R51;Entrada multiplayer exige amizade mútua e ausência de bloqueio;RN;"F29; F46";"Q01-Q02; Q04-Q06; Q08-Q12";—
+R52;"Nomes, aparência e nível vêm do banco; pacote de posição não é fonte de identidade";RN;F29-F30;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R53;Os dois jogadores confirmam o início;RN;F31;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R54;Bônus de ambos são capturados no início e renovados na revanche;RN;F31;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R55;"Aplicar conceito causa 30; Depurar causa 18 e cura até 20; Refatorar causa 45 e desgasta 8";RN;F31;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R56;"Proteção do alvo reduz dano até o mínimo 1; cura respeita máximo; desgaste pode derrotar atacante";RN;F31;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R57;Exercício sorteado e golpe escolhido ficam presos ao turno;RN;F31;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R58;"Turno PvP dura 120 segundos; após 20 turnos a vida restante desempata ou empata";RN;F31;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R59;PvP do Mundinho não concede XP/moedas;RN;F31;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R60;Respostas antigas não devem sobrescrever snapshots mais novos da mesma sala;RN;F30;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R61;"Convite direto expira em 72 h; publicação opcional usa janela pública de 24 h";RN;F32;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R62;Partida competitiva tem limite de 2 h após início;RN;F32;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R63;Testar código não é submeter uma solução competitiva;RN;F33;"Q01-Q06; Q08-Q12";—
+R64;Correção antecede comparação de eficiência;RN;F33-F34;"Q01-Q06; Q08-Q12";—
+R65;Código aceito e sintaxe normalizada igual encaminham revisão;RN;F34;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R66;Big-O só desempata quando as duas estimativas têm confiança comparável prevista;RN;F34;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R67;"Linhas úteis/instruções são critério posterior; runtime bruto não escolhe vencedor";RN;F34;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R68;Códigos diferentes ainda equivalentes podem encerrar em empate automático;RN;F34;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R69;"Vitória concede 50 XP uma vez; derrota não subtrai XP";RN;F34;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R70;Três abandonos consecutivos após compromisso levam a cooldown de 24 h;RN;F34;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R71;Recusar ou deixar expirar convite não equivale a abandonar partida aceita;RN;F32;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R72;Candidatura a avaliador exige trilha completa ou 1.000 XP, motivação mínima de 80 caracteres e tecnologias elegíveis;RN;F35-F36;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R73;Participante não emite parecer sobre seu próprio duelo;RN;F37;"Q01-Q06; Q08-Q12";—
+R74;"Parecer exige papel, status e compatibilidade técnica; revisão concluída rende 10 XP ao avaliador";RN;F37;"Q01-Q06; Q08-Q12";—
+R75;Estado de reputação considera limites 80 para ativo e 60 para suspensão;RN;F35-F37;"Q01-Q06; Q08-Q12";—
+R76;Vaga deve existir e estar aberta para aceitar candidatura;RN;F40;"Q01-Q06; Q08-Q12";—
+R77;Usuário/vaga é uma candidatura única;RN;F40;"Q01-Q06; Q08-Q12";—
+R78;Nova candidatura começa em APPLIED e aponta à primeira etapa quando existente;RN;F40;"Q01-Q06; Q08-Q12";—
+R79;"Gestão de candidatos exige acesso à empresa; feedback interno não é dado da listagem pública";RN;"F38-F39; F41";Q01-Q12;—
+R80;Movimentação registra status/etapa e auditoria na transação;RN;F41;Q01-Q12;—
+R81;Inscrição de evento é única por evento/usuário;RN;F43;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R82;Inscrição confere capacidade e nível, sob serialização por evento;RN;F43;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R83;Evento encerrado não admite nova inscrição/cancelamento nos fluxos correspondentes;RN;F42-F43;"Q01-Q02; Q04-Q12";—
+R84;"Participação começa com score zero; inscrever-se não distribui automaticamente toda recompensa declarada";RN;F42-F43;"Q01-Q02; Q04-Q12";—
+R85;Conjunto de desafios editável contém 3–20 desafios, cada um com 1–5 exemplos;RN;F44;"Q01; Q03-Q04; Q06; Q08; Q10-Q12";—
+R86;Só gestor autorizado recebe resposta esperada no gerenciamento de desafios;RN;F44;"Q01; Q03-Q04; Q06; Q08; Q10-Q12";—
+R87;Tipo hackathon não comprova fluxo completo de equipes, submissões e julgamento;RN;"F42; F44";"Q01; Q03-Q04; Q06-Q08; Q10-Q12";—
+R88;"Importação editorial usa identidades reservadas e IDs estáveis; não reseta a comunidade";RN;F47;"Q01; Q04; Q06; Q08; Q10-Q12";—
+R89;"Quiz diário seleciona no máximo uma questão revisada relacionada a posts por dia UTC, sem geração por IA; não usa posts restritos a seguidores";RN;F48;"Q01-Q02; Q04-Q06; Q08-Q12";—
+R91;Voto de enquete pertence à enquete/opção e não é uma reação genérica de post;RN;"F18; F50";"Q01; Q03-Q04; Q06; Q08; Q10-Q12";—
+R92;"Denúncia registra ocorrência para gestão; não concede poder de exclusão ao denunciante";RN;F50;"Q01; Q03-Q04; Q06; Q08; Q10-Q12";—
+R93;A rota genérica de imagem limita a 5 MiB, aceita JPEG/PNG/GIF/WebP e verifica assinatura do arquivo;RN;F51;"Q01; Q03-Q04; Q06; Q08; Q10-Q12";—

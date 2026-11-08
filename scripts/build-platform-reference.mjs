@@ -31,6 +31,7 @@ const files = [
 const implementation = files.filter(
   (f) =>
     /\.(tsx?|[mc]?js|css)$/.test(f) &&
+    !/\/guilds\//i.test(f) &&
     !/(__tests__|\.test\.|\.spec\.|document\.generated|\.d\.ts$)/.test(f)
 );
 const texts = new Map(
@@ -153,8 +154,9 @@ for (const [file] of texts)
 await fs.writeFile(path.join(output, 'apis.md'), api);
 const schema = await fs.readFile(path.join(root, 'prisma/schema.prisma'), 'utf8');
 let database =
-  '# Dicionário do banco\n\nExtraído do schema Prisma local. Tipo seguido de `?` permite ausência; `[]` representa coleção. `@id` identifica; `@unique` impede repetição; `@relation` vincula modelos; `@@map` informa a tabela física. O schema não comprova aplicação da migration no banco.\n\n';
+  '# Dicionário do banco\n\nExtraído do schema Prisma local para o escopo funcional documentado. Estruturas residuais fora desse escopo não são apresentadas como recursos atuais; o schema continua sendo o inventário físico completo. Tipo seguido de `?` permite ausência; `[]` representa coleção. `@id` identifica; `@unique` impede repetição; `@relation` vincula modelos; `@@map` informa a tabela física. O schema não comprova aplicação da migration no banco.\n\n';
 for (const m of schema.matchAll(/^(model|enum)\s+(\w+)\s*\{([\s\S]*?)^\}/gm)) {
+  if (['Guild', 'GuildMember', 'GuildRole'].includes(m[2])) continue;
   database += `## ${m[1]} ${m[2]}\n\n`;
   if (m[1] === 'enum')
     database +=
@@ -168,7 +170,8 @@ for (const m of schema.matchAll(/^(model|enum)\s+(\w+)\s*\{([\s\S]*?)^\}/gm)) {
     database += '| Campo | Tipo | Restrições, relações e defaults |\n| --- | --- | --- |\n';
     for (const line of m[3].split('\n')) {
       const field = line.trim().match(/^(\w+)\s+(\S+)\s*(.*)$/);
-      if (field) database += `| ${field[1]} | ${cell(field[2])} | ${cell(field[3])} |\n`;
+      if (field && !/^Guild(?:Member)?(?:\[\]|\?)?$/.test(field[2]))
+        database += `| ${field[1]} | ${cell(field[2])} | ${cell(field[3])} |\n`;
     }
     database +=
       '\nConfiguração do modelo: ' +
