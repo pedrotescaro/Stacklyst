@@ -5,6 +5,8 @@ import {
   searchSpotifyTrackPage,
   spotifySearchAvailability,
   SpotifyCatalogError,
+  normalizeSpotifyTrackId,
+  resolveSpotifyTrack,
 } from '@/lib/profile-music';
 import { z } from 'zod';
 
@@ -17,6 +19,37 @@ export const GET = apiHandler(async (request) => {
   });
   const { configured, reason } = spotifySearchAvailability();
   const headers = { 'Cache-Control': 'private, no-store' };
+
+  const params = new URL(request.url).searchParams;
+  const rawQuery = params.get('q');
+  const query = z.string().trim().min(2).max(500).parse(rawQuery);
+  const offset = z.coerce
+    .number()
+    .int()
+    .min(0)
+    .max(1000)
+    .parse(params.get('offset') || 0);
+
+  // If query is an official Spotify link or track ID, resolve it directly
+  const trackId = normalizeSpotifyTrackId(query);
+  if (trackId) {
+    try {
+      const track = await resolveSpotifyTrack(query);
+      return Response.json(
+        {
+          configured: true,
+          tracks: [track],
+          nextOffset: null,
+          total: 1,
+          offset: 0,
+        },
+        { headers }
+      );
+    } catch {
+      // Fall through if direct resolution fails
+    }
+  }
+
   if (!configured)
     return Response.json(
       {
@@ -31,14 +64,7 @@ export const GET = apiHandler(async (request) => {
       },
       { headers }
     );
-  const params = new URL(request.url).searchParams;
-  const query = z.string().trim().min(2).max(100).parse(params.get('q'));
-  const offset = z.coerce
-    .number()
-    .int()
-    .min(0)
-    .max(1000)
-    .parse(params.get('offset') || 0);
+
   try {
     return Response.json(
       { configured, ...(await searchSpotifyTrackPage(query, offset)) },
@@ -63,10 +89,9 @@ export const GET = apiHandler(async (request) => {
       },
       {
         status,
-        headers: {
-          ...headers,
-          ...(failure.retryAfter ? { 'Retry-After': String(failure.retryAfter) } : {}),
-        },
+        headers: failure.retryAfter
+          ? { ...headers, 'Retry-After': String(failure.retryAfter) }
+          : headers,
       }
     );
   }

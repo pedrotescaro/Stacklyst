@@ -4,6 +4,7 @@ const mock = vi.hoisted(() => ({
   availability: vi.fn(),
   search: vi.fn(),
   limit: vi.fn(),
+  resolve: vi.fn(),
 }));
 vi.mock('@/lib/auth', () => ({ getAuthUser: mock.auth, requireAuth: mock.auth }));
 vi.mock('@/lib/ratelimit', () => ({ rateLimit: mock.limit }));
@@ -11,6 +12,7 @@ vi.mock('@/lib/profile-music', async () => ({
   ...(await vi.importActual<typeof import('@/lib/profile-music')>('@/lib/profile-music')),
   spotifySearchAvailability: mock.availability,
   searchSpotifyTrackPage: mock.search,
+  resolveSpotifyTrack: mock.resolve,
 }));
 import { GET } from './route';
 import { UnauthorizedError } from '@/lib/errors';
@@ -22,6 +24,14 @@ beforeEach(() => {
   vi.clearAllMocks();
   mock.auth.mockResolvedValue({ id: 'owner' });
   mock.availability.mockReturnValue({ configured: true, reason: null });
+  mock.resolve.mockResolvedValue({
+    trackId: '11dFghVXANMlKmJXsNCbNl',
+    title: 'Resolved track',
+    artist: 'Artist',
+    artworkUrl: null,
+    album: 'Album',
+    durationMs: 120000,
+  });
   mock.search.mockResolvedValue({
     tracks: [
       {
@@ -70,6 +80,22 @@ describe('profile music search API', () => {
       tracks: [],
       nextOffset: null,
     });
+    expect(mock.search).not.toHaveBeenCalled();
+  });
+  it('resolves track directly when an official Spotify track link is searched, even without credentials', async () => {
+    mock.availability.mockReturnValue({ configured: false, reason: 'not_configured' });
+    const response = await GET(
+      req('q=https%3A%2F%2Fopen.spotify.com%2Ftrack%2F11dFghVXANMlKmJXsNCbNl'),
+      context
+    );
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data.configured).toBe(true);
+    expect(data.tracks).toHaveLength(1);
+    expect(data.tracks[0].trackId).toBe('11dFghVXANMlKmJXsNCbNl');
+    expect(mock.resolve).toHaveBeenCalledWith(
+      'https://open.spotify.com/track/11dFghVXANMlKmJXsNCbNl'
+    );
     expect(mock.search).not.toHaveBeenCalled();
   });
   it('preserves quota reason and retry timing without leaking provider payloads', async () => {
