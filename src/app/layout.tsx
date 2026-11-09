@@ -7,6 +7,8 @@ import ConnectionBanner from '@/components/ConnectionBanner';
 import PlatformPresence from '@/components/PlatformPresence';
 import AchievementNotifications from '@/components/profile/AchievementNotifications';
 import { LanguageProvider } from '@/contexts/LanguageContext';
+import { MusicPlayerProvider } from '@/contexts/MusicPlayerContext';
+import { FloatingMiniPlayer } from '@/components/music/FloatingMiniPlayer';
 import { ThemeSync } from '@/components/ThemeSync';
 import { themeBootstrap } from '@/lib/theme';
 
@@ -82,11 +84,14 @@ export default function RootLayout({
           {themeScript}
         </Script>
         <LanguageProvider>
-          <ThemeSync />
-          <PlatformPresence />
-          <AchievementNotifications />
-          {children}
-          <ConnectionBanner />
+          <MusicPlayerProvider>
+            <ThemeSync />
+            <PlatformPresence />
+            <AchievementNotifications />
+            {children}
+            <FloatingMiniPlayer />
+            <ConnectionBanner />
+          </MusicPlayerProvider>
         </LanguageProvider>
       </body>
     </html>

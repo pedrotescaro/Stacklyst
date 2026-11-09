@@ -1,21 +1,42 @@
+'use client';
+
 import Link from 'next/link';
-import { Award, GraduationCap, Music2, Tags } from 'lucide-react';
+import { Award, GraduationCap, Music2, Pause, Play, Tags } from 'lucide-react';
 import type { ProfilePreferences, AchievementProgress } from '@/lib/profile-customization';
+import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import styles from './ProfilePublic.module.css';
 
 export interface PublicProfileCustomization {
   preferences: ProfilePreferences;
   achievements: Pick<AchievementProgress, 'id' | 'name' | 'description' | 'color'>[];
 }
+
 export function ProfilePublic({
   customization,
 }: {
   customization?: PublicProfileCustomization | null;
 }) {
+  const { currentTrack, isPlaying, playTrack } = useMusicPlayer();
+
   if (!customization) return null;
   const { preferences, achievements } = customization;
   const { tags, studies, music } = preferences;
   if (!tags.length && !studies.length && !music && !achievements.length) return null;
+
+  const isCurrentPlaying = currentTrack?.id === music?.trackId && isPlaying;
+
+  const handlePlayProfileMusic = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!music) return;
+    playTrack({
+      id: music.trackId,
+      title: music.title || 'Música do perfil',
+      artist: music.artist || 'Spotify',
+      artworkUrl: music.artworkUrl,
+      spotifyUrl: `https://open.spotify.com/track/${music.trackId}`,
+    });
+  };
+
   return (
     <div className={styles.details}>
       {tags.length > 0 && (
@@ -54,7 +75,19 @@ export function ProfilePublic({
             <Music2 size={15} aria-hidden="true" />
             Música do perfil
           </h2>
-          <div className={styles.music}>
+          <div
+            className={`${styles.music} group cursor-pointer transition-colors hover:border-blue-500/40`}
+            onClick={handlePlayProfileMusic}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                handlePlayProfileMusic(e as unknown as React.MouseEvent);
+              }
+            }}
+            aria-label={`Reproduzir ${music.title || 'faixa'} de ${music.artist || 'Spotify'}`}
+          >
             {music.artworkUrl && (
               <img
                 src={music.artworkUrl}
@@ -72,19 +105,24 @@ export function ProfilePublic({
                 target="_blank"
                 rel="noopener noreferrer"
                 className={styles.spotify}
+                onClick={(e) => e.stopPropagation()}
               >
                 Ouvir no Spotify
               </a>
             </div>
+            <button
+              type="button"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-500 text-white shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer ml-auto"
+              aria-label={isCurrentPlaying ? 'Pausar música do perfil' : 'Tocar música do perfil'}
+              onClick={handlePlayProfileMusic}
+            >
+              {isCurrentPlaying ? (
+                <Pause size={18} className="fill-white" />
+              ) : (
+                <Play size={18} className="ml-0.5 fill-white" />
+              )}
+            </button>
           </div>
-          <iframe
-            className={styles.player}
-            src={`https://open.spotify.com/embed/track/${music.trackId}?utm_source=stacklyst`}
-            title={`Player Spotify: ${music.title || 'música do perfil'}`}
-            allow="encrypted-media; fullscreen; picture-in-picture"
-            loading="lazy"
-            referrerPolicy="strict-origin-when-cross-origin"
-          />
         </section>
       )}
       {achievements.length > 0 && (

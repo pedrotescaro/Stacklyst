@@ -3,9 +3,10 @@
 /* Session-protected attachments must keep browser cookies on their requests. */
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from 'react';
-import { Check, ExternalLink, Music2, Users } from 'lucide-react';
+import { Check, ExternalLink, Music2, Pause, Play, Users } from 'lucide-react';
 import type { PostAttachment, PostPoll } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
+import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import styles from './PostAttachments.module.css';
 
 interface PostAttachmentsProps {
@@ -30,7 +31,21 @@ export function PostAttachments({
   const audio = media.find((item) => item.type === 'audio');
   const showLegacy = legacyImage && !images.some((item) => item.url === legacyImage);
   const trackId = music && /^[a-zA-Z0-9]{22}$/.test(music.trackId) ? music.trackId : null;
-  const [showPlayer, setShowPlayer] = useState(false);
+  const { currentTrack, isPlaying, playTrack } = useMusicPlayer();
+  const isCurrentPlaying = currentTrack?.id === trackId && isPlaying;
+
+  const handlePlayMusic = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!trackId) return;
+    playTrack({
+      id: trackId,
+      title: music?.title || 'Faixa do Spotify',
+      artist: music?.artist || 'Spotify',
+      artworkUrl: music?.artworkUrl,
+      spotifyUrl: `https://open.spotify.com/track/${trackId}`,
+    });
+  };
+
   return (
     <div className={styles.attachments} onClick={(event) => event.stopPropagation()}>
       {audience === 'followers' && (
@@ -73,7 +88,19 @@ export function PostAttachments({
         />
       )}
       {trackId && (
-        <div className={styles.music}>
+        <div
+          className={`${styles.music} group cursor-pointer transition-colors hover:border-blue-500/40`}
+          onClick={handlePlayMusic}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              handlePlayMusic(e as unknown as React.MouseEvent);
+            }
+          }}
+          aria-label={`Reproduzir ${music?.title || 'faixa'} de ${music?.artist || 'Spotify'}`}
+        >
           <div className={styles.musicInfo}>
             {music?.artworkUrl ? (
               <img
@@ -82,9 +109,12 @@ export function PostAttachments({
                 height={48}
                 alt="Capa do álbum"
                 loading="lazy"
+                className="rounded-lg shadow-sm"
               />
             ) : (
-              <Music2 size={28} aria-hidden="true" />
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-neutral-800 text-blue-400">
+                <Music2 size={24} aria-hidden="true" />
+              </div>
             )}
             <div>
               <strong>{music?.title || 'Faixa do Spotify'}</strong>
@@ -93,30 +123,34 @@ export function PostAttachments({
                 href={`https://open.spotify.com/track/${trackId}`}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
               >
                 Abrir no Spotify <ExternalLink size={11} />
               </a>
             </div>
             <button
               type="button"
-              className={styles.playerToggle}
-              onClick={() => setShowPlayer((value) => !value)}
-              aria-expanded={showPlayer}
+              className={`${styles.playerToggle} inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all ${
+                isCurrentPlaying
+                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40'
+                  : 'bg-white/5 text-neutral-300 hover:bg-blue-500 hover:text-white border border-white/10'
+              }`}
+              onClick={handlePlayMusic}
+              aria-label={isCurrentPlaying ? 'Pausar música' : 'Ouvir música'}
             >
-              {showPlayer ? 'Fechar player' : 'Ouvir'}
+              {isCurrentPlaying ? (
+                <>
+                  <Pause size={13} className="fill-current" />
+                  <span>Pausar</span>
+                </>
+              ) : (
+                <>
+                  <Play size={13} className="ml-0.5 fill-current" />
+                  <span>Ouvir</span>
+                </>
+              )}
             </button>
           </div>
-          {showPlayer && (
-            <iframe
-              title={`Player Spotify: ${music?.title || 'música da publicação'}`}
-              src={`https://open.spotify.com/embed/track/${trackId}?utm_source=stacklyst`}
-              width="100%"
-              height="152"
-              allow="encrypted-media; fullscreen; picture-in-picture"
-              loading="lazy"
-              className={styles.spotify}
-            />
-          )}
         </div>
       )}
       {poll && <PostPollWidget key={poll.id} postId={postId} initialPoll={poll} />}

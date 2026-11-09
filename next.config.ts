@@ -29,7 +29,7 @@ const securityHeaders = [
     key: 'Content-Security-Policy',
     value: [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline'",
+      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://open.spotify.com",
       // Note: 'unsafe-inline' é necessário para scripts inline do Next.js.
       // Para maior segurança, implementar nonce-based CSP (requer middleware).
       "style-src 'self' 'unsafe-inline'",
