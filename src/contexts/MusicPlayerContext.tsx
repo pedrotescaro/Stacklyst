@@ -105,7 +105,7 @@ function loadSpotifyIframeApi(callback: (api: any) => void) {
     const script = document.createElement('script');
     script.src = 'https://open.spotify.com/embed/iframe-api/v1';
     script.async = true;
-    document.body.appendChild(script);
+    document.head.appendChild(script);
   }
 }
 
@@ -349,6 +349,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
         id="spotify-iframe-embed-host"
         className="pointer-events-none fixed bottom-0 right-0 h-[152px] w-[300px] overflow-hidden opacity-[0.001] z-[-50]"
         aria-hidden="true"
+        suppressHydrationWarning
       />
     </MusicPlayerContext.Provider>
   );

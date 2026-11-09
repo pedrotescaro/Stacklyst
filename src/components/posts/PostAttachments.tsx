@@ -137,6 +137,7 @@ export function PostAttachments({
               }`}
               onClick={handlePlayMusic}
               aria-label={isCurrentPlaying ? 'Pausar música' : 'Ouvir música'}
+              suppressHydrationWarning
             >
               {isCurrentPlaying ? (
                 <Pause size={14} className="fill-current" />
