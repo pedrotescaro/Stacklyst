@@ -92,7 +92,7 @@ describe('FloatingMiniPlayer', () => {
     expect(await screen.findByTestId('floating-mini-player')).toBeInTheDocument();
 
     // Click close
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar player de música' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar player' }));
 
     expect(screen.queryByTestId('floating-mini-player')).not.toBeInTheDocument();
   });

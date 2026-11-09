@@ -1,58 +1,50 @@
 'use client';
 
 /* eslint-disable @next/next/no-img-element */
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-import { Play, Pause, ExternalLink, Minimize2, X, Music2, ChevronUp } from 'lucide-react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { Play, Pause, Share2, X, Music2, ChevronUp, SkipForward } from 'lucide-react';
 import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import styles from './FloatingMiniPlayer.module.css';
 
-function formatTime(ms: number): string {
-  if (!ms || isNaN(ms)) return '0:00';
-  const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
-  const seconds = totalSeconds % 60;
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-}
-
 export function FloatingMiniPlayer() {
   const [mounted, setMounted] = useState(false);
-  const {
-    currentTrack,
-    isPlaying,
-    isMinimized,
-    position,
-    duration,
-    progress,
-    togglePlay,
-    minimize,
-    expand,
-    closePlayer,
-    seek,
-  } = useMusicPlayer();
-
-  const progressBarRef = useRef<HTMLDivElement | null>(null);
+  const [copied, setCopied] = useState(false);
+  const { currentTrack, isPlaying, isMinimized, togglePlay, minimize, expand, closePlayer } =
+    useMusicPlayer();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
-  const handleProgressBarClick = useCallback(
-    (e: React.MouseEvent<HTMLDivElement>) => {
-      if (!progressBarRef.current) return;
-      const rect = progressBarRef.current.getBoundingClientRect();
-      const clickX = e.clientX - rect.left;
-      const percent = (clickX / rect.width) * 100;
-      seek(percent);
+  const spotifyUrl =
+    currentTrack?.spotifyUrl ||
+    (currentTrack ? `https://open.spotify.com/track/${currentTrack.id}` : '');
+
+  const handleShare = useCallback(
+    (e: React.MouseEvent) => {
+      e.stopPropagation();
+      if (!spotifyUrl) return;
+      if (navigator.clipboard) {
+        navigator.clipboard
+          .writeText(spotifyUrl)
+          .then(() => {
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+          })
+          .catch(() => {
+            window.open(spotifyUrl, '_blank', 'noopener,noreferrer');
+          });
+      } else {
+        window.open(spotifyUrl, '_blank', 'noopener,noreferrer');
+      }
     },
-    [seek]
+    [spotifyUrl]
   );
 
   if (!mounted || !currentTrack) return null;
 
-  const spotifyUrl = currentTrack.spotifyUrl || `https://open.spotify.com/track/${currentTrack.id}`;
-
   // ==========================================
-  // MINIMIZED VIEW (Fortnite Lobby Style)
+  // MINIMIZED VIEW
   // ==========================================
   if (isMinimized) {
     return (
@@ -65,24 +57,24 @@ export function FloatingMiniPlayer() {
           data-testid="floating-mini-player-minimized"
           aria-label={`Expandir player: ${currentTrack.title} - ${currentTrack.artist}`}
           title={`${currentTrack.title} · ${currentTrack.artist} (Clique para expandir)`}
-          className={`${styles.minimizedRing} group relative flex h-14 w-14 items-center justify-center rounded-2xl border border-white/20 bg-neutral-950/90 backdrop-blur-md transition-all hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer`}
+          className={`${styles.minimizedRing} group relative flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-[#1e1e1e] shadow-xl transition-all hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer`}
           data-playing={isPlaying}
         >
           {currentTrack.artworkUrl ? (
             <img
               src={currentTrack.artworkUrl}
               alt=""
-              className="h-full w-full object-cover rounded-2xl"
+              className="h-full w-full object-cover rounded-xl"
               loading="lazy"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-neutral-800 text-neutral-400 rounded-2xl">
+            <div className="flex h-full w-full items-center justify-center bg-neutral-800 text-neutral-400 rounded-xl">
               <Music2 size={24} />
             </div>
           )}
 
-          {/* Equalizer indicator badge */}
-          <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900/90 border border-white/20 shadow-md">
+          {/* Equalizer badge */}
+          <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900 border border-white/15 shadow-md">
             <div className={styles.equalizer} data-playing={isPlaying}>
               <span className={styles.bar} style={{ height: '5px' }} />
               <span className={styles.bar} style={{ height: '8px' }} />
@@ -91,7 +83,7 @@ export function FloatingMiniPlayer() {
           </div>
 
           {/* Hover overlay with expand arrow */}
-          <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
             <ChevronUp size={22} className="text-white drop-shadow-md" />
           </div>
         </button>
@@ -100,131 +92,136 @@ export function FloatingMiniPlayer() {
   }
 
   // ==========================================
-  // EXPANDED VIEW (Fortnite Aesthetic Card)
+  // EXPANDED VIEW — Windows 11 Media Flyout
   // ==========================================
   return (
     <aside
       aria-label="Mini player de música"
       data-testid="floating-mini-player"
-      className={`${styles.playerContainer} ${styles.slideIn} bottom-[4.75rem] right-3 sm:bottom-6 sm:right-6 w-[calc(100vw-1.5rem)] max-w-[350px] sm:w-[350px] overflow-hidden rounded-2xl border border-white/10 bg-[#0f141c]/90 text-white shadow-[0_16px_40px_rgba(0,0,0,0.6)] backdrop-blur-xl transition-all`}
+      className={`${styles.playerContainer} ${styles.slideIn} bottom-[4.75rem] right-3 sm:bottom-6 sm:right-6 w-[calc(100vw-1.5rem)] max-w-[350px] sm:w-[350px] overflow-hidden rounded-xl border border-white/10 bg-[#1e1e1e] text-white shadow-[0_16px_40px_rgba(0,0,0,0.7)] transition-all`}
     >
-      <div className="flex items-center gap-3 p-3.5">
-        {/* Album Artwork (Vinyl style rotation) */}
-        <div className="relative h-12 w-12 shrink-0">
+      {/* ── Header: "Ouvindo agora..." + action buttons ── */}
+      <div className="flex items-center justify-between px-4 pt-3 pb-2.5">
+        <span className="text-[13px] text-neutral-400 font-normal select-none">
+          Ouvindo agora...
+        </span>
+        <div className="flex items-center gap-1">
+          {/* Share button */}
+          <button
+            type="button"
+            onClick={handleShare}
+            aria-label="Compartilhar faixa do Spotify"
+            title={copied ? 'Link copiado!' : 'Compartilhar faixa'}
+            className="flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-white cursor-pointer"
+          >
+            <Share2 size={14} strokeWidth={1.8} />
+          </button>
+
+          {/* Minimize / Toggle view button */}
+          <button
+            type="button"
+            onClick={minimize}
+            aria-label="Minimizar player"
+            title="Minimizar"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-white cursor-pointer"
+          >
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.8"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="15 3 21 3 21 9" />
+              <polyline points="9 21 3 21 3 15" />
+              <line x1="21" y1="3" x2="14" y2="10" />
+              <line x1="3" y1="21" x2="10" y2="14" />
+            </svg>
+          </button>
+
+          {/* Close button */}
+          <button
+            type="button"
+            onClick={closePlayer}
+            aria-label="Fechar player"
+            title="Fechar"
+            className="flex h-7 w-7 items-center justify-center rounded-md text-neutral-400 transition-colors hover:bg-white/[0.08] hover:text-white focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-white cursor-pointer"
+          >
+            <X size={15} strokeWidth={1.8} />
+          </button>
+        </div>
+      </div>
+
+      {/* ── Separator ── */}
+      <div className="mx-4 h-px bg-white/[0.08]" />
+
+      {/* ── Content: artwork + track details + controls ── */}
+      <div className="flex items-center gap-3.5 px-4 py-3.5">
+        {/* Album Artwork — square rounded */}
+        <div className="h-[64px] w-[64px] shrink-0 overflow-hidden rounded-lg bg-neutral-800 shadow-sm">
           {currentTrack.artworkUrl ? (
-            <div
-              className={`${styles.rotatingCover} h-12 w-12 overflow-hidden rounded-full border-2 border-neutral-700/60 shadow-md`}
-              data-playing={isPlaying}
-            >
-              <img
-                src={currentTrack.artworkUrl}
-                alt=""
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
-            </div>
+            <img
+              src={currentTrack.artworkUrl}
+              alt=""
+              className="h-full w-full object-cover"
+              loading="lazy"
+            />
           ) : (
-            <div
-              className={`${styles.rotatingCover} flex h-12 w-12 items-center justify-center rounded-full border border-neutral-700 bg-neutral-800 text-neutral-400`}
-              data-playing={isPlaying}
-            >
-              <Music2 size={22} />
+            <div className="flex h-full w-full items-center justify-center text-neutral-500">
+              <Music2 size={26} />
             </div>
           )}
-
-          {/* Vinyl center pin */}
-          <div className="pointer-events-none absolute left-1/2 top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-neutral-800 bg-[#0f141c]" />
         </div>
 
-        {/* Track Title, Artist, & Equalizer */}
+        {/* Track Title, Artist, & Platform */}
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
-            <span
-              className="truncate text-sm font-bold text-white drop-shadow-sm"
-              title={currentTrack.title}
-            >
-              {currentTrack.title}
-            </span>
-            <div className={styles.equalizer} data-playing={isPlaying} aria-hidden="true">
-              <span className={styles.bar} />
-              <span className={styles.bar} />
-              <span className={styles.bar} />
-              <span className={styles.bar} />
-            </div>
-          </div>
-          <p className="truncate text-xs font-medium text-neutral-400" title={currentTrack.artist}>
+          <p
+            className="truncate text-[15px] font-semibold leading-tight text-white"
+            title={currentTrack.title}
+          >
+            {currentTrack.title}
+          </p>
+          <p
+            className="mt-1 truncate text-[13px] text-neutral-400 leading-tight"
+            title={currentTrack.artist}
+          >
             {currentTrack.artist}
           </p>
+          <p className="mt-1 text-[11px] text-neutral-500 leading-tight">Spotify</p>
         </div>
 
-        {/* Controls */}
-        <div className="flex items-center gap-1">
-          {/* Play / Pause Button */}
+        {/* Controls: Play/Pause circle + Next button */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Circular Play / Pause — solid white circle with black icon */}
           <button
             type="button"
             onClick={togglePlay}
             aria-label={isPlaying ? 'Pausar música' : 'Reproduzir música'}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-neutral-900 shadow-sm transition-all hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
+            className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-md transition-all hover:bg-neutral-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
           >
             {isPlaying ? (
-              <Pause size={14} className="fill-neutral-900" />
+              <Pause size={18} className="fill-black text-black" />
             ) : (
-              <Play size={14} className="ml-0.5 fill-neutral-900" />
+              <Play size={18} className="ml-0.5 fill-black text-black" />
             )}
           </button>
 
-          {/* Open in Spotify */}
+          {/* Next / Skip forward button */}
           <a
             href={spotifyUrl}
             target="_blank"
             rel="noopener noreferrer"
             aria-label="Abrir faixa completa no Spotify"
             title="Abrir no Spotify"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className="flex h-8 w-8 items-center justify-center rounded-full text-neutral-400 transition-colors hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
           >
-            <ExternalLink size={14} />
+            <SkipForward size={20} className="fill-current text-current" />
           </a>
-
-          {/* Minimize Button */}
-          <button
-            type="button"
-            onClick={minimize}
-            aria-label="Minimizar player"
-            title="Minimizar"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
-          >
-            <Minimize2 size={13} />
-          </button>
-
-          {/* Close Button */}
-          <button
-            type="button"
-            onClick={closePlayer}
-            aria-label="Fechar player de música"
-            title="Fechar"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-white/10 hover:text-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
-          >
-            <X size={15} />
-          </button>
         </div>
-      </div>
-
-      {/* Progress Bar & Timers */}
-      <div
-        ref={progressBarRef}
-        onClick={handleProgressBarClick}
-        aria-label="Progresso da música"
-        role="progressbar"
-        aria-valuenow={Math.round(progress)}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        className="group relative h-1.5 w-full cursor-pointer bg-white/10 transition-all hover:h-2"
-        title={`${formatTime(position)} / ${formatTime(duration)}`}
-      >
-        <div
-          className="h-full bg-white transition-[width] duration-200 ease-linear"
-          style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
-        />
       </div>
     </aside>
   );

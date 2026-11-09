@@ -123,25 +123,19 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const controllerRef = useRef<any>(null);
   const embedContainerRef = useRef<HTMLDivElement | null>(null);
   const pendingTrackRef = useRef<ActiveTrack | null>(null);
+  const currentTrackRef = useRef<ActiveTrack | null>(null);
+  const isPlayingRef = useRef(false);
+  currentTrackRef.current = currentTrack;
+  isPlayingRef.current = playback.isPlaying;
 
   // Initialize controller when a track is requested and container exists
   const ensureController = useCallback((track: ActiveTrack) => {
     if (controllerRef.current) {
-      controllerRef.current.loadUri(`spotify:track:${track.id}`);
-      if (process.env.NODE_ENV === 'test') {
-        try {
-          controllerRef.current?.play();
-        } catch {
-          // ignore
-        }
-      } else {
-        setTimeout(() => {
-          try {
-            controllerRef.current?.play();
-          } catch {
-            // ignore
-          }
-        }, 150);
+      try {
+        controllerRef.current.loadUri(`spotify:track:${track.id}`);
+        controllerRef.current.play();
+      } catch (err) {
+        console.warn('Spotify play error:', err);
       }
       return;
     }
@@ -157,14 +151,28 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       const mountTarget = document.createElement('div');
       embedContainerRef.current.appendChild(mountTarget);
 
+      // Must have standard dimensions so Spotify embed initializes audio context
       const options = {
         uri: `spotify:track:${targetTrack.id}`,
-        width: 0,
-        height: 0,
+        width: '100%',
+        height: '152',
       };
 
       IFrameAPI.createController(mountTarget, options, (EmbedController: any) => {
         controllerRef.current = EmbedController;
+
+        // Ensure proper allow attributes on the generated iframe for autoplay & encrypted-media
+        try {
+          const iframe = embedContainerRef.current?.querySelector('iframe');
+          if (iframe) {
+            iframe.setAttribute(
+              'allow',
+              'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'
+            );
+          }
+        } catch {
+          // ignore
+        }
 
         EmbedController.addListener('playback_update', (e: any) => {
           if (e?.data) {
@@ -190,14 +198,21 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
             // ignore
           }
         });
+
+        // Trigger immediate play
+        try {
+          EmbedController.play();
+        } catch {
+          // ignore
+        }
       });
     });
   }, []);
 
-  const currentTrackRef = useRef<ActiveTrack | null>(null);
-  const isPlayingRef = useRef(false);
-  currentTrackRef.current = currentTrack;
-  isPlayingRef.current = playback.isPlaying;
+  // Preload Spotify iFrame API on mount
+  useEffect(() => {
+    loadSpotifyIframeApi(() => {});
+  }, []);
 
   const playTrack = useCallback(
     (track: ActiveTrack) => {
@@ -226,7 +241,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       setIsMinimized(false);
       setPlayback({
         isPlaying: true,
-        isBuffering: true,
+        isBuffering: false,
         position: 0,
         duration: 30000,
         progress: 0,
@@ -328,11 +343,11 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       }}
     >
       {children}
-      {/* Hidden container where Spotify iFrame API manages the single audio embed */}
+      {/* Container within viewport with real dimensions but visually non-intrusive */}
       <div
         ref={embedContainerRef}
         id="spotify-iframe-embed-host"
-        className="pointer-events-none fixed -bottom-[9999px] -right-[9999px] h-1 w-1 opacity-0 overflow-hidden"
+        className="pointer-events-none fixed bottom-0 right-0 h-[152px] w-[300px] overflow-hidden opacity-[0.001] z-[-50]"
         aria-hidden="true"
       />
     </MusicPlayerContext.Provider>
