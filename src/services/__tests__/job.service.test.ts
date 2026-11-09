@@ -8,7 +8,12 @@ vi.mock('@/lib/prisma', () => ({
       findMany: vi.fn(),
       findUnique: vi.fn(),
       create: vi.fn(),
+      delete: vi.fn(),
     },
+    securityAuditEvent: {
+      create: vi.fn(),
+    },
+    $transaction: vi.fn(async (callback: any) => callback(prisma)),
     jobApplication: {
       findMany: vi.fn(),
       findUnique: vi.fn(),
@@ -24,6 +29,8 @@ vi.mock('@/lib/prisma', () => ({
     },
   },
 }));
+
+vi.mock('@/lib/security-audit', () => ({ recordSecurityAudit: vi.fn() }));
 
 vi.mock('@/lib/logger', () => ({
   logger: {
@@ -149,6 +156,82 @@ describe('JobService', () => {
       await expect(JobService.getJobApplications('job-1', 'user-regular', 'USER')).rejects.toThrow(
         'Acesso não autorizado às candidaturas desta vaga.'
       );
+    });
+  });
+  describe('deleteJob', () => {
+    it('throws ForbiddenError when user has USER role', async () => {
+      await expect(JobService.deleteJob('job-1', { id: 'user-1', role: 'USER' })).rejects.toThrow(
+        'Permissão insuficiente para excluir esta vaga.'
+      );
+    });
+
+    it('throws NotFoundError when job does not exist', async () => {
+      vi.mocked(prisma.job.findUnique).mockResolvedValueOnce(null);
+
+      await expect(
+        JobService.deleteJob('non-existent', { id: 'recruiter-1', role: 'RECRUITER' })
+      ).rejects.toThrow('Vaga não encontrada.');
+    });
+
+    it('throws ForbiddenError when recruiter does not own the company', async () => {
+      vi.mocked(prisma.job.findUnique).mockResolvedValueOnce({
+        id: 'job-1',
+        title: 'React Dev',
+        company_id: 'comp-1',
+        company: { id: 'comp-1', owner_id: 'other-recruiter' },
+      } as any);
+      vi.mocked(prisma.company.findUnique).mockResolvedValueOnce({
+        id: 'comp-1',
+        owner_id: 'other-recruiter',
+      } as any);
+
+      await expect(
+        JobService.deleteJob('job-1', { id: 'recruiter-1', role: 'RECRUITER' })
+      ).rejects.toThrow('Você não gerencia esta empresa.');
+    });
+
+    it('deletes job successfully when actor is the company owner (RECRUITER)', async () => {
+      vi.mocked(prisma.job.findUnique).mockResolvedValueOnce({
+        id: 'job-1',
+        title: 'React Dev',
+        company_id: 'comp-1',
+        company: { id: 'comp-1', owner_id: 'recruiter-1' },
+      } as any);
+      vi.mocked(prisma.company.findUnique).mockResolvedValueOnce({
+        id: 'comp-1',
+        owner_id: 'recruiter-1',
+      } as any);
+      vi.mocked(prisma.job.delete).mockResolvedValueOnce({ id: 'job-1' } as any);
+
+      const result = await JobService.deleteJob('job-1', {
+        id: 'recruiter-1',
+        role: 'RECRUITER',
+      });
+
+      expect(result).toEqual({ success: true });
+      expect(prisma.job.delete).toHaveBeenCalledWith({ where: { id: 'job-1' } });
+    });
+
+    it('deletes job successfully when actor is ADMIN even if not company owner', async () => {
+      vi.mocked(prisma.job.findUnique).mockResolvedValueOnce({
+        id: 'job-1',
+        title: 'React Dev',
+        company_id: 'comp-1',
+        company: { id: 'comp-1', owner_id: 'someone-else' },
+      } as any);
+      vi.mocked(prisma.company.findUnique).mockResolvedValueOnce({
+        id: 'comp-1',
+        owner_id: 'someone-else',
+      } as any);
+      vi.mocked(prisma.job.delete).mockResolvedValueOnce({ id: 'job-1' } as any);
+
+      const result = await JobService.deleteJob('job-1', {
+        id: 'admin-1',
+        role: 'ADMIN',
+      });
+
+      expect(result).toEqual({ success: true });
+      expect(prisma.job.delete).toHaveBeenCalledWith({ where: { id: 'job-1' } });
     });
   });
 });

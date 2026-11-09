@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { PATCH } from '../route';
+import { DELETE, PATCH } from '../route';
 import { prisma } from '@/lib/prisma';
 import { requireRole } from '@/lib/auth';
 import { requireCompanyAccess } from '@/lib/mobile/company-access';
@@ -11,7 +11,9 @@ vi.mock('@/lib/auth', () => ({
   requireRole: vi.fn(),
 }));
 vi.mock('@/lib/mobile/company-access', () => ({ requireCompanyAccess: vi.fn() }));
-vi.mock('@/services/job.service', () => ({ JobService: { updateApplicationStage: vi.fn() } }));
+vi.mock('@/services/job.service', () => ({
+  JobService: { updateApplicationStage: vi.fn(), deleteJob: vi.fn() },
+}));
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     job: { findUniqueOrThrow: vi.fn() },
@@ -104,6 +106,35 @@ describe('recruiter update authorization and validation', () => {
       feedback: 'Próxima etapa confirmada.',
       technicalScore: undefined,
       actorId: 'recruiter',
+    });
+  });
+});
+describe('DELETE /api/jobs/[id]', () => {
+  const context = { params: Promise.resolve({ id: 'job-1' }) };
+  const deleteReq = () =>
+    new Request('http://localhost/api/jobs/job-1', {
+      method: 'DELETE',
+    });
+
+  it('rejects unauthorized roles trying to delete a job', async () => {
+    vi.mocked(requireRole).mockRejectedValueOnce(new ForbiddenError());
+    const response = await DELETE(deleteReq(), context);
+    expect(response.status).toBe(403);
+    expect(JobService.deleteJob).not.toHaveBeenCalled();
+  });
+
+  it('deletes the job when user is authorized RECRUITER or ADMIN', async () => {
+    vi.mocked(requireRole).mockResolvedValueOnce({ id: 'recruiter', role: 'RECRUITER' } as any);
+    vi.mocked(JobService.deleteJob).mockResolvedValueOnce({ success: true } as any);
+
+    const response = await DELETE(deleteReq(), context);
+    expect(response.status).toBe(200);
+    const data = await response.json();
+    expect(data.success).toBe(true);
+    expect(data.message).toBe('Vaga excluída com sucesso!');
+    expect(JobService.deleteJob).toHaveBeenCalledWith('job-1', {
+      id: 'recruiter',
+      role: 'RECRUITER',
     });
   });
 });

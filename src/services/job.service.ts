@@ -12,7 +12,7 @@ import {
 import { NotificationService } from './notification.service';
 import { recordSecurityAudit } from '@/lib/security-audit';
 import { isJobAcceptingApplications } from '@/lib/job-availability';
-import { AppError } from '@/lib/errors';
+import { AppError, ForbiddenError, NotFoundError } from '@/lib/errors';
 
 export const JobService = {
   /**
@@ -399,5 +399,51 @@ export const JobService = {
     });
 
     return company;
+  },
+
+  /**
+   * Delete a job opportunity.
+   * Only accessible by Recruiter (owner of the company) or Admin.
+   */
+  async deleteJob(jobId: string, actor: { id: string; role: string } | string, userRole?: string) {
+    const actorObj = typeof actor === 'string' ? { id: actor, role: userRole || 'USER' } : actor;
+
+    if (actorObj.role !== 'ADMIN' && actorObj.role !== 'RECRUITER') {
+      throw new ForbiddenError('FORBIDDEN', 'Permissão insuficiente para excluir esta vaga.');
+    }
+
+    const job = await prisma.job.findUnique({
+      where: { id: jobId },
+      include: { company: true },
+    });
+
+    if (!job) {
+      throw new NotFoundError('JOB_NOT_FOUND', 'Vaga não encontrada.');
+    }
+
+    await requireCompanyAccess(job.company_id, actorObj);
+
+    await prisma.$transaction(async (tx) => {
+      await recordSecurityAudit(tx, {
+        actorId: actorObj.id,
+        action: 'JOB_DELETED',
+        resourceId: jobId,
+        metadata: {
+          title: job.title,
+          company_id: job.company_id,
+        },
+      });
+
+      await tx.job.delete({
+        where: { id: jobId },
+      });
+    });
+
+    logger.info('Job opportunity deleted', {
+      jobId,
+      companyId: job.company_id,
+      actorId: actorObj.id,
+    });
+    return { success: true };
   },
 };

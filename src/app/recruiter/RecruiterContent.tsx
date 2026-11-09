@@ -12,6 +12,7 @@ import {
   MapPin,
   Building2,
   Users,
+  Trash2,
 } from 'lucide-react';
 import { PlatformPageHeader, PlatformPageShell } from '@/components/PlatformPageShell';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
@@ -160,6 +161,7 @@ export function RecruiterContent({ user }: { user: any }) {
   const [applicationsMap, setApplicationsMap] = useState<Record<string, JobApplicationItem[]>>({});
   const [loadingApplications, setLoadingApplications] = useState<Record<string, boolean>>({});
   const [updatingAppId, setUpdatingAppId] = useState<string | null>(null);
+  const [deletingJobId, setDeletingJobId] = useState<string | null>(null);
   const [applicationDrafts, setApplicationDrafts] = useState<
     Record<string, { stageId: string; feedback: string }>
   >({});
@@ -302,6 +304,49 @@ export function RecruiterContent({ user }: { user: any }) {
       setErrorMsg('Erro de conexão ao atualizar status.');
     } finally {
       setUpdatingAppId(null);
+    }
+  };
+
+  const handleDeleteJob = async (jobId: string, jobTitle: string) => {
+    if (deletingJobId) return;
+    const confirmed =
+      typeof window !== 'undefined'
+        ? window.confirm(
+            `Tem certeza que deseja excluir a vaga "${jobTitle}"? Esta ação não pode ser desfeita.`
+          )
+        : true;
+    if (!confirmed) return;
+
+    setDeletingJobId(jobId);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      const res = await fetch(`/api/jobs/${jobId}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        setJobs((current) => current.filter((job) => job.id !== jobId));
+        setApplicationsMap((current) => {
+          const next = { ...current };
+          delete next[jobId];
+          return next;
+        });
+        if (expandedJobId === jobId) {
+          setExpandedJobId(null);
+        }
+        setSuccessMsg(`Vaga "${jobTitle}" excluída com sucesso!`);
+        setTimeout(() => setSuccessMsg(null), 4000);
+      } else {
+        const errData = await res.json().catch(() => null);
+        setErrorMsg(errData?.message || errData?.error || 'Erro ao excluir vaga.');
+      }
+    } catch (err) {
+      console.error('Error deleting job:', err);
+      setErrorMsg('Erro de conexão ao excluir vaga.');
+    } finally {
+      setDeletingJobId(null);
     }
   };
 
@@ -607,10 +652,28 @@ export function RecruiterContent({ user }: { user: any }) {
                             {count === 1 ? 'pessoa inscrita' : 'pessoas inscritas'}
                           </span>
                         </span>
-                        <Link href={`/jobs/${job.id}`} className={styles.link}>
-                          Ver vaga pública
-                          <ExternalLink size={15} aria-hidden="true" />
-                        </Link>
+                        <div className={styles.jobActionButtons}>
+                          <Link href={`/jobs/${job.id}`} className={styles.link}>
+                            Ver vaga pública
+                            <ExternalLink size={15} aria-hidden="true" />
+                          </Link>
+                          {(user?.role === 'ADMIN' || user?.role === 'RECRUITER') && (
+                            <button
+                              type="button"
+                              className={styles.deleteButton}
+                              data-testid={`delete-job-${job.id}`}
+                              aria-label={`Excluir vaga ${job.title}`}
+                              title={`Excluir vaga ${job.title}`}
+                              disabled={deletingJobId === job.id}
+                              onClick={() => void handleDeleteJob(job.id, job.title)}
+                            >
+                              <Trash2 size={14} aria-hidden="true" />
+                              <span>
+                                {deletingJobId === job.id ? 'Excluindo...' : 'Excluir vaga'}
+                              </span>
+                            </button>
+                          )}
+                        </div>
                       </div>
                       <button
                         type="button"

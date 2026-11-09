@@ -60,3 +60,15 @@ export const PATCH = apiHandler(async (req, { params }) => {
     application: updatedApplication,
   });
 });
+
+export const DELETE = apiHandler(async (_req, { params }) => {
+  const user = await requireRole(['RECRUITER', 'ADMIN']);
+  const { id: jobId } = await params;
+
+  await JobService.deleteJob(jobId, user);
+
+  return NextResponse.json({
+    success: true,
+    message: 'Vaga excluída com sucesso!',
+  });
+});

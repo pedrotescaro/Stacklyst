@@ -270,6 +270,42 @@
   align-items: center;
   gap: 8px;
 }
+.jobActionButtons {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.deleteButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 14px;
+  font-size: 13px;
+  line-height: 1.45;
+  font-weight: 650;
+  cursor: pointer;
+  border-radius: 999px;
+  text-align: center;
+  border: 1px solid color-mix(in srgb, #e03e3e 40%, var(--color-dd-border));
+  color: #ff5c5c;
+  background: transparent;
+  transition: all 0.15s ease-in-out;
+}
+.deleteButton:hover:not(:disabled) {
+  background: color-mix(in srgb, #e03e3e 15%, transparent);
+  border-color: #ff5c5c;
+}
+.deleteButton:focus-visible {
+  outline: 2px solid #ff5c5c;
+  outline-offset: 2px;
+}
+.deleteButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 .count {
   display: inline-flex;
   align-items: center;
@@ -450,6 +486,10 @@
   }
   .jobActions {
     align-items: flex-start;
+  }
+  .jobActionButtons {
+    width: 100%;
+    justify-content: space-between;
   }
   .action {
     width: 100%;

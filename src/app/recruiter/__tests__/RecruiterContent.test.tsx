@@ -416,4 +416,131 @@ describe('RecruiterContent Dashboard & Applicants', () => {
     expect(screen.getByRole('tab', { name: 'Publicar vaga' })).toHaveFocus();
     expect(screen.getByLabelText('Título da vaga')).toBeInTheDocument();
   });
+  it('deletes a job after user confirmation and removes it from the list', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const fetchMock = vi
+      .spyOn(global, 'fetch')
+      .mockImplementation(async (url: any, options: any) => {
+        const urlStr = String(url);
+        if (urlStr === '/api/jobs/activities')
+          return { ok: true, json: async () => ({ exercises: [], duels: [] }) } as Response;
+        if (urlStr.includes('/api/companies')) {
+          return { ok: true, json: async () => mockCompanies } as Response;
+        }
+        if (urlStr === '/api/jobs/job-1' && options?.method === 'DELETE') {
+          return {
+            ok: true,
+            json: async () => ({ success: true, message: 'Vaga excluída com sucesso!' }),
+          } as Response;
+        }
+        if (urlStr.includes('/api/jobs')) {
+          return { ok: true, json: async () => [...mockJobs] } as Response;
+        }
+        return { ok: false } as Response;
+      });
+
+    render(<RecruiterContent user={mockUser} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Desenvolvedor Frontend React')).toBeInTheDocument();
+    });
+
+    const deleteBtn = screen.getByRole('button', {
+      name: 'Excluir vaga Desenvolvedor Frontend React',
+    });
+    expect(deleteBtn).toBeInTheDocument();
+
+    fireEvent.click(deleteBtn);
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      expect.stringContaining(
+        'Tem certeza que deseja excluir a vaga "Desenvolvedor Frontend React"?'
+      )
+    );
+
+    expect(fetchMock).toHaveBeenCalledWith('/api/jobs/job-1', {
+      method: 'DELETE',
+    });
+
+    await waitFor(() => {
+      expect(screen.queryByText('Desenvolvedor Frontend React')).not.toBeInTheDocument();
+      expect(
+        screen.getByText('Vaga "Desenvolvedor Frontend React" excluída com sucesso!')
+      ).toBeInTheDocument();
+    });
+
+    // Metric updated
+    expect(screen.getByTestId('metric-total-jobs')).toHaveTextContent('1');
+  });
+
+  it('does not delete a job when confirmation is cancelled', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(false);
+    const fetchMock = vi.spyOn(global, 'fetch').mockImplementation(async (url: any) => {
+      const urlStr = String(url);
+      if (urlStr === '/api/jobs/activities')
+        return { ok: true, json: async () => ({ exercises: [], duels: [] }) } as Response;
+      if (urlStr.includes('/api/companies')) {
+        return { ok: true, json: async () => mockCompanies } as Response;
+      }
+      if (urlStr.includes('/api/jobs')) {
+        return { ok: true, json: async () => [...mockJobs] } as Response;
+      }
+      return { ok: false } as Response;
+    });
+
+    render(<RecruiterContent user={mockUser} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Desenvolvedor Frontend React')).toBeInTheDocument();
+    });
+
+    const deleteBtn = screen.getByRole('button', {
+      name: 'Excluir vaga Desenvolvedor Frontend React',
+    });
+    fireEvent.click(deleteBtn);
+
+    expect(fetchMock).not.toHaveBeenCalledWith(
+      '/api/jobs/job-1',
+      expect.objectContaining({ method: 'DELETE' })
+    );
+    expect(screen.getByText('Desenvolvedor Frontend React')).toBeInTheDocument();
+  });
+
+  it('shows error message when job deletion fails', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    vi.spyOn(global, 'fetch').mockImplementation(async (url: any, options: any) => {
+      const urlStr = String(url);
+      if (urlStr === '/api/jobs/activities')
+        return { ok: true, json: async () => ({ exercises: [], duels: [] }) } as Response;
+      if (urlStr.includes('/api/companies')) {
+        return { ok: true, json: async () => mockCompanies } as Response;
+      }
+      if (urlStr === '/api/jobs/job-1' && options?.method === 'DELETE') {
+        return {
+          ok: false,
+          json: async () => ({ error: 'FORBIDDEN', message: 'Você não gerencia esta empresa.' }),
+        } as Response;
+      }
+      if (urlStr.includes('/api/jobs')) {
+        return { ok: true, json: async () => [...mockJobs] } as Response;
+      }
+      return { ok: false } as Response;
+    });
+
+    render(<RecruiterContent user={mockUser} />);
+
+    await waitFor(() => {
+      expect(screen.getByText('Desenvolvedor Frontend React')).toBeInTheDocument();
+    });
+
+    const deleteBtn = screen.getByRole('button', {
+      name: 'Excluir vaga Desenvolvedor Frontend React',
+    });
+    fireEvent.click(deleteBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('Você não gerencia esta empresa.')).toBeInTheDocument();
+    });
+    expect(screen.getByText('Desenvolvedor Frontend React')).toBeInTheDocument();
+  });
 });
