@@ -89,7 +89,7 @@ export function PostAttachments({
       )}
       {trackId && (
         <div
-          className={`${styles.music} group cursor-pointer transition-colors hover:border-blue-500/40`}
+          className={`${styles.music} group cursor-pointer transition-colors hover:border-white/20`}
           onClick={handlePlayMusic}
           role="button"
           tabIndex={0}
@@ -112,7 +112,7 @@ export function PostAttachments({
                 className="rounded-lg shadow-sm"
               />
             ) : (
-              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-neutral-800 text-blue-400">
+              <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-neutral-800 text-neutral-400">
                 <Music2 size={24} aria-hidden="true" />
               </div>
             )}
@@ -130,22 +130,19 @@ export function PostAttachments({
             </div>
             <button
               type="button"
-              className={`${styles.playerToggle} inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold transition-all ${
+              className={`${styles.playerToggle} inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all border ${
                 isCurrentPlaying
-                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/40'
-                  : 'bg-white/5 text-neutral-300 hover:bg-blue-500 hover:text-white border border-white/10'
+                  ? 'bg-white/10 text-white border-white/20'
+                  : 'bg-white/5 text-neutral-300 hover:bg-white/10 hover:text-white border-white/10'
               }`}
               onClick={handlePlayMusic}
               aria-label={isCurrentPlaying ? 'Pausar música' : 'Ouvir música'}
             >
               {isCurrentPlaying ? (
-                <>
-                  <Pause size={13} className="fill-current" />
-                  <span>Pausar</span>
-                </>
+                <Pause size={14} className="fill-current" />
               ) : (
                 <>
-                  <Play size={13} className="ml-0.5 fill-current" />
+                  <Play size={14} className="ml-0.5 fill-current" />
                   <span>Ouvir</span>
                 </>
               )}

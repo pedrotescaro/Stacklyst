@@ -15,7 +15,7 @@
 .bar {
   width: 2.5px;
   border-radius: 9999px;
-  background: #0083fe;
+  background: #ffffff;
   transform-origin: bottom;
   animation: bounceBar 1.2s ease-in-out infinite alternate;
 }
@@ -78,13 +78,13 @@
   position: relative;
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(0, 131, 254, 0.2);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5), 0 0 15px rgba(255, 255, 255, 0.1);
   transition: transform 200ms ease, box-shadow 200ms ease;
 }
 
 .minimizedRing:hover {
   transform: scale(1.05);
-  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.6), 0 0 22px rgba(0, 131, 254, 0.4);
+  box-shadow: 0 10px 36px rgba(0, 0, 0, 0.6), 0 0 22px rgba(255, 255, 255, 0.15);
 }
 
 .minimizedRing[data-playing='true']::after {
@@ -92,7 +92,7 @@
   position: absolute;
   inset: -2px;
   border-radius: inherit;
-  border: 2px solid #0083fe;
+  border: 2px solid rgba(255, 255, 255, 0.6);
   opacity: 0.8;
   animation: pulseBorder 2s ease-in-out infinite;
   pointer-events: none;

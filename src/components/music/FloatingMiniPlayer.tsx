@@ -65,7 +65,7 @@ export function FloatingMiniPlayer() {
           data-testid="floating-mini-player-minimized"
           aria-label={`Expandir player: ${currentTrack.title} - ${currentTrack.artist}`}
           title={`${currentTrack.title} · ${currentTrack.artist} (Clique para expandir)`}
-          className={`${styles.minimizedRing} group relative flex h-14 w-14 items-center justify-center rounded-2xl border border-white/20 bg-neutral-950/90 backdrop-blur-md transition-all hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 cursor-pointer`}
+          className={`${styles.minimizedRing} group relative flex h-14 w-14 items-center justify-center rounded-2xl border border-white/20 bg-neutral-950/90 backdrop-blur-md transition-all hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer`}
           data-playing={isPlaying}
         >
           {currentTrack.artworkUrl ? (
@@ -76,7 +76,7 @@ export function FloatingMiniPlayer() {
               loading="lazy"
             />
           ) : (
-            <div className="flex h-full w-full items-center justify-center bg-neutral-800 text-blue-400 rounded-2xl">
+            <div className="flex h-full w-full items-center justify-center bg-neutral-800 text-neutral-400 rounded-2xl">
               <Music2 size={24} />
             </div>
           )}
@@ -125,7 +125,7 @@ export function FloatingMiniPlayer() {
             </div>
           ) : (
             <div
-              className={`${styles.rotatingCover} flex h-12 w-12 items-center justify-center rounded-full border border-neutral-700 bg-neutral-800 text-blue-400`}
+              className={`${styles.rotatingCover} flex h-12 w-12 items-center justify-center rounded-full border border-neutral-700 bg-neutral-800 text-neutral-400`}
               data-playing={isPlaying}
             >
               <Music2 size={22} />
@@ -164,12 +164,12 @@ export function FloatingMiniPlayer() {
             type="button"
             onClick={togglePlay}
             aria-label={isPlaying ? 'Pausar música' : 'Reproduzir música'}
-            className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-500 text-white shadow-md transition-all hover:scale-105 hover:bg-blue-600 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-white text-neutral-900 shadow-sm transition-all hover:scale-105 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
           >
             {isPlaying ? (
-              <Pause size={15} className="fill-white" />
+              <Pause size={14} className="fill-neutral-900" />
             ) : (
-              <Play size={15} className="ml-0.5 fill-white" />
+              <Play size={14} className="ml-0.5 fill-neutral-900" />
             )}
           </button>
 
@@ -180,7 +180,7 @@ export function FloatingMiniPlayer() {
             rel="noopener noreferrer"
             aria-label="Abrir faixa completa no Spotify"
             title="Abrir no Spotify"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-white/10 hover:text-emerald-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
           >
             <ExternalLink size={14} />
           </a>
@@ -191,7 +191,7 @@ export function FloatingMiniPlayer() {
             onClick={minimize}
             aria-label="Minimizar player"
             title="Minimizar"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500 cursor-pointer"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-white/10 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
           >
             <Minimize2 size={13} />
           </button>
@@ -202,7 +202,7 @@ export function FloatingMiniPlayer() {
             onClick={closePlayer}
             aria-label="Fechar player de música"
             title="Fechar"
-            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-red-500/20 hover:text-red-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-500 cursor-pointer"
+            className="flex h-7 w-7 items-center justify-center rounded-full text-neutral-400 transition-colors hover:bg-white/10 hover:text-neutral-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
           >
             <X size={15} />
           </button>
@@ -222,7 +222,7 @@ export function FloatingMiniPlayer() {
         title={`${formatTime(position)} / ${formatTime(duration)}`}
       >
         <div
-          className="h-full bg-blue-500 transition-[width] duration-200 ease-linear"
+          className="h-full bg-white transition-[width] duration-200 ease-linear"
           style={{ width: `${Math.min(100, Math.max(0, progress))}%` }}
         />
       </div>
