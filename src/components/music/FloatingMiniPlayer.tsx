@@ -73,17 +73,20 @@ export function FloatingMiniPlayer() {
             </div>
           )}
 
-          {/* Equalizer badge */}
-          <div className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-neutral-900 border border-white/15 shadow-md">
-            <div className={styles.equalizer} data-playing={isPlaying}>
-              <span className={styles.bar} style={{ height: '5px' }} />
-              <span className={styles.bar} style={{ height: '8px' }} />
-              <span className={styles.bar} style={{ height: '6px' }} />
+          {/* Equalizer waves centered in the square */}
+          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/65 border border-white/20 shadow-lg backdrop-blur-sm">
+              <div className={styles.equalizer} data-playing={isPlaying}>
+                <span className={styles.bar} style={{ height: '6px' }} />
+                <span className={styles.bar} style={{ height: '12px' }} />
+                <span className={styles.bar} style={{ height: '9px' }} />
+                <span className={styles.bar} style={{ height: '6px' }} />
+              </div>
             </div>
           </div>
 
           {/* Hover overlay with expand arrow */}
-          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/50 opacity-0 transition-opacity group-hover:opacity-100">
+          <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
             <ChevronUp size={22} className="text-white drop-shadow-md" />
           </div>
         </button>
