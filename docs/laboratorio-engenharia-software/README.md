@@ -1,16 +1,19 @@
 # Engenharia de software — Stacklyst
 
-## Entrega Final — 03/11/2026
+## Stacklyst — Documentação Final
 
-A [revisão final](revisao-final-2026-11-03/README.md) reúne os documentos atualizados, a vista **Caso de Uso Geral** com os 26 casos consolidados, os modelos Astah atualizados e a apresentação final do seminário.
+A pasta [Stacklyst - Documentação Final](Stacklyst%20-%20Documentação%20Final/README.md) reúne os arquivos consolidados e atualizados do Google Drive para a entrega da disciplina, incluindo os quatro documentos Word, o projeto Astah UML com a vista **Caso de Uso Geral**, a apresentação do seminário e o arquivo de links:
 
-- [Documento de visão](revisao-final-2026-11-03/01-documento-de-visao-stacklyst.docx)
-- [Atividades do negócio](revisao-final-2026-11-03/02-atividades-do-negocio-stacklyst.docx)
-- [Requisitos do sistema](revisao-final-2026-11-03/03-requisitos-do-sistema-stacklyst.docx)
-- [Casos de uso e modelos técnicos UML](revisao-final-2026-11-03/04-casos-de-uso-stacklyst.docx)
-- [Projeto Astah atualizado](revisao-final-2026-11-03/Stacklyst-modelos-atualizados.asta) ([ZIP](revisao-final-2026-11-03/Stacklyst-modelos-atualizados.asta.zip))
-- [Apresentação do seminário atualizada](revisao-final-2026-11-03/Stacklyst-seminario-atualizado-2026-11-03.pptx)
+- [Documento 01 — Visão do sistema](Stacklyst%20-%20Documentação%20Final/01-documento-de-visao-stacklyst.docx)
+- [Documento 02 — Atividades do negócio](Stacklyst%20-%20Documentação%20Final/02-atividades-do-negocio-stacklyst.docx)
+- [Documento 03 — Requisitos do sistema](Stacklyst%20-%20Documentação%20Final/03-requisitos-do-sistema-stacklyst.docx)
+- [Documento 04 — Casos de uso do sistema](Stacklyst%20-%20Documentação%20Final/04-casos-de-uso-stacklyst.docx)
+- [Projeto Astah atualizado](Stacklyst%20-%20Documentação%20Final/Stacklyst-modelos-atualizados.asta) ([ZIP](Stacklyst%20-%20Documentação%20Final/Stacklyst-modelos-atualizados.asta.zip))
+- [Apresentação do seminário atualizada](Stacklyst%20-%20Documentação%20Final/Stacklyst-seminario-atualizado-2026-11-03.pptx)
+- [Links oficiais do projeto](Stacklyst%20-%20Documentação%20Final/leia-me-stacklyst.txt)
 - [Pasta do Google Drive — Stacklyst Final](https://drive.google.com/drive/u/0/folders/1RVgFqhpo9dRq8c5nGnyJWgv43hYKHu88)
+
+A entrega também conta com a [revisão técnica detalhada](revisao-final-2026-11-03/README.md) contendo inventário de capturas da aplicação web, catálogo completo de casos em JSON/Markdown e validação dos modelos.
 
 ## Entrega anterior — seminário e análise de 20/10/2026
 
