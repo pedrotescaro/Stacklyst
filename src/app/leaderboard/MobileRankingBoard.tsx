@@ -18,6 +18,63 @@ import styles from './MobileRankingBoard.module.css';
 
 type Scope = TrailLanguageCode | 'GLOBAL';
 
+/** One ranking entry: a podium card when `featured`, otherwise a list row. */
+export function RankingPlayer({
+  row,
+  featured = false,
+}: {
+  row: LeaderboardRow;
+  featured?: boolean;
+}) {
+  const { text, locale } = useLocalizedText();
+  const name = getAuthorDisplayName(row);
+  const identity = readProfileIdentity(row.avatar_config);
+  const xp = Math.max(0, row.xp).toLocaleString(locale);
+  return (
+    <Link
+      href={`/profile/${encodeURIComponent(row.username)}`}
+      className={featured ? styles.podiumPlayer : styles.row}
+      aria-label={text(
+        `Classificação: ${row.rank}º lugar, ${name}, ${xp} XP`,
+        `Ranking: rank ${row.rank}, ${name}, ${xp} XP`
+      )}
+    >
+      {!featured && <span className={styles.rowRank}>{row.rank}</span>}
+      <div className={featured ? styles.podiumAvatar : styles.rowAvatar}>
+        <AuthorAvatar
+          username={row.username}
+          avatar_url={row.avatar_url}
+          avatar_config={row.avatar_config}
+          size="lg"
+          className={featured ? (row.rank === 1 ? styles.firstAvatar : styles.featuredAvatar) : ''}
+        />
+      </div>
+      <div className={styles.identity}>
+        <div className={styles.nameLine}>
+          <span className={styles.name}>
+            <ProfileName config={row.avatar_config}>{name}</ProfileName>
+          </span>
+          {!!identity.flags?.length && (
+            <span className={styles.flags}>
+              {identity.flags.map((code) => (
+                <ProfileFlag key={code} code={code} />
+              ))}
+            </span>
+          )}
+          {identity.title && <ProfileTitle title={identity.title} />}
+        </div>
+        {!featured && <span className={styles.username}>@{row.username}</span>}
+      </div>
+      <span className={styles.xp}>{xp} XP</span>
+      {featured && (
+        <span className={styles.podiumBase} data-rank={row.rank} aria-hidden="true">
+          {row.rank}
+        </span>
+      )}
+    </Link>
+  );
+}
+
 export function MobileRankingBoard({
   initialLeaderboard,
   initialLanguage,
@@ -27,7 +84,7 @@ export function MobileRankingBoard({
   initialLanguage: TrailLanguageCode;
   initialGlobalLeaderboard?: LeaderboardRow[];
 }) {
-  const { text, locale } = useLocalizedText();
+  const { text } = useLocalizedText();
   const [scope, setScope] = useState<Scope>(initialGlobalLeaderboard ? 'GLOBAL' : initialLanguage);
   const [rows, setRows] = useState(initialGlobalLeaderboard ?? initialLeaderboard);
   const [loading, setLoading] = useState(!initialGlobalLeaderboard);
@@ -73,57 +130,6 @@ export function MobileRankingBoard({
 
   const podium = [2, 1, 3].map((rank) => rows.find((row) => row.rank === rank));
   const rest = rows.filter((row) => row.rank > 3);
-
-  function player(row: LeaderboardRow, featured = false) {
-    const name = getAuthorDisplayName(row);
-    const identity = readProfileIdentity(row.avatar_config);
-    const xp = Math.max(0, row.xp).toLocaleString(locale);
-    return (
-      <Link
-        href={`/profile/${encodeURIComponent(row.username)}`}
-        className={featured ? styles.podiumPlayer : styles.row}
-        aria-label={text(
-          `Classificação: ${row.rank}º lugar, ${name}, ${xp} XP`,
-          `Ranking: rank ${row.rank}, ${name}, ${xp} XP`
-        )}
-      >
-        {!featured && <span className={styles.rowRank}>{row.rank}</span>}
-        <div className={featured ? styles.podiumAvatar : styles.rowAvatar}>
-          <AuthorAvatar
-            username={row.username}
-            avatar_url={row.avatar_url}
-            avatar_config={row.avatar_config}
-            size="lg"
-            className={
-              featured ? (row.rank === 1 ? styles.firstAvatar : styles.featuredAvatar) : ''
-            }
-          />
-        </div>
-        <div className={styles.identity}>
-          <div className={styles.nameLine}>
-            <span className={styles.name}>
-              <ProfileName config={row.avatar_config}>{name}</ProfileName>
-            </span>
-            {!!identity.flags?.length && (
-              <span className={styles.flags}>
-                {identity.flags.map((code) => (
-                  <ProfileFlag key={code} code={code} />
-                ))}
-              </span>
-            )}
-            {identity.title && <ProfileTitle title={identity.title} />}
-          </div>
-          {!featured && <span className={styles.username}>@{row.username}</span>}
-        </div>
-        <span className={styles.xp}>{xp} XP</span>
-        {featured && (
-          <span className={styles.podiumBase} data-rank={row.rank} aria-hidden="true">
-            {row.rank}
-          </span>
-        )}
-      </Link>
-    );
-  }
 
   return (
     <section
@@ -219,14 +225,16 @@ export function MobileRankingBoard({
                   className={styles.podiumSlot}
                   data-rank={[2, 1, 3][index]}
                 >
-                  {row && player(row, true)}
+                  {row && <RankingPlayer row={row} featured />}
                 </div>
               ))}
             </div>
             {rest.length > 0 && (
               <div className={styles.list}>
                 {rest.map((row) => (
-                  <div key={row.username}>{player(row)}</div>
+                  <div key={row.username}>
+                    <RankingPlayer row={row} />
+                  </div>
                 ))}
               </div>
             )}

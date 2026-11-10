@@ -20,7 +20,7 @@ import 'highlight.js/styles/github-dark.css';
 import './MarkdownRenderer.css';
 import './editor/PostTextFormatting.css';
 import { cn } from '@/lib/cn';
-import { Play, Loader2 } from 'lucide-react';
+import { CodeBlockFrame } from '@/components/CodeBlockFrame';
 import { runCodeInSandbox } from '@/lib/code-runner';
 import { isRunnableLanguage } from '@/lib/editor/languages';
 import { remarkPostFormatting } from '@/lib/editor/safe-inline';
@@ -292,76 +292,23 @@ function CodeBlock({
   };
 
   return (
-    <div className="my-3 overflow-hidden rounded-lg border border-dd-border bg-dd-bg">
-      <div className="flex items-center justify-between gap-3 border-b border-dd-border bg-dd-surface px-3 py-2">
-        <span className="truncate font-mono text-[10px] font-bold uppercase tracking-wider text-dd-muted">
-          {language}
-        </span>
-        <div className="flex items-center gap-2">
-          {canRun && (
-            <button
-              type="button"
-              onClick={handleRun}
-              disabled={running}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-blue-500 hover:bg-blue-600 px-3.5 py-1.5 text-xs font-black text-white transition-all shadow-md shadow-blue-500/20 disabled:cursor-not-allowed disabled:opacity-50 cursor-pointer active:scale-95"
-            >
-              {running ? (
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              ) : (
-                <Play className="h-3.5 w-3.5 fill-current" />
-              )}
-              Executar
-            </button>
-          )}
-          <button
-            type="button"
-            onClick={handleCopy}
-            className="shrink-0 rounded-full border border-dd-border bg-dd-surface/80 hover:bg-dd-surface px-3.5 py-1.5 text-xs font-bold text-dd-muted transition-colors hover:border-blue-500/40 hover:text-dd-text cursor-pointer"
-          >
-            {copied ? 'Copiado' : 'Copiar'}
-          </button>
-        </div>
-      </div>
-
-      <div className="relative">
-        <pre
-          className={cn(
-            'm-0 overflow-x-auto bg-dd-bg p-4 font-mono text-xs leading-relaxed text-dd-text',
-            collapsed && 'max-h-24 overflow-x-auto overflow-y-hidden'
-          )}
-        >
-          <code className={cn('hljs', `language-${language}`)}>{children}</code>
-        </pre>
-
-        {collapsed && (
-          <div className="absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-dd-bg via-dd-bg/95 to-transparent px-3 pb-2 pt-8">
-            <button
-              type="button"
-              onClick={(event) => {
-                event.stopPropagation();
-                setExpanded(true);
-              }}
-              className="rounded-md border border-dd-border bg-dd-surface px-2.5 py-1 text-[10px] font-bold text-dd-text shadow-sm transition-colors hover:border-dd-accent hover:text-dd-accent cursor-pointer"
-            >
-              Ver código completo
-            </button>
-          </div>
-        )}
-      </div>
-
-      {(output || error) && (
-        <div className="border-t border-dd-border bg-dd-surface/40 px-3 py-2">
-          <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-dd-muted">
-            Output
-          </p>
-          {error ? (
-            <pre className="whitespace-pre-wrap font-mono text-xs text-red-400">{error}</pre>
-          ) : (
-            <pre className="whitespace-pre-wrap font-mono text-xs text-dd-text">{output}</pre>
-          )}
-        </div>
-      )}
-    </div>
+    <CodeBlockFrame
+      language={language}
+      canRun={canRun}
+      running={running}
+      copied={copied}
+      collapsed={collapsed}
+      output={output}
+      error={error}
+      onRun={handleRun}
+      onCopy={handleCopy}
+      onExpand={(event) => {
+        event.stopPropagation();
+        setExpanded(true);
+      }}
+    >
+      {children}
+    </CodeBlockFrame>
   );
 }
 

@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Heart, Zap } from 'lucide-react';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { LessonSessionHeader } from './LessonSessionHeader';
 import type { Lesson, LessonSessionState, OrderItem } from '@/lib/lessons/types';
 import { LessonFooter } from '@/components/lesson/LessonFooter';
 import { LessonSummary } from '@/components/lesson/LessonSummary';
@@ -345,55 +345,18 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
 
   return (
     <div className={styles.surface}>
-      <header className={styles.header}>
-        <div className={styles.toolbar}>
-          <button
-            type="button"
-            aria-label="Sair da lição"
-            onClick={() => setExitModalOpen(true)}
-            className={styles.iconButton}
-          >
-            <ArrowLeft size={21} aria-hidden="true" />
-          </button>
-          <div className={styles.heading}>
-            <h1>{lesson.title}</h1>
-            <p>
-              {lesson.language} · {lesson.estimatedTime}
-            </p>
-          </div>
-          <div className={styles.sessionStats}>
-            {sessionState.combo > 1 && (
-              <span>
-                <Zap size={17} aria-hidden="true" /> {sessionState.combo}× combo
-              </span>
-            )}
-            {sessionState.earnedXp > 0 && <span>+{sessionState.earnedXp} XP</span>}
-            <span aria-label={`${sessionState.lives} de ${sessionState.maxLives} vidas restantes`}>
-              <Heart size={18} aria-hidden="true" /> {sessionState.lives}
-            </span>
-          </div>
-        </div>
-        <div className={styles.progressRow}>
-          <div
-            className={styles.progressTrack}
-            role="progressbar"
-            aria-label="Progresso da lição"
-            aria-valuemin={0}
-            aria-valuemax={lesson.steps.length}
-            aria-valuenow={sessionState.currentStepIndex}
-          >
-            <span
-              style={{
-                width: `${Math.min(100, (sessionState.currentStepIndex / Math.max(1, lesson.steps.length)) * 100)}%`,
-              }}
-            />
-          </div>
-          <span>
-            Etapa {Math.min(sessionState.currentStepIndex + 1, lesson.steps.length)} de{' '}
-            {lesson.steps.length}
-          </span>
-        </div>
-      </header>
+      <LessonSessionHeader
+        title={lesson.title}
+        language={lesson.language}
+        estimatedTime={lesson.estimatedTime}
+        combo={sessionState.combo}
+        earnedXp={sessionState.earnedXp}
+        lives={sessionState.lives}
+        maxLives={sessionState.maxLives}
+        currentStepIndex={sessionState.currentStepIndex}
+        totalSteps={lesson.steps.length}
+        onExit={() => setExitModalOpen(true)}
+      />
 
       {/* Área Central Interativa */}
       <main className={styles.lessonBody}>

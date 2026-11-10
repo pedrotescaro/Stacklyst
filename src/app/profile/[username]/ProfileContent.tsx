@@ -24,8 +24,7 @@ import { ProfileReplyThread } from '@/components/ProfileReplyThread';
 import { FollowersModal } from '@/components/motion/FollowersModal';
 import { ProfileCertificates } from '@/components/credentials/ProfileCertificates';
 import type { CredentialRecord } from '@/lib/credentials/types';
-import { LanguageTrailBar } from '@/components/LanguageTrailBar';
-import { calculateLevel } from '@/lib/learning/rewards';
+import { ProfileStatistics } from './ProfileStatistics';
 import {
   SocialProfileOverview,
   type SocialProfile,
@@ -89,7 +88,7 @@ export function ProfileContent({
   followedBy = [],
   initialTab = 'posts',
 }: ProfileContentProps) {
-  const { text, isEnglish } = useLocalizedText();
+  const { text } = useLocalizedText();
   const router = useRouter();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchInput, setSearchInput] = useState('');
@@ -833,74 +832,13 @@ export function ProfileContent({
                 </div>
               )}
               {activeTab === 'stats' ? (
-                <section className={styles.statistics}>
-                  <h2>{text('Estatísticas do perfil', 'Profile statistics')}</h2>
-                  <div className={styles.metrics}>
-                    <Metric value={stats.posts_count ?? 0} label={text('Publicações', 'Posts')} />
-                    <Metric value={stats.answers_count} label={text('Comentários', 'Comments')} />
-                    <Metric
-                      value={stats.likes_received ?? 0}
-                      label={text('Curtidas recebidas', 'Likes received')}
-                    />
-                    <Metric value={localProfile.total_xp} label="XP" />
-                  </div>
-                  <section className={styles.statisticsSection}>
-                    <h3>{text('Aprendizagem e atividade', 'Learning and activity')}</h3>
-                    <div className={styles.learningMetrics}>
-                      <Metric
-                        value={`${stats.accuracy}%`}
-                        label={text('Precisão nos quizzes', 'Quiz accuracy')}
-                      />
-                      <Metric
-                        value={stats.accepted_count}
-                        label={text('Respostas aceitas', 'Accepted answers')}
-                      />
-                      <Metric
-                        value={localProfile.streak_days || 0}
-                        label={text('Dias de ofensiva', 'Streak days')}
-                      />
-                    </div>
-                  </section>
-                  <section className={styles.statisticsSection}>
-                    <h3>{text('Atividade semanal', 'Weekly activity')}</h3>
-                    <div
-                      className={styles.weekly}
-                      aria-label={text('Atividade semanal de quizzes', 'Weekly quiz activity')}
-                    >
-                      {(isEnglish
-                        ? ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                        : ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom']
-                      ).map((day, index) => (
-                        <div key={index}>
-                          <span>{day}</span>
-                          <b data-active={Boolean(weeklyActivity.get(index))}>
-                            {weeklyActivity.get(index) || 0}
-                          </b>
-                        </div>
-                      ))}
-                    </div>
-                  </section>
-                  <section className={styles.statisticsSection}>
-                    <h3>{text('Progresso por linguagem', 'Language progress')}</h3>
-                    <div className={styles.languageProgress}>
-                      {trails.map((trail) => (
-                        <LanguageTrailBar
-                          key={trail.language}
-                          language={trail.language}
-                          xp={trail.xp}
-                          level={trail.level}
-                          maxXp={calculateLevel(trail.xp).nextLevelXp}
-                          compact
-                        />
-                      ))}
-                      {trails.length === 0 && (
-                        <p className={styles.empty}>
-                          {text('Nenhuma trilha iniciada.', 'No trails started.')}
-                        </p>
-                      )}
-                    </div>
-                  </section>
-                </section>
+                <ProfileStatistics
+                  stats={stats}
+                  totalXp={localProfile.total_xp}
+                  streakDays={localProfile.streak_days || 0}
+                  weeklyActivity={weeklyActivity}
+                  trails={trails}
+                />
               ) : activeTab === 'certificates' ? (
                 <section aria-label={text('Certificados do perfil', 'Profile certificates')}>
                   <h2 className={headerStyles.certificatesHeading}>
@@ -1082,33 +1020,6 @@ export function ProfileContent({
             </div>
           </div>
         </div>
-      )}
-    </div>
-  );
-}
-function Metric({
-  value,
-  label,
-  onClick,
-}: {
-  value: number | string;
-  label: string;
-  onClick?: () => void;
-}) {
-  const content = (
-    <>
-      <strong>{typeof value === 'number' ? value.toLocaleString('pt-BR') : value}</strong>
-      <span>{label}</span>
-    </>
-  );
-  return (
-    <div className={styles.metric}>
-      {onClick ? (
-        <button type="button" onClick={onClick}>
-          {content}
-        </button>
-      ) : (
-        content
       )}
     </div>
   );
