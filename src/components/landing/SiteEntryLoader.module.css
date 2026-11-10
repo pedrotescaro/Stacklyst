@@ -1,3 +1,4 @@
+/* Clean entry: the S is traced and fills from the bottom, then "tacklyst" opens out of it. */
 .loader {
   position: fixed;
   inset: 0;
@@ -5,7 +6,6 @@
   display: grid;
   place-items: center;
   overflow: hidden;
-  color: #f5f7fa;
   background: #08090b;
   opacity: 1;
   transition: opacity 360ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -14,8 +14,95 @@
   opacity: 0;
   pointer-events: none;
 }
+
+.brand {
+  --brand-color: #0083fe;
+  --brand-size: min(clamp(32px, 6vw, 48px), calc((100vw - 48px) / var(--brand-width-ratio)));
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--brand-size) * 0.045);
+  white-space: nowrap;
+  color: var(--brand-color);
+  line-height: 1;
+}
+
+.mark {
+  display: block;
+  width: calc(var(--brand-size) * 1.08);
+  height: var(--brand-size);
+  flex-shrink: 0;
+  overflow: visible;
+}
+/* Outline drawn around the S... */
+.markTrace {
+  stroke-width: 14;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation:
+    trace 760ms cubic-bezier(0.65, 0, 0.35, 1) forwards,
+    trace-out 260ms 980ms ease-out forwards;
+}
+/* ...while the shape fills up from the bottom, like a load. */
+.markFill {
+  clip-path: inset(100% 0 0);
+  animation: fill-up 620ms 340ms var(--ease) forwards;
+}
+
+.suffix {
+  display: block;
+  color: var(--brand-color);
+  -webkit-text-fill-color: var(--brand-color);
+  font-family: var(--font-sora), sans-serif;
+  font-size: calc(var(--brand-size) * var(--brand-font-scale, 0.76));
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  transform: translateY(calc(var(--brand-size) * 0.16));
+  clip-path: inset(0 100% 0 0);
+  animation: open-name 520ms 920ms var(--ease) forwards;
+}
+
+@keyframes trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes trace-out {
+  to {
+    stroke-opacity: 0;
+  }
+}
+@keyframes fill-up {
+  to {
+    clip-path: inset(0);
+  }
+}
+@keyframes open-name {
+  from {
+    clip-path: inset(0 100% 0 0);
+    transform: translate(calc(var(--brand-size) * -0.35), calc(var(--brand-size) * 0.16));
+  }
+  to {
+    clip-path: inset(0 -2% 0 0);
+    transform: translate(0, calc(var(--brand-size) * 0.16));
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .loader {
     transition: opacity 80ms linear;
+  }
+  .markTrace,
+  .markFill,
+  .suffix {
+    animation: none;
+  }
+  .markTrace {
+    stroke-opacity: 0;
+  }
+  .markFill,
+  .suffix {
+    clip-path: none;
   }
 }
