@@ -1,6 +1,18 @@
 # Engenharia de software — Stacklyst
 
-## Entrega atual — seminário e análise de 20/10/2026
+## Entrega Final — 03/11/2026
+
+A [revisão final](revisao-final-2026-11-03/README.md) reúne os documentos atualizados, a vista **Caso de Uso Geral** com os 26 casos consolidados, os modelos Astah atualizados e a apresentação final do seminário.
+
+- [Documento de visão](revisao-final-2026-11-03/01-documento-de-visao-stacklyst.docx)
+- [Atividades do negócio](revisao-final-2026-11-03/02-atividades-do-negocio-stacklyst.docx)
+- [Requisitos do sistema](revisao-final-2026-11-03/03-requisitos-do-sistema-stacklyst.docx)
+- [Casos de uso e modelos técnicos UML](revisao-final-2026-11-03/04-casos-de-uso-stacklyst.docx)
+- [Projeto Astah atualizado](revisao-final-2026-11-03/Stacklyst-modelos-atualizados.asta) ([ZIP](revisao-final-2026-11-03/Stacklyst-modelos-atualizados.asta.zip))
+- [Apresentação do seminário atualizada](revisao-final-2026-11-03/Stacklyst-seminario-atualizado-2026-11-03.pptx)
+- [Pasta do Google Drive — Stacklyst Final](https://drive.google.com/drive/u/0/folders/1RVgFqhpo9dRq8c5nGnyJWgv43hYKHu88)
+
+## Entrega anterior — seminário e análise de 20/10/2026
 
 A [revisão de 20/10](revisao-seminario-2026-10-20/README.md) segue a ordem da lousa da professora, com a apresentação dos três integrantes, seis atividades de negócio, os modelos gerais e específicos em português, quatro sequências completas e nove recortes acompanhados do código.
 

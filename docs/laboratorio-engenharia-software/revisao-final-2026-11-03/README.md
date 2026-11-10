@@ -4,13 +4,17 @@ Revisão de 3 de novembro de 2026.
 
 ## Documentos
 
-- Documento 01: visão do sistema, públicos, necessidades, escopo e critérios de sucesso.
-- Documento 02: atividades do negócio, com os sete diagramas aprovados e a rastreabilidade atualizada.
-- Documento 03: requisitos funcionais, requisitos não funcionais, regras e matrizes de rastreabilidade.
-- Documento 04: especificações dos 26 casos da vista Caso de Uso Geral, fluxos principais, alternativas, garantias, modelos e ligação com o código.
-- Documento 05: manual técnico da plataforma e galeria das telas atuais.
+- [Documento 01 — Visão do Sistema](01-documento-de-visao-stacklyst.docx): visão do sistema, públicos, necessidades, escopo e critérios de sucesso.
+- [Documento 02 — Atividades do Negócio](02-atividades-do-negocio-stacklyst.docx): atividades do negócio, com os sete diagramas aprovados e a rastreabilidade atualizada.
+- [Documento 03 — Requisitos do Sistema](03-requisitos-do-sistema-stacklyst.docx): requisitos funcionais, requisitos não funcionais, regras e matrizes de rastreabilidade.
+- [Documento 04 — Casos de Uso do Sistema](04-casos-de-uso-stacklyst.docx): especificações dos 26 casos da vista Caso de Uso Geral, fluxos principais, alternativas, garantias, modelos e ligação com o código.
+- [Documento 05 — Manual Técnico da Plataforma](entregaveis/05-manual-tecnico-da-plataforma.docx): manual técnico da plataforma e galeria das telas atuais.
+- [Modelos Astah Atualizados](Stacklyst-modelos-atualizados.asta) ([Arquivo ZIP](Stacklyst-modelos-atualizados.asta.zip))
+- [Seminário e Apresentação Atualizada](Stacklyst-seminario-atualizado-2026-11-03.pptx)
 
-As versões Word e PDF estão em `entregaveis`. A pasta `markdown` contém a documentação correspondente em Markdown e suas imagens. `catalogo-casos.md` e `catalogo-casos.json` apresentam o catálogo dos casos.
+Fonte original no Google Drive: [Pasta Stacklyst Final](https://drive.google.com/drive/u/0/folders/1RVgFqhpo9dRq8c5nGnyJWgv43hYKHu88).
+
+As versões Word e PDF consolidadas também estão em `entregaveis/`. A pasta `markdown` contém a documentação correspondente em Markdown e suas imagens. `catalogo-casos.md` e `catalogo-casos.json` apresentam o catálogo dos casos.
 
 ## Modelos e apresentação
 
