@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
+import { motion, useMotionValue, useTransform, type MotionValue } from 'framer-motion';
 import {
   ArrowLeft,
   Backpack,
@@ -27,18 +28,17 @@ import '@/components/mundinho/mundinho.css';
 const ASSET_BASE = '/assets/mundinho';
 const noop = () => {};
 
-export interface WorldPose {
-  x: number;
-  y: number;
-  direction: 'down' | 'right' | 'up' | 'left';
-  walking: boolean;
-}
-
 export interface MundinhoWorldProps {
   avatar: Avatar;
   username: string;
   playerLevel: number;
-  pose: WorldPose;
+  /** Player position in map pixels, driven by the scene clock. */
+  x: MotionValue<number>;
+  y: MotionValue<number>;
+  direction: 'down' | 'right' | 'up' | 'left';
+  walking: boolean;
+  /** Player is close enough to Ada for the action button to offer "Interagir". */
+  atGuide: boolean;
   /** Shows Ada's dialogue panel over the clearing. */
   dialogue: boolean;
 }
@@ -47,37 +47,48 @@ export interface MundinhoWorldProps {
  * Projection of `World` (the Mundinho clearing): the same HUD, tilemap,
  * sprites, entities and controls, driven by a pose supplied by the
  * walkthrough instead of keyboard/touch input and a simulation loop.
+ * Camera and player move with transforms only.
  */
 export function MundinhoWorld({
   avatar,
   username,
   playerLevel,
-  pose,
+  x,
+  y,
+  direction,
+  walking,
+  atGuide,
   dialogue,
 }: MundinhoWorldProps) {
   const { text } = useLocalizedText();
   const viewport = useRef<HTMLDivElement>(null);
-  const [size, setSize] = useState({ width: 800, height: 480 });
+  const width = useMotionValue(800);
+  const height = useMotionValue(480);
   useEffect(() => {
     const element = viewport.current;
     if (!element) return;
-    const observer = new ResizeObserver(() =>
-      setSize({ width: element.clientWidth, height: element.clientHeight })
-    );
+    const observer = new ResizeObserver(() => {
+      width.set(element.clientWidth);
+      height.set(element.clientHeight);
+    });
     observer.observe(element);
     return () => observer.disconnect();
-  }, []);
+  }, [width, height]);
 
   // Camera math copied from World: follow the player, never show past the map edge.
-  const scale = Math.max(0.85, Math.min(1.2, size.width / 850));
-  const x =
-    WORLD.width * scale < size.width
-      ? (size.width - WORLD.width * scale) / 2
-      : Math.min(0, Math.max(size.width - WORLD.width * scale, size.width / 2 - pose.x * scale));
-  const y =
-    WORLD.height * scale < size.height
-      ? (size.height - WORLD.height * scale) / 2
-      : Math.min(0, Math.max(size.height - WORLD.height * scale, size.height / 2 - pose.y * scale));
+  const camera = useTransform([x, y, width, height], ([px, py, w, h]: number[]) => {
+    const scale = Math.max(0.85, Math.min(1.2, w / 850));
+    const tx =
+      WORLD.width * scale < w
+        ? (w - WORLD.width * scale) / 2
+        : Math.min(0, Math.max(w - WORLD.width * scale, w / 2 - px * scale));
+    const ty =
+      WORLD.height * scale < h
+        ? (h - WORLD.height * scale) / 2
+        : Math.min(0, Math.max(h - WORLD.height * scale, h / 2 - py * scale));
+    return `translate(${tx}px, ${ty}px) scale(${scale})`;
+  });
+  const depth = useTransform(y, (py) => worldDepth(py));
 
   const objectLabel: Record<string, string> = {
     guide: text('Ada (Guia)', 'Ada (Guide)'),
@@ -85,8 +96,6 @@ export function MundinhoWorld({
     chest: text('Baú diário · 10 moedas', 'Daily chest · 10 coins'),
     portal: text('Descer para a arena multiplayer', 'Go down to the multiplayer arena'),
   };
-  const guide = WORLD_OBJECTS.find((object) => object.id === 'guide');
-  const nearAda = guide ? Math.hypot(guide.x - pose.x, guide.y - pose.y) < 55 : false;
 
   return (
     <div className="world-shell" data-area="forest">
@@ -139,13 +148,13 @@ export function MundinhoWorld({
           </div>
         </div>
 
-        <div
+        <motion.div
           className="world-map"
           inert={dialogue}
           style={{
             width: WORLD.width,
             height: WORLD.height,
-            transform: `translate(${x}px, ${y}px) scale(${scale})`,
+            transform: camera,
             backgroundImage: `url(${adventureAsset('forest-ground.png', ASSET_BASE)})`,
           }}
         >
@@ -224,21 +233,23 @@ export function MundinhoWorld({
               )}
             </button>
           ))}
-          <div
-            className="world-entity world-player"
-            style={{ left: pose.x, top: pose.y, zIndex: worldDepth(pose.y) }}
-          >
-            <span className="world-player-name">{username}</span>
-            <PixelAvatar avatar={avatar} direction={pose.direction} walking={pose.walking} />
-          </div>
-        </div>
+          <motion.div className="absolute left-0 top-0" style={{ x, y, zIndex: depth }}>
+            <div className="world-entity world-player" data-testid="demo-world-player">
+              <span className="world-player-name">{username}</span>
+              <PixelAvatar avatar={avatar} direction={direction} walking={walking} />
+            </div>
+          </motion.div>
+        </motion.div>
 
         {dialogue && (
-          <section
+          <motion.section
             role="dialog"
             aria-label="Ada"
             className="world-dialogue-panel has-portrait"
             data-testid="demo-world-dialogue"
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
           >
             <Portrait avatar={ADA_AVATAR} name="Ada" assetBase={ASSET_BASE} />
             <div className="world-dialogue-copy">
@@ -270,19 +281,19 @@ export function MundinhoWorld({
             >
               <X size={18} />
             </span>
-          </section>
+          </motion.section>
         )}
 
         <div className="world-controls" hidden={dialogue}>
           <TouchStick onMove={noop} />
           <button
             type="button"
-            className={`world-action-sword ${nearAda ? 'is-target' : ''}`}
+            className={`world-action-sword ${atGuide ? 'is-target' : ''}`}
             aria-label={text('Interagir', 'Interact')}
             tabIndex={-1}
           >
             <Swords size={28} />
-            {nearAda && <span className="world-action-label">{text('Interagir', 'Interact')}</span>}
+            {atGuide && <span className="world-action-label">{text('Interagir', 'Interact')}</span>}
           </button>
         </div>
       </div>

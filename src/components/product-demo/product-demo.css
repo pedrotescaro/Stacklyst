@@ -237,3 +237,17 @@
     will-change: auto;
   }
 }
+
+/* Clock-driven trail mascot: same size and foot anchor as `TrailMascot`. */
+.demo-mascot {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 15;
+  width: 72px;
+  height: 72px;
+  pointer-events: none;
+  user-select: none;
+  will-change: transform;
+  contain: layout style paint;
+}

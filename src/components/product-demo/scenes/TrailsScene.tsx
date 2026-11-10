@@ -1,13 +1,14 @@
 'use client';
 
-import type { MotionValue } from 'framer-motion';
+import { useTransform, type MotionValue } from 'framer-motion';
 import { TrailsProgressSidebar } from '@/app/trails/TrailsProgressSidebar';
 import { WORLD } from '@/lib/mundinho/world';
 import { DemoShell } from '../DemoShell';
+import { polylinePoint, useCounter, type Point } from '../demo-motion';
 import { DEMO_AVATAR, DEMO_COURSES, DEMO_USER } from '../demo-data';
-import { useBeats } from '../timeline';
+import { ramp, useBeats } from '../timeline';
 import { MundinhoHome } from './trails/MundinhoHome';
-import { MundinhoWorld, type WorldPose } from './trails/MundinhoWorld';
+import { MundinhoWorld } from './trails/MundinhoWorld';
 import { MundinhoAvatarEditor } from './trails/MundinhoAvatarEditor';
 import { TrailJourney } from './trails/TrailJourney';
 import { LessonBeat, type LessonStage } from './trails/LessonBeat';
@@ -30,17 +31,20 @@ export const TRAILS_MARKS = {
   savePressed: 12.4,
   saved: 12.7,
   journey: 13.6,
-  mascotWalk: 14.2,
+  focusNode: 14.6,
   lesson: 16.2,
   option: 17.6,
   verify: 18.6,
   correct: 19.1,
   continue: 20.8,
   done: 21.3,
+  focusBack: 22.2,
+  mascotWalk: 22.8,
+  mascotArrive: 24.4,
 } as const;
 
-/** Where the player stands next to Ada after walking across the clearing. */
-export const WORLD_DESTINATION = { x: 640, y: 262 } as const;
+/** The player crosses the clearing from the spawn point to Ada's cabin. */
+export const WORLD_PATH: readonly Point[] = [WORLD.spawn, { x: 560, y: 345 }, { x: 640, y: 262 }];
 const DEMO_COINS = 120;
 
 export function TrailsScene({ clock, mobile }: { clock: MotionValue<number>; mobile: boolean }) {
@@ -55,7 +59,23 @@ export function TrailsScene({ clock, mobile }: { clock: MotionValue<number>; mob
         ? 'world'
         : 'home';
   const completed = reached('done');
-  const totalXp = DEMO_USER.total_xp + (completed ? DEMO_USER.lesson_xp : 0);
+  const totalXp = useCounter(
+    clock,
+    DEMO_USER.total_xp,
+    DEMO_USER.total_xp + DEMO_USER.lesson_xp,
+    TRAILS_MARKS.done,
+    TRAILS_MARKS.done + 0.8
+  );
+
+  const walkProgress = useTransform(clock, (time) =>
+    ramp(TRAILS_MARKS.walk, TRAILS_MARKS.arrived, time)
+  );
+  const worldX = useTransform(walkProgress, (p) => polylinePoint(WORLD_PATH, p).x);
+  const worldY = useTransform(walkProgress, (p) => polylinePoint(WORLD_PATH, p).y);
+  const walking = reached('walk') && !reached('arrived');
+  const mascotProgress = useTransform(clock, (time) =>
+    ramp(TRAILS_MARKS.mascotWalk, TRAILS_MARKS.mascotArrive, time)
+  );
 
   const draft = {
     ...DEMO_AVATAR,
@@ -64,9 +84,6 @@ export function TrailsScene({ clock, mobile }: { clock: MotionValue<number>; mob
     outfit: reached('outfitPick') ? 1 : DEMO_AVATAR.outfit,
   };
   const category = reached('outfitTab') ? 'outfit' : reached('hairTab') ? 'hair' : 'skin';
-  const pose: WorldPose = reached('arrived')
-    ? { ...WORLD_DESTINATION, direction: 'up', walking: false }
-    : { ...WORLD.spawn, direction: 'down', walking: false };
   const stage: LessonStage = reached('correct')
     ? 'correct'
     : reached('verify')
@@ -99,7 +116,7 @@ export function TrailsScene({ clock, mobile }: { clock: MotionValue<number>; mob
           username={DEMO_USER.username}
           avatarUrl={DEMO_USER.avatar_url}
           dailyProgress={{
-            xpEarned: completed ? DEMO_USER.lesson_xp : 0,
+            xpEarned: totalXp - DEMO_USER.total_xp,
             correctAnswers: completed ? 1 : 0,
             trailActivities: completed ? 1 : 0,
           }}
@@ -125,7 +142,11 @@ export function TrailsScene({ clock, mobile }: { clock: MotionValue<number>; mob
           avatar={DEMO_AVATAR}
           username={DEMO_USER.username}
           playerLevel={4}
-          pose={pose}
+          x={worldX}
+          y={worldY}
+          direction={reached('walk') ? 'right' : 'down'}
+          walking={walking}
+          atGuide={reached('arrived')}
           dialogue={reached('dialogue')}
         />
       )}
@@ -138,7 +159,15 @@ export function TrailsScene({ clock, mobile }: { clock: MotionValue<number>; mob
         />
       )}
       {view === 'journey' && (
-        <TrailJourney thirdCompleted={completed} totalXp={totalXp} gems={DEMO_COINS} />
+        <TrailJourney
+          key={completed ? 'after' : 'before'}
+          thirdCompleted={completed}
+          totalXp={totalXp}
+          gems={DEMO_COINS}
+          focusNode={completed ? reached('focusBack') : reached('focusNode')}
+          mascotProgress={mascotProgress}
+          mascotWalking={reached('mascotWalk') && !reached('mascotArrive')}
+        />
       )}
     </DemoShell>
   );

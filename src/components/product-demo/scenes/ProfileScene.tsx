@@ -1,6 +1,6 @@
 'use client';
 
-import type { MotionValue } from 'framer-motion';
+import { motion, type MotionValue } from 'framer-motion';
 import {
   ArrowLeft,
   BadgeCheck,
@@ -27,6 +27,7 @@ import headerStyles from '@/app/profile/[username]/ProfileHeader.module.css';
 import { DemoShell } from '../DemoShell';
 import { DemoRightRail } from '../DemoRightRail';
 import { DemoPost } from '../DemoPost';
+import { Cascade, CascadeItem } from '../demo-motion';
 import { DEMO_USER, DEMO_WEEKLY_ACTIVITY, demoCopy, demoCredentials } from '../demo-data';
 import { usePhase } from '../timeline';
 import { RANKING_END_XP } from './RankingScene';
@@ -82,8 +83,8 @@ export function ProfileScene({ clock, mobile }: { clock: MotionValue<number>; mo
       bodyClassName={`dd-platform-body min-w-0 flex-grow bg-dd-bg ${inline.pageLayout} ${profileStyles.scope}`}
       mainClassName={`dd-platform-main ${inline.pageMain}`}
     >
-      <div className={inline.content} data-testid="profile-layout">
-        <div className={headerStyles.sticky}>
+      <Cascade className={inline.content} data-testid="profile-layout">
+        <CascadeItem className={headerStyles.sticky}>
           <header className={headerStyles.header}>
             <span className={headerStyles.iconButton} aria-label={text('Voltar', 'Back')}>
               <ArrowLeft size={20} aria-hidden="true" />
@@ -99,21 +100,23 @@ export function ProfileScene({ clock, mobile }: { clock: MotionValue<number>; mo
               <Search size={20} aria-hidden="true" />
             </span>
           </header>
-        </div>
+        </CascadeItem>
 
-        <SocialProfileOverview
-          profile={profile}
-          currentUserId={DEMO_USER.id}
-          following={false}
-          followers={128}
-          followingCount={42}
-          onFollowToggle={noopAsync}
-          onShowFollowers={noop}
-          onShowFollowing={noop}
-          onSaved={noop}
-        />
+        <CascadeItem>
+          <SocialProfileOverview
+            profile={profile}
+            currentUserId={DEMO_USER.id}
+            following={false}
+            followers={128}
+            followingCount={42}
+            onFollowToggle={noopAsync}
+            onShowFollowers={noop}
+            onShowFollowing={noop}
+            onSaved={noop}
+          />
+        </CascadeItem>
 
-        <div className={headerStyles.desktopNavigation}>
+        <CascadeItem className={headerStyles.desktopNavigation}>
           <div
             className={`${inline.tabs} ${headerStyles.tabs} ${headerStyles.desktopTabs}`}
             role="tablist"
@@ -134,9 +137,9 @@ export function ProfileScene({ clock, mobile }: { clock: MotionValue<number>; mo
               </span>
             ))}
           </div>
-        </div>
+        </CascadeItem>
 
-        <div
+        <CascadeItem
           className={headerStyles.mobileTabsBar}
           role="tablist"
           aria-label={text('Conteúdo do perfil', 'Profile content')}
@@ -163,45 +166,52 @@ export function ProfileScene({ clock, mobile }: { clock: MotionValue<number>; mo
               </span>
             );
           })}
-        </div>
+        </CascadeItem>
 
-        <div role="tabpanel" data-demo-panel={activeTab}>
-          {activeTab === 'posts' && (
-            <div className="border-b border-dd-border">
-              <DemoPost
-                author={{ ...DEMO_USER, total_xp: totalXp }}
-                body={copy.feed.draft}
-                createdLabel={text('Postado há pouco', 'Posted just now')}
-                likes={2}
-                answers={1}
+        <CascadeItem role="tabpanel" data-demo-panel={activeTab}>
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+          >
+            {activeTab === 'posts' && (
+              <div className="border-b border-dd-border">
+                <DemoPost
+                  author={{ ...DEMO_USER, total_xp: totalXp }}
+                  body={copy.feed.draft}
+                  createdLabel={text('Postado há pouco', 'Posted just now')}
+                  likes={2}
+                  answers={1}
+                />
+              </div>
+            )}
+            {activeTab === 'stats' && (
+              <ProfileStatistics
+                stats={{
+                  posts_count: 3,
+                  answers_count: 7,
+                  likes_received: 19,
+                  accuracy: 92,
+                  accepted_count: 4,
+                }}
+                totalXp={totalXp}
+                streakDays={DEMO_USER.streak}
+                weeklyActivity={DEMO_WEEKLY_ACTIVITY}
+                trails={[{ language: 'JS', xp: totalXp, level: 5 }]}
               />
-            </div>
-          )}
-          {activeTab === 'stats' && (
-            <ProfileStatistics
-              stats={{
-                posts_count: 3,
-                answers_count: 7,
-                likes_received: 19,
-                accuracy: 92,
-                accepted_count: 4,
-              }}
-              totalXp={totalXp}
-              streakDays={DEMO_USER.streak}
-              weeklyActivity={DEMO_WEEKLY_ACTIVITY}
-              trails={[{ language: 'JS', xp: totalXp, level: 5 }]}
-            />
-          )}
-          {activeTab === 'certificates' && (
-            <section aria-label={text('Certificados do perfil', 'Profile certificates')}>
-              <h2 className={headerStyles.certificatesHeading}>
-                {text('Badges e certificados', 'Badges and certificates')}
-              </h2>
-              <CredentialCollection collection={demoCredentials(text)} isOwner />
-            </section>
-          )}
-        </div>
-      </div>
+            )}
+            {activeTab === 'certificates' && (
+              <section aria-label={text('Certificados do perfil', 'Profile certificates')}>
+                <h2 className={headerStyles.certificatesHeading}>
+                  {text('Badges e certificados', 'Badges and certificates')}
+                </h2>
+                <CredentialCollection collection={demoCredentials(text)} isOwner />
+              </section>
+            )}
+          </motion.div>
+        </CascadeItem>
+      </Cascade>
     </DemoShell>
   );
 }

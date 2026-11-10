@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import type { MotionValue } from 'framer-motion';
+import { AnimatePresence, motion, useReducedMotion, type MotionValue } from 'framer-motion';
 import type { SceneId } from './timeline';
+import { sceneTransitionVariants, staticSceneVariants } from './demo-motion';
 import { FeedScene } from './scenes/FeedScene';
 import { TrailsScene } from './scenes/TrailsScene';
 import { RankingScene } from './scenes/RankingScene';
@@ -29,11 +30,13 @@ export function DemoViewport({
   scene,
   mobile,
 }: {
+  /** Clock of the active scene; an exiting scene keeps its own, frozen clock. */
   clock: MotionValue<number>;
   scene: SceneId;
   mobile: boolean;
 }) {
   const stage = useRef<HTMLDivElement>(null);
+  const reduced = useReducedMotion();
   const [width, setWidth] = useState(0);
   useEffect(() => {
     const element = stage.current;
@@ -58,9 +61,19 @@ export function DemoViewport({
           visibility: width ? 'visible' : 'hidden',
         }}
       >
-        <div className="demo-scene" data-demo-scene={scene}>
-          <Scene key={scene} clock={clock} mobile={mobile} />
-        </div>
+        <AnimatePresence initial={false}>
+          <motion.div
+            key={scene}
+            className="demo-scene"
+            data-demo-scene={scene}
+            variants={reduced ? staticSceneVariants : sceneTransitionVariants}
+            initial="enter"
+            animate="show"
+            exit="exit"
+          >
+            <Scene clock={clock} mobile={mobile} />
+          </motion.div>
+        </AnimatePresence>
       </div>
     </div>
   );

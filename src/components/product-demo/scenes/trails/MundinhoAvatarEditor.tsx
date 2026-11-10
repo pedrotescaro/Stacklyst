@@ -12,6 +12,7 @@ import {
   NATURAL_HAIR_OPTIONS,
 } from '@/lib/mundinho/hair-colors';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { Cascade, CascadeItem } from '../../demo-motion';
 import '@/components/mundinho/mundinho.css';
 
 const ASSET_BASE = '/assets/mundinho';
@@ -81,8 +82,8 @@ export function MundinhoAvatarEditor({
         } ${index + 1}`;
 
   return (
-    <div className="adventure adventure-avatar">
-      <header className="ad-page-heading">
+    <Cascade className="adventure adventure-avatar">
+      <CascadeItem as="header" className="ad-page-heading">
         <span
           className="ad-back-button"
           aria-label={text('Voltar para a tela inicial', 'Back to the home screen')}
@@ -95,7 +96,7 @@ export function MundinhoAvatarEditor({
         <button type="button" className="ad-save-pill" data-pressed={savePressed} tabIndex={-1}>
           {text('Salvar', 'Save')}
         </button>
-      </header>
+      </CascadeItem>
 
       {saved && (
         <div className="ad-notice" role="status">
@@ -110,7 +111,7 @@ export function MundinhoAvatarEditor({
       )}
 
       <div className="ad-avatar-editor-view">
-        <div className="ad-checkerboard-preview">
+        <CascadeItem className="ad-checkerboard-preview">
           <span className="ad-rotate-btn" aria-label={text('Girar à esquerda', 'Rotate left')}>
             <RotateCcw size={22} />
           </span>
@@ -120,9 +121,10 @@ export function MundinhoAvatarEditor({
           <span className="ad-rotate-btn" aria-label={text('Girar à direita', 'Rotate right')}>
             <RotateCw size={22} />
           </span>
-        </div>
+        </CascadeItem>
 
-        <section
+        <CascadeItem
+          as="section"
           className="ad-portrait-editor"
           aria-label={text('Retrato de diálogo', 'Dialogue portrait')}
         >
@@ -167,9 +169,9 @@ export function MundinhoAvatarEditor({
               )}
             </p>
           </div>
-        </section>
+        </CascadeItem>
 
-        <div className="ad-category-tabs-row" role="tablist">
+        <CascadeItem className="ad-category-tabs-row" role="tablist">
           {tabs.map((tab) => (
             <span
               key={tab.id}
@@ -180,7 +182,7 @@ export function MundinhoAvatarEditor({
               {tab.label}
             </span>
           ))}
-        </div>
+        </CascadeItem>
 
         {category === 'hair' && (
           <section className="ad-hair-colors" aria-label={text('Cor do cabelo', 'Hair color')}>
@@ -196,7 +198,7 @@ export function MundinhoAvatarEditor({
           </section>
         )}
 
-        <div className="ad-options-grid-three">
+        <CascadeItem className="ad-options-grid-three">
           {Array.from({ length: counts[category] || 4 }, (_, index) => {
             const isSelected = draft[category] === index;
             const item = ITEMS.find(
@@ -236,8 +238,8 @@ export function MundinhoAvatarEditor({
               </button>
             );
           })}
-        </div>
+        </CascadeItem>
       </div>
-    </div>
+    </Cascade>
   );
 }

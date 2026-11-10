@@ -33,7 +33,9 @@ function TabProgress({
 export default function ProductDemo() {
   const ref = useRef<HTMLElement>(null);
   const tabs = useRef<Array<HTMLButtonElement | null>>([]);
-  const clock = useMotionValue(0);
+  // One clock per scene: a scene that is fading out keeps its final state
+  // instead of restarting while the next scene fades in.
+  const clocks = [useMotionValue(0), useMotionValue(0), useMotionValue(0), useMotionValue(0)];
   const inView = useInView(ref, { amount: 0.1 });
   const reduced = useReducedMotion();
   const [index, setIndex] = useState(0);
@@ -43,6 +45,7 @@ export default function ProductDemo() {
   const [mobile, setMobile] = useState(false);
   const { t } = useLanguage();
   const scene = SCENES[index];
+  const clock = clocks[index];
   const playing = inView && visible && !paused && !hovered && !reduced;
 
   useEffect(() => {
@@ -59,10 +62,11 @@ export default function ProductDemo() {
     };
   }, []);
 
-  // Reduced motion shows each scene settled, with manual navigation only.
+  // Reduced motion shows every scene settled, with manual navigation only.
   useEffect(() => {
-    if (reduced) clock.set(scene.duration);
-  }, [reduced, scene.duration, clock]);
+    if (reduced) SCENES.forEach((item, i) => clocks[i].set(item.duration));
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- clocks are stable motion values
+  }, [reduced]);
 
   useEffect(() => {
     if (!playing) return;
@@ -72,7 +76,8 @@ export default function ProductDemo() {
       if (last !== undefined) {
         const next = clock.get() + Math.min((now - last) / 1000, 0.1);
         if (next >= scene.duration) {
-          clock.set(0);
+          clock.set(scene.duration);
+          clocks[(index + 1) % SCENES.length].set(0);
           setIndex((current) => (current + 1) % SCENES.length);
           return;
         }
@@ -83,15 +88,17 @@ export default function ProductDemo() {
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- clocks are stable motion values
   }, [playing, clock, scene.duration, index]);
 
   const goTo = useCallback(
     (next: number) => {
       const target = ((next % SCENES.length) + SCENES.length) % SCENES.length;
-      clock.set(reduced ? SCENES[target].duration : 0);
+      clocks[target].set(reduced ? SCENES[target].duration : 0);
       setIndex(target);
     },
-    [clock, reduced]
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- clocks are stable motion values
+    [reduced]
   );
 
   const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
@@ -167,7 +174,7 @@ export default function ProductDemo() {
               onKeyDown={onTabKeyDown}
             >
               {t.demo.scenes[item.id].title}
-              <TabProgress clock={clock} duration={item.duration} active={index === i} />
+              <TabProgress clock={clocks[i]} duration={item.duration} active={index === i} />
             </button>
           ))}
         </div>

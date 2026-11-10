@@ -6,6 +6,7 @@ import { OutputPredictionStep } from '@/components/lesson/renderers/OutputPredic
 import type { LessonStep } from '@/lib/lessons/types';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import lessonStyles from '@/app/lesson/[lessonId]/LessonClient.module.css';
+import { Cascade, CascadeItem } from '../../demo-motion';
 import { DEMO_USER, demoCopy } from '../../demo-data';
 
 const noop = () => {};
@@ -34,20 +35,22 @@ export function LessonBeat({ stage }: { stage: LessonStage }) {
   const earnedXp = answered ? DEMO_USER.lesson_xp : 0;
 
   return (
-    <div className={lessonStyles.surface} data-testid="demo-lesson">
-      <LessonSessionHeader
-        title={lesson.title}
-        language={lesson.language}
-        estimatedTime={lesson.estimatedTime}
-        combo={answered ? 1 : 0}
-        earnedXp={earnedXp}
-        lives={5}
-        maxLives={5}
-        currentStepIndex={1}
-        totalSteps={3}
-        onExit={noop}
-      />
-      <main className={lessonStyles.lessonBody}>
+    <Cascade className={lessonStyles.surface} data-testid="demo-lesson">
+      <CascadeItem>
+        <LessonSessionHeader
+          title={lesson.title}
+          language={lesson.language}
+          estimatedTime={lesson.estimatedTime}
+          combo={answered ? 1 : 0}
+          earnedXp={earnedXp}
+          lives={5}
+          maxLives={5}
+          currentStepIndex={1}
+          totalSteps={3}
+          onExit={noop}
+        />
+      </CascadeItem>
+      <CascadeItem as="main" className={lessonStyles.lessonBody}>
         <div className={lessonStyles.stepContent}>
           <OutputPredictionStep
             step={step}
@@ -58,19 +61,21 @@ export function LessonBeat({ stage }: { stage: LessonStage }) {
             answerCorrect={answered}
           />
         </div>
-      </main>
-      <LessonFooter
-        answered={answered}
-        isCorrect={answered}
-        feedbackMessage={answered ? lesson.explanation : undefined}
-        earnedXp={earnedXp}
-        combo={answered ? 1 : 0}
-        canVerify={stage !== 'reading'}
-        isVerifying={stage === 'verifying'}
-        onVerify={noop}
-        onContinue={noop}
-        onRetry={noop}
-      />
-    </div>
+      </CascadeItem>
+      <CascadeItem className="mt-auto">
+        <LessonFooter
+          answered={answered}
+          isCorrect={answered}
+          feedbackMessage={answered ? lesson.explanation : undefined}
+          earnedXp={earnedXp}
+          combo={answered ? 1 : 0}
+          canVerify={stage !== 'reading'}
+          isVerifying={stage === 'verifying'}
+          onVerify={noop}
+          onContinue={noop}
+          onRetry={noop}
+        />
+      </CascadeItem>
+    </Cascade>
   );
 }

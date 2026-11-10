@@ -22,6 +22,7 @@ import {
   type Course,
 } from '@/lib/mundinho/types';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { Cascade, CascadeItem } from '../../demo-motion';
 import '@/components/mundinho/mundinho.css';
 
 const ASSET_BASE = '/assets/mundinho';
@@ -86,8 +87,8 @@ export function MundinhoHome({
   ];
 
   return (
-    <div className="adventure adventure-home">
-      <header className="ad-page-heading">
+    <Cascade className="adventure adventure-home">
+      <CascadeItem as="header" className="ad-page-heading">
         <div className="ad-heading-text">
           <h1>{text('Trilhas de aprendizagem', 'Learning trails')}</h1>
           <p className="ad-subtitle">
@@ -100,9 +101,10 @@ export function MundinhoHome({
         <span className="ad-lessons-link">
           {text('Mapa de Lições', 'Lesson map')} <ArrowRight size={16} />
         </span>
-      </header>
+      </CascadeItem>
 
-      <section
+      <CascadeItem
+        as="section"
         className="ad-hero-banner"
         aria-label={text('Prévia do Meu Mundinho', 'My World preview')}
         style={{ backgroundImage: `url(${adventureAsset('forest-v2.png', ASSET_BASE)})` }}
@@ -141,9 +143,9 @@ export function MundinhoHome({
             <Pencil size={20} />
           </button>
         </div>
-      </section>
+      </CascadeItem>
 
-      <div className="ad-stats-two-cards">
+      <CascadeItem className="ad-stats-two-cards">
         <button type="button" className="ad-card-stat" tabIndex={-1}>
           <span className="ad-stat-title">{text('Moedas', 'Coins')}</span>
           <div className="ad-stat-value-row">
@@ -161,9 +163,9 @@ export function MundinhoHome({
             </span>
           </div>
         </button>
-      </div>
+      </CascadeItem>
 
-      <div className="ad-radio-card">
+      <CascadeItem className="ad-radio-card">
         <button
           type="button"
           className="ad-radio-play-btn"
@@ -175,9 +177,9 @@ export function MundinhoHome({
         <div className="ad-radio-info">
           <span>{text('Toque para ouvir o rádio', 'Tap to listen to the radio')}</span>
         </div>
-      </div>
+      </CascadeItem>
 
-      <div className="ad-level-bar-card">
+      <CascadeItem className="ad-level-bar-card">
         <div className="ad-level-bar-labels">
           <strong>
             {text('Nível', 'Level')} {xp.level}
@@ -194,9 +196,9 @@ export function MundinhoHome({
             }}
           />
         </div>
-      </div>
+      </CascadeItem>
 
-      <section className="ad-checkin-section">
+      <CascadeItem as="section" className="ad-checkin-section">
         <h2 className="ad-section-title">Check-In</h2>
         <div className="ad-checkin-badges-row">
           {CHECKIN_REWARDS.map((reward, index) => {
@@ -221,9 +223,9 @@ export function MundinhoHome({
         <button type="button" className="ad-checkin-yellow-button" tabIndex={-1}>
           {text('Fazer check-in', 'Check in')}
         </button>
-      </section>
+      </CascadeItem>
 
-      <section className="ad-missions-section">
+      <CascadeItem as="section" className="ad-missions-section">
         <h2 className="ad-section-title">{text('Missões diárias', 'Daily missions')}</h2>
         <div className="ad-missions-list">
           {missions.map((mission) => (
@@ -248,9 +250,9 @@ export function MundinhoHome({
             </article>
           ))}
         </div>
-      </section>
+      </CascadeItem>
 
-      <section className="ad-courses-section">
+      <CascadeItem as="section" className="ad-courses-section">
         <div className="ad-section-header-row">
           <h2 className="ad-section-title">{text('Trilhas de Aprendizagem', 'Learning Trails')}</h2>
           <span className="ad-see-all-btn">
@@ -288,9 +290,9 @@ export function MundinhoHome({
             </button>
           ))}
         </div>
-      </section>
+      </CascadeItem>
 
-      <div className="ad-shortcuts-grid">
+      <CascadeItem className="ad-shortcuts-grid">
         <button type="button" className="ad-shortcut-btn" tabIndex={-1}>
           <Swords className="text-sky-400" size={24} />
           <div>
@@ -330,7 +332,7 @@ export function MundinhoHome({
           </div>
           <ChevronRight size={18} />
         </button>
-      </div>
-    </div>
+      </CascadeItem>
+    </Cascade>
   );
 }

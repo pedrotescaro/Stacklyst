@@ -1,13 +1,16 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { motion, useReducedMotion, type MotionValue } from 'framer-motion';
 import { ArrowRight, Check, ChevronDown, LockKeyhole, Star } from 'lucide-react';
 import { JourneyOverview } from '@/app/trails/JourneyOverview';
 import { TrailResourceBar } from '@/app/trails/TrailResourceBar';
 import { TrailViewSwitcher } from '@/app/trails/TrailViewSwitcher';
 import journey from '@/app/trails/LearningJourney.module.css';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { Cascade, CascadeItem } from '../../demo-motion';
 import { DEMO_COURSES, DEMO_USER, demoCopy } from '../../demo-data';
+import { TrailMascotWalker } from './TrailMascotWalker';
 
 const noop = () => {};
 
@@ -16,8 +19,11 @@ export interface TrailJourneyProps {
   thirdCompleted: boolean;
   totalXp: number;
   gems: number;
-  /** Timeline-driven mascot sprite layered over the path. */
-  mascot?: ReactNode;
+  /** Brings the current lesson node into view (the real page scrolls to it). */
+  focusNode: boolean;
+  /** Mascot travel from the completed lesson to the next one. */
+  mascotProgress: MotionValue<number>;
+  mascotWalking: boolean;
 }
 
 interface JourneyNode {
@@ -30,17 +36,47 @@ interface JourneyNode {
 
 /** Node geometry of `LearningJourney` (map mode), shared with the mascot walker. */
 export const JOURNEY_POSITIONS = [50, 34, 50, 66] as const;
+export const CURRENT_NODE_ID = 'learn-js-variables';
+export const NEXT_NODE_ID = 'learn-js-booleans';
 
 /**
  * Projection of `TrailsContent` (header, view switcher, path selector) and
  * `LearningJourney` in map mode, using the real `JourneyOverview`, CSS module
- * and node markup. The live mascot (storage-driven) is replaced by the
- * `mascot` slot.
+ * and node markup. The live mascot (storage-driven) is replaced by a
+ * clock-driven walker with the same sprites.
  */
-export function TrailJourney({ thirdCompleted, totalXp, gems, mascot }: TrailJourneyProps) {
+export function TrailJourney({
+  thirdCompleted,
+  totalXp,
+  gems,
+  focusNode,
+  mascotProgress,
+  mascotWalking,
+}: TrailJourneyProps) {
   const { text } = useLocalizedText();
+  const reduced = useReducedMotion();
   const copy = demoCopy(text);
   const { course, lessons, nextUnit } = copy.trails;
+  const content = useRef<HTMLDivElement>(null);
+  const map = useRef<HTMLDivElement>(null);
+  const [offset, setOffset] = useState(0);
+
+  // Mirrors `scrollIntoView` on the real page: translate the column so the
+  // current node sits in the upper third of the viewport.
+  useEffect(() => {
+    const element = content.current;
+    const node = element?.querySelector(`#${CURRENT_NODE_ID}`);
+    if (!element || !node || !focusNode) {
+      setOffset(0);
+      return;
+    }
+    const contentRect = element.getBoundingClientRect();
+    const scale = element.offsetWidth ? contentRect.width / element.offsetWidth : 1;
+    const nodeTop = (node.getBoundingClientRect().top - contentRect.top) / scale;
+    const viewport = element.parentElement?.clientHeight ?? 800;
+    setOffset(Math.min(0, -(nodeTop - viewport * 0.3)));
+  }, [focusNode]);
+
   const unitOne: JourneyNode[] = lessons.map((lesson, index) => ({
     id: lesson.id,
     title: lesson.title,
@@ -63,7 +99,8 @@ export function TrailJourney({ thirdCompleted, totalXp, gems, mascot }: TrailJou
   const renderUnit = (nodes: JourneyNode[], unitIndex: number) => {
     const unitCompleted = nodes.filter((node) => node.state === 'completed').length;
     return (
-      <section
+      <CascadeItem
+        as="section"
         key={unitIndex}
         id={`demo-unit-${unitIndex}`}
         className="scroll-mt-24"
@@ -175,80 +212,105 @@ export function TrailJourney({ thirdCompleted, totalXp, gems, mascot }: TrailJou
             );
           })}
         </ol>
-      </section>
+      </CascadeItem>
     );
   };
 
   return (
-    <>
-      <header className="sticky top-0 z-30 border-b border-dd-border bg-dd-bg px-4 py-3">
-        <span className="mb-2 inline-flex min-h-10 items-center text-sm font-semibold text-dd-accent">
-          {text('← Meu Mundinho e recompensas', '← My World & rewards')}
-        </span>
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <TrailViewSwitcher active="map" onChange={noop} />
-          <div className="xl:hidden">
-            <TrailResourceBar
-              activeLanguage="JS"
-              courses={[...DEMO_COURSES]}
-              onSelectCourse={noop}
-              streak={DEMO_USER.streak}
-              lastActiveAt={DEMO_USER.last_active_at}
-              totalXp={totalXp}
-              gems={gems}
-            />
-          </div>
-        </div>
-        <div className="mt-3 flex items-center gap-3 text-sm text-dd-muted">
-          <span className="shrink-0 font-medium text-dd-muted">{text('Caminho', 'Path')}</span>
-          <div className="min-w-0 flex-1">
-            <div
-              aria-label={text('Caminho de aprendizado', 'Learning path')}
-              className="group flex min-h-11 w-full min-w-0 items-center justify-between gap-2 rounded-xl border border-dd-border bg-dd-bg px-3.5 py-2 text-sm text-dd-text"
-            >
-              <div className="flex min-w-0 flex-1 items-center gap-2">
-                <span className="min-w-0 truncate font-semibold text-dd-text">{course.title}</span>
-                <span className="shrink-0 text-xs text-dd-muted">
-                  · {completedLessons}/{course.totalLessons} {text('lições', 'lessons')}
-                </span>
-              </div>
-              <ChevronDown className="pointer-events-none size-4 shrink-0 text-dd-muted" />
+    <motion.div
+      ref={content}
+      animate={{ y: offset }}
+      transition={reduced ? { duration: 0 } : { duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      data-testid="demo-journey"
+    >
+      <Cascade>
+        <CascadeItem
+          as="header"
+          className="sticky top-0 z-30 border-b border-dd-border bg-dd-bg px-4 py-3"
+        >
+          <span className="mb-2 inline-flex min-h-10 items-center text-sm font-semibold text-dd-accent">
+            {text('← Meu Mundinho e recompensas', '← My World & rewards')}
+          </span>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <TrailViewSwitcher active="map" onChange={noop} />
+            <div className="xl:hidden">
+              <TrailResourceBar
+                activeLanguage="JS"
+                courses={[...DEMO_COURSES]}
+                onSelectCourse={noop}
+                streak={DEMO_USER.streak}
+                lastActiveAt={DEMO_USER.last_active_at}
+                totalXp={totalXp}
+                gems={gems}
+              />
             </div>
           </div>
-        </div>
-      </header>
+          <div className="mt-3 flex items-center gap-3 text-sm text-dd-muted">
+            <span className="shrink-0 font-medium text-dd-muted">{text('Caminho', 'Path')}</span>
+            <div className="min-w-0 flex-1">
+              <div
+                aria-label={text('Caminho de aprendizado', 'Learning path')}
+                className="group flex min-h-11 w-full min-w-0 items-center justify-between gap-2 rounded-xl border border-dd-border bg-dd-bg px-3.5 py-2 text-sm text-dd-text"
+              >
+                <div className="flex min-w-0 flex-1 items-center gap-2">
+                  <span className="min-w-0 truncate font-semibold text-dd-text">
+                    {course.title}
+                  </span>
+                  <span className="shrink-0 text-xs text-dd-muted">
+                    · {completedLessons}/{course.totalLessons} {text('lições', 'lessons')}
+                  </span>
+                </div>
+                <ChevronDown className="pointer-events-none size-4 shrink-0 text-dd-muted" />
+              </div>
+            </div>
+          </div>
+        </CascadeItem>
 
-      <section
-        aria-labelledby="journey-title"
-        className="mx-auto w-full max-w-3xl px-4 pb-24 sm:px-8"
-      >
-        <JourneyOverview
-          title={course.title}
-          description={course.description}
-          completedLessons={completedLessons}
-          totalLessons={course.totalLessons}
-          completedExercises={completedExercises}
-          totalExercises={course.totalExercises}
-          units={course.unitTitles}
-          pathId="demo-foundations-js"
-          action={
-            next && (
-              <a>
-                <span>
-                  {thirdCompleted ? text('Começar', 'Start') : text('Continuar', 'Continue')}:{' '}
-                  {next.title}
-                </span>
-                <ArrowRight className="h-4 w-4 shrink-0" />
-              </a>
-            )
-          }
-        />
-        <div className="relative isolate pb-24" data-testid="learning-journey" data-view="map">
-          {renderUnit(unitOne, 0)}
-          {renderUnit(unitTwo, 1)}
-          {mascot}
-        </div>
-      </section>
-    </>
+        <section
+          aria-labelledby="journey-title"
+          className="mx-auto w-full max-w-3xl px-4 pb-24 sm:px-8"
+        >
+          <CascadeItem>
+            <JourneyOverview
+              title={course.title}
+              description={course.description}
+              completedLessons={completedLessons}
+              totalLessons={course.totalLessons}
+              completedExercises={completedExercises}
+              totalExercises={course.totalExercises}
+              units={course.unitTitles}
+              pathId="demo-foundations-js"
+              action={
+                next && (
+                  <a>
+                    <span>
+                      {thirdCompleted ? text('Começar', 'Start') : text('Continuar', 'Continue')}:{' '}
+                      {next.title}
+                    </span>
+                    <ArrowRight className="h-4 w-4 shrink-0" />
+                  </a>
+                )
+              }
+            />
+          </CascadeItem>
+          <div
+            ref={map}
+            className="relative isolate pb-24"
+            data-testid="learning-journey"
+            data-view="map"
+          >
+            {renderUnit(unitOne, 0)}
+            {renderUnit(unitTwo, 1)}
+            <TrailMascotWalker
+              containerRef={map}
+              fromId={CURRENT_NODE_ID}
+              toId={NEXT_NODE_ID}
+              progress={mascotProgress}
+              walking={mascotWalking}
+            />
+          </div>
+        </section>
+      </Cascade>
+    </motion.div>
   );
 }
