@@ -1,154 +1,133 @@
-import { motion, useTransform, type MotionValue } from 'framer-motion';
-import {
-  Image,
-  Smile,
-  Calendar,
-  MapPin,
-  Flag,
-  Play,
-  Heart,
-  MessageCircle,
-  Repeat2,
-  Bookmark,
-  Share2,
-  MoreHorizontal,
-} from 'lucide-react';
-import { AuthorAvatar } from '@/components/AuthorAvatar';
-import { LevelBadge } from '@/components/LevelBadge';
-import { LanguageTag } from '@/components/LanguageTag';
-import { smooth } from '../timeline';
+'use client';
 
-// Read-only projection of FeedContent/PostCard and its executable code block.
-// Fictional identities and local-only publishing feedback; no network actions.
-export function FeedScene({ time }: { time: MotionValue<number> }) {
-  const output = useTransform(time, (t) => smooth(4.8, 5.1, t) * (1 - smooth(6, 6.7, t)));
-  const press = useTransform(
-    time,
-    (t) => 1 - 0.035 * (smooth(4.4, 4.55, t) - smooth(4.55, 4.75, t))
-  );
-  const message = 'Meu primeiro projeto em Python está pronto!';
-  const typed = useTransform(time, (t) =>
-    t < 2 || t >= 3.4
-      ? 'O que você está construindo hoje?'
-      : message.slice(0, Math.floor(message.length * smooth(2, 3.15, t)))
-  );
-  const published = useTransform(time, (t) => smooth(3.4, 3.75, t) * (1 - smooth(6, 6.7, t)));
-  const feedY = useTransform(published, (p) => p * 130);
-  const postScale = useTransform(
-    time,
-    (t) => 1 - 0.04 * (smooth(3.2, 3.35, t) - smooth(3.35, 3.5, t))
-  );
-  const postOpacity = useTransform(time, (t) => (t >= 2 && t < 3.4 ? 1 : 0.5));
+import type { MotionValue } from 'framer-motion';
+import { Pencil } from 'lucide-react';
+import { AuthorAvatar } from '@/components/AuthorAvatar';
+import { FeedRankingSwitcher, feedRankingSurfaceClassName } from '@/components/FeedRankingSwitcher';
+import { cn } from '@/lib/cn';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { DemoShell } from '../DemoShell';
+import { DemoRightRail } from '../DemoRightRail';
+import { DemoPost } from '../DemoPost';
+import { DEMO_PEOPLE, DEMO_USER, demoCopy } from '../demo-data';
+import { usePhase } from '../timeline';
+
+/** Beats of the feed scene, in seconds: typing, publish, optimistic, settled, run, output, like. */
+export const FEED_MARKS = [1, 3, 3.3, 4.5, 5.6, 6.2, 7.6] as const;
+
+export function FeedScene({ clock, mobile }: { clock: MotionValue<number>; mobile: boolean }) {
+  const { text } = useLocalizedText();
+  const copy = demoCopy(text);
+  const phase = usePhase(clock, FEED_MARKS);
+  const typed = phase >= 1;
+  const published = phase >= 3;
+
   return (
-    <div>
-      <div className="demo-feed-tabs">
-        <strong>Para você</strong>
-        <span>Seguindo</span>
-      </div>
-      <div className="demo-compose">
-        <div className="flex items-center gap-3">
-          <AuthorAvatar username="user" />
-          <motion.span className="text-dd-muted">{typed}</motion.span>
+    <DemoShell
+      route="feed"
+      mobile={mobile}
+      rail={<DemoRightRail trailXp={DEMO_USER.total_xp} />}
+      mainClassName={cn(
+        'dd-platform-main flex min-h-full w-full min-w-0 max-w-[720px] flex-grow flex-col border-dd-border/60 bg-dd-bg md:border-x xl:max-w-[820px] 2xl:max-w-[920px]',
+        feedRankingSurfaceClassName
+      )}
+    >
+      {/* FeedControls projection: switcher, feed tabs and the preferences trigger. */}
+      <div className="relative z-30 min-w-0 border-b border-dd-border/60 bg-dd-bg px-3 py-3 md:sticky md:top-0">
+        <div className="mb-2 flex items-center gap-2">
+          <FeedRankingSwitcher active="feed" />
         </div>
-        <div className="mt-5 flex items-center justify-between pl-12">
-          <div className="flex gap-5 text-blue-500">
-            {[Image, Smile, Calendar, MapPin, Flag].map((Icon) => (
-              <Icon key={Icon.displayName} size={18} />
-            ))}
-          </div>
-          <motion.span
-            className="demo-post-button"
-            style={{ scale: postScale, opacity: postOpacity }}
+        <div className="flex min-w-0 items-center gap-2">
+          <div
+            role="tablist"
+            aria-label={text('Filtros do feed', 'Feed filters')}
+            className="relative flex min-w-0 flex-1 items-center gap-2 overflow-x-auto py-1"
           >
-            Postar
-          </motion.span>
+            <span
+              role="tab"
+              aria-selected="true"
+              className="order-2 inline-flex min-h-11 items-center rounded-full border border-dd-accent bg-dd-accent px-4 text-xs font-bold text-white"
+            >
+              {text('Para você', 'For you')}
+            </span>
+            <span
+              role="tab"
+              aria-selected="false"
+              className="order-1 inline-flex min-h-11 items-center rounded-full border border-dd-border px-4 text-xs font-bold text-dd-muted"
+            >
+              {text('Seguindo', 'Following')}
+            </span>
+          </div>
+          <span
+            aria-label={text('Personalizar feed', 'Customize feed')}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-dd-border text-dd-text"
+          >
+            <Pencil size={16} />
+          </span>
         </div>
       </div>
-      <div className="relative">
-        <motion.article
-          className="demo-post absolute inset-x-0 top-0"
-          style={{ opacity: published }}
-        >
-          <div className="flex items-center gap-2">
-            <AuthorAvatar username="user" />
-            <strong className="text-xs">user</strong>
-            <LevelBadge totalXp={4250} />
-            <span className="text-[10px] text-dd-muted">Agora</span>
-          </div>
-          <p className="my-4 text-sm">{message}</p>
-          <div className="pb-4 text-[10px] text-blue-400">Publicado</div>
-        </motion.article>
-        <motion.div style={{ y: feedY }}>
-          <article className="demo-post">
-            <div className="flex items-center gap-2">
-              <AuthorAvatar username="user" />
-              <strong className="text-xs">user</strong>
-              <span className="text-[10px] text-dd-muted">@user</span>
-              <LevelBadge totalXp={20} />
-              <div className="ml-auto">
-                <LanguageTag language="PYTHON" size="sm" />
-              </div>
-            </div>
-            <div className="demo-code mt-6">
-              <div className="demo-code-header">
-                <span>PYTHON</span>
-                <div className="flex items-center gap-3">
-                  <motion.span style={{ scale: press }} className="demo-run">
-                    <Play size={12} fill="currentColor" /> Executar
-                  </motion.span>
-                  <span>Copiar</span>
-                </div>
-              </div>
-              <pre>
-                <span className="text-blue-400">print</span>(
-                <span className="text-emerald-400">&quot;hello world&quot;</span>)
-              </pre>
-              <motion.div className="demo-output" style={{ opacity: output }}>
-                › hello world <span>Processo concluído</span>
-              </motion.div>
-            </div>
-            <PostActions likes={1} />
-          </article>
-          <article className="demo-post">
-            <div className="flex items-center gap-2">
-              <AuthorAvatar username="user" />
-              <strong className="text-xs">user</strong>
-              <LevelBadge totalXp={20} />
-            </div>
-            <p className="my-7 text-sm">Compartilhando meus primeiros passos com a comunidade.</p>
-            <PostActions likes={0} />
-          </article>
-          <article className="demo-post">
-            <div className="flex items-center gap-2">
-              <AuthorAvatar username="user" />
-              <strong className="text-xs">user</strong>
-              <LevelBadge totalXp={4250} />
-              <div className="ml-auto">
-                <LanguageTag language="TS" size="sm" />
-              </div>
-            </div>
-            <p className="mt-5 text-sm leading-6">
-              Hoje pratiquei componentes e compartilhei uma nova solução em TypeScript.
-            </p>
-            <PostActions likes={1} />
-          </article>
-        </motion.div>
+
+      {/* Desktop composer trigger, exactly as the feed renders it. */}
+      <div
+        data-testid="desktop-feed-composer"
+        className="hidden border-b border-dd-border px-5 py-5 md:block"
+      >
+        <div className="flex w-full items-center gap-3 text-left">
+          <AuthorAvatar username={DEMO_USER.username} size="md" />
+          <span
+            className={cn('flex-1 text-lg', typed ? 'text-dd-text' : 'text-dd-muted')}
+            data-testid="demo-composer-draft"
+          >
+            {typed ? copy.feed.draft : text('O que você está pensando?', "What's on your mind?")}
+          </span>
+          <span
+            className="rounded-full bg-dd-accent px-5 py-2 text-sm font-semibold text-white"
+            data-pressed={phase >= 2 && phase < 3}
+          >
+            {text('Criar postagem', 'Create post')}
+          </span>
+        </div>
+        <p className="mt-3 pl-13 text-xs text-dd-muted">
+          {text(
+            'Compartilhe uma ideia, um código ou uma descoberta.',
+            'Share an idea, code snippet, or insight.'
+          )}
+        </p>
       </div>
-    </div>
-  );
-}
-function PostActions({ likes }: { likes: number }) {
-  return (
-    <div className="demo-post-actions">
-      <MessageCircle size={17} />
-      <Repeat2 size={17} />
-      <span className={likes ? 'text-pink-500 flex gap-2' : 'flex gap-2'}>
-        <Heart size={17} fill={likes ? 'currentColor' : 'none'} />
-        {likes}
-      </span>
-      <Bookmark size={17} />
-      <Share2 size={16} />
-      <MoreHorizontal size={17} />
-    </div>
+
+      <div className="flex flex-col">
+        {published && (
+          <DemoPost
+            author={DEMO_USER}
+            body={copy.feed.draft}
+            createdLabel={text('Postado há pouco', 'Posted just now')}
+            likes={0}
+            optimistic={phase < 4}
+          />
+        )}
+        <DemoPost
+          author={{ ...DEMO_PEOPLE.bia, avatar_url: null }}
+          body={copy.feed.snippetIntro}
+          createdLabel={copy.feed.twoHoursAgo}
+          code={{
+            language: 'python',
+            source: copy.feed.snippetCode,
+            running: phase === 5,
+            output: phase >= 6 ? copy.feed.snippetOutput : null,
+          }}
+          answers={2}
+          reposts={1}
+          likes={phase >= 7 ? 4 : 3}
+          liked={phase >= 7}
+        />
+        <DemoPost
+          author={{ ...DEMO_PEOPLE.leo, avatar_url: null }}
+          body={copy.feed.duelPost}
+          createdLabel={copy.feed.yesterday}
+          answers={5}
+          likes={12}
+        />
+      </div>
+    </DemoShell>
   );
 }

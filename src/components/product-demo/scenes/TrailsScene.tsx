@@ -1,91 +1,145 @@
-import { motion, useTransform, type MotionValue } from 'framer-motion';
-import { Check, Star, ArrowRight } from 'lucide-react';
-import { TrailLanguageLogo } from '@/app/trails/TrailLanguageLogo';
-import journey from '@/app/trails/LearningJourney.module.css';
-import { smooth } from '../timeline';
+'use client';
 
-// LearningJourney's actual DOM geometry and CSS module; only the visible first
-// unit is projected, avoiding the live mascot's storage/scroll side effects.
-export function TrailsScene({ time }: { time: MotionValue<number> }) {
-  const y = useTransform(time, (t) => -340 * smooth(6.8, 9.3, t));
-  const progress = useTransform(time, (t) => 0.15 + 0.08 * smooth(8.3, 9.1, t));
-  const highlight = useTransform(
-    time,
-    (t) => 0.35 + 0.65 * (smooth(7.8, 8.3, t) - smooth(9.3, 9.8, t))
-  );
+import type { MotionValue } from 'framer-motion';
+import { TrailsProgressSidebar } from '@/app/trails/TrailsProgressSidebar';
+import { WORLD } from '@/lib/mundinho/world';
+import { DemoShell } from '../DemoShell';
+import { DEMO_AVATAR, DEMO_COURSES, DEMO_USER } from '../demo-data';
+import { useBeats } from '../timeline';
+import { MundinhoHome } from './trails/MundinhoHome';
+import { MundinhoWorld, type WorldPose } from './trails/MundinhoWorld';
+import { MundinhoAvatarEditor } from './trails/MundinhoAvatarEditor';
+import { TrailJourney } from './trails/TrailJourney';
+import { LessonBeat, type LessonStage } from './trails/LessonBeat';
+
+const noop = () => {};
+
+/** Beats of the Trails & Mundinho scene, in seconds. */
+export const TRAILS_MARKS = {
+  enterPressed: 2.6,
+  world: 3.4,
+  walk: 3.9,
+  arrived: 6.0,
+  dialogue: 6.3,
+  avatar: 8.0,
+  hairTab: 8.6,
+  hairPick: 9.4,
+  hairColor: 10.2,
+  outfitTab: 11.0,
+  outfitPick: 11.8,
+  savePressed: 12.4,
+  saved: 12.7,
+  journey: 13.6,
+  mascotWalk: 14.2,
+  lesson: 16.2,
+  option: 17.6,
+  verify: 18.6,
+  correct: 19.1,
+  continue: 20.8,
+  done: 21.3,
+} as const;
+
+/** Where the player stands next to Ada after walking across the clearing. */
+export const WORLD_DESTINATION = { x: 640, y: 262 } as const;
+const DEMO_COINS = 120;
+
+export function TrailsScene({ clock, mobile }: { clock: MotionValue<number>; mobile: boolean }) {
+  const reached = useBeats(clock, TRAILS_MARKS);
+  const view = reached('journey')
+    ? reached('lesson') && !reached('done')
+      ? 'lesson'
+      : 'journey'
+    : reached('avatar')
+      ? 'avatar'
+      : reached('world')
+        ? 'world'
+        : 'home';
+  const completed = reached('done');
+  const totalXp = DEMO_USER.total_xp + (completed ? DEMO_USER.lesson_xp : 0);
+
+  const draft = {
+    ...DEMO_AVATAR,
+    hair: reached('hairPick') ? 2 : DEMO_AVATAR.hair,
+    hairColor: reached('hairColor') ? 4 : DEMO_AVATAR.hairColor,
+    outfit: reached('outfitPick') ? 1 : DEMO_AVATAR.outfit,
+  };
+  const category = reached('outfitTab') ? 'outfit' : reached('hairTab') ? 'hair' : 'skin';
+  const pose: WorldPose = reached('arrived')
+    ? { ...WORLD_DESTINATION, direction: 'up', walking: false }
+    : { ...WORLD.spawn, direction: 'down', walking: false };
+  const stage: LessonStage = reached('correct')
+    ? 'correct'
+    : reached('verify')
+      ? 'verifying'
+      : reached('option')
+        ? 'selected'
+        : 'reading';
+
+  if (view === 'lesson') return <LessonBeat stage={stage} />;
+
   return (
-    <div>
-      <div className="demo-scene-header">
-        <div className="flex gap-5">
-          <b className="text-blue-400">Mapa</b>
-          <span>Trilha</span>
-        </div>
-        <TrailLanguageLogo language="JS" className="h-6 w-6" />
-      </div>
-      <motion.div style={{ y }} className="px-8 py-6">
-        <h2 className="text-3xl font-bold">JavaScript do zero</h2>
-        <p className="mt-2 text-sm text-dd-muted">
-          Da primeira instrução a um projeto com dados e testes.
-        </p>
-        <p className="mt-5 text-sm">2/13 lições · 4/26 exercícios · 4 unidades</p>
-        <div className="demo-progress mt-3">
-          <motion.div style={{ scaleX: progress }} />
-        </div>
-        <div className="mt-5 inline-flex items-center gap-3 rounded-xl bg-blue-500 px-4 py-3 text-sm font-bold">
-          Começar: Guardar e atualizar valores <ArrowRight size={17} />
-        </div>
-        <div className="my-6 flex gap-2 text-xs">
-          <span className="rounded-lg border border-dd-border p-3">1. Primeiros programas</span>
-          <span className="rounded-lg border border-dd-border p-3">2. Decisões e repetições</span>
-        </div>
-        <header className="rounded-2xl border-b-[6px] border-blue-700 bg-blue-500 px-5 py-5">
-          <h3 className="text-xl font-extrabold">Unidade 1 · Primeiros programas</h3>
-          <p className="mt-1 text-sm">2/3 lições · 4/6 exercícios</p>
-        </header>
-        <ol className={journey.path}>
-          {[
-            'Seu primeiro programa',
-            'Textos, números e operações',
-            'Guardar e atualizar valores',
-          ].map((title, i) => (
-            <li key={title} className={`relative ${journey.stop}`}>
-              {i < 2 && (
-                <svg className={journey.connector} viewBox="0 0 100 248" preserveAspectRatio="none">
-                  <path
-                    d={`M ${i === 0 ? 50 : 34} 0 C ${i === 0 ? 50 : 34} 125 ${i === 0 ? 34 : 50} 123 ${i === 0 ? 34 : 50} 248`}
-                    stroke="currentColor"
-                    strokeWidth="3"
-                    vectorEffect="non-scaling-stroke"
-                    strokeDasharray="3 9"
-                    fill="none"
-                    strokeLinecap="round"
-                  />
-                </svg>
-              )}
-              <div className={journey.station} style={{ left: `${i === 1 ? 34 : 50}%` }}>
-                {i === 2 && (
-                  <motion.span className={journey.nextLabel} style={{ opacity: highlight }}>
-                    SUA PRÓXIMA LIÇÃO
-                  </motion.span>
-                )}
-                <div
-                  className={`${journey.node} flex shrink-0 items-center justify-center rounded-full ${i < 2 ? 'border-emerald-700 bg-emerald-500' : 'border-blue-700 bg-blue-500'}`}
-                >
-                  {i < 2 ? <Check size={36} /> : <Star size={36} fill="currentColor" />}
-                </div>
-                <div className={journey.caption}>
-                  <h3 className="font-bold">{title}</h3>
-                  <p className="text-dd-muted">
-                    {i < 2
-                      ? 'Lição · 2/2 exercícios · Concluída'
-                      : 'Projeto · 0/2 exercícios · Você está aqui'}
-                  </p>
-                </div>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </motion.div>
-    </div>
+    <DemoShell
+      route="trails"
+      mobile={mobile}
+      mobileHeader={false}
+      shellClassName="adventure-platform"
+      bodyClassName="dd-platform-body mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]"
+      mainClassName="dd-platform-main min-w-0 flex-1 pb-20"
+      rail={
+        <TrailsProgressSidebar
+          activeLanguage="JS"
+          courses={[...DEMO_COURSES]}
+          onSelectCourse={noop}
+          totalXp={totalXp}
+          gems={DEMO_COINS}
+          streak={DEMO_USER.streak}
+          lastActiveAt={DEMO_USER.last_active_at}
+          globalRank={5}
+          totalParticipants={128}
+          username={DEMO_USER.username}
+          avatarUrl={DEMO_USER.avatar_url}
+          dailyProgress={{
+            xpEarned: completed ? DEMO_USER.lesson_xp : 0,
+            correctAnswers: completed ? 1 : 0,
+            trailActivities: completed ? 1 : 0,
+          }}
+        />
+      }
+    >
+      {view === 'home' && (
+        <MundinhoHome
+          avatar={DEMO_AVATAR}
+          language="JS"
+          coins={DEMO_COINS}
+          streak={DEMO_USER.streak}
+          totalXp={totalXp}
+          courses={[
+            { language: 'JS', completed: 2, total: 13 },
+            { language: 'PYTHON', completed: 0, total: 13 },
+          ]}
+          enterPressed={reached('enterPressed')}
+        />
+      )}
+      {view === 'world' && (
+        <MundinhoWorld
+          avatar={DEMO_AVATAR}
+          username={DEMO_USER.username}
+          playerLevel={4}
+          pose={pose}
+          dialogue={reached('dialogue')}
+        />
+      )}
+      {view === 'avatar' && (
+        <MundinhoAvatarEditor
+          draft={draft}
+          category={category}
+          saved={reached('saved')}
+          savePressed={reached('savePressed') && !reached('saved')}
+        />
+      )}
+      {view === 'journey' && (
+        <TrailJourney thirdCompleted={completed} totalXp={totalXp} gems={DEMO_COINS} />
+      )}
+    </DemoShell>
   );
 }

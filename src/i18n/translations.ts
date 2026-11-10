@@ -198,6 +198,18 @@ export interface Translations {
     privacy: string;
     terms: string;
   };
+  demo: {
+    label: string;
+    sectionLabel: string;
+    scenesLabel: string;
+    notice: string;
+    play: string;
+    pause: string;
+    restart: string;
+    currentScene: string;
+    summary: string;
+    scenes: Record<'feed' | 'trails' | 'ranking' | 'profile', { title: string; caption: string }>;
+  };
   settings: {
     title: string;
     searchPlaceholder: string;
@@ -472,6 +484,27 @@ export const translations: Record<Language, Translations> = {
       legal: 'Legal',
       privacy: 'Privacidade',
       terms: 'Termos de Uso',
+    },
+    demo: {
+      label: 'Demonstração',
+      sectionLabel: 'Demonstração animada do Stacklyst',
+      scenesLabel: 'Cenas da demonstração',
+      notice: 'Prévia ilustrativa com dados fictícios. Nenhuma conta real aparece aqui.',
+      play: 'Reproduzir demonstração',
+      pause: 'Pausar demonstração',
+      restart: 'Reiniciar demonstração',
+      currentScene: 'Cena atual',
+      summary:
+        'Um passeio pelas telas reais do Stacklyst: Feed, Trilhas com o Mundinho, Ranking de XP e Perfil. As ações desta prévia são ilustrativas.',
+      scenes: {
+        feed: { title: 'Feed', caption: 'Publique, rode código e reaja em tempo real.' },
+        trails: {
+          title: 'Trilhas e Mundinho',
+          caption: 'Explore o Mundinho, personalize seu avatar e avance na trilha.',
+        },
+        ranking: { title: 'Ranking', caption: 'Suba posições no ranking de XP.' },
+        profile: { title: 'Perfil', caption: 'Seu progresso, estatísticas e certificados.' },
+      },
     },
     settings: {
       title: 'Configurações',
@@ -761,6 +794,27 @@ export const translations: Record<Language, Translations> = {
       legal: 'Legal',
       privacy: 'Privacy',
       terms: 'Terms of Service',
+    },
+    demo: {
+      label: 'Demonstration',
+      sectionLabel: 'Animated Stacklyst demonstration',
+      scenesLabel: 'Demo scenes',
+      notice: 'Illustrative preview with fictional data. No real account is shown here.',
+      play: 'Play demonstration',
+      pause: 'Pause demonstration',
+      restart: 'Restart demonstration',
+      currentScene: 'Current scene',
+      summary:
+        'A tour through the real Stacklyst screens: Feed, Trails with the Mundinho world, XP Ranking and Profile. All actions in this preview are illustrative.',
+      scenes: {
+        feed: { title: 'Feed', caption: 'Post, run code and react in real time.' },
+        trails: {
+          title: 'Trails & Mundinho',
+          caption: 'Explore the Mundinho world, customize your avatar and advance the trail.',
+        },
+        ranking: { title: 'Ranking', caption: 'Climb the XP ranking.' },
+        profile: { title: 'Profile', caption: 'Your progress, statistics and certificates.' },
+      },
     },
     settings: {
       title: 'Settings',

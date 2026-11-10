@@ -114,7 +114,8 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
-:root.dark {
+:root.dark,
+.dark {
   --color-dd-accent: #0083fe;
   --color-dd-purple: #7c6ff7;
   --color-dd-green: #22d48a;

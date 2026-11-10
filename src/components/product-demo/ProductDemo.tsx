@@ -1,178 +1,203 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import {
   motion,
   useInView,
   useMotionValue,
-  useMotionValueEvent,
   useReducedMotion,
   useTransform,
   type MotionValue,
 } from 'framer-motion';
-import { Pause, Play, RotateCcw } from 'lucide-react';
+import { Info, Pause, Play, RotateCcw } from 'lucide-react';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { DemoViewport } from './DemoViewport';
-import { chapters, chapterAt, DURATION } from './timeline';
+import { SCENES, type SceneId } from './timeline';
 import './product-demo.css';
 
-function ChapterProgress({
-  time,
-  start,
-  end,
+const MOBILE_QUERY = '(max-width: 767px)';
+
+function TabProgress({
+  clock,
+  duration,
+  active,
 }: {
-  time: MotionValue<number>;
-  start: number;
-  end: number;
+  clock: MotionValue<number>;
+  duration: number;
+  active: boolean;
 }) {
-  const scaleX = useTransform(time, (t) =>
-    t >= start && t < end ? (t - start) / (end - start) : 0
-  );
-  return <motion.span className="demo-chapter-progress" style={{ scaleX }} aria-hidden="true" />;
+  const scaleX = useTransform(clock, (time) => (active ? Math.min(1, time / duration) : 0));
+  return <motion.span className="demo-tab-progress" style={{ scaleX }} aria-hidden="true" />;
 }
 
 export default function ProductDemo() {
   const ref = useRef<HTMLElement>(null);
-  const stage = useRef<HTMLDivElement>(null);
-  const time = useMotionValue(0);
+  const tabs = useRef<Array<HTMLButtonElement | null>>([]);
+  const clock = useMotionValue(0);
   const inView = useInView(ref, { amount: 0.1 });
   const reduced = useReducedMotion();
+  const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
+  const [hovered, setHovered] = useState(false);
   const [visible, setVisible] = useState(true);
-  const [width, setWidth] = useState(0);
-  const [active, setActive] = useState(-1);
-  const [duelPhase, setDuelPhase] = useState(0);
-  const { isEnglish } = useLanguage();
-  const lang = isEnglish ? 1 : 0;
-  const playing = inView && visible && !paused && !reduced;
-  useMotionValueEvent(time, 'change', (t) => {
-    setActive((previous) => {
-      const next = chapterAt(t);
-      return previous === next ? previous : next;
-    });
-    setDuelPhase(t >= 12.1 && t < 14.7 ? 2 : t >= 11.6 && t < 12.1 ? 1 : 0);
-  });
+  const [mobile, setMobile] = useState(false);
+  const { t } = useLanguage();
+  const scene = SCENES[index];
+  const playing = inView && visible && !paused && !hovered && !reduced;
+
   useEffect(() => {
-    const element = stage.current;
-    if (!element) return;
-    const observer = new ResizeObserver(([entry]) => setWidth(entry.contentRect.width));
-    observer.observe(element);
+    const media = window.matchMedia(MOBILE_QUERY);
+    const sync = () => setMobile(media.matches);
+    sync();
+    media.addEventListener('change', sync);
     const onVisibility = () => setVisible(document.visibilityState === 'visible');
     onVisibility();
     document.addEventListener('visibilitychange', onVisibility);
     return () => {
-      observer.disconnect();
+      media.removeEventListener('change', sync);
       document.removeEventListener('visibilitychange', onVisibility);
     };
   }, []);
+
+  // Reduced motion shows each scene settled, with manual navigation only.
   useEffect(() => {
-    if (reduced) time.set(0);
-  }, [reduced, time]);
+    if (reduced) clock.set(scene.duration);
+  }, [reduced, scene.duration, clock]);
+
   useEffect(() => {
     if (!playing) return;
-    let frame = 0,
-      last: number | undefined;
+    let frame = 0;
+    let last: number | undefined;
     const tick = (now: number) => {
-      if (last !== undefined)
-        time.set((time.get() + Math.min((now - last) / 1000, 0.1)) % DURATION);
+      if (last !== undefined) {
+        const next = clock.get() + Math.min((now - last) / 1000, 0.1);
+        if (next >= scene.duration) {
+          clock.set(0);
+          setIndex((current) => (current + 1) % SCENES.length);
+          return;
+        }
+        clock.set(next);
+      }
       last = now;
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [playing, time]);
-  const current = chapters[active];
+  }, [playing, clock, scene.duration, index]);
+
+  const goTo = useCallback(
+    (next: number) => {
+      const target = ((next % SCENES.length) + SCENES.length) % SCENES.length;
+      clock.set(reduced ? SCENES[target].duration : 0);
+      setIndex(target);
+    },
+    [clock, reduced]
+  );
+
+  const onTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    const keys: Record<string, number> = {
+      ArrowRight: index + 1,
+      ArrowLeft: index - 1,
+      Home: 0,
+      End: SCENES.length - 1,
+    };
+    const target = keys[event.key];
+    if (target === undefined) return;
+    event.preventDefault();
+    goTo(target);
+    tabs.current[((target % SCENES.length) + SCENES.length) % SCENES.length]?.focus();
+  };
+
+  const tabId = (id: SceneId) => `product-demo-tab-${id}`;
+  const current = t.demo.scenes[scene.id];
+
   return (
     <section
       ref={ref}
       id="platform"
       className="product-demo"
-      aria-label={
-        isEnglish ? 'Animated Stacklyst demonstration' : 'Demonstração animada do Stacklyst'
-      }
+      aria-label={t.demo.sectionLabel}
       data-playing={playing}
       data-reduced={!!reduced}
+      onPointerEnter={(event) => {
+        if (event.pointerType === 'mouse') setHovered(true);
+      }}
+      onPointerLeave={(event) => {
+        if (event.pointerType === 'mouse') setHovered(false);
+      }}
+      onFocusCapture={() => setHovered(true)}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setHovered(false);
+      }}
     >
-      <div ref={stage} className="demo-stage">
-        <DemoViewport
-          time={time}
-          width={width}
-          active={active}
-          duelPhase={duelPhase}
-          reduced={!!reduced}
-        />
+      <div
+        id="product-demo-stage"
+        role="tabpanel"
+        aria-labelledby={tabId(scene.id)}
+        className="demo-stage"
+      >
+        <p className="sr-only">
+          <strong>{current.title}</strong> {current.caption}
+        </p>
+        <DemoViewport clock={clock} scene={scene.id} mobile={mobile} />
       </div>
-      <div className="sr-only" aria-hidden="true">
-        <strong>{current ? current.title[lang] : 'Stacklyst'}</strong>
-        <span>
-          {current
-            ? current.caption[lang]
-            : isEnglish
-              ? 'Learn. Build. Evolve.'
-              : 'Aprenda. Construa. Evolua.'}
-        </span>
-      </div>
+      <p className="sr-only" aria-live="polite">
+        {t.demo.currentScene}: {current.title}. {current.caption}
+      </p>
+
       <div className="demo-controls">
         <span className="demo-label">
-          STACKLYST <span>/ {isEnglish ? 'Demonstration' : 'Demonstração'}</span>
+          STACKLYST <span>/ {t.demo.label}</span>
         </span>
-        <div
-          className="demo-chapters"
-          role="group"
-          aria-label={isEnglish ? 'Demo scenes' : 'Cenas da demonstração'}
-        >
-          {chapters.map((chapter, i) => (
+        <div className="demo-tabs" role="tablist" aria-label={t.demo.scenesLabel}>
+          {SCENES.map((item, i) => (
             <button
-              key={chapter.id}
-              type="button"
-              aria-pressed={active === i}
-              onClick={() => {
-                time.set(chapter.start + 0.75);
+              key={item.id}
+              ref={(element) => {
+                tabs.current[i] = element;
               }}
-              disabled={!!reduced}
+              id={tabId(item.id)}
+              type="button"
+              role="tab"
+              aria-selected={index === i}
+              aria-controls="product-demo-stage"
+              tabIndex={index === i ? 0 : -1}
+              className="demo-tab dd-focus-ring"
+              onClick={() => goTo(i)}
+              onKeyDown={onTabKeyDown}
             >
-              {chapter.title[lang]}
-              <ChapterProgress time={time} start={chapter.start} end={chapter.end} />
+              {t.demo.scenes[item.id].title}
+              <TabProgress clock={clock} duration={item.duration} active={index === i} />
             </button>
           ))}
         </div>
         <div className="demo-playback">
           <button
             type="button"
-            aria-label={
-              paused
-                ? isEnglish
-                  ? 'Play demonstration'
-                  : 'Reproduzir demonstração'
-                : isEnglish
-                  ? 'Pause demonstration'
-                  : 'Pausar demonstração'
-            }
-            onClick={() => setPaused((p) => !p)}
+            className="dd-focus-ring"
+            aria-label={paused ? t.demo.play : t.demo.pause}
+            aria-pressed={paused}
+            onClick={() => setPaused((value) => !value)}
             disabled={!!reduced}
           >
             {paused ? <Play size={15} /> : <Pause size={15} />}
           </button>
           <button
             type="button"
-            aria-label={isEnglish ? 'Restart demonstration' : 'Reiniciar demonstração'}
-            onClick={() => time.set(0)}
-            disabled={!!reduced}
+            className="dd-focus-ring"
+            aria-label={t.demo.restart}
+            onClick={() => goTo(0)}
           >
             <RotateCcw size={15} />
           </button>
         </div>
       </div>
-      <p className="sr-only">
-        {isEnglish
-          ? 'Product demonstration · illustrative activity'
-          : 'Demonstração do produto · atividade ilustrativa'}
+
+      <p className="demo-notice">
+        <Info size={14} aria-hidden="true" />
+        <span>{t.demo.notice}</span>
       </p>
-      <p className="sr-only">
-        {isEnglish
-          ? 'A tour of the real Feed, learning paths, duels, profile and XP ranking. All actions in this preview are illustrative.'
-          : 'Um passeio pelo Feed, Trilhas, Duelos, Perfil e Ranking de XP reais. As ações deste preview são ilustrativas.'}
-      </p>
+      <p className="sr-only">{t.demo.summary}</p>
     </section>
   );
 }
