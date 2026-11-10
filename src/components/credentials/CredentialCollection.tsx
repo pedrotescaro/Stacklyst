@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ArrowUpRight, BadgeCheck, Check, Download, LockKeyhole, Search } from 'lucide-react';
 import { BadgeArt } from './BadgeArt';
 import type { CredentialCollection as Collection, CredentialRecord } from '@/lib/credentials/types';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './Credentials.module.css';
 
 export function CredentialCollection({
@@ -17,6 +18,7 @@ export function CredentialCollection({
   const [filter, setFilter] = useState('all');
   const [query, setQuery] = useState('');
   const [limit, setLimit] = useState(24);
+  const { text } = useLocalizedText();
   const items = collection.items
     .filter(
       (item) =>
@@ -40,20 +42,28 @@ export function CredentialCollection({
       <div className={styles.introduction}>
         <p>
           {isOwner
-            ? 'Cada badge conta uma conquista sua. Conclua as atividades indicadas para receber uma credencial com certificado e verificação pública.'
-            : 'Certificados conquistados por este perfil, com atividades concluídas e verificação pública.'}
+            ? text(
+                'Cada badge conta uma conquista sua. Conclua as atividades indicadas para receber uma credencial com certificado e verificação pública.',
+                'Each badge tells one of your achievements. Complete the listed activities to receive a credential with a certificate and public verification.'
+              )
+            : text(
+                'Certificados conquistados por este perfil, com atividades concluídas e verificação pública.',
+                'Certificates earned by this profile, with completed activities and public verification.'
+              )}
         </p>
         <span>
           <BadgeCheck size={19} aria-hidden="true" /> {collection.earnedCount}{' '}
-          {collection.earnedCount === 1 ? 'certificado conquistado' : 'certificados conquistados'}
+          {collection.earnedCount === 1
+            ? text('certificado conquistado', 'certificate earned')
+            : text('certificados conquistados', 'certificates earned')}
         </span>
       </div>
       <div className={styles.tools}>
         <label className={styles.search}>
           <Search size={18} aria-hidden="true" />
           <input
-            aria-label="Buscar certificados"
-            placeholder="Buscar curso ou conquista"
+            aria-label={text('Buscar certificados', 'Search certificates')}
+            placeholder={text('Buscar curso ou conquista', 'Search course or achievement')}
             value={query}
             onChange={(event) => {
               setQuery(event.target.value);
@@ -62,17 +72,17 @@ export function CredentialCollection({
           />
         </label>
         <label className={styles.select}>
-          Exibir
+          {text('Exibir', 'Show')}
           <select
-            aria-label="Filtrar certificados"
+            aria-label={text('Filtrar certificados', 'Filter certificates')}
             value={filter}
             onChange={(event) => {
               setFilter(event.target.value);
               setLimit(24);
             }}
           >
-            <option value="all">Todas as conquistas</option>
-            <option value="earned">Conquistadas</option>
+            <option value="all">{text('Todas as conquistas', 'All achievements')}</option>
+            <option value="earned">{text('Conquistadas', 'Earned')}</option>
             {['JS', 'TS', 'PYTHON', 'RUST', 'GO', 'JAVA'].map((language) => (
               <option key={language} value={language}>
                 {
@@ -95,22 +105,37 @@ export function CredentialCollection({
           {isOwner || collection.items.length ? (
             <>
               <Search size={30} aria-hidden="true" />
-              <h2>Nenhum certificado encontrado</h2>
-              <p>Tente outro nome ou exiba todas as conquistas.</p>
+              <h2>{text('Nenhum certificado encontrado', 'No certificate found')}</h2>
+              <p>
+                {text(
+                  'Tente outro nome ou exiba todas as conquistas.',
+                  'Try another name or show all achievements.'
+                )}
+              </p>
               <button
                 onClick={() => {
                   setQuery('');
                   setFilter('all');
                 }}
               >
-                Ver todas
+                {text('Ver todas', 'Show all')}
               </button>
             </>
           ) : (
             <>
               <BadgeCheck size={30} aria-hidden="true" />
-              <h2>Este perfil ainda não possui certificados</h2>
-              <p>As conquistas verificadas aparecerão aqui.</p>
+              <h2>
+                {text(
+                  'Este perfil ainda não possui certificados',
+                  'This profile has no certificates yet'
+                )}
+              </h2>
+              <p>
+                {text(
+                  'As conquistas verificadas aparecerão aqui.',
+                  'Verified achievements will appear here.'
+                )}
+              </p>
             </>
           )}
         </div>
@@ -133,12 +158,14 @@ export function CredentialCollection({
                 <div className={styles.status}>
                   {credential?.status === 'valid' ? (
                     <>
-                      <Check size={15} /> Conquistada
+                      <Check size={15} /> {text('Conquistada', 'Earned')}
                     </>
                   ) : (
                     <>
                       <LockKeyhole size={14} />{' '}
-                      {credential?.status === 'revoked' ? 'Credencial revogada' : 'Em conquista'}
+                      {credential?.status === 'revoked'
+                        ? text('Credencial revogada', 'Credential revoked')
+                        : text('Em conquista', 'In progress')}
                     </>
                   )}
                 </div>
@@ -146,8 +173,11 @@ export function CredentialCollection({
                 <p>{definition.description}</p>
                 <details className={styles.criteria}>
                   <summary>
-                    {isOwner ? 'Como conquistar' : 'Atividades concluídas'} · {completed} de {total}{' '}
-                    {total === 1 ? 'atividade' : 'atividades'}
+                    {isOwner
+                      ? text('Como conquistar', 'How to earn')
+                      : text('Atividades concluídas', 'Completed activities')}{' '}
+                    · {completed} {text('de', 'of')} {total}{' '}
+                    {total === 1 ? text('atividade', 'activity') : text('atividades', 'activities')}
                   </summary>
                   {definition.requirements.length ? (
                     <ul>
@@ -157,8 +187,10 @@ export function CredentialCollection({
                     </ul>
                   ) : (
                     <p>
-                      Conclua todas as atividades avaliadas de uma lição para conquistar seu
-                      primeiro certificado.
+                      {text(
+                        'Conclua todas as atividades avaliadas de uma lição para conquistar seu primeiro certificado.',
+                        'Complete every assessed activity of a lesson to earn your first certificate.'
+                      )}
                     </p>
                   )}
                 </details>
@@ -166,19 +198,19 @@ export function CredentialCollection({
                   {credential?.status === 'valid' ? (
                     <>
                       <Link href={`/certificates/${credential.id}`}>
-                        Ver certificado <ArrowUpRight size={16} />
+                        {text('Ver certificado', 'View certificate')} <ArrowUpRight size={16} />
                       </Link>
                       <a href={`/api/certificates/${credential.id}/pdf`} download>
-                        <Download size={16} /> Baixar PDF
+                        <Download size={16} /> {text('Baixar PDF', 'Download PDF')}
                       </a>
                     </>
                   ) : credential?.status === 'revoked' ? (
                     <Link href={`/certificates/${credential.id}`}>
-                      Consultar registro <ArrowUpRight size={16} />
+                      {text('Consultar registro', 'Check record')} <ArrowUpRight size={16} />
                     </Link>
                   ) : (
                     <Link href="/trails">
-                      Continuar aprendendo <ArrowUpRight size={16} />
+                      {text('Continuar aprendendo', 'Continue learning')} <ArrowUpRight size={16} />
                     </Link>
                   )}
                 </div>
@@ -190,7 +222,7 @@ export function CredentialCollection({
       {items.length > limit && (
         <div className={styles.more}>
           <button onClick={() => setLimit((value) => value + 24)}>
-            Mostrar mais conquistas ({items.length - limit})
+            {text('Mostrar mais conquistas', 'Show more achievements')} ({items.length - limit})
           </button>
         </div>
       )}
@@ -199,13 +231,19 @@ export function CredentialCollection({
 }
 
 export function CredentialShowcase({ credentials }: { credentials: CredentialRecord[] }) {
+  const { text } = useLocalizedText();
   if (!credentials.length)
     return (
       <div className={styles.emptyProfile}>
         <BadgeCheck size={28} aria-hidden="true" />
-        <p>As badges aparecem aqui após uma conclusão verificada.</p>
+        <p>
+          {text(
+            'As badges aparecem aqui após uma conclusão verificada.',
+            'Badges appear here after a verified completion.'
+          )}
+        </p>
         <Link href="/certificates">
-          Conhecer as conquistas <ArrowUpRight size={15} />
+          {text('Conhecer as conquistas', 'Explore the achievements')} <ArrowUpRight size={15} />
         </Link>
       </div>
     );
@@ -215,7 +253,7 @@ export function CredentialShowcase({ credentials }: { credentials: CredentialRec
         <Link
           key={record.id}
           href={`/certificates/${record.id}`}
-          title={`Verificar ${record.definition.title}`}
+          title={text(`Verificar ${record.definition.title}`, `Verify ${record.definition.title}`)}
         >
           <BadgeArt
             language={record.definition.language}
@@ -225,7 +263,7 @@ export function CredentialShowcase({ credentials }: { credentials: CredentialRec
           />
           <span>{record.definition.title}</span>
           <small>
-            <BadgeCheck size={13} /> Verificada
+            <BadgeCheck size={13} /> {text('Verificada', 'Verified')}
           </small>
         </Link>
       ))}

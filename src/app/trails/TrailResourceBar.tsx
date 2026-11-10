@@ -6,6 +6,7 @@ import { TrailCourseSelector } from '@/app/trails/TrailCourseSelector';
 import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
 import type { TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
 import { StreakPopover } from '@/components/StreakPopover';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface TrailResourceBarProps {
   activeLanguage: TrailLanguageCode;
@@ -30,10 +31,11 @@ export function TrailResourceBar({
   totalXp,
   gems,
 }: TrailResourceBarProps) {
+  const { text } = useLocalizedText();
   return (
     <div
       data-testid="trail-resource-bar"
-      aria-label="Recursos da trilha"
+      aria-label={text('Recursos da trilha', 'Trail resources')}
       className="flex max-w-full items-center justify-center gap-2 overflow-x-auto scrollbar-none md:justify-end sm:gap-3"
     >
       <TrailCourseSelector
@@ -61,7 +63,7 @@ export function TrailResourceBar({
 
       <div
         data-testid="trail-energy"
-        title={`${formatMetric(totalXp)} XP total`}
+        title={text(`${formatMetric(totalXp)} XP total`, `${formatMetric(totalXp)} total XP`)}
         className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-1.5"
       >
         <Image
@@ -72,17 +74,20 @@ export function TrailResourceBar({
           className="h-5 w-5 object-contain"
         />
         <span className="text-xs font-bold tabular-nums text-dd-text">{formatMetric(totalXp)}</span>
-        <span className="sr-only">XP total</span>
+        <span className="sr-only">{text('XP total', 'total XP')}</span>
       </div>
 
       <div
         data-testid="trail-gems"
-        title={`${formatMetric(gems)} moedas. Ganhe 5 na primeira conclusão de cada exercício.`}
+        title={text(
+          `${formatMetric(gems)} moedas. Ganhe 5 na primeira conclusão de cada exercício.`,
+          `${formatMetric(gems)} coins. Earn 5 on the first completion of each exercise.`
+        )}
         className="flex h-9 shrink-0 items-center gap-1.5 rounded-lg px-1.5"
       >
         <Coin className="h-5 w-5 shrink-0 drop-shadow-[0_2px_6px_rgba(250,204,21,0.4)]" />
         <span className="text-xs font-bold tabular-nums text-dd-text">{formatMetric(gems)}</span>
-        <span className="sr-only">moedas</span>
+        <span className="sr-only">{text('moedas', 'coins')}</span>
       </div>
     </div>
   );

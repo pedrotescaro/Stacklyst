@@ -1,4 +1,7 @@
+'use client';
+
 import { Check, Flame } from 'lucide-react';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { getRecentStreakDayIndexes } from '@/lib/streak';
 
 const WEEK_DAYS = [
@@ -24,6 +27,13 @@ export function FeedEngagementCard({
   lastActiveAt,
   currentDate,
 }: FeedEngagementCardProps) {
+  const { text, isEnglish } = useLocalizedText();
+  const labels = isEnglish
+    ? ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+    : WEEK_DAYS.map((day) => day.label);
+  const names = isEnglish
+    ? ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+    : WEEK_DAYS.map((day) => day.name);
   const now = currentDate ? new Date(currentDate) : null;
   const lastActivity = lastActiveAt ? new Date(lastActiveAt) : null;
   const todayIndex = now?.getUTCDay() ?? null;
@@ -41,14 +51,14 @@ export function FeedEngagementCard({
       <div className="flex items-start justify-between gap-5">
         <div className="min-w-0 pt-1">
           <span className="inline-flex rounded-lg bg-blue-500 px-3 py-2 text-[10px] font-black uppercase leading-4 tracking-wide text-white">
-            Ritmo Stacklyst
+            {text('Ritmo Stacklyst', 'Stacklyst rhythm')}
           </span>
 
           <h2
             id="feed-streak-title"
             className="mt-5 text-[22px] font-black leading-tight text-dd-text"
           >
-            {streak} {streak === 1 ? 'dia' : 'dias'} de ofensiva
+            {text(`${streak} ${streak === 1 ? 'dia' : 'dias'} de ofensiva`, `${streak}-day streak`)}
           </h2>
         </div>
 
@@ -66,16 +76,24 @@ export function FeedEngagementCard({
       <p className="mt-4 max-w-[280px] text-sm font-bold leading-6 text-dd-text">
         {hasActivityToday ? (
           <>
-            <span>Ofensiva garantida por hoje. </span>
-            <span className="block whitespace-nowrap">Continue assim!</span>
+            <span>{text('Ofensiva garantida por hoje. ', 'Streak secured for today. ')}</span>
+            <span className="block whitespace-nowrap">
+              {text('Continue assim!', 'Keep it up!')}
+            </span>
           </>
         ) : (
-          'Faça uma atividade hoje pra aumentar a sua ofensiva!'
+          text(
+            'Faça uma atividade hoje pra aumentar a sua ofensiva!',
+            'Do an activity today to grow your streak!'
+          )
         )}
       </p>
 
       <div className="mt-5 rounded-2xl bg-dd-surface p-3.5">
-        <div className="grid grid-cols-7 gap-2" aria-label="Atividade semanal">
+        <div
+          className="grid grid-cols-7 gap-2"
+          aria-label={text('Atividade semanal', 'Weekly activity')}
+        >
           {WEEK_DAYS.map((day) => {
             const activityCount = weeklyActivity.get(day.index) ?? 0;
             const isStreakDay = streakDayIndexes.has(day.index);
@@ -83,10 +101,10 @@ export function FeedEngagementCard({
             const isToday = todayIndex === day.index;
             const activityLabel =
               activityCount > 0
-                ? `${activityCount} ${activityCount === 1 ? 'atividade concluída' : 'atividades concluídas'}`
+                ? `${activityCount} ${activityCount === 1 ? text('atividade concluída', 'activity completed') : text('atividades concluídas', 'activities completed')}`
                 : isStreakDay
-                  ? 'dia da ofensiva'
-                  : 'sem atividade';
+                  ? text('dia da ofensiva', 'streak day')
+                  : text('sem atividade', 'no activity');
 
             return (
               <div key={day.index} className="flex min-w-0 flex-col items-center gap-2">
@@ -95,12 +113,12 @@ export function FeedEngagementCard({
                     isToday ? 'text-blue-400' : 'text-dd-muted'
                   }`}
                 >
-                  {day.label}
+                  {labels[day.index]}
                 </span>
 
                 <div
                   role="img"
-                  aria-label={`${day.name}: ${activityLabel}${isToday ? ', hoje' : ''}`}
+                  aria-label={`${names[day.index]}: ${activityLabel}${isToday ? text(', hoje', ', today') : ''}`}
                   className={`flex h-8 w-8 items-center justify-center rounded-full border-2 transition-colors ${
                     isActive
                       ? 'border-blue-300 bg-blue-500 text-white shadow-[0_3px_0_#0866c9]'

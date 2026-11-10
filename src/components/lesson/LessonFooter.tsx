@@ -8,6 +8,7 @@ import {
   RotateCcw,
   LoaderCircle,
 } from 'lucide-react';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './LessonFooter.module.css';
 
 interface LessonFooterProps {
@@ -43,6 +44,7 @@ export function LessonFooter({
   canVerify,
   isVerifying = false,
 }: LessonFooterProps) {
+  const { text } = useLocalizedText();
   return (
     <footer className={styles.footer}>
       <div className={styles.inner}>
@@ -54,7 +56,11 @@ export function LessonFooter({
               <XCircle size={24} aria-hidden="true" />
             )}
             <div>
-              <h3>{isCorrect ? 'Mandou muito bem!' : 'Ops, não foi dessa vez!'}</h3>
+              <h3>
+                {isCorrect
+                  ? text('Mandou muito bem!', 'Well done!')
+                  : text('Ops, não foi dessa vez!', 'Oops, not this time!')}
+              </h3>
               {feedbackMessage && <p>{feedbackMessage}</p>}
               {feedbackDetails && <pre>{feedbackDetails}</pre>}
               {isCorrect && earnedXp > 0 && (
@@ -66,19 +72,25 @@ export function LessonFooter({
           </div>
         ) : hints && hints.length > 0 && onOpenHint ? (
           <button type="button" onClick={onOpenHint} className={styles.secondaryButton}>
-            <Lightbulb size={18} aria-hidden="true" /> Ver Dica
+            <Lightbulb size={18} aria-hidden="true" /> {text('Ver Dica', 'Show hint')}
           </button>
         ) : (
           <span className={styles.guidance}>
             {isConceptOnly
-              ? 'Leia o conteúdo e avance quando estiver pronto.'
-              : 'Responda à atividade para verificar sua solução.'}
+              ? text(
+                  'Leia o conteúdo e avance quando estiver pronto.',
+                  'Read the content and move on when you are ready.'
+                )
+              : text(
+                  'Responda à atividade para verificar sua solução.',
+                  'Answer the activity to check your solution.'
+                )}
           </span>
         )}
         <div className={styles.actions}>
           {answered && !isCorrect && onRetry && (
             <button type="button" onClick={onRetry} className={styles.secondaryButton}>
-              <RotateCcw size={17} aria-hidden="true" /> Tentar Novamente
+              <RotateCcw size={17} aria-hidden="true" /> {text('Tentar Novamente', 'Try again')}
             </button>
           )}
           <button
@@ -92,12 +104,12 @@ export function LessonFooter({
             )}
             <span>
               {answered
-                ? 'Continuar'
+                ? text('Continuar', 'Continue')
                 : isConceptOnly
-                  ? 'Entendi, Continuar'
+                  ? text('Entendi, Continuar', 'Got it, continue')
                   : isVerifying
-                    ? 'Verificando…'
-                    : 'Verificar'}
+                    ? text('Verificando…', 'Checking…')
+                    : text('Verificar', 'Check')}
             </span>
             {!isVerifying && <ArrowRight size={18} aria-hidden="true" />}
           </button>

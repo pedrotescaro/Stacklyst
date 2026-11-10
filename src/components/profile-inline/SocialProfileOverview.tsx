@@ -53,6 +53,7 @@ import { ContextPopover } from './ContextPopover';
 import { FlagSelector } from './FlagSelector';
 import { MusicSelector } from './MusicSelector';
 import { DiscordIcon, GitHubIcon } from '@/components/auth/OAuthProviderIcons';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './InlineProfile.module.css';
 
 export interface SocialProfile {
@@ -202,6 +203,7 @@ export function SocialProfileOverview({
   onPreview?: (preferences: ProfilePreferences | null) => void;
 }) {
   const isOwner = profile.id === currentUserId;
+  const { text, locale } = useLocalizedText();
   const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -591,12 +593,16 @@ export function SocialProfileOverview({
   const ownedIds = new Set(collections.filter((item) => item.unlocked).map((item) => item.id));
 
   return (
-    <section className={styles.overview} aria-label="Perfil social" data-editing={editing}>
+    <section
+      className={styles.overview}
+      aria-label={text('Perfil social', 'Social profile')}
+      data-editing={editing}
+    >
       <div className={styles.cover} style={coverStyle}>
         {bannerImage && (
           <img
             src={bannerImage}
-            alt="Capa do perfil"
+            alt={text('Capa do perfil', 'Profile cover')}
             style={{ objectPosition: `${banner.positionX}% ${banner.positionY}%` }}
           />
         )}
@@ -712,7 +718,10 @@ export function SocialProfileOverview({
         <div className={`${styles.avatarRow} ${!isOwner ? styles.visitorAvatarRow : ''}`}>
           <AvatarFrame frame={frame} className={styles.avatar}>
             {activeAvatar ? (
-              <img src={activeAvatar} alt={`Foto de ${profile.username}`} />
+              <img
+                src={activeAvatar}
+                alt={text(`Foto de ${profile.username}`, `Photo of ${profile.username}`)}
+              />
             ) : (
               <span>{activeBasics.displayName.slice(0, 2).toUpperCase()}</span>
             )}
@@ -774,7 +783,9 @@ export function SocialProfileOverview({
                   onClick={() => void startEditing()}
                   disabled={loading}
                 >
-                  {loading ? 'Abrindo edição…' : 'Editar perfil'}
+                  {loading
+                    ? text('Abrindo edição…', 'Opening editor…')
+                    : text('Editar perfil', 'Edit profile')}
                 </button>
               )
             ) : (
@@ -1421,10 +1432,10 @@ export function SocialProfileOverview({
         </div>
         <div className={styles.followCounts}>
           <button type="button" onClick={onShowFollowing} className={styles.followCount}>
-            <strong>{followingCount.toLocaleString('pt-BR')}</strong> Seguindo
+            <strong>{followingCount.toLocaleString(locale)}</strong> {text('Seguindo', 'Following')}
           </button>
           <button type="button" onClick={onShowFollowers} className={styles.followCount}>
-            <strong>{followers.toLocaleString('pt-BR')}</strong> Seguidores
+            <strong>{followers.toLocaleString(locale)}</strong> {text('Seguidores', 'Followers')}
           </button>
         </div>
         {followedBy && followedBy.length > 0 && (
@@ -1447,27 +1458,35 @@ export function SocialProfileOverview({
               ))}
             </div>
             <p className={styles.followedByText}>
-              <span>Seguido por </span>
+              <span>{text('Seguido por ', 'Followed by ')}</span>
               {followedBy.slice(0, 2).map((item, idx) => (
                 <span key={item.id}>
-                  {idx > 0 && ' e '}
+                  {idx > 0 && text(' e ', ' and ')}
                   <Link href={`/profile/${item.username}`} className={styles.followedByLink}>
                     {item.name || item.username}
                   </Link>
                 </span>
               ))}
               {followers > 2 && (
-                <span>{` e outros ${(followers - 2).toLocaleString('pt-BR')}`}</span>
+                <span>
+                  {text(
+                    ` e outros ${(followers - 2).toLocaleString(locale)}`,
+                    ` and ${(followers - 2).toLocaleString(locale)} others`
+                  )}
+                </span>
               )}
             </p>
           </div>
         )}
 
         {(activePreferences.tags.length > 0 || editing) && (
-          <section className={styles.section} aria-label="Tags e hobbies">
+          <section
+            className={styles.section}
+            aria-label={text('Tags e hobbies', 'Tags and hobbies')}
+          >
             <div className={styles.sectionHeader}>
               <Tags size={14} aria-hidden="true" />
-              <h2>Tags e hobbies</h2>
+              <h2>{text('Tags e hobbies', 'Tags and hobbies')}</h2>
               {editing && (
                 <ContextPopover
                   label="Adicionar ou editar tags"
@@ -1588,10 +1607,13 @@ export function SocialProfileOverview({
         )}
 
         {(activeStudies.length > 0 || editing) && (
-          <section className={styles.section} aria-label="Estudando atualmente">
+          <section
+            className={styles.section}
+            aria-label={text('Estudando atualmente', 'Currently studying')}
+          >
             <div className={styles.sectionHeader}>
               <GraduationCap size={14} aria-hidden="true" />
-              <h2>Estudando atualmente</h2>
+              <h2>{text('Estudando atualmente', 'Currently studying')}</h2>
               {editing && (
                 <ContextPopover
                   label="Editar estudos"
@@ -1743,10 +1765,13 @@ export function SocialProfileOverview({
         )}
 
         {(activePreferences.music || editing) && (
-          <section className={styles.section} aria-label="Música do perfil">
+          <section
+            className={styles.section}
+            aria-label={text('Música do perfil', 'Profile music')}
+          >
             <div className={styles.sectionHeader}>
               <Music2 size={14} aria-hidden="true" />
-              <h2>Música do perfil</h2>
+              <h2>{text('Música do perfil', 'Profile music')}</h2>
               {activePreferences.music && (
                 <a
                   className={styles.musicExternal}
