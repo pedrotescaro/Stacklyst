@@ -7,7 +7,7 @@ import { AdventureHub } from '@/components/mundinho/AdventureHub';
 import { TrailsProgressSidebar } from './TrailsProgressSidebar';
 import type { AdventureTransport, Course } from '@/lib/mundinho/types';
 import type { TrailCourseOption } from './TrailCourseSelector';
-import type { TrailLanguageCode } from './TrailLanguageLogo';
+import type { TrailLanguageCode, TrailCourseCode } from './TrailLanguageLogo';
 import type { TrailDailyProgress } from './TrailsProgressSidebar';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { MUNDINHO_LANGUAGE_HEADER } from '@/lib/mundinho/i18n';
@@ -41,12 +41,16 @@ export function AdventureEntry({
   dailyProgress,
 }: AdventureEntryProps) {
   const router = useRouter();
+  const [selectedCourses, setSelectedCourses] = useState(initialCourses);
   const { text, language: uiLanguage } = useLocalizedText();
   const [activeLanguage, setActiveLanguage] = useState<TrailLanguageCode>(initialActiveLanguage);
   const [currentCoins, setCurrentCoins] = useState(coins);
   const [preferenceError, setPreferenceError] = useState('');
-  const selectLanguage = async (language: TrailLanguageCode) => {
-    setActiveLanguage(language);
+  const selectLanguage = async (language: TrailCourseCode) => {
+    if (language !== 'ENADE') setActiveLanguage(language);
+    setSelectedCourses((current) =>
+      current.map((c) => (c.language === language ? { ...c, started: true } : c))
+    );
     setPreferenceError('');
     try {
       const response = await fetch('/api/trails/course-preferences', {
@@ -56,7 +60,7 @@ export function AdventureEntry({
           activeLanguage: language,
           startedLanguages: [
             ...new Set(
-              initialCourses
+              selectedCourses
                 .filter((course) => course.started)
                 .map((course) => course.language)
                 .concat(language)
@@ -65,6 +69,7 @@ export function AdventureEntry({
         }),
       });
       if (!response.ok) throw new Error();
+      if (language === 'ENADE') router.push('/trails/enade');
     } catch {
       setPreferenceError(
         text(
@@ -133,7 +138,7 @@ export function AdventureEntry({
         {/* Right Sidebar Rail with Divider (Ranking + Missões do dia + Resource bar) */}
         <TrailsProgressSidebar
           activeLanguage={activeLanguage}
-          courses={initialCourses}
+          courses={selectedCourses}
           onSelectCourse={(lang) => void selectLanguage(lang)}
           totalXp={user.total_xp}
           gems={currentCoins}

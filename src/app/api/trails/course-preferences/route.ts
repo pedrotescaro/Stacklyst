@@ -7,10 +7,10 @@ import {
   TRAIL_COURSE_PREFERENCES_COOKIE,
 } from '@/app/trails/trailCoursePreferences';
 
-const languageSchema = z.enum(['JS', 'TS', 'PYTHON', 'RUST', 'GO', 'JAVA']);
+const languageSchema = z.enum(['JS', 'TS', 'PYTHON', 'RUST', 'GO', 'JAVA', 'ENADE']);
 const coursePreferencesSchema = z.object({
   activeLanguage: languageSchema,
-  startedLanguages: z.array(languageSchema).max(6),
+  startedLanguages: z.array(languageSchema).max(7),
 });
 
 export const PUT = apiHandler(async (request, { session }) => {

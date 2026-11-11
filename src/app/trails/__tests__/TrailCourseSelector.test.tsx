@@ -145,4 +145,27 @@ describe('TrailCourseSelector', () => {
     expect(await screen.findByRole('menu', { name: 'Meus cursos' })).toBeInTheDocument();
     expect(screen.queryByRole('menuitem', { name: /adicionar curso/i })).not.toBeInTheDocument();
   });
+
+  it('keeps the add-course view open after pointer movement and exposes Enade', async () => {
+    const user = userEvent.setup();
+    const onSelectCourse = vi.fn();
+    render(
+      <TrailCourseSelector
+        activeLanguage="JS"
+        courses={startedCourses}
+        onSelectCourse={onSelectCourse}
+      />
+    );
+    const trigger = screen.getByRole('button', { name: 'Trocar curso. JavaScript, 380 XP' });
+    await user.hover(trigger);
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+    await user.click(trigger);
+    await screen.findByRole('menu', { name: 'Meus cursos' });
+    await user.click(screen.getByRole('menuitem', { name: /adicionar curso/i }));
+    await user.unhover(trigger);
+    await new Promise((resolve) => setTimeout(resolve, 200));
+    expect(screen.getByRole('menu', { name: 'Adicionar curso' })).toBeInTheDocument();
+    await user.click(screen.getByRole('menuitem', { name: /Curso Enade/ }));
+    expect(onSelectCourse).toHaveBeenCalledExactlyOnceWith('ENADE');
+  });
 });

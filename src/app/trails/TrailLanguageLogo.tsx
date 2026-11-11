@@ -9,6 +9,8 @@ import javaLogo from 'devicon/icons/java/java-original.svg';
 export const TRAIL_LANGUAGE_CODES = ['JS', 'TS', 'PYTHON', 'RUST', 'GO', 'JAVA'] as const;
 
 export type TrailLanguageCode = (typeof TRAIL_LANGUAGE_CODES)[number];
+export const TRAIL_COURSE_CODES = [...TRAIL_LANGUAGE_CODES, 'ENADE'] as const;
+export type TrailCourseCode = (typeof TRAIL_COURSE_CODES)[number];
 
 interface TrailLanguageMetadata {
   color: string;
@@ -17,7 +19,13 @@ interface TrailLanguageMetadata {
   logoClassName?: string;
 }
 
-export const TRAIL_LANGUAGE_METADATA: Record<TrailLanguageCode, TrailLanguageMetadata> = {
+export const TRAIL_LANGUAGE_METADATA: Record<TrailCourseCode, TrailLanguageMetadata> = {
+  ENADE: {
+    color: '#0083fe',
+    label: 'Curso Enade · ADS',
+    logo: '/enade/logo.png',
+    logoClassName: 'rounded bg-white p-0.5',
+  },
   JS: {
     color: '#f0db4f',
     label: 'JavaScript',
@@ -57,9 +65,13 @@ export function isTrailLanguage(language: string): language is TrailLanguageCode
   return TRAIL_LANGUAGE_CODES.includes(language as TrailLanguageCode);
 }
 
+export function isTrailCourse(course: string): course is TrailCourseCode {
+  return TRAIL_COURSE_CODES.includes(course as TrailCourseCode);
+}
+
 export function getTrailLanguageMetadata(language: string) {
   const normalizedLanguage = language.toUpperCase();
-  if (!isTrailLanguage(normalizedLanguage)) return TRAIL_LANGUAGE_METADATA.JS;
+  if (!isTrailCourse(normalizedLanguage)) return TRAIL_LANGUAGE_METADATA.JS;
   return TRAIL_LANGUAGE_METADATA[normalizedLanguage];
 }
 

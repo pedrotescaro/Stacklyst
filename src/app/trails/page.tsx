@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';
-import { TRAIL_LANGUAGE_CODES } from '@/app/trails/TrailLanguageLogo';
+import { TRAIL_LANGUAGE_CODES, TRAIL_COURSE_CODES } from '@/app/trails/TrailLanguageLogo';
 import type { TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
 import {
   parseTrailCoursePreferences,
@@ -39,6 +39,12 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
     cookieStore.get(TRAIL_COURSE_PREFERENCES_COOKIE)?.value,
     user.id
   );
+  if (
+    firstSearchValue(query.language)?.toUpperCase() === 'ENADE' ||
+    (savedCoursePreferences.activeLanguage === 'ENADE' && !query.language && !query.view)
+  ) {
+    redirect('/trails/enade');
+  }
 
   const todayStart = new Date();
   todayStart.setUTCHours(0, 0, 0, 0);
@@ -105,7 +111,11 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
     }
   }
 
-  const startedLanguages = new Set<TrailLanguageCode>(savedCoursePreferences.startedLanguages);
+  const startedLanguages = new Set<TrailLanguageCode>(
+    savedCoursePreferences.startedLanguages.filter(
+      (language): language is TrailLanguageCode => language !== 'ENADE'
+    )
+  );
   const courseXp = new Map<TrailLanguageCode, number>();
 
   for (const trail of languageTrails) {
@@ -135,6 +145,7 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
     (startedLanguages.has(validRequestedLanguage) || publishedLanguages.has(validRequestedLanguage))
       ? validRequestedLanguage
       : savedCoursePreferences.activeLanguage &&
+          savedCoursePreferences.activeLanguage !== 'ENADE' &&
           (startedLanguages.has(savedCoursePreferences.activeLanguage) ||
             publishedLanguages.has(savedCoursePreferences.activeLanguage))
         ? savedCoursePreferences.activeLanguage
@@ -151,10 +162,13 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
       ? requestedSectionNumber
       : 1;
 
-  const courses = TRAIL_LANGUAGE_CODES.map((language) => ({
+  const courses = TRAIL_COURSE_CODES.map((language) => ({
     language,
-    xp: courseXp.get(language) ?? 0,
-    started: startedLanguages.has(language),
+    xp: language === 'ENADE' ? 0 : (courseXp.get(language) ?? 0),
+    started:
+      language === 'ENADE'
+        ? savedCoursePreferences.startedLanguages.includes(language)
+        : startedLanguages.has(language),
   }));
 
   const dailyProgress = calculateTrailDailyProgress(todaySubmissions, todayQuizAttempts);

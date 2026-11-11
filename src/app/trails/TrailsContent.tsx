@@ -9,7 +9,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { TrailResourceBar } from './TrailResourceBar';
 import { TrailsProgressSidebar, type TrailDailyProgress } from './TrailsProgressSidebar';
 import type { TrailCourseOption } from './TrailCourseSelector';
-import type { TrailLanguageCode } from './TrailLanguageLogo';
+import type { TrailLanguageCode, TrailCourseCode } from './TrailLanguageLogo';
 import { getCourseKnowledgeNodes, getCourseLearningPaths } from './trailCourseKnowledge';
 import type { KnowledgeMapData } from '@/lib/learning/types';
 import { LearningJourney } from './LearningJourney';
@@ -58,6 +58,7 @@ export function TrailsContent({
   initialPathSlug,
 }: TrailsContentProps) {
   const router = useRouter();
+  const [selectedCourses, setSelectedCourses] = useState(initialCourses);
   const { text, language } = useLocalizedText();
   const knowledgeMap = useMemo(
     () => localizeKnowledgeMap(sourceKnowledgeMap, language),
@@ -95,7 +96,14 @@ export function TrailsContent({
     document.cookie = `stacklyst_trail_view_mode=${mode}; path=/; max-age=31536000; SameSite=Lax`;
     localStorage.setItem('stacklyst-trail-view-mode', mode);
   }
-  function selectCourse(language: TrailLanguageCode) {
+  function selectCourse(language: TrailCourseCode) {
+    if (language === 'ENADE') {
+      router.push('/trails/enade');
+      return;
+    }
+    setSelectedCourses((current) =>
+      current.map((c) => (c.language === language ? { ...c, started: true } : c))
+    );
     setActiveLanguage(language);
     setPathId(`foundations-${language.toLowerCase()}`);
     void fetch('/api/trails/course-preferences', {
@@ -105,7 +113,7 @@ export function TrailsContent({
         activeLanguage: language,
         startedLanguages: [
           ...new Set(
-            initialCourses
+            selectedCourses
               .filter((c) => c.started)
               .map((c) => c.language)
               .concat(language)
@@ -131,7 +139,7 @@ export function TrailsContent({
               <div className="xl:hidden">
                 <TrailResourceBar
                   activeLanguage={activeLanguage}
-                  courses={initialCourses}
+                  courses={selectedCourses}
                   onSelectCourse={selectCourse}
                   streak={user.streak}
                   lastActiveAt={user.last_active_at}
@@ -212,7 +220,7 @@ export function TrailsContent({
         </main>
         <TrailsProgressSidebar
           activeLanguage={activeLanguage}
-          courses={initialCourses}
+          courses={selectedCourses}
           onSelectCourse={selectCourse}
           totalXp={user.total_xp}
           gems={gems}

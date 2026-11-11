@@ -60,4 +60,20 @@ describe('PUT /api/trails/course-preferences', () => {
     expect(response.status).toBe(401);
     expect(response.headers.get('set-cookie')).toBeNull();
   });
+
+  it('accepts Enade as a course without treating it as a programming language', async () => {
+    vi.mocked(getAuthUser).mockResolvedValue({ id: 'user-123' } as never);
+    const response = await PUT(
+      new Request('http://localhost/api/trails/course-preferences', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ activeLanguage: 'ENADE', startedLanguages: ['JS', 'ENADE'] }),
+      }),
+      { params: Promise.resolve({}) }
+    );
+    expect(response.status).toBe(200);
+    expect(decodeURIComponent(response.headers.get('set-cookie') || '')).toContain(
+      'JS.ENADE:ENADE'
+    );
+  });
 });

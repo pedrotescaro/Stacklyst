@@ -4,14 +4,14 @@ import Image from 'next/image';
 import { Coin } from '@/components/mundinho/PixelArt';
 import { TrailCourseSelector } from '@/app/trails/TrailCourseSelector';
 import type { TrailCourseOption } from '@/app/trails/TrailCourseSelector';
-import type { TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
+import type { TrailCourseCode } from '@/app/trails/TrailLanguageLogo';
 import { StreakPopover } from '@/components/StreakPopover';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface TrailResourceBarProps {
-  activeLanguage: TrailLanguageCode;
+  activeLanguage: TrailCourseCode;
   courses: TrailCourseOption[];
-  onSelectCourse: (language: TrailLanguageCode) => void;
+  onSelectCourse: (language: TrailCourseCode) => void;
   streak: number;
   lastActiveAt?: string | null;
   totalXp: number;

@@ -1,11 +1,11 @@
-import { isTrailLanguage, TRAIL_LANGUAGE_CODES } from '@/app/trails/TrailLanguageLogo';
-import type { TrailLanguageCode } from '@/app/trails/TrailLanguageLogo';
+import { isTrailCourse, TRAIL_COURSE_CODES } from '@/app/trails/TrailLanguageLogo';
+import type { TrailCourseCode } from '@/app/trails/TrailLanguageLogo';
 
 export const TRAIL_COURSE_PREFERENCES_COOKIE = 'stacklyst-trail-courses';
 
 export interface TrailCoursePreferences {
-  activeLanguage: TrailLanguageCode | null;
-  startedLanguages: TrailLanguageCode[];
+  activeLanguage: TrailCourseCode | null;
+  startedLanguages: TrailCourseCode[];
 }
 
 export function parseTrailCoursePreferences(
@@ -17,22 +17,20 @@ export function parseTrailCoursePreferences(
   const [storedUserId, startedValue = '', activeValue = ''] = value.split(':');
   if (storedUserId !== userId) return { activeLanguage: null, startedLanguages: [] };
 
-  const startedLanguages = Array.from(new Set(startedValue.split('.').filter(isTrailLanguage)));
+  const startedLanguages = Array.from(new Set(startedValue.split('.').filter(isTrailCourse)));
   const activeLanguage =
-    isTrailLanguage(activeValue) && startedLanguages.includes(activeValue) ? activeValue : null;
+    isTrailCourse(activeValue) && startedLanguages.includes(activeValue) ? activeValue : null;
 
   return { activeLanguage, startedLanguages };
 }
 
 export function serializeTrailCoursePreferences(
   userId: string,
-  startedLanguages: TrailLanguageCode[],
-  activeLanguage: TrailLanguageCode
+  startedLanguages: TrailCourseCode[],
+  activeLanguage: TrailCourseCode
 ) {
-  const startedSet = new Set<TrailLanguageCode>([...startedLanguages, activeLanguage]);
-  const orderedStartedLanguages = TRAIL_LANGUAGE_CODES.filter((language) =>
-    startedSet.has(language)
-  );
+  const startedSet = new Set<TrailCourseCode>([...startedLanguages, activeLanguage]);
+  const orderedStartedLanguages = TRAIL_COURSE_CODES.filter((language) => startedSet.has(language));
 
   return `${userId}:${orderedStartedLanguages.join('.')}:${activeLanguage}`;
 }
