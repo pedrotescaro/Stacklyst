@@ -8,7 +8,7 @@ import { RankingScene, RANKING_MARKS } from './RankingScene';
 import { ProfileScene, PROFILE_MARKS } from './ProfileScene';
 
 vi.mock('@/contexts/MusicPlayerContext', () => ({
-  useMusicPlayer: () => ({ currentTrack: null, isPlaying: false, playTrack: vi.fn() }),
+  useMusicPlayerControls: () => ({ currentTrack: null, isPlaying: false, playTrack: vi.fn() }),
 }));
 
 function renderScene(node: React.ReactNode) {

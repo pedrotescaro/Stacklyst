@@ -2,15 +2,24 @@
 
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState, useCallback } from 'react';
-import { Play, Pause, Share2, X, Music2, ChevronUp, SkipForward } from 'lucide-react';
-import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
+import { Play, Pause, LoaderCircle, Share2, X, Music2, ChevronUp, SkipForward } from 'lucide-react';
+import { useMusicPlayerControls } from '@/contexts/MusicPlayerContext';
 import styles from './FloatingMiniPlayer.module.css';
 
 export function FloatingMiniPlayer() {
   const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
-  const { currentTrack, isPlaying, isMinimized, togglePlay, minimize, expand, closePlayer } =
-    useMusicPlayer();
+  const {
+    currentTrack,
+    isPlaying,
+    isBuffering,
+    error,
+    isMinimized,
+    togglePlay,
+    minimize,
+    expand,
+    closePlayer,
+  } = useMusicPlayerControls();
 
   useEffect(() => {
     setMounted(true);
@@ -76,12 +85,20 @@ export function FloatingMiniPlayer() {
           {/* Equalizer waves centered in the square */}
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
             <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/65 border border-white/20 shadow-lg backdrop-blur-sm">
-              <div className={styles.equalizer} data-playing={isPlaying}>
-                <span className={styles.bar} style={{ height: '6px' }} />
-                <span className={styles.bar} style={{ height: '12px' }} />
-                <span className={styles.bar} style={{ height: '9px' }} />
-                <span className={styles.bar} style={{ height: '6px' }} />
-              </div>
+              {isBuffering ? (
+                <LoaderCircle
+                  size={16}
+                  className="text-white motion-safe:animate-spin"
+                  aria-hidden="true"
+                />
+              ) : (
+                <div className={styles.equalizer} data-playing={isPlaying}>
+                  <span className={styles.bar} style={{ height: '6px' }} />
+                  <span className={styles.bar} style={{ height: '12px' }} />
+                  <span className={styles.bar} style={{ height: '9px' }} />
+                  <span className={styles.bar} style={{ height: '6px' }} />
+                </div>
+              )}
             </div>
           </div>
 
@@ -105,8 +122,14 @@ export function FloatingMiniPlayer() {
     >
       {/* ── Header: "Ouvindo agora..." + action buttons ── */}
       <div className="flex items-center justify-between px-4 pt-3 pb-2.5">
-        <span className="text-[13px] text-neutral-400 font-normal select-none">
-          Ouvindo agora...
+        <span role="status" className="text-[13px] text-neutral-400 font-normal select-none">
+          {error
+            ? 'Não foi possível tocar'
+            : isBuffering
+              ? 'Carregando música...'
+              : isPlaying
+                ? 'Ouvindo agora...'
+                : 'Pausado'}
         </span>
         <div className="flex items-center gap-1">
           {/* Share button */}
@@ -203,10 +226,20 @@ export function FloatingMiniPlayer() {
           <button
             type="button"
             onClick={togglePlay}
-            aria-label={isPlaying ? 'Pausar música' : 'Reproduzir música'}
+            aria-label={
+              isBuffering
+                ? 'Cancelar carregamento da música'
+                : isPlaying
+                  ? 'Pausar música'
+                  : error
+                    ? 'Tentar reproduzir novamente'
+                    : 'Reproduzir música'
+            }
             className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-md transition-all hover:bg-neutral-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
           >
-            {isPlaying ? (
+            {isBuffering ? (
+              <LoaderCircle size={18} className="motion-safe:animate-spin" aria-hidden="true" />
+            ) : isPlaying ? (
               <Pause size={18} className="fill-black text-black" />
             ) : (
               <Play size={18} className="ml-0.5 fill-black text-black" />
@@ -226,6 +259,11 @@ export function FloatingMiniPlayer() {
           </a>
         </div>
       </div>
+      {error && (
+        <p role="alert" className="px-4 pb-3 text-xs leading-relaxed text-neutral-300">
+          {error}
+        </p>
+      )}
     </aside>
   );
 }

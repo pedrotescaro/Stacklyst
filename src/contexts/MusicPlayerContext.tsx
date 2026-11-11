@@ -7,11 +7,13 @@ import React, {
   useRef,
   useEffect,
   useCallback,
+  useMemo,
   type ReactNode,
 } from 'react';
+import { loadSpotifyIframeApi, type SpotifyEmbedController } from '@/lib/spotify-iframe';
 
 export interface ActiveTrack {
-  id: string; // Spotify track ID
+  id: string;
   title: string;
   artist: string;
   artworkUrl?: string | null;
@@ -26,14 +28,10 @@ interface PlaybackState {
   progress: number;
 }
 
-interface MusicPlayerContextType {
+interface MusicPlayerContextType extends PlaybackState {
   currentTrack: ActiveTrack | null;
-  isPlaying: boolean;
-  isBuffering: boolean;
+  error: string | null;
   isMinimized: boolean;
-  position: number;
-  duration: number;
-  progress: number;
   playTrack: (track: ActiveTrack) => void;
   togglePlay: () => void;
   pause: () => void;
@@ -45,324 +43,321 @@ interface MusicPlayerContextType {
   seek: (percent: number) => void;
 }
 
-const MusicPlayerContext = createContext<MusicPlayerContextType | null>(null);
-
-let cachedIFrameAPI: any = null;
-let scriptLoading = false;
-const scriptCallbacks: Array<(api: any) => void> = [];
-
-function loadSpotifyIframeApi(callback: (api: any) => void) {
-  if (typeof window === 'undefined') return;
-
-  if (cachedIFrameAPI || (window as any).SpotifyIframeApi) {
-    callback(cachedIFrameAPI || (window as any).SpotifyIframeApi);
-    return;
-  }
-
-  if (process.env.NODE_ENV === 'test') {
-    const mockApi = {
-      createController: (_el: any, _options: any, cb: (c: any) => void) => {
-        cb({
-          loadUri: () => {},
-          play: () => {},
-          pause: () => {},
-          togglePlay: () => {},
-          seek: () => {},
-          destroy: () => {},
-          addListener: (_event: string, _handler: () => void) => {},
-        });
-      },
-    };
-    cachedIFrameAPI = mockApi;
-    callback(mockApi);
-    return;
-  }
-
-  scriptCallbacks.push(callback);
-
-  if (scriptLoading) return;
-  scriptLoading = true;
-
-  const prevReady = (window as any).onSpotifyIframeApiReady;
-  (window as any).onSpotifyIframeApiReady = (IFrameAPI: any) => {
-    cachedIFrameAPI = IFrameAPI;
-    (window as any).SpotifyIframeApi = IFrameAPI;
-    if (typeof prevReady === 'function') {
-      try {
-        prevReady(IFrameAPI);
-      } catch {
-        // ignore
-      }
-    }
-    while (scriptCallbacks.length > 0) {
-      const cb = scriptCallbacks.shift();
-      cb?.(IFrameAPI);
-    }
-  };
-
-  const existingScript = document.querySelector('script[src*="iframe-api/v1"]');
-  if (!existingScript) {
-    const script = document.createElement('script');
-    script.src = 'https://open.spotify.com/embed/iframe-api/v1';
-    script.async = true;
-    document.head.appendChild(script);
-  }
-}
+type PlaybackProgress = Pick<PlaybackState, 'position' | 'duration' | 'progress'>;
+type MusicPlayerControls = Omit<MusicPlayerContextType, keyof PlaybackProgress>;
+const MusicPlayerContext = createContext<MusicPlayerControls | null>(null);
+const MusicProgressContext = createContext<PlaybackProgress>({
+  position: 0,
+  duration: 0,
+  progress: 0,
+});
+const INITIAL_PLAYBACK: PlaybackState = {
+  isPlaying: false,
+  isBuffering: false,
+  position: 0,
+  duration: 0,
+  progress: 0,
+};
+const LOAD_ERROR = 'Não foi possível carregar a música. Tente novamente ou abra no Spotify.';
 
 export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const [currentTrack, setCurrentTrack] = useState<ActiveTrack | null>(null);
   const [isMinimized, setIsMinimized] = useState(false);
-  const [playback, setPlayback] = useState<PlaybackState>({
-    isPlaying: false,
-    isBuffering: false,
-    position: 0,
-    duration: 30000,
-    progress: 0,
-  });
-
-  const controllerRef = useRef<any>(null);
+  const [playback, setPlayback] = useState<PlaybackState>(INITIAL_PLAYBACK);
+  const [error, setError] = useState<string | null>(null);
+  const controllerRef = useRef<SpotifyEmbedController | null>(null);
   const embedContainerRef = useRef<HTMLDivElement | null>(null);
-  const pendingTrackRef = useRef<ActiveTrack | null>(null);
-  const currentTrackRef = useRef<ActiveTrack | null>(null);
-  const isPlayingRef = useRef(false);
-  currentTrackRef.current = currentTrack;
-  isPlayingRef.current = playback.isPlaying;
+  const trackRef = useRef<ActiveTrack | null>(null);
+  const wantsPlayRef = useRef(false);
+  const creatingRef = useRef(false);
+  const readyRef = useRef(false);
+  const loadedIdRef = useRef<string | null>(null);
+  const generationRef = useRef(0);
+  const playbackRef = useRef(INITIAL_PLAYBACK);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Initialize controller when a track is requested and container exists
-  const ensureController = useCallback((track: ActiveTrack) => {
-    if (controllerRef.current) {
-      try {
-        controllerRef.current.loadUri(`spotify:track:${track.id}`);
-        controllerRef.current.play();
-      } catch (err) {
-        console.warn('Spotify play error:', err);
+  const clearWatchdog = useCallback(() => {
+    if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
+    timeoutRef.current = null;
+  }, []);
+
+  const disposeController = useCallback(() => {
+    ++generationRef.current;
+    clearWatchdog();
+    const controller = controllerRef.current;
+    controllerRef.current = null;
+    creatingRef.current = false;
+    readyRef.current = false;
+    loadedIdRef.current = null;
+    try {
+      controller?.destroy();
+    } catch {
+      /* Already detached by Spotify. */
+    }
+    embedContainerRef.current?.replaceChildren();
+  }, [clearWatchdog]);
+
+  const fail = useCallback(
+    (message = LOAD_ERROR) => {
+      disposeController();
+      wantsPlayRef.current = false;
+      setError(message);
+      setIsMinimized(false);
+      setPlayback((prev) => ({ ...prev, isPlaying: false, isBuffering: false }));
+    },
+    [disposeController]
+  );
+
+  const startWatchdog = useCallback(() => {
+    if (timeoutRef.current !== null) return;
+    timeoutRef.current = setTimeout(() => {
+      fail('O Spotify demorou para responder. Tente novamente ou abra a faixa no Spotify.');
+    }, 15000);
+  }, [fail]);
+
+  const applyIntent = useCallback(() => {
+    const controller = controllerRef.current;
+    const track = trackRef.current;
+    if (!controller || !readyRef.current || !track) return;
+    try {
+      const changed = loadedIdRef.current !== track.id;
+      if (changed) {
+        loadedIdRef.current = track.id;
+        const uri = `spotify:track:${track.id}`;
+        if (controller.loadEntity) controller.loadEntity(uri);
+        else controller.loadUri(uri);
       }
+      if (wantsPlayRef.current) {
+        if (!changed && controller.resume) controller.resume();
+        else controller.play();
+      } else {
+        controller.pause();
+      }
+    } catch {
+      fail();
+    }
+  }, [fail]);
+
+  const ensureController = useCallback(() => {
+    if (controllerRef.current) {
+      applyIntent();
       return;
     }
-
-    pendingTrackRef.current = track;
-
-    loadSpotifyIframeApi((IFrameAPI) => {
-      if (!embedContainerRef.current) return;
-      const targetTrack = pendingTrackRef.current || track;
-
-      // Clean container in case of re-mount
-      embedContainerRef.current.innerHTML = '';
-      const mountTarget = document.createElement('div');
-      embedContainerRef.current.appendChild(mountTarget);
-
-      // Must have standard dimensions so Spotify embed initializes audio context
-      const options = {
-        uri: `spotify:track:${targetTrack.id}`,
-        width: '100%',
-        height: '152',
-      };
-
-      IFrameAPI.createController(mountTarget, options, (EmbedController: any) => {
-        controllerRef.current = EmbedController;
-
-        // Ensure proper allow attributes on the generated iframe for autoplay & encrypted-media
-        try {
-          const iframe = embedContainerRef.current?.querySelector('iframe');
-          if (iframe) {
-            iframe.setAttribute(
-              'allow',
-              'autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture'
-            );
-          }
-        } catch {
-          // ignore
-        }
-
-        EmbedController.addListener('playback_update', (e: any) => {
-          if (e?.data) {
-            const { isPaused, isBuffering, position, duration } = e.data;
-            const pos = typeof position === 'number' ? position : 0;
-            const dur = typeof duration === 'number' && duration > 0 ? duration : 30000;
-            const playing = !isPaused && !isBuffering;
-
-            setPlayback({
-              isPlaying: playing,
-              isBuffering: Boolean(isBuffering),
-              position: pos,
-              duration: dur,
-              progress: dur > 0 ? Math.min(100, Math.max(0, (pos / dur) * 100)) : 0,
+    if (creatingRef.current || !trackRef.current) return;
+    creatingRef.current = true;
+    const generation = generationRef.current;
+    void loadSpotifyIframeApi()
+      .then((api) => {
+        if (generation !== generationRef.current || !trackRef.current || !embedContainerRef.current)
+          return;
+        const mount = document.createElement('div');
+        embedContainerRef.current.replaceChildren(mount);
+        loadedIdRef.current = trackRef.current.id;
+        api.createController(
+          mount,
+          {
+            uri: `spotify:track:${trackRef.current.id}`,
+            width: 300,
+            height: 152,
+          },
+          (controller) => {
+            if (generation !== generationRef.current || !trackRef.current) {
+              controller.destroy();
+              return;
+            }
+            controllerRef.current = controller;
+            creatingRef.current = false;
+            controller.addListener('ready', () => {
+              if (generation !== generationRef.current || readyRef.current) return;
+              readyRef.current = true;
+              applyIntent();
+            });
+            controller.addListener('playback_update', (event) => {
+              if (generation !== generationRef.current || !trackRef.current || !readyRef.current)
+                return;
+              const data = event?.data;
+              if (
+                !data ||
+                (data.playingURI && data.playingURI !== `spotify:track:${trackRef.current.id}`)
+              )
+                return;
+              if (loadedIdRef.current !== trackRef.current.id) return;
+              if (typeof data.isPaused !== 'boolean') return;
+              const buffering = wantsPlayRef.current && Boolean(data.isBuffering);
+              const playing = wantsPlayRef.current && !data.isPaused && !buffering;
+              const duration =
+                Number.isFinite(data.duration) && data.duration! > 0 ? data.duration! : 0;
+              const position = Number.isFinite(data.position) ? Math.max(0, data.position!) : 0;
+              if (playing) clearWatchdog();
+              else if (buffering) startWatchdog();
+              else if (timeoutRef.current === null && data.isPaused) wantsPlayRef.current = false;
+              const next = {
+                isPlaying: playing,
+                isBuffering:
+                  buffering || (wantsPlayRef.current && timeoutRef.current !== null && !playing),
+                position,
+                duration,
+                progress: duration ? Math.min(100, (position / duration) * 100) : 0,
+              };
+              playbackRef.current = next;
+              setPlayback((prev) =>
+                Object.keys(next).every(
+                  (key) => prev[key as keyof PlaybackState] === next[key as keyof PlaybackState]
+                )
+                  ? prev
+                  : next
+              );
             });
           }
-        });
-
-        EmbedController.addListener('ready', () => {
-          try {
-            EmbedController.play();
-          } catch {
-            // ignore
-          }
-        });
-
-        // Trigger immediate play
-        try {
-          EmbedController.play();
-        } catch {
-          // ignore
-        }
+        );
+      })
+      .catch(() => {
+        if (generation === generationRef.current) fail();
       });
-    });
-  }, []);
+  }, [applyIntent, clearWatchdog, fail, startWatchdog]);
 
-  // Preload Spotify iFrame API on mount
   useEffect(() => {
-    loadSpotifyIframeApi(() => {});
-  }, []);
+    void loadSpotifyIframeApi().catch(() => {});
+    return () => {
+      trackRef.current = null;
+      wantsPlayRef.current = false;
+      disposeController();
+    };
+  }, [disposeController]);
+
+  const pause = useCallback(() => {
+    wantsPlayRef.current = false;
+    clearWatchdog();
+    setPlayback((prev) => ({ ...prev, isPlaying: false, isBuffering: false }));
+    applyIntent();
+  }, [applyIntent, clearWatchdog]);
+
+  const resume = useCallback(() => {
+    if (!trackRef.current) return;
+    wantsPlayRef.current = true;
+    setError(null);
+    setPlayback((prev) => ({ ...prev, isPlaying: false, isBuffering: true }));
+    startWatchdog();
+    ensureController();
+  }, [ensureController, startWatchdog]);
+
+  const togglePlay = useCallback(() => {
+    if (wantsPlayRef.current) pause();
+    else resume();
+  }, [pause, resume]);
 
   const playTrack = useCallback(
     (track: ActiveTrack) => {
-      if (currentTrackRef.current?.id === track.id) {
-        // Same track clicked: toggle play/pause
-        if (isPlayingRef.current) {
-          try {
-            controllerRef.current?.pause();
-          } catch {
-            // ignore
-          }
-          setPlayback((prev) => ({ ...prev, isPlaying: false }));
-        } else {
-          try {
-            controllerRef.current?.play();
-          } catch {
-            // ignore
-          }
-          setPlayback((prev) => ({ ...prev, isPlaying: true }));
-        }
+      if (!/^[a-zA-Z0-9]{22}$/.test(track.id)) return;
+      if (trackRef.current?.id === track.id) {
+        togglePlay();
         return;
       }
-
-      // New track
+      trackRef.current = track;
       setCurrentTrack(track);
       setIsMinimized(false);
-      setPlayback({
-        isPlaying: true,
-        isBuffering: false,
-        position: 0,
-        duration: 30000,
-        progress: 0,
-      });
-
-      ensureController(track);
+      clearWatchdog();
+      playbackRef.current = INITIAL_PLAYBACK;
+      setPlayback({ ...INITIAL_PLAYBACK, isBuffering: true });
+      resume();
     },
-    [ensureController]
+    [clearWatchdog, resume, togglePlay]
   );
 
-  const togglePlay = useCallback(() => {
-    if (!controllerRef.current) return;
-    try {
-      controllerRef.current.togglePlay();
-      setPlayback((prev) => ({ ...prev, isPlaying: !prev.isPlaying }));
-    } catch {
-      // ignore
-    }
-  }, []);
+  const closePlayer = useCallback(() => {
+    trackRef.current = null;
+    wantsPlayRef.current = false;
+    disposeController();
+    setCurrentTrack(null);
+    setError(null);
+    setIsMinimized(false);
+    playbackRef.current = INITIAL_PLAYBACK;
+    setPlayback(INITIAL_PLAYBACK);
+  }, [disposeController]);
 
-  const pause = useCallback(() => {
-    if (!controllerRef.current) return;
-    try {
-      controllerRef.current.pause();
-      setPlayback((prev) => ({ ...prev, isPlaying: false }));
-    } catch {
-      // ignore
-    }
-  }, []);
-
-  const resume = useCallback(() => {
-    if (!controllerRef.current) return;
-    try {
-      controllerRef.current.play();
-      setPlayback((prev) => ({ ...prev, isPlaying: true }));
-    } catch {
-      // ignore
-    }
-  }, []);
+  const seek = useCallback(
+    (percent: number) => {
+      if (!controllerRef.current || !readyRef.current || !Number.isFinite(percent)) return;
+      const duration = playbackRef.current.duration;
+      if (!duration) return;
+      const bounded = Math.max(0, Math.min(100, percent));
+      try {
+        controllerRef.current.seek(Math.round(((bounded / 100) * duration) / 1000));
+      } catch {
+        fail();
+      }
+    },
+    [fail]
+  );
 
   const minimize = useCallback(() => setIsMinimized(true), []);
   const expand = useCallback(() => setIsMinimized(false), []);
   const toggleMinimize = useCallback(() => setIsMinimized((prev) => !prev), []);
 
-  const closePlayer = useCallback(() => {
-    try {
-      controllerRef.current?.pause();
-    } catch {
-      // ignore
-    }
-    setCurrentTrack(null);
-    setIsMinimized(false);
-    setPlayback({
-      isPlaying: false,
-      isBuffering: false,
-      position: 0,
-      duration: 30000,
-      progress: 0,
-    });
-  }, []);
-
-  const seek = useCallback((percent: number) => {
-    if (!controllerRef.current) return;
-    const bounded = Math.max(0, Math.min(100, percent));
-    setPlayback((prev) => {
-      const targetSeconds = (bounded / 100) * (prev.duration / 1000);
-      try {
-        controllerRef.current.seek(Math.round(targetSeconds));
-      } catch {
-        // ignore
-      }
-      return {
-        ...prev,
-        progress: bounded,
-        position: targetSeconds * 1000,
-      };
-    });
-  }, []);
+  // Frequent position messages must not rerender every music card in the feed.
+  const controls = useMemo(
+    () => ({
+      currentTrack,
+      isPlaying: playback.isPlaying,
+      isBuffering: playback.isBuffering,
+      error,
+      isMinimized,
+      playTrack,
+      togglePlay,
+      pause,
+      resume,
+      minimize,
+      expand,
+      toggleMinimize,
+      closePlayer,
+      seek,
+    }),
+    [
+      currentTrack,
+      playback.isPlaying,
+      playback.isBuffering,
+      error,
+      isMinimized,
+      playTrack,
+      togglePlay,
+      pause,
+      resume,
+      minimize,
+      expand,
+      toggleMinimize,
+      closePlayer,
+      seek,
+    ]
+  );
+  const progress = useMemo(
+    () => ({
+      position: playback.position,
+      duration: playback.duration,
+      progress: playback.progress,
+    }),
+    [playback.position, playback.duration, playback.progress]
+  );
 
   return (
-    <MusicPlayerContext.Provider
-      value={{
-        currentTrack,
-        isPlaying: playback.isPlaying,
-        isBuffering: playback.isBuffering,
-        isMinimized,
-        position: playback.position,
-        duration: playback.duration,
-        progress: playback.progress,
-        playTrack,
-        togglePlay,
-        pause,
-        resume,
-        minimize,
-        expand,
-        toggleMinimize,
-        closePlayer,
-        seek,
-      }}
-    >
-      {children}
-      {/* Container within viewport with real dimensions but visually non-intrusive */}
-      <div
-        ref={embedContainerRef}
-        id="spotify-iframe-embed-host"
-        className="pointer-events-none fixed bottom-0 right-0 h-[152px] w-[300px] overflow-hidden opacity-[0.001] z-[-50]"
-        aria-hidden="true"
-        suppressHydrationWarning
-      />
+    <MusicPlayerContext.Provider value={controls}>
+      <MusicProgressContext.Provider value={progress}>
+        {children}
+        <div
+          ref={embedContainerRef}
+          id="spotify-iframe-embed-host"
+          className="pointer-events-none fixed bottom-0 right-0 h-[152px] w-[300px] overflow-hidden opacity-[0.001] z-[-50]"
+          aria-hidden="true"
+        />
+      </MusicProgressContext.Provider>
     </MusicPlayerContext.Provider>
   );
 }
 
 const defaultMusicPlayerContext: MusicPlayerContextType = {
+  ...INITIAL_PLAYBACK,
   currentTrack: null,
-  isPlaying: false,
-  isBuffering: false,
+  error: null,
   isMinimized: false,
-  position: 0,
-  duration: 0,
-  progress: 0,
   playTrack: () => {},
   togglePlay: () => {},
   pause: () => {},
@@ -375,6 +370,11 @@ const defaultMusicPlayerContext: MusicPlayerContextType = {
 };
 
 export function useMusicPlayer() {
-  const context = useContext(MusicPlayerContext);
-  return context ?? defaultMusicPlayerContext;
+  const controls = useMusicPlayerControls();
+  const progress = useContext(MusicProgressContext);
+  return { ...controls, ...progress };
+}
+
+export function useMusicPlayerControls(): MusicPlayerControls {
+  return useContext(MusicPlayerContext) ?? defaultMusicPlayerContext;
 }

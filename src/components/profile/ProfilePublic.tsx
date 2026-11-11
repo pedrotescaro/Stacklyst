@@ -1,9 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { Award, GraduationCap, Music2, Pause, Play, Tags } from 'lucide-react';
+import { Award, GraduationCap, LoaderCircle, Music2, Pause, Play, Tags } from 'lucide-react';
 import type { ProfilePreferences, AchievementProgress } from '@/lib/profile-customization';
-import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
+import { useMusicPlayerControls } from '@/contexts/MusicPlayerContext';
 import styles from './ProfilePublic.module.css';
 
 export interface PublicProfileCustomization {
@@ -16,7 +16,7 @@ export function ProfilePublic({
 }: {
   customization?: PublicProfileCustomization | null;
 }) {
-  const { currentTrack, isPlaying, playTrack } = useMusicPlayer();
+  const { currentTrack, isPlaying, isBuffering, playTrack } = useMusicPlayerControls();
 
   if (!customization) return null;
   const { preferences, achievements } = customization;
@@ -24,6 +24,7 @@ export function ProfilePublic({
   if (!tags.length && !studies.length && !music && !achievements.length) return null;
 
   const isCurrentPlaying = currentTrack?.id === music?.trackId && isPlaying;
+  const isCurrentLoading = currentTrack?.id === music?.trackId && isBuffering;
 
   const handlePlayProfileMusic = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -75,19 +76,7 @@ export function ProfilePublic({
             <Music2 size={15} aria-hidden="true" />
             Música do perfil
           </h2>
-          <div
-            className={`${styles.music} group cursor-pointer transition-colors hover:border-blue-500/40`}
-            onClick={handlePlayProfileMusic}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                handlePlayProfileMusic(e as unknown as React.MouseEvent);
-              }
-            }}
-            aria-label={`Reproduzir ${music.title || 'faixa'} de ${music.artist || 'Spotify'}`}
-          >
+          <div className={styles.music}>
             {music.artworkUrl && (
               <img
                 src={music.artworkUrl}
@@ -113,10 +102,18 @@ export function ProfilePublic({
             <button
               type="button"
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-500 text-white shadow-md transition-transform hover:scale-105 active:scale-95 cursor-pointer ml-auto"
-              aria-label={isCurrentPlaying ? 'Pausar música do perfil' : 'Tocar música do perfil'}
+              aria-label={
+                isCurrentLoading
+                  ? 'Cancelar carregamento da música'
+                  : isCurrentPlaying
+                    ? 'Pausar música do perfil'
+                    : 'Tocar música do perfil'
+              }
               onClick={handlePlayProfileMusic}
             >
-              {isCurrentPlaying ? (
+              {isCurrentLoading ? (
+                <LoaderCircle size={18} className="motion-safe:animate-spin" aria-hidden="true" />
+              ) : isCurrentPlaying ? (
                 <Pause size={18} className="fill-white" />
               ) : (
                 <Play size={18} className="ml-0.5 fill-white" />
