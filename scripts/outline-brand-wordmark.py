@@ -1,9 +1,10 @@
-"""Build native/static wordmark outlines in Sora SemiBold 600.
+"""Build native/static wordmark outlines for the brand suffix ("tackLyst").
 
-Usage: python scripts/outline-brand-wordmark.py <Sora.ttf>
-Requires fonttools; font license lives in public/brand/OFL-Sora.txt.
+Usage: python scripts/outline-brand-wordmark.py <PlusJakartaSans[wght].ttf> [weight] [family]
+Defaults: weight 800, family "Plus Jakarta Sans" (ExtraBold).
+Requires fonttools; font license lives in public/brand/OFL-PlusJakartaSans.txt.
 Only the suffix is regenerated; the supplied monogram geometry is preserved.
-Web renders the same face at 0.76 times the monogram height and -0.02em tracking.
+The suffix is set at 0.76 times the monogram height with -0.02em tracking.
 """
 import ast
 import json
@@ -17,7 +18,11 @@ from fontTools.pens.boundsPen import BoundsPen
 from fontTools.pens.svgPathPen import SVGPathPen
 from fontTools.pens.transformPen import TransformPen
 
-font = instantiateVariableFont(TTFont(sys.argv[1]), {"wght": 600})
+weight = int(sys.argv[2]) if len(sys.argv) > 2 else 800
+family = sys.argv[3] if len(sys.argv) > 3 else "Plus Jakarta Sans"
+font = TTFont(sys.argv[1])
+if "fvar" in font:
+    font = instantiateVariableFont(font, {"wght": weight})
 glyphs = font.getGlyphSet()
 cmap = font.getBestCmap()
 geometry_file = Path("src/lib/brand-geometry.ts")
@@ -79,7 +84,7 @@ bounds = BoundsPen(glyphs)
 x = 0
 previous = None
 tracking = -0.02 * font_size_ratio * geometry["height"]
-text = "tacklyst"
+text = "tackLyst"
 for index, char in enumerate(text):
     name = cmap[ord(char)]
     glyph = glyphs[name]
@@ -96,12 +101,12 @@ for index, char in enumerate(text):
 geometry["suffixPath"] = pen.getCommands()
 geometry["wordmarkWidth"] = math.ceil(geometry["width"] + 36 + bounds.bounds[2] + 8)
 geometry["wordmarkHeight"] = math.ceil(max(geometry["height"], bounds.bounds[3]) + 8)
-geometry["suffixFontFamily"] = "Sora"
-geometry["suffixFontWeight"] = 600
+geometry["suffixFontFamily"] = family
+geometry["suffixFontWeight"] = weight
 geometry["suffixLetterSpacingEm"] = -0.02
 geometry["suffixFontSizeRatio"] = font_size_ratio
 geometry["suffixInkTopRatio"] = ink_top_ratio
-content = ("// Supplied monogram + Sora SemiBold 600 outlines; see public/brand/OFL-Sora.txt.\n"
+content = (f"// Supplied monogram + {family} {weight} outlines; see public/brand/OFL-PlusJakartaSans.txt.\n"
            "export const brandGeometry = " + json.dumps(geometry, indent=2) + " as const;\n")
 for file in [geometry_file, Path("apps/mobile/src/components/brand-geometry.ts")]:
     file.write_text(content)
@@ -110,5 +115,5 @@ svg = (f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 {geometry["wordmar
        f'<path d="{geometry["suffixPath"]}" transform="translate({geometry["width"] + 36} 0)" fill="#0083fe"/></svg>')
 for file in ["wordmark.svg", "wordmark-light.svg"]:
     Path("public/brand", file).write_text(svg)
-print(json.dumps({"font": "Sora SemiBold", "weight": 600, "trackingEm": -0.02,
+print(json.dumps({"font": family, "weight": weight, "trackingEm": -0.02,
                   "bounds": bounds.bounds, "canvas": [geometry["wordmarkWidth"], geometry["wordmarkHeight"]]}))

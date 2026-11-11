@@ -766,7 +766,7 @@ Integrações/imports externos: `react-native-svg`.
 
 Comentários de contrato presentes na fonte:
 
-> Supplied S; wordmark uses the same Sora SemiBold 600 outlines as the website.
+> Supplied S; wordmark uses the same Plus Jakarta Sans 800 "tackLyst" outlines as the website.
 
 ## apps/mobile/src/components/CompactComposer.tsx
 

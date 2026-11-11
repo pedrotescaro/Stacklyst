@@ -1,4 +1,4 @@
-/* Clean entry: the S is traced and fills from the bottom, then "tacklyst" opens out of it. */
+/* Clean entry: the S is traced and fills from the bottom, then "tackLyst" opens out of it. */
 .loader {
   position: fixed;
   inset: 0;
@@ -43,7 +43,7 @@
   animation: fill-up 620ms 340ms var(--ease) forwards;
 }
 
-/* "tacklyst" opens out of the S once it is full. */
+/* "tackLyst" opens out of the S once it is full. */
 .suffix {
   clip-path: inset(0 100% 0 0);
   animation: open-name 520ms 920ms var(--ease) forwards;

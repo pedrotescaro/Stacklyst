@@ -10,12 +10,12 @@ export interface BrandLogoProps {
   label?: string;
 }
 
-/** Horizontal offset of "tacklyst" after the S, matching public/brand/wordmark.svg. */
+/** Horizontal offset of "tackLyst" after the S, matching public/brand/wordmark.svg. */
 export const BRAND_SUFFIX_OFFSET = 904;
 const WORDMARK_VIEWBOX = `0 0 ${brandGeometry.wordmarkWidth} ${brandGeometry.wordmarkHeight}`;
 
 /**
- * The S and "tacklyst" are both drawn as vector outlines with the same fill,
+ * The S and "tackLyst" are both drawn as vector outlines with the same fill,
  * so the name renders in exactly the same blue as the monogram.
  */
 export function BrandLogo({
