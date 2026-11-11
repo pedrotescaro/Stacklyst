@@ -22,6 +22,23 @@ export interface EnadeAttempt {
   updatedAt: number;
 }
 
+export interface EnadeQuestionImage {
+  src: string;
+  page: number;
+}
+export interface EnadeQuestionContent {
+  id: string;
+  images: EnadeQuestionImage[];
+  statement: string;
+  transcript: string;
+  options: {
+    letter: string;
+    text: string;
+    code: boolean;
+    image?: EnadeQuestionImage;
+  }[];
+}
+
 export function gradeEnade(exam: EnadeExam, answers: Record<string, string>) {
   const scored = exam.questions.filter((q) => q.kind === 'objective' && !q.annulled && q.answer);
   const correct = scored.filter((q) => answers[q.id] === q.answer).length;

@@ -3,11 +3,15 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Check, ChevronLeft, ChevronRight, Clock3, ExternalLink } from 'lucide-react';
 import catalog from '@/lib/enade/exams.json';
-import { gradeEnade, type EnadeAttempt, type EnadeExam } from '@/lib/enade/types';
+import {
+  gradeEnade,
+  type EnadeAttempt,
+  type EnadeExam,
+  type EnadeQuestionContent,
+} from '@/lib/enade/types';
 import { useEnadeProgress } from './useEnadeProgress';
 import { EnadePageViewer } from './EnadePageViewer';
 import styles from './EnadeCourse.module.css';
-type Page = { image: string; text: string };
 function clock(seconds: number) {
   const s = Math.max(0, Math.floor(seconds));
   return `${String(Math.floor(s / 3600)).padStart(2, '0')}:${String(Math.floor(s / 60) % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
@@ -28,16 +32,17 @@ export function EnadeSimulation({
   );
   const attempt = attempts[year];
   const [questionIndex, setQuestionIndex] = useState(0);
-  const [pageNumber, setPageNumber] = useState(exam.questions[0].page);
-  const [pages, setPages] = useState<Page[]>([]);
+  const [contents, setContents] = useState<EnadeQuestionContent[]>([]);
   const [pageError, setPageError] = useState(false);
   const [retry, setRetry] = useState(0);
   const [now, setNow] = useState(Date.now());
   const [confirmFinish, setConfirmFinish] = useState(false);
-  const [mobilePanel, setMobilePanel] = useState<'paper' | 'answers'>('paper');
+  const questionStart = useRef<HTMLElement>(null);
   const initializing = useRef(false);
   const finished = Boolean(attempt?.finishedAt);
   const question = exam.questions[questionIndex];
+  const content = contents.find((item) => item.id === question.id);
+  const answered = exam.questions.filter((q) => attempt?.answers[q.id]?.trim()).length;
   const remaining = attempt
     ? Math.max(0, exam.durationMinutes * 60 - (now - attempt.startedAt) / 1000)
     : 0;
@@ -57,19 +62,21 @@ export function EnadeSimulation({
   useEffect(() => {
     if (!year) return;
     const controller = new AbortController();
-    setPages([]);
+    setContents([]);
     setPageError(false);
-    void fetch(`/enade/${year}/pages.json`, { signal: controller.signal })
+    void fetch(`/enade/${year}/questions.json`, { signal: controller.signal })
       .then(async (r) => {
         if (!r.ok) throw new Error('pages');
-        const content = (await r.json()) as Page[];
-        if (!controller.signal.aborted) setPages(content);
+        const content = (await r.json()) as EnadeQuestionContent[];
+        if (!Array.isArray(content) || content.length !== exam.questions.length)
+          throw new Error('questions');
+        if (!controller.signal.aborted) setContents(content);
       })
       .catch(() => {
         if (!controller.signal.aborted) setPageError(true);
       });
     return () => controller.abort();
-  }, [year, retry]);
+  }, [year, retry, exam.questions.length]);
 
   useEffect(() => {
     if (!exam || !year || finished) return;
@@ -91,8 +98,8 @@ export function EnadeSimulation({
 
   function selectQuestion(index: number) {
     setQuestionIndex(index);
-    setPageNumber(exam.questions[index].page);
-    setMobilePanel('paper');
+    setConfirmFinish(false);
+    questionStart.current?.scrollIntoView?.({ block: 'start' });
   }
   const result = attempt ? gradeEnade(exam, attempt.answers) : null;
   if (!ready || !attempt)
@@ -103,17 +110,47 @@ export function EnadeSimulation({
     );
   return (
     <main className={`${styles.main} ${styles.activity}`}>
-      <div className={styles.sessionHeader}>
-        <div>
-          <Link className={styles.back} href="/trails/enade">
-            <ArrowLeft size={16} /> Todas as edições
-          </Link>
-          <h1>Simulado {exam.year}</h1>
+      <header className={styles.activityHeader}>
+        <Link className={styles.exit} href="/trails/enade" aria-label="Todas as edições">
+          <ArrowLeft size={22} />
+        </Link>
+        <div className={styles.progressSummary}>
+          <div className={styles.progressCaption}>
+            <span>Simulado {exam.year}</span>
+            <span>
+              {answered}/{exam.questions.length} respondidas
+            </span>
+          </div>
+          <div
+            role="progressbar"
+            aria-label="Progresso do simulado"
+            aria-valuemin={0}
+            aria-valuemax={exam.questions.length}
+            aria-valuenow={answered}
+            aria-valuetext={`${answered} de ${exam.questions.length} questões respondidas`}
+            className={styles.progressTrack}
+          >
+            <div style={{ width: `${(answered / exam.questions.length) * 100}%` }} />
+          </div>
         </div>
-        <span className={styles.timer}>
-          <Clock3 size={16} />
+        <span
+          className={styles.timer}
+          aria-label={finished ? 'Simulado concluído' : 'Tempo restante'}
+        >
+          <Clock3 size={17} aria-hidden="true" />
           {finished ? 'Concluído' : clock(remaining)}
         </span>
+      </header>
+      <div className={styles.sessionHeader}>
+        <div>
+          <p className={styles.eyebrow}>Enade · Análise e Desenvolvimento de Sistemas</p>
+          <h1>Simulado {exam.year}</h1>
+        </div>
+        <p className={styles.muted}>
+          {finished
+            ? 'Revise suas respostas e o gabarito.'
+            : 'Responda no seu ritmo. A correção aparece ao finalizar.'}
+        </p>
       </div>
       {finished && result && (
         <section className={styles.result} aria-label="Resultado do simulado">
@@ -136,150 +173,165 @@ export function EnadeSimulation({
         >
           {exam.questions.map((q, index) => (
             <option key={q.id} value={index}>
-              {index + 1}/40 · {q.kind === 'discursive' ? 'Discursiva' : 'Objetiva'} {q.number}
+              {index + 1}/{exam.questions.length} ·{' '}
+              {q.kind === 'discursive' ? 'Discursiva' : 'Objetiva'} {q.number}
+              {attempt.answers[q.id]?.trim() ? ' · Respondida' : ''}
             </option>
           ))}
         </select>
-        <button
-          className={styles.back}
-          disabled={questionIndex === 0}
-          onClick={() => selectQuestion(questionIndex - 1)}
-          aria-label="Questão anterior"
+        <a
+          className={styles.originalLink}
+          href={`/enade/${exam.year}/prova.pdf#page=${question.page}`}
+          target="_blank"
+          rel="noreferrer"
         >
-          <ChevronLeft size={18} />
-        </button>
-        <button
-          className={styles.back}
-          disabled={questionIndex === 39}
-          onClick={() => selectQuestion(questionIndex + 1)}
-          aria-label="Próxima questão"
-        >
-          <ChevronRight size={18} />
-        </button>
+          Caderno original <ExternalLink size={14} />
+        </a>
       </div>
-      <div className={styles.activityTabs} aria-label="Área do simulado">
-        <button aria-pressed={mobilePanel === 'paper'} onClick={() => setMobilePanel('paper')}>
-          Caderno
-        </button>
-        <button aria-pressed={mobilePanel === 'answers'} onClick={() => setMobilePanel('answers')}>
-          Respostas
-        </button>
-      </div>
-      <div className={styles.workspace}>
-        <section
-          className={styles.paper}
-          data-mobile-active={mobilePanel === 'paper'}
-          aria-label="Caderno da prova"
-        >
-          <div className={styles.pageToolbar}>
-            <button
-              onClick={() => setPageNumber((n) => Math.max(1, n - 1))}
-              disabled={pageNumber === 1}
-              aria-label="Página anterior"
-            >
-              <ChevronLeft size={18} />
-            </button>
-            <span>
-              Página {pageNumber} de {exam.pageCount}
-            </span>
-            <button
-              onClick={() => setPageNumber((n) => Math.min(exam.pageCount, n + 1))}
-              disabled={pageNumber === exam.pageCount}
-              aria-label="Próxima página"
-            >
-              <ChevronRight size={18} />
-            </button>
-            <a
-              href={`/enade/${exam.year}/prova.pdf#page=${pageNumber}`}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="Abrir caderno original em outra aba"
-            >
-              <ExternalLink size={17} />
-            </a>
+      <article ref={questionStart} className={styles.question} aria-labelledby="question-title">
+        <div className={styles.questionHeading}>
+          <div>
+            <p className={styles.eyebrow}>
+              {question.section === 'general' ? 'Formação geral' : 'Componente específico'}
+            </p>
+            <h2 id="question-title">
+              {question.kind === 'discursive' ? 'Discursiva' : 'Questão'} {question.number}
+            </h2>
           </div>
-          {pageError ? (
-            <p role="alert">
-              Não foi possível carregar o caderno.{' '}
-              <button onClick={() => setRetry((n) => n + 1)}>Tentar novamente</button>
-            </p>
-          ) : pages[pageNumber - 1] ? (
-            <>
-              <EnadePageViewer
-                key={`${exam.year}:${pageNumber}`}
-                src={pages[pageNumber - 1].image}
-                year={exam.year}
-                page={pageNumber}
-              />
-              <details className={styles.transcript}>
-                <summary>Ler texto desta página</summary>
-                <p>
-                  A extração pode não representar fórmulas e diagramas. Confira esses elementos na
-                  imagem ou no PDF original.
-                </p>
-                <pre>{pages[pageNumber - 1].text}</pre>
-              </details>
-            </>
-          ) : (
-            <p role="status" className={styles.loading}>
-              Carregando caderno...
-            </p>
-          )}
-        </section>
-        <section
-          className={styles.responsePanel}
-          data-mobile-active={mobilePanel === 'answers'}
-          aria-label="Resposta da questão"
-        >
-          <h2>Sua resposta</h2>
-          <p className={styles.muted}>
-            {Object.values(attempt?.answers || {}).filter(Boolean).length}/40 respondidas
+          <span className={styles.questionCounter}>
+            {questionIndex + 1} de {exam.questions.length}
+          </span>
+        </div>
+        {question.annulled && (
+          <p className={styles.notice}>Anulada pelo Inep. Não conta na correção.</p>
+        )}
+        {pageError ? (
+          <div className={styles.loadError} role="alert">
+            <p>Não foi possível carregar a questão. Suas respostas continuam salvas.</p>
+            <button className={styles.primary} onClick={() => setRetry((n) => n + 1)}>
+              Tentar novamente
+            </button>
+          </div>
+        ) : !content ? (
+          <p role="status" className={styles.loading}>
+            Carregando questão...
           </p>
-          {question && attempt && (
-            <div className={styles.response}>
-              <p className={styles.muted}>
-                {question.section === 'general' ? 'Formação geral' : 'Componente específico'}
-              </p>
-              <h3>
-                {question.kind === 'discursive' ? 'Discursiva' : 'Questão'} {question.number}
-              </h3>
-              {question.annulled && (
-                <p className={styles.notice}>Anulada pelo Inep. Não conta na correção.</p>
-              )}
+        ) : (
+          <>
+            <section className={styles.questionImages} aria-label="Imagem da questão">
+              {content.images.map((image, index) => (
+                <div key={image.src} className={styles.paper}>
+                  <EnadePageViewer
+                    src={image.src}
+                    year={exam.year}
+                    page={image.page}
+                    label={`${question.kind === 'discursive' ? 'Discursiva' : 'Questão'} ${question.number}${content.images.length > 1 ? ` · parte ${index + 1}` : ''}`}
+                  />
+                </div>
+              ))}
+            </section>
+            <section className={styles.statement} aria-labelledby="statement-title">
+              <h3 id="statement-title">Enunciado</h3>
+              <p>{content.statement}</p>
+              <details className={styles.transcript}>
+                <summary>Ler texto completo da questão</summary>
+                <p>
+                  Texto extraído do caderno. Consulte a imagem para conferir fórmulas, símbolos e
+                  diagramas.
+                </p>
+                <pre>{content.transcript}</pre>
+              </details>
+            </section>
+            <section className={styles.response} aria-label="Resposta da questão">
               {question.kind === 'objective' ? (
-                <fieldset disabled={finished || question.annulled}>
-                  <legend className={styles.muted}>Marque a alternativa do caderno</legend>
-                  <div className={styles.alternatives}>
-                    {['A', 'B', 'C', 'D', 'E'].map((letter) => (
-                      <label key={letter} data-selected={attempt.answers[question.id] === letter}>
-                        <input
-                          type="radio"
-                          name={question.id}
-                          value={letter}
-                          checked={attempt.answers[question.id] === letter}
-                          onChange={() =>
-                            updateAttempt({
-                              ...attempt,
-                              answers: { ...attempt.answers, [question.id]: letter },
-                              updatedAt: Date.now(),
-                            })
-                          }
-                        />
-                        {letter}
-                      </label>
-                    ))}
+                <fieldset>
+                  <legend>Escolha uma alternativa</legend>
+                  <div
+                    className={styles.alternatives}
+                    data-compact={content.options.every(
+                      (option) => option.text.length < 120 && !option.code && !option.image
+                    )}
+                  >
+                    {content.options.map((option) => {
+                      const selected = attempt.answers[question.id] === option.letter;
+                      const correction =
+                        finished && !question.annulled
+                          ? option.letter === question.answer
+                            ? 'correct'
+                            : selected
+                              ? 'incorrect'
+                              : undefined
+                          : undefined;
+                      const id = `${question.id}-${option.letter}`;
+                      return (
+                        <div
+                          key={option.letter}
+                          className={styles.alternative}
+                          data-selected={selected}
+                          data-correction={correction}
+                        >
+                          <input
+                            id={id}
+                            type="radio"
+                            name={question.id}
+                            value={option.letter}
+                            disabled={finished || question.annulled}
+                            checked={selected}
+                            onChange={() =>
+                              updateAttempt({
+                                ...attempt,
+                                answers: { ...attempt.answers, [question.id]: option.letter },
+                                updatedAt: Date.now(),
+                              })
+                            }
+                          />
+                          <label htmlFor={id}>
+                            <span className={styles.optionLetter}>{option.letter}</span>{' '}
+                            <span className={option.code ? styles.codeOption : styles.optionText}>
+                              {option.text || `Diagrama da alternativa ${option.letter}`}
+                              {correction && (
+                                <>
+                                  {' '}
+                                  <span className={styles.correctionLabel}>
+                                    {correction === 'correct' ? 'Resposta correta' : 'Sua resposta'}
+                                  </span>
+                                </>
+                              )}
+                            </span>
+                            {selected && (
+                              <Check
+                                className={styles.selectedCheck}
+                                size={18}
+                                aria-hidden="true"
+                              />
+                            )}
+                          </label>
+                          {option.image && (
+                            <div className={styles.optionImage}>
+                              <EnadePageViewer
+                                src={option.image.src}
+                                year={year}
+                                page={option.image.page}
+                                label={`Diagrama da alternativa ${option.letter} da questão ${question.number}`}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 </fieldset>
               ) : (
                 <>
-                  <label className={styles.muted} htmlFor="discursive-answer">
+                  <label className={styles.answerLabel} htmlFor="discursive-answer">
                     Escreva sua resposta
                   </label>
                   <textarea
                     id="discursive-answer"
                     maxLength={10000}
                     rows={8}
-                    readOnly={finished}
+                    readOnly={finished || question.annulled}
+                    placeholder="Desenvolva sua resposta aqui..."
                     value={attempt.answers[question.id] || ''}
                     onChange={(event) =>
                       updateAttempt({
@@ -291,63 +343,70 @@ export function EnadeSimulation({
                   />
                 </>
               )}
-              {finished && question.answer && (
+              {finished && question.answer && !question.annulled && (
                 <p className={styles.notice}>
                   Sua resposta: {attempt.answers[question.id] || 'Em branco'} · Gabarito:{' '}
                   <strong>{question.answer}</strong>
                 </p>
               )}
-              <div className={styles.questionNav}>
-                <button
-                  disabled={questionIndex === 0}
-                  onClick={() => selectQuestion(questionIndex - 1)}
-                >
-                  <ChevronLeft size={16} /> Anterior
-                </button>
-                <button
-                  disabled={questionIndex === 39}
-                  onClick={() => selectQuestion(questionIndex + 1)}
-                >
-                  Próxima <ChevronRight size={16} />
-                </button>
-              </div>
-            </div>
-          )}
+              {finished && question.kind === 'discursive' && !question.annulled && (
+                <p className={styles.notice}>
+                  Compare sua resposta com o padrão oficial disponível no resultado.
+                </p>
+              )}
+            </section>
+          </>
+        )}
+        <div className={styles.questionNav}>
+          <button disabled={questionIndex === 0} onClick={() => selectQuestion(questionIndex - 1)}>
+            <ChevronLeft size={18} /> Anterior
+          </button>
+          <button
+            className={styles.nextQuestion}
+            disabled={questionIndex === exam.questions.length - 1}
+            onClick={() => selectQuestion(questionIndex + 1)}
+          >
+            Próxima <ChevronRight size={18} />
+          </button>
+        </div>
+      </article>
+      <footer className={styles.sessionFooter}>
+        <div>
           <p className={styles.saveStatus} role="status">
             {saveStatus}
           </p>
           <button className={styles.back} onClick={() => void save(year, attempt, true)}>
             Salvar novamente
           </button>
-          {!finished && (
-            <button className={styles.primary} onClick={() => setConfirmFinish(true)}>
-              Finalizar simulado <Check size={16} />
+        </div>
+        {!finished && (
+          <button className={styles.finishButton} onClick={() => setConfirmFinish(true)}>
+            Finalizar simulado <Check size={16} />
+          </button>
+        )}
+        {confirmFinish && !finished && (
+          <div className={styles.confirm}>
+            <p>
+              Finalizar e conferir o gabarito? Há {exam.questions.length - answered} respostas em
+              branco.
+            </p>
+            <button
+              className={styles.primary}
+              onClick={() => {
+                void save(
+                  year,
+                  { ...attempt, finishedAt: Date.now(), updatedAt: Date.now() },
+                  true
+                );
+                setConfirmFinish(false);
+              }}
+            >
+              Finalizar e corrigir
             </button>
-          )}
-          {confirmFinish && !finished && attempt && (
-            <div className={styles.confirm}>
-              <p>
-                Finalizar e conferir o gabarito? Há{' '}
-                {40 - Object.values(attempt.answers).filter(Boolean).length} respostas em branco.
-              </p>
-              <button
-                className={styles.primary}
-                onClick={() => {
-                  updateAttempt({
-                    ...attempt,
-                    finishedAt: Date.now(),
-                    updatedAt: Date.now(),
-                  });
-                  setConfirmFinish(false);
-                }}
-              >
-                Finalizar e corrigir
-              </button>
-              <button onClick={() => setConfirmFinish(false)}>Continuar respondendo</button>
-            </div>
-          )}
-        </section>
-      </div>
+            <button onClick={() => setConfirmFinish(false)}>Continuar respondendo</button>
+          </div>
+        )}
+      </footer>
     </main>
   );
 }

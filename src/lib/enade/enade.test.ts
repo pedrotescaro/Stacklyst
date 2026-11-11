@@ -3,9 +3,42 @@ import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
 import { describe, it, expect } from 'vitest';
 import data from './exams.json';
-import { gradeEnade, type EnadeExam } from './types';
+import { gradeEnade, type EnadeExam, type EnadeQuestionContent } from './types';
 
 describe('ADS Enade official archive', () => {
+  it('supplies complete lettered alternatives and source images for all 200 questions', () => {
+    let optionCount = 0;
+    for (const exam of data) {
+      const contents = JSON.parse(
+        readFileSync(resolve(`public/enade/${exam.year}/questions.json`), 'utf8')
+      ) as EnadeQuestionContent[];
+      expect(contents).toHaveLength(40);
+      expect(new Set(contents.map((q) => q.id))).toEqual(new Set(exam.questions.map((q) => q.id)));
+      for (const item of contents) {
+        const question = exam.questions.find((q) => q.id === item.id)!;
+        expect(item.images.length).toBeGreaterThan(0);
+        expect(item.statement.length).toBeGreaterThan(5);
+        expect(item.transcript.length).toBeGreaterThan(20);
+        const images = [...item.images, ...item.options.flatMap((o) => (o.image ? [o.image] : []))];
+        for (const image of images) {
+          expect(image.src).toMatch(new RegExp(`^/enade/${exam.year}/questions/`));
+          expect(existsSync(resolve(`public${image.src}`))).toBe(true);
+          expect(image.page).toBeGreaterThanOrEqual(question.page);
+          expect(image.page).toBeLessThanOrEqual(exam.pageCount);
+        }
+        expect(item.options.map((o) => o.letter).join('')).toBe(
+          question.kind === 'objective' ? 'ABCDE' : ''
+        );
+        for (const option of item.options) {
+          expect(Boolean(option.text || option.image)).toBe(true);
+          expect(option.text).not.toMatch(/[ƟƩơİŌŅ\x00-\x08\x0b-\x1f]/);
+          expect(option.text).not.toMatch(/(?:área|ea) livre/i);
+        }
+        optionCount += item.options.length;
+      }
+    }
+    expect(optionCount).toBe(875);
+  });
   it('contains all 200 questions across the five official ADS editions, with valid answer keys and assets', () => {
     expect(data.map((e) => e.year)).toEqual([2008, 2011, 2014, 2017, 2021]);
     for (const exam of data) {

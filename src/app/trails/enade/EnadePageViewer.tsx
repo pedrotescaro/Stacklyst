@@ -16,15 +16,16 @@ interface EnadePageViewerProps {
   src: string;
   year: number;
   page: number;
+  label?: string;
 }
 
-export function EnadePageViewer({ src, year, page }: EnadePageViewerProps) {
+export function EnadePageViewer({ src, year, page, label }: EnadePageViewerProps) {
   const [open, setOpen] = useState(false);
   const [scale, setScale] = useState(1);
   const [imageError, setImageError] = useState(false);
   const transform = useRef<ReactZoomPanPinchRef>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
-  const title = `Página ${page} · Enade ADS ${year}`;
+  const title = `${label || `Página ${page}`} · Enade ADS ${year}`;
 
   function handleKeyDown(event: KeyboardEvent) {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -53,12 +54,16 @@ export function EnadePageViewer({ src, year, page }: EnadePageViewerProps) {
     >
       <Dialog.Trigger
         className={styles.trigger}
-        aria-label={`Abrir e ampliar página ${page} da prova Enade ADS ${year}`}
+        aria-label={
+          label
+            ? `Abrir e ampliar ${label[0].toLowerCase() + label.slice(1)} da prova Enade ADS ${year}`
+            : `Abrir e ampliar página ${page} da prova Enade ADS ${year}`
+        }
       >
         <img
           className={styles.preview}
           src={src}
-          alt={`Página ${page} da prova Enade ADS ${year}. Texto disponível a seguir.`}
+          alt={`${label || `Página ${page}`} da prova Enade ADS ${year}. Texto disponível a seguir.`}
         />
         <span className={styles.openHint}>
           <ZoomIn size={16} aria-hidden="true" /> Abrir e ampliar
