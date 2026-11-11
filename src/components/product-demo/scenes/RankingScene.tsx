@@ -98,6 +98,8 @@ export function RankingScene({ clock, mobile }: { clock: MotionValue<number>; mo
               <motion.div
                 key={row.username}
                 layout={!reduced}
+                // Measure only when the order changes, not on every XP tick.
+                layoutDependency={row.rank}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
                 data-demo-rank={row.rank}
               >

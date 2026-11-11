@@ -165,6 +165,9 @@
   height: 2px;
   background: var(--lp-accent, var(--color-dd-accent));
   transform-origin: left;
+  /* Its own compositor layer: the per-frame scaleX must not repaint the
+     large layer it would otherwise be squashed into. */
+  will-change: transform;
 }
 .demo-playback {
   display: flex;
@@ -236,6 +239,25 @@
   .product-demo .demo-scene {
     will-change: auto;
   }
+}
+
+/* GPU warm-up copy of the frame (see DemoPrewarm). It must really be painted
+   at the frame's scale, so it is not hidden, only almost fully transparent. */
+.demo-viewport.demo-prewarm {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2147483000;
+  width: auto;
+  aspect-ratio: auto;
+  opacity: 0.01;
+  pointer-events: none;
+  background: transparent;
+  contain: layout style;
+  font-family: var(--font-sans), sans-serif;
+}
+.demo-viewport.demo-prewarm::after {
+  display: none;
 }
 
 /* Clock-driven trail mascot: same size and foot anchor as `TrailMascot`. */

@@ -220,6 +220,8 @@ export function TrailJourney({
     <motion.div
       ref={content}
       animate={{ y: offset }}
+      // The column slides on its own layer instead of repainting the scene.
+      style={{ willChange: 'transform' }}
       transition={reduced ? { duration: 0 } : { duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
       data-testid="demo-journey"
     >

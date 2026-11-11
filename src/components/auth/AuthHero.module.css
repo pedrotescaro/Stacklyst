@@ -7,7 +7,7 @@
   position: absolute;
   inset: 0;
   z-index: 0;
-  background: #020711 url('/hero.png') center / cover no-repeat;
+  background: #020711 url('/hero.webp') center / cover no-repeat;
   pointer-events: none;
 }
 

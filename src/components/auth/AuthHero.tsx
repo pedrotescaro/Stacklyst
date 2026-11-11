@@ -34,7 +34,7 @@ export default function AuthHero() {
       <div className={styles.effect} aria-hidden="true" data-testid="auth-ripple-effect">
         {canRenderRipple ? (
           <RippleDistortion
-            src="/hero.png"
+            src="/hero.webp"
             brushSize={150}
             strength={0.2}
             swirl={1}

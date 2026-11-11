@@ -11,6 +11,7 @@ import {
 } from 'framer-motion';
 import { cn } from '@/lib/cn';
 import { CASCADE_STAGGER, ramp, smooth } from './timeline';
+import { useDemoStill } from './DemoPrewarm';
 
 const EASE_OUT = [0.22, 1, 0.36, 1] as const;
 
@@ -63,12 +64,13 @@ export function CascadeItem({
   'children' | 'className'
 >) {
   const reduced = useReducedMotion();
+  const still = useDemoStill();
   const Component = motion[as];
   return (
     <Component
       {...(rest as object)}
       className={cn('demo-cascade-item', className)}
-      variants={reduced ? staticItem : cascadeItem}
+      variants={reduced || still ? staticItem : cascadeItem}
     >
       {children}
     </Component>

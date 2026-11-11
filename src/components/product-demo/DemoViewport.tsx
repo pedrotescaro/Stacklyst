@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { AnimatePresence, motion, useReducedMotion, type MotionValue } from 'framer-motion';
 import type { SceneId } from './timeline';
 import { sceneTransitionVariants, staticSceneVariants } from './demo-motion';
+import { DemoPrewarm } from './DemoPrewarm';
 import { FeedScene } from './scenes/FeedScene';
 import { TrailsScene } from './scenes/TrailsScene';
 import { RankingScene } from './scenes/RankingScene';
@@ -29,15 +30,19 @@ export function DemoViewport({
   clock,
   scene,
   mobile,
+  prewarm = false,
 }: {
   /** Clock of the active scene; an exiting scene keeps its own, frozen clock. */
   clock: MotionValue<number>;
   scene: SceneId;
   mobile: boolean;
+  /** Paint every view once ahead of time while the walkthrough has not started. */
+  prewarm?: boolean;
 }) {
   const stage = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
   const [width, setWidth] = useState(0);
+  const [warmed, setWarmed] = useState(false);
   useEffect(() => {
     const element = stage.current;
     if (!element) return;
@@ -47,6 +52,7 @@ export function DemoViewport({
   }, []);
   const frame = mobile ? MOBILE_FRAME : DESKTOP_FRAME;
   const Scene = scenes[scene];
+  const scale = width ? width / frame.width : 1;
 
   return (
     <div ref={stage} className="demo-viewport" data-frame={mobile ? 'mobile' : 'desktop'}>
@@ -57,7 +63,7 @@ export function DemoViewport({
         style={{
           width: frame.width,
           height: frame.height,
-          transform: `scale(${width ? width / frame.width : 1})`,
+          transform: `scale(${scale})`,
           visibility: width ? 'visible' : 'hidden',
         }}
       >
@@ -75,6 +81,15 @@ export function DemoViewport({
           </motion.div>
         </AnimatePresence>
       </div>
+      {prewarm && !warmed && !reduced && width > 0 && (
+        <DemoPrewarm
+          scenes={scenes}
+          mobile={mobile}
+          frame={frame}
+          scale={scale}
+          onDone={() => setWarmed(true)}
+        />
+      )}
     </div>
   );
 }

@@ -47,6 +47,9 @@ export default function ProductDemo() {
   const scene = SCENES[index];
   const clock = clocks[index];
   const playing = inView && visible && !paused && !hovered && !reduced;
+  // Warm-up only makes sense before the walkthrough has ever been on screen.
+  const [started, setStarted] = useState(false);
+  if (inView && !started) setStarted(true);
 
   useEffect(() => {
     const media = window.matchMedia(MOBILE_QUERY);
@@ -146,7 +149,7 @@ export default function ProductDemo() {
         <p className="sr-only">
           <strong>{current.title}</strong> {current.caption}
         </p>
-        <DemoViewport clock={clock} scene={scene.id} mobile={mobile} />
+        <DemoViewport clock={clock} scene={scene.id} mobile={mobile} prewarm={!started} />
       </div>
       <p className="sr-only" aria-live="polite">
         {t.demo.currentScene}: {current.title}. {current.caption}

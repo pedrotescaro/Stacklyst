@@ -52,7 +52,7 @@ export default function LandingHero({ initialUser, isReady = true }: LandingHero
       {/* Interactive image distortion field */}
       <div className="absolute inset-0 z-0 pointer-events-none" aria-hidden="true">
         <RippleDistortion
-          src="/hero.png"
+          src="/hero.webp"
           brushSize={150}
           strength={0.2}
           swirl={1}
