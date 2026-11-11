@@ -10,7 +10,14 @@ export interface BrandLogoProps {
   label?: string;
 }
 
-/** The supplied S replaces the first letter, with one accessible name. */
+/** Horizontal offset of "tacklyst" after the S, matching public/brand/wordmark.svg. */
+export const BRAND_SUFFIX_OFFSET = 904;
+const WORDMARK_VIEWBOX = `0 0 ${brandGeometry.wordmarkWidth} ${brandGeometry.wordmarkHeight}`;
+
+/**
+ * The S and "tacklyst" are both drawn as vector outlines with the same fill,
+ * so the name renders in exactly the same blue as the monogram.
+ */
 export function BrandLogo({
   size = 32,
   className = '',
@@ -18,6 +25,10 @@ export function BrandLogo({
   animated = false,
   label = 'Stacklyst',
 }: BrandLogoProps) {
+  const height = Math.min(size, 32);
+  const viewWidth = wordmark ? brandGeometry.wordmarkWidth : brandGeometry.width;
+  const viewHeight = wordmark ? brandGeometry.wordmarkHeight : brandGeometry.height;
+
   return (
     <span
       role="img"
@@ -29,25 +40,26 @@ export function BrandLogo({
           '--brand-width-ratio': wordmark
             ? brandGeometry.wordmarkWidth / brandGeometry.height + 0.1
             : brandGeometry.width / brandGeometry.height,
-          '--brand-font-scale': brandGeometry.suffixFontSizeRatio,
+          '--brand-view-ratio': viewWidth / viewHeight,
+          '--brand-height-ratio': viewHeight / brandGeometry.height,
         } as CSSProperties
       }
     >
       <svg
-        className={styles.mark}
-        width={Math.min(size, 32) * (brandGeometry.width / brandGeometry.height)}
-        height={Math.min(size, 32)}
-        viewBox={brandGeometry.viewBox}
+        className={styles.logo}
+        width={(height * viewWidth) / brandGeometry.height}
+        height={(height * viewHeight) / brandGeometry.height}
+        viewBox={wordmark ? WORDMARK_VIEWBOX : brandGeometry.viewBox}
         fill="none"
         aria-hidden="true"
       >
-        <path d={brandGeometry.path} fill="currentColor" />
+        <path className={styles.mark} d={brandGeometry.path} fill="currentColor" />
+        {wordmark && (
+          <g transform={`translate(${BRAND_SUFFIX_OFFSET} 0)`}>
+            <path className={styles.suffix} d={brandGeometry.suffixPath} fill="currentColor" />
+          </g>
+        )}
       </svg>
-      {wordmark && (
-        <span className={styles.suffix} aria-hidden="true">
-          tacklyst
-        </span>
-      )}
     </span>
   );
 }

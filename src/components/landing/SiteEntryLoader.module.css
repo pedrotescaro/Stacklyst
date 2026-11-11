@@ -17,23 +17,16 @@
 
 .brand {
   --brand-color: #0083fe;
-  --brand-size: min(clamp(32px, 6vw, 48px), calc((100vw - 48px) / var(--brand-width-ratio)));
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  display: inline-flex;
-  align-items: center;
-  gap: calc(var(--brand-size) * 0.045);
-  white-space: nowrap;
+  display: block;
+  /* Same footprint as before: S about 32–48px tall, never wider than the screen. */
+  width: min(clamp(132px, 24.6vw, 197px), calc(100vw - 48px));
+  height: auto;
+  aspect-ratio: var(--brand-view-ratio);
+  overflow: visible;
   color: var(--brand-color);
-  line-height: 1;
 }
 
-.mark {
-  display: block;
-  width: calc(var(--brand-size) * 1.08);
-  height: var(--brand-size);
-  flex-shrink: 0;
-  overflow: visible;
-}
 /* Outline drawn around the S... */
 .markTrace {
   stroke-width: 14;
@@ -50,15 +43,8 @@
   animation: fill-up 620ms 340ms var(--ease) forwards;
 }
 
+/* "tacklyst" opens out of the S once it is full. */
 .suffix {
-  display: block;
-  color: var(--brand-color);
-  -webkit-text-fill-color: var(--brand-color);
-  font-family: var(--font-sora), sans-serif;
-  font-size: calc(var(--brand-size) * var(--brand-font-scale, 0.76));
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  transform: translateY(calc(var(--brand-size) * 0.16));
   clip-path: inset(0 100% 0 0);
   animation: open-name 520ms 920ms var(--ease) forwards;
 }
@@ -81,11 +67,11 @@
 @keyframes open-name {
   from {
     clip-path: inset(0 100% 0 0);
-    transform: translate(calc(var(--brand-size) * -0.35), calc(var(--brand-size) * 0.16));
+    transform: translateX(-280px);
   }
   to {
     clip-path: inset(0 -2% 0 0);
-    transform: translate(0, calc(var(--brand-size) * 0.16));
+    transform: translateX(0);
   }
 }
 

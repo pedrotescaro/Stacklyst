@@ -7,30 +7,20 @@
   );
   display: inline-flex;
   align-items: center;
-  gap: calc(var(--brand-size) * 0.045);
   flex-shrink: 0;
   vertical-align: middle;
-  white-space: nowrap;
   max-width: 100%;
   color: var(--brand-color);
   line-height: 1;
 }
-.mark {
+/* --brand-size is the height of the S; the wordmark's descender ("y") extends below it. */
+.logo {
   display: block;
-  width: calc(var(--brand-size) * 1.08);
-  height: var(--brand-size);
+  height: calc(var(--brand-size) * var(--brand-height-ratio, 1));
+  width: calc(var(--brand-size) * var(--brand-height-ratio, 1) * var(--brand-view-ratio, 1));
   flex-shrink: 0;
+  overflow: visible;
   color: var(--brand-color);
-}
-.suffix {
-  display: block;
-  color: var(--brand-color);
-  -webkit-text-fill-color: var(--brand-color);
-  font-family: var(--font-sora), sans-serif;
-  font-size: calc(var(--brand-size) * var(--brand-font-scale, 0.76));
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  transform: translateY(calc(var(--brand-size) * 0.16));
 }
 .animated .mark {
   animation: reveal-mark 620ms cubic-bezier(0.22, 1, 0.36, 1) both;

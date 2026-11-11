@@ -1,5 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
+import { BRAND_SUFFIX_OFFSET } from '@/components/BrandLogo';
 import { brandGeometry } from '@/lib/brand-geometry';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './SiteEntryLoader.module.css';
@@ -61,27 +62,29 @@ export default function SiteEntryLoader({
         }
       }}
     >
-      <span
+      <svg
         className={styles.brand}
+        viewBox={`0 0 ${brandGeometry.wordmarkWidth} ${brandGeometry.wordmarkHeight}`}
+        fill="none"
         aria-hidden="true"
         style={
           {
-            '--brand-width-ratio': brandGeometry.wordmarkWidth / brandGeometry.height + 0.1,
-            '--brand-font-scale': brandGeometry.suffixFontSizeRatio,
+            '--brand-view-ratio': brandGeometry.wordmarkWidth / brandGeometry.wordmarkHeight,
           } as CSSProperties
         }
       >
-        <svg className={styles.mark} viewBox={brandGeometry.viewBox} fill="none">
-          <path className={styles.markFill} d={brandGeometry.path} fill="currentColor" />
-          <path
-            className={styles.markTrace}
-            d={brandGeometry.path}
-            pathLength={1}
-            stroke="currentColor"
-          />
-        </svg>
-        <span className={styles.suffix}>tacklyst</span>
-      </span>
+        <path className={styles.markFill} d={brandGeometry.path} fill="currentColor" />
+        <path
+          className={styles.markTrace}
+          d={brandGeometry.path}
+          pathLength={1}
+          stroke="currentColor"
+        />
+        {/* Same vector fill as the S, so the name is exactly the same blue. */}
+        <g transform={`translate(${BRAND_SUFFIX_OFFSET} 0)`}>
+          <path className={styles.suffix} d={brandGeometry.suffixPath} fill="currentColor" />
+        </g>
+      </svg>
 
       <span role="status" aria-live="polite" className="sr-only">
         {text('Carregando Stacklyst', 'Loading Stacklyst')}
