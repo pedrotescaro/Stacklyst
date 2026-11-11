@@ -1,3 +1,5 @@
+import { PROFILE_COUNTRY_NAMES } from './profile-flag-names';
+
 /** Public, user-selected decoration catalog. A selection never infers an identity. */
 export type ProfileFlagCategory = 'countries' | 'brazil' | 'pride' | 'community';
 export interface ProfileFlagDefinition {
@@ -41,25 +43,106 @@ export const PROFILE_BRAZIL_STATES = [
   ['se', 'Sergipe'],
   ['to', 'Tocantins'],
 ] as const;
+// [id, label pt, description pt, label en, description en]
 const pride = [
   [
     'rainbow',
     'Arco-íris / Orgulho LGBTQIA+',
     'Bandeira do orgulho com seis faixas nas cores do arco-íris.',
+    'Rainbow / LGBTQIA+ Pride',
+    'Pride flag with six stripes in the colors of the rainbow.',
   ],
-  ['pride-progress', 'Progress Pride', 'Arco-íris com chevron preto, marrom, azul, rosa e branco.'],
-  ['pride-trans', 'Transgênero', 'Faixas azul-claro, rosa e branca.'],
-  ['pride-bi', 'Bissexual', 'Faixas rosa, roxa e azul.'],
-  ['pride-pan', 'Pansexual', 'Faixas rosa, amarela e azul.'],
-  ['pride-lesbian', 'Lésbica', 'Cinco faixas em tons de laranja, branco e rosa.'],
-  ['pride-gay', 'Gay', 'Sete faixas em tons de verde, branco e azul.'],
-  ['pride-ace', 'Assexual', 'Faixas preta, cinza, branca e roxa.'],
-  ['pride-aro', 'Arromântica', 'Faixas verde, verde-claro, branca, cinza e preta.'],
-  ['pride-nonbinary', 'Não binária', 'Faixas amarela, branca, roxa e preta.'],
-  ['pride-fluid', 'Gênero-fluido', 'Faixas rosa, branca, roxa, preta e azul.'],
-  ['pride-intersex', 'Intersexo', 'Fundo amarelo com um círculo roxo.'],
-  ['pride-agender', 'Agênero', 'Sete faixas pretas, cinzas, brancas e verde-claro.'],
-  ['pride-demi', 'Demissexual', 'Triângulo preto sobre faixas branca, roxa e cinza.'],
+  [
+    'pride-progress',
+    'Progress Pride',
+    'Arco-íris com chevron preto, marrom, azul, rosa e branco.',
+    'Progress Pride',
+    'Rainbow with a black, brown, blue, pink and white chevron.',
+  ],
+  [
+    'pride-trans',
+    'Transgênero',
+    'Faixas azul-claro, rosa e branca.',
+    'Transgender',
+    'Light blue, pink and white stripes.',
+  ],
+  [
+    'pride-bi',
+    'Bissexual',
+    'Faixas rosa, roxa e azul.',
+    'Bisexual',
+    'Pink, purple and blue stripes.',
+  ],
+  [
+    'pride-pan',
+    'Pansexual',
+    'Faixas rosa, amarela e azul.',
+    'Pansexual',
+    'Pink, yellow and blue stripes.',
+  ],
+  [
+    'pride-lesbian',
+    'Lésbica',
+    'Cinco faixas em tons de laranja, branco e rosa.',
+    'Lesbian',
+    'Five stripes in shades of orange, white and pink.',
+  ],
+  [
+    'pride-gay',
+    'Gay',
+    'Sete faixas em tons de verde, branco e azul.',
+    'Gay',
+    'Seven stripes in shades of green, white and blue.',
+  ],
+  [
+    'pride-ace',
+    'Assexual',
+    'Faixas preta, cinza, branca e roxa.',
+    'Asexual',
+    'Black, gray, white and purple stripes.',
+  ],
+  [
+    'pride-aro',
+    'Arromântica',
+    'Faixas verde, verde-claro, branca, cinza e preta.',
+    'Aromantic',
+    'Green, light green, white, gray and black stripes.',
+  ],
+  [
+    'pride-nonbinary',
+    'Não binária',
+    'Faixas amarela, branca, roxa e preta.',
+    'Non-binary',
+    'Yellow, white, purple and black stripes.',
+  ],
+  [
+    'pride-fluid',
+    'Gênero-fluido',
+    'Faixas rosa, branca, roxa, preta e azul.',
+    'Genderfluid',
+    'Pink, white, purple, black and blue stripes.',
+  ],
+  [
+    'pride-intersex',
+    'Intersexo',
+    'Fundo amarelo com um círculo roxo.',
+    'Intersex',
+    'Yellow background with a purple circle.',
+  ],
+  [
+    'pride-agender',
+    'Agênero',
+    'Sete faixas pretas, cinzas, brancas e verde-claro.',
+    'Agender',
+    'Seven black, gray, white and light green stripes.',
+  ],
+  [
+    'pride-demi',
+    'Demissexual',
+    'Triângulo preto sobre faixas branca, roxa e cinza.',
+    'Demisexual',
+    'Black triangle over white, purple and gray stripes.',
+  ],
 ] as const;
 
 export const PROFILE_FLAG_IDS: readonly string[] = [
@@ -74,21 +157,23 @@ export function isProfileFlagId(value: unknown): value is string {
   return typeof value === 'string' && validIds.has(value);
 }
 const cache = new Map<string, ProfileFlagDefinition[]>();
+/**
+ * Flag catalog in Portuguese (default) or English (`locale` starting with `en`).
+ * Labels never depend on the runtime's ICU data, so the server and the browser
+ * always render the same text.
+ */
 export function getProfileFlagCatalog(locale = 'pt-BR'): ProfileFlagDefinition[] {
-  const cached = cache.get(locale);
+  const english = locale.toLowerCase().startsWith('en');
+  const key = english ? 'en' : 'pt';
+  const cached = cache.get(key);
   if (cached) return cached;
-  let names: Intl.DisplayNames;
-  try {
-    names = new Intl.DisplayNames([locale], { type: 'region' });
-  } catch {
-    names = new Intl.DisplayNames(['pt-BR'], { type: 'region' });
-  }
   const countries: ProfileFlagDefinition[] = PROFILE_COUNTRY_CODES.map((id) => {
-    const label = names.of(id) || id;
+    const names = PROFILE_COUNTRY_NAMES[id];
+    const label = (names && names[english ? 1 : 0]) || id;
     return {
       id,
       label,
-      description: `Bandeira nacional: ${label}.`,
+      description: english ? `National flag: ${label}.` : `Bandeira nacional: ${label}.`,
       category: 'countries',
       imageUrl: `/flags/profile/${id.toLowerCase()}.svg`,
     };
@@ -98,33 +183,39 @@ export function getProfileFlagCatalog(locale = 'pt-BR'): ProfileFlagDefinition[]
     ...PROFILE_BRAZIL_STATES.map(([code, label]) => ({
       id: `br-${code}`,
       label,
-      description: `Bandeira de ${label}, unidade federativa do Brasil (${code.toUpperCase()}).`,
+      description: english
+        ? `Flag of ${label}, a Brazilian state (${code.toUpperCase()}).`
+        : `Bandeira de ${label}, unidade federativa do Brasil (${code.toUpperCase()}).`,
       category: 'brazil' as const,
       imageUrl: `/flags/profile/br-${code}.svg`,
     })),
-    ...pride.map(([id, label, description]) => ({
+    ...pride.map(([id, labelPt, descriptionPt, labelEn, descriptionEn]) => ({
       id,
-      label,
-      description,
+      label: english ? labelEn : labelPt,
+      description: english ? descriptionEn : descriptionPt,
       category: 'pride' as const,
       imageUrl: `/flags/profile/${id}.svg`,
     })),
     {
       id: 'dev',
-      label: 'Desenvolvimento',
-      description: 'Bandeira da comunidade de desenvolvimento.',
+      label: english ? 'Development' : 'Desenvolvimento',
+      description: english
+        ? 'Flag of the software development community.'
+        : 'Bandeira da comunidade de desenvolvimento.',
       category: 'community',
       imageUrl: '/flags/profile/dev.svg',
     },
     {
       id: 'community-communist',
-      label: 'Comunista',
-      description: 'Bandeira vermelha com foice e martelo em amarelo.',
+      label: english ? 'Communist' : 'Comunista',
+      description: english
+        ? 'Red flag with a yellow hammer and sickle.'
+        : 'Bandeira vermelha com foice e martelo em amarelo.',
       category: 'community',
       imageUrl: '/flags/profile/community-communist.svg',
     },
   ];
-  if (cache.size < 12) cache.set(locale, catalog);
+  cache.set(key, catalog);
   return catalog;
 }
 export const getProfileFlags = getProfileFlagCatalog;

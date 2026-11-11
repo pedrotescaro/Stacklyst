@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { getProfileFlags, getLocalizedTitleName } from '@/lib/profile-customization';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import {
   contrastRatio,
   foregroundOn,
@@ -217,13 +218,14 @@ export function AvatarFrame({
 }
 
 export function ProfileFlag({ code }: { code: string | null | undefined }) {
-  const flag = code ? getProfileFlags().find((flag) => flag.id === code) : null;
+  const { locale, text } = useLocalizedText();
+  const flag = code ? getProfileFlags(locale).find((flag) => flag.id === code) : null;
   // These SVGs are vetted local catalog assets, never user-supplied SVG uploads.
   return flag ? (
     <img
       className={styles.flag}
       src={flag.imageUrl}
-      alt={`Bandeira: ${flag.label}`}
+      alt={`${text('Bandeira', 'Flag')}: ${flag.label}`}
       width={24}
       height={18}
     />
