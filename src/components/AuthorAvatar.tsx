@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { AvatarFrame } from '@/components/profile/ProfileIdentity';
 import { readProfileIdentity } from '@/lib/profile-style';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface AuthorAvatarProps {
   username: string;
@@ -23,6 +24,7 @@ export function AuthorAvatar({
   size = 'sm',
   className = '',
 }: AuthorAvatarProps) {
+  const { text } = useLocalizedText();
   const initials = username.trim().slice(0, 2).toUpperCase() || 'DD';
 
   return (
@@ -34,13 +36,15 @@ export function AuthorAvatar({
         {avatar_url ? (
           <Image
             src={avatar_url}
-            alt={`Foto de ${username}`}
+            alt={text(`Foto de ${username}`, `Photo of ${username}`)}
             width={48}
             height={48}
             className="h-full w-full object-cover"
           />
         ) : (
-          <span aria-label={`Iniciais de ${username}`}>{initials}</span>
+          <span aria-label={text(`Iniciais de ${username}`, `Initials of ${username}`)}>
+            {initials}
+          </span>
         )}
       </div>
     </AvatarFrame>

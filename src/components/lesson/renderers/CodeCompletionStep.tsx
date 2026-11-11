@@ -2,6 +2,7 @@
 
 import { Edit3 } from 'lucide-react';
 import type { LessonStep } from '@/lib/lessons/types';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface CodeCompletionStepProps {
   step: LessonStep;
@@ -16,6 +17,7 @@ export function CodeCompletionStep({
   onUpdateBlank,
   disabled = false,
 }: CodeCompletionStepProps) {
+  const { text } = useLocalizedText();
   const blanks = step.blanks || [];
 
   return (
@@ -26,10 +28,14 @@ export function CodeCompletionStep({
         </div>
         <div>
           <h2 className="text-xl font-bold leading-snug text-dd-text">
-            {step.title || 'Complete o Código'}
+            {step.title || text('Complete o Código', 'Complete the Code')}
           </h2>
           <p className="text-base text-dd-muted leading-relaxed">
-            {step.instruction || 'Preencha o trecho faltante para tornar o código válido'}
+            {step.instruction ||
+              text(
+                'Preencha o trecho faltante para tornar o código válido',
+                'Fill in the missing part to make the code valid'
+              )}
           </p>
         </div>
       </div>

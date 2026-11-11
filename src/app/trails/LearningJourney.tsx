@@ -196,7 +196,9 @@ export function LearningJourney({
                         style={mode === 'map' ? { left: `${x}%` } : undefined}
                       >
                         {mode === 'map' && active && !completed && (
-                          <span className={styles.nextLabel}>SUA PRÓXIMA LIÇÃO</span>
+                          <span className={styles.nextLabel}>
+                            {text('SUA PRÓXIMA LIÇÃO', 'YOUR NEXT LESSON')}
+                          </span>
                         )}
                         {locked || !href ? (
                           <button
@@ -269,7 +271,8 @@ export function LearningJourney({
                           {mode === 'trail' && (
                             <details className="mt-3 text-sm text-dd-text">
                               <summary className="dd-focus-ring min-h-11 cursor-pointer py-2">
-                                Ver {node.exercises.length} exercícios
+                                {text('Ver', 'View')} {node.exercises.length}{' '}
+                                {text('exercícios', 'exercises')}
                               </summary>
                               <ul className="space-y-2 pb-2">
                                 {node.exercises.map((exercise) => (
@@ -277,7 +280,9 @@ export function LearningJourney({
                                     <BookOpen className="mt-0.5 h-4 w-4 shrink-0" />
                                     <span>
                                       {exercise.title}
-                                      {exercise.completed ? ' · Concluído' : ''}
+                                      {exercise.completed
+                                        ? ` · ${text('Concluído', 'Completed')}`
+                                        : ''}
                                     </span>
                                   </li>
                                 ))}

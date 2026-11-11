@@ -2,20 +2,30 @@ import { useEffect, useId, useRef, useState } from 'react';
 import { X } from 'lucide-react';
 import { ADA_AVATAR, type Avatar } from '../../lib/mundinho/types';
 import { Portrait } from './Portrait';
+import { useLocalizedText } from '../../i18n/useLocalizedText';
 
 const topics = [
   {
     question: 'Como enfrento os bugs?',
+    questionEn: 'How do I fight the bugs?',
+    answerEn:
+      'Approach a creature at your level and interact. Apply concept deals damage, Debug helps restore HP and Refactor bets on a stronger attack. Read the question calmly: understanding the code is part of the adventure!',
     answer:
       'Aproxime-se de uma criatura do seu nível e interaja. Aplicar conceito causa dano, Depurar ajuda a recuperar vida e Refatorar aposta em um ataque mais forte. Leia a pergunta com calma: entender o código faz parte da aventura!',
   },
   {
     question: 'Quero mudar meu visual.',
+    questionEn: 'I want to change my look.',
+    answerEn:
+      'Open the character editor on the home screen. You can choose the portrait silhouette, skin, eyes, hair, outfits and accessories. Save your changes and I will recognize your new look in our next conversation. Items that cost coins are in the store.',
     answer:
       'Abra o editor de personagem na tela inicial. Você pode escolher a silhueta do retrato, pele, olhos, cabelo, roupas e acessórios. Salve as alterações e vou reconhecer seu novo visual na próxima conversa. Os itens com moedas ficam na loja.',
   },
   {
     question: 'O que há nesta clareira?',
+    questionEn: 'What is in this clearing?',
+    answerEn:
+      'The sign has a programming tip and the chest holds 10 coins a day. The hole with stairs leads to the arena: there you can invite a friend who also follows you. Creatures show up in the bushes. The Void Titan is level 10; keep up your lessons in Trails to face it!',
     answer:
       'A placa tem uma dica de programação e o baú guarda 10 moedas por dia. O buraco com escadaria leva à arena: lá você pode convidar um amigo que também segue você. As criaturas aparecem nas moitas. O Titã do Vazio é nível 10; continue suas lições nas Trilhas para enfrentá-lo!',
   },
@@ -36,6 +46,7 @@ export function WorldDialogue({
   assetBase: string;
   onClose: () => void;
 }) {
+  const { text: tr } = useLocalizedText();
   const [turn, setTurn] = useState<'greeting' | 'player' | 'ada'>('greeting');
   const [topic, setTopic] = useState(0);
   const panel = useRef<HTMLElement>(null);
@@ -45,14 +56,17 @@ export function WorldDialogue({
     panel.current?.focus({ preventScroll: true });
   }, [turn]);
   const playerSpeaking = conversation && turn === 'player';
-  const name = conversation ? (playerSpeaking ? username : 'Ada') : 'Clareira';
+  const name = conversation ? (playerSpeaking ? username : 'Ada') : tr('Clareira', 'Clearing');
   const line = !conversation
     ? text
     : turn === 'greeting'
-      ? `Oi, ${username}! Sou a Ada. Cada erro é uma pista para a próxima tentativa. Sobre o que vamos conversar?`
+      ? tr(
+          `Oi, ${username}! Sou a Ada. Cada erro é uma pista para a próxima tentativa. Sobre o que vamos conversar?`,
+          `Hi, ${username}! I'm Ada. Every mistake is a clue for the next try. What shall we talk about?`
+        )
       : turn === 'player'
-        ? topics[topic].question
-        : topics[topic].answer;
+        ? tr(topics[topic].question, topics[topic].questionEn)
+        : tr(topics[topic].answer, topics[topic].answerEn);
   return (
     <section
       ref={panel}
@@ -107,7 +121,7 @@ export function WorldDialogue({
         </p>
         <div className="world-dialogue-actions">
           {!conversation ? (
-            <button onClick={onClose}>Continuar</button>
+            <button onClick={onClose}>{tr('Continuar', 'Continue')}</button>
           ) : turn === 'greeting' ? (
             topics.map((entry, index) => (
               <button
@@ -118,20 +132,26 @@ export function WorldDialogue({
                 }}
               >
                 <span className="dialogue-choice-pointer" aria-hidden="true" />
-                {entry.question}
+                {tr(entry.question, entry.questionEn)}
               </button>
             ))
           ) : turn === 'player' ? (
-            <button onClick={() => setTurn('ada')}>Continuar</button>
+            <button onClick={() => setTurn('ada')}>{tr('Continuar', 'Continue')}</button>
           ) : (
             <>
-              <button onClick={() => setTurn('greeting')}>Perguntar outra coisa</button>
-              <button onClick={onClose}>Até logo, Ada!</button>
+              <button onClick={() => setTurn('greeting')}>
+                {tr('Perguntar outra coisa', 'Ask something else')}
+              </button>
+              <button onClick={onClose}>{tr('Até logo, Ada!', 'See you, Ada!')}</button>
             </>
           )}
         </div>
       </div>
-      <button aria-label="Fechar diálogo" className="world-dialogue-close" onClick={onClose}>
+      <button
+        aria-label={tr('Fechar diálogo', 'Close dialogue')}
+        className="world-dialogue-close"
+        onClick={onClose}
+      >
         <X size={18} />
       </button>
     </section>

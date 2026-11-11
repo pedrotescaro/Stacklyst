@@ -7,7 +7,7 @@ import { LessonClient } from './LessonClient';
 import { publicLesson } from '@/lib/learning/assessment';
 import { getLessonProgress, requireLessonAccess } from '@/lib/learning/lesson-progress';
 import { AppError } from '@/lib/errors';
-import Link from 'next/link';
+import { LessonLockedNotice } from './LessonLockedNotice';
 
 interface LessonPageProps {
   params: Promise<{ lessonId: string }>;
@@ -67,15 +67,7 @@ export default async function LessonPage({ params, searchParams }: LessonPagePro
         await requireLessonAccess(user.id, lesson);
       } catch (error) {
         if (!(error instanceof AppError) || error.code !== 'LESSON_LOCKED') throw error;
-        return (
-          <main className="mx-auto max-w-xl p-8 text-dd-text">
-            <h1 className="text-2xl font-bold">Prepare o próximo passo</h1>
-            <p className="my-4">{error.message}</p>
-            <Link href={returnTo ?? '/trails'} className="dd-focus-ring text-blue-500">
-              Voltar à trilha
-            </Link>
-          </main>
-        );
+        return <LessonLockedNotice message={error.message} returnTo={returnTo ?? '/trails'} />;
       }
       const completedStepIds = await getLessonProgress(user.id, lesson);
       return (

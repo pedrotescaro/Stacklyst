@@ -6,6 +6,7 @@ import { ArrowLeft, ArrowRight, Music2, Plus, Trash2, X } from 'lucide-react';
 import type { PostAttachment, PostPollDraft } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
 import styles from './ComposerMedia.module.css';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 export interface ComposerAttachmentsProps {
   attachments: PostAttachment[];
@@ -26,6 +27,7 @@ export function ComposerAttachments({
   onPollChange,
   disabled,
 }: ComposerAttachmentsProps) {
+  const { text } = useLocalizedText();
   const remove = (index: number) => onChange(attachments.filter((_, item) => item !== index));
   const move = (index: number, direction: number) => {
     const next = [...attachments];
@@ -46,10 +48,13 @@ export function ComposerAttachments({
                   controls
                   preload="metadata"
                   src={attachment.url}
-                  aria-label="Prévia da gravação"
+                  aria-label={text('Prévia da gravação', 'Recording preview')}
                 />
               ) : (
-                <img src={attachment.url} alt={attachment.alt || `Prévia ${index + 1}`} />
+                <img
+                  src={attachment.url}
+                  alt={attachment.alt || `${text('Prévia', 'Preview')} ${index + 1}`}
+                />
               )}
               <div className={styles.mediaActions}>
                 {index > 0 && attachment.type !== 'audio' && (
@@ -57,7 +62,10 @@ export function ComposerAttachments({
                     type="button"
                     disabled={disabled}
                     onClick={() => move(index, -1)}
-                    aria-label={`Mover imagem ${index + 1} para a esquerda`}
+                    aria-label={text(
+                      `Mover imagem ${index + 1} para a esquerda`,
+                      `Move image ${index + 1} left`
+                    )}
                   >
                     <ArrowLeft size={15} />
                   </button>
@@ -67,7 +75,10 @@ export function ComposerAttachments({
                     type="button"
                     disabled={disabled}
                     onClick={() => move(index, 1)}
-                    aria-label={`Mover imagem ${index + 1} para a direita`}
+                    aria-label={text(
+                      `Mover imagem ${index + 1} para a direita`,
+                      `Move image ${index + 1} right`
+                    )}
                   >
                     <ArrowRight size={15} />
                   </button>
@@ -77,7 +88,9 @@ export function ComposerAttachments({
                   disabled={disabled}
                   onClick={() => remove(index)}
                   aria-label={
-                    attachment.type === 'audio' ? 'Remover áudio' : `Remover imagem ${index + 1}`
+                    attachment.type === 'audio'
+                      ? text('Remover áudio', 'Remove audio')
+                      : `Remover imagem ${index + 1}`
                   }
                 >
                   <X size={16} />
@@ -86,8 +99,11 @@ export function ComposerAttachments({
               {attachment.type !== 'audio' && (
                 <input
                   className={styles.altInput}
-                  aria-label={`Descrição da imagem ${index + 1}`}
-                  placeholder="Descrição da imagem (opcional)"
+                  aria-label={`${text('Descrição da imagem', 'Image description')} ${index + 1}`}
+                  placeholder={text(
+                    'Descrição da imagem (opcional)',
+                    'Image description (optional)'
+                  )}
                   maxLength={300}
                   value={attachment.alt || ''}
                   disabled={disabled}
@@ -107,12 +123,17 @@ export function ComposerAttachments({
       {music && (
         <div className={styles.musicPreview}>
           {music.artworkUrl ? (
-            <img src={music.artworkUrl} width={48} height={48} alt="Capa do álbum" />
+            <img
+              src={music.artworkUrl}
+              width={48}
+              height={48}
+              alt={text('Capa do álbum', 'Album cover')}
+            />
           ) : (
             <Music2 size={26} aria-hidden="true" />
           )}
           <div>
-            <strong>{music.title || 'Faixa do Spotify'}</strong>
+            <strong>{music.title || text('Faixa do Spotify', 'Spotify track')}</strong>
             <span>{music.artist}</span>
             <small>Spotify</small>
           </div>
@@ -121,32 +142,32 @@ export function ComposerAttachments({
             className={styles.iconButton}
             onClick={() => onMusicChange(null)}
             disabled={disabled}
-            aria-label="Remover música"
+            aria-label={text('Remover música', 'Remove music')}
           >
             <X size={18} />
           </button>
         </div>
       )}
       {poll && (
-        <section className={styles.pollEditor} aria-label="Editar enquete">
+        <section className={styles.pollEditor} aria-label={text('Editar enquete', 'Edit poll')}>
           <div className={styles.panelTitle}>
-            <strong>Enquete</strong>
+            <strong>{text('Enquete', 'Poll')}</strong>
             <button
               type="button"
               className={styles.iconButton}
               disabled={disabled}
               onClick={() => onPollChange(null)}
-              aria-label="Remover enquete"
+              aria-label={text('Remover enquete', 'Remove poll')}
             >
               <Trash2 size={17} />
             </button>
           </div>
           <label className={styles.field}>
-            <span>Pergunta</span>
+            <span>{text('Pergunta', 'Question')}</span>
             <input
               value={poll.question}
               maxLength={200}
-              placeholder="O que você quer saber?"
+              placeholder={text('O que você quer saber?', 'What do you want to know?')}
               disabled={disabled}
               onChange={(event) => onPollChange({ ...poll, question: event.target.value })}
             />
@@ -154,8 +175,8 @@ export function ComposerAttachments({
           {poll.options.map((option, index) => (
             <div key={index} className={styles.optionRow}>
               <input
-                aria-label={`Opção ${index + 1}`}
-                placeholder={`Opção ${index + 1}`}
+                aria-label={`${text('Opção', 'Option')} ${index + 1}`}
+                placeholder={`${text('Opção', 'Option')} ${index + 1}`}
                 value={option}
                 maxLength={100}
                 disabled={disabled}
@@ -173,7 +194,7 @@ export function ComposerAttachments({
                   type="button"
                   className={styles.iconButton}
                   disabled={disabled}
-                  aria-label={`Remover opção ${index + 1}`}
+                  aria-label={`${text('Remover opção', 'Remove option')} ${index + 1}`}
                   onClick={() =>
                     onPollChange({ ...poll, options: poll.options.filter((_, i) => i !== index) })
                   }
@@ -192,24 +213,24 @@ export function ComposerAttachments({
                 onClick={() => onPollChange({ ...poll, options: [...poll.options, ''] })}
               >
                 <Plus size={16} />
-                Adicionar opção
+                {text('Adicionar opção', 'Add option')}
               </button>
             )}
             <label className={styles.duration}>
-              <span>Duração</span>
+              <span>{text('Duração', 'Duration')}</span>
               <select
-                aria-label="Duração da enquete"
+                aria-label={text('Duração da enquete', 'Poll duration')}
                 value={poll.durationHours}
                 disabled={disabled}
                 onChange={(event) =>
                   onPollChange({ ...poll, durationHours: Number(event.target.value) })
                 }
               >
-                <option value={1}>1 hora</option>
-                <option value={6}>6 horas</option>
-                <option value={24}>1 dia</option>
-                <option value={72}>3 dias</option>
-                <option value={168}>7 dias</option>
+                <option value={1}>{text('1 hora', '1 hour')}</option>
+                <option value={6}>{text('6 horas', '6 hours')}</option>
+                <option value={24}>{text('1 dia', '1 day')}</option>
+                <option value={72}>{text('3 dias', '3 days')}</option>
+                <option value={168}>{text('7 dias', '7 days')}</option>
               </select>
             </label>
           </div>

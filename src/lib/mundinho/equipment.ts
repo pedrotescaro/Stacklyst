@@ -173,7 +173,13 @@ export function equipmentDropPool(creatureLevel: number) {
   );
 }
 
-export function equipmentBonusLabel(item: Equipment) {
+export function equipmentBonusLabel(item: Equipment, language: 'pt' | 'en' = 'pt') {
+  if (language === 'en')
+    return item.luck
+      ? `+${item.luck} pp luck`
+      : item.protection
+        ? `−${item.protection} damage taken`
+        : `+${item.vitality} max HP`;
   return item.luck
     ? `+${item.luck} p.p. de sorte`
     : item.protection

@@ -370,11 +370,11 @@ export function PostCard({
         onEdit?.(post.id, updatedPost);
       } else {
         const data = await res.json();
-        alert(data.error || 'Falha ao editar post.');
+        alert(data.error || text('Falha ao editar post.', 'Failed to edit post.'));
       }
     } catch (err) {
       console.error(err);
-      alert('Erro ao editar post.');
+      alert(text('Erro ao editar post.', 'Error editing post.'));
     } finally {
       setSaving(false);
     }
@@ -449,9 +449,9 @@ export function PostCard({
               </Link>
               <span>·</span>
               <span className="text-[10px]">
-                {isRelative && relativeTime === 'agora'
+                {isRelative && (relativeTime === 'agora' || relativeTime === 'just now')
                   ? text('Postado há pouco', 'Posted just now')
-                  : `Postado ${relativeTime}`}
+                  : `${text('Postado', 'Posted')} ${relativeTime}`}
               </span>
             </div>
           </div>
@@ -697,14 +697,23 @@ export function PostCard({
                   required
                   className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg px-3 py-2.5 text-dd-text focus:border-red-500/50 focus:outline-none"
                 >
-                  <option value="">Selecione um motivo...</option>
-                  <option value="Spam / Propaganda enganosa">Spam / Propaganda enganosa</option>
-                  <option value="Discurso de ódio / Ofensa">Discurso de ódio / Ofensa</option>
-                  <option value="Assédio / Bullying">Assédio / Bullying</option>
-                  <option value="Código / Conteúdo malicioso ou perigoso">
-                    Código / Conteúdo malicioso ou perigoso
+                  <option value="">{text('Selecione um motivo...', 'Select a reason...')}</option>
+                  <option value="Spam / Propaganda enganosa">
+                    {text('Spam / Propaganda enganosa', 'Spam / Misleading advertising')}
                   </option>
-                  <option value="Outro motivo">Outro motivo</option>
+                  <option value="Discurso de ódio / Ofensa">
+                    {text('Discurso de ódio / Ofensa', 'Hate speech / Offense')}
+                  </option>
+                  <option value="Assédio / Bullying">
+                    {text('Assédio / Bullying', 'Harassment / Bullying')}
+                  </option>
+                  <option value="Código / Conteúdo malicioso ou perigoso">
+                    {text(
+                      'Código / Conteúdo malicioso ou perigoso',
+                      'Malicious or dangerous code / content'
+                    )}
+                  </option>
+                  <option value="Outro motivo">{text('Outro motivo', 'Other reason')}</option>
                 </select>
               </div>
 

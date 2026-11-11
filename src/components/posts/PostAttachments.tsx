@@ -8,6 +8,7 @@ import type { PostAttachment, PostPoll } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
 import { useMusicPlayer } from '@/contexts/MusicPlayerContext';
 import styles from './PostAttachments.module.css';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface PostAttachmentsProps {
   postId: string;
@@ -26,6 +27,7 @@ export function PostAttachments({
   legacyImage,
   audience,
 }: PostAttachmentsProps) {
+  const { text } = useLocalizedText();
   const media = Array.isArray(attachments) ? attachments : [];
   const images = media.filter((item) => item.type === 'image' || item.type === 'gif');
   const audio = media.find((item) => item.type === 'audio');
@@ -39,7 +41,7 @@ export function PostAttachments({
     if (!trackId) return;
     playTrack({
       id: trackId,
-      title: music?.title || 'Faixa do Spotify',
+      title: music?.title || text('Faixa do Spotify', 'Spotify track'),
       artist: music?.artist || 'Spotify',
       artworkUrl: music?.artworkUrl,
       spotifyUrl: `https://open.spotify.com/track/${trackId}`,
@@ -51,7 +53,7 @@ export function PostAttachments({
       {audience === 'followers' && (
         <p className={styles.audience}>
           <Users size={13} aria-hidden="true" />
-          Apenas seguidores
+          {text('Apenas seguidores', 'Followers only')}
         </p>
       )}
       {(images.length > 0 || showLegacy) && (
@@ -59,7 +61,13 @@ export function PostAttachments({
           {[
             ...images,
             ...(showLegacy
-              ? [{ type: 'image' as const, url: legacyImage, alt: 'Imagem da publicação' }]
+              ? [
+                  {
+                    type: 'image' as const,
+                    url: legacyImage,
+                    alt: text('Imagem da publicação', 'Post image'),
+                  },
+                ]
               : []),
           ].map((item, index) => (
             <a
@@ -67,11 +75,13 @@ export function PostAttachments({
               key={`${item.url}-${index}`}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`Abrir imagem ${index + 1}`}
+              aria-label={`${text('Abrir imagem', 'Open image')} ${index + 1}`}
             >
               <img
                 src={item.url}
-                alt={item.alt || `Imagem ${index + 1} da publicação`}
+                alt={
+                  item.alt || text(`Imagem ${index + 1} da publicação`, `Post image ${index + 1}`)
+                }
                 loading="lazy"
               />
             </a>
@@ -84,7 +94,7 @@ export function PostAttachments({
           controls
           preload="none"
           src={audio.url}
-          aria-label="Áudio da publicação"
+          aria-label={text('Áudio da publicação', 'Post audio')}
         />
       )}
       {trackId && (
@@ -99,7 +109,10 @@ export function PostAttachments({
               handlePlayMusic(e as unknown as React.MouseEvent);
             }
           }}
-          aria-label={`Reproduzir ${music?.title || 'faixa'} de ${music?.artist || 'Spotify'}`}
+          aria-label={text(
+            `Reproduzir ${music?.title || 'faixa'} de ${music?.artist || 'Spotify'}`,
+            `Play ${music?.title || 'track'} by ${music?.artist || 'Spotify'}`
+          )}
         >
           <div className={styles.musicInfo}>
             {music?.artworkUrl ? (
@@ -107,7 +120,7 @@ export function PostAttachments({
                 src={music.artworkUrl}
                 width={48}
                 height={48}
-                alt="Capa do álbum"
+                alt={text('Capa do álbum', 'Album cover')}
                 loading="lazy"
                 className="rounded-lg shadow-sm"
               />
@@ -117,7 +130,7 @@ export function PostAttachments({
               </div>
             )}
             <div>
-              <strong>{music?.title || 'Faixa do Spotify'}</strong>
+              <strong>{music?.title || text('Faixa do Spotify', 'Spotify track')}</strong>
               <span>{music?.artist}</span>
               <a
                 href={`https://open.spotify.com/track/${trackId}`}
@@ -125,7 +138,7 @@ export function PostAttachments({
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
               >
-                Abrir no Spotify <ExternalLink size={11} />
+                {text('Abrir no Spotify', 'Open in Spotify')} <ExternalLink size={11} />
               </a>
             </div>
             <button
@@ -136,7 +149,11 @@ export function PostAttachments({
                   : 'bg-white/5 text-neutral-300 hover:bg-white/10 hover:text-white border-white/10'
               }`}
               onClick={handlePlayMusic}
-              aria-label={isCurrentPlaying ? 'Pausar música' : 'Ouvir música'}
+              aria-label={
+                isCurrentPlaying
+                  ? text('Pausar música', 'Pause music')
+                  : text('Ouvir música', 'Play music')
+              }
               suppressHydrationWarning
             >
               {isCurrentPlaying ? (
@@ -144,7 +161,7 @@ export function PostAttachments({
               ) : (
                 <>
                   <Play size={14} className="ml-0.5 fill-current" />
-                  <span>Ouvir</span>
+                  <span>{text('Ouvir', 'Play')}</span>
                 </>
               )}
             </button>
@@ -157,6 +174,7 @@ export function PostAttachments({
 }
 
 export function PostPollWidget({ postId, initialPoll }: { postId: string; initialPoll: PostPoll }) {
+  const { text, isEnglish } = useLocalizedText();
   const [poll, setPoll] = useState(initialPoll);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -182,11 +200,20 @@ export function PostPollWidget({ postId, initialPoll }: { postId: string; initia
       const result = await response.json();
       if (!response.ok)
         throw new Error(
-          result.message || result.error || 'Não foi possível registrar seu voto. Tente novamente.'
+          result.message ||
+            result.error ||
+            text(
+              'Não foi possível registrar seu voto. Tente novamente.',
+              'Could not record your vote. Try again.'
+            )
         );
       setPoll(result.poll || result);
     } catch (failure) {
-      setError(failure instanceof Error ? failure.message : 'Não foi possível registrar seu voto.');
+      setError(
+        failure instanceof Error
+          ? failure.message
+          : text('Não foi possível registrar seu voto.', 'Could not record your vote.')
+      );
     } finally {
       setBusy(false);
     }
@@ -194,7 +221,7 @@ export function PostPollWidget({ postId, initialPoll }: { postId: string; initia
   const remaining = Math.max(0, new Date(poll.expiresAt).getTime() - now);
   const hours = Math.ceil(remaining / 3600000);
   return (
-    <section className={styles.poll} aria-label="Enquete">
+    <section className={styles.poll} aria-label={text('Enquete', 'Poll')}>
       <h3>{poll.question}</h3>
       <div className={styles.pollOptions}>
         {poll.options.map((option, index) => {
@@ -210,8 +237,11 @@ export function PostPollWidget({ postId, initialPoll }: { postId: string; initia
               onClick={() => void vote(index)}
               aria-label={
                 results
-                  ? `${option}: ${percentage}%, ${count} votos${selected ? ', sua escolha' : ''}`
-                  : `Votar em ${option}`
+                  ? text(
+                      `${option}: ${percentage}%, ${count} votos${selected ? ', sua escolha' : ''}`,
+                      `${option}: ${percentage}%, ${count} ${count === 1 ? 'vote' : 'votes'}${selected ? ', your choice' : ''}`
+                    )
+                  : `${text('Votar em', 'Vote for')} ${option}`
               }
             >
               {results && (
@@ -223,7 +253,7 @@ export function PostPollWidget({ postId, initialPoll }: { postId: string; initia
               )}
               <span className={styles.pollOptionText}>
                 {option}
-                {selected && <Check size={14} aria-label="Seu voto" />}
+                {selected && <Check size={14} aria-label={text('Seu voto', 'Your vote')} />}
               </span>
               {results && <strong>{percentage}%</strong>}
             </button>
@@ -232,9 +262,11 @@ export function PostPollWidget({ postId, initialPoll }: { postId: string; initia
       </div>
       <p className={styles.pollMeta} role="status">
         {busy
-          ? 'Registrando voto…'
-          : `${poll.totalVotes} ${poll.totalVotes === 1 ? 'voto' : 'votos'} · ${closed ? 'Encerrada' : hours >= 24 ? `${Math.ceil(hours / 24)} dia(s) restante(s)` : hours > 1 ? `${hours} horas restantes` : 'Menos de 1 hora'}`}
-        {hasVoted ? ' · Você votou' : ''}
+          ? text('Registrando voto…', 'Recording vote…')
+          : isEnglish
+            ? `${poll.totalVotes} ${poll.totalVotes === 1 ? 'vote' : 'votes'} · ${closed ? 'Closed' : hours >= 24 ? `${Math.ceil(hours / 24)} day(s) left` : hours > 1 ? `${hours} hours left` : 'Less than 1 hour'}`
+            : `${poll.totalVotes} ${poll.totalVotes === 1 ? 'voto' : 'votos'} · ${closed ? 'Encerrada' : hours >= 24 ? `${Math.ceil(hours / 24)} dia(s) restante(s)` : hours > 1 ? `${hours} horas restantes` : 'Menos de 1 hora'}`}
+        {hasVoted ? text(' · Você votou', ' · You voted') : ''}
       </p>
       {error && (
         <p className={styles.error} role="alert">

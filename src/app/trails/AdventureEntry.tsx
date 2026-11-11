@@ -9,6 +9,8 @@ import type { AdventureTransport, Course } from '@/lib/mundinho/types';
 import type { TrailCourseOption } from './TrailCourseSelector';
 import type { TrailLanguageCode } from './TrailLanguageLogo';
 import type { TrailDailyProgress } from './TrailsProgressSidebar';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { MUNDINHO_LANGUAGE_HEADER } from '@/lib/mundinho/i18n';
 
 interface AdventureEntryProps {
   user: {
@@ -39,6 +41,7 @@ export function AdventureEntry({
   dailyProgress,
 }: AdventureEntryProps) {
   const router = useRouter();
+  const { text, language: uiLanguage } = useLocalizedText();
   const [activeLanguage, setActiveLanguage] = useState<TrailLanguageCode>(initialActiveLanguage);
   const [currentCoins, setCurrentCoins] = useState(coins);
   const [preferenceError, setPreferenceError] = useState('');
@@ -64,27 +67,41 @@ export function AdventureEntry({
       if (!response.ok) throw new Error();
     } catch {
       setPreferenceError(
-        'A linguagem mudou nesta sessão, mas não foi possível salvar sua preferência.'
+        text(
+          'A linguagem mudou nesta sessão, mas não foi possível salvar sua preferência.',
+          'The language changed for this session, but your preference could not be saved.'
+        )
       );
     }
   };
 
-  const transport: AdventureTransport = useCallback(async (action) => {
-    const response = await fetch('/api/mundinho', {
-      method: action ? 'POST' : 'GET',
-      headers: action ? { 'Content-Type': 'application/json' } : undefined,
-      body: action ? JSON.stringify(action) : undefined,
-      cache: 'no-store',
-    });
-    const body = await response.json();
-    if (!response.ok) {
-      throw new Error(body.message ?? 'Não foi possível carregar o Mundinho. Tente novamente.');
-    }
-    if (typeof body.coins === 'number') {
-      setCurrentCoins(body.coins);
-    }
-    return body;
-  }, []);
+  const transport: AdventureTransport = useCallback(
+    async (action) => {
+      const response = await fetch('/api/mundinho', {
+        method: action ? 'POST' : 'GET',
+        headers: {
+          ...(action ? { 'Content-Type': 'application/json' } : {}),
+          [MUNDINHO_LANGUAGE_HEADER]: uiLanguage,
+        },
+        body: action ? JSON.stringify(action) : undefined,
+        cache: 'no-store',
+      });
+      const body = await response.json();
+      if (!response.ok) {
+        throw new Error(
+          body.message ??
+            (uiLanguage === 'en'
+              ? 'Could not load Mundinho. Try again.'
+              : 'Não foi possível carregar o Mundinho. Tente novamente.')
+        );
+      }
+      if (typeof body.coins === 'number') {
+        setCurrentCoins(body.coins);
+      }
+      return body;
+    },
+    [uiLanguage]
+  );
 
   return (
     <div className="dd-platform-shell adventure-platform relative min-h-screen bg-dd-bg">

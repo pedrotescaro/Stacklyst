@@ -12,6 +12,8 @@ import { replayTrace } from '../../lib/mundinho/codeChallenges';
 import { codePathInfo } from '../../lib/mundinho/code-paths';
 import OBJECT_SPRITES from '../../lib/mundinho/challenge-sprites.json';
 import { PixelAvatar } from './PixelArt';
+import { useLocalizedText } from '../../i18n/useLocalizedText';
+import { translateMundinho } from '../../lib/mundinho/i18n';
 
 export function CodeBattle({
   question,
@@ -33,6 +35,8 @@ export function CodeBattle({
   onEquipBugHunter?: () => void;
   battleLanguage?: BattleLanguage;
 }) {
+  const { text, isEnglish, language: uiLanguage } = useLocalizedText();
+  const m = (value: string) => translateMundinho(value, uiLanguage);
   const [source, setSource] = useState(question.code!.starter);
   const [result, setResult] = useState<CodeRun | null>(null);
   const [step, setStep] = useState(0);
@@ -79,15 +83,24 @@ export function CodeBattle({
     if (response?.codeRun) setResult(response.codeRun);
   };
   return (
-    <section className="ad-code-challenge" aria-label="Desafio de código da batalha">
+    <section
+      className="ad-code-challenge"
+      aria-label={text('Desafio de código da batalha', 'Battle code challenge')}
+    >
       <h3>{challenge.title}</h3>
       <p>{question.prompt}</p>
       {(onSkip || onEquipBugHunter) && (
         <div className="ad-code-ability">
           <p>
             {onSkip
-              ? 'Caça-bugs equipado: você pode atacar sem resolver este exercício.'
-              : 'Você já possui Caça-bugs. Equipe o título para dispensar este exercício.'}
+              ? text(
+                  'Caça-bugs equipado: você pode atacar sem resolver este exercício.',
+                  'Bug Hunter equipped: you can attack without solving this exercise.'
+                )
+              : text(
+                  'Você já possui Caça-bugs. Equipe o título para dispensar este exercício.',
+                  'You already own Bug Hunter. Equip the title to skip this exercise.'
+                )}
           </p>
           <button
             type="button"
@@ -95,39 +108,55 @@ export function CodeBattle({
             disabled={busy}
             onClick={onSkip ?? onEquipBugHunter}
           >
-            {onSkip ? 'Usar Caça-bugs e atacar' : 'Equipar Caça-bugs'}
+            {onSkip
+              ? text('Usar Caça-bugs e atacar', 'Use Bug Hunter and attack')
+              : text('Equipar Caça-bugs', 'Equip Bug Hunter')}
           </button>
         </div>
       )}
       {!!challenge.requiredStructures?.length && (
         <p className="ad-code-learning-hint">
           <strong>
-            Nível {challenge.level}:{' '}
+            {text('Nível', 'Level')} {challenge.level}:{' '}
             {challenge.requiredStructures.includes('loop')
-              ? 'condições e repetição'
-              : 'decisões com if e else'}
+              ? text('condições e repetição', 'conditions and repetition')
+              : text('decisões com if e else', 'decisions with if and else')}
           </strong>
           {challenge.hint}
         </p>
       )}
       {(battleLanguage === 'HTML' || battleLanguage === 'CSS') && (
-        <p className="ad-code-language">Este desafio usa JavaScript para controlar o mundo.</p>
+        <p className="ad-code-language">
+          {text(
+            'Este desafio usa JavaScript para controlar o mundo.',
+            'This challenge uses JavaScript to control the world.'
+          )}
+        </p>
       )}
       <div
         ref={boardScroll}
         className="ad-code-board-scroll"
         tabIndex={0}
-        aria-label="Cenário do desafio"
+        aria-label={text('Cenário do desafio', 'Challenge scene')}
       >
         <div
           className="ad-code-board"
           role="img"
-          aria-label={`Personagem na casa ${position + 1} de ${challenge.tiles.length}. ${completed.length} de ${challenge.target} objetivos concluídos. ${challenge.tiles
-            .map((tile, index) => {
-              const path = codePathInfo(question, index);
-              return `Casa ${index + 1}: ${path ? `Caminho ${path.kind === 'long' ? 'longo' : 'curto'}, trecho de ${path.steps} ${path.steps === 1 ? 'passo' : 'passos'}` : tile.label}${completed.includes(index) ? ' (concluído)' : ''}`;
-            })
-            .join('. ')}.`}
+          aria-label={
+            isEnglish
+              ? `Character on tile ${position + 1} of ${challenge.tiles.length}. ${completed.length} of ${challenge.target} goals completed. ${challenge.tiles
+                  .map((tile, index) => {
+                    const path = codePathInfo(question, index);
+                    return `Tile ${index + 1}: ${path ? `${path.kind === 'long' ? 'Long' : 'Short'} path, ${path.steps} ${path.steps === 1 ? 'step' : 'steps'}` : m(tile.label)}${completed.includes(index) ? ' (done)' : ''}`;
+                  })
+                  .join('. ')}.`
+              : `Personagem na casa ${position + 1} de ${challenge.tiles.length}. ${completed.length} de ${challenge.target} objetivos concluídos. ${challenge.tiles
+                  .map((tile, index) => {
+                    const path = codePathInfo(question, index);
+                    return `Casa ${index + 1}: ${path ? `Caminho ${path.kind === 'long' ? 'longo' : 'curto'}, trecho de ${path.steps} ${path.steps === 1 ? 'passo' : 'passos'}` : tile.label}${completed.includes(index) ? ' (concluído)' : ''}`;
+                  })
+                  .join('. ')}.`
+          }
           style={{
             gridTemplateColumns: `repeat(${challenge.tiles.length}, var(--code-tile-width))`,
           }}
@@ -137,6 +166,9 @@ export function CodeBattle({
             const path = codePathInfo(question, index);
             const label = path ? `Caminho ${path.kind === 'long' ? 'longo' : 'curto'}` : tile.label;
             const sprite = OBJECT_SPRITES.indexOf(done ? 'Concluído' : label);
+            const displayLabel = path
+              ? text(label, `${path.kind === 'long' ? 'Long' : 'Short'} path`)
+              : m(label);
             return (
               <div
                 key={index}
@@ -155,11 +187,16 @@ export function CodeBattle({
                   }}
                 />
                 {position === index && <PixelAvatar avatar={avatar} direction="right" />}
-                <span className="ad-code-tile-label" aria-hidden="true" title={label}>
-                  {path ? (path.kind === 'long' ? 'Longo' : 'Curto') : label}
+                <span className="ad-code-tile-label" aria-hidden="true" title={displayLabel}>
+                  {path
+                    ? path.kind === 'long'
+                      ? text('Longo', 'Long')
+                      : text('Curto', 'Short')
+                    : displayLabel}
                   {path && (
                     <small>
-                      {path.steps} {path.steps === 1 ? 'passo' : 'passos'}
+                      {path.steps}{' '}
+                      {path.steps === 1 ? text('passo', 'step') : text('passos', 'steps')}
                     </small>
                   )}
                 </span>
@@ -169,14 +206,18 @@ export function CodeBattle({
         </div>
       </div>
       <p className="ad-code-path-hint">
-        Cada comando de andar avança uma casa. Uma pedra indica trecho curto; duas, trecho longo. Os
-        passos indicados são entre objetivos.
+        {text(
+          'Cada comando de andar avança uma casa. Uma pedra indica trecho curto; duas, trecho longo. Os passos indicados são entre objetivos.',
+          'Each move command advances one tile. One stone means a short stretch; two, a long one. The steps shown are between goals.'
+        )}
       </p>
       {challenge.tiles.length > 4 && (
-        <p className="ad-code-scroll-hint">Deslize para ver todo o caminho.</p>
+        <p className="ad-code-scroll-hint">
+          {text('Deslize para ver todo o caminho.', 'Swipe to see the whole path.')}
+        </p>
       )}
       <p className="ad-code-commands">
-        Comandos:{' '}
+        {text('Comandos:', 'Commands:')}{' '}
         {challenge.commands.map((command) => (
           <code key={command}>{command}</code>
         ))}
@@ -191,7 +232,7 @@ export function CodeBattle({
         </div>
         <textarea
           ref={editor}
-          aria-label="Código da batalha"
+          aria-label={text('Código da batalha', 'Battle code')}
           wrap="off"
           rows={6}
           maxLength={8000}
@@ -218,7 +259,7 @@ export function CodeBattle({
           onClick={() => void execute(false)}
         >
           <Play size={17} />
-          {busy ? 'Aguarde…' : 'Executar'}
+          {busy ? text('Aguarde…', 'Please wait…') : text('Executar', 'Run')}
         </button>
         <button
           className="ad-primary"
@@ -226,15 +267,20 @@ export function CodeBattle({
           onClick={() => void execute(true)}
         >
           <Swords size={17} />
-          Confirmar ataque
+          {text('Confirmar ataque', 'Confirm attack')}
         </button>
       </div>
       <p role="status" aria-live="polite" className="ad-code-result">
         {result
           ? result.passed
-            ? 'Objetivo concluído! Confirme para atacar.'
-            : (result.error ?? 'Revise o código e execute novamente.')
-          : 'Execute para testar. Testar não consome o turno.'}
+            ? text('Objetivo concluído! Confirme para atacar.', 'Goal complete! Confirm to attack.')
+            : result.error
+              ? m(result.error)
+              : text('Revise o código e execute novamente.', 'Review the code and run it again.')
+          : text(
+              'Execute para testar. Testar não consome o turno.',
+              'Run to test. Testing does not use your turn.'
+            )}
       </p>
     </section>
   );

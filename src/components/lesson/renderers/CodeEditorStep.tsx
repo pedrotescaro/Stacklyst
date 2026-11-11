@@ -3,6 +3,7 @@
 import { Code2, Play, Terminal as TerminalIcon, Loader2 } from 'lucide-react';
 import { CodeEditor } from '@/components/CodeEditor';
 import type { LessonStep } from '@/lib/lessons/types';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface CodeEditorStepProps {
   step: LessonStep;
@@ -27,6 +28,7 @@ export function CodeEditorStep({
   runError = null,
   disabled = false,
 }: CodeEditorStepProps) {
+  const { text } = useLocalizedText();
   return (
     <div className="space-y-4 max-w-2xl mx-auto w-full">
       <div className="space-y-2">
@@ -43,11 +45,13 @@ export function CodeEditorStep({
         >
           <div className="flex items-center justify-between gap-3">
             <h3 id={`test-cases-${step.id}`} className="text-sm font-semibold text-dd-text">
-              Casos de teste
+              {text('Casos de teste', 'Test cases')}
             </h3>
             <span className="text-sm font-medium text-dd-muted">
               {step.testCases.length}{' '}
-              {step.testCases.length === 1 ? 'caso visível' : 'casos visíveis'}
+              {step.testCases.length === 1
+                ? text('caso visível', 'visible case')
+                : text('casos visíveis', 'visible cases')}
             </span>
           </div>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
@@ -84,12 +88,12 @@ export function CodeEditorStep({
             {isRunning ? (
               <>
                 <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                <span>Executando...</span>
+                <span>{text('Executando...', 'Running...')}</span>
               </>
             ) : (
               <>
                 <Play className="w-3.5 h-3.5 fill-current" />
-                <span>Testar Código</span>
+                <span>{text('Testar Código', 'Test Code')}</span>
               </>
             )}
           </button>
@@ -116,7 +120,7 @@ export function CodeEditorStep({
             </div>
             {step.expectedOutput && (
               <span className="text-xs text-dd-muted">
-                Esperado:{' '}
+                {text('Esperado:', 'Expected:')}{' '}
                 <code className="text-base font-medium text-dd-text">{step.expectedOutput}</code>
               </span>
             )}
@@ -137,7 +141,10 @@ export function CodeEditorStep({
 
             {!runOutput && !runError && (
               <div className="text-dd-muted italic">
-                Clique em &quot;Executar&quot; para compilar e testar sua solução.
+                {text(
+                  'Clique em "Executar" para compilar e testar sua solução.',
+                  'Click "Run" to compile and test your solution.'
+                )}
               </div>
             )}
           </div>

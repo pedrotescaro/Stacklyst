@@ -29,6 +29,7 @@ import {
   getTrailCurriculum,
   type TrailActivityKind,
 } from './trailCurriculum';
+import { localizeActivityKind, localizeTrailCurriculum } from './trailCurriculumEnglish';
 import { getSectionTheme, type TrailSectionTheme } from './trailTheme';
 import { TrailMascot } from './TrailMascot';
 import { rememberTrailMascotDeparture } from './trailMascotProgress';
@@ -127,13 +128,16 @@ interface ActiveActivityAnchor {
 }
 
 function LessonStars({ level }: { level?: TrailMilestone }) {
+  const { text } = useLocalizedText();
   const count = 3;
 
   return (
     <div
       role="img"
       aria-label={
-        level?.completed ? '3 de 3 estrelas conquistadas' : '0 de 3 estrelas conquistadas'
+        level?.completed
+          ? text('3 de 3 estrelas conquistadas', '3 of 3 stars earned')
+          : text('0 de 3 estrelas conquistadas', '0 of 3 stars earned')
       }
       data-testid="trail-lesson-stars"
       className="mb-1.5 flex h-6 items-end justify-center gap-1"
@@ -209,7 +213,7 @@ function TrailActivityPopup({
       <button
         type="button"
         onClick={onClose}
-        aria-label="Fechar atividade"
+        aria-label={text('Fechar atividade', 'Close activity')}
         className="dd-focus-ring absolute right-3 top-3 cursor-pointer rounded-lg p-1 text-white/75 transition hover:bg-black/15 hover:text-white"
       >
         <X className="h-4 w-4" />
@@ -264,6 +268,7 @@ function TrailJumpPopup({
   onClose: () => void;
   onStart: () => void;
 }) {
+  const { text } = useLocalizedText();
   return (
     <>
       <div className="fixed inset-0 z-40" onClick={onClose} />
@@ -287,7 +292,7 @@ function TrailJumpPopup({
         <button
           type="button"
           onClick={onClose}
-          aria-label="Fechar desafio de salto"
+          aria-label={text('Fechar desafio de salto', 'Close jump challenge')}
           className="dd-focus-ring absolute right-3 top-3 cursor-pointer rounded-lg p-1 text-white/75 transition hover:bg-black/15 hover:text-white"
         >
           <X className="h-4 w-4" />
@@ -299,18 +304,20 @@ function TrailJumpPopup({
             id={`trail-jump-title-${section.number}`}
             className="pr-6 text-lg font-black leading-tight text-white"
           >
-            Pular para a Seção {section.number}?
+            {text('Pular para a Seção', 'Jump to Section')} {section.number}?
           </h2>
         </div>
         <p className="mt-1 text-xs font-bold text-white/95">{section.title}</p>
         <p className="mt-2 text-xs font-medium leading-relaxed text-white/90">
-          Para começar aqui, conclua o primeiro exercício desta seção em modo Difícil. O desafio não
-          oferece autocomplete nem dicas e mantém os testes ocultos do Submit.
+          {text(
+            'Para começar aqui, conclua o primeiro exercício desta seção em modo Difícil. O desafio não oferece autocomplete nem dicas e mantém os testes ocultos do Submit.',
+            'To start here, complete the first exercise of this section in Hard mode. The challenge has no autocomplete or hints and keeps the hidden Submit tests.'
+          )}
         </p>
 
         <div className="mt-3 border-y border-white/20 py-2.5">
           <p className="text-[10px] font-black uppercase tracking-[0.12em] text-white/80">
-            O que esta seção cobre
+            {text('O que esta seção cobre', 'What this section covers')}
           </p>
           <ul className="mt-2 grid gap-1.5 sm:grid-cols-2">
             {section.levels.map((level) => (
@@ -326,8 +333,10 @@ function TrailJumpPopup({
         </div>
 
         <p className="mt-2.5 text-[11px] font-medium leading-relaxed text-white/85">
-          Passar no desafio libera esta seção, mas não marca as anteriores como concluídas. Você
-          poderá voltar para revisá-las quando quiser.
+          {text(
+            'Passar no desafio libera esta seção, mas não marca as anteriores como concluídas. Você poderá voltar para revisá-las quando quiser.',
+            'Passing the challenge unlocks this section, but does not mark the previous ones as completed. You can come back to review them whenever you want.'
+          )}
         </p>
 
         <div className="mt-4 flex flex-col-reverse gap-2 sm:flex-row">
@@ -336,7 +345,7 @@ function TrailJumpPopup({
             onClick={onClose}
             className="dd-focus-ring flex-1 cursor-pointer rounded-xl bg-black/15 px-3 py-2.5 text-center text-xs font-black text-white transition hover:bg-black/25 active:translate-y-0"
           >
-            Continuar de onde estou
+            {text('Continuar de onde estou', 'Continue where I am')}
           </button>
           <button
             type="button"
@@ -347,7 +356,7 @@ function TrailJumpPopup({
               boxShadow: '0 4px 0 rgba(0, 0, 0, 0.2)',
             }}
           >
-            Fazer desafio de entrada
+            {text('Fazer desafio de entrada', 'Take the entry challenge')}
             <FastForward className="h-3.5 w-3.5" fill="currentColor" strokeWidth={0} />
           </button>
         </div>
@@ -385,7 +394,8 @@ function buildRouteMilestones(
   path: LearningPathSummary,
   nodes: KnowledgeMapNode[],
   activeLanguage = 'js',
-  completedLessons: Set<string> = new Set()
+  completedLessons: Set<string> = new Set(),
+  language: 'pt' | 'en' = 'pt'
 ) {
   const nodesById = new Map(nodes.map((node) => [node.id, node]));
   const pathNodes = path.nodeIds
@@ -395,6 +405,7 @@ function buildRouteMilestones(
   if (pathNodes.length === 0) return [];
 
   const curriculum = getTrailCurriculum(path);
+  const displayCurriculum = localizeTrailCurriculum(curriculum, language);
   const hasDedicatedCurriculum = Boolean(CURRICULUM_BY_SLUG[path.slug]);
 
   return Array.from({ length: ACTIVITIES_PER_ROUTE }, (_, index) => {
@@ -407,6 +418,8 @@ function buildRouteMilestones(
     const unitIndex = index % 4;
     const section = curriculum.sections[sectionIndex]!;
     const curriculumUnit = section.units[unitIndex]!;
+    const displaySection = displayCurriculum.sections[sectionIndex]!;
+    const displayUnit = displaySection.units[unitIndex]!;
     const exercise = node.exercises[index % Math.max(1, node.exercises.length)];
     const sectionNumber = sectionIndex + 1;
     const unitNumber = unitIndex + 1;
@@ -435,12 +448,12 @@ function buildRouteMilestones(
 
     return {
       levelNumber: index + 1,
-      title: curriculumUnit.title,
-      description: curriculumUnit.description,
+      title: displayUnit.title,
+      description: displayUnit.description,
       unitNumber: sectionNumber,
-      unitTitle: section.title,
-      sectionName: curriculum.title,
-      sectionDescription: section.goal,
+      unitTitle: displaySection.title,
+      sectionName: displayCurriculum.title,
+      sectionDescription: displaySection.goal,
       activityKind: curriculumUnit.kind,
       baseXp: exercise?.baseXp ?? node.xpReward,
       difficulty: exercise?.difficulty ?? node.difficulty,
@@ -453,7 +466,7 @@ function buildRouteMilestones(
       questions: [
         {
           id: lessonId,
-          question: curriculumUnit.title,
+          question: displayUnit.title,
           options: [],
           correctIndex: 0,
         },
@@ -467,8 +480,10 @@ function buildCodingMilestone(
   pathSlug: string,
   activeLanguage: string,
   challengeSlot: 1 | 2,
-  completedLessons: Set<string>
+  completedLessons: Set<string>,
+  language: 'pt' | 'en' = 'pt'
 ): TrailMilestone {
+  const isEnglish = language === 'en';
   const curriculumUnitNumber = ((sourceLevel.levelNumber - 1) % 4) + 1;
   const lessonId = buildTrailCodeLessonId(
     activeLanguage,
@@ -481,8 +496,12 @@ function buildCodingMilestone(
   return {
     ...sourceLevel,
     levelNumber: 1000 + sourceLevel.levelNumber * 2 + challengeSlot,
-    title: `Código: ${sourceLevel.title} · ${challengeSlot}`,
-    description: `Resolva um desafio de programação exclusivo sobre ${sourceLevel.title}, com entrada, saída e casos de teste próprios.`,
+    title: isEnglish
+      ? `Code: ${sourceLevel.title} · ${challengeSlot}`
+      : `Código: ${sourceLevel.title} · ${challengeSlot}`,
+    description: isEnglish
+      ? `Solve a unique programming challenge about ${sourceLevel.title}, with its own input, output and test cases.`
+      : `Resolva um desafio de programação exclusivo sobre ${sourceLevel.title}, com entrada, saída e casos de teste próprios.`,
     activityKind: 'Prática',
     baseXp: 35,
     difficulty: Math.min(5, sourceLevel.difficulty + 1),
@@ -492,7 +511,9 @@ function buildCodingMilestone(
     questions: [
       {
         id: lessonId,
-        question: `Desafio de programação: ${sourceLevel.title}`,
+        question: isEnglish
+          ? `Programming challenge: ${sourceLevel.title}`
+          : `Desafio de programação: ${sourceLevel.title}`,
         options: [],
         correctIndex: 0,
       },
@@ -500,7 +521,11 @@ function buildCodingMilestone(
   };
 }
 
-function buildRouteSections(levels: TrailMilestone[]): TrailSectionView[] {
+function buildRouteSections(
+  levels: TrailMilestone[],
+  language: 'pt' | 'en' = 'pt'
+): TrailSectionView[] {
+  const sectionLabel = language === 'en' ? 'Section' : 'Seção';
   return Array.from({ length: 8 }, (_, index) => {
     const number = index + 1;
     const sectionLevels = levels.filter((level) => level.unitNumber === number);
@@ -508,8 +533,8 @@ function buildRouteSections(levels: TrailMilestone[]): TrailSectionView[] {
 
     return {
       number,
-      name: sectionLevels[0]?.sectionName ?? `Seção ${number}`,
-      title: sectionLevels[0]?.unitTitle ?? `Seção ${number}`,
+      name: sectionLevels[0]?.sectionName ?? `${sectionLabel} ${number}`,
+      title: sectionLevels[0]?.unitTitle ?? `${sectionLabel} ${number}`,
       description: sectionLevels[0]?.sectionDescription,
       levels: sectionLevels,
       completedUnits,
@@ -533,7 +558,7 @@ export function TrailPathView({
   completedLessonIds = EMPTY_COMPLETED_LESSON_IDS,
 }: TrailPathViewProps) {
   const router = useRouter();
-  const { text } = useLocalizedText();
+  const { text, language } = useLocalizedText();
   const rootRef = useRef<HTMLDivElement>(null);
   const trailMapRef = useRef<HTMLDivElement>(null);
   const initialSection = Math.min(8, Math.max(1, Math.trunc(initialSectionNumber)));
@@ -591,13 +616,15 @@ export function TrailPathView({
 
   const allLevels = useMemo(
     () =>
-      activePath ? buildRouteMilestones(activePath, nodes, activeLanguage, completedLessons) : [],
-    [activeLanguage, activePath, completedLessons, nodes]
+      activePath
+        ? buildRouteMilestones(activePath, nodes, activeLanguage, completedLessons, language)
+        : [],
+    [activeLanguage, activePath, completedLessons, nodes, language]
   );
 
   const baseSections: TrailSectionView[] = useMemo(() => {
-    return buildRouteSections(allLevels);
-  }, [allLevels]);
+    return buildRouteSections(allLevels, language);
+  }, [allLevels, language]);
 
   const progressSectionNumber =
     baseSections.find((section) => !section.completed)?.number ?? baseSections.at(-1)?.number ?? 1;
@@ -749,9 +776,11 @@ export function TrailPathView({
       setJumpTargetSectionNumber(null);
       setInfoModal({
         open: true,
-        title: 'Desafio ainda indisponível',
-        description:
+        title: text('Desafio ainda indisponível', 'Challenge not available yet'),
+        description: text(
           'Esta seção ainda não possui um exercício avaliável para comprovar o salto. Continue pela seção atual.',
+          'This section does not have a gradable exercise to prove the jump yet. Continue with the current section.'
+        ),
       });
       return;
     }
@@ -794,9 +823,11 @@ export function TrailPathView({
       setActiveActivity(null);
       setInfoModal({
         open: true,
-        title: 'Unidade Bloqueada',
-        description:
+        title: text('Unidade Bloqueada', 'Unit Locked'),
+        description: text(
           'Complete as lições anteriores para liberar esta unidade e avançar na sua trilha!',
+          'Complete the previous lessons to unlock this unit and advance on your trail!'
+        ),
       });
       return;
     }
@@ -839,10 +870,18 @@ export function TrailPathView({
     const section = sections.find((candidate) => candidate.number === unitNumber);
     setInfoModal({
       open: true,
-      title: section?.completed ? `Checkpoint da Seção ${unitNumber}` : 'Checkpoint bloqueado',
+      title: section?.completed
+        ? `${text('Checkpoint da Seção', 'Section Checkpoint')} ${unitNumber}`
+        : text('Checkpoint bloqueado', 'Checkpoint locked'),
       description: section?.completed
-        ? 'Seção concluída. O checkpoint está pronto para sua revisão final de código.'
-        : 'Conclua as quatro unidades desta seção para liberar o checkpoint.',
+        ? text(
+            'Seção concluída. O checkpoint está pronto para sua revisão final de código.',
+            'Section completed. The checkpoint is ready for your final code review.'
+          )
+        : text(
+            'Conclua as quatro unidades desta seção para liberar o checkpoint.',
+            'Complete the four units of this section to unlock the checkpoint.'
+          ),
     });
   };
 
@@ -855,9 +894,11 @@ export function TrailPathView({
     if (!unlocked) {
       setRewardModal({
         open: true,
-        title: 'Baú Bloqueado',
-        description:
+        title: text('Baú Bloqueado', 'Chest Locked'),
+        description: text(
           'Complete as lições anteriores da trilha para desbloquear e abrir este baú de bônus!',
+          'Complete the previous trail lessons to unlock and open this bonus chest!'
+        ),
         xp: 50,
         unlocked: false,
         theme: unitTheme,
@@ -884,11 +925,20 @@ export function TrailPathView({
       setClaimedChestIds((current) => new Set(current).add(chestId));
       setRewardModal({
         open: true,
-        title: result.xpEarned > 0 ? 'Baú de recompensa resgatado!' : 'Baú já resgatado',
+        title:
+          result.xpEarned > 0
+            ? text('Baú de recompensa resgatado!', 'Reward chest claimed!')
+            : text('Baú já resgatado', 'Chest already claimed'),
         description:
           result.xpEarned > 0
-            ? 'Seu progresso foi salvo e o XP bônus já foi adicionado ao perfil.'
-            : 'A recompensa desta seção já tinha sido adicionada ao seu perfil.',
+            ? text(
+                'Seu progresso foi salvo e o XP bônus já foi adicionado ao perfil.',
+                'Your progress was saved and the bonus XP was added to your profile.'
+              )
+            : text(
+                'A recompensa desta seção já tinha sido adicionada ao seu perfil.',
+                'The reward for this section had already been added to your profile.'
+              ),
         xp: result.xpEarned,
         unlocked: true,
         theme: unitTheme,
@@ -897,8 +947,11 @@ export function TrailPathView({
     } catch {
       setInfoModal({
         open: true,
-        title: 'Não foi possível abrir o baú',
-        description: 'Tente novamente em alguns instantes. Seu progresso continua salvo.',
+        title: text('Não foi possível abrir o baú', 'Could not open the chest'),
+        description: text(
+          'Tente novamente em alguns instantes. Seu progresso continua salvo.',
+          'Try again in a moment. Your progress is still saved.'
+        ),
       });
     } finally {
       setClaimingChestId(null);
@@ -913,7 +966,11 @@ export function TrailPathView({
           {text('Trilha em preparação', 'Trail in preparation')}
         </h2>
         <p className="mt-2 text-sm leading-relaxed text-dd-muted">
-          O curso de {activeLanguage} ainda não possui um rumo publicado.
+          {text('O curso de', 'The')} {activeLanguage}{' '}
+          {text(
+            'ainda não possui um rumo publicado.',
+            'course does not have a published path yet.'
+          )}
         </p>
       </section>
     );
@@ -979,7 +1036,8 @@ export function TrailPathView({
                   activePath.slug,
                   activeLanguage,
                   1,
-                  completedLessons
+                  completedLessons,
+                  language
                 )
               : undefined;
             const finalCodeAccessible = finalCodeChallenge
@@ -1006,7 +1064,7 @@ export function TrailPathView({
                 <div className="pointer-events-none absolute left-0 right-0 top-0 z-[1] flex items-center gap-3">
                   <span aria-hidden="true" className="h-px flex-1 bg-dd-border" />
                   <span className="shrink-0 text-[10px] font-black uppercase tracking-[0.14em] text-dd-text sm:text-xs">
-                    {levels[0]?.unitTitle ?? `Seção ${unitNumber}`}
+                    {levels[0]?.unitTitle ?? `${text('Seção', 'Section')} ${unitNumber}`}
                   </span>
                   <span aria-hidden="true" className="h-px flex-1 bg-dd-border" />
                 </div>
@@ -1018,7 +1076,7 @@ export function TrailPathView({
                 >
                   <Image
                     src="/assets/trails/blue-devdeck-robot.png"
-                    alt="Robô mascote digitando"
+                    alt={text('Robô mascote digitando', 'Mascot robot typing')}
                     fill
                     sizes="(min-width: 768px) 115px, (min-width: 640px) 112px, 92px"
                     className="object-contain drop-shadow-md"
@@ -1034,7 +1092,7 @@ export function TrailPathView({
                 >
                   <Image
                     src="/assets/trails/blue-devdeck-robot-gaming.png"
-                    alt="Robô mascote com headset"
+                    alt={text('Robô mascote com headset', 'Mascot robot with headset')}
                     fill
                     sizes="(min-width: 768px) 115px, (min-width: 640px) 112px, 80px"
                     className="object-contain drop-shadow-md"
@@ -1055,14 +1113,16 @@ export function TrailPathView({
                     activePath.slug,
                     activeLanguage,
                     1,
-                    completedLessons
+                    completedLessons,
+                    language
                   );
                   const codeChallengeTwo = buildCodingMilestone(
                     level,
                     activePath.slug,
                     activeLanguage,
                     2,
-                    completedLessons
+                    completedLessons,
+                    language
                   );
                   const codeOneAccessible = isLevelAccessible(codeChallengeOne);
                   const codeTwoAccessible = isLevelAccessible(codeChallengeTwo);
@@ -1108,13 +1168,15 @@ export function TrailPathView({
                             }
                             aria-label={
                               isJumpTarget
-                                ? `Pular para a seção ${unitNumber}: ${level.unitTitle}`
-                                : `Começar a seção ${unitNumber}: ${level.unitTitle}`
+                                ? `${text('Pular para a seção', 'Jump to section')} ${unitNumber}: ${level.unitTitle}`
+                                : `${text('Começar a seção', 'Start section')} ${unitNumber}: ${level.unitTitle}`
                             }
                             className="dd-focus-ring absolute -top-10 left-1/2 z-20 -translate-x-1/2 cursor-pointer whitespace-nowrap rounded-lg border border-dd-border bg-dd-surface px-2.5 py-2 text-[10px] font-black uppercase leading-none shadow-md transition hover:-translate-y-0.5 hover:bg-dd-card"
                             style={{ color: theme.primaryHex }}
                           >
-                            {isJumpTarget ? 'Pular para cá' : 'Começar aqui'}
+                            {isJumpTarget
+                              ? text('Pular para cá', 'Jump here')
+                              : text('Começar aqui', 'Start here')}
                             <span
                               aria-hidden="true"
                               className="pointer-events-none absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 border-b border-r border-dd-border bg-dd-surface"
@@ -1130,7 +1192,7 @@ export function TrailPathView({
                           data-trail-mascot-completed={completed ? 'true' : 'false'}
                           disabled={!accessible}
                           onClick={() => handleLevelClick(level, accessible, mainAnchorId)}
-                          aria-label={`Seção ${unitNumber}, unidade ${i + 1}: ${level.activityKind}: ${level.title}`}
+                          aria-label={`${text('Seção', 'Section')} ${unitNumber}, ${text('unidade', 'unit')} ${i + 1}: ${localizeActivityKind(level.activityKind, language)}: ${level.title}`}
                           data-progress-appearance={usesSectionColor ? 'section' : 'incomplete'}
                           className={`group dd-focus-ring relative flex h-[76px] w-[76px] items-center justify-center rounded-full shadow-md transition-all duration-150 enabled:cursor-pointer enabled:hover:-translate-y-0.5 enabled:active:translate-y-[4px] ${
                             usesSectionColor ? theme.nodeButtonClass : INCOMPLETE_NODE_CLASS
@@ -1257,7 +1319,7 @@ export function TrailPathView({
                                     firstStepAnchorId
                                   )
                                 }
-                                aria-label={`Desafio de programação: ${codeChallengeOne.title}`}
+                                aria-label={`${text('Desafio de programação', 'Programming challenge')}: ${codeChallengeOne.title}`}
                                 data-progress-appearance={
                                   codeChallengeOne.completed ? 'section' : 'incomplete'
                                 }
@@ -1317,7 +1379,7 @@ export function TrailPathView({
                                   secondStepAnchorId
                                 )
                               }
-                              aria-label={`Desafio de programação: ${codeChallengeTwo.title}`}
+                              aria-label={`${text('Desafio de programação', 'Programming challenge')}: ${codeChallengeTwo.title}`}
                               data-progress-appearance={
                                 codeChallengeTwo.completed ? 'section' : 'incomplete'
                               }
@@ -1417,7 +1479,7 @@ export function TrailPathView({
                       onClick={() =>
                         handleLevelClick(finalCodeChallenge, finalCodeAccessible, finalCodeAnchorId)
                       }
-                      aria-label={`Desafio de programação: ${finalCodeChallenge.title}`}
+                      aria-label={`${text('Desafio de programação', 'Programming challenge')}: ${finalCodeChallenge.title}`}
                       data-progress-appearance={
                         finalCodeChallenge.completed ? 'section' : 'incomplete'
                       }
@@ -1456,7 +1518,7 @@ export function TrailPathView({
                     data-trail-waypoint="true"
                     disabled={!checkpointCompleted}
                     onClick={() => handleCheckpointClick(unitNumber)}
-                    aria-label={`Checkpoint da seção ${unitNumber}`}
+                    aria-label={`${text('Checkpoint da seção', 'Section checkpoint')} ${unitNumber}`}
                     className={`dd-focus-ring relative flex h-[78px] w-[78px] items-center justify-center rounded-full shadow-md transition-all duration-150 enabled:cursor-pointer enabled:hover:-translate-y-0.5 enabled:active:translate-y-[4px] ${
                       checkpointCompleted
                         ? theme.checkpointButtonClass
@@ -1466,9 +1528,11 @@ export function TrailPathView({
                     <Trophy className="h-8 w-8" strokeWidth={2.4} />
                   </button>
                   <p className="mt-2 text-xs font-black uppercase tracking-wide text-dd-text">
-                    Desafio
+                    {text('Desafio', 'Challenge')}
                   </p>
-                  <p className="mt-0.5 text-[11px] font-bold text-dd-muted">Checkpoint de Código</p>
+                  <p className="mt-0.5 text-[11px] font-bold text-dd-muted">
+                    {text('Checkpoint de Código', 'Code Checkpoint')}
+                  </p>
                 </div>
               </div>
             );
@@ -1517,7 +1581,7 @@ export function TrailPathView({
             <button
               type="button"
               onClick={() => setRewardModal((prev) => ({ ...prev, open: false }))}
-              aria-label="Fechar modal de recompensa"
+              aria-label={text('Fechar modal de recompensa', 'Close reward modal')}
               className="absolute right-4 top-4 rounded-full p-1 text-dd-muted hover:bg-dd-border/40 hover:text-dd-text transition-colors cursor-pointer"
             >
               <X className="h-5 w-5" />
@@ -1533,7 +1597,7 @@ export function TrailPathView({
                     ? '/assets/trails/trail-chest-open.png'
                     : '/assets/trails/trail-chest.png'
                 }
-                alt="Baú de Recompensa"
+                alt={text('Baú de Recompensa', 'Reward Chest')}
                 width={80}
                 height={80}
                 className="h-20 w-20 object-contain drop-shadow-xl animate-bounce"
@@ -1547,7 +1611,7 @@ export function TrailPathView({
 
             {rewardModal.unlocked && (
               <div className="mt-4 inline-flex items-center gap-2 rounded-2xl bg-yellow-400/15 border border-yellow-400/30 px-4 py-2 text-sm font-black text-yellow-400">
-                <Sparkles className="h-4 w-4" />+{rewardModal.xp} XP Bônus
+                <Sparkles className="h-4 w-4" />+{rewardModal.xp} {text('XP Bônus', 'Bonus XP')}
               </div>
             )}
 

@@ -2,6 +2,7 @@
 
 import { AlertTriangle, LogOut, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface ExitConfirmModalProps {
   isOpen: boolean;
@@ -10,6 +11,7 @@ interface ExitConfirmModalProps {
 }
 
 export function ExitConfirmModal({ isOpen, onConfirm, onCancel }: ExitConfirmModalProps) {
+  const { text } = useLocalizedText();
   if (!isOpen) return null;
 
   return (
@@ -37,11 +39,13 @@ export function ExitConfirmModal({ isOpen, onConfirm, onCancel }: ExitConfirmMod
           </div>
 
           <h3 className="text-xl font-black text-dd-text dark:text-white tracking-tight">
-            Deseja sair da lição?
+            {text('Deseja sair da lição?', 'Leave the lesson?')}
           </h3>
           <p className="mt-2 text-sm text-dd-muted dark:text-neutral-400 font-medium leading-relaxed">
-            Seu progresso salvo nesta etapa permanecerá registrado, mas a sessão atual será
-            encerrada.
+            {text(
+              'Seu progresso salvo nesta etapa permanecerá registrado, mas a sessão atual será encerrada.',
+              'Progress saved in this step stays recorded, but the current session will end.'
+            )}
           </p>
 
           <div className="mt-6 flex flex-col gap-2.5">
@@ -50,14 +54,14 @@ export function ExitConfirmModal({ isOpen, onConfirm, onCancel }: ExitConfirmMod
               onClick={onCancel}
               className="w-full rounded-2xl bg-blue-600 py-3.5 text-sm font-black text-white shadow-lg shadow-blue-500/20 hover:bg-blue-500 active:scale-98 transition-all cursor-pointer"
             >
-              Continuar Aprendendo
+              {text('Continuar Aprendendo', 'Keep Learning')}
             </button>
             <button
               type="button"
               onClick={onConfirm}
               className="w-full rounded-2xl border border-dd-border bg-dd-surface/60 py-3.5 text-sm font-bold text-dd-muted hover:text-red-500 hover:bg-red-500/10 active:scale-98 transition-all cursor-pointer"
             >
-              Sair para a Trilha
+              {text('Sair para a Trilha', 'Exit to the Trail')}
             </button>
           </div>
         </motion.div>

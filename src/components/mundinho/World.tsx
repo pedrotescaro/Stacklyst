@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useLocalizedText } from '../../i18n/useLocalizedText';
+import { translateMundinho } from '../../lib/mundinho/i18n';
 import {
   ArrowLeft,
   Backpack,
@@ -67,14 +69,25 @@ export default function World({
   onArenaPlayers?: () => void;
   overlayOpen?: boolean;
 }) {
+  const { text, language: uiLanguage } = useLocalizedText();
+  const m = useCallback((value: string) => translateMundinho(value, uiLanguage), [uiLanguage]);
   const dimensions = area === 'arena' ? ARENA : WORLD;
   const creatures = useMemo(() => (area === 'arena' ? [] : CREATURES), [area]);
   const objects = useMemo(
     () =>
       area === 'arena'
-        ? [{ id: 'portal', name: 'Voltar para a clareira', ...ARENA.exit }]
-        : WORLD_OBJECTS,
-    [area]
+        ? [
+            {
+              id: 'portal',
+              name: text('Voltar para a clareira', 'Back to the clearing'),
+              ...ARENA.exit,
+            },
+          ]
+        : WORLD_OBJECTS.map((object) => ({
+            ...object,
+            name: translateMundinho(object.name, uiLanguage),
+          })),
+    [area, text, uiLanguage]
   );
   const viewport = useRef<HTMLDivElement>(null);
   const keys = useRef(new Set<string>());
@@ -94,7 +107,10 @@ export default function World({
   const [dialogue, setDialogue] = useState<string | null>(
     area === 'arena'
       ? null
-      : 'Explore a clareira. Aproxime-se de criaturas para iniciar batalhas de conceitos ou interaja com placas e baús.'
+      : text(
+          'Explore a clareira. Aproxime-se de criaturas para iniciar batalhas de conceitos ou interaja com placas e baús.',
+          'Explore the clearing. Approach creatures to start concept battles or interact with signs and chests.'
+        )
   );
   const [showMap, setShowMap] = useState(false);
   const [showGuide, setShowGuide] = useState(false);
@@ -142,7 +158,12 @@ export default function World({
         return;
       }
       if (!target || Math.hypot(target.x - player.current.x, target.y - player.current.y) >= 55) {
-        setDialogue('Aproxime-se de uma criatura, da placa, do baú ou da Ada para interagir.');
+        setDialogue(
+          text(
+            'Aproxime-se de uma criatura, da placa, do baú ou da Ada para interagir.',
+            'Approach a creature, the sign, the chest or Ada to interact.'
+          )
+        );
         return;
       }
       if (target.id === 'portal') {
@@ -153,7 +174,10 @@ export default function World({
         const creature = creatures.find((c) => c.id === target.id)!;
         if (!canChallengeCreature(playerLevel, creature.level)) {
           setDialogue(
-            `${creature.name} · nível ${creature.level}. Você está no nível ${playerLevel}. Continue suas lições para poder enfrentá-la.`
+            text(
+              `${creature.name} · nível ${creature.level}. Você está no nível ${playerLevel}. Continue suas lições para poder enfrentá-la.`,
+              `${m(creature.name)} · level ${creature.level}. You are level ${playerLevel}. Keep up your lessons to face it.`
+            )
           );
           return;
         }
@@ -166,12 +190,20 @@ export default function World({
         setDialogue('ada');
       } else if (target.id === 'sign') {
         setDialogue(
-          'Placa: "Dica: Em Python ou JavaScript, compreenda a condição de parada antes de iniciar qualquer repetição."'
+          text(
+            'Placa: "Dica: Em Python ou JavaScript, compreenda a condição de parada antes de iniciar qualquer repetição."',
+            'Sign: "Tip: In Python or JavaScript, understand the stopping condition before starting any loop."'
+          )
         );
       } else if (target.id === 'chest') {
         if (chestBusy.current) return;
         if (chestOpened) {
-          setDialogue('Você já abriu o baú hoje. Volte amanhã para ganhar mais 10 moedas.');
+          setDialogue(
+            text(
+              'Você já abriu o baú hoje. Volte amanhã para ganhar mais 10 moedas.',
+              'You already opened the chest today. Come back tomorrow for 10 more coins.'
+            )
+          );
           return;
         }
         chestBusy.current = true;
@@ -184,7 +216,12 @@ export default function World({
             if (!awarded) {
               chestBusy.current = false;
               setChestPhase('idle');
-              setDialogue('Você já abriu o baú hoje. Volte amanhã para ganhar mais 10 moedas.');
+              setDialogue(
+                text(
+                  'Você já abriu o baú hoje. Volte amanhã para ganhar mais 10 moedas.',
+                  'You already opened the chest today. Come back tomorrow for 10 more coins.'
+                )
+              );
               return;
             }
             setChestPhase('opening');
@@ -194,7 +231,10 @@ export default function World({
                 chestBusy.current = false;
                 setChestPhase('idle');
                 setDialogue(
-                  `Baú aberto! ${reward} moedas creditadas no seu saldo. Volte amanhã para abrir de novo.`
+                  text(
+                    `Baú aberto! ${reward} moedas creditadas no seu saldo. Volte amanhã para abrir de novo.`,
+                    `Chest opened! ${reward} coins credited to your balance. Come back tomorrow to open it again.`
+                  )
                 );
               },
               reduced ? 0 : 900
@@ -204,7 +244,10 @@ export default function World({
             chestBusy.current = false;
             setChestPhase('idle');
             setDialogue(
-              'Não foi possível abrir o baú. Suas moedas não foram confirmadas. Tente novamente.'
+              text(
+                'Não foi possível abrir o baú. Suas moedas não foram confirmadas. Tente novamente.',
+                'Could not open the chest. Your coins were not confirmed. Try again.'
+              )
             );
           });
       }
@@ -221,6 +264,8 @@ export default function World({
     area,
     creatures,
     objects,
+    text,
+    m,
   ]);
 
   useEffect(() => {
@@ -369,24 +414,34 @@ export default function World({
         ref={viewport}
         className="world-viewport"
         tabIndex={0}
-        aria-label="Mundinho RPG. Mova-se com WASD ou setas e aperte E ou Espaço para interagir."
+        aria-label={text(
+          'Mundinho RPG. Mova-se com WASD ou setas e aperte E ou Espaço para interagir.',
+          'World RPG. Move with WASD or arrows and press E or Space to interact.'
+        )}
       >
         {/* TOP HUD (Matching Image 3) */}
         <div className="world-top-hud">
           <div className="world-hud-left">
             {onBack && (
-              <button className="world-hud-btn" aria-label="Voltar para Trilhas" onClick={onBack}>
+              <button
+                className="world-hud-btn"
+                aria-label={text('Voltar para Trilhas', 'Back to Trails')}
+                onClick={onBack}
+              >
                 <ArrowLeft size={18} />
               </button>
             )}
             <button
               className="world-hud-btn"
-              aria-label="Diálogo"
+              aria-label={text('Diálogo', 'Dialogue')}
               onClick={() =>
                 setDialogue(
                   dialogue
                     ? null
-                    : 'Explore o mundo, fale com Ada perto da cabana ou batalhe contra os erros digitais!'
+                    : text(
+                        'Explore o mundo, fale com Ada perto da cabana ou batalhe contra os erros digitais!',
+                        'Explore the world, talk to Ada near the cabin or battle the digital bugs!'
+                      )
                 )
               }
             >
@@ -394,31 +449,38 @@ export default function World({
             </button>
             <button
               className={`world-hud-btn ${showMap ? 'is-active' : ''}`}
-              aria-label="Visualizar mapa completo"
+              aria-label={text('Visualizar mapa completo', 'View full map')}
               onClick={() => setShowMap(!showMap)}
             >
               <MapIcon size={18} />
             </button>
-            <div className="world-hud-btn is-status" title="Zona segura da clareira">
+            <div
+              className="world-hud-btn is-status"
+              title={text('Zona segura da clareira', 'Clearing safe zone')}
+            >
               <Shield size={18} />
             </div>
           </div>
 
           <div className="world-time-badge">
             <Moon size={14} className="text-amber-300" />
-            <span>Dia 1 · 21:28</span>
+            <span>{text('Dia 1 · 21:28', 'Day 1 · 21:28')}</span>
           </div>
 
           <div className="world-hud-right">
             <button
               className="world-hud-btn"
-              aria-label="Guia de programação"
+              aria-label={text('Guia de programação', 'Programming guide')}
               onClick={() => setShowGuide(!showGuide)}
             >
               <BookOpen size={18} />
             </button>
             {onInventory && (
-              <button className="world-hud-btn" aria-label="Abrir inventário" onClick={onInventory}>
+              <button
+                className="world-hud-btn"
+                aria-label={text('Abrir inventário', 'Open inventory')}
+                onClick={onInventory}
+              >
                 <Backpack size={18} />
               </button>
             )}
@@ -466,25 +528,42 @@ export default function World({
                 if (Math.hypot(c.x - pose.x, c.y - pose.y) < 55 && visibleCreatures.includes(c)) {
                   if (!canChallengeCreature(playerLevel, c.level)) {
                     setDialogue(
-                      `${c.name} requer nível ${c.level}. Seu nível atual é ${playerLevel}.`
+                      text(
+                        `${c.name} requer nível ${c.level}. Seu nível atual é ${playerLevel}.`,
+                        `${m(c.name)} requires level ${c.level}. Your current level is ${playerLevel}.`
+                      )
                     );
                     return;
                   }
                   keys.current.clear();
                   stick.current = { x: 0, y: 0 };
                   onEncounter(c.id);
-                } else setDialogue('Aproxime-se da moita para encontrar esta criatura.');
+                } else
+                  setDialogue(
+                    text(
+                      'Aproxime-se da moita para encontrar esta criatura.',
+                      'Get closer to the bush to find this creature.'
+                    )
+                  );
               }}
             >
               <span
                 className={`world-creature-level ${canChallengeCreature(playerLevel, c.level) ? '' : 'is-locked'}`}
-                aria-label={`${c.name}, nível ${c.level}. ${canChallengeCreature(playerLevel, c.level) ? 'Pode enfrentar' : 'Nível insuficiente'}`}
+                aria-label={`${m(c.name)}, ${text('nível', 'level')} ${c.level}. ${canChallengeCreature(playerLevel, c.level) ? text('Pode enfrentar', 'Can challenge') : text('Nível insuficiente', 'Level too low')}`}
               >
                 <span className="world-creature-label">
-                  <span>Nv. {c.level}</span>
-                  {!canChallengeCreature(playerLevel, c.level) && <span>Bloqueado</span>}
+                  <span>
+                    {text('Nv.', 'Lv.')} {c.level}
+                  </span>
+                  {!canChallengeCreature(playerLevel, c.level) && (
+                    <span>{text('Bloqueado', 'Locked')}</span>
+                  )}
                 </span>
-                <PixelMeter value={100} label={`Vida de ${c.name}`} compact />
+                <PixelMeter
+                  value={100}
+                  label={`${text('Vida de', 'HP of')} ${m(c.name)}`}
+                  compact
+                />
               </span>
               <PixelCreature color={c.color} kind={c.id} />
             </div>
@@ -495,9 +574,9 @@ export default function World({
               type="button"
               aria-label={
                 o.id === 'guide'
-                  ? 'Conversar com Ada'
+                  ? text('Conversar com Ada', 'Talk to Ada')
                   : o.id === 'chest'
-                    ? `Baú da clareira, ${chestPhase === 'pending' ? 'confirmando resgate' : chestPhase === 'opening' ? 'abrindo' : chestOpened ? 'recompensa de hoje resgatada' : 'abrir e ganhar 10 moedas'}`
+                    ? `${text('Baú da clareira', 'Clearing chest')}, ${chestPhase === 'pending' ? text('confirmando resgate', 'confirming claim') : chestPhase === 'opening' ? text('abrindo', 'opening') : chestOpened ? text('recompensa de hoje resgatada', 'today’s reward claimed') : text('abrir e ganhar 10 moedas', 'open and earn 10 coins')}`
                     : o.name
               }
               aria-busy={o.id === 'chest' && chestPhase !== 'idle' ? true : undefined}
@@ -509,8 +588,8 @@ export default function World({
               <span className="world-entity-badge">
                 {o.id === 'chest'
                   ? chestOpened
-                    ? 'Resgatado · volte amanhã'
-                    : 'Baú diário · 10 moedas'
+                    ? text('Resgatado · volte amanhã', 'Claimed · come back tomorrow')
+                    : text('Baú diário · 10 moedas', 'Daily chest · 10 coins')
                   : o.name}
               </span>
               {o.id === 'guide' ? (
@@ -532,7 +611,7 @@ export default function World({
               )}
               {o.id === 'chest' && chestPhase === 'opening' && (
                 <span className="world-chest-reward" role="status">
-                  +10 moedas
+                  {text('+10 moedas', '+10 coins')}
                 </span>
               )}
             </button>
@@ -593,21 +672,30 @@ export default function World({
         {/* GUIDE MODAL */}
         {showGuide && (
           <div className="world-guide-modal">
-            <h3>Guia do Explorador</h3>
+            <h3>{text('Guia do Explorador', 'Explorer’s Guide')}</h3>
             <p>
-              • <strong>Batalhas:</strong> Aproxime-se de qualquer criatura e toque na espada para
-              duelar com perguntas de código.
+              • <strong>{text('Batalhas:', 'Battles:')}</strong>{' '}
+              {text(
+                'Aproxime-se de qualquer criatura e toque na espada para duelar com perguntas de código.',
+                'Approach any creature and tap the sword to duel with code questions.'
+              )}
             </p>
             <p>
-              • <strong>Recuperação:</strong> Habilidades como Funções restauram vida se você
-              responder o conceito corretamente.
+              • <strong>{text('Recuperação:', 'Recovery:')}</strong>{' '}
+              {text(
+                'Habilidades como Funções restauram vida se você responder o conceito corretamente.',
+                'Abilities like Functions restore HP if you answer the concept correctly.'
+              )}
             </p>
             <p>
-              • <strong>Trilhas:</strong> Seu progresso de aulas tradicionais é somado aos pontos de
-              RPG.
+              • <strong>{text('Trilhas:', 'Trails:')}</strong>{' '}
+              {text(
+                'Seu progresso de aulas tradicionais é somado aos pontos de RPG.',
+                'Your progress in regular lessons adds to your RPG points.'
+              )}
             </p>
             <button className="ad-primary" onClick={() => setShowGuide(false)}>
-              Entendido
+              {text('Entendido', 'Got it')}
             </button>
           </div>
         )}
@@ -624,16 +712,18 @@ export default function World({
             className={`world-action-sword ${nearest ? 'is-target' : ''}`}
             aria-label={
               area === 'arena' && !nearest
-                ? 'Amigos e batalha'
+                ? text('Amigos e batalha', 'Friends and battle')
                 : isCreature
-                  ? 'Batalhar com criatura'
-                  : 'Interagir'
+                  ? text('Batalhar com criatura', 'Battle the creature')
+                  : text('Interagir', 'Interact')
             }
             onClick={() => interaction.current()}
           >
             <Swords size={28} />
             {nearest && (
-              <span className="world-action-label">{isCreature ? 'Batalha' : 'Interagir'}</span>
+              <span className="world-action-label">
+                {isCreature ? text('Batalha', 'Battle') : text('Interagir', 'Interact')}
+              </span>
             )}
           </button>
         </div>
@@ -641,10 +731,16 @@ export default function World({
 
       <div className="world-hint-footer">
         <p>
-          WASD ou setas para mover · Espaço / E para ação ·{' '}
+          {text(
+            'WASD ou setas para mover · Espaço / E para ação ·',
+            'WASD or arrows to move · Space / E to act ·'
+          )}{' '}
           {area === 'arena'
-            ? 'Convide um amigo mútuo para batalhar.'
-            : 'Criaturas iniciam batalhas educativas.'}
+            ? text('Convide um amigo mútuo para batalhar.', 'Invite a mutual friend to battle.')
+            : text(
+                'Criaturas iniciam batalhas educativas.',
+                'Creatures start educational battles.'
+              )}
         </p>
       </div>
     </div>

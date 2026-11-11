@@ -8,6 +8,7 @@ import type { PostAttachment } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
 import { MusicSelector } from '@/components/profile-inline/MusicSelector';
 import styles from './ComposerMedia.module.css';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 export type ComposerAttachmentPanel = 'gif' | 'music' | 'audio' | 'image' | null;
 interface PickerProps {
@@ -40,17 +41,34 @@ const safeGiphyUrl = (value: string | undefined) => {
   }
 };
 
-async function uploadPostMedia(file: File, signal?: AbortSignal): Promise<string> {
+type Translate = (portuguese: string, english: string) => string;
+const portugueseOnly: Translate = (portuguese) => portuguese;
+
+async function uploadPostMedia(
+  file: File,
+  signal?: AbortSignal,
+  text: Translate = portugueseOnly
+): Promise<string> {
   const form = new FormData();
   form.append('file', file);
   const response = await fetch('/api/posts/media', { method: 'POST', body: form, signal });
   const result = await response.json();
   if (!response.ok)
     throw new Error(
-      result.message || result.error || 'Não foi possível enviar o arquivo. Tente novamente.'
+      result.message ||
+        result.error ||
+        text(
+          'Não foi possível enviar o arquivo. Tente novamente.',
+          'Could not upload the file. Try again.'
+        )
     );
   if (typeof result.url !== 'string' || !/^\/api\/posts\/media\/[\w-]+$/.test(result.url))
-    throw new Error('O armazenamento não retornou um arquivo válido.');
+    throw new Error(
+      text(
+        'O armazenamento não retornou um arquivo válido.',
+        'Storage did not return a valid file.'
+      )
+    );
   return result.url;
 }
 
@@ -67,6 +85,7 @@ function AttachmentPanel({
   onMusicChange,
   onBusyChange,
 }: PickerProps & { panel: Exclude<ComposerAttachmentPanel, null> }) {
+  const { text } = useLocalizedText();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
   const [query, setQuery] = useState('');
@@ -135,7 +154,10 @@ function AttachmentPanel({
         );
         if (!response.ok)
           throw new Error(
-            'A pesquisa de GIFs está indisponível. Tente novamente ou envie um arquivo.'
+            text(
+              'A pesquisa de GIFs está indisponível. Tente novamente ou envie um arquivo.',
+              'GIF search is unavailable. Try again or upload a file.'
+            )
           );
         const result = (await response.json()) as { data?: GiphyItem[] };
         const next = (result.data || []).flatMap((gif) => {
@@ -148,7 +170,11 @@ function AttachmentPanel({
         if (!controller.signal.aborted) setGifs(next);
       } catch (failure) {
         if (!controller.signal.aborted)
-          setError(failure instanceof Error ? failure.message : 'Não foi possível pesquisar GIFs.');
+          setError(
+            failure instanceof Error
+              ? failure.message
+              : text('Não foi possível pesquisar GIFs.', 'Could not search GIFs.')
+          );
       } finally {
         if (!controller.signal.aborted) setSearching(false);
       }
@@ -157,13 +183,18 @@ function AttachmentPanel({
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [query, panel, key]);
+  }, [query, panel, key, text]);
   const addFiles = async (files: File[]) => {
     if (busy || !files.length) return;
     const count = attachments.filter((item) => item.type !== 'audio').length;
     const slots = 4 - count;
     if (slots <= 0) {
-      setError('Você já adicionou 4 imagens ou GIFs. Remova um para continuar.');
+      setError(
+        text(
+          'Você já adicionou 4 imagens ou GIFs. Remova um para continuar.',
+          'You already added 4 images or GIFs. Remove one to continue.'
+        )
+      );
       return;
     }
     if (files.length > slots) {
@@ -178,16 +209,25 @@ function AttachmentPanel({
     try {
       for (const file of files) {
         if (!['image/jpeg', 'image/png', 'image/webp', 'image/gif'].includes(file.type))
-          throw new Error('Escolha imagens JPEG, PNG, WebP ou GIF.');
-        if (file.size > 5 * 1024 * 1024) throw new Error('Cada imagem ou GIF pode ter até 5 MB.');
-        const url = await uploadPostMedia(file, controller.signal);
+          throw new Error(
+            text('Escolha imagens JPEG, PNG, WebP ou GIF.', 'Choose JPEG, PNG, WebP or GIF images.')
+          );
+        if (file.size > 5 * 1024 * 1024)
+          throw new Error(
+            text('Cada imagem ou GIF pode ter até 5 MB.', 'Each image or GIF can be up to 5 MB.')
+          );
+        const url = await uploadPostMedia(file, controller.signal, text);
         next = [...next, { type: file.type === 'image/gif' ? 'gif' : 'image', url }];
         if (mounted.current) onAttachmentsChange(next);
       }
       if (mounted.current) onClose();
     } catch (failure) {
       if (mounted.current && !controller.signal.aborted)
-        setError(failure instanceof Error ? failure.message : 'Não foi possível enviar o arquivo.');
+        setError(
+          failure instanceof Error
+            ? failure.message
+            : text('Não foi possível enviar o arquivo.', 'Could not upload the file.')
+        );
     } finally {
       if (mounted.current) setBusy(false);
     }
@@ -195,7 +235,7 @@ function AttachmentPanel({
   const selectGif = async (gif: GifResult) => {
     if (busy) return;
     if (attachments.filter((item) => item.type !== 'audio').length >= 4) {
-      setError('O limite é de 4 imagens ou GIFs.');
+      setError(text('O limite é de 4 imagens ou GIFs.', 'The limit is 4 images or GIFs.'));
       return;
     }
     setBusy(true);
@@ -204,18 +244,34 @@ function AttachmentPanel({
     request.current = controller;
     try {
       const response = await fetch(gif.url, { signal: controller.signal });
-      if (!response.ok) throw new Error('Não foi possível baixar esse GIF. Escolha outro.');
+      if (!response.ok)
+        throw new Error(
+          text(
+            'Não foi possível baixar esse GIF. Escolha outro.',
+            'Could not download that GIF. Choose another one.'
+          )
+        );
       const blob = await response.blob();
-      if (blob.size > 5 * 1024 * 1024) throw new Error('Esse GIF ultrapassa 5 MB. Escolha outro.');
+      if (blob.size > 5 * 1024 * 1024)
+        throw new Error(
+          text(
+            'Esse GIF ultrapassa 5 MB. Escolha outro.',
+            'That GIF is over 5 MB. Choose another one.'
+          )
+        );
       const file = new File([blob], `${gif.id}.gif`, { type: 'image/gif' });
-      const url = await uploadPostMedia(file, controller.signal);
+      const url = await uploadPostMedia(file, controller.signal, text);
       if (mounted.current) {
         onAttachmentsChange([...attachments, { type: 'gif', url, alt: gif.title }]);
         onClose();
       }
     } catch (failure) {
       if (mounted.current && !controller.signal.aborted)
-        setError(failure instanceof Error ? failure.message : 'Não foi possível adicionar o GIF.');
+        setError(
+          failure instanceof Error
+            ? failure.message
+            : text('Não foi possível adicionar o GIF.', 'Could not add the GIF.')
+        );
     } finally {
       if (mounted.current) setBusy(false);
     }
@@ -223,7 +279,12 @@ function AttachmentPanel({
   const startRecording = async () => {
     if (requestMicrophoneRef.current || recording || busy) return;
     if (!navigator.mediaDevices?.getUserMedia || typeof MediaRecorder === 'undefined') {
-      setError('Este navegador não permite gravação. Use outro navegador compatível.');
+      setError(
+        text(
+          'Este navegador não permite gravação. Use outro navegador compatível.',
+          'This browser does not allow recording. Use another compatible browser.'
+        )
+      );
       return;
     }
     requestMicrophoneRef.current = true;
@@ -255,7 +316,12 @@ function AttachmentPanel({
         source.getTracks().forEach((track) => track.stop());
         if (mounted.current) {
           setRecording(false);
-          setError('A gravação foi interrompida. Tente gravar novamente.');
+          setError(
+            text(
+              'A gravação foi interrompida. Tente gravar novamente.',
+              'The recording was interrupted. Try recording again.'
+            )
+          );
         }
       };
       recorder.current = nextRecorder;
@@ -268,8 +334,14 @@ function AttachmentPanel({
       if (mounted.current)
         setError(
           failure instanceof DOMException && failure.name === 'NotAllowedError'
-            ? 'Permita o acesso ao microfone nas configurações do navegador para gravar.'
-            : 'Não foi possível acessar seu microfone. Verifique se outro aplicativo está usando ele.'
+            ? text(
+                'Permita o acesso ao microfone nas configurações do navegador para gravar.',
+                'Allow microphone access in your browser settings to record.'
+              )
+            : text(
+                'Não foi possível acessar seu microfone. Verifique se outro aplicativo está usando ele.',
+                'Could not access your microphone. Check whether another app is using it.'
+              )
         );
     } finally {
       requestMicrophoneRef.current = false;
@@ -287,7 +359,8 @@ function AttachmentPanel({
       const extension = mime.includes('mp4') ? 'm4a' : mime.includes('ogg') ? 'ogg' : 'webm';
       const url = await uploadPostMedia(
         new File([recorded], `gravacao.${extension}`, { type: mime }),
-        controller.signal
+        controller.signal,
+        text
       );
       if (mounted.current) {
         onAttachmentsChange([
@@ -299,7 +372,9 @@ function AttachmentPanel({
     } catch (failure) {
       if (mounted.current && !controller.signal.aborted)
         setError(
-          failure instanceof Error ? failure.message : 'Não foi possível enviar a gravação.'
+          failure instanceof Error
+            ? failure.message
+            : text('Não foi possível enviar a gravação.', 'Could not upload the recording.')
         );
     } finally {
       if (mounted.current) setBusy(false);
@@ -320,10 +395,10 @@ function AttachmentPanel({
     return () => document.removeEventListener('keydown', keyDown, true);
   }, [close]);
   const title = {
-    gif: 'Adicionar GIF',
-    music: 'Adicionar música',
-    audio: 'Gravar áudio',
-    image: 'Adicionar imagens',
+    gif: text('Adicionar GIF', 'Add GIF'),
+    music: text('Adicionar música', 'Add music'),
+    audio: text('Gravar áudio', 'Record audio'),
+    image: text('Adicionar imagens', 'Add images'),
   }[panel];
   return (
     <div
@@ -338,7 +413,7 @@ function AttachmentPanel({
           <button
             type="button"
             className={styles.iconButton}
-            aria-label="Fechar seletor"
+            aria-label={text('Fechar seletor', 'Close picker')}
             onClick={close}
             disabled={busy || recording || requestingMicrophone}
           >
@@ -354,7 +429,7 @@ function AttachmentPanel({
                   track
                     ? {
                         ...track,
-                        title: track.title || 'Faixa do Spotify',
+                        title: track.title || text('Faixa do Spotify', 'Spotify track'),
                         artist: track.artist || '',
                       }
                     : null
@@ -376,19 +451,21 @@ function AttachmentPanel({
                     disabled={!key || busy}
                     maxLength={100}
                     className={styles.searchInput}
-                    aria-label="Pesquisar GIFs"
-                    placeholder="Pesquisar GIFs"
+                    aria-label={text('Pesquisar GIFs', 'Search GIFs')}
+                    placeholder={text('Pesquisar GIFs', 'Search GIFs')}
                   />
                   {!key && (
                     <p className={styles.help} style={{ marginTop: 10 }}>
-                      A pesquisa de GIFs ainda não está disponível. Você pode enviar um GIF do seu
-                      dispositivo.
+                      {text(
+                        'A pesquisa de GIFs ainda não está disponível. Você pode enviar um GIF do seu dispositivo.',
+                        'GIF search is not available yet. You can upload a GIF from your device.'
+                      )}
                     </p>
                   )}
                   {searching && (
                     <p role="status" className={styles.status}>
                       <LoaderCircle size={16} className="animate-spin" />
-                      Pesquisando GIFs…
+                      {text('Pesquisando GIFs…', 'Searching GIFs…')}
                     </p>
                   )}
                   {!!gifs.length && (
@@ -408,7 +485,10 @@ function AttachmentPanel({
                   )}
                   {key && !searching && query && !gifs.length && !error && (
                     <p role="status" className={styles.help}>
-                      Nenhum GIF encontrado. Tente outra palavra.
+                      {text(
+                        'Nenhum GIF encontrado. Tente outra palavra.',
+                        'No GIFs found. Try another word.'
+                      )}
                     </p>
                   )}
                   {key && (
@@ -425,8 +505,10 @@ function AttachmentPanel({
               )}
               {panel === 'image' && (
                 <p className={styles.help}>
-                  Adicione até 4 imagens. JPEG, PNG e WebP são otimizados no envio; GIFs mantêm a
-                  animação. Até 5 MB por arquivo.
+                  {text(
+                    'Adicione até 4 imagens. JPEG, PNG e WebP são otimizados no envio; GIFs mantêm a animação. Até 5 MB por arquivo.',
+                    'Add up to 4 images. JPEG, PNG and WebP are optimized on upload; GIFs keep their animation. Up to 5 MB per file.'
+                  )}
                 </p>
               )}
               <button
@@ -436,7 +518,11 @@ function AttachmentPanel({
                 onClick={() => fileInput.current?.click()}
               >
                 {panel === 'gif' ? <Upload size={19} /> : <ImagePlus size={19} />}
-                <span>{panel === 'gif' ? 'Escolher GIF do dispositivo' : 'Escolher imagens'}</span>
+                <span>
+                  {panel === 'gif'
+                    ? text('Escolher GIF do dispositivo', 'Choose GIF from device')
+                    : text('Escolher imagens', 'Choose images')}
+                </span>
               </button>
               <input
                 ref={fileInput}
@@ -455,21 +541,27 @@ function AttachmentPanel({
           {panel === 'audio' && (
             <>
               <p className={styles.help}>
-                Grave uma mensagem de até 2 minutos. Você pode ouvir e refazer antes de publicar.
+                {text(
+                  'Grave uma mensagem de até 2 minutos. Você pode ouvir e refazer antes de publicar.',
+                  'Record a message of up to 2 minutes. You can listen and redo it before posting.'
+                )}
               </p>
               <div className={styles.recording} role="status">
                 {recording && <Mic size={20} />}
                 <span>
                   {Math.floor(elapsed / 60)}:{String(elapsed % 60).padStart(2, '0')}
                 </span>
-                {recording && <span>Gravando</span>}
+                {recording && <span>{text('Gravando', 'Recording')}</span>}
               </div>
               {recordedUrl && (
                 <audio
                   className={styles.audioDraft}
                   controls
                   src={recordedUrl}
-                  aria-label="Ouvir gravação antes de anexar"
+                  aria-label={text(
+                    'Ouvir gravação antes de anexar',
+                    'Listen to the recording before attaching'
+                  )}
                 />
               )}
               {recording ? (
@@ -479,7 +571,7 @@ function AttachmentPanel({
                   onClick={() => recorder.current?.stop()}
                 >
                   <Square size={17} />
-                  Finalizar gravação
+                  {text('Finalizar gravação', 'Finish recording')}
                 </button>
               ) : (
                 <div className={styles.recordActions}>
@@ -491,10 +583,10 @@ function AttachmentPanel({
                   >
                     <Mic size={17} />
                     {requestingMicrophone
-                      ? 'Aguardando microfone…'
+                      ? text('Aguardando microfone…', 'Waiting for microphone…')
                       : recorded
-                        ? 'Gravar novamente'
-                        : 'Iniciar gravação'}
+                        ? text('Gravar novamente', 'Record again')
+                        : text('Iniciar gravação', 'Start recording')}
                   </button>
                   {recorded && (
                     <button
@@ -503,7 +595,7 @@ function AttachmentPanel({
                       disabled={busy}
                       onClick={() => void saveRecording()}
                     >
-                      Anexar áudio
+                      {text('Anexar áudio', 'Attach audio')}
                     </button>
                   )}
                 </div>
@@ -513,7 +605,7 @@ function AttachmentPanel({
           {busy && (
             <p role="status" className={styles.status}>
               <LoaderCircle size={16} className="animate-spin" />
-              Enviando e preparando o anexo…
+              {text('Enviando e preparando o anexo…', 'Uploading and preparing the attachment…')}
             </p>
           )}
           {error && (

@@ -3,36 +3,47 @@ export type ReplyAudience = 'everyone' | 'followers' | 'mentioned';
 export const REPLY_AUDIENCE_OPTIONS: {
   value: ReplyAudience;
   label: string;
+  labelEn: string;
   description: string;
+  descriptionEn: string;
 }[] = [
   {
     value: 'everyone',
     label: 'Qualquer pessoa pode responder',
+    labelEn: 'Anyone can reply',
     description: 'Todos os devs podem comentar',
+    descriptionEn: 'Every dev can comment',
   },
   {
     value: 'followers',
     label: 'Apenas seguidores',
+    labelEn: 'Followers only',
     description: 'Somente quem você segue',
+    descriptionEn: 'Only people you follow',
   },
   {
     value: 'mentioned',
     label: 'Pessoas que você mencionar',
+    labelEn: 'People you mention',
     description: 'Apenas @mencionados no post',
+    descriptionEn: 'Only people @mentioned in the post',
   },
 ];
 
 export const EMOJI_CATEGORIES = [
   {
     name: 'Frequentes',
+    nameEn: 'Frequent',
     emojis: ['😀', '😂', '🔥', '👍', '❤️', '🎉', '💡', '🚀', '👀', '✅', '🙏', '💯'],
   },
   {
     name: 'Dev',
+    nameEn: 'Dev',
     emojis: ['💻', '🐛', '⚡', '🔧', '📦', '🧪', '☕', '🦀', '🐍', '⚙️', '📝', '🔍'],
   },
   {
     name: 'Gestos',
+    nameEn: 'Gestures',
     emojis: ['👏', '🙌', '💪', '🤔', '😅', '😎', '🫡', '👋', '🎯', '📌', '🤝', '✨'],
   },
 ];

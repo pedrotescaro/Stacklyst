@@ -6,13 +6,22 @@ function toDate(value: DateInput): Date {
   return value instanceof Date ? new Date(value.getTime()) : new Date(value);
 }
 
-export function formatAbsoluteDate(dateValue: DateInput): string {
-  return toDate(dateValue).toLocaleDateString('pt-BR', { timeZone: APP_TIME_ZONE });
+export type DateLanguage = 'pt' | 'en';
+
+export function formatAbsoluteDate(dateValue: DateInput, language: DateLanguage = 'pt'): string {
+  return toDate(dateValue).toLocaleDateString(language === 'en' ? 'en-US' : 'pt-BR', {
+    timeZone: APP_TIME_ZONE,
+  });
+}
+
+function pluralizeEnglish(count: number, unit: string) {
+  return `${count} ${unit}${count === 1 ? '' : 's'} ago`;
 }
 
 export function formatRelativeTime(
   dateValue: DateInput,
-  referenceDate: DateInput = new Date()
+  referenceDate: DateInput = new Date(),
+  language: DateLanguage = 'pt'
 ): string {
   const date = toDate(dateValue);
   const now = toDate(referenceDate);
@@ -20,6 +29,14 @@ export function formatRelativeTime(
   const diffMins = Math.floor(diffMs / 60000);
   const diffHours = Math.floor(diffMins / 60);
   const diffDays = Math.floor(diffHours / 24);
+
+  if (language === 'en') {
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return pluralizeEnglish(diffMins, 'minute');
+    if (diffHours < 24) return pluralizeEnglish(diffHours, 'hour');
+    if (diffDays < 30) return pluralizeEnglish(diffDays, 'day');
+    return formatAbsoluteDate(date, language);
+  }
 
   if (diffMins < 1) return 'agora';
   if (diffMins < 60) return `${diffMins}m atrás`;

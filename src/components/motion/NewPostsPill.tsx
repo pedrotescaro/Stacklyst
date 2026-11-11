@@ -3,6 +3,7 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { RefreshCw } from 'lucide-react';
 import { newPostsPillVariants } from '@/lib/motion';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface NewPostsPillProps {
   count: number;
@@ -12,6 +13,7 @@ interface NewPostsPillProps {
 }
 
 export function NewPostsPill({ count, onClick, visible, loading = false }: NewPostsPillProps) {
+  const { text } = useLocalizedText();
   return (
     <AnimatePresence>
       {visible && count > 0 && (
@@ -34,7 +36,10 @@ export function NewPostsPill({ count, onClick, visible, loading = false }: NewPo
             <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
             {loading
               ? 'Atualizando feed...'
-              : `Ver ${count} ${count === 1 ? 'novo post' : 'novos posts'}`}
+              : text(
+                  `Ver ${count} ${count === 1 ? 'novo post' : 'novos posts'}`,
+                  `View ${count} ${count === 1 ? 'new post' : 'new posts'}`
+                )}
           </span>
         </motion.button>
       )}

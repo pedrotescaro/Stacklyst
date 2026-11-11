@@ -3,6 +3,7 @@
 import { Bug, Play, Loader2, Terminal as TerminalIcon } from 'lucide-react';
 import { CodeEditor } from '@/components/CodeEditor';
 import type { LessonStep } from '@/lib/lessons/types';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface DebugStepProps {
   step: LessonStep;
@@ -27,6 +28,7 @@ export function DebugStep({
   runError = null,
   disabled = false,
 }: DebugStepProps) {
+  const { text } = useLocalizedText();
   return (
     <div className="w-full max-w-3xl mx-auto space-y-4 animate-fade-in font-sans">
       <div className="flex flex-wrap items-start justify-between gap-3">
@@ -36,10 +38,14 @@ export function DebugStep({
           </div>
           <div>
             <h2 className="text-xl font-bold leading-snug text-dd-text">
-              {step.title || 'Desafio de Debug'}
+              {step.title || text('Desafio de Debug', 'Debug Challenge')}
             </h2>
             <p className="text-base text-dd-muted leading-relaxed">
-              {step.instruction || 'Encontre os erros no código e faça os testes passarem'}
+              {step.instruction ||
+                text(
+                  'Encontre os erros no código e faça os testes passarem',
+                  'Find the bugs in the code and make the tests pass'
+                )}
             </p>
           </div>
         </div>
@@ -53,12 +59,12 @@ export function DebugStep({
           {isRunning ? (
             <>
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              <span>Depurando...</span>
+              <span>{text('Depurando...', 'Debugging...')}</span>
             </>
           ) : (
             <>
               <Play className="h-3.5 w-3.5 fill-current" />
-              <span>Testar Correção</span>
+              <span>{text('Testar Correção', 'Test Fix')}</span>
             </>
           )}
         </button>
@@ -68,7 +74,7 @@ export function DebugStep({
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-dd-border bg-dd-surface px-4 py-2 text-sm text-dd-text">
           <span className="flex items-center gap-1.5 font-bold">
             <span className="h-2 w-2 rounded-full bg-rose-500 animate-pulse" />
-            Código com Bug (Corrija abaixo)
+            {text('Código com Bug (Corrija abaixo)', 'Buggy Code (Fix below)')}
           </span>
           <span className="text-xs font-medium text-dd-muted">{language}</span>
         </div>
@@ -87,7 +93,7 @@ export function DebugStep({
           <div className="flex items-center justify-between border-b border-dd-border bg-dd-surface px-4 py-2 text-dd-muted">
             <span className="flex items-center gap-2 font-semibold">
               <TerminalIcon className="h-3.5 w-3.5 text-dd-muted" />
-              Resultado dos Testes
+              {text('Resultado dos Testes', 'Test Results')}
             </span>
           </div>
 

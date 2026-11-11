@@ -10,6 +10,7 @@ import {
   insertAtEditor,
 } from '@/lib/post-composer';
 import type { NotionEditorRef } from '@/components/editor/NotionEditor';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 export interface PostComposerExtrasState {
   replyAudience: ReplyAudience;
@@ -64,6 +65,7 @@ export function PostComposerExtras({
   section,
   contentToolsOnly = false,
 }: PostComposerExtrasProps) {
+  const { text, locale } = useLocalizedText();
   const [openPanel, setOpenPanel] = useState<'emoji' | 'reply' | 'schedule' | 'location' | null>(
     null
   );
@@ -78,9 +80,10 @@ export function PostComposerExtras({
     }
   }, [openPanel, location]);
 
-  const replyLabel =
-    REPLY_AUDIENCE_OPTIONS.find((option) => option.value === replyAudience)?.label ??
-    REPLY_AUDIENCE_OPTIONS[0].label;
+  const replyOption =
+    REPLY_AUDIENCE_OPTIONS.find((option) => option.value === replyAudience) ??
+    REPLY_AUDIENCE_OPTIONS[0];
+  const replyLabel = text(replyOption.label, replyOption.labelEn);
 
   const insertEmoji = (emoji: string) => {
     insertAtEditor(editorRef.current, emoji, postBody, setPostBody);
@@ -103,7 +106,7 @@ export function PostComposerExtras({
                   type="button"
                   onClick={() => setLocation('')}
                   className="hover:text-blue-300 cursor-pointer"
-                  aria-label="Remover localização"
+                  aria-label={text('Remover localização', 'Remove location')}
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -112,7 +115,7 @@ export function PostComposerExtras({
             {scheduledAt && (
               <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-2.5 py-1 text-[10px] font-bold text-blue-400">
                 <Calendar className="w-3 h-3" />
-                {new Date(scheduledAt).toLocaleString('pt-BR', {
+                {new Date(scheduledAt).toLocaleString(locale, {
                   dateStyle: 'short',
                   timeStyle: 'short',
                 })}
@@ -120,7 +123,7 @@ export function PostComposerExtras({
                   type="button"
                   onClick={() => setScheduledAt(null)}
                   className="hover:text-blue-300 cursor-pointer"
-                  aria-label="Remover agendamento"
+                  aria-label={text('Remover agendamento', 'Remove schedule')}
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -129,12 +132,15 @@ export function PostComposerExtras({
             {isSensitive && (
               <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2.5 py-1 text-[10px] font-bold text-red-400">
                 <Flag className="w-3 h-3" />
-                Conteúdo sensível
+                {text('Conteúdo sensível', 'Sensitive content')}
                 <button
                   type="button"
                   onClick={() => setIsSensitive(false)}
                   className="hover:text-red-300 cursor-pointer"
-                  aria-label="Remover aviso de conteúdo sensível"
+                  aria-label={text(
+                    'Remover aviso de conteúdo sensível',
+                    'Remove sensitive content warning'
+                  )}
                 >
                   <X className="w-3 h-3" />
                 </button>
@@ -182,9 +188,11 @@ export function PostComposerExtras({
                       <AtSign className="w-4.5 h-4.5 mt-0.5 shrink-0" />
                     )}
                     <span>
-                      <span className="block text-xs font-bold">{option.label}</span>
+                      <span className="block text-xs font-bold">
+                        {text(option.label, option.labelEn)}
+                      </span>
                       <span className="block text-[10px] text-dd-muted font-medium">
-                        {option.description}
+                        {text(option.description, option.descriptionEn)}
                       </span>
                     </span>
                   </button>
@@ -221,7 +229,9 @@ export function PostComposerExtras({
             <div className="space-y-3 max-h-52 overflow-y-auto">
               {EMOJI_CATEGORIES.map((category) => (
                 <div key={category.name}>
-                  <p className="text-[10px] font-bold text-blue-400 mb-1.5">{category.name}</p>
+                  <p className="text-[10px] font-bold text-blue-400 mb-1.5">
+                    {text(category.name, category.nameEn)}
+                  </p>
                   <div className="grid grid-cols-6 gap-1">
                     {category.emojis.map((emoji) => (
                       <button
@@ -251,14 +261,16 @@ export function PostComposerExtras({
                 ? 'bg-blue-500/20 text-blue-400'
                 : 'text-blue-500 hover:bg-blue-500/10'
             }`}
-            title="Agendar publicação"
+            title={text('Agendar publicação', 'Schedule post')}
           >
             <Calendar className="w-5 h-5" />
           </button>
 
           {openPanel === 'schedule' && (
             <div className="fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[100] max-h-[min(60dvh,22rem)] overflow-y-auto rounded-xl border border-dd-border/80 bg-dd-surface/95 p-3 shadow-2xl backdrop-blur-md animate-slide-up space-y-3 sm:absolute sm:inset-auto sm:left-0 sm:bottom-full sm:mb-2 sm:w-64 sm:max-h-none">
-              <p className="text-xs font-bold text-dd-text">Agendar publicação</p>
+              <p className="text-xs font-bold text-dd-text">
+                {text('Agendar publicação', 'Schedule post')}
+              </p>
               <input
                 type="datetime-local"
                 value={scheduledAt ?? ''}
@@ -274,14 +286,14 @@ export function PostComposerExtras({
                   }}
                   className="flex-1 rounded-lg border border-dd-border px-2 py-1.5 text-[10px] font-bold text-dd-muted hover:text-dd-text cursor-pointer"
                 >
-                  Limpar
+                  {text('Limpar', 'Clear')}
                 </button>
                 <button
                   type="button"
                   onClick={() => setOpenPanel(null)}
                   className="flex-1 rounded-lg bg-blue-500 px-2 py-1.5 text-[10px] font-bold text-white hover:bg-blue-600 cursor-pointer"
                 >
-                  Confirmar
+                  {text('Confirmar', 'Confirm')}
                 </button>
               </div>
             </div>
@@ -298,7 +310,7 @@ export function PostComposerExtras({
               ? 'bg-blue-500/20 text-blue-400'
               : 'text-blue-500 hover:bg-blue-500/10'
           }`}
-          title="Adicionar localização"
+          title={text('Adicionar localização', 'Add location')}
         >
           <MapPin className="w-5 h-5" />
         </button>
@@ -310,7 +322,7 @@ export function PostComposerExtras({
               type="text"
               value={locationDraft}
               onChange={(e) => setLocationDraft(e.target.value)}
-              placeholder="Onde você está?"
+              placeholder={text('Onde você está?', 'Where are you?')}
               className="w-full rounded-lg border border-dd-border bg-dd-bg px-2.5 py-2 text-xs text-dd-text placeholder-dd-muted focus:border-blue-500/65 focus:outline-none"
             />
             <div className="flex flex-wrap gap-1.5">
@@ -333,7 +345,7 @@ export function PostComposerExtras({
               }}
               className="w-full rounded-lg bg-blue-500 px-2 py-1.5 text-[10px] font-bold text-white hover:bg-blue-600 cursor-pointer"
             >
-              Adicionar localização
+              {text('Adicionar localização', 'Add location')}
             </button>
           </div>
         )}
@@ -345,7 +357,7 @@ export function PostComposerExtras({
         className={`p-2.5 rounded-full transition-colors cursor-pointer ${
           isSensitive ? 'bg-red-500/20 text-red-400' : 'text-blue-500 hover:bg-blue-500/10'
         }`}
-        title="Marcar como conteúdo sensível"
+        title={text('Marcar como conteúdo sensível', 'Mark as sensitive content')}
       >
         <Flag className="w-5 h-5" />
       </button>

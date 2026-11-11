@@ -21,6 +21,7 @@ import { TerminalStep } from '@/components/lesson/renderers/TerminalStep';
 import { CodeBlockBuilderStep } from '@/components/lesson/renderers/CodeBlockBuilderStep';
 import { rememberTrailMascotReturn } from '@/app/trails/trailMascotProgress';
 import styles from './LessonClient.module.css';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface LessonClientProps {
   lesson: Lesson;
@@ -35,6 +36,7 @@ interface LessonClientProps {
 }
 
 export function LessonClient({ lesson, returnTo, completedStepIds = [] }: LessonClientProps) {
+  const { text } = useLocalizedText();
   const router = useRouter();
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -363,25 +365,34 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
         {currentStep && (
           <div className={styles.stepContent}>
             {lesson.project && currentStep.type === 'concept_explanation' && (
-              <section className={styles.project} aria-label="Plano do projeto">
-                <h2 className="text-xl font-bold text-dd-text">Seu projeto</h2>
+              <section
+                className={styles.project}
+                aria-label={text('Plano do projeto', 'Project plan')}
+              >
+                <h2 className="text-xl font-bold text-dd-text">
+                  {text('Seu projeto', 'Your project')}
+                </h2>
                 <p className="mt-2 text-dd-muted">{lesson.project.objective}</p>
-                <h3 className="mt-4 font-semibold text-dd-text">Requisitos</h3>
+                <h3 className="mt-4 font-semibold text-dd-text">
+                  {text('Requisitos', 'Requirements')}
+                </h3>
                 <ul className="mt-2 list-disc space-y-2 pl-5 text-dd-muted">
-                  {lesson.project.requirements.map((text) => (
-                    <li key={text}>{text}</li>
+                  {lesson.project.requirements.map((item) => (
+                    <li key={item}>{item}</li>
                   ))}
                 </ul>
-                <h3 className="mt-4 font-semibold text-dd-text">Etapas</h3>
+                <h3 className="mt-4 font-semibold text-dd-text">{text('Etapas', 'Steps')}</h3>
                 <ol className="mt-2 list-decimal space-y-2 pl-5 text-dd-muted">
-                  {lesson.project.stages.map((text) => (
-                    <li key={text}>{text}</li>
+                  {lesson.project.stages.map((item) => (
+                    <li key={item}>{item}</li>
                   ))}
                 </ol>
-                <h3 className="mt-4 font-semibold text-dd-text">Critérios de conclusão</h3>
+                <h3 className="mt-4 font-semibold text-dd-text">
+                  {text('Critérios de conclusão', 'Completion criteria')}
+                </h3>
                 <ul className="mt-2 list-disc space-y-2 pl-5 text-dd-muted">
-                  {lesson.project.completion.map((text) => (
-                    <li key={text}>{text}</li>
+                  {lesson.project.completion.map((item) => (
+                    <li key={item}>{item}</li>
                   ))}
                 </ul>
               </section>

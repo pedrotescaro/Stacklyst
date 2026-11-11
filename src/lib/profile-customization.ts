@@ -473,6 +473,22 @@ export const TITLE_NAMES_EN: Record<string, string> = {
   primordial: 'Primordial',
 };
 
+export const EVENT_NAMES_EN: Record<string, string> = {
+  'Halloween no Stacklyst': 'Halloween on Stacklyst',
+  'Natal no Stacklyst': 'Christmas on Stacklyst',
+  'Aniversário do Stacklyst': "Stacklyst's Birthday",
+  'halloween-2026': 'Halloween on Stacklyst',
+  'christmas-2026': 'Christmas on Stacklyst',
+  'birthday-template': "Stacklyst's Birthday",
+};
+
+export function getLocalizedEventName(event: { id?: string; name: string }, isEnglish = false) {
+  if (!isEnglish) return event.name;
+  return (
+    EVENT_NAMES_EN[event.name] ?? (event.id ? EVENT_NAMES_EN[event.id] : undefined) ?? event.name
+  );
+}
+
 export function getLocalizedTitleName(
   title: { id?: string; name: string } | string,
   isEnglish = false
@@ -514,6 +530,7 @@ export function getAchievementInstructions(
   const amount = target.toLocaleString(isEnglish ? 'en-US' : 'pt-BR');
 
   if (isEnglish) {
+    const eventNameEn = event ? getLocalizedEventName(event, true) : undefined;
     const flavorByMetricEn: Record<string, string> = {
       posts: 'Ideas and discoveries that become part of the community.',
       comments: 'Every good conversation starts with a contribution.',
@@ -526,12 +543,12 @@ export function getAchievementInstructions(
       completedTrails: 'A learning journey completed, step by step.',
       completedTrailPython: 'The Pythonic path traveled from start to finish.',
       completedTrailRust: 'Ownership, safe types, and the compiler forge mastered.',
-      eventPosts: event ? `A keepsake from ${event.name}.` : 'A community celebration.',
+      eventPosts: event ? `A keepsake from ${eventNameEn}.` : 'A community celebration.',
       eventComments: event
-        ? `Conversations that marked ${event.name}.`
+        ? `Conversations that marked ${eventNameEn}.`
         : 'A community celebration.',
       eventComplete: event
-        ? `All goals from ${event.name} in your collection.`
+        ? `All goals from ${eventNameEn} in your collection.`
         : 'A community celebration.',
     };
 
@@ -619,13 +636,13 @@ export function getAchievementInstructions(
             'Complete all evaluated steps of the Rust from Scratch trail. Every question, practice, and challenge must be recorded as approved.';
           break;
         case 'eventPosts':
-          howToObtain = `During ${event?.name || 'the event'}, publish ${amount} ${plural('post', 'posts')} with the exact hashtag #${event?.hashtag || 'unconfigured'}. ${postRulesEn} ${eventPeriodEn}`;
+          howToObtain = `During ${eventNameEn || 'the event'}, publish ${amount} ${plural('post', 'posts')} with the exact hashtag #${event?.hashtag || 'unconfigured'}. ${postRulesEn} ${eventPeriodEn}`;
           break;
         case 'eventComments':
           howToObtain = `Comment on ${amount} different ${plural('post', 'posts')} by other members with #${event?.hashtag || 'unconfigured'}. Posts and comments must be made during the event. ${commentRulesEn} ${eventPeriodEn}`;
           break;
         case 'eventComplete': {
-          howToObtain = `Complete all challenges of ${event?.name || 'the event'} during its active period. ${eventPeriodEn}`;
+          howToObtain = `Complete all challenges of ${eventNameEn || 'the event'} during its active period. ${eventPeriodEn}`;
           break;
         }
         default:

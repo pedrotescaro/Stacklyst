@@ -4,6 +4,7 @@ import { CheckCircle2, Volume2 } from 'lucide-react';
 import type { LessonStep } from '@/lib/lessons/types';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { DuolingoText } from '../DuolingoText';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface MultipleChoiceStepProps {
   step: LessonStep;
@@ -22,6 +23,7 @@ export function MultipleChoiceStep({
   answered = false,
   answerCorrect = false,
 }: MultipleChoiceStepProps) {
+  const { text } = useLocalizedText();
   const options = step.options || [];
   const { speak, isSpeaking } = useTextToSpeech();
 
@@ -33,14 +35,16 @@ export function MultipleChoiceStep({
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in font-sans select-none">
       {/* Título Principal Estilo Duolingo */}
-      <h2 className="text-xl font-bold leading-snug text-dd-text">Leia e responda:</h2>
+      <h2 className="text-xl font-bold leading-snug text-dd-text">
+        {text('Leia e responda:', 'Read and answer:')}
+      </h2>
 
       {/* Balão de Contexto com Ícone */}
       <div className="flex items-start gap-4 rounded-2xl border border-dd-border bg-dd-bg p-5 md:p-6">
         <button
           type="button"
           onClick={handleSpeak}
-          aria-label="Ouvir enunciado da questão"
+          aria-label={text('Ouvir enunciado da questão', 'Listen to the question')}
           className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-blue-600 text-white  hover:bg-blue-700 active:scale-95 transition-all dd-focus-ring cursor-pointer ${
             isSpeaking ? 'ring-4 ring-blue-400/40 scale-105 animate-pulse' : ''
           }`}

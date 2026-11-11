@@ -1,8 +1,7 @@
 import type { ComponentProps, ReactNode } from 'react';
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
 import { FeedRightSidebar } from '@/components/FeedRightSidebar';
+import { PlatformBackLink } from '@/components/PlatformBackLink';
 import { cn } from '@/lib/cn';
 import styles from './PlatformPageShell.module.css';
 
@@ -46,9 +45,7 @@ export function PlatformPageHeader({
   return (
     <>
       <header className={styles.header}>
-        <Link href="/feed" className={styles.back} aria-label="Voltar ao feed">
-          <ArrowLeft size={21} aria-hidden="true" />
-        </Link>
+        <PlatformBackLink className={styles.back} />
         <h1>{title}</h1>
         {actions && <div className={styles.actions}>{actions}</div>}
       </header>

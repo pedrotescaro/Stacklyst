@@ -111,6 +111,26 @@ const MILESTONE_STAGES: Array<{ label: string; Icon: LucideIcon | null }> = [
   { label: 'Revisão', Icon: Sparkles },
 ];
 
+const STAGE_LABEL_EN: Record<string, string> = {
+  Habilidade: 'Skill',
+  Aula: 'Lesson',
+  Exemplo: 'Example',
+  Exercício: 'Exercise',
+  Prática: 'Practice',
+  Checkpoint: 'Checkpoint',
+  Desafio: 'Challenge',
+  Revisão: 'Review',
+};
+
+const STATUS_LABEL_EN: Record<KnowledgeProgressStatus, string> = {
+  NOT_STARTED: 'Locked',
+  AVAILABLE: 'Available',
+  RECOMMENDED: 'Recommended',
+  IN_PROGRESS: 'In progress',
+  COMPLETED: 'Completed',
+  MASTERED: 'Mastered',
+};
+
 const STATUS_LABEL: Record<KnowledgeProgressStatus, string> = {
   NOT_STARTED: 'Bloqueado',
   AVAILABLE: 'Disponível',
@@ -357,6 +377,7 @@ function GamifiedSkillNode({
 }) {
   const { node, sectorId, point, accent, nodeIndex, stageIndex, primary, stageLabel, StageIcon } =
     placement;
+  const { isEnglish } = useLocalizedText();
   const Icon = StageIcon ?? TYPE_ICON[node.type];
   const completed = node.status === 'COMPLETED' || node.status === 'MASTERED';
   const unlockedStageLimit = node.status === 'IN_PROGRESS' ? 5 : 3;
@@ -365,10 +386,24 @@ function GamifiedSkillNode({
     node.status === 'NOT_STARTED' || (!completed && effectiveStageIndex > unlockedStageLimit);
   const taskCount = node.exercises.length;
   const darkerAccent = `color-mix(in srgb, ${accent} 62%, black)`;
-  const accessibleStatus = locked ? 'Bloqueado' : STATUS_LABEL[node.status];
+  const accessibleStatus = isEnglish
+    ? locked
+      ? 'Locked'
+      : STATUS_LABEL_EN[node.status]
+    : locked
+      ? 'Bloqueado'
+      : STATUS_LABEL[node.status];
+  const displayStageLabel = isEnglish ? (STAGE_LABEL_EN[stageLabel] ?? stageLabel) : stageLabel;
+  const taskLabel = isEnglish
+    ? taskCount === 1
+      ? 'task'
+      : 'tasks'
+    : taskCount === 1
+      ? 'tarefa'
+      : 'tarefas';
   const accessibleLabel = primary
-    ? `${node.title}. ${accessibleStatus}. ${taskCount} ${taskCount === 1 ? 'tarefa' : 'tarefas'}.`
-    : `${node.title}. ${stageLabel}. ${accessibleStatus}. ${taskCount} ${taskCount === 1 ? 'tarefa' : 'tarefas'}.`;
+    ? `${node.title}. ${accessibleStatus}. ${taskCount} ${taskLabel}.`
+    : `${node.title}. ${displayStageLabel}. ${accessibleStatus}. ${taskCount} ${taskLabel}.`;
 
   return (
     <button
@@ -676,7 +711,7 @@ export function TrailMap({
   return (
     <section aria-labelledby="knowledge-map-title" className="h-full min-w-0">
       <h2 id="knowledge-map-title" className="sr-only">
-        Mapa de Conhecimento por setores
+        {text('Mapa de Conhecimento por setores', 'Knowledge Map by sector')}
       </h2>
 
       <div className="md:hidden" data-testid="knowledge-map-mobile-list">
@@ -937,10 +972,10 @@ export function TrailMap({
                 </button>
                 <div className="mt-2 rounded-full border border-amber-500/40 bg-dd-card/95 px-3 py-1 text-center shadow-lg backdrop-blur-sm">
                   <p className="text-xs font-bold leading-tight text-amber-600 dark:text-amber-300">
-                    Início
+                    {text('Início', 'Start')}
                   </p>
                   <p className="whitespace-nowrap text-[9px] font-medium leading-tight text-dd-muted">
-                    Jornada de programação
+                    {text('Jornada de programação', 'Programming journey')}
                   </p>
                 </div>
               </div>

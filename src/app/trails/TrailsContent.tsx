@@ -14,6 +14,7 @@ import { getCourseKnowledgeNodes, getCourseLearningPaths } from './trailCourseKn
 import type { KnowledgeMapData } from '@/lib/learning/types';
 import { LearningJourney } from './LearningJourney';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { localizeKnowledgeMap } from '@/lib/learning/catalogEnglish';
 import {
   Select,
   SelectContent,
@@ -46,7 +47,7 @@ interface TrailsContentProps {
 }
 export function TrailsContent({
   user,
-  knowledgeMap,
+  knowledgeMap: sourceKnowledgeMap,
   initialCourses,
   initialActiveLanguage,
   gems,
@@ -57,7 +58,11 @@ export function TrailsContent({
   initialPathSlug,
 }: TrailsContentProps) {
   const router = useRouter();
-  const { text } = useLocalizedText();
+  const { text, language } = useLocalizedText();
+  const knowledgeMap = useMemo(
+    () => localizeKnowledgeMap(sourceKnowledgeMap, language),
+    [sourceKnowledgeMap, language]
+  );
   const [viewMode, setViewMode] = useState(initialViewMode);
   const [activeLanguage, setActiveLanguage] = useState(initialActiveLanguage);
   const [pathId, setPathId] = useState(initialPathSlug ?? '');

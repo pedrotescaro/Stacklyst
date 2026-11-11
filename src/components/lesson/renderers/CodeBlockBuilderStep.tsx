@@ -5,6 +5,7 @@ import { Volume2 } from 'lucide-react';
 import type { LessonStep } from '@/lib/lessons/types';
 import { useTextToSpeech } from '@/hooks/useTextToSpeech';
 import { DuolingoText } from '../DuolingoText';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface CodeBlockBuilderStepProps {
   step: LessonStep;
@@ -19,6 +20,7 @@ export function CodeBlockBuilderStep({
   onToggleToken,
   disabled = false,
 }: CodeBlockBuilderStepProps) {
+  const { text } = useLocalizedText();
   const allTokens = step.blockTokens || [];
   const { speak, isSpeaking } = useTextToSpeech();
 
@@ -30,14 +32,16 @@ export function CodeBlockBuilderStep({
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in font-sans select-none">
       {/* Título Principal */}
-      <h2 className="text-xl font-bold leading-snug text-dd-text">Monte o código:</h2>
+      <h2 className="text-xl font-bold leading-snug text-dd-text">
+        {text('Monte o código:', 'Build the code:')}
+      </h2>
 
       {/* Mascote Robô com Balão de Fala estilo Duolingo */}
       <div className="flex items-center gap-4">
         <div className="relative h-24 w-20 shrink-0">
           <Image
             src="/assets/trails/devdeck-robot-lesson.png"
-            alt="Mascote Stacklyst"
+            alt={text('Mascote Stacklyst', 'Stacklyst mascot')}
             fill
             sizes="80px"
             className={`object-contain transition-transform duration-200 ${
@@ -57,7 +61,7 @@ export function CodeBlockBuilderStep({
           <button
             type="button"
             onClick={handleSpeak}
-            aria-label="Ouvir enunciado da questão"
+            aria-label={text('Ouvir enunciado da questão', 'Listen to the question')}
             className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-blue-600 text-white  hover:bg-blue-700 active:scale-95 transition-all dd-focus-ring cursor-pointer ${
               isSpeaking ? 'ring-4 ring-blue-400/40 scale-105 animate-pulse' : ''
             }`}
@@ -83,7 +87,10 @@ export function CodeBlockBuilderStep({
         <div className="relative z-10 flex flex-wrap gap-2.5 items-center">
           {selectedTokenIndices.length === 0 ? (
             <span className="text-base text-dd-muted select-none py-3">
-              Toque nos blocos abaixo para posicioná-los aqui...
+              {text(
+                'Toque nos blocos abaixo para posicioná-los aqui...',
+                'Tap the blocks below to place them here...'
+              )}
             </span>
           ) : (
             selectedTokenIndices.map((tokenIdx, position) => {

@@ -1,5 +1,7 @@
 'use client';
 
+import { useLocalizedText } from '../../i18n/useLocalizedText';
+import { translateMundinho } from '../../lib/mundinho/i18n';
 import {
   lazy,
   Suspense,
@@ -113,26 +115,43 @@ const TITLES: Record<View, string> = {
   profile: 'Perfil de Aventureiro',
 };
 
-function formatTransactionDate(iso: string) {
+const TITLES_EN: Record<View, string> = {
+  home: 'Learning trails',
+  world: 'My World',
+  arena: 'Multiplayer arena',
+  battle: 'Concept Battle',
+  avatar: 'Avatar',
+  wallet: 'Coins',
+  store: 'Item Store',
+  inventory: 'My Inventory',
+  recharge: 'Top up',
+  missions: 'Daily Missions',
+  profile: 'Adventurer Profile',
+};
+
+function formatTransactionDate(iso: string, language: 'pt' | 'en' = 'pt') {
   try {
     const d = new Date(iso);
     const hours = String(d.getHours()).padStart(2, '0');
     const minutes = String(d.getMinutes()).padStart(2, '0');
     const day = String(d.getDate()).padStart(2, '0');
-    const months = [
-      'jan.',
-      'fev.',
-      'mar.',
-      'abr.',
-      'mai.',
-      'jun.',
-      'jul.',
-      'ago.',
-      'set.',
-      'out.',
-      'nov.',
-      'dez.',
-    ];
+    const months =
+      language === 'en'
+        ? ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+        : [
+            'jan.',
+            'fev.',
+            'mar.',
+            'abr.',
+            'mai.',
+            'jun.',
+            'jul.',
+            'ago.',
+            'set.',
+            'out.',
+            'nov.',
+            'dez.',
+          ];
     const month = months[d.getMonth()] || '';
     const year = String(d.getFullYear()).slice(-2);
     return `${hours}:${minutes} ${day} ${month} ${year}`;
@@ -160,6 +179,8 @@ export function AdventureHub({
   languagePreference?: (typeof LANGUAGES)[number];
   onLanguageChange?: (language: (typeof LANGUAGES)[number]) => void;
 }) {
+  const { text, language: uiLanguage, locale } = useLocalizedText();
+  const m = useCallback((value: string) => translateMundinho(value, uiLanguage), [uiLanguage]);
   const [data, setData] = useState<AdventureState | null>(null);
   const [view, setView] = useState<View>('home');
   const [arenaSeed, setArenaSeed] = useState<ArenaState | null>(null);
@@ -272,10 +293,15 @@ export function AdventureHub({
       setError('');
     } catch (e) {
       setError(
-        e instanceof Error ? e.message : 'Não foi possível carregar o Mundinho. Tente novamente.'
+        e instanceof Error
+          ? e.message
+          : text(
+              'Não foi possível carregar o Mundinho. Tente novamente.',
+              'Could not load Mundinho. Try again.'
+            )
       );
     }
-  }, [transport]);
+  }, [transport, text]);
 
   useEffect(() => {
     void load();
@@ -411,7 +437,7 @@ export function AdventureHub({
         }
       } catch {}
       setRadioPlaying(true);
-      setNotice('Tocando rádio de estudos lo-fi.');
+      setNotice(text('Tocando rádio de estudos lo-fi.', 'Playing lo-fi study radio.'));
     } else {
       setRadioPlaying(false);
       setNotice('');
@@ -451,15 +477,26 @@ export function AdventureHub({
       () => {
         go('world');
         const drop = EQUIPMENT.find((item) => item.id === battle.drop?.itemId);
+        const dropName = drop ? m(drop.name) : '';
         const dropText = drop
           ? battle.drop?.duplicateCoins
-            ? ` ${drop.name} repetido: +${battle.drop.duplicateCoins} moedas.`
-            : ` ${drop.name} foi guardado no inventário!`
+            ? text(
+                ` ${dropName} repetido: +${battle.drop.duplicateCoins} moedas.`,
+                ` Duplicate ${dropName}: +${battle.drop.duplicateCoins} coins.`
+              )
+            : text(
+                ` ${dropName} foi guardado no inventário!`,
+                ` ${dropName} was stored in your inventory!`
+              )
           : '';
         setNotice(
           (reward
-            ? `Vitória! +${reward} moedas e +30 XP. Recompensa registrada.`
-            : 'Vitória! Você voltou à clareira.') + dropText
+            ? text(
+                `Vitória! +${reward} moedas e +30 XP. Recompensa registrada.`,
+                `Victory! +${reward} coins and +30 XP. Reward recorded.`
+              )
+            : text('Vitória! Você voltou à clareira.', 'Victory! You returned to the clearing.')) +
+            dropText
         );
         setCombatPhase('idle');
       },
@@ -490,7 +527,11 @@ export function AdventureHub({
       setArenaInvitations([]);
       go('arena');
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Não foi possível aceitar o convite.');
+      setError(
+        e instanceof Error
+          ? e.message
+          : text('Não foi possível aceitar o convite.', 'Could not accept the invitation.')
+      );
     } finally {
       pending.current = false;
       setBusy(false);
@@ -555,8 +596,8 @@ export function AdventureHub({
             className="ad-back-button"
             aria-label={
               view === 'battle' || view === 'arena'
-                ? 'Voltar ao Mundinho'
-                : 'Voltar para a tela inicial'
+                ? text('Voltar ao Mundinho', 'Back to the World')
+                : text('Voltar para a tela inicial', 'Back to the home screen')
             }
             disabled={busy}
             onClick={() => {
@@ -571,17 +612,26 @@ export function AdventureHub({
 
         <div className="ad-heading-text">
           <h1 tabIndex={-1} ref={heading}>
-            {TITLES[view]}
+            {text(TITLES[view], TITLES_EN[view])}
           </h1>
           {view === 'home' && (
-            <p className="ad-subtitle">Aprenda programação de forma gamificada e divertida.</p>
+            <p className="ad-subtitle">
+              {text(
+                'Aprenda programação de forma gamificada e divertida.',
+                'Learn programming in a fun, gamified way.'
+              )}
+            </p>
           )}
         </div>
 
         {(view === 'world' || view === 'battle') && (
           <button
             className="ad-battle-sound"
-            aria-label={soundEnabled ? 'Silenciar sons do jogo' : 'Ativar sons do jogo'}
+            aria-label={
+              soundEnabled
+                ? text('Silenciar sons do jogo', 'Mute game sounds')
+                : text('Ativar sons do jogo', 'Turn on game sounds')
+            }
             aria-pressed={soundEnabled}
             onClick={toggleBattleSound}
           >
@@ -592,9 +642,9 @@ export function AdventureHub({
           <button
             className="ad-lessons-link"
             onClick={() => onCourse()}
-            title="Acessar mapa completo de lições"
+            title={text('Acessar mapa completo de lições', 'Open the full lesson map')}
           >
-            Mapa de Lições <ArrowRight size={16} />
+            {text('Mapa de Lições', 'Lesson map')} <ArrowRight size={16} />
           </button>
         )}
 
@@ -605,11 +655,14 @@ export function AdventureHub({
             onClick={() =>
               void act(
                 { type: 'avatar', avatar: draft },
-                'Avatar salvo! Visual atualizado no mundo e nas batalhas.'
+                text(
+                  'Avatar salvo! Visual atualizado no mundo e nas batalhas.',
+                  'Avatar saved! Look updated in the world and in battles.'
+                )
               )
             }
           >
-            {busy ? 'Salvando…' : 'Salvar'}
+            {busy ? text('Salvando…', 'Saving…') : text('Salvar', 'Save')}
           </button>
         )}
       </header>
@@ -619,14 +672,15 @@ export function AdventureHub({
           <div className="ad-arena-invitation" role="status" key={invite.roomId}>
             <Swords size={20} />
             <p>
-              <strong>{invite.hostName}</strong> convidou você para a arena do Mundinho.
+              <strong>{invite.hostName}</strong>{' '}
+              {text('convidou você para a arena do Mundinho.', 'invited you to the World arena.')}
             </p>
             <button
               type="button"
               disabled={busy || (view === 'battle' && battle?.status === 'active')}
               onClick={() => void acceptArenaInvite(invite.roomId)}
             >
-              Aceitar e entrar
+              {text('Aceitar e entrar', 'Accept and join')}
             </button>
             <button
               type="button"
@@ -639,7 +693,7 @@ export function AdventureHub({
                   .catch((e) => setError(e.message));
               }}
             >
-              Recusar
+              {text('Recusar', 'Decline')}
             </button>
           </div>
         ))}
@@ -648,7 +702,7 @@ export function AdventureHub({
       {error && (
         <div className="ad-error" role="alert">
           <span>{error}</span>
-          <button onClick={() => void load()}>Tentar novamente</button>
+          <button onClick={() => void load()}>{text('Tentar novamente', 'Try again')}</button>
         </div>
       )}
       {notice && (
@@ -666,7 +720,7 @@ export function AdventureHub({
           {/* Top Hero Banner */}
           <section
             className="ad-hero-banner"
-            aria-label="Prévia do Meu Mundinho"
+            aria-label={text('Prévia do Meu Mundinho', 'My World preview')}
             style={{
               backgroundImage: `url(${adventureAsset('forest-v2.png', assetBase)})`,
             }}
@@ -677,7 +731,7 @@ export function AdventureHub({
             </div>
 
             <label className="ad-home-language">
-              Linguagem do Mundinho
+              {text('Linguagem do Mundinho', 'World language')}
               <select
                 value={language}
                 onChange={(event) => {
@@ -696,15 +750,15 @@ export function AdventureHub({
             <div className="ad-hero-buttons-row">
               <button
                 className="ad-enter-world-button"
-                aria-label="Entrar no Mundinho"
+                aria-label={text('Entrar no Mundinho', 'Enter the World')}
                 onClick={() => go('world')}
               >
                 <Globe2 size={22} />
-                <span>Entrar no Mundinho</span>
+                <span>{text('Entrar no Mundinho', 'Enter the World')}</span>
               </button>
               <button
                 className="ad-hero-pencil-button"
-                aria-label="Personalizar avatar"
+                aria-label={text('Personalizar avatar', 'Customize avatar')}
                 onClick={() => go('avatar')}
               >
                 <Pencil size={20} />
@@ -717,12 +771,12 @@ export function AdventureHub({
             <button
               onClick={() => go('wallet')}
               className="ad-card-stat"
-              title="Ver extrato de moedas"
+              title={text('Ver extrato de moedas', 'View coin history')}
             >
-              <span className="ad-stat-title">Moedas</span>
+              <span className="ad-stat-title">{text('Moedas', 'Coins')}</span>
               <div className="ad-stat-value-row">
                 <span className="ad-stat-number">
-                  {data ? data.coins.toLocaleString('pt-BR') : '0'}
+                  {data ? data.coins.toLocaleString(locale) : '0'}
                 </span>
                 <Coin className="ad-stat-coin" />
                 <ChevronRight size={18} className="ad-stat-arrow" />
@@ -736,13 +790,14 @@ export function AdventureHub({
                   ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
               }}
               className="ad-card-stat"
-              title="Sequência de dias"
+              title={text('Sequência de dias', 'Day streak')}
             >
-              <span className="ad-stat-title">Sequência</span>
+              <span className="ad-stat-title">{text('Sequência', 'Streak')}</span>
               <div className="ad-stat-value-row">
                 <Flame size={20} className="text-blue-400 fill-blue-400" />
                 <span className="ad-stat-number">
-                  {data ? data.checkin.streak : 0} {data?.checkin.streak === 1 ? 'dia' : 'dias'}
+                  {data ? data.checkin.streak : 0}{' '}
+                  {data?.checkin.streak === 1 ? text('dia', 'day') : text('dias', 'days')}
                 </span>
               </div>
             </button>
@@ -752,13 +807,19 @@ export function AdventureHub({
           <div className="ad-radio-card" onClick={toggleRadio}>
             <button
               className={`ad-radio-play-btn ${radioPlaying ? 'is-playing' : ''}`}
-              aria-label={radioPlaying ? 'Pausar rádio' : 'Ouvir rádio'}
+              aria-label={
+                radioPlaying
+                  ? text('Pausar rádio', 'Pause radio')
+                  : text('Ouvir rádio', 'Play radio')
+              }
             >
               {radioPlaying ? <Pause size={18} /> : <Play size={18} className="translate-x-0.5" />}
             </button>
             <div className="ad-radio-info">
               <span>
-                {radioPlaying ? 'Tocando rádio de estudos lo-fi' : 'Toque para ouvir o rádio'}
+                {radioPlaying
+                  ? text('Tocando rádio de estudos lo-fi', 'Playing lo-fi study radio')
+                  : text('Toque para ouvir o rádio', 'Tap to listen to the radio')}
               </span>
             </div>
             {radioPlaying && (
@@ -773,7 +834,9 @@ export function AdventureHub({
           {/* XP & Level Bar (Matching Image 1) */}
           <div className="ad-level-bar-card">
             <div className="ad-level-bar-labels">
-              <strong>Nível {data ? xp.level : 1}</strong>
+              <strong>
+                {text('Nível', 'Level')} {data ? xp.level : 1}
+              </strong>
               <span>{data ? `${xp.current} / ${xp.needed} XP` : '0 / 100 XP'}</span>
             </div>
             <div className="ad-level-track">
@@ -806,7 +869,11 @@ export function AdventureHub({
                       <span className="ad-checkin-badge-number">{reward}</span>
                     </div>
                     <span className="ad-checkin-day-label">
-                      {isToday ? (data?.checkin.claimed ? 'Resgatado' : 'Hoje') : `Dia ${i + 1}`}
+                      {isToday
+                        ? data?.checkin.claimed
+                          ? text('Resgatado', 'Claimed')
+                          : text('Hoje', 'Today')
+                        : `${text('Dia', 'Day')} ${i + 1}`}
                     </span>
                   </div>
                 );
@@ -820,26 +887,29 @@ export function AdventureHub({
               onClick={() =>
                 void act(
                   { type: 'checkin' },
-                  `Check-in realizado com sucesso! +${data?.checkin.reward} moedas adicionadas.`
+                  text(
+                    `Check-in realizado com sucesso! +${data?.checkin.reward} moedas adicionadas.`,
+                    `Checked in! +${data?.checkin.reward} coins added.`
+                  )
                 )
               }
             >
               {data?.checkin.claimed ? (
                 <>
                   <Check size={20} strokeWidth={3} />
-                  <span>Check-in de hoje realizado</span>
+                  <span>{text('Check-in de hoje realizado', "Today's check-in done")}</span>
                 </>
               ) : busy ? (
-                'Resgatando moedas…'
+                text('Resgatando moedas…', 'Claiming coins…')
               ) : (
-                `Fazer check-in`
+                text('Fazer check-in', 'Check in')
               )}
             </button>
           </section>
 
           {/* Daily Missions (Matching Image 1) */}
           <section className="ad-missions-section">
-            <h2 className="ad-section-title">Missões diárias</h2>
+            <h2 className="ad-section-title">{text('Missões diárias', 'Daily missions')}</h2>
             <div className="ad-missions-list">
               {(
                 data?.missions ?? [
@@ -870,19 +940,25 @@ export function AdventureHub({
                 ]
               ).map((m, idx) => {
                 const tag = idx === 0 ? 'Fácil' : idx === 1 ? 'Médio' : 'Lendário';
+                const tagLabel =
+                  idx === 0
+                    ? text('Fácil', 'Easy')
+                    : idx === 1
+                      ? text('Médio', 'Medium')
+                      : text('Lendário', 'Legendary');
                 return (
                   <article key={m.id} className="ad-mission-item">
                     <div className="ad-mission-header">
-                      <span className={`ad-mission-tag tag-${tag.toLowerCase()}`}>{tag}</span>
+                      <span className={`ad-mission-tag tag-${tag.toLowerCase()}`}>{tagLabel}</span>
                       <span className="ad-mission-progress-badge">
                         {m.progress} / {m.target}
                       </span>
                     </div>
                     <div className="ad-mission-body">
-                      <p className="ad-mission-name">{m.name}</p>
+                      <p className="ad-mission-name">{translateMundinho(m.name, uiLanguage)}</p>
                       <div className="ad-mission-reward-row">
                         <span className="ad-mission-reward">
-                          <Coin /> +{m.reward} moedas
+                          <Coin /> +{m.reward} {text('moedas', 'coins')}
                         </span>
                         <button
                           className="ad-claim-mission-btn"
@@ -890,11 +966,11 @@ export function AdventureHub({
                           onClick={() =>
                             void act(
                               { type: 'mission', mission: m.id },
-                              'Missão resgatada com sucesso!'
+                              text('Missão resgatada com sucesso!', 'Mission claimed!')
                             )
                           }
                         >
-                          {m.claimed ? 'Resgatado' : 'Resgatar'}
+                          {m.claimed ? text('Resgatado', 'Claimed') : text('Resgatar', 'Claim')}
                         </button>
                       </div>
                     </div>
@@ -907,9 +983,11 @@ export function AdventureHub({
           {/* Trilhas de Aprendizagem (Section 9) */}
           <section className="ad-courses-section">
             <div className="ad-section-header-row">
-              <h2 className="ad-section-title">Trilhas de Aprendizagem</h2>
+              <h2 className="ad-section-title">
+                {text('Trilhas de Aprendizagem', 'Learning Trails')}
+              </h2>
               <button className="ad-see-all-btn" onClick={() => onCourse()}>
-                Ver todas <ChevronRight size={16} />
+                {text('Ver todas', 'See all')} <ChevronRight size={16} />
               </button>
             </div>
 
@@ -930,7 +1008,7 @@ export function AdventureHub({
                   <div className="ad-course-info">
                     <h3>{LANGUAGE_NAMES[course.language] ?? course.language}</h3>
                     <p className="ad-course-progress-text">
-                      {course.completed} / {course.total} conhecimentos
+                      {course.completed} / {course.total} {text('conhecimentos', 'topics')}
                     </p>
                     <div className="ad-course-progress-track">
                       <div
@@ -941,7 +1019,7 @@ export function AdventureHub({
                       />
                     </div>
                     <span className="ad-course-action">
-                      Continuar aprendendo <ArrowRight size={13} />
+                      {text('Continuar aprendendo', 'Continue learning')} <ArrowRight size={13} />
                     </span>
                   </div>
                 </button>
@@ -954,8 +1032,10 @@ export function AdventureHub({
             <button className="ad-shortcut-btn" onClick={() => go('battle')}>
               <Swords className="text-sky-400" size={24} />
               <div>
-                <strong>Batalhas de Conceitos</strong>
-                <small>Duelo de perguntas e habilidades</small>
+                <strong>{text('Batalhas de Conceitos', 'Concept Battles')}</strong>
+                <small>
+                  {text('Duelo de perguntas e habilidades', 'Question and skill duels')}
+                </small>
               </div>
               <ChevronRight size={18} />
             </button>
@@ -963,8 +1043,10 @@ export function AdventureHub({
             <button className="ad-shortcut-btn" onClick={() => go('avatar')}>
               <PixelAvatar avatar={equippedAvatar} />
               <div>
-                <strong>Personalizar Avatar</strong>
-                <small>Roupas, cabelos e acessórios</small>
+                <strong>{text('Personalizar Avatar', 'Customize Avatar')}</strong>
+                <small>
+                  {text('Roupas, cabelos e acessórios', 'Outfits, hair and accessories')}
+                </small>
               </div>
               <ChevronRight size={18} />
             </button>
@@ -972,8 +1054,13 @@ export function AdventureHub({
             <button className="ad-shortcut-btn" onClick={() => go('store')}>
               <TreasureChest className="text-amber-400" size={24} />
               <div>
-                <strong>Loja de Itens</strong>
-                <small>Equipamentos e cosméticos com suas moedas</small>
+                <strong>{text('Loja de Itens', 'Item Store')}</strong>
+                <small>
+                  {text(
+                    'Equipamentos e cosméticos com suas moedas',
+                    'Equipment and cosmetics with your coins'
+                  )}
+                </small>
               </div>
               <ChevronRight size={18} />
             </button>
@@ -981,8 +1068,13 @@ export function AdventureHub({
             <button className="ad-shortcut-btn" onClick={() => go('inventory')}>
               <Backpack className="text-indigo-400" size={24} />
               <div>
-                <strong>Meu Inventário</strong>
-                <small>Equipar itens, títulos e acessórios</small>
+                <strong>{text('Meu Inventário', 'My Inventory')}</strong>
+                <small>
+                  {text(
+                    'Equipar itens, títulos e acessórios',
+                    'Equip items, titles and accessories'
+                  )}
+                </small>
               </div>
               <ChevronRight size={18} />
             </button>
@@ -998,10 +1090,10 @@ export function AdventureHub({
           {/* Card: Saldo Atual (Matching Image 5) */}
           <div className="ad-balance-card">
             <div className="ad-balance-left">
-              <span className="ad-balance-label">Saldo atual</span>
+              <span className="ad-balance-label">{text('Saldo atual', 'Current balance')}</span>
               <div className="ad-balance-amount-row">
                 <strong className="ad-balance-number">
-                  {data ? data.coins.toLocaleString('pt-BR') : '0'}
+                  {data ? data.coins.toLocaleString(locale) : '0'}
                 </strong>
                 <Coin className="ad-balance-coin" />
               </div>
@@ -1009,8 +1101,8 @@ export function AdventureHub({
             {/* Blue circle button with up arrow leading to Recarga (Image 2) */}
             <button
               className="ad-recharge-blue-circle"
-              aria-label="Abrir tela de recarga"
-              title="Recarregar moedas"
+              aria-label={text('Abrir tela de recarga', 'Open top-up screen')}
+              title={text('Recarregar moedas', 'Top up coins')}
               onClick={() => go('recharge')}
             >
               <ArrowUp size={24} strokeWidth={2.8} />
@@ -1019,13 +1111,15 @@ export function AdventureHub({
 
           {/* Section: Extrato (Matching Image 5) */}
           <section className="ad-ledger-section">
-            <h2 className="ad-ledger-heading">Extrato</h2>
+            <h2 className="ad-ledger-heading">{text('Extrato', 'History')}</h2>
             <div className="ad-ledger-list">
               {(data?.transactions ?? []).map((t) => (
                 <article key={t.id} className="ad-ledger-card">
                   <div className="ad-ledger-details">
-                    <h3 className="ad-ledger-label">{t.label}</h3>
-                    <span className="ad-ledger-date">{formatTransactionDate(t.createdAt)}</span>
+                    <h3 className="ad-ledger-label">{m(t.label)}</h3>
+                    <span className="ad-ledger-date">
+                      {formatTransactionDate(t.createdAt, uiLanguage)}
+                    </span>
                   </div>
                   <strong
                     className={`ad-ledger-value ${t.amount >= 0 ? 'is-positive' : 'is-negative'}`}
@@ -1037,9 +1131,12 @@ export function AdventureHub({
 
               {data && data.transactions.length === 0 && (
                 <div className="ad-empty-ledger">
-                  <p>Nenhuma transação recente.</p>
+                  <p>{text('Nenhuma transação recente.', 'No recent transactions.')}</p>
                   <small>
-                    Faça o check-in diário ou conclua lições para receber suas primeiras moedas.
+                    {text(
+                      'Faça o check-in diário ou conclua lições para receber suas primeiras moedas.',
+                      'Check in daily or complete lessons to get your first coins.'
+                    )}
                   </small>
                 </div>
               )}
@@ -1056,8 +1153,11 @@ export function AdventureHub({
           <div className="ad-recharge-notice">
             <Shield size={20} className="text-amber-400 flex-shrink-0" />
             <p>
-              <strong>Em breve:</strong> Pacotes demonstrativos. Pagamentos e cobranças estão
-              desativados no momento.
+              <strong>{text('Em breve:', 'Coming soon:')}</strong>{' '}
+              {text(
+                'Pacotes demonstrativos. Pagamentos e cobranças estão desativados no momento.',
+                'Demo packages. Payments and charges are currently disabled.'
+              )}
             </p>
           </div>
 
@@ -1066,6 +1166,7 @@ export function AdventureHub({
               {
                 id: 'punhado',
                 name: 'Punhado',
+                nameEn: 'Handful',
                 amount: 100,
                 bonus: '+50 para apoiadores',
                 price: 'R$ 2,90',
@@ -1073,6 +1174,7 @@ export function AdventureHub({
               {
                 id: 'bolsa',
                 name: 'Bolsa',
+                nameEn: 'Pouch',
                 amount: 300,
                 bonus: '+150 para apoiadores',
                 price: 'R$ 5,90',
@@ -1080,6 +1182,7 @@ export function AdventureHub({
               {
                 id: 'bau',
                 name: 'Baú',
+                nameEn: 'Chest',
                 amount: 900,
                 bonus: '+450 para apoiadores',
                 price: 'R$ 12,90',
@@ -1087,6 +1190,7 @@ export function AdventureHub({
               {
                 id: 'cofre',
                 name: 'Cofre',
+                nameEn: 'Vault',
                 amount: 2000,
                 bonus: '+1.000 para apoiadores',
                 price: 'R$ 24,90',
@@ -1094,6 +1198,7 @@ export function AdventureHub({
               {
                 id: 'tesouro',
                 name: 'Tesouro',
+                nameEn: 'Treasure',
                 amount: 4500,
                 bonus: '+2.250 para apoiadores',
                 price: 'R$ 49,90',
@@ -1101,6 +1206,7 @@ export function AdventureHub({
               {
                 id: 'montanha',
                 name: 'Montanha',
+                nameEn: 'Mountain',
                 amount: 10000,
                 bonus: '+5.000 para apoiadores',
                 price: 'R$ 99,90',
@@ -1111,17 +1217,24 @@ export function AdventureHub({
                   <TreasureChest size={36} className="text-amber-400" />
                 </div>
                 <div className="ad-pkg-info">
-                  <h3 className="ad-pkg-name">{pkg.name}</h3>
+                  <h3 className="ad-pkg-name">{text(pkg.name, pkg.nameEn)}</h3>
                   <div className="ad-pkg-amount-row">
-                    <span className="ad-pkg-amount">{pkg.amount.toLocaleString('pt-BR')}</span>
+                    <span className="ad-pkg-amount">{pkg.amount.toLocaleString(locale)}</span>
                     <Coin className="ad-pkg-coin" />
                   </div>
-                  <small className="ad-pkg-bonus">{pkg.bonus}</small>
+                  <small className="ad-pkg-bonus">
+                    {text(pkg.bonus, pkg.bonus.replace('para apoiadores', 'for supporters'))}
+                  </small>
                 </div>
                 <button
                   className="ad-pkg-buy-btn"
                   onClick={() =>
-                    setNotice(`O pacote "${pkg.name}" estará disponível para aquisição em breve!`)
+                    setNotice(
+                      text(
+                        `O pacote "${pkg.name}" estará disponível para aquisição em breve!`,
+                        `The "${pkg.nameEn}" package will be available for purchase soon!`
+                      )
+                    )
                   }
                 >
                   {pkg.price}
@@ -1141,7 +1254,7 @@ export function AdventureHub({
           <div className="ad-checkerboard-preview">
             <button
               className="ad-rotate-btn"
-              aria-label="Girar à esquerda"
+              aria-label={text('Girar à esquerda', 'Rotate left')}
               onClick={() => setDirection((direction + 3) % 4)}
             >
               <RotateCcw size={22} />
@@ -1153,28 +1266,36 @@ export function AdventureHub({
 
             <button
               className="ad-rotate-btn"
-              aria-label="Girar à direita"
+              aria-label={text('Girar à direita', 'Rotate right')}
               onClick={() => setDirection((direction + 1) % 4)}
             >
               <RotateCw size={22} />
             </button>
           </div>
 
-          <section className="ad-portrait-editor" aria-label="Retrato de diálogo">
+          <section
+            className="ad-portrait-editor"
+            aria-label={text('Retrato de diálogo', 'Dialogue portrait')}
+          >
             <Portrait
               avatar={draft}
-              name={data?.username ?? 'Seu personagem'}
+              name={data?.username ?? text('Seu personagem', 'Your character')}
               assetBase={assetBase}
             />
             <div>
-              <h2>Seu retrato nas conversas</h2>
-              <p>Pele, olhos, cabelo, roupas e acessórios acompanham suas escolhas.</p>
+              <h2>{text('Seu retrato nas conversas', 'Your portrait in conversations')}</h2>
+              <p>
+                {text(
+                  'Pele, olhos, cabelo, roupas e acessórios acompanham suas escolhas.',
+                  'Skin, eyes, hair, outfits and accessories follow your choices.'
+                )}
+              </p>
               <fieldset className="ad-gender-picker">
-                <legend>Gênero do personagem</legend>
+                <legend>{text('Gênero do personagem', 'Character gender')}</legend>
                 {(
                   [
-                    { value: 'masculine', label: 'Masculino' },
-                    { value: 'feminine', label: 'Feminino' },
+                    { value: 'masculine', label: text('Masculino', 'Masculine') },
+                    { value: 'feminine', label: text('Feminino', 'Feminine') },
                   ] as const
                 ).map((option) => (
                   <label key={option.value}>
@@ -1190,8 +1311,10 @@ export function AdventureHub({
                 ))}
               </fieldset>
               <p className="ad-portrait-note">
-                Define as feições do personagem e do retrato. Todas as peças podem ser usadas nas
-                duas opções.
+                {text(
+                  'Define as feições do personagem e do retrato. Todas as peças podem ser usadas nas duas opções.',
+                  'Sets the features of the character and portrait. Every piece works with both options.'
+                )}
               </p>
             </div>
           </section>
@@ -1199,11 +1322,11 @@ export function AdventureHub({
           {/* Category Tabs (Matching Image 4) */}
           <div className="ad-category-tabs-row" role="tablist">
             {[
-              { id: 'skin', label: 'Corpo' },
-              { id: 'eyes', label: 'Olhos' },
-              { id: 'outfit', label: 'Roupas' },
-              { id: 'hair', label: 'Cabelo' },
-              { id: 'accessory', label: 'Acessórios' },
+              { id: 'skin', label: text('Corpo', 'Body') },
+              { id: 'eyes', label: text('Olhos', 'Eyes') },
+              { id: 'outfit', label: text('Roupas', 'Outfits') },
+              { id: 'hair', label: text('Cabelo', 'Hair') },
+              { id: 'accessory', label: text('Acessórios', 'Accessories') },
             ].map((tab) => (
               <button
                 key={tab.id}
@@ -1218,12 +1341,12 @@ export function AdventureHub({
           </div>
 
           {category === 'hair' && (
-            <section className="ad-hair-colors" aria-label="Cor do cabelo">
-              <h2>Cor do cabelo</h2>
+            <section className="ad-hair-colors" aria-label={text('Cor do cabelo', 'Hair color')}>
+              <h2>{text('Cor do cabelo', 'Hair color')}</h2>
               <ColorPalette
-                aria-label="Cor do cabelo"
+                aria-label={text('Cor do cabelo', 'Hair color')}
                 colors={hairColors}
-                names={hairColorNames}
+                names={hairColorNames.map(m)}
                 value={avatarHairColor(draft)}
                 onChange={(event) => setDraft(withAvatarHairColor(draft, event.target.value))}
               />
@@ -1254,11 +1377,11 @@ export function AdventureHub({
                     className={`ad-option-tile ${isSelected ? 'is-selected' : ''}`}
                     aria-label={
                       category === 'outfit'
-                        ? OUTFIT_SPECS[i].name
-                        : `${category === 'hair' ? 'Cabelo' : category === 'skin' ? 'Corpo' : category === 'eyes' ? 'Olhos' : 'Acessório'} ${i + 1}`
+                        ? m(OUTFIT_SPECS[i].name)
+                        : `${category === 'hair' ? text('Cabelo', 'Hair') : category === 'skin' ? text('Corpo', 'Body') : category === 'eyes' ? text('Olhos', 'Eyes') : text('Acessório', 'Accessory')} ${i + 1}`
                     }
                     aria-pressed={isSelected}
-                    title={category === 'outfit' ? OUTFIT_SPECS[i].name : undefined}
+                    title={category === 'outfit' ? m(OUTFIT_SPECS[i].name) : undefined}
                     onClick={() => {
                       if (locked) {
                         go('store');
@@ -1299,7 +1422,13 @@ export function AdventureHub({
       {/* 5. VIEW: WORLD (2D Pixel Art RPG, Matching Image 3)          */}
       {/* ============================================================ */}
       {view === 'world' && (
-        <Suspense fallback={<p className="ad-loading">Carregando o mundinho em pixel art…</p>}>
+        <Suspense
+          fallback={
+            <p className="ad-loading">
+              {text('Carregando o mundinho em pixel art…', 'Loading the pixel-art world…')}
+            </p>
+          }
+        >
           <World
             avatar={equippedAvatar}
             playerLevel={xp.level}
@@ -1324,7 +1453,12 @@ export function AdventureHub({
             onChest={async () => {
               const next = await act({ type: 'chest' });
               if (!next?.chest || next.chest.awarded === undefined)
-                throw new Error('Não foi possível confirmar o resgate. Tente novamente.');
+                throw new Error(
+                  text(
+                    'Não foi possível confirmar o resgate. Tente novamente.',
+                    'Could not confirm the claim. Try again.'
+                  )
+                );
               return { awarded: next.chest.awarded, reward: next.chest.reward };
             }}
           />
@@ -1352,17 +1486,18 @@ export function AdventureHub({
           {(!battle || battle.status === 'fled') && (
             <div className="ad-battle-lobby">
               <div className="ad-lobby-header">
-                <h2>Prepare sua aventura</h2>
+                <h2>{text('Prepare sua aventura', 'Prepare your adventure')}</h2>
                 <p>
-                  Cada golpe pode sair direto ou pedir um exercício. Sem equipamentos, as chances
-                  são 75% de golpe direto e 25% de exercício. Vença criaturas para encontrar
-                  equipamentos e fortalecer seu aventureiro.
+                  {text(
+                    'Cada golpe pode sair direto ou pedir um exercício. Sem equipamentos, as chances são 75% de golpe direto e 25% de exercício. Vença criaturas para encontrar equipamentos e fortalecer seu aventureiro.',
+                    'Each move can land directly or ask for an exercise. Without equipment, the odds are 75% direct hit and 25% exercise. Defeat creatures to find equipment and strengthen your adventurer.'
+                  )}
                 </p>
               </div>
 
               <div className="ad-lobby-controls">
                 <label className="ad-lobby-label">
-                  Linguagem do Combate
+                  {text('Linguagem do Combate', 'Battle language')}
                   <select
                     value={language}
                     onChange={(e) => {
@@ -1386,13 +1521,18 @@ export function AdventureHub({
                 onClick={() => go('world')}
               >
                 <Swords size={22} />
-                <span>Explorar o Mundinho</span>
+                <span>{text('Explorar o Mundinho', 'Explore the World')}</span>
               </button>
               <small className="ad-lobby-tip">
-                Encontre uma criatura na clareira. Você pode enfrentar criaturas de nível igual ou
-                inferior ao seu.
+                {text(
+                  'Encontre uma criatura na clareira. Você pode enfrentar criaturas de nível igual ou inferior ao seu.',
+                  'Find a creature in the clearing. You can face creatures at or below your level.'
+                )}
               </small>
-              <div className="ad-encounter-levels" aria-label="Níveis das criaturas">
+              <div
+                className="ad-encounter-levels"
+                aria-label={text('Níveis das criaturas', 'Creature levels')}
+              >
                 {CREATURES.map((c) => (
                   <article
                     key={c.id}
@@ -1400,14 +1540,18 @@ export function AdventureHub({
                   >
                     <PixelCreature kind={c.id} />
                     <div>
-                      <strong>{c.name}</strong>
+                      <strong>{m(c.name)}</strong>
                       <span>
-                        Nível {c.level} ·{' '}
+                        {text('Nível', 'Level')} {c.level} ·{' '}
                         {canChallengeCreature(xp.level, c.level)
-                          ? 'Pode enfrentar'
-                          : `Requer nível ${c.level}`}
+                          ? text('Pode enfrentar', 'Can challenge')
+                          : `${text('Requer nível', 'Requires level')} ${c.level}`}
                       </span>
-                      <PixelMeter label={`Vida de ${c.name}`} value={100} compact />
+                      <PixelMeter
+                        label={`${text('Vida de', 'HP of')} ${m(c.name)}`}
+                        value={100}
+                        compact
+                      />
                     </div>
                   </article>
                 ))}
@@ -1427,18 +1571,18 @@ export function AdventureHub({
                 {/* Enemy Combatant */}
                 <div className="ad-combatant ad-combatant-enemy">
                   <div className="ad-combatant-card">
-                    <span className="ad-combatant-name">{opponent.name}</span>
+                    <span className="ad-combatant-name">{m(opponent.name)}</span>
                     <small className="ad-combatant-meta">
-                      Inimigo · Nível {battle.enemyLevel ?? opponent.level} ·{' '}
-                      {LANGUAGE_NAMES[battle.language]}
+                      {text('Inimigo · Nível', 'Enemy · Level')}{' '}
+                      {battle.enemyLevel ?? opponent.level} · {LANGUAGE_NAMES[battle.language]}
                     </small>
                     <PixelMeter
                       value={battle.enemyHp}
                       max={battle.enemyMaxHp ?? 100}
-                      label={`Vida de ${opponent.name}`}
+                      label={`${text('Vida de', 'HP of')} ${m(opponent.name)}`}
                     />
                     <span className="ad-hp-number">
-                      {battle.enemyHp} / {battle.enemyMaxHp ?? 100} PV
+                      {battle.enemyHp} / {battle.enemyMaxHp ?? 100} {text('PV', 'HP')}
                     </span>
                   </div>
                   <div className="battle-sprite battle-sprite-enemy">
@@ -1459,7 +1603,7 @@ export function AdventureHub({
                     )}
                     {combatPhase === 'miss' && (
                       <span className="battle-miss" aria-hidden="true">
-                        Errou
+                        {text('Errou', 'Miss')}
                       </span>
                     )}
                   </div>
@@ -1507,14 +1651,16 @@ export function AdventureHub({
                   </div>
                   <div className="ad-combatant-card">
                     <span className="ad-combatant-name">{data?.username}</span>
-                    <small className="ad-combatant-meta">Seu nível · {xp.level}</small>
+                    <small className="ad-combatant-meta">
+                      {text('Seu nível ·', 'Your level ·')} {xp.level}
+                    </small>
                     <PixelMeter
                       value={battle.hp}
                       max={battle.maxHp ?? combatStats.maxHp}
-                      label={`Vida de ${data?.username ?? 'jogador'}`}
+                      label={`${text('Vida de', 'HP of')} ${data?.username ?? text('jogador', 'player')}`}
                     />
                     <span className="ad-hp-number">
-                      {battle.hp} / {battle.maxHp ?? combatStats.maxHp} PV
+                      {battle.hp} / {battle.maxHp ?? combatStats.maxHp} {text('PV', 'HP')}
                     </span>
                   </div>
                 </div>
@@ -1524,8 +1670,11 @@ export function AdventureHub({
               <div className="ad-battle-bottom-console">
                 <p className="ad-battle-narrative" role="status" aria-live="polite">
                   {combatPhase === 'flee'
-                    ? 'Você fugiu. Voltando para a clareira…'
-                    : battle.feedback}
+                    ? text(
+                        'Você fugiu. Voltando para a clareira…',
+                        'You fled. Heading back to the clearing…'
+                      )
+                    : m(battle.feedback)}
                 </p>
 
                 {battle.status === 'active' ? (
@@ -1552,7 +1701,10 @@ export function AdventureHub({
                           ? () =>
                               void act(
                                 { type: 'equip', item: BUG_HUNTER_TITLE_ID },
-                                'Caça-bugs equipado. Use a habilidade para atacar.'
+                                text(
+                                  'Caça-bugs equipado. Use a habilidade para atacar.',
+                                  'Bug Hunter equipped. Use the ability to attack.'
+                                )
                               )
                           : undefined
                       }
@@ -1570,7 +1722,7 @@ export function AdventureHub({
                   ) : battle.question ? (
                     <div className="ad-battle-question-box">
                       <span className="ad-concept-tag">
-                        {battle.question.concept} · {battle.question.difficulty}
+                        {m(battle.question.concept)} · {m(battle.question.difficulty)}
                       </span>
                       <h3 className="ad-question-text">{battle.question.prompt}</h3>
                       <div className="ad-answers-grid">
@@ -1602,21 +1754,28 @@ export function AdventureHub({
                       <p className="ad-battle-odds">
                         {bugHunter && (
                           <strong>
-                            Caça-bugs equipado: exercícios de código dispensados.
+                            {text(
+                              'Caça-bugs equipado: exercícios de código dispensados.',
+                              'Bug Hunter equipped: code exercises skipped.'
+                            )}
                             <br />
                           </strong>
                         )}
-                        Golpe direto: {battle.directChance ?? combatStats.directChance}% ·
-                        Exercício: {100 - (battle.directChance ?? combatStats.directChance)}%
+                        {text('Golpe direto:', 'Direct hit:')}{' '}
+                        {battle.directChance ?? combatStats.directChance}% ·{' '}
+                        {text('Exercício:', 'Exercise:')}{' '}
+                        {100 - (battle.directChance ?? combatStats.directChance)}%
                         <span>
-                          Proteção: −{battle.protection ?? combatStats.protection} por golpe · Vida
-                          máxima: {battle.maxHp ?? combatStats.maxHp} PV
+                          {text('Proteção:', 'Protection:')} −
+                          {battle.protection ?? combatStats.protection}{' '}
+                          {text('por golpe', 'per hit')} · {text('Vida máxima:', 'Max HP:')}{' '}
+                          {battle.maxHp ?? combatStats.maxHp} {text('PV', 'HP')}
                         </span>
                       </p>
                       <div
                         className="ad-skills-grid"
                         role="toolbar"
-                        aria-label="Ações de batalha"
+                        aria-label={text('Ações de batalha', 'Battle actions')}
                         aria-orientation="horizontal"
                       >
                         {SKILLS.map((skill, index) => (
@@ -1641,13 +1800,16 @@ export function AdventureHub({
                             }}
                           >
                             <span className="rpg-selection-cursor" aria-hidden="true" />
-                            <strong>{skill.name}</strong>
-                            <small>{skill.description}</small>
+                            <strong>{m(skill.name)}</strong>
+                            <small>{m(skill.description)}</small>
                           </button>
                         ))}
                       </div>
                       <p className="rpg-command-hint">
-                        WASD / setas: selecionar · Enter / Espaço: confirmar
+                        {text(
+                          'WASD / setas: selecionar · Enter / Espaço: confirmar',
+                          'WASD / arrows: select · Enter / Space: confirm'
+                        )}
                       </p>
                     </>
                   )
@@ -1655,15 +1817,24 @@ export function AdventureHub({
                   <div className="ad-battle-end-card">
                     <h2>
                       {battle.status === 'won'
-                        ? 'Vitória! A criatura foi derrotada!'
-                        : 'Batalha encerrada.'}
+                        ? text(
+                            'Vitória! A criatura foi derrotada!',
+                            'Victory! The creature was defeated!'
+                          )
+                        : text('Batalha encerrada.', 'Battle over.')}
                     </h2>
                     <p>
                       {battle.status === 'won'
                         ? battle.reward
-                          ? `+${battle.reward} moedas · +30 XP creditados no seu perfil!`
-                          : 'Você venceu a batalha!'
-                        : 'Revise o conceito e tente novamente! Suas lições continuam salvas.'}
+                          ? text(
+                              `+${battle.reward} moedas · +30 XP creditados no seu perfil!`,
+                              `+${battle.reward} coins · +30 XP credited to your profile!`
+                            )
+                          : text('Você venceu a batalha!', 'You won the battle!')
+                        : text(
+                            'Revise o conceito e tente novamente! Suas lições continuam salvas.',
+                            'Review the concept and try again! Your lessons are still saved.'
+                          )}
                     </p>
                     {battleDrop && (
                       <div className="ad-battle-drop" role="status">
@@ -1671,25 +1842,33 @@ export function AdventureHub({
                         <div>
                           <strong>
                             {battle.drop?.duplicateCoins
-                              ? 'Equipamento repetido'
-                              : 'Novo equipamento!'}
+                              ? text('Equipamento repetido', 'Duplicate equipment')
+                              : text('Novo equipamento!', 'New equipment!')}
                           </strong>
                           <p>
-                            {battleDrop.name} · {battleDrop.rarity}
+                            {m(battleDrop.name)} · {m(battleDrop.rarity)}
                           </p>
                           <p>
                             {battle.drop?.duplicateCoins
-                              ? `Convertido em ${battle.drop.duplicateCoins} moedas.`
-                              : `${equipmentBonusLabel(battleDrop)} · Guardado no inventário.`}
+                              ? text(
+                                  `Convertido em ${battle.drop.duplicateCoins} moedas.`,
+                                  `Converted into ${battle.drop.duplicateCoins} coins.`
+                                )
+                              : `${equipmentBonusLabel(battleDrop, uiLanguage)} · ${text('Guardado no inventário.', 'Stored in your inventory.')}`}
                           </p>
                         </div>
                       </div>
                     )}
                     {battle.status === 'won' && (
-                      <p role="status">Voltando ao Mundinho em instantes…</p>
+                      <p role="status">
+                        {text(
+                          'Voltando ao Mundinho em instantes…',
+                          'Heading back to the World shortly…'
+                        )}
+                      </p>
                     )}
                     <button className="ad-primary mt-4" onClick={() => go('world')}>
-                      Voltar ao Mundinho
+                      {text('Voltar ao Mundinho', 'Back to the World')}
                     </button>
                   </div>
                 )}
@@ -1700,7 +1879,7 @@ export function AdventureHub({
                     disabled={busy}
                     onClick={() => void act({ type: 'battle-flee', battle: battle.id })}
                   >
-                    Fugir
+                    {text('Fugir', 'Flee')}
                   </button>
                 )}
               </div>
@@ -1716,27 +1895,37 @@ export function AdventureHub({
         <div className="ad-store-view">
           <div className="ad-store-top-bar">
             <span className="ad-store-balance">
-              Saldo: <strong>{data?.coins.toLocaleString('pt-BR') ?? 0}</strong> <Coin />
+              {text('Saldo:', 'Balance:')}{' '}
+              <strong>{data?.coins.toLocaleString(locale) ?? 0}</strong> <Coin />
             </span>
             <button
               className="ad-store-toggle-btn"
               onClick={() => go(view === 'store' ? 'inventory' : 'store')}
             >
-              {view === 'store' ? 'Ver Meu Inventário' : 'Visitar a Loja'}
+              {view === 'store'
+                ? text('Ver Meu Inventário', 'View My Inventory')
+                : text('Visitar a Loja', 'Visit the Store')}
               <ChevronRight size={16} />
             </button>
           </div>
           {(view === 'store' || ITEMS.some((item) => data?.inventory.includes(item.id))) && (
             <nav
               className="ad-store-sections"
-              aria-label={view === 'store' ? 'Categorias da loja' : 'Seções do inventário'}
+              aria-label={
+                view === 'store'
+                  ? text('Categorias da loja', 'Store categories')
+                  : text('Seções do inventário', 'Inventory sections')
+              }
             >
               {[
                 [
                   view === 'store' ? 'ad-equipment-store-title' : 'ad-equipment-inventory-title',
-                  'Equipamentos',
+                  text('Equipamentos', 'Equipment'),
                 ],
-                ['ad-store-personalization-title', 'Títulos e cosméticos'],
+                [
+                  'ad-store-personalization-title',
+                  text('Títulos e cosméticos', 'Titles and cosmetics'),
+                ],
               ].map(([id, label]) => (
                 <button
                   key={id}
@@ -1762,7 +1951,12 @@ export function AdventureHub({
               onEquip={(item, remove) =>
                 void act(
                   { type: 'equip', item, remove },
-                  remove ? 'Equipamento removido.' : 'Equipamento pronto para a próxima batalha!'
+                  remove
+                    ? text('Equipamento removido.', 'Equipment removed.')
+                    : text(
+                        'Equipamento pronto para a próxima batalha!',
+                        'Equipment ready for the next battle!'
+                      )
                 )
               }
             />
@@ -1779,14 +1973,22 @@ export function AdventureHub({
               onBuy={async (item) => {
                 const result = await act(
                   { type: 'buy', item },
-                  'Equipamento comprado e guardado no inventário!'
+                  text(
+                    'Equipamento comprado e guardado no inventário!',
+                    'Equipment bought and stored in your inventory!'
+                  )
                 );
                 if (result) setConfirm(null);
               }}
               onEquip={(item, remove) =>
                 void act(
                   { type: 'equip', item, remove },
-                  remove ? 'Equipamento removido.' : 'Equipamento pronto para a próxima batalha!'
+                  remove
+                    ? text('Equipamento removido.', 'Equipment removed.')
+                    : text(
+                        'Equipamento pronto para a próxima batalha!',
+                        'Equipment ready for the next battle!'
+                      )
                 )
               }
             />
@@ -1797,7 +1999,7 @@ export function AdventureHub({
               tabIndex={-1}
               className="ad-store-section-heading"
             >
-              Títulos e cosméticos
+              {text('Títulos e cosméticos', 'Titles and cosmetics')}
             </h2>
           )}
           <div className="ad-store-grid">
@@ -1826,55 +2028,73 @@ export function AdventureHub({
                         />
                       )}
                     </div>
-                    <small className="ad-item-rarity">{item.rarity}</small>
-                    <h3 className="ad-item-name">{item.name}</h3>
-                    <p className="ad-item-desc">{item.description}</p>
+                    <small className="ad-item-rarity">{m(item.rarity)}</small>
+                    <h3 className="ad-item-name">{m(item.name)}</h3>
+                    <p className="ad-item-desc">{m(item.description)}</p>
 
                     {owned ? (
                       <button
                         className={`ad-equip-btn ${worn ? 'is-worn' : ''}`}
                         disabled={busy}
-                        aria-label={`${worn ? 'Desequipar' : 'Equipar'} ${item.name}`}
+                        aria-label={`${worn ? text('Desequipar', 'Unequip') : text('Equipar', 'Equip')} ${m(item.name)}`}
                         onClick={() =>
                           void act(
                             { type: 'equip', item: item.id, remove: worn },
-                            worn ? 'Item desequipado.' : 'Item equipado com sucesso!'
+                            worn
+                              ? text('Item desequipado.', 'Item unequipped.')
+                              : text('Item equipado com sucesso!', 'Item equipped!')
                           )
                         }
                       >
-                        {worn ? 'Desequipar' : 'Equipar'}
+                        {worn ? text('Desequipar', 'Unequip') : text('Equipar', 'Equip')}
                       </button>
                     ) : confirm === item.id ? (
                       <div className="ad-confirm-box">
-                        <p>Confirmar por {item.price} moedas?</p>
+                        <p>
+                          {text('Confirmar por', 'Confirm for')} {item.price}{' '}
+                          {text('moedas?', 'coins?')}
+                        </p>
                         <button
                           className="ad-primary w-full text-xs py-2"
                           disabled={busy}
-                          aria-label={`Confirmar compra de ${item.name} por ${item.price} moedas`}
+                          aria-label={text(
+                            `Confirmar compra de ${item.name} por ${item.price} moedas`,
+                            `Confirm purchase of ${m(item.name)} for ${item.price} coins`
+                          )}
                           onClick={async () => {
                             await act(
                               { type: 'buy', item: item.id },
-                              'Item comprado e adicionado ao inventário!'
+                              text(
+                                'Item comprado e adicionado ao inventário!',
+                                'Item bought and added to your inventory!'
+                              )
                             );
                             setConfirm(null);
                           }}
                         >
-                          Confirmar
+                          {text('Confirmar', 'Confirm')}
                         </button>
                         <button className="ad-cancel-text" onClick={() => setConfirm(null)}>
-                          Cancelar
+                          {text('Cancelar', 'Cancel')}
                         </button>
                       </div>
                     ) : (
                       <button
                         className="ad-buy-btn"
                         disabled={!data || busy || data.coins < item.price}
-                        aria-label={`Comprar ${item.name} por ${item.price} moedas`}
+                        aria-label={text(
+                          `Comprar ${item.name} por ${item.price} moedas`,
+                          `Buy ${m(item.name)} for ${item.price} coins`
+                        )}
                         onClick={() => setConfirm(item.id)}
                       >
                         <Coin />
-                        <span>Comprar · {item.price}</span>
-                        {data && data.coins < item.price && <small>(Saldo insuficiente)</small>}
+                        <span>
+                          {text('Comprar ·', 'Buy ·')} {item.price}
+                        </span>
+                        {data && data.coins < item.price && (
+                          <small>{text('(Saldo insuficiente)', '(Not enough coins)')}</small>
+                        )}
                       </button>
                     )}
                   </article>
@@ -1887,7 +2107,12 @@ export function AdventureHub({
       {/* FOOTER */}
       <footer className="ad-footer-badge">
         <Sparkles size={15} />
-        <span>Stacklyst · Gamificação e Aprendizado de Programação</span>
+        <span>
+          {text(
+            'Stacklyst · Gamificação e Aprendizado de Programação',
+            'Stacklyst · Gamification and Programming Learning'
+          )}
+        </span>
       </footer>
     </div>
   );

@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react';
+import { useLocalizedText } from '../../i18n/useLocalizedText';
 export function TouchStick({ onMove }: { onMove: (x: number, y: number) => void }) {
+  const { text } = useLocalizedText();
   const active = useRef<number | null>(null);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   const reset = () => {
@@ -11,7 +13,10 @@ export function TouchStick({ onMove }: { onMove: (x: number, y: number) => void 
     <div
       className="world-stick"
       role="group"
-      aria-label="Controle de movimento por toque. Arraste em qualquer direção. Use também WASD ou setas no teclado."
+      aria-label={text(
+        'Controle de movimento por toque. Arraste em qualquer direção. Use também WASD ou setas no teclado.',
+        'Touch movement control. Drag in any direction. You can also use WASD or the arrow keys.'
+      )}
       onPointerDown={(e) => {
         if (active.current !== null) return;
         active.current = e.pointerId;

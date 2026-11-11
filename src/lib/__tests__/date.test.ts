@@ -26,6 +26,15 @@ describe('formatRelativeTime', () => {
     expect(formatRelativeTime('2026-08-04T12:00:00.000Z')).toBe('8d atrás');
   });
 
+  it('writes relative times in English when asked', () => {
+    const reference = new Date('2026-08-12T12:00:00.000Z');
+
+    expect(formatRelativeTime('2026-08-12T11:59:30.000Z', reference, 'en')).toBe('just now');
+    expect(formatRelativeTime('2026-08-12T11:59:00.000Z', reference, 'en')).toBe('1 minute ago');
+    expect(formatRelativeTime('2026-08-12T10:00:00.000Z', reference, 'en')).toBe('2 hours ago');
+    expect(formatRelativeTime('2026-08-10T12:00:00.000Z', reference, 'en')).toBe('2 days ago');
+  });
+
   it('uses one explicit reference instant across relative-time boundaries', () => {
     const createdAt = '2026-08-12T12:00:00.000Z';
 

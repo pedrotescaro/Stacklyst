@@ -1046,11 +1046,17 @@ export function FeedContent({
 
     if (newValue === -1) {
       const justification = prompt(
-        'No Stacklyst, o downvote exige uma justificativa construtiva. Escreva seu motivo para o autor melhorar:'
+        text(
+          'No Stacklyst, o downvote exige uma justificativa construtiva. Escreva seu motivo para o autor melhorar:',
+          'On Stacklyst, a downvote requires constructive feedback. Write your reason so the author can improve:'
+        )
       );
       if (!justification || justification.trim().length <= 3) {
         alert(
-          'O downvote foi cancelado. É necessária uma justificativa construtiva de pelo menos 4 caracteres.'
+          text(
+            'O downvote foi cancelado. É necessária uma justificativa construtiva de pelo menos 4 caracteres.',
+            'The downvote was canceled. Constructive feedback of at least 4 characters is required.'
+          )
         );
         return;
       }
@@ -1144,14 +1150,20 @@ export function FeedContent({
             +{toastXp.amount}
           </div>
           <div>
-            <p className="font-bold text-sm text-dd-text">XP Concedido!</p>
-            <p className="text-xs text-dd-muted">Voce progrediu na trilha de {toastXp.language}</p>
+            <p className="font-bold text-sm text-dd-text">{text('XP Concedido!', 'XP Awarded!')}</p>
+            <p className="text-xs text-dd-muted">
+              {text('Voce progrediu na trilha de', 'You progressed on the trail for')}{' '}
+              {toastXp.language}
+            </p>
           </div>
         </div>
       )}
       {firstPostToastVisible && (
         <div className="fixed left-1/2 top-[calc(4.5rem+env(safe-area-inset-top))] z-50 max-w-[calc(100vw-2rem)] -translate-x-1/2 rounded-full bg-dd-accent px-4 py-2 text-center text-xs font-black text-white shadow-xl shadow-blue-500/25 dd-soft-bounce sm:top-24">
-          +50 XP - Primeira postagem! Bem-vindo ao Stacklyst.
+          {text(
+            '+50 XP - Primeira postagem! Bem-vindo ao Stacklyst.',
+            '+50 XP - First post! Welcome to Stacklyst.'
+          )}
         </div>
       )}
 
@@ -1365,11 +1377,13 @@ export function FeedContent({
                   <div>
                     <h2 className="font-bold text-lg text-dd-text flex items-center gap-2">
                       <Swords className="w-5 h-5 text-blue-500" />
-                      ⚔️ Arena de Duelos
+                      {text('⚔️ Arena de Duelos', '⚔️ Duel Arena')}
                     </h2>
                     <p className="text-dd-muted text-xs mt-1">
-                      Crie um duelo e aguarde matchmaking, ou entre em duelos abertos criados pela
-                      comunidade.
+                      {text(
+                        'Crie um duelo e aguarde matchmaking, ou entre em duelos abertos criados pela comunidade.',
+                        'Create a duel and wait for matchmaking, or join open duels created by the community.'
+                      )}
                     </p>
                   </div>
                   <button
@@ -1552,7 +1566,7 @@ export function FeedContent({
                               </Link>
                             </td>
                             <td className="py-4 px-6 text-center text-blue-400 font-mono font-bold">
-                              Nível {row.level}
+                              {text('Nível', 'Level')} {row.level}
                             </td>
                             <td className="py-4 px-6 text-right font-mono font-bold text-dd-text">
                               {row.xp.toLocaleString()} XP
@@ -1625,14 +1639,23 @@ export function FeedContent({
                     required
                     className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg px-3 py-2.5 text-dd-text focus:border-red-500/50 focus:outline-none"
                   >
-                    <option value="">Selecione um motivo...</option>
-                    <option value="Spam / Propaganda enganosa">Spam / Propaganda enganosa</option>
-                    <option value="Discurso de ódio / Ofensa">Discurso de ódio / Ofensa</option>
-                    <option value="Assédio / Bullying">Assédio / Bullying</option>
-                    <option value="Código / Conteúdo malicioso ou perigoso">
-                      Código / Conteúdo malicioso ou perigoso
+                    <option value="">{text('Selecione um motivo...', 'Select a reason...')}</option>
+                    <option value="Spam / Propaganda enganosa">
+                      {text('Spam / Propaganda enganosa', 'Spam / Misleading advertising')}
                     </option>
-                    <option value="Outro motivo">Outro motivo</option>
+                    <option value="Discurso de ódio / Ofensa">
+                      {text('Discurso de ódio / Ofensa', 'Hate speech / Offense')}
+                    </option>
+                    <option value="Assédio / Bullying">
+                      {text('Assédio / Bullying', 'Harassment / Bullying')}
+                    </option>
+                    <option value="Código / Conteúdo malicioso ou perigoso">
+                      {text(
+                        'Código / Conteúdo malicioso ou perigoso',
+                        'Malicious or dangerous code / content'
+                      )}
+                    </option>
+                    <option value="Outro motivo">{text('Outro motivo', 'Other reason')}</option>
                   </select>
                 </div>
 

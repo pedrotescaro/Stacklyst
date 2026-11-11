@@ -2,6 +2,7 @@
 
 import { Terminal as TerminalIcon, CornerDownLeft } from 'lucide-react';
 import type { LessonStep } from '@/lib/lessons/types';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface TerminalStepProps {
   step: LessonStep;
@@ -18,6 +19,7 @@ export function TerminalStep({
   onSubmitCommand,
   disabled = false,
 }: TerminalStepProps) {
+  const { text } = useLocalizedText();
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in font-sans">
       <div className="flex items-center gap-3">
@@ -29,7 +31,11 @@ export function TerminalStep({
             {step.title || 'Terminal Interativo'}
           </h2>
           <p className="text-base text-dd-muted leading-relaxed">
-            {step.instruction || 'Digite o comando apropriado no terminal abaixo'}
+            {step.instruction ||
+              text(
+                'Digite o comando apropriado no terminal abaixo',
+                'Type the appropriate command in the terminal below'
+              )}
           </p>
         </div>
       </div>
@@ -58,14 +64,14 @@ export function TerminalStep({
                 onSubmitCommand();
               }
             }}
-            placeholder="digite o comando..."
+            placeholder={text('digite o comando...', 'type the command...')}
             className="dd-focus-ring min-h-11 min-w-0 flex-1 rounded bg-transparent font-mono text-dd-text placeholder:text-dd-muted"
           />
           <button
             type="button"
             disabled={disabled || !command.trim()}
             onClick={onSubmitCommand}
-            aria-label="Executar comando"
+            aria-label={text('Executar comando', 'Run command')}
             className="dd-focus-ring flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 transition-colors disabled:opacity-30 cursor-pointer"
           >
             <CornerDownLeft className="h-3.5 w-3.5" />

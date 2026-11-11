@@ -135,7 +135,7 @@ export function TrailCourseSelector({
           <span
             data-testid={variant === 'rail' ? 'active-language-logo' : undefined}
             role="img"
-            aria-label={`Logo de ${activeMetadata.label}`}
+            aria-label={`${text('Logo de', 'Logo of')} ${activeMetadata.label}`}
             className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-dd-border bg-dd-surface p-1"
           >
             <TrailLanguageLogo language={activeCourse.language} className="h-7 w-7 shrink-0" />

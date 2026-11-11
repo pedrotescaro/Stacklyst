@@ -31,6 +31,7 @@ import type {
   ExerciseWorkspaceData,
 } from '@/lib/exercises/types';
 import styles from './ExerciseWorkspace.module.css';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface ExerciseWorkspaceProps {
   exercise: ExerciseWorkspaceData;
@@ -69,6 +70,7 @@ function displayValue(value: unknown) {
 }
 
 function TestResultRow({ test }: { test: ExerciseApiTestResult }) {
+  const { text } = useLocalizedText();
   return (
     <li className={styles.testRow}>
       <div className={styles.testHeading}>
@@ -80,7 +82,9 @@ function TestResultRow({ test }: { test: ExerciseApiTestResult }) {
         <div className={styles.testDetail}>
           <div className={styles.testStatus}>
             <p>{test.label}</p>
-            <span data-passed={test.passed}>{test.passed ? 'Aprovado' : 'Não passou'}</span>
+            <span data-passed={test.passed}>
+              {test.passed ? text('Aprovado', 'Passed') : text('Não passou', 'Failed')}
+            </span>
           </div>
           {test.error && <p className={styles.error}>{test.error}</p>}
           {!test.hidden &&
@@ -88,11 +92,11 @@ function TestResultRow({ test }: { test: ExerciseApiTestResult }) {
             (test.actual !== undefined || test.expected !== undefined) && (
               <div className={styles.testValues}>
                 <div>
-                  <span>Recebido</span>
+                  <span>{text('Recebido', 'Received')}</span>
                   <pre>{displayValue(test.actual)}</pre>
                 </div>
                 <div>
-                  <span>Esperado</span>
+                  <span>{text('Esperado', 'Expected')}</span>
                   <pre>{displayValue(test.expected)}</pre>
                 </div>
               </div>
@@ -104,6 +108,7 @@ function TestResultRow({ test }: { test: ExerciseApiTestResult }) {
 }
 
 export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: ExerciseWorkspaceProps) {
+  const { text } = useLocalizedText();
   const [code, setCode] = useState(exercise.starterCode);
   const [assistanceMode, setAssistanceMode] = useState<AssistanceMode>(
     jumpChallenge ? 'HARD' : 'STANDARD'
@@ -214,7 +219,10 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
         totalTests: 0,
         tests: [],
         consoleOutput: '',
-        error: 'Não foi possível conectar ao serviço de avaliação.',
+        error: text(
+          'Não foi possível conectar ao serviço de avaliação.',
+          'Could not connect to the evaluation service.'
+        ),
         executionMs: 0,
       });
     } finally {
@@ -233,7 +241,11 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                 ? `/trails?view=trail&path=${encodeURIComponent(jumpChallenge.pathSlug)}`
                 : '/trails')
             }
-            aria-label={returnTo?.startsWith('/jobs/') ? 'Voltar à vaga' : 'Voltar à trilha'}
+            aria-label={
+              returnTo?.startsWith('/jobs/')
+                ? text('Voltar à vaga', 'Back to the job')
+                : text('Voltar à trilha', 'Back to the trail')
+            }
             className={styles.iconButton}
           >
             <ArrowLeft size={21} aria-hidden="true" />
@@ -243,12 +255,16 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
             <p>{exercise.knowledge.title}</p>
           </div>
           <span className={styles.language}>{exercise.language}</span>
-          <div className={styles.counts} aria-label="Sua atividade neste exercício">
+          <div
+            className={styles.counts}
+            aria-label={text('Sua atividade neste exercício', 'Your activity in this exercise')}
+          >
             <span>
-              <Play size={15} aria-hidden="true" /> Execuções: {runCount}
+              <Play size={15} aria-hidden="true" /> {text('Execuções:', 'Runs:')} {runCount}
             </span>
             <span>
-              <Send size={15} aria-hidden="true" /> Envios: {submissionCount}
+              <Send size={15} aria-hidden="true" /> {text('Envios:', 'Submissions:')}{' '}
+              {submissionCount}
             </span>
           </div>
         </div>
@@ -259,10 +275,15 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
           <section className={styles.challenge}>
             <ShieldCheck size={22} aria-hidden="true" />
             <div>
-              <h2>Desafio para pular à Seção {jumpChallenge.sectionNumber}</h2>
+              <h2>
+                {text('Desafio para pular à Seção', 'Challenge to jump to Section')}{' '}
+                {jumpChallenge.sectionNumber}
+              </h2>
               <p>
-                O modo Difícil está fixado: sem sugestões no editor e sem dicas. Envie uma solução
-                que passe pelos testes públicos e ocultos para liberar a seção.
+                {text(
+                  'O modo Difícil está fixado: sem sugestões no editor e sem dicas. Envie uma solução que passe pelos testes públicos e ocultos para liberar a seção.',
+                  'Hard mode is locked: no editor suggestions and no hints. Submit a solution that passes the public and hidden tests to unlock the section.'
+                )}
               </p>
             </div>
           </section>
@@ -276,13 +297,13 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
           />
         </div>
 
-        <nav className={styles.panelTabs} aria-label="Área do exercício">
+        <nav className={styles.panelTabs} aria-label={text('Área do exercício', 'Exercise area')}>
           <button
             type="button"
             aria-pressed={activePanel === 'problem'}
             onClick={() => setActivePanel('problem')}
           >
-            <BookOpen size={18} aria-hidden="true" /> Problema
+            <BookOpen size={18} aria-hidden="true" /> {text('Problema', 'Problem')}
           </button>
           <button
             type="button"
@@ -297,7 +318,7 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
           <section
             className={styles.problemPanel}
             data-active={activePanel === 'problem'}
-            aria-label="Enunciado do exercício"
+            aria-label={text('Enunciado do exercício', 'Exercise prompt')}
           >
             <button
               type="button"
@@ -307,7 +328,7 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
               className={styles.panelHeading}
             >
               <span>
-                <BookOpen size={18} aria-hidden="true" /> Problema
+                <BookOpen size={18} aria-hidden="true" /> {text('Problema', 'Problem')}
               </span>
               <ChevronDown
                 className={cn(styles.disclosure, !detailsOpen && styles.collapsed)}
@@ -320,13 +341,13 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                 <p className={styles.problemText}>{exercise.problem}</p>
                 <section>
                   <h2>
-                    <Gauge size={18} aria-hidden="true" /> Objetivo
+                    <Gauge size={18} aria-hidden="true" /> {text('Objetivo', 'Goal')}
                   </h2>
                   <p>{exercise.objective}</p>
                 </section>
                 {exercise.constraints.length > 0 && (
                   <section>
-                    <h2>Restrições</h2>
+                    <h2>{text('Restrições', 'Constraints')}</h2>
                     <ul className={styles.constraints}>
                       {exercise.constraints.map((constraint) => (
                         <li key={constraint}>
@@ -338,7 +359,7 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                 )}
                 {examples.length > 0 && (
                   <section>
-                    <h2>Exemplo</h2>
+                    <h2>{text('Exemplo', 'Example')}</h2>
                     <pre className={styles.example}>{JSON.stringify(examples[0], null, 2)}</pre>
                   </section>
                 )}
@@ -351,14 +372,14 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                     className={styles.documentation}
                   >
                     <BookOpen size={18} aria-hidden="true" />
-                    Documentação oficial
+                    {text('Documentação oficial', 'Official documentation')}
                     <ExternalLink size={16} aria-hidden="true" />
                   </a>
                 )}
                 {canUseHints && exercise.hints.length > 0 && (
                   <section className={styles.hints}>
                     <h2>
-                      <Lightbulb size={18} aria-hidden="true" /> Dicas
+                      <Lightbulb size={18} aria-hidden="true" /> {text('Dicas', 'Hints')}
                     </h2>
                     {revealedHints > 0 && (
                       <ol>
@@ -369,7 +390,9 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                     )}
                     {revealedHints < exercise.hints.length && (
                       <button type="button" onClick={revealHint} className={styles.secondaryButton}>
-                        {revealedHints === 0 ? 'Mostrar uma dica' : 'Mostrar próxima dica'}
+                        {revealedHints === 0
+                          ? text('Mostrar uma dica', 'Show a hint')
+                          : text('Mostrar próxima dica', 'Show next hint')}
                       </button>
                     )}
                   </section>
@@ -381,11 +404,11 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
           <section
             className={styles.editorPanel}
             data-active={activePanel === 'editor'}
-            aria-label="Sua solução"
+            aria-label={text('Sua solução', 'Your solution')}
           >
             <div className={styles.panelHeading}>
               <span>
-                <Code2 size={18} aria-hidden="true" /> Sua solução
+                <Code2 size={18} aria-hidden="true" /> {text('Sua solução', 'Your solution')}
               </span>
               <button
                 type="button"
@@ -393,7 +416,7 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                 disabled={busy}
                 className={styles.restoreButton}
               >
-                <RotateCcw size={16} aria-hidden="true" /> Restaurar
+                <RotateCcw size={16} aria-hidden="true" /> {text('Restaurar', 'Reset')}
               </button>
             </div>
             <div className={styles.editorSurface}>
@@ -403,16 +426,18 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                 language={exercise.language}
                 height="min(58dvh, 520px)"
                 autocompletion={canUseAutocomplete}
-                ariaLabel={`Editor de código ${exercise.language}`}
+                ariaLabel={`${text('Editor de código', 'Code editor')} ${exercise.language}`}
               />
             </div>
             <div className={styles.editorActions}>
               <div className={styles.testInfo}>
                 <span>
-                  <FlaskConical size={16} aria-hidden="true" /> {exercise.publicTestCount} testes
-                  públicos
+                  <FlaskConical size={16} aria-hidden="true" /> {exercise.publicTestCount}{' '}
+                  {text('testes públicos', 'public tests')}
                 </span>
-                <span>{exercise.hiddenTestCount} ocultos no envio</span>
+                <span>
+                  {exercise.hiddenTestCount} {text('ocultos no envio', 'hidden on submit')}
+                </span>
                 <span>
                   <Clock3 size={16} aria-hidden="true" /> {exercise.estimatedMinutes ?? 30} min
                 </span>
@@ -429,7 +454,9 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                   ) : (
                     <Play size={17} aria-hidden="true" />
                   )}
-                  {runningAction === 'run' ? 'Executando…' : 'Executar'}
+                  {runningAction === 'run'
+                    ? text('Executando…', 'Running…')
+                    : text('Executar', 'Run')}
                 </button>
                 <button
                   type="button"
@@ -442,38 +469,48 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                   ) : (
                     <Send size={17} aria-hidden="true" />
                   )}
-                  {runningAction === 'submit' ? 'Avaliando…' : 'Enviar solução'}
+                  {runningAction === 'submit'
+                    ? text('Avaliando…', 'Evaluating…')
+                    : text('Enviar solução', 'Submit solution')}
                 </button>
               </div>
             </div>
           </section>
         </div>
 
-        <section className={styles.results} aria-label="Resultados da execução" aria-busy={busy}>
+        <section
+          className={styles.results}
+          aria-label={text('Resultados da execução', 'Run results')}
+          aria-busy={busy}
+        >
           <div className={styles.resultsHeading}>
             <h2>
-              <Terminal size={18} aria-hidden="true" /> Console e testes
+              <Terminal size={18} aria-hidden="true" />{' '}
+              {text('Console e testes', 'Console and tests')}
             </h2>
             {evaluation && (
               <span>
                 {evaluation.totalTests > 0
-                  ? `${evaluation.passedTests}/${evaluation.totalTests} aprovados · ${evaluation.executionMs} ms`
+                  ? `${evaluation.passedTests}/${evaluation.totalTests} ${text('aprovados', 'passed')} · ${evaluation.executionMs} ms`
                   : evaluation.error
-                    ? 'Avaliação não concluída'
-                    : 'Nenhum teste executado'}
+                    ? text('Avaliação não concluída', 'Evaluation not completed')
+                    : text('Nenhum teste executado', 'No tests run')}
               </span>
             )}
           </div>
           {!evaluation ? (
             <p className={styles.emptyResults}>
               {busy
-                ? 'Aguardando o resultado da avaliação…'
-                : 'Execute para conferir os testes públicos. Envie sua solução para avaliar também os testes ocultos e registrar seu progresso.'}
+                ? text('Aguardando o resultado da avaliação…', 'Waiting for the evaluation result…')
+                : text(
+                    'Execute para conferir os testes públicos. Envie sua solução para avaliar também os testes ocultos e registrar seu progresso.',
+                    'Run to check the public tests. Submit your solution to also evaluate the hidden tests and record your progress.'
+                  )}
             </p>
           ) : (
             <div className={styles.resultPanels} aria-live="polite">
               <div className={styles.console}>
-                <h3>Saída do console</h3>
+                <h3>{text('Saída do console', 'Console output')}</h3>
                 {evaluation.error ? (
                   <p role="alert" className={styles.error}>
                     {evaluation.error}
@@ -481,11 +518,16 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                 ) : evaluation.consoleOutput ? (
                   <pre>{evaluation.consoleOutput}</pre>
                 ) : (
-                  <p>Execução concluída sem saída no console.</p>
+                  <p>
+                    {text(
+                      'Execução concluída sem saída no console.',
+                      'Run finished with no console output.'
+                    )}
+                  </p>
                 )}
               </div>
               <div className={styles.testResults}>
-                <h3>Casos de teste</h3>
+                <h3>{text('Casos de teste', 'Test cases')}</h3>
                 {evaluation.tests.length > 0 ? (
                   <ul>
                     {evaluation.tests.map((test) => (
@@ -494,8 +536,10 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
                   </ul>
                 ) : (
                   <p className={styles.noTests}>
-                    Os testes não foram executados. Confira a mensagem da avaliação antes de tentar
-                    novamente.
+                    {text(
+                      'Os testes não foram executados. Confira a mensagem da avaliação antes de tentar novamente.',
+                      'The tests were not run. Check the evaluation message before trying again.'
+                    )}
                   </p>
                 )}
               </div>
@@ -505,8 +549,9 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
             <div className={styles.completion}>
               <CheckCircle2 size={20} aria-hidden="true" />
               <p>
-                Conhecimento demonstrado: +{evaluation.xpEarned ?? 0} XP, +
-                {evaluation.gemsEarned ?? 0} joias e domínio{' '}
+                {text('Conhecimento demonstrado:', 'Knowledge demonstrated:')} +
+                {evaluation.xpEarned ?? 0} XP, +{evaluation.gemsEarned ?? 0}{' '}
+                {text('joias e domínio', 'gems and mastery')}{' '}
                 {evaluation.mastery ?? exercise.knowledge.mastery}%
               </p>
             </div>
@@ -515,35 +560,39 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
             <div className={styles.jumpResult}>
               {jumpUnlockState === 'saving' && (
                 <p>
-                  <Loader2 size={18} className={styles.spinner} aria-hidden="true" /> Salvando a
-                  liberação da seção…
+                  <Loader2 size={18} className={styles.spinner} aria-hidden="true" />{' '}
+                  {text('Salvando a liberação da seção…', 'Saving the section unlock…')}
                 </p>
               )}
               {jumpUnlockState === 'error' && (
                 <div>
                   <p className={styles.error}>
-                    Você passou, mas não foi possível salvar a liberação. Tente novamente.
+                    {text(
+                      'Você passou, mas não foi possível salvar a liberação. Tente novamente.',
+                      'You passed, but the unlock could not be saved. Try again.'
+                    )}
                   </p>
                   <button
                     type="button"
                     onClick={() => void recordJumpUnlock()}
                     className={styles.secondaryButton}
                   >
-                    Salvar novamente
+                    {text('Salvar novamente', 'Save again')}
                   </button>
                 </div>
               )}
               {jumpUnlockState === 'saved' && (
                 <div>
                   <p>
-                    <ShieldCheck size={20} aria-hidden="true" /> Desafio concluído. A Seção{' '}
-                    {jumpChallenge.sectionNumber} foi liberada.
+                    <ShieldCheck size={20} aria-hidden="true" />{' '}
+                    {text('Desafio concluído. A Seção', 'Challenge complete. Section')}{' '}
+                    {jumpChallenge.sectionNumber} {text('foi liberada.', 'is unlocked.')}
                   </p>
                   <Link
                     href={`/trails?view=trail&path=${encodeURIComponent(jumpChallenge.pathSlug)}&section=${jumpChallenge.sectionNumber}`}
                     className={styles.primaryButton}
                   >
-                    Começar na seção
+                    {text('Começar na seção', 'Start in the section')}
                   </Link>
                 </div>
               )}

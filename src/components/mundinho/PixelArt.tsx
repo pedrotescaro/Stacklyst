@@ -8,6 +8,7 @@ import {
   hairColorTransfer,
   LEGACY_HAIR_COLORS,
 } from '../../lib/mundinho/hair-colors';
+import { useLocalizedText } from '../../i18n/useLocalizedText';
 
 export {
   SKIN_PALETTES,
@@ -36,6 +37,7 @@ export function PixelAvatar({
   effect?: boolean;
   motion?: 'idle' | 'attack' | 'hurt' | 'victory';
 }) {
+  const { text } = useLocalizedText();
   const filterId = `hair-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const tinted = typeof avatar.hairTint === 'string' && /^#[\da-f]{6}$/i.test(avatar.hairTint);
   const transfer = tinted ? hairColorTransfer(avatarHairColor(avatar)) : null;
@@ -51,7 +53,7 @@ export function PixelAvatar({
   return (
     <span
       role="img"
-      aria-label={`Avatar olhando para ${direction}`}
+      aria-label={text(`Avatar olhando para ${direction}`, `Avatar facing ${direction}`)}
       className={`pixel-avatar sprite-avatar ${walking ? 'is-walking' : ''} sprite-${motion} ${effect ? 'has-fireflies' : ''} ${className}`}
       data-silhouette={female ? 'feminine' : 'masculine'}
       style={style}

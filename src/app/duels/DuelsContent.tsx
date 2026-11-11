@@ -55,6 +55,14 @@ function formatInvitationTime(totalSeconds: number) {
 
 export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
   const { text } = useLocalizedText();
+  const localizeDifficulty = (difficulty: string) =>
+    difficulty === 'Fácil'
+      ? text('Fácil', 'Easy')
+      : difficulty === 'Médio'
+        ? text('Médio', 'Medium')
+        : difficulty === 'Difícil'
+          ? text('Difícil', 'Hard')
+          : difficulty;
   const router = useRouter();
   const [duels, setDuels] = useState<any[]>(initialDuels);
   const [listingNow, setListingNow] = useState(() => Date.now());
@@ -199,10 +207,14 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
       if (res.ok) {
         if (data.duel?.id) router.push(`/duels/${data.duel.id}`);
       } else {
-        setCooldownAlert(data.error || 'Erro ao iniciar matchmaking.');
+        setCooldownAlert(
+          data.error || text('Erro ao iniciar matchmaking.', 'Error starting matchmaking.')
+        );
       }
     } catch (err: any) {
-      setCooldownAlert(err.message || 'Erro durante o matchmaking.');
+      setCooldownAlert(
+        err.message || text('Erro durante o matchmaking.', 'Error during matchmaking.')
+      );
     } finally {
       setIsMatchmaking(false);
     }
@@ -305,12 +317,14 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
               <Link
                 href="/feed"
                 className="p-2 hover:bg-dd-surface rounded-full transition-colors text-dd-text cursor-pointer"
-                title="Voltar ao Feed"
+                title={text('Voltar ao Feed', 'Back to Feed')}
               >
                 <ArrowLeft className="w-5 h-5" />
               </Link>
               <div>
-                <h1 className="text-base font-bold text-dd-text flex items-center gap-2">Duelos</h1>
+                <h1 className="text-base font-bold text-dd-text flex items-center gap-2">
+                  {text('Duelos', 'Duels')}
+                </h1>
                 <p className={styles.headerSubtitle}>
                   {text('Desafios de código, um contra um', 'Coding challenges, one on one')}
                 </p>
@@ -325,7 +339,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
               className="dd-touch dd-focus-ring flex items-center gap-1.5 rounded-full border border-blue-600 bg-blue-500 hover:bg-blue-400 px-3.5 py-1.5 text-xs font-bold text-white transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
-              {showDuelForm ? 'Fechar' : 'Criar Duelo'}
+              {showDuelForm ? text('Fechar', 'Close') : text('Criar Duelo', 'Create Duel')}
             </button>
           </div>
 
@@ -354,20 +368,23 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                     {text('desafiou você para um duelo!', 'challenged you to a duel!')}
                   </h3>
                   <p className="text-xs text-dd-muted font-medium mt-1">
-                    Linguagem: <strong>{incomingRequest.language}</strong> • Oponente com{' '}
-                    {incomingRequest.sender.total_xp} XP
+                    {text('Linguagem:', 'Language:')} <strong>{incomingRequest.language}</strong> •{' '}
+                    {text('Oponente com', 'Opponent with')} {incomingRequest.sender.total_xp} XP
                   </p>
                 </div>
 
                 <div className="p-4 rounded-2xl bg-dd-bg border border-dd-border/60">
                   <span className="text-xs font-bold text-dd-muted block">
-                    Tempo restante para responder:
+                    {text('Tempo restante para responder:', 'Time left to respond:')}
                   </span>
                   <span className="text-xl sm:text-3xl font-mono font-bold text-blue-400">
                     {formatInvitationTime(requestTimeLeft)}
                   </span>
                   <p className="mt-2 text-[11px] text-dd-muted">
-                    Recusar ou deixar expirar não reduz XP e não gera cooldown.
+                    {text(
+                      'Recusar ou deixar expirar não reduz XP e não gera cooldown.',
+                      'Declining or letting it expire does not reduce XP or trigger a cooldown.'
+                    )}
                   </p>
                 </div>
 
@@ -377,7 +394,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                     disabled={respondingToRequest}
                     className="py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-600 text-white font-bold text-sm transition-all cursor-pointer"
                   >
-                    Aceitar Duelo
+                    {text('Aceitar Duelo', 'Accept Duel')}
                   </button>
 
                   <button
@@ -385,7 +402,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                     disabled={respondingToRequest}
                     className="py-3 rounded-2xl bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30 font-bold text-sm transition-all cursor-pointer"
                   >
-                    Recusar
+                    {text('Recusar', 'Decline')}
                   </button>
                 </div>
               </div>
@@ -477,7 +494,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                     className="dd-focus-ring flex items-center gap-1.5 rounded-lg border border-blue-500/30 bg-blue-500/10 px-3 py-1.5 text-xs font-bold text-blue-400 transition hover:bg-blue-500/15"
                   >
                     <Wand2 className="w-3 h-3" />
-                    Novo desafio
+                    {text('Novo desafio', 'New challenge')}
                   </button>
                 </div>
 
@@ -491,7 +508,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           htmlFor="duel-language"
                           className="text-sm font-medium text-dd-muted"
                         >
-                          Linguagem
+                          {text('Linguagem', 'Language')}
                         </label>
                         <select
                           id="duel-language"
@@ -507,7 +524,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
 
                       <div className="space-y-1.5">
                         <span id="duel-difficulty" className="text-sm font-medium text-dd-muted">
-                          Dificuldade
+                          {text('Dificuldade', 'Difficulty')}
                         </span>
                         <div
                           role="group"
@@ -516,9 +533,9 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                         >
                           {(
                             [
-                              { key: 'easy', label: 'Fácil', color: 'emerald' },
-                              { key: 'medium', label: 'Médio', color: 'blue' },
-                              { key: 'hard', label: 'Difícil', color: 'rose' },
+                              { key: 'easy', label: text('Fácil', 'Easy'), color: 'emerald' },
+                              { key: 'medium', label: text('Médio', 'Medium'), color: 'blue' },
+                              { key: 'hard', label: text('Difícil', 'Hard'), color: 'rose' },
                             ] as const
                           ).map((d) => (
                             <button
@@ -547,14 +564,17 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                     {/* Topic */}
                     <div className="space-y-1.5">
                       <label htmlFor="duel-topic" className="text-sm font-medium text-dd-muted">
-                        Tema (opcional)
+                        {text('Tema (opcional)', 'Topic (optional)')}
                       </label>
                       <input
                         id="duel-topic"
                         type="text"
                         value={generatorTopic}
                         onChange={(e) => setGeneratorTopic(e.target.value)}
-                        placeholder="Ex: Árvores binárias, Strings, Recursão, Matrizes..."
+                        placeholder={text(
+                          'Ex: Árvores binárias, Strings, Recursão, Matrizes...',
+                          'E.g. Binary trees, Strings, Recursion, Matrices...'
+                        )}
                         className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3.5 py-2.5 text-dd-text placeholder:text-dd-muted focus:border-blue-500 focus:outline-none"
                       />
                     </div>
@@ -596,7 +616,10 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           <div className="flex items-center gap-2">
                             <CheckCircle2 className="w-4 h-4 text-emerald-400" />
                             <span className="text-xs font-bold text-emerald-400">
-                              Desafio Gerado com Sucesso
+                              {text(
+                                'Desafio Gerado com Sucesso',
+                                'Challenge Generated Successfully'
+                              )}
                             </span>
                           </div>
 
@@ -615,10 +638,10 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                                       : 'border-rose-500/40 bg-rose-500/15 text-rose-400'
                                 )}
                               >
-                                {generatedProblem.difficulty}
+                                {localizeDifficulty(generatedProblem.difficulty)}
                               </span>
                               <span className="text-xs font-bold text-dd-muted">
-                                {generatedProblem.testCases.length} testes
+                                {generatedProblem.testCases.length} {text('testes', 'tests')}
                               </span>
                               <span className="text-xs font-bold text-dd-muted">
                                 fn: {generatedProblem.functionName}()
@@ -632,7 +655,9 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
 
                           {/* Test cases preview */}
                           <div className="space-y-1">
-                            <span className="text-xs font-bold text-dd-muted">Casos de Teste:</span>
+                            <span className="text-xs font-bold text-dd-muted">
+                              {text('Casos de Teste:', 'Test Cases:')}
+                            </span>
                             {generatedProblem.testCases.map((tc) => (
                               <div
                                 key={tc.id}
@@ -657,7 +682,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                             className="dd-touch dd-focus-ring flex-1 flex items-center justify-center gap-1.5 rounded-full border border-slate-600 bg-slate-700 hover:bg-slate-600 px-4 py-2.5 text-xs font-bold text-white transition-all cursor-pointer disabled:opacity-50"
                           >
                             <Wand2 className="w-3.5 h-3.5" />
-                            Gerar Outro
+                            {text('Gerar Outro', 'Generate Another')}
                           </button>
                           <button
                             type="button"
@@ -670,7 +695,9 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                             className="dd-touch dd-focus-ring flex-1 flex items-center justify-center gap-1.5 rounded-full border border-blue-600 bg-blue-500 hover:bg-blue-400 px-4 py-2.5 text-xs font-bold text-white transition-all cursor-pointer disabled:opacity-50"
                           >
                             <Swords className="w-3.5 h-3.5" />
-                            {creating ? 'Publicando...' : 'Publicar Desafio'}
+                            {creating
+                              ? text('Publicando...', 'Publishing...')
+                              : text('Publicar Desafio', 'Publish Challenge')}
                           </button>
                         </div>
                       </div>
@@ -689,12 +716,17 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           value={duelTitle}
                           onChange={(e) => setDuelTitle(e.target.value)}
                           required
-                          placeholder="Ex: Validador de Parênteses Balanceados"
+                          placeholder={text(
+                            'Ex: Validador de Parênteses Balanceados',
+                            'E.g. Balanced Parentheses Validator'
+                          )}
                           className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3.5 py-2.5 text-dd-text placeholder:text-dd-muted focus:border-blue-500 focus:outline-none"
                         />
                       </div>
                       <div className="space-y-1">
-                        <label className="text-xs font-medium text-dd-muted">Linguagem</label>
+                        <label className="text-xs font-medium text-dd-muted">
+                          {text('Linguagem', 'Language')}
+                        </label>
                         <select
                           value={duelLanguage}
                           onChange={(e) => setDuelLanguage(e.target.value as Language)}
@@ -709,14 +741,17 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
 
                     <div className="space-y-1">
                       <label className="text-xs font-medium text-dd-muted">
-                        Enunciado e Casos de Teste
+                        {text('Enunciado e Casos de Teste', 'Problem Statement and Test Cases')}
                       </label>
                       <textarea
                         value={duelBody}
                         onChange={(e) => setDuelBody(e.target.value)}
                         required
                         rows={4}
-                        placeholder="Descreva o problema, entradas e saídas esperadas..."
+                        placeholder={text(
+                          'Descreva o problema, entradas e saídas esperadas...',
+                          'Describe the problem, inputs and expected outputs...'
+                        )}
                         className="w-full text-xs rounded-xl border border-dd-border bg-dd-bg px-3.5 py-2.5 text-dd-text placeholder:text-dd-muted focus:border-blue-500 focus:outline-none resize-none"
                       />
                     </div>
@@ -745,17 +780,18 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                   className="text-lg font-bold text-dd-text flex items-center gap-2"
                 >
                   <Flame className="w-4 h-4 text-blue-500" />
-                  Na comunidade
+                  {text('Na comunidade', 'In the community')}
                 </h3>
                 <span className="text-[11px] font-bold text-dd-muted">
-                  {filteredDuels.length} {filteredDuels.length === 1 ? 'duelo' : 'duelos'}
+                  {filteredDuels.length}{' '}
+                  {filteredDuels.length === 1 ? text('duelo', 'duel') : text('duelos', 'duels')}
                 </span>
               </div>
 
               <div
                 className={styles.filters}
                 role="group"
-                aria-label="Filtrar duelos por linguagem"
+                aria-label={text('Filtrar duelos por linguagem', 'Filter duels by language')}
               >
                 <button
                   type="button"
@@ -768,7 +804,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                       : 'border-dd-border/80  bg-dd-surface text-dd-muted hover:text-dd-text'
                   )}
                 >
-                  Todas
+                  {text('Todas', 'All')}
                 </button>
                 {AVAILABLE_LANGUAGES.map((lang) => (
                   <button
@@ -847,12 +883,12 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                             )}
                           >
                             {isPending
-                              ? 'Vaga aberta'
+                              ? text('Vaga aberta', 'Open slot')
                               : isActive
-                                ? 'Em andamento'
+                                ? text('Em andamento', 'In progress')
                                 : duel.status === 'REVIEW_PENDING'
-                                  ? 'Em avaliação'
-                                  : 'Finalizado'}
+                                  ? text('Em avaliação', 'Under review')
+                                  : text('Finalizado', 'Finished')}
                           </span>
                         </div>
 
@@ -894,11 +930,11 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                           <span className="dd-touch inline-flex shrink-0 items-center gap-1.5 rounded-full border border-blue-600 bg-blue-500 group-hover:bg-blue-400 px-5 py-2 text-sm font-bold text-white transition-colors">
                             {isPending ? (
                               <>
-                                <span>Entrar</span>
+                                <span>{text('Entrar', 'Join')}</span>
                                 <Swords className="w-3.5 h-3.5" />
                               </>
                             ) : (
-                              <span>Ver Duelo</span>
+                              <span>{text('Ver Duelo', 'View Duel')}</span>
                             )}
                           </span>
                         </div>
@@ -910,18 +946,38 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
             </div>
           </div>
         </main>
-        <aside className={styles.guide} aria-label="Sobre os duelos">
-          <h2 className="text-lg font-bold">Seu próximo desafio</h2>
+        <aside className={styles.guide} aria-label={text('Sobre os duelos', 'About duels')}>
+          <h2 className="text-lg font-bold">
+            {text('Seu próximo desafio', 'Your next challenge')}
+          </h2>
           <p className={styles.description}>
-            Um problema, dois participantes. Escreva sua solução e coloque suas habilidades à prova.
+            {text(
+              'Um problema, dois participantes. Escreva sua solução e coloque suas habilidades à prova.',
+              'One problem, two participants. Write your solution and put your skills to the test.'
+            )}
           </p>
           <ol className={styles.steps}>
-            <li>Escolha TypeScript, Python ou JavaScript.</li>
-            <li>Entre na fila ou abra um duelo da comunidade.</li>
-            <li>Resolva o desafio e confira seus testes.</li>
+            <li>
+              {text(
+                'Escolha TypeScript, Python ou JavaScript.',
+                'Choose TypeScript, Python or JavaScript.'
+              )}
+            </li>
+            <li>
+              {text(
+                'Entre na fila ou abra um duelo da comunidade.',
+                'Join the queue or open a community duel.'
+              )}
+            </li>
+            <li>
+              {text(
+                'Resolva o desafio e confira seus testes.',
+                'Solve the challenge and check your tests.'
+              )}
+            </li>
           </ol>
           <Link href="/ranking" className={styles.rankingLink}>
-            <Trophy size={18} /> Ver ranking
+            <Trophy size={18} /> {text('Ver ranking', 'View ranking')}
           </Link>
         </aside>
       </div>

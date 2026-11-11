@@ -159,7 +159,7 @@ export function TrailMapLessonPopover({
           <span className="truncate">
             {missingRequired.length > 0
               ? `Requisito: ${missingRequired[0]?.title ?? 'Anterior'}`
-              : 'Lição bloqueada'}
+              : text('Lição bloqueada', 'Lesson locked')}
           </span>
         </div>
       )}

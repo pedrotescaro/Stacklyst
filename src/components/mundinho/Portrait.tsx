@@ -3,6 +3,7 @@ import type { Avatar } from '../../lib/mundinho/types';
 import { avatarHairColor, hairColorTransfer } from '../../lib/mundinho/hair-colors';
 import { adventureAsset } from './assets';
 import { EYE_COLORS, OUTFIT_SPECS, SKIN_PALETTES } from '../../lib/mundinho/avatar-palettes';
+import { useLocalizedText } from '../../i18n/useLocalizedText';
 
 /** Independently drawn portrait layers; all indices share the avatar's saved wardrobe. */
 export function Portrait({
@@ -14,6 +15,7 @@ export function Portrait({
   name: string;
   assetBase?: string;
 }) {
+  const { text } = useLocalizedText();
   const id = `portrait-${useId().replace(/[^a-zA-Z0-9_-]/g, '')}`;
   const female = avatar.gender === 'feminine';
   const transfer = hairColorTransfer(avatarHairColor(avatar));
@@ -29,7 +31,7 @@ export function Portrait({
     <span
       className="rpg-portrait"
       role="img"
-      aria-label={`Retrato de ${name}`}
+      aria-label={text(`Retrato de ${name}`, `Portrait of ${name}`)}
       data-silhouette={female ? 'feminine' : 'masculine'}
     >
       <svg width="0" height="0" aria-hidden="true" className="sprite-color-defs">

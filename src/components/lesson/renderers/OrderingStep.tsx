@@ -2,6 +2,7 @@
 
 import { ArrowUp, ArrowDown, ListOrdered } from 'lucide-react';
 import type { LessonStep, OrderItem } from '@/lib/lessons/types';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface OrderingStepProps {
   step: LessonStep;
@@ -16,6 +17,7 @@ export function OrderingStep({
   onReorder,
   disabled = false,
 }: OrderingStepProps) {
+  const { text } = useLocalizedText();
   const moveItem = (index: number, direction: 'up' | 'down') => {
     if (disabled) return;
     const targetIndex = direction === 'up' ? index - 1 : index + 1;
@@ -35,10 +37,14 @@ export function OrderingStep({
         </div>
         <div>
           <h2 className="text-xl font-bold leading-snug text-dd-text">
-            {step.title || 'Ordene o Código'}
+            {step.title || text('Ordene o Código', 'Order the Code')}
           </h2>
           <p className="text-base text-dd-muted leading-relaxed">
-            {step.instruction || 'Reorganize as linhas na sequência correta de execução'}
+            {step.instruction ||
+              text(
+                'Reorganize as linhas na sequência correta de execução',
+                'Rearrange the lines in the correct execution order'
+              )}
           </p>
         </div>
       </div>
@@ -67,7 +73,7 @@ export function OrderingStep({
                   type="button"
                   disabled={disabled || isFirst}
                   onClick={() => moveItem(index, 'up')}
-                  aria-label="Mover para cima"
+                  aria-label={text('Mover para cima', 'Move up')}
                   className="flex h-8 w-8 items-center justify-center rounded-xl bg-dd-surface hover:bg-dd-border text-dd-text disabled:opacity-30 dd-focus-ring cursor-pointer disabled:cursor-not-allowed transition-colors"
                 >
                   <ArrowUp className="h-4 w-4" />
@@ -76,7 +82,7 @@ export function OrderingStep({
                   type="button"
                   disabled={disabled || isLast}
                   onClick={() => moveItem(index, 'down')}
-                  aria-label="Mover para baixo"
+                  aria-label={text('Mover para baixo', 'Move down')}
                   className="flex h-8 w-8 items-center justify-center rounded-xl bg-dd-surface hover:bg-dd-border text-dd-text disabled:opacity-30 dd-focus-ring cursor-pointer disabled:cursor-not-allowed transition-colors"
                 >
                   <ArrowDown className="h-4 w-4" />

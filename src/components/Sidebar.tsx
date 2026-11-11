@@ -37,6 +37,7 @@ import { NotificationBellIcon } from '@/components/motion/NotificationBellIcon';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { getCurrentUser, invalidateCurrentUser } from '@/lib/client/current-user';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { useSavedAccounts } from '@/hooks/useSavedAccounts';
 
 import { PostComposerDialog, type ComposerQuote } from '@/components/composer/PostComposerDialog';
@@ -78,6 +79,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   const pathname = usePathname();
   const router = useRouter();
   const { t, isEnglish } = useLanguage();
+  const { text } = useLocalizedText();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [managingAccounts, setManagingAccounts] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -886,7 +888,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
           >
             <button
               onClick={() => setPremiumModalOpen(false)}
-              aria-label="Fechar modal"
+              aria-label={text('Fechar modal', 'Close modal')}
               className="absolute top-4 right-4 p-1 rounded-md text-dd-muted hover:text-dd-text hover:bg-dd-surface transition-all cursor-pointer"
             >
               <X className="w-4.5 h-4.5 animate-pulse" />
@@ -898,43 +900,71 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
 
             <div className="space-y-2">
               <h3 id="premium-modal-title" className="text-xl font-extrabold text-dd-text">
-                Upgrade para o Premium
+                {text('Upgrade para o Premium', 'Upgrade to Premium')}
               </h3>
               <p className="text-xs text-blue-500 font-bold uppercase tracking-wider bg-blue-500/10 py-1 px-3 rounded-full w-fit mx-auto animate-bounce">
-                40% de Desconto Ativo
+                {text('40% de Desconto Ativo', '40% Discount Active')}
               </p>
               <p className="text-xs text-dd-muted leading-relaxed px-4">
-                Participe da rede global mais incr├¡vel de conversas que estão moldando o futuro.
+                {text(
+                  'Participe da rede global mais incr├¡vel de conversas que estão moldando o futuro.',
+                  'Join the most incredible global network of conversations shaping the future.'
+                )}
               </p>
             </div>
 
             <div className="border-t border-b border-dd-border py-4 text-left space-y-3.5 text-xs font-semibold text-dd-text">
               <div className="flex items-center gap-3">
                 <span className="text-blue-500 text-lg">✓</span>
-                <span>Selo verificado premium no perfil</span>
+                <span>
+                  {text(
+                    'Selo verificado premium no perfil',
+                    'Premium verified badge on your profile'
+                  )}
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-blue-500 text-lg">✓</span>
-                <span>Recursos avançados para evoluir seu perfil técnico</span>
+                <span>
+                  {text(
+                    'Recursos avançados para evoluir seu perfil técnico',
+                    'Advanced features to grow your technical profile'
+                  )}
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-blue-500 text-lg">✓</span>
-                <span>Ganho de XP em dobro (+100% XP em respostas)</span>
+                <span>
+                  {text(
+                    'Ganho de XP em dobro (+100% XP em respostas)',
+                    'Double XP gain (+100% XP on answers)'
+                  )}
+                </span>
               </div>
               <div className="flex items-center gap-3">
                 <span className="text-blue-500 text-lg">✓</span>
-                <span>Participação em Duelos e Quizzes exclusivos</span>
+                <span>
+                  {text(
+                    'Participação em Duelos e Quizzes exclusivos',
+                    'Access to exclusive Duels and Quizzes'
+                  )}
+                </span>
               </div>
             </div>
 
             <button
               onClick={() => {
-                showToast('Assinatura premium processada com sucesso! Parabéns!');
+                showToast(
+                  text(
+                    'Assinatura premium processada com sucesso! Parabéns!',
+                    'Premium subscription processed successfully! Congratulations!'
+                  )
+                );
                 setPremiumModalOpen(false);
               }}
               className="w-full bg-blue-500 hover:bg-blue-600 text-white font-extrabold py-3 px-4 rounded-xl text-sm transition-all duration-200 active:scale-[0.98] shadow-lg shadow-blue-500/10 cursor-pointer"
             >
-              Atualizar Agora
+              {text('Atualizar Agora', 'Upgrade Now')}
             </button>
           </div>
         </div>

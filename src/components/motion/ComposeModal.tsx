@@ -7,6 +7,7 @@ import { modalContentVariants, fadeVariants, bottomSheetVariants } from '@/lib/m
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { createPortal } from 'react-dom';
 import { cn } from '@/lib/cn';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface ComposeModalProps {
   open: boolean;
@@ -33,6 +34,7 @@ export function ComposeModal({
   composerLayout = false,
   busy = false,
 }: ComposeModalProps) {
+  const { text } = useLocalizedText();
   const reduced = useReducedMotion();
   const [discardWarning, setDiscardWarning] = useState(false);
   const [saveError, setSaveError] = useState(false);
@@ -164,7 +166,7 @@ export function ComposeModal({
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label="Criar nova publicação"
+            aria-label={text('Criar nova publicação', 'Create new post')}
             variants={reduced ? fadeVariants : modalContentVariants}
             initial="hidden"
             animate="visible"
@@ -189,7 +191,7 @@ export function ComposeModal({
                 ref={closeRef}
                 onClick={handleClose}
                 type="button"
-                aria-label="Fechar rascunho"
+                aria-label={text('Fechar rascunho', 'Close draft')}
                 disabled={busy}
                 className="dd-focus-ring dd-touch flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-dd-text transition-all hover:bg-dd-surface/80 cursor-pointer"
               >
@@ -226,11 +228,19 @@ export function ComposeModal({
                 <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-dd-border" />
                 <div className="space-y-4">
                   <div className="space-y-1">
-                    <p className="text-sm font-bold text-dd-text">Descartar rascunho?</p>
+                    <p className="text-sm font-bold text-dd-text">
+                      {text('Descartar rascunho?', 'Discard draft?')}
+                    </p>
                     <p className="text-xs text-dd-muted">
                       {onSaveDraft
-                        ? 'Salve neste navegador para continuar depois ou descarte o texto.'
-                        : 'Seu texto permanece aberto até você decidir descartá-lo.'}
+                        ? text(
+                            'Salve neste navegador para continuar depois ou descarte o texto.',
+                            'Save it in this browser to continue later, or discard the text.'
+                          )
+                        : text(
+                            'Seu texto permanece aberto até você decidir descartá-lo.',
+                            'Your text stays open until you decide to discard it.'
+                          )}
                     </p>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-2">
@@ -248,7 +258,7 @@ export function ComposeModal({
                         }}
                         className="dd-touch rounded-full border border-dd-border px-4 py-2 text-xs font-bold text-dd-text cursor-pointer"
                       >
-                        Salvar rascunho
+                        {text('Salvar rascunho', 'Save draft')}
                       </button>
                     )}
                     <button
@@ -256,20 +266,22 @@ export function ComposeModal({
                       onClick={() => setDiscardWarning(false)}
                       className="dd-touch rounded-full border border-dd-border px-4 py-2 text-xs font-bold text-dd-text transition-colors hover:bg-dd-bg cursor-pointer"
                     >
-                      Continuar
+                      {text('Continuar', 'Continue')}
                     </button>
                     <button
                       type="button"
                       onClick={handleDiscard}
                       className="dd-touch rounded-full bg-red-500/12 px-4 py-2 text-xs font-bold text-red-400 transition-colors hover:bg-red-500/18 cursor-pointer"
                     >
-                      Descartar
+                      {text('Descartar', 'Discard')}
                     </button>
                   </div>
                   {saveError && (
                     <p role="alert" className="text-xs text-red-400">
-                      Não foi possível salvar neste navegador. Continue editando ou descarte o
-                      texto.
+                      {text(
+                        'Não foi possível salvar neste navegador. Continue editando ou descarte o texto.',
+                        'Could not save in this browser. Keep editing or discard the text.'
+                      )}
                     </p>
                   )}
                 </div>

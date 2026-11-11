@@ -1,5 +1,7 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useLocalizedText } from '../../i18n/useLocalizedText';
+import { translateMundinho } from '../../lib/mundinho/i18n';
 import { ArrowLeft, Check, Swords, UserPlus, X } from 'lucide-react';
 import type {
   ArenaAction,
@@ -29,6 +31,8 @@ export function MultiplayerArena({
   assetBase: string;
   onLeave: () => void;
 }) {
+  const { text, language: uiLanguage, locale } = useLocalizedText();
+  const m = (value: string) => translateMundinho(value, uiLanguage);
   const [data, setData] = useState<ArenaState | null>(initialState ?? null);
   const [error, setError] = useState('');
   const [connectionError, setConnectionError] = useState('');
@@ -79,7 +83,12 @@ export function MultiplayerArena({
           }
         }
       } catch (e) {
-        if (!stopped) setConnectionError(e instanceof Error ? e.message : 'Reconectando à arena…');
+        if (!stopped)
+          setConnectionError(
+            e instanceof Error
+              ? e.message
+              : text('Reconectando à arena…', 'Reconnecting to the arena…')
+          );
       } finally {
         if (!stopped) timer = setTimeout(sync, 600);
       }
@@ -95,7 +104,10 @@ export function MultiplayerArena({
         apply(next);
         timer = setTimeout(sync, 1000);
       } catch (e) {
-        if (!stopped) setError(e instanceof Error ? e.message : 'Não foi possível entrar.');
+        if (!stopped)
+          setError(
+            e instanceof Error ? e.message : text('Não foi possível entrar.', 'Could not join.')
+          );
       }
     };
     void enter();
@@ -106,7 +118,7 @@ export function MultiplayerArena({
       const id = roomRef.current;
       if (id) void transport({ type: 'leave', roomId: id }).catch(() => {});
     };
-  }, [transport, language, initialState, apply]);
+  }, [transport, language, initialState, apply, text]);
   const mutate = async (action: ArenaAction) => {
     if (actionPending.current) return;
     actionPending.current = true;
@@ -117,7 +129,11 @@ export function MultiplayerArena({
       apply(next);
       return next;
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Não foi possível concluir. Tente novamente.');
+      setError(
+        e instanceof Error
+          ? e.message
+          : text('Não foi possível concluir. Tente novamente.', 'Could not finish. Try again.')
+      );
     } finally {
       actionPending.current = false;
       setBusy(false);
@@ -149,15 +165,20 @@ export function MultiplayerArena({
   return (
     <section
       className={`ad-multiplayer ${match?.status === 'active' ? '' : 'ad-arena-exploring'}`}
-      aria-label="Arena multiplayer do Mundinho"
+      aria-label={text('Arena multiplayer do Mundinho', 'World multiplayer arena')}
     >
       <header className="ad-arena-heading">
         <div>
-          <h2>Arena subterrânea</h2>
-          <p>Seu mundo, um amigo e um duelo de programação.</p>
+          <h2>{text('Arena subterrânea', 'Underground arena')}</h2>
+          <p>
+            {text(
+              'Seu mundo, um amigo e um duelo de programação.',
+              'Your world, a friend and a programming duel.'
+            )}
+          </p>
         </div>
         <button type="button" className="ad-secondary" onClick={() => void leave()} disabled={busy}>
-          <ArrowLeft size={16} /> Voltar à clareira
+          <ArrowLeft size={16} /> {text('Voltar à clareira', 'Back to the clearing')}
         </button>
       </header>
       {error && (
@@ -167,18 +188,18 @@ export function MultiplayerArena({
       )}
       {connectionError && (
         <p role="alert" className="ad-arena-message">
-          Conexão interrompida. {connectionError}
+          {text('Conexão interrompida.', 'Connection lost.')} {connectionError}
         </p>
       )}
       {data?.notice && (
         <p role="status" className="ad-arena-message">
-          {data.notice}
+          {m(data.notice)}
         </p>
       )}
-      {!room && !error && <p role="status">Entrando na arena…</p>}
+      {!room && !error && <p role="status">{text('Entrando na arena…', 'Entering the arena…')}</p>}
       {!room && error && (
         <button type="button" onClick={onLeave}>
-          Voltar e tentar novamente
+          {text('Voltar e tentar novamente', 'Go back and try again')}
         </button>
       )}
       {room && self && (
@@ -200,18 +221,18 @@ export function MultiplayerArena({
                     <div className="ad-pvp-name">
                       <strong>
                         {p.name}
-                        {p.id === data.selfId ? ' (você)' : ''}
+                        {p.id === data.selfId ? text(' (você)', ' (you)') : ''}
                       </strong>
                       <span>
-                        {LANGUAGE_NAMES[p.language]} · Nível {p.level}
+                        {LANGUAGE_NAMES[p.language]} · {text('Nível', 'Level')} {p.level}
                       </span>
                       <PixelMeter
                         value={match.hp[p.id]}
                         max={match.stats?.[p.id]?.maxHp ?? 100}
-                        label={`Vida de ${p.name}`}
+                        label={`${text('Vida de', 'HP of')} ${p.name}`}
                       />
                       <span>
-                        {match.hp[p.id]} / {match.stats?.[p.id]?.maxHp ?? 100} PV
+                        {match.hp[p.id]} / {match.stats?.[p.id]?.maxHp ?? 100} {text('PV', 'HP')}
                       </span>
                     </div>
                     <PixelAvatar
@@ -223,10 +244,17 @@ export function MultiplayerArena({
               </div>
               <div className="ad-pvp-turn" role="status">
                 <Swords size={18} />
-                <strong>{myTurn ? 'Seu turno' : `Turno de ${peer?.name ?? 'seu amigo'}`}</strong>
+                <strong>
+                  {myTurn
+                    ? text('Seu turno', 'Your turn')
+                    : text(
+                        `Turno de ${peer?.name ?? 'seu amigo'}`,
+                        `${peer?.name ?? 'Your friend'}'s turn`
+                      )}
+                </strong>
                 <span>
-                  Turno {match.turn + 1} · até{' '}
-                  {new Date(match.deadline).toLocaleTimeString('pt-BR', {
+                  {text('Turno', 'Turn')} {match.turn + 1} · {text('até', 'until')}{' '}
+                  {new Date(match.deadline).toLocaleTimeString(locale, {
                     hour: '2-digit',
                     minute: '2-digit',
                   })}
@@ -255,17 +283,20 @@ export function MultiplayerArena({
               ) : myTurn ? (
                 <div className="ad-battle-bottom-console">
                   <p className="ad-battle-odds">
-                    {match.stats?.[self.id]?.directChance ?? 75}% de golpe direto ·{' '}
-                    {100 - (match.stats?.[self.id]?.directChance ?? 75)}% de exercício
+                    {match.stats?.[self.id]?.directChance ?? 75}%{' '}
+                    {text('de golpe direto', 'direct hit')} ·{' '}
+                    {100 - (match.stats?.[self.id]?.directChance ?? 75)}%{' '}
+                    {text('de exercício', 'exercise')}
                     <span>
-                      Proteção: −{match.stats?.[self.id]?.protection ?? 0} por golpe · Vida máxima:{' '}
-                      {match.stats?.[self.id]?.maxHp ?? 100} PV
+                      {text('Proteção:', 'Protection:')} −{match.stats?.[self.id]?.protection ?? 0}{' '}
+                      {text('por golpe', 'per hit')} · {text('Vida máxima:', 'Max HP:')}{' '}
+                      {match.stats?.[self.id]?.maxHp ?? 100} {text('PV', 'HP')}
                     </span>
                   </p>
                   <div
                     className="ad-skills-grid"
                     role="group"
-                    aria-label="Ações de batalha"
+                    aria-label={text('Ações de batalha', 'Battle actions')}
                     onKeyDown={(event) => {
                       const offset = ['ArrowRight', 'ArrowDown', 'd', 's'].includes(event.key)
                         ? 1
@@ -298,22 +329,24 @@ export function MultiplayerArena({
                         }
                       >
                         <span className="rpg-selection-cursor" aria-hidden="true" />
-                        <strong>{skill.name}</strong>
-                        <small>{skill.description}</small>
+                        <strong>{m(skill.name)}</strong>
+                        <small>{m(skill.description)}</small>
                       </button>
                     ))}
                   </div>
                 </div>
               ) : (
                 <p className="ad-arena-message">
-                  Seu amigo está jogando em {LANGUAGE_NAMES[peer?.language ?? language]}. A batalha
-                  atualiza automaticamente.
+                  {text('Seu amigo está jogando em', 'Your friend is playing in')}{' '}
+                  {LANGUAGE_NAMES[peer?.language ?? language]}.{' '}
+                  {text('A batalha atualiza automaticamente.', 'The battle updates automatically.')}
                 </p>
               )}
               <p className="ad-arena-rule">
-                O golpe escolhido define dano, cura e desgaste. Submeter encerra o turno. Executar
-                apenas testa. Dois minutos por turno. Sorte reduz exercícios, proteção reduz dano e
-                relíquias aumentam a vida. Os bônus são fixados no início de cada partida.
+                {text(
+                  'O golpe escolhido define dano, cura e desgaste. Submeter encerra o turno. Executar apenas testa. Dois minutos por turno. Sorte reduz exercícios, proteção reduz dano e relíquias aumentam a vida. Os bônus são fixados no início de cada partida.',
+                  'The chosen move sets damage, healing and recoil. Submitting ends the turn. Running only tests. Two minutes per turn. Luck reduces exercises, protection reduces damage and relics increase HP. Bonuses are locked in at the start of each match.'
+                )}
               </p>
             </>
           ) : (
@@ -324,7 +357,10 @@ export function MultiplayerArena({
                   className="ad-secondary ad-arena-players-button"
                   onClick={() => setPlayersOpen(true)}
                 >
-                  <Swords size={18} /> {peer ? 'Adversário e batalha' : 'Convidar amigo'}
+                  <Swords size={18} />{' '}
+                  {peer
+                    ? text('Adversário e batalha', 'Opponent and battle')
+                    : text('Convidar amigo', 'Invite friend')}
                 </button>
                 <World
                   key={room.id}
@@ -354,11 +390,15 @@ export function MultiplayerArena({
                 >
                   <div className="ad-arena-social">
                     <header className="ad-arena-dialog-heading">
-                      <h3 id="arena-players-title">{peer ? 'Seu adversário' : 'Chame um amigo'}</h3>
+                      <h3 id="arena-players-title">
+                        {peer
+                          ? text('Seu adversário', 'Your opponent')
+                          : text('Chame um amigo', 'Call a friend')}
+                      </h3>
                       <button
                         type="button"
                         className="ad-secondary"
-                        aria-label="Fechar jogadores"
+                        aria-label={text('Fechar jogadores', 'Close players')}
                         onClick={() => setPlayersOpen(false)}
                       >
                         <X size={18} />
@@ -368,10 +408,13 @@ export function MultiplayerArena({
                       <div className="ad-arena-result" role="status">
                         <strong>
                           {match.winnerId
-                            ? `${room.players.find((p) => p.id === match.winnerId)?.name ?? 'Seu adversário'} venceu!`
-                            : 'Empate!'}
+                            ? text(
+                                `${room.players.find((p) => p.id === match.winnerId)?.name ?? 'Seu adversário'} venceu!`,
+                                `${room.players.find((p) => p.id === match.winnerId)?.name ?? 'Your opponent'} won!`
+                              )
+                            : text('Empate!', 'Draw!')}
                         </strong>
-                        <p>{match.log.at(-1)}</p>
+                        <p>{m(match.log.at(-1) ?? '')}</p>
                       </div>
                     )}
                     {peer ? (
@@ -381,29 +424,36 @@ export function MultiplayerArena({
                           <div>
                             <strong>{peer.name}</strong>
                             <span>
-                              @{peer.username} · Nível {peer.level}
+                              @{peer.username} · {text('Nível', 'Level')} {peer.level}
                               <br />
                               {LANGUAGE_NAMES[peer.language]} ·{' '}
-                              {peer.online ? 'Na arena' : 'Reconectando…'}
+                              {peer.online
+                                ? text('Na arena', 'In the arena')
+                                : text('Reconectando…', 'Reconnecting…')}
                             </span>
                           </div>
                         </div>
                         {match?.stats?.[self.id] && (
                           <p>
-                            Bônus desta partida: {match.stats[self.id].maxHp} PV · Proteção{' '}
-                            {match.stats[self.id].protection} · Golpe direto{' '}
-                            {match.stats[self.id].directChance}%.
+                            {text('Bônus desta partida:', 'Bonuses this match:')}{' '}
+                            {match.stats[self.id].maxHp} {text('PV', 'HP')} ·{' '}
+                            {text('Proteção', 'Protection')} {match.stats[self.id].protection} ·{' '}
+                            {text('Golpe direto', 'Direct hit')} {match.stats[self.id].directChance}
+                            %.
                           </p>
                         )}
                         {match?.stats?.[peer.id] && (
                           <p>
-                            Equipamentos de {peer.name}: {match.stats[peer.id].maxHp} PV · Proteção{' '}
-                            {match.stats[peer.id].protection} · Golpe direto{' '}
-                            {match.stats[peer.id].directChance}%.
+                            {text('Equipamentos de', 'Equipment of')} {peer.name}:{' '}
+                            {match.stats[peer.id].maxHp} {text('PV', 'HP')} ·{' '}
+                            {text('Proteção', 'Protection')} {match.stats[peer.id].protection} ·{' '}
+                            {text('Golpe direto', 'Direct hit')} {match.stats[peer.id].directChance}
+                            %.
                           </p>
                         )}
                         <p>
-                          Você joga em {LANGUAGE_NAMES[self.language]}. Seu amigo joga em{' '}
+                          {text('Você joga em', 'You play in')} {LANGUAGE_NAMES[self.language]}.{' '}
+                          {text('Seu amigo joga em', 'Your friend plays in')}{' '}
                           {LANGUAGE_NAMES[peer.language]}.
                         </p>
                         <button
@@ -418,41 +468,50 @@ export function MultiplayerArena({
                         >
                           <Swords size={18} />
                           {match?.status === 'ready' && match.ready.includes(self.id)
-                            ? 'Esperando seu amigo'
+                            ? text('Esperando seu amigo', 'Waiting for your friend')
                             : match?.status === 'finished'
-                              ? 'Jogar novamente'
-                              : 'Estou pronto para batalhar'}
+                              ? text('Jogar novamente', 'Play again')
+                              : text('Estou pronto para batalhar', 'I am ready to battle')}
                         </button>
                         <p className="ad-arena-rule">
-                          A batalha começa quando os dois confirmarem.
+                          {text(
+                            'A batalha começa quando os dois confirmarem.',
+                            'The battle starts when both of you confirm.'
+                          )}
                         </p>
                       </>
                     ) : room.hostId === self.id ? (
                       <>
                         <p>
-                          Convide alguém que você segue e que também segue você. O convite vale por
-                          cinco minutos.
+                          {text(
+                            'Convide alguém que você segue e que também segue você. O convite vale por cinco minutos.',
+                            'Invite someone you follow who also follows you. The invitation lasts five minutes.'
+                          )}
                         </p>
                         {room.invitedName && (
                           <p role="status" className="ad-arena-message">
-                            <Check size={16} /> Convite enviado para {room.invitedName}.
+                            <Check size={16} /> {text('Convite enviado para', 'Invitation sent to')}{' '}
+                            {room.invitedName}.
                           </p>
                         )}
                         <label className="ad-arena-search">
-                          Buscar amigo
+                          {text('Buscar amigo', 'Search friend')}
                           <input
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            placeholder="Nome ou @usuário"
+                            placeholder={text('Nome ou @usuário', 'Name or @username')}
                           />
                         </label>
                         {!data.friends.length && (
                           <p>
-                            Nenhum amigo mútuo ainda. Vocês precisam se seguir para jogar juntos.
+                            {text(
+                              'Nenhum amigo mútuo ainda. Vocês precisam se seguir para jogar juntos.',
+                              'No mutual friends yet. You need to follow each other to play together.'
+                            )}
                           </p>
                         )}
                         {data.friends.length > 0 && !friends.length && (
-                          <p>Nenhum amigo encontrado.</p>
+                          <p>{text('Nenhum amigo encontrado.', 'No friends found.')}</p>
                         )}
                         <ul className="ad-arena-friends">
                           {friends.map((friend) => (
@@ -464,7 +523,7 @@ export function MultiplayerArena({
                               <button
                                 type="button"
                                 disabled={busy || Boolean(room.invitedName)}
-                                aria-label={`Convidar ${friend.name}`}
+                                aria-label={`${text('Convidar', 'Invite')} ${friend.name}`}
                                 onClick={() =>
                                   void mutate({
                                     type: 'invite',
@@ -474,14 +533,19 @@ export function MultiplayerArena({
                                 }
                               >
                                 <UserPlus size={17} />
-                                <span>Convidar</span>
+                                <span>{text('Convidar', 'Invite')}</span>
                               </button>
                             </li>
                           ))}
                         </ul>
                       </>
                     ) : (
-                      <p>O anfitrião está reconectando. Você pode aguardar ou voltar à clareira.</p>
+                      <p>
+                        {text(
+                          'O anfitrião está reconectando. Você pode aguardar ou voltar à clareira.',
+                          'The host is reconnecting. You can wait or go back to the clearing.'
+                        )}
+                      </p>
                     )}
                   </div>
                 </dialog>
@@ -489,9 +553,9 @@ export function MultiplayerArena({
             </>
           )}
           {match?.status === 'active' && (
-            <ol className="ad-arena-log" aria-label="Histórico da batalha">
+            <ol className="ad-arena-log" aria-label={text('Histórico da batalha', 'Battle log')}>
               {match.log.map((line, i) => (
-                <li key={`${i}:${line}`}>{line}</li>
+                <li key={`${i}:${line}`}>{m(line)}</li>
               ))}
             </ol>
           )}

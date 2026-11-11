@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { levelUpOverlayVariants, levelUpBadgeVariants } from '@/lib/motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { fadeVariants } from '@/lib/motion';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface LevelUpOverlayProps {
   visible: boolean;
@@ -36,6 +37,7 @@ function getTitleForLevel(level: number): string {
 }
 
 export function LevelUpOverlay({ visible, level, title, onDone }: LevelUpOverlayProps) {
+  const { text } = useLocalizedText();
   const reduced = useReducedMotion();
   const displayTitle = title || getTitleForLevel(level);
 
@@ -61,9 +63,12 @@ export function LevelUpOverlay({ visible, level, title, onDone }: LevelUpOverlay
               <span className="text-3xl font-black text-white">{level}</span>
             </div>
             <div className="text-center space-y-1">
-              <p className="text-lg font-black text-dd-text">Level {level} desbloqueado!</p>
+              <p className="text-lg font-black text-dd-text">
+                {text(`Level ${level} desbloqueado!`, `Level ${level} unlocked!`)}
+              </p>
               <p className="text-sm text-dd-muted font-medium">
-                Voce agora e um <span className="text-blue-400 font-bold">{displayTitle}</span>
+                {text('Voce agora e um', 'You are now a')}{' '}
+                <span className="text-blue-400 font-bold">{displayTitle}</span>
               </p>
             </div>
           </motion.div>

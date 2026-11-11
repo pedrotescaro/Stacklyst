@@ -717,7 +717,13 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                             : 'text-amber-600 dark:text-amber-400'
                       )}
                     >
-                      {problem.difficulty}
+                      {problem.difficulty === 'Fácil'
+                        ? text('Fácil', 'Easy')
+                        : problem.difficulty === 'Médio'
+                          ? text('Médio', 'Medium')
+                          : problem.difficulty === 'Difícil'
+                            ? text('Difícil', 'Hard')
+                            : problem.difficulty}
                     </span>
                   </div>
                   <p className="mt-5 whitespace-pre-wrap text-sm leading-7 text-dd-text/90">

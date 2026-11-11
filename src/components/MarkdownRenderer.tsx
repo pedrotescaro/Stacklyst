@@ -24,6 +24,7 @@ import { CodeBlockFrame } from '@/components/CodeBlockFrame';
 import { runCodeInSandbox } from '@/lib/code-runner';
 import { isRunnableLanguage } from '@/lib/editor/languages';
 import { remarkPostFormatting } from '@/lib/editor/safe-inline';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface MarkdownRendererProps {
   content: string;
@@ -313,6 +314,7 @@ function CodeBlock({
 }
 
 export function MarkdownRenderer({ content, compact = false }: MarkdownRendererProps) {
+  const { text } = useLocalizedText();
   const contentRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
   const [canExpand, setCanExpand] = useState(false);
@@ -458,7 +460,7 @@ export function MarkdownRenderer({ content, compact = false }: MarkdownRendererP
             }}
             className="rounded-md border border-dd-border bg-dd-surface px-2.5 py-1 text-[10px] font-bold text-dd-text shadow-sm transition-colors hover:border-dd-accent hover:text-dd-accent cursor-pointer"
           >
-            Ver mais
+            {text('Ver mais', 'See more')}
           </button>
         </div>
       )}

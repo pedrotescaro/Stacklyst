@@ -3,6 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Layers, Check } from 'lucide-react';
 import type { LessonStep } from '@/lib/lessons/types';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface MatchingPairsStepProps {
   step: LessonStep;
@@ -17,6 +18,7 @@ export function MatchingPairsStep({
   onUpdateMatches,
   disabled = false,
 }: MatchingPairsStepProps) {
+  const { text } = useLocalizedText();
   const pairs = step.matchingPairs || [];
   const [selectedLeft, setSelectedLeft] = useState<string | null>(null);
   const [selectedRight, setSelectedRight] = useState<string | null>(null);
@@ -73,11 +75,14 @@ export function MatchingPairsStep({
         </div>
         <div>
           <h2 className="text-xl font-bold leading-snug text-dd-text">
-            {step.title || 'Combine os Pares'}
+            {step.title || text('Combine os Pares', 'Match the Pairs')}
           </h2>
           <p className="text-base text-dd-muted leading-relaxed">
             {step.instruction ||
-              'Toque em um item da esquerda e depois no seu par correspondente à direita'}
+              text(
+                'Toque em um item da esquerda e depois no seu par correspondente à direita',
+                'Tap an item on the left and then its matching pair on the right'
+              )}
           </p>
         </div>
       </div>
@@ -85,7 +90,9 @@ export function MatchingPairsStep({
       <div className="grid grid-cols-2 gap-4 pt-2">
         {/* Coluna da Esquerda */}
         <div className="space-y-3">
-          <p className="text-sm font-medium text-dd-muted px-1">Conceito / Termo</p>
+          <p className="text-sm font-medium text-dd-muted px-1">
+            {text('Conceito / Termo', 'Concept / Term')}
+          </p>
           {pairs.map((pair) => {
             const isMatched = Boolean(matchedPairs[pair.left]);
             const isSelected = selectedLeft === pair.left;
@@ -123,7 +130,9 @@ export function MatchingPairsStep({
 
         {/* Coluna da Direita */}
         <div className="space-y-3">
-          <p className="text-sm font-medium text-dd-muted px-1">Correspondência</p>
+          <p className="text-sm font-medium text-dd-muted px-1">
+            {text('Correspondência', 'Match')}
+          </p>
           {shuffledRights.map((rightText, idx) => {
             const matchedLeft = Object.keys(matchedPairs).find(
               (k) => matchedPairs[k] === rightText

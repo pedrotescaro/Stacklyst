@@ -2,6 +2,7 @@
 
 import { X, Heart, Flame, Zap } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface LessonHeaderProps {
   currentStepIndex: number;
@@ -56,6 +57,7 @@ export function LessonHeader({
   earnedXp,
   onExitClick,
 }: LessonHeaderProps) {
+  const { text } = useLocalizedText();
   const progressPercent = Math.min(
     100,
     Math.max(0, (currentStepIndex / Math.max(1, totalSteps)) * 100)
@@ -68,7 +70,7 @@ export function LessonHeader({
         <button
           type="button"
           onClick={onExitClick}
-          aria-label="Sair da lição"
+          aria-label={text('Sair da lição', 'Exit lesson')}
           className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-dd-muted hover:text-dd-text hover:bg-dd-surface/80 active:scale-95 transition-all cursor-pointer"
         >
           <X className="h-5 w-5 stroke-[2.5]" />
@@ -113,7 +115,7 @@ export function LessonHeader({
           {/* Lives / Hearts (Game Heart Icon Badge) */}
           <div
             className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-rose-500/10 border border-rose-500/25 shadow-sm"
-            aria-label={`${lives} de ${maxLives} vidas restantes`}
+            aria-label={`${lives} ${text('de', 'of')} ${maxLives} ${text('vidas restantes', 'lives left')}`}
           >
             <GameHeartIcon className="h-5 w-5" />
             <span className="text-sm font-black text-rose-500 dark:text-rose-400 tabular-nums leading-none">

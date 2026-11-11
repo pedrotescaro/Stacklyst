@@ -1,3 +1,4 @@
+import { useLocalizedText } from '../../i18n/useLocalizedText';
 /** Pixel frame and stepped fill stay independent of the authoritative health value. */
 export function PixelMeter({
   value,
@@ -10,6 +11,7 @@ export function PixelMeter({
   compact?: boolean;
   max?: number;
 }) {
+  const { text } = useLocalizedText();
   const maximum = Number.isFinite(max) && max > 0 ? max : 100;
   const health = Math.max(0, Math.min(maximum, value));
   const percentage = (health / maximum) * 100;
@@ -21,7 +23,10 @@ export function PixelMeter({
       aria-valuemin={0}
       aria-valuemax={maximum}
       aria-valuenow={health}
-      aria-valuetext={`${health} de ${maximum} pontos de vida`}
+      aria-valuetext={text(
+        `${health} de ${maximum} pontos de vida`,
+        `${health} of ${maximum} hit points`
+      )}
       data-health={percentage <= 25 ? 'low' : percentage <= 50 ? 'medium' : 'high'}
     >
       <span className="rpg-meter-track" aria-hidden="true">
