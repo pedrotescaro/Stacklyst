@@ -15,6 +15,8 @@ O caminho `/trails/enade` reúne as cinco edições de Tecnologia em Análise e 
 
 ## Simulados e progresso
 
+A entrada `/trails/enade` conserva a navegação compartilhada, o conteúdo centralizado e uma divisória na extremidade direita da coluna. Iniciar, continuar ou revisar leva à rota autenticada `/trails/enade/<ano>`. Essa rota monta apenas a atividade: não contém a sidebar, o seletor de cursos nem o checklist lateral de 40 questões. Um seletor compacto navega entre as questões; Caderno e Respostas alternam a área de trabalho em desktop e celular. O link Todas as edições retorna à entrada. O cronômetro começa na atividade e preserva o prazo ao retomá-la, após recuperar o rascunho mais recente. A saída da atividade envia o último salvamento pendente.
+
 Cada edição pode ser iniciada livremente, com quatro horas, respostas objetivas e discursivas, marcação para revisão, retomada e revisão final. A correção objetiva usa os gabaritos definitivos: as anuladas ficam fora do denominador; as discursivas usam o padrão oficial para autoavaliação. A porcentagem de acertos é uma medida de estudo, não a nota oficial do Enade. O curso não concede XP a partir de respostas do cliente.
 
 O progresso usa registros privados `MobileState`, chave `enade-ads-<ano>`, sempre associados à sessão autenticada. O endpoint valida edição, IDs e alternativas. O salvamento é agrupado e serializado, com cópia local por usuário para recuperar requisições interrompidas. Falhas de sincronização são apresentadas. Não há nova migração.
