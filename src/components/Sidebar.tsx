@@ -457,23 +457,23 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
           </Link>
 
           {/* Navigation Links */}
-          <nav className="mt-2 flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto overscroll-contain pr-1 scrollbar-none xl:mt-3">
+          <nav className="mt-2 flex min-h-0 flex-initial flex-col gap-0.5 overflow-y-auto overscroll-contain pr-1 scrollbar-none xl:mt-3">
             {navItems.map((item) => {
               const Icon = item.icon;
 
-              const linkClasses = `group flex w-full cursor-pointer items-center justify-center rounded-full px-2 py-3 text-left text-[15px] xl:justify-start xl:gap-4 xl:px-4 xl:py-2.5 ${
+              const linkClasses = `group flex w-full cursor-pointer items-center justify-center rounded-full px-2 py-3 text-left text-[20px] leading-6 xl:justify-start xl:gap-5 xl:px-4 xl:py-3 [@media(max-height:820px)]:py-2 xl:[@media(max-height:820px)]:py-2 ${
                 item.active
                   ? 'font-black text-dd-text dark:text-white'
                   : 'font-bold text-dd-text dark:text-white'
               } transition-colors duration-150 hover:bg-black/[0.06] dark:hover:bg-white/10`;
 
               const iconEl = (
-                <div className="relative flex items-center justify-center w-6 h-6 shrink-0">
+                <div className="relative flex items-center justify-center w-[26px] h-[26px] shrink-0">
                   {item.id === 'notifications' ? (
                     <NotificationBellIcon unreadCount={unreadCount} active={item.active} />
                   ) : (
                     <Icon
-                      className={`w-6 h-6 text-dd-text dark:text-white stroke-[2.2] transition-transform group-hover:scale-105 duration-150 ${item.active ? 'fill-current' : ''}`}
+                      className={`w-[26px] h-[26px] text-dd-text dark:text-white stroke-[2.2] transition-transform group-hover:scale-105 duration-150 ${item.active ? 'fill-current' : ''}`}
                     />
                   )}
                   {item.badge === 'dot' && (
@@ -515,15 +515,15 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
               }}
               aria-expanded={moreMenuOpen}
               aria-haspopup="menu"
-              className={`flex w-full cursor-pointer items-center justify-center rounded-full px-2 py-3 text-left text-[15px] xl:justify-start xl:gap-4 xl:px-4 xl:py-2.5 ${
+              className={`flex w-full cursor-pointer items-center justify-center rounded-full px-2 py-3 text-left text-[20px] leading-6 xl:justify-start xl:gap-5 xl:px-4 xl:py-3 [@media(max-height:820px)]:py-2 xl:[@media(max-height:820px)]:py-2 ${
                 moreMenuIsActive
                   ? 'font-black text-dd-text dark:text-white'
                   : 'font-bold text-dd-text dark:text-white'
               } transition-colors duration-150 hover:bg-black/[0.06] dark:hover:bg-white/10 group`}
               aria-label={t.nav.more}
             >
-              <div className="flex h-6 w-6 shrink-0 items-center justify-center">
-                <MoreHorizontal className="h-6 w-6 text-dd-text dark:text-white stroke-[2.2] transition-transform duration-150 group-hover:scale-105" />
+              <div className="flex h-[26px] w-[26px] shrink-0 items-center justify-center">
+                <MoreHorizontal className="h-[26px] w-[26px] text-dd-text dark:text-white stroke-[2.2] transition-transform duration-150 group-hover:scale-105" />
               </div>
               <span className="hidden text-dd-text dark:text-white xl:inline">{t.nav.more}</span>
             </button>
@@ -541,7 +541,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                   <Link
                     href="/jobs"
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[17px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                     onClick={() => setMoreMenuOpen(false)}
                   >
                     <Briefcase className="h-5.5 w-5.5 shrink-0 text-dd-text" />
@@ -550,7 +550,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                   <Link
                     href="/events"
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[17px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                     onClick={() => setMoreMenuOpen(false)}
                   >
                     <Calendar className="h-5.5 w-5.5 shrink-0 text-dd-text" />
@@ -559,7 +559,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                   <Link
                     href="/evaluations"
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[17px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                     onClick={() => setMoreMenuOpen(false)}
                   >
                     <Code2 className="h-5.5 w-5.5 shrink-0 text-dd-text" />
@@ -569,7 +569,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                     <Link
                       href="/admin"
                       role="menuitem"
-                      className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                      className="flex items-center gap-4 rounded-xl px-4 py-3 text-[17px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                       onClick={() => setMoreMenuOpen(false)}
                     >
                       <ShieldAlert className="h-5.5 w-5.5 shrink-0 text-dd-text" />
@@ -579,7 +579,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                   <Link
                     href="/settings"
                     role="menuitem"
-                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[15px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
+                    className="flex items-center gap-4 rounded-xl px-4 py-3 text-[17px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none"
                     onClick={() => setMoreMenuOpen(false)}
                   >
                     <SettingsIcon className="h-5.5 w-5.5 shrink-0 text-dd-text" />
@@ -594,7 +594,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
           {activeUser && (
             <button
               onClick={() => setModalOpen(true)}
-              className="mt-3 flex h-12 w-12 self-center cursor-pointer items-center justify-center rounded-full bg-blue-500 p-0 text-center text-[16px] font-bold text-white shadow-md shadow-blue-500/20 transition-all duration-150 hover:bg-blue-600 active:scale-[0.98] xl:h-auto xl:w-full xl:px-5 xl:py-3"
+              className="mt-3 flex h-12 w-12 self-center cursor-pointer items-center justify-center rounded-full bg-blue-500 p-0 text-center text-[17px] font-bold text-white shadow-md shadow-blue-500/20 transition-all duration-150 hover:bg-blue-600 active:scale-[0.98] xl:h-[52px] xl:w-full xl:px-5"
               aria-label={t.nav.createPost}
             >
               <SquarePen className="h-6 w-6 xl:hidden" />
