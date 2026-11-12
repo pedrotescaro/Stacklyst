@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
-import { vi } from 'vitest';
+import { beforeEach, vi } from 'vitest';
+import { clearPageCache } from '@/lib/client/page-cache';
 
 class ResizeObserverMock {
   observe() {}
@@ -24,3 +25,6 @@ vi.mock('next/navigation', () => ({
   usePathname: () => '/',
   useSearchParams: () => new URLSearchParams(),
 }));
+
+// The list cache lives for a page session; every test starts with an empty one.
+beforeEach(() => clearPageCache());

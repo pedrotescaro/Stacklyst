@@ -56,6 +56,14 @@ import type { LucideIcon } from 'lucide-react';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import type { OnboardingPreferences } from '@/lib/onboarding';
 import { getFeedSettings } from '@/lib/feed-preferences';
+import {
+  PAGE_CACHE_FRESH_MS,
+  fetchPage,
+  prefetchPage,
+  readCachedPage,
+  upsertCachedPage,
+  whenIdle,
+} from '@/lib/client/page-cache';
 
 const QuizWidget = dynamic(
   () => import('@/components/QuizWidget').then((module) => module.QuizWidget),
@@ -169,6 +177,26 @@ function RailSectionHeading({
       </div>
     </div>
   );
+}
+
+interface FeedPage {
+  items?: any[];
+  nextCursor?: string | null;
+}
+
+/** One canonical first-page URL per feed filter, shared by fetching, caching and prefetching. */
+function feedFirstPageUrl(
+  filter: 'for-you' | 'following',
+  sort: 'recent' | 'popular',
+  languages: string,
+  suffix: string
+) {
+  // Same parameter order the feed has always used for these requests.
+  const query =
+    filter === 'following'
+      ? `filter=following&sort=${sort}&limit=10&useCursor=true`
+      : `limit=10&useCursor=true${languages ? `&languages=${encodeURIComponent(languages)}` : ''}`;
+  return `/api/posts?${query}${suffix}`;
 }
 
 function getInitialCursor(items: any[]) {
@@ -318,6 +346,7 @@ export function FeedContent({
   const [dailyAttempt, setDailyAttempt] = useState<any>(null);
 
   const didMountFilterEffectRef = useRef(false);
+  const filterSnapshotRef = useRef(initialPosts);
 
   // Report post state
   const [reportModalOpen, setReportModalOpen] = useState(false);
@@ -378,35 +407,53 @@ export function FeedContent({
 
     const controller = new AbortController();
     filterRequestRef.current = controller;
-    setLoadingSearch(true);
+    const applyPage = (data: FeedPage) => {
+      setPosts(data.items || []);
+      setBookmarkedPostIds(
+        Object.fromEntries(
+          (data.items || [])
+            .filter((post: any) => post.bookmarks?.length)
+            .map((post: any) => [post.id, true])
+        )
+      );
+      setNextCursor(data.nextCursor || null);
+      setHasMore(Boolean(data.nextCursor));
+    };
+    const pageUrl = query
+      ? `/api/search?q=${encodeURIComponent(query)}&type=posts&limit=${FEED_PAGE_SIZE}`
+      : feedFirstPageUrl(feedFilter, followingSort, feedLanguages, feedRequestSuffix);
+    // Switching back to a filter shows its last page at once; stale pages refresh quietly.
+    // A new server snapshot (router.refresh) always asks the server again.
+    const serverRefreshed = filterSnapshotRef.current !== initialPosts;
+    filterSnapshotRef.current = initialPosts;
+    const cached = query || serverRefreshed ? null : readCachedPage<FeedPage>(pageUrl);
+    if (cached) {
+      applyPage(cached.data);
+      setLoadingSearch(false);
+      if (cached.age < PAGE_CACHE_FRESH_MS) {
+        if (filterRequestRef.current === controller) filterRequestRef.current = null;
+        return () => controller.abort();
+      }
+    } else {
+      setLoadingSearch(true);
+    }
     const timer = window.setTimeout(
       async () => {
         if (controller.signal.aborted) return;
         try {
-          const url = query
-            ? `/api/search?q=${encodeURIComponent(query)}&type=posts&limit=${FEED_PAGE_SIZE}`
-            : feedFilter === 'following'
-              ? `/api/posts?filter=following&sort=${followingSort}&limit=${FEED_PAGE_SIZE}&useCursor=true`
-              : `/api/posts?limit=${FEED_PAGE_SIZE}&useCursor=true${feedLanguages ? `&languages=${encodeURIComponent(feedLanguages)}` : ''}`;
-          const response = await fetch(query ? url : url + feedRequestSuffix, {
-            signal: controller.signal,
-            cache: 'no-store',
-          });
-          if (!response.ok) throw new Error('Feed unavailable');
-          const data = await response.json();
+          let data: FeedPage;
+          if (query) {
+            const response = await fetch(pageUrl, { signal: controller.signal, cache: 'no-store' });
+            if (!response.ok) throw new Error('Feed unavailable');
+            data = await response.json();
+          } else {
+            data = await fetchPage<FeedPage>(pageUrl);
+          }
           if (controller.signal.aborted || generation !== feedGenerationRef.current) return;
-          setPosts(data.items || []);
-          setBookmarkedPostIds(
-            Object.fromEntries(
-              (data.items || [])
-                .filter((post: any) => post.bookmarks?.length)
-                .map((post: any) => [post.id, true])
-            )
-          );
-          setNextCursor(data.nextCursor || null);
-          setHasMore(Boolean(data.nextCursor));
+          applyPage(data);
         } catch {
           if (controller.signal.aborted || generation !== feedGenerationRef.current) return;
+          if (cached) return;
           setFeedError(
             text(
               'Não foi possível atualizar as publicações. Tente novamente.',
@@ -550,19 +597,53 @@ export function FeedContent({
     return timestamps.length ? new Date(Math.max(...timestamps)).toISOString() : null;
   }, [posts]);
 
-  const firstPageUrl = useCallback(() => {
-    const params = new URLSearchParams({
-      limit: String(FEED_PAGE_SIZE),
-      useCursor: 'true',
-    });
-    if (feedFilter === 'following') {
-      params.set('filter', 'following');
-      params.set('sort', followingSort);
-    } else if (feedLanguages) {
-      params.set('languages', feedLanguages);
-    }
-    return `/api/posts?${params.toString()}${feedRequestSuffix}`;
-  }, [feedFilter, followingSort, feedLanguages, feedRequestSuffix]);
+  const firstPageUrl = useCallback(
+    () => feedFirstPageUrl(feedFilter, followingSort, feedLanguages, feedRequestSuffix),
+    [feedFilter, followingSort, feedLanguages, feedRequestSuffix]
+  );
+
+  // Keep the cached first page of the visible filter in step with what is on screen
+  // (new, edited and deleted posts), so returning to it never shows stale content.
+  useEffect(() => {
+    if (activeTab !== 'feed' || searchQuery.trim() || loadingSearch || refreshingPosts) return;
+    const settled = posts.filter((post) => !post._pending && !String(post.id).startsWith('temp-'));
+    upsertCachedPage(firstPageUrl(), { items: settled, nextCursor });
+  }, [posts, nextCursor, activeTab, searchQuery, loadingSearch, refreshingPosts, firstPageUrl]);
+
+  // Warm the other feeds after the first paint so switching between them is instant.
+  // Custom feeds carry their own id in the URL, so each one is prefetched with its id.
+  useEffect(() => {
+    if (activeTab !== 'feed' || searchQuery.trim()) return;
+    return whenIdle(() => {
+      if (feedSettings?.feeds?.length) {
+        feedSettings.feeds
+          .filter((feed) => feed.id !== activeFeedId)
+          .forEach((feed) =>
+            prefetchPage(
+              feedFirstPageUrl(
+                feed.source,
+                followingSort,
+                feedLanguages,
+                `&feedId=${encodeURIComponent(feed.id)}&feedRevision=${feedRevision}`
+              )
+            )
+          );
+        return;
+      }
+      const other = feedFilter === 'following' ? 'for-you' : 'following';
+      prefetchPage(feedFirstPageUrl(other, followingSort, feedLanguages, feedRequestSuffix));
+    }, 2000);
+  }, [
+    activeTab,
+    searchQuery,
+    feedFilter,
+    followingSort,
+    feedLanguages,
+    feedRequestSuffix,
+    feedSettings,
+    activeFeedId,
+    feedRevision,
+  ]);
 
   useEffect(() => {
     if (activeTab !== 'feed' || searchQuery.trim()) return;

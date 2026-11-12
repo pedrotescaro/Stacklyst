@@ -37,8 +37,20 @@ import { useLocalizedText } from '@/i18n/useLocalizedText';
 import profileStyles from '@/components/profile/ProfilePublic.module.css';
 import styles from '@/components/profile-inline/InlineProfile.module.css';
 import headerStyles from './ProfileHeader.module.css';
+import {
+  PAGE_CACHE_FRESH_MS,
+  fetchPage,
+  patchCachedPage,
+  prefetchPage,
+  readCachedPage,
+  whenIdle,
+} from '@/lib/client/page-cache';
 
 type ProfileTab = 'posts' | 'photos' | 'videos' | 'likes' | 'replies' | 'stats' | 'certificates';
+interface ProfileListPage {
+  items?: any[];
+  nextCursor?: string | null;
+}
 interface ProfileContentProps {
   railUser: ProfileRailUser;
   user: {
@@ -175,6 +187,20 @@ export function ProfileContent({
   const activeRef = useRef(activeTab);
   activeRef.current = activeTab;
 
+  const listUrl = useCallback(
+    (target: ProfileTab, after: string | null) => {
+      const name = encodeURIComponent(profileUser.username);
+      const afterQuery = after ? `&cursor=${encodeURIComponent(after)}` : '';
+      const searchQuery = search ? `&search=${encodeURIComponent(search)}` : '';
+      return target === 'photos' || target === 'videos'
+        ? `/api/profile/${name}/media?type=${target}&limit=18${afterQuery}${searchQuery}`
+        : target === 'replies'
+          ? `/api/profile/${name}/replies?limit=10${afterQuery}${searchQuery}`
+          : `/api/profile/${name}/activity?tab=${target}&limit=10${afterQuery}${searchQuery}`;
+    },
+    [profileUser.username, search]
+  );
+
   const fetchContent = useCallback(
     async (target: ProfileTab, after: string | null, append = false) => {
       if (target === 'stats' || target === 'certificates') {
@@ -184,37 +210,34 @@ export function ProfileContent({
       listRequest.current?.abort();
       const controller = new AbortController();
       listRequest.current = controller;
-      setLoading(true);
-      setError('');
+      const url = listUrl(target, after);
+      // A first page seen before is shown at once; a stale one refreshes quietly.
+      const cached = !after && !append ? readCachedPage<ProfileListPage>(url) : null;
+      if (cached) {
+        setItems(cached.data.items || []);
+        setCursor(cached.data.nextCursor || null);
+        setLoading(false);
+        setError('');
+        if (cached.age < PAGE_CACHE_FRESH_MS) return;
+      } else {
+        setLoading(true);
+        setError('');
+      }
       try {
-        const name = encodeURIComponent(profileUser.username);
-        const afterQuery = after ? `&cursor=${encodeURIComponent(after)}` : '';
-        const searchQuery = search ? `&search=${encodeURIComponent(search)}` : '';
-        const url =
-          target === 'photos' || target === 'videos'
-            ? `/api/profile/${name}/media?type=${target}&limit=18${afterQuery}${searchQuery}`
-            : target === 'replies'
-              ? `/api/profile/${name}/replies?limit=10${afterQuery}${searchQuery}`
-              : `/api/profile/${name}/activity?tab=${target}&limit=10${afterQuery}${searchQuery}`;
-        const response = await fetch(url, { signal: controller.signal, cache: 'no-store' });
-        const result = await response.json();
-        if (!response.ok)
-          throw new Error(
-            result.message || result.error || 'Não foi possível carregar este conteúdo.'
-          );
+        const result = await fetchPage<ProfileListPage>(url);
         if (activeRef.current !== target || controller.signal.aborted) return;
         setItems((previous) =>
           append ? [...previous, ...(result.items || [])] : result.items || []
         );
         setCursor(result.nextCursor || null);
       } catch (failure) {
-        if (!controller.signal.aborted)
+        if (!controller.signal.aborted && !cached)
           setError(failure instanceof Error ? failure.message : 'Sem conexão. Tente novamente.');
       } finally {
         if (!controller.signal.aborted) setLoading(false);
       }
     },
-    [profileUser.username, search]
+    [listUrl]
   );
   useEffect(() => {
     setItems([]);
@@ -223,6 +246,22 @@ export function ProfileContent({
     void fetchContent(activeTab, null);
     return () => listRequest.current?.abort();
   }, [activeTab, fetchContent]);
+  // Keep the cached first page in step with local edits, deletions and extra pages.
+  useEffect(() => {
+    if (loading || error || activeTab === 'stats' || activeTab === 'certificates') return;
+    if (activeRef.current !== activeTab) return;
+    patchCachedPage(listUrl(activeTab, null), { items, nextCursor: cursor });
+  }, [items, cursor, loading, error, activeTab, listUrl]);
+  // Warm the other tabs once the visible one has loaded, so the first switch is instant.
+  const listTabsReady = !loading;
+  useEffect(() => {
+    if (!listTabsReady || search) return;
+    return whenIdle(() => {
+      (['posts', 'replies', 'likes', selectedMedia] as const).forEach((target) => {
+        if (target !== activeRef.current) prefetchPage(listUrl(target, null));
+      });
+    });
+  }, [listTabsReady, search, selectedMedia, listUrl]);
   useEffect(() => {
     if (activeTab !== 'stats') return;
     const controller = new AbortController();
