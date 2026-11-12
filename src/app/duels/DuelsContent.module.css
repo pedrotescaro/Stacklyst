@@ -19,12 +19,6 @@
 .arena * {
   min-width: 0;
 }
-.arena :global(.bg-blue-500):global(.text-white) {
-  background-color: #1765ab;
-}
-.arena :is(button, a):global(.bg-blue-500):hover {
-  background-color: #12568f;
-}
 .arena :is(:global(.text-blue-400), :global(.text-blue-500)) {
   color: #1765ab;
 }

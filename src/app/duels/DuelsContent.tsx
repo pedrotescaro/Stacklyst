@@ -336,7 +336,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
               onClick={() => setShowDuelForm(!showDuelForm)}
               aria-expanded={showDuelForm}
               aria-controls="create-duel"
-              className="dd-touch dd-focus-ring flex items-center gap-1.5 rounded-full border border-blue-600 bg-blue-500 hover:bg-blue-400 px-3.5 py-1.5 text-xs font-bold text-white transition-all cursor-pointer"
+              className="dd-touch dd-focus-ring flex items-center gap-1.5 rounded-full bg-blue-500 shadow-md shadow-blue-500/20 hover:bg-blue-600 active:scale-[0.98] px-3.5 py-1.5 text-xs font-bold text-white transition-all cursor-pointer"
             >
               <Plus className="w-3.5 h-3.5" />
               {showDuelForm ? text('Fechar', 'Close') : text('Criar Duelo', 'Create Duel')}
@@ -446,7 +446,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                         className={cn(
                           'dd-touch dd-focus-ring rounded-full border text-sm font-bold transition-colors',
                           isSelected
-                            ? 'border-blue-500  bg-blue-500 text-white   '
+                            ? 'border-blue-500 bg-blue-500 text-white shadow-md shadow-blue-500/20'
                             : 'border-dd-border/80  bg-dd-surface text-dd-muted hover:text-dd-text hover:border-blue-500/40'
                         )}
                       >
@@ -462,7 +462,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                 type="button"
                 onClick={handleQuickMatch}
                 disabled={isMatchmaking}
-                className="dd-touch dd-focus-ring w-full flex items-center justify-center gap-2.5 rounded-2xl border border-blue-600 bg-blue-500 hover:bg-blue-400 py-4 text-sm font-bold text-white transition-all cursor-pointer disabled:opacity-60"
+                className="dd-touch dd-focus-ring w-full flex items-center justify-center gap-2.5 rounded-2xl bg-blue-500 shadow-md shadow-blue-500/20 hover:bg-blue-600 active:scale-[0.98] py-4 text-sm font-bold text-white transition-all cursor-pointer disabled:opacity-60"
               >
                 {isMatchmaking ? (
                   <Loader2 className="w-5 h-5 animate-spin" />
@@ -584,7 +584,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                       type="button"
                       onClick={handleGenerateProblem}
                       disabled={isGenerating}
-                      className="dd-touch dd-focus-ring w-full flex items-center justify-center gap-2.5 rounded-2xl border border-blue-600 bg-blue-500 hover:bg-blue-400 py-3.5 text-xs font-bold text-white transition-all cursor-pointer disabled:opacity-60"
+                      className="dd-touch dd-focus-ring w-full flex items-center justify-center gap-2.5 rounded-2xl bg-blue-500 shadow-md shadow-blue-500/20 hover:bg-blue-600 active:scale-[0.98] py-3.5 text-xs font-bold text-white transition-all cursor-pointer disabled:opacity-60"
                     >
                       {isGenerating ? (
                         <>
@@ -692,7 +692,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                               } as React.FormEvent);
                             }}
                             disabled={creating}
-                            className="dd-touch dd-focus-ring flex-1 flex items-center justify-center gap-1.5 rounded-full border border-blue-600 bg-blue-500 hover:bg-blue-400 px-4 py-2.5 text-xs font-bold text-white transition-all cursor-pointer disabled:opacity-50"
+                            className="dd-touch dd-focus-ring flex-1 flex items-center justify-center gap-1.5 rounded-full bg-blue-500 shadow-md shadow-blue-500/20 hover:bg-blue-600 active:scale-[0.98] px-4 py-2.5 text-xs font-bold text-white transition-all cursor-pointer disabled:opacity-50"
                           >
                             <Swords className="w-3.5 h-3.5" />
                             {creating
@@ -760,7 +760,7 @@ export function DuelsContent({ user, initialDuels }: DuelsContentProps) {
                       <button
                         type="submit"
                         disabled={creating}
-                        className="dd-touch dd-focus-ring rounded-full border border-blue-600 bg-blue-500 hover:bg-blue-400 px-6 py-2.5 text-xs font-bold text-white transition-all cursor-pointer disabled:opacity-50"
+                        className="dd-touch dd-focus-ring rounded-full bg-blue-500 shadow-md shadow-blue-500/20 hover:bg-blue-600 active:scale-[0.98] px-6 py-2.5 text-xs font-bold text-white transition-all cursor-pointer disabled:opacity-50"
                       >
                         {creating
                           ? text('Criando...', 'Creating...')

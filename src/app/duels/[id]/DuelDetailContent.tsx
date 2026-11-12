@@ -475,7 +475,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
                   type="button"
                   onClick={joinDuel}
                   disabled={joining}
-                  className="dd-focus-ring inline-flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-3 text-sm font-black text-white transition hover:bg-blue-400 disabled:opacity-50"
+                  className="dd-focus-ring inline-flex items-center gap-2 rounded-xl bg-blue-500 px-5 py-3 text-sm font-black text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-600 disabled:opacity-50"
                 >
                   {joining ? (
                     <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
@@ -577,7 +577,7 @@ export function DuelDetailContent({ user, initialDuel }: DuelDetailContentProps)
             type="button"
             onClick={() => void evaluate('submit')}
             disabled={!editable || Boolean(runningAction) || !code.trim()}
-            className="dd-focus-ring inline-flex items-center gap-2 rounded-lg bg-blue-500 px-3 py-2 text-xs font-black text-white transition hover:bg-blue-400 disabled:opacity-45"
+            className="dd-focus-ring inline-flex items-center gap-2 rounded-lg bg-blue-500 px-3 py-2 text-xs font-black text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-600 disabled:opacity-45"
           >
             {runningAction === 'submit' ? (
               <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />

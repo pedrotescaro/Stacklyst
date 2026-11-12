@@ -2,12 +2,6 @@
   border-inline-end: 1px solid var(--color-dd-border);
   --color-dd-muted: color-mix(in srgb, var(--color-dd-text) 75%, var(--color-dd-bg));
 }
-.workspace button:global(.bg-blue-500) {
-  background-color: #1765ab;
-}
-.workspace button:global(.bg-blue-500):hover:not(:disabled) {
-  background-color: #12568f;
-}
 .editor > div {
   height: 100%;
   border: 0;
