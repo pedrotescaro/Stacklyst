@@ -514,7 +514,7 @@ export function PostDetailContent({
 
           {/* Post Detail Card */}
           <article className="bg-transparent border-b border-dd-border/50 p-4 sm:p-6 space-y-6">
-            <div className="flex items-start justify-between gap-3 border-b border-dd-border/50 pb-3">
+            <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
                 <Link
                   href={`/profile/${post.author.username}`}
@@ -625,9 +625,9 @@ export function PostDetailContent({
               <span>Visualizações</span>
             </div>
 
-            {/* Post bottom actions section */}
+            {/* Post bottom actions section: the divider bleeds to the column borders. */}
             <div
-              className="pt-2.5 mt-2 border-t border-dd-border/60 text-xs w-full select-none text-dd-muted max-w-full"
+              className="-mx-4 sm:-mx-6 px-4 sm:px-6 pt-2.5 mt-2 border-t border-dd-border/50 text-xs select-none text-dd-muted"
               onClick={(e) => {
                 e.stopPropagation();
                 e.preventDefault();
