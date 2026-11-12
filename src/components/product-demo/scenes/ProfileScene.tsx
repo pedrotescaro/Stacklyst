@@ -66,13 +66,13 @@ export function ProfileScene({ clock, mobile }: { clock: MotionValue<number>; mo
 
   const tabs: Array<{ id: string; label: string; icon: LucideIcon }> = [
     { id: 'posts', label: text('Publicações', 'Posts'), icon: Newspaper },
-    { id: 'media', label: text('Mídias', 'Media'), icon: Video },
-    { id: 'likes', label: text('Curtidas', 'Likes'), icon: Heart },
     { id: 'replies', label: text('Respostas', 'Replies'), icon: MessageCircle },
+    { id: 'likes', label: text('Curtidas', 'Likes'), icon: Heart },
+    { id: 'media', label: text('Mídias', 'Media'), icon: Video },
     { id: 'stats', label: text('Estatísticas', 'Statistics'), icon: ChartNoAxesCombined },
     { id: 'certificates', label: text('Certificados', 'Certificates'), icon: BadgeCheck },
   ];
-  const mobileTabs = [tabs[0], tabs[2], tabs[3], tabs[4], tabs[5], tabs[1]];
+  const mobileTabs = tabs;
 
   return (
     <DemoShell

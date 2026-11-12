@@ -131,9 +131,9 @@ describe('Compact social profile content', () => {
     const desktop = within(screen.getByTestId('profile-desktop-tabs'));
     expect(desktop.getAllByRole('tab').map((tab) => tab.textContent)).toEqual([
       'Postagens',
-      'Mídias',
-      'Curtidas',
       'Respostas',
+      'Curtidas',
+      'Mídias',
       'Estatísticas',
       'Certificados',
     ]);
@@ -250,20 +250,25 @@ describe('Compact social profile content', () => {
     await screen.findByText('Publicação real');
     const desktop = within(screen.getByTestId('profile-desktop-tabs'));
     const postsTab = desktop.getByRole('tab', { name: 'Postagens' });
-    fireEvent.keyDown(postsTab, { key: 'ArrowRight' });
+    const likesTab = desktop.getByRole('tab', { name: 'Curtidas' });
+    fireEvent.click(likesTab);
+    fireEvent.keyDown(likesTab, { key: 'ArrowRight' });
     const mediaTab = desktop.getByRole('tab', { name: 'Mídias' });
     expect(mediaTab).toHaveAttribute('aria-selected', 'true');
     expect(mediaTab).toHaveFocus();
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
 
     fireEvent.keyDown(mediaTab, { key: 'ArrowRight' });
-    const likesTab = desktop.getByRole('tab', { name: 'Curtidas' });
-    expect(likesTab).toHaveAttribute('aria-selected', 'true');
-    expect(likesTab).toHaveFocus();
-    fireEvent.keyDown(likesTab, { key: 'ArrowLeft' });
+    const statsTab = desktop.getByRole('tab', { name: 'Estatísticas' });
+    expect(statsTab).toHaveAttribute('aria-selected', 'true');
+    expect(statsTab).toHaveFocus();
+    fireEvent.keyDown(statsTab, { key: 'ArrowLeft' });
     expect(mediaTab).toHaveAttribute('aria-selected', 'true');
     expect(mediaTab).toHaveFocus();
     fireEvent.keyDown(mediaTab, { key: 'ArrowLeft' });
+    expect(likesTab).toHaveAttribute('aria-selected', 'true');
+    expect(likesTab).toHaveFocus();
+    fireEvent.keyDown(likesTab, { key: 'Home' });
     expect(postsTab).toHaveAttribute('aria-selected', 'true');
     expect(postsTab).toHaveFocus();
   });
@@ -346,7 +351,9 @@ describe('Compact social profile content', () => {
       screen.getByRole('heading', { name: 'Este perfil ainda não possui certificados' })
     ).toBeVisible();
     expect(fetch).not.toHaveBeenCalledWith('/api/certificates', expect.any(Object));
-    fireEvent.keyDown(certificatesTab, { key: 'ArrowRight' });
+    fireEvent.keyDown(certificatesTab, { key: 'ArrowLeft' });
+    expect(mobile.getByRole('tab', { name: 'Estatísticas' })).toHaveFocus();
+    fireEvent.keyDown(mobile.getByRole('tab', { name: 'Estatísticas' }), { key: 'ArrowLeft' });
     expect(mobile.getByRole('tab', { name: 'Vídeos' })).toHaveFocus();
   });
 
@@ -359,11 +366,11 @@ describe('Compact social profile content', () => {
       expect(tabs).toHaveLength(6);
       expect(tabs.map((tab) => tab.getAttribute('aria-label'))).toEqual([
         'Postagens',
-        'Curtidas',
         'Respostas',
+        'Curtidas',
+        'Vídeos',
         'Estatísticas',
         'Certificados',
-        'Vídeos',
       ]);
     });
 
@@ -448,16 +455,16 @@ describe('Compact social profile content', () => {
 
       fireEvent.keyDown(postsTab, { key: 'ArrowRight' });
       await waitFor(() => {
-        expect(mobile.getByRole('tab', { name: 'Curtidas' })).toHaveAttribute(
+        expect(mobile.getByRole('tab', { name: 'Respostas' })).toHaveAttribute(
           'aria-selected',
           'true'
         );
       });
 
-      const likesTab = mobile.getByRole('tab', { name: 'Curtidas' });
-      fireEvent.keyDown(likesTab, { key: 'End' });
+      const repliesTab = mobile.getByRole('tab', { name: 'Respostas' });
+      fireEvent.keyDown(repliesTab, { key: 'End' });
       await waitFor(() => {
-        expect(mobile.getByRole('tab', { name: 'Vídeos' })).toHaveAttribute(
+        expect(mobile.getByRole('tab', { name: 'Certificados' })).toHaveAttribute(
           'aria-selected',
           'true'
         );

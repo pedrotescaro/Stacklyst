@@ -296,14 +296,19 @@ export function ProfileContent({
     { id: 'stats' as const, label: text('Estatísticas', 'Statistics'), icon: ChartNoAxesCombined },
     { id: 'certificates' as const, label: text('Certificados', 'Certificates'), icon: BadgeCheck },
   ];
+  const tabById = (id: (typeof tabDefinitions)[number]['id']) =>
+    tabDefinitions.find((tab) => tab.id === id)!;
   const desktopTabDefinitions = [
-    tabDefinitions[0],
+    tabById('posts'),
+    tabById('replies'),
+    tabById('likes'),
     {
       id: 'media' as const,
       label: text('Mídias', 'Media'),
       icon: selectedMedia === 'photos' ? ImageIcon : Video,
     },
-    ...tabDefinitions.slice(3),
+    tabById('stats'),
+    tabById('certificates'),
   ];
   const isMediaActive = activeTab === 'photos' || activeTab === 'videos';
   const renderMediaMenu = (desktop: boolean) => (
@@ -536,11 +541,11 @@ export function ProfileContent({
             {(() => {
               const mobileTabKeys = [
                 'posts',
-                'likes',
                 'replies',
+                'likes',
+                'media',
                 'stats',
                 'certificates',
-                'media',
               ] as const;
               const isMediaActive = activeTab === 'videos' || activeTab === 'photos';
 
@@ -613,42 +618,7 @@ export function ProfileContent({
                     )}
                   </button>
 
-                  {/* 2. Curtidas */}
-                  <button
-                    type="button"
-                    role="tab"
-                    id="profile-mobile-tab-likes"
-                    aria-controls="profile-panel-likes"
-                    aria-selected={activeTab === 'likes'}
-                    aria-label={text('Curtidas', 'Likes')}
-                    tabIndex={activeTab === 'likes' ? 0 : -1}
-                    className={`${headerStyles.mobileTab} ${activeTab === 'likes' ? headerStyles.mobileTabActive : ''}`}
-                    onClick={() => {
-                      setActiveTab('likes');
-                      setMediaMenuOpen(false);
-                    }}
-                    onKeyDown={(event) => handleMobileTabKeyDown(event, 1)}
-                  >
-                    <span className={headerStyles.mobileTabInner}>
-                      <Heart
-                        size={activeTab === 'likes' ? 17 : 19}
-                        aria-hidden="true"
-                        className="shrink-0"
-                      />
-                      {activeTab === 'likes' ? (
-                        <span className={headerStyles.mobileTabLabel}>
-                          {text('Curtidas', 'Likes')}
-                        </span>
-                      ) : (
-                        <span className="sr-only">{text('Curtidas', 'Likes')}</span>
-                      )}
-                    </span>
-                    {activeTab === 'likes' && (
-                      <span className={headerStyles.mobileIndicator} aria-hidden="true" />
-                    )}
-                  </button>
-
-                  {/* 3. Respostas */}
+                  {/* 2. Respostas */}
                   <button
                     type="button"
                     role="tab"
@@ -662,7 +632,7 @@ export function ProfileContent({
                       setActiveTab('replies');
                       setMediaMenuOpen(false);
                     }}
-                    onKeyDown={(event) => handleMobileTabKeyDown(event, 2)}
+                    onKeyDown={(event) => handleMobileTabKeyDown(event, 1)}
                   >
                     <span className={headerStyles.mobileTabInner}>
                       <MessageCircle
@@ -683,76 +653,42 @@ export function ProfileContent({
                     )}
                   </button>
 
-                  {/* 4. Estatísticas */}
+                  {/* 3. Curtidas */}
                   <button
                     type="button"
                     role="tab"
-                    id="profile-mobile-tab-stats"
-                    aria-controls="profile-panel-stats"
-                    aria-selected={activeTab === 'stats'}
-                    aria-label={text('Estatísticas', 'Statistics')}
-                    tabIndex={activeTab === 'stats' ? 0 : -1}
-                    className={`${headerStyles.mobileTab} ${activeTab === 'stats' ? headerStyles.mobileTabActive : ''}`}
+                    id="profile-mobile-tab-likes"
+                    aria-controls="profile-panel-likes"
+                    aria-selected={activeTab === 'likes'}
+                    aria-label={text('Curtidas', 'Likes')}
+                    tabIndex={activeTab === 'likes' ? 0 : -1}
+                    className={`${headerStyles.mobileTab} ${activeTab === 'likes' ? headerStyles.mobileTabActive : ''}`}
                     onClick={() => {
-                      setActiveTab('stats');
+                      setActiveTab('likes');
                       setMediaMenuOpen(false);
                     }}
-                    onKeyDown={(event) => handleMobileTabKeyDown(event, 3)}
+                    onKeyDown={(event) => handleMobileTabKeyDown(event, 2)}
                   >
                     <span className={headerStyles.mobileTabInner}>
-                      <ChartNoAxesCombined
-                        size={activeTab === 'stats' ? 17 : 19}
+                      <Heart
+                        size={activeTab === 'likes' ? 17 : 19}
                         aria-hidden="true"
                         className="shrink-0"
                       />
-                      {activeTab === 'stats' ? (
+                      {activeTab === 'likes' ? (
                         <span className={headerStyles.mobileTabLabel}>
-                          {text('Estatísticas', 'Statistics')}
+                          {text('Curtidas', 'Likes')}
                         </span>
                       ) : (
-                        <span className="sr-only">{text('Estatísticas', 'Statistics')}</span>
+                        <span className="sr-only">{text('Curtidas', 'Likes')}</span>
                       )}
                     </span>
-                    {activeTab === 'stats' && (
+                    {activeTab === 'likes' && (
                       <span className={headerStyles.mobileIndicator} aria-hidden="true" />
                     )}
                   </button>
 
-                  <button
-                    type="button"
-                    role="tab"
-                    id="profile-mobile-tab-certificates"
-                    aria-controls="profile-panel-certificates"
-                    aria-selected={activeTab === 'certificates'}
-                    aria-label={text('Certificados', 'Certificates')}
-                    tabIndex={activeTab === 'certificates' ? 0 : -1}
-                    className={`${headerStyles.mobileTab} ${activeTab === 'certificates' ? headerStyles.mobileTabActive : ''}`}
-                    onClick={() => {
-                      setActiveTab('certificates');
-                      setMediaMenuOpen(false);
-                    }}
-                    onKeyDown={(event) => handleMobileTabKeyDown(event, 4)}
-                  >
-                    <span className={headerStyles.mobileTabInner}>
-                      <BadgeCheck
-                        size={activeTab === 'certificates' ? 17 : 19}
-                        aria-hidden="true"
-                        className="shrink-0"
-                      />
-                      {activeTab === 'certificates' ? (
-                        <span className={headerStyles.mobileTabLabel}>
-                          {text('Certificados', 'Certificates')}
-                        </span>
-                      ) : (
-                        <span className="sr-only">{text('Certificados', 'Certificates')}</span>
-                      )}
-                    </span>
-                    {activeTab === 'certificates' && (
-                      <span className={headerStyles.mobileIndicator} aria-hidden="true" />
-                    )}
-                  </button>
-
-                  {/* Mídia (Vídeos e Fotos agrupados) */}
+                  {/* 4. Mídia (Vídeos e Fotos agrupados) */}
                   {(() => {
                     const MediaIcon = selectedMedia === 'videos' ? Video : ImageIcon;
                     const mediaLabel =
@@ -781,7 +717,7 @@ export function ProfileContent({
                             setMediaMenuOpen((open) => !open);
                           }
                         }}
-                        onKeyDown={(event) => handleMobileTabKeyDown(event, 5)}
+                        onKeyDown={(event) => handleMobileTabKeyDown(event, 3)}
                       >
                         <span className={headerStyles.mobileTabInner}>
                           <MediaIcon
@@ -808,6 +744,76 @@ export function ProfileContent({
                       </button>
                     );
                   })()}
+
+                  {/* 5. Estatísticas */}
+                  <button
+                    type="button"
+                    role="tab"
+                    id="profile-mobile-tab-stats"
+                    aria-controls="profile-panel-stats"
+                    aria-selected={activeTab === 'stats'}
+                    aria-label={text('Estatísticas', 'Statistics')}
+                    tabIndex={activeTab === 'stats' ? 0 : -1}
+                    className={`${headerStyles.mobileTab} ${activeTab === 'stats' ? headerStyles.mobileTabActive : ''}`}
+                    onClick={() => {
+                      setActiveTab('stats');
+                      setMediaMenuOpen(false);
+                    }}
+                    onKeyDown={(event) => handleMobileTabKeyDown(event, 4)}
+                  >
+                    <span className={headerStyles.mobileTabInner}>
+                      <ChartNoAxesCombined
+                        size={activeTab === 'stats' ? 17 : 19}
+                        aria-hidden="true"
+                        className="shrink-0"
+                      />
+                      {activeTab === 'stats' ? (
+                        <span className={headerStyles.mobileTabLabel}>
+                          {text('Estatísticas', 'Statistics')}
+                        </span>
+                      ) : (
+                        <span className="sr-only">{text('Estatísticas', 'Statistics')}</span>
+                      )}
+                    </span>
+                    {activeTab === 'stats' && (
+                      <span className={headerStyles.mobileIndicator} aria-hidden="true" />
+                    )}
+                  </button>
+
+                  {/* 6. Certificados */}
+                  <button
+                    type="button"
+                    role="tab"
+                    id="profile-mobile-tab-certificates"
+                    aria-controls="profile-panel-certificates"
+                    aria-selected={activeTab === 'certificates'}
+                    aria-label={text('Certificados', 'Certificates')}
+                    tabIndex={activeTab === 'certificates' ? 0 : -1}
+                    className={`${headerStyles.mobileTab} ${activeTab === 'certificates' ? headerStyles.mobileTabActive : ''}`}
+                    onClick={() => {
+                      setActiveTab('certificates');
+                      setMediaMenuOpen(false);
+                    }}
+                    onKeyDown={(event) => handleMobileTabKeyDown(event, 5)}
+                  >
+                    <span className={headerStyles.mobileTabInner}>
+                      <BadgeCheck
+                        size={activeTab === 'certificates' ? 17 : 19}
+                        aria-hidden="true"
+                        className="shrink-0"
+                      />
+                      {activeTab === 'certificates' ? (
+                        <span className={headerStyles.mobileTabLabel}>
+                          {text('Certificados', 'Certificates')}
+                        </span>
+                      ) : (
+                        <span className="sr-only">{text('Certificados', 'Certificates')}</span>
+                      )}
+                    </span>
+                    {activeTab === 'certificates' && (
+                      <span className={headerStyles.mobileIndicator} aria-hidden="true" />
+                    )}
+                  </button>
 
                   {mediaMenuOpen && mediaMenuOrigin === 'mobile' && renderMediaMenu(false)}
                 </div>
