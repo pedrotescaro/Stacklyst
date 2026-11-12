@@ -141,6 +141,47 @@ describe('reply action bars', () => {
     expect(screen.getAllByText('Iniciante')).toHaveLength(2);
   });
 
+  it('keeps a single-reply chain in one column joined by thread lines', () => {
+    const { container } = render(
+      <AnswerCard
+        answer={{
+          ...answer,
+          id: 'a',
+          replies: [{ ...answer, id: 'b', replies: [{ ...answer, id: 'c' }] }],
+        }}
+        depth={0}
+        isPostAuthor={false}
+      />
+    );
+    const a = container.querySelector('#answer-a');
+    const b = container.querySelector('#answer-b');
+    const c = container.querySelector('#answer-c');
+    expect(a?.contains(b)).toBe(false);
+    expect(b?.contains(c)).toBe(false);
+    expect(container.querySelectorAll('article')).toHaveLength(1);
+    expect(screen.getAllByTestId('thread-line')).toHaveLength(2);
+  });
+
+  it('indents branching replies under the parent answer', () => {
+    const { container } = render(
+      <AnswerCard
+        answer={{
+          ...answer,
+          id: 'a',
+          replies: [
+            { ...answer, id: 'b' },
+            { ...answer, id: 'c' },
+          ],
+        }}
+        depth={0}
+        isPostAuthor={false}
+      />
+    );
+    const a = container.querySelector('#answer-a');
+    expect(a?.contains(container.querySelector('#answer-b'))).toBe(true);
+    expect(a?.contains(container.querySelector('#answer-c'))).toBe(true);
+  });
+
   it('links to the reply from its comment action', () => {
     const reply = {
       ...answer,

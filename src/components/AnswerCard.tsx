@@ -33,6 +33,12 @@ interface AnswerCardProps {
   currentUser?: { id?: string; username: string; avatar_url?: string | null };
   onAnswerAdded?: (parentAnswerId: string | null, newAnswer: AnswerNode) => void;
   postId?: string;
+  /** Rendered as the next step of its parent's thread, in the same column (no card chrome). */
+  continued?: boolean;
+  /** Draw the thread line below this answer even when it has no replies of its own. */
+  connectToNext?: boolean;
+  /** Username shown as "Respondendo a @user" when a branch is flattened past the indent cap. */
+  replyingTo?: string;
 }
 
 export function AnswerCard({
@@ -43,6 +49,9 @@ export function AnswerCard({
   currentUser,
   onAnswerAdded,
   postId,
+  continued = false,
+  connectToNext = false,
+  replyingTo,
 }: AnswerCardProps) {
   const initialUserVote =
     answer.votes?.[0]?.value === 1 ? 'up' : answer.votes?.[0]?.value === -1 ? 'down' : null;
@@ -229,31 +238,112 @@ export function AnswerCard({
 
   const { text: relativeTime } = useHydrationSafeRelativeTime(answer.created_at);
   const replies = answer.replies ?? [];
-  const hasReplies = replies.length > 0;
 
-  // Beyond the indent cap, replies are rendered flat and get a "replying to" badge.
+  /*
+   * Thread layout (Twitter/X style):
+   * - A single reply continues the conversation in the same column, joined to
+   *   this answer by a line under the avatars, so "1/4 → 2/4 → 3/4" reads as one
+   *   thread instead of a staircase.
+   * - Several replies branch: they sit in this answer's content column while the
+   *   avatar line runs alongside them.
+   * - Past the indent cap, branches fall back to the same column with a
+   *   "replying to" label.
+   */
+  const continuation = replies.length === 1 ? replies[0] : null;
+  const branches = replies.length > 1 ? replies : [];
   const childDepth = depth + 1;
-  const shouldIndentChildren = childDepth <= MAX_ANSWER_DEPTH;
+  const canIndentBranches = childDepth <= MAX_ANSWER_DEPTH;
+  const nestedBranches = canIndentBranches ? branches : [];
+  const flatBranches = canIndentBranches ? [] : branches;
+  const connectDown = replies.length > 0 || connectToNext;
+  const isRoot = depth === 0 && !continued;
 
-  const isTopLevel = depth === 0;
+  const childProps = { isPostAuthor, onAccept, currentUser, postId, onAnswerAdded };
+  const showAccept =
+    isPostAuthor &&
+    !answer.is_accepted &&
+    currentUser &&
+    answer.author.username !== currentUser.username;
 
-  return (
-    <article className="space-y-2">
-      <div
-        className={
-          isTopLevel
-            ? 'bg-transparent border-b border-dd-border/50 rounded-none p-4 sm:p-5 hover:bg-dd-surface/20'
-            : 'bg-transparent border-none p-0 pt-3 pb-1'
-        }
-      >
+  const row = (
+    <div id={`answer-${answer.id}`} className="flex scroll-mt-20 gap-3">
+      {/* Avatar gutter: the line below the avatar joins this answer to the next one. */}
+      <div className="flex w-8 shrink-0 flex-col items-center">
+        <Link
+          href={`/profile/${answer.author.username}`}
+          className="hover:opacity-85 transition-opacity shrink-0"
+        >
+          <AuthorAvatar
+            username={answer.author.username}
+            avatar_url={answer.author.avatar_url}
+            avatar_config={answer.author.avatar_config}
+            size="sm"
+          />
+        </Link>
+        {connectDown && (
+          <span
+            aria-hidden="true"
+            data-testid="thread-line"
+            className="mt-1.5 w-0.5 flex-1 rounded-full bg-dd-border"
+          />
+        )}
+      </div>
+
+      <div className={`min-w-0 flex-1 ${connectDown ? 'pb-5' : ''}`}>
+        {/* Row 1: Name, Flags, Title, Level */}
+        <div className="flex items-center gap-1.5 flex-wrap min-w-0">
+          <Link
+            href={`/profile/${answer.author.username}`}
+            className="hover:underline truncate group/author min-w-0"
+          >
+            <span className="text-dd-text text-xs sm:text-sm font-bold truncate min-w-0 group-hover/author:underline">
+              <ProfileName config={answer.author.avatar_config}>
+                {getAuthorDisplayName(answer.author)}
+              </ProfileName>
+            </span>
+          </Link>
+          {(() => {
+            const answerIdentity = readProfileIdentity(answer.author.avatar_config);
+            return (
+              <>
+                {answerIdentity.flags && answerIdentity.flags.length > 0 && (
+                  <span className="inline-flex items-center gap-1 shrink-0">
+                    {answerIdentity.flags.map((code) => (
+                      <ProfileFlag key={code} code={code} />
+                    ))}
+                  </span>
+                )}
+                {answerIdentity.title && <ProfileTitle title={answerIdentity.title} />}
+              </>
+            );
+          })()}
+          {answer.author.total_xp !== undefined && <LevelBadge totalXp={answer.author.total_xp} />}
+        </div>
+
+        {/* Row 2: @username · relativeTime */}
+        <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-dd-muted font-medium flex-wrap min-w-0">
+          <Link href={`/profile/${answer.author.username}`} className="hover:underline truncate">
+            @{answer.author.username.toLowerCase()}
+          </Link>
+          <span>·</span>
+          <span className="text-[10px]">{relativeTime}</span>
+        </div>
+
+        {replyingTo && (
+          <p className="mt-1 text-[11px] text-dd-muted">
+            Respondendo a{' '}
+            <Link href={`/profile/${replyingTo}`} className="text-blue-400 hover:underline">
+              @{replyingTo}
+            </Link>
+          </p>
+        )}
+
         {/* Accepted badge */}
         {answer.is_accepted && (
-          <div
-            className={`flex items-center gap-1.5 text-dd-green text-xs font-medium ${isTopLevel ? 'mb-3' : 'mb-1.5'}`}
-          >
+          <div className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-dd-green/10 px-2 py-0.5 text-dd-green text-[11px] font-semibold">
             <svg
-              width="16"
-              height="16"
+              width="12"
+              height="12"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -267,74 +357,14 @@ export function AnswerCard({
           </div>
         )}
 
-        {/* Header */}
-        <div className="flex items-start gap-2 sm:gap-2.5 mb-3">
-          <Link
-            href={`/profile/${answer.author.username}`}
-            className="hover:opacity-85 transition-opacity shrink-0 pt-0.5"
-          >
-            <AuthorAvatar
-              username={answer.author.username}
-              avatar_url={answer.author.avatar_url}
-              avatar_config={answer.author.avatar_config}
-              size="sm"
-            />
-          </Link>
-          <div className="flex-1 min-w-0">
-            {/* Row 1: Name, Flags, Title, Level (>=5) */}
-            <div className="flex items-center gap-1.5 flex-wrap min-w-0">
-              <Link
-                href={`/profile/${answer.author.username}`}
-                className="hover:underline truncate group/author min-w-0"
-              >
-                <span className="text-dd-text text-xs sm:text-sm font-bold truncate min-w-0 group-hover/author:underline">
-                  <ProfileName config={answer.author.avatar_config}>
-                    {getAuthorDisplayName(answer.author)}
-                  </ProfileName>
-                </span>
-              </Link>
-              {(() => {
-                const answerIdentity = readProfileIdentity(answer.author.avatar_config);
-                return (
-                  <>
-                    {answerIdentity.flags && answerIdentity.flags.length > 0 && (
-                      <span className="inline-flex items-center gap-1 shrink-0">
-                        {answerIdentity.flags.map((code) => (
-                          <ProfileFlag key={code} code={code} />
-                        ))}
-                      </span>
-                    )}
-                    {answerIdentity.title && <ProfileTitle title={answerIdentity.title} />}
-                  </>
-                );
-              })()}
-              {answer.author.total_xp !== undefined && (
-                <LevelBadge totalXp={answer.author.total_xp} />
-              )}
-            </div>
-
-            {/* Row 2: @username · relativeTime */}
-            <div className="flex items-center gap-1.5 mt-0.5 text-[11px] text-dd-muted font-medium flex-wrap min-w-0">
-              <Link
-                href={`/profile/${answer.author.username}`}
-                className="hover:underline truncate"
-              >
-                @{answer.author.username.toLowerCase()}
-              </Link>
-              <span>·</span>
-              <span className="text-[10px]">{relativeTime}</span>
-            </div>
-          </div>
-        </div>
-
         {/* Body */}
-        <div className="mb-3">
+        <div className="mt-2">
           <MarkdownRenderer content={answer.body} compact={false} />
         </div>
 
         {/* Legacy code snippet fallback */}
         {answer.code_snippet && !answer.body.includes('```') && (
-          <div className="bg-dd-bg rounded-lg p-3 mb-3 overflow-x-auto">
+          <div className="bg-dd-bg rounded-lg p-3 mt-3 overflow-x-auto">
             <pre className="text-dd-text text-xs font-mono whitespace-pre">
               {answer.code_snippet}
             </pre>
@@ -342,7 +372,7 @@ export function AnswerCard({
         )}
 
         {/* Footer */}
-        <div className="pt-3 border-t border-dd-border w-full select-none text-xs">
+        <div className="mt-2 w-full select-none text-xs">
           <PostActionsBar>
             {/* 1. Comment bubble */}
             <button
@@ -380,6 +410,12 @@ export function AnswerCard({
               title="Curtir resposta"
             />
 
+            {/* 4. Views */}
+            <span className={`${postActionClassName} pointer-events-none`} title="Visualizações">
+              <BarChart2 className="h-4 w-4" aria-hidden="true" />
+              <span className="text-[11px] font-semibold">{Math.abs(voteCount) * 4 + 12}</span>
+            </span>
+
             {/* 5. BookmarkButton */}
             <BookmarkButton
               appearance="post"
@@ -387,11 +423,6 @@ export function AnswerCard({
               onToggle={handleBookmarkToggle}
               disabled={bookmarkPending || !targetPostId || !currentUser}
             />
-            {bookmarkError && (
-              <span role="alert" className="text-xs text-red-400">
-                {bookmarkError}
-              </span>
-            )}
 
             {/* 6. Share button */}
             <button
@@ -403,49 +434,40 @@ export function AnswerCard({
               <Share2 className="h-[18px] w-[18px]" />
             </button>
           </PostActionsBar>
-          <div className="mt-2 flex items-center justify-between gap-3">
-            {/* 4. Views BarChart */}
-            <div className="flex items-center gap-0.5 text-dd-muted select-none group/views">
-              <div className="w-8 h-8 rounded-full flex items-center justify-center hover:bg-blue-500/10 hover:text-blue-400 transition-colors animate-none">
-                <BarChart2 className="w-4 h-4 text-dd-muted group-hover/views:text-blue-400" />
-              </div>
-              <span className="px-1 font-semibold text-[10px] text-dd-muted group-hover/views:text-blue-400">
-                {Math.abs(voteCount) * 4 + 12}
-              </span>
-            </div>
+          {bookmarkError && (
+            <p role="alert" className="mt-1 text-xs text-red-400">
+              {bookmarkError}
+            </p>
+          )}
 
-            {/* 7. Accept Button */}
-            {isPostAuthor &&
-              !answer.is_accepted &&
-              currentUser &&
-              answer.author.username !== currentUser.username && (
-                <button
-                  onClick={handleAccept}
-                  disabled={accepting}
-                  className="flex items-center gap-1 text-[10px] font-bold text-dd-green bg-dd-green/10 hover:bg-dd-green/20 px-2.5 py-1.5 rounded-full transition-colors disabled:opacity-50 shrink-0"
+          {/* 7. Accept Button */}
+          {showAccept && (
+            <div className="mt-2 flex justify-end">
+              <button
+                onClick={handleAccept}
+                disabled={accepting}
+                className="flex items-center gap-1 text-[10px] font-bold text-dd-green bg-dd-green/10 hover:bg-dd-green/20 px-2.5 py-1.5 rounded-full transition-colors disabled:opacity-50 shrink-0"
+              >
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
                 >
-                  <svg
-                    width="12"
-                    height="12"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M20 6L9 17l-5-5" />
-                  </svg>
-                  Aceitar
-                </button>
-              )}
-          </div>
+                  <path d="M20 6L9 17l-5-5" />
+                </svg>
+                Aceitar
+              </button>
+            </div>
+          )}
         </div>
+
         {showReplyBox && (
-          <form
-            onSubmit={handleReplySubmit}
-            className="mt-4 pt-4 border-t border-dd-border/60 flex gap-3"
-          >
+          <form onSubmit={handleReplySubmit} className="mt-3 flex gap-3">
             <div className="shrink-0">
               {currentUser?.avatar_url ? (
                 <Image
@@ -496,50 +518,51 @@ export function AnswerCard({
             </div>
           </form>
         )}
-      </div>
 
-      {/* Nested replies */}
-      {hasReplies && (
-        <div
-          className={
-            shouldIndentChildren
-              ? 'pl-4 sm:pl-6 ml-3 sm:ml-5 border-l border-dd-border/30 space-y-4 mt-2'
-              : 'space-y-4 mt-2'
-          }
-        >
-          {replies.map((reply) =>
-            shouldIndentChildren ? (
-              <AnswerCard
-                key={reply.id}
-                answer={reply}
-                depth={childDepth}
-                isPostAuthor={isPostAuthor}
-                onAccept={onAccept}
-                currentUser={currentUser}
-                postId={postId}
-                onAnswerAdded={onAnswerAdded}
-              />
-            ) : (
-              <div key={reply.id} className="pt-2">
-                {/* Beyond the indent cap: flat list with a "replying to" badge to keep context. */}
-                <div className="flex items-center gap-1.5 px-2 mb-0.5 text-dd-muted text-[10px] font-semibold">
-                  <span>↳</span>
-                  <span>respondendo a @{answer.author.username}</span>
-                </div>
-                <AnswerCard
-                  answer={reply}
-                  depth={childDepth}
-                  isPostAuthor={isPostAuthor}
-                  onAccept={onAccept}
-                  currentUser={currentUser}
-                  postId={postId}
-                  onAnswerAdded={onAnswerAdded}
-                />
-              </div>
-            )
-          )}
-        </div>
+        {/* Branching replies: indented under this answer's text, beside the avatar line. */}
+        {nestedBranches.length > 0 && (
+          <div className="mt-4 flex flex-col gap-5">
+            {nestedBranches.map((reply) => (
+              <AnswerCard key={reply.id} answer={reply} depth={childDepth} {...childProps} />
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const thread = (
+    <>
+      {row}
+      {continuation && (
+        <AnswerCard
+          answer={continuation}
+          depth={depth}
+          continued
+          connectToNext={connectToNext}
+          {...childProps}
+        />
       )}
+      {flatBranches.map((reply, index) => (
+        <AnswerCard
+          key={reply.id}
+          answer={reply}
+          depth={depth}
+          continued
+          replyingTo={answer.author.username}
+          connectToNext={connectToNext || index < flatBranches.length - 1}
+          {...childProps}
+        />
+      ))}
+    </>
+  );
+
+  // Keep a thread together as one block so a parent gap never splits its line.
+  if (!isRoot) return <div>{thread}</div>;
+
+  return (
+    <article className="border-b border-dd-border/50 px-4 pt-4 pb-3 sm:px-5 sm:pt-5 transition-colors hover:bg-dd-surface/20">
+      {thread}
     </article>
   );
 }
