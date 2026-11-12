@@ -74,12 +74,12 @@ describe('Profile personal rail recommendations', () => {
   });
 });
 
-describe('Feed search from another page', () => {
-  it('navigates to the feed with the entered query', () => {
+describe('Rail search from another page', () => {
+  it('opens Explore with the entered query', () => {
     render(<FeedRightSidebar weeklyActivity={new Map()} />);
     const input = screen.getByRole('textbox', { name: 'Buscar' });
     fireEvent.change(input, { target: { value: '  typescript e react  ' } });
     fireEvent.keyDown(input, { key: 'Enter' });
-    expect(push).toHaveBeenCalledWith('/feed?q=typescript%20e%20react');
+    expect(push).toHaveBeenCalledWith('/explore?q=typescript%20e%20react');
   });
 });

@@ -1,0 +1,334 @@
+.surface {
+  color: var(--color-dd-text);
+}
+
+/* Search header */
+.top {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: color-mix(in srgb, var(--color-dd-bg) 92%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--color-dd-border);
+}
+.searchRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+}
+.back {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  color: var(--color-dd-text);
+  cursor: pointer;
+}
+.back:hover {
+  background: var(--color-dd-surface);
+}
+.search {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  padding: 0 16px 0 20px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--color-dd-surface);
+  color: var(--color-dd-muted);
+  transition: border-color 150ms ease;
+}
+.search:focus-within {
+  border-color: color-mix(in srgb, var(--color-dd-accent) 60%, transparent);
+}
+.search input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  color: var(--color-dd-text);
+  font-size: 17px;
+  outline: none;
+}
+.search input::placeholder {
+  color: var(--color-dd-muted);
+}
+.search input::-webkit-search-cancel-button {
+  display: none;
+}
+.clear {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--color-dd-accent);
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Postagens / Pessoas */
+.tabs {
+  display: flex;
+  gap: 8px;
+  padding: 0 16px;
+}
+.tab {
+  position: relative;
+  min-height: 52px;
+  padding: 0 12px;
+  color: var(--color-dd-muted);
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab:hover {
+  color: var(--color-dd-text);
+}
+.tabActive {
+  color: var(--color-dd-accent);
+}
+.tabActive::after {
+  content: '';
+  position: absolute;
+  left: 4px;
+  right: 4px;
+  bottom: 0;
+  height: 4px;
+  border-radius: 999px 999px 0 0;
+  background: var(--color-dd-accent);
+}
+.back:focus-visible,
+.clear:focus-visible,
+.tab:focus-visible,
+.chip:focus-visible,
+.identity:focus-visible,
+.retryRow button:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 2px;
+}
+
+/* Explore home */
+.home {
+  display: grid;
+  gap: 32px;
+  padding: 24px 16px 32px;
+}
+.section {
+  min-width: 0;
+}
+.sectionHeader h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 750;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+}
+.sectionHeader h2 svg {
+  flex-shrink: 0;
+  color: var(--color-dd-accent);
+}
+.sectionHeader p {
+  margin-top: 6px;
+  color: var(--color-dd-muted);
+  font-size: 15px;
+  line-height: 1.5;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+.chip {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid color-mix(in srgb, var(--color-dd-accent) 22%, var(--color-dd-border));
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-dd-accent) 7%, var(--color-dd-bg));
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease;
+}
+.chip:hover {
+  border-color: color-mix(in srgb, var(--color-dd-accent) 45%, var(--color-dd-border));
+  background: color-mix(in srgb, var(--color-dd-accent) 13%, var(--color-dd-bg));
+}
+.chipTag {
+  color: color-mix(in srgb, var(--color-dd-accent) 45%, var(--color-dd-text));
+  font-size: 16px;
+  font-weight: 700;
+}
+.chipCount {
+  color: var(--color-dd-muted);
+  font-size: 13px;
+  font-weight: 600;
+}
+.chipSkeleton {
+  height: 44px;
+  border-radius: 999px;
+  background: var(--color-dd-surface);
+}
+.whoToFollow {
+  width: 100%;
+}
+
+/* Results */
+.postList {
+  display: flex;
+  flex-direction: column;
+}
+.postItem {
+  border-bottom: 1px solid var(--color-dd-border);
+}
+.people {
+  display: flex;
+  flex-direction: column;
+}
+.person {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border-bottom: 1px solid var(--color-dd-border);
+}
+.identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  border-radius: 8px;
+}
+.identity:hover .name {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.copy {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+}
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+.flags {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 4px;
+}
+.handle {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-dd-muted);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.avatarSkeleton {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--color-dd-surface);
+}
+.lineSkeleton {
+  display: grid;
+  flex: 1;
+  gap: 8px;
+}
+.lineSkeleton span {
+  height: 12px;
+  border-radius: 6px;
+  background: var(--color-dd-surface);
+}
+.lineSkeleton span:last-child {
+  width: 45%;
+}
+.empty {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 56px 24px;
+  text-align: center;
+  color: var(--color-dd-muted);
+}
+.empty h2 {
+  color: var(--color-dd-text);
+  font-size: 20px;
+  font-weight: 750;
+  overflow-wrap: anywhere;
+}
+.empty p {
+  max-width: 360px;
+  font-size: 15px;
+  line-height: 1.5;
+}
+.retryRow {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  padding: 24px 16px;
+  font-size: 14px;
+  color: var(--color-dd-muted);
+}
+.retryRow button {
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--color-dd-border);
+  color: var(--color-dd-text);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+@media (max-width: 359px) {
+  .searchRow,
+  .tabs {
+    padding-inline: 12px;
+  }
+  .home {
+    padding-inline: 12px;
+  }
+  .chip {
+    padding-inline: 14px;
+  }
+  .person {
+    padding: 14px 12px;
+    gap: 8px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .search,
+  .chip {
+    transition: none;
+  }
+}

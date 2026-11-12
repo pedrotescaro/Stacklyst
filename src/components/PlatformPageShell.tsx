@@ -9,10 +9,12 @@ export function PlatformPageShell({
   user,
   children,
   className,
+  railProps,
 }: {
   user: ComponentProps<typeof Sidebar>['user'];
   children: ReactNode;
   className?: string;
+  railProps?: Pick<ComponentProps<typeof FeedRightSidebar>, 'hideSearch' | 'hideWhoToFollow'>;
 }) {
   return (
     <div className="dd-platform-shell dd-platform-shell--fullscreen">
@@ -27,7 +29,7 @@ export function PlatformPageShell({
         >
           {children}
         </main>
-        <FeedRightSidebar user={user} />
+        <FeedRightSidebar user={user} {...railProps} />
       </div>
     </div>
   );

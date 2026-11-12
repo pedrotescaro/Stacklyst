@@ -24,6 +24,10 @@ interface FeedRightSidebarProps {
   weeklyActivity?: Map<number, number>;
   currentDate?: string;
   className?: string;
+  /** Pages with their own search (Explore) hide the rail search box. */
+  hideSearch?: boolean;
+  /** Pages that already list follow suggestions hide the rail widget. */
+  hideWhoToFollow?: boolean;
 }
 
 export function FeedRightSidebar({
@@ -34,6 +38,8 @@ export function FeedRightSidebar({
   weeklyActivity: externalWeeklyActivity,
   currentDate: externalCurrentDate,
   className,
+  hideSearch = false,
+  hideWhoToFollow = false,
 }: FeedRightSidebarProps) {
   const router = useRouter();
   const { text } = useLocalizedText();
@@ -88,7 +94,7 @@ export function FeedRightSidebar({
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && !isControlledSearch && internalSearchQuery.trim()) {
-      router.push(`/feed?q=${encodeURIComponent(internalSearchQuery.trim())}`);
+      router.push(`/explore?q=${encodeURIComponent(internalSearchQuery.trim())}`);
     }
   };
 
@@ -105,7 +111,7 @@ export function FeedRightSidebar({
       )}
     >
       {/* Search Bar */}
-      <div className="relative w-full">
+      <div className={cn('relative w-full', hideSearch && 'hidden')}>
         <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
           <Search className="h-4 w-4 text-dd-muted" />
         </div>
@@ -119,7 +125,7 @@ export function FeedRightSidebar({
           className="w-full pl-11 pr-4 py-2.5 bg-dd-search-bg hover:bg-dd-search-bg/80 focus:bg-dd-bg border border-dd-search-border focus:border-blue-500/50 text-sm rounded-full text-dd-text placeholder-dd-muted focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
         />
       </div>
-      {currentSearchQuery.trim() && (
+      {!hideSearch && currentSearchQuery.trim() && (
         <div className="rounded-xl border border-dd-border bg-dd-surface/70 p-3 text-xs text-dd-muted">
           {loadingSearch
             ? text('Filtrando o feed em tempo real...', 'Filtering the feed in real time...')
@@ -139,7 +145,7 @@ export function FeedRightSidebar({
         />
       )}
 
-      {user && <WhoToFollow viewerId={user.id} />}
+      {user && !hideWhoToFollow && <WhoToFollow viewerId={user.id} />}
 
       {/* Study progress uses the same bar as the profile. */}
       <section className={styles.widget} aria-labelledby="rail-studies-title">

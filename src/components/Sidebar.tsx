@@ -6,7 +6,12 @@ import { BrandLogo } from '@/components/BrandLogo';
 import { MobileNavigationDrawer } from '@/components/MobileNavigationDrawer';
 import { ProfileName } from '@/components/profile/ProfileIdentity';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, type ComponentType } from 'react';
+import {
+  BookOpenFilledIcon,
+  CompassFilledIcon,
+  HouseFilledIcon,
+} from '@/components/nav/FilledNavIcons';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import {
@@ -21,6 +26,7 @@ import {
   LogOut,
   X,
   Home,
+  Compass,
   Bell,
   MessageCircle,
   Bookmark,
@@ -284,6 +290,8 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
     label: string;
     href: string;
     icon: any;
+    /** Filled variant with cut-out details, used instead of fill-current when active. */
+    activeIcon?: ComponentType<{ className?: string }>;
     active?: boolean;
     badge?: 'dot';
   }> = [
@@ -292,14 +300,24 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       label: t.nav.home,
       href: '/feed',
       icon: Home,
+      activeIcon: HouseFilledIcon,
       active: pathname === '/feed',
       badge: 'dot' as const,
+    },
+    {
+      id: 'explore',
+      label: isEnglish ? 'Explore' : 'Explorar',
+      href: '/explore',
+      icon: Compass,
+      activeIcon: CompassFilledIcon,
+      active: pathname.startsWith('/explore'),
     },
     {
       id: 'tracks',
       label: t.nav.tracks,
       href: '/trails',
       icon: BookOpen,
+      activeIcon: BookOpenFilledIcon,
       active: pathname.startsWith('/trails'),
     },
     {
@@ -372,14 +390,24 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       label: t.nav.home,
       href: '/feed',
       icon: Home,
+      activeIcon: HouseFilledIcon,
       active: pathname === '/feed',
       badge: 'dot' as const,
+    },
+    {
+      id: 'explore',
+      label: isEnglish ? 'Explore' : 'Explorar',
+      href: '/explore',
+      icon: Compass,
+      activeIcon: CompassFilledIcon,
+      active: pathname.startsWith('/explore'),
     },
     {
       id: 'tracks',
       label: t.nav.tracks,
       href: '/trails',
       icon: BookOpen,
+      activeIcon: BookOpenFilledIcon,
       active: pathname.startsWith('/trails'),
     },
     {
@@ -400,12 +428,12 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
 
   // Item compartilhado da navegação inferior mobile.
   const renderMobileNavItem = (item: (typeof mobileNavItems)[number]) => {
-    const Icon = item.icon;
+    const Icon = item.active && item.activeIcon ? item.activeIcon : item.icon;
 
     const iconEl = (
       <div className="relative flex items-center justify-center">
         <Icon
-          className={`w-5.5 h-5.5 text-dd-text dark:text-white ${item.active ? 'fill-current' : ''}`}
+          className={`w-5.5 h-5.5 text-dd-text dark:text-white ${item.active && !item.activeIcon ? 'fill-current' : ''}`}
         />
         {item.badge === 'dot' && (
           <span className="absolute -top-0.5 -right-0.5 block h-1.5 w-1.5 rounded-full bg-[#1d9bf0]" />
@@ -459,7 +487,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
           {/* Navigation Links */}
           <nav className="mt-2 flex min-h-0 flex-initial flex-col gap-0.5 overflow-y-auto overscroll-contain pr-1 scrollbar-none xl:mt-3">
             {navItems.map((item) => {
-              const Icon = item.icon;
+              const Icon = item.active && item.activeIcon ? item.activeIcon : item.icon;
 
               const linkClasses = `group flex w-full cursor-pointer items-center justify-center rounded-full px-2 py-3 text-left text-[20px] leading-6 xl:justify-start xl:gap-5 xl:px-4 xl:py-3 [@media(max-height:820px)]:py-2 xl:[@media(max-height:820px)]:py-2 ${
                 item.active
@@ -473,7 +501,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                     <NotificationBellIcon unreadCount={unreadCount} active={item.active} />
                   ) : (
                     <Icon
-                      className={`w-[26px] h-[26px] text-dd-text dark:text-white stroke-[2.2] transition-transform group-hover:scale-105 duration-150 ${item.active ? 'fill-current' : ''}`}
+                      className={`w-[26px] h-[26px] text-dd-text dark:text-white stroke-[2.2] transition-transform group-hover:scale-105 duration-150 ${item.active && !item.activeIcon ? 'fill-current' : ''}`}
                     />
                   )}
                   {item.badge === 'dot' && (

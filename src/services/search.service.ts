@@ -2,6 +2,8 @@ import { prisma } from '@/lib/prisma';
 import { visibleUserWhere } from './block.service';
 import { ValidationError } from '@/lib/errors';
 import { logger } from '@/lib/logger';
+import { getAuthorDisplayName } from '@/lib/profile-style';
+import { getFollowProfileIdentity } from '@/lib/follow-recommendations';
 
 export const SearchService = {
   async searchPosts(query: string, cursor?: string, limit = 10, viewerId: string | null = null) {
@@ -182,6 +184,14 @@ export const SearchService = {
         OR: [
           { username: { contains: query, mode: 'insensitive' } },
           {
+            avatar_config: {
+              path: ['displayName'],
+              string_contains: query,
+              mode: 'insensitive',
+            },
+          },
+          { avatar_config: { path: ['name'], string_contains: query, mode: 'insensitive' } },
+          {
             profile_customization: {
               is: {
                 preferences: {
@@ -200,14 +210,23 @@ export const SearchService = {
         avatar_url: true,
         avatar_config: true,
         total_xp: true,
+        followers: viewerId
+          ? { where: { followerId: viewerId }, select: { followerId: true } }
+          : { where: { followerId: '__none__' }, select: { followerId: true } },
       },
       orderBy: { id: 'asc' },
       take: limit + 1,
     });
 
     const hasNext = users.length > limit;
-    const items = hasNext ? users.slice(0, limit) : users;
-    const nextCursor = hasNext ? items[items.length - 1].id : null;
+    const page = hasNext ? users.slice(0, limit) : users;
+    const nextCursor = hasNext ? page[page.length - 1].id : null;
+    const items = page.map(({ followers, ...user }) => ({
+      ...user,
+      is_following: followers.length > 0,
+      display_name: getAuthorDisplayName(user).slice(0, 80),
+      identity: getFollowProfileIdentity(user.avatar_config),
+    }));
 
     logger.info('User search executed', {
       query,
