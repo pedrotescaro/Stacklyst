@@ -61,7 +61,10 @@ describe('customized Enade activity', () => {
     localStorage.setItem('stacklyst:enade:workspace:v1:custom-user', JSON.stringify(draft));
     const first = render(<EnadeSimulation userId="custom-user" />);
     await screen.findByRole('radio', { name: /^A / });
-    expect(screen.getByRole('combobox', { name: 'Questão' })).toHaveValue('1');
+    expect(screen.getByRole('button', { name: /^Questão 2 de \d+/ })).toHaveAttribute(
+      'aria-expanded',
+      'false'
+    );
     expect(screen.getByRole('button', { name: 'Marcada para revisão' })).toHaveAttribute(
       'aria-pressed',
       'true'
