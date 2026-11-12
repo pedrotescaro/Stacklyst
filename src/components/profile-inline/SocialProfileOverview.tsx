@@ -52,6 +52,7 @@ import type { PublicProfileCustomization } from '@/components/profile/ProfilePub
 import { ContextPopover } from './ContextPopover';
 import { FlagSelector } from './FlagSelector';
 import { MusicSelector } from './MusicSelector';
+import { SpotifyTrackCard } from '@/components/music/SpotifyTrackCard';
 import { DiscordIcon, GitHubIcon } from '@/components/auth/OAuthProviderIcons';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './InlineProfile.module.css';
@@ -1772,16 +1773,6 @@ export function SocialProfileOverview({
             <div className={styles.sectionHeader}>
               <Music2 size={14} aria-hidden="true" />
               <h2>{text('Música do perfil', 'Profile music')}</h2>
-              {activePreferences.music && (
-                <a
-                  className={styles.musicExternal}
-                  href={`https://open.spotify.com/track/${activePreferences.music.trackId}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Ouvir no Spotify
-                </a>
-              )}
               {editing && (
                 <ContextPopover
                   label="Editar música do perfil"
@@ -1796,15 +1787,7 @@ export function SocialProfileOverview({
               )}
             </div>
             {activePreferences.music ? (
-              <div className={styles.music}>
-                <iframe
-                  src={`https://open.spotify.com/embed/track/${activePreferences.music.trackId}?utm_source=stacklyst&theme=0`}
-                  title={`Player Spotify: ${activePreferences.music.title || 'música do perfil'}`}
-                  allow="encrypted-media; fullscreen; picture-in-picture"
-                  loading="lazy"
-                  referrerPolicy="strict-origin-when-cross-origin"
-                />
-              </div>
+              <SpotifyTrackCard music={activePreferences.music} />
             ) : (
               <p className={styles.help}>Escolha uma música ou artista no Spotify.</p>
             )}

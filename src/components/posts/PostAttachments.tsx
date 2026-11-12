@@ -3,10 +3,10 @@
 /* Session-protected attachments must keep browser cookies on their requests. */
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useState } from 'react';
-import { Check, ExternalLink, LoaderCircle, Music2, Pause, Play, Users } from 'lucide-react';
+import { Check, Users } from 'lucide-react';
 import type { PostAttachment, PostPoll } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
-import { useMusicPlayerControls } from '@/contexts/MusicPlayerContext';
+import { SpotifyTrackCard } from '@/components/music/SpotifyTrackCard';
 import styles from './PostAttachments.module.css';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
@@ -32,30 +32,6 @@ export function PostAttachments({
   const images = media.filter((item) => item.type === 'image' || item.type === 'gif');
   const audio = media.find((item) => item.type === 'audio');
   const showLegacy = legacyImage && !images.some((item) => item.url === legacyImage);
-  const trackId = music && /^[a-zA-Z0-9]{22}$/.test(music.trackId) ? music.trackId : null;
-  const {
-    currentTrack,
-    isPlaying,
-    isBuffering,
-    error: musicError,
-    playTrack,
-  } = useMusicPlayerControls();
-  const isCurrentPlaying = currentTrack?.id === trackId && isPlaying;
-  const isCurrentLoading = currentTrack?.id === trackId && isBuffering;
-  const hasMusicError = currentTrack?.id === trackId && musicError;
-
-  const handlePlayMusic = (e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (!trackId) return;
-    playTrack({
-      id: trackId,
-      title: music?.title || text('Faixa do Spotify', 'Spotify track'),
-      artist: music?.artist || 'Spotify',
-      artworkUrl: music?.artworkUrl,
-      spotifyUrl: `https://open.spotify.com/track/${trackId}`,
-    });
-  };
-
   return (
     <div className={styles.attachments} onClick={(event) => event.stopPropagation()}>
       {audience === 'followers' && (
@@ -105,77 +81,7 @@ export function PostAttachments({
           aria-label={text('Áudio da publicação', 'Post audio')}
         />
       )}
-      {trackId && (
-        <div className={styles.music}>
-          <div className={styles.musicInfo}>
-            {music?.artworkUrl ? (
-              <img
-                src={music.artworkUrl}
-                width={56}
-                height={56}
-                alt=""
-                loading="lazy"
-                className={styles.musicArtwork}
-              />
-            ) : (
-              <div className={styles.musicArtwork}>
-                <Music2 size={24} aria-hidden="true" />
-              </div>
-            )}
-            <div className={styles.musicDetails}>
-              <strong title={music?.title}>
-                {music?.title || text('Faixa do Spotify', 'Spotify track')}
-              </strong>
-              <span title={music?.artist}>{music?.artist}</span>
-              <a
-                href={`https://open.spotify.com/track/${trackId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                onClick={(e) => e.stopPropagation()}
-              >
-                {text('Abrir no Spotify', 'Open in Spotify')}{' '}
-                <ExternalLink size={11} aria-hidden="true" />
-              </a>
-            </div>
-            <button
-              type="button"
-              className={styles.playerToggle}
-              onClick={handlePlayMusic}
-              aria-label={
-                isCurrentLoading
-                  ? text('Cancelar carregamento da música', 'Cancel music loading')
-                  : isCurrentPlaying
-                    ? text(`Pausar ${music?.title || 'música'}`, `Pause ${music?.title || 'music'}`)
-                    : text(
-                        `Reproduzir ${music?.title || 'música'}`,
-                        `Play ${music?.title || 'music'}`
-                      )
-              }
-            >
-              {isCurrentLoading ? (
-                <LoaderCircle size={18} className={styles.loadingIcon} aria-hidden="true" />
-              ) : isCurrentPlaying ? (
-                <Pause size={18} fill="currentColor" aria-hidden="true" />
-              ) : (
-                <Play
-                  size={18}
-                  fill="currentColor"
-                  className={styles.playIcon}
-                  aria-hidden="true"
-                />
-              )}
-            </button>
-          </div>
-          {hasMusicError && (
-            <p className={styles.musicError} role="alert">
-              {text(
-                'Não foi possível tocar. Tente novamente ou abra no Spotify.',
-                'Could not play. Try again or open in Spotify.'
-              )}
-            </p>
-          )}
-        </div>
-      )}
+      <SpotifyTrackCard music={music} />
       {poll && <PostPollWidget key={poll.id} postId={postId} initialPoll={poll} />}
     </div>
   );
