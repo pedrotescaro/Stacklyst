@@ -4,6 +4,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { UnauthorizedError, ValidationError } from '@/lib/errors';
 import { prisma } from '@/lib/prisma';
 import exams from '@/lib/enade/exams.json';
+import { enadeSessionSchema } from '@/lib/enade/simulator-schema';
 
 const schema = z.object({
   answers: z.record(z.string().max(60), z.string().max(10000)),
@@ -18,7 +19,10 @@ export const PUT = apiHandler(async (request, { session, params }) => {
   const year = Number((await params).year);
   const exam = exams.find((e) => e.year === year);
   if (!exam) throw new ValidationError('Edição do Enade inválida.');
-  const attempt = schema.parse(await request.json());
+  const body = await request.json();
+  const attempt = body?.version === 1 ? enadeSessionSchema.parse(body) : schema.parse(body);
+  if ('sourceYear' in attempt && attempt.sourceYear !== year)
+    throw new ValidationError('Sessão de outra edição.');
   const questions = new Map(exam.questions.map((q) => [q.id, q]));
   if (
     Object.keys(attempt.answers).length > 40 ||

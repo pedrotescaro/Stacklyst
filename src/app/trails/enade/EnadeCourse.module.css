@@ -1,7 +1,15 @@
 .main {
   --color-dd-muted: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
+  --enade-success: #087044;
+  --enade-danger: #be2144;
+  --enade-warning: #a34c00;
   min-width: 0;
   padding-bottom: 80px;
+}
+:global(:root.dark) .main {
+  --enade-success: #34d399;
+  --enade-danger: #fb7185;
+  --enade-warning: #ffb45b;
 }
 .courseMain {
   border-inline-end: 1px solid var(--color-dd-border);
@@ -435,12 +443,12 @@
   color: var(--color-dd-accent);
 }
 .alternative[data-correction='correct'] {
-  border-color: #34d399;
-  background: color-mix(in srgb, #34d399 8%, var(--color-dd-bg));
+  border-color: var(--enade-success);
+  background: color-mix(in srgb, var(--enade-success) 8%, var(--color-dd-bg));
 }
 .alternative[data-correction='incorrect'] {
-  border-color: #fb7185;
-  background: color-mix(in srgb, #fb7185 8%, var(--color-dd-bg));
+  border-color: var(--enade-danger);
+  background: color-mix(in srgb, var(--enade-danger) 8%, var(--color-dd-bg));
 }
 .correctionLabel {
   display: block;
@@ -450,10 +458,10 @@
     sans-serif;
 }
 .alternative[data-correction='correct'] .correctionLabel {
-  color: #34d399;
+  color: var(--enade-success);
 }
 .alternative[data-correction='incorrect'] .correctionLabel {
-  color: #fb7185;
+  color: var(--enade-danger);
 }
 .optionImage {
   overflow: hidden;
@@ -578,6 +586,423 @@
   outline: 2px solid var(--color-dd-accent);
   outline-offset: 3px;
 }
+.configuration {
+  margin: 32px 0 44px;
+  padding-block: 28px;
+  border-block: 1px solid var(--color-dd-border);
+}
+.configurationHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+.secondaryButton,
+.startButton,
+.reviewButton,
+.skipButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 16px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 24px;
+  font-size: 13px;
+  line-height: 1.5;
+  cursor: pointer;
+}
+.secondaryButton:hover,
+.reviewButton:hover,
+.skipButton:hover {
+  background: var(--color-dd-surface);
+}
+.startButton {
+  background: var(--color-dd-accent);
+  border-color: var(--color-dd-accent);
+  color: white;
+  font-weight: 600;
+}
+.startButton:hover {
+  filter: brightness(1.08);
+}
+.resumeCustom {
+  margin-top: 20px;
+  font-size: 14px;
+  color: var(--color-dd-accent);
+}
+.resumeCustom a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+}
+.configForm {
+  display: grid;
+  gap: 28px;
+  padding-top: 28px;
+}
+.configForm fieldset {
+  border: 0;
+  min-width: 0;
+}
+.configForm legend {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 16px;
+}
+.yearChoices,
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.yearChoices label,
+.presets button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 12px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.yearChoices label:has(input:checked),
+.presets button[aria-pressed='true'],
+.modeChoices label:has(input:checked) {
+  border-color: var(--color-dd-accent);
+  background: color-mix(in srgb, var(--color-dd-accent) 8%, var(--color-dd-bg));
+}
+.configForm input[type='checkbox'],
+.configForm input[type='radio'] {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  accent-color: var(--color-dd-accent);
+}
+.yearRange {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-block: 20px;
+}
+.yearRange label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+}
+.yearRange select,
+.numberInput {
+  min-height: 44px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 12px;
+  background: var(--color-dd-surface);
+  color: var(--color-dd-text);
+  font: inherit;
+  font-size: 14px;
+}
+.checkLine {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-size: 13px;
+}
+.configColumns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+}
+.fieldLabel {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-dd-muted);
+  font-size: 12px;
+}
+.numberInput {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+}
+.modeChoices {
+  display: grid;
+  gap: 12px;
+}
+.modeChoices label {
+  display: flex;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 14px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.modeChoices input {
+  margin-top: 3px;
+}
+.modeChoices small {
+  display: block;
+  margin-top: 5px;
+  color: var(--color-dd-muted);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.configForm > .startButton {
+  justify-self: start;
+}
+.formError {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--enade-danger);
+}
+.timerControls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.timer[data-warning='true'] {
+  color: var(--enade-warning);
+  font-weight: 700;
+  padding: 8px;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+}
+.pauseButton {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.pauseButton:hover {
+  background: var(--color-dd-surface);
+}
+.questionMap {
+  margin-bottom: 24px;
+  padding: 16px 0;
+  border-block: 1px solid var(--color-dd-border);
+}
+.questionMap summary {
+  min-height: 44px;
+  padding-block: 12px;
+  cursor: pointer;
+  font-size: 14px;
+}
+.questionMap summary > span {
+  margin-left: 12px;
+  font-size: 12px;
+  color: var(--color-dd-muted);
+}
+.gridLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-block: 12px 20px;
+  color: var(--color-dd-muted);
+  font-size: 12px;
+}
+.gridLegend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.numberedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  gap: 8px;
+}
+.numberedGrid button {
+  position: relative;
+  min-height: 48px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 10px;
+  color: var(--color-dd-muted);
+  font-size: 13px;
+  cursor: pointer;
+}
+.numberedGrid button svg {
+  position: absolute;
+  bottom: 3px;
+  right: 3px;
+}
+.numberedGrid button[data-answered='true'] {
+  background: color-mix(in srgb, var(--color-dd-accent) 12%, var(--color-dd-bg));
+  color: var(--color-dd-accent);
+}
+.numberedGrid button[data-marked='true'] {
+  border-style: dashed;
+  border-color: var(--color-dd-text);
+}
+.numberedGrid button[aria-current='step'] {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 2px;
+}
+.reviewButton {
+  margin-bottom: 24px;
+  color: var(--color-dd-muted);
+}
+.reviewButton[aria-pressed='true'] {
+  color: var(--color-dd-accent);
+  border-color: currentColor;
+}
+.editionLabel {
+  color: var(--color-dd-muted);
+  font-size: 14px;
+  font-weight: 400;
+  white-space: nowrap;
+}
+.skipButton {
+  margin-top: 20px;
+}
+.pausedPanel {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+  padding: 64px 24px;
+  text-align: center;
+}
+.pausedPanel p {
+  color: var(--color-dd-muted);
+  font-size: 14px;
+  line-height: 1.7;
+}
+.feedback {
+  margin-top: 24px;
+  padding: 24px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 16px;
+  background: var(--color-dd-surface);
+  font-size: 14px;
+  line-height: 1.8;
+}
+.feedback h3 {
+  margin-bottom: 10px;
+}
+.feedback[data-feedback='correct'] h3 {
+  color: var(--enade-success);
+}
+.feedback[data-feedback='incorrect'] h3,
+.feedback[data-feedback='blank'] h3 {
+  color: var(--enade-danger);
+}
+.feedback p + p {
+  margin-top: 12px;
+}
+.feedback a,
+.resultDetailActions a {
+  display: inline-block;
+  margin-top: 16px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.resultsAnchor {
+  scroll-margin-top: 110px;
+}
+.resultMetrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  margin: 28px 0;
+  padding-block: 24px;
+  border-block: 1px solid var(--color-dd-border);
+}
+.resultMetrics dt {
+  color: var(--color-dd-muted);
+  font-size: 12px;
+  line-height: 1.5;
+}
+.resultMetrics dd {
+  margin-top: 10px;
+  font-size: 23px;
+  line-height: 1.4;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.resultActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 28px 0 40px;
+}
+.correctionHeading {
+  margin-bottom: 20px;
+}
+.resultList {
+  list-style: none;
+}
+.resultList > li {
+  border-bottom: 1px solid var(--color-dd-border);
+}
+.resultList summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 0;
+  cursor: pointer;
+  font-size: 14px;
+  line-height: 1.6;
+}
+.resultList summary::after {
+  content: '+';
+  margin-left: auto;
+  font-size: 22px;
+  color: var(--color-dd-muted);
+}
+.resultList details[open] > summary::after {
+  content: '−';
+}
+.resultNumber {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: var(--color-dd-surface);
+  color: var(--color-dd-muted);
+}
+.resultList small {
+  display: block;
+  margin-top: 4px;
+  font-size: 12px;
+  color: var(--color-dd-muted);
+}
+.resultDetail {
+  padding: 4px 0 28px;
+  max-width: 75ch;
+  font-size: 14px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+}
+.resultDetail p + p {
+  margin-top: 16px;
+}
+.discursiveResult {
+  white-space: pre-wrap;
+}
+.resultDetailActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-top: 20px;
+}
+.resultDetailActions a {
+  margin: 0;
+}
+.resultDiagram {
+  margin-block: 20px;
+  overflow: hidden;
+  border-radius: 12px;
+}
 @media (prefers-reduced-motion: reduce) {
   .progressTrack > div,
   .alternative {
@@ -585,6 +1010,26 @@
   }
 }
 @media (max-width: 600px) {
+  .configColumns {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .configurationHeading > .secondaryButton,
+  .configForm > .startButton {
+    width: 100%;
+  }
+  .resultMetrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .questionMap summary > span {
+    display: block;
+    margin: 8px 0 0;
+  }
+  .timerControls {
+    gap: 0;
+  }
+  .activityHeader {
+    column-gap: 8px;
+  }
   .header {
     padding: 12px 16px;
   }

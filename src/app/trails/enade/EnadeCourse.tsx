@@ -19,13 +19,16 @@ import catalog from '@/lib/enade/exams.json';
 import { gradeEnade, type EnadeAttempt, type EnadeExam } from '@/lib/enade/types';
 import { useEnadeProgress } from './useEnadeProgress';
 import styles from './EnadeCourse.module.css';
+import { EnadeConfiguration } from './EnadeConfiguration';
+import type { EnadeWorkspace } from '@/lib/enade/simulator';
 const exams = [...catalog].reverse() as EnadeExam[];
 type Props = {
   user: { id: string; username: string; avatar_url: string | null; total_xp: number };
   courses: TrailCourseOption[];
   initialAttempts: Record<string, EnadeAttempt>;
+  initialWorkspace?: EnadeWorkspace;
 };
-export function EnadeCourse({ user, courses, initialAttempts }: Props) {
+export function EnadeCourse({ user, courses, initialAttempts, initialWorkspace }: Props) {
   const router = useRouter();
   const { attempts, saveStatus, save } = useEnadeProgress(user.id, initialAttempts);
   const [confirmRestart, setConfirmRestart] = useState<number | null>(null);
@@ -116,7 +119,8 @@ export function EnadeCourse({ user, courses, initialAttempts }: Props) {
                 <Clock3 size={16} /> 4 horas por simulado
               </span>
             </div>
-            <h2>Seu caminho de preparação</h2>
+            <EnadeConfiguration userId={user.id} initialWorkspace={initialWorkspace} />
+            <h2>Simulados padrão por ano</h2>
             <p className={styles.muted}>
               Escolha uma edição. Você pode começar por qualquer uma e retomar de onde parou.
             </p>

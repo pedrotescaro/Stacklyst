@@ -104,6 +104,7 @@ describe('Enade course simulations', () => {
     expect(screen.getByRole('region', { name: 'Resultado do simulado' })).toHaveTextContent(
       '1 de 35 questões válidas'
     );
+    fireEvent.click(screen.getAllByText('Ver questão completa')[2]);
     expect(screen.getByRole('radio', { name: /^E / })).toBeDisabled();
     expect(document.querySelector('[data-correction="correct"]')).toHaveTextContent(option.text);
     expect(screen.getByText(/Sua resposta: E/)).toHaveTextContent('Gabarito: E');
@@ -153,11 +154,9 @@ describe('Enade course simulations', () => {
         }}
       />
     );
-    await screen.findByLabelText('Escreva sua resposta');
+    await screen.findByRole('heading', { name: 'Resultado do simulado' });
     const index = contents.findIndex((q) => q.id === '2021-objective-15');
-    fireEvent.change(screen.getByRole('combobox', { name: 'Questão' }), {
-      target: { value: String(index) },
-    });
+    fireEvent.click(screen.getAllByText('Ver questão completa')[index]);
     expect(screen.getByRole('radio', { name: /^A / })).toBeDisabled();
     const zoom = screen.getByRole('button', {
       name: 'Abrir e ampliar diagrama da alternativa A da questão 15 da prova Enade ADS 2021',

@@ -9,6 +9,8 @@ import {
 } from '../trailCoursePreferences';
 import { EnadeCourse } from './EnadeCourse';
 import type { EnadeAttempt } from '@/lib/enade/types';
+import { EMPTY_WORKSPACE, WORKSPACE_KEY } from '@/lib/enade/simulator';
+import { enadeWorkspaceSchema } from '@/lib/enade/simulator-schema';
 
 export default async function EnadePage() {
   const user = await getAuthUser();
@@ -18,7 +20,7 @@ export default async function EnadePage() {
     store.get(TRAIL_COURSE_PREFERENCES_COOKIE)?.value,
     user.id
   );
-  const [progress, trails] = await Promise.all([
+  const [progress, trails, workspace] = await Promise.all([
     prisma.mobileState.findMany({
       where: { user_id: user.id, key: { startsWith: 'enade-ads-' } },
       select: { key: true, value: true },
@@ -27,9 +29,14 @@ export default async function EnadePage() {
       where: { user_id: user.id },
       select: { language: true, xp: true },
     }),
+    prisma.mobileState.findUnique({
+      where: { user_id_key: { user_id: user.id, key: WORKSPACE_KEY } },
+      select: { value: true },
+    }),
   ]);
   return (
     <EnadeCourse
+      key={user.id}
       user={{
         id: user.id,
         username: user.username,
@@ -47,6 +54,7 @@ export default async function EnadePage() {
       initialAttempts={Object.fromEntries(
         progress.map((p) => [p.key.replace('enade-ads-', ''), p.value as unknown as EnadeAttempt])
       )}
+      initialWorkspace={enadeWorkspaceSchema.safeParse(workspace?.value).data || EMPTY_WORKSPACE}
     />
   );
 }

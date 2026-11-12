@@ -1,111 +1,77 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Check, ChevronLeft, ChevronRight, Clock3, ExternalLink } from 'lucide-react';
-import catalog from '@/lib/enade/exams.json';
+import { useRouter } from 'next/navigation';
 import {
-  gradeEnade,
-  type EnadeAttempt,
-  type EnadeExam,
-  type EnadeQuestionContent,
-} from '@/lib/enade/types';
-import { useEnadeProgress } from './useEnadeProgress';
-import { EnadePageViewer } from './EnadePageViewer';
+  ArrowLeft,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Clock3,
+  ExternalLink,
+  Flag,
+  Pause,
+  Play,
+  Shuffle,
+} from 'lucide-react';
+import type { EnadeAttempt } from '@/lib/enade/types';
+import { formatDuration, type EnadeWorkspace } from '@/lib/enade/simulator';
+import { useEnadeSession } from './useEnadeSession';
+import { EnadeQuestion } from './EnadeQuestion';
+import { EnadeResults } from './EnadeResults';
 import styles from './EnadeCourse.module.css';
-function clock(seconds: number) {
-  const s = Math.max(0, Math.floor(seconds));
-  return `${String(Math.floor(s / 3600)).padStart(2, '0')}:${String(Math.floor(s / 60) % 60).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
-}
-export function EnadeSimulation({
-  userId,
-  year,
-  initialAttempt,
-}: {
+
+export function EnadeSimulation(props: {
   userId: string;
-  year: number;
+  year?: number;
   initialAttempt?: EnadeAttempt;
+  initialWorkspace?: EnadeWorkspace;
 }) {
-  const exam = catalog.find((e) => e.year === year) as EnadeExam;
-  const { attempts, ready, saveStatus, save } = useEnadeProgress(
-    userId,
-    initialAttempt ? { [year]: initialAttempt } : {}
-  );
-  const attempt = attempts[year];
-  const [questionIndex, setQuestionIndex] = useState(0);
-  const [contents, setContents] = useState<EnadeQuestionContent[]>([]);
-  const [pageError, setPageError] = useState(false);
-  const [retry, setRetry] = useState(0);
-  const [now, setNow] = useState(Date.now());
+  const simulation = useEnadeSession(props);
+  const { session, question, result, ready, remaining } = simulation;
+  const router = useRouter();
   const [confirmFinish, setConfirmFinish] = useState(false);
+  const [showResults, setShowResults] = useState(true);
   const questionStart = useRef<HTMLElement>(null);
-  const initializing = useRef(false);
-  const finished = Boolean(attempt?.finishedAt);
-  const question = exam.questions[questionIndex];
-  const content = contents.find((item) => item.id === question.id);
-  const answered = exam.questions.filter((q) => attempt?.answers[q.id]?.trim()).length;
-  const remaining = attempt
-    ? Math.max(0, exam.durationMinutes * 60 - (now - attempt.startedAt) / 1000)
-    : 0;
+  const resultsStart = useRef<HTMLDivElement>(null);
   useEffect(() => {
-    if (!ready || attempt || initializing.current) return;
-    initializing.current = true;
-    const stamp = Date.now();
-    setNow(stamp);
-    void save(year, {
-      answers: {},
-      marked: [],
-      startedAt: stamp,
-      updatedAt: stamp,
-      finishedAt: null,
-    });
-  }, [ready, attempt, save, year]);
-  useEffect(() => {
-    if (!year) return;
-    const controller = new AbortController();
-    setContents([]);
-    setPageError(false);
-    void fetch(`/enade/${year}/questions.json`, { signal: controller.signal })
-      .then(async (r) => {
-        if (!r.ok) throw new Error('pages');
-        const content = (await r.json()) as EnadeQuestionContent[];
-        if (!Array.isArray(content) || content.length !== exam.questions.length)
-          throw new Error('questions');
-        if (!controller.signal.aborted) setContents(content);
-      })
-      .catch(() => {
-        if (!controller.signal.aborted) setPageError(true);
-      });
-    return () => controller.abort();
-  }, [year, retry, exam.questions.length]);
-
-  useEffect(() => {
-    if (!exam || !year || finished) return;
-    const timer = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, [exam, year, finished]);
-
-  function updateAttempt(next: EnadeAttempt) {
-    if (!year) return;
-    void save(year, next);
-  }
-
-  useEffect(() => {
-    if (ready && year && attempt && !finished && remaining <= 0) {
-      const next = { ...attempt, finishedAt: Date.now(), updatedAt: Date.now() };
-      void save(year, next);
+    if (session?.finishedAt) {
+      setShowResults(true);
+      resultsStart.current?.scrollIntoView?.({ block: 'start' });
     }
-  }, [ready, year, attempt, finished, remaining, save]);
-
-  function selectQuestion(index: number) {
-    setQuestionIndex(index);
+  }, [session?.finishedAt]);
+  function navigate(index: number) {
+    simulation.navigate(index);
     setConfirmFinish(false);
+    setShowResults(false);
     questionStart.current?.scrollIntoView?.({ block: 'start' });
   }
-  const result = attempt ? gradeEnade(exam, attempt.answers) : null;
-  if (!ready || !attempt)
+  function repeat(wrongOnly: boolean) {
+    const next = simulation.repeat(wrongOnly);
+    if (next && props.year && !next.sourceYear) router.push('/trails/enade/personalizado');
+    setShowResults(false);
+    window.scrollTo?.({ top: 0 });
+  }
+  if (!ready)
     return (
       <main className={`${styles.main} ${styles.activity}`}>
         <p role="status">Preparando simulado...</p>
+      </main>
+    );
+  if (!session || !question || !result)
+    return (
+      <main className={`${styles.main} ${styles.activity}`}>
+        <Link className={styles.back} href="/trails/enade">
+          <ArrowLeft size={17} />
+          Todas as edições
+        </Link>
+        <h1>Monte seu simulado</h1>
+        <p className={styles.intro}>
+          Escolha as edições, a quantidade de questões e o tempo para começar.
+        </p>
+        <Link className={styles.startButton} href="/trails/enade#custom-title">
+          Configurar simulado
+        </Link>
       </main>
     );
   return (
@@ -116,288 +82,233 @@ export function EnadeSimulation({
         </Link>
         <div className={styles.progressSummary}>
           <div className={styles.progressCaption}>
-            <span>Simulado {exam.year}</span>
+            <span>{simulation.title}</span>
             <span>
-              {answered}/{exam.questions.length} respondidas
+              {result.answered}/{simulation.questions.length} respondidas
             </span>
           </div>
           <div
             role="progressbar"
             aria-label="Progresso do simulado"
             aria-valuemin={0}
-            aria-valuemax={exam.questions.length}
-            aria-valuenow={answered}
-            aria-valuetext={`${answered} de ${exam.questions.length} questões respondidas`}
+            aria-valuemax={simulation.questions.length}
+            aria-valuenow={result.answered}
+            aria-valuetext={`${result.answered} de ${simulation.questions.length} questões respondidas`}
             className={styles.progressTrack}
           >
-            <div style={{ width: `${(answered / exam.questions.length) * 100}%` }} />
+            <div style={{ width: `${(result.answered / simulation.questions.length) * 100}%` }} />
           </div>
         </div>
-        <span
-          className={styles.timer}
-          aria-label={finished ? 'Simulado concluído' : 'Tempo restante'}
-        >
-          <Clock3 size={17} aria-hidden="true" />
-          {finished ? 'Concluído' : clock(remaining)}
-        </span>
+        <div className={styles.timerControls}>
+          <span
+            className={styles.timer}
+            data-warning={simulation.timeWarning && !session.finishedAt}
+            aria-label={
+              session.finishedAt
+                ? 'Simulado concluído'
+                : remaining === null
+                  ? 'Tempo decorrido'
+                  : 'Tempo restante'
+            }
+          >
+            <Clock3 size={17} aria-hidden="true" />
+            {session.finishedAt ? 'Concluído' : formatDuration(remaining ?? simulation.elapsed)}
+          </span>
+          {!session.finishedAt && (
+            <button
+              className={styles.pauseButton}
+              onClick={simulation.pause}
+              aria-label={session.paused ? 'Retomar simulado' : 'Pausar simulado'}
+              title={session.paused ? 'Retomar' : 'Pausar'}
+            >
+              {session.paused ? <Play size={18} /> : <Pause size={18} />}
+            </button>
+          )}
+        </div>
       </header>
       <div className={styles.sessionHeader}>
-        <div>
-          <p className={styles.eyebrow}>Enade · Análise e Desenvolvimento de Sistemas</p>
-          <h1>Simulado {exam.year}</h1>
-        </div>
+        <h1>{simulation.title}</h1>
         <p className={styles.muted}>
-          {finished
-            ? 'Revise suas respostas e o gabarito.'
-            : 'Responda no seu ritmo. A correção aparece ao finalizar.'}
+          {session.config.mode === 'training'
+            ? 'Modo treino · correção comentada após responder.'
+            : 'Modo prova · a correção aparece ao finalizar.'}
+          {remaining === null && !session.finishedAt ? ' Sem limite de tempo.' : ''}
         </p>
       </div>
-      {finished && result && (
-        <section className={styles.result} aria-label="Resultado do simulado">
-          <h2>{result.percent}% de acerto nas objetivas</h2>
-          <p>
-            {result.correct} de {result.total} questões válidas. Anuladas e discursivas não entram
-            nessa porcentagem.
-          </p>
-          <a href={`/enade/${exam.year}/padrao-resposta.pdf`} target="_blank" rel="noreferrer">
-            Revisar as discursivas com o padrão oficial <ExternalLink size={14} />
-          </a>
-        </section>
-      )}
-      <div className={styles.activityNavigation}>
-        <label htmlFor="enade-question">Questão</label>
-        <select
-          id="enade-question"
-          value={questionIndex}
-          onChange={(event) => selectQuestion(Number(event.target.value))}
-        >
-          {exam.questions.map((q, index) => (
-            <option key={q.id} value={index}>
-              {index + 1}/{exam.questions.length} ·{' '}
-              {q.kind === 'discursive' ? 'Discursiva' : 'Objetiva'} {q.number}
-              {attempt.answers[q.id]?.trim() ? ' · Respondida' : ''}
-            </option>
-          ))}
-        </select>
-        <a
-          className={styles.originalLink}
-          href={`/enade/${exam.year}/prova.pdf#page=${question.page}`}
-          target="_blank"
-          rel="noreferrer"
-        >
-          Caderno original <ExternalLink size={14} />
-        </a>
-      </div>
-      <article ref={questionStart} className={styles.question} aria-labelledby="question-title">
-        <div className={styles.questionHeading}>
-          <div>
-            <p className={styles.eyebrow}>
-              {question.section === 'general' ? 'Formação geral' : 'Componente específico'}
-            </p>
-            <h2 id="question-title">
-              {question.kind === 'discursive' ? 'Discursiva' : 'Questão'} {question.number}
-            </h2>
-          </div>
-          <span className={styles.questionCounter}>
-            {questionIndex + 1} de {exam.questions.length}
-          </span>
+      {session.finishedAt && showResults ? (
+        <div ref={resultsStart} className={styles.resultsAnchor}>
+          <EnadeResults
+            session={session}
+            result={result}
+            questions={simulation.presentations}
+            onRepeat={repeat}
+            onReview={navigate}
+          />
         </div>
-        {question.annulled && (
-          <p className={styles.notice}>Anulada pelo Inep. Não conta na correção.</p>
-        )}
-        {pageError ? (
-          <div className={styles.loadError} role="alert">
-            <p>Não foi possível carregar a questão. Suas respostas continuam salvas.</p>
-            <button className={styles.primary} onClick={() => setRetry((n) => n + 1)}>
-              Tentar novamente
+      ) : (
+        <>
+          {session.finishedAt && (
+            <button
+              className={styles.secondaryButton}
+              onClick={() => {
+                setShowResults(true);
+                window.scrollTo?.({ top: 0 });
+              }}
+            >
+              Voltar ao resultado
             </button>
-          </div>
-        ) : !content ? (
-          <p role="status" className={styles.loading}>
-            Carregando questão...
-          </p>
-        ) : (
-          <>
-            <section className={styles.questionImages} aria-label="Imagem da questão">
-              {content.images.map((image, index) => (
-                <div key={image.src} className={styles.paper}>
-                  <EnadePageViewer
-                    src={image.src}
-                    year={exam.year}
-                    page={image.page}
-                    label={`${question.kind === 'discursive' ? 'Discursiva' : 'Questão'} ${question.number}${content.images.length > 1 ? ` · parte ${index + 1}` : ''}`}
-                  />
-                </div>
-              ))}
-            </section>
-            <section className={styles.statement} aria-labelledby="statement-title">
-              <h3 id="statement-title">Enunciado</h3>
-              <p>{content.statement}</p>
-              <details className={styles.transcript}>
-                <summary>Ler texto completo da questão</summary>
-                <p>
-                  Texto extraído do caderno. Consulte a imagem para conferir fórmulas, símbolos e
-                  diagramas.
-                </p>
-                <pre>{content.transcript}</pre>
-              </details>
-            </section>
-            <section className={styles.response} aria-label="Resposta da questão">
-              {question.kind === 'objective' ? (
-                <fieldset>
-                  <legend>Escolha uma alternativa</legend>
-                  <div
-                    className={styles.alternatives}
-                    data-compact={content.options.every(
-                      (option) => option.text.length < 120 && !option.code && !option.image
-                    )}
+          )}
+          <div className={styles.questionMap}>
+            <details>
+              <summary>
+                Navegar pelas questões <span>{session.marked.length} marcadas para revisão</span>
+              </summary>
+              <div className={styles.gridLegend}>
+                <span>Em branco</span>
+                <span>
+                  <Check size={13} /> Respondida
+                </span>
+                <span>
+                  <Flag size={13} /> Revisar
+                </span>
+              </div>
+              <nav className={styles.numberedGrid} aria-label="Navegação das questões">
+                {simulation.presentations.map((q, index) => (
+                  <button
+                    key={q.id}
+                    onClick={() => navigate(index)}
+                    aria-current={index === session.currentIndex ? 'step' : undefined}
+                    aria-label={`Ir para questão ${index + 1} · ${q.answered ? 'Respondida' : 'Em branco'}${q.marked ? ' · Marcada para revisão' : ''}`}
+                    data-answered={q.answered}
+                    data-marked={q.marked}
                   >
-                    {content.options.map((option) => {
-                      const selected = attempt.answers[question.id] === option.letter;
-                      const correction =
-                        finished && !question.annulled
-                          ? option.letter === question.answer
-                            ? 'correct'
-                            : selected
-                              ? 'incorrect'
-                              : undefined
-                          : undefined;
-                      const id = `${question.id}-${option.letter}`;
-                      return (
-                        <div
-                          key={option.letter}
-                          className={styles.alternative}
-                          data-selected={selected}
-                          data-correction={correction}
-                        >
-                          <input
-                            id={id}
-                            type="radio"
-                            name={question.id}
-                            value={option.letter}
-                            disabled={finished || question.annulled}
-                            checked={selected}
-                            onChange={() =>
-                              updateAttempt({
-                                ...attempt,
-                                answers: { ...attempt.answers, [question.id]: option.letter },
-                                updatedAt: Date.now(),
-                              })
-                            }
-                          />
-                          <label htmlFor={id}>
-                            <span className={styles.optionLetter}>{option.letter}</span>{' '}
-                            <span className={option.code ? styles.codeOption : styles.optionText}>
-                              {option.text || `Diagrama da alternativa ${option.letter}`}
-                              {correction && (
-                                <>
-                                  {' '}
-                                  <span className={styles.correctionLabel}>
-                                    {correction === 'correct' ? 'Resposta correta' : 'Sua resposta'}
-                                  </span>
-                                </>
-                              )}
-                            </span>
-                            {selected && (
-                              <Check
-                                className={styles.selectedCheck}
-                                size={18}
-                                aria-hidden="true"
-                              />
-                            )}
-                          </label>
-                          {option.image && (
-                            <div className={styles.optionImage}>
-                              <EnadePageViewer
-                                src={option.image.src}
-                                year={year}
-                                page={option.image.page}
-                                label={`Diagrama da alternativa ${option.letter} da questão ${question.number}`}
-                              />
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </fieldset>
-              ) : (
-                <>
-                  <label className={styles.answerLabel} htmlFor="discursive-answer">
-                    Escreva sua resposta
-                  </label>
-                  <textarea
-                    id="discursive-answer"
-                    maxLength={10000}
-                    rows={8}
-                    readOnly={finished || question.annulled}
-                    placeholder="Desenvolva sua resposta aqui..."
-                    value={attempt.answers[question.id] || ''}
-                    onChange={(event) =>
-                      updateAttempt({
-                        ...attempt,
-                        answers: { ...attempt.answers, [question.id]: event.target.value },
-                        updatedAt: Date.now(),
-                      })
-                    }
-                  />
-                </>
-              )}
-              {finished && question.answer && !question.annulled && (
-                <p className={styles.notice}>
-                  Sua resposta: {attempt.answers[question.id] || 'Em branco'} · Gabarito:{' '}
-                  <strong>{question.answer}</strong>
-                </p>
-              )}
-              {finished && question.kind === 'discursive' && !question.annulled && (
-                <p className={styles.notice}>
-                  Compare sua resposta com o padrão oficial disponível no resultado.
-                </p>
-              )}
+                    {index + 1}
+                    {q.marked ? <Flag size={11} /> : q.answered ? <Check size={11} /> : null}
+                  </button>
+                ))}
+              </nav>
+            </details>
+          </div>
+          <div className={styles.activityNavigation}>
+            <label htmlFor="enade-question">Questão</label>
+            <select
+              id="enade-question"
+              value={session.currentIndex}
+              onChange={(e) => navigate(Number(e.target.value))}
+            >
+              {simulation.presentations.map((q, index) => (
+                <option key={q.id} value={index}>
+                  {index + 1}/{simulation.questions.length} · {q.year} ·{' '}
+                  {q.kind === 'discursive' ? 'Discursiva' : 'Objetiva'} {q.number}
+                  {q.answered ? ' · Respondida' : ''}
+                </option>
+              ))}
+            </select>
+            <a
+              className={styles.originalLink}
+              href={`/enade/${question.year}/prova.pdf#page=${question.page}`}
+              target="_blank"
+              rel="noreferrer"
+            >
+              Caderno original <ExternalLink size={14} />
+            </a>
+          </div>
+          {session.paused ? (
+            <section className={styles.pausedPanel} aria-label="Simulado pausado">
+              <Pause size={32} />
+              <h2>Uma pausa para respirar</h2>
+              <p>O cronômetro está parado. Suas respostas continuam salvas.</p>
+              <button className={styles.startButton} onClick={simulation.pause}>
+                <Play size={17} />
+                Retomar simulado
+              </button>
             </section>
-          </>
-        )}
-        <div className={styles.questionNav}>
-          <button disabled={questionIndex === 0} onClick={() => selectQuestion(questionIndex - 1)}>
-            <ChevronLeft size={18} /> Anterior
-          </button>
-          <button
-            className={styles.nextQuestion}
-            disabled={questionIndex === exam.questions.length - 1}
-            onClick={() => selectQuestion(questionIndex + 1)}
-          >
-            Próxima <ChevronRight size={18} />
-          </button>
-        </div>
-      </article>
+          ) : (
+            <article
+              ref={questionStart}
+              className={styles.question}
+              aria-labelledby="question-title"
+            >
+              {simulation.contentError ? (
+                <div className={styles.loadError} role="alert">
+                  <p>Não foi possível carregar a questão. Suas respostas continuam salvas.</p>
+                  <button className={styles.primary} onClick={simulation.retryLoad}>
+                    Tentar novamente
+                  </button>
+                </div>
+              ) : !question.content ? (
+                <p role="status" className={styles.loading}>
+                  Carregando questão...
+                </p>
+              ) : (
+                <EnadeQuestion
+                  question={question}
+                  index={session.currentIndex}
+                  total={simulation.questions.length}
+                  onAnswer={simulation.answer}
+                  onMark={simulation.mark}
+                  onCheckDiscursive={simulation.checkDiscursive}
+                />
+              )}
+              <div className={styles.questionNav}>
+                <button
+                  disabled={session.currentIndex === 0}
+                  onClick={() => navigate(session.currentIndex - 1)}
+                >
+                  <ChevronLeft size={18} />
+                  Anterior
+                </button>
+                <button
+                  className={styles.nextQuestion}
+                  disabled={session.currentIndex === simulation.questions.length - 1}
+                  onClick={() => navigate(session.currentIndex + 1)}
+                >
+                  Próxima
+                  <ChevronRight size={18} />
+                </button>
+              </div>
+              {!session.finishedAt && (
+                <button
+                  className={styles.skipButton}
+                  disabled={!simulation.canSkip}
+                  onClick={() => {
+                    simulation.skip();
+                    questionStart.current?.scrollIntoView?.({ block: 'start' });
+                  }}
+                >
+                  <Shuffle size={16} />
+                  Pular para uma aleatória em branco
+                </button>
+              )}
+            </article>
+          )}
+        </>
+      )}
       <footer className={styles.sessionFooter}>
         <div>
           <p className={styles.saveStatus} role="status">
-            {saveStatus}
+            {simulation.saveStatus}
           </p>
-          <button className={styles.back} onClick={() => void save(year, attempt, true)}>
+          <button className={styles.back} onClick={simulation.saveNow}>
             Salvar novamente
           </button>
         </div>
-        {!finished && (
+        {!session.finishedAt && (
           <button className={styles.finishButton} onClick={() => setConfirmFinish(true)}>
-            Finalizar simulado <Check size={16} />
+            Finalizar simulado
+            <Check size={16} />
           </button>
         )}
-        {confirmFinish && !finished && (
+        {confirmFinish && !session.finishedAt && (
           <div className={styles.confirm}>
             <p>
-              Finalizar e conferir o gabarito? Há {exam.questions.length - answered} respostas em
-              branco.
+              Finalizar e conferir o gabarito? Há {simulation.questions.length - result.answered}{' '}
+              respostas em branco.
             </p>
             <button
               className={styles.primary}
               onClick={() => {
-                void save(
-                  year,
-                  { ...attempt, finishedAt: Date.now(), updatedAt: Date.now() },
-                  true
-                );
+                simulation.finish();
                 setConfirmFinish(false);
               }}
             >
