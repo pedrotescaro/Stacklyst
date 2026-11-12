@@ -339,7 +339,6 @@ export async function previewRequest<T>(path: string, init: RequestInit = {}): P
     if (route === '/api/mobile/learning') return learning;
     if (route.startsWith('/api/mobile/state/')) return null;
     if (route === '/api/mobile/bookmarks') return page([]);
-    if (route === '/api/guilds') return { guilds: [], myGuilds: [] };
     if (
       [
         '/api/duels',

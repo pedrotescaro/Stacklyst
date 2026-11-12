@@ -37,7 +37,6 @@ let diagramCount = 0;
 let words = 0;
 for (const name of (await fs.readdir(base)).filter((f) => f.endsWith('.md'))) {
   const text = await fs.readFile(path.join(base, name), 'utf8');
-  assert.ok(!/^#{1,4}\s+.*\bguild(?:s|a|as|member|role)?\b/im.test(text), `Out-of-scope feature section in ${name}`);
   assert.ok(!/Ã[\u0080-\u00bf]|\ufffd/.test(text), `Encoding problem in ${name}`);
   words += text
     .replace(/```[\s\S]*?```/g, '')

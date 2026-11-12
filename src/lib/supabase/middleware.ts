@@ -13,7 +13,6 @@ const PROTECTED_ROUTE_PREFIXES = [
   '/duels',
   '/explore',
   '/feed',
-  '/guilds',
   '/leaderboard',
   '/messages',
   '/notifications',

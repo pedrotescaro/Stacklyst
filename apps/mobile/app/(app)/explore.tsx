@@ -119,7 +119,6 @@ function ExploreContent({
         header={
           query.length < 2 ? (
             <View style={{ paddingHorizontal: 20 }}>
-              {/* Communities are disabled in mobile; events and jobs stay available. */}
               <RowLink
                 title="Eventos"
                 subtitle="Desafios e encontros da comunidade"

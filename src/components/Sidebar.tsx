@@ -376,7 +376,6 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   const moreMenuIsActive = [
     '/jobs',
     '/recruiter',
-    // '/guilds',
     '/events',
     '/evaluations',
     '/evaluators',

@@ -77,11 +77,6 @@ export const COPY = {
   LEADERBOARD_TOP_3: '🥉 Bronze',
   LEADERBOARD_YOUR_RANK: 'Sua posição',
 
-  // Communities
-  COMMUNITY_JOIN: 'Entrar',
-  COMMUNITY_MEMBER: 'Membro',
-  COMMUNITY_LEAVE: 'Sair',
-
   // DM
   DM_TYPING: 'digitando...',
   DM_EMPTY: 'Nenhuma mensagem ainda. Inicie a conversa!',

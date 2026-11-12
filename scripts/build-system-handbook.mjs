@@ -316,8 +316,7 @@ const allModels = [...schema.matchAll(/^model (\w+) \{([\s\S]*?)^\}/gm)].map((m)
   body: m[2],
 }));
 const allModelNames = new Set(allModels.map((m) => m.name));
-// Scope reflects the current product; residual storage structures are not active modules.
-const models = allModels.filter((m) => !['Guild', 'GuildMember'].includes(m.name));
+const models = allModels;
 const names = new Set(models.map((m) => m.name));
 const edges = [];
 for (const model of models) {
@@ -460,7 +459,6 @@ const errorDefaults = {
 };
 const errors = [];
 for (const file of await walk('src')) {
-  if (file.includes('/guilds/')) continue;
   const text = await read(file);
   const source = ts.createSourceFile(
     file,
