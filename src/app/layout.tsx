@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Inter, Sora, Space_Grotesk, JetBrains_Mono, Bebas_Neue } from 'next/font/google';
-import Script from 'next/script';
 import './globals.css';
 import './landing.css';
 import ConnectionBanner from '@/components/ConnectionBanner';
@@ -79,10 +78,13 @@ export default function RootLayout({
       className={`${inter.variable} ${sora.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${bebasNeue.variable} h-full antialiased`}
       suppressHydrationWarning
     >
+      <head>
+        {/* Blocking inline script: applies the saved theme before the first paint so a
+            dark choice never flashes light on reload. next/script's beforeInteractive
+            runs after paint in the App Router, which caused that flash. */}
+        <script id="theme-script" dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="bg-dd-bg text-dd-text min-h-screen font-sans" suppressHydrationWarning>
-        <Script id="theme-script" strategy="beforeInteractive">
-          {themeScript}
-        </Script>
         <LanguageProvider>
           <MusicPlayerProvider>
             <ThemeSync />
