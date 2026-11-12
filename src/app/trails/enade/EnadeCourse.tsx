@@ -13,7 +13,10 @@ import {
   RotateCcw,
 } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
-import { TrailCourseSelector, type TrailCourseOption } from '../TrailCourseSelector';
+import type { TrailCourseOption } from '../TrailCourseSelector';
+import { TrailResourceBar } from '../TrailResourceBar';
+import { TrailsProgressSidebar } from '../TrailsProgressSidebar';
+import type { TrailRailStats } from '../trailRailStats';
 import type { TrailCourseCode } from '../TrailLanguageLogo';
 import catalog from '@/lib/enade/exams.json';
 import { gradeEnade, type EnadeAttempt, type EnadeExam } from '@/lib/enade/types';
@@ -23,12 +26,20 @@ import { EnadeConfiguration } from './EnadeConfiguration';
 import type { EnadeWorkspace } from '@/lib/enade/simulator';
 const exams = [...catalog].reverse() as EnadeExam[];
 type Props = {
-  user: { id: string; username: string; avatar_url: string | null; total_xp: number };
+  user: {
+    id: string;
+    username: string;
+    avatar_url: string | null;
+    total_xp: number;
+    streak?: number;
+    last_active_at?: string | null;
+  };
+  rail: TrailRailStats;
   courses: TrailCourseOption[];
   initialAttempts: Record<string, EnadeAttempt>;
   initialWorkspace?: EnadeWorkspace;
 };
-export function EnadeCourse({ user, courses, initialAttempts, initialWorkspace }: Props) {
+export function EnadeCourse({ user, courses, initialAttempts, initialWorkspace, rail }: Props) {
   const router = useRouter();
   const { attempts, saveStatus, save } = useEnadeProgress(user.id, initialAttempts);
   const [confirmRestart, setConfirmRestart] = useState<number | null>(null);
@@ -90,19 +101,25 @@ export function EnadeCourse({ user, courses, initialAttempts, initialWorkspace }
   }
 
   return (
-    <div className="dd-platform-shell">
+    <div className="dd-platform-shell relative min-h-screen bg-dd-bg">
       <Sidebar user={user} />
-      <div className="dd-platform-body">
-        <main className={`dd-platform-main ${styles.main} ${styles.courseMain}`}>
+      <div className="dd-platform-body mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
+        <main className={`dd-platform-main min-w-0 flex-1 ${styles.main}`}>
           <header className={styles.header}>
             <Link href="/trails?view=map&language=JS" className={styles.back}>
               <ArrowLeft size={16} /> Trilhas
             </Link>
-            <TrailCourseSelector
-              activeLanguage="ENADE"
-              courses={courses}
-              onSelectCourse={selectCourse}
-            />
+            <div className="xl:hidden">
+              <TrailResourceBar
+                activeLanguage="ENADE"
+                courses={courses}
+                onSelectCourse={selectCourse}
+                streak={user.streak ?? 0}
+                lastActiveAt={user.last_active_at}
+                totalXp={user.total_xp}
+                gems={rail.gems}
+              />
+            </div>
           </header>
           <div className={styles.overview}>
             <img src="/enade/logo.png" alt="Enade" className={styles.logo} />
@@ -195,6 +212,20 @@ export function EnadeCourse({ user, courses, initialAttempts, initialWorkspace }
             {preferenceError || saveStatus}
           </p>
         </main>
+        <TrailsProgressSidebar
+          activeLanguage="ENADE"
+          courses={courses}
+          onSelectCourse={selectCourse}
+          totalXp={user.total_xp}
+          gems={rail.gems}
+          streak={user.streak ?? 0}
+          lastActiveAt={user.last_active_at}
+          globalRank={rail.globalRank}
+          totalParticipants={rail.totalParticipants}
+          username={user.username}
+          avatarUrl={user.avatar_url}
+          dailyProgress={rail.dailyProgress}
+        />
       </div>
     </div>
   );

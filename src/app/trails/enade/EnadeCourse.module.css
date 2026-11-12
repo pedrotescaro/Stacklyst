@@ -11,9 +11,6 @@
   --enade-danger: #fb7185;
   --enade-warning: #ffb45b;
 }
-.courseMain {
-  border-inline-end: 1px solid var(--color-dd-border);
-}
 .overview {
   max-width: 840px;
   margin-inline: auto;

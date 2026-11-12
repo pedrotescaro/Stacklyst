@@ -7,6 +7,12 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 vi.mock('@/components/Sidebar', () => ({ Sidebar: () => <nav>Sidebar</nav> }));
 const user = { id: 'student-test', username: 'student', avatar_url: null, total_xp: 0 };
 const courses = [{ language: 'JS' as const, xp: 0, started: true }];
+const rail = {
+  gems: 12,
+  globalRank: 7,
+  totalParticipants: 40,
+  dailyProgress: { xpEarned: 10, correctAnswers: 1, trailActivities: 0 },
+};
 beforeEach(() => {
   localStorage.clear();
   push.mockClear();
@@ -18,8 +24,11 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 describe('Enade course entrance', () => {
   it('keeps navigation on the entrance and links to separate activities without starting a timer', () => {
-    render(<EnadeCourse user={user} courses={courses} initialAttempts={{}} />);
+    render(<EnadeCourse user={user} rail={rail} courses={courses} initialAttempts={{}} />);
     expect(screen.getByText('Sidebar')).toBeInTheDocument();
+    const progressRail = screen.getByTestId('trails-progress-sidebar');
+    expect(progressRail).toHaveTextContent('7º lugar');
+    expect(progressRail).toHaveTextContent('Desafios diários');
     expect(screen.getByText('5 edições · 200 questões')).toBeInTheDocument();
     expect(
       screen.getAllByRole('link', { name: 'Iniciar' }).map((el) => el.getAttribute('href'))
@@ -40,6 +49,7 @@ describe('Enade course entrance', () => {
     render(
       <EnadeCourse
         user={user}
+        rail={rail}
         courses={courses}
         initialAttempts={{
           2021: {

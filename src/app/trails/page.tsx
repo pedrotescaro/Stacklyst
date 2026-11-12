@@ -9,11 +9,11 @@ import {
 import { getCompletedTrailLessonIds } from '@/app/trails/trailCurriculum';
 import { calculateTrailDailyProgress } from '@/app/trails/trailDailyProgress';
 import { getAuthUser } from '@/lib/auth';
-import { calculateGemBalance } from '@/lib/gamification/gems';
 import { getKnowledgeMapForUser } from '@/lib/learning/repository';
 import { prisma } from '@/lib/prisma';
 import { TrailsContent } from '@/app/trails/TrailsContent';
-import { buildLearningMap, mergeLearningMaps, LEARNING_LESSONS } from '@/lib/learning/catalog';
+import { buildLearningMap, mergeLearningMaps } from '@/lib/learning/catalog';
+import { calculateTrailGems } from './trailRailStats';
 import { usersAheadWhere } from '@/lib/learning/rewards';
 import { AdventureEntry } from './AdventureEntry';
 
@@ -172,16 +172,11 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
   }));
 
   const dailyProgress = calculateTrailDailyProgress(todaySubmissions, todayQuizAttempts);
-  const authoredExerciseIds = new Set(
-    [...LEARNING_LESSONS.values()].flatMap((lesson) =>
-      lesson.steps.filter((step) => step.type !== 'concept_explanation').map((step) => step.id)
-    )
+  const userCoins = calculateTrailGems(
+    rpgPlayer?.coins,
+    firstCompletions.length,
+    completedTrailStepAttempts.filter((a) => a.is_correct).map((a) => a.quiz_id)
   );
-  const lessonCompletions = completedTrailStepAttempts.filter(
-    (attempt) => attempt.is_correct && authoredExerciseIds.has(attempt.quiz_id)
-  ).length;
-  const userCoins =
-    rpgPlayer?.coins ?? calculateGemBalance(firstCompletions.length + lessonCompletions);
   const completedLessonIds = getCompletedTrailLessonIds(
     completedTrailStepAttempts.filter((a) => a.is_correct).map((attempt) => attempt.quiz_id)
   );

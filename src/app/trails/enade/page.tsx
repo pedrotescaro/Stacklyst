@@ -7,6 +7,7 @@ import {
   parseTrailCoursePreferences,
   TRAIL_COURSE_PREFERENCES_COOKIE,
 } from '../trailCoursePreferences';
+import { getTrailRailStats } from '../trailRailStats';
 import { EnadeCourse } from './EnadeCourse';
 import type { EnadeAttempt } from '@/lib/enade/types';
 import { EMPTY_WORKSPACE, WORKSPACE_KEY } from '@/lib/enade/simulator';
@@ -20,7 +21,7 @@ export default async function EnadePage() {
     store.get(TRAIL_COURSE_PREFERENCES_COOKIE)?.value,
     user.id
   );
-  const [progress, trails, workspace] = await Promise.all([
+  const [progress, trails, workspace, rail] = await Promise.all([
     prisma.mobileState.findMany({
       where: { user_id: user.id, key: { startsWith: 'enade-ads-' } },
       select: { key: true, value: true },
@@ -33,6 +34,7 @@ export default async function EnadePage() {
       where: { user_id_key: { user_id: user.id, key: WORKSPACE_KEY } },
       select: { value: true },
     }),
+    getTrailRailStats(user),
   ]);
   return (
     <EnadeCourse
@@ -42,7 +44,10 @@ export default async function EnadePage() {
         username: user.username,
         avatar_url: user.avatar_url,
         total_xp: user.total_xp,
+        streak: user.streak_days,
+        last_active_at: user.last_active_at ? user.last_active_at.toISOString() : null,
       }}
+      rail={rail}
       courses={TRAIL_COURSE_CODES.map((language) => ({
         language,
         xp: trails.find((t) => (t.language as string) === language)?.xp ?? 0,
