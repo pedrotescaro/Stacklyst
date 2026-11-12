@@ -68,7 +68,8 @@ describe('Enade course simulations', () => {
       />
     );
     expect(screen.queryByRole('region', { name: 'Resultado do simulado' })).not.toBeInTheDocument();
-    fireEvent.change(screen.getByRole('combobox', { name: 'Questão' }), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: /^Questão \d+ de \d+/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Ir para questão 3 ·/ }));
     expect(await screen.findByRole('radio', { name: /^D / })).toBeChecked();
   });
   it('starts a real edition, records objective and discursive answers, finishes and reviews results', async () => {
@@ -80,7 +81,8 @@ describe('Enade course simulations', () => {
     fireEvent.change(screen.getByLabelText('Escreva sua resposta'), {
       target: { value: 'Minha resposta discursiva.' },
     });
-    fireEvent.change(screen.getByRole('combobox', { name: 'Questão' }), { target: { value: '2' } });
+    fireEvent.click(screen.getByRole('button', { name: /^Questão \d+ de \d+/ }));
+    fireEvent.click(screen.getByRole('button', { name: /^Ir para questão 3 ·/ }));
     const option = contents.find((q) => q.id === '2021-objective-1')!.options[4];
     fireEvent.click(screen.getByRole('radio', { name: `E ${option.text}` }));
     expect(screen.getByRole('progressbar', { name: 'Progresso do simulado' })).toHaveAttribute(

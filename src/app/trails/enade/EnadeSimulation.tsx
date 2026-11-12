@@ -9,7 +9,6 @@ import {
   ChevronRight,
   Clock3,
   ExternalLink,
-  Flag,
   Pause,
   Play,
   Shuffle,
@@ -19,6 +18,7 @@ import { formatDuration, type EnadeWorkspace } from '@/lib/enade/simulator';
 import { useEnadeSession } from './useEnadeSession';
 import { EnadeQuestion } from './EnadeQuestion';
 import { EnadeResults } from './EnadeResults';
+import { QuestionPicker } from './QuestionPicker';
 import styles from './EnadeCourse.module.css';
 
 export function EnadeSimulation(props: {
@@ -158,52 +158,12 @@ export function EnadeSimulation(props: {
               Voltar ao resultado
             </button>
           )}
-          <div className={styles.questionMap}>
-            <details>
-              <summary>
-                Navegar pelas questões <span>{session.marked.length} marcadas para revisão</span>
-              </summary>
-              <div className={styles.gridLegend}>
-                <span>Em branco</span>
-                <span>
-                  <Check size={13} /> Respondida
-                </span>
-                <span>
-                  <Flag size={13} /> Revisar
-                </span>
-              </div>
-              <nav className={styles.numberedGrid} aria-label="Navegação das questões">
-                {simulation.presentations.map((q, index) => (
-                  <button
-                    key={q.id}
-                    onClick={() => navigate(index)}
-                    aria-current={index === session.currentIndex ? 'step' : undefined}
-                    aria-label={`Ir para questão ${index + 1} · ${q.answered ? 'Respondida' : 'Em branco'}${q.marked ? ' · Marcada para revisão' : ''}`}
-                    data-answered={q.answered}
-                    data-marked={q.marked}
-                  >
-                    {index + 1}
-                    {q.marked ? <Flag size={11} /> : q.answered ? <Check size={11} /> : null}
-                  </button>
-                ))}
-              </nav>
-            </details>
-          </div>
           <div className={styles.activityNavigation}>
-            <label htmlFor="enade-question">Questão</label>
-            <select
-              id="enade-question"
-              value={session.currentIndex}
-              onChange={(e) => navigate(Number(e.target.value))}
-            >
-              {simulation.presentations.map((q, index) => (
-                <option key={q.id} value={index}>
-                  {index + 1}/{simulation.questions.length} · {q.year} ·{' '}
-                  {q.kind === 'discursive' ? 'Discursiva' : 'Objetiva'} {q.number}
-                  {q.answered ? ' · Respondida' : ''}
-                </option>
-              ))}
-            </select>
+            <QuestionPicker
+              questions={simulation.presentations}
+              currentIndex={session.currentIndex}
+              onNavigate={navigate}
+            />
             <a
               className={styles.originalLink}
               href={`/enade/${question.year}/prova.pdf#page=${question.page}`}
