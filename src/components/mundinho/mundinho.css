@@ -3943,7 +3943,7 @@
 }
 .adventure-battle .battle-sprite-player {
   left: 23.3333%;
-  bottom: 18%;
+  bottom: 10%;
 }
 .adventure-battle .battle-sprite-enemy {
   left: 75.8333%;
@@ -4614,4 +4614,29 @@
 .ad-arena-dialog :focus-visible {
   outline: 2px solid #a9dec6;
   outline-offset: 3px;
+}
+
+/* The slime art faces right; CSS scale preserves the independent hit/lunge transforms. */
+.adventure-battle .pixel-creature[data-creature='syntax-slime'],
+.adventure-battle .pixel-creature[data-creature='blue-slime'] {
+  scale: -1 1;
+}
+/* Ground contact follows the occupied pixels, not the transparent 24px cell. */
+.adventure-battle .pixel-creature[data-creature='syntax-slime']::before,
+.adventure-battle .pixel-creature[data-creature='blue-slime']::before {
+  bottom: 17%;
+  width: 48%;
+  left: 26%;
+  height: 7%;
+}
+
+/* Mirroring the artwork also mirrors its local lunge coordinates. */
+.adventure-battle .combat-enemy-attack .pixel-creature[data-creature='syntax-slime'],
+.adventure-battle .combat-enemy-attack .pixel-creature[data-creature='blue-slime'] {
+  animation-name: rpg-counter-mirrored;
+}
+@keyframes rpg-counter-mirrored {
+  50% {
+    transform: translate(30px, 16px) rotate(-7deg);
+  }
 }

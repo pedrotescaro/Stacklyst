@@ -1,53 +1,120 @@
 .veil-boss {
-  background: #151321;
-  color: #fff3d8;
-  text-align: center;
-  padding: clamp(14px, 4vw, 36px);
-  font-family:
-    Pixelify Sans,
-    monospace;
-  border-radius: 12px;
+  background: #000;
+  color: #fff;
+  padding: clamp(12px, 3vw, 28px);
+  font-family: 'Stacklyst Pixel', monospace;
+  width: 100%;
+  max-width: 840px;
+  margin: 0 auto;
+  color-scheme: dark;
 }
 .veil-sky {
-  height: 158px;
-  display: grid;
-  place-items: center;
-  background: radial-gradient(ellipse at bottom, #453552, transparent 67%);
+  height: 206px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }
 .veil-guardian {
-  width: 150px;
-  height: 123px;
+  width: 200px;
+  height: 164px;
   image-rendering: pixelated;
   background-size: 700% 100%;
-  animation: veil-hover 1.2s steps(7) infinite;
   background-repeat: no-repeat;
+  filter: grayscale(1) brightness(2.8) contrast(1.3);
+  animation: veil-hover 1.2s steps(7) infinite;
 }
 @keyframes veil-hover {
   to {
     background-position-x: 116.666667%;
   }
 }
-.veil-stats,
-.veil-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 16px;
+.veil-enemy-health {
+  width: 140px;
+  height: 8px;
+  background: #791a1a;
 }
-.veil-stats meter {
-  accent-color: #c99cce;
-  width: 85px;
+.veil-enemy-health i {
+  display: block;
+  height: 100%;
+  background: #fff;
+}
+.veil-box-slot {
+  min-height: 220px;
+  display: grid;
+  place-items: center;
 }
 .veil-field {
   position: relative;
-  width: min(100%, 480px);
-  aspect-ratio: 240/116;
-  border: 3px solid #e5d3ad;
-  background: #0d0d16;
-  margin: 12px auto;
-  overflow: hidden;
+  width: 100%;
+  min-height: 220px;
+  border: 4px solid #fff;
+  background: #000;
   touch-action: none;
+}
+.veil-field-dodge {
+  width: min(100%, 400px);
+  aspect-ratio: 240 / 116;
+  min-height: 0;
+  overflow: hidden;
+}
+.veil-field:focus-visible {
+  outline: 2px solid #ffff00;
+  outline-offset: 5px;
+}
+.veil-dialogue {
+  padding: 16px 20px;
+  font-size: clamp(19px, 2.7vw, 29px);
+  line-height: 1.35;
+}
+.veil-dialogue p {
+  margin: 0 0 12px;
+}
+.veil-options {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+}
+.veil-options p {
+  grid-column: 1 / -1;
+  font-size: 18px;
+}
+.adventure .veil-dialogue button,
+.adventure .veil-strike,
+.adventure .veil-paused button {
+  border: 0;
+  border-radius: 0;
+  background: #000;
+  color: #fff;
+  font: inherit;
+  padding: 6px 0;
+  min-height: 44px;
+  text-align: left;
+}
+.adventure .veil-dialogue button::before {
+  content: '* ';
+}
+.adventure .veil-dialogue button:focus-visible,
+.adventure .veil-dialogue button:hover,
+.adventure .veil-strike:focus-visible,
+.adventure .veil-paused button:focus-visible {
+  color: #ffff00;
+  outline: 2px solid #ffff00;
+  outline-offset: 2px;
+}
+.adventure .veil-dialogue button:disabled {
+  color: #888;
+  cursor: not-allowed;
+}
+.adventure .veil-dialogue .veil-spare:not(:disabled) {
+  color: #ffff00;
+}
+.veil-heart-icon {
+  width: 20px;
+  height: 18px;
+  color: #f00;
+  flex: 0 0 auto;
 }
 .veil-heart,
 .veil-shot {
@@ -56,40 +123,220 @@
   pointer-events: none;
 }
 .veil-heart {
-  color: #ff696e;
-  font-size: clamp(14px, 3vw, 23px);
-  line-height: 1;
+  width: 3.75%;
+  aspect-ratio: 9 / 8;
+  line-height: 0;
 }
-.veil-hit {
-  color: #fff4b0;
+.veil-heart .veil-heart-icon {
+  width: 100%;
+  height: 100%;
+}
+.veil-heart.veil-hit .veil-heart-icon {
+  color: #fff;
 }
 .veil-shot {
   width: 3.33333%;
   aspect-ratio: 1;
   background-size: 100% 100%;
   image-rendering: pixelated;
+  filter: grayscale(1) brightness(4);
 }
 .veil-meter {
   position: absolute;
-  inset: 39% 9%;
-  border: 2px solid #e9c579;
-  background: linear-gradient(90deg, #714656, #b78e5f 43%, #c1d69a 47% 53%, #b78e5f 57%, #714656);
+  inset: 24% 8% 36%;
+  border: 3px solid #fff;
+  background: linear-gradient(
+    90deg,
+    #7d1c13 0% 15%,
+    #c65516 15% 30%,
+    #ffd52a 30% 44%,
+    #56bb39 44% 56%,
+    #ffd52a 56% 70%,
+    #c65516 70% 85%,
+    #7d1c13 85%
+  );
+}
+.veil-meter::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  inset-block: 0;
+  width: 2px;
+  background: #000;
 }
 .veil-meter i {
   position: absolute;
-  inset-block: -6px;
-  width: 4px;
-  background: white;
+  inset-block: -8px;
+  width: 5px;
+  background: #fff;
+  z-index: 1;
+  border-inline: 1px solid #000;
+}
+.adventure .veil-strike {
+  position: absolute;
+  bottom: 7%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 22px;
+  padding: 4px 16px;
+}
+.veil-paused {
+  position: absolute;
+  inset: 0;
+  background: #000;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  font-size: 24px;
+  z-index: 2;
+}
+.veil-stats {
+  display: flex;
+  align-items: center;
+  gap: clamp(10px, 3vw, 30px);
+  padding-block: 14px 10px;
+  font-size: clamp(16px, 2.8vw, 24px);
+  line-height: 1;
+}
+.veil-name {
+  max-width: 30%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.veil-hp {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+.veil-hp > span:first-child {
+  font-size: 0.72em;
+  font-weight: 700;
+}
+.veil-hp-bar {
+  display: block;
+  width: 44px;
+  height: 23px;
+  background: #f00;
+}
+.veil-hp-bar i {
+  display: block;
+  height: 100%;
+  background: #ffff00;
+}
+.veil-commands {
+  display: flex;
+  justify-content: space-between;
+  gap: clamp(6px, 2vw, 24px);
+}
+.adventure .veil-commands button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  min-height: 48px;
+  padding: 4px 8px;
+  border: 2px solid currentColor;
+  border-radius: 0;
+  background: #000;
+  color: #ff922b;
+  font:
+    700 clamp(20px, 3.8vw, 38px)/1 'Stacklyst Pixel',
+    monospace;
+  cursor: pointer;
+}
+.veil-commands svg {
+  width: 22px;
+  height: 22px;
+  flex: 0 0 auto;
+}
+.adventure .veil-commands button[aria-pressed='true'] {
+  color: #ffff00;
+}
+.adventure .veil-commands button:focus-visible {
+  outline: 2px solid #ffff00;
+  outline-offset: 4px;
+}
+.adventure .veil-commands button:disabled {
+  opacity: 1;
+  cursor: default;
+}
+.veil-help {
+  text-align: center;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #bbb;
+  margin: 20px 0 10px;
 }
 .veil-actions {
-  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
 }
 .adventure .veil-actions button {
-  border: 1px solid #c5aa79;
-  color: #ffe8ad;
-  background: #241d30;
-  border-radius: 5px;
-  padding: 10px 16px;
+  background: #000;
+  color: #bbb;
+  border: 1px solid #777;
+  border-radius: 0;
+  padding: 8px 12px;
+  min-height: 44px;
+  font: inherit;
+}
+.adventure .veil-actions button:focus-visible {
+  outline: 2px solid #ffff00;
+  outline-offset: 3px;
+}
+@media (max-width: 540px) {
+  .veil-boss {
+    padding: 12px 8px;
+  }
+  .veil-sky {
+    height: 165px;
+  }
+  .veil-guardian {
+    width: 150px;
+    height: 123px;
+  }
+  .veil-field {
+    border-width: 3px;
+  }
+  .veil-dialogue {
+    padding: 12px;
+  }
+  .veil-options {
+    gap: 6px;
+  }
+  .veil-options p {
+    font-size: 16px;
+  }
+  .veil-commands {
+    gap: 6px;
+  }
+  .adventure .veil-commands button {
+    flex: 1;
+    font-size: clamp(16px, 4.5vw, 23px);
+    padding: 4px 3px;
+    gap: 3px;
+  }
+  .veil-commands svg {
+    width: 12px;
+    height: 12px;
+  }
+  .veil-stats {
+    gap: 10px;
+    font-size: 16px;
+  }
+  .veil-hp {
+    gap: 6px;
+  }
+  .veil-hp-bar {
+    width: 28px;
+    height: 19px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .veil-guardian {

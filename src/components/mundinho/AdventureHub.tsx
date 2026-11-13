@@ -1496,7 +1496,14 @@ export function AdventureHub({
         </Suspense>
       )}
 
-      {view === 'boss' && <VeilBoss onLeave={() => go('world')} assetBase={assetBase} />}
+      {view === 'boss' && (
+        <VeilBoss
+          onLeave={() => go('world')}
+          assetBase={assetBase}
+          username={data?.username}
+          level={xp.level}
+        />
+      )}
       {view === 'arena' && (
         <MultiplayerArena
           transport={arenaTransport}
