@@ -67,8 +67,9 @@ describe('Sidebar role-aware navigation', () => {
     expect(screen.queryByRole('link', { name: 'Certificados' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Mais' }));
 
-    expect(screen.queryByRole('menuitem', { name: 'Duelos' })).not.toBeInTheDocument();
-    expect(screen.queryByRole('menuitem', { name: 'Títulos' })).not.toBeInTheDocument();
+    // Duelos and Títulos only fold into "Mais" on short windows, hidden otherwise.
+    expect(screen.getByRole('menuitem', { name: 'Duelos' })).toHaveClass('hidden');
+    expect(screen.getByRole('menuitem', { name: 'Títulos' })).toHaveClass('hidden');
     expect(screen.queryByRole('menuitem', { name: 'Certificados' })).not.toBeInTheDocument();
     expect(screen.getByRole('menuitem', { name: 'Avaliação de Código' })).toBeInTheDocument();
     expect(

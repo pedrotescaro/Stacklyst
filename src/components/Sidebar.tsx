@@ -86,6 +86,25 @@ if (typeof window !== 'undefined') {
   }
 }
 
+type SidebarFold = 1 | 2 | 3 | 4;
+/**
+ * Like X, a short window (or a zoomed-in page) folds the less used links into
+ * "Mais" in stages instead of squeezing them. Tailwind needs literal classes, and
+ * the heights match where the sidebar would otherwise start to scroll.
+ */
+const FOLD_HIDE: Record<SidebarFold, string> = {
+  1: '[@media(max-height:810px)]:invisible [@media(max-height:810px)]:max-h-0 [@media(max-height:810px)]:!py-0 [@media(max-height:810px)]:opacity-0',
+  2: '[@media(max-height:725px)]:invisible [@media(max-height:725px)]:max-h-0 [@media(max-height:725px)]:!py-0 [@media(max-height:725px)]:opacity-0',
+  3: '[@media(max-height:680px)]:invisible [@media(max-height:680px)]:max-h-0 [@media(max-height:680px)]:!py-0 [@media(max-height:680px)]:opacity-0',
+  4: '[@media(max-height:635px)]:invisible [@media(max-height:635px)]:max-h-0 [@media(max-height:635px)]:!py-0 [@media(max-height:635px)]:opacity-0',
+};
+const FOLD_SHOW_IN_MORE: Record<SidebarFold, string> = {
+  1: 'hidden [@media(max-height:810px)]:flex',
+  2: 'hidden [@media(max-height:725px)]:flex',
+  3: 'hidden [@media(max-height:680px)]:flex',
+  4: 'hidden [@media(max-height:635px)]:flex',
+};
+
 export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -251,6 +270,8 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   const [toast, setToast] = useState<{ message: string; visible: boolean } | null>(null);
   const [premiumModalOpen, setPremiumModalOpen] = useState(false);
   const [moreMenuOpen, setMoreMenuOpen] = useState(false);
+  // Space above the "Mais" button, so the menu never runs off the top of a short window.
+  const [moreMenuMaxHeight, setMoreMenuMaxHeight] = useState<number | undefined>();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -310,6 +331,8 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
     activeIcon?: ComponentType<{ className?: string }>;
     active?: boolean;
     badge?: 'dot';
+    /** Folds into "Mais" when the window gets short, lowest number first, like X. */
+    fold?: SidebarFold;
   }> = [
     {
       id: 'home',
@@ -329,40 +352,11 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       active: pathname.startsWith('/explore'),
     },
     {
-      id: 'tracks',
-      label: t.nav.tracks,
-      href: '/trails',
-      icon: Gamepad2,
-      activeIcon: GamepadFilledIcon,
-      active: pathname.startsWith('/trails'),
-    },
-    {
-      id: 'duels',
-      label: t.nav.duels,
-      href: '/duels',
-      icon: Swords,
-      active: pathname.startsWith('/duels'),
-    },
-    {
-      id: 'titles',
-      label: isEnglish ? 'Titles' : 'Títulos',
-      href: '/achievements',
-      icon: Award,
-      active: pathname.startsWith('/achievements'),
-    },
-    {
       id: 'notifications',
       label: t.nav.notifications,
       href: '/notifications',
       icon: Bell,
       active: pathname === '/notifications',
-    },
-    {
-      id: 'ranking',
-      label: t.nav.ranking,
-      href: '/ranking',
-      icon: Trophy,
-      active: pathname.startsWith('/ranking') || pathname.startsWith('/leaderboard'),
     },
     {
       id: 'chat',
@@ -372,7 +366,41 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       active: pathname.startsWith('/messages'),
     },
     {
+      id: 'tracks',
+      fold: 4,
+      label: t.nav.tracks,
+      href: '/trails',
+      icon: Gamepad2,
+      activeIcon: GamepadFilledIcon,
+      active: pathname.startsWith('/trails'),
+    },
+    {
+      id: 'duels',
+      fold: 3,
+      label: t.nav.duels,
+      href: '/duels',
+      icon: Swords,
+      active: pathname.startsWith('/duels'),
+    },
+    {
+      id: 'titles',
+      fold: 1,
+      label: isEnglish ? 'Titles' : 'Títulos',
+      href: '/achievements',
+      icon: Award,
+      active: pathname.startsWith('/achievements'),
+    },
+    {
+      id: 'ranking',
+      fold: 1,
+      label: t.nav.ranking,
+      href: '/ranking',
+      icon: Trophy,
+      active: pathname.startsWith('/ranking') || pathname.startsWith('/leaderboard'),
+    },
+    {
       id: 'bookmarks',
+      fold: 2,
       label: t.nav.bookmarks,
       href: '/bookmarks',
       icon: Bookmark,
@@ -508,7 +536,9 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                 item.active
                   ? 'font-black text-dd-text dark:text-white'
                   : 'font-bold text-dd-text dark:text-white'
-              } transition-colors duration-150 hover:bg-black/[0.06] dark:hover:bg-white/10`;
+              } max-h-16 overflow-hidden transition-[background-color,max-height,opacity,padding,visibility] duration-300 ease-out hover:bg-black/[0.06] motion-reduce:transition-none dark:hover:bg-white/10 ${
+                item.fold ? FOLD_HIDE[item.fold] : ''
+              }`;
 
               const iconEl = (
                 <div className="relative flex items-center justify-center w-[26px] h-[26px] shrink-0">
@@ -552,8 +582,11 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
           <div className="relative shrink-0">
             <button
               type="button"
-              onClick={() => {
+              onClick={(event) => {
                 setDropdownOpen(false);
+                setMoreMenuMaxHeight(
+                  Math.max(160, event.currentTarget.getBoundingClientRect().top - 24)
+                );
                 setMoreMenuOpen((open) => !open);
               }}
               aria-expanded={moreMenuOpen}
@@ -580,7 +613,31 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                 <div
                   role="menu"
                   className="absolute bottom-full left-0 z-[120] mb-2 w-[290px] max-w-[calc(100vw-2rem)] origin-bottom-left overflow-y-auto max-h-[75vh] rounded-2xl border border-dd-border/70 bg-dd-surface p-2 font-sans shadow-[0_12px_40px_rgba(0,0,0,0.5)] animate-slide-up"
+                  style={{ maxHeight: moreMenuMaxHeight }}
                 >
+                  {/* Links folded out of the sidebar on short windows land here first. */}
+                  {navItems
+                    .filter((item) => item.fold)
+                    .map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <Link
+                          key={item.id}
+                          href={item.href}
+                          role="menuitem"
+                          aria-current={item.active ? 'page' : undefined}
+                          className={`${FOLD_SHOW_IN_MORE[item.fold!]} items-center gap-4 rounded-xl px-4 py-3 text-[17px] font-extrabold leading-none text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:bg-dd-bg/60 focus-visible:outline-none`}
+                          onClick={() => setMoreMenuOpen(false)}
+                        >
+                          <Icon className="h-5.5 w-5.5 shrink-0 text-dd-text" />
+                          <span>{item.label}</span>
+                        </Link>
+                      );
+                    })}
+                  <div
+                    aria-hidden="true"
+                    className="mx-3 my-1 hidden h-px bg-dd-border [@media(max-height:810px)]:block"
+                  />
                   <Link
                     href="/jobs"
                     role="menuitem"
