@@ -1,3 +1,4 @@
+import { drawGear, detailClothing } from './mundinho-wardrobe.mjs';
 import sharp from 'sharp';
 import { canvas } from './mundinho-pixel-art.mjs';
 import { styleTutorialHair } from './mundinho-tutorial-hair.mjs';
@@ -115,50 +116,6 @@ export async function readPose(motion, direction) {
   });
 }
 
-function accessory(c, id, head, direction) {
-  const x = head.x,
-    y = head.y,
-    w = head.w,
-    center = x + Math.floor(w / 2);
-  const side = direction % 2 === 1,
-    back = direction === 2;
-  if (id === 1 && !back) {
-    const lenses = side ? [direction === 1 ? x + w - 4 : x] : [x + 1, x + w - 5];
-    for (const lx of lenses) {
-      c.rect(lx, y + 7, 4, 1, '#493c38');
-      c.rect(lx, y + 8, 1, 2, '#493c38');
-      c.rect(lx + 3, y + 8, 1, 2, '#493c38');
-      c.rect(lx + 1, y + 10, 2, 1, '#493c38');
-    }
-    if (!side) c.rect(center - 1, y + 8, 2, 1, '#493c38');
-  }
-  if (id === 2) {
-    const lx = side ? (direction === 1 ? x - 1 : x + w - 3) : center - 3;
-    if (back || side) {
-      c.rect(lx, y + 10, side ? 4 : 7, 5, '#422c22');
-      c.rect(lx + 1, y + 10, side ? 2 : 5, 3, '#a37148');
-    } else for (const lx of [x + 2, x + w - 3]) c.rect(lx, y + 11, 1, 3, '#75523b');
-  }
-  if (id === 3) {
-    c.rect(x + 1, y - 2, w - 2, 4, '#b98b4c');
-    c.rect(x + 2, y - 2, w - 4, 1, '#e1bc74');
-    c.rect(x, y + 1, w, 1, '#914031');
-    c.rect(x - 2, y + 2, w + 4, 2, '#ddb471');
-  }
-  if (id === 4) {
-    c.rect(x + 1, y - 1, w - 2, 1, '#67889e');
-    for (const lx of [x - 1, x + w - 2]) {
-      c.rect(lx, y + 1, 2, 5, '#343744');
-      c.rect(lx, y + 5, 3, 3, '#557587');
-    }
-  }
-  if (id === 5) {
-    c.rect(center - 4, y + 11, 8, 2, '#ad513c');
-    c.rect(center - 3, y + 11, 6, 1, '#efaa73');
-    c.rect(direction === 3 ? center + 2 : center - 3, y + 12, 2, 3, '#a84b37');
-  }
-}
-
 export function paintLayer(layer, value, pose, palettes) {
   const { pixels, head, direction } = pose;
   const c = canvas(48, 48);
@@ -175,8 +132,7 @@ export function paintLayer(layer, value, pose, palettes) {
     garment.shoes,
   ];
   if (layer === 'accessory') {
-    accessory(c, value, head, direction);
-    return c.data;
+    return drawGear(value, pose);
   }
   for (const p of pixels) {
     if (layer === 'body' && ['hair', 'eyes', 'outfit'].includes(p.layer))
@@ -190,18 +146,7 @@ export function paintLayer(layer, value, pose, palettes) {
     if (layer === 'hair' && value % 6) col = p.color === browns[0] ? dye : shade(dye, -26);
     c.pixel(p.x, p.y, col);
   }
-  if (layer === 'outfit' && value >= 12) {
-    // Follow the existing red jacket's hem in this pose, including crouched strikes.
-    const hem = pixels.filter((p) => p.color === '921038' || p.color === 'ce0c39');
-    if (hem.length) {
-      const bottom = Math.max(...hem.map((p) => p.y));
-      const middle = Math.round(head.x + (head.w - 1) / 2);
-      const rim = value % 12 ? garment.shadow : '#921038';
-      c.rect(middle - 3, bottom, 7, 1, rim);
-      c.rect(middle - 4, bottom + 1, 9, 1, rim);
-      c.rect(middle - 3, bottom + 1, 3, 1, value % 12 ? garment.jacket : '#ce0c39');
-    }
-  }
+  if (layer === 'outfit') detailClothing(c, pose, garment, shade);
   if (layer === 'body' && value >= 9) {
     // A small pin at the temple and soft cheek follow the head through every pose.
     const right = direction !== 3;
@@ -218,6 +163,7 @@ export function paintLayer(layer, value, pose, palettes) {
   if (layer === 'hair')
     return styleTutorialHair({
       data: c.data,
+      dye,
       style: Math.floor(value / 6),
       direction,
       head,

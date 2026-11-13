@@ -28,6 +28,27 @@ function crop(sheet, v, d, f) {
   }
   return pixels;
 }
+// A dyed bun or spike must touch the dyed crown even against a black background.
+function assertRootedHair(base, cut, label) {
+  const pending = [],
+    seen = new Uint8Array(48 * 48);
+  for (let i = 0; i < seen.length; i++)
+    if (base[i * 4 + 3] && cut[i * 4 + 3]) {
+      pending.push(i);
+      seen[i] = 1;
+    }
+  while (pending.length) {
+    const i = pending.pop();
+    for (const n of [i - 1, i + 1, i - 48, i + 48]) {
+      if (n >= 0 && n < seen.length && !seen[n] && cut[n * 4 + 3]) {
+        seen[n] = 1;
+        pending.push(n);
+      }
+    }
+  }
+  for (let i = 0; i < seen.length; i++)
+    if (cut[i * 4 + 3]) assert.ok(seen[i], label + ' detached hair pixel ' + i);
+}
 for (const [motion, pose] of Object.entries(poses)) {
   const suffix = motion === 'walk' ? '' : '-' + motion;
   const layers = [
@@ -75,6 +96,19 @@ for (const [motion, pose] of Object.entries(poses)) {
         actual.equals(expected),
         motion + ' direction ' + d + ' frame ' + f + ' must reproduce the supplied PNG'
       );
+      const hairSheet = sheets[layers.indexOf('hair')],
+        base = crop(hairSheet, 3, d, f);
+      for (const style of hairstyles.slice(1))
+        assertRootedHair(
+          base,
+          crop(hairSheet, style.id * 6 + 3, d, f),
+          motion + ' ' + d + ' ' + f + ' ' + style.name
+        );
+      for (let outfit = 0; outfit < 12; outfit++)
+        assert.ok(
+          crop(sheets[1], outfit, d, f).equals(crop(sheets[1], outfit + 12, d, f)),
+          'shared trouser silhouette'
+        );
       assert.notDeepEqual(crop(sheets[0], 2, d, f), crop(sheets[0], 11, d, f), 'feminine variant');
     }
     const hair = sheets[layers.indexOf('hair')];

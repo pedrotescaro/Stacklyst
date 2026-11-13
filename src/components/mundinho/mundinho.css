@@ -2552,9 +2552,26 @@
 .ad-footer-badge {
   margin-top: 24px;
 }
+/* Frame the 14px tutorial sprite at 3x inside the existing option card. */
+.ad-option-avatar-inner {
+  width: 100%;
+  height: 80px;
+  grid-template-columns: minmax(0, 1fr);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
 .ad-option-avatar-inner .pixel-avatar {
-  width: 96px;
-  height: 96px;
+  grid-area: 1 / 1;
+  justify-self: center;
+  width: 144px;
+  height: 144px !important;
+  margin-block: -32px;
+  transform: translateY(-12px);
+}
+.ad-option-tile .ad-option-locked-badge {
+  position: static;
+  margin-top: 4px;
 }
 .world-viewport {
   height: min(680px, 75dvh);
