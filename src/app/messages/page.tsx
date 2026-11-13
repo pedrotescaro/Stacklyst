@@ -15,6 +15,8 @@ import { createClient } from '@/lib/supabase/client';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 import { EMOJI_CATEGORIES, insertAtCursor } from '@/lib/post-composer';
 import { Sidebar } from '@/components/Sidebar';
+import { AuthorAvatar } from '@/components/AuthorAvatar';
+import { DmName } from '@/components/messages/DmIdentity';
 import { EmptyState } from '@/components/motion/EmptyState';
 import { TypingIndicator } from '@/components/motion/TypingIndicator';
 import {
@@ -87,6 +89,8 @@ interface UserListItem {
   id: string;
   username: string;
   avatar_url: string | null;
+  name?: string | null;
+  avatar_config?: unknown;
 }
 
 export default function MessagesPage() {
@@ -909,32 +913,21 @@ function MessagesContent() {
                       key={chat.partnerId}
                       onClick={() => setActiveChat(chat)}
                       className={`w-full p-4 flex gap-3 text-left transition-colors duration-150 relative ${
-                        isActive
-                          ? 'bg-dd-surface/40 border-r-2 border-blue-500'
-                          : 'hover:bg-dd-surface/20'
+                        isActive ? 'bg-dd-surface/60' : 'hover:bg-dd-surface/20'
                       }`}
                     >
                       {/* Avatar */}
-                      {chat.partner.avatar_url ? (
-                        <Image
-                          src={chat.partner.avatar_url}
-                          alt={chat.partner.username}
-                          width={44}
-                          height={44}
-                          className="w-11 h-11 rounded-full object-cover border border-dd-border shrink-0"
-                        />
-                      ) : (
-                        <div className="w-11 h-11 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold border border-blue-500/10 shrink-0">
-                          {initials}
-                        </div>
-                      )}
+                      <AuthorAvatar
+                        username={chat.partner.username}
+                        avatar_url={chat.partner.avatar_url}
+                        avatar_config={chat.partner.avatar_config}
+                        className="!h-11 !w-11"
+                      />
 
                       {/* Content Info */}
                       <div className="flex-grow min-w-0 space-y-1">
                         <div className="flex justify-between items-baseline gap-2">
-                          <p className="text-xs font-extrabold text-dd-text truncate">
-                            {chat.partner.username}
-                          </p>
+                          <DmName person={chat.partner} className="text-xs" />
                           <span className="text-[9.5px] text-dd-muted shrink-0 font-medium">
                             {formatChatTime(chat.lastMessageTime)}
                           </span>
@@ -976,22 +969,18 @@ function MessagesContent() {
                     <ArrowLeft className="w-5 h-5" />
                   </button>
 
-                  {activeChat.partner.avatar_url ? (
-                    <Image
-                      src={activeChat.partner.avatar_url}
-                      alt={activeChat.partner.username}
-                      width={40}
-                      height={40}
-                      className="w-10 h-10 rounded-full object-cover border border-dd-border"
-                    />
-                  ) : (
-                    <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold border border-blue-500/10">
-                      {activeChat.partner.username.slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                  <div>
-                    <h3 className="text-xs font-black text-dd-text">
-                      @{activeChat.partner.username}
+                  <AuthorAvatar
+                    username={activeChat.partner.username}
+                    avatar_url={activeChat.partner.avatar_url}
+                    avatar_config={activeChat.partner.avatar_config}
+                    size="lg"
+                  />
+                  <div className="min-w-0">
+                    <h3 className="flex min-w-0 items-center gap-1.5 text-sm">
+                      <DmName person={activeChat.partner} showTitle />
+                      <span className="truncate text-xs font-medium text-dd-muted">
+                        @{activeChat.partner.username.toLowerCase()}
+                      </span>
                     </h3>
                     <p className="text-[9.5px] text-dd-muted font-bold tracking-wide mt-0.5">
                       Ativo recentemente
@@ -1678,21 +1667,14 @@ function MessagesContent() {
                     onClick={() => handleStartConversation(item)}
                     className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-dd-bg text-left transition-colors"
                   >
-                    {item.avatar_url ? (
-                      <Image
-                        src={item.avatar_url}
-                        alt={item.username}
-                        width={36}
-                        height={36}
-                        className="w-9 h-9 rounded-full object-cover border border-dd-border"
-                      />
-                    ) : (
-                      <div className="w-9 h-9 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold border border-blue-500/10">
-                        {item.username.slice(0, 2).toUpperCase()}
-                      </div>
-                    )}
+                    <AuthorAvatar
+                      username={item.username}
+                      avatar_url={item.avatar_url}
+                      avatar_config={item.avatar_config}
+                      size="md"
+                    />
                     <div>
-                      <p className="text-xs font-extrabold text-dd-text">{item.username}</p>
+                      <DmName person={item} className="text-xs" />
                       <p className="text-[10px] text-dd-muted font-bold">
                         @{item.username.toLowerCase()}
                       </p>
@@ -1847,22 +1829,16 @@ function MessagesContent() {
                       onClick={() => handleForwardMessage(item.partnerId)}
                       className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-dd-bg text-left transition-colors"
                     >
-                      {item.partner.avatar_url ? (
-                        <Image
-                          src={item.partner.avatar_url}
-                          alt={item.partner.username}
-                          width={36}
-                          height={36}
-                          className="w-9 h-9 rounded-full object-cover border border-dd-border"
-                        />
-                      ) : (
-                        <div className="w-9 h-9 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold border border-blue-500/10">
-                          {item.partner.username.slice(0, 2).toUpperCase()}
-                        </div>
-                      )}
+                      <AuthorAvatar
+                        username={item.partner.username}
+                        avatar_url={item.partner.avatar_url}
+                        avatar_config={item.partner.avatar_config}
+                        size="md"
+                      />
                       <div>
-                        <p className="text-xs font-extrabold text-dd-text">
-                          @{item.partner.username}
+                        <DmName person={item.partner} className="text-xs" />
+                        <p className="text-[10px] font-bold text-dd-muted">
+                          @{item.partner.username.toLowerCase()}
                         </p>
                       </div>
                     </button>

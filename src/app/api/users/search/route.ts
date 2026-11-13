@@ -27,6 +27,7 @@ export async function GET(request: Request) {
         id: true,
         username: true,
         avatar_url: true,
+        avatar_config: true,
       },
       take: 5,
     });

@@ -51,6 +51,7 @@ export async function GET() {
         id: true,
         username: true,
         avatar_url: true,
+        avatar_config: true,
       },
     });
 

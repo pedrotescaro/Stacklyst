@@ -3,7 +3,14 @@ export interface ChatItem {
   lastMessage: string;
   lastMessageTime: string;
   lastSenderId: string;
-  partner: { id: string; username: string; avatar_url: string | null };
+  partner: {
+    id: string;
+    username: string;
+    avatar_url: string | null;
+    name?: string | null;
+    /** Frame, name style, flags and title, as on posts. */
+    avatar_config?: unknown;
+  };
 }
 
 export function createConversation(partner: ChatItem['partner'], currentUserId: string): ChatItem {
@@ -46,6 +53,7 @@ export async function resolveProfileConversation(
       id: user.id,
       username: user.username,
       avatar_url: typeof user.avatar_url === 'string' ? user.avatar_url : null,
+      avatar_config: user.avatar_config ?? null,
     },
     currentUserId
   );
