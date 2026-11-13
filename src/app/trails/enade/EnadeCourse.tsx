@@ -3,15 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import {
-  ArrowLeft,
-  ArrowRight,
-  BookOpen,
-  Check,
-  Clock3,
-  ExternalLink,
-  RotateCcw,
-} from 'lucide-react';
+import { ArrowRight, BookOpen, Check, Clock3, ExternalLink, RotateCcw } from 'lucide-react';
 import { Sidebar } from '@/components/Sidebar';
 import type { TrailCourseOption } from '../TrailCourseSelector';
 import { TrailResourceBar } from '../TrailResourceBar';
@@ -23,6 +15,7 @@ import { gradeEnade, type EnadeAttempt, type EnadeExam } from '@/lib/enade/types
 import { useEnadeProgress } from './useEnadeProgress';
 import styles from './EnadeCourse.module.css';
 import { EnadeConfiguration } from './EnadeConfiguration';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import type { EnadeWorkspace } from '@/lib/enade/simulator';
 const exams = [...catalog].reverse() as EnadeExam[];
 type Props = {
@@ -41,6 +34,7 @@ type Props = {
 };
 export function EnadeCourse({ user, courses, initialAttempts, initialWorkspace, rail }: Props) {
   const router = useRouter();
+  const { text } = useLocalizedText();
   const { attempts, saveStatus, save } = useEnadeProgress(user.id, initialAttempts);
   const [confirmRestart, setConfirmRestart] = useState<number | null>(null);
   const [restarting, setRestarting] = useState(false);
@@ -106,8 +100,11 @@ export function EnadeCourse({ user, courses, initialAttempts, initialWorkspace, 
       <div className="dd-platform-body mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
         <main className={`dd-platform-main min-w-0 flex-1 ${styles.main}`}>
           <header className={styles.header}>
-            <Link href="/trails?view=map&language=JS" className={styles.back}>
-              <ArrowLeft size={16} /> Trilhas
+            <Link
+              href="/trails"
+              className="dd-focus-ring inline-flex min-h-10 items-center text-sm font-semibold text-dd-accent"
+            >
+              {text('← Meu Mundinho e recompensas', '← My World & rewards')}
             </Link>
             <div className="xl:hidden">
               <TrailResourceBar

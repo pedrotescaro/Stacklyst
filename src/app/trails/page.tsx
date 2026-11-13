@@ -41,10 +41,9 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
     cookieStore.get(TRAIL_COURSE_PREFERENCES_COOKIE)?.value,
     user.id
   );
-  if (
-    firstSearchValue(query.language)?.toUpperCase() === 'ENADE' ||
-    (savedCoursePreferences.activeLanguage === 'ENADE' && !query.language && !query.view)
-  ) {
+  // Only an explicit request opens the Enade course: /trails is the Mundinho hub for every
+  // course, so a saved Enade preference must not take it over.
+  if (firstSearchValue(query.language)?.toUpperCase() === 'ENADE') {
     redirect('/trails/enade');
   }
 
