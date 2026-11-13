@@ -71,17 +71,23 @@ export function CompassFilledIcon({ className }: FilledIconProps) {
   );
 }
 
-export function BookOpenFilledIcon({ className }: FilledIconProps) {
+export function GamepadFilledIcon({ className }: FilledIconProps) {
   return (
     <FilledIcon
       className={className}
       shape={(mask) => (
         <path
           mask={mask}
-          d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"
+          d="M17.32 5H6.68a4 4 0 0 0-3.978 3.59c-.006.052-.01.101-.017.152C2.604 9.416 2 14.456 2 16a3 3 0 0 0 3 3c1 0 1.5-.5 2-1l1.414-1.414A2 2 0 0 1 9.828 16h4.344a2 2 0 0 1 1.414.586L17 18c.5.5 1 1 2 1a3 3 0 0 0 3-3c0-1.545-.604-6.584-.685-7.258-.007-.05-.011-.1-.017-.151A4 4 0 0 0 17.32 5z"
         />
       )}
-      cutout={<path fill="none" strokeWidth={1.75} d="M12 7.5v12.5" />}
+      cutout={
+        <>
+          <path fill="none" strokeWidth={1.75} d="M6 11h4M8 9v4" />
+          <circle cx="15" cy="12" r="1.1" stroke="none" />
+          <circle cx="18" cy="10" r="1.1" stroke="none" />
+        </>
+      }
     />
   );
 }

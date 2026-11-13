@@ -8,7 +8,7 @@ import { ProfileName } from '@/components/profile/ProfileIdentity';
 
 import { useState, useEffect, useCallback, type ComponentType } from 'react';
 import {
-  BookOpenFilledIcon,
+  GamepadFilledIcon,
   CompassFilledIcon,
   HouseFilledIcon,
 } from '@/components/nav/FilledNavIcons';
@@ -18,7 +18,7 @@ import {
   Plus,
   Check,
   Trash2,
-  BookOpen,
+  Gamepad2,
   Swords,
   Trophy,
   User as UserIcon,
@@ -316,8 +316,8 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       id: 'tracks',
       label: t.nav.tracks,
       href: '/trails',
-      icon: BookOpen,
-      activeIcon: BookOpenFilledIcon,
+      icon: Gamepad2,
+      activeIcon: GamepadFilledIcon,
       active: pathname.startsWith('/trails'),
     },
     {
@@ -405,8 +405,8 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
       id: 'tracks',
       label: t.nav.tracks,
       href: '/trails',
-      icon: BookOpen,
-      activeIcon: BookOpenFilledIcon,
+      icon: Gamepad2,
+      activeIcon: GamepadFilledIcon,
       active: pathname.startsWith('/trails'),
     },
     {
