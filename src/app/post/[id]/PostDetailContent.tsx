@@ -883,10 +883,9 @@ export function PostDetailContent({
               </div>
               <button
                 type="button"
-                className="flex items-center gap-1.5 bg-dd-surface border border-dd-border/60 hover:bg-dd-border/30 text-dd-muted hover:text-dd-text text-xs font-bold px-4 py-1.5 rounded-full transition-colors cursor-pointer"
+                className="cursor-pointer rounded-full bg-dd-accent px-5 py-2 text-sm font-semibold text-white"
               >
-                <Send className="w-3.5 h-3.5" />
-                <span>Responder</span>
+                Responder
               </button>
             </div>
           ) : (
