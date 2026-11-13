@@ -263,7 +263,9 @@ export function PostCard({
       const data = await res.json();
       setLikesCount(data.upvotes);
     } catch (err) {
-      console.error(err);
+      // Offline or the server dropped the request: just undo the like. Only
+      // unexpected failures are worth a console error.
+      if (!(err instanceof TypeError)) console.error(err);
       setLiked(previousLiked);
       setLikesCount(previousCount);
     }

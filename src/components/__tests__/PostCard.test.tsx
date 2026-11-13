@@ -80,6 +80,18 @@ describe('PostCard', () => {
     pushMock.mockClear();
   });
 
+  it('quietly undoes a like when the network request fails', async () => {
+    const user = userEvent.setup();
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {});
+    vi.stubGlobal('fetch', vi.fn().mockRejectedValue(new TypeError('Failed to fetch')));
+    render(<PostCard post={pythonPost} flat />);
+    const like = screen.getByRole('button', { name: /^Curtir/ });
+    await user.click(like);
+    await waitFor(() => expect(like).toHaveAttribute('aria-pressed', 'false'));
+    expect(like).toHaveAccessibleName(/: 0$/);
+    expect(consoleError).not.toHaveBeenCalled();
+  });
+
   it('renders legacy code snippets as executable feed blocks', async () => {
     const user = userEvent.setup();
     const fetchMock = vi.fn().mockResolvedValue(
