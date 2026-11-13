@@ -5,10 +5,14 @@ import { useLocalizedText } from '../../i18n/useLocalizedText';
 import {
   advanceShots,
   aimMarker,
+  DODGE_SECONDS,
   FIELD,
+  FIRST_VOLLEY,
   freshSoul,
   limit,
   strikeDamage,
+  VEIL_BOSS_HP,
+  VOLLEY_INTERVAL,
   volley,
   type Shot,
   type Soul,
@@ -60,7 +64,7 @@ const makeGame = () => ({
   phase: 'ready' as Phase,
   turn: 0,
   health: 20,
-  boss: 60,
+  boss: VEIL_BOSS_HP,
   elapsed: 0,
   beat: 0,
   grace: 0,
@@ -206,7 +210,7 @@ export function VeilBoss({
             y: limit(g.soul.y + (dy / length) * speed, 4, FIELD.height - 4),
           };
         }
-        if (g.elapsed >= 0.55 + g.beat * 0.82) {
+        if (g.elapsed >= FIRST_VOLLEY + g.beat * VOLLEY_INTERVAL) {
           g.shots.push(...volley(g.turn, g.beat++, g.soul));
         }
         const { shots, hit } = advanceShots(g.shots, dt, g.soul);
@@ -216,7 +220,7 @@ export function VeilBoss({
           g.health = Math.max(0, g.health - 3);
           g.grace = 0.95;
         }
-        if (!g.health || g.elapsed >= 5.3) {
+        if (!g.health || g.elapsed >= DODGE_SECONDS) {
           g.phase = g.health ? 'ready' : 'lost';
           g.shots = [];
           target.current = null;
@@ -328,10 +332,10 @@ export function VeilBoss({
             role="meter"
             aria-label={t('Vida do guardião', 'Guardian HP')}
             aria-valuemin={0}
-            aria-valuemax={60}
+            aria-valuemax={VEIL_BOSS_HP}
             aria-valuenow={boss}
           >
-            <i style={{ width: `${(boss / 60) * 100}%` }} />
+            <i style={{ width: `${(boss / VEIL_BOSS_HP) * 100}%` }} />
           </div>
         )}
       </div>

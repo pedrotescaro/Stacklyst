@@ -48,7 +48,7 @@ describe('VeilBoss command flow', () => {
     expect(heart.style.left).toBe(x);
     expect(screen.getByRole('meter', { name: 'Sua vida' })).toHaveAttribute('aria-valuenow', hp);
     fireEvent.click(screen.getAllByRole('button', { name: 'Continuar' })[0]);
-    tick(5400);
+    tick(6500);
     expect(button('FIGHT')).toBeEnabled();
   });
   it('requires three conversations to unlock mercy and consumes healing items', () => {
@@ -61,11 +61,13 @@ describe('VeilBoss command flow', () => {
     fireEvent.keyDown(field, { key: 'ArrowLeft' });
     tick(1000);
     fireEvent.keyUp(field, { key: 'ArrowLeft' });
-    tick(4400);
+    tick(5500);
     const hp = Number(
       screen.getByRole('meter', { name: 'Sua vida' }).getAttribute('aria-valuenow')
     );
     expect(hp).toBeLessThan(20);
+    // Menu progression is independent of how the player dodges later patterns.
+    vi.spyOn(mechanics, 'advanceShots').mockImplementation(() => ({ shots: [], hit: false }));
     click('ITEM');
     click(/Fruta/);
     expect(screen.getByRole('meter', { name: 'Sua vida' })).toHaveAttribute(
@@ -73,12 +75,12 @@ describe('VeilBoss command flow', () => {
       String(Math.min(20, hp + 10))
     );
     click('Continuar');
-    tick(5400);
+    tick(6500);
     for (let i = 0; i < 2; i++) {
       click('ACT');
       click(/Conversar/);
       click('Continuar');
-      tick(5400);
+      tick(6500);
     }
     click('MERCY');
     expect(button('Poupar')).toBeEnabled();
@@ -90,22 +92,28 @@ describe('VeilBoss command flow', () => {
       .spyOn(mechanics, 'advanceShots')
       .mockImplementation((next) => ({ shots: next, hit: false }));
     const view = render(<VeilBoss assetBase="/assets/mundinho" onLeave={() => {}} />);
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 6; i++) {
       click('FIGHT');
-      tick(300);
+      expect(screen.getByRole('meter', { name: 'Vida do guardião' })).toHaveAttribute(
+        'aria-valuemax',
+        '144'
+      );
+      for (let ms = 0; ms < 400; ms++) {
+        const marker = view.container.querySelector<HTMLElement>('.veil-meter i')!;
+        if (Math.abs(parseFloat(marker.style.left) - 50) < 1) break;
+        tick(1);
+      }
       click('Golpear');
-      if (i < 2) tick(5400);
+      if (i < 5) tick(6500);
     }
     expect(screen.getByText(/O guardião se curva/)).toBeInTheDocument();
     expect(button('FIGHT')).toBeDisabled();
     view.unmount();
     shots.mockImplementation(() => ({ shots: [], hit: true }));
     render(<VeilBoss assetBase="/assets/mundinho" onLeave={() => {}} />);
-    for (let i = 0; i < 2; i++) {
-      click('FIGHT');
-      click('Golpear');
-      tick(5400);
-    }
+    click('FIGHT');
+    click('Golpear');
+    tick(6500);
     expect(screen.getByRole('meter', { name: 'Sua vida' })).toHaveAttribute('aria-valuenow', '0');
     click('Tentar de novo');
     expect(screen.getByRole('meter', { name: 'Sua vida' })).toHaveAttribute('aria-valuenow', '20');
