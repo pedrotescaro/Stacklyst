@@ -1,6 +1,6 @@
 'use client';
 
-import { useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Image as ImageIcon, ImagePlay, Music2, Mic, Code2, MoreHorizontal, X } from 'lucide-react';
@@ -164,6 +164,54 @@ export function ReplyComposerDialog({
   user: ComposerUser;
 }) {
   const { text } = useLocalizedText();
+  const [dirty, setDirty] = useState(false);
+  const [busy, setBusy] = useState(false);
+  return (
+    <ComposeModal
+      open={Boolean(target)}
+      onClose={onClose}
+      hasDraft={dirty}
+      composerLayout
+      fitContent
+      busy={busy}
+      label={text('Responder postagem', 'Reply to post')}
+    >
+      {target && (
+        <ReplyComposerForm
+          postId={target.id}
+          user={user}
+          header={<OriginalPost target={target} />}
+          onDone={onClose}
+          onDraftChange={setDirty}
+          onBusyChange={setBusy}
+        />
+      )}
+    </ComposeModal>
+  );
+}
+
+/**
+ * The reply writer shared by the pop-up and the post page: text, images, GIF,
+ * music, audio, code and the extra options, posted to the answers API.
+ */
+export function ReplyComposerForm({
+  postId,
+  user,
+  header,
+  onDone,
+  onDraftChange,
+  onBusyChange,
+  className,
+}: {
+  postId: string;
+  user: ComposerUser;
+  header?: ReactNode;
+  onDone?: () => void;
+  onDraftChange?: (hasDraft: boolean) => void;
+  onBusyChange?: (busy: boolean) => void;
+  className?: string;
+}) {
+  const { text } = useLocalizedText();
   const [body, setBody] = useState('');
   const [attachments, setAttachments] = useState<PostAttachment[]>([]);
   const [music, setMusic] = useState<SpotifyProfileTrack | null>(null);
@@ -189,16 +237,18 @@ export function ReplyComposerDialog({
   const tooShort = !attachments.length && !music && body.trim().length < 5;
   const canReply =
     hasContent && !tooShort && finalBody.length <= POST_CHAR_LIMIT && !busy && !submitting;
+  useEffect(() => onDraftChange?.(hasContent), [hasContent, onDraftChange]);
+  useEffect(() => onBusyChange?.(busy || submitting), [busy, submitting, onBusyChange]);
   const toggle = (value: ComposerAttachmentPanel | 'more') =>
     setPanel((current) => (current === value ? null : value));
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!target || !canReply) return;
+    if (!canReply) return;
     setSubmitting(true);
     setError(null);
     try {
-      const response = await fetch(`/api/posts/${target.id}/answer`, {
+      const response = await fetch(`/api/posts/${postId}/answer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ body: finalBody, attachments, music }),
@@ -210,11 +260,9 @@ export function ReplyComposerDialog({
             data.error ||
             text('Não foi possível responder. Tente novamente.', 'Could not reply. Try again.')
         );
-      window.dispatchEvent(
-        new CustomEvent(REPLY_CREATED_EVENT, { detail: { postId: target.id, ...data } })
-      );
+      window.dispatchEvent(new CustomEvent(REPLY_CREATED_EVENT, { detail: { postId, ...data } }));
       reset();
-      onClose();
+      onDone?.();
     } catch (cause) {
       setError(
         cause instanceof Error
@@ -246,178 +294,164 @@ export function ReplyComposerDialog({
   const pickerPanel = panel === 'more' ? null : panel;
 
   return (
-    <ComposeModal
-      open={Boolean(target)}
-      onClose={onClose}
-      hasDraft={hasContent}
-      onDiscard={reset}
-      composerLayout
-      fitContent
-      busy={busy || submitting}
-      label={text('Responder postagem', 'Reply to post')}
+    <form
+      id={formId}
+      onSubmit={submit}
+      className={cn('post-composer-form relative', pickerPanel && 'min-h-[480px]', className)}
+      aria-label={text('Responder postagem', 'Reply to post')}
     >
-      {target && (
-        <form
-          id={formId}
-          onSubmit={submit}
-          className={cn('post-composer-form', pickerPanel && 'md:min-h-[480px]')}
-          aria-label={text('Responder postagem', 'Reply to post')}
-        >
-          <div className="composer-scroll">
-            <OriginalPost target={target} />
-            <div className="composer-writing-row">
-              <div className="shrink-0 pt-1">
-                <AuthorAvatar
-                  username={user.username}
-                  avatar_url={user.avatar_url}
-                  avatar_config={user.avatar_config}
-                  size="lg"
-                  className="!h-10 !w-10 md:!h-11 md:!w-11"
-                />
-              </div>
-              <div className="relative min-w-0 flex-1">
-                <Editor
-                  ref={editorRef}
-                  value={body}
-                  onChange={setBody}
-                  placeholder={text('Postar sua resposta', 'Post your reply')}
-                  minHeight="5rem"
-                  className="post-composer-editor"
-                />
-                {finalBody.length > POST_CHAR_LIMIT * 0.8 && (
-                  <p
-                    className={cn(
-                      'composer-counter',
-                      finalBody.length > POST_CHAR_LIMIT && 'text-red-500'
-                    )}
-                  >
-                    {finalBody.length.toLocaleString('pt-BR')}/
-                    {POST_CHAR_LIMIT.toLocaleString('pt-BR')}
-                  </p>
+      <div className="composer-scroll">
+        {header}
+        <div className="composer-writing-row">
+          <div className="shrink-0 pt-1">
+            <AuthorAvatar
+              username={user.username}
+              avatar_url={user.avatar_url}
+              avatar_config={user.avatar_config}
+              size="lg"
+              className="!h-10 !w-10 md:!h-11 md:!w-11"
+            />
+          </div>
+          <div className="relative min-w-0 flex-1">
+            <Editor
+              ref={editorRef}
+              value={body}
+              onChange={setBody}
+              placeholder={text('Postar sua resposta', 'Post your reply')}
+              minHeight="5rem"
+              className="post-composer-editor"
+            />
+            {finalBody.length > POST_CHAR_LIMIT * 0.8 && (
+              <p
+                className={cn(
+                  'composer-counter',
+                  finalBody.length > POST_CHAR_LIMIT && 'text-red-500'
                 )}
-              </div>
-            </div>
-            <div className="composer-attachments-area">
-              <ComposerAttachments
-                attachments={attachments}
-                onChange={setAttachments}
-                music={music}
-                onMusicChange={setMusic}
-                poll={null}
-                onPollChange={() => {}}
-                disabled={busy || submitting}
-              />
-              {(extras.location || extras.isSensitive) && (
-                <PostComposerExtras {...extrasProps} section="meta" />
-              )}
-            </div>
-          </div>
-          {error && (
-            <p
-              role="alert"
-              className="mx-4 mb-2 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400"
-            >
-              {error}
-            </p>
-          )}
-          {busy && (
-            <p role="status" className="px-4 pb-2 text-xs text-dd-muted">
-              {text('Preparando anexo…', 'Preparing attachment…')}
-            </p>
-          )}
-          <div className="composer-footer">
-            {panel === 'more' && (
-              <div
-                className="composer-popover"
-                role="region"
-                aria-label={text('Mais opções', 'More options')}
               >
-                <div className="mb-2 flex items-center justify-between gap-3">
-                  <p className="text-sm font-semibold">{text('Mais opções', 'More options')}</p>
-                  <button
-                    type="button"
-                    aria-label={text('Fechar opções', 'Close options')}
-                    className="composer-tool !h-8 !w-8"
-                    onClick={() => setPanel(null)}
-                  >
-                    <X />
-                  </button>
-                </div>
-                <PostComposerExtras {...extrasProps} section="tools" />
-              </div>
+                {finalBody.length.toLocaleString('pt-BR')}/{POST_CHAR_LIMIT.toLocaleString('pt-BR')}
+              </p>
             )}
-            <div className="reply-composer-bar">
-              <div
-                className="reply-composer-tools"
-                role="toolbar"
-                aria-label={text('Adicionar conteúdo', 'Add content')}
-              >
-                <Tool
-                  label={text('Adicionar imagens', 'Add images')}
-                  active={panel === 'image'}
-                  onClick={() => toggle('image')}
-                >
-                  <ImageIcon />
-                </Tool>
-                <Tool
-                  label={text('Adicionar GIF', 'Add GIF')}
-                  active={panel === 'gif'}
-                  onClick={() => toggle('gif')}
-                >
-                  <ImagePlay />
-                </Tool>
-                <Tool
-                  label={text('Adicionar música', 'Add music')}
-                  active={panel === 'music' || Boolean(music)}
-                  onClick={() => toggle('music')}
-                >
-                  <Music2 />
-                </Tool>
-                <Tool
-                  label={text('Gravar áudio', 'Record audio')}
-                  active={panel === 'audio'}
-                  onClick={() => toggle('audio')}
-                >
-                  <Mic />
-                </Tool>
-                <Tool
-                  label={text('Inserir código executável', 'Insert executable code')}
-                  onClick={() => {
-                    editorRef.current?.insertCodeBlock();
-                    setPanel(null);
-                  }}
-                >
-                  <Code2 />
-                </Tool>
-                <Tool
-                  label={text('Mais opções', 'More options')}
-                  active={panel === 'more'}
-                  onClick={() => toggle('more')}
-                >
-                  <MoreHorizontal />
-                </Tool>
-              </div>
-              <button
-                type="submit"
-                form={formId}
-                disabled={!canReply}
-                className="shrink-0 cursor-pointer rounded-full bg-dd-accent px-5 py-2 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-              >
-                {submitting ? text('Respondendo…', 'Replying…') : text('Responder', 'Reply')}
-              </button>
-            </div>
           </div>
-          <ComposerAttachmentPicker
-            panel={pickerPanel}
-            onClose={() => setPanel(null)}
+        </div>
+        <div className="composer-attachments-area">
+          <ComposerAttachments
             attachments={attachments}
-            onAttachmentsChange={setAttachments}
+            onChange={setAttachments}
             music={music}
             onMusicChange={setMusic}
-            onBusyChange={setBusy}
+            poll={null}
+            onPollChange={() => {}}
+            disabled={busy || submitting}
           />
-        </form>
+          {(extras.location || extras.isSensitive) && (
+            <PostComposerExtras {...extrasProps} section="meta" />
+          )}
+        </div>
+      </div>
+      {error && (
+        <p
+          role="alert"
+          className="mx-4 mb-2 rounded-lg bg-red-500/10 px-3 py-2 text-sm text-red-600 dark:text-red-400"
+        >
+          {error}
+        </p>
       )}
-    </ComposeModal>
+      {busy && (
+        <p role="status" className="px-4 pb-2 text-xs text-dd-muted">
+          {text('Preparando anexo…', 'Preparing attachment…')}
+        </p>
+      )}
+      <div className="composer-footer">
+        {panel === 'more' && (
+          <div
+            className="composer-popover"
+            role="region"
+            aria-label={text('Mais opções', 'More options')}
+          >
+            <div className="mb-2 flex items-center justify-between gap-3">
+              <p className="text-sm font-semibold">{text('Mais opções', 'More options')}</p>
+              <button
+                type="button"
+                aria-label={text('Fechar opções', 'Close options')}
+                className="composer-tool !h-8 !w-8"
+                onClick={() => setPanel(null)}
+              >
+                <X />
+              </button>
+            </div>
+            <PostComposerExtras {...extrasProps} section="tools" />
+          </div>
+        )}
+        <div className="reply-composer-bar">
+          <div
+            className="reply-composer-tools"
+            role="toolbar"
+            aria-label={text('Adicionar conteúdo', 'Add content')}
+          >
+            <Tool
+              label={text('Adicionar imagens', 'Add images')}
+              active={panel === 'image'}
+              onClick={() => toggle('image')}
+            >
+              <ImageIcon />
+            </Tool>
+            <Tool
+              label={text('Adicionar GIF', 'Add GIF')}
+              active={panel === 'gif'}
+              onClick={() => toggle('gif')}
+            >
+              <ImagePlay />
+            </Tool>
+            <Tool
+              label={text('Adicionar música', 'Add music')}
+              active={panel === 'music' || Boolean(music)}
+              onClick={() => toggle('music')}
+            >
+              <Music2 />
+            </Tool>
+            <Tool
+              label={text('Gravar áudio', 'Record audio')}
+              active={panel === 'audio'}
+              onClick={() => toggle('audio')}
+            >
+              <Mic />
+            </Tool>
+            <Tool
+              label={text('Inserir código executável', 'Insert executable code')}
+              onClick={() => {
+                editorRef.current?.insertCodeBlock();
+                setPanel(null);
+              }}
+            >
+              <Code2 />
+            </Tool>
+            <Tool
+              label={text('Mais opções', 'More options')}
+              active={panel === 'more'}
+              onClick={() => toggle('more')}
+            >
+              <MoreHorizontal />
+            </Tool>
+          </div>
+          <button
+            type="submit"
+            form={formId}
+            disabled={!canReply}
+            className="shrink-0 cursor-pointer rounded-full bg-dd-accent px-5 py-2 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            {submitting ? text('Respondendo…', 'Replying…') : text('Responder', 'Reply')}
+          </button>
+        </div>
+      </div>
+      <ComposerAttachmentPicker
+        panel={pickerPanel}
+        onClose={() => setPanel(null)}
+        attachments={attachments}
+        onAttachmentsChange={setAttachments}
+        music={music}
+        onMusicChange={setMusic}
+        onBusyChange={setBusy}
+      />
+    </form>
   );
 }

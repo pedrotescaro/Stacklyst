@@ -13,7 +13,6 @@ import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import { QuizWidget } from '@/components/QuizWidget';
 import { AnswerThread } from '@/components/AnswerThread';
 import type { AnswerNode } from '@/components/answer-types';
-import { MarkdownEditor, type NotionEditorRef } from '@/components/MarkdownEditor';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import {
   Sparkles,
@@ -21,7 +20,6 @@ import {
   ArrowLeft,
   Flag,
   X,
-  Send,
   Check,
   Zap,
   Share2,
@@ -33,14 +31,16 @@ import { PostActionsBar, postActionClassName, InteractionCount } from '@/compone
 import { RepostMenu } from '@/components/motion/RepostMenu';
 import { BookmarkButton } from '@/components/motion/BookmarkButton';
 import { LikeButton } from '@/components/motion/LikeButton';
-import { PostComposerExtras } from '@/components/PostComposerExtras';
-import { openReplyComposer, REPLY_CREATED_EVENT } from '@/components/composer/ReplyComposerDialog';
+import {
+  openReplyComposer,
+  ReplyComposerForm,
+  REPLY_CREATED_EVENT,
+} from '@/components/composer/ReplyComposerDialog';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
-import { parsePostExtras, ReplyAudience } from '@/lib/post-composer';
-import { POST_CHAR_LIMIT } from '@/lib/motion';
+import { parsePostExtras } from '@/lib/post-composer';
 import { cn } from '@/lib/cn';
 import {
   POST_BOOKMARK_CHANGED,
@@ -125,18 +125,7 @@ export function PostDetailContent({
 
   const { playSound } = useSoundEffects(soundEnabled);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [answerBody, setAnswerBody] = useState('');
-  const [submitting, setSubmitting] = useState(false);
   const [toastXp, setToastXp] = useState<{ amount: number; language: string } | null>(null);
-
-  // States to match the main post composer extra options
-  const [replyAudience, setReplyAudience] = useState<ReplyAudience>('everyone');
-  const [scheduledAt, setScheduledAt] = useState<string | null>(null);
-  const [answerLocation, setAnswerLocation] = useState('');
-  const [isSensitive, setIsSensitive] = useState(false);
-  const [answerImage, setAnswerImage] = useState('');
-  const [uploadingImage, setUploadingImage] = useState(false);
-  const answerBodyEditorRef = useRef<NotionEditorRef>(null);
 
   const [isSaved, setIsSaved] = useState(initialIsSaved);
   const [bookmarkPending, setBookmarkPending] = useState(false);
@@ -354,67 +343,6 @@ export function PostDetailContent({
     setTimeout(() => {
       setToastXp(null);
     }, 4000);
-  };
-
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    setUploadingImage(true);
-    try {
-      const formData = new FormData();
-      formData.append('file', file);
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData,
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setAnswerImage(data.url);
-      }
-    } catch (err) {
-      console.error('Image upload failed:', err);
-    } finally {
-      setUploadingImage(false);
-    }
-  };
-
-  const handlePostAnswer = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setSubmitting(true);
-
-    try {
-      const res = await fetch(`/api/posts/${post.id}/answer`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          body: answerBody,
-          code_snippet: null,
-        }),
-      });
-
-      if (res.ok) {
-        const data = await res.json();
-        setAnswerBody('');
-        setAnswerImage('');
-        setReplyAudience('everyone');
-        setScheduledAt(null);
-        setAnswerLocation('');
-        setIsSensitive(false);
-        setIsExpanded(false);
-        await reloadPost();
-
-        if (data.xpResult?.xpEarned) {
-          showXPToast(data.xpResult.xpEarned, data.xpResult.language);
-        }
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setSubmitting(false);
-    }
   };
 
   const handleAcceptAnswer = async (answerId: string) => {
@@ -908,143 +836,19 @@ export function PostDetailContent({
               </button>
             </div>
           ) : (
-            <div className="relative z-10 bg-transparent border-b border-dd-border/50 p-4 sm:p-6 transition-colors duration-200">
-              {/* Header row to match modal layout */}
-              <div className="flex items-center justify-between pb-3 mb-4 border-b border-dd-border/30">
+            <div className="relative z-10 border-b border-dd-border/50 bg-transparent">
+              <div className="flex items-center px-3 pt-3 md:px-5">
                 <button
                   type="button"
-                  onClick={() => {
-                    setAnswerBody('');
-                    setAnswerImage('');
-                    setReplyAudience('everyone');
-                    setScheduledAt(null);
-                    setAnswerLocation('');
-                    setIsSensitive(false);
-                    setIsExpanded(false);
-                  }}
-                  className="p-1 text-dd-muted hover:text-dd-text hover:bg-dd-border/30 rounded-full transition-colors cursor-pointer"
+                  onClick={() => setIsExpanded(false)}
+                  className="rounded-full p-1.5 text-dd-muted transition-colors hover:bg-dd-border/30 hover:text-dd-text cursor-pointer"
                   title="Fechar"
+                  aria-label="Fechar resposta"
                 >
-                  <X className="w-4 h-4" />
+                  <X className="h-4 w-4" />
                 </button>
-                <div className="text-xs text-dd-muted font-medium">
-                  {answerBody.length}/{POST_CHAR_LIMIT}
-                </div>
               </div>
-
-              {/* Main Composer Form */}
-              <form onSubmit={handlePostAnswer} className="space-y-4">
-                <div className="flex gap-3">
-                  <div className="shrink-0 pt-1">
-                    {user.avatar_url ? (
-                      <Image
-                        src={user.avatar_url}
-                        alt={user.username}
-                        width={40}
-                        height={40}
-                        className="w-10 h-10 rounded-full object-cover border border-dd-border shrink-0"
-                      />
-                    ) : (
-                      <div className="w-10 h-10 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold border border-blue-500/10 shrink-0">
-                        {user.username.slice(0, 2).toUpperCase()}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="flex-1 min-w-0 space-y-4">
-                    <MarkdownEditor
-                      ref={answerBodyEditorRef}
-                      value={answerBody}
-                      onChange={setAnswerBody}
-                      maxLength={POST_CHAR_LIMIT}
-                      minHeight="7rem"
-                      placeholder="Postar sua resposta técnica..."
-                    />
-
-                    {/* Image Preview */}
-                    {answerImage && (
-                      <div className="relative rounded-2xl overflow-hidden border border-dd-border max-h-80 bg-black/40">
-                        <Image
-                          src={answerImage}
-                          alt="Anexo"
-                          width={600}
-                          height={400}
-                          className="w-full h-full object-contain"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setAnswerImage('')}
-                          className="absolute top-2 right-2 p-1.5 bg-black/60 rounded-full text-white hover:bg-black/85 transition-colors cursor-pointer"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Footer Toolbar matching X composer */}
-                <div className="flex items-center justify-between border-t border-dd-border/40 pt-3">
-                  <div className="flex items-center gap-1.5 text-blue-500">
-                    <div>
-                      <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageUpload}
-                        className="hidden"
-                        id="answer-file-upload"
-                      />
-                      <label
-                        htmlFor="answer-file-upload"
-                        className="p-2 hover:bg-blue-500/10 rounded-full transition-colors cursor-pointer block"
-                        title="Adicionar imagem"
-                      >
-                        <svg
-                          viewBox="0 0 24 24"
-                          className="w-4.5 h-4.5 fill-none stroke-current"
-                          strokeWidth="2"
-                        >
-                          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                          <circle cx="8.5" cy="8.5" r="1.5"></circle>
-                          <polyline points="21 15 16 10 5 21"></polyline>
-                        </svg>
-                      </label>
-                    </div>
-
-                    <PostComposerExtras
-                      section="tools"
-                      postBody={answerBody}
-                      setPostBody={setAnswerBody}
-                      editorRef={answerBodyEditorRef}
-                      replyAudience={replyAudience}
-                      setReplyAudience={setReplyAudience}
-                      scheduledAt={scheduledAt}
-                      setScheduledAt={setScheduledAt}
-                      location={answerLocation}
-                      setLocation={setAnswerLocation}
-                      isSensitive={isSensitive}
-                      setIsSensitive={setIsSensitive}
-                    />
-                  </div>
-
-                  {/* Right submit button */}
-                  <div className="flex items-center gap-3">
-                    {uploadingImage && (
-                      <span className="text-[10px] text-dd-muted animate-pulse font-semibold">
-                        Enviando...
-                      </span>
-                    )}
-                    <button
-                      type="submit"
-                      disabled={submitting || !answerBody.trim() || uploadingImage}
-                      className="flex items-center gap-1.5 bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white text-xs font-bold px-5 py-2 rounded-full transition-colors cursor-pointer shadow-md shadow-blue-500/10"
-                    >
-                      <Send className="w-3.5 h-3.5" />
-                      <span>{submitting ? 'Postando...' : 'Postar'}</span>
-                    </button>
-                  </div>
-                </div>
-              </form>
+              <ReplyComposerForm postId={post.id} user={user} onDone={() => setIsExpanded(false)} />
             </div>
           )}
 
