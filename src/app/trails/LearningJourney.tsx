@@ -2,13 +2,23 @@
 
 import Link from 'next/link';
 import { useEffect, useMemo, useRef } from 'react';
-import { ArrowRight, BookOpen, Check, Code2, LockKeyhole, RotateCcw, Star } from 'lucide-react';
+import {
+  ArrowRight,
+  BookOpen,
+  Check,
+  Code2,
+  Crown,
+  LockKeyhole,
+  RotateCcw,
+  Star,
+} from 'lucide-react';
 import type { KnowledgeMapNode, LearningPathSummary } from '@/lib/learning/types';
 import { isKnowledgeCompleted } from '@/lib/learning/progress';
 import { TrailMascot } from './TrailMascot';
 import styles from './LearningJourney.module.css';
 import { JourneyOverview } from './JourneyOverview';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { learningBossId } from '@/lib/learning/boss-ids';
 
 export function getJourneyItems(path: LearningPathSummary, nodes: KnowledgeMapNode[]) {
   const byId = new Map(nodes.map((node) => [node.id, node]));
@@ -25,18 +35,43 @@ function nodeHref(node: KnowledgeMapNode, returnTo: string) {
       ? `/lesson/${exercise.slug}?mode=workspace&returnTo=${encodeURIComponent(returnTo)}`
       : undefined;
 }
+function NodeStars({ stars }: { stars: number }) {
+  const { text } = useLocalizedText();
+  return (
+    <span
+      role="img"
+      aria-label={text(`${stars} de 3 estrelas`, `${stars} of 3 stars`)}
+      className={styles.stars}
+    >
+      {[1, 2, 3].map((index) => (
+        <Star
+          key={index}
+          aria-hidden="true"
+          className={index <= stars ? styles.starOn : styles.starOff}
+        />
+      ))}
+    </span>
+  );
+}
+
 export function LearningJourney({
   nodes,
   path,
   mode,
   language,
   userId,
+  stars = {},
+  completedBossIds = [],
 }: {
   nodes: KnowledgeMapNode[];
   path: LearningPathSummary;
   mode: 'map' | 'trail';
   language: string;
   userId: string;
+  /** Best star rating per lesson id (1–3). */
+  stars?: Readonly<Record<string, number>>;
+  /** Unit bosses already defeated. */
+  completedBossIds?: readonly string[];
 }) {
   const { text } = useLocalizedText();
   const labels = {
@@ -54,6 +89,7 @@ export function LearningJourney({
   const exerciseCount = items.reduce((n, item) => n + item.exercises.length, 0);
   const completedCount = items.reduce((n, item) => n + item.completedExercises, 0);
   const returnTo = `/trails?view=${mode}&path=${path.slug}&language=${language}`;
+  const defeatedBosses = useMemo(() => new Set(completedBossIds), [completedBossIds]);
   useEffect(() => {
     try {
       const stored = sessionStorage.getItem(`learning-scroll:${userId}:${path.id}`);
@@ -171,7 +207,7 @@ export function LearningJourney({
                       data-progress-state={node.status}
                       className={`relative scroll-mt-28 ${mode === 'map' ? styles.stop : 'py-5'}`}
                     >
-                      {mode === 'map' && index < unitItems.length - 1 && (
+                      {mode === 'map' && unitItems.length > 0 && (
                         <svg
                           aria-hidden="true"
                           className={styles.connector}
@@ -227,6 +263,9 @@ export function LearningJourney({
                           <h3 className="text-base font-bold leading-6 text-dd-text">
                             {node.title}
                           </h3>
+                          {completed && stars[node.id] ? (
+                            <NodeStars stars={stars[node.id]!} />
+                          ) : null}
                           <p className="mt-1 text-xs font-medium text-dd-muted">
                             {labels[node.activityKind ?? 'lesson']} · {node.completedExercises}/
                             {node.exercises.length} {text('exercícios', 'exercises')}
@@ -294,6 +333,82 @@ export function LearningJourney({
                     </li>
                   );
                 })}
+                {unitItems.length > 0 &&
+                  (() => {
+                    const bossId = learningBossId(unitItems[0]!.id);
+                    const unlocked = unitCompleted === unitItems.length;
+                    const defeated = defeatedBosses.has(bossId);
+                    const positions = [50, 34, 50, 66];
+                    const x = positions[unitItems.length % positions.length];
+                    const bossClass = `dd-focus-ring relative z-10 flex shrink-0 items-center justify-center rounded-full transition-transform motion-reduce:transition-none ${mode === 'map' ? `${styles.node} ${styles.bossNode}` : 'h-16 w-16 border-b-4'} ${!unlocked ? 'border-slate-600 bg-slate-700 text-slate-200' : defeated ? 'border-amber-700 bg-amber-400 text-amber-950' : 'border-rose-800 bg-rose-500 text-white hover:-translate-y-0.5'}`;
+                    const icon = (
+                      <Crown
+                        aria-hidden="true"
+                        className={mode === 'map' ? 'h-10 w-10' : 'h-7 w-7'}
+                        fill={defeated ? 'currentColor' : 'none'}
+                      />
+                    );
+                    const label = `${text('Chefão da unidade', 'Unit boss')}: ${unit}`;
+                    return (
+                      <li
+                        key={bossId}
+                        id={bossId}
+                        data-learning-boss={bossId}
+                        className={`relative scroll-mt-28 ${mode === 'map' ? styles.stop : 'py-5'}`}
+                      >
+                        <div
+                          className={
+                            mode === 'map' ? styles.station : 'relative flex items-start gap-4'
+                          }
+                          style={mode === 'map' ? { left: `${x}%` } : undefined}
+                        >
+                          {unlocked ? (
+                            <Link
+                              href={`/lesson/${bossId}?returnTo=${encodeURIComponent(returnTo)}`}
+                              onClick={() => remember(bossId)}
+                              aria-label={`${label}${defeated ? `: ${text('derrotado', 'defeated')}` : ''}`}
+                              className={bossClass}
+                            >
+                              {icon}
+                            </Link>
+                          ) : (
+                            <button
+                              className={bossClass}
+                              type="button"
+                              aria-disabled="true"
+                              aria-label={`${label}: ${text('bloqueado', 'locked')}`}
+                            >
+                              <LockKeyhole aria-hidden="true" className="h-8 w-8" />
+                            </button>
+                          )}
+                          <div className={mode === 'map' ? styles.caption : 'min-w-0 flex-1 pt-1'}>
+                            <h3 className="text-base font-bold leading-6 text-dd-text">
+                              {text('Chefão', 'Boss')} · {unit}
+                            </h3>
+                            {defeated && stars[bossId] ? (
+                              <NodeStars stars={stars[bossId]!} />
+                            ) : null}
+                            <p className="mt-1 text-xs font-medium text-dd-muted">
+                              {defeated
+                                ? text(
+                                    'Derrotado · desafio opcional',
+                                    'Defeated · optional challenge'
+                                  )
+                                : unlocked
+                                  ? text(
+                                      'Opcional · 7 etapas cronometradas',
+                                      'Optional · 7 timed steps'
+                                    )
+                                  : text(
+                                      'Conclua a unidade para enfrentar',
+                                      'Finish the unit to face it'
+                                    )}
+                            </p>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })()}
               </ol>
             </section>
           );

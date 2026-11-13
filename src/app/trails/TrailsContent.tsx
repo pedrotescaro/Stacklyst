@@ -44,6 +44,8 @@ interface TrailsContentProps {
   initialSectionNumber?: number;
   jumpUnlockIds?: readonly string[];
   completedLessonIds?: readonly string[];
+  lessonStars?: Readonly<Record<string, number>>;
+  completedBossIds?: readonly string[];
 }
 export function TrailsContent({
   user,
@@ -56,6 +58,8 @@ export function TrailsContent({
   dailyProgress,
   initialViewMode = 'map',
   initialPathSlug,
+  lessonStars,
+  completedBossIds,
 }: TrailsContentProps) {
   const router = useRouter();
   const [selectedCourses, setSelectedCourses] = useState(initialCourses);
@@ -205,6 +209,8 @@ export function TrailsContent({
               path={path}
               language={activeLanguage}
               mode={viewMode}
+              stars={lessonStars}
+              completedBossIds={completedBossIds}
             />
           ) : (
             <div className="p-8 text-dd-muted">

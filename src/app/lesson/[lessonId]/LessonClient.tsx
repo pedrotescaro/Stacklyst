@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { LessonSessionHeader } from './LessonSessionHeader';
@@ -8,6 +8,8 @@ import type { Lesson, LessonSessionState, OrderItem } from '@/lib/lessons/types'
 import { LessonFooter } from '@/components/lesson/LessonFooter';
 import { LessonSummary } from '@/components/lesson/LessonSummary';
 import { ExitConfirmModal } from '@/components/lesson/ExitConfirmModal';
+import { LessonGameOver } from '@/components/lesson/LessonGameOver';
+import { COMBO_MILESTONES, starsForMistakes } from '@/lib/lessons/game';
 
 import { ConceptStep } from '@/components/lesson/renderers/ConceptStep';
 import { MultipleChoiceStep } from '@/components/lesson/renderers/MultipleChoiceStep';
@@ -46,14 +48,27 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
 
   const { playSound } = useSoundEffects(soundEnabled);
 
+  // Trail lessons play by game rules (real lives, timer, stars); others keep the classic flow.
+  const gameMode = lesson.mode;
+  const maxLives = gameMode?.lives ?? 5;
+  const doneStepIds = useRef(new Set(completedStepIds));
+  const firstPendingStep = useCallback(
+    () =>
+      Math.max(
+        0,
+        lesson.steps.findIndex((step) => !doneStepIds.current.has(step.id))
+      ),
+    [lesson.steps]
+  );
+
   // Estado da Sessão da Lição
   const [sessionState, setSessionState] = useState<LessonSessionState>({
     currentStepIndex: Math.max(
       0,
       lesson.steps.findIndex((step) => !completedStepIds.includes(step.id))
     ),
-    lives: 5,
-    maxLives: 5,
+    lives: maxLives,
+    maxLives,
     earnedXp: 0,
     combo: 0,
     maxCombo: 0,
@@ -65,6 +80,11 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
 
   const [exitModalOpen, setExitModalOpen] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const [gameOver, setGameOver] = useState(false);
+  const [finalStars, setFinalStars] = useState<1 | 2 | 3 | null>(null);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [xpPop, setXpPop] = useState<{ amount: number; key: number } | null>(null);
+  const [comboBurst, setComboBurst] = useState<{ value: number; key: number } | null>(null);
 
   // Estados dos Exercícios
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
@@ -114,7 +134,11 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
 
     if (currentStep.orderItems) {
       // Embaralha para o usuário ordenar
-      const shuffled = [...currentStep.orderItems].sort(() => Math.random() - 0.5);
+      const original = currentStep.orderItems;
+      let shuffled = [...original].sort(() => Math.random() - 0.5);
+      // The server hides the right order, so make sure the list at least moved.
+      if (shuffled.length > 1 && shuffled.every((item, index) => item.id === original[index]!.id))
+        shuffled = [...shuffled.slice(1), shuffled[0]!];
       setCurrentOrder(shuffled);
     } else {
       setCurrentOrder([]);
@@ -171,6 +195,109 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
 
   const [savedComplete, setSavedComplete] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+
+  // Writing code is iterative: a failing submission breaks the combo but costs no heart.
+  const registerMistake = useCallback(
+    (costsLife = true) => {
+      setSessionState((prev) => ({
+        ...prev,
+        lives: gameMode && costsLife ? Math.max(0, prev.lives - 1) : prev.lives,
+        combo: 0,
+        wrongAnswersCount: prev.wrongAnswersCount + 1,
+      }));
+    },
+    [gameMode]
+  );
+
+  // Out of hearts: let the learner read the feedback, then show the game-over screen.
+  useEffect(() => {
+    if (!gameMode || sessionState.lives > 0 || gameOver) return;
+    const timer = window.setTimeout(() => setGameOver(true), 1100);
+    return () => window.clearTimeout(timer);
+  }, [gameMode, sessionState.lives, gameOver]);
+
+  // Timed steps: the countdown restarts on each step and on each retry.
+  const timeLimit =
+    currentStep?.type === 'concept_explanation' ? undefined : currentStep?.timeLimitSeconds;
+  const timedOutRef = useRef(false);
+  const remainingMsRef = useRef<number | null>(null);
+  // A new step (or a retry) starts with a full clock.
+  useEffect(() => {
+    remainingMsRef.current = null;
+  }, [sessionState.currentStepIndex, answered]);
+  useEffect(() => {
+    if (!timeLimit || answered || isCompleted || gameOver) {
+      setTimeLeft(null);
+      return;
+    }
+    // While the server checks the answer the clock is frozen, not running.
+    if (isVerifying) return;
+    timedOutRef.current = false;
+    const budget = remainingMsRef.current ?? timeLimit * 1000;
+    const deadline = Date.now() + budget;
+    setTimeLeft(Math.ceil(budget / 1000));
+    const interval = window.setInterval(() => {
+      remainingMsRef.current = Math.max(0, deadline - Date.now());
+      const left = Math.ceil(remainingMsRef.current / 1000);
+      setTimeLeft(left);
+      if (left === 0 && !timedOutRef.current) {
+        timedOutRef.current = true;
+        window.clearInterval(interval);
+        playSound('quiz_incorrect');
+        setAnswered(true);
+        setIsCorrect(false);
+        setFeedbackMessage(text('Tempo esgotado!', "Time's up!"));
+        setFeedbackDetails(
+          text('Tente de novo: o relógio recomeça.', 'Try again: the clock restarts.')
+        );
+        registerMistake();
+      }
+    }, 250);
+    return () => window.clearInterval(interval);
+  }, [
+    timeLimit,
+    answered,
+    isCompleted,
+    gameOver,
+    isVerifying,
+    sessionState.currentStepIndex,
+    playSound,
+    registerMistake,
+    text,
+  ]);
+
+  const finishLesson = () => {
+    playSound('lesson_completed');
+    if (gameMode) {
+      const stars = starsForMistakes(sessionState.wrongAnswersCount);
+      setFinalStars(stars);
+      void fetch('/api/trails/stars', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lessonId: lesson.id, stars }),
+      }).catch(() => {});
+    }
+    setIsCompleted(true);
+    router.refresh();
+  };
+
+  const restartAfterGameOver = () => {
+    setGameOver(false);
+    setAnswered(false);
+    setIsCorrect(false);
+    setFeedbackMessage('');
+    setFeedbackDetails(undefined);
+    setSessionState((prev) => ({
+      ...prev,
+      currentStepIndex: firstPendingStep(),
+      lives: maxLives,
+      combo: 0,
+      maxCombo: 0,
+      correctAnswersCount: 0,
+      wrongAnswersCount: 0,
+      startedAt: Date.now(),
+    }));
+  };
 
   async function sendAnswer(action: 'run' | 'submit') {
     const response = await fetch(`/api/lessons/${encodeURIComponent(lesson.id)}/attempt`, {
@@ -233,6 +360,11 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
       setSavedComplete(Boolean(result.lessonCompleted));
       if (result.isCorrect) {
         playSound('quiz_correct');
+        doneStepIds.current.add(currentStep.id);
+        const nextCombo = sessionState.combo + 1;
+        if (result.xpEarned > 0) setXpPop({ amount: result.xpEarned, key: Date.now() });
+        if ((COMBO_MILESTONES as readonly number[]).includes(nextCombo))
+          setComboBurst({ value: nextCombo, key: Date.now() });
         setSessionState((prev) => ({
           ...prev,
           earnedXp: prev.earnedXp + result.xpEarned,
@@ -242,11 +374,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
         }));
       } else {
         playSound('quiz_incorrect');
-        setSessionState((prev) => ({
-          ...prev,
-          combo: 0,
-          wrongAnswersCount: prev.wrongAnswersCount + 1,
-        }));
+        registerMistake(!['code_editor', 'debug', 'boss_challenge'].includes(currentStep.type));
       }
       return result;
     } catch (error) {
@@ -266,6 +394,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
       setSaveError(null);
       try {
         const result = await sendAnswer('submit');
+        doneStepIds.current.add(currentStep.id);
         setSavedComplete(Boolean(result.lessonCompleted));
         setAnswered(false);
         setIsCorrect(false);
@@ -274,9 +403,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
         if (sessionState.currentStepIndex + 1 < lesson.steps.length) {
           setSessionState((prev) => ({ ...prev, currentStepIndex: prev.currentStepIndex + 1 }));
         } else if (result.lessonCompleted) {
-          playSound('lesson_completed');
-          setIsCompleted(true);
-          router.refresh();
+          finishLesson();
         } else {
           setSaveError('Há exercícios pendentes nesta lição. Reabra a lição para retomá-los.');
         }
@@ -300,9 +427,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
     if (sessionState.currentStepIndex + 1 < lesson.steps.length) {
       setSessionState((prev) => ({ ...prev, currentStepIndex: prev.currentStepIndex + 1 }));
     } else if (savedComplete) {
-      playSound('lesson_completed');
-      setIsCompleted(true);
-      router.refresh();
+      finishLesson();
     } else {
       setSaveError('Há exercícios pendentes nesta lição. Reabra a lição para retomá-los.');
     }
@@ -312,6 +437,17 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
   const handleRetry = () => {
     setAnswered(false);
     setIsCorrect(false);
+    // Matching: keep the pairs that were right and free only the wrong ones.
+    const pairs = currentStep?.type === 'matching' ? currentStep.matchingPairs : undefined;
+    if (pairs) {
+      setMatchedPairs((previous) =>
+        Object.fromEntries(
+          Object.entries(previous).filter(([left, right]) =>
+            pairs.some((pair) => pair.left === left && pair.right === right)
+          )
+        )
+      );
+    }
   };
 
   // Retorna para a trilha respeitando a preferência de visualização do usuário (Trilha ou Mapa)
@@ -339,7 +475,21 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
         <LessonSummary
           lesson={lesson}
           sessionState={sessionState}
+          stars={finalStars}
           onFinish={handleReturnToTrails}
+        />
+      </div>
+    );
+  }
+
+  if (gameOver) {
+    return (
+      <div className={`${styles.surface} ${styles.completed}`}>
+        <LessonGameOver
+          lessonTitle={lesson.title}
+          boss={gameMode?.kind === 'boss'}
+          onRetry={restartAfterGameOver}
+          onExit={handleReturnToTrails}
         />
       </div>
     );
@@ -357,6 +507,12 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
         maxLives={sessionState.maxLives}
         currentStepIndex={sessionState.currentStepIndex}
         totalSteps={lesson.steps.length}
+        tagline={gameMode?.tagline}
+        boss={gameMode?.kind === 'boss'}
+        timeLeft={timeLeft}
+        timeLimit={timeLimit}
+        xpPop={xpPop}
+        comboBurst={comboBurst}
         onExit={() => setExitModalOpen(true)}
       />
 
@@ -418,6 +574,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
                 matchedPairs={matchedPairs}
                 onUpdateMatches={setMatchedPairs}
                 disabled={answered}
+                answered={answered}
               />
             )}
 

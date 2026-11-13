@@ -40,10 +40,18 @@ export function CodeCompletionStep({
         </div>
       </div>
 
+      {step.codeSnippet && (
+        <pre className="overflow-x-auto rounded-2xl border border-dd-border bg-dd-bg p-4 font-mono text-base leading-relaxed text-dd-muted">
+          <code>{step.codeSnippet}</code>
+        </pre>
+      )}
+
       <div className="overflow-hidden rounded-2xl border border-dd-border bg-dd-bg p-5">
         <div className="flex flex-wrap items-center gap-2 font-mono text-base leading-loose text-dd-text">
           {step.completionPrefix && (
-            <span className="text-base font-medium text-dd-text">{step.completionPrefix}</span>
+            <span className="whitespace-pre text-base font-medium text-dd-text">
+              {step.completionPrefix}
+            </span>
           )}
 
           {blanks.map((blank) => (

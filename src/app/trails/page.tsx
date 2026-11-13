@@ -16,6 +16,8 @@ import { buildLearningMap, mergeLearningMaps } from '@/lib/learning/catalog';
 import { calculateTrailGems } from './trailRailStats';
 import { usersAheadWhere } from '@/lib/learning/rewards';
 import { AdventureEntry } from './AdventureEntry';
+import { TRAIL_STARS_STATE_KEY, parseStoredStars } from '@/lib/lessons/game';
+import { completedLearningBossIds } from '@/lib/learning/boss-ids';
 
 export const revalidate = 0;
 
@@ -60,6 +62,7 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
     completedTrailStepAttempts,
     jumpAttempts,
     rpgPlayer,
+    starsState,
   ] = await Promise.all([
     getKnowledgeMapForUser(user.id),
     prisma.languageTrail.findMany({
@@ -95,7 +98,14 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
       where: { userId: user.id },
       select: { coins: true },
     }),
+    prisma.mobileState.findUnique({
+      where: { user_id_key: { user_id: user.id, key: TRAIL_STARS_STATE_KEY } },
+      select: { value: true },
+    }),
   ]);
+  const correctStepIds = completedTrailStepAttempts
+    .filter((attempt) => attempt.is_correct)
+    .map((attempt) => attempt.quiz_id);
 
   const unifiedMap = mergeLearningMaps(
     buildLearningMap(
@@ -243,6 +253,8 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
       initialSectionNumber={initialSectionNumber}
       jumpUnlockIds={jumpAttempts.map((attempt) => attempt.quiz_id)}
       completedLessonIds={completedLessonIds}
+      lessonStars={parseStoredStars(starsState?.value)}
+      completedBossIds={completedLearningBossIds(correctStepIds)}
     />
   );
 }

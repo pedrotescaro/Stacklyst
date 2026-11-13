@@ -88,31 +88,33 @@ export function LessonFooter({
           </span>
         )}
         <div className={styles.actions}>
-          {answered && !isCorrect && onRetry && (
-            <button type="button" onClick={onRetry} className={styles.secondaryButton}>
-              <RotateCcw size={17} aria-hidden="true" /> {text('Tentar Novamente', 'Try again')}
+          {answered && !isCorrect && onRetry ? (
+            <button type="button" onClick={onRetry} className={styles.primaryButton}>
+              <RotateCcw size={17} aria-hidden="true" />{' '}
+              <span>{text('Tentar Novamente', 'Try again')}</span>
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={!answered && (!canVerify || isVerifying)}
+              onClick={answered || isConceptOnly ? onContinue : onVerify}
+              className={styles.primaryButton}
+            >
+              {isVerifying && (
+                <LoaderCircle size={18} className={styles.spinner} aria-hidden="true" />
+              )}
+              <span>
+                {answered
+                  ? text('Continuar', 'Continue')
+                  : isConceptOnly
+                    ? text('Entendi, Continuar', 'Got it, continue')
+                    : isVerifying
+                      ? text('Verificando…', 'Checking…')
+                      : text('Verificar', 'Check')}
+              </span>
+              {!isVerifying && <ArrowRight size={18} aria-hidden="true" />}
             </button>
           )}
-          <button
-            type="button"
-            disabled={!answered && (!canVerify || isVerifying)}
-            onClick={answered || isConceptOnly ? onContinue : onVerify}
-            className={styles.primaryButton}
-          >
-            {isVerifying && (
-              <LoaderCircle size={18} className={styles.spinner} aria-hidden="true" />
-            )}
-            <span>
-              {answered
-                ? text('Continuar', 'Continue')
-                : isConceptOnly
-                  ? text('Entendi, Continuar', 'Got it, continue')
-                  : isVerifying
-                    ? text('Verificando…', 'Checking…')
-                    : text('Verificar', 'Check')}
-            </span>
-            {!isVerifying && <ArrowRight size={18} aria-hidden="true" />}
-          </button>
         </div>
       </div>
     </footer>

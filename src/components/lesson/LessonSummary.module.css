@@ -81,3 +81,84 @@
 .finish:hover {
   background: color-mix(in srgb, var(--color-dd-accent) 85%, #000);
 }
+
+/* ── Victory and game over ── */
+.stars {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  margin: -8px 0 16px;
+}
+.starEarned,
+.starEmpty {
+  opacity: 0;
+  animation: star-pop 520ms cubic-bezier(0.2, 1.4, 0.4, 1) forwards;
+}
+.stars > :nth-child(2) {
+  transform: translateY(-10px);
+}
+.starEarned {
+  color: #ffc800;
+  fill: #ffc800;
+  filter: drop-shadow(0 2px 10px rgb(255 200 0 / 0.55));
+}
+.starEmpty {
+  color: var(--color-dd-border);
+  fill: var(--color-dd-border);
+}
+.bossTrophy,
+.gameOverIcon {
+  display: flex;
+  width: 120px;
+  height: 120px;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  border-radius: 999px;
+}
+.bossTrophy {
+  background: radial-gradient(circle, rgb(245 158 11 / 0.28), transparent 70%);
+  color: #f59e0b;
+  animation: star-pop 600ms cubic-bezier(0.2, 1.4, 0.4, 1);
+}
+.gameOverIcon {
+  background: rgb(244 63 94 / 0.12);
+  color: #f43f5e;
+}
+.secondary {
+  display: flex;
+  width: 100%;
+  min-height: 48px;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  border-radius: 999px;
+  border: 1px solid var(--color-dd-border);
+  color: var(--color-dd-text);
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.secondary:hover {
+  background: var(--color-dd-surface);
+}
+@keyframes star-pop {
+  0% {
+    opacity: 0;
+    scale: 0.3;
+    rotate: -25deg;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .starEarned,
+  .starEmpty,
+  .bossTrophy {
+    animation-duration: 1ms;
+  }
+}

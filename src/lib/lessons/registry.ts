@@ -8,7 +8,8 @@ import {
 } from '@/app/trails/trailCurriculum';
 import type { Lesson, LessonStep } from './types';
 import { buildCurriculumCodeLesson } from './trailCodeChallenges';
-import { getLearningLesson } from '@/lib/learning/catalog';
+import { LEARNING_LESSONS, getLearningLesson } from '@/lib/learning/catalog';
+import { buildLearningBoss, gamifyLearningLesson, isLearningBossId } from '@/lib/learning/gamify';
 
 export const HANDCRAFTED_LESSONS: Record<string, Lesson> = {
   'js-l1': {
@@ -1144,8 +1145,10 @@ export function findCurriculumLessonStepById(stepId: string) {
  * Busca uma lição pelo ID (ex: "js-l1", "ts-l2", "js-frontend-react-s1-u1")
  */
 export function getLessonById(lessonId: string): Lesson | null {
+  // Catalog lessons are served with the game layer; the catalog itself is unchanged.
   const learningLesson = getLearningLesson(lessonId);
-  if (learningLesson) return learningLesson;
+  if (learningLesson) return gamifyLearningLesson(learningLesson);
+  if (isLearningBossId(lessonId)) return buildLearningBoss(lessonId, LEARNING_LESSONS);
   const normId = lessonId.toLowerCase().trim();
   if (HANDCRAFTED_LESSONS[normId]) {
     return HANDCRAFTED_LESSONS[normId];

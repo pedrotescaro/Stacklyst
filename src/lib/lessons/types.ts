@@ -36,10 +36,18 @@ export interface TestCase {
   expectedOutput?: string;
 }
 
+/** Presentation-only flavours of an existing step type; assessment does not change. */
+export type StepVariant = 'true_false' | 'find_bug' | 'quiz';
+
 export interface LessonStep {
   id: string;
   type: ExerciseType;
   title: string;
+  variant?: StepVariant;
+  /** Extra practice: earns XP and stars but never gates lesson completion. */
+  practice?: boolean;
+  /** Seconds to answer before the attempt counts as a miss (timed challenges). */
+  timeLimitSeconds?: number;
   question?: string;
   instruction?: string;
   conceptText?: string;
@@ -98,6 +106,13 @@ export interface Lesson {
   difficulty: 'iniciante' | 'intermediario' | 'avancado' | 'boss';
   estimatedTime: string;
   steps: LessonStep[];
+  /** Game rules for the session. Lessons without it keep the classic behaviour. */
+  mode?: {
+    lives: number;
+    kind: 'lesson' | 'challenge' | 'boss';
+    /** Plain-language summary of what makes this lesson different, shown at the start. */
+    tagline?: string;
+  };
 }
 
 export interface LessonSessionState {

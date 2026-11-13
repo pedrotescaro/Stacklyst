@@ -101,7 +101,8 @@ export async function saveLessonAssessment(
         : null;
     const completedStepIds = attempts.filter((r) => r.is_correct).map((r) => r.quiz_id);
     if (firstCompletion) completedStepIds.push(step.id);
-    const required = lesson.steps.filter((s) => s.type !== 'concept_explanation');
+    // Practice steps add XP and stars; completion keeps the original contract.
+    const required = lesson.steps.filter((s) => s.type !== 'concept_explanation' && !s.practice);
     const complete = required.length > 0 && required.every((s) => completedStepIds.includes(s.id));
     if (complete && firstCompletion) await reconcileCredentialsInTransaction(tx, userId);
     const totalXp =

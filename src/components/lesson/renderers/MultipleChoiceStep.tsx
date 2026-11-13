@@ -35,8 +35,22 @@ export function MultipleChoiceStep({
   return (
     <div className="w-full max-w-2xl mx-auto space-y-6 animate-fade-in font-sans select-none">
       {/* Título Principal Estilo Duolingo */}
-      <h2 className="text-xl font-bold leading-snug text-dd-text">
-        {text('Leia e responda:', 'Read and answer:')}
+      <h2 className="flex items-center gap-2 text-xl font-bold leading-snug text-dd-text">
+        {step.variant === 'true_false' && (
+          <span className="rounded-lg bg-violet-500/15 px-2 py-0.5 text-xs font-black uppercase tracking-wide text-violet-400">
+            V/F
+          </span>
+        )}
+        {step.variant === 'find_bug' && (
+          <span className="rounded-lg bg-rose-500/15 px-2 py-0.5 text-xs font-black uppercase tracking-wide text-rose-400">
+            {text('Bug', 'Bug')}
+          </span>
+        )}
+        {step.variant === 'true_false'
+          ? text('Verdadeiro ou falso?', 'True or false?')
+          : step.variant === 'find_bug'
+            ? text('Ache o bug', 'Find the bug')
+            : text('Leia e responda:', 'Read and answer:')}
       </h2>
 
       {/* Balão de Contexto com Ícone */}
@@ -77,7 +91,9 @@ export function MultipleChoiceStep({
       )}
 
       {/* Cards de Alternativas com estilo Duolingo (3D bottom border) */}
-      <div className="grid grid-cols-1 gap-3.5 pt-1">
+      <div
+        className={`grid gap-3.5 pt-1 ${step.variant === 'true_false' ? 'grid-cols-2' : 'grid-cols-1'}`}
+      >
         {options.map((option, index) => {
           const isSelected = selectedOption === index;
           const isCorrect = answered && isSelected && answerCorrect;
@@ -122,7 +138,11 @@ export function MultipleChoiceStep({
                 >
                   {index + 1}
                 </span>
-                <span className="whitespace-pre-wrap break-words">{option}</span>
+                <span
+                  className={`whitespace-pre-wrap break-words ${step.variant === 'find_bug' ? 'font-mono text-sm' : ''}`}
+                >
+                  {option}
+                </span>
               </div>
 
               {isSelected && (
