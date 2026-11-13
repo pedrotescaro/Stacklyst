@@ -22,6 +22,7 @@ export const WORLD_OBJECTS = [
   { id: 'guide', name: 'Ada (Guia)', x: 680, y: 230 },
   { id: 'sign', name: 'Placa de dicas', x: 470, y: 330 },
   { id: 'chest', name: 'Baú da clareira', x: 350, y: 405 },
+  { id: 'boss', name: 'Fenda das Sombras', x: 126, y: 566 },
   { id: 'portal', name: 'Descer para a arena multiplayer', x: 600, y: 430 },
 ];
 

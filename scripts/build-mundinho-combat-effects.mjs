@@ -5,8 +5,6 @@ import { execFileSync } from 'node:child_process';
 import sharp from 'sharp';
 import { canvas, aseDocument } from './lib/mundinho-pixel-art.mjs';
 
-// Original stepped pixel sequences: the owner's six-pose sword reference pins
-// the crescent silhouette. Flashes, projectiles and particles are drawn per frame.
 const cell = 64,
   frames = 6;
 const kinds = ['strike', 'focus', 'burst', 'slime', 'ice', 'fire', 'electric', 'plant', 'shadow'];
@@ -54,32 +52,16 @@ function shards(c, f, p, count = 7) {
     c.pixel(ex, ey, p[3]);
   }
 }
-function slash(c, f, stage, p) {
-  if (stage === 'impact') {
-    const a = f * 2,
-      w = [2, 5, 7, 5, 3, 1][f];
-    c.polygon(
-      [
-        [10 + a, 50 - a],
-        [48 + a / 2, 9],
-        [53, 10 + w],
-        [17 + a, 51],
-      ],
-      p[1]
-    );
-    c.line(13 + a, 48 - a, 50, 10, p[3]);
-    if (f > 0) shards(c, f - 1, p, 6);
-    return;
+function sparkle(c, f, stage) {
+  const radius = (stage === 'impact' ? 4 : 1) + 3 * f;
+  for (const [i, angle] of [-2.6, -1.65, -0.55, 0.4, 1.35, 2.3].entries()) {
+    const x = Math.round(32 + Math.cos(angle) * radius),
+      y = Math.round(31 + Math.sin(angle) * radius - f);
+    const size = [1, 2, 3, 3, 2, 1][(f + (i % 2)) % 6];
+    star(c, x, y, size + 1, '#ad674a');
+    star(c, x, y, size, '#ffd677');
+    c.pixel(x, y, '#fff7d3');
   }
-  const sweep = [35, 190, 180, 160, 90, 40][f],
-    thick = [2, 6, 10, 9, 5, 2][f];
-  const radius = [21, 25, 28, 28, 27, 24][f];
-  const start = [210, 80, 0, 340, 10, 30][f];
-  arc(c, 32, 28, radius, thick + 2, start, sweep, p[0]);
-  arc(c, 32, 28, radius - 1, thick, start + 3, sweep - 5, p[1]);
-  arc(c, 32, 28, radius - 2, Math.max(1, thick - 1), start + 6, sweep - 10, p[2]);
-  arc(c, 32, 28, radius - 3, Math.max(1, thick - 3), start + 8, sweep - 15, p[3]);
-  if (f === 2 || f === 3) star(c, 51, 16, 3, p[3]);
 }
 function heal(c, f, p) {
   for (const [n, [x, y]] of [
@@ -103,7 +85,7 @@ function draw(kind, stage, f) {
     return c;
   }
   if (kind === 'strike') {
-    slash(c, f, stage, p);
+    sparkle(c, f, stage);
     return c;
   }
   if (kind === 'focus') {
@@ -292,7 +274,7 @@ const manifest = {
   durations: { cast: 350, impact: 450, heal: 450 },
   reducedMotionFrame: 2,
   origin:
-    'Original pixel artwork authored in scripts/build-mundinho-combat-effects.mjs; the owner’s six-pose sword-swing reference informed the stepped crescent. Exported from editable combat-effects.ase by LibreSprite.',
+    'Original animated pixel effects with expanding strike stars, exported from combat-effects.ase by LibreSprite.',
 };
 await fs.writeFile(
   'src/lib/mundinho/combat-effects.json',

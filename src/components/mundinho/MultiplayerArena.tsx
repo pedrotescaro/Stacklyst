@@ -209,7 +209,7 @@ export function MultiplayerArena({
               <div
                 className="ad-pvp-scene"
                 style={{
-                  backgroundImage: `url(${adventureAsset('battle-background.png', assetBase)})`,
+                  backgroundImage: `url(${adventureAsset('blue-battle.png', assetBase)})`,
                 }}
               >
                 {room.players.map((p) => (

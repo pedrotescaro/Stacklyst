@@ -6,11 +6,12 @@ export function WorldPropSprite({
   assetBase,
   chestState = 'closed',
 }: {
-  kind: 'chest' | 'signpost' | 'portal-hole';
+  kind: 'chest' | 'signpost' | 'portal-hole' | 'boss-rift';
   assetBase: string;
   chestState?: 'closed' | 'opening' | 'open';
 }) {
-  const anchorY = kind === 'portal-hole' ? 48 : PROP_GEOMETRY[kind].anchor.y;
+  const anchorY =
+    kind === 'portal-hole' || kind === 'boss-rift' ? 48 : PROP_GEOMETRY[kind].anchor.y;
   return (
     <span
       className="world-prop-sprite"
@@ -18,7 +19,7 @@ export function WorldPropSprite({
       data-chest-state={kind === 'chest' ? chestState : undefined}
       aria-hidden="true"
       style={{
-        backgroundImage: `url(${adventureAsset(`${kind}.png`, assetBase)})`,
+        backgroundImage: `url(${adventureAsset({ 'boss-rift': 'blue-rift.png', 'portal-hole': 'blue-stairs.png', signpost: 'blue-sign.png', chest: 'chest.png' }[kind], assetBase)})`,
         transform: `translateY(${48 - anchorY}px)`,
       }}
     />

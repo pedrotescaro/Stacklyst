@@ -46,6 +46,7 @@ export default function World({
   onPositionChange,
   onPoseChange,
   onPortal,
+  onBoss,
   area = 'forest',
   peers = [],
   onArenaPlayers,
@@ -65,6 +66,7 @@ export default function World({
   onPositionChange?: (position: { x: number; y: number }) => void;
   onPoseChange?: (position: ArenaPosition) => void;
   onPortal?: () => void;
+  onBoss?: () => void;
   area?: 'forest' | 'arena';
   peers?: ArenaPlayer[];
   onArenaPlayers?: () => void;
@@ -170,6 +172,12 @@ export default function World({
         );
         return;
       }
+      if (target.id === 'boss') {
+        keys.current.clear();
+        stick.current = { x: 0, y: 0 };
+        onBoss?.();
+        return;
+      }
       if (target.id === 'portal') {
         keys.current.clear();
         stick.current = { x: 0, y: 0 };
@@ -264,6 +272,7 @@ export default function World({
     chestOpened,
     chestDay,
     onPortal,
+    onBoss,
     onArenaPlayers,
     area,
     creatures,
@@ -499,7 +508,7 @@ export default function World({
             width: dimensions.width,
             height: dimensions.height,
             transform: `translate(${x}px, ${y}px) scale(${scale})`,
-            backgroundImage: `url(${adventureAsset(area === 'arena' ? 'arena.png' : 'forest-ground.png', assetBase)})`,
+            backgroundImage: `url(${adventureAsset(area === 'arena' ? 'blue-arena.png' : 'blue-meadow.png', assetBase)})`,
           }}
         >
           {(area === 'arena' ? [] : SCENERY.objects).map((object) => (
@@ -514,7 +523,7 @@ export default function World({
                 width: SCENERY.width,
                 height: SCENERY.height,
                 zIndex: worldDepth(object.depth),
-                backgroundImage: `url(${adventureAsset('forest-scenery.png', assetBase)})`,
+                backgroundImage: `url(${adventureAsset('blue-grove.png', assetBase)})`,
                 backgroundSize: `${SCENERY.width * SCENERY.columns}px ${SCENERY.height * SCENERY.rows}px`,
                 backgroundPosition: `${-(object.frame % SCENERY.columns) * SCENERY.width}px ${-Math.floor(object.frame / SCENERY.columns) * SCENERY.height}px`,
               }}
@@ -602,7 +611,15 @@ export default function World({
                 <span className="world-arena-exit-hitbox" aria-hidden="true" />
               ) : (
                 <WorldPropSprite
-                  kind={o.id === 'portal' ? 'portal-hole' : o.id === 'chest' ? 'chest' : 'signpost'}
+                  kind={
+                    o.id === 'boss'
+                      ? 'boss-rift'
+                      : o.id === 'portal'
+                        ? 'portal-hole'
+                        : o.id === 'chest'
+                          ? 'chest'
+                          : 'signpost'
+                  }
                   assetBase={assetBase}
                   chestState={
                     chestPhase === 'opening'

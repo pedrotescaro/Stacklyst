@@ -107,7 +107,7 @@ export function MundinhoHome({
         as="section"
         className="ad-hero-banner"
         aria-label={text('Prévia do Meu Mundinho', 'My World preview')}
-        style={{ backgroundImage: `url(${adventureAsset('forest-v2.png', ASSET_BASE)})` }}
+        style={{ backgroundImage: `url(${adventureAsset('blue-clearing.png', ASSET_BASE)})` }}
       >
         <div className="ad-hero-overlay" />
         <div className="ad-hero-avatar-center">

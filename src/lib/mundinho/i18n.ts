@@ -75,6 +75,7 @@ export const MUNDINHO_EN: Record<string, string> = {
 
   // World objects
   'Ada (Guia)': 'Ada (Guide)',
+  'Fenda das Sombras': 'Shadow Rift',
   'Placa de dicas': 'Hint sign',
   'Baú da clareira': 'Clearing chest',
   'Descer para a arena multiplayer': 'Go down to the multiplayer arena',

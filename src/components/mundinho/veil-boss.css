@@ -1,0 +1,98 @@
+.veil-boss {
+  background: #151321;
+  color: #fff3d8;
+  text-align: center;
+  padding: clamp(14px, 4vw, 36px);
+  font-family:
+    Pixelify Sans,
+    monospace;
+  border-radius: 12px;
+}
+.veil-sky {
+  height: 158px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(ellipse at bottom, #453552, transparent 67%);
+}
+.veil-guardian {
+  width: 150px;
+  height: 123px;
+  image-rendering: pixelated;
+  background-size: 700% 100%;
+  animation: veil-hover 1.2s steps(7) infinite;
+  background-repeat: no-repeat;
+}
+@keyframes veil-hover {
+  to {
+    background-position-x: 116.666667%;
+  }
+}
+.veil-stats,
+.veil-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+}
+.veil-stats meter {
+  accent-color: #c99cce;
+  width: 85px;
+}
+.veil-field {
+  position: relative;
+  width: min(100%, 480px);
+  aspect-ratio: 240/116;
+  border: 3px solid #e5d3ad;
+  background: #0d0d16;
+  margin: 12px auto;
+  overflow: hidden;
+  touch-action: none;
+}
+.veil-heart,
+.veil-shot {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.veil-heart {
+  color: #ff696e;
+  font-size: clamp(14px, 3vw, 23px);
+  line-height: 1;
+}
+.veil-hit {
+  color: #fff4b0;
+}
+.veil-shot {
+  width: 3.33333%;
+  aspect-ratio: 1;
+  background-size: 100% 100%;
+  image-rendering: pixelated;
+}
+.veil-meter {
+  position: absolute;
+  inset: 39% 9%;
+  border: 2px solid #e9c579;
+  background: linear-gradient(90deg, #714656, #b78e5f 43%, #c1d69a 47% 53%, #b78e5f 57%, #714656);
+}
+.veil-meter i {
+  position: absolute;
+  inset-block: -6px;
+  width: 4px;
+  background: white;
+}
+.veil-actions {
+  margin-top: 16px;
+}
+.adventure .veil-actions button {
+  border: 1px solid #c5aa79;
+  color: #ffe8ad;
+  background: #241d30;
+  border-radius: 5px;
+  padding: 10px 16px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .veil-guardian {
+    animation: none;
+  }
+}

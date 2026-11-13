@@ -88,6 +88,27 @@ describe('World keyboard ownership', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Descer para a arena multiplayer' }));
     expect(enterArena).toHaveBeenCalledTimes(1);
   });
+  it('opens the concealed rift independently of multiplayer', () => {
+    const boss = vi.fn(),
+      arena = vi.fn();
+    expect(canWalk(126, 566)).toBe(true);
+    render(
+      <World
+        avatar={DEFAULT_AVATAR}
+        assetBase="/assets/mundinho"
+        username="Jogador"
+        initialPosition={{ x: 126, y: 566 }}
+        onEncounter={() => {}}
+        onChest={async () => ({ awarded: false, reward: 0 })}
+        onPortal={arena}
+        onBoss={boss}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar diálogo' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Fenda das Sombras' }));
+    expect(boss).toHaveBeenCalledOnce();
+    expect(arena).not.toHaveBeenCalled();
+  });
   it('renders a remote player with their name, position and saved outfit in the arena', () => {
     const { container } = render(
       <World
@@ -126,7 +147,7 @@ describe('World keyboard ownership', () => {
       )
     ).toBeCloseTo((67 / 95) * 100, 3);
     expect(container.querySelector('.world-map')).toHaveStyle({
-      backgroundImage: 'url("/assets/mundinho/arena.png")',
+      backgroundImage: 'url("/assets/mundinho/blue-arena.png")',
     });
     expect(container.querySelector('.world-habitat')).not.toBeInTheDocument();
   });

@@ -153,6 +153,21 @@ export function paintLayer(layer, value, pose, palettes) {
     if (layer === 'hair' && value % 6) col = p.color === browns[0] ? dye : shade(dye, -26);
     c.pixel(p.x, p.y, col);
   }
+  // A chin shadow and light on the knuckles follow the skin pixels of each pose.
+  if (layer === 'body' && (value >= 9 || value % 9 !== 2)) {
+    for (const p of pixels) {
+      if (!skinColors.includes(p.color)) continue;
+      const key = p.y * 48 + p.x;
+      if (!pose.faceAndHands.has(key + 48) && pose.faceAndHands.has(key - 48) && p.y >= head.y + 7)
+        c.pixel(p.x, p.y, skin.shadow);
+      else if (
+        p.y > head.y + head.h &&
+        !pose.faceAndHands.has(key - 48) &&
+        pose.faceAndHands.has(key + 48)
+      )
+        c.pixel(p.x, p.y, skin.highlight);
+    }
+  }
   if (layer === 'outfit') detailClothing(c, pose, garment, shade);
   if (layer === 'body' && value >= 9) {
     // A small pin at the temple and soft cheek follow the head through every pose.

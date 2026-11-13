@@ -17,17 +17,20 @@ for (const file of [
     ].map((layer) => 'hero-' + layer + suffix + '.png')
   ),
   'forest.png',
-  'forest-v2.png',
-  'forest-ground.png',
-  'forest-scenery.png',
+  'blue-clearing.png',
+  'blue-meadow.png',
+  'blue-grove.png',
   'chest.png',
-  'arena.png',
-  'portal-hole.png',
+  'blue-arena.png',
+  'blue-stairs.png',
+  'blue-rift.png',
+  'boss-veil.png',
+  'boss-projectile.png',
   'challenge-objects.png',
-  'battle-background.png',
+  'blue-battle.png',
   'combat-effects.png',
   'equipment.png',
-  'signpost.png',
+  'blue-sign.png',
   'habitats-back.png',
   'habitats-front.png',
   'portrait-body.png',
@@ -36,7 +39,7 @@ for (const file of [
   'portrait-hair-back.png',
   'portrait-hair.png',
   'portrait-accessory.png',
-  'creatures-animated.png',
+  'blue-creatures.png',
   'python.svg',
   'js.svg',
   'ts.svg',
@@ -45,10 +48,11 @@ for (const file of [
   'java.svg',
 ]) {
   const bytes = await readFile(path.resolve('public/assets/mundinho', file));
-  assets[file] =
-    file.endsWith('.png') && file.startsWith('forest') && file !== 'forest-scenery.png'
-      ? `data:image/webp;base64,${(await sharp(bytes).webp({ quality: 85 }).toBuffer()).toString('base64')}`
-      : `data:${file.endsWith('.png') ? 'image/png' : 'image/svg+xml'};base64,${bytes.toString('base64')}`;
+  assets[file] = ['forest.png', 'blue-meadow.png', 'blue-clearing.png', 'blue-arena.png'].includes(
+    file
+  )
+    ? `data:image/webp;base64,${(await sharp(bytes).webp({ quality: 85 }).toBuffer()).toString('base64')}`
+    : `data:${file.endsWith('.png') ? 'image/png' : 'image/svg+xml'};base64,${bytes.toString('base64')}`;
 }
 const result = await build({
   entryPoints: ['apps/mobile/src/mundinho/entry.tsx'],

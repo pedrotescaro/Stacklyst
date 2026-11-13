@@ -152,7 +152,7 @@ export function PixelCreature({
       className={`pixel-creature sprite-creature ${className}`}
       data-creature={kind}
       style={{
-        backgroundImage: `url(${adventureAsset('creatures-animated.png', '/assets/mundinho')})`,
+        backgroundImage: `url(${adventureAsset('blue-creatures.png', '/assets/mundinho')})`,
         backgroundSize: '800% 600%',
         backgroundPositionY: `${row * 20}%`,
       }}

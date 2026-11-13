@@ -2985,7 +2985,7 @@
   background-size: 800% 100%;
   background-position: 0 0;
 }
-.world-prop-sprite[data-prop='portal-hole'] {
+.world-prop-sprite:is([data-prop='portal-hole'], [data-prop='boss-rift']) {
   width: 64px;
   height: 48px;
   background-size: 600% 100%;
@@ -3288,7 +3288,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .world-prop-sprite[data-prop='portal-hole'] {
+  .world-prop-sprite:is([data-prop='portal-hole'], [data-prop='boss-rift']) {
     animation: none;
   }
   .world-peer {

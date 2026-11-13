@@ -78,6 +78,7 @@ import { EquipmentSprite } from './EquipmentSprite';
 import { MultiplayerArena } from './MultiplayerArena';
 import type { ArenaInvitation, ArenaState, ArenaTransport } from '../../lib/mundinho/arena-types';
 
+import { VeilBoss } from './VeilBoss';
 const World = lazy(() => import('./World'));
 const hairColors = [
   ...new Set([...HAIR, ...NATURAL_HAIR_OPTIONS.map((item) => item.color), ...PROFILE_COLORS]),
@@ -90,6 +91,7 @@ const hairColorNames = hairColors.map(
 );
 
 type View =
+  | 'boss'
   | 'home'
   | 'world'
   | 'arena'
@@ -103,6 +105,7 @@ type View =
   | 'profile';
 
 const TITLES: Record<View, string> = {
+  boss: 'Guardião da Fenda',
   home: 'Trilhas de aprendizagem',
   world: 'Meu Mundinho',
   arena: 'Arena multiplayer',
@@ -117,6 +120,7 @@ const TITLES: Record<View, string> = {
 };
 
 const TITLES_EN: Record<View, string> = {
+  boss: 'Rift Guardian',
   home: 'Learning trails',
   world: 'My World',
   arena: 'Multiplayer arena',
@@ -613,7 +617,7 @@ export function AdventureHub({
           <button
             className="ad-back-button"
             aria-label={
-              view === 'battle' || view === 'arena'
+              view === 'battle' || view === 'arena' || view === 'boss'
                 ? text('Voltar ao Mundinho', 'Back to the World')
                 : text('Voltar para a tela inicial', 'Back to the home screen')
             }
@@ -621,7 +625,7 @@ export function AdventureHub({
             onClick={() => {
               if (view === 'battle' && battle?.status === 'active')
                 void act({ type: 'battle-flee', battle: battle.id });
-              else go(view === 'battle' || view === 'arena' ? 'world' : 'home');
+              else go(view === 'battle' || view === 'arena' || view === 'boss' ? 'world' : 'home');
             }}
           >
             <ArrowLeft size={22} />
@@ -740,7 +744,7 @@ export function AdventureHub({
             className="ad-hero-banner"
             aria-label={text('Prévia do Meu Mundinho', 'My World preview')}
             style={{
-              backgroundImage: `url(${adventureAsset('forest-v2.png', assetBase)})`,
+              backgroundImage: `url(${adventureAsset('blue-clearing.png', assetBase)})`,
             }}
           >
             <div className="ad-hero-overlay" />
@@ -1466,6 +1470,7 @@ export function AdventureHub({
             username={data?.username ?? 'Pedrolado'}
             chestClaimed={data?.chest?.claimed ?? false}
             chestDay={data?.chest?.day ?? data?.checkin.day ?? ''}
+            onBoss={() => go('boss')}
             onPortal={() => {
               setArenaSeed(null);
               go('arena');
@@ -1491,6 +1496,7 @@ export function AdventureHub({
         </Suspense>
       )}
 
+      {view === 'boss' && <VeilBoss onLeave={() => go('world')} assetBase={assetBase} />}
       {view === 'arena' && (
         <MultiplayerArena
           transport={arenaTransport}
@@ -1591,7 +1597,7 @@ export function AdventureHub({
               <div
                 className={`ad-arena-scene combat-${combatPhase}`}
                 style={{
-                  backgroundImage: `url(${adventureAsset('battle-background.png', assetBase)})`,
+                  backgroundImage: `url(${adventureAsset('blue-battle.png', assetBase)})`,
                 }}
               >
                 {/* Enemy Combatant */}
