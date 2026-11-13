@@ -86,23 +86,27 @@ if (typeof window !== 'undefined') {
   }
 }
 
-type SidebarFold = 1 | 2 | 3 | 4;
+type SidebarFold = 1 | 2 | 3 | 4 | 5;
 /**
  * Like X, a short window (or a zoomed-in page) folds the less used links into
- * "Mais" in stages instead of squeezing them. Tailwind needs literal classes, and
- * the heights match where the sidebar would otherwise start to scroll.
+ * "Mais" one at a time instead of squeezing them. Tailwind needs literal classes.
+ * Each height is where the sidebar would run out of room for that link (44px
+ * per row at these heights) plus a little breathing space, so links only fold
+ * when they really do not fit.
  */
 const FOLD_HIDE: Record<SidebarFold, string> = {
-  1: '[@media(max-height:810px)]:invisible [@media(max-height:810px)]:max-h-0 [@media(max-height:810px)]:!py-0 [@media(max-height:810px)]:opacity-0',
-  2: '[@media(max-height:725px)]:invisible [@media(max-height:725px)]:max-h-0 [@media(max-height:725px)]:!py-0 [@media(max-height:725px)]:opacity-0',
-  3: '[@media(max-height:680px)]:invisible [@media(max-height:680px)]:max-h-0 [@media(max-height:680px)]:!py-0 [@media(max-height:680px)]:opacity-0',
-  4: '[@media(max-height:635px)]:invisible [@media(max-height:635px)]:max-h-0 [@media(max-height:635px)]:!py-0 [@media(max-height:635px)]:opacity-0',
+  1: '[@media(max-height:715px)]:invisible [@media(max-height:715px)]:max-h-0 [@media(max-height:715px)]:!py-0 [@media(max-height:715px)]:opacity-0',
+  2: '[@media(max-height:671px)]:invisible [@media(max-height:671px)]:max-h-0 [@media(max-height:671px)]:!py-0 [@media(max-height:671px)]:opacity-0',
+  3: '[@media(max-height:627px)]:invisible [@media(max-height:627px)]:max-h-0 [@media(max-height:627px)]:!py-0 [@media(max-height:627px)]:opacity-0',
+  4: '[@media(max-height:583px)]:invisible [@media(max-height:583px)]:max-h-0 [@media(max-height:583px)]:!py-0 [@media(max-height:583px)]:opacity-0',
+  5: '[@media(max-height:539px)]:invisible [@media(max-height:539px)]:max-h-0 [@media(max-height:539px)]:!py-0 [@media(max-height:539px)]:opacity-0',
 };
 const FOLD_SHOW_IN_MORE: Record<SidebarFold, string> = {
-  1: 'hidden [@media(max-height:810px)]:flex',
-  2: 'hidden [@media(max-height:725px)]:flex',
-  3: 'hidden [@media(max-height:680px)]:flex',
-  4: 'hidden [@media(max-height:635px)]:flex',
+  1: 'hidden [@media(max-height:715px)]:flex',
+  2: 'hidden [@media(max-height:671px)]:flex',
+  3: 'hidden [@media(max-height:627px)]:flex',
+  4: 'hidden [@media(max-height:583px)]:flex',
+  5: 'hidden [@media(max-height:539px)]:flex',
 };
 
 export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: SidebarProps) {
@@ -367,7 +371,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
     },
     {
       id: 'tracks',
-      fold: 4,
+      fold: 5,
       label: t.nav.tracks,
       href: '/trails',
       icon: Gamepad2,
@@ -376,7 +380,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
     },
     {
       id: 'duels',
-      fold: 3,
+      fold: 4,
       label: t.nav.duels,
       href: '/duels',
       icon: Swords,
@@ -392,7 +396,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
     },
     {
       id: 'ranking',
-      fold: 1,
+      fold: 2,
       label: t.nav.ranking,
       href: '/ranking',
       icon: Trophy,
@@ -400,7 +404,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
     },
     {
       id: 'bookmarks',
-      fold: 2,
+      fold: 3,
       label: t.nav.bookmarks,
       href: '/bookmarks',
       icon: Bookmark,
@@ -536,7 +540,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                 item.active
                   ? 'font-black text-dd-text dark:text-white'
                   : 'font-bold text-dd-text dark:text-white'
-              } max-h-16 overflow-hidden transition-[background-color,max-height,opacity,padding,visibility] duration-300 ease-out hover:bg-black/[0.06] motion-reduce:transition-none dark:hover:bg-white/10 ${
+              } max-h-16 shrink-0 overflow-hidden transition-[background-color,max-height,opacity,padding,visibility] duration-300 ease-out hover:bg-black/[0.06] motion-reduce:transition-none dark:hover:bg-white/10 ${
                 item.fold ? FOLD_HIDE[item.fold] : ''
               }`;
 
@@ -636,7 +640,7 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
                     })}
                   <div
                     aria-hidden="true"
-                    className="mx-3 my-1 hidden h-px bg-dd-border [@media(max-height:810px)]:block"
+                    className="mx-3 my-1 hidden h-px bg-dd-border [@media(max-height:715px)]:block"
                   />
                   <Link
                     href="/jobs"
