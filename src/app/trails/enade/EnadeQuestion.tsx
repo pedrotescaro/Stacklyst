@@ -1,8 +1,41 @@
 'use client';
-import { Check, Flag } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Check, Flag, Strikethrough } from 'lucide-react';
 import type { QuestionPresentation } from '@/lib/enade/feedback';
 import { EnadePageViewer } from './EnadePageViewer';
 import styles from './EnadeCourse.module.css';
+
+const struckKey = (questionId: string) => `stacklyst-enade-struck:${questionId}`;
+
+/**
+ * Alternatives the student ruled out on this question, kept for the browser
+ * session so going back to a question shows the same struck options.
+ */
+function useStruckOptions(questionId: string) {
+  const [struck, setStruck] = useState<string[]>([]);
+  useEffect(() => {
+    try {
+      const saved = JSON.parse(sessionStorage.getItem(struckKey(questionId)) || '[]');
+      setStruck(Array.isArray(saved) ? saved.filter((v) => typeof v === 'string') : []);
+    } catch {
+      setStruck([]);
+    }
+  }, [questionId]);
+  const save = (next: string[]) => {
+    setStruck(next);
+    try {
+      sessionStorage.setItem(struckKey(questionId), JSON.stringify(next));
+    } catch {
+      /* Storage can be unavailable; striking still works for this view. */
+    }
+  };
+  const toggle = (option: string) =>
+    save(struck.includes(option) ? struck.filter((v) => v !== option) : [...struck, option]);
+  const clear = (option: string) => {
+    if (struck.includes(option)) save(struck.filter((v) => v !== option));
+  };
+  return { struck, toggle, clear };
+}
 
 export function EnadeQuestion({
   question: q,
@@ -19,6 +52,7 @@ export function EnadeQuestion({
   onMark: (id: string) => void;
   onCheckDiscursive: () => void;
 }) {
+  const { struck, toggle: toggleStruck, clear: unstrike } = useStruckOptions(q.id);
   if (!q.content) return null;
   return (
     <>
@@ -74,55 +108,91 @@ export function EnadeQuestion({
         {q.kind === 'objective' ? (
           <fieldset>
             <legend>Escolha uma alternativa</legend>
+            {!q.readOnly && (
+              <p className={styles.strikeHint}>
+                Clique com o botão direito em uma alternativa para riscá-la.
+              </p>
+            )}
             <div
               className={styles.alternatives}
               data-compact={q.options.every((o) => o.text.length < 120 && !o.code && !o.image)}
             >
-              {q.options.map((option) => (
-                <div
-                  key={option.canonical}
-                  className={styles.alternative}
-                  data-selected={option.selected}
-                  data-correction={option.correction}
-                >
-                  <input
-                    id={`${q.id}-${option.canonical}`}
-                    type="radio"
-                    name={q.id}
-                    value={option.canonical}
-                    disabled={option.disabled}
-                    checked={option.selected}
-                    onChange={() => onAnswer(q.id, option.canonical)}
-                  />
-                  <label htmlFor={`${q.id}-${option.canonical}`}>
-                    <span className={styles.optionLetter}>{option.letter}</span>{' '}
-                    <span className={option.code ? styles.codeOption : styles.optionText}>
-                      {option.text || `Diagrama da alternativa ${option.letter}`}
-                      {option.correction && (
-                        <>
-                          {' '}
-                          <span className={styles.correctionLabel}>
-                            {option.correction === 'correct' ? 'Resposta correta' : 'Sua resposta'}
-                          </span>
-                        </>
+              {q.options.map((option) => {
+                const isStruck = !option.selected && struck.includes(option.canonical);
+                const canStrike = !option.disabled && !q.readOnly;
+                return (
+                  <div
+                    key={option.canonical}
+                    className={styles.alternative}
+                    data-selected={option.selected}
+                    data-correction={option.correction}
+                    data-struck={isStruck}
+                    onContextMenu={(event) => {
+                      if (!canStrike) return;
+                      event.preventDefault();
+                      toggleStruck(option.canonical);
+                    }}
+                  >
+                    <input
+                      id={`${q.id}-${option.canonical}`}
+                      type="radio"
+                      name={q.id}
+                      value={option.canonical}
+                      disabled={option.disabled}
+                      checked={option.selected}
+                      onChange={() => {
+                        unstrike(option.canonical);
+                        onAnswer(q.id, option.canonical);
+                      }}
+                    />
+                    <label htmlFor={`${q.id}-${option.canonical}`}>
+                      <span className={styles.optionLetter}>{option.letter}</span>{' '}
+                      <span className={option.code ? styles.codeOption : styles.optionText}>
+                        {option.text || `Diagrama da alternativa ${option.letter}`}
+                        {option.correction && (
+                          <>
+                            {' '}
+                            <span className={styles.correctionLabel}>
+                              {option.correction === 'correct'
+                                ? 'Resposta correta'
+                                : 'Sua resposta'}
+                            </span>
+                          </>
+                        )}
+                      </span>
+                      {option.selected && (
+                        <Check className={styles.selectedCheck} size={18} aria-hidden="true" />
                       )}
-                    </span>
-                    {option.selected && (
-                      <Check className={styles.selectedCheck} size={18} aria-hidden="true" />
+                    </label>
+                    {canStrike && (
+                      <button
+                        type="button"
+                        className={styles.strikeButton}
+                        aria-pressed={isStruck}
+                        aria-label={
+                          isStruck
+                            ? `Desfazer risco da alternativa ${option.letter}`
+                            : `Riscar alternativa ${option.letter}`
+                        }
+                        title={isStruck ? 'Desfazer risco' : 'Riscar alternativa'}
+                        onClick={() => toggleStruck(option.canonical)}
+                      >
+                        <Strikethrough size={16} aria-hidden="true" />
+                      </button>
                     )}
-                  </label>
-                  {option.image && (
-                    <div className={styles.optionImage}>
-                      <EnadePageViewer
-                        src={option.image.src}
-                        year={q.year}
-                        page={option.image.page}
-                        label={`Diagrama da alternativa ${option.letter} da questão ${q.number}`}
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
+                    {option.image && (
+                      <div className={styles.optionImage}>
+                        <EnadePageViewer
+                          src={option.image.src}
+                          year={q.year}
+                          page={option.image.page}
+                          label={`Diagrama da alternativa ${option.letter} da questão ${q.number}`}
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </fieldset>
         ) : (

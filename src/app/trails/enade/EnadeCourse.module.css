@@ -445,6 +445,67 @@
 .alternative[data-correction='incorrect'] .correctionLabel {
   color: var(--enade-danger);
 }
+/* Ruling out an alternative: right-click it, or use its strike button. */
+.strikeHint {
+  margin: -4px 0 14px;
+  color: var(--color-dd-muted);
+  font-size: 13px;
+}
+.alternative label {
+  padding-right: 56px;
+}
+.strikeButton {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--color-dd-muted);
+  opacity: 0;
+  cursor: pointer;
+  transition:
+    opacity 150ms,
+    background-color 150ms,
+    color 150ms;
+}
+.alternative:hover .strikeButton,
+.strikeButton:focus-visible,
+.strikeButton[aria-pressed='true'] {
+  opacity: 1;
+}
+.strikeButton:hover {
+  background: var(--color-dd-border);
+  color: var(--color-dd-text);
+}
+.strikeButton:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 2px;
+}
+@media (hover: none) {
+  .strikeButton {
+    opacity: 1;
+  }
+}
+.alternative[data-struck='true'] {
+  border-style: dashed;
+}
+.alternative[data-struck='true'] .optionText,
+.alternative[data-struck='true'] .codeOption,
+.alternative[data-struck='true'] .optionLetter,
+.alternative[data-struck='true'] .optionImage {
+  opacity: 0.4;
+}
+.alternative[data-struck='true'] .optionText,
+.alternative[data-struck='true'] .codeOption {
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+.alternative[data-struck='true'] .strikeButton {
+  color: var(--color-dd-text);
+}
 .optionImage {
   overflow: hidden;
   margin: 0 20px 20px;
@@ -1190,6 +1251,7 @@
 @media (prefers-reduced-motion: reduce) {
   .progressTrack > div,
   .alternative,
+  .strikeButton,
   .pickerPanel,
   .pickerChevron,
   .pickerBadge,
