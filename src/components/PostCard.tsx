@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import { LikeButton } from './motion/LikeButton';
 import { BookmarkButton } from './motion/BookmarkButton';
+import { openReplyComposer, REPLY_CREATED_EVENT } from './composer/ReplyComposerDialog';
 import { RepostMenu } from './motion/RepostMenu';
 import { PostActionsBar, postActionClassName, InteractionCount } from '@/components/PostActionsBar';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
@@ -220,6 +221,16 @@ export function PostCard({
     };
     window.addEventListener(POST_BOOKMARK_CHANGED, onChange);
     return () => window.removeEventListener(POST_BOOKMARK_CHANGED, onChange);
+  }, [post.id]);
+  const [answersCount, setAnswersCount] = useState(post._count?.answers ?? 0);
+  useEffect(() => setAnswersCount(post._count?.answers ?? 0), [post._count?.answers]);
+  useEffect(() => {
+    const onReply = (event: Event) => {
+      if ((event as CustomEvent<{ postId: string }>).detail.postId === post.id)
+        setAnswersCount((count) => count + 1);
+    };
+    window.addEventListener(REPLY_CREATED_EVENT, onReply);
+    return () => window.removeEventListener(REPLY_CREATED_EVENT, onReply);
   }, [post.id]);
   const [repostsCount, setRepostsCount] = useState(0);
   const [reposted, setReposted] = useState(false);
@@ -496,9 +507,13 @@ export function PostCard({
             href={`/post/${post.id}`}
             className={postActionClassName}
             title={text('Responder', 'Reply')}
+            onClick={(event) => {
+              if (event.metaKey || event.ctrlKey || event.shiftKey || event.button !== 0) return;
+              if (openReplyComposer({ ...post, body: postBody })) event.preventDefault();
+            }}
           >
             <MessageCircle aria-hidden="true" />
-            <InteractionCount count={post._count?.answers ?? 0} />
+            <InteractionCount count={answersCount} />
           </Link>
 
           {/* 2. Repost Menu */}

@@ -191,16 +191,19 @@ export const createPostSchema = z
 
 export type CreatePostInput = z.infer<typeof createPostSchema>;
 
-export const createAnswerSchema = z.object({
-  body: z
-    .string()
-    .trim()
-    .min(5, 'A resposta deve ter pelo menos 5 caracteres')
-    .max(5000)
-    .pipe(mentionSchema),
-  code_snippet: z.string().optional().nullable(),
-  parent_answer_id: z.string().uuid().optional().nullable(),
-});
+export const createAnswerSchema = z
+  .object({
+    body: z.string().trim().max(5000).pipe(mentionSchema),
+    code_snippet: z.string().optional().nullable(),
+    parent_answer_id: z.string().uuid().optional().nullable(),
+    attachments: z.array(postAttachmentSchema).max(4).optional().default([]),
+    music: postMusicSchema.nullable().optional(),
+  })
+  // A reply made only of an image or a song is still a reply.
+  .refine((data) => data.body.length >= 5 || data.attachments.length > 0 || Boolean(data.music), {
+    message: 'A resposta deve ter pelo menos 5 caracteres',
+    path: ['body'],
+  });
 
 export const quizAttemptSchema = z.object({
   selected_index: z.number().int().min(0, 'Seleção inválida'),

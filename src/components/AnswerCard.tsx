@@ -10,6 +10,10 @@ import { LikeButton } from '@/components/motion/LikeButton';
 import { BookmarkButton } from '@/components/motion/BookmarkButton';
 import { RepostMenu } from '@/components/motion/RepostMenu';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { PostAttachments } from '@/components/posts/PostAttachments';
+import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
+import { parsePostExtras } from '@/lib/post-composer';
+import { parseReplyMedia } from '@/lib/reply-media';
 import { MarkdownEditor } from '@/components/MarkdownEditor';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
@@ -53,6 +57,8 @@ export function AnswerCard({
   connectToNext = false,
   replyingTo,
 }: AnswerCardProps) {
+  const replyMedia = parseReplyMedia(answer.body);
+  const replyExtras = parsePostExtras(replyMedia.content);
   const initialUserVote =
     answer.votes?.[0]?.value === 1 ? 'up' : answer.votes?.[0]?.value === -1 ? 'down' : null;
   const [voteCount, setVoteCount] = useState(answer.upvotes);
@@ -358,9 +364,23 @@ export function AnswerCard({
         )}
 
         {/* Body */}
-        <div className="mt-2">
-          <MarkdownRenderer content={answer.body} compact={false} />
-        </div>
+        <SensitiveContentGate isSensitive={replyExtras.isSensitive}>
+          {replyExtras.content && (
+            <div className="mt-2">
+              <MarkdownRenderer content={replyExtras.content} compact={false} />
+            </div>
+          )}
+          {(replyMedia.attachments.length > 0 || replyMedia.music) && (
+            <div className="mt-2">
+              <PostAttachments
+                postId={answer.id}
+                attachments={replyMedia.attachments}
+                music={replyMedia.music}
+              />
+            </div>
+          )}
+          <PostLocation location={replyExtras.location} className="mt-2" />
+        </SensitiveContentGate>
 
         {/* Legacy code snippet fallback */}
         {answer.code_snippet && !answer.body.includes('```') && (

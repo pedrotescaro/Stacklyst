@@ -8,6 +8,7 @@ import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/Pro
 import { LevelBadge } from '@/components/LevelBadge';
 import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
+import { parseReplyMedia } from '@/lib/reply-media';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
 import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
 import { LikeButton } from '@/components/motion/LikeButton';
@@ -200,7 +201,7 @@ export function ProfileReplyThread({ reply }: { reply: any; currentUser?: any })
             </Link>
           </p>
           <div className="mt-3 text-sm text-dd-text">
-            <MarkdownRenderer content={reply.body} />
+            <MarkdownRenderer content={parseReplyMedia(reply.body).content} />
           </div>
           {reply.code_snippet && !reply.body.includes('```') && (
             <pre className="mt-3 overflow-x-auto rounded-lg bg-dd-surface p-3 text-xs text-dd-text">

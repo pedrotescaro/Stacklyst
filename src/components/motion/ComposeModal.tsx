@@ -20,6 +20,10 @@ interface ComposeModalProps {
   mobileTitle?: string;
   composerLayout?: boolean;
   busy?: boolean;
+  /** Accessible name for the dialog. */
+  label?: string;
+  /** On desktop, grow with the content instead of using a fixed height. */
+  fitContent?: boolean;
 }
 
 export function ComposeModal({
@@ -33,6 +37,8 @@ export function ComposeModal({
   mobileTitle,
   composerLayout = false,
   busy = false,
+  label,
+  fitContent = false,
 }: ComposeModalProps) {
   const { text } = useLocalizedText();
   const reduced = useReducedMotion();
@@ -166,7 +172,7 @@ export function ComposeModal({
           <motion.div
             role="dialog"
             aria-modal="true"
-            aria-label={text('Criar nova publicação', 'Create new post')}
+            aria-label={label ?? text('Criar nova publicação', 'Create new post')}
             variants={reduced ? fadeVariants : modalContentVariants}
             initial="hidden"
             animate="visible"
@@ -174,7 +180,10 @@ export function ComposeModal({
             className={cn(
               'relative z-10 w-full min-w-0 font-sans',
               composerLayout
-                ? 'post-composer-dialog flex h-full max-h-full flex-col overflow-hidden bg-dd-bg md:h-[min(680px,90dvh)] md:max-w-2xl md:rounded-2xl md:border md:border-dd-border md:shadow-2xl'
+                ? cn(
+                    'post-composer-dialog flex h-full max-h-full flex-col overflow-hidden bg-dd-bg md:max-w-2xl md:rounded-2xl md:border md:border-dd-border md:shadow-2xl',
+                    fitContent ? 'md:h-auto md:max-h-[min(680px,90dvh)]' : 'md:h-[min(680px,90dvh)]'
+                  )
                 : 'max-h-[calc(100%-1rem)] max-w-xl space-y-4 overflow-y-auto overscroll-contain rounded-t-2xl border border-dd-border bg-dd-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl sm:rounded-2xl sm:pb-4'
             )}
             onClick={(e) => e.stopPropagation()}

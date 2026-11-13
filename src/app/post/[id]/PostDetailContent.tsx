@@ -34,6 +34,7 @@ import { RepostMenu } from '@/components/motion/RepostMenu';
 import { BookmarkButton } from '@/components/motion/BookmarkButton';
 import { LikeButton } from '@/components/motion/LikeButton';
 import { PostComposerExtras } from '@/components/PostComposerExtras';
+import { openReplyComposer, REPLY_CREATED_EVENT } from '@/components/composer/ReplyComposerDialog';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
@@ -332,6 +333,20 @@ export function PostDetailContent({
       console.error('Error reloading post:', err);
     }
   };
+
+  // Replies sent from the pop-up land here too.
+  useEffect(() => {
+    const onReply = (event: Event) => {
+      const detail = (event as CustomEvent<{ postId: string; xpResult?: any }>).detail;
+      if (detail.postId !== post.id) return;
+      void reloadPost();
+      if (detail.xpResult?.xpEarned)
+        showXPToast(detail.xpResult.xpEarned, detail.xpResult.language);
+    };
+    window.addEventListener(REPLY_CREATED_EVENT, onReply);
+    return () => window.removeEventListener(REPLY_CREATED_EVENT, onReply);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [post.id]);
 
   const showXPToast = (amount: number, language: string) => {
     setToastXp({ amount, language });
@@ -634,14 +649,18 @@ export function PostDetailContent({
               }}
             >
               <PostActionsBar>
-                {/* Existing response count: this detail view has no comment action here. */}
-                <span
+                <button
+                  type="button"
                   className={postActionClassName}
-                  aria-label={`Respostas: ${post.answers?.length || 0}`}
+                  title="Responder"
+                  aria-label={`Responder (${post.answers?.length || 0} respostas)`}
+                  onClick={() => {
+                    if (!openReplyComposer(post)) setIsExpanded(true);
+                  }}
                 >
                   <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
                   <InteractionCount count={post.answers?.length || 0} />
-                </span>
+                </button>
 
                 {/* 2. Repost Menu */}
                 <RepostMenu

@@ -6,7 +6,8 @@ import { requireAuth } from '@/lib/auth';
 import { createAnswerSchema } from '@/lib/validators';
 import { XpService } from '@/services/xp.service';
 import { NotificationService } from '@/services/notification.service';
-import { NotFoundError } from '@/lib/errors';
+import { NotFoundError, ValidationError } from '@/lib/errors';
+import { encodeReplyMedia, stripReplyMedia } from '@/lib/reply-media';
 import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
 import { assertPostAudience } from '@/services/post-access.service';
 
@@ -26,8 +27,7 @@ export const POST = apiHandler(async (req, { params }) => {
   await BlockService.assertCanInteract(user.id, post.author_id);
   await assertPostAudience(post, user.id);
 
-  const body = await req.json();
-  const parsed = createAnswerSchema.parse(body);
+  const parsed = createAnswerSchema.parse(await req.json());
 
   // If replying to another answer, validate the parent exists and belongs to the same post.
   // This prevents orphan/cross-post replies and keeps the thread consistent.
@@ -53,25 +53,64 @@ export const POST = apiHandler(async (req, { params }) => {
     parentId = parentAnswer.id;
   }
 
-  // Create answer
-  const answer = await prisma.answer.create({
-    data: {
-      post_id: postId,
-      author_id: user.id,
-      parent_id: parentId,
-      body: parsed.body,
-      code_snippet: parsed.code_snippet || null,
-    },
-    include: {
-      author: {
-        select: {
-          username: true,
-          avatar_url: true,
-          avatar_config: true,
-          total_xp: true,
+  const attachments = parsed.attachments;
+  const mediaIds = attachments.map((item) => item.url.split('/').at(-1)!);
+  if (new Set(mediaIds).size !== mediaIds.length)
+    throw new ValidationError(
+      'INVALID_MEDIA',
+      'Um mesmo anexo não pode ser adicionado duas vezes.'
+    );
+  const body = encodeReplyMedia(stripReplyMedia(parsed.body), {
+    attachments,
+    music: parsed.music ?? null,
+  });
+
+  // Create answer, attaching uploads to the post so everyone who can see it sees them.
+  const answer = await prisma.$transaction(async (tx) => {
+    if (mediaIds.length) {
+      const media = await tx.postMedia.findMany({
+        where: { id: { in: mediaIds }, owner_id: user.id, post_id: null },
+      });
+      const invalid = attachments.some((item) => {
+        const file = media.find((entry) => entry.id === item.url.split('/').at(-1));
+        return (
+          !file ||
+          (item.type === 'audio'
+            ? !file.content_type.startsWith('audio/')
+            : item.type === 'gif'
+              ? file.content_type !== 'image/gif'
+              : !file.content_type.startsWith('image/'))
+        );
+      });
+      if (invalid)
+        throw new ValidationError(
+          'INVALID_MEDIA',
+          'Um anexo está indisponível. Envie o arquivo novamente.'
+        );
+      await tx.postMedia.updateMany({
+        where: { id: { in: mediaIds }, owner_id: user.id, post_id: null },
+        data: { post_id: postId },
+      });
+    }
+    return tx.answer.create({
+      data: {
+        post_id: postId,
+        author_id: user.id,
+        parent_id: parentId,
+        body,
+        code_snippet: parsed.code_snippet || null,
+      },
+      include: {
+        author: {
+          select: {
+            username: true,
+            avatar_url: true,
+            avatar_config: true,
+            total_xp: true,
+          },
         },
       },
-    },
+    });
   });
 
   // Notify post author using NotificationService

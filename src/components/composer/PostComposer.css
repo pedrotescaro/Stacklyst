@@ -259,3 +259,61 @@
   overflow-wrap: normal;
   word-break: normal;
 }
+
+/* Reply pop-up: the answered post sits above the writer, joined by a thread line. */
+.reply-original {
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+}
+.reply-original-rail {
+  display: flex;
+  flex-shrink: 0;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 4px;
+}
+.reply-thread-line {
+  width: 2px;
+  flex: 1;
+  min-height: 16px;
+  margin-top: 6px;
+  border-radius: 999px;
+  background: var(--color-dd-border);
+}
+.reply-original-body {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 6;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+}
+.reply-original-media {
+  max-height: 260px;
+  overflow: hidden;
+  border-radius: 16px;
+}
+.reply-original-media:empty {
+  display: none;
+}
+.reply-composer-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px 12px;
+  border-top: 1px solid var(--color-dd-border);
+}
+.reply-composer-tools {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 2px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+@media (min-width: 768px) {
+  .reply-composer-bar {
+    padding: 10px 20px 14px;
+  }
+}

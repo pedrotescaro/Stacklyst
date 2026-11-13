@@ -47,6 +47,11 @@ import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { useSavedAccounts } from '@/hooks/useSavedAccounts';
 
 import { PostComposerDialog, type ComposerQuote } from '@/components/composer/PostComposerDialog';
+import {
+  ReplyComposerDialog,
+  OPEN_REPLY_EVENT,
+  type ReplyTarget,
+} from '@/components/composer/ReplyComposerDialog';
 
 interface SidebarUser {
   id: string;
@@ -222,6 +227,17 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   }, [activeUser, pathname]);
 
   const [composerQuote, setComposerQuote] = useState<ComposerQuote | null>(null);
+  const [replyTarget, setReplyTarget] = useState<ReplyTarget | null>(null);
+  useEffect(() => {
+    if (!activeUser) return;
+    const openReply = (event: Event) => {
+      // Claim the event so the comment icon does not also navigate.
+      event.preventDefault();
+      setReplyTarget((event as CustomEvent<ReplyTarget>).detail);
+    };
+    window.addEventListener(OPEN_REPLY_EVENT, openReply);
+    return () => window.removeEventListener(OPEN_REPLY_EVENT, openReply);
+  }, [activeUser]);
   useEffect(() => {
     const openComposer = (event: Event) => {
       setComposerQuote((event as CustomEvent<{ quote?: ComposerQuote }>).detail?.quote ?? null);
@@ -895,6 +911,14 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
           }}
           user={activeUser}
           quote={composerQuote}
+        />
+      )}
+      {activeUser && (
+        <ReplyComposerDialog
+          key={replyTarget?.id ?? 'closed'}
+          target={replyTarget}
+          onClose={() => setReplyTarget(null)}
+          user={activeUser}
         />
       )}
 
