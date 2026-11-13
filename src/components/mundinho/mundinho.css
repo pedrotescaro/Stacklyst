@@ -157,17 +157,24 @@
   display: flex;
   align-items: center;
   gap: 24px;
-  padding: 16px 24px 0;
-  background: #000;
-  border: 1px solid #fff;
+  min-height: 248px;
+  padding: 24px 24px 0;
+  background: #1b1c28;
+  border-radius: 12px;
   color: #fff;
 }
 .ad-portrait-editor > div {
   min-width: 0;
 }
 .ad-portrait-editor .rpg-portrait {
-  width: 144px;
+  width: 192px;
   align-self: end;
+}
+.ad-character-turntable {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 12px;
 }
 .ad-portrait-editor h2 {
   margin: 0 0 8px;
@@ -246,16 +253,53 @@
     width: 100%;
   }
   .ad-portrait-editor {
+    display: grid;
+    grid-template-columns: 144px minmax(0, 1fr);
     padding: 16px 12px 0;
-    gap: 12px;
-    align-items: flex-start;
+    gap: 8px 12px;
+    align-items: start;
+  }
+  .ad-portrait-editor > div {
+    display: contents;
+  }
+  .ad-portrait-editor .rpg-portrait {
+    width: 144px;
+    grid-column: 1;
+    grid-row: 1 / 3;
+    align-self: end;
+  }
+  .ad-portrait-editor h2 {
+    grid-column: 2;
+    font-size: 19px;
+    margin-bottom: 0;
+  }
+  .ad-portrait-editor p {
+    grid-column: 2;
+  }
+  .ad-character-turntable,
+  .ad-gender-picker,
+  .ad-portrait-editor .ad-portrait-note {
+    grid-column: 1 / -1;
+    justify-content: center;
+  }
+  .ad-gender-picker legend,
+  .ad-portrait-editor .ad-portrait-note {
+    text-align: center;
+  }
+  .ad-gender-picker legend {
+    width: 100%;
+  }
+  .ad-option-tile {
+    min-width: 0;
+    padding-inline: 8px;
+  }
+}
+@media (max-width: 380px) {
+  .ad-portrait-editor {
+    grid-template-columns: 96px minmax(0, 1fr);
   }
   .ad-portrait-editor .rpg-portrait {
     width: 96px;
-    align-self: flex-start;
-  }
-  .ad-portrait-editor h2 {
-    font-size: 19px;
   }
 }
 
@@ -1221,20 +1265,6 @@
   gap: 18px;
 }
 
-.ad-checkerboard-preview {
-  position: relative;
-  min-height: 260px;
-  border-radius: 20px;
-  background-color: #1a222e;
-  background-image: conic-gradient(#253040 25%, transparent 0 50%, #253040 0 75%, transparent 0);
-  background-size: 32px 32px;
-  border: 1px solid var(--ad-border);
-  display: flex;
-  align-items: center;
-  justify-content: space-around;
-  padding: 20px;
-}
-
 .ad-rotate-btn {
   width: 44px;
   height: 44px;
@@ -1247,8 +1277,8 @@
 }
 
 .ad-avatar-preview-box .pixel-avatar {
-  width: 130px;
-  height: 175px;
+  width: 64px;
+  height: 64px;
 }
 
 .ad-category-tabs-row {
@@ -1278,7 +1308,7 @@
 /* 3-Column Grid of Avatar Options (Matching Image 4) */
 .ad-options-grid-three {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -2398,8 +2428,7 @@
   overflow: hidden;
   pointer-events: none;
 }
-.sprite-avatar.is-walking .sprite-layer,
-.sprite-attack .sprite-layer {
+.sprite-avatar.is-walking .sprite-layer {
   animation: hero-walk 0.8s steps(7) infinite;
 }
 .sprite-creature {
@@ -2413,7 +2442,34 @@
   transform-origin: 50% 95%;
 }
 .sprite-creature.is-attacking {
-  animation: creature-attack 0.6s steps(4) infinite;
+  animation: creature-attack 350ms steps(1) both;
+}
+@keyframes hero-swing {
+  0% {
+    background-position-x: 0%;
+  }
+  12.5% {
+    background-position-x: 14.285714%;
+  }
+  25% {
+    background-position-x: 28.571429%;
+  }
+  37.5% {
+    background-position-x: 42.857143%;
+  }
+  50% {
+    background-position-x: 57.142857%;
+  }
+  62.5% {
+    background-position-x: 71.428571%;
+  }
+  75% {
+    background-position-x: 85.714286%;
+  }
+  87.5%,
+  100% {
+    background-position-x: 100%;
+  }
 }
 @keyframes hero-walk {
   from {
@@ -2443,11 +2499,18 @@
   }
 }
 @keyframes creature-attack {
-  from {
+  0% {
     background-position-x: 57.142857%;
   }
-  to {
-    background-position-x: 114.285714%;
+  25% {
+    background-position-x: 71.428571%;
+  }
+  50% {
+    background-position-x: 85.714286%;
+  }
+  75%,
+  100% {
+    background-position-x: 100%;
   }
 }
 .adventure {
@@ -2492,10 +2555,6 @@
 .ad-option-avatar-inner .pixel-avatar {
   width: 64px;
   height: 64px;
-}
-.ad-avatar-preview-box .pixel-avatar {
-  width: 160px;
-  height: 160px !important;
 }
 .world-viewport {
   height: min(680px, 75dvh);
@@ -3256,7 +3315,7 @@
   pointer-events: none;
 }
 .sprite-attack .sprite-layer {
-  animation: hero-walk 0.35s steps(7) 1 forwards;
+  animation: hero-swing 350ms steps(1) both;
 }
 /* Encounter levels are visible in the world; retreat returns to the same clearing. */
 .world-creature-level {

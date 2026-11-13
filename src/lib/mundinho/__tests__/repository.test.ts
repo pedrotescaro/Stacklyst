@@ -8,6 +8,8 @@ vi.mock('node:crypto', async (original) => {
 vi.mock('@/lib/prisma', () => ({
   prisma: {
     $transaction: async (fn: (tx: unknown) => unknown) => fn(db.tx),
+    exerciseSubmission: { count: (...args: any[]) => db.tx.exerciseSubmission.count(...args) },
+    quizAttempt: { count: (...args: any[]) => db.tx.quizAttempt.count(...args) },
     rpgBattle: { findFirst: (...args: any[]) => db.tx.rpgBattle.findFirst(...args) },
   },
 }));
@@ -124,6 +126,17 @@ beforeEach(() => {
   };
 });
 describe('Server encounter rules', () => {
+  it('credits learning snapshots once and never removes coins for an older snapshot', async () => {
+    db.tx.exerciseSubmission.count.mockImplementation(async ({ where }: any) =>
+      where.created_at ? 0 : 3
+    );
+    expect((await adventure('user')).coins).toBe(15);
+    expect((await adventure('user')).coins).toBe(15);
+    db.tx.exerciseSubmission.count.mockResolvedValue(0);
+    expect((await adventure('user')).coins).toBe(15);
+    expect(db.tx.rpgTransaction.create).toHaveBeenCalledTimes(1);
+    expect(db.tx.rpgTransaction.create.mock.calls[0][0].data.key).toBe('learning:15');
+  });
   it('uses the same catalog level in the world, entry gate and battle, including a level 10 boss', async () => {
     await expect(
       adventure('user', { type: 'battle-start', language: 'JS', creature: 'null-titan' })

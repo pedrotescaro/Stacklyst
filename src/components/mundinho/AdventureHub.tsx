@@ -1250,29 +1250,6 @@ export function AdventureHub({
       {/* ============================================================ */}
       {view === 'avatar' && (
         <div className="ad-avatar-editor-view">
-          {/* Large Checkerboard Preview Area with Rotate Buttons */}
-          <div className="ad-checkerboard-preview">
-            <button
-              className="ad-rotate-btn"
-              aria-label={text('Girar à esquerda', 'Rotate left')}
-              onClick={() => setDirection((direction + 3) % 4)}
-            >
-              <RotateCcw size={22} />
-            </button>
-
-            <div className="ad-avatar-preview-box">
-              <PixelAvatar avatar={draft} direction={['down', 'right', 'up', 'left'][direction]} />
-            </div>
-
-            <button
-              className="ad-rotate-btn"
-              aria-label={text('Girar à direita', 'Rotate right')}
-              onClick={() => setDirection((direction + 1) % 4)}
-            >
-              <RotateCw size={22} />
-            </button>
-          </div>
-
           <section
             className="ad-portrait-editor"
             aria-label={text('Retrato de diálogo', 'Dialogue portrait')}
@@ -1290,6 +1267,28 @@ export function AdventureHub({
                   'Skin, eyes, hair, outfits and accessories follow your choices.'
                 )}
               </p>
+              <div className="ad-character-turntable">
+                <button
+                  className="ad-rotate-btn"
+                  aria-label={text('Girar à esquerda', 'Rotate left')}
+                  onClick={() => setDirection((direction + 3) % 4)}
+                >
+                  <RotateCcw size={18} />
+                </button>
+                <div className="ad-avatar-preview-box">
+                  <PixelAvatar
+                    avatar={draft}
+                    direction={['down', 'right', 'up', 'left'][direction]}
+                  />
+                </div>
+                <button
+                  className="ad-rotate-btn"
+                  aria-label={text('Girar à direita', 'Rotate right')}
+                  onClick={() => setDirection((direction + 1) % 4)}
+                >
+                  <RotateCw size={18} />
+                </button>
+              </div>
               <fieldset className="ad-gender-picker">
                 <legend>{text('Gênero do personagem', 'Character gender')}</legend>
                 {(

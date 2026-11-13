@@ -1,0 +1,63 @@
+/* The moving picture is a transparent PNG sequence, including its particles. */
+.battle-fx.battle-fx-sprites {
+  position: absolute;
+  width: 128px;
+  height: 128px;
+  left: 50%;
+  top: 44%;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 3;
+  contain: layout paint;
+}
+.battle-fx.battle-fx-sprites.fx-cast {
+  width: 128px;
+  height: 128px;
+}
+.battle-fx-spritesheet {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  animation: battle-sprite-frames var(--fx-duration, 450ms) steps(1, end) both;
+}
+.battle-sprite-enemy .battle-fx-sprites.fx-cast {
+  transform: translate(-50%, -50%) scaleX(-1);
+}
+@keyframes battle-sprite-frames {
+  0% {
+    background-position-x: 0%;
+  }
+  16.6667% {
+    background-position-x: 20%;
+  }
+  33.3333% {
+    background-position-x: 40%;
+  }
+  50% {
+    background-position-x: 60%;
+  }
+  66.6667% {
+    background-position-x: 80%;
+  }
+  83.3333%,
+  100% {
+    background-position-x: 100%;
+  }
+}
+@media (max-width: 600px) {
+  .battle-fx.battle-fx-sprites,
+  .battle-fx.battle-fx-sprites.fx-cast {
+    width: 96px;
+    height: 96px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .battle-fx-spritesheet {
+    animation: none;
+    background-position-x: 40%;
+  }
+  .battle-sprite-enemy .battle-fx-sprites.fx-cast {
+    transform: translate(-50%, -50%);
+  }
+}

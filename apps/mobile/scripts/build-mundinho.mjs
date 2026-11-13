@@ -15,6 +15,7 @@ for (const file of [
   'portal-hole.png',
   'challenge-objects.png',
   'battle-background.png',
+  'combat-effects.png',
   'equipment.png',
   'signpost.png',
   'habitats-back.png',

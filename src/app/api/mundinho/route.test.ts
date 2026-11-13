@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { MUNDINHO_LANGUAGE_HEADER } from '@/lib/mundinho/i18n';
 const calls = vi.hoisted(() => ({
   user: { id: 'authenticated-player' } as { id: string } | null,
   arena: vi.fn(),
@@ -15,7 +16,7 @@ vi.mock('@/lib/mundinho/repository', async (original) => ({
   ...(await original<typeof import('@/lib/mundinho/repository')>()),
   adventure: calls.adventure,
 }));
-import { POST } from './route';
+import { GET, POST } from './route';
 const request = (body: unknown, origin = 'http://localhost') =>
   new Request('http://localhost/api/mundinho', {
     method: 'POST',
@@ -33,6 +34,30 @@ beforeEach(() => {
   calls.adventure.mockReset();
 });
 describe('Authenticated multiplayer API dispatch', () => {
+  it('returns a localized retryable response for an expired database transaction', async () => {
+    const failure = Object.assign(new Error('Transaction expired; private database details'), {
+      code: 'P2028',
+    });
+    calls.adventure.mockRejectedValue(failure);
+    const response = await GET(new Request('http://localhost/api/mundinho'), {
+      params: Promise.resolve({}),
+    });
+    expect(response.status).toBe(503);
+    expect(await response.json()).toEqual({
+      error: 'MUNDINHO_UNAVAILABLE',
+      message: 'O Mundinho está demorando para responder. Tente novamente em instantes.',
+    });
+
+    calls.arena.mockRejectedValue(failure);
+    const englishRequest = request({ type: 'arena', action: { type: 'inbox' } });
+    englishRequest.headers.set(MUNDINHO_LANGUAGE_HEADER, 'en');
+    const englishResponse = await POST(englishRequest, { params: Promise.resolve({}) });
+    expect(englishResponse.status).toBe(503);
+    expect(await englishResponse.json()).toEqual({
+      error: 'MUNDINHO_UNAVAILABLE',
+      message: 'Mundinho is taking too long to respond. Please try again shortly.',
+    });
+  });
   it('derives identity from the session and validates the nested arena action', async () => {
     const response = await POST(
       request({

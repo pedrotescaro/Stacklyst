@@ -129,9 +129,9 @@ export const OUTFIT_SPECS = [
   {
     name: 'Jaqueta de aventura',
     kind: 'jacket',
-    jacket: '#c04f57',
-    shadow: '#8e2d34',
-    shirt: '#dae4ec',
+    jacket: '#b52c43',
+    shadow: '#74243a',
+    shirt: '#f1eee8',
     pants: '#293346',
     shoes: '#171e2d',
   },

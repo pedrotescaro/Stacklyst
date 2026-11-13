@@ -3,10 +3,25 @@ import { execFileSync } from 'node:child_process';
 import { deflateSync } from 'node:zlib';
 import sharp from 'sharp';
 import ts from 'typescript';
+import { drawWorldHair } from './lib/mundinho-world-hero-art.mjs';
+import { drawCompactHero } from './lib/mundinho-world-body-art.mjs';
 const dir = 'public/assets/mundinho',
   source = 'artifacts/mundinho/libresprite/refined';
 const sceneryOnly = process.argv.includes('--scenery-only');
 const charactersOnly = process.argv.includes('--characters-only');
+if (!charactersOnly) {
+  // The current scenery/creature authoring lives in v2. The legacy entry point
+  // must never re-export its older environment pixels over the latest assets.
+  execFileSync(
+    process.execPath,
+    [
+      'scripts/mundinho-sprites/build.mjs',
+      ...(sceneryOnly ? ['forest-ground', 'forest-scenery'] : []),
+    ],
+    { stdio: 'inherit' }
+  );
+  process.exit(0);
+}
 const paletteSource = await fs.readFile('src/lib/mundinho/avatar-palettes.ts', 'utf8');
 const { outputText } = ts.transpileModule(paletteSource, {
   compilerOptions: { module: ts.ModuleKind.ESNext },
@@ -15,17 +30,6 @@ const { SKIN_PALETTES, OUTFIT_SPECS, EYE_COLORS } = await import(
   `data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`
 );
 await fs.mkdir(source, { recursive: true });
-const skins = [
-  '#fcd4b8',
-  '#e8d3e8',
-  '#c89b70',
-  '#f6be9d',
-  '#c7cbe3',
-  '#fde5d0',
-  '#e2cb8b',
-  '#e7ded0',
-  '#ba8b7a',
-];
 const hairs = ['#17191f', '#684331', '#bd8240', '#dcd8d4', '#805d9e', '#c15e54'];
 const shade = (c, n) =>
   '#' +
@@ -116,114 +120,24 @@ async function exportAnimation(name, frames, columns = 8) {
     { stdio: 'pipe' }
   );
 }
-// Original skin pixels own the body anatomy; the face is independently refined below.
-const skinNames = [
-  'peach_fair',
-  'lilac_fantasy',
-  'warm_tan',
-  'rosy_peach',
-  'slate_fantasy',
-  'pale_ivory',
-  'warm_wheat',
-  'almond_sand',
-  'deep_cocoa',
-];
-const skinPixels = await Promise.all(
-  skinNames.map(async (name, i) =>
-    sharp(`${dir}/skins/skin_${i}_${name}.png`).ensureAlpha().raw().toBuffer()
-  )
-);
 function draw(layer, value, d, f, motion = 'walk') {
   const c = canvas(),
     side = d === 1 || d === 3,
     back = d === 2;
-  const step = [0, -1, 0, 1, 0, -1, 0, 1][f];
   const box = (x, y, w, h, col) => c.r(d === 3 ? 32 - x - w : x, y, w, h, col);
-  const copyPixel = (raw, sx, sy, x, y) => {
-    if (x < 0 || x >= 32 || y < 0 || y >= 32) return;
-    const source = (sy * 32 + sx) * 4,
-      target = (y * 32 + (d === 3 ? 31 - x : x)) * 4;
-    c.data.set(raw.subarray(source, source + 4), target);
-  };
-  if (layer === 'body') {
-    const raw = skinPixels[value % 9];
-    if (!side) {
-      for (let y = 0; y < 32; y++)
-        for (let x = 0; x < 32; x++) {
-          const offset =
-            y >= 23
-              ? x < 16
-                ? step
-                : -step
-              : y >= 19 && y <= 21 && (x <= 9 || x >= 21)
-                ? x < 16
-                  ? step
-                  : -step
-                : 0;
-          copyPixel(raw, x, y, x, y + offset);
-        }
-      if (back) {
-        // Back of the same head: remove facial marks without changing its contour.
-        for (let y = 10; y <= 14; y++) for (let x = 9; x <= 21; x++) copyPixel(raw, x, 9, x, y);
-      }
-    } else {
-      // Approved profile: retain the full original head width; only turn the features.
-      for (let y = 3; y <= 15; y++) for (let x = 8; x <= 22; x++) copyPixel(raw, x, y, x, y);
-      for (let y = 10; y <= 14; y++) for (let x = 9; x <= 21; x++) copyPixel(raw, x, 9, x, y);
-      // A single eye at the leading edge, with the original eyebrow and catchlight.
-      for (let y = 10; y <= 14; y++) for (let x = 19; x <= 20; x++) copyPixel(raw, x, y, x, y);
-      const base = skins[value % 9],
-        shadow = shade(base, -24),
-        light = shade(base, 17),
-        ink = '#000000';
-      // One connected silhouette: neck, shoulder, torso and hips have a continuous outline.
-      box(10, 16, 12, 1, shadow);
-      box(10, 17, 11, 2, ink);
-      box(11, 17, 9, 1, light);
-      box(11, 18, 9, 1, base);
-      box(11, 19, 10, 3, ink);
-      box(12, 19, 8, 3, base);
-      box(19, 19, 1, 3, shadow);
-      box(12, 22, 9, 1, ink);
-      box(13, 22, 7, 1, shadow);
-      // The near arm is filled skin, with an outline along the elbow and hand.
-      box(12, 18 + step, 4, 5, ink);
-      box(12, 18 + step, 3, 4, base);
-      box(12, 18 + step, 1, 2, light);
-      box(13, 23, 7, 1, shadow); // hips stay filled while the feet alternate
-      box(13, 23 + step, 7, 2, base);
-      box(13, 24 + step, 7, 1, shadow);
-      box(12, 25 + step, 9, 1, ink);
-      if (step) {
-        box(17, 23 - step, 3, 2, base);
-        box(17, 25 - step, 4, 1, ink);
-      }
-    }
-  }
-  if (layer === 'body') {
-    // Clean skin belongs to the body, never a baked fringe, eyebrow or eye.
-    // Keep the source silhouette and every body pixel below the chin intact.
-    const raw = skinPixels[value % 9],
-      p = SKIN_PALETTES[value % 9],
-      female = value >= 9;
-    for (let y = 3; y <= 15; y++)
-      for (let x = 0; x < 32; x++) {
-        if (!raw[(y * 32 + x) * 4 + 3]) continue;
-        const edge = x >= 21 || y === 15;
-        box(x, y, 1, 1, edge ? p.shadow : x <= 10 && y <= 9 ? p.highlight : p.base);
-      }
-    if (!back) {
-      if (!side) {
-        box(15, 14, 2, 1, shade(p.deepShadow, 20));
-        if (female) {
-          box(9, 13, 2, 1, p.blush);
-          box(20, 13, 2, 1, p.blush);
-        }
-      } else {
-        box(21, 14, 1, 1, shade(p.deepShadow, 20));
-        if (female) box(18, 13, 2, 1, p.blush);
-      }
-    }
+  if (layer === 'body' || layer === 'outfit') {
+    c.data.set(
+      drawCompactHero({
+        layer,
+        palette: layer === 'body' ? SKIN_PALETTES[value % 9] : OUTFIT_SPECS[value],
+        female: layer === 'body' && value >= 9,
+        direction: d,
+        frame: f,
+        motion,
+        shade,
+      })
+    );
+    return c;
   }
   if (layer === 'eyes' && !back) {
     const female = value >= 5,
@@ -237,583 +151,21 @@ function draw(layer, value, d, f, motion = 'walk') {
       box(x + 2, 12, 1, 1, shade(color, -28));
       box(x + 1, 11, 1, 1, '#ffffff');
       if (female) box(x + (side ? 2 : x < 15 ? -1 : 3), 9, 1, 1, ink);
-      else box(x, 8, 3, 1, '#6b5151');
-    }
-  }
-  if (layer === 'outfit') {
-    const p = OUTFIT_SPECS[value],
-      jacket = p.jacket,
-      shadow = p.shadow,
-      light = shade(jacket, 22),
-      kind = p.kind;
-    if (!side) {
-      // Fine coloured seams replace the heavy black blocks at the sleeve and hem.
-      box(9, 16, 13, 2, jacket);
-      box(8, 18, 15, 1, jacket);
-      box(11, 19, 9, 4, jacket);
-      box(19, 17, 2, 5, shadow);
-      box(11, 22, 9, 1, shadow);
-      box(9, 16, 4, 1, light);
-      for (const [right, off] of [
-        [false, step],
-        [true, -step],
-      ]) {
-        // Shoulder, upper arm and cuff form one sleeve, including the moving poses.
-        // The two skin pixels below each cuff stay uncovered.
-        box(right ? 19 : 8, 17 + off, 4, 3, jacket);
-        box(right ? 21 : 7, 18 + off, 3, 2, jacket);
-        box(right ? 24 : 6, 19 + off, 1, 2, shadow);
-        box(right ? 22 : 7, 19 + off, 2, 1, light);
-        box(right ? 20 : 9, 19 + off, 2, 2, shadow);
-      }
-      if (!back) {
-        if (['jacket', 'bomber', 'denim', 'cardigan', 'overcoat', 'coat'].includes(kind)) {
-          box(14, 17, 3, 5, p.shirt);
-          box(13, 17, 1, 3, light);
-          box(17, 17, 1, 4, shadow);
-        }
-        if (kind === 'hoodie') {
-          box(12, 16, 7, 1, p.shirt);
-          box(13, 17, 5, 1, shadow);
-          box(13, 18, 1, 2, p.shirt);
-          box(17, 18, 1, 2, p.shirt);
-          box(13, 21, 5, 1, light);
-        }
-        if (kind === 'tech') {
-          box(15, 17, 1, 5, p.shirt);
-          box(11, 19, 3, 1, p.shirt);
-        }
-        if (kind === 'sweater') {
-          box(12, 16, 7, 1, p.shirt);
-          box(11, 20, 9, 1, light);
-        }
-        if (kind === 'ceremonial') {
-          box(13, 16, 5, 1, p.shirt);
-          box(14, 17, 3, 3, p.shirt);
-          box(15, 17, 1, 3, '#6a3942');
-          box(11, 21, 9, 1, '#f4dd8e');
-        }
-        if (kind === 'denim') {
-          box(11, 18, 2, 1, light);
-          box(18, 18, 2, 1, light);
-        }
-        if (kind === 'bomber') {
-          box(11, 21, 9, 1, p.shirt);
-          box(6, 19 + step, 3, 1, p.shirt);
-        }
-        if (kind === 'sailor') {
-          box(12, 16, 7, 1, p.shirt);
-          box(13, 17, 5, 1, p.shirt);
-          box(14, 18, 3, 1, p.shirt);
-          box(15, 18, 1, 3, '#b84d69');
-        }
-        if (kind === 'tunic') {
-          box(12, 16, 7, 1, p.shirt);
-          box(15, 17, 1, 3, p.shirt);
-          box(11, 21, 9, 1, '#795342');
-          box(15, 21, 2, 1, '#dfbf78');
-        }
-      } else {
-        if (kind === 'hoodie') {
-          box(12, 16, 7, 2, shadow);
-          box(13, 16, 5, 1, light);
-        }
-        if (kind === 'sailor') {
-          box(11, 16, 9, 3, p.shirt);
-          box(12, 16, 7, 2, jacket);
-        }
-        if (kind === 'denim') box(11, 19, 9, 1, light);
-        if (kind === 'tech') box(13, 18, 5, 1, p.shirt);
-      }
-      if (['coat', 'cardigan', 'overcoat', 'tunic'].includes(kind)) {
-        box(10, 22, 11, kind === 'overcoat' ? 3 : 2, shadow);
-        box(10, 22, 3, 1, jacket);
-        box(18, 22, 3, 1, jacket);
-        if (!back) box(14, 22, 3, 1, p.pants);
-      }
-      for (const [x, off] of [
-        [11, step],
-        [17, -step],
-      ]) {
-        box(x, 23 + off, 3, 2, p.pants);
-        box(x, 24 + off, 1, 1, shade(p.pants, -15));
-        box(x - 1, 25 + off, 4, 1, p.shoes);
-        box(x, 25 + off, 2, 1, shade(p.shoes, 20));
-      }
-    } else {
-      box(10, 16, 12, 1, shadow);
-      box(10, 17, 11, 2, jacket);
-      box(11, 19, 10, 3, jacket);
-      box(19, 18, 2, 4, shadow);
-      box(12, 22, 9, 1, shadow);
-      box(11, 17, 2, 1, light);
-      box(12, 18 + step, 3, 2, jacket);
-      box(15, 18 + step, 1, 3, shadow);
-      box(12, 20 + step, 1, 1, light);
-      // Keep the near hand exposed in every pose.
-      for (let y = 20 + step; y <= 21 + step; y++)
-        for (let x = 12; x <= 14; x++) {
-          const px = d === 3 ? 31 - x : x;
-          c.data.fill(0, (y * 32 + px) * 4, (y * 32 + px) * 4 + 4);
-        }
-      if (['coat', 'cardigan', 'overcoat', 'tunic'].includes(kind))
-        box(11, 22, 10, kind === 'overcoat' ? 3 : 2, shadow);
-      if (!back) {
-        if (['jacket', 'bomber', 'denim', 'cardigan', 'overcoat', 'coat'].includes(kind))
-          box(20, 17, 1, 4, p.shirt);
-        if (kind === 'hoodie') {
-          box(12, 16, 5, 1, p.shirt);
-          box(18, 18, 1, 2, p.shirt);
-        }
-        if (kind === 'tech') box(18, 18, 2, 1, p.shirt);
-        if (kind === 'sweater' || kind === 'bomber') box(16, 21, 4, 1, p.shirt);
-        if (kind === 'sailor') {
-          box(12, 16, 7, 2, p.shirt);
-          box(19, 18, 1, 2, '#b84d69');
-        }
-        if (kind === 'tunic' || kind === 'ceremonial') box(16, 21, 5, 1, p.shirt);
-      }
-      box(13, 23, 7, 1, p.pants);
-      box(13, 23 + step, 7, 2, p.pants);
-      box(12, 25 + step, 9, 1, p.shoes);
-      if (step) {
-        box(17, 23 - step, 3, 2, p.pants);
-        box(17, 25 - step, 4, 1, p.shoes);
-      }
-    }
-    if (motion === 'attack') {
-      const reach = [0, 1, 2, 3, 5, 4, 2, 0][f];
-      box(20, 18, 3 + reach, 2, jacket);
-      box(23 + reach, 12, 1, 6, '#e0edf0');
-      box(22 + reach, 18, 3, 1, '#e4c473');
     }
   }
   if (layer === 'hair') {
-    const style = Math.floor(value / 6),
-      color = hairs[value % 6],
-      light = shade(color, 25),
-      dark = shade(color, -20);
-    // Shared skull coverage stops at the crown; every fringe below it is authored separately.
-    box(10, 3, 11, 1, color);
-    box(9, 4, 13, 1, color);
-    box(8, 5, 15, 2, color);
-    box(10, 4, 6, 1, light);
-    box(9, 5, 2, 1, light);
-    if (back) {
-      // Independent rear silhouettes, matching the length/texture of the approved profiles.
-      const rows = [
-        [
-          [8, 23],
-          [8, 23],
-          [8, 23],
-          [8, 23],
-          [9, 22],
-          [9, 22],
-          [10, 21],
-          [11, 20],
-        ],
-        [
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [8, 23],
-          [8, 23],
-          [9, 22],
-        ],
-        [
-          [7, 24],
-          [8, 24],
-          [7, 23],
-          [7, 24],
-          [8, 24],
-          [7, 23],
-          [8, 23],
-          [9, 22],
-          [10, 21],
-        ],
-        [
-          [7, 24],
-          [7, 24],
-          [8, 23],
-          [7, 24],
-          [8, 23],
-          [9, 22],
-          [10, 21],
-          [11, 20],
-        ],
-        [
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [7, 24],
-          [8, 23],
-          [8, 23],
-          [9, 22],
-        ],
-        [
-          [8, 23],
-          [8, 23],
-          [8, 23],
-          [8, 23],
-          [9, 22],
-          [9, 22],
-          [10, 21],
-          [11, 20],
-        ],
-      ][style];
-      rows.forEach(([left, right], i) => {
-        box(left, 7 + i, right - left, 1, color);
-        box(right - 2, 7 + i, 2, 1, dark);
-      });
-      box(10, 6, 7, 1, light);
-      if (style === 0) {
-        box(9, 8, 1, 3, light);
-        box(17, 8, 1, 4, dark);
-        box(12, 13, 7, 1, dark);
-        box(13, 12, 3, 1, color);
-      } else if (style === 1) {
-        box(8, 7, 1, 6, light);
-        box(11, 9, 1, 5, light);
-        box(18, 8, 1, 7, dark);
-        box(10, 15, 11, 1, dark);
-        box(11, 14, 7, 1, color);
-      } else if (style === 2) {
-        for (const [x, y] of [
-          [8, 7],
-          [13, 8],
-          [19, 7],
-          [10, 11],
-          [16, 12],
-        ]) {
-          box(x, y, 3, 1, light);
-          box(x + 2, y + 1, 1, 2, dark);
-        }
-        box(8, 14, 3, 1, dark);
-        box(14, 14, 3, 1, dark);
-      } else if (style === 3) {
-        box(7, 6, 2, 2, color);
-        box(22, 6, 2, 2, dark);
-        box(9, 9, 3, 1, light);
-        box(12, 8, 2, 1, light);
-        box(13, 10, 2, 3, dark);
-        box(18, 11, 2, 2, dark);
-      } else if (style === 4) {
-        // Long locks taper individually instead of ending in one rectangular slab.
-        box(8, 7, 1, 12, light);
-        box(11, 9, 1, 10, light);
-        box(15, 8, 1, 11, dark);
-        box(19, 9, 1, 11, dark);
-        box(9, 20, 2, 2, color);
-        box(13, 20, 3, 2, color);
-        box(18, 20, 2, 2, dark);
-        box(12, 20, 1, 2, dark);
-        box(16, 19, 1, 2, dark);
-      } else {
-        box(9, 8, 3, 1, light);
-        box(12, 9, 5, 1, light);
-        box(18, 7, 2, 1, light);
-        box(19, 10, 2, 2, dark);
-        // Gathered side ponytail curves outward before falling beside the nape.
-        box(21, 7, 2, 2, '#e4c473');
-        box(23, 6, 3, 2, color);
-        box(25, 7, 2, 4, color);
-        box(24, 11, 3, 3, color);
-        box(24, 14, 2, 3, color);
-        box(23, 17, 2, 1, dark);
-        box(24, 7, 1, 3, light);
-        box(26, 9, 1, 4, dark);
-        box(25, 14, 1, 2, dark);
-      }
-    } else if (side) {
-      // Continuous scalp coverage down from crown
-      box(8, 7, 13, 1, color); // y=7, x=8..20
-      box(8, 8, 11, 1, color); // y=8, x=8..18
-      box(8, 9, 10, 1, color); // y=9, x=8..17
-
-      // Mid-crown highlight sheen
-      box(11, 6, 5, 1, light);
-
-      if (style === 0) {
-        // 0: Short cropped / neat taper
-        // Airy fringe at brow
-        box(19, 7, 2, 1, color);
-        box(19, 8, 2, 1, color);
-        box(18, 9, 1, 1, color);
-        box(19, 8, 1, 1, light);
-
-        // Sideburn in front of ear
-        box(16, 9, 2, 2, color);
-        box(16, 11, 1, 1, color);
-
-        // Back of skull tapering neatly to nape
-        box(8, 10, 6, 1, color);
-        box(8, 11, 5, 1, color);
-        box(8, 12, 4, 1, color);
-        box(9, 13, 3, 1, dark);
-        box(9, 14, 2, 1, dark);
-      } else if (style === 1) {
-        // 1: Bob (Classic curved bob cupping the jaw)
-        // Rounded bangs above eye
-        box(19, 7, 3, 1, color);
-        box(18, 8, 3, 1, color);
-        box(19, 8, 1, 1, light);
-        box(17, 9, 2, 1, color);
-
-        // Full side covering ear and cheek
-        box(15, 9, 3, 1, color);
-        box(8, 10, 10, 1, color);
-        box(8, 11, 10, 1, color);
-        box(8, 12, 9, 1, color);
-        box(8, 13, 9, 1, color);
-
-        // Soft curved lower edge cupping jaw & nape
-        box(7, 7, 1, 6, color);
-        box(7, 10, 1, 3, dark);
-        box(8, 14, 8, 1, color);
-        box(14, 14, 2, 1, dark);
-        box(9, 15, 6, 1, dark);
-      } else if (style === 2) {
-        // 2: Curls / Wavy (Soft romantic textured curls)
-        // Scalloped bangs
-        box(19, 7, 3, 1, color);
-        box(18, 8, 3, 1, color);
-        box(19, 8, 1, 1, light);
-        box(17, 9, 2, 1, color);
-
-        // Side curl lock framing cheek
-        box(15, 9, 2, 1, color);
-        box(16, 10, 2, 3, color);
-        box(16, 13, 1, 1, dark);
-
-        // Textured back with curly ridges (solid, continuous)
-        box(7, 7, 1, 2, color);
-        box(8, 10, 9, 1, color);
-        box(7, 11, 10, 1, color);
-        box(7, 11, 1, 1, light);
-        box(7, 12, 10, 1, color);
-        box(8, 13, 8, 1, color);
-        box(7, 13, 1, 1, dark);
-        box(8, 14, 7, 1, dark);
-        box(9, 15, 4, 1, dark);
-      } else if (style === 3) {
-        // 3: Spiky / Swept Anime
-        // Top swept spikes
-        box(13, 1, 4, 2, color);
-        box(14, 1, 2, 1, light);
-        box(10, 2, 3, 1, light);
-        box(17, 2, 2, 2, dark);
-
-        // Sharp swept bangs
-        box(19, 7, 3, 1, color);
-        box(19, 8, 2, 1, color);
-        box(20, 8, 1, 1, light);
-        box(18, 9, 2, 1, color);
-
-        // Sharp sideburn lock
-        box(16, 9, 2, 2, color);
-        box(16, 11, 1, 2, color);
-        box(16, 13, 1, 1, dark);
-
-        // Swept tufts at back
-        box(7, 6, 1, 3, color);
-        box(6, 7, 1, 2, dark);
-        box(7, 9, 2, 2, color);
-        box(8, 10, 6, 1, color);
-        box(8, 11, 5, 1, color);
-        box(8, 12, 4, 1, dark);
-        box(9, 13, 3, 1, dark);
-      } else if (style === 4) {
-        // 4: Long Hair (Feminine long flowing locks)
-        // Elegant center-part fringe framing brow
-        box(19, 7, 3, 1, color);
-        box(18, 8, 3, 1, color);
-        box(19, 8, 1, 1, light);
-        box(17, 9, 2, 1, color);
-
-        // Graceful front lock falling over cheek and chest
-        box(16, 10, 2, 2, color);
-        box(15, 12, 2, 3, color);
-        box(15, 15, 2, 3, color);
-        box(16, 13, 1, 4, light);
-        box(15, 18, 1, 1, dark);
-
-        // Head coverage around ear (solid)
-        box(8, 10, 9, 1, color);
-        box(8, 11, 8, 1, color);
-        box(8, 12, 8, 1, color);
-        box(8, 13, 7, 1, color);
-
-        // Volume behind head
-        box(7, 7, 1, 6, color);
-        box(7, 8, 1, 4, light);
-
-        // Flowing mane down the back along torso
-        box(7, 13, 7, 1, color);
-        box(7, 14, 7, 1, color);
-        box(7, 15, 6, 1, color);
-        box(7, 16, 6, 1, color);
-        box(7, 17, 5, 1, color);
-        box(7, 18, 5, 1, color);
-        box(8, 19, 4, 1, color);
-        box(8, 20, 3, 1, color);
-        box(8, 21, 2, 1, dark);
-
-        // Sheen and shadow down the flowing hair
-        box(8, 14, 1, 5, light);
-        box(12, 13, 2, 2, dark);
-        box(11, 15, 2, 2, dark);
-        box(10, 17, 2, 2, dark);
-      } else if (style === 5) {
-        // 5: Side Ponytail (Lively anime ponytail)
-        // Swept asymmetric bangs
-        box(19, 7, 3, 1, color);
-        box(18, 8, 3, 1, color);
-        box(19, 8, 1, 1, light);
-        box(17, 9, 2, 1, color);
-        box(16, 10, 2, 2, color);
-
-        // Scalp pulled back smoothly
-        box(8, 10, 8, 1, color);
-        box(8, 11, 7, 1, color);
-        box(9, 12, 5, 1, color);
-        box(9, 13, 4, 1, dark);
-        box(10, 14, 2, 1, dark);
-
-        // Gather point & Hair tie (solidly connected to head)
-        box(8, 7, 2, 2, '#e4c473');
-
-        // Ponytail arching back and cascading down
-        box(6, 6, 3, 2, color);
-        box(6, 6, 2, 1, light);
-        box(4, 7, 3, 2, color);
-        box(5, 7, 1, 2, light);
-        box(4, 9, 3, 2, color);
-        box(4, 9, 1, 1, light);
-        box(6, 9, 1, 2, dark);
-        box(5, 11, 3, 2, color);
-        box(7, 11, 1, 2, dark);
-        box(5, 13, 3, 2, color);
-        box(6, 13, 1, 1, light);
-        box(7, 13, 1, 2, dark);
-        box(6, 15, 2, 1, color);
-        box(7, 15, 1, 1, dark);
-        box(6, 16, 1, 1, dark);
-      }
-    } else {
-      if (style === 0) {
-        // Short tapered cut with separated, soft swept bangs.
-        box(8, 7, 3, 2, color);
-        box(21, 7, 2, 3, dark);
-        box(10, 7, 5, 1, color);
-        box(13, 8, 2, 1, color);
-        box(17, 7, 4, 1, color);
-        box(19, 8, 2, 1, dark);
-        box(8, 9, 1, 3, color);
-        box(22, 10, 1, 2, dark);
-        box(11, 6, 4, 1, light);
-      } else if (style === 1) {
-        // Rounded bob: level fringe, curved cheeks and an inward-turning hem.
-        box(7, 6, 2, 8, color);
-        box(22, 6, 2, 8, dark);
-        box(9, 7, 13, 2, color);
-        box(11, 8, 3, 1, light);
-        box(11, 9, 3, 1, color);
-        box(17, 9, 3, 1, color);
-        box(7, 9, 1, 4, light);
-        box(8, 13, 2, 2, color);
-        box(21, 13, 2, 2, dark);
-        box(9, 15, 2, 1, dark);
-        box(20, 15, 2, 1, dark);
-      } else if (style === 2) {
-        // Wavy crown and scalloped locks echo the curls in profile.
-        for (const [x, y] of [
-          [8, 5],
-          [11, 4],
-          [15, 4],
-          [19, 5],
-          [9, 7],
-          [13, 7],
-          [17, 7],
-          [20, 7],
-        ]) {
-          box(x, y, 3, 2, color);
-          box(x, y, 2, 1, light);
-        }
-        box(7, 8, 2, 3, color);
-        box(8, 11, 2, 2, color);
-        box(8, 13, 1, 1, dark);
-        box(22, 8, 2, 3, dark);
-        box(21, 11, 2, 2, color);
-        box(22, 13, 1, 1, dark);
-      } else if (style === 3) {
-        // Layered anime sweep with a tapered outline, rather than a flat cap.
-        box(7, 6, 3, 3, color);
-        box(22, 6, 2, 3, dark);
-        box(10, 7, 5, 1, color);
-        box(14, 8, 4, 1, color);
-        box(16, 9, 3, 1, color);
-        box(18, 10, 2, 1, dark);
-        box(9, 9, 1, 3, color);
-        box(22, 10, 1, 2, dark);
-        box(11, 6, 4, 1, light);
-        box(18, 6, 3, 1, light);
-      } else if (style === 4) {
-        // Centre-parted long hair falls in two shaped locks clear of both eyes.
-        box(7, 6, 3, 10, color);
-        box(22, 6, 3, 10, color);
-        box(10, 7, 3, 2, color);
-        box(11, 9, 2, 1, color);
-        box(18, 7, 4, 2, color);
-        box(18, 9, 2, 1, dark);
-        box(7, 8, 1, 8, light);
-        box(23, 8, 2, 9, dark);
-        box(8, 15, 3, 4, color);
-        box(21, 15, 3, 4, color);
-        box(9, 17, 1, 3, light);
-        box(22, 16, 1, 3, dark);
-        box(9, 19, 2, 2, color);
-        box(21, 19, 2, 2, dark);
-        box(10, 21, 1, 1, dark);
-        box(21, 21, 1, 1, dark);
-      } else {
-        // Smooth swept bangs and the same arched ponytail seen in profile.
-        box(8, 7, 2, 3, color);
-        box(21, 7, 2, 3, dark);
-        box(10, 7, 9, 1, color);
-        box(10, 8, 6, 1, color);
-        box(10, 9, 4, 1, color);
-        box(10, 10, 2, 1, dark);
-        box(11, 6, 5, 1, light);
-        box(21, 7, 2, 2, '#e4c473');
-        box(23, 6, 3, 2, color);
-        box(25, 7, 2, 4, color);
-        box(24, 11, 3, 3, color);
-        box(24, 14, 2, 3, color);
-        box(23, 17, 2, 1, dark);
-        box(24, 7, 1, 3, light);
-        box(26, 9, 1, 4, dark);
-        box(25, 14, 1, 2, dark);
-      }
-    }
-    if (style === 3 && !side) {
-      box(11, 2, 3, 2, light);
-      box(16, 1, 3, 3, color);
-      box(20, 2, 3, 3, dark);
-    }
+    c.data.set(
+      drawWorldHair({
+        style: Math.floor(value / 6),
+        color: hairs[value % 6],
+        side,
+        back,
+        left: d === 3,
+        shade,
+      })
+    );
     if (!back) {
-      // Hair must never crop one iris or lash differently from the other.
-      // Reserve the actual eye shapes for both silhouettes in front and profile views.
+      // Reserve both silhouette variants' complete eye footprint under every fringe.
       const eyes = draw('eyes', 5, d, f);
       for (let i = 0; i < c.data.length; i += 4) if (eyes.data[i + 3]) c.data.fill(0, i, i + 4);
     }
@@ -929,14 +281,6 @@ function draw(layer, value, d, f, motion = 'walk') {
       box(tailX, 17, 2, 1, light);
     }
   }
-  if (layer === 'outfit' && side) {
-    // Long hems must never paint over the animated near hand.
-    for (let y = 20 + step; y <= 21 + step; y++)
-      for (let x = 12; x <= 14; x++) {
-        const px = d === 3 ? 31 - x : x;
-        c.data.fill(0, (y * 32 + px) * 4, (y * 32 + px) * 4 + 4);
-      }
-  }
   return c;
 }
 for (const [layer, count] of [
@@ -977,7 +321,7 @@ if (charactersOnly) {
         '.agents/skills/impeccable/scripts/embed-prompt.mjs',
         `${dir}/${name}.png`,
         '--prompt',
-        'Origin: original 32px character pixel artwork authored in scripts/refine-mundinho-sprites.mjs and exported from native animated ASE sources using LibreSprite 1.3. Twelve garments, independent hairstyle fringes, clean anime-inspired faces; original body anatomy below the face preserved.',
+        'Origin: original 32px character pixel artwork authored in scripts/refine-mundinho-sprites.mjs and scripts/lib/mundinho-world-hero-art.mjs and scripts/lib/mundinho-world-body-art.mjs, exported from native animated ASE sources using LibreSprite 1.3. Rounded chibi silhouettes, stepped swept hair, twelve garments and clean anime-inspired faces; compact chibi bodies with short legs and eight authored sword-swing poses. User-supplied character references informed proportions only.',
       ],
       { stdio: 'pipe' }
     );

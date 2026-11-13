@@ -346,6 +346,16 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
       } else codeRun = evaluateTrace(execution.output, challenge);
     }
   }
+  // Learning completions only increase. Read them before taking the player lock;
+  // sourceCoins is still checked and credited under that lock, so concurrent
+  // requests cannot award the same progress twice.
+  const [exercises, quizzes] = await Promise.all([
+    prisma.exerciseSubmission.count({ where: { user_id: userId, first_completion: true } }),
+    prisma.quizAttempt.count({
+      where: { user_id: userId, is_correct: true, quiz_id: { in: authoredIds } },
+    }),
+  ]);
+  const sourceCoins = (exercises + quizzes) * 5;
   return prisma.$transaction(
     async (tx) => {
       // The database clock is authoritative; clients never supply dates, prices, damage or rewards.
@@ -362,13 +372,6 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
       const inventory = player.inventory as string[];
       const equipped = player.equipped as Record<string, string>;
       const stats = equipmentStats(inventory, equipped);
-      const [exercises, quizzes] = await Promise.all([
-        tx.exerciseSubmission.count({ where: { user_id: userId, first_completion: true } }),
-        tx.quizAttempt.count({
-          where: { user_id: userId, is_correct: true, quiz_id: { in: authoredIds } },
-        }),
-      ]);
-      const sourceCoins = (exercises + quizzes) * 5;
       if (sourceCoins > player.sourceCoins) {
         await credit(
           tx,
@@ -697,6 +700,8 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
         missions: dailyMissions,
       };
     },
-    { maxWait: 10000, timeout: 20000 }
+    // Cold pooled connections can exceed 20s even for a normal state snapshot.
+    // Keep this below the route's 60s budget, including pool wait and preflight.
+    { maxWait: 10000, timeout: 30000 }
   );
 }

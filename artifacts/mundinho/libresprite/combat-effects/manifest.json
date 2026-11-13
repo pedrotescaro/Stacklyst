@@ -1,0 +1,29 @@
+{
+  "file": "combat-effects.png",
+  "cell": 64,
+  "frames": 6,
+  "rows": 27,
+  "kinds": [
+    "strike",
+    "focus",
+    "burst",
+    "slime",
+    "ice",
+    "fire",
+    "electric",
+    "plant",
+    "shadow"
+  ],
+  "stages": [
+    "cast",
+    "impact",
+    "heal"
+  ],
+  "durations": {
+    "cast": 350,
+    "impact": 450,
+    "heal": 450
+  },
+  "reducedMotionFrame": 2,
+  "origin": "Original pixel artwork authored in scripts/build-mundinho-combat-effects.mjs; the owner’s six-pose sword-swing reference informed the stepped crescent. Exported from editable combat-effects.ase by LibreSprite."
+}
