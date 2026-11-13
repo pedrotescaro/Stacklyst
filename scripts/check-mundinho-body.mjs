@@ -254,6 +254,34 @@ for (const [name, count] of Object.entries({
   assert.equal(info.width, 96 * count, `${name}: saved variant count`);
   assert.equal(info.height, 112, `${name}: portrait layer alignment`);
 }
+// Every portrait garment covers the torso. The skin layer must not extend beyond
+// its sleeves, including the narrower feminine shoulders and sailor uniform.
+const portraitBody = await load('portrait-body');
+const portraitOutfit = await load('portrait-outfit');
+for (let silhouette = 0; silhouette < 2; silhouette++)
+  for (let skin = 0; skin < 9; skin++) {
+    const bodyFrame = silhouette * 9 + skin;
+    const neckAlpha =
+      portraitBody.data[(78 * portraitBody.info.width + bodyFrame * 96 + 48) * 4 + 3];
+    assert.equal(neckAlpha, 255, `portrait skin ${skin}: neck remains connected`);
+    for (let outfit = 0; outfit < 12; outfit++) {
+      const outfitFrame = silhouette * 12 + outfit;
+      for (let y = 84; y < 112; y++)
+        for (let x = 0; x < 96; x++) {
+          if (x >= 34 && x <= 62) continue; // The neckline may intentionally expose the neck.
+          const bodyAlpha =
+            portraitBody.data[(y * portraitBody.info.width + bodyFrame * 96 + x) * 4 + 3];
+          if (!bodyAlpha) continue;
+          const outfitAlpha =
+            portraitOutfit.data[(y * portraitOutfit.info.width + outfitFrame * 96 + x) * 4 + 3];
+          assert.equal(
+            outfitAlpha,
+            255,
+            `portrait silhouette ${silhouette}, skin ${skin}, outfit ${outfit}: exposed skin outside sleeve at ${x},${y}`
+          );
+        }
+    }
+  }
 console.log(
   'Mundinho sprites: compact body, editor palettes, mirrored profiles, visible hands/eyes, eight sword poses and latest AAP-64 scenery/enemies verified.'
 );

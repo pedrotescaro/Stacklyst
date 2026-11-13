@@ -27,23 +27,8 @@ export function createPortraitArt({ SKIN_PALETTES, OUTFIT_SPECS, EYE_COLORS }) {
   function body(index, female) {
     const c = make(),
       p = SKIN_PALETTES[index];
-    // Broad cheek/jaw curve replaces the old narrow mannequin face.
-    shape(
-      c,
-      [
-        [8, 112],
-        [12, 93],
-        [19, 87],
-        [37, 81],
-        [40, 70],
-        [56, 70],
-        [59, 81],
-        [77, 87],
-        [84, 93],
-        [89, 112],
-      ],
-      p.shadow
-    );
+    // Garments own the shoulder/torso silhouette; skin supplies only the neck
+    // and head so it cannot protrude outside narrower sleeves.
     shape(
       c,
       [

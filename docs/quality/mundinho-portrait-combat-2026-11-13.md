@@ -8,6 +8,8 @@ O busto de 96 × 112 px foi redesenhado conforme a referência anime: rosto curv
 
 O corpo de 32 × 32 px tem cabeça arredondada e tronco compacto. A composição conserva nove peles, doze roupas, seis penteados, cinco cores de olhos, seis opções de acessórios e duas silhuetas, com os índices existentes. Corpo e roupa têm oito poses de ataque, incluindo braço e espada. Os atlas atuais de criaturas, `forest-ground`, `forest-scenery` e habitats foram preservados iguais à base remota; não integram o diff desta tarefa.
 
+A correção posterior das mangas removeu os ombros de pele que ultrapassavam o contorno da roupa, sobretudo no uniforme marinheiro feminino. A base do retrato mantém rosto e pescoço; cada roupa fornece seus próprios ombros. O contrato dos PNGs verifica as 216 combinações de pele, roupa e silhueta para impedir pele fora das mangas, preservando a conexão do pescoço. A comparação está em `artifacts/mundinho/portrait-refinement/shoulders-before-after.png` (antes à esquerda, depois à direita); os atlas e o bundle móvel foram regenerados.
+
 ## Fontes e regeneração
 
 | Família | Desenho e gerador | Fonte editável e saída |
