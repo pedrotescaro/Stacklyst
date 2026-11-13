@@ -27,6 +27,7 @@ const HERO_NAMES = new Set([
   'hero-outfit-attack',
   'hero-eyes',
   'hero-hair',
+  'hero-weapon-attack',
 ]);
 const PORTRAIT_NAMES = new Set(
   ASSETS.filter((asset) => asset.name.startsWith('portrait-')).map((asset) => asset.name)

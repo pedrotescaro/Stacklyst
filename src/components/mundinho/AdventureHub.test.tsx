@@ -309,6 +309,36 @@ describe('Mundinho battle navigation', () => {
     );
     expect(saved.avatar).toEqual({ ...DEFAULT_AVATAR, gender: 'feminine' });
   });
+  it('offers nine named hairstyles and saves all three new cuts across an editor reload', async () => {
+    let saved = state(null);
+    const transport = vi.fn<AdventureTransport>().mockImplementation(async (action) => {
+      if (action?.type === 'avatar') saved = { ...saved, avatar: action.avatar as Avatar };
+      return structuredClone(saved);
+    });
+    const view = render(<AdventureHub transport={transport} courses={[]} onCourse={() => {}} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Personalizar avatar' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Cabelo' }));
+    expect(document.querySelectorAll('.ad-option-tile')).toHaveLength(9);
+    for (const [index, name] of [
+      'Cachos volumosos',
+      'Coques duplos',
+      'Ondulado em camadas',
+    ].entries()) {
+      fireEvent.click(screen.getByRole('button', { name }));
+      expect(screen.getByRole('button', { name })).toHaveAttribute('aria-pressed', 'true');
+      fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+      await waitFor(() => expect(saved.avatar.hair).toBe(index + 6));
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Salvar' })).toBeEnabled());
+    }
+    view.unmount();
+    render(<AdventureHub transport={transport} courses={[]} onCourse={() => {}} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Personalizar avatar' }));
+    fireEvent.click(screen.getByRole('tab', { name: 'Cabelo' }));
+    expect(screen.getByRole('button', { name: 'Ondulado em camadas' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+  });
   it('moves the action cursor with WASD/arrows and submits only on confirmation', async () => {
     const active = state('active');
     let finish: (next: AdventureState) => void = () => {};

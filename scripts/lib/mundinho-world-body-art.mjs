@@ -60,6 +60,34 @@ export function drawCompactHero({
   const farShoulder = side ? [18 + twist, 17] : [12 + twist, 17];
   const farHand = side ? [19, 19 - step] : [9, 19 + step];
   const nearHand = attacking ? weaponHand : side ? [14, 19 + step] : weaponHand;
+  const drawWeapon = () => {
+    const hand = weaponHand,
+      tip = attackTips[f];
+    const dx = tip[0] - hand[0],
+      dy = tip[1] - hand[1];
+    const len = Math.max(Math.abs(dx), Math.abs(dy));
+    const ux = dx / len,
+      uy = dy / len;
+    const bladeStart = [hand[0] + Math.round(ux * 2), hand[1] + Math.round(uy * 2)];
+    line(bladeStart, tip, '#586e83', 2);
+    line(bladeStart, tip, '#edf6ff');
+    const guard = [hand[0] + Math.round(ux), hand[1] + Math.round(uy)];
+    line(
+      [guard[0] - Math.round(uy * 2), guard[1] + Math.round(ux * 2)],
+      [guard[0] + Math.round(uy * 2), guard[1] - Math.round(ux * 2)],
+      '#d8b76e'
+    );
+  };
+  if (layer === 'weapon') {
+    // A raised hand and sword pass in front of voluminous hair during the swing.
+    if (attacking) {
+      drawWeapon();
+      r(nearHand[0], nearHand[1], 2, 2, p.deepShadow);
+      r(nearHand[0], nearHand[1], 1, 1, p.highlight);
+      r(nearHand[0] + 1, nearHand[1], 1, 1, p.base);
+    }
+    return c.data;
+  }
 
   if (layer === 'body') {
     // Large round head, short neck and a five-pixel torso are intentional reference proportions.
@@ -185,23 +213,8 @@ export function drawCompactHero({
   r(torsoRight - 2, 18, 1, 3, p.shadow);
 
   if (attacking) {
-    const hand = weaponHand,
-      tip = attackTips[f];
-    const dx = tip[0] - hand[0],
-      dy = tip[1] - hand[1];
-    const len = Math.max(Math.abs(dx), Math.abs(dy));
-    const ux = dx / len,
-      uy = dy / len;
-    const bladeStart = [hand[0] + Math.round(ux * 2), hand[1] + Math.round(uy * 2)];
     // Steel outline, lit cutting edge and warm crossguard are part of the sprite frames.
-    line(bladeStart, tip, '#586e83', 2);
-    line(bladeStart, tip, '#edf6ff');
-    const guard = [hand[0] + Math.round(ux), hand[1] + Math.round(uy)];
-    line(
-      [guard[0] - Math.round(uy * 2), guard[1] + Math.round(ux * 2)],
-      [guard[0] + Math.round(uy * 2), guard[1] - Math.round(ux * 2)],
-      '#d8b76e'
-    );
+    drawWeapon();
   }
 
   for (const [shoulder, hand] of [

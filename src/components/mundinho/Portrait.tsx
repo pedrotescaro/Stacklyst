@@ -4,6 +4,7 @@ import { avatarHairColor, hairColorTransfer } from '../../lib/mundinho/hair-colo
 import { adventureAsset } from './assets';
 import { EYE_COLORS, OUTFIT_SPECS, SKIN_PALETTES } from '../../lib/mundinho/avatar-palettes';
 import { useLocalizedText } from '../../i18n/useLocalizedText';
+import HAIRSTYLES from '../../lib/mundinho/hairstyles.json';
 
 /** Independently drawn portrait layers; all indices share the avatar's saved wardrobe. */
 export function Portrait({
@@ -20,11 +21,11 @@ export function Portrait({
   const female = avatar.gender === 'feminine';
   const transfer = hairColorTransfer(avatarHairColor(avatar));
   const layers = [
-    ['hair-back', avatar.hair, 6],
+    ['hair-back', avatar.hair, HAIRSTYLES.length],
     ['body', avatar.skin + (female ? SKIN_PALETTES.length : 0), SKIN_PALETTES.length * 2],
     ['outfit', avatar.outfit + (female ? OUTFIT_SPECS.length : 0), OUTFIT_SPECS.length * 2],
     ['eyes', avatar.eyes + (female ? EYE_COLORS.length : 0), EYE_COLORS.length * 2],
-    ['hair', avatar.hair, 6],
+    ['hair', avatar.hair, HAIRSTYLES.length],
     ['accessory', avatar.accessory, 6],
   ] as const;
   return (

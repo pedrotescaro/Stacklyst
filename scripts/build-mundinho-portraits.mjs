@@ -20,6 +20,7 @@ const { SKIN_PALETTES, OUTFIT_SPECS, EYE_COLORS } = await import(
 );
 const source = 'artifacts/mundinho/libresprite/portraits';
 const output = 'public/assets/mundinho';
+const hairstyles = JSON.parse(await fs.readFile('src/lib/mundinho/hairstyles.json', 'utf8'));
 // Batch exports must not modify the artist's desktop profile (or need profile permissions).
 const exportProfile = await fs.mkdtemp(path.join(os.tmpdir(), 'stacklyst-portraits-'));
 const exportEnv = { ...process.env, APPDATA: exportProfile };
@@ -202,8 +203,8 @@ const sheets = [
     ),
   ],
   ['portrait-eyes', Array.from({ length: 10 }, (_, i) => eyes(i % 5, i >= 5))],
-  ['portrait-hair-back', Array.from({ length: 6 }, (_, i) => hair(i, true))],
-  ['portrait-hair', Array.from({ length: 6 }, (_, i) => hair(i))],
+  ['portrait-hair-back', Array.from({ length: hairstyles.length }, (_, i) => hair(i, true))],
+  ['portrait-hair', Array.from({ length: hairstyles.length }, (_, i) => hair(i))],
   ['portrait-accessory', Array.from({ length: 6 }, (_, i) => accessory(i))],
 ];
 const manifest = [];
@@ -362,5 +363,5 @@ await sharp(showcaseImage)
   .png()
   .toFile('artifacts/mundinho/portrait-refinement/reference-showcase.png');
 console.log(
-  `LibreSprite exported refined anime portraits: two silhouettes, 9 skins, ${OUTFIT_SPECS.length} distinct outfits, 5 eye colors, 6 independent fringes and 6 accessories. Hair colors are transferred at runtime.`
+  `LibreSprite exported refined anime portraits: two silhouettes, 9 skins, ${OUTFIT_SPECS.length} distinct outfits, 5 eye colors, ${hairstyles.length} independent fringes and 6 accessories. Hair colors are transferred at runtime.`
 );

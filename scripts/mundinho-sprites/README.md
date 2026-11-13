@@ -28,8 +28,11 @@ live in `artifacts/mundinho/libresprite/portraits/`.
 Scenery, habitats, creatures, the tileset reference and `hero-accessory` continue to
 use this directory's AAP-64 drawing programs and `artifacts/mundinho/libresprite-v2/`.
 The authored hero/portrait families retain the saved avatar colors and neutral hair
-ramp instead of being quantized to AAP-64. All families preserve their atlas dimensions
-and hard transparency. Every actual build writes `artifacts/mundinho/sprite-build-manifest.json`
+ramp instead of being quantized to AAP-64. All families preserve their cell dimensions,
+direction order and hard transparency. Hairstyle counts come from
+`src/lib/mundinho/hairstyles.json`: nine cuts, six color slots each, with the
+original six saved indices retained. World hair has 54 variants; front/back
+portrait hair has nine frames each. Every actual build writes `artifacts/mundinho/sprite-build-manifest.json`
 with the authoritative generator and ASE source for each PNG.
 
 The central builder passes an isolated temporary `APPDATA` profile to LibreSprite

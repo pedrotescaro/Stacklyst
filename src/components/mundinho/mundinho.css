@@ -1329,6 +1329,14 @@
   border-color: var(--ad-blue);
   background: var(--color-dd-surface, #112338);
 }
+.ad-hairstyle-name {
+  margin-top: 8px;
+  max-width: 100%;
+  font-size: 12px;
+  line-height: 1.3;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
 
 .ad-option-checkmark {
   position: absolute;

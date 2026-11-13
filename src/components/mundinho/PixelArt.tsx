@@ -3,6 +3,7 @@ import { adventureAsset } from './assets';
 import { brandGeometry } from '../../lib/brand-geometry';
 import { DEFAULT_AVATAR, type Avatar } from '../../lib/mundinho/types';
 import { EYE_COLORS, OUTFIT_SPECS, SKIN_PALETTES } from '../../lib/mundinho/avatar-palettes';
+import HAIRSTYLES from '../../lib/mundinho/hairstyles.json';
 import {
   avatarHairColor,
   hairColorTransfer,
@@ -47,7 +48,11 @@ export function PixelAvatar({
     ['body', avatar.skin + (female ? SKIN_PALETTES.length : 0), SKIN_PALETTES.length * 2],
     ['outfit', avatar.outfit, OUTFIT_SPECS.length],
     ['eyes', avatar.eyes + (female ? EYE_COLORS.length : 0), EYE_COLORS.length * 2],
-    ['hair', avatar.hair * 6 + (tinted ? 3 : avatar.hairColor), 36],
+    [
+      'hair',
+      avatar.hair * HAIR.length + (tinted ? 3 : avatar.hairColor),
+      HAIRSTYLES.length * HAIR.length,
+    ],
     ['accessory', avatar.accessory, 6],
   ] as const;
   return (
@@ -94,6 +99,18 @@ export function PixelAvatar({
             }}
           />
         ))}
+      {motion === 'attack' && (
+        <span
+          aria-hidden="true"
+          data-layer="weapon"
+          className="sprite-layer"
+          style={{
+            backgroundImage: `url(${adventureAsset('hero-weapon-attack.png', '/assets/mundinho')})`,
+            backgroundSize: `800% ${SKIN_PALETTES.length * 400}%`,
+            backgroundPositionY: `${((avatar.skin * 4 + d) / (SKIN_PALETTES.length * 4 - 1)) * 100}%`,
+          }}
+        />
+      )}
     </span>
   );
 }

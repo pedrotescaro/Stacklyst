@@ -7,6 +7,13 @@ import sharp from 'sharp';
 import ts from 'typescript';
 
 const root = 'public/assets/mundinho';
+const hairstyles = JSON.parse(fs.readFileSync('src/lib/mundinho/hairstyles.json', 'utf8'));
+const hairColorCount = 6;
+const hairVariants = hairstyles.length * hairColorCount;
+assert.deepEqual(
+  hairstyles.map((style) => style.id),
+  Array.from({ length: hairstyles.length }, (_, i) => i)
+);
 const palette = new Set(
   JSON.parse(fs.readFileSync('artifacts/mundinho/libresprite-v2/palette-aap-64.json', 'utf8'))
 );
@@ -36,7 +43,8 @@ const LAYERS = {
   'hero-outfit': 12,
   'hero-outfit-attack': 12,
   'hero-eyes': 10,
-  'hero-hair': 36,
+  'hero-hair': hairVariants,
+  'hero-weapon-attack': 9,
   'hero-accessory': 6,
 };
 const sheets = {};
@@ -62,7 +70,7 @@ for (const [name, variants] of Object.entries(LAYERS)) {
 }
 
 // Hair never covers the eyes (front and profile views).
-for (let hair = 0; hair < 36; hair++)
+for (let hair = 0; hair < hairVariants; hair++)
   for (let eyes = 0; eyes < 10; eyes++)
     for (const direction of [0, 1])
       for (let frame = 0; frame < 8; frame++)
@@ -211,7 +219,7 @@ const frameBytes = (sheet, variant, direction, frame) => {
     for (let x = 0; x < 32; x++) rows.push(pixel(sheet, variant, direction, frame, x, y));
   return Buffer.concat(rows).toString('hex');
 };
-for (const name of ['hero-body-attack', 'hero-outfit-attack'])
+for (const name of ['hero-body-attack', 'hero-outfit-attack', 'hero-weapon-attack'])
   for (let variant = 0; variant < LAYERS[name]; variant++)
     for (let direction = 0; direction < 4; direction++)
       assert.equal(
@@ -221,21 +229,24 @@ for (const name of ['hero-body-attack', 'hero-outfit-attack'])
         8,
         `${name} ${variant}: eight distinct arm/torso poses`
       );
-for (let direction = 0; direction < 4; direction++)
-  for (let frame = 0; frame < 8; frame++) {
-    let visibleBlade = 0;
-    for (let y = 0; y < 32; y++)
-      for (let x = 0; x < 32; x++)
-        if (
-          colorOf(pixel(sheets['hero-outfit-attack'], 0, direction, frame, x, y)) === 'edf6ff' &&
-          !pixel(sheets['hero-hair'], 0, direction, frame, x, y)[3]
-        )
-          visibleBlade++;
-    assert.ok(
-      visibleBlade >= 3,
-      `direction ${direction}, pose ${frame}: sword visible outside hair`
-    );
-  }
+// The foreground weapon layer is independent of hair, preserving every blade
+// pose while hairstyles retain their intended silhouettes.
+for (let skin = 0; skin < 9; skin++)
+  for (let direction = 0; direction < 4; direction++)
+    for (let frame = 0; frame < 8; frame++) {
+      let visibleBlade = 0;
+      for (let y = 0; y < 32; y++)
+        for (let x = 0; x < 32; x++)
+          if (
+            pixel(sheets['hero-weapon-attack'], skin, direction, frame, x, y)[3] &&
+            colorOf(pixel(sheets['hero-weapon-attack'], skin, direction, frame, x, y)) === 'edf6ff'
+          )
+            visibleBlade++;
+      assert.ok(
+        visibleBlade >= 3,
+        `weapon skin ${skin}, direction ${direction}, pose ${frame}: visible foreground sword`
+      );
+    }
 for (let skin = 0; skin < 9; skin++)
   assert.notEqual(
     frameBytes(sheets['hero-body'], skin, 0, 0),
@@ -246,14 +257,40 @@ for (const [name, count] of Object.entries({
   'portrait-body': 18,
   'portrait-outfit': 24,
   'portrait-eyes': 10,
-  'portrait-hair': 6,
-  'portrait-hair-back': 6,
+  'portrait-hair': hairstyles.length,
+  'portrait-hair-back': hairstyles.length,
   'portrait-accessory': 6,
 })) {
   const { info } = await load(name);
   assert.equal(info.width, 96 * count, `${name}: saved variant count`);
   assert.equal(info.height, 112, `${name}: portrait layer alignment`);
 }
+// A selected hairstyle must produce its own art in every view, not another
+// index into the same helmet. Compare the same color to ignore palette differences.
+for (let direction = 0; direction < 4; direction++) {
+  const styles = hairstyles.map((_, index) =>
+    frameBytes(sheets['hero-hair'], index * hairColorCount + 3, direction, 0)
+  );
+  assert.equal(
+    new Set(styles).size,
+    hairstyles.length,
+    `all hairstyles differ in direction ${direction}`
+  );
+}
+const portraitHair = await load('portrait-hair');
+const portraitStyles = hairstyles.map((_, style) => {
+  const rows = [];
+  for (let y = 0; y < 112; y++) {
+    const start = (y * portraitHair.info.width + style * 96) * 4;
+    rows.push(portraitHair.data.subarray(start, start + 96 * 4));
+  }
+  return Buffer.concat(rows).toString('hex');
+});
+assert.equal(
+  new Set(portraitStyles).size,
+  hairstyles.length,
+  'every hairstyle has a matching portrait'
+);
 // Every portrait garment covers the torso. The skin layer must not extend beyond
 // its sleeves, including the narrower feminine shoulders and sailor uniform.
 const portraitBody = await load('portrait-body');

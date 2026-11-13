@@ -34,6 +34,7 @@ import { executeCode } from '@/lib/code-execution/server';
 import { instrumentChallengeSource } from './codeChallengeStructures';
 import type { CodeRun } from './types';
 import { OUTFIT_SPECS } from './avatar-palettes';
+import HAIRSTYLES from './hairstyles.json';
 import {
   EQUIPMENT,
   directAttack,
@@ -48,7 +49,11 @@ const avatarSchema = z.object({
   gender: z.enum(['masculine', 'feminine']).optional(),
   skin: z.number().int().min(0).max(8),
   eyes: z.number().int().min(0).max(4),
-  hair: z.number().int().min(0).max(5),
+  hair: z
+    .number()
+    .int()
+    .min(0)
+    .max(HAIRSTYLES.length - 1),
   hairColor: z.number().int().min(0).max(5),
   hairTint: z
     .string()

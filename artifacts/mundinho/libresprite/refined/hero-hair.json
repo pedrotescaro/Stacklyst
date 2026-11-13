@@ -10366,6 +10366,5190 @@
     "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
     "sourceSize": { "w": 32, "h": 32 },
     "duration": 120
+   },
+   {
+    "filename": "hero-hair 1152.ase",
+    "frame": { "x": 0, "y": 4608, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1153.ase",
+    "frame": { "x": 32, "y": 4608, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1154.ase",
+    "frame": { "x": 64, "y": 4608, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1155.ase",
+    "frame": { "x": 96, "y": 4608, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1156.ase",
+    "frame": { "x": 128, "y": 4608, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1157.ase",
+    "frame": { "x": 160, "y": 4608, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1158.ase",
+    "frame": { "x": 192, "y": 4608, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1159.ase",
+    "frame": { "x": 224, "y": 4608, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1160.ase",
+    "frame": { "x": 0, "y": 4640, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1161.ase",
+    "frame": { "x": 32, "y": 4640, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1162.ase",
+    "frame": { "x": 64, "y": 4640, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1163.ase",
+    "frame": { "x": 96, "y": 4640, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1164.ase",
+    "frame": { "x": 128, "y": 4640, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1165.ase",
+    "frame": { "x": 160, "y": 4640, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1166.ase",
+    "frame": { "x": 192, "y": 4640, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1167.ase",
+    "frame": { "x": 224, "y": 4640, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1168.ase",
+    "frame": { "x": 0, "y": 4672, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1169.ase",
+    "frame": { "x": 32, "y": 4672, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1170.ase",
+    "frame": { "x": 64, "y": 4672, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1171.ase",
+    "frame": { "x": 96, "y": 4672, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1172.ase",
+    "frame": { "x": 128, "y": 4672, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1173.ase",
+    "frame": { "x": 160, "y": 4672, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1174.ase",
+    "frame": { "x": 192, "y": 4672, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1175.ase",
+    "frame": { "x": 224, "y": 4672, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1176.ase",
+    "frame": { "x": 0, "y": 4704, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1177.ase",
+    "frame": { "x": 32, "y": 4704, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1178.ase",
+    "frame": { "x": 64, "y": 4704, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1179.ase",
+    "frame": { "x": 96, "y": 4704, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1180.ase",
+    "frame": { "x": 128, "y": 4704, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1181.ase",
+    "frame": { "x": 160, "y": 4704, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1182.ase",
+    "frame": { "x": 192, "y": 4704, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1183.ase",
+    "frame": { "x": 224, "y": 4704, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1184.ase",
+    "frame": { "x": 0, "y": 4736, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1185.ase",
+    "frame": { "x": 32, "y": 4736, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1186.ase",
+    "frame": { "x": 64, "y": 4736, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1187.ase",
+    "frame": { "x": 96, "y": 4736, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1188.ase",
+    "frame": { "x": 128, "y": 4736, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1189.ase",
+    "frame": { "x": 160, "y": 4736, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1190.ase",
+    "frame": { "x": 192, "y": 4736, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1191.ase",
+    "frame": { "x": 224, "y": 4736, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1192.ase",
+    "frame": { "x": 0, "y": 4768, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1193.ase",
+    "frame": { "x": 32, "y": 4768, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1194.ase",
+    "frame": { "x": 64, "y": 4768, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1195.ase",
+    "frame": { "x": 96, "y": 4768, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1196.ase",
+    "frame": { "x": 128, "y": 4768, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1197.ase",
+    "frame": { "x": 160, "y": 4768, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1198.ase",
+    "frame": { "x": 192, "y": 4768, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1199.ase",
+    "frame": { "x": 224, "y": 4768, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1200.ase",
+    "frame": { "x": 0, "y": 4800, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1201.ase",
+    "frame": { "x": 32, "y": 4800, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1202.ase",
+    "frame": { "x": 64, "y": 4800, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1203.ase",
+    "frame": { "x": 96, "y": 4800, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1204.ase",
+    "frame": { "x": 128, "y": 4800, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1205.ase",
+    "frame": { "x": 160, "y": 4800, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1206.ase",
+    "frame": { "x": 192, "y": 4800, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1207.ase",
+    "frame": { "x": 224, "y": 4800, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1208.ase",
+    "frame": { "x": 0, "y": 4832, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1209.ase",
+    "frame": { "x": 32, "y": 4832, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1210.ase",
+    "frame": { "x": 64, "y": 4832, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1211.ase",
+    "frame": { "x": 96, "y": 4832, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1212.ase",
+    "frame": { "x": 128, "y": 4832, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1213.ase",
+    "frame": { "x": 160, "y": 4832, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1214.ase",
+    "frame": { "x": 192, "y": 4832, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1215.ase",
+    "frame": { "x": 224, "y": 4832, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1216.ase",
+    "frame": { "x": 0, "y": 4864, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1217.ase",
+    "frame": { "x": 32, "y": 4864, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1218.ase",
+    "frame": { "x": 64, "y": 4864, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1219.ase",
+    "frame": { "x": 96, "y": 4864, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1220.ase",
+    "frame": { "x": 128, "y": 4864, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1221.ase",
+    "frame": { "x": 160, "y": 4864, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1222.ase",
+    "frame": { "x": 192, "y": 4864, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1223.ase",
+    "frame": { "x": 224, "y": 4864, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1224.ase",
+    "frame": { "x": 0, "y": 4896, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1225.ase",
+    "frame": { "x": 32, "y": 4896, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1226.ase",
+    "frame": { "x": 64, "y": 4896, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1227.ase",
+    "frame": { "x": 96, "y": 4896, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1228.ase",
+    "frame": { "x": 128, "y": 4896, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1229.ase",
+    "frame": { "x": 160, "y": 4896, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1230.ase",
+    "frame": { "x": 192, "y": 4896, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1231.ase",
+    "frame": { "x": 224, "y": 4896, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1232.ase",
+    "frame": { "x": 0, "y": 4928, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1233.ase",
+    "frame": { "x": 32, "y": 4928, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1234.ase",
+    "frame": { "x": 64, "y": 4928, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1235.ase",
+    "frame": { "x": 96, "y": 4928, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1236.ase",
+    "frame": { "x": 128, "y": 4928, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1237.ase",
+    "frame": { "x": 160, "y": 4928, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1238.ase",
+    "frame": { "x": 192, "y": 4928, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1239.ase",
+    "frame": { "x": 224, "y": 4928, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1240.ase",
+    "frame": { "x": 0, "y": 4960, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1241.ase",
+    "frame": { "x": 32, "y": 4960, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1242.ase",
+    "frame": { "x": 64, "y": 4960, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1243.ase",
+    "frame": { "x": 96, "y": 4960, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1244.ase",
+    "frame": { "x": 128, "y": 4960, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1245.ase",
+    "frame": { "x": 160, "y": 4960, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1246.ase",
+    "frame": { "x": 192, "y": 4960, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1247.ase",
+    "frame": { "x": 224, "y": 4960, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1248.ase",
+    "frame": { "x": 0, "y": 4992, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1249.ase",
+    "frame": { "x": 32, "y": 4992, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1250.ase",
+    "frame": { "x": 64, "y": 4992, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1251.ase",
+    "frame": { "x": 96, "y": 4992, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1252.ase",
+    "frame": { "x": 128, "y": 4992, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1253.ase",
+    "frame": { "x": 160, "y": 4992, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1254.ase",
+    "frame": { "x": 192, "y": 4992, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1255.ase",
+    "frame": { "x": 224, "y": 4992, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1256.ase",
+    "frame": { "x": 0, "y": 5024, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1257.ase",
+    "frame": { "x": 32, "y": 5024, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1258.ase",
+    "frame": { "x": 64, "y": 5024, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1259.ase",
+    "frame": { "x": 96, "y": 5024, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1260.ase",
+    "frame": { "x": 128, "y": 5024, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1261.ase",
+    "frame": { "x": 160, "y": 5024, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1262.ase",
+    "frame": { "x": 192, "y": 5024, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1263.ase",
+    "frame": { "x": 224, "y": 5024, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1264.ase",
+    "frame": { "x": 0, "y": 5056, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1265.ase",
+    "frame": { "x": 32, "y": 5056, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1266.ase",
+    "frame": { "x": 64, "y": 5056, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1267.ase",
+    "frame": { "x": 96, "y": 5056, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1268.ase",
+    "frame": { "x": 128, "y": 5056, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1269.ase",
+    "frame": { "x": 160, "y": 5056, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1270.ase",
+    "frame": { "x": 192, "y": 5056, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1271.ase",
+    "frame": { "x": 224, "y": 5056, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1272.ase",
+    "frame": { "x": 0, "y": 5088, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1273.ase",
+    "frame": { "x": 32, "y": 5088, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1274.ase",
+    "frame": { "x": 64, "y": 5088, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1275.ase",
+    "frame": { "x": 96, "y": 5088, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1276.ase",
+    "frame": { "x": 128, "y": 5088, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1277.ase",
+    "frame": { "x": 160, "y": 5088, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1278.ase",
+    "frame": { "x": 192, "y": 5088, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1279.ase",
+    "frame": { "x": 224, "y": 5088, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1280.ase",
+    "frame": { "x": 0, "y": 5120, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1281.ase",
+    "frame": { "x": 32, "y": 5120, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1282.ase",
+    "frame": { "x": 64, "y": 5120, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1283.ase",
+    "frame": { "x": 96, "y": 5120, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1284.ase",
+    "frame": { "x": 128, "y": 5120, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1285.ase",
+    "frame": { "x": 160, "y": 5120, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1286.ase",
+    "frame": { "x": 192, "y": 5120, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1287.ase",
+    "frame": { "x": 224, "y": 5120, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1288.ase",
+    "frame": { "x": 0, "y": 5152, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1289.ase",
+    "frame": { "x": 32, "y": 5152, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1290.ase",
+    "frame": { "x": 64, "y": 5152, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1291.ase",
+    "frame": { "x": 96, "y": 5152, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1292.ase",
+    "frame": { "x": 128, "y": 5152, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1293.ase",
+    "frame": { "x": 160, "y": 5152, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1294.ase",
+    "frame": { "x": 192, "y": 5152, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1295.ase",
+    "frame": { "x": 224, "y": 5152, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1296.ase",
+    "frame": { "x": 0, "y": 5184, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1297.ase",
+    "frame": { "x": 32, "y": 5184, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1298.ase",
+    "frame": { "x": 64, "y": 5184, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1299.ase",
+    "frame": { "x": 96, "y": 5184, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1300.ase",
+    "frame": { "x": 128, "y": 5184, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1301.ase",
+    "frame": { "x": 160, "y": 5184, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1302.ase",
+    "frame": { "x": 192, "y": 5184, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1303.ase",
+    "frame": { "x": 224, "y": 5184, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1304.ase",
+    "frame": { "x": 0, "y": 5216, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1305.ase",
+    "frame": { "x": 32, "y": 5216, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1306.ase",
+    "frame": { "x": 64, "y": 5216, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1307.ase",
+    "frame": { "x": 96, "y": 5216, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1308.ase",
+    "frame": { "x": 128, "y": 5216, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1309.ase",
+    "frame": { "x": 160, "y": 5216, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1310.ase",
+    "frame": { "x": 192, "y": 5216, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1311.ase",
+    "frame": { "x": 224, "y": 5216, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1312.ase",
+    "frame": { "x": 0, "y": 5248, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1313.ase",
+    "frame": { "x": 32, "y": 5248, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1314.ase",
+    "frame": { "x": 64, "y": 5248, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1315.ase",
+    "frame": { "x": 96, "y": 5248, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1316.ase",
+    "frame": { "x": 128, "y": 5248, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1317.ase",
+    "frame": { "x": 160, "y": 5248, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1318.ase",
+    "frame": { "x": 192, "y": 5248, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1319.ase",
+    "frame": { "x": 224, "y": 5248, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1320.ase",
+    "frame": { "x": 0, "y": 5280, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1321.ase",
+    "frame": { "x": 32, "y": 5280, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1322.ase",
+    "frame": { "x": 64, "y": 5280, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1323.ase",
+    "frame": { "x": 96, "y": 5280, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1324.ase",
+    "frame": { "x": 128, "y": 5280, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1325.ase",
+    "frame": { "x": 160, "y": 5280, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1326.ase",
+    "frame": { "x": 192, "y": 5280, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1327.ase",
+    "frame": { "x": 224, "y": 5280, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1328.ase",
+    "frame": { "x": 0, "y": 5312, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1329.ase",
+    "frame": { "x": 32, "y": 5312, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1330.ase",
+    "frame": { "x": 64, "y": 5312, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1331.ase",
+    "frame": { "x": 96, "y": 5312, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1332.ase",
+    "frame": { "x": 128, "y": 5312, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1333.ase",
+    "frame": { "x": 160, "y": 5312, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1334.ase",
+    "frame": { "x": 192, "y": 5312, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1335.ase",
+    "frame": { "x": 224, "y": 5312, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1336.ase",
+    "frame": { "x": 0, "y": 5344, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1337.ase",
+    "frame": { "x": 32, "y": 5344, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1338.ase",
+    "frame": { "x": 64, "y": 5344, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1339.ase",
+    "frame": { "x": 96, "y": 5344, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1340.ase",
+    "frame": { "x": 128, "y": 5344, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1341.ase",
+    "frame": { "x": 160, "y": 5344, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1342.ase",
+    "frame": { "x": 192, "y": 5344, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1343.ase",
+    "frame": { "x": 224, "y": 5344, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1344.ase",
+    "frame": { "x": 0, "y": 5376, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1345.ase",
+    "frame": { "x": 32, "y": 5376, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1346.ase",
+    "frame": { "x": 64, "y": 5376, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1347.ase",
+    "frame": { "x": 96, "y": 5376, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1348.ase",
+    "frame": { "x": 128, "y": 5376, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1349.ase",
+    "frame": { "x": 160, "y": 5376, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1350.ase",
+    "frame": { "x": 192, "y": 5376, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1351.ase",
+    "frame": { "x": 224, "y": 5376, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1352.ase",
+    "frame": { "x": 0, "y": 5408, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1353.ase",
+    "frame": { "x": 32, "y": 5408, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1354.ase",
+    "frame": { "x": 64, "y": 5408, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1355.ase",
+    "frame": { "x": 96, "y": 5408, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1356.ase",
+    "frame": { "x": 128, "y": 5408, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1357.ase",
+    "frame": { "x": 160, "y": 5408, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1358.ase",
+    "frame": { "x": 192, "y": 5408, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1359.ase",
+    "frame": { "x": 224, "y": 5408, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1360.ase",
+    "frame": { "x": 0, "y": 5440, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1361.ase",
+    "frame": { "x": 32, "y": 5440, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1362.ase",
+    "frame": { "x": 64, "y": 5440, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1363.ase",
+    "frame": { "x": 96, "y": 5440, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1364.ase",
+    "frame": { "x": 128, "y": 5440, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1365.ase",
+    "frame": { "x": 160, "y": 5440, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1366.ase",
+    "frame": { "x": 192, "y": 5440, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1367.ase",
+    "frame": { "x": 224, "y": 5440, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1368.ase",
+    "frame": { "x": 0, "y": 5472, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1369.ase",
+    "frame": { "x": 32, "y": 5472, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1370.ase",
+    "frame": { "x": 64, "y": 5472, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1371.ase",
+    "frame": { "x": 96, "y": 5472, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1372.ase",
+    "frame": { "x": 128, "y": 5472, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1373.ase",
+    "frame": { "x": 160, "y": 5472, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1374.ase",
+    "frame": { "x": 192, "y": 5472, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1375.ase",
+    "frame": { "x": 224, "y": 5472, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1376.ase",
+    "frame": { "x": 0, "y": 5504, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1377.ase",
+    "frame": { "x": 32, "y": 5504, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1378.ase",
+    "frame": { "x": 64, "y": 5504, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1379.ase",
+    "frame": { "x": 96, "y": 5504, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1380.ase",
+    "frame": { "x": 128, "y": 5504, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1381.ase",
+    "frame": { "x": 160, "y": 5504, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1382.ase",
+    "frame": { "x": 192, "y": 5504, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1383.ase",
+    "frame": { "x": 224, "y": 5504, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1384.ase",
+    "frame": { "x": 0, "y": 5536, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1385.ase",
+    "frame": { "x": 32, "y": 5536, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1386.ase",
+    "frame": { "x": 64, "y": 5536, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1387.ase",
+    "frame": { "x": 96, "y": 5536, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1388.ase",
+    "frame": { "x": 128, "y": 5536, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1389.ase",
+    "frame": { "x": 160, "y": 5536, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1390.ase",
+    "frame": { "x": 192, "y": 5536, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1391.ase",
+    "frame": { "x": 224, "y": 5536, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1392.ase",
+    "frame": { "x": 0, "y": 5568, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1393.ase",
+    "frame": { "x": 32, "y": 5568, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1394.ase",
+    "frame": { "x": 64, "y": 5568, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1395.ase",
+    "frame": { "x": 96, "y": 5568, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1396.ase",
+    "frame": { "x": 128, "y": 5568, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1397.ase",
+    "frame": { "x": 160, "y": 5568, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1398.ase",
+    "frame": { "x": 192, "y": 5568, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1399.ase",
+    "frame": { "x": 224, "y": 5568, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1400.ase",
+    "frame": { "x": 0, "y": 5600, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1401.ase",
+    "frame": { "x": 32, "y": 5600, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1402.ase",
+    "frame": { "x": 64, "y": 5600, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1403.ase",
+    "frame": { "x": 96, "y": 5600, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1404.ase",
+    "frame": { "x": 128, "y": 5600, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1405.ase",
+    "frame": { "x": 160, "y": 5600, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1406.ase",
+    "frame": { "x": 192, "y": 5600, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1407.ase",
+    "frame": { "x": 224, "y": 5600, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1408.ase",
+    "frame": { "x": 0, "y": 5632, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1409.ase",
+    "frame": { "x": 32, "y": 5632, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1410.ase",
+    "frame": { "x": 64, "y": 5632, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1411.ase",
+    "frame": { "x": 96, "y": 5632, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1412.ase",
+    "frame": { "x": 128, "y": 5632, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1413.ase",
+    "frame": { "x": 160, "y": 5632, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1414.ase",
+    "frame": { "x": 192, "y": 5632, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1415.ase",
+    "frame": { "x": 224, "y": 5632, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1416.ase",
+    "frame": { "x": 0, "y": 5664, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1417.ase",
+    "frame": { "x": 32, "y": 5664, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1418.ase",
+    "frame": { "x": 64, "y": 5664, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1419.ase",
+    "frame": { "x": 96, "y": 5664, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1420.ase",
+    "frame": { "x": 128, "y": 5664, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1421.ase",
+    "frame": { "x": 160, "y": 5664, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1422.ase",
+    "frame": { "x": 192, "y": 5664, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1423.ase",
+    "frame": { "x": 224, "y": 5664, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1424.ase",
+    "frame": { "x": 0, "y": 5696, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1425.ase",
+    "frame": { "x": 32, "y": 5696, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1426.ase",
+    "frame": { "x": 64, "y": 5696, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1427.ase",
+    "frame": { "x": 96, "y": 5696, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1428.ase",
+    "frame": { "x": 128, "y": 5696, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1429.ase",
+    "frame": { "x": 160, "y": 5696, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1430.ase",
+    "frame": { "x": 192, "y": 5696, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1431.ase",
+    "frame": { "x": 224, "y": 5696, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1432.ase",
+    "frame": { "x": 0, "y": 5728, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1433.ase",
+    "frame": { "x": 32, "y": 5728, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1434.ase",
+    "frame": { "x": 64, "y": 5728, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1435.ase",
+    "frame": { "x": 96, "y": 5728, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1436.ase",
+    "frame": { "x": 128, "y": 5728, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1437.ase",
+    "frame": { "x": 160, "y": 5728, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1438.ase",
+    "frame": { "x": 192, "y": 5728, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1439.ase",
+    "frame": { "x": 224, "y": 5728, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1440.ase",
+    "frame": { "x": 0, "y": 5760, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1441.ase",
+    "frame": { "x": 32, "y": 5760, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1442.ase",
+    "frame": { "x": 64, "y": 5760, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1443.ase",
+    "frame": { "x": 96, "y": 5760, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1444.ase",
+    "frame": { "x": 128, "y": 5760, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1445.ase",
+    "frame": { "x": 160, "y": 5760, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1446.ase",
+    "frame": { "x": 192, "y": 5760, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1447.ase",
+    "frame": { "x": 224, "y": 5760, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1448.ase",
+    "frame": { "x": 0, "y": 5792, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1449.ase",
+    "frame": { "x": 32, "y": 5792, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1450.ase",
+    "frame": { "x": 64, "y": 5792, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1451.ase",
+    "frame": { "x": 96, "y": 5792, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1452.ase",
+    "frame": { "x": 128, "y": 5792, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1453.ase",
+    "frame": { "x": 160, "y": 5792, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1454.ase",
+    "frame": { "x": 192, "y": 5792, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1455.ase",
+    "frame": { "x": 224, "y": 5792, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1456.ase",
+    "frame": { "x": 0, "y": 5824, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1457.ase",
+    "frame": { "x": 32, "y": 5824, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1458.ase",
+    "frame": { "x": 64, "y": 5824, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1459.ase",
+    "frame": { "x": 96, "y": 5824, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1460.ase",
+    "frame": { "x": 128, "y": 5824, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1461.ase",
+    "frame": { "x": 160, "y": 5824, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1462.ase",
+    "frame": { "x": 192, "y": 5824, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1463.ase",
+    "frame": { "x": 224, "y": 5824, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1464.ase",
+    "frame": { "x": 0, "y": 5856, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1465.ase",
+    "frame": { "x": 32, "y": 5856, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1466.ase",
+    "frame": { "x": 64, "y": 5856, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1467.ase",
+    "frame": { "x": 96, "y": 5856, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1468.ase",
+    "frame": { "x": 128, "y": 5856, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1469.ase",
+    "frame": { "x": 160, "y": 5856, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1470.ase",
+    "frame": { "x": 192, "y": 5856, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1471.ase",
+    "frame": { "x": 224, "y": 5856, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1472.ase",
+    "frame": { "x": 0, "y": 5888, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1473.ase",
+    "frame": { "x": 32, "y": 5888, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1474.ase",
+    "frame": { "x": 64, "y": 5888, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1475.ase",
+    "frame": { "x": 96, "y": 5888, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1476.ase",
+    "frame": { "x": 128, "y": 5888, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1477.ase",
+    "frame": { "x": 160, "y": 5888, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1478.ase",
+    "frame": { "x": 192, "y": 5888, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1479.ase",
+    "frame": { "x": 224, "y": 5888, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1480.ase",
+    "frame": { "x": 0, "y": 5920, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1481.ase",
+    "frame": { "x": 32, "y": 5920, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1482.ase",
+    "frame": { "x": 64, "y": 5920, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1483.ase",
+    "frame": { "x": 96, "y": 5920, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1484.ase",
+    "frame": { "x": 128, "y": 5920, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1485.ase",
+    "frame": { "x": 160, "y": 5920, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1486.ase",
+    "frame": { "x": 192, "y": 5920, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1487.ase",
+    "frame": { "x": 224, "y": 5920, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1488.ase",
+    "frame": { "x": 0, "y": 5952, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1489.ase",
+    "frame": { "x": 32, "y": 5952, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1490.ase",
+    "frame": { "x": 64, "y": 5952, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1491.ase",
+    "frame": { "x": 96, "y": 5952, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1492.ase",
+    "frame": { "x": 128, "y": 5952, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1493.ase",
+    "frame": { "x": 160, "y": 5952, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1494.ase",
+    "frame": { "x": 192, "y": 5952, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1495.ase",
+    "frame": { "x": 224, "y": 5952, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1496.ase",
+    "frame": { "x": 0, "y": 5984, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1497.ase",
+    "frame": { "x": 32, "y": 5984, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1498.ase",
+    "frame": { "x": 64, "y": 5984, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1499.ase",
+    "frame": { "x": 96, "y": 5984, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1500.ase",
+    "frame": { "x": 128, "y": 5984, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1501.ase",
+    "frame": { "x": 160, "y": 5984, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1502.ase",
+    "frame": { "x": 192, "y": 5984, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1503.ase",
+    "frame": { "x": 224, "y": 5984, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1504.ase",
+    "frame": { "x": 0, "y": 6016, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1505.ase",
+    "frame": { "x": 32, "y": 6016, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1506.ase",
+    "frame": { "x": 64, "y": 6016, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1507.ase",
+    "frame": { "x": 96, "y": 6016, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1508.ase",
+    "frame": { "x": 128, "y": 6016, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1509.ase",
+    "frame": { "x": 160, "y": 6016, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1510.ase",
+    "frame": { "x": 192, "y": 6016, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1511.ase",
+    "frame": { "x": 224, "y": 6016, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1512.ase",
+    "frame": { "x": 0, "y": 6048, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1513.ase",
+    "frame": { "x": 32, "y": 6048, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1514.ase",
+    "frame": { "x": 64, "y": 6048, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1515.ase",
+    "frame": { "x": 96, "y": 6048, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1516.ase",
+    "frame": { "x": 128, "y": 6048, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1517.ase",
+    "frame": { "x": 160, "y": 6048, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1518.ase",
+    "frame": { "x": 192, "y": 6048, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1519.ase",
+    "frame": { "x": 224, "y": 6048, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1520.ase",
+    "frame": { "x": 0, "y": 6080, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1521.ase",
+    "frame": { "x": 32, "y": 6080, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1522.ase",
+    "frame": { "x": 64, "y": 6080, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1523.ase",
+    "frame": { "x": 96, "y": 6080, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1524.ase",
+    "frame": { "x": 128, "y": 6080, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1525.ase",
+    "frame": { "x": 160, "y": 6080, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1526.ase",
+    "frame": { "x": 192, "y": 6080, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1527.ase",
+    "frame": { "x": 224, "y": 6080, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1528.ase",
+    "frame": { "x": 0, "y": 6112, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1529.ase",
+    "frame": { "x": 32, "y": 6112, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1530.ase",
+    "frame": { "x": 64, "y": 6112, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1531.ase",
+    "frame": { "x": 96, "y": 6112, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1532.ase",
+    "frame": { "x": 128, "y": 6112, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1533.ase",
+    "frame": { "x": 160, "y": 6112, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1534.ase",
+    "frame": { "x": 192, "y": 6112, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1535.ase",
+    "frame": { "x": 224, "y": 6112, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1536.ase",
+    "frame": { "x": 0, "y": 6144, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1537.ase",
+    "frame": { "x": 32, "y": 6144, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1538.ase",
+    "frame": { "x": 64, "y": 6144, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1539.ase",
+    "frame": { "x": 96, "y": 6144, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1540.ase",
+    "frame": { "x": 128, "y": 6144, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1541.ase",
+    "frame": { "x": 160, "y": 6144, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1542.ase",
+    "frame": { "x": 192, "y": 6144, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1543.ase",
+    "frame": { "x": 224, "y": 6144, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1544.ase",
+    "frame": { "x": 0, "y": 6176, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1545.ase",
+    "frame": { "x": 32, "y": 6176, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1546.ase",
+    "frame": { "x": 64, "y": 6176, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1547.ase",
+    "frame": { "x": 96, "y": 6176, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1548.ase",
+    "frame": { "x": 128, "y": 6176, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1549.ase",
+    "frame": { "x": 160, "y": 6176, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1550.ase",
+    "frame": { "x": 192, "y": 6176, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1551.ase",
+    "frame": { "x": 224, "y": 6176, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1552.ase",
+    "frame": { "x": 0, "y": 6208, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1553.ase",
+    "frame": { "x": 32, "y": 6208, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1554.ase",
+    "frame": { "x": 64, "y": 6208, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1555.ase",
+    "frame": { "x": 96, "y": 6208, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1556.ase",
+    "frame": { "x": 128, "y": 6208, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1557.ase",
+    "frame": { "x": 160, "y": 6208, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1558.ase",
+    "frame": { "x": 192, "y": 6208, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1559.ase",
+    "frame": { "x": 224, "y": 6208, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1560.ase",
+    "frame": { "x": 0, "y": 6240, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1561.ase",
+    "frame": { "x": 32, "y": 6240, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1562.ase",
+    "frame": { "x": 64, "y": 6240, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1563.ase",
+    "frame": { "x": 96, "y": 6240, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1564.ase",
+    "frame": { "x": 128, "y": 6240, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1565.ase",
+    "frame": { "x": 160, "y": 6240, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1566.ase",
+    "frame": { "x": 192, "y": 6240, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1567.ase",
+    "frame": { "x": 224, "y": 6240, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1568.ase",
+    "frame": { "x": 0, "y": 6272, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1569.ase",
+    "frame": { "x": 32, "y": 6272, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1570.ase",
+    "frame": { "x": 64, "y": 6272, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1571.ase",
+    "frame": { "x": 96, "y": 6272, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1572.ase",
+    "frame": { "x": 128, "y": 6272, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1573.ase",
+    "frame": { "x": 160, "y": 6272, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1574.ase",
+    "frame": { "x": 192, "y": 6272, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1575.ase",
+    "frame": { "x": 224, "y": 6272, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1576.ase",
+    "frame": { "x": 0, "y": 6304, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1577.ase",
+    "frame": { "x": 32, "y": 6304, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1578.ase",
+    "frame": { "x": 64, "y": 6304, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1579.ase",
+    "frame": { "x": 96, "y": 6304, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1580.ase",
+    "frame": { "x": 128, "y": 6304, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1581.ase",
+    "frame": { "x": 160, "y": 6304, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1582.ase",
+    "frame": { "x": 192, "y": 6304, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1583.ase",
+    "frame": { "x": 224, "y": 6304, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1584.ase",
+    "frame": { "x": 0, "y": 6336, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1585.ase",
+    "frame": { "x": 32, "y": 6336, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1586.ase",
+    "frame": { "x": 64, "y": 6336, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1587.ase",
+    "frame": { "x": 96, "y": 6336, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1588.ase",
+    "frame": { "x": 128, "y": 6336, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1589.ase",
+    "frame": { "x": 160, "y": 6336, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1590.ase",
+    "frame": { "x": 192, "y": 6336, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1591.ase",
+    "frame": { "x": 224, "y": 6336, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1592.ase",
+    "frame": { "x": 0, "y": 6368, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1593.ase",
+    "frame": { "x": 32, "y": 6368, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1594.ase",
+    "frame": { "x": 64, "y": 6368, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1595.ase",
+    "frame": { "x": 96, "y": 6368, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1596.ase",
+    "frame": { "x": 128, "y": 6368, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1597.ase",
+    "frame": { "x": 160, "y": 6368, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1598.ase",
+    "frame": { "x": 192, "y": 6368, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1599.ase",
+    "frame": { "x": 224, "y": 6368, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1600.ase",
+    "frame": { "x": 0, "y": 6400, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1601.ase",
+    "frame": { "x": 32, "y": 6400, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1602.ase",
+    "frame": { "x": 64, "y": 6400, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1603.ase",
+    "frame": { "x": 96, "y": 6400, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1604.ase",
+    "frame": { "x": 128, "y": 6400, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1605.ase",
+    "frame": { "x": 160, "y": 6400, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1606.ase",
+    "frame": { "x": 192, "y": 6400, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1607.ase",
+    "frame": { "x": 224, "y": 6400, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1608.ase",
+    "frame": { "x": 0, "y": 6432, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1609.ase",
+    "frame": { "x": 32, "y": 6432, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1610.ase",
+    "frame": { "x": 64, "y": 6432, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1611.ase",
+    "frame": { "x": 96, "y": 6432, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1612.ase",
+    "frame": { "x": 128, "y": 6432, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1613.ase",
+    "frame": { "x": 160, "y": 6432, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1614.ase",
+    "frame": { "x": 192, "y": 6432, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1615.ase",
+    "frame": { "x": 224, "y": 6432, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1616.ase",
+    "frame": { "x": 0, "y": 6464, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1617.ase",
+    "frame": { "x": 32, "y": 6464, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1618.ase",
+    "frame": { "x": 64, "y": 6464, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1619.ase",
+    "frame": { "x": 96, "y": 6464, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1620.ase",
+    "frame": { "x": 128, "y": 6464, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1621.ase",
+    "frame": { "x": 160, "y": 6464, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1622.ase",
+    "frame": { "x": 192, "y": 6464, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1623.ase",
+    "frame": { "x": 224, "y": 6464, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1624.ase",
+    "frame": { "x": 0, "y": 6496, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1625.ase",
+    "frame": { "x": 32, "y": 6496, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1626.ase",
+    "frame": { "x": 64, "y": 6496, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1627.ase",
+    "frame": { "x": 96, "y": 6496, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1628.ase",
+    "frame": { "x": 128, "y": 6496, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1629.ase",
+    "frame": { "x": 160, "y": 6496, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1630.ase",
+    "frame": { "x": 192, "y": 6496, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1631.ase",
+    "frame": { "x": 224, "y": 6496, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1632.ase",
+    "frame": { "x": 0, "y": 6528, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1633.ase",
+    "frame": { "x": 32, "y": 6528, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1634.ase",
+    "frame": { "x": 64, "y": 6528, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1635.ase",
+    "frame": { "x": 96, "y": 6528, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1636.ase",
+    "frame": { "x": 128, "y": 6528, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1637.ase",
+    "frame": { "x": 160, "y": 6528, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1638.ase",
+    "frame": { "x": 192, "y": 6528, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1639.ase",
+    "frame": { "x": 224, "y": 6528, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1640.ase",
+    "frame": { "x": 0, "y": 6560, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1641.ase",
+    "frame": { "x": 32, "y": 6560, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1642.ase",
+    "frame": { "x": 64, "y": 6560, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1643.ase",
+    "frame": { "x": 96, "y": 6560, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1644.ase",
+    "frame": { "x": 128, "y": 6560, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1645.ase",
+    "frame": { "x": 160, "y": 6560, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1646.ase",
+    "frame": { "x": 192, "y": 6560, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1647.ase",
+    "frame": { "x": 224, "y": 6560, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1648.ase",
+    "frame": { "x": 0, "y": 6592, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1649.ase",
+    "frame": { "x": 32, "y": 6592, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1650.ase",
+    "frame": { "x": 64, "y": 6592, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1651.ase",
+    "frame": { "x": 96, "y": 6592, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1652.ase",
+    "frame": { "x": 128, "y": 6592, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1653.ase",
+    "frame": { "x": 160, "y": 6592, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1654.ase",
+    "frame": { "x": 192, "y": 6592, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1655.ase",
+    "frame": { "x": 224, "y": 6592, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1656.ase",
+    "frame": { "x": 0, "y": 6624, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1657.ase",
+    "frame": { "x": 32, "y": 6624, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1658.ase",
+    "frame": { "x": 64, "y": 6624, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1659.ase",
+    "frame": { "x": 96, "y": 6624, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1660.ase",
+    "frame": { "x": 128, "y": 6624, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1661.ase",
+    "frame": { "x": 160, "y": 6624, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1662.ase",
+    "frame": { "x": 192, "y": 6624, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1663.ase",
+    "frame": { "x": 224, "y": 6624, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1664.ase",
+    "frame": { "x": 0, "y": 6656, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1665.ase",
+    "frame": { "x": 32, "y": 6656, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1666.ase",
+    "frame": { "x": 64, "y": 6656, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1667.ase",
+    "frame": { "x": 96, "y": 6656, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1668.ase",
+    "frame": { "x": 128, "y": 6656, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1669.ase",
+    "frame": { "x": 160, "y": 6656, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1670.ase",
+    "frame": { "x": 192, "y": 6656, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1671.ase",
+    "frame": { "x": 224, "y": 6656, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1672.ase",
+    "frame": { "x": 0, "y": 6688, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1673.ase",
+    "frame": { "x": 32, "y": 6688, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1674.ase",
+    "frame": { "x": 64, "y": 6688, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1675.ase",
+    "frame": { "x": 96, "y": 6688, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1676.ase",
+    "frame": { "x": 128, "y": 6688, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1677.ase",
+    "frame": { "x": 160, "y": 6688, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1678.ase",
+    "frame": { "x": 192, "y": 6688, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1679.ase",
+    "frame": { "x": 224, "y": 6688, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1680.ase",
+    "frame": { "x": 0, "y": 6720, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1681.ase",
+    "frame": { "x": 32, "y": 6720, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1682.ase",
+    "frame": { "x": 64, "y": 6720, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1683.ase",
+    "frame": { "x": 96, "y": 6720, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1684.ase",
+    "frame": { "x": 128, "y": 6720, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1685.ase",
+    "frame": { "x": 160, "y": 6720, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1686.ase",
+    "frame": { "x": 192, "y": 6720, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1687.ase",
+    "frame": { "x": 224, "y": 6720, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1688.ase",
+    "frame": { "x": 0, "y": 6752, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1689.ase",
+    "frame": { "x": 32, "y": 6752, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1690.ase",
+    "frame": { "x": 64, "y": 6752, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1691.ase",
+    "frame": { "x": 96, "y": 6752, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1692.ase",
+    "frame": { "x": 128, "y": 6752, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1693.ase",
+    "frame": { "x": 160, "y": 6752, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1694.ase",
+    "frame": { "x": 192, "y": 6752, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1695.ase",
+    "frame": { "x": 224, "y": 6752, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1696.ase",
+    "frame": { "x": 0, "y": 6784, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1697.ase",
+    "frame": { "x": 32, "y": 6784, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1698.ase",
+    "frame": { "x": 64, "y": 6784, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1699.ase",
+    "frame": { "x": 96, "y": 6784, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1700.ase",
+    "frame": { "x": 128, "y": 6784, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1701.ase",
+    "frame": { "x": 160, "y": 6784, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1702.ase",
+    "frame": { "x": 192, "y": 6784, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1703.ase",
+    "frame": { "x": 224, "y": 6784, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1704.ase",
+    "frame": { "x": 0, "y": 6816, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1705.ase",
+    "frame": { "x": 32, "y": 6816, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1706.ase",
+    "frame": { "x": 64, "y": 6816, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1707.ase",
+    "frame": { "x": 96, "y": 6816, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1708.ase",
+    "frame": { "x": 128, "y": 6816, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1709.ase",
+    "frame": { "x": 160, "y": 6816, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1710.ase",
+    "frame": { "x": 192, "y": 6816, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1711.ase",
+    "frame": { "x": 224, "y": 6816, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1712.ase",
+    "frame": { "x": 0, "y": 6848, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1713.ase",
+    "frame": { "x": 32, "y": 6848, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1714.ase",
+    "frame": { "x": 64, "y": 6848, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1715.ase",
+    "frame": { "x": 96, "y": 6848, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1716.ase",
+    "frame": { "x": 128, "y": 6848, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1717.ase",
+    "frame": { "x": 160, "y": 6848, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1718.ase",
+    "frame": { "x": 192, "y": 6848, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1719.ase",
+    "frame": { "x": 224, "y": 6848, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1720.ase",
+    "frame": { "x": 0, "y": 6880, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1721.ase",
+    "frame": { "x": 32, "y": 6880, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1722.ase",
+    "frame": { "x": 64, "y": 6880, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1723.ase",
+    "frame": { "x": 96, "y": 6880, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1724.ase",
+    "frame": { "x": 128, "y": 6880, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1725.ase",
+    "frame": { "x": 160, "y": 6880, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1726.ase",
+    "frame": { "x": 192, "y": 6880, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
+   },
+   {
+    "filename": "hero-hair 1727.ase",
+    "frame": { "x": 224, "y": 6880, "w": 32, "h": 32 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 32, "h": 32 },
+    "sourceSize": { "w": 32, "h": 32 },
+    "duration": 120
    }
  ],
  "meta": {
@@ -10373,7 +15557,7 @@
   "version": "1.3",
   "image": "public/assets/mundinho/hero-hair.png",
   "format": "RGBA8888",
-  "size": { "w": 256, "h": 4608 },
+  "size": { "w": 256, "h": 6912 },
   "scale": "1"
  }
 }

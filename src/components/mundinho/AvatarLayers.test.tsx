@@ -3,6 +3,7 @@ import { expect, it } from 'vitest';
 import { PixelAvatar } from './PixelArt';
 import { Portrait } from './Portrait';
 import { DEFAULT_AVATAR } from '../../lib/mundinho/types';
+import HAIRSTYLES from '../../lib/mundinho/hairstyles.json';
 
 it('keeps the newest outfit available in the world and both portrait silhouettes', () => {
   const avatar = { ...DEFAULT_AVATAR, outfit: 11 };
@@ -68,4 +69,44 @@ it('changes both front and back hair layers when choosing another hairstyle', ()
   expect(
     container.querySelector<HTMLElement>('[data-layer="hair"]')!.style.backgroundPositionY
   ).not.toBe(world);
+});
+
+it('renders every new hairstyle at its own world and portrait atlas position', () => {
+  const { container, rerender } = render(<span />);
+  const positions = new Set<string>();
+  for (const hair of [6, 7, 8]) {
+    const avatar = { ...DEFAULT_AVATAR, hair, hairColor: 3, hairTint: '#2563eb' };
+    rerender(
+      <>
+        <PixelAvatar avatar={avatar} direction="left" />
+        <Portrait avatar={avatar} name="Jogador" />
+      </>
+    );
+    const world = container.querySelector<HTMLElement>('[data-layer="hair"]')!;
+    const front = container.querySelector<HTMLElement>('[data-portrait-layer="hair"]')!;
+    const back = container.querySelector<HTMLElement>('[data-portrait-layer="hair-back"]')!;
+    expect(world.style.backgroundSize).toBe(`800% ${HAIRSTYLES.length * 6 * 400}%`);
+    expect(parseFloat(world.style.backgroundPositionY)).toBeCloseTo(
+      (((hair * 6 + 3) * 4 + 3) / (HAIRSTYLES.length * 6 * 4 - 1)) * 100,
+      4
+    );
+    expect(front.style.backgroundSize).toBe(`${HAIRSTYLES.length * 100}% 100%`);
+    expect(parseFloat(front.style.backgroundPosition)).toBe((hair / (HAIRSTYLES.length - 1)) * 100);
+    expect(back.style.backgroundPosition).toBe(front.style.backgroundPosition);
+    expect(world.style.filter).toMatch(/^url\(["']?#hair-/);
+    positions.add(front.style.backgroundPosition);
+  }
+  expect(positions.size).toBe(3);
+});
+
+it('places the swinging sword and hand above voluminous hair only during attacks', () => {
+  const { container, rerender } = render(
+    <PixelAvatar avatar={{ ...DEFAULT_AVATAR, hair: 6, skin: 8 }} motion="attack" />
+  );
+  const layers = Array.from(container.querySelectorAll<HTMLElement>('[data-layer]'));
+  expect(layers.at(-1)?.dataset.layer).toBe('weapon');
+  expect(layers.at(-1)?.style.backgroundImage).toContain('hero-weapon-attack.png');
+  expect(layers.at(-1)?.style.backgroundPositionY).toBe(`${(32 / 35) * 100}%`);
+  rerender(<PixelAvatar avatar={{ ...DEFAULT_AVATAR, hair: 6, skin: 8 }} />);
+  expect(container.querySelector('[data-layer="weapon"]')).toBeNull();
 });

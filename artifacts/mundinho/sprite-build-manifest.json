@@ -95,9 +95,18 @@
       "name": "hero-hair",
       "output": "public/assets/mundinho/hero-hair.png",
       "width": 256,
-      "height": 4608,
+      "height": 6912,
       "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
       "source": "artifacts/mundinho/libresprite/refined/hero-hair.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-weapon-attack",
+      "output": "public/assets/mundinho/hero-weapon-attack.png",
+      "width": 256,
+      "height": 1152,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-weapon-attack.ase",
       "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
     },
     {
@@ -112,7 +121,7 @@
     {
       "name": "portrait-hair-back",
       "output": "public/assets/mundinho/portrait-hair-back.png",
-      "width": 576,
+      "width": 864,
       "height": 112,
       "builder": "scripts/build-mundinho-portraits.mjs",
       "source": "artifacts/mundinho/libresprite/portraits/portrait-hair-back.ase",
@@ -148,7 +157,7 @@
     {
       "name": "portrait-hair",
       "output": "public/assets/mundinho/portrait-hair.png",
-      "width": 576,
+      "width": 864,
       "height": 112,
       "builder": "scripts/build-mundinho-portraits.mjs",
       "source": "artifacts/mundinho/libresprite/portraits/portrait-hair.ase",

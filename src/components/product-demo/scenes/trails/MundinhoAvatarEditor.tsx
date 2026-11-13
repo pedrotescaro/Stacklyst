@@ -6,6 +6,7 @@ import { HAIR, OUTFIT, OUTFIT_SPECS, PixelAvatar, SKIN } from '@/components/mund
 import { Portrait } from '@/components/mundinho/Portrait';
 import { Coin } from '@/components/mundinho/PixelArt';
 import { ITEMS, type Avatar } from '@/lib/mundinho/types';
+import HAIRSTYLES from '@/lib/mundinho/hairstyles.json';
 import {
   avatarHairColor,
   LEGACY_HAIR_NAMES,
@@ -63,7 +64,7 @@ export function MundinhoAvatarEditor({
   const counts: Record<AvatarCategory, number> = {
     skin: SKIN.length,
     eyes: 5,
-    hair: 6,
+    hair: HAIRSTYLES.length,
     hairColor: HAIR.length,
     outfit: OUTFIT.length,
     accessory: 6,

@@ -31,6 +31,7 @@ const { SKIN_PALETTES, OUTFIT_SPECS, EYE_COLORS } = await import(
 );
 await fs.mkdir(source, { recursive: true });
 const hairs = ['#17191f', '#684331', '#bd8240', '#dcd8d4', '#805d9e', '#c15e54'];
+const hairstyles = JSON.parse(await fs.readFile('src/lib/mundinho/hairstyles.json', 'utf8'));
 const shade = (c, n) =>
   '#' +
   [1, 3, 5]
@@ -156,8 +157,8 @@ function draw(layer, value, d, f, motion = 'walk') {
   if (layer === 'hair') {
     c.data.set(
       drawWorldHair({
-        style: Math.floor(value / 6),
-        color: hairs[value % 6],
+        style: Math.floor(value / hairs.length),
+        color: hairs[value % hairs.length],
         side,
         back,
         left: d === 3,
@@ -287,7 +288,7 @@ for (const [layer, count] of [
   ['body', 18],
   ['eyes', 10],
   ['outfit', OUTFIT_SPECS.length],
-  ['hair', 36],
+  ['hair', hairstyles.length * hairs.length],
   // Accessories are exported separately from the character refinements.
   ...(!charactersOnly ? [['accessory', 6]] : []),
 ]) {
@@ -306,6 +307,25 @@ for (const [layer, count] of [
       for (let f = 0; f < 8; f++) frames.push(draw(layer, v, d, f, 'attack'));
   await exportAnimation(`hero-${layer}-attack`, frames);
 }
+// The blade and near fist render after hair, so long/voluminous styles cannot
+// hide the sword or require their silhouettes to be cut away during a swing.
+const weaponFrames = [];
+for (let skin = 0; skin < SKIN_PALETTES.length; skin++)
+  for (let direction = 0; direction < 4; direction++)
+    for (let frame = 0; frame < 8; frame++)
+      weaponFrames.push({
+        w: 32,
+        h: 32,
+        data: drawCompactHero({
+          layer: 'weapon',
+          palette: SKIN_PALETTES[skin],
+          direction,
+          frame,
+          motion: 'attack',
+          shade,
+        }),
+      });
+await exportAnimation('hero-weapon-attack', weaponFrames);
 if (charactersOnly) {
   for (const name of [
     'hero-body',
@@ -314,6 +334,7 @@ if (charactersOnly) {
     'hero-outfit',
     'hero-outfit-attack',
     'hero-hair',
+    'hero-weapon-attack',
   ]) {
     execFileSync(
       process.execPath,

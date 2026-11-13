@@ -52,6 +52,33 @@
     "spriteSourceSize": { "x": 0, "y": 0, "w": 96, "h": 112 },
     "sourceSize": { "w": 96, "h": 112 },
     "duration": 160
+   },
+   {
+    "filename": "portrait-hair 6.ase",
+    "frame": { "x": 576, "y": 0, "w": 96, "h": 112 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 96, "h": 112 },
+    "sourceSize": { "w": 96, "h": 112 },
+    "duration": 160
+   },
+   {
+    "filename": "portrait-hair 7.ase",
+    "frame": { "x": 672, "y": 0, "w": 96, "h": 112 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 96, "h": 112 },
+    "sourceSize": { "w": 96, "h": 112 },
+    "duration": 160
+   },
+   {
+    "filename": "portrait-hair 8.ase",
+    "frame": { "x": 768, "y": 0, "w": 96, "h": 112 },
+    "rotated": false,
+    "trimmed": false,
+    "spriteSourceSize": { "x": 0, "y": 0, "w": 96, "h": 112 },
+    "sourceSize": { "w": 96, "h": 112 },
+    "duration": 160
    }
  ],
  "meta": {
@@ -59,7 +86,7 @@
   "version": "1.3",
   "image": "public/assets/mundinho/portrait-hair.png",
   "format": "RGBA8888",
-  "size": { "w": 576, "h": 112 },
+  "size": { "w": 864, "h": 112 },
   "scale": "1"
  }
 }

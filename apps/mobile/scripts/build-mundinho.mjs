@@ -29,6 +29,7 @@ for (const file of [
   'portrait-accessory.png',
   'hero-body-attack.png',
   'hero-outfit-attack.png',
+  'hero-weapon-attack.png',
   'hero-outfit.png',
   'hero-eyes.png',
   'hero-hair.png',

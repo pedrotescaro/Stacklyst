@@ -1,5 +1,10 @@
 // Sheets the app already loads. Sizes and layouts are fixed by the game code:
 // changing them would move collisions, scale and animation offsets.
+import fs from 'node:fs';
+
+const hairstyles = JSON.parse(
+  fs.readFileSync(new URL('../../src/lib/mundinho/hairstyles.json', import.meta.url), 'utf8')
+);
 const FOREST = {
   includes: ['lib/terrain.js'],
   data: {
@@ -16,8 +21,20 @@ export const ASSETS = [
   // Trees and cabin, 8 × 11 cells of 176×160 (one per scenery object, same bases).
   { name: 'forest-scenery', file: 'forest-scenery.png', width: 1408, height: 1760, ...FOREST },
   // Tall grass where creatures hide: back and front layers, 3 variants of 72×48.
-  { name: 'habitats-back', file: 'habitats-back.png', width: 216, height: 48, includes: ['lib/habitat.js'] },
-  { name: 'habitats-front', file: 'habitats-front.png', width: 216, height: 48, includes: ['lib/habitat.js'] },
+  {
+    name: 'habitats-back',
+    file: 'habitats-back.png',
+    width: 216,
+    height: 48,
+    includes: ['lib/habitat.js'],
+  },
+  {
+    name: 'habitats-front',
+    file: 'habitats-front.png',
+    width: 216,
+    height: 48,
+    includes: ['lib/habitat.js'],
+  },
   // Hero layers, 32×32 frames: 8 columns × [variant × 4 directions].
   ...[
     ['hero-body', 18],
@@ -25,7 +42,8 @@ export const ASSETS = [
     ['hero-outfit', 12],
     ['hero-outfit-attack', 12],
     ['hero-eyes', 10],
-    ['hero-hair', 36],
+    ['hero-hair', hairstyles.length * 6],
+    ['hero-weapon-attack', 9],
     ['hero-accessory', 6],
   ].map(([name, variants]) => ({
     name,
@@ -37,11 +55,11 @@ export const ASSETS = [
   })),
   // Portrait layers (96×112 frames in one row).
   ...[
-    ['portrait-hair-back', 6],
+    ['portrait-hair-back', hairstyles.length],
     ['portrait-body', 18],
     ['portrait-outfit', 24],
     ['portrait-eyes', 10],
-    ['portrait-hair', 6],
+    ['portrait-hair', hairstyles.length],
     ['portrait-accessory', 6],
   ].map(([name, frames]) => ({
     name,

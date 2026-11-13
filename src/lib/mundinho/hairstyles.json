@@ -1,0 +1,11 @@
+[
+  { "id": 0, "name": "Desgrenhado", "nameEn": "Tousled" },
+  { "id": 1, "name": "Chanel", "nameEn": "Bob" },
+  { "id": 2, "name": "Desfiado", "nameEn": "Shaggy" },
+  { "id": 3, "name": "Espetado", "nameEn": "Spiky" },
+  { "id": 4, "name": "Longo repartido", "nameEn": "Long center part" },
+  { "id": 5, "name": "Rabo de cavalo", "nameEn": "Ponytail" },
+  { "id": 6, "name": "Cachos volumosos", "nameEn": "Voluminous curls" },
+  { "id": 7, "name": "Coques duplos", "nameEn": "Double buns" },
+  { "id": 8, "name": "Ondulado em camadas", "nameEn": "Layered waves" }
+]

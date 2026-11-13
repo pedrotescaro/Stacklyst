@@ -2,6 +2,7 @@
 
 import { useLocalizedText } from '../../i18n/useLocalizedText';
 import { translateMundinho } from '../../lib/mundinho/i18n';
+import HAIRSTYLES from '../../lib/mundinho/hairstyles.json';
 import {
   lazy,
   Suspense,
@@ -1359,7 +1360,7 @@ export function AdventureHub({
                   {
                     skin: SKIN.length,
                     eyes: 5,
-                    hair: 6,
+                    hair: HAIRSTYLES.length,
                     hairColor: HAIR.length,
                     outfit: OUTFIT.length,
                     accessory: 6,
@@ -1377,7 +1378,9 @@ export function AdventureHub({
                     aria-label={
                       category === 'outfit'
                         ? m(OUTFIT_SPECS[i].name)
-                        : `${category === 'hair' ? text('Cabelo', 'Hair') : category === 'skin' ? text('Corpo', 'Body') : category === 'eyes' ? text('Olhos', 'Eyes') : text('Acessório', 'Accessory')} ${i + 1}`
+                        : category === 'hair'
+                          ? text(HAIRSTYLES[i].name, HAIRSTYLES[i].nameEn)
+                          : `${category === 'skin' ? text('Corpo', 'Body') : category === 'eyes' ? text('Olhos', 'Eyes') : text('Acessório', 'Accessory')} ${i + 1}`
                     }
                     aria-pressed={isSelected}
                     title={category === 'outfit' ? m(OUTFIT_SPECS[i].name) : undefined}
@@ -1403,6 +1406,11 @@ export function AdventureHub({
                         }
                       />
                     </div>
+                    {category === 'hair' && (
+                      <span className="ad-hairstyle-name">
+                        {text(HAIRSTYLES[i].name, HAIRSTYLES[i].nameEn)}
+                      </span>
+                    )}
                     {locked && (
                       <div className="ad-option-locked-badge">
                         <Coin className="w-3.5 h-3.5" />

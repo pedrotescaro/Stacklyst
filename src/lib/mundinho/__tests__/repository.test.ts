@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { DEFAULT_AVATAR } from '../types';
+import HAIRSTYLES from '../hairstyles.json';
 const db = vi.hoisted(() => ({ tx: {} as Record<string, any>, execute: vi.fn(), random: vi.fn() }));
 vi.mock('node:crypto', async (original) => {
   const actual = await original<typeof import('node:crypto')>();
@@ -701,6 +702,29 @@ describe('Server encounter rules', () => {
     expect(
       actionSchema.safeParse({ type: 'avatar', avatar: { ...avatar, hairTint: 'url(script)' } })
         .success
+    ).toBe(false);
+  });
+  it('persists all three new hairstyles in either silhouette without changing saved color slots', async () => {
+    for (const gender of ['masculine', 'feminine'] as const)
+      for (const hair of [0, 5, 6, 7, 8]) {
+        const avatar = { ...DEFAULT_AVATAR, gender, hair, hairColor: 3, hairTint: '#2563eb' };
+        const parsed = actionSchema.parse({ type: 'avatar', avatar });
+        await adventure('user', parsed);
+        expect(db.tx.rpgPlayer.update).toHaveBeenLastCalledWith({
+          where: { userId: 'user' },
+          data: { avatar },
+        });
+        expect((await adventure('user')).avatar).toEqual(avatar);
+      }
+    for (const hair of [-1, HAIRSTYLES.length])
+      expect(
+        actionSchema.safeParse({ type: 'avatar', avatar: { ...DEFAULT_AVATAR, hair } }).success
+      ).toBe(false);
+    expect(
+      actionSchema.safeParse({
+        type: 'avatar',
+        avatar: { ...DEFAULT_AVATAR, hair: 8, hairColor: 6 },
+      }).success
     ).toBe(false);
   });
   it('asks the player to choose an attack before assigning a code challenge', async () => {
