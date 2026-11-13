@@ -120,4 +120,28 @@ describe('VeilBoss command flow', () => {
     click('ITEM');
     expect(button(/Fruta ×3/)).toBeInTheDocument();
   });
+  it('synchronizes cues with actions and volleys and stops music on pause and exit', () => {
+    const audio = { unlock: vi.fn(), play: vi.fn(), setBoss: vi.fn() };
+    const view = render(<VeilBoss assetBase="/assets/mundinho" audio={audio} onLeave={() => {}} />);
+    expect(audio.setBoss).toHaveBeenLastCalledWith(true);
+    click('ACT');
+    click(/Conversar/);
+    expect(audio.play).toHaveBeenLastCalledWith('talk');
+    click('Continuar');
+    tick(600);
+    expect(audio.play).not.toHaveBeenCalledWith('volley');
+    tick(100);
+    expect(audio.play.mock.calls.filter(([cue]) => cue === 'volley')).toHaveLength(1);
+    tick(300);
+    expect(audio.play.mock.calls.filter(([cue]) => cue === 'volley')).toHaveLength(1);
+    click('Pausar');
+    expect(audio.setBoss).toHaveBeenLastCalledWith(false);
+    const cues = audio.play.mock.calls.length;
+    tick(2000);
+    expect(audio.play).toHaveBeenCalledTimes(cues);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Continuar' })[0]);
+    expect(audio.setBoss).toHaveBeenLastCalledWith(true);
+    view.unmount();
+    expect(audio.setBoss).toHaveBeenLastCalledWith(false);
+  });
 });

@@ -17,6 +17,7 @@ import {
   type Shot,
   type Soul,
 } from '../../lib/mundinho/veil-boss';
+import type { BattleAudio } from '../../lib/mundinho/battleAudio';
 import { adventureAsset } from './assets';
 import './veil-boss.css';
 
@@ -81,11 +82,13 @@ export function VeilBoss({
   onLeave,
   username = 'Jogador',
   level = 1,
+  audio,
 }: {
   assetBase: string;
   onLeave: () => void;
   username?: string;
   level?: number;
+  audio?: Pick<BattleAudio, 'play' | 'setBoss' | 'unlock'>;
 }) {
   const { text: t } = useLocalizedText();
   const game = useRef(makeGame()),
@@ -97,6 +100,18 @@ export function VeilBoss({
   const [snapshot, render] = useState(game.current);
   const [paused, setPaused] = useState(false);
   const update = () => render({ ...game.current });
+  const musicPlaying = !paused && snapshot.phase !== 'won' && snapshot.phase !== 'lost';
+  useEffect(() => {
+    audio?.setBoss(musicPlaying);
+    return () => audio?.setBoss(false);
+  }, [audio, musicPlaying]);
+  useEffect(() => {
+    if (snapshot.phase === 'won') audio?.play(snapshot.spared ? 'spare' : 'victory');
+    else if (snapshot.phase === 'lost') audio?.play('defeat');
+  }, [audio, snapshot.phase, snapshot.spared]);
+  useEffect(() => {
+    audio?.play('encounter');
+  }, [audio]);
   const startDodge = () => {
     const g = game.current;
     Object.assign(g, {
@@ -115,6 +130,7 @@ export function VeilBoss({
   const strike = () => {
     const g = game.current;
     if (g.phase !== 'aim' || paused) return;
+    audio?.play('attack');
     g.damage = strikeDamage(aimMarker(g.elapsed));
     g.boss = Math.max(0, g.boss - g.damage);
     if (g.boss) startDodge();
@@ -125,6 +141,7 @@ export function VeilBoss({
   };
   const choose = (index: number) => {
     if (game.current.phase !== 'ready' || paused) return;
+    audio?.play('select');
     select(index);
     game.current.phase = (['aim', 'act', 'item', 'mercy'] as const)[index];
     game.current.elapsed = 0;
@@ -136,10 +153,12 @@ export function VeilBoss({
     update();
   };
   const back = () => {
+    audio?.play('select');
     game.current.phase = 'ready';
     update();
   };
   const talk = () => {
+    audio?.play('talk');
     const g = game.current;
     g.calm = Math.min(3, g.calm + 1);
     say(
@@ -160,6 +179,7 @@ export function VeilBoss({
     const restored = Math.min(10, 20 - g.health);
     g.health += restored;
     g.items--;
+    audio?.play('heal');
     say(
       t(
         `Você come uma fruta. Recuperou ${restored} HP.`,
@@ -212,12 +232,14 @@ export function VeilBoss({
         }
         if (g.elapsed >= FIRST_VOLLEY + g.beat * VOLLEY_INTERVAL) {
           g.shots.push(...volley(g.turn, g.beat++, g.soul));
+          audio?.play('volley');
         }
         const { shots, hit } = advanceShots(g.shots, dt, g.soul);
         g.shots = shots;
         g.grace = Math.max(0, g.grace - dt);
         if (hit && !g.grace) {
           g.health = Math.max(0, g.health - 3);
+          if (g.health > 0) audio?.play('hurt');
           g.grace = 0.95;
         }
         if (!g.health || g.elapsed >= DODGE_SECONDS) {
@@ -232,7 +254,7 @@ export function VeilBoss({
     };
     id = requestAnimationFrame(step);
     return () => cancelAnimationFrame(id);
-  }, [snapshot.phase, paused]);
+  }, [snapshot.phase, paused, audio]);
   useEffect(() => {
     if (paused) return;
     if (snapshot.phase === 'dodge') field.current?.focus({ preventScroll: true });
@@ -286,6 +308,8 @@ export function VeilBoss({
   return (
     <section
       ref={root}
+      onPointerDownCapture={() => audio?.unlock()}
+      onKeyDownCapture={() => audio?.unlock()}
       className="veil-boss"
       aria-label={t('Duelo do Guardião', 'Guardian duel')}
       onKeyDown={(e) => {
@@ -460,7 +484,13 @@ export function VeilBoss({
                       >
                         {t('Poupar', 'Spare')}
                       </button>
-                      <button data-veil-choice onClick={onLeave}>
+                      <button
+                        data-veil-choice
+                        onClick={() => {
+                          audio?.play('flee');
+                          onLeave();
+                        }}
+                      >
                         {t('Fugir', 'Flee')}
                       </button>
                       {snapshot.calm < 3 && (
@@ -486,6 +516,7 @@ export function VeilBoss({
                     <button
                       data-veil-choice
                       onClick={() => {
+                        audio?.play('encounter');
                         game.current = makeGame();
                         select(0);
                         update();
@@ -542,7 +573,10 @@ export function VeilBoss({
             data-command={i}
             aria-pressed={selected === i}
             disabled={phase !== 'ready' || paused}
-            onFocus={() => select(i)}
+            onFocus={() => {
+              if (selected !== i) audio?.play('select');
+              select(i);
+            }}
             onClick={() => choose(i)}
           >
             {selected === i ? <Heart /> : <CommandIcon index={i} />}

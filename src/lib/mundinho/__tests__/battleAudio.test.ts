@@ -1,9 +1,13 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { BattleAudio } from '../battleAudio';
 let created: number, started: number, stopped: number;
+let starts: number[];
 class FakeAudioContext {
   state = 'running';
-  currentTime = 0;
+  private origin = Date.now();
+  get currentTime() {
+    return (Date.now() - this.origin) / 1000;
+  }
   destination = {};
   constructor() {
     created++;
@@ -16,7 +20,8 @@ class FakeAudioContext {
       frequency: { setValueAtTime: () => {} },
       connect: () => {},
       disconnect: () => {},
-      start: () => {
+      start: (time: number) => {
+        starts.push(time);
         started++;
       },
       stop: () => {
@@ -40,6 +45,7 @@ class FakeAudioContext {
 beforeEach(() => {
   vi.useFakeTimers();
   created = started = stopped = 0;
+  starts = [];
   vi.stubGlobal('AudioContext', FakeAudioContext);
 });
 afterEach(() => {
@@ -56,7 +62,7 @@ describe('Battle audio lifecycle', () => {
     audio.setWorld(false);
     audio.setBattle(true);
     const before = started;
-    vi.advanceTimersByTime(220);
+    vi.advanceTimersByTime(440);
     expect(started - before).toBe(1);
     audio.setBattle(false);
     const exited = started;
@@ -72,12 +78,13 @@ describe('Battle audio lifecycle', () => {
     expect(created).toBe(0);
     expect(started).toBe(0);
     audio.unlock();
+    const music = started;
     audio.play('attack');
-    expect(started).toBe(3);
+    expect(started).toBe(music + 3);
     audio.play('victory');
-    expect(started).toBe(9);
-    vi.advanceTimersByTime(220);
-    expect(started).toBeGreaterThan(9);
+    expect(started).toBe(music + 9);
+    vi.advanceTimersByTime(440);
+    expect(started).toBeGreaterThan(music + 9);
     audio.dispose();
   });
   it('stops playback on mute/background and releases the battle loop on exit', () => {
@@ -102,6 +109,30 @@ describe('Battle audio lifecycle', () => {
     const exited = started;
     vi.advanceTimersByTime(2000);
     expect(started).toBe(exited);
+    audio.dispose();
+  });
+  it('schedules the tense boss track on the audio clock, without replaying overdue beats', () => {
+    const audio = new BattleAudio();
+    audio.unlock();
+    audio.setBoss(true);
+    expect(started).toBe(3); // Lead, bass and kick start together.
+    vi.advanceTimersByTime(325);
+    expect(starts.some((time) => Math.abs(time - 0.1) < 0.001)).toBe(true);
+    expect(starts.some((time) => Math.abs(time - 0.2) < 0.001)).toBe(true);
+    const beforeStall = started;
+    vi.setSystemTime(Date.now() + 5000);
+    vi.advanceTimersByTime(25);
+    expect(started - beforeStall).toBeLessThanOrEqual(3);
+    audio.setBoss(false);
+    const exited = started;
+    vi.advanceTimersByTime(1000);
+    expect(started).toBe(exited);
+    audio.setBoss(true);
+    audio.setEnabled(false);
+    const muted = started;
+    audio.play('volley');
+    vi.advanceTimersByTime(1000);
+    expect(started).toBe(muted);
     audio.dispose();
   });
 });

@@ -646,7 +646,7 @@ export function AdventureHub({
           )}
         </div>
 
-        {(view === 'world' || view === 'battle') && (
+        {(view === 'world' || view === 'battle' || view === 'boss') && (
           <button
             className="ad-battle-sound"
             aria-label={
@@ -1498,6 +1498,7 @@ export function AdventureHub({
 
       {view === 'boss' && (
         <VeilBoss
+          audio={battleAudio}
           onLeave={() => go('world')}
           assetBase={assetBase}
           username={data?.username}
