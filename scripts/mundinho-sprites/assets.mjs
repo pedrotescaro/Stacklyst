@@ -35,24 +35,19 @@ export const ASSETS = [
     height: 48,
     includes: ['lib/habitat.js'],
   },
-  // Hero layers, 32×32 frames: 8 columns × [variant × 4 directions].
-  ...[
-    ['hero-body', 18],
-    ['hero-body-attack', 18],
-    ['hero-outfit', 12],
-    ['hero-outfit-attack', 12],
-    ['hero-eyes', 10],
-    ['hero-hair', hairstyles.length * 6],
-    ['hero-weapon-attack', 9],
-    ['hero-accessory', 6],
-  ].map(([name, variants]) => ({
-    name,
-    file: `${name}.png`,
-    width: 256,
-    height: variants * 4 * 32,
-    includes: ['lib/hero.js'],
-    data: { AVATAR: 'data/avatar.json' },
-  })),
+  ...['', '-idle', '-attack', '-bow'].flatMap((suffix) =>
+    Object.entries({
+      body: 18,
+      outfit: 24,
+      eyes: 10,
+      hair: hairstyles.length * 6,
+      accessory: 6,
+      ...(['-attack', '-bow'].includes(suffix) ? { weapon: 9 } : {}),
+    }).map(([layer, variants]) => {
+      const name = 'hero-' + layer + suffix;
+      return { name, file: name + '.png', width: 288, height: variants * 4 * 48 };
+    })
+  ),
   // Portrait layers (96×112 frames in one row).
   ...[
     ['portrait-hair-back', hairstyles.length],

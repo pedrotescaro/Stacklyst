@@ -14,11 +14,7 @@ No selection builds the complete catalog. `--dry-run` prints the selected genera
 dimensions, palettes and editable sources without writing files or running LibreSprite.
 Unknown asset names fail instead of silently producing an empty build.
 
-The six authored hero layers form one aligned family. Selecting `hero`, `hero-body`,
-`hero-body-attack`, `hero-outfit`, `hero-outfit-attack`, `hero-eyes`, `hero-hair` or `hero-accessory`
-runs `scripts/refine-mundinho-sprites.mjs --characters-only` once. Sources live in
-`artifacts/mundinho/libresprite/refined/`; the generator uses the authored body/hair
-modules under `scripts/lib/`. It leaves creatures and scenery alone.
+The hero family imports the supplied tutorial player strips from `artifacts/mundinho/tutorial-source/`. Each motion uses six native frames in each direction. The 48px cells preserve the entire sword arc and a fixed ground anchor. Selecting `hero` or any hero layer builds the complete family. The editable exports are in `artifacts/mundinho/libresprite/refined/`. Run `npm run test:mundinho-sprites` to compare all 96 default poses against their source pixels.
 
 Selecting `portraits` or any `portrait-*` layer rebuilds all six portrait layers once
 through `scripts/build-mundinho-portraits.mjs`. Drawing geometry lives in

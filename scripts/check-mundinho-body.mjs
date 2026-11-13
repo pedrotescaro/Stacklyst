@@ -4,18 +4,10 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import sharp from 'sharp';
-import ts from 'typescript';
-import {
-  ARM_SWING,
-  FRONT_FEET,
-  SIDE_FEET,
-  WALK_BOB,
-} from './lib/mundinho-world-body-art.mjs';
-
+import { poses, directions } from './lib/tutorial-player.mjs';
+import { ASSETS } from './mundinho-sprites/assets.mjs';
 const root = 'public/assets/mundinho';
 const hairstyles = JSON.parse(fs.readFileSync('src/lib/mundinho/hairstyles.json', 'utf8'));
-const hairColorCount = 6;
-const hairVariants = hairstyles.length * hairColorCount;
 assert.deepEqual(
   hairstyles.map((style) => style.id),
   Array.from({ length: hairstyles.length }, (_, i) => i)
@@ -23,97 +15,75 @@ assert.deepEqual(
 const palette = new Set(
   JSON.parse(fs.readFileSync('artifacts/mundinho/libresprite-v2/palette-aap-64.json', 'utf8'))
 );
-const { outputText } = ts.transpileModule(
-  fs.readFileSync('src/lib/mundinho/avatar-palettes.ts', 'utf8'),
-  {
-    compilerOptions: { module: ts.ModuleKind.ESNext },
-  }
-);
-const { SKIN_PALETTES, OUTFIT_SPECS } = await import(
-  `data:text/javascript;base64,${Buffer.from(outputText).toString('base64')}`
-);
-const colorOf = (p) => [...p.subarray(0, 3)].map((v) => v.toString(16).padStart(2, '0')).join('');
-
 async function load(name) {
   return sharp(`${root}/${name}.png`).ensureAlpha().raw().toBuffer({ resolveWithObject: true });
 }
 
-function pixel(sheet, variant, direction, frame, x, y) {
-  const i = (((variant * 4 + direction) * 32 + y) * sheet.info.width + frame * 32 + x) * 4;
-  return sheet.data.subarray(i, i + 4);
+const heroes = ASSETS.filter((a) => a.name.startsWith('hero-'));
+function crop(sheet, v, d, f) {
+  const pixels = Buffer.alloc(48 * 48 * 4);
+  for (let y = 0; y < 48; y++) {
+    const start = (((v * 4 + d) * 48 + y) * sheet.info.width + f * 48) * 4;
+    sheet.data.copy(pixels, y * 48 * 4, start, start + 48 * 4);
+  }
+  return pixels;
 }
-
-const LAYERS = {
-  'hero-body': 18,
-  'hero-body-attack': 18,
-  'hero-outfit': 12,
-  'hero-outfit-attack': 12,
-  'hero-eyes': 10,
-  'hero-hair': hairVariants,
-  'hero-weapon-attack': 9,
-  'hero-accessory': 6,
-};
-const sheets = {};
-for (const [name, variants] of Object.entries(LAYERS)) {
-  const sheet = await load(name);
-  sheets[name] = sheet;
-  assert.equal(sheet.info.width, 256, `${name}: 8 frames of 32px`);
-  assert.equal(
-    sheet.info.height,
-    variants * 4 * 32,
-    `${name}: ${variants} variants × 4 directions`
-  );
-  // Left-facing rows are the exact mirror of right-facing rows.
-  for (let v = 0; v < variants; v++)
-    for (let f = 0; f < 8; f++)
-      for (let y = 0; y < 32; y++)
-        for (let x = 0; x < 32; x++)
-          assert.deepEqual(
-            [...pixel(sheet, v, 3, f, x, y)],
-            [...pixel(sheet, v, 1, f, 31 - x, y)],
-            `${name} variant ${v}: left must mirror right (frame ${f}, ${x},${y})`
-          );
-}
-
-// Hair never covers the eyes (front and profile views).
-for (let hair = 0; hair < hairVariants; hair++)
-  for (let eyes = 0; eyes < 10; eyes++)
-    for (const direction of [0, 1])
-      for (let frame = 0; frame < 8; frame++)
-        for (let y = 8; y <= 14; y++)
-          for (let x = 0; x < 32; x++)
-            if (pixel(sheets['hero-eyes'], eyes, direction, frame, x, y)[3])
-              assert.equal(
-                pixel(sheets['hero-hair'], hair, direction, frame, x, y)[3],
-                0,
-                `hair ${hair} covers eye ${eyes} (direction ${direction}, frame ${frame}, ${x},${y})`
-              );
-
-// Every outfit leaves the hands visible: some body pixels stay uncovered on each arm.
-for (let skin = 0; skin < 18; skin++)
-  for (let outfit = 0; outfit < 12; outfit++)
-    for (const [body, clothes] of [
-      ['hero-body', 'hero-outfit'],
-      ['hero-body-attack', 'hero-outfit-attack'],
-    ])
-      for (const direction of [0, 1, 2])
-        for (let frame = 0; frame < 8; frame++) {
-          const [y0, y1, x0, x1] = [18, 30, 0, 32];
-          let exposed = 0;
-          for (let y = y0; y < y1; y++)
-            for (let x = x0; x < x1; x++) {
-              const b = pixel(sheets[body], skin, direction, frame, x, y);
-              const c = pixel(sheets[clothes], outfit, direction, frame, x, y);
-              if (b[3] && !c[3]) exposed++;
-            }
-          assert.ok(
-            exposed >= 2,
-            `${clothes} ${outfit} hides the hands (dir ${direction}, frame ${frame})`
-          );
+for (const [motion, pose] of Object.entries(poses)) {
+  const suffix = motion === 'walk' ? '' : '-' + motion;
+  const layers = [
+    'body',
+    'outfit',
+    'eyes',
+    'hair',
+    'accessory',
+    ...(['attack', 'bow'].includes(motion) ? ['weapon'] : []),
+  ];
+  const sheets = await Promise.all(layers.map((l) => load('hero-' + l + suffix)));
+  for (const [i, sheet] of sheets.entries()) {
+    const asset = heroes.find((a) => a.name === 'hero-' + layers[i] + suffix);
+    assert.equal(sheet.info.height, asset.height);
+    assert.equal(sheet.info.width, 288);
+  }
+  for (let d = 0; d < 4; d++) {
+    const source = await sharp(
+      'artifacts/mundinho/tutorial-source/spr_personagem_' +
+        pose.source +
+        '_' +
+        directions[d] +
+        '_strip6.png'
+    )
+      .ensureAlpha()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const width = source.info.width / 6;
+    for (let f = 0; f < 6; f++) {
+      const frames = sheets.map((sheet, i) =>
+        crop(sheet, i === 0 || layers[i] === 'weapon' ? 2 : 0, d, f)
+      );
+      const actual = Buffer.alloc(48 * 48 * 4),
+        expected = Buffer.alloc(actual.length);
+      for (const frame of frames)
+        for (let i = 0; i < frame.length; i += 4) if (frame[i + 3]) frame.copy(actual, i, i, i + 4);
+      const [left, top] = pose.origins[d];
+      for (let y = 0; y < source.info.height; y++)
+        for (let x = 0; x < width; x++) {
+          const i = (y * source.info.width + f * width + x) * 4;
+          if (source.data[i + 3])
+            source.data.copy(expected, ((y + top) * 48 + left + x) * 4, i, i + 4);
         }
-
-// Authored hero (accessories included, they share its walk bob) and portrait colors
-// match the editor; scenery and enemies keep their AAP-64 contract. All use hard alpha.
+      assert.ok(
+        actual.equals(expected),
+        motion + ' direction ' + d + ' frame ' + f + ' must reproduce the supplied PNG'
+      );
+      assert.notDeepEqual(crop(sheets[0], 2, d, f), crop(sheets[0], 11, d, f), 'feminine variant');
+    }
+    const hair = sheets[layers.indexOf('hair')];
+    assert.equal(
+      new Set(hairstyles.map((_, n) => crop(hair, n * 6, d, 0).toString('hex'))).size,
+      hairstyles.length
+    );
+  }
+}
 const aapAssets = new Set([
   'creatures-animated',
   'forest-ground',
@@ -122,7 +92,7 @@ const aapAssets = new Set([
   'habitats-front',
 ]);
 const generated = [
-  ...Object.keys(LAYERS),
+  ...heroes.map((a) => a.name),
   'creatures-animated',
   'forest-ground',
   'forest-scenery',
@@ -147,188 +117,6 @@ for (const name of generated) {
   }
 }
 
-// The body is deliberately much smaller than the head: no long legs or broad boxy torso.
-for (let skin = 0; skin < 18; skin++) {
-  assert.equal(
-    colorOf(pixel(sheets['hero-body'], skin, 0, 0, 15, 10)),
-    SKIN_PALETTES[skin % 9].base.slice(1),
-    `skin ${skin}: exact editor palette`
-  );
-  for (let direction = 0; direction < 4; direction++)
-    for (let frame = 0; frame < 8; frame++)
-      for (let y = 16; y < 32; y++)
-        for (let x = 0; x < 32; x++) {
-          const occupied =
-            pixel(sheets['hero-body'], skin, direction, frame, x, y)[3] ||
-            pixel(sheets['hero-outfit'], 0, direction, frame, x, y)[3];
-          if (occupied)
-            assert.ok(x >= 8 && x <= 23 && y <= 25, `skin ${skin}: compact reference body bounds`);
-        }
-}
-for (let outfit = 0; outfit < 12; outfit++) {
-  const used = new Set();
-  for (let y = 0; y < 32; y++)
-    for (let x = 0; x < 32; x++) {
-      const p = pixel(sheets['hero-outfit'], outfit, 0, 0, x, y);
-      if (p[3]) used.add(colorOf(p));
-    }
-  assert.ok(
-    used.has(OUTFIT_SPECS[outfit].jacket.slice(1)),
-    `outfit ${outfit}: selected fabric color`
-  );
-}
-
-// Check both hands, independently of the permissive exposed-skin count above.
-// Hands follow the arm swing and, like the whole upper body, the walk bob.
-const steps = ARM_SWING;
-const attackHands = [
-  [21, 18],
-  [23, 16],
-  [24, 15],
-  [23, 17],
-  [24, 19],
-  [22, 21],
-  [20, 21],
-  [21, 19],
-];
-for (const attack of [false, true]) {
-  const body = sheets[attack ? 'hero-body-attack' : 'hero-body'];
-  const clothes = sheets[attack ? 'hero-outfit-attack' : 'hero-outfit'];
-  for (let skin = 0; skin < 18; skin++)
-    for (let outfit = 0; outfit < 12; outfit++)
-      for (let direction = 0; direction < 4; direction++)
-        for (let frame = 0; frame < 8; frame++) {
-          const side = direction === 1 || direction === 3;
-          const step = attack ? 0 : steps[frame];
-          const hands = [
-            side ? [14, 18 - step] : [10, 19 + step],
-            attack ? attackHands[frame] : side ? [17, 19 + step] : [20, 19 - step],
-          ];
-          for (const [x, handY] of hands) {
-            const y = handY + WALK_BOB[frame];
-            const xx = direction === 3 || (attack && direction === 2) ? 31 - x : x;
-            assert.equal(
-              pixel(body, skin, direction, frame, xx, y)[3],
-              255,
-              `skin ${skin}: hand exists in pose ${frame}`
-            );
-            assert.equal(
-              pixel(clothes, outfit, direction, frame, xx, y)[3],
-              0,
-              `outfit ${outfit}: hand exposed in pose ${frame}`
-            );
-          }
-        }
-}
-// Both soles connect back to the torso and remain outside the long hair in every
-// walk/attack pose. This catches overlapping profile boots and floating feet.
-function connectedToTorso(sheet, variant, direction, frame, targetX, targetY) {
-  const pending = Array.from({ length: 8 }, (_, i) => [13 + i, 17]),
-    seen = new Set();
-  while (pending.length) {
-    const [x, y] = pending.pop();
-    const key = y * 32 + x;
-    if (x < 8 || x > 23 || y < 16 || y > 25 || seen.has(key)) continue;
-    seen.add(key);
-    if (!pixel(sheet, variant, direction, frame, x, y)[3]) continue;
-    if (x === targetX && y === targetY) return true;
-    pending.push([x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]);
-  }
-  return false;
-}
-for (const attack of [false, true]) {
-  const body = sheets[attack ? 'hero-body-attack' : 'hero-body'];
-  const clothes = sheets[attack ? 'hero-outfit-attack' : 'hero-outfit'];
-  for (let direction = 0; direction < 4; direction++)
-    for (let frame = 0; frame < 8; frame++) {
-      const side = direction === 1 || direction === 3;
-      // Soles sit on the ground row unless the walk cycle lifts or moves that foot.
-      const states = attack ? [{}, {}] : (side ? SIDE_FEET : FRONT_FEET)[frame];
-      const soles = (side ? [14, 19] : [13, 19]).map((x, i) => [
-        x + (states[i].dx ?? 0),
-        25 - (states[i].lift ?? 0),
-      ]);
-      for (const [x, y] of soles) {
-        const xx = direction === 3 || (attack && direction === 2) ? 31 - x : x;
-        for (let skin = 0; skin < 18; skin++)
-          assert.ok(
-            connectedToTorso(body, skin, direction, frame, xx, y),
-            `skin ${skin}: bare foot connects to body (dir ${direction}, pose ${frame})`
-          );
-        for (let outfit = 0; outfit < 12; outfit++) {
-          assert.ok(
-            connectedToTorso(clothes, outfit, direction, frame, xx, y),
-            `outfit ${outfit}: boot connects to hem (dir ${direction}, pose ${frame})`
-          );
-          const used = new Set();
-          for (let sy = 23; sy <= 25; sy++)
-            for (let sx = 8; sx <= 23; sx++) {
-              const p = pixel(clothes, outfit, direction, frame, sx, sy);
-              if (p[3]) used.add(colorOf(p));
-            }
-          assert.ok(used.size >= 3, `outfit ${outfit}: boot/toe/sole shading remains readable`);
-        }
-        for (let hair = 0; hair < hairVariants; hair++)
-          assert.equal(
-            pixel(sheets['hero-hair'], hair, direction, frame, xx, y)[3],
-            0,
-            `hair ${hair}: cannot hide sole (dir ${direction}, pose ${frame})`
-          );
-      }
-      // The same ankle/foot mask keeps bare-skin previews complete without any
-      // skin leaking below trousers or outside the boots when a garment is worn.
-      for (let skin = 0; skin < 18; skin++)
-        for (let outfit = 0; outfit < 12; outfit++)
-          for (let y = 23; y <= 25; y++)
-            for (let x = 8; x <= 23; x++)
-              if (pixel(body, skin, direction, frame, x, y)[3])
-                assert.equal(
-                  pixel(clothes, outfit, direction, frame, x, y)[3],
-                  255,
-                  `skin ${skin}, outfit ${outfit}: foot skin covered by boot (dir ${direction}, pose ${frame}, ${x},${y})`
-                );
-    }
-}
-const frameBytes = (sheet, variant, direction, frame) => {
-  const rows = [];
-  for (let y = 0; y < 32; y++)
-    for (let x = 0; x < 32; x++) rows.push(pixel(sheet, variant, direction, frame, x, y));
-  return Buffer.concat(rows).toString('hex');
-};
-for (const name of ['hero-body-attack', 'hero-outfit-attack', 'hero-weapon-attack'])
-  for (let variant = 0; variant < LAYERS[name]; variant++)
-    for (let direction = 0; direction < 4; direction++)
-      assert.equal(
-        new Set(
-          Array.from({ length: 8 }, (_, f) => frameBytes(sheets[name], variant, direction, f))
-        ).size,
-        8,
-        `${name} ${variant}: eight distinct arm/torso poses`
-      );
-// The foreground weapon layer is independent of hair, preserving every blade
-// pose while hairstyles retain their intended silhouettes.
-for (let skin = 0; skin < 9; skin++)
-  for (let direction = 0; direction < 4; direction++)
-    for (let frame = 0; frame < 8; frame++) {
-      let visibleBlade = 0;
-      for (let y = 0; y < 32; y++)
-        for (let x = 0; x < 32; x++)
-          if (
-            pixel(sheets['hero-weapon-attack'], skin, direction, frame, x, y)[3] &&
-            colorOf(pixel(sheets['hero-weapon-attack'], skin, direction, frame, x, y)) === 'edf6ff'
-          )
-            visibleBlade++;
-      assert.ok(
-        visibleBlade >= 3,
-        `weapon skin ${skin}, direction ${direction}, pose ${frame}: visible foreground sword`
-      );
-    }
-for (let skin = 0; skin < 9; skin++)
-  assert.notEqual(
-    frameBytes(sheets['hero-body'], skin, 0, 0),
-    frameBytes(sheets['hero-body'], skin + 9, 0, 0),
-    'Both silhouette variants remain distinct'
-  );
 for (const [name, count] of Object.entries({
   'portrait-body': 18,
   'portrait-outfit': 24,
@@ -340,18 +128,6 @@ for (const [name, count] of Object.entries({
   const { info } = await load(name);
   assert.equal(info.width, 96 * count, `${name}: saved variant count`);
   assert.equal(info.height, 112, `${name}: portrait layer alignment`);
-}
-// A selected hairstyle must produce its own art in every view, not another
-// index into the same helmet. Compare the same color to ignore palette differences.
-for (let direction = 0; direction < 4; direction++) {
-  const styles = hairstyles.map((_, index) =>
-    frameBytes(sheets['hero-hair'], index * hairColorCount + 3, direction, 0)
-  );
-  assert.equal(
-    new Set(styles).size,
-    hairstyles.length,
-    `all hairstyles differ in direction ${direction}`
-  );
 }
 const portraitHair = await load('portrait-hair');
 const portraitStyles = hairstyles.map((_, style) => {
@@ -396,5 +172,5 @@ for (let silhouette = 0; silhouette < 2; silhouette++)
     }
   }
 console.log(
-  'Mundinho sprites: compact body, editor palettes, mirrored profiles, visible hands/eyes, eight sword poses and latest AAP-64 scenery/enemies verified.'
+  'Verified all 96 original player poses pixel-for-pixel, feminine variants, hairstyles, portraits and scenery.'
 );

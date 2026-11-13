@@ -6,6 +6,16 @@ const require = createRequire(import.meta.url);
 const sharp = require('sharp');
 const assets = {};
 for (const file of [
+  ...['', '-idle', '-attack', '-bow'].flatMap((suffix) =>
+    [
+      'body',
+      'outfit',
+      'eyes',
+      'hair',
+      'accessory',
+      ...(['-attack', '-bow'].includes(suffix) ? ['weapon'] : []),
+    ].map((layer) => 'hero-' + layer + suffix + '.png')
+  ),
   'forest.png',
   'forest-v2.png',
   'forest-ground.png',
@@ -20,20 +30,12 @@ for (const file of [
   'signpost.png',
   'habitats-back.png',
   'habitats-front.png',
-  'hero-body.png',
   'portrait-body.png',
   'portrait-outfit.png',
   'portrait-eyes.png',
   'portrait-hair-back.png',
   'portrait-hair.png',
   'portrait-accessory.png',
-  'hero-body-attack.png',
-  'hero-outfit-attack.png',
-  'hero-weapon-attack.png',
-  'hero-outfit.png',
-  'hero-eyes.png',
-  'hero-hair.png',
-  'hero-accessory.png',
   'creatures-animated.png',
   'python.svg',
   'js.svg',

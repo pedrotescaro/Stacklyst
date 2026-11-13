@@ -49,44 +49,26 @@
     {
       "name": "hero-body",
       "output": "public/assets/mundinho/hero-body.png",
-      "width": 256,
-      "height": 2304,
+      "width": 288,
+      "height": 3456,
       "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
       "source": "artifacts/mundinho/libresprite/refined/hero-body.ase",
       "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
     },
     {
-      "name": "hero-body-attack",
-      "output": "public/assets/mundinho/hero-body-attack.png",
-      "width": 256,
-      "height": 2304,
-      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
-      "source": "artifacts/mundinho/libresprite/refined/hero-body-attack.ase",
-      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
-    },
-    {
       "name": "hero-outfit",
       "output": "public/assets/mundinho/hero-outfit.png",
-      "width": 256,
-      "height": 1536,
+      "width": 288,
+      "height": 4608,
       "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
       "source": "artifacts/mundinho/libresprite/refined/hero-outfit.ase",
       "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
     },
     {
-      "name": "hero-outfit-attack",
-      "output": "public/assets/mundinho/hero-outfit-attack.png",
-      "width": 256,
-      "height": 1536,
-      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
-      "source": "artifacts/mundinho/libresprite/refined/hero-outfit-attack.ase",
-      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
-    },
-    {
       "name": "hero-eyes",
       "output": "public/assets/mundinho/hero-eyes.png",
-      "width": 256,
-      "height": 1280,
+      "width": 288,
+      "height": 1920,
       "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
       "source": "artifacts/mundinho/libresprite/refined/hero-eyes.ase",
       "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
@@ -94,28 +76,172 @@
     {
       "name": "hero-hair",
       "output": "public/assets/mundinho/hero-hair.png",
-      "width": 256,
-      "height": 6912,
+      "width": 288,
+      "height": 10368,
       "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
       "source": "artifacts/mundinho/libresprite/refined/hero-hair.ase",
       "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
     },
     {
+      "name": "hero-accessory",
+      "output": "public/assets/mundinho/hero-accessory.png",
+      "width": 288,
+      "height": 1152,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-accessory.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-body-idle",
+      "output": "public/assets/mundinho/hero-body-idle.png",
+      "width": 288,
+      "height": 3456,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-body-idle.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-outfit-idle",
+      "output": "public/assets/mundinho/hero-outfit-idle.png",
+      "width": 288,
+      "height": 4608,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-outfit-idle.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-eyes-idle",
+      "output": "public/assets/mundinho/hero-eyes-idle.png",
+      "width": 288,
+      "height": 1920,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-eyes-idle.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-hair-idle",
+      "output": "public/assets/mundinho/hero-hair-idle.png",
+      "width": 288,
+      "height": 10368,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-hair-idle.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-accessory-idle",
+      "output": "public/assets/mundinho/hero-accessory-idle.png",
+      "width": 288,
+      "height": 1152,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-accessory-idle.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-body-attack",
+      "output": "public/assets/mundinho/hero-body-attack.png",
+      "width": 288,
+      "height": 3456,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-body-attack.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-outfit-attack",
+      "output": "public/assets/mundinho/hero-outfit-attack.png",
+      "width": 288,
+      "height": 4608,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-outfit-attack.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-eyes-attack",
+      "output": "public/assets/mundinho/hero-eyes-attack.png",
+      "width": 288,
+      "height": 1920,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-eyes-attack.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-hair-attack",
+      "output": "public/assets/mundinho/hero-hair-attack.png",
+      "width": 288,
+      "height": 10368,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-hair-attack.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-accessory-attack",
+      "output": "public/assets/mundinho/hero-accessory-attack.png",
+      "width": 288,
+      "height": 1152,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-accessory-attack.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
       "name": "hero-weapon-attack",
       "output": "public/assets/mundinho/hero-weapon-attack.png",
-      "width": 256,
-      "height": 1152,
+      "width": 288,
+      "height": 1728,
       "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
       "source": "artifacts/mundinho/libresprite/refined/hero-weapon-attack.ase",
       "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
     },
     {
-      "name": "hero-accessory",
-      "output": "public/assets/mundinho/hero-accessory.png",
-      "width": 256,
-      "height": 768,
+      "name": "hero-body-bow",
+      "output": "public/assets/mundinho/hero-body-bow.png",
+      "width": 288,
+      "height": 3456,
       "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
-      "source": "artifacts/mundinho/libresprite/refined/hero-accessory.ase",
+      "source": "artifacts/mundinho/libresprite/refined/hero-body-bow.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-outfit-bow",
+      "output": "public/assets/mundinho/hero-outfit-bow.png",
+      "width": 288,
+      "height": 4608,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-outfit-bow.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-eyes-bow",
+      "output": "public/assets/mundinho/hero-eyes-bow.png",
+      "width": 288,
+      "height": 1920,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-eyes-bow.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-hair-bow",
+      "output": "public/assets/mundinho/hero-hair-bow.png",
+      "width": 288,
+      "height": 10368,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-hair-bow.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-accessory-bow",
+      "output": "public/assets/mundinho/hero-accessory-bow.png",
+      "width": 288,
+      "height": 1152,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-accessory-bow.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
+    },
+    {
+      "name": "hero-weapon-bow",
+      "output": "public/assets/mundinho/hero-weapon-bow.png",
+      "width": 288,
+      "height": 1728,
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-weapon-bow.ase",
       "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
     },
     {

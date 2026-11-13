@@ -124,7 +124,7 @@ describe('World keyboard ownership', () => {
         (container.querySelector('.world-peer [data-layer="outfit"]') as HTMLElement).style
           .backgroundPositionY
       )
-    ).toBeCloseTo(40.4255, 3);
+    ).toBeCloseTo((67 / 95) * 100, 3);
     expect(container.querySelector('.world-map')).toHaveStyle({
       backgroundImage: 'url("/assets/mundinho/arena.png")',
     });

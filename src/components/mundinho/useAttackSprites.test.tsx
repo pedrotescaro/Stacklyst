@@ -20,7 +20,7 @@ beforeEach(() => {
   vi.stubGlobal(
     '__MUNDINHO_ASSETS__',
     Object.fromEntries(
-      ['body', 'outfit', 'weapon'].map((layer) => [
+      ['body', 'outfit', 'eyes', 'hair', 'accessory', 'weapon'].map((layer) => [
         `hero-${layer}-attack.png`,
         `/test-${++revision}/${layer}.png`,
       ])
@@ -32,13 +32,14 @@ afterEach(() => vi.unstubAllGlobals());
 it('keeps a complete idle body until every attack layer is loaded and decoded', async () => {
   const { container } = render(<PixelAvatar motion="attack" />);
   const body = () => container.querySelector<HTMLElement>('[data-layer="body"]')!;
-  expect(body().style.backgroundImage).toContain('hero-body.png');
+  expect(body().style.backgroundImage).toContain('hero-body-idle.png');
   expect(container.querySelector('.sprite-idle')).not.toBeNull();
   await act(async () => {
     await PendingImage.images[0].onload?.();
     await PendingImage.images[1].onload?.();
+    await Promise.all(PendingImage.images.slice(3).map((image) => image.onload?.()));
   });
-  expect(body().style.backgroundImage).toContain('hero-body.png');
+  expect(body().style.backgroundImage).toContain('hero-body-idle.png');
   expect(container.querySelector('[data-layer="weapon"]')).toBeNull();
   let finishDecode!: () => void;
   PendingImage.images[2].decode.mockImplementation(
@@ -59,7 +60,9 @@ it('keeps a complete idle body until every attack layer is loaded and decoded', 
   await waitFor(() => expect(container.querySelector('.sprite-attack')).not.toBeNull());
   expect(body().style.backgroundImage).toContain('/body.png');
   expect(container.querySelector('[data-layer="weapon"]')).not.toBeNull();
-  expect(PendingImage.images.every((image) => image.decode.mock.calls.length === 1)).toBe(true);
+  expect(
+    PendingImage.images.slice(0, 6).every((image) => image.decode.mock.calls.length === 1)
+  ).toBe(true);
 });
 
 it('keeps the character visible if an attack image fails', async () => {
@@ -72,7 +75,7 @@ it('keeps the character visible if an attack image fails', async () => {
   expect(container.querySelector('.sprite-idle')).not.toBeNull();
   expect(
     container.querySelector<HTMLElement>('[data-layer="outfit"]')!.style.backgroundImage
-  ).toContain('hero-outfit.png');
+  ).toContain('hero-outfit-idle.png');
 });
 
 it('reuses decoded layers when another character mounts', async () => {
@@ -86,5 +89,5 @@ it('reuses decoded layers when another character mounts', async () => {
   first.unmount();
   const second = render(<PixelAvatar motion="attack" />);
   await waitFor(() => expect(second.container.querySelector('.sprite-attack')).not.toBeNull());
-  expect(PendingImage.images).toHaveLength(3);
+  expect(PendingImage.images.filter((image) => image.src.startsWith('/test-'))).toHaveLength(6);
 });

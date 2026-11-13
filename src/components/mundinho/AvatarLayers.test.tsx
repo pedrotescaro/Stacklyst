@@ -15,7 +15,7 @@ it('keeps the newest outfit available in the world and both portrait silhouettes
   );
   const worldOutfit = container.querySelector<HTMLElement>('[data-layer="outfit"]')!;
   const portraitOutfit = container.querySelector<HTMLElement>('[data-portrait-layer="outfit"]')!;
-  expect(parseFloat(worldOutfit.style.backgroundPositionY)).toBeCloseTo(93.617, 3);
+  expect(parseFloat(worldOutfit.style.backgroundPositionY)).toBeCloseTo(46.316, 3);
   expect(portraitOutfit.style.backgroundSize).toBe('2400% 100%');
   const masculineOutfitPosition = portraitOutfit.style.backgroundPosition;
   const masculineFacePosition =
@@ -27,7 +27,7 @@ it('keeps the newest outfit available in the world and both portrait silhouettes
     </>
   );
   expect(container.querySelector('[data-layer="outfit"]')).toHaveStyle({
-    backgroundSize: '800% 4800%',
+    backgroundSize: '600% 9600%',
   });
   expect(container.querySelector('[data-portrait-layer="outfit"]')).toHaveStyle({
     backgroundPosition: '100% 0px',
@@ -85,7 +85,7 @@ it('renders every new hairstyle at its own world and portrait atlas position', (
     const world = container.querySelector<HTMLElement>('[data-layer="hair"]')!;
     const front = container.querySelector<HTMLElement>('[data-portrait-layer="hair"]')!;
     const back = container.querySelector<HTMLElement>('[data-portrait-layer="hair-back"]')!;
-    expect(world.style.backgroundSize).toBe(`800% ${HAIRSTYLES.length * 6 * 400}%`);
+    expect(world.style.backgroundSize).toBe(`600% ${HAIRSTYLES.length * 6 * 400}%`);
     expect(parseFloat(world.style.backgroundPositionY)).toBeCloseTo(
       (((hair * 6 + 3) * 4 + 3) / (HAIRSTYLES.length * 6 * 4 - 1)) * 100,
       4
@@ -101,6 +101,9 @@ it('renders every new hairstyle at its own world and portrait atlas position', (
 
 it('places the swinging sword and hand above voluminous hair only during attacks', async () => {
   vi.stubGlobal('__MUNDINHO_ASSETS__', {
+    'hero-hair-attack.png': '/loaded/hero-hair-attack.png',
+    'hero-accessory-attack.png': '/loaded/hero-accessory-attack.png',
+    'hero-eyes-attack.png': '/loaded/hero-eyes-attack.png',
     'hero-body-attack.png': '/loaded/hero-body-attack.png',
     'hero-outfit-attack.png': '/loaded/hero-outfit-attack.png',
     'hero-weapon-attack.png': '/loaded/hero-weapon-attack.png',

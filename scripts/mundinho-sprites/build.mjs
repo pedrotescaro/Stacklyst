@@ -20,16 +20,9 @@ const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..')
 const HERE = path.join(ROOT, 'scripts/mundinho-sprites');
 const SOURCE_DIR = path.join(ROOT, 'artifacts/mundinho/libresprite-v2');
 const PUBLIC_DIR = path.join(ROOT, 'public/assets/mundinho');
-const HERO_NAMES = new Set([
-  'hero-body',
-  'hero-body-attack',
-  'hero-outfit',
-  'hero-outfit-attack',
-  'hero-eyes',
-  'hero-hair',
-  'hero-accessory',
-  'hero-weapon-attack',
-]);
+const HERO_NAMES = new Set(
+  ASSETS.filter((asset) => asset.name.startsWith('hero-')).map((asset) => asset.name)
+);
 const PORTRAIT_NAMES = new Set(
   ASSETS.filter((asset) => asset.name.startsWith('portrait-')).map((asset) => asset.name)
 );

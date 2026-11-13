@@ -10,7 +10,7 @@ import {
   LEGACY_HAIR_COLORS,
 } from '../../lib/mundinho/hair-colors';
 import { useLocalizedText } from '../../i18n/useLocalizedText';
-import { useAttackSprites } from './useAttackSprites';
+import { useAttackSprites, useWalkingSprites } from './useAttackSprites';
 
 export {
   SKIN_PALETTES,
@@ -30,6 +30,7 @@ export function PixelAvatar({
   style,
   effect = false,
   motion = 'idle',
+  bow = false,
 }: {
   avatar?: Avatar;
   direction?: string;
@@ -37,6 +38,7 @@ export function PixelAvatar({
   className?: string;
   style?: CSSProperties;
   effect?: boolean;
+  bow?: boolean;
   motion?: 'idle' | 'attack' | 'hurt' | 'victory';
 }) {
   const { text } = useLocalizedText();
@@ -45,11 +47,19 @@ export function PixelAvatar({
   const transfer = tinted ? hairColorTransfer(avatarHairColor(avatar)) : null;
   const d = Math.max(0, ['down', 'right', 'up', 'left'].indexOf(direction));
   const female = avatar.gender === 'feminine';
-  const attackReady = useAttackSprites();
+  const attackReady = useAttackSprites(bow);
+  const walkingReady = useWalkingSprites();
   const visibleMotion = motion === 'attack' && !attackReady ? 'idle' : motion;
+  const isWalking = walking && walkingReady && motion === 'idle';
+  const poseSuffix =
+    visibleMotion === 'attack' ? (bow ? '-bow' : '-attack') : isWalking ? '' : '-idle';
   const layers = [
     ['body', avatar.skin + (female ? SKIN_PALETTES.length : 0), SKIN_PALETTES.length * 2],
-    ['outfit', avatar.outfit, OUTFIT_SPECS.length],
+    [
+      'outfit',
+      avatar.outfit < 0 ? -1 : avatar.outfit + (female ? OUTFIT_SPECS.length : 0),
+      OUTFIT_SPECS.length * 2,
+    ],
     ['eyes', avatar.eyes + (female ? EYE_COLORS.length : 0), EYE_COLORS.length * 2],
     [
       'hair',
@@ -62,9 +72,10 @@ export function PixelAvatar({
     <span
       role="img"
       aria-label={text(`Avatar olhando para ${direction}`, `Avatar facing ${direction}`)}
-      className={`pixel-avatar sprite-avatar ${walking ? 'is-walking' : ''} sprite-${visibleMotion} ${effect ? 'has-fireflies' : ''} ${className}`}
+      className={`pixel-avatar sprite-avatar ${isWalking ? 'is-walking' : ''} sprite-${visibleMotion} ${effect ? 'has-fireflies' : ''} ${className}`}
       data-silhouette={female ? 'feminine' : 'masculine'}
       data-attack-ready={attackReady}
+      data-walking-ready={walkingReady}
       style={style}
     >
       {transfer && (
@@ -96,8 +107,8 @@ export function PixelAvatar({
             data-layer={layer}
             className="sprite-layer"
             style={{
-              backgroundImage: `url(${adventureAsset(`hero-${layer}${visibleMotion === 'attack' && ['body', 'outfit'].includes(layer) ? '-attack' : ''}.png`, '/assets/mundinho')})`,
-              backgroundSize: `800% ${count * 400}%`,
+              backgroundImage: `url(${adventureAsset(`hero-${layer}${poseSuffix}.png`, '/assets/mundinho')})`,
+              backgroundSize: `600% ${count * 400}%`,
               backgroundPositionY: `${((Math.min(count - 1, value) * 4 + d) / (count * 4 - 1)) * 100}%`,
               ...(layer === 'hair' && tinted ? { filter: `url(#${filterId})` } : {}),
             }}
@@ -109,8 +120,8 @@ export function PixelAvatar({
           data-layer="weapon"
           className="sprite-layer"
           style={{
-            backgroundImage: `url(${adventureAsset('hero-weapon-attack.png', '/assets/mundinho')})`,
-            backgroundSize: `800% ${SKIN_PALETTES.length * 400}%`,
+            backgroundImage: `url(${adventureAsset(`hero-weapon${poseSuffix}.png`, '/assets/mundinho')})`,
+            backgroundSize: `600% ${SKIN_PALETTES.length * 400}%`,
             backgroundPositionY: `${((avatar.skin * 4 + d) / (SKIN_PALETTES.length * 4 - 1)) * 100}%`,
           }}
         />

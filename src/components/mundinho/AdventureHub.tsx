@@ -1643,6 +1643,7 @@ export function AdventureHub({
                     <PixelAvatar
                       avatar={equippedAvatar}
                       direction={combatPhase === 'flee' ? 'left' : 'right'}
+                      bow={attackEffect === 'focus'}
                       walking={combatPhase === 'flee'}
                       motion={
                         combatPhase === 'player-attack'
