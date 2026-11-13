@@ -45,11 +45,6 @@ export function detailClothing(c, pose, garment, shade) {
 }
 
 const gear = {
-  glasses: {
-    p: ['.tt..tt.', 'trrttrrt', 't..tt..t', '.tt..tt.'],
-    s: ['..tttt.', 'tttrrrt', '...t..t', '....tt.'],
-    inks: { t: '#644739', r: '#b0d2d1' },
-  },
   pack: {
     p: ['ls...sl', 'ls...sl', '.a...a.', '.s...s.'],
     s: ['.tt.', 'tllt', 'tbat', 'tbpt', '.tt.'],
@@ -92,35 +87,75 @@ const gear = {
     inks: { t: '#283342', l: '#91acb7', b: '#4a6173', a: '#e7ad66' },
   },
   scarf: {
-    p: ['.bbbbbb.', 'lsllbbbs', '.sssbbss', '....bls.', '....sls.', '.....ss.'],
-    b: ['.bbbbbb.', 'sllbbbbs', '.ssbbss.', '..bls...', '..ls....'],
+    p: ['.bbbbb.', 'llbbbbs', '.sssbs.', '....ls.'],
+    b: ['.bbbbb.', 'sllbbbs', '.ssbss.', '..bls..'],
+    s: ['.lbbb.', 'sbbbs.', '.sbls.', '...bs.'],
     inks: { b: '#c56850', l: '#ffa06d', s: '#824648' },
   },
 };
 
-export function drawGear(id, { head, direction, pixels }) {
+// Trace an open rim around the visible pupil(s) in this frame.
+function drawGlasses(c, eyes, direction, head) {
+  if (direction === 2) return c.data;
+  // The raised bow can hide the eye in the source. Fit the profile temple
+  // to its ordinary eye line and let the foreground weapon occlude it.
+  const landmarks = eyes.length
+    ? eyes
+    : [{ x: direction === 3 ? head.x + 2 : head.x + head.w - 3, y: head.y + 6 }];
+  const xs = [...new Set(landmarks.map((p) => p.x))].sort((a, b) => a - b);
+  const rim = '#805c49',
+    glint = '#d0b29a';
+  for (const x of xs) {
+    const points = landmarks.filter((p) => p.x === x).map((p) => p.y);
+    const y = Math.min(...points),
+      bottom = Math.max(...points);
+    c.rect(x - 1, y - 1, 3, 1, rim);
+    c.pixel(x - 1, y - 1, glint);
+    c.rect(x - 2, y, 1, bottom - y + 1, rim);
+    c.rect(x + 2, y, 1, bottom - y + 1, rim);
+    c.rect(x - 1, bottom + 1, 3, 1, rim);
+    if (direction % 2 === 1) c.rect(direction === 1 ? x - 4 : x + 2, y, 3, 1, rim);
+  }
+  if (xs.length === 2)
+    c.rect(xs[0] + 2, Math.min(...eyes.map((p) => p.y)), xs[1] - xs[0] - 3, 1, rim);
+  for (const { x, y } of eyes) c.data.fill(0, (y * 48 + x) * 4, (y * 48 + x) * 4 + 4);
+  return c.data;
+}
+
+export function drawGear(id, { head, direction, pixels, eyes, faceAndHands }) {
   const c = canvas(48, 48);
   if (!id) return c.data;
+  if (id === 1) return drawGlasses(c, eyes, direction, head);
   const side = direction % 2 === 1,
     back = direction === 2;
-  if (back && id === 1) return c.data;
-  const g = gear[['', 'glasses', 'pack', 'hat', 'phones', 'scarf'][id]];
+  const g = gear[['', '', 'pack', 'hat', 'phones', 'scarf'][id]];
   const rows = (side && g.s) || (back && g.b) || g.p;
   const cx = head.x + (head.w - 1) / 2;
-  const eye = pixels.filter((p) => p.layer === 'eyes'),
-    eyeY = eye.length ? Math.min(...eye.map((p) => p.y)) : head.y + 7;
-  const chest = pixels.filter((p) => p.color === 'ce0c39' || p.color === '921038');
+  const chest = pixels.filter(
+    (p) => (p.color === 'ce0c39' || p.color === '921038') && Math.abs(p.x - cx) <= 4
+  );
   const collar = chest.length ? Math.min(...chest.map((p) => p.y)) : head.y + 11;
-  const top = [0, eyeY - 2, back ? collar - 3 : collar - 1, head.y - 3, head.y - 1, collar - 1][id];
-  let left = Math.round(cx - (rows[0].length - 1) / 2);
-  if (side && id === 2) left = head.x - 1;
-  if (side && id === 1) left = head.x + head.w - rows[0].length + 1;
+  const chestX = chest.length
+    ? Math.round(chest.reduce((sum, p) => sum + p.x, 0) / chest.length)
+    : Math.round(cx);
+  const onBody = id === 2 || id === 5;
+  const top =
+    id === 2
+      ? back
+        ? collar - 2
+        : collar
+      : id === 3
+        ? head.y - 4
+        : id === 4
+          ? head.y - 1
+          : collar;
+  let left = Math.round((onBody ? chestX : cx) - (rows[0].length - 1) / 2);
+  if (side && id === 2) left = direction === 1 ? chestX - 5 : chestX + 2;
   rows.forEach((row, dy) =>
     [...row].forEach((v, dx) => {
-      const color = g.inks[v];
-      if (!color) return;
-      const x = direction === 3 ? Math.round(2 * cx) - (left + dx) : left + dx;
-      c.pixel(x, top + dy, color);
+      const x = left + (direction === 3 ? row.length - 1 - dx : dx),
+        y = top + dy;
+      if (g.inks[v] && !faceAndHands.has(y * 48 + x)) c.pixel(x, y, g.inks[v]);
     })
   );
   return c.data;

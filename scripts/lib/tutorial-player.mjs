@@ -108,8 +108,15 @@ export async function readPose(motion, direction) {
       ys = hair.map((p) => p[1]);
     const x = Math.min(...xs),
       y = Math.min(...ys);
+    // Reserve the face opening the artist painted in this exact animation frame.
+    // The same skin colors on hands also keep grips visible under long locks.
+    const exposedSkin = pixels.filter((p) => skinColors.includes(p.color));
+    const eyes = pixels.filter((p) => p.layer === 'eyes');
+    const faceAndHands = new Set([...exposedSkin, ...eyes].map((p) => p.y * 48 + p.x));
     return {
       pixels,
+      eyes,
+      faceAndHands,
       head: { x, y, w: Math.max(...xs) - x + 1, h: Math.max(...ys) - y + 1 },
       direction,
     };
@@ -164,6 +171,7 @@ export function paintLayer(layer, value, pose, palettes) {
     return styleTutorialHair({
       data: c.data,
       dye,
+      faceAndHands: pose.faceAndHands,
       style: Math.floor(value / 6),
       direction,
       head,

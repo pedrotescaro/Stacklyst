@@ -3,17 +3,17 @@ import { canvas } from './mundinho-pixel-art.mjs';
 // Stamps overlap the filled crown. Their colored roots are drawn through the old
 // one-pixel outline, so a light dye never exposes a black seam at the attachment.
 const locks = {
-  bob: ['.ssb', 'ssbb', 'sbbb', 'sbhb', 'sbhb', 'sbb.', '.ss.'],
+  bob: ['..bb', '.bbb', 'sbhb', 'shbb', 'sbbb', 'ssb.', '.s..'],
   feather: ['...b', '..bb', '.bhb', 'sbb.', 'sb..'],
   spike: ['...b..', '..bb..', '.bhbbs', 'bbbhbb', 'bbbbbb'],
   curtain: ['..bbb', '.sbbb', 'sbbhb', 'sbhbb', 'sbhbb', 'sbhb.', 'sbbb.', 'sbb..', '.s...'],
-  tail: ['..bbbbb', '.bhbbbs', 'shbbs..', 'sbbbs..', '.sbbs..', '..sbbs.', '...sbb.', '....sb.'],
+  tail: ['bbbb..', '..bhb.', '..shbb', '...sbb', '...sbb', '..sbb.', '..sb..'],
   curl: ['.bbbb.', 'bhhbbb', 'bhbbsb', 'bbbssb', '.bbbs.'],
   bun: ['..bbb.', '.bhhbb', 'bhbbbs', 'bbbssb', '.sbbsb', '..bbbb'],
-  wave: ['..bbbb', '.bhbbb', 'shbbs.', 'sbbbs.', '.sbbbs', '..sbhb', '.sbbbs', 'sbbbs.', '.ss...'],
+  wave: ['..bb', '.bhb', 'shbb', 'sbb.', '.sbb', '..hb', '.sbb', 'sbb.', '.s..'],
 };
 
-export function styleTutorialHair({ data, style, direction, head, shade, dye }) {
+export function styleTutorialHair({ data, style, direction, head, shade, dye, faceAndHands }) {
   if (!style) return data;
   const c = canvas(48, 48);
   c.data.set(data);
@@ -24,7 +24,10 @@ export function styleTutorialHair({ data, style, direction, head, shade, dye }) 
   const light = shade(dye, 30),
     shadow = shade(dye, -28);
   const colors = { b: dye, h: light, s: shadow };
-  const fill = (px, py, col) => c.pixel(direction === 3 ? 2 * x + w - 1 - px : px, py, col);
+  const fill = (px, py, col) => {
+    const xx = direction === 3 ? 2 * x + w - 1 - px : px;
+    if (!faceAndHands.has(py * 48 + xx)) c.pixel(xx, py, col);
+  };
   function stamp(name, left, top, flip = false) {
     const rows = locks[name];
     rows.forEach((row, dy) =>
@@ -61,12 +64,12 @@ export function styleTutorialHair({ data, style, direction, head, shade, dye }) 
       stroke(mid - 1, y + 2, 4, light);
       break;
     case 4:
-      paired('curtain', x - 2, y + 3, 5);
+      paired('curtain', x - 2, y + 3, 4);
       stroke(mid - 1, y + 1, 2, shadow);
       stroke(mid + 1, y + 2, 3, light);
       break;
     case 5:
-      stamp('tail', side ? x - 4 : x + w - 4, y + 2, !side);
+      stamp('tail', side ? x - 4 : x + w - 2, y + 2, side);
       fill(side ? x : x + w - 1, y + 4, '#b96a51');
       stroke(mid - 2, y + 2, 4, light);
       break;
@@ -82,7 +85,7 @@ export function styleTutorialHair({ data, style, direction, head, shade, dye }) 
       stroke(mid - 2, y + 2, 4, light);
       break;
     case 8:
-      paired('wave', x - 2, y + 2, 6);
+      paired('wave', x - 2, y + 2, 4);
       stroke(mid - 2, y + 1, 3, light);
       stroke(mid, y + 2, 3, light);
       break;
@@ -90,5 +93,25 @@ export function styleTutorialHair({ data, style, direction, head, shade, dye }) 
   if (back && (style === 4 || style === 8)) {
     for (let j = 1; j < w - 1; j++) fill(x + j, y + head.h, j % 4 === 1 ? shadow : dye);
   }
+  // A raised hand can split the last pixel off a long strand. Only export
+  // additions that still share an edge with the crown in this pose.
+  const pending = [],
+    attached = new Set();
+  for (let i = 0; i < 48 * 48; i++)
+    if (data[i * 4 + 3]) {
+      pending.push(i);
+      attached.add(i);
+    }
+  while (pending.length) {
+    const i = pending.pop();
+    for (const n of [i - 48, i + 48, i - 1, i + 1]) {
+      if (c.data[n * 4 + 3] && !attached.has(n)) {
+        attached.add(n);
+        pending.push(n);
+      }
+    }
+  }
+  for (let i = 0; i < 48 * 48; i++)
+    if (c.data[i * 4 + 3] && !attached.has(i)) c.data.fill(0, i * 4, i * 4 + 4);
   return c.data;
 }

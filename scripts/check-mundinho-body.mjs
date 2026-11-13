@@ -109,6 +109,23 @@ for (const [motion, pose] of Object.entries(poses)) {
           crop(sheets[1], outfit, d, f).equals(crop(sheets[1], outfit + 12, d, f)),
           'shared trouser silhouette'
         );
+      const pupils = crop(sheets[layers.indexOf('eyes')], 0, d, f);
+      for (const [layer, variants] of [
+        ['hair', 54],
+        ['accessory', 6],
+      ]) {
+        const sheet = sheets[layers.indexOf(layer)];
+        for (let variant = 0; variant < variants; variant++) {
+          const overlay = crop(sheet, variant, d, f);
+          for (let i = 3; i < pupils.length; i += 4)
+            if (pupils[i])
+              assert.equal(
+                overlay[i],
+                0,
+                motion + ' ' + d + ' ' + f + ' ' + layer + ' ' + variant + ' covers a pupil'
+              );
+        }
+      }
       assert.notDeepEqual(crop(sheets[0], 2, d, f), crop(sheets[0], 11, d, f), 'feminine variant');
     }
     const hair = sheets[layers.indexOf('hair')];
