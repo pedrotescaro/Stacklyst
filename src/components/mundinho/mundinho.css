@@ -2440,6 +2440,19 @@
   /* Six native tutorial poses, with every layer sharing the same frame. */
   animation: hero-walk 0.6s steps(6) infinite;
 }
+
+/* Hold the catalog still for comparison. On the turntable every layer reads
+   the same frame from its parent, even when a layer mounts mid-cycle. */
+.ad-avatar-editor-view .sprite-idle > .sprite-layer {
+  animation: none;
+  background-position-x: 0%;
+}
+.ad-avatar-preview-box .sprite-idle {
+  animation: hero-breathe 2.4s steps(6, end) infinite;
+}
+.ad-avatar-editor-view .ad-avatar-preview-box .sprite-idle > .sprite-layer {
+  background-position-x: inherit;
+}
 .sprite-creature {
   display: inline-block;
   width: 32px;
