@@ -35,7 +35,7 @@ type Props = {
 export function EnadeCourse({ user, courses, initialAttempts, initialWorkspace, rail }: Props) {
   const router = useRouter();
   const { text } = useLocalizedText();
-  const { attempts, saveStatus, save } = useEnadeProgress(user.id, initialAttempts);
+  const { attempts, saveStatus, remove } = useEnadeProgress(user.id, initialAttempts);
   const [confirmRestart, setConfirmRestart] = useState<number | null>(null);
   const [restarting, setRestarting] = useState(false);
   const [preferenceError, setPreferenceError] = useState('');
@@ -58,14 +58,18 @@ export function EnadeCourse({ user, courses, initialAttempts, initialWorkspace, 
   }, [courses]);
   async function restartExam(year: number) {
     setRestarting(true);
-    const stamp = Date.now();
-    const ok = await save(
-      year,
-      { answers: {}, marked: [], startedAt: stamp, updatedAt: stamp, finishedAt: null },
-      true
-    );
+    // Back to "Iniciar": the edition reads as never answered until it is opened again.
+    const ok = await remove(year);
     setRestarting(false);
-    if (ok) router.push(`/trails/enade/${year}`);
+    if (ok) {
+      setConfirmRestart(null);
+      try {
+        for (const key of Object.keys(sessionStorage))
+          if (key.startsWith(`stacklyst-enade-struck:${year}-`)) sessionStorage.removeItem(key);
+      } catch {
+        /* Struck options are only a convenience. */
+      }
+    }
   }
   async function selectCourse(language: TrailCourseCode) {
     if (language === 'ENADE') {
@@ -177,7 +181,10 @@ export function EnadeCourse({ user, courses, initialAttempts, initialWorkspace, 
                     )}
                     {confirmRestart === edition.year && (
                       <div className={styles.confirm}>
-                        <p>Reiniciar substitui as respostas salvas desta edição.</p>
+                        <p>
+                          Reiniciar apaga as respostas desta edição. Ela volta a aparecer como não
+                          iniciada.
+                        </p>
                         <button
                           className={styles.primary}
                           disabled={restarting}

@@ -40,3 +40,14 @@ export const PUT = apiHandler(async (request, { session, params }) => {
   });
   return NextResponse.json({ ok: true });
 });
+
+/** Resetting an edition forgets the attempt entirely, so it reads as never started. */
+export const DELETE = apiHandler(async (_request, { session, params }) => {
+  if (!session) throw new UnauthorizedError();
+  const year = Number((await params).year);
+  if (!exams.some((e) => e.year === year)) throw new ValidationError('Edição do Enade inválida.');
+  await prisma.mobileState.deleteMany({
+    where: { user_id: session.id, key: `enade-ads-${year}` },
+  });
+  return NextResponse.json({ ok: true });
+});

@@ -64,6 +64,44 @@ export function useEnadeProgress(userId: string, initialAttempts: Record<string,
     [userId]
   );
 
+  /** Forget an edition's attempt everywhere, as if it was never started. */
+  const remove = useCallback(
+    (edition: number) => {
+      const queued = jobs.current.get(edition);
+      if (queued) clearTimeout(queued.timer);
+      jobs.current.delete(edition);
+      revision.current++;
+      setSaveStatus('Salvando...');
+      const requestRevision = revision.current;
+      pending.current = pending.current
+        .catch(() => false)
+        .then(async () => {
+          try {
+            const response = await fetch(`/api/enade/${edition}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('reset');
+            try {
+              localStorage.removeItem(`enade-ads:${userId}:${edition}`);
+            } catch {
+              /* The account copy is already gone. */
+            }
+            setAttempts((current) => {
+              const next = { ...current };
+              delete next[edition];
+              return next;
+            });
+            if (mounted.current && requestRevision === revision.current) setSaveStatus('');
+            return true;
+          } catch {
+            if (mounted.current && requestRevision === revision.current)
+              setSaveStatus('Não foi possível reiniciar o simulado. Tente novamente.');
+            return false;
+          }
+        });
+      return pending.current;
+    },
+    [userId]
+  );
+
   useEffect(() => {
     mounted.current = true;
     const outstanding = jobs.current;
@@ -101,5 +139,5 @@ export function useEnadeProgress(userId: string, initialAttempts: Record<string,
     };
   }, [userId]);
 
-  return { attempts, ready, saveStatus, save };
+  return { attempts, ready, saveStatus, save, remove };
 }

@@ -44,8 +44,18 @@ describe('Enade course entrance', () => {
       vi.mocked(fetch).mock.calls.filter(([url]) => String(url).includes('/api/enade/'))
     ).toHaveLength(0);
   });
-  it('confirms a restart, saves before navigation and preserves the per-edition route', async () => {
+  it('confirms a restart and puts the edition back to "Iniciar"', async () => {
     const stamp = Date.now() - 10000;
+    localStorage.setItem(
+      `enade-ads:${user.id}:2021`,
+      JSON.stringify({
+        answers: {},
+        marked: [],
+        startedAt: stamp,
+        updatedAt: stamp,
+        finishedAt: null,
+      })
+    );
     render(
       <EnadeCourse
         user={user}
@@ -67,12 +77,17 @@ describe('Enade course entrance', () => {
       '/trails/enade/2021'
     );
     fireEvent.click(screen.getByRole('button', { name: 'Reiniciar simulado 2021' }));
-    expect(push).not.toHaveBeenCalled();
     fireEvent.click(screen.getByRole('button', { name: 'Reiniciar' }));
-    await waitFor(() => expect(push).toHaveBeenCalledWith('/trails/enade/2021'));
-    expect(fetch).toHaveBeenCalledWith(
-      '/api/enade/2021',
-      expect.objectContaining({ method: 'PUT', body: expect.stringContaining('"answers":{}') })
+    await waitFor(() =>
+      expect(screen.queryByRole('link', { name: 'Continuar' })).not.toBeInTheDocument()
+    );
+    expect(fetch).toHaveBeenCalledWith('/api/enade/2021', { method: 'DELETE' });
+    expect(push).not.toHaveBeenCalled();
+    expect(localStorage.getItem(`enade-ads:${user.id}:2021`)).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Reiniciar simulado 2021' })).toBeNull();
+    expect(screen.getAllByRole('link', { name: 'Iniciar' })[0]).toHaveAttribute(
+      'href',
+      '/trails/enade/2021'
     );
   });
 });
