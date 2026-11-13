@@ -10,6 +10,7 @@ import {
   LEGACY_HAIR_COLORS,
 } from '../../lib/mundinho/hair-colors';
 import { useLocalizedText } from '../../i18n/useLocalizedText';
+import { useAttackSprites } from './useAttackSprites';
 
 export {
   SKIN_PALETTES,
@@ -44,6 +45,8 @@ export function PixelAvatar({
   const transfer = tinted ? hairColorTransfer(avatarHairColor(avatar)) : null;
   const d = Math.max(0, ['down', 'right', 'up', 'left'].indexOf(direction));
   const female = avatar.gender === 'feminine';
+  const attackReady = useAttackSprites();
+  const visibleMotion = motion === 'attack' && !attackReady ? 'idle' : motion;
   const layers = [
     ['body', avatar.skin + (female ? SKIN_PALETTES.length : 0), SKIN_PALETTES.length * 2],
     ['outfit', avatar.outfit, OUTFIT_SPECS.length],
@@ -59,8 +62,9 @@ export function PixelAvatar({
     <span
       role="img"
       aria-label={text(`Avatar olhando para ${direction}`, `Avatar facing ${direction}`)}
-      className={`pixel-avatar sprite-avatar ${walking ? 'is-walking' : ''} sprite-${motion} ${effect ? 'has-fireflies' : ''} ${className}`}
+      className={`pixel-avatar sprite-avatar ${walking ? 'is-walking' : ''} sprite-${visibleMotion} ${effect ? 'has-fireflies' : ''} ${className}`}
       data-silhouette={female ? 'feminine' : 'masculine'}
+      data-attack-ready={attackReady}
       style={style}
     >
       {transfer && (
@@ -92,14 +96,14 @@ export function PixelAvatar({
             data-layer={layer}
             className="sprite-layer"
             style={{
-              backgroundImage: `url(${adventureAsset(`hero-${layer}${motion === 'attack' && ['body', 'outfit'].includes(layer) ? '-attack' : ''}.png`, '/assets/mundinho')})`,
+              backgroundImage: `url(${adventureAsset(`hero-${layer}${visibleMotion === 'attack' && ['body', 'outfit'].includes(layer) ? '-attack' : ''}.png`, '/assets/mundinho')})`,
               backgroundSize: `800% ${count * 400}%`,
               backgroundPositionY: `${((Math.min(count - 1, value) * 4 + d) / (count * 4 - 1)) * 100}%`,
               ...(layer === 'hair' && tinted ? { filter: `url(#${filterId})` } : {}),
             }}
           />
         ))}
-      {motion === 'attack' && (
+      {visibleMotion === 'attack' && (
         <span
           aria-hidden="true"
           data-layer="weapon"

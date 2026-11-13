@@ -1,5 +1,5 @@
 import { adventureAsset } from './assets';
-import { worldDepth } from '../../lib/mundinho/world';
+import { PROP_GEOMETRY, worldDepth } from '../../lib/mundinho/world';
 
 export function WorldPropSprite({
   kind,
@@ -10,13 +10,17 @@ export function WorldPropSprite({
   assetBase: string;
   chestState?: 'closed' | 'opening' | 'open';
 }) {
+  const anchorY = kind === 'portal-hole' ? 48 : PROP_GEOMETRY[kind].anchor.y;
   return (
     <span
       className="world-prop-sprite"
       data-prop={kind}
       data-chest-state={kind === 'chest' ? chestState : undefined}
       aria-hidden="true"
-      style={{ backgroundImage: `url(${adventureAsset(`${kind}.png`, assetBase)})` }}
+      style={{
+        backgroundImage: `url(${adventureAsset(`${kind}.png`, assetBase)})`,
+        transform: `translateY(${48 - anchorY}px)`,
+      }}
     />
   );
 }

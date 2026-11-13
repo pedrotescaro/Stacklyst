@@ -1,5 +1,5 @@
-import { render } from '@testing-library/react';
-import { expect, it } from 'vitest';
+import { render, waitFor } from '@testing-library/react';
+import { expect, it, vi } from 'vitest';
 import { PixelAvatar } from './PixelArt';
 import { Portrait } from './Portrait';
 import { DEFAULT_AVATAR } from '../../lib/mundinho/types';
@@ -99,14 +99,33 @@ it('renders every new hairstyle at its own world and portrait atlas position', (
   expect(positions.size).toBe(3);
 });
 
-it('places the swinging sword and hand above voluminous hair only during attacks', () => {
-  const { container, rerender } = render(
-    <PixelAvatar avatar={{ ...DEFAULT_AVATAR, hair: 6, skin: 8 }} motion="attack" />
+it('places the swinging sword and hand above voluminous hair only during attacks', async () => {
+  vi.stubGlobal('__MUNDINHO_ASSETS__', {
+    'hero-body-attack.png': '/loaded/hero-body-attack.png',
+    'hero-outfit-attack.png': '/loaded/hero-outfit-attack.png',
+    'hero-weapon-attack.png': '/loaded/hero-weapon-attack.png',
+  });
+  vi.stubGlobal(
+    'Image',
+    class {
+      onload?: () => void;
+      set src(_value: string) {
+        queueMicrotask(() => this.onload?.());
+      }
+    }
   );
-  const layers = Array.from(container.querySelectorAll<HTMLElement>('[data-layer]'));
-  expect(layers.at(-1)?.dataset.layer).toBe('weapon');
-  expect(layers.at(-1)?.style.backgroundImage).toContain('hero-weapon-attack.png');
-  expect(layers.at(-1)?.style.backgroundPositionY).toBe(`${(32 / 35) * 100}%`);
-  rerender(<PixelAvatar avatar={{ ...DEFAULT_AVATAR, hair: 6, skin: 8 }} />);
-  expect(container.querySelector('[data-layer="weapon"]')).toBeNull();
+  try {
+    const { container, rerender } = render(
+      <PixelAvatar avatar={{ ...DEFAULT_AVATAR, hair: 6, skin: 8 }} motion="attack" />
+    );
+    await waitFor(() => expect(container.querySelector('[data-layer="weapon"]')).not.toBeNull());
+    const layers = Array.from(container.querySelectorAll<HTMLElement>('[data-layer]'));
+    expect(layers.at(-1)?.dataset.layer).toBe('weapon');
+    expect(layers.at(-1)?.style.backgroundImage).toContain('hero-weapon-attack.png');
+    expect(layers.at(-1)?.style.backgroundPositionY).toBe(`${(32 / 35) * 100}%`);
+    rerender(<PixelAvatar avatar={{ ...DEFAULT_AVATAR, hair: 6, skin: 8 }} />);
+    expect(container.querySelector('[data-layer="weapon"]')).toBeNull();
+  } finally {
+    vi.unstubAllGlobals();
+  }
 });

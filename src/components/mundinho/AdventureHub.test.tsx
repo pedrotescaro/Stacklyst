@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AdventureHub } from './AdventureHub';
 import { BattleAudio } from '../../lib/mundinho/battleAudio';
@@ -245,6 +245,115 @@ describe('Mundinho battle navigation', () => {
     expect(sound).not.toHaveBeenCalledWith('attack');
     expect(screen.getByText('70 / 100 PV')).toBeInTheDocument();
     sound.mockRestore();
+  });
+  it('updates confirmed health at each impact instead of jumping both bars at the end', async () => {
+    const active = state('active');
+    active.battle!.hp = 110;
+    active.battle!.maxHp = 130;
+    const next = structuredClone(active);
+    Object.assign(next.battle!, { hp: 125, enemyHp: 82, turn: 1 });
+    await openBattle(async (action) => (action?.type === 'battle-skill' ? next : active));
+    vi.useFakeTimers();
+    try {
+      fireEvent.click(screen.getByRole('button', { name: /^Depurar/ }));
+      await act(async () => {
+        await Promise.resolve();
+      });
+      expect(document.querySelector('.combat-player-attack')).toBeInTheDocument();
+      expect(screen.getByRole('progressbar', { name: 'Vida de Gosma de sintaxe' })).toHaveAttribute(
+        'aria-valuenow',
+        '100'
+      );
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(350);
+      });
+      expect(document.querySelector('.combat-enemy-hurt')).toBeInTheDocument();
+      expect(screen.getByRole('progressbar', { name: 'Vida de Gosma de sintaxe' })).toHaveAttribute(
+        'aria-valuenow',
+        '82'
+      );
+      expect(screen.getByRole('progressbar', { name: 'Vida de Jogador' })).toHaveAttribute(
+        'aria-valuenow',
+        '130'
+      );
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(450);
+      });
+      expect(document.querySelector('.combat-enemy-attack')).toBeInTheDocument();
+      expect(screen.getByRole('progressbar', { name: 'Vida de Jogador' })).toHaveAttribute(
+        'aria-valuenow',
+        '130'
+      );
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(350);
+      });
+      expect(document.querySelector('.combat-player-hurt')).toBeInTheDocument();
+      expect(screen.getByRole('progressbar', { name: 'Vida de Jogador' })).toHaveAttribute(
+        'aria-valuenow',
+        '125'
+      );
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(350);
+      });
+      expect(screen.getByRole('button', { name: /^Depurar/ })).toBeEnabled();
+      expect(document.querySelector('.combat-idle')).toBeInTheDocument();
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it('never displays negative health when Refatorar costs the last health points', async () => {
+    const active = state('active');
+    active.battle!.hp = 5;
+    const next = structuredClone(active);
+    Object.assign(next.battle!, { hp: 0, enemyHp: 0, turn: 1, status: 'won' });
+    await openBattle(async (action) => (action?.type === 'battle-skill' ? next : active));
+    vi.useFakeTimers();
+    try {
+      fireEvent.click(screen.getByRole('button', { name: /^Refatorar/ }));
+      await act(async () => {
+        await Promise.resolve();
+      });
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(350);
+      });
+      expect(document.querySelector('.combat-enemy-hurt')).toBeInTheDocument();
+      expect(screen.getByRole('progressbar', { name: 'Vida de Jogador' })).toHaveAttribute(
+        'aria-valuenow',
+        '0'
+      );
+      expect(screen.getAllByText('0 / 100 PV')).toHaveLength(2);
+      await act(async () => {
+        await vi.advanceTimersByTimeAsync(450);
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it('ignores an older background load failure after a battle turn has succeeded', async () => {
+    window.matchMedia = vi
+      .fn()
+      .mockReturnValue({ matches: true, addEventListener: vi.fn(), removeEventListener: vi.fn() });
+    const active = state('active');
+    const next = structuredClone(active);
+    Object.assign(next.battle!, { enemyHp: 70, turn: 1 });
+    let reads = 0;
+    let rejectRefresh: (reason: Error) => void = () => {};
+    const transport: AdventureTransport = async (action) => {
+      if (action) return next;
+      if (++reads === 1) return active;
+      return new Promise((_, reject) => {
+        rejectRefresh = reject;
+      });
+    };
+    await openBattle(transport);
+    fireEvent.focus(window);
+    fireEvent.click(screen.getByRole('button', { name: /^Aplicar conceito/ }));
+    await screen.findByText('70 / 100 PV');
+    await act(async () => {
+      rejectRefresh(new Error('Falha de uma consulta antiga'));
+    });
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Aplicar conceito/ })).toBeEnabled();
   });
   it('shows the saved loot on victory and keeps it available in inventory', async () => {
     window.matchMedia = vi

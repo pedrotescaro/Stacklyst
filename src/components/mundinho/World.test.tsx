@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import World from './World';
 import { DEFAULT_AVATAR } from '../../lib/mundinho/types';
+import { canWalk } from '../../lib/mundinho/world';
 
 beforeEach(() => {
   window.matchMedia = vi.fn().mockReturnValue({ matches: false });
@@ -16,6 +17,57 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('World keyboard ownership', () => {
+  it('occludes the player behind tree crowns and the roof, and draws the player in front of their bases', () => {
+    for (const [scenery, position, behind] of [
+      ['tree-82', { x: 730, y: 520 }, true],
+      ['tree-82', { x: 730, y: 558 }, false],
+      ['cabin', { x: 688, y: 110 }, true],
+      ['cabin', { x: 688, y: 206 }, false],
+    ] as const) {
+      const { container, unmount } = render(
+        <World
+          avatar={DEFAULT_AVATAR}
+          assetBase="/assets/mundinho"
+          username="Jogador"
+          initialPosition={position}
+          onEncounter={() => {}}
+          onChest={async () => ({ awarded: false, reward: 0 })}
+        />
+      );
+      const playerDepth = Number(
+        (container.querySelector('.world-player') as HTMLElement).style.zIndex
+      );
+      const sceneryDepth = Number(
+        (container.querySelector(`[data-scenery="${scenery}"]`) as HTMLElement).style.zIndex
+      );
+      expect(behind ? playerDepth < sceneryDepth : playerDepth > sceneryDepth).toBe(true);
+      unmount();
+    }
+  });
+  it('opens the world at a nearby free point when a saved position is inside the chest', () => {
+    const savePosition = vi.fn();
+    const { container } = render(
+      <World
+        avatar={DEFAULT_AVATAR}
+        assetBase="/assets/mundinho"
+        username="Jogador"
+        initialPosition={{ x: 350, y: 398 }}
+        onPositionChange={savePosition}
+        onEncounter={() => {}}
+        onChest={async () => ({ awarded: false, reward: 0 })}
+      />
+    );
+    const player = container.querySelector('.world-player') as HTMLElement;
+    const position = { x: parseFloat(player.style.left), y: parseFloat(player.style.top) };
+    expect(canWalk(position.x, position.y)).toBe(true);
+    expect(savePosition).toHaveBeenCalledWith(position);
+    expect(container.querySelector('[data-prop="chest"]')).toHaveStyle({
+      transform: 'translateY(2px)',
+    });
+    expect(container.querySelector('[data-prop="signpost"]')).toHaveStyle({
+      transform: 'translateY(3px)',
+    });
+  });
   it('shows the high-level encounters and lets a nearby player enter the portal', () => {
     const enterArena = vi.fn();
     render(

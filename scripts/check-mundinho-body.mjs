@@ -157,7 +157,7 @@ for (let skin = 0; skin < 18; skin++) {
             pixel(sheets['hero-body'], skin, direction, frame, x, y)[3] ||
             pixel(sheets['hero-outfit'], 0, direction, frame, x, y)[3];
           if (occupied)
-            assert.ok(x >= 8 && x <= 23 && y <= 24, `skin ${skin}: compact reference body bounds`);
+            assert.ok(x >= 8 && x <= 23 && y <= 25, `skin ${skin}: compact reference body bounds`);
         }
 }
 for (let outfit = 0; outfit < 12; outfit++) {
@@ -195,8 +195,8 @@ for (const attack of [false, true]) {
           const side = direction === 1 || direction === 3;
           const step = attack ? 0 : steps[frame];
           const hands = [
-            side ? [19, 19 - step] : [9, 19 + step],
-            attack ? attackHands[frame] : side ? [14, 19 + step] : [21, 19 - step],
+            side ? [14, 18 - step] : [10, 19 + step],
+            attack ? attackHands[frame] : side ? [17, 19 + step] : [20, 19 - step],
           ];
           for (const [x, y] of hands) {
             const xx = direction === 3 || (attack && direction === 2) ? 31 - x : x;
@@ -212,6 +212,78 @@ for (const attack of [false, true]) {
             );
           }
         }
+}
+// Both soles connect back to the torso and remain outside the long hair in every
+// walk/attack pose. This catches overlapping profile boots and floating feet.
+function connectedToTorso(sheet, variant, direction, frame, targetX, targetY) {
+  const pending = Array.from({ length: 8 }, (_, i) => [13 + i, 17]),
+    seen = new Set();
+  while (pending.length) {
+    const [x, y] = pending.pop();
+    const key = y * 32 + x;
+    if (x < 8 || x > 23 || y < 16 || y > 25 || seen.has(key)) continue;
+    seen.add(key);
+    if (!pixel(sheet, variant, direction, frame, x, y)[3]) continue;
+    if (x === targetX && y === targetY) return true;
+    pending.push([x - 1, y], [x + 1, y], [x, y - 1], [x, y + 1]);
+  }
+  return false;
+}
+for (const attack of [false, true]) {
+  const body = sheets[attack ? 'hero-body-attack' : 'hero-body'];
+  const clothes = sheets[attack ? 'hero-outfit-attack' : 'hero-outfit'];
+  for (let direction = 0; direction < 4; direction++)
+    for (let frame = 0; frame < 8; frame++) {
+      const side = direction === 1 || direction === 3;
+      const soles = side
+        ? [
+            [14, 25],
+            [19, 25],
+          ]
+        : [
+            [13, 25],
+            [19, 25],
+          ];
+      for (const [x, y] of soles) {
+        const xx = direction === 3 || (attack && direction === 2) ? 31 - x : x;
+        for (let skin = 0; skin < 18; skin++)
+          assert.ok(
+            connectedToTorso(body, skin, direction, frame, xx, y),
+            `skin ${skin}: bare foot connects to body (dir ${direction}, pose ${frame})`
+          );
+        for (let outfit = 0; outfit < 12; outfit++) {
+          assert.ok(
+            connectedToTorso(clothes, outfit, direction, frame, xx, y),
+            `outfit ${outfit}: boot connects to hem (dir ${direction}, pose ${frame})`
+          );
+          const used = new Set();
+          for (let sy = 23; sy <= 25; sy++)
+            for (let sx = 8; sx <= 23; sx++) {
+              const p = pixel(clothes, outfit, direction, frame, sx, sy);
+              if (p[3]) used.add(colorOf(p));
+            }
+          assert.ok(used.size >= 3, `outfit ${outfit}: boot/toe/sole shading remains readable`);
+        }
+        for (let hair = 0; hair < hairVariants; hair++)
+          assert.equal(
+            pixel(sheets['hero-hair'], hair, direction, frame, xx, y)[3],
+            0,
+            `hair ${hair}: cannot hide sole (dir ${direction}, pose ${frame})`
+          );
+      }
+      // The same ankle/foot mask keeps bare-skin previews complete without any
+      // skin leaking below trousers or outside the boots when a garment is worn.
+      for (let skin = 0; skin < 18; skin++)
+        for (let outfit = 0; outfit < 12; outfit++)
+          for (let y = 23; y <= 25; y++)
+            for (let x = 8; x <= 23; x++)
+              if (pixel(body, skin, direction, frame, x, y)[3])
+                assert.equal(
+                  pixel(clothes, outfit, direction, frame, x, y)[3],
+                  255,
+                  `skin ${skin}, outfit ${outfit}: foot skin covered by boot (dir ${direction}, pose ${frame}, ${x},${y})`
+                );
+    }
 }
 const frameBytes = (sheet, variant, direction, frame) => {
   const rows = [];

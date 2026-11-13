@@ -55,11 +55,11 @@ export function drawCompactHero({
       c.line(x1, y1 + 1, x2, y2 + 1, col);
     }
   };
-  const weaponHand = attacking ? attackHands[f] : side ? [14, 19 + step] : [21, 19 - step];
-  const nearShoulder = side ? [15 + twist, 17] : [19 + twist, 17];
-  const farShoulder = side ? [18 + twist, 17] : [12 + twist, 17];
-  const farHand = side ? [19, 19 - step] : [9, 19 + step];
-  const nearHand = attacking ? weaponHand : side ? [14, 19 + step] : weaponHand;
+  const weaponHand = attacking ? attackHands[f] : side ? [17, 19 + step] : [20, 19 - step];
+  const nearShoulder = side ? [17 + twist, 17] : [19 + twist, 17];
+  const farShoulder = side ? [16 + twist, 17] : [12 + twist, 17];
+  const farHand = side ? [14, 18 - step] : [10, 19 + step];
+  const nearHand = attacking ? weaponHand : side ? [17, 19 + step] : weaponHand;
   const drawWeapon = () => {
     const hand = weaponHand,
       tip = attackTips[f];
@@ -88,6 +88,37 @@ export function drawCompactHero({
     }
     return c.data;
   }
+
+  const drawLegs = (bare = false) => {
+    const trouser = bare ? p.base : p.pants;
+    const trouserShadow = bare ? p.shadow : shade(p.pants, -18);
+    const shoe = bare ? p.base : p.shoes;
+    const outline = bare ? p.deepShadow : ink;
+    const brightness =
+      [1, 3, 5].reduce((sum, i) => sum + parseInt(shoe.slice(i, i + 2), 16), 0) / 3;
+    const sole = bare ? p.shadow : shade(shoe, brightness > 160 ? -38 : 55);
+    const highlight = bare ? p.highlight : shade(shoe, brightness > 180 ? -18 : 30);
+    const feet = side
+      ? [
+          { ankle: 13, heel: 12, offset: -step, far: true },
+          { ankle: 17, heel: 17, offset: step, far: false },
+        ]
+      : [
+          { ankle: 12, heel: 11, offset: step, far: false },
+          { ankle: 17, heel: 17, offset: -step, far: false },
+        ];
+    for (const { ankle, heel, offset, far } of feet) {
+      // A one-pixel ankle and a short, rounded shoe replace the long boot column.
+      // Ground contact stays fixed while heel/toe shading alternates with the step.
+      r(ankle, 20, 3, 4, trouserShadow);
+      r(ankle, 20, 2, 3, trouser);
+      const toe = heel + offset;
+      r(toe, 23, 4, 2, outline);
+      r(toe + 1, 25, 3, 1, sole);
+      r(toe + 1, 23, 2, 1, far ? shade(shoe, -12) : shoe);
+      r(toe + 2, 24, 2, 1, far ? shoe : highlight);
+    }
+  };
 
   if (layer === 'body') {
     // Large round head, short neck and a five-pixel torso are intentional reference proportions.
@@ -138,8 +169,8 @@ export function drawCompactHero({
         if (female) r(19, 13, 2, 1, p.blush);
       }
     }
-    const left = (side ? 13 : 11) + twist;
-    const right = (side ? 20 : 20) + twist;
+    const left = (side ? 12 : 10) + twist;
+    const right = (side ? 20 : 21) + twist;
     poly(
       [
         [left + 1, 16],
@@ -152,6 +183,7 @@ export function drawCompactHero({
       p.shadow
     );
     r(left + 1, 17, right - left - 1, 3, p.base);
+    drawLegs(true);
     // Hands are real skin pixels, authored into the same poses as the outfit sleeves.
     for (const [shoulder, hand] of [
       [farShoulder, farHand],
@@ -169,26 +201,10 @@ export function drawCompactHero({
   const rim = shade(p.shadow, -22),
     light = shade(p.jacket, 25);
   const kind = p.kind;
-  // Stubby boots alternate independently; there is no long trouser column below the shirt.
-  if (!side) {
-    for (const [x, off] of [
-      [12, step],
-      [17, -step],
-    ]) {
-      r(x, 21 + off, 3, 2, p.pants);
-      r(x, 22 + off, 3, 2, ink);
-      r(x, 22 + off, 2, 1, p.shoes);
-      r(x, 22 + off, 1, 1, shade(p.shoes, 13));
-    }
-  } else {
-    r(15, 21 - step, 3, 3, ink);
-    r(15, 21 - step, 3, 1, p.pants);
-    r(14, 21 + step, 3, 3, ink);
-    r(14, 21 + step, 3, 1, p.pants);
-    r(15, 23 + step, 3, 1, p.shoes);
-  }
-  const torsoLeft = (side ? 13 : 11) + twist;
-  const torsoRight = (side ? 20 : 20) + twist;
+  // Separate toes and a contrasting sole stay readable below even the long hair.
+  drawLegs();
+  const torsoLeft = (side ? 12 : 10) + twist;
+  const torsoRight = (side ? 20 : 21) + twist;
   poly(
     [
       [torsoLeft + 1, 16],

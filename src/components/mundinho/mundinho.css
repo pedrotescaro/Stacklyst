@@ -2579,6 +2579,8 @@
 .world-entity .sprite-avatar {
   width: 40px;
   height: 40px !important;
+  /* The soles end at row 26 of the 32px atlas, above its transparent bottom. */
+  top: 7.5px;
 }
 .world-entity .sprite-creature {
   width: 28px;
@@ -2800,7 +2802,6 @@
 }
 .combat-defeat .ad-combatant-player .battle-sprite > .pixel-avatar {
   filter: grayscale(0.7);
-  opacity: 0.6;
 }
 @keyframes rpg-lunge {
   50% {
@@ -2813,12 +2814,20 @@
   }
 }
 @keyframes rpg-hit {
+  0%,
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+    filter: brightness(1);
+  }
   25%,
   75% {
-    opacity: 0.25;
-    filter: brightness(3);
+    opacity: 1;
+    transform: translateX(-3px);
+    filter: brightness(1.25);
   }
   50% {
+    opacity: 1;
     transform: translateX(4px);
   }
 }

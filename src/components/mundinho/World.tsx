@@ -15,6 +15,7 @@ import { ADA_AVATAR, CREATURES, type Avatar } from '../../lib/mundinho/types';
 import {
   movementDirection,
   movePlayer,
+  walkablePosition,
   SCENERY,
   worldDepth,
   WORLD,
@@ -97,7 +98,10 @@ export default function World({
     const timer = setInterval(() => setClock((t) => t + 1), 250);
     return () => clearInterval(timer);
   }, []);
-  const player = useRef({ ...initialPosition, direction: 'down', walking: false });
+  const [startingPosition] = useState(() =>
+    area === 'arena' ? initialPosition : walkablePosition(initialPosition)
+  );
+  const player = useRef({ ...startingPosition, direction: 'down', walking: false });
   const [pose, setPose] = useState(player.current);
   useEffect(() => {
     onPositionChange?.({ x: pose.x, y: pose.y });

@@ -3,6 +3,7 @@ import {
   movementDirection,
   canWalk,
   movePlayer,
+  walkablePosition,
   SCENERY,
   worldDepth,
   WORLD,
@@ -17,18 +18,61 @@ describe('Exploração da floresta', () => {
       expect(worldDepth(object.depth + 1)).toBeGreaterThan(worldDepth(object.depth));
       expect(object.frame).toBeLessThan(SCENERY.columns * SCENERY.rows);
     }
-    expect(SCENERY.objects.find((object) => object.id === 'cabin')?.depth).toBe(204);
+    expect(SCENERY.objects.find((object) => object.id === 'cabin')?.depth).toBe(200);
   });
   it('allows walking behind crowns and the roof while blocking trunks and cabin walls', () => {
-    expect(canWalk(205, 575)).toBe(true);
-    expect(canWalk(205, 605)).toBe(false);
-    expect(canWalk(205, 616)).toBe(true);
-    expect(canWalk(682, 85)).toBe(true);
-    expect(canWalk(682, 110)).toBe(false);
-    expect(canWalk(682, 198)).toBe(false);
-    expect(canWalk(682, 211)).toBe(true);
-    expect(movePlayer(682, 98, 0, 5)).toEqual({ x: 682, y: 98 });
-    expect(movePlayer(682, 210, 0, -5)).toEqual({ x: 682, y: 210 });
+    // Tree 82's painted root is at (730, 552), not ten pixels to its right.
+    expect(canWalk(730, 520)).toBe(true);
+    expect(canWalk(730, 550)).toBe(false);
+    expect(canWalk(712, 550)).toBe(true);
+    expect(canWalk(748, 550)).toBe(true);
+    expect(canWalk(730, 558)).toBe(true);
+    expect(movePlayer(730, 558, 0, -5)).toEqual({ x: 730, y: 558 });
+
+    // The roof overhang is walkable; the walls and foundation are solid.
+    expect(canWalk(688, 110)).toBe(true);
+    expect(canWalk(688, 128)).toBe(true);
+    expect(canWalk(688, 134)).toBe(false);
+    expect(canWalk(688, 198)).toBe(false);
+    expect(canWalk(688, 206)).toBe(true);
+    expect(movePlayer(688, 128, 0, 5)).toEqual({ x: 688, y: 128 });
+    expect(movePlayer(688, 206, 0, -5)).toEqual({ x: 688, y: 206 });
+  });
+  it('blocks the chest and sign bases while leaving nearby interaction space and the portal open', () => {
+    expect(canWalk(350, 398)).toBe(false);
+    expect(canWalk(350, 405)).toBe(false);
+    expect(canWalk(350, 386)).toBe(true);
+    expect(canWalk(350, 409)).toBe(true);
+    expect(canWalk(323, 398)).toBe(true);
+    expect(canWalk(378, 398)).toBe(true);
+    expect(movePlayer(350, 409, 0, -5)).toEqual({ x: 350, y: 409 });
+
+    expect(canWalk(470, 325)).toBe(false);
+    expect(canWalk(470, 330)).toBe(false);
+    expect(canWalk(470, 313)).toBe(true);
+    expect(canWalk(470, 334)).toBe(true);
+    expect(movePlayer(470, 334, 0, -5)).toEqual({ x: 470, y: 334 });
+    expect(canWalk(600, 430)).toBe(true);
+  });
+  it('does not tunnel through small props or walls during a large move and slides along walls', () => {
+    expect(movePlayer(350, 430, 0, -100)).toEqual({ x: 350, y: 410 });
+    expect(movePlayer(300, 398, 100, 0)).toEqual({ x: 320, y: 398 });
+    expect(movePlayer(470, 350, 0, -80)).toEqual({ x: 470, y: 334 });
+    expect(movePlayer(688, 230, 0, -160)).toEqual({ x: 688, y: 206 });
+    expect(movePlayer(614, 170, 20, 20)).toEqual({ x: 614, y: 190 });
+  });
+  it('recovers saved positions covered by corrected solid footprints', () => {
+    for (const position of [
+      { x: 350, y: 398 },
+      { x: 470, y: 325 },
+      { x: 730, y: 550 },
+    ]) {
+      const safe = walkablePosition(position);
+      expect(canWalk(safe.x, safe.y)).toBe(true);
+      expect(Math.hypot(safe.x - position.x, safe.y - position.y)).toBeLessThan(32);
+    }
+    expect(walkablePosition(WORLD.spawn)).toBe(WORLD.spawn);
+    expect(walkablePosition({ x: NaN, y: Infinity })).toEqual(WORLD.spawn);
   });
   it('faces the dominant touch axis even with horizontal finger drift', () => {
     expect(movementDirection(0.06, -0.9, 'right')).toBe('up');

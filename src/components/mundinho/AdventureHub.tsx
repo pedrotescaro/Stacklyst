@@ -293,6 +293,7 @@ export function AdventureHub({
       setData(next);
       setError('');
     } catch (e) {
+      if (pending.current || stateRevision.current !== revision) return;
       setError(
         e instanceof Error
           ? e.message
@@ -355,6 +356,7 @@ export function AdventureHub({
             data?.battle?.id === next.battle?.id &&
             (next.battle?.turn ?? 0) > (data?.battle?.turn ?? 0)));
       if (answered && data?.battle && next.battle) {
+        const resolvedBattle = next.battle;
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const pause = (ms: number) =>
           new Promise((resolve) => setTimeout(resolve, reduced ? 0 : ms));
@@ -368,20 +370,35 @@ export function AdventureHub({
         const landed = next.battle.enemyHp < data.battle.enemyHp;
         setAttackEffect(skill.id);
         setHealing(landed ? Math.max(0, Math.min(maxHp - data.battle.hp, skill.heal)) : 0);
-        const recoveredHp = landed ? Math.min(maxHp, data.battle.hp + skill.heal) : data.battle.hp;
+        const recoveredHp = Math.max(
+          0,
+          landed ? Math.min(maxHp, data.battle.hp + skill.heal) : data.battle.hp
+        );
         const counterDamage = Math.max(0, recoveredHp - next.battle.hp);
         setIncomingDamage(counterDamage);
+        // The response already confirms the turn. Present its damage/healing at
+        // contact while keeping the remaining turn fields locked until recovery.
+        const showBattleHealth = (hp: number) =>
+          setData((current) => {
+            if (!current?.battle || current.battle.id !== resolvedBattle.id) return current;
+            return {
+              ...current,
+              battle: { ...current.battle, enemyHp: resolvedBattle.enemyHp, hp },
+            };
+          });
         battleAudio.play('attack');
         setCombatPhase('player-attack');
         await pause(350);
         battleAudio.play(next.battle.enemyHp < data.battle.enemyHp ? 'hit' : 'miss');
         if (landed && skill.heal > 0) battleAudio.play('heal');
+        showBattleHealth(recoveredHp);
         setCombatPhase(next.battle.enemyHp < data.battle.enemyHp ? 'enemy-hurt' : 'miss');
         await pause(450);
         if (counterDamage > 0 && next.battle.enemyHp > 0) {
           setCombatPhase('enemy-attack');
           await pause(350);
           battleAudio.play('hurt');
+          showBattleHealth(resolvedBattle.hp);
           setCombatPhase('player-hurt');
           await pause(350);
         }
