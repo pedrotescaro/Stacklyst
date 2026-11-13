@@ -1423,9 +1423,11 @@ export function AdventureHub({
                         }
                       />
                     </div>
-                    {category === 'hair' && (
+                    {(category === 'hair' || category === 'outfit') && (
                       <span className="ad-hairstyle-name">
-                        {text(HAIRSTYLES[i].name, HAIRSTYLES[i].nameEn)}
+                        {category === 'outfit'
+                          ? m(OUTFIT_SPECS[i].name)
+                          : text(HAIRSTYLES[i].name, HAIRSTYLES[i].nameEn)}
                       </span>
                     )}
                     {locked && (

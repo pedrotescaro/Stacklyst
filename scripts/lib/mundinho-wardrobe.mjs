@@ -1,46 +1,113 @@
 import { canvas } from './mundinho-pixel-art.mjs';
 
-// Three rows of stitching across the jacket. Directional patterns are clipped
-// to the original garment pixels so cuffs, hands, trousers and boots articulate.
-const patterns = {
-  hoodie: ['..s...s..', '..l...l..', '...sss...'],
-  tech: ['.aa...aa.', '..s.l....', 'a...l...a'],
-  coat: ['..ll.ll..', '..s.a.s..', '.pp...pp.'],
-  sweater: ['..sllls..', 'alalalala', '..s...s..'],
-  ceremonial: ['aa..l..aa', '.aaslsaa.', '...aaa...'],
-  bomber: ['.ls...sl.', '..p.l.p..', 'sssslssss'],
-  denim: ['.ll...ll.', '.pp.l.pp.', '..a.l.a..'],
-  cardigan: ['..l...l..', '...l.l...', '..p.a.p..'],
-  overcoat: ['.lll.lll.', '..sa.as..', '...a.a...'],
-  sailor: ['.aaa.aaa.', '..aalaa..', '...ala...'],
-  tunic: ['..aalaa..', '...ala...', '.ssaaass.'],
+// Six-pixel tailoring at the scale of the tutorial character. The first three
+// rows describe shoulders, chest and waist. The last row is optional lower trim.
+// Side art faces right; mapping the coordinates mirrors it for the left view.
+const tailoring = {
+  hoodie: {
+    front: ['.shjjhjs.', 'jjhjssjjj', '.sjjppjs.', '.........'],
+    side: ['.shhjs.', 'jjsjjs.', '.ssppj.', '.......'],
+    back: ['.hhllhhs.', 'jjshhhsjj', '.jjspsjj.', '.........'],
+    accent: '#8ad5e5',
+  },
+  tech: {
+    front: ['.ppjjppp.', 'ljjjsapjj', '.pssajsp.', '.........'],
+    side: ['.ppjjs.', 'jljsap.', '.jsssp.', '.......'],
+    back: ['.ppaaapp.', 'ljppjppjl', '.pjjajjp.', '.........'],
+    accent: '#54d9d8',
+  },
+  coat: {
+    front: ['.shhhssj.', 'jjhccssjj', '.sjccjsp.', '..js.sp..'],
+    side: ['.jhsss.', 'jhccsj.', '.sjcsp.', '..js...'],
+    back: ['.hhlllss.', 'jjhhssjjj', '.jjspsjj.', '..js.sj..'],
+    accent: '#e4ac65',
+  },
+  sweater: {
+    front: ['.sscccss.', 'jljjajjjj', '.jsaaasj.', '.........'],
+    side: ['.sccss.', 'jjljjj.', '.saasj.', '.......'],
+    back: ['.sscscss.', 'jljjjjjjj', '.jsaaasj.', '.........'],
+    accent: '#ce825c',
+  },
+  ceremonial: {
+    front: ['.ajhhhja.', 'sajpcpjas', '.sjacajp.', '...a.a...'],
+    side: ['.ahljs.', 'ajppsj.', '.sajap.', '...a...'],
+    back: ['.aaahaaa.', 'sjajjajjs', '.psaaasp.', '...a.a...'],
+    accent: '#ffe99d',
+  },
+  bomber: {
+    front: ['.pplllpp.', 'ljjpcjjaa', '.ssscssj.', '.........'],
+    side: ['.ppllp.', 'llajjc.', '.ssssp.', '.......'],
+    back: ['.pphhhpp.', 'ljjjjjjjl', '.psssssp.', '.........'],
+    accent: '#ffe7be',
+  },
+  denim: {
+    front: ['.sjhhjjs.', 'jjapcjapj', '.sjscsjp.', '.........'],
+    side: ['.shhjs.', 'jjapjc.', '.sssjp.', '.......'],
+    back: ['.jjhhhjj.', 'jjaaaajjj', '.ssjjjss.', '.........'],
+    accent: '#dbbf88',
+  },
+  cardigan: {
+    front: ['.hjccclj.', 'jjlcccsjj', '.sjlcasp.', '.........'],
+    side: ['.jlccs.', 'jjlccs.', '.jslas.', '.......'],
+    back: ['.hhllhhs.', 'jjljjjsjj', '.psjjjsp.', '.........'],
+    accent: '#f2ca9e',
+  },
+  overcoat: {
+    front: ['.pllcllp.', 'ssjacajss', '.sjajasp.', '..js.sj..'],
+    side: ['.pplcs.', 'psjlcs.', '.sjasp.', '..js...'],
+    back: ['.pllhlsp.', 'ssjjpsjss', '.pjsasjp.', '..js.sj..'],
+    accent: '#e7bd75',
+  },
+  sailor: {
+    front: ['.jnncnnj.', 'jjcnancjj', '.sjcacjs.', '....a....'],
+    side: ['.jncnn.', 'jnccnj.', '.ssjac.', '.....a.'],
+    back: ['.nnnnnnn.', 'jjnncnnjj', '.sjnnnjs.', '.........'],
+    accent: '#c6364c',
+  },
+  tunic: {
+    front: ['.sshhhss.', 'jjhccssjj', '.spaaaps.', '..ja.aj..'],
+    side: ['.shhhs.', 'jhccsj.', '.spaap.', '..ja...'],
+    back: ['.hhllhhs.', 'jjsllsjjj', '.ssaaass.', '..jj.jj..'],
+    accent: '#e6bc79',
+  },
 };
+
 export function detailClothing(c, pose, garment, shade) {
-  const cloth = pose.pixels.filter((p) =>
-    ['ce0c39', '921038', '8c8c8c', 'd7d7d7'].includes(p.color)
+  const design = tailoring[garment.kind];
+  if (!design) return; // The red adventure jacket is the original tutorial artwork.
+  const fabric = pose.pixels.filter((p) =>
+    ['ce0c39', '921038', 'd7d7d7', '8c8c8c'].includes(p.color)
   );
-  if (!cloth.length || !patterns[garment.kind]) return;
-  const top = Math.min(...cloth.map((p) => p.y)),
-    bottom = Math.max(...cloth.map((p) => p.y));
-  const middle = pose.head.x + (pose.head.w - 1) / 2,
-    side = pose.direction % 2 === 1;
-  const inks = {
+  if (!fabric.length) return;
+  const top = Math.min(...fabric.map((p) => p.y)),
+    bottom = Math.max(...fabric.map((p) => p.y));
+  const center = pose.head.x + (pose.head.w - 1) / 2;
+  const rows = pose.direction % 2 ? design.side : pose.direction === 2 ? design.back : design.front;
+  const colors = {
+    j: garment.jacket,
     s: garment.shadow,
-    l: shade(garment.jacket, 40),
-    a: garment.shirt,
-    p: shade(garment.shadow, -22),
+    p: shade(garment.shadow, -27),
+    h: shade(garment.jacket, 18),
+    l: shade(garment.jacket, 37),
+    a: design.accent,
+    c: garment.shirt,
+    n: '#243551',
   };
-  const front = patterns[garment.kind];
-  const back =
-    garment.kind === 'hoodie'
-      ? ['.sslllss.', '..sllls..', '...sss...']
-      : ['..lllll..', 's.......s', '..sssss..'];
-  for (const { x, y } of cloth) {
-    const row = Math.min(2, Math.round((2 * (y - top)) / Math.max(1, bottom - top)));
-    const dx = pose.direction === 3 ? middle - x : x - middle;
-    const col = Math.max(0, Math.min(8, Math.round(dx + (side ? 3 : 4))));
-    const mark = (pose.direction === 2 ? back : front)[row][col];
-    if (inks[mark]) c.pixel(x, y, inks[mark]);
+  // Map details onto the actual pose. Selectively use interior outline pixels
+  // underneath the chin for the collar, keeping the hands, head and blade clear.
+  const clothSet = new Set(fabric.map((p) => p.y * 48 + p.x));
+  for (const p of pose.pixels) {
+    if (p.y < top || p.y > bottom + 1) continue;
+    const dx = p.x - center;
+    const cloth = clothSet.has(p.y * 48 + p.x);
+    const underChin =
+      p.color === '0c0c0c' && Math.abs(dx) < 3 && p.y === top && clothSet.has((p.y + 1) * 48 + p.x);
+    const trim = p.y === bottom + 1 && ['1b1214', '2e1e21'].includes(p.color);
+    if (!cloth && !underChin && !trim) continue;
+    const col = Math.round((pose.direction === 3 ? -dx : dx) + (rows[0].length - 1) / 2);
+    const row = trim ? 3 : Math.round((2 * (p.y - top)) / Math.max(1, bottom - top));
+    const color = colors[rows[row]?.[col]];
+    if (color) c.pixel(p.x, p.y, color);
   }
 }
 

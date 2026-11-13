@@ -101,7 +101,7 @@ export const MUNDINHO_EN: Record<string, string> = {
   'Jaqueta jeans': 'Denim jacket',
   'Cardigã lavanda': 'Lavender cardigan',
   'Sobretudo noturno': 'Night overcoat',
-  'Uniforme marinheiro': 'Sailor uniform',
+  'Uniforme colegial japon�s': 'Japanese school uniform',
   'Túnica do bosque': 'Grove tunic',
 
   // Hair colors

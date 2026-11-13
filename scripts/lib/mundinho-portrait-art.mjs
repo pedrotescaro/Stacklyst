@@ -448,7 +448,7 @@ export function createPortraitArt({ SKIN_PALETTES, OUTFIT_SPECS, EYE_COLORS }) {
           [38, 97],
           [27, 91],
         ],
-        p.shadow,
+        '#243551',
         rim
       );
       edge(
@@ -475,7 +475,7 @@ export function createPortraitArt({ SKIN_PALETTES, OUTFIT_SPECS, EYE_COLORS }) {
           [51, 103],
           [54, 98],
         ],
-        '#bf5164',
+        '#c6364c',
         rim
       );
       c.line(48, 96, 50, 101, '#ed9baa');

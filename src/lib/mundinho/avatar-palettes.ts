@@ -222,13 +222,13 @@ export const OUTFIT_SPECS = [
     shoes: '#443c4e',
   },
   {
-    name: 'Uniforme marinheiro',
+    name: 'Uniforme colegial japon�s',
     kind: 'sailor',
     jacket: '#eef1e9',
     shadow: '#b8c9d2',
-    shirt: '#5388b2',
-    pants: '#3e5884',
-    shoes: '#e5d8c8',
+    shirt: '#f2ece1',
+    pants: '#354261',
+    shoes: '#51414b',
   },
   {
     name: 'Túnica do bosque',
