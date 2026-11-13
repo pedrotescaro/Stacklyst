@@ -761,32 +761,48 @@ export function PostCard({
 
       {deleteModalOpen && (
         <PostActionDialog
+          variant="confirm"
           titleId={`delete-post-title-${post.id}`}
           descriptionId={`delete-post-description-${post.id}`}
           busy={deleting}
           onClose={() => setDeleteModalOpen(false)}
           returnFocusRef={menuButtonRef}
         >
-          <h3 id={`delete-post-title-${post.id}`} className="text-sm font-black text-dd-text">
-            {text('Deletar postagem', 'Delete post')}
+          <h3
+            id={`delete-post-title-${post.id}`}
+            className="text-xl font-extrabold leading-6 text-dd-text"
+          >
+            {text('Deletar postagem?', 'Delete post?')}
           </h3>
           <p
             id={`delete-post-description-${post.id}`}
-            className="text-xs text-dd-muted font-semibold leading-relaxed"
+            className="mt-2 text-[15px] leading-5 text-dd-muted"
           >
             {text(
-              'Tem certeza que deseja deletar esta postagem? Esta ação não pode ser desfeita.',
-              'Are you sure you want to delete this post? This action cannot be undone.'
+              'Isso não pode ser desfeito, e a postagem será removida do seu perfil, do feed de quem segue você e dos resultados de busca.',
+              "This can't be undone and it will be removed from your profile, the feed of anyone following you, and search results."
             )}
           </p>
 
           {deleteError && (
-            <p role="alert" className="text-sm text-red-400">
+            <p role="alert" className="mt-3 text-sm text-red-500 dark:text-red-400">
               {deleteError}
             </p>
           )}
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-dd-border">
+          <div className="mt-6 flex flex-col gap-3">
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleDelete();
+              }}
+              disabled={deleting}
+              className="dd-touch min-h-11 w-full cursor-pointer rounded-full bg-[#f4212e] px-6 text-[15px] font-bold text-white transition-colors hover:bg-[#dc1e29] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f4212e] disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {deleting ? text('Deletando...', 'Deleting...') : text('Deletar', 'Delete')}
+            </button>
             <button
               type="button"
               data-dialog-initial-focus
@@ -796,21 +812,9 @@ export function PostCard({
                 e.preventDefault();
                 setDeleteModalOpen(false);
               }}
-              className="dd-touch text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
+              className="dd-touch min-h-11 w-full cursor-pointer rounded-full border border-dd-border px-6 text-[15px] font-bold text-dd-text transition-colors hover:bg-dd-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dd-accent disabled:cursor-not-allowed disabled:opacity-60"
             >
               {text('Cancelar', 'Cancel')}
-            </button>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                handleDelete();
-              }}
-              disabled={deleting}
-              className="dd-touch bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
-            >
-              {deleting ? text('Deletando...', 'Deleting...') : text('Deletar', 'Delete')}
             </button>
           </div>
         </PostActionDialog>

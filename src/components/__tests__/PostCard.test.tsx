@@ -209,7 +209,7 @@ describe('PostCard', () => {
     await user.click(menu);
     await user.click(screen.getByRole('button', { name: 'Excluir' }));
 
-    const dialog = screen.getByRole('dialog', { name: 'Deletar postagem' });
+    const dialog = screen.getByRole('dialog', { name: 'Deletar postagem?' });
     expect(container).not.toContainElement(dialog);
     expect(dialog.parentElement?.parentElement).toBe(document.body);
     const cancel = within(dialog).getByRole('button', { name: 'Cancelar' });
@@ -266,7 +266,7 @@ describe('PostCard', () => {
     expect(screen.getByRole('button', { name: 'Deletando...' })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Cancelar' })).toBeDisabled();
     await user.keyboard('{Escape}');
-    expect(screen.getByRole('dialog', { name: 'Deletar postagem' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Deletar postagem?' })).toBeInTheDocument();
     completeDelete(new Response(null, { status: 204 }));
 
     await waitFor(() => expect(onDelete).toHaveBeenCalledWith('post-1'));

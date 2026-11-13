@@ -10,6 +10,8 @@ interface PostActionDialogProps {
   onClose: () => void;
   returnFocusRef: RefObject<HTMLButtonElement | null>;
   children: ReactNode;
+  /** "confirm" is the compact X-style yes/no card used for destructive actions. */
+  variant?: 'default' | 'confirm';
 }
 
 export function PostActionDialog({
@@ -19,6 +21,7 @@ export function PostActionDialog({
   onClose,
   returnFocusRef,
   children,
+  variant = 'default',
 }: PostActionDialogProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const closeRef = useRef(onClose);
@@ -76,7 +79,11 @@ export function PostActionDialog({
   // Feed items animate with transforms; keep viewport dialogs outside those containing blocks.
   return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm"
+      className={
+        variant === 'confirm'
+          ? 'fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto bg-black/40 p-4 dark:bg-[#5b7083]/40'
+          : 'fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm'
+      }
       onClick={(event) => {
         event.stopPropagation();
         if (event.target === event.currentTarget && !busy) onClose();
@@ -90,7 +97,11 @@ export function PostActionDialog({
         aria-describedby={descriptionId}
         aria-busy={busy || undefined}
         tabIndex={-1}
-        className="relative w-full max-w-md max-h-[calc(100dvh-2rem)] space-y-4 overflow-y-auto rounded-2xl border border-dd-border bg-dd-surface p-5 text-left"
+        className={
+          variant === 'confirm'
+            ? 'relative w-full max-w-[320px] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl bg-dd-bg p-8 text-left shadow-2xl outline-none'
+            : 'relative w-full max-w-md max-h-[calc(100dvh-2rem)] space-y-4 overflow-y-auto rounded-2xl border border-dd-border bg-dd-surface p-5 text-left'
+        }
       >
         {children}
       </div>
