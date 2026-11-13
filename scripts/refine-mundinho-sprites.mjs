@@ -4,10 +4,11 @@ import { deflateSync } from 'node:zlib';
 import sharp from 'sharp';
 import ts from 'typescript';
 import { drawWorldHair } from './lib/mundinho-world-hero-art.mjs';
-import { drawCompactHero } from './lib/mundinho-world-body-art.mjs';
+import { drawCompactHero, WALK_BOB } from './lib/mundinho-world-body-art.mjs';
 const dir = 'public/assets/mundinho',
   source = 'artifacts/mundinho/libresprite/refined';
 const sceneryOnly = process.argv.includes('--scenery-only');
+const EMBED_PROMPT = '.agents/skills/impeccable/scripts/embed-prompt.mjs';
 const charactersOnly = process.argv.includes('--characters-only');
 if (!charactersOnly) {
   // The current scenery/creature authoring lives in v2. The legacy entry point
@@ -284,17 +285,48 @@ function draw(layer, value, d, f, motion = 'walk') {
   }
   return c;
 }
+/** Moves a whole layer by the walk bob so it follows the head and torso. */
+function bobLayer(c, dy) {
+  if (!dy) return c;
+  const row = c.w * 4;
+  const moved = Buffer.alloc(c.data.length);
+  for (let y = 0; y < c.h; y++) {
+    const to = y + dy;
+    if (to >= 0 && to < c.h) c.data.copy(moved, to * row, y * row, (y + 1) * row);
+  }
+  moved.copy(c.data);
+  return c;
+}
+// Long hair may reach the ground row; shoes always read in front of it. The attack
+// plays the same hair frames, so its (planted, mirrored-from-behind) feet count too.
+const feetMasks = new Map();
+function clearFeet(c, d, f) {
+  const key = d * 8 + f;
+  if (!feetMasks.has(key))
+    feetMasks.set(key, [draw('outfit', 0, d, f).data, draw('outfit', 0, d, f, 'attack').data]);
+  const masks = feetMasks.get(key);
+  for (let i = 22 * c.w * 4; i < c.data.length; i += 4)
+    if (masks.some((feet) => feet[i + 3])) c.data.fill(0, i, i + 4);
+}
+// Body and outfit bob inside drawCompactHero (their feet stay grounded); the head-borne
+// layers move as a whole. The attack plays these same sheets, so its body bobs alike.
+const BOBBED = new Set(['eyes', 'hair', 'accessory']);
 for (const [layer, count] of [
   ['body', 18],
   ['eyes', 10],
   ['outfit', OUTFIT_SPECS.length],
   ['hair', hairstyles.length * hairs.length],
-  // Accessories are exported separately from the character refinements.
-  ...(!charactersOnly ? [['accessory', 6]] : []),
+  ['accessory', 6],
 ]) {
   const frames = [];
   for (let v = 0; v < count; v++)
-    for (let d = 0; d < 4; d++) for (let f = 0; f < 8; f++) frames.push(draw(layer, v, d, f));
+    for (let d = 0; d < 4; d++)
+      for (let f = 0; f < 8; f++) {
+        const frame = draw(layer, v, d, f);
+        if (BOBBED.has(layer)) bobLayer(frame, WALK_BOB[f]);
+        if (layer === 'hair') clearFeet(frame, d, f);
+        frames.push(frame);
+      }
   await exportAnimation(`hero-${layer}`, frames);
 }
 for (const [layer, count] of [
@@ -334,12 +366,15 @@ if (charactersOnly) {
     'hero-outfit',
     'hero-outfit-attack',
     'hero-hair',
+    'hero-accessory',
     'hero-weapon-attack',
   ]) {
+    // Provenance metadata is optional tooling that may be absent from a checkout.
+    if (!(await fs.stat(EMBED_PROMPT).catch(() => null))) continue;
     execFileSync(
       process.execPath,
       [
-        '.agents/skills/impeccable/scripts/embed-prompt.mjs',
+        EMBED_PROMPT,
         `${dir}/${name}.png`,
         '--prompt',
         'Origin: original 32px character pixel artwork authored in scripts/refine-mundinho-sprites.mjs and scripts/lib/mundinho-world-hero-art.mjs and scripts/lib/mundinho-world-body-art.mjs, exported from native animated ASE sources using LibreSprite 1.3. Rounded chibi silhouettes, stepped swept hair, twelve garments and clean anime-inspired faces; compact chibi bodies with short legs and eight authored sword-swing poses. User-supplied character references informed proportions only.',

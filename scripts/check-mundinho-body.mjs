@@ -5,6 +5,12 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import sharp from 'sharp';
 import ts from 'typescript';
+import {
+  ARM_SWING,
+  FRONT_FEET,
+  SIDE_FEET,
+  WALK_BOB,
+} from './lib/mundinho-world-body-art.mjs';
 
 const root = 'public/assets/mundinho';
 const hairstyles = JSON.parse(fs.readFileSync('src/lib/mundinho/hairstyles.json', 'utf8'));
@@ -106,10 +112,9 @@ for (let skin = 0; skin < 18; skin++)
           );
         }
 
-// New authored hero/portrait colors match the editor; the latest scenery, enemy
-// and accessory assets retain their independent AAP-64 contract. All use hard alpha.
+// Authored hero (accessories included, they share its walk bob) and portrait colors
+// match the editor; scenery and enemies keep their AAP-64 contract. All use hard alpha.
 const aapAssets = new Set([
-  'hero-accessory',
   'creatures-animated',
   'forest-ground',
   'forest-scenery',
@@ -174,7 +179,8 @@ for (let outfit = 0; outfit < 12; outfit++) {
 }
 
 // Check both hands, independently of the permissive exposed-skin count above.
-const steps = [0, -1, 0, 1, 0, -1, 0, 1];
+// Hands follow the arm swing and, like the whole upper body, the walk bob.
+const steps = ARM_SWING;
 const attackHands = [
   [21, 18],
   [23, 16],
@@ -198,7 +204,8 @@ for (const attack of [false, true]) {
             side ? [14, 18 - step] : [10, 19 + step],
             attack ? attackHands[frame] : side ? [17, 19 + step] : [20, 19 - step],
           ];
-          for (const [x, y] of hands) {
+          for (const [x, handY] of hands) {
+            const y = handY + WALK_BOB[frame];
             const xx = direction === 3 || (attack && direction === 2) ? 31 - x : x;
             assert.equal(
               pixel(body, skin, direction, frame, xx, y)[3],
@@ -235,15 +242,12 @@ for (const attack of [false, true]) {
   for (let direction = 0; direction < 4; direction++)
     for (let frame = 0; frame < 8; frame++) {
       const side = direction === 1 || direction === 3;
-      const soles = side
-        ? [
-            [14, 25],
-            [19, 25],
-          ]
-        : [
-            [13, 25],
-            [19, 25],
-          ];
+      // Soles sit on the ground row unless the walk cycle lifts or moves that foot.
+      const states = attack ? [{}, {}] : (side ? SIDE_FEET : FRONT_FEET)[frame];
+      const soles = (side ? [14, 19] : [13, 19]).map((x, i) => [
+        x + (states[i].dx ?? 0),
+        25 - (states[i].lift ?? 0),
+      ]);
       for (const [x, y] of soles) {
         const xx = direction === 3 || (attack && direction === 2) ? 31 - x : x;
         for (let skin = 0; skin < 18; skin++)

@@ -114,9 +114,9 @@
       "output": "public/assets/mundinho/hero-accessory.png",
       "width": 256,
       "height": 768,
-      "builder": "scripts/mundinho-sprites/build.mjs",
-      "source": "artifacts/mundinho/libresprite-v2/hero-accessory.ase",
-      "palette": "AAP-64"
+      "builder": "scripts/refine-mundinho-sprites.mjs --characters-only",
+      "source": "artifacts/mundinho/libresprite/refined/hero-accessory.ase",
+      "palette": "src/lib/mundinho/avatar-palettes.ts (authored shading and neutral hair ramp)"
     },
     {
       "name": "portrait-hair-back",

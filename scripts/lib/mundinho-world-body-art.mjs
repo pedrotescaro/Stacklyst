@@ -23,7 +23,38 @@ const attackTips = [
   [24, 10],
 ];
 const attackTwist = [0, -1, -1, 0, 1, 1, 0, 0];
-const stride = [0, -1, 0, 1, 0, -1, 0, 1];
+
+// Walk cycle modelled on the player strips in the user's RPG tutorial and BlueStar:
+// the whole upper body bobs, one foot lifts and swings forward while the other stays
+// planted, and the arms swing against the legs. Frame 0 is the idle stance and frame 4
+// (feet together, body 1px lower) is the breathing frame. Hair, eyes and accessories
+// share the same vertical offset, including during the attack (it plays these frames).
+export const WALK_BOB = [0, -1, 0, 1, 1, 0, -1, 0];
+export const ARM_SWING = [0, 1, 1, 1, 0, -1, -1, -1];
+// Front/back views: [left foot, right foot]; `lift` raises a foot. On contact the leading
+// foot is planted on the ground line and the trailing heel comes up, so feet never drop
+// below the compact body's ground row.
+export const FRONT_FEET = [
+  [{}, {}],
+  [{}, { lift: 2 }],
+  [{ lift: 1 }, {}],
+  [{ lift: 1 }, {}],
+  [{}, {}],
+  [{ lift: 1 }, {}],
+  [{ lift: 2 }, {}],
+  [{}, { lift: 1 }],
+];
+// Side view: [far foot, near foot]; `dx` moves the whole leg toward the facing direction.
+export const SIDE_FEET = [
+  [{}, {}],
+  [{ dx: -1 }, { dx: 1, lift: 2 }],
+  [{ dx: -2 }, { dx: 2 }],
+  [{ dx: -2 }, { dx: 2 }],
+  [{}, {}],
+  [{ dx: 1, lift: 1 }, { dx: -1 }],
+  [{ dx: 2, lift: 2 }, { dx: -2 }],
+  [{ dx: 2 }, { dx: -2 }],
+];
 
 /** Compact 32px chibi body, independently authored from the old skin thumbnails. */
 export function drawCompactHero({
@@ -40,11 +71,13 @@ export function drawCompactHero({
   const back = d === 2;
   const attacking = motion === 'attack';
   const mirror = d === 3 || (attacking && back);
-  const step = attacking ? 0 : stride[f];
+  const step = attacking ? 0 : ARM_SWING[f];
+  // Everything above the legs follows the bob; drawLegs resets it so feet stay grounded.
+  let yo = WALK_BOB[f];
   const twist = attacking ? attackTwist[f] : 0;
   const ink = '#211a23';
-  const point = ([x, y]) => [mirror ? 31 - x : x, y];
-  const r = (x, y, w, h, col) => c.rect(mirror ? 32 - x - w : x, y, w, h, col);
+  const point = ([x, y]) => [mirror ? 31 - x : x, y + yo];
+  const r = (x, y, w, h, col) => c.rect(mirror ? 32 - x - w : x, y + yo, w, h, col);
   const poly = (points, col) => c.polygon(points.map(point), col);
   const line = (a, b, col, width = 1) => {
     const [x1, y1] = point(a),
@@ -100,24 +133,32 @@ export function drawCompactHero({
     const highlight = bare ? p.highlight : shade(shoe, brightness > 180 ? -18 : 30);
     const feet = side
       ? [
-          { ankle: 13, heel: 12, offset: -step, far: true },
-          { ankle: 17, heel: 17, offset: step, far: false },
+          { ankle: 13, heel: 12, far: true },
+          { ankle: 17, heel: 17, far: false },
         ]
       : [
-          { ankle: 12, heel: 11, offset: step, far: false },
-          { ankle: 17, heel: 17, offset: -step, far: false },
+          { ankle: 12, heel: 11, far: false },
+          { ankle: 17, heel: 17, far: false },
         ];
-    for (const { ankle, heel, offset, far } of feet) {
-      // A one-pixel ankle and a short, rounded shoe replace the long boot column.
-      // Ground contact stays fixed while heel/toe shading alternates with the step.
-      r(ankle, 20, 3, 4, trouserShadow);
-      r(ankle, 20, 2, 3, trouser);
-      const toe = heel + offset;
-      r(toe, 23, 4, 2, outline);
-      r(toe + 1, 25, 3, 1, sole);
-      r(toe + 1, 23, 2, 1, far ? shade(shoe, -12) : shoe);
-      r(toe + 2, 24, 2, 1, far ? shoe : highlight);
+    const states = attacking ? [{}, {}] : (side ? SIDE_FEET : FRONT_FEET)[f];
+    const savedOffset = yo;
+    yo = 0;
+    // A lifted foot is drawn first so the planted one reads in front of it.
+    const order = [0, 1].sort((a, b) => (states[b].lift ?? 0) - (states[a].lift ?? 0));
+    for (const i of order) {
+      const { ankle, heel, far } = feet[i];
+      const { dx = 0, lift = 0 } = states[i];
+      const dy = -lift;
+      // Short trouser leg and a rounded shoe; the leg shortens as the foot lifts.
+      r(ankle + dx, 20, 3, 4 + dy, trouserShadow);
+      r(ankle + dx, 20, 2, 3 + dy, trouser);
+      const toe = heel + dx;
+      r(toe, 23 + dy, 4, 2, outline);
+      r(toe + 1, 25 + dy, 3, 1, sole);
+      r(toe + 1, 23 + dy, 2, 1, far ? shade(shoe, -12) : shoe);
+      r(toe + 2, 24 + dy, 2, 1, far ? shoe : highlight);
     }
+    yo = savedOffset;
   };
 
   if (layer === 'body') {

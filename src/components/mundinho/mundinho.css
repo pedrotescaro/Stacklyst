@@ -2437,7 +2437,8 @@
   pointer-events: none;
 }
 .sprite-avatar.is-walking .sprite-layer {
-  animation: hero-walk 0.8s steps(7) infinite;
+  /* All eight walk frames (the last one sits at 8/7 of the strip). */
+  animation: hero-walk 0.8s steps(8) infinite;
 }
 .sprite-creature {
   display: inline-block;
@@ -2484,7 +2485,7 @@
     background-position-x: 0%;
   }
   to {
-    background-position-x: 100%;
+    background-position-x: 114.285714%;
   }
 }
 @keyframes hero-breathe {
@@ -2495,7 +2496,8 @@
   }
   70%,
   95% {
-    background-position-x: 28.5714286%;
+    /* Frame 4: feet together, head and torso one pixel lower. */
+    background-position-x: 57.1428571%;
   }
 }
 @keyframes creature-idle {

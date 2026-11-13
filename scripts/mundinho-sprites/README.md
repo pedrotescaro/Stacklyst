@@ -15,17 +15,18 @@ dimensions, palettes and editable sources without writing files or running Libre
 Unknown asset names fail instead of silently producing an empty build.
 
 The six authored hero layers form one aligned family. Selecting `hero`, `hero-body`,
-`hero-body-attack`, `hero-outfit`, `hero-outfit-attack`, `hero-eyes` or `hero-hair`
+`hero-body-attack`, `hero-outfit`, `hero-outfit-attack`, `hero-eyes`, `hero-hair` or `hero-accessory`
 runs `scripts/refine-mundinho-sprites.mjs --characters-only` once. Sources live in
 `artifacts/mundinho/libresprite/refined/`; the generator uses the authored body/hair
-modules under `scripts/lib/`. It leaves creatures, scenery and hero accessories alone.
+modules under `scripts/lib/`. It leaves creatures and scenery alone.
 
 Selecting `portraits` or any `portrait-*` layer rebuilds all six portrait layers once
 through `scripts/build-mundinho-portraits.mjs`. Drawing geometry lives in
 `scripts/lib/mundinho-portrait-art.mjs`, with accessory art in the generator. Sources
 live in `artifacts/mundinho/libresprite/portraits/`.
 
-Scenery, habitats, creatures, the tileset reference and `hero-accessory` continue to
+Hero accessories belong to the hero family too, so they share its walk bob.
+Scenery, habitats, creatures and the tileset reference continue to
 use this directory's AAP-64 drawing programs and `artifacts/mundinho/libresprite-v2/`.
 The authored hero/portrait families retain the saved avatar colors and neutral hair
 ramp instead of being quantized to AAP-64. All families preserve their cell dimensions,

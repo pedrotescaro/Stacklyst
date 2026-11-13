@@ -27,6 +27,7 @@ const HERO_NAMES = new Set([
   'hero-outfit-attack',
   'hero-eyes',
   'hero-hair',
+  'hero-accessory',
   'hero-weapon-attack',
 ]);
 const PORTRAIT_NAMES = new Set(
