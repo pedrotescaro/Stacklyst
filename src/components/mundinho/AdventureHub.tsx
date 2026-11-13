@@ -1586,7 +1586,11 @@ export function AdventureHub({
                     </span>
                   </div>
                   <div className="battle-sprite battle-sprite-enemy">
-                    <PixelCreature kind={opponent.id} color={opponent.color} />
+                    <PixelCreature
+                      kind={opponent.id}
+                      color={opponent.color}
+                      className={combatPhase === 'enemy-attack' ? 'is-attacking' : ''}
+                    />
                     {combatPhase === 'enemy-attack' && (
                       <BattleEffects
                         kind={CREATURE_ELEMENTS[opponent.id]?.element ?? 'slime'}

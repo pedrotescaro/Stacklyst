@@ -1434,6 +1434,7 @@
   position: absolute;
   pointer-events: none;
   background-repeat: no-repeat;
+  image-rendering: pixelated;
 }
 
 .world-entity-badge {
@@ -2407,8 +2408,12 @@
   height: 32px;
   background-repeat: no-repeat;
   image-rendering: pixelated;
-  animation: creature-breathe 1.6s steps(7) infinite;
+  /* Frames 0–3 idle; frames 4–7 are the attack, played during the enemy turn. */
+  animation: creature-idle 0.9s steps(4) infinite;
   transform-origin: 50% 95%;
+}
+.sprite-creature.is-attacking {
+  animation: creature-attack 0.6s steps(4) infinite;
 }
 @keyframes hero-walk {
   from {
@@ -2429,12 +2434,20 @@
     background-position-x: 28.5714286%;
   }
 }
-@keyframes creature-breathe {
+@keyframes creature-idle {
   from {
     background-position-x: 0%;
   }
   to {
-    background-position-x: 100%;
+    background-position-x: 57.142857%;
+  }
+}
+@keyframes creature-attack {
+  from {
+    background-position-x: 57.142857%;
+  }
+  to {
+    background-position-x: 114.285714%;
   }
 }
 .adventure {
@@ -2593,7 +2606,7 @@
 }
 .world-habitat.is-visible .sprite-creature {
   animation:
-    creature-breathe 1.6s steps(7) infinite,
+    creature-idle 0.9s steps(4) infinite,
     habitat-emerge 0.55s ease-out both;
 }
 @keyframes habitat-emerge {

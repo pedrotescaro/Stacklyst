@@ -1,0 +1,303 @@
+{
+ "skins": [
+  {
+   "id": "peach_fair",
+   "ramp": [
+    "bb7547",
+    "e9b5a3",
+    "fad6b8",
+    "ffffff"
+   ],
+   "blush": "f5a097"
+  },
+  {
+   "id": "lilac_fantasy",
+   "ramp": [
+    "8b93af",
+    "b3b9d1",
+    "e3e6ff",
+    "ffffff"
+   ],
+   "blush": "b9bffb"
+  },
+  {
+   "id": "warm_tan",
+   "ramp": [
+    "71413b",
+    "bb7547",
+    "c7b08b",
+    "f4d29c"
+   ],
+   "blush": "bb7547"
+  },
+  {
+   "id": "rosy_peach",
+   "ramp": [
+    "bb7547",
+    "dba463",
+    "e9b5a3",
+    "fad6b8"
+   ],
+   "blush": "f5a097"
+  },
+  {
+   "id": "slate_fantasy",
+   "ramp": [
+    "6d758d",
+    "8b93af",
+    "b3b9d1",
+    "dae0ea"
+   ],
+   "blush": "b9bffb"
+  },
+  {
+   "id": "pale_ivory",
+   "ramp": [
+    "c7b08b",
+    "e9b5a3",
+    "fad6b8",
+    "ffffff"
+   ],
+   "blush": "e9b5a3"
+  },
+  {
+   "id": "warm_wheat",
+   "ramp": [
+    "a08662",
+    "dba463",
+    "f4d29c",
+    "fef3c0"
+   ],
+   "blush": "dba463"
+  },
+  {
+   "id": "almond_sand",
+   "ramp": [
+    "a08662",
+    "c7b08b",
+    "dae0ea",
+    "ffffff"
+   ],
+   "blush": "e9b5a3"
+  },
+  {
+   "id": "deep_cocoa",
+   "ramp": [
+    "71413b",
+    "8e5252",
+    "ba756a",
+    "e9b5a3"
+   ],
+   "blush": "71413b"
+  }
+ ],
+ "eyes": [
+  "221c1a",
+  "328464",
+  "588dbe",
+  "bb7547",
+  "285cc4"
+ ],
+ "hairs": [
+  [
+   "141013",
+   "242234",
+   "4a5462"
+  ],
+  [
+   "423934",
+   "71413b",
+   "8e5252"
+  ],
+  [
+   "796755",
+   "bb7547",
+   "dba463"
+  ],
+  [
+   "b3b9d1",
+   "dae0ea",
+   "ffffff"
+  ],
+  [
+   "403353",
+   "793a80",
+   "849be4"
+  ],
+  [
+   "8e5252",
+   "e86a73",
+   "f5a097"
+  ]
+ ],
+ "outfits": [
+  {
+   "kind": "jacket",
+   "jacket": [
+    "73172d",
+    "e86a73",
+    "f5a097"
+   ],
+   "shirt": "dae0ea",
+   "pants": [
+    "333941",
+    "4a5462"
+   ],
+   "shoes": "242234"
+  },
+  {
+   "kind": "hoodie",
+   "jacket": [
+    "588dbe",
+    "249fde",
+    "b3b9d1"
+   ],
+   "shirt": "ffffff",
+   "pants": [
+    "333941",
+    "4a5462"
+   ],
+   "shoes": "ffffff"
+  },
+  {
+   "kind": "tech",
+   "jacket": [
+    "242234",
+    "333941",
+    "6d758d"
+   ],
+   "shirt": "249fde",
+   "pants": [
+    "122020",
+    "4a5462"
+   ],
+   "shoes": "141013"
+  },
+  {
+   "kind": "coat",
+   "jacket": [
+    "24523b",
+    "328464",
+    "5daf8d"
+   ],
+   "shirt": "cdf7e2",
+   "pants": [
+    "423934",
+    "796755"
+   ],
+   "shoes": "221c1a"
+  },
+  {
+   "kind": "sweater",
+   "jacket": [
+    "3b1725",
+    "73172d",
+    "ba756a"
+   ],
+   "shirt": "ffffff",
+   "pants": [
+    "a08662",
+    "c7b08b"
+   ],
+   "shoes": "5a4e44"
+  },
+  {
+   "kind": "ceremonial",
+   "jacket": [
+    "f9a31b",
+    "ffd541",
+    "d6f264"
+   ],
+   "shirt": "ffffff",
+   "pants": [
+    "143464",
+    "4a5462"
+   ],
+   "shoes": "242234"
+  },
+  {
+   "kind": "bomber",
+   "jacket": [
+    "8e5252",
+    "ba756a",
+    "e9b5a3"
+   ],
+   "shirt": "fad6b8",
+   "pants": [
+    "4a5462",
+    "6d758d"
+   ],
+   "shoes": "fad6b8"
+  },
+  {
+   "kind": "denim",
+   "jacket": [
+    "6d758d",
+    "588dbe",
+    "b3b9d1"
+   ],
+   "shirt": "e4d2aa",
+   "pants": [
+    "a08662",
+    "e9b5a3"
+   ],
+   "shoes": "333941"
+  },
+  {
+   "kind": "cardigan",
+   "jacket": [
+    "6d758d",
+    "8b93af",
+    "b3b9d1"
+   ],
+   "shirt": "ffffff",
+   "pants": [
+    "403353",
+    "6d758d"
+   ],
+   "shoes": "ffffff"
+  },
+  {
+   "kind": "overcoat",
+   "jacket": [
+    "403353",
+    "4a5462",
+    "8b93af"
+   ],
+   "shirt": "dae0ea",
+   "pants": [
+    "242234",
+    "4a5462"
+   ],
+   "shoes": "333941"
+  },
+  {
+   "kind": "sailor",
+   "jacket": [
+    "dae0ea",
+    "ffffff",
+    "ffffff"
+   ],
+   "shirt": "588dbe",
+   "pants": [
+    "143464",
+    "6d758d"
+   ],
+   "shoes": "fad6b8"
+  },
+  {
+   "kind": "tunic",
+   "jacket": [
+    "23674e",
+    "477d85",
+    "dae0ea"
+   ],
+   "shirt": "f4d29c",
+   "pants": [
+    "4a5462",
+    "6d758d"
+   ],
+   "shoes": "796755"
+  }
+ ]
+}

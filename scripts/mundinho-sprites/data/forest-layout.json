@@ -1,0 +1,499 @@
+{
+ "tile": 16,
+ "cols": 64,
+ "rows": 48,
+ "terrain": [
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggpppgggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggppppggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggggpppggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggpppgggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggpppgggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggggggpppggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggggggpppggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggggggppppgggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggpppgggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggpppgggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggpppgggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggpppgggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggpppgggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggpppgggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggpppgggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggggggppppgggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggggggpppggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggggggpppppppppppppggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggpppppppppppppppppppppggggggggggggggg",
+  "ggggggggggggggggggggggggpppppppppppppppppppppppppppppggggggggggg",
+  "ggppppggggggggggggggppppppppppppppppgggggggggppppppppppppggggggg",
+  "ggppppppppppppppppppppppppppggggpppggggggggggggggpppppppppppppgg",
+  "ggppppppppppppppppppppppgggggggpppgggggggggggggggggggpppppppppgg",
+  "ggggggppppppppppppppggggggggggppppgggggggggggggggggggggggpppppgg",
+  "ggggggggggggggggggggggggggggggpppggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggpppgggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggppppgggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggggpppggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggpppgggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggggppppgggggggggggggggggggggwwwwwwwgggggg",
+  "ggggggggggggggggggggggggggpppggggggggggggggggggggggwwwwwwwwggggg",
+  "gggggggggggggggggggggggggppppgggggggggggggggggggggwwwwwwwwwggggg",
+  "gggggggggggggggggggggggggpppggggggggggggggggggggggwwwwwwwwwwgggg",
+  "ggggggggggggggggggggggggppppggggggggggggggggggggggwwwwwwwwwwgggg",
+  "ggggggggggggggggggggggggpppgggggggggggggggggggggggwwwwwwwwwwgggg",
+  "ggggggggggggggggggggggggpppgggggggggggggggggggggggwwwwwwwwwwgggg",
+  "gggggggggggggggggggggggppppgggggggggggggggggggggggwwwwwwwwwggggg",
+  "gggggggggggggggggggggggpppgggggggggggggggggggggggggwwwwwwwgggggg",
+  "gggggggggggggggggggggggpppggggggggggggggggggggggggggggwwgggggggg",
+  "gggggggggggggggggggggggpppgggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggpppgggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggppppggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggpppggggggggggggggggggggggggggggggggggggg",
+  "ggggggggggggggggggggggggpppggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg",
+  "gggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg"
+ ],
+ "anchors": [
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 78,
+   "y": 156
+  },
+  {
+   "x": 94,
+   "y": 156
+  }
+ ],
+ "kinds": [
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "tree",
+  "cabin"
+ ]
+}
