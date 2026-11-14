@@ -5,6 +5,7 @@ import {
   movePlayer,
   walkablePosition,
   SCENERY,
+  ROCKS,
   worldDepth,
   WORLD,
   WORLD_OBJECTS,
@@ -60,6 +61,27 @@ describe('Exploração da floresta', () => {
     expect(movePlayer(470, 350, 0, -80)).toEqual({ x: 470, y: 334 });
     expect(movePlayer(688, 230, 0, -160)).toEqual({ x: 688, y: 206 });
     expect(movePlayer(614, 170, 20, 20)).toEqual({ x: 614, y: 190 });
+  });
+  it('blocks every full rock at its base, allows passage behind and around it, and prevents tunneling', () => {
+    for (const rock of ROCKS.objects) {
+      const r = rock.collision;
+      const x = r.x + r.w / 2;
+      const y = r.y + r.h / 2;
+      expect(canWalk(x, y), rock.id).toBe(false);
+      // The upper half can occlude a player walking behind the rock.
+      expect(canWalk(x, r.y - 6), rock.id).toBe(true);
+      expect(canWalk(x, r.y + r.h + 4), rock.id).toBe(true);
+      expect(canWalk(r.x - 8, y), rock.id).toBe(true);
+      expect(canWalk(r.x + r.w + 8, y), rock.id).toBe(true);
+      const startY = r.y + r.h + 4;
+      const stopped = movePlayer(x, startY, 0, -64);
+      expect(stopped.y, rock.id).toBeGreaterThanOrEqual(r.y + r.h + 4);
+      expect(stopped.y, rock.id).toBe(startY);
+      expect(canWalk(stopped.x, stopped.y), rock.id).toBe(true);
+      const safe = walkablePosition({ x, y });
+      expect(canWalk(safe.x, safe.y), rock.id).toBe(true);
+      expect(Math.hypot(safe.x - x, safe.y - y), rock.id).toBeLessThan(32);
+    }
   });
   it('recovers saved positions covered by corrected solid footprints', () => {
     for (const position of [

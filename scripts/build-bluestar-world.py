@@ -183,7 +183,10 @@ def terrain():
             continue
         strip = stones if x % 5 == 0 else flowers
         col = rng.randrange(strip.width // 16) * 16
-        pasted(ground, strip.crop((col, 0, col + 16, 16)), x - 8, y - 8)
+        # Preserve the random draws, but stones now have complete 32px cells
+        # and explicit positions shared by rendering and collision geometry.
+        if strip is flowers:
+            pasted(ground, strip.crop((col, 0, col + 16, 16)), x - 8, y - 8)
     # A planted kitchen garden beside the guide's cottage.
     garden = load("TileSet9-flat")
     for x, y in [
@@ -211,10 +214,31 @@ def terrain():
     return scaled(ground, (1024, 768))
 
 
+geometry = json.load(open("src/lib/mundinho/geometry.json"))
+rock_geometry = geometry["rocks"]
+rocks = blank(rock_geometry["width"] * rock_geometry["columns"], rock_geometry["height"])
+stone_source = load("spr_tile_pedra")
+for frame, left in enumerate((16, 48)):
+    # Each full stone crosses a 16px tile boundary in the original strip.
+    pasted(
+        rocks,
+        scaled(stone_source.crop((left, 0, left + 32, 16)), (64, 32)),
+        frame * rock_geometry["width"],
+        0,
+    )
+save(rocks, "rocks")
 ground = terrain()
 scenery = blank(1408, 1760)
 preview = ground.copy()
-geom = json.load(open("src/lib/mundinho/geometry.json"))["scenery"]
+for item in rock_geometry["objects"]:
+    left = item["frame"] * rock_geometry["width"]
+    pasted(
+        preview,
+        rocks.crop((left, 0, left + rock_geometry["width"], rock_geometry["height"])),
+        item["x"],
+        item["y"],
+    )
+geom = geometry["scenery"]
 for item in sorted(geom["objects"], key=lambda o: o["y"]):
     f = item["frame"]
     cell = blank(176, 160)
@@ -233,6 +257,40 @@ for item in sorted(geom["objects"], key=lambda o: o["y"]):
 save(ground, "meadow")
 save(scenery, "grove")
 save(preview, "clearing")
+
+
+def forest_fringe():
+    # A seamless continuation beyond the playable clearing. Use a separate seed
+    # and the finished atlas so the map, collisions and other art stay identical.
+    border_rng = random.Random(7319)
+    im = Image.new("RGBA", (256, 192), "#499d36")
+    grass = load("ts_grama-flat")
+    for y in range(0, im.height, 16):
+        for x in range(0, im.width, 16):
+            tile = border_rng.choice([1, 1, 1, 2, 3, 4, 5, 9, 10, 11, 12, 13, 20, 21])
+            left, top = (tile % 7) * 16, (tile // 7) * 16
+            pasted(im, grass.crop((left, top, left + 16, top + 16)), x, y)
+    im = scaled(im, (512, 384))
+    trees = []
+    for row in range(4):
+        for column in range(6):
+            frame = border_rng.randrange(76)
+            left = (frame % geom["columns"]) * geom["width"]
+            top = (frame // geom["columns"]) * geom["height"]
+            art = scenery.crop((left, top, left + geom["width"], top + geom["height"]))
+            x = (column * 86 + 26 + (row % 2) * 43 + border_rng.randrange(-12, 13)) % im.width
+            y = row * 96 + 70 + border_rng.randrange(-10, 11)
+            # Wrapped copies make crowns and trunks continuous across repeats.
+            for dy in (-im.height, 0, im.height):
+                for dx in (-im.width, 0, im.width):
+                    trees.append((y + dy, x + dx, art))
+    for y, x, art in sorted(trees, key=lambda item: item[0]):
+        pasted(im, art, x - geom["profiles"]["tree"]["anchor"]["x"],
+               y - geom["profiles"]["tree"]["anchor"]["y"])
+    return im
+
+
+save(forest_fringe(), "forest-fringe")
 
 
 def battle():

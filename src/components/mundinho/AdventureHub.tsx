@@ -325,6 +325,7 @@ export function AdventureHub({
   }, [load]);
 
   const go = (next: View) => {
+    battleAudio.setScene(next);
     if (view === 'arena' && next === 'world') worldPosition.current = { x: 600, y: 490 };
     setView(next);
     setError('');

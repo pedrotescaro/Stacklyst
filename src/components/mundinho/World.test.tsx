@@ -2,7 +2,7 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import World from './World';
 import { DEFAULT_AVATAR } from '../../lib/mundinho/types';
-import { canWalk } from '../../lib/mundinho/world';
+import { canWalk, ROCKS, worldDepth } from '../../lib/mundinho/world';
 
 beforeEach(() => {
   window.matchMedia = vi.fn().mockReturnValue({ matches: false });
@@ -17,12 +17,47 @@ beforeEach(() => {
 afterEach(() => vi.unstubAllGlobals());
 
 describe('World keyboard ownership', () => {
+  it('renders complete rock atlas cells at the same positions and depths as their collisions', () => {
+    const { container, rerender } = render(
+      <World
+        avatar={DEFAULT_AVATAR}
+        assetBase="/assets/mundinho"
+        username="Jogador"
+        onEncounter={() => {}}
+        onChest={async () => ({ awarded: false, reward: 0 })}
+      />
+    );
+    for (const rock of ROCKS.objects) {
+      expect(container.querySelector(`[data-scenery="${rock.id}"]`)).toHaveStyle({
+        left: `${rock.x}px`,
+        top: `${rock.y}px`,
+        width: '64px',
+        height: '32px',
+        zIndex: worldDepth(rock.depth),
+        backgroundImage: 'url(/assets/mundinho/blue-rocks.png)',
+        backgroundPosition: `${-rock.frame * ROCKS.width}px 0px`,
+      });
+    }
+    rerender(
+      <World
+        area="arena"
+        avatar={DEFAULT_AVATAR}
+        assetBase="/assets/mundinho"
+        username="Jogador"
+        onEncounter={() => {}}
+        onChest={async () => ({ awarded: false, reward: 0 })}
+      />
+    );
+    expect(container.querySelector('[data-scenery^="rock-"]')).toBeNull();
+  });
   it('occludes the player behind tree crowns and the roof, and draws the player in front of their bases', () => {
     for (const [scenery, position, behind] of [
       ['tree-82', { x: 730, y: 520 }, true],
       ['tree-82', { x: 730, y: 558 }, false],
       ['cabin', { x: 688, y: 110 }, true],
       ['cabin', { x: 688, y: 206 }, false],
+      ['rock-3', { x: 310, y: 620 }, true],
+      ['rock-3', { x: 310, y: 648 }, false],
     ] as const) {
       const { container, unmount } = render(
         <World

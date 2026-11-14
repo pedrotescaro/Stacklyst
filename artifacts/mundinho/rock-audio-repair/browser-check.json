@@ -1,0 +1,87 @@
+{
+  "before": {
+    "x": 310,
+    "y": 648
+  },
+  "blocked": {
+    "x": 310,
+    "y": 648
+  },
+  "around": {
+    "x": 368.352,
+    "y": 592
+  },
+  "audioEvents": [
+    {
+      "event": "start",
+      "loop": true,
+      "duration": 102.70125
+    },
+    {
+      "event": "start",
+      "loop": false,
+      "duration": 1.7501875
+    },
+    {
+      "event": "stop",
+      "loop": true,
+      "duration": 102.70125
+    },
+    {
+      "event": "start",
+      "loop": false,
+      "duration": 0.2583958333333333
+    },
+    {
+      "event": "start",
+      "loop": true,
+      "duration": 29.596729166666666
+    },
+    {
+      "event": "stop",
+      "loop": true,
+      "duration": 29.596729166666666
+    },
+    {
+      "event": "stop",
+      "loop": false,
+      "duration": 1.7501875
+    },
+    {
+      "event": "stop",
+      "loop": false,
+      "duration": 0.2583958333333333
+    },
+    {
+      "event": "start",
+      "loop": true,
+      "duration": 29.596729166666666
+    },
+    {
+      "event": "stop",
+      "loop": true,
+      "duration": 29.596729166666666
+    },
+    {
+      "event": "start",
+      "loop": true,
+      "duration": 29.596729166666666
+    },
+    {
+      "event": "stop",
+      "loop": true,
+      "duration": 29.596729166666666
+    },
+    {
+      "event": "start",
+      "loop": true,
+      "duration": 102.70125
+    },
+    {
+      "event": "stop",
+      "loop": true,
+      "duration": 102.70125
+    }
+  ],
+  "errors": []
+}

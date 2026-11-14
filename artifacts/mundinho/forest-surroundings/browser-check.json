@@ -1,0 +1,75 @@
+{
+  "results": [
+    {
+      "name": "desktop-portrait",
+      "image": "url(\"http://127.0.0.1:59285/assets/mundinho/blue-forest-fringe.png\")",
+      "size": [
+        255,
+        191.25
+      ],
+      "position": [
+        0,
+        221.75
+      ],
+      "scale": 0.49804699420928955,
+      "x": 0,
+      "y": 221.75,
+      "width": 510,
+      "height": 826,
+      "gaps": {
+        "top": 222.75,
+        "bottom": 222.921875,
+        "left": 1,
+        "right": 1
+      }
+    },
+    {
+      "name": "desktop-wide",
+      "image": "url(\"http://127.0.0.1:59285/assets/mundinho/blue-forest-fringe.png\")",
+      "size": [
+        430.667,
+        323
+      ],
+      "position": [
+        184.333,
+        0
+      ],
+      "scale": 0.8411459922790527,
+      "x": 184.33299255371094,
+      "y": 0,
+      "width": 1230,
+      "height": 646,
+      "gaps": {
+        "top": 1,
+        "bottom": 1.171875,
+        "left": 185.33331298828125,
+        "right": 185.3333740234375
+      }
+    },
+    {
+      "name": "mobile",
+      "image": "url(\"http://127.0.0.1:59285/assets/mundinho/blue-forest-fringe.png\")",
+      "size": [
+        174,
+        130.5
+      ],
+      "position": [
+        0,
+        209.5
+      ],
+      "scale": 0.3398439884185791,
+      "x": 0,
+      "y": 209.5,
+      "width": 348,
+      "height": 680,
+      "gaps": {
+        "top": 210.5,
+        "bottom": 210.734375,
+        "left": 1,
+        "right": 1
+      }
+    }
+  ],
+  "errors": [],
+  "arenaUnchanged": true
+}

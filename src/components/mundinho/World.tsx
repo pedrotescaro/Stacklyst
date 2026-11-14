@@ -17,6 +17,7 @@ import {
   movePlayer,
   walkablePosition,
   SCENERY,
+  ROCKS,
   worldDepth,
   WORLD,
   WORLD_OBJECTS,
@@ -426,6 +427,15 @@ export default function World({
       <div
         ref={viewport}
         className="world-viewport"
+        style={
+          area === 'forest'
+            ? {
+                backgroundImage: `url(${adventureAsset('blue-forest-fringe.png', assetBase)})`,
+                backgroundSize: `${512 * scale}px ${384 * scale}px`,
+                backgroundPosition: `${x}px ${y}px`,
+              }
+            : undefined
+        }
         tabIndex={0}
         aria-label={text(
           'Mundinho RPG. Mova-se com WASD ou setas e aperte E ou Espaço para interagir.',
@@ -526,6 +536,24 @@ export default function World({
                 backgroundImage: `url(${adventureAsset('blue-grove.png', assetBase)})`,
                 backgroundSize: `${SCENERY.width * SCENERY.columns}px ${SCENERY.height * SCENERY.rows}px`,
                 backgroundPosition: `${-(object.frame % SCENERY.columns) * SCENERY.width}px ${-Math.floor(object.frame / SCENERY.columns) * SCENERY.height}px`,
+              }}
+            />
+          ))}
+          {(area === 'arena' ? [] : ROCKS.objects).map((object) => (
+            <div
+              key={object.id}
+              className="world-scenery"
+              data-scenery={object.id}
+              aria-hidden="true"
+              style={{
+                left: object.x,
+                top: object.y,
+                width: ROCKS.width,
+                height: ROCKS.height,
+                zIndex: worldDepth(object.depth),
+                backgroundImage: `url(${adventureAsset('blue-rocks.png', assetBase)})`,
+                backgroundSize: `${ROCKS.width * ROCKS.columns}px ${ROCKS.height}px`,
+                backgroundPosition: `${-object.frame * ROCKS.width}px 0px`,
               }}
             />
           ))}

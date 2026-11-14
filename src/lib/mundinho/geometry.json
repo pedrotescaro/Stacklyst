@@ -575,6 +575,26 @@
       }
     }
   },
+  "rocks": {
+    "width": 64,
+    "height": 32,
+    "columns": 2,
+    "anchor": { "x": 32, "y": 32 },
+    "footprints": [
+      { "x": 14, "y": 20, "w": 36, "h": 12 },
+      { "x": 12, "y": 20, "w": 40, "h": 12 }
+    ],
+    "objects": [
+      { "id": "rock-0", "x": 468, "y": 174, "frame": 0 },
+      { "id": "rock-1", "x": 828, "y": 270, "frame": 1 },
+      { "id": "rock-2", "x": 818, "y": 646, "frame": 0 },
+      { "id": "rock-3", "x": 278, "y": 612, "frame": 1 },
+      { "id": "rock-4", "x": 348, "y": 12, "frame": 0 },
+      { "id": "rock-5", "x": 708, "y": 678, "frame": 1 },
+      { "id": "rock-6", "x": 718, "y": 252, "frame": 1 },
+      { "id": "rock-7", "x": 158, "y": 518, "frame": 1 }
+    ]
+  },
   "props": {
     "chest": {
       "anchor": {

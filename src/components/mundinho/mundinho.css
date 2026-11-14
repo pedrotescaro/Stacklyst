@@ -2598,6 +2598,11 @@
 .world-map {
   image-rendering: pixelated;
 }
+.world-shell[data-area='forest'] .world-viewport {
+  background-color: #499d36;
+  background-repeat: repeat;
+  image-rendering: pixelated;
+}
 .world-entity .sprite-avatar {
   width: 96px;
   height: 96px !important;

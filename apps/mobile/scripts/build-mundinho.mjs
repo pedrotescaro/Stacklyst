@@ -19,7 +19,9 @@ for (const file of [
   'forest.png',
   'blue-clearing.png',
   'blue-meadow.png',
+  'blue-forest-fringe.png',
   'blue-grove.png',
+  'blue-rocks.png',
   'chest.png',
   'blue-arena.png',
   'blue-stairs.png',
@@ -53,6 +55,13 @@ for (const file of [
   )
     ? `data:image/webp;base64,${(await sharp(bytes).webp({ quality: 85 }).toBuffer()).toString('base64')}`
     : `data:${file.endsWith('.png') ? 'image/png' : 'image/svg+xml'};base64,${bytes.toString('base64')}`;
+}
+const audioManifest = JSON.parse(
+  await readFile(path.resolve('public/assets/mundinho/audio/manifest.json'), 'utf8')
+);
+for (const { file } of audioManifest.assets) {
+  const bytes = await readFile(path.resolve('public/assets/mundinho/audio', file));
+  assets[`audio/${file}`] = `data:audio/mpeg;base64,${bytes.toString('base64')}`;
 }
 const result = await build({
   entryPoints: ['apps/mobile/src/mundinho/entry.tsx'],

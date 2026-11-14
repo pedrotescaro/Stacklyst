@@ -17,6 +17,22 @@ export const SCENERY = {
     };
   }),
 };
+export const ROCKS = {
+  ...geometry.rocks,
+  objects: geometry.rocks.objects.map((object) => {
+    const footprint = geometry.rocks.footprints[object.frame];
+    return {
+      ...object,
+      depth: object.y + geometry.rocks.anchor.y,
+      collision: {
+        x: object.x + footprint.x,
+        y: object.y + footprint.y,
+        w: footprint.w,
+        h: footprint.h,
+      },
+    };
+  }),
+};
 
 export const WORLD_OBJECTS = [
   { id: 'guide', name: 'Ada (Guia)', x: 680, y: 230 },
@@ -29,6 +45,7 @@ export const WORLD_OBJECTS = [
 export const COLLISIONS = [
   ...geometry.obstacles,
   ...SCENERY.objects.map((object) => object.collision),
+  ...ROCKS.objects.map((object) => object.collision),
   ...WORLD_OBJECTS.flatMap((object) => {
     const profile =
       object.id === 'chest'
