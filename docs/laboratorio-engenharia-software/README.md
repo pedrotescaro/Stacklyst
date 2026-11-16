@@ -1,5 +1,9 @@
 # Engenharia de software — Stacklyst
 
+## Stacklyst — Documentação Final 0.1
+
+A [Documentação Final 0.1](Stacklyst%20-%20Documentação%20Final%200.1/README.md) reúne os entregáveis da disciplina e o [projeto Astah revisado](Stacklyst%20-%20Documentação%20Final%200.1/Stacklyst-modelos-atualizados.asta), com os ícones BCE e os nomes dos participantes corrigidos nos diagramas de sequência SQ01 a SQ13 e seus recortes.
+
 ## Stacklyst — Documentação Final
 
 A pasta [Stacklyst - Documentação Final](Stacklyst%20-%20Documentação%20Final/README.md) reúne os arquivos consolidados e atualizados do Google Drive para a entrega da disciplina, incluindo os quatro documentos Word, o projeto Astah UML com a vista **Caso de Uso Geral**, a apresentação do seminário e o arquivo de links:

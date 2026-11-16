@@ -1,0 +1,21 @@
+STACKLYST - LINKS DO PROJETO
+Laboratório de Engenharia de Software - Fatec Ferraz de Vasconcelos
+
+Site (aplicação publicada)
+https://stacklyst.vercel.app/
+
+Repositório do código-fonte (GitHub)
+https://github.com/pedrotescaro/Stacklyst
+
+Documentação no repositório
+Manual do sistema:
+https://github.com/pedrotescaro/Stacklyst/blob/main/docs/manual/README.md
+
+Pasta geral de documentação:
+https://github.com/pedrotescaro/Stacklyst/tree/main/docs
+
+Documentação da disciplina (documentos, diagramas e arquivos do Astah):
+https://github.com/pedrotescaro/Stacklyst/tree/main/docs/laboratorio-engenharia-software
+
+Esquema do banco de dados (Prisma):
+https://github.com/pedrotescaro/Stacklyst/blob/main/prisma/schema.prisma
