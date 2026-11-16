@@ -1,17 +1,15 @@
 'use client';
 
-import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
-import { createPortal } from 'react-dom';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Search, X } from 'lucide-react';
 import { EMOJI_CATEGORIES, EMOJI_NAMES } from '@/lib/post-composer';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { cn } from '@/lib/utils';
+import { AnchoredPopover } from '@/components/composer/AnchoredPopover';
 import './EmojiPicker.css';
 
 const PICKER_WIDTH = 344;
 const PICKER_MAX_HEIGHT = 400;
-const GAP = 8;
-const EDGE = 8;
 
 interface EmojiPickerProps {
   anchorRef: React.RefObject<HTMLElement | null>;
@@ -20,34 +18,8 @@ interface EmojiPickerProps {
   onClose: () => void;
 }
 
-interface Placement {
-  top: number;
-  left: number;
-  width: number;
-  maxHeight: number;
-  origin: 'top' | 'bottom';
-}
-
-function computePlacement(anchor: HTMLElement): Placement {
-  const rect = anchor.getBoundingClientRect();
-  const viewportWidth = window.innerWidth;
-  const viewportHeight = window.innerHeight;
-  const width = Math.min(PICKER_WIDTH, viewportWidth - EDGE * 2);
-  const left = Math.min(Math.max(EDGE, rect.left), viewportWidth - width - EDGE);
-
-  const spaceAbove = rect.top - GAP - EDGE;
-  const spaceBelow = viewportHeight - rect.bottom - GAP - EDGE;
-  const openAbove = spaceAbove >= 320 || spaceAbove > spaceBelow;
-  const maxHeight = Math.min(PICKER_MAX_HEIGHT, openAbove ? spaceAbove : spaceBelow);
-
-  return openAbove
-    ? { top: rect.top - GAP - maxHeight, left, width, maxHeight, origin: 'bottom' }
-    : { top: rect.bottom + GAP, left, width, maxHeight, origin: 'top' };
-}
-
 export function EmojiPicker({ anchorRef, pickerRef, onSelect, onClose }: EmojiPickerProps) {
   const { text } = useLocalizedText();
-  const [placement, setPlacement] = useState<Placement | null>(null);
   const [query, setQuery] = useState('');
   const [hovered, setHovered] = useState<string | null>(null);
   const [activeCategory, setActiveCategory] = useState(EMOJI_CATEGORIES[0].name);
@@ -56,44 +28,6 @@ export function EmojiPicker({ anchorRef, pickerRef, onSelect, onClose }: EmojiPi
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
   const jumpLockRef = useRef(false);
   const lockTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useLayoutEffect(() => {
-    const update = (event?: Event) => {
-      // Scrolling the emoji list itself doesn't move the anchor.
-      if (event?.target instanceof Node && pickerRef.current?.contains(event.target)) return;
-      if (!anchorRef.current) return;
-      const next = computePlacement(anchorRef.current);
-      setPlacement((current) =>
-        current &&
-        current.top === next.top &&
-        current.left === next.left &&
-        current.width === next.width &&
-        current.maxHeight === next.maxHeight
-          ? current
-          : next
-      );
-    };
-    update();
-    window.addEventListener('resize', update);
-    window.addEventListener('scroll', update, true);
-    return () => {
-      window.removeEventListener('resize', update);
-      window.removeEventListener('scroll', update, true);
-    };
-  }, [anchorRef, pickerRef]);
-
-  useEffect(() => {
-    // Escape closes only the picker, not the composer dialog around it.
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return;
-      event.preventDefault();
-      event.stopPropagation();
-      onClose();
-      anchorRef.current?.focus();
-    };
-    window.addEventListener('keydown', handleKeyDown, true);
-    return () => window.removeEventListener('keydown', handleKeyDown, true);
-  }, [anchorRef, onClose]);
 
   useEffect(() => {
     if (window.matchMedia('(pointer: fine)').matches) {
@@ -176,124 +110,119 @@ export function EmojiPicker({ anchorRef, pickerRef, onSelect, onClose }: EmojiPi
     </button>
   );
 
-  if (!placement || typeof document === 'undefined') return null;
-
-  return createPortal(
-    <div
-      ref={pickerRef}
-      role="dialog"
-      aria-label="Emojis"
+  return (
+    <AnchoredPopover
+      anchorRef={anchorRef}
+      popoverRef={pickerRef}
+      onClose={onClose}
+      label="Emojis"
+      width={PICKER_WIDTH}
+      maxHeight={PICKER_MAX_HEIGHT}
+      fillHeight
       className="emoji-picker"
-      data-origin={placement.origin}
-      style={{
-        top: placement.top,
-        left: placement.left,
-        width: placement.width,
-        height: placement.maxHeight,
-      }}
-      onMouseLeave={() => setHovered(null)}
     >
-      <div className="emoji-picker-search">
-        <Search aria-hidden className="emoji-picker-search-icon" />
-        <input
-          ref={searchRef}
-          type="search"
-          value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          placeholder={text('Buscar emojis', 'Search emojis')}
-          aria-label={text('Buscar emojis', 'Search emojis')}
-        />
-        {query && (
-          <button
-            type="button"
-            className="emoji-picker-clear"
-            aria-label={text('Limpar busca', 'Clear search')}
-            onClick={() => {
-              setQuery('');
-              searchRef.current?.focus();
-            }}
-          >
-            <X />
-          </button>
-        )}
-      </div>
-
-      <div
-        className="emoji-picker-tabs"
-        role="tablist"
-        aria-label={text('Categorias', 'Categories')}
-        style={
-          {
-            '--tab-count': EMOJI_CATEGORIES.length,
-            '--tab-index': Math.max(activeIndex, 0),
-          } as React.CSSProperties
-        }
-      >
-        {!results && <span aria-hidden className="emoji-picker-tab-indicator" />}
-        {EMOJI_CATEGORIES.map((category) => (
-          <button
-            key={category.name}
-            type="button"
-            role="tab"
-            aria-selected={!results && activeCategory === category.name}
-            title={text(category.name, category.nameEn)}
-            className={cn(
-              'emoji-picker-tab',
-              !results && activeCategory === category.name && 'is-active'
-            )}
-            onPointerDown={(event) => event.preventDefault()}
-            onClick={() => jumpTo(category.name)}
-          >
-            <span aria-hidden>{category.emojis[0]}</span>
-            <span className="emoji-picker-tab-label">{text(category.name, category.nameEn)}</span>
-          </button>
-        ))}
-      </div>
-
-      <div ref={scrollRef} className="emoji-picker-body" onScroll={handleScroll}>
-        {results ? (
-          results.length ? (
-            <section>
-              <p className="emoji-picker-heading">{text('Resultados', 'Results')}</p>
-              <div className="emoji-picker-grid">
-                {results.map((emoji) => renderEmoji(emoji, `result-${emoji}`))}
-              </div>
-            </section>
-          ) : (
-            <p className="emoji-picker-empty">
-              {text('Nenhum emoji encontrado', 'No emojis found')}
-            </p>
-          )
-        ) : (
-          EMOJI_CATEGORIES.map((category) => (
-            <section
-              key={category.name}
-              ref={(node) => {
-                sectionRefs.current[category.name] = node;
+      <div className="emoji-picker-inner" onMouseLeave={() => setHovered(null)}>
+        <div className="emoji-picker-search">
+          <Search aria-hidden className="emoji-picker-search-icon" />
+          <input
+            ref={searchRef}
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            placeholder={text('Buscar emojis', 'Search emojis')}
+            aria-label={text('Buscar emojis', 'Search emojis')}
+          />
+          {query && (
+            <button
+              type="button"
+              className="emoji-picker-clear"
+              aria-label={text('Limpar busca', 'Clear search')}
+              onClick={() => {
+                setQuery('');
+                searchRef.current?.focus();
               }}
             >
-              <p className="emoji-picker-heading">{text(category.name, category.nameEn)}</p>
-              <div className="emoji-picker-grid">
-                {category.emojis.map((emoji) => renderEmoji(emoji, `${category.name}-${emoji}`))}
-              </div>
-            </section>
-          ))
-        )}
-      </div>
+              <X />
+            </button>
+          )}
+        </div>
 
-      <div className="emoji-picker-footer" aria-live="polite">
-        {hovered ? (
-          <>
-            <span className="emoji-picker-preview" aria-hidden>
-              {hovered}
-            </span>
-            <span className="emoji-picker-preview-name">{emojiName(hovered)}</span>
-          </>
-        ) : (
-          <span className="emoji-picker-hint">{text('Escolha um emoji', 'Pick an emoji')}</span>
-        )}
+        <div
+          className="emoji-picker-tabs"
+          role="tablist"
+          aria-label={text('Categorias', 'Categories')}
+          style={
+            {
+              '--tab-count': EMOJI_CATEGORIES.length,
+              '--tab-index': Math.max(activeIndex, 0),
+            } as React.CSSProperties
+          }
+        >
+          {!results && <span aria-hidden className="emoji-picker-tab-indicator" />}
+          {EMOJI_CATEGORIES.map((category) => (
+            <button
+              key={category.name}
+              type="button"
+              role="tab"
+              aria-selected={!results && activeCategory === category.name}
+              title={text(category.name, category.nameEn)}
+              className={cn(
+                'emoji-picker-tab',
+                !results && activeCategory === category.name && 'is-active'
+              )}
+              onPointerDown={(event) => event.preventDefault()}
+              onClick={() => jumpTo(category.name)}
+            >
+              <span aria-hidden>{category.emojis[0]}</span>
+              <span className="emoji-picker-tab-label">{text(category.name, category.nameEn)}</span>
+            </button>
+          ))}
+        </div>
+
+        <div ref={scrollRef} className="emoji-picker-body" onScroll={handleScroll}>
+          {results ? (
+            results.length ? (
+              <section>
+                <p className="emoji-picker-heading">{text('Resultados', 'Results')}</p>
+                <div className="emoji-picker-grid">
+                  {results.map((emoji) => renderEmoji(emoji, `result-${emoji}`))}
+                </div>
+              </section>
+            ) : (
+              <p className="emoji-picker-empty">
+                {text('Nenhum emoji encontrado', 'No emojis found')}
+              </p>
+            )
+          ) : (
+            EMOJI_CATEGORIES.map((category) => (
+              <section
+                key={category.name}
+                ref={(node) => {
+                  sectionRefs.current[category.name] = node;
+                }}
+              >
+                <p className="emoji-picker-heading">{text(category.name, category.nameEn)}</p>
+                <div className="emoji-picker-grid">
+                  {category.emojis.map((emoji) => renderEmoji(emoji, `${category.name}-${emoji}`))}
+                </div>
+              </section>
+            ))
+          )}
+        </div>
+
+        <div className="emoji-picker-footer" aria-live="polite">
+          {hovered ? (
+            <>
+              <span className="emoji-picker-preview" aria-hidden>
+                {hovered}
+              </span>
+              <span className="emoji-picker-preview-name">{emojiName(hovered)}</span>
+            </>
+          ) : (
+            <span className="emoji-picker-hint">{text('Escolha um emoji', 'Pick an emoji')}</span>
+          )}
+        </div>
       </div>
-    </div>,
-    document.body
+    </AnchoredPopover>
   );
 }
