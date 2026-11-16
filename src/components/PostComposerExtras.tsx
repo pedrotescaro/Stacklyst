@@ -1,15 +1,15 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Calendar, Flag, Globe, MapPin, Smile, Users, AtSign, X } from 'lucide-react';
 import {
-  EMOJI_CATEGORIES,
   QUICK_LOCATIONS,
   REPLY_AUDIENCE_OPTIONS,
   ReplyAudience,
   insertAtEditor,
 } from '@/lib/post-composer';
 import type { NotionEditorRef } from '@/components/editor/NotionEditor';
+import { EmojiPicker } from '@/components/composer/EmojiPicker';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 export interface PostComposerExtrasState {
@@ -32,7 +32,7 @@ interface PostComposerExtrasProps extends PostComposerExtrasState {
 }
 
 function useClickOutside(
-  ref: React.RefObject<HTMLElement | null>,
+  refs: React.RefObject<HTMLElement | null>[],
   onClose: () => void,
   active: boolean
 ) {
@@ -40,14 +40,14 @@ function useClickOutside(
     if (!active) return;
 
     const handleClick = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        onClose();
-      }
+      const target = event.target as Node;
+      if (refs.some((ref) => ref.current?.contains(target))) return;
+      onClose();
     };
 
     document.addEventListener('mousedown', handleClick);
     return () => document.removeEventListener('mousedown', handleClick);
-  }, [active, onClose, ref]);
+  }, [active, onClose, refs]);
 }
 
 export function PostComposerExtras({
@@ -71,8 +71,13 @@ export function PostComposerExtras({
   );
   const [locationDraft, setLocationDraft] = useState(location);
   const panelRef = useRef<HTMLDivElement>(null);
+  const emojiButtonRef = useRef<HTMLButtonElement>(null);
+  // The emoji picker renders in a portal, so it lives outside panelRef in the DOM.
+  const emojiPickerRef = useRef<HTMLDivElement>(null);
+  const [outsideRefs] = useState(() => [panelRef, emojiPickerRef]);
+  const closePanel = useCallback(() => setOpenPanel(null), []);
 
-  useClickOutside(panelRef, () => setOpenPanel(null), openPanel !== null);
+  useClickOutside(outsideRefs, closePanel, openPanel !== null);
 
   useEffect(() => {
     if (openPanel === 'location') {
@@ -209,6 +214,7 @@ export function PostComposerExtras({
     <div ref={panelRef} className="flex items-center gap-2">
       <div className="relative">
         <button
+          ref={emojiButtonRef}
           type="button"
           onClick={() => togglePanel('emoji')}
           className={`p-2.5 rounded-full transition-colors cursor-pointer ${
@@ -217,37 +223,20 @@ export function PostComposerExtras({
               : 'text-blue-500 hover:bg-blue-500/10'
           }`}
           title="Emojis"
+          aria-label="Emojis"
+          aria-haspopup="dialog"
+          aria-expanded={openPanel === 'emoji'}
         >
           <Smile className="w-5 h-5" />
         </button>
 
         {openPanel === 'emoji' && (
-          <div className="fixed inset-x-3 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] z-[100] max-h-[min(60dvh,22rem)] overflow-y-auto rounded-xl border border-dd-border/80 bg-dd-surface/95 p-3 shadow-2xl backdrop-blur-md animate-slide-up sm:absolute sm:inset-auto sm:left-0 sm:bottom-full sm:mb-2 sm:w-72 sm:max-h-none">
-            <p className="text-[10px] font-bold uppercase tracking-wider text-dd-muted mb-2">
-              Emojis
-            </p>
-            <div className="space-y-3 max-h-52 overflow-y-auto">
-              {EMOJI_CATEGORIES.map((category) => (
-                <div key={category.name}>
-                  <p className="text-[10px] font-bold text-blue-400 mb-1.5">
-                    {text(category.name, category.nameEn)}
-                  </p>
-                  <div className="grid grid-cols-6 gap-1">
-                    {category.emojis.map((emoji) => (
-                      <button
-                        key={`${category.name}-${emoji}`}
-                        type="button"
-                        onClick={() => insertEmoji(emoji)}
-                        className="text-lg rounded-lg p-1.5 hover:bg-blue-500/10 transition-colors cursor-pointer"
-                      >
-                        {emoji}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          <EmojiPicker
+            anchorRef={emojiButtonRef}
+            pickerRef={emojiPickerRef}
+            onSelect={insertEmoji}
+            onClose={closePanel}
+          />
         )}
       </div>
 
