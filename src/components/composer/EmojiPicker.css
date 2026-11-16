@@ -96,6 +96,7 @@
 }
 
 .emoji-picker-tabs {
+  position: relative;
   display: flex;
   flex-shrink: 0;
   border-bottom: 1px solid var(--color-dd-border);
@@ -135,16 +136,17 @@
   filter: none;
   opacity: 1;
 }
-.emoji-picker-tab.is-active::after {
-  content: '';
+.emoji-picker-tab-indicator {
   position: absolute;
   bottom: 0;
-  left: 50%;
+  left: calc((var(--tab-index) + 0.5) * 100% / var(--tab-count));
   width: 40px;
   height: 4px;
   border-radius: 9999px;
   background: var(--color-dd-accent);
   transform: translateX(-50%);
+  transition: left 220ms cubic-bezier(0.2, 0, 0, 1);
+  pointer-events: none;
 }
 
 .emoji-picker-body {
@@ -231,7 +233,8 @@
   .emoji-picker {
     animation: none;
   }
-  .emoji-picker-item {
+  .emoji-picker-item,
+  .emoji-picker-tab-indicator {
     transition: none;
   }
 }

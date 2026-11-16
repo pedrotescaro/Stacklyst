@@ -54,10 +54,24 @@ export function EmojiPicker({ anchorRef, pickerRef, onSelect, onClose }: EmojiPi
   const searchRef = useRef<HTMLInputElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+  const jumpLockRef = useRef(false);
+  const lockTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useLayoutEffect(() => {
-    const update = () => {
-      if (anchorRef.current) setPlacement(computePlacement(anchorRef.current));
+    const update = (event?: Event) => {
+      // Scrolling the emoji list itself doesn't move the anchor.
+      if (event?.target instanceof Node && pickerRef.current?.contains(event.target)) return;
+      if (!anchorRef.current) return;
+      const next = computePlacement(anchorRef.current);
+      setPlacement((current) =>
+        current &&
+        current.top === next.top &&
+        current.left === next.left &&
+        current.width === next.width &&
+        current.maxHeight === next.maxHeight
+          ? current
+          : next
+      );
     };
     update();
     window.addEventListener('resize', update);
@@ -66,7 +80,7 @@ export function EmojiPicker({ anchorRef, pickerRef, onSelect, onClose }: EmojiPi
       window.removeEventListener('resize', update);
       window.removeEventListener('scroll', update, true);
     };
-  }, [anchorRef]);
+  }, [anchorRef, pickerRef]);
 
   useEffect(() => {
     // Escape closes only the picker, not the composer dialog around it.
@@ -104,9 +118,22 @@ export function EmojiPicker({ anchorRef, pickerRef, onSelect, onClose }: EmojiPi
     return names ? text(names[0], names[1]) : emoji;
   };
 
+  const releaseLock = () => {
+    jumpLockRef.current = false;
+    if (lockTimeoutRef.current) clearTimeout(lockTimeoutRef.current);
+    lockTimeoutRef.current = null;
+  };
+
+  useEffect(() => releaseLock, []);
+
   const jumpTo = (name: string) => {
     setQuery('');
     setActiveCategory(name);
+    // Hold the tab still while the smooth scroll runs, so it doesn't flick
+    // through the categories it passes on the way.
+    jumpLockRef.current = true;
+    if (lockTimeoutRef.current) clearTimeout(lockTimeoutRef.current);
+    lockTimeoutRef.current = setTimeout(releaseLock, 700);
     requestAnimationFrame(() => {
       const section = sectionRefs.current[name];
       const scroller = scrollRef.current;
@@ -116,14 +143,22 @@ export function EmojiPicker({ anchorRef, pickerRef, onSelect, onClose }: EmojiPi
 
   const handleScroll = () => {
     const scroller = scrollRef.current;
-    if (!scroller || results) return;
+    if (!scroller || results || jumpLockRef.current) return;
+    const atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2;
     let current = EMOJI_CATEGORIES[0].name;
-    for (const category of EMOJI_CATEGORIES) {
-      const section = sectionRefs.current[category.name];
-      if (section && section.offsetTop <= scroller.scrollTop + 12) current = category.name;
+    if (atBottom) {
+      // The last section is too short to reach the top, so count the bottom as its own.
+      current = EMOJI_CATEGORIES[EMOJI_CATEGORIES.length - 1].name;
+    } else {
+      for (const category of EMOJI_CATEGORIES) {
+        const section = sectionRefs.current[category.name];
+        if (section && section.offsetTop <= scroller.scrollTop + 12) current = category.name;
+      }
     }
     setActiveCategory(current);
   };
+
+  const activeIndex = EMOJI_CATEGORIES.findIndex((category) => category.name === activeCategory);
 
   const renderEmoji = (emoji: string, key: string) => (
     <button
@@ -187,7 +222,14 @@ export function EmojiPicker({ anchorRef, pickerRef, onSelect, onClose }: EmojiPi
         className="emoji-picker-tabs"
         role="tablist"
         aria-label={text('Categorias', 'Categories')}
+        style={
+          {
+            '--tab-count': EMOJI_CATEGORIES.length,
+            '--tab-index': Math.max(activeIndex, 0),
+          } as React.CSSProperties
+        }
       >
+        {!results && <span aria-hidden className="emoji-picker-tab-indicator" />}
         {EMOJI_CATEGORIES.map((category) => (
           <button
             key={category.name}
