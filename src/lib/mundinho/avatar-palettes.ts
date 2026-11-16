@@ -222,7 +222,7 @@ export const OUTFIT_SPECS = [
     shoes: '#443c4e',
   },
   {
-    name: 'Uniforme colegial japon�s',
+    name: 'Uniforme colegial japonês',
     kind: 'sailor',
     jacket: '#eef1e9',
     shadow: '#b8c9d2',
