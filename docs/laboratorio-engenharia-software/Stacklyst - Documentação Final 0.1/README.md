@@ -6,6 +6,8 @@ Versão 0.1, revisada em 16/11/2026, baseada nos arquivos da [Pasta Stacklyst Fi
 
 O projeto Astah desta versão contém a revisão visual dos diagramas de sequência SQ01 a SQ13 e seus recortes, com ícones de Actor, Boundary, Control e Entity e nomes dos participantes sem os sufixos genéricos `Actor0` e `Class0/1/2`. As lifelines de banco de dados e repositórios usam Entity com modo Icon, conforme o padrão adotado nesta entrega. As mensagens, os fluxos e os demais tipos de diagramas foram preservados na revisão.
 
+As 21 figuras de sequência do documento 04 e as 16 imagens presentes em 14 slides da apresentação foram substituídas por exportações em alta resolução desse projeto Astah revisado, preservando os textos, as legendas e a diagramação dos arquivos.
+
 ---
 
 ## 📄 Arquivos da Entrega
