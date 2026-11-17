@@ -440,9 +440,10 @@ export const JobService = {
    * remove those openings and every application they received.
    */
   async deleteCompany(companyId: string, actor: { id: string; role: string }) {
-    const company = await requireCompanyAccess(companyId, actor);
-
     await prisma.$transaction(async (tx) => {
+      // Job inserts take a key-share lock through the company foreign key.
+      await tx.$queryRaw`SELECT id FROM "Company" WHERE id = ${companyId} FOR UPDATE`;
+      const company = await requireCompanyAccess(companyId, actor, tx);
       const jobs = await tx.job.count({ where: { company_id: companyId } });
       if (jobs > 0) {
         throw new AppError(

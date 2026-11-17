@@ -16,6 +16,7 @@ vi.mock('@/lib/prisma', () => ({
       create: vi.fn(),
     },
     $transaction: vi.fn(async (callback: any) => callback(prisma)),
+    $queryRaw: vi.fn(),
     jobApplication: {
       findMany: vi.fn(),
       findUnique: vi.fn(),
@@ -237,6 +238,7 @@ describe('JobService', () => {
         statusCode: 409,
       });
       expect(prisma.company.delete).not.toHaveBeenCalled();
+      expect(prisma.$queryRaw).toHaveBeenCalledBefore(prisma.job.count);
     });
 
     it('refuses a recruiter who does not own the company', async () => {
