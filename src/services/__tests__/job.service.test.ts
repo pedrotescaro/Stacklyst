@@ -238,7 +238,7 @@ describe('JobService', () => {
         statusCode: 409,
       });
       expect(prisma.company.delete).not.toHaveBeenCalled();
-      expect(prisma.$queryRaw).toHaveBeenCalledBefore(prisma.job.count);
+      expect(prisma.$queryRaw).toHaveBeenCalledBefore(vi.mocked(prisma.job.count));
     });
 
     it('refuses a recruiter who does not own the company', async () => {
