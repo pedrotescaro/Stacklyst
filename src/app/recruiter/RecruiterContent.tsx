@@ -13,6 +13,7 @@ import {
   Building2,
   Users,
   Trash2,
+  Pencil,
 } from 'lucide-react';
 import { PlatformPageHeader, PlatformPageShell } from '@/components/PlatformPageShell';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
@@ -135,6 +136,15 @@ export function RecruiterContent({ user }: { user: any }) {
   const [companyWebsite, setCompanyWebsite] = useState('');
   const [companyLocation, setCompanyLocation] = useState('');
   const [creatingCompany, setCreatingCompany] = useState(false);
+  const [editingCompanyId, setEditingCompanyId] = useState<string | null>(null);
+  const [companyDraft, setCompanyDraft] = useState({
+    name: '',
+    website: '',
+    location: '',
+    description: '',
+  });
+  const [savingCompanyId, setSavingCompanyId] = useState<string | null>(null);
+  const [deletingCompanyId, setDeletingCompanyId] = useState<string | null>(null);
 
   // Job creation state
   const [selectedCompanyId, setSelectedCompanyId] = useState('');
@@ -304,6 +314,101 @@ export function RecruiterContent({ user }: { user: any }) {
       setErrorMsg('Erro de conexão ao atualizar status.');
     } finally {
       setUpdatingAppId(null);
+    }
+  };
+
+  const startEditingCompany = (company: any) => {
+    setEditingCompanyId(company.id);
+    setCompanyDraft({
+      name: company.name || '',
+      website: company.website || '',
+      location: company.location || '',
+      description: company.description || '',
+    });
+    setErrorMsg(null);
+    setSuccessMsg(null);
+  };
+
+  const handleUpdateCompany = async (e: React.FormEvent, companyId: string) => {
+    e.preventDefault();
+    if (savingCompanyId) return;
+    setSavingCompanyId(companyId);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      const res = await fetch(`/api/companies/${companyId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(companyDraft),
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok && data?.company) {
+        setCompanies((current) =>
+          current.map((company) =>
+            company.id === companyId ? { ...company, ...data.company } : company
+          )
+        );
+        setJobs((current) =>
+          current.map((job) =>
+            job.company.id === companyId
+              ? {
+                  ...job,
+                  company: {
+                    ...job.company,
+                    name: data.company.name,
+                    location: data.company.location,
+                  },
+                }
+              : job
+          )
+        );
+        setEditingCompanyId(null);
+        setSuccessMsg(`Empresa "${data.company.name}" atualizada com sucesso!`);
+        setTimeout(() => setSuccessMsg(null), 4000);
+      } else {
+        setErrorMsg(data?.message || data?.error || 'Erro ao atualizar empresa.');
+      }
+    } catch (err) {
+      console.error('Error updating company:', err);
+      setErrorMsg('Erro de conexão ao atualizar empresa.');
+    } finally {
+      setSavingCompanyId(null);
+    }
+  };
+
+  const handleDeleteCompany = async (companyId: string, companyName: string) => {
+    if (deletingCompanyId) return;
+    const confirmed =
+      typeof window !== 'undefined'
+        ? window.confirm(
+            `Tem certeza que deseja excluir a empresa "${companyName}"? Esta ação não pode ser desfeita.`
+          )
+        : true;
+    if (!confirmed) return;
+
+    setDeletingCompanyId(companyId);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+
+    try {
+      const res = await fetch(`/api/companies/${companyId}`, { method: 'DELETE' });
+      if (res.ok) {
+        setCompanies((current) => current.filter((company) => company.id !== companyId));
+        setSelectedCompanyId((current) => (current === companyId ? '' : current));
+        setSelectedCompanyFilter((current) => (current === companyId ? 'ALL' : current));
+        if (editingCompanyId === companyId) setEditingCompanyId(null);
+        setSuccessMsg(`Empresa "${companyName}" excluída com sucesso!`);
+        setTimeout(() => setSuccessMsg(null), 4000);
+      } else {
+        const errData = await res.json().catch(() => null);
+        setErrorMsg(errData?.message || errData?.error || 'Erro ao excluir empresa.');
+      }
+    } catch (err) {
+      console.error('Error deleting company:', err);
+      setErrorMsg('Erro de conexão ao excluir empresa.');
+    } finally {
+      setDeletingCompanyId(null);
     }
   };
 
@@ -916,8 +1021,8 @@ export function RecruiterContent({ user }: { user: any }) {
             <div>
               <h2>Empresas que você gerencia</h2>
               <p className={styles.muted}>
-                Selecione uma empresa ao publicar uma vaga. A verificação de uma empresa é feita
-                pela administração.
+                Edite os dados das empresas, exclua as que não usa mais e selecione uma delas ao
+                publicar uma vaga. A verificação de uma empresa é feita pela administração.
               </p>
             </div>
             {loadingCompanies ? (
@@ -933,32 +1038,172 @@ export function RecruiterContent({ user }: { user: any }) {
               </div>
             ) : companies.length ? (
               <div>
-                {companies.map((company) => (
-                  <article key={company.id} className={styles.company}>
-                    <h3>
-                      <Building2 size={19} aria-hidden="true" />
-                      {company.name}
-                      {company.is_verified && (
-                        <ShieldCheck size={17} aria-label="Empresa verificada" />
+                {companies.map((company) => {
+                  const jobCount = company._count?.jobs ?? 0;
+                  const editing = editingCompanyId === company.id;
+                  const saving = savingCompanyId === company.id;
+                  return (
+                    <article
+                      key={company.id}
+                      className={styles.company}
+                      data-testid={`company-${company.id}`}
+                    >
+                      <h3>
+                        <Building2 size={19} aria-hidden="true" />
+                        {company.name}
+                        {company.is_verified && (
+                          <ShieldCheck size={17} aria-label="Empresa verificada" />
+                        )}
+                      </h3>
+                      <p className={styles.muted}>
+                        {company.location || 'Localização não informada'} ·{' '}
+                        {company.is_verified ? 'Empresa verificada' : 'Empresa não verificada'} ·{' '}
+                        {jobCount === 1 ? '1 vaga' : `${jobCount} vagas`}
+                      </p>
+                      {company.description && !editing && (
+                        <p className={styles.companyDescription}>{company.description}</p>
                       )}
-                    </h3>
-                    <p className={styles.muted}>
-                      {company.location || 'Localização não informada'} ·{' '}
-                      {company.is_verified ? 'Empresa verificada' : 'Empresa não verificada'}
-                    </p>
-                    {company.website && /^https?:\/\//i.test(company.website) && (
-                      <a
-                        href={company.website}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={styles.link}
-                      >
-                        Visitar site
-                        <ExternalLink size={14} aria-hidden="true" />
-                      </a>
-                    )}
-                  </article>
-                ))}
+                      {company.website && /^https?:\/\//i.test(company.website) && !editing && (
+                        <a
+                          href={company.website}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className={styles.link}
+                        >
+                          Visitar site
+                          <ExternalLink size={14} aria-hidden="true" />
+                        </a>
+                      )}
+                      {editing ? (
+                        <form
+                          className={styles.form}
+                          aria-label={`Editar empresa ${company.name}`}
+                          onSubmit={(event) => void handleUpdateCompany(event, company.id)}
+                        >
+                          <div className={styles.field}>
+                            <label htmlFor={`edit-company-name-${company.id}`}>
+                              Nome da empresa
+                            </label>
+                            <input
+                              id={`edit-company-name-${company.id}`}
+                              required
+                              minLength={2}
+                              maxLength={100}
+                              value={companyDraft.name}
+                              disabled={saving}
+                              onChange={(event) =>
+                                setCompanyDraft((draft) => ({ ...draft, name: event.target.value }))
+                              }
+                            />
+                          </div>
+                          <div className={styles.field}>
+                            <label htmlFor={`edit-company-website-${company.id}`}>
+                              Site <span className={styles.muted}>(opcional)</span>
+                            </label>
+                            <input
+                              id={`edit-company-website-${company.id}`}
+                              type="url"
+                              value={companyDraft.website}
+                              disabled={saving}
+                              onChange={(event) =>
+                                setCompanyDraft((draft) => ({
+                                  ...draft,
+                                  website: event.target.value,
+                                }))
+                              }
+                              placeholder="https://suaempresa.com.br"
+                            />
+                          </div>
+                          <div className={styles.field}>
+                            <label htmlFor={`edit-company-location-${company.id}`}>
+                              Localização <span className={styles.muted}>(opcional)</span>
+                            </label>
+                            <input
+                              id={`edit-company-location-${company.id}`}
+                              maxLength={200}
+                              value={companyDraft.location}
+                              disabled={saving}
+                              onChange={(event) =>
+                                setCompanyDraft((draft) => ({
+                                  ...draft,
+                                  location: event.target.value,
+                                }))
+                              }
+                              placeholder="Cidade, estado ou país"
+                            />
+                          </div>
+                          <div className={styles.field}>
+                            <label htmlFor={`edit-company-description-${company.id}`}>
+                              Descrição <span className={styles.muted}>(opcional)</span>
+                            </label>
+                            <textarea
+                              id={`edit-company-description-${company.id}`}
+                              maxLength={5000}
+                              rows={3}
+                              value={companyDraft.description}
+                              disabled={saving}
+                              onChange={(event) =>
+                                setCompanyDraft((draft) => ({
+                                  ...draft,
+                                  description: event.target.value,
+                                }))
+                              }
+                              placeholder="O que a empresa faz e como trabalha"
+                            />
+                          </div>
+                          <div className={styles.companyActions}>
+                            <button type="submit" className={styles.action} disabled={saving}>
+                              {saving ? 'Salvando...' : 'Salvar alterações'}
+                            </button>
+                            <button
+                              type="button"
+                              className={styles.secondary}
+                              disabled={saving}
+                              onClick={() => setEditingCompanyId(null)}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
+                        <div className={styles.companyActions}>
+                          <button
+                            type="button"
+                            className={styles.secondary}
+                            data-testid={`edit-company-${company.id}`}
+                            onClick={() => startEditingCompany(company)}
+                          >
+                            <Pencil size={14} aria-hidden="true" />
+                            <span>Editar</span>
+                          </button>
+                          <button
+                            type="button"
+                            className={styles.deleteButton}
+                            data-testid={`delete-company-${company.id}`}
+                            aria-label={`Excluir empresa ${company.name}`}
+                            title={
+                              jobCount > 0
+                                ? 'Exclua as vagas desta empresa antes de excluí-la'
+                                : `Excluir empresa ${company.name}`
+                            }
+                            disabled={deletingCompanyId === company.id || jobCount > 0}
+                            onClick={() => void handleDeleteCompany(company.id, company.name)}
+                          >
+                            <Trash2 size={14} aria-hidden="true" />
+                            <span>
+                              {deletingCompanyId === company.id ? 'Excluindo...' : 'Excluir'}
+                            </span>
+                          </button>
+                          {jobCount > 0 && (
+                            <span className={styles.muted}>
+                              Para excluir, remova antes as vagas desta empresa.
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </article>
+                  );
+                })}
               </div>
             ) : (
               <p className={styles.muted}>

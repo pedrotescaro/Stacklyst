@@ -544,3 +544,140 @@ describe('RecruiterContent Dashboard & Applicants', () => {
     expect(screen.getByText('Desenvolvedor Frontend React')).toBeInTheDocument();
   });
 });
+
+describe('RecruiterContent company management', () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const managedCompanies = [
+    { ...mockCompanies[0], description: null, _count: { jobs: 2, events: 0 } },
+    {
+      id: 'comp-2',
+      name: 'Startup Sem Vagas',
+      slug: 'startup-sem-vagas',
+      website: null,
+      location: null,
+      description: null,
+      is_verified: false,
+      _count: { jobs: 0, events: 0 },
+    },
+  ];
+
+  const mockFetch = (handler?: (url: string, options: any) => Response | undefined) =>
+    vi.spyOn(global, 'fetch').mockImplementation(async (url: any, options: any) => {
+      const urlStr = String(url);
+      const handled = handler?.(urlStr, options);
+      if (handled) return handled;
+      if (urlStr === '/api/jobs/activities')
+        return { ok: true, json: async () => ({ exercises: [], duels: [] }) } as Response;
+      if (urlStr.includes('/api/companies'))
+        return { ok: true, json: async () => managedCompanies } as Response;
+      if (urlStr.includes('/api/jobs'))
+        return { ok: true, json: async () => [...mockJobs] } as Response;
+      return { ok: false } as Response;
+    });
+
+  const openCompanies = async () => {
+    render(<RecruiterContent user={mockUser} />);
+    await screen.findByText('Desenvolvedor Frontend React');
+    fireEvent.click(screen.getByRole('tab', { name: 'Empresas' }));
+    await screen.findByTestId('company-comp-2');
+  };
+
+  it('edits a company and shows the server-confirmed data', async () => {
+    const fetchMock = mockFetch((url, options) =>
+      url === '/api/companies/comp-2' && options?.method === 'PATCH'
+        ? ({
+            ok: true,
+            json: async () => ({
+              success: true,
+              company: { id: 'comp-2', name: 'Startup Renomeada', location: 'Recife, PE' },
+            }),
+          } as Response)
+        : undefined
+    );
+    await openCompanies();
+
+    fireEvent.click(screen.getByTestId('edit-company-comp-2'));
+    fireEvent.change(
+      screen.getByLabelText('Nome da empresa', { selector: '#edit-company-name-comp-2' }),
+      {
+        target: { value: 'Startup Renomeada' },
+      }
+    );
+    fireEvent.change(
+      screen.getByLabelText(/Localização/, { selector: '#edit-company-location-comp-2' }),
+      {
+        target: { value: 'Recife, PE' },
+      }
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+
+    await screen.findByText('Empresa "Startup Renomeada" atualizada com sucesso!');
+    const [, options] = fetchMock.mock.calls.find(([url]) => url === '/api/companies/comp-2')!;
+    expect(JSON.parse(String((options as RequestInit).body))).toEqual({
+      name: 'Startup Renomeada',
+      website: '',
+      location: 'Recife, PE',
+      description: '',
+    });
+    expect(screen.getByTestId('company-comp-2')).toHaveTextContent('Startup Renomeada');
+    expect(screen.queryByRole('button', { name: 'Salvar alterações' })).not.toBeInTheDocument();
+  });
+
+  it('deletes a company without openings after confirmation', async () => {
+    const confirmSpy = vi.spyOn(window, 'confirm').mockReturnValue(true);
+    const fetchMock = mockFetch((url, options) =>
+      url === '/api/companies/comp-2' && options?.method === 'DELETE'
+        ? ({ ok: true, json: async () => ({ success: true }) } as Response)
+        : undefined
+    );
+    await openCompanies();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir empresa Startup Sem Vagas' }));
+
+    expect(confirmSpy).toHaveBeenCalledWith(
+      expect.stringContaining('excluir a empresa "Startup Sem Vagas"')
+    );
+    expect(fetchMock).toHaveBeenCalledWith('/api/companies/comp-2', { method: 'DELETE' });
+    await waitFor(() => {
+      expect(screen.queryByTestId('company-comp-2')).not.toBeInTheDocument();
+    });
+    expect(
+      screen.getByText('Empresa "Startup Sem Vagas" excluída com sucesso!')
+    ).toBeInTheDocument();
+    expect(screen.getByTestId('metric-total-companies')).toHaveTextContent('1');
+  });
+
+  it('keeps deletion disabled while the company still has openings', async () => {
+    mockFetch();
+    await openCompanies();
+
+    expect(screen.getByRole('button', { name: 'Excluir empresa TechCorp Brasil' })).toBeDisabled();
+    expect(
+      screen.getByText('Para excluir, remova antes as vagas desta empresa.')
+    ).toBeInTheDocument();
+  });
+
+  it('shows the reason returned by the server when deletion is refused', async () => {
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
+    mockFetch((url, options) =>
+      url === '/api/companies/comp-2' && options?.method === 'DELETE'
+        ? ({
+            ok: false,
+            json: async () => ({
+              error: 'COMPANY_HAS_JOBS',
+              message: 'Esta empresa tem 1 vaga. Exclua a vaga antes de excluir a empresa.',
+            }),
+          } as Response)
+        : undefined
+    );
+    await openCompanies();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Excluir empresa Startup Sem Vagas' }));
+
+    await screen.findByText('Esta empresa tem 1 vaga. Exclua a vaga antes de excluir a empresa.');
+    expect(screen.getByTestId('company-comp-2')).toBeInTheDocument();
+  });
+});

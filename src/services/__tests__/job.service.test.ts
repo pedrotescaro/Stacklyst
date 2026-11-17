@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { prisma } from '@/lib/prisma';
 import { JobService } from '@/services/job.service';
+import { recordSecurityAudit } from '@/lib/security-audit';
 
 vi.mock('@/lib/prisma', () => ({
   prisma: {
@@ -9,6 +10,7 @@ vi.mock('@/lib/prisma', () => ({
       findUnique: vi.fn(),
       create: vi.fn(),
       delete: vi.fn(),
+      count: vi.fn(),
     },
     securityAuditEvent: {
       create: vi.fn(),
@@ -23,6 +25,8 @@ vi.mock('@/lib/prisma', () => ({
     company: {
       create: vi.fn(),
       findUnique: vi.fn(),
+      update: vi.fn(),
+      delete: vi.fn(),
     },
     user: {
       updateMany: vi.fn(),
@@ -158,6 +162,114 @@ describe('JobService', () => {
       );
     });
   });
+  describe('updateCompany', () => {
+    const owner = { id: 'recruiter-1', role: 'RECRUITER' };
+
+    it('refuses a recruiter who does not own the company', async () => {
+      vi.mocked(prisma.company.findUnique).mockResolvedValueOnce({
+        id: 'comp-1',
+        owner_id: 'other-recruiter',
+      } as any);
+
+      await expect(
+        JobService.updateCompany('comp-1', owner, { name: 'Nova Empresa' })
+      ).rejects.toThrow('Você não gerencia esta empresa.');
+      expect(prisma.company.update).not.toHaveBeenCalled();
+    });
+
+    it('updates the owned company, keeps omitted fields and records an audit event', async () => {
+      vi.mocked(prisma.company.findUnique).mockResolvedValueOnce({
+        id: 'comp-1',
+        owner_id: 'recruiter-1',
+      } as any);
+      vi.mocked(prisma.company.update).mockResolvedValueOnce({
+        id: 'comp-1',
+        name: 'Nova Empresa',
+      } as any);
+
+      const company = await JobService.updateCompany('comp-1', owner, {
+        name: 'Nova Empresa',
+        website: '',
+        location: 'Campinas, SP',
+      });
+
+      expect(company).toEqual({ id: 'comp-1', name: 'Nova Empresa' });
+      expect(prisma.company.update).toHaveBeenCalledWith({
+        where: { id: 'comp-1' },
+        data: {
+          name: 'Nova Empresa',
+          description: undefined,
+          website: null,
+          location: 'Campinas, SP',
+        },
+      });
+      expect(recordSecurityAudit).toHaveBeenCalledWith(
+        prisma,
+        expect.objectContaining({ action: 'COMPANY_UPDATED', resourceId: 'comp-1' })
+      );
+    });
+
+    it('lets an administrator update any company', async () => {
+      vi.mocked(prisma.company.findUnique).mockResolvedValueOnce({
+        id: 'comp-1',
+        owner_id: 'other-recruiter',
+      } as any);
+      vi.mocked(prisma.company.update).mockResolvedValueOnce({ id: 'comp-1', name: 'X' } as any);
+
+      await JobService.updateCompany('comp-1', { id: 'admin-1', role: 'ADMIN' }, { name: 'XY' });
+      expect(prisma.company.update).toHaveBeenCalled();
+    });
+  });
+
+  describe('deleteCompany', () => {
+    const owner = { id: 'recruiter-1', role: 'RECRUITER' };
+
+    it('refuses to delete a company that still has job openings', async () => {
+      vi.mocked(prisma.company.findUnique).mockResolvedValueOnce({
+        id: 'comp-1',
+        owner_id: 'recruiter-1',
+        name: 'TechCorp',
+      } as any);
+      vi.mocked(prisma.job.count).mockResolvedValueOnce(2);
+
+      await expect(JobService.deleteCompany('comp-1', owner)).rejects.toMatchObject({
+        code: 'COMPANY_HAS_JOBS',
+        statusCode: 409,
+      });
+      expect(prisma.company.delete).not.toHaveBeenCalled();
+    });
+
+    it('refuses a recruiter who does not own the company', async () => {
+      vi.mocked(prisma.company.findUnique).mockResolvedValueOnce({
+        id: 'comp-1',
+        owner_id: 'other-recruiter',
+      } as any);
+
+      await expect(JobService.deleteCompany('comp-1', owner)).rejects.toThrow(
+        'Você não gerencia esta empresa.'
+      );
+      expect(prisma.company.delete).not.toHaveBeenCalled();
+    });
+
+    it('deletes an owned company without openings and records an audit event', async () => {
+      vi.mocked(prisma.company.findUnique).mockResolvedValueOnce({
+        id: 'comp-1',
+        owner_id: 'recruiter-1',
+        name: 'TechCorp',
+      } as any);
+      vi.mocked(prisma.job.count).mockResolvedValueOnce(0);
+
+      await expect(JobService.deleteCompany('comp-1', owner)).resolves.toEqual({
+        success: true,
+      });
+      expect(prisma.company.delete).toHaveBeenCalledWith({ where: { id: 'comp-1' } });
+      expect(recordSecurityAudit).toHaveBeenCalledWith(
+        prisma,
+        expect.objectContaining({ action: 'COMPANY_DELETED', resourceId: 'comp-1' })
+      );
+    });
+  });
+
   describe('deleteJob', () => {
     it('throws ForbiddenError when user has USER role', async () => {
       await expect(JobService.deleteJob('job-1', { id: 'user-1', role: 'USER' })).rejects.toThrow(

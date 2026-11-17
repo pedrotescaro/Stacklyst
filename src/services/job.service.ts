@@ -402,6 +402,71 @@ export const JobService = {
   },
 
   /**
+   * Update the registration data of a company managed by the actor.
+   * Only the owning Recruiter or an Admin may change it; the slug stays stable.
+   */
+  async updateCompany(
+    companyId: string,
+    actor: { id: string; role: string },
+    data: { name: string; description?: string; website?: string; location?: string }
+  ) {
+    await requireCompanyAccess(companyId, actor);
+    // Omitted optional fields keep their value; an empty string clears them.
+    const optional = (value?: string) => (value === undefined ? undefined : value || null);
+
+    return prisma.$transaction(async (tx) => {
+      const company = await tx.company.update({
+        where: { id: companyId },
+        data: {
+          name: data.name,
+          description: optional(data.description),
+          website: optional(data.website),
+          location: optional(data.location),
+        },
+      });
+      await recordSecurityAudit(tx, {
+        actorId: actor.id,
+        action: 'COMPANY_UPDATED',
+        resourceId: companyId,
+        metadata: { name: company.name },
+      });
+      return company;
+    });
+  },
+
+  /**
+   * Delete a company managed by the actor.
+   * A company that still has job openings cannot be deleted: removing it would also
+   * remove those openings and every application they received.
+   */
+  async deleteCompany(companyId: string, actor: { id: string; role: string }) {
+    const company = await requireCompanyAccess(companyId, actor);
+
+    await prisma.$transaction(async (tx) => {
+      const jobs = await tx.job.count({ where: { company_id: companyId } });
+      if (jobs > 0) {
+        throw new AppError(
+          'COMPANY_HAS_JOBS',
+          jobs === 1
+            ? 'Esta empresa tem 1 vaga. Exclua a vaga antes de excluir a empresa.'
+            : `Esta empresa tem ${jobs} vagas. Exclua as vagas antes de excluir a empresa.`,
+          409
+        );
+      }
+      await recordSecurityAudit(tx, {
+        actorId: actor.id,
+        action: 'COMPANY_DELETED',
+        resourceId: companyId,
+        metadata: { name: company.name },
+      });
+      await tx.company.delete({ where: { id: companyId } });
+    });
+
+    logger.info('Company deleted', { companyId, actorId: actor.id });
+    return { success: true };
+  },
+
+  /**
    * Delete a job opportunity.
    * Only accessible by Recruiter (owner of the company) or Admin.
    */

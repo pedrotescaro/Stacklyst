@@ -346,6 +346,11 @@
 }
 .candidateTop > div {
   flex: 1;
+  min-width: 0;
+}
+/* The avatar keeps its own size; only the details column grows. */
+.candidateTop > :first-child {
+  flex: 0 0 auto;
 }
 .candidateName {
   font-size: 15px;
@@ -405,6 +410,28 @@
 }
 .company h3 svg {
   color: var(--recruiter-ink);
+}
+.company > .link {
+  align-self: flex-start;
+  min-height: 32px;
+}
+.companyDescription {
+  color: var(--color-dd-text);
+  font-size: 14px;
+  line-height: 1.55;
+  white-space: pre-line;
+}
+.companyActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+.companyActions .secondary {
+  min-height: 36px;
+  padding: 6px 14px;
+  font-size: 13px;
 }
 .formSection {
   border-top: 1px solid var(--color-dd-border);
