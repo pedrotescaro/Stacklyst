@@ -1555,7 +1555,6 @@ export function AdventureHub({
             overlayOpen={transition !== null}
             onBoss={() => travel('boss', 'boss')}
             onPortal={() => travel('arena', 'descend', () => setArenaSeed(null))}
-            onBack={() => go('home')}
             onInventory={() => go('inventory')}
             onEncounter={(id) => {
               setCreature(id);

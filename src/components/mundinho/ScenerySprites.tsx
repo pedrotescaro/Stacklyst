@@ -31,16 +31,19 @@ export function HabitatSprite({
   y,
   variant,
   assetBase,
+  rustling = false,
 }: {
   x: number;
   y: number;
   variant: number;
   assetBase: string;
+  /** Shakes the grass while its creature ducks in or is about to pop out. */
+  rustling?: boolean;
 }) {
   return (['back', 'front'] as const).map((layer) => (
     <span
       key={layer}
-      className="world-foliage-sprite"
+      className={`world-foliage-sprite${rustling ? ' is-rustling' : ''}`}
       data-foliage={layer}
       aria-hidden="true"
       style={{

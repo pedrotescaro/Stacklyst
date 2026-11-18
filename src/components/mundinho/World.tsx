@@ -1,16 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocalizedText } from '../../i18n/useLocalizedText';
 import { translateMundinho } from '../../lib/mundinho/i18n';
-import {
-  ArrowLeft,
-  Backpack,
-  BookOpen,
-  Map as MapIcon,
-  MessageSquare,
-  Moon,
-  Shield,
-  Swords,
-} from 'lucide-react';
+import { Backpack, BookOpen, Map as MapIcon, MessageSquare, Swords } from 'lucide-react';
 import { CREATURES, type Avatar } from '../../lib/mundinho/types';
 import {
   GROUND_DEPTH,
@@ -43,7 +34,6 @@ export default function World({
   onChest,
   chestClaimed = false,
   chestDay = '',
-  onBack,
   onInventory,
   playerLevel = 1,
   initialPosition = WORLD.spawn,
@@ -63,7 +53,6 @@ export default function World({
   onChest: () => Promise<{ awarded: boolean; reward: number }>;
   chestClaimed?: boolean;
   chestDay?: string;
-  onBack?: () => void;
   onInventory?: () => void;
   playerLevel?: number;
   initialPosition?: { x: number; y: number };
@@ -148,9 +137,16 @@ export default function World({
     viewport.current?.focus({ preventScroll: true });
   };
 
-  const visibleCreatures = creatures.filter(
-    (creature, i) => creature.level >= 4 || (clock + i * 7) % 64 < 52
-  );
+  // On 250 ms ticks, each low-level creature spends 13 s out of its grass and
+  // 3 s hidden in it; the grass rustles as it ducks in and just before it
+  // pops back out. Level 4+ creatures always stay out.
+  const habitat = (level: number, index: number) => {
+    const tick = (clock + index * 7) % 64;
+    const out = level >= 4 || tick < 52;
+    const rustling = level < 4 && (tick === 52 || tick === 53 || tick >= 61);
+    return { out, rustling };
+  };
+  const visibleCreatures = creatures.filter((creature, i) => habitat(creature.level, i).out);
   const targets = [...visibleCreatures, ...objects];
   const nearest = targets.find((e) => Math.hypot(e.x - pose.x, e.y - pose.y) < 55);
   const isCreature = nearest && creatures.some((c) => c.id === nearest.id);
@@ -488,21 +484,13 @@ export default function World({
           'World RPG. Move with WASD or arrows and press E or Space to interact.'
         )}
       >
-        {/* TOP HUD (Matching Image 3) */}
+        {/* Top HUD. The page header already has the back button. */}
         <div className="world-top-hud">
-          <div className="world-hud-left">
-            {onBack && (
-              <button
-                className="world-hud-btn"
-                aria-label={text('Voltar para Trilhas', 'Back to Trails')}
-                onClick={onBack}
-              >
-                <ArrowLeft size={18} />
-              </button>
-            )}
+          <div className="world-hud-left" role="toolbar" aria-label={text('Ações', 'Actions')}>
             <button
               className="world-hud-btn"
               aria-label={text('Diálogo', 'Dialogue')}
+              title={text('Diálogo', 'Dialogue')}
               onClick={() =>
                 setDialogue(
                   dialogue
@@ -519,27 +507,20 @@ export default function World({
             <button
               className={`world-hud-btn ${showMap ? 'is-active' : ''}`}
               aria-label={text('Visualizar mapa completo', 'View full map')}
+              aria-pressed={showMap}
+              title={text('Mapa completo', 'Full map')}
               onClick={() => setShowMap(!showMap)}
             >
               <MapIcon size={18} />
             </button>
-            <div
-              className="world-hud-btn is-status"
-              title={text('Zona segura da clareira', 'Clearing safe zone')}
-            >
-              <Shield size={18} />
-            </div>
           </div>
 
-          <div className="world-time-badge">
-            <Moon size={14} className="text-amber-300" />
-            <span>{text('Dia 1 · 21:28', 'Day 1 · 21:28')}</span>
-          </div>
-
-          <div className="world-hud-right">
+          <div className="world-hud-right" role="toolbar" aria-label={text('Menu', 'Menu')}>
             <button
-              className="world-hud-btn"
+              className={`world-hud-btn ${showGuide ? 'is-active' : ''}`}
               aria-label={text('Guia de programação', 'Programming guide')}
+              aria-pressed={showGuide}
+              title={text('Guia do explorador', 'Explorer’s guide')}
               onClick={() => setShowGuide(!showGuide)}
             >
               <BookOpen size={18} />
@@ -548,6 +529,7 @@ export default function World({
               <button
                 className="world-hud-btn"
                 aria-label={text('Abrir inventário', 'Open inventory')}
+                title={text('Inventário', 'Inventory')}
                 onClick={onInventory}
               >
                 <Backpack size={18} />
@@ -604,12 +586,19 @@ export default function World({
             />
           ))}
           {creatures.map((c, i) => (
-            <HabitatSprite key={c.id} x={c.x} y={c.y} variant={i} assetBase={assetBase} />
+            <HabitatSprite
+              key={c.id}
+              x={c.x}
+              y={c.y}
+              variant={i}
+              assetBase={assetBase}
+              rustling={habitat(c.level, i).rustling}
+            />
           ))}
           {creatures.map((c, i) => (
             <div
               key={c.id}
-              className={`world-entity world-habitat ${c.level >= 4 || (clock + i * 7) % 64 < 52 ? 'is-visible' : 'is-hidden'}`}
+              className={`world-entity world-habitat ${habitat(c.level, i).out ? 'is-visible' : 'is-hidden'}`}
               style={{ left: c.x, top: c.y, zIndex: worldDepth(c.y) }}
               onClick={() => {
                 if (Math.hypot(c.x - pose.x, c.y - pose.y) < 55 && visibleCreatures.includes(c)) {
@@ -652,7 +641,10 @@ export default function World({
                   compact
                 />
               </span>
-              <PixelCreature color={c.color} kind={c.id} />
+              {/* Clips the creature at the grass line so it can sink out of sight. */}
+              <span className="world-creature-burrow">
+                <PixelCreature color={c.color} kind={c.id} />
+              </span>
             </div>
           ))}
 

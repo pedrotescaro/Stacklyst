@@ -2,17 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { motion, useMotionValue, useTransform, type MotionValue } from 'framer-motion';
-import {
-  ArrowLeft,
-  Backpack,
-  BookOpen,
-  Map as MapIcon,
-  MessageSquare,
-  Moon,
-  Shield,
-  Swords,
-  X,
-} from 'lucide-react';
+import { Backpack, BookOpen, Map as MapIcon, MessageSquare, Swords, X } from 'lucide-react';
 import { AdaSprite, PixelAvatar, PixelCreature } from '@/components/mundinho/PixelArt';
 import { HabitatSprite, WorldPropSprite } from '@/components/mundinho/ScenerySprites';
 import { PixelMeter } from '@/components/mundinho/PixelMeter';
@@ -109,12 +99,6 @@ export function MundinhoWorld({
       >
         <div className="world-top-hud">
           <div className="world-hud-left">
-            <span
-              className="world-hud-btn"
-              aria-label={text('Voltar para Trilhas', 'Back to Trails')}
-            >
-              <ArrowLeft size={18} />
-            </span>
             <span className="world-hud-btn" aria-label={text('Diálogo', 'Dialogue')}>
               <MessageSquare size={18} />
             </span>
@@ -124,16 +108,6 @@ export function MundinhoWorld({
             >
               <MapIcon size={18} />
             </span>
-            <div
-              className="world-hud-btn is-status"
-              title={text('Zona segura da clareira', 'Clearing safe zone')}
-            >
-              <Shield size={18} />
-            </div>
-          </div>
-          <div className="world-time-badge">
-            <Moon size={14} className="text-amber-300" />
-            <span>{text('Dia 1 · 21:28', 'Day 1 · 21:28')}</span>
           </div>
           <div className="world-hud-right">
             <span

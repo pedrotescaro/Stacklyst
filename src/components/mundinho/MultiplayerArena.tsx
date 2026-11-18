@@ -374,7 +374,6 @@ export function MultiplayerArena({
                   onEncounter={() => {}}
                   onChest={async () => ({ awarded: false, reward: 0 })}
                   onPortal={() => void leave()}
-                  onBack={() => void leave()}
                   onArenaPlayers={() => setPlayersOpen(true)}
                   overlayOpen={playersOpen}
                 />
