@@ -249,7 +249,8 @@ describe('EventsContent', () => {
     expect(createBtn).toBeVisible();
     await user.click(createBtn);
 
-    expect(await screen.findByText('Criar Novo Evento')).toBeVisible();
+    // The modal fades in from opacity 0; wait for the animation instead of racing it.
+    await waitFor(() => expect(screen.getByText('Criar Novo Evento')).toBeVisible());
     expect(screen.getByPlaceholderText(/Hackathon de Inteligência Artificial/)).toBeVisible();
 
     // Close the modal

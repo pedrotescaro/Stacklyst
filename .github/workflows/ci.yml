@@ -15,11 +15,17 @@ jobs:
         with:
           node-version: '22'
           cache: npm
-          cache-dependency-path: apps/mobile/package-lock.json
+          cache-dependency-path: |
+            package-lock.json
+            apps/mobile/package-lock.json
+      # The app imports shared code from ../../src, whose react, zod and lucide-react
+      # types resolve from the root node_modules.
+      - name: Install shared web dependencies
+        run: npm ci
       - name: Install mobile dependencies
         run: npm ci --prefix apps/mobile
-      - name: Audit mobile dependencies
-        run: npm audit --prefix apps/mobile --audit-level=high
+      - name: Audit mobile dependencies (block high/critical not in .github/audit-allowlist.json)
+        run: node scripts/audit-check.mjs --project mobile --prefix apps/mobile
       - name: Check mobile types and lint
         run: npm --prefix apps/mobile run typecheck && npm --prefix apps/mobile run lint
       - name: Check preview isolation and offline logout
@@ -48,8 +54,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Audit dependencies (block high/critical)
-        run: npm audit --audit-level=high
+      - name: Audit dependencies (block high/critical not in .github/audit-allowlist.json)
+        run: node scripts/audit-check.mjs --project web
 
       - name: Audit dependencies (warn moderate)
         run: npm audit --audit-level=moderate || echo "::warning::Moderate vulnerabilities found — review with npm audit"
@@ -83,11 +89,11 @@ jobs:
       - name: Verify avatar bodies and clothing across directions
         run: npm run test:mundinho-sprites
 
-      - name: Check mobile lesson and notification interactions
-        run: npm --prefix apps/mobile run test:interactions
-
       - name: Install mobile rendering test dependencies
         run: npm ci --prefix apps/mobile
+
+      - name: Check mobile lesson and notification interactions
+        run: npm --prefix apps/mobile run test:interactions
 
       - name: Check mobile chat, thread and code interactions
         run: npm --prefix apps/mobile run test:social

@@ -15,13 +15,16 @@ const stubs = {
   react: 'export const useState = (value) => [value, () => {}];',
   'react/jsx-runtime':
     'export const jsx = (type, props) => ({ type, props }); export const jsxs = jsx; export const Fragment = "Fragment";',
-  'react-native': 'export const Linking = {}; export const Platform = { OS: "android" };',
+  'react-native':
+    'export const Linking = {}; export const Platform = { OS: "android" }; export const Switch = "Switch", Text = "Text", View = "View";',
   expo: 'export const isRunningInExpoGo = () => false;',
   'expo-router':
     'export const router = { replace: (path) => globalThis.__logoutCheck.events.push(["route", path]) };',
   '~/components/ui':
     'export const Screen="Screen", Field="Field", Button="Button", Label="Label", Heading="Heading", Choice="Choice"; export const confirm = (_title, _message, action) => action();',
-  '~/theme': 'export const useTheme = () => ({mode:"dark", setMode() {}});',
+  '~/theme': 'export const useTheme = () => ({mode:"dark", setMode() {}, colors: {}});',
+  '~/lib/sounds':
+    'export const useSoundEffects = () => ({enabled:true, ready:true, setEnabled() {}, preferenceError:false});',
   '~/lib/session': 'export const useSession = () => ({isPreview:false});',
   '~/lib/preview': 'export const disablePreview = () => {};',
   '@tanstack/react-query':
