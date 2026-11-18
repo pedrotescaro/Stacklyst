@@ -132,6 +132,10 @@ describe('EvaluationsContent Responsive Page', () => {
       expect(screen.getByText(problem.difficulty)).toBeInTheDocument();
     });
 
+    // Let the selected-duel effect (which resets the view to "both") run before
+    // clicking, or on a slow runner it lands after the click and undoes it.
+    await act(async () => {});
+
     // Both solutions visible initially
     expect(screen.getByText(/split\(""\)\.reverse\(\)/)).toBeInTheDocument();
     expect(screen.getByText(/for \(let i = s\.length - 1/)).toBeInTheDocument();
