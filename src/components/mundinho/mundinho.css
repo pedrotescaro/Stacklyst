@@ -5092,10 +5092,6 @@
   width: 176px;
   height: 176px !important;
 }
-/* The sprite cell leaves room under the feet; stand them on the platform. */
-.adventure-battle .battle-sprite-player {
-  bottom: 3%;
-}
 .adventure-battle .ad-combatant-enemy .pixel-creature {
   width: 112px;
   height: 112px;
@@ -5433,5 +5429,187 @@
   .ad-arena-scene .rpg-meter-fill,
   .ad-pvp-scene .rpg-meter-fill {
     transition: none;
+  }
+}
+
+/* Battlefield staging. The platforms in blue-battle.png sit at 75.9% × 34.3%
+   (foe) and 23.4% × 80.3% (hero) of the stretched scene. Each sprite wrapper's
+   bottom edge is the combatant's feet, set just below its platform's centre,
+   with a ground shadow of its own. */
+.adventure-battle .battle-sprite-enemy,
+.ad-pvp-player[data-pvp-side='opponent'] > .ad-pvp-sprite {
+  left: 75.94%;
+  bottom: 63.5%;
+}
+.adventure-battle .battle-sprite-player,
+.ad-pvp-player[data-pvp-side='self'] > .ad-pvp-sprite {
+  left: 23.44%;
+  bottom: 17%;
+}
+/* Feet rows inside each square sprite cell: the hero's soles are 20.8% up;
+   creatures stand 8–17% up depending on their art. A negative bottom margin
+   (a share of the sprite's own width) drops that empty strip below the line. */
+.ad-arena-scene .battle-sprite > .pixel-avatar,
+.ad-pvp-sprite > .pixel-avatar {
+  margin-bottom: -20.8%;
+}
+.ad-arena-scene .battle-sprite > .pixel-creature {
+  --feet: 12.5%;
+  margin-bottom: calc(-1 * var(--feet));
+}
+.ad-arena-scene .pixel-creature:is([data-creature='syntax-slime'], [data-creature='blue-slime']) {
+  --feet: 16.7%;
+}
+.ad-arena-scene
+  .pixel-creature:is(
+    [data-creature='ember'],
+    [data-creature='wild-ember'],
+    [data-creature='byte-bug'],
+    [data-creature='iron-beetle'],
+    [data-creature='null-ghost'],
+    [data-creature='null-titan']
+  ) {
+  --feet: 8.3%;
+}
+.ad-arena-scene .battle-sprite :is(.sprite-creature, .sprite-avatar)::before,
+.ad-pvp-sprite .sprite-avatar::before {
+  display: none;
+}
+.ad-arena-scene .battle-sprite::after,
+.ad-pvp-sprite::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -5px;
+  height: 10px;
+  translate: -50% 0;
+  border-radius: 50%;
+  background: #20391c70;
+  z-index: -1;
+  pointer-events: none;
+}
+.ad-arena-scene .battle-sprite-enemy::after {
+  width: 58%;
+}
+.ad-arena-scene .battle-sprite-player::after,
+.ad-pvp-sprite::after {
+  width: 34%;
+}
+.ad-arena-scene[data-status='won'] .battle-sprite-enemy::after,
+.ad-arena-scene[data-status='lost'] .battle-sprite-player::after {
+  animation: battle-shadow-out 760ms steps(8, end) 120ms both;
+}
+@keyframes battle-shadow-out {
+  to {
+    opacity: 0;
+    scale: 0.4 1;
+  }
+}
+
+/* Compact name plates: name and level on one line, then the HP bar. */
+.adventure .ad-arena-scene .ad-combatant-card,
+.adventure .ad-pvp-player .ad-pvp-name {
+  display: grid;
+  gap: 2px;
+  width: auto;
+  min-width: 210px;
+  max-width: 260px;
+  padding: 8px 12px 9px;
+}
+.battle-plate-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+}
+.adventure .ad-arena-scene .ad-combatant-name,
+.adventure .ad-pvp-name .battle-plate-head strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font: 700 16px/1.2 var(--rpg-font);
+  color: #fff;
+}
+.battle-plate-level {
+  flex-shrink: 0;
+  color: #ffd75e;
+  font: 700 14px/1 var(--rpg-font);
+}
+.adventure .ad-arena-scene .ad-combatant-meta,
+.adventure .ad-pvp-name .ad-combatant-meta {
+  color: #9aa3b8;
+  font-size: 12px;
+  line-height: 1.2;
+}
+.adventure .ad-arena-scene .ad-hp-number,
+.adventure .ad-pvp-name .ad-hp-number {
+  justify-self: end;
+  color: #e7eaf2;
+  font: 13px/1 var(--rpg-font);
+}
+
+/* HP bars: dark rounded frame, green → yellow → red as health drops. */
+.ad-arena-scene .rpg-meter,
+.ad-pvp-scene .rpg-meter {
+  --rpg-hp-light: #c6f7a9;
+  --rpg-hp-mid: #58d36b;
+  --rpg-hp-dark: #2f9d4a;
+  height: 12px;
+  margin: 5px 0 3px;
+  padding: 2px;
+  border: 2px solid #050608;
+  border-radius: 4px;
+  background: #3a4256;
+  box-shadow: inset 0 1px 0 #ffffff1f;
+  clip-path: none;
+}
+.ad-arena-scene .rpg-meter[data-health='medium'],
+.ad-pvp-scene .rpg-meter[data-health='medium'] {
+  --rpg-hp-light: #fff0a6;
+  --rpg-hp-mid: #f2c53d;
+  --rpg-hp-dark: #c4931a;
+}
+.ad-arena-scene .rpg-meter[data-health='low'],
+.ad-pvp-scene .rpg-meter[data-health='low'] {
+  --rpg-hp-light: #ffc0b0;
+  --rpg-hp-mid: #ef5b4b;
+  --rpg-hp-dark: #b3352a;
+}
+.ad-arena-scene .rpg-meter-track,
+.ad-pvp-scene .rpg-meter-track {
+  overflow: hidden;
+  border-radius: 2px;
+  background: #161b27;
+}
+.ad-arena-scene .rpg-meter-fill,
+.ad-pvp-scene .rpg-meter-fill {
+  border-radius: 2px;
+  background: linear-gradient(
+    to bottom,
+    var(--rpg-hp-light) 0 30%,
+    var(--rpg-hp-mid) 30% 70%,
+    var(--rpg-hp-dark) 70% 100%
+  );
+}
+@container (max-width: 480px) {
+  .adventure .ad-arena-scene .ad-combatant-card {
+    min-width: 0;
+    max-width: 46%;
+    padding: 6px 8px 7px;
+  }
+  .adventure .ad-arena-scene .ad-combatant-name {
+    font-size: 13px;
+  }
+  .battle-plate-level {
+    font-size: 12px;
+  }
+}
+@media (max-width: 540px) {
+  .adventure .ad-pvp-player .ad-pvp-name {
+    min-width: 0;
+    max-width: 46%;
+    padding: 6px 8px 7px;
   }
 }

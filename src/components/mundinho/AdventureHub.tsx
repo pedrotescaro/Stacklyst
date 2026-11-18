@@ -1696,10 +1696,14 @@ export function AdventureHub({
                 {/* Enemy Combatant */}
                 <div className="ad-combatant ad-combatant-enemy">
                   <div className="ad-combatant-card">
-                    <span className="ad-combatant-name">{m(opponent.name)}</span>
+                    <div className="battle-plate-head">
+                      <span className="ad-combatant-name">{m(opponent.name)}</span>
+                      <span className="battle-plate-level">
+                        {text('Nv.', 'Lv.')} {battle.enemyLevel ?? opponent.level}
+                      </span>
+                    </div>
                     <small className="ad-combatant-meta">
-                      {text('Inimigo · Nível', 'Enemy · Level')}{' '}
-                      {battle.enemyLevel ?? opponent.level} · {LANGUAGE_NAMES[battle.language]}
+                      {text('Inimigo', 'Enemy')} · {LANGUAGE_NAMES[battle.language]}
                     </small>
                     <PixelMeter
                       value={battle.enemyHp}
@@ -1786,10 +1790,12 @@ export function AdventureHub({
                     )}
                   </div>
                   <div className="ad-combatant-card">
-                    <span className="ad-combatant-name">{data?.username}</span>
-                    <small className="ad-combatant-meta">
-                      {text('Seu nível ·', 'Your level ·')} {xp.level}
-                    </small>
+                    <div className="battle-plate-head">
+                      <span className="ad-combatant-name">{data?.username}</span>
+                      <span className="battle-plate-level">
+                        {text('Nv.', 'Lv.')} {xp.level}
+                      </span>
+                    </div>
                     <PixelMeter
                       value={battle.hp}
                       max={battle.maxHp ?? combatStats.maxHp}

@@ -239,19 +239,22 @@ export function MultiplayerArena({
                     key={p.id}
                   >
                     <div className="ad-pvp-name">
-                      <strong>
-                        {p.name}
-                        {p.id === data.selfId ? text(' (você)', ' (you)') : ''}
-                      </strong>
-                      <span>
-                        {LANGUAGE_NAMES[p.language]} · {text('Nível', 'Level')} {p.level}
-                      </span>
+                      <div className="battle-plate-head">
+                        <strong>
+                          {p.name}
+                          {p.id === data.selfId ? text(' (você)', ' (you)') : ''}
+                        </strong>
+                        <span className="battle-plate-level">
+                          {text('Nv.', 'Lv.')} {p.level}
+                        </span>
+                      </div>
+                      <span className="ad-combatant-meta">{LANGUAGE_NAMES[p.language]}</span>
                       <PixelMeter
                         value={match.hp[p.id]}
                         max={match.stats?.[p.id]?.maxHp ?? 100}
                         label={`${text('Vida de', 'HP of')} ${p.name}`}
                       />
-                      <span>
+                      <span className="ad-hp-number">
                         {match.hp[p.id]} / {match.stats?.[p.id]?.maxHp ?? 100} {text('PV', 'HP')}
                       </span>
                     </div>
