@@ -139,10 +139,14 @@ export type CodeAction =
 export type CodeTile = { label: string; action: CodeAction | null };
 export type PublicQuestion = {
   id: string;
+  /** concept: multiple-choice quiz · bug: find the mistake in `snippet` · code: exercise. */
+  kind?: 'concept' | 'bug' | 'code';
   concept: string;
   prompt: string;
   options: string[];
   difficulty: string;
+  /** Source shown with line numbers for find-the-bug questions. */
+  snippet?: string;
   code?: {
     starter: string;
     commands: string[];
@@ -176,6 +180,8 @@ export type BattleView = {
   protection?: number;
   directChance?: number;
   drop?: { itemId: string; duplicateCoins: number } | null;
+  /** Potion effects in play this battle. */
+  effects?: { strength: boolean; regen: number; itemUsed: boolean };
 };
 export type Mission = {
   id: string;

@@ -22,7 +22,20 @@ import {
   resolveTurn,
   SKILLS,
 } from './rules';
-import { QUESTIONS, publicQuestion } from './questions';
+import { findQuiz, publicQuiz, quizPool, SKILL_CHALLENGE } from './quizzes';
+import {
+  isPotion,
+  POTION_DROP_CHANCE,
+  POTION_HEAL,
+  POTIONS,
+  potionForRoll,
+  readBattleUsed,
+  REGEN_HP,
+  REGEN_TURNS,
+  STRENGTH_BONUS,
+  withoutOnePotion,
+  writeBattleUsed,
+} from './potions';
 import {
   challengeExecutionLanguage,
   challengeProgram,
@@ -99,6 +112,12 @@ export const actionSchema = z.discriminatedUnion('type', [
   }),
   z.object({ type: z.literal('battle-flee'), battle: z.string().uuid() }),
   z.object({
+    type: z.literal('battle-item'),
+    battle: z.string().uuid(),
+    turn: z.number().int().min(0),
+    item: z.enum(['potion-heal', 'potion-regen', 'potion-strength']),
+  }),
+  z.object({
     type: z.literal('battle-code'),
     battle: z.string().uuid(),
     turn: z.number().int().min(0),
@@ -128,8 +147,9 @@ function battleView(
   drop: NonNullable<AdventureState['battle']>['drop'] = null
 ): AdventureState['battle'] {
   if (!b) return null;
-  const q = QUESTIONS.find((q) => q.id === b.questionId);
+  const q = findQuiz(b.questionId);
   const challenge = b.questionId ? codeChallenge(b.language as BattleLanguage, b.questionId) : null;
+  const { effects } = readBattleUsed(b.used);
   return {
     id: b.id,
     language: b.language as BattleLanguage,
@@ -143,9 +163,9 @@ function battleView(
     question:
       b.status === 'active'
         ? q
-          ? publicQuestion(q)
+          ? publicQuiz(q)
           : challenge?.id === b.questionId
-            ? challenge
+            ? { ...challenge, kind: 'code' as const }
             : null
         : null,
     feedback: b.feedback,
@@ -155,6 +175,11 @@ function battleView(
     protection: stats.protection,
     directChance: stats.directChance,
     drop,
+    effects: {
+      strength: effects.strength,
+      regen: effects.regen,
+      itemUsed: effects.itemTurn === b.turn,
+    },
   };
 }
 async function credit(tx: Tx, userId: string, key: string, label: string, amount: number) {
@@ -177,7 +202,20 @@ async function resolveBattleAction(
 ) {
   const creature = CREATURES.find((entry) => entry.id === battle.creature)!;
   const enemyLevel = encounterLevel(battle);
-  const result = resolveTurn(battle.hp, battle.enemyHp, correct, skill, enemyLevel, stats);
+  // Potion effects: strength adds to a landed blow, regeneration heals after the counter.
+  const { questions, effects } = readBattleUsed(battle.used);
+  const blow = SKILLS.find((entry) => entry.id === skill)!;
+  const bonus = correct && effects.strength ? Math.round(blow.damage * STRENGTH_BONUS) : 0;
+  const result = resolveTurn(battle.hp, battle.enemyHp, correct, skill, enemyLevel, stats, bonus);
+  let potionFeedback = bonus ? ` Poção de força: +${bonus} de dano.` : '';
+  if (bonus) effects.strength = false;
+  if (result.status === 'active' && effects.regen > 0) {
+    const healed = Math.min(REGEN_HP, Math.max(0, stats.maxHp - result.hp));
+    result.hp += healed;
+    effects.regen--;
+    if (healed) potionFeedback += ` Regeneração: +${healed} de vida.`;
+  }
+  effects.itemTurn = null;
   if (battle.turn >= creatureStats(enemyLevel).turnLimit - 1 && result.status === 'active') {
     result.status = 'lost';
     result.hp = 0;
@@ -238,12 +276,30 @@ async function resolveBattleAction(
         }
       } else lootFeedback = ' Nenhum equipamento caiu desta vez.';
     }
+    // A separate, idempotent roll: a victory may also leave a potion behind.
+    const potionRoll = `potion-roll:${battle.id}`;
+    if (
+      !(await tx.rpgTransaction.findUnique({ where: { userId_key: { userId, key: potionRoll } } }))
+    ) {
+      await tx.rpgTransaction.create({
+        data: { userId, key: potionRoll, label: 'Sorteio de poção da vitória', amount: 0 },
+      });
+      if (randomInt(100) < POTION_DROP_CHANCE) {
+        const potion = POTIONS.find((entry) => entry.id === potionForRoll(randomInt(100)))!;
+        const player = await tx.rpgPlayer.findUniqueOrThrow({ where: { userId } });
+        await tx.rpgPlayer.update({
+          where: { userId },
+          data: { inventory: [...(player.inventory as string[]), potion.id] },
+        });
+        lootFeedback += ` A criatura deixou cair uma ${potion.name}!`;
+      }
+    }
   }
-  const move = SKILLS.find((entry) => entry.id === skill)!;
+  const move = blow;
   const feedback = direct
-    ? `${direct === 'bug-hunter' ? 'Caça-bugs equipado!' : 'Sorte!'} ${move.name} aplicou um golpe direto, sem exercício: ${move.damage} de dano.`
+    ? `${direct === 'bug-hunter' ? 'Caça-bugs equipado!' : 'Sorte!'} ${move.name} aplicou um golpe direto, sem exercício: ${move.damage + bonus} de dano.`
     : correct
-      ? `Correto! ${move.name} causou ${move.damage} de dano. ${detail}`
+      ? `Correto! ${move.name} causou ${move.damage + bonus} de dano. ${detail}`
       : `Ainda não. O inimigo aproveitou a abertura. ${detail}`;
   await tx.rpgBattle.update({
     where: { id: battle.id },
@@ -254,10 +310,11 @@ async function resolveBattleAction(
       correct: { increment: correct && !direct ? 1 : 0 },
       questionId: null,
       skill: null,
-      used: battle.questionId
-        ? [...(battle.used as string[]), battle.questionId]
-        : (battle.used as string[]),
-      feedback: feedback + lootFeedback,
+      used: writeBattleUsed(
+        battle.questionId ? [...questions, battle.questionId] : questions,
+        effects
+      ),
+      feedback: feedback + potionFeedback + lootFeedback,
     },
   });
 }
@@ -510,9 +567,14 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
       }
       if (
         action &&
-        ['battle-skill', 'battle-answer', 'battle-code', 'battle-skip', 'battle-flee'].includes(
-          action.type
-        )
+        [
+          'battle-skill',
+          'battle-answer',
+          'battle-code',
+          'battle-skip',
+          'battle-item',
+          'battle-flee',
+        ].includes(action.type)
       ) {
         const a = action as Extract<Action, { battle: string }>;
         const b = await tx.rpgBattle.findFirst({ where: { id: a.battle, userId } });
@@ -548,8 +610,14 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
                 bugHunter ? 'bug-hunter' : 'luck'
               );
             } else if (!b.questionId) {
-              const used = b.used as string[];
-              const challenges = codeChallenges(b.language as BattleLanguage, encounterLevel(b));
+              // The skill decides which kind of challenge guards the blow.
+              const used = readBattleUsed(b.used).questions;
+              const kind = SKILL_CHALLENGE[a.skill] ?? 'code';
+              const language = b.language as BattleLanguage;
+              const challenges =
+                kind === 'code'
+                  ? codeChallenges(language, encounterLevel(b))
+                  : quizPool(language, kind);
               if (!challenges.length) fail('Não há desafios para esta linguagem.');
               const pool = challenges.filter((q) => !used.includes(q.id));
               const available = pool.length ? pool : challenges;
@@ -587,16 +655,53 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
                   skill: a.skill,
                   questionId: q.id,
                   feedback:
-                    'Desta vez o golpe precisa do seu conhecimento. Resolva o exercício e confirme o ataque.',
+                    kind === 'concept'
+                      ? 'Responda à pergunta de conceito para confirmar o golpe.'
+                      : kind === 'bug'
+                        ? 'Encontre o erro no código para confirmar o golpe.'
+                        : 'Desta vez o golpe precisa do seu conhecimento. Resolva o exercício e confirme o ataque.',
                 },
               });
             }
+          } else if (a.type === 'battle-item') {
+            // Potions: one per turn, without spending the turn.
+            const { questions, effects } = readBattleUsed(b.used);
+            if (effects.itemTurn === b.turn) fail('Você já usou uma poção neste turno.');
+            const owner = await tx.rpgPlayer.findUniqueOrThrow({ where: { userId } });
+            const owned = owner.inventory as string[];
+            if (!isPotion(a.item) || !owned.includes(a.item)) fail('Você não tem esta poção.');
+            let hp = b.hp;
+            let used: string;
+            if (a.item === 'potion-heal') {
+              if (hp >= stats.maxHp) fail('Sua vida já está cheia.');
+              const healed = Math.min(POTION_HEAL, stats.maxHp - hp);
+              hp += healed;
+              used = `Você bebeu a Poção de cura: +${healed} de vida.`;
+            } else if (a.item === 'potion-regen') {
+              if (effects.regen > 0) fail('A regeneração já está ativa.');
+              effects.regen = REGEN_TURNS;
+              used = 'Você bebeu a Poção de regeneração: +12 de vida ao fim dos próximos 3 turnos.';
+            } else {
+              if (effects.strength) fail('A força já está ativa.');
+              effects.strength = true;
+              used =
+                'Você bebeu a Poção de força: o próximo golpe certeiro causa 50% a mais de dano.';
+            }
+            effects.itemTurn = b.turn;
+            await tx.rpgPlayer.update({
+              where: { userId },
+              data: { inventory: withoutOnePotion(owned, a.item) },
+            });
+            await tx.rpgBattle.update({
+              where: { id: b.id },
+              data: { hp, used: writeBattleUsed(questions, effects), feedback: used },
+            });
           } else {
             if (!b.questionId || b.questionId !== a.question || !b.skill) {
               notice = 'O desafio deste turno mudou. A batalha foi atualizada.';
               codeRun = undefined;
             } else {
-              const q = QUESTIONS.find((q) => q.id === b.questionId);
+              const q = findQuiz(b.questionId);
               const challenge = codeChallenge(b.language as BattleLanguage, b.questionId);
               if (a.type === 'battle-skip') {
                 if (!hasBugHunterTitle(inventory, equipped))
@@ -690,7 +795,7 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
           ...(chestAwarded === undefined ? {} : { awarded: chestAwarded }),
         },
         transactions: transactions
-          .filter((t) => !t.key.startsWith('loot-roll:'))
+          .filter((t) => !t.key.startsWith('loot-roll:') && !t.key.startsWith('potion-roll:'))
           .map((t) => ({
             id: t.id,
             label: t.label,

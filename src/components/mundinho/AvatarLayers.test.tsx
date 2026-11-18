@@ -121,8 +121,13 @@ it('places the swinging sword and hand above voluminous hair only during attacks
     const { container, rerender } = render(
       <PixelAvatar avatar={{ ...DEFAULT_AVATAR, hair: 6, skin: 8 }} motion="attack" />
     );
-    await waitFor(() => expect(container.querySelector('[data-layer="weapon"]')).not.toBeNull());
-    const layers = Array.from(container.querySelectorAll<HTMLElement>('[data-layer]'));
+    await waitFor(() =>
+      expect(container.querySelector('[data-layer="weapon"]:not([data-standby])')).not.toBeNull()
+    );
+    // Only the visible pose matters for stacking; hidden poses sit transparent beside it.
+    const layers = Array.from(
+      container.querySelectorAll<HTMLElement>('[data-layer]:not([data-standby])')
+    );
     expect(layers.at(-1)?.dataset.layer).toBe('weapon');
     expect(layers.at(-1)?.style.backgroundImage).toContain('hero-weapon-attack.png');
     expect(layers.at(-1)?.style.backgroundPositionY).toBe(`${(32 / 35) * 100}%`);

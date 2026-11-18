@@ -160,6 +160,24 @@ export const MUNDINHO_EN: Record<string, string> = {
   'Não há desafios para esta linguagem.': 'There are no challenges for this language.',
   'Desta vez o golpe precisa do seu conhecimento. Resolva o exercício e confirme o ataque.':
     'This time the move needs your knowledge. Solve the exercise and confirm the attack.',
+  'Responda à pergunta de conceito para confirmar o golpe.':
+    'Answer the concept question to confirm the blow.',
+  'Encontre o erro no código para confirmar o golpe.':
+    'Find the bug in the code to confirm the blow.',
+  'Poção de cura': 'Healing potion',
+  'Poção de regeneração': 'Regeneration potion',
+  'Poção de força': 'Strength potion',
+  'Você já usou uma poção neste turno.': 'You already used a potion this turn.',
+  'Você não tem esta poção.': 'You do not have this potion.',
+  'Sua vida já está cheia.': 'Your HP is already full.',
+  'A regeneração já está ativa.': 'Regeneration is already active.',
+  'A força já está ativa.': 'Strength is already active.',
+  'Você bebeu a Poção de regeneração: +12 de vida ao fim dos próximos 3 turnos.':
+    'You drank the Regeneration potion: +12 HP at the end of the next 3 turns.',
+  'Você bebeu a Poção de força: o próximo golpe certeiro causa 50% a mais de dano.':
+    'You drank the Strength potion: your next landed blow deals 50% more damage.',
+  'Responda à pergunta para confirmar este golpe.': 'Answer the question to confirm this blow.',
+  'Encontre o erro para confirmar este golpe.': 'Find the bug to confirm this blow.',
   'O desafio deste turno mudou. A batalha foi atualizada.':
     'This turn’s challenge changed. The battle was updated.',
   'Equipe o título Caça-bugs para usar esta habilidade.':
@@ -299,6 +317,21 @@ export const MUNDINHO_EN_PATTERNS: Pattern[] = [
   [
     /^Código correto! (\d+) de dano no adversário\.$/,
     (m) => `Correct code! ${m[1]} damage to the opponent.`,
+  ],
+  [
+    /^Resposta certa! (\d+) de dano no adversário\.$/,
+    (m) => `Right answer! ${m[1]} damage to the opponent.`,
+  ],
+  [
+    /^Resposta errada\. Turno do adversário\. ?([\s\S]*)$/,
+    (m, tr) => `Wrong answer. Opponent's turn. ${trTail(m[1], tr)}`.trimEnd(),
+  ],
+  [/^Poção de força: \+(\d+) de dano\.$/, (m) => `Strength potion: +${m[1]} damage.`],
+  [/^Regeneração: \+(\d+) de vida\.$/, (m) => `Regeneration: +${m[1]} HP.`],
+  [/^A criatura deixou cair uma (.+)!$/, (m, tr) => `The creature dropped a ${word(m[1], tr)}!`],
+  [
+    /^Você bebeu a Poção de cura: \+(\d+) de vida\.$/,
+    (m) => `You drank the Healing potion: +${m[1]} HP.`,
   ],
   [
     /^(.+): (Caça-bugs \/ sorte máxima!|Golpe direto!) (\d+) de dano no adversário\.( Recupera até 20 de vida\.| Recebe 8 de desgaste\.)?$/,

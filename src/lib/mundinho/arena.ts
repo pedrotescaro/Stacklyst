@@ -22,6 +22,8 @@ import {
   evaluateTrace,
 } from './codeChallenges';
 import { equipmentStats } from './equipment';
+import { publicQuiz, quizPool, type Quiz } from './quizzes';
+import { SKILL_CHALLENGE } from './rules';
 import { instrumentChallengeSource } from './codeChallengeStructures';
 import {
   advanceArenaTurn,
@@ -34,6 +36,7 @@ import {
   validArenaPosition,
 } from './arena-rules';
 import type { ArenaAction, ArenaMatch, ArenaPosition, ArenaState } from './arena-types';
+import type { PublicQuestion } from './types';
 
 const roomId = z.string().uuid();
 const position = z.object({
@@ -62,6 +65,14 @@ export const arenaActionSchema = z.discriminatedUnion('type', [
     matchId: roomId,
     turn: z.number().int().min(0),
     skill: z.enum(['strike', 'focus', 'burst']).optional(),
+  }),
+  z.object({
+    type: z.literal('answer'),
+    roomId,
+    matchId: roomId,
+    turn: z.number().int().min(0),
+    questionId: z.string().max(100),
+    answer: z.number().int().min(0).max(3),
   }),
   z.object({
     type: z.literal('run'),
@@ -93,6 +104,24 @@ const spawn = (guest = false): ArenaPosition => ({
   walking: false,
 });
 const matchOf = (room: RpgArenaRoom) => room.match as ArenaMatch | null;
+/**
+ * The exercise guarding this turn's blow. The skill picks the kind (concept
+ * quiz, find the bug or code); the scenario and turn pick the entry, so both
+ * players' views and every retry agree without storing it.
+ */
+function arenaChallenge(
+  match: ArenaMatch,
+  language: BattleLanguage
+): { kind: 'code'; code: PublicQuestion } | { kind: 'concept' | 'bug'; quiz: Quiz } {
+  const kind = SKILL_CHALLENGE[match.skill ?? 'burst'] ?? 'code';
+  const index = match.scenario + Math.floor(match.turn / 2);
+  if (kind !== 'code') {
+    const pool = quizPool(language, kind);
+    if (pool.length) return { kind, quiz: pool[index % pool.length] };
+  }
+  const challenges = codeChallenges(language, match.level);
+  return { kind: 'code', code: challenges[index % challenges.length] };
+}
 function invalid(message: string): never {
   throw new ValidationError('ARENA_RULE', message);
 }
@@ -167,16 +196,18 @@ async function view(
       : [];
   const match = room ? matchOf(room) : null;
   const ownLanguage = room?.hostId === userId ? room.hostLanguage : room?.guestLanguage;
-  const question =
+  const challenge =
     match?.status === 'active' &&
     match.actorId === userId &&
     arenaNeedsExercise(match) &&
     ownLanguage
-      ? codeChallenges(ownLanguage as BattleLanguage, match.level)[
-          (match.scenario + Math.floor(match.turn / 2)) %
-            codeChallenges(ownLanguage as BattleLanguage, match.level).length
-        ]
+      ? arenaChallenge(match, ownLanguage as BattleLanguage)
       : null;
+  const question: PublicQuestion | null = !challenge
+    ? null
+    : challenge.kind === 'code'
+      ? { ...challenge.code, kind: 'code' }
+      : publicQuiz(challenge.quiz);
   const players = room
     ? [
         {
@@ -266,8 +297,9 @@ export async function arena(userId: string, action: ArenaAction): Promise<ArenaS
     const language = (
       room.hostId === userId ? room.hostLanguage : room.guestLanguage
     ) as BattleLanguage;
-    const challenges = codeChallenges(language, match.level);
-    const question = challenges[(match.scenario + Math.floor(match.turn / 2)) % challenges.length];
+    const challenge = arenaChallenge(match, language);
+    if (challenge.kind !== 'code') invalid('Responda à pergunta deste turno para atacar.');
+    const question = challenge.code;
     if (question.id !== action.questionId) invalid('O desafio deste turno mudou.');
     const prepared = instrumentChallengeSource(language, action.code, question);
     if (prepared.error) codeRun = { passed: false, trace: [], error: prepared.error };
@@ -624,6 +656,36 @@ export async function arena(userId: string, action: ArenaAction): Promise<ArenaS
         else if (!arenaNeedsExercise(match))
           match = chooseArenaAttack(match, randomInt(100), now, action.skill);
         else notice = 'O exercício deste turno já foi definido. Resolva-o para atacar.';
+      }
+      if (action.type === 'answer') {
+        if (
+          !match ||
+          match.id !== action.matchId ||
+          match.status !== 'active' ||
+          match.actorId !== userId ||
+          match.turn !== action.turn ||
+          !arenaNeedsExercise(match)
+        )
+          notice = 'O turno mudou. Nenhum golpe foi repetido.';
+        else {
+          const language = (
+            room.hostId === userId ? room.hostLanguage : room.guestLanguage
+          ) as BattleLanguage;
+          const challenge = arenaChallenge(match, language);
+          if (challenge.kind === 'code' || challenge.quiz.id !== action.questionId)
+            notice = 'O desafio deste turno mudou. Nenhum golpe foi repetido.';
+          else {
+            const correct = challenge.quiz.answer === action.answer;
+            match = advanceArenaTurn(
+              match,
+              correct,
+              now,
+              correct
+                ? `Resposta certa! ${arenaAttackDamage(match)} de dano no adversário.`
+                : `Resposta errada. Turno do adversário. ${challenge.quiz.explanation}`
+            );
+          }
+        }
       }
       if (action.type === 'run') {
         if (

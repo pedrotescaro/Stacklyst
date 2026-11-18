@@ -1,6 +1,6 @@
 import type { ArenaMatch, ArenaPosition, ArenaSkill } from './arena-types';
 import { directAttack } from './equipment';
-import { SKILLS } from './rules';
+import { SKILL_CHALLENGE, SKILLS } from './rules';
 
 export const ARENA = {
   width: 768,
@@ -105,7 +105,14 @@ export function chooseArenaAttack(
     return {
       ...match,
       exerciseTurn: match.turn,
-      log: [...match.log, 'Resolva o exercício para confirmar este golpe.'].slice(-8),
+      log: [
+        ...match.log,
+        SKILL_CHALLENGE[skill] === 'concept'
+          ? 'Responda à pergunta para confirmar este golpe.'
+          : SKILL_CHALLENGE[skill] === 'bug'
+            ? 'Encontre o erro para confirmar este golpe.'
+            : 'Resolva o exercício para confirmar este golpe.',
+      ].slice(-8),
     };
   const damage = arenaAttackDamage(match);
   const move = SKILLS.find((s) => s.id === skill)!;

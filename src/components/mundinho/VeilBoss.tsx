@@ -34,6 +34,8 @@ type Phase =
   | 'lost';
 /** How long a landed strike plays (flash, slash, damage, draining HP) before the guardian answers. */
 export const BOSS_HIT_MS = 1100;
+/** Touch drags move the heart a little further than the finger, so short swipes are enough. */
+const TOUCH_GAIN = 1.4;
 const COMMANDS = ['FIGHT', 'ACT', 'ITEM', 'MERCY'] as const;
 function Heart() {
   return (
@@ -107,7 +109,8 @@ export function VeilBoss({
   const { text: t } = useLocalizedText();
   const game = useRef(makeGame()),
     keys = useRef(new Set<string>()),
-    target = useRef<Soul | null>(null);
+    target = useRef<Soul | null>(null),
+    drag = useRef<{ x: number; y: number; soulX: number; soulY: number } | null>(null);
   const field = useRef<HTMLDivElement>(null);
   const root = useRef<HTMLElement>(null);
   const [selected, select] = useState(0);
@@ -253,7 +256,9 @@ export function VeilBoss({
         }
         const length = Math.hypot(dx, dy);
         if (length) {
-          const speed = to ? Math.min(105 * dt, length) : 105 * dt;
+          // A finger drag follows closely; mouse targets and keys keep the steady pace.
+          const pace = drag.current ? 240 : 105;
+          const speed = to ? Math.min(pace * dt, length) : 105 * dt;
           g.soul = {
             x: limit(g.soul.x + (dx / length) * speed, 4, FIELD.width - 4),
             y: limit(g.soul.y + (dy / length) * speed, 4, FIELD.height - 4),
@@ -303,6 +308,19 @@ export function VeilBoss({
     target.current = {
       x: ((event.clientX - box.left) * FIELD.width) / box.width,
       y: ((event.clientY - box.top) * FIELD.height) / box.height,
+    };
+  };
+  /**
+   * Touch steers like a trackpad: the heart follows the finger's movement from
+   * wherever it lands, so the finger never has to sit on (and hide) the heart.
+   */
+  const slide = (event: React.PointerEvent<HTMLDivElement>) => {
+    const from = drag.current;
+    if (!from) return;
+    const scale = FIELD.width / event.currentTarget.getBoundingClientRect().width;
+    target.current = {
+      x: limit(from.soulX + (event.clientX - from.x) * scale * TOUCH_GAIN, 4, FIELD.width - 4),
+      y: limit(from.soulY + (event.clientY - from.y) * scale * TOUCH_GAIN, 4, FIELD.height - 4),
     };
   };
   const hint =
@@ -436,17 +454,25 @@ export function VeilBoss({
             if (phase === 'dodge' && !paused) {
               e.currentTarget.focus();
               e.currentTarget.setPointerCapture(e.pointerId);
-              point(e);
+              if (e.pointerType === 'mouse') point(e);
+              else {
+                const soul = game.current.soul;
+                drag.current = { x: e.clientX, y: e.clientY, soulX: soul.x, soulY: soul.y };
+              }
             }
           }}
           onPointerMove={(e) => {
-            if (e.currentTarget.hasPointerCapture(e.pointerId) && !paused) point(e);
+            if (!e.currentTarget.hasPointerCapture(e.pointerId) || paused) return;
+            if (drag.current) slide(e);
+            else point(e);
           }}
           onPointerUp={() => {
             target.current = null;
+            drag.current = null;
           }}
           onPointerCancel={() => {
             target.current = null;
+            drag.current = null;
           }}
         >
           {phase === 'aim' || phase === 'hit' ? (
@@ -654,8 +680,8 @@ export function VeilBoss({
             )}
         <br />
         {t(
-          'No celular, toque nos comandos e arraste o coração.',
-          'On mobile, tap commands and drag the heart.'
+          'No celular, toque nos comandos e arraste o dedo em qualquer lugar da caixa: o coração acompanha o movimento.',
+          'On mobile, tap commands and drag your finger anywhere in the box: the heart follows the motion.'
         )}
       </p>
       <div className="veil-actions">

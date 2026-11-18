@@ -22,6 +22,14 @@ export {
 } from '../../lib/mundinho/avatar-palettes';
 export const HAIR = LEGACY_HAIR_COLORS;
 
+type Pose = 'idle' | 'walk' | 'attack' | 'bow';
+const POSE_SUFFIX: Record<Pose, string> = {
+  idle: '-idle',
+  walk: '',
+  attack: '-attack',
+  bow: '-bow',
+};
+
 export function PixelAvatar({
   avatar = DEFAULT_AVATAR,
   direction = 'down',
@@ -29,7 +37,7 @@ export function PixelAvatar({
   className = '',
   style,
   effect = false,
-  motion = 'idle',
+  motion,
   bow = false,
 }: {
   avatar?: Avatar;
@@ -47,17 +55,26 @@ export function PixelAvatar({
   const transfer = tinted ? hairColorTransfer(avatarHairColor(avatar)) : null;
   const d = Math.max(0, ['down', 'right', 'up', 'left'].indexOf(direction));
   const female = avatar.gender === 'feminine';
-  const attackReady = useAttackSprites(bow);
+  // A battle avatar (one given a motion) keeps every pose it can switch to.
+  const battle = motion !== undefined;
+  const current = motion ?? 'idle';
+  const strikeReady = useAttackSprites(false);
+  const bowReady = useAttackSprites(true, battle || bow);
+  const attackReady = bow ? bowReady : strikeReady;
   const walkingReady = useWalkingSprites();
-  const visibleMotion = motion === 'attack' && !attackReady ? 'idle' : motion;
-  const isWalking = Boolean(walking) && walkingReady && motion === 'idle';
-  const poseSuffix = visibleMotion === 'attack' ? (bow ? '-bow' : '-attack') : '-idle';
-  const pose = visibleMotion === 'attack' ? (bow ? 'bow' : 'attack') : 'idle';
-  // Characters that can walk keep the idle and walking sheets painted at all
-  // times and only swap opacity. Swapping background-image instead lets the
-  // browser evict the unused sheet's decoded pixels while the hero stands
-  // still, so the first step after a long pause drew one empty frame.
-  const standbyWalk = walking !== undefined && visibleMotion === 'idle';
+  const visibleMotion = current === 'attack' && !attackReady ? 'idle' : current;
+  const isWalking = Boolean(walking) && walkingReady && current === 'idle';
+  const active: Pose =
+    visibleMotion === 'attack' ? (bow ? 'bow' : 'attack') : isWalking ? 'walk' : 'idle';
+  // Every pose an avatar can switch to stays mounted and painted; switching
+  // only flips which one is visible. Swapping background images instead made
+  // each layer decode on its own: after a pause the first step drew an empty
+  // frame, and in battle a blow showed the body before its clothes, or nothing.
+  const poses: Pose[] = ['idle'];
+  if (walking !== undefined) poses.push('walk');
+  if (battle ? strikeReady : active === 'attack') poses.push('attack');
+  if (battle ? bowReady : active === 'bow') poses.push('bow');
+  const swappable = poses.length > 1;
   const layers = [
     ['body', avatar.skin + (female ? SKIN_PALETTES.length : 0), SKIN_PALETTES.length * 2],
     [
@@ -73,25 +90,48 @@ export function PixelAvatar({
     ],
     ['accessory', avatar.accessory, 6],
   ] as const;
-  const renderLayers = (suffix: string, layerPose: string, standby: boolean) =>
-    layers
-      .filter(([, value]) => value >= 0)
-      .map(([layer, value, count]) => (
-        <span
-          aria-hidden="true"
-          key={`${layerPose}-${layer}`}
-          data-layer={layer}
-          data-pose={layerPose}
-          data-standby={standby || undefined}
-          className={`sprite-layer${standbyWalk ? ' sprite-layer-swappable' : ''}`}
-          style={{
-            backgroundImage: `url(${adventureAsset(`hero-${layer}${suffix}.png`, '/assets/mundinho')})`,
-            backgroundSize: `600% ${count * 400}%`,
-            backgroundPositionY: `${((Math.min(count - 1, value) * 4 + d) / (count * 4 - 1)) * 100}%`,
-            ...(layer === 'hair' && tinted ? { filter: `url(#${filterId})` } : {}),
-          }}
-        />
-      ));
+  const layerClass = `sprite-layer${swappable ? ' sprite-layer-swappable' : ''}`;
+  const renderPose = (pose: Pose) => {
+    const suffix = POSE_SUFFIX[pose];
+    const standby = pose !== active || undefined;
+    return [
+      ...layers
+        .filter(([, value]) => value >= 0)
+        .map(([layer, value, count]) => (
+          <span
+            aria-hidden="true"
+            key={`${pose}-${layer}`}
+            data-layer={layer}
+            data-pose={pose}
+            data-standby={standby}
+            className={layerClass}
+            style={{
+              backgroundImage: `url(${adventureAsset(`hero-${layer}${suffix}.png`, '/assets/mundinho')})`,
+              backgroundSize: `600% ${count * 400}%`,
+              backgroundPositionY: `${((Math.min(count - 1, value) * 4 + d) / (count * 4 - 1)) * 100}%`,
+              ...(layer === 'hair' && tinted ? { filter: `url(#${filterId})` } : {}),
+            }}
+          />
+        )),
+      ...(pose === 'attack' || pose === 'bow'
+        ? [
+            <span
+              aria-hidden="true"
+              key={`${pose}-weapon`}
+              data-layer="weapon"
+              data-pose={pose}
+              data-standby={standby}
+              className={layerClass}
+              style={{
+                backgroundImage: `url(${adventureAsset(`hero-weapon${suffix}.png`, '/assets/mundinho')})`,
+                backgroundSize: `600% ${SKIN_PALETTES.length * 400}%`,
+                backgroundPositionY: `${((avatar.skin * 4 + d) / (SKIN_PALETTES.length * 4 - 1)) * 100}%`,
+              }}
+            />,
+          ]
+        : []),
+    ];
+  };
   return (
     <span
       role="img"
@@ -122,20 +162,7 @@ export function PixelAvatar({
           </defs>
         </svg>
       )}
-      {renderLayers(poseSuffix, pose, isWalking)}
-      {standbyWalk && renderLayers('', 'walk', !isWalking)}
-      {visibleMotion === 'attack' && (
-        <span
-          aria-hidden="true"
-          data-layer="weapon"
-          className="sprite-layer"
-          style={{
-            backgroundImage: `url(${adventureAsset(`hero-weapon${poseSuffix}.png`, '/assets/mundinho')})`,
-            backgroundSize: `600% ${SKIN_PALETTES.length * 400}%`,
-            backgroundPositionY: `${((avatar.skin * 4 + d) / (SKIN_PALETTES.length * 4 - 1)) * 100}%`,
-          }}
-        />
-      )}
+      {poses.flatMap(renderPose)}
     </span>
   );
 }

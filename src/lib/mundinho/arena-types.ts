@@ -60,6 +60,14 @@ export type ArenaAction =
   | { type: 'ready'; roomId: string }
   | { type: 'attack'; roomId: string; matchId: string; turn: number; skill?: ArenaSkill }
   | {
+      type: 'answer';
+      roomId: string;
+      matchId: string;
+      turn: number;
+      questionId: string;
+      answer: number;
+    }
+  | {
       type: 'run';
       roomId: string;
       matchId: string;

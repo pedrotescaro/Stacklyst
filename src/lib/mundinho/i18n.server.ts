@@ -1,6 +1,7 @@
 // Server-only English copy for the Mundinho answer bank (questions and explanations) and code
 // challenges. Never import this module into a client component or mobile bundle.
 import { createMundinhoTranslator, MUNDINHO_EN, MUNDINHO_LANGUAGE_HEADER } from './i18n';
+import { QUIZ_EN } from './quizzes';
 
 const QUESTIONS_EN: Record<string, string> = {
   // Concepts
@@ -318,7 +319,7 @@ const SERVER_PATTERNS: Array<[RegExp, (m: RegExpMatchArray) => string]> = [
   ],
 ];
 
-const translateBase = createMundinhoTranslator({ ...MUNDINHO_EN, ...QUESTIONS_EN });
+const translateBase = createMundinhoTranslator({ ...MUNDINHO_EN, ...QUESTIONS_EN, ...QUIZ_EN });
 
 function translateServerString(value: string): string {
   for (const [pattern, build] of SERVER_PATTERNS) {
@@ -341,6 +342,9 @@ const SKIP_KEYS = new Set([
   'avatar',
   'roomId',
   'code',
+  // Find-the-bug source and the question kind are never prose.
+  'snippet',
+  'kind',
   'output',
   'language',
   'tiles',

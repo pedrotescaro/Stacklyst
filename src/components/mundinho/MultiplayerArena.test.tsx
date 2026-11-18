@@ -254,3 +254,53 @@ it('flashes the duelist who takes a blow, pops the damage and lunges the attacke
   expect(self()).not.toHaveClass('is-hit');
   expect(container.querySelector('.ad-pvp-scene')).not.toHaveClass('is-shaking');
 });
+
+it('answers a concept quiz turn instead of opening the code editor', async () => {
+  const data = lobbyState();
+  data.room!.match = {
+    id: 'match',
+    status: 'active',
+    ready: ['a', 'b'],
+    hp: { a: 100, b: 100 },
+    actorId: 'a',
+    turn: 0,
+    scenario: 0,
+    level: 1,
+    deadline: new Date(Date.now() + 120_000).toISOString(),
+    winnerId: null,
+    log: [],
+    exerciseTurn: 0,
+    skill: 'strike',
+  } as never;
+  data.room!.question = {
+    id: 'gen-1-JS',
+    kind: 'concept',
+    concept: 'Funções',
+    difficulty: 'Fácil',
+    prompt: 'Por que dividir um programa em funções?',
+    options: ['Lento', 'Memória', 'Reutilizar e organizar', 'Obrigatório'],
+  };
+  const transport = vi.fn(async () => data);
+  render(
+    <MultiplayerArena
+      initialState={data}
+      language="JS"
+      assetBase="/assets/mundinho"
+      onLeave={() => {}}
+      transport={transport as never}
+    />
+  );
+  expect(screen.getByText('Quiz de conceito')).toBeInTheDocument();
+  expect(screen.queryByRole('region', { name: /Desafio de código/ })).not.toBeInTheDocument();
+  fireEvent.click(screen.getByRole('button', { name: /^C/ }));
+  await waitFor(() =>
+    expect(transport).toHaveBeenCalledWith({
+      type: 'answer',
+      roomId: 'room',
+      matchId: 'match',
+      turn: 0,
+      questionId: 'gen-1-JS',
+      answer: 2,
+    })
+  );
+});

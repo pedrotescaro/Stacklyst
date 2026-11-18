@@ -31,7 +31,8 @@ afterEach(() => vi.unstubAllGlobals());
 
 it('keeps a complete idle body until every attack layer is loaded and decoded', async () => {
   const { container } = render(<PixelAvatar motion="attack" />);
-  const body = () => container.querySelector<HTMLElement>('[data-layer="body"]')!;
+  const body = () =>
+    container.querySelector<HTMLElement>('[data-layer="body"]:not([data-standby])')!;
   expect(body().style.backgroundImage).toContain('hero-body-idle.png');
   expect(container.querySelector('.sprite-idle')).not.toBeNull();
   await act(async () => {
@@ -40,7 +41,7 @@ it('keeps a complete idle body until every attack layer is loaded and decoded', 
     await Promise.all(PendingImage.images.slice(3).map((image) => image.onload?.()));
   });
   expect(body().style.backgroundImage).toContain('hero-body-idle.png');
-  expect(container.querySelector('[data-layer="weapon"]')).toBeNull();
+  expect(container.querySelector('[data-layer="weapon"]:not([data-standby])')).toBeNull();
   let finishDecode!: () => void;
   PendingImage.images[2].decode.mockImplementation(
     () =>
@@ -113,4 +114,31 @@ it('reuses decoded layers when another character mounts', async () => {
   const second = render(<PixelAvatar motion="attack" />);
   await waitFor(() => expect(second.container.querySelector('.sprite-attack')).not.toBeNull());
   expect(PendingImage.images.filter((image) => image.src.startsWith('/test-'))).toHaveLength(6);
+});
+
+it('switches a battle pose by visibility, without mounting or loading layers mid-blow', async () => {
+  const { container, rerender } = render(<PixelAvatar motion="idle" />);
+  await act(async () => {
+    await Promise.all(PendingImage.images.map((image) => image.onload?.()));
+  });
+  await waitFor(() =>
+    expect(container.querySelector('[data-pose="attack"][data-layer="outfit"]')).not.toBeNull()
+  );
+  const outfit = container.querySelector('[data-pose="attack"][data-layer="outfit"]')!;
+  const body = container.querySelector('[data-pose="attack"][data-layer="body"]')!;
+  expect(outfit).toHaveAttribute('data-standby');
+  expect(container.querySelector('[data-pose="bow"][data-layer="weapon"]')).not.toBeNull();
+  rerender(<PixelAvatar motion="attack" />);
+  // The same, already painted nodes become visible together: body and clothes at once.
+  expect(container.querySelector('[data-pose="attack"][data-layer="outfit"]')).toBe(outfit);
+  expect(outfit).not.toHaveAttribute('data-standby');
+  expect(body).not.toHaveAttribute('data-standby');
+  expect(container.querySelector('[data-pose="idle"][data-layer="outfit"]')).toHaveAttribute(
+    'data-standby'
+  );
+  rerender(<PixelAvatar motion="hurt" />);
+  expect(container.querySelector('[data-pose="idle"][data-layer="outfit"]')).not.toHaveAttribute(
+    'data-standby'
+  );
+  expect(outfit).toHaveAttribute('data-standby');
 });

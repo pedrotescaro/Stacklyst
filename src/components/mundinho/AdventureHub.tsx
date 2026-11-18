@@ -48,11 +48,14 @@ import {
   type Avatar,
   type Course,
 } from '../../lib/mundinho/types';
-import { canChallengeCreature, SKILLS } from '../../lib/mundinho/rules';
+import { canChallengeCreature, SKILL_CHALLENGE, SKILLS } from '../../lib/mundinho/rules';
 import { BattleAudio } from '../../lib/mundinho/battleAudio';
 import { CodeBattle } from './CodeBattle';
 import { BattleEffects, CREATURE_ELEMENTS } from './BattleEffects';
 import { HitSpark } from './BattleHit';
+import { QuizChallenge } from './QuizChallenge';
+import { PotionBag } from './PotionBag';
+import { CoinPackArt, type CoinPackId } from './CoinPackArt';
 import { ColorPalette, PROFILE_COLORS } from '../ColorPalette';
 import {
   avatarHairColor,
@@ -360,13 +363,20 @@ export function AdventureHub({
    * screen with a retro tile wipe, swap the view while it is black, then open
    * on the new scene. Reduced motion swaps immediately.
    */
-  const travel = (next: View, kind: RetroTransitionKind, before?: () => void) => {
+  const travel = (
+    next: View,
+    kind: RetroTransitionKind,
+    before?: () => void,
+    /** Runs once the new view is in place, e.g. to show a notice it would clear. */
+    after?: () => void
+  ) => {
     if (transitionId.current < 0) return;
     const root = adventureRoot.current;
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? true;
     if (!root || reduced) {
       before?.();
       go(next);
+      after?.();
       return;
     }
     const id = Math.abs(transitionId.current) + 1;
@@ -378,6 +388,7 @@ export function AdventureHub({
         flushSync(() => {
           before?.();
           go(next);
+          after?.();
         });
         setTransition(
           adventureRoot.current
@@ -534,6 +545,12 @@ export function AdventureHub({
   const combatStats =
     data?.combatStats ?? equipmentStats(data?.inventory ?? [], data?.equipped ?? {});
   const bugHunter = hasBugHunterTitle(data?.inventory ?? [], data?.equipped ?? {});
+  const challengeLabel = (kind: string | undefined) =>
+    kind === 'concept'
+      ? text('Quiz de conceito', 'Concept quiz')
+      : kind === 'bug'
+        ? text('Encontre o erro', 'Find the bug')
+        : text('Exercício de código', 'Code exercise');
   const battleDrop = EQUIPMENT.find((item) => item.id === battle?.drop?.itemId);
   const choosingSkill = view === 'battle' && battle?.status === 'active' && !battle.question;
   useEffect(() => {
@@ -555,7 +572,6 @@ export function AdventureHub({
     const reward = battle.reward;
     const timer = setTimeout(
       () => {
-        go('world');
         const drop = EQUIPMENT.find((item) => item.id === battle.drop?.itemId);
         const dropName = drop ? m(drop.name) : '';
         const dropText = drop
@@ -569,16 +585,21 @@ export function AdventureHub({
                 ` ${dropName} was stored in your inventory!`
               )
           : '';
-        setNotice(
-          (reward
-            ? text(
-                `Vitória! +${reward} moedas e +30 XP. Recompensa registrada.`,
-                `Victory! +${reward} coins and +30 XP. Reward recorded.`
-              )
-            : text('Vitória! Você voltou à clareira.', 'Victory! You returned to the clearing.')) +
-            dropText
-        );
-        setCombatPhase('idle');
+        // Winning closes the battle with its own transition; the reward shows on arrival.
+        travel('world', 'victory', undefined, () => {
+          setNotice(
+            (reward
+              ? text(
+                  `Vitória! +${reward} moedas e +30 XP. Recompensa registrada.`,
+                  `Victory! +${reward} coins and +30 XP. Reward recorded.`
+                )
+              : text(
+                  'Vitória! Você voltou à clareira.',
+                  'Victory! You returned to the clearing.'
+                )) + dropText
+          );
+          setCombatPhase('idle');
+        });
       },
       battle.drop ? 6000 : 2000
     );
@@ -1323,7 +1344,7 @@ export function AdventureHub({
             ].map((pkg) => (
               <article key={pkg.id} className="ad-package-card">
                 <div className="ad-pkg-icon-wrap">
-                  <TreasureChest size={36} className="text-amber-400" />
+                  <CoinPackArt pack={pkg.id as CoinPackId} />
                 </div>
                 <div className="ad-pkg-info">
                   <h3 className="ad-pkg-name">{text(pkg.name, pkg.nameEn)}</h3>
@@ -1796,6 +1817,20 @@ export function AdventureHub({
                         {text('Nv.', 'Lv.')} {xp.level}
                       </span>
                     </div>
+                    {(battle.effects?.strength || (battle.effects?.regen ?? 0) > 0) && (
+                      <span className="battle-plate-effects">
+                        {battle.effects?.strength && (
+                          <span className="battle-effect is-strength">
+                            {text('Força', 'Strength')}
+                          </span>
+                        )}
+                        {(battle.effects?.regen ?? 0) > 0 && (
+                          <span className="battle-effect is-regen">
+                            {text('Regeneração', 'Regeneration')} ×{battle.effects?.regen}
+                          </span>
+                        )}
+                      </span>
+                    )}
                     <PixelMeter
                       value={battle.hp}
                       max={battle.maxHp ?? combatStats.maxHp}
@@ -1862,35 +1897,20 @@ export function AdventureHub({
                       }
                     />
                   ) : battle.question ? (
-                    <div className="ad-battle-question-box">
-                      <span className="ad-concept-tag">
-                        {m(battle.question.concept)} · {m(battle.question.difficulty)}
-                      </span>
-                      <h3 className="ad-question-text">{battle.question.prompt}</h3>
-                      <div className="ad-answers-grid">
-                        {battle.question.options.map((option, idx) => (
-                          <button
-                            key={idx}
-                            disabled={busy}
-                            className="ad-answer-btn"
-                            onClick={() =>
-                              void act({
-                                type: 'battle-answer',
-                                battle: battle.id,
-                                turn: battle.turn,
-                                question: battle.question!.id,
-                                answer: idx,
-                              })
-                            }
-                          >
-                            <span className="ad-answer-letter">
-                              {String.fromCharCode(65 + idx)}
-                            </span>
-                            <span className="ad-answer-body">{option}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
+                    <QuizChallenge
+                      key={`${battle.id}:${battle.question.id}`}
+                      question={battle.question}
+                      busy={busy}
+                      onAnswer={(answer) =>
+                        void act({
+                          type: 'battle-answer',
+                          battle: battle.id,
+                          turn: battle.turn,
+                          question: battle.question!.id,
+                          answer,
+                        })
+                      }
+                    />
                   ) : (
                     <>
                       <p className="ad-battle-odds">
@@ -1944,6 +1964,9 @@ export function AdventureHub({
                             <span className="rpg-selection-cursor" aria-hidden="true" />
                             <strong>{m(skill.name)}</strong>
                             <small>{m(skill.description)}</small>
+                            <em className="ad-skill-challenge">
+                              {challengeLabel(SKILL_CHALLENGE[skill.id])}
+                            </em>
                           </button>
                         ))}
                       </div>
@@ -1953,6 +1976,24 @@ export function AdventureHub({
                           'WASD / arrows: select · Enter / Space: confirm'
                         )}
                       </p>
+                      <PotionBag
+                        inventory={data?.inventory ?? []}
+                        usedThisTurn={Boolean(battle.effects?.itemUsed)}
+                        healthFull={battle.hp >= (battle.maxHp ?? combatStats.maxHp)}
+                        effects={{
+                          strength: Boolean(battle.effects?.strength),
+                          regen: battle.effects?.regen ?? 0,
+                        }}
+                        busy={busy}
+                        onUse={(item) =>
+                          void act({
+                            type: 'battle-item',
+                            battle: battle.id,
+                            turn: battle.turn,
+                            item,
+                          })
+                        }
+                      />
                     </>
                   )
                 ) : (
@@ -2009,7 +2050,12 @@ export function AdventureHub({
                         )}
                       </p>
                     )}
-                    <button className="ad-primary mt-4" onClick={() => go('world')}>
+                    <button
+                      className="ad-primary mt-4"
+                      onClick={() =>
+                        battle.status === 'won' ? travel('world', 'victory') : go('world')
+                      }
+                    >
                       {text('Voltar ao Mundinho', 'Back to the World')}
                     </button>
                   </div>

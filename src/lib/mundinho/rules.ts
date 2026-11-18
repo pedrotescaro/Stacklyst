@@ -42,16 +42,27 @@ export const SKILLS = [
     heal: -8,
   },
 ] as const;
+/**
+ * Each skill is guarded by a different kind of challenge when the blow is not
+ * direct: a concept quiz, finding a bug, or a code exercise.
+ */
+export const SKILL_CHALLENGE: Record<string, 'concept' | 'bug' | 'code'> = {
+  strike: 'concept',
+  focus: 'bug',
+  burst: 'code',
+};
 export function resolveTurn(
   hp: number,
   enemyHp: number,
   correct: boolean,
   skill: string,
   level: number,
-  equipment: { maxHp: number; protection: number } = { maxHp: 100, protection: 0 }
+  equipment: { maxHp: number; protection: number } = { maxHp: 100, protection: 0 },
+  /** Extra damage on a landed blow, e.g. from a strength potion. */
+  bonusDamage = 0
 ) {
   const move = SKILLS.find((s) => s.id === skill) ?? SKILLS[0];
-  const nextEnemy = Math.max(0, enemyHp - (correct ? move.damage : 0));
+  const nextEnemy = Math.max(0, enemyHp - (correct ? move.damage + bonusDamage : 0));
   const nextHp = Math.max(
     0,
     Math.min(equipment.maxHp, hp + (correct ? move.heal : 0)) -

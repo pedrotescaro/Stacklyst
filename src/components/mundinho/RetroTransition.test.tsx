@@ -39,3 +39,20 @@ it('flashes before the rift wipe and leaves time for it', () => {
   expect(Math.min(...wipe)).toBeGreaterThanOrEqual(300);
   expect(Math.max(...wipe) + 150).toBeLessThanOrEqual(RETRO_COVER_MS.boss);
 });
+
+it('closes after a victory with a golden flash and a curtain falling from the top', () => {
+  const { container } = render(
+    <RetroTransition state={state({ kind: 'victory', width: 320, height: 320 })} />
+  );
+  expect(container.querySelector('.retro-transition')).toHaveAttribute('data-kind', 'victory');
+  expect(container.querySelector('.retro-transition-flash')).not.toBeNull();
+  const delays = Array.from(container.querySelectorAll<HTMLElement>('.retro-transition > i'), (i) =>
+    parseFloat(i.style.animationDelay)
+  );
+  const at = (row: number, col: number) => delays[row * 10 + col];
+  // The top row falls first, the bottom row last; odd columns trail the even ones.
+  expect(at(0, 0)).toBeLessThan(at(9, 0));
+  expect(at(0, 0)).toBeLessThanOrEqual(at(0, 1));
+  expect(Math.min(...delays)).toBeGreaterThanOrEqual(300);
+  expect(Math.max(...delays) + 150).toBeLessThanOrEqual(RETRO_COVER_MS.victory);
+});

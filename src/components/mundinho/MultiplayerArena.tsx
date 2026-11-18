@@ -11,12 +11,13 @@ import type {
 } from '../../lib/mundinho/arena-types';
 import { LANGUAGE_NAMES, type BattleLanguage } from '../../lib/mundinho/types';
 import { ARENA } from '../../lib/mundinho/arena-rules';
-import { SKILLS } from '../../lib/mundinho/rules';
+import { SKILL_CHALLENGE, SKILLS } from '../../lib/mundinho/rules';
 import World from './World';
 import { PixelAvatar } from './PixelArt';
 import { PixelMeter } from './PixelMeter';
 import { HitSpark, useHits } from './BattleHit';
 import { CodeBattle } from './CodeBattle';
+import { QuizChallenge } from './QuizChallenge';
 import { adventureAsset } from './assets';
 
 export function MultiplayerArena({
@@ -296,7 +297,23 @@ export function MultiplayerArena({
                   })}
                 </span>
               </div>
-              {myTurn && room.question ? (
+              {myTurn && room.question && !room.question.code ? (
+                <QuizChallenge
+                  key={`${match.id}:${match.turn}`}
+                  question={room.question}
+                  busy={busy}
+                  onAnswer={(answer) =>
+                    void mutate({
+                      type: 'answer',
+                      roomId: room.id,
+                      matchId: match.id,
+                      turn: match.turn,
+                      questionId: room.question!.id,
+                      answer,
+                    })
+                  }
+                />
+              ) : myTurn && room.question ? (
                 <CodeBattle
                   key={`${match.id}:${match.turn}`}
                   question={room.question}
@@ -367,6 +384,13 @@ export function MultiplayerArena({
                         <span className="rpg-selection-cursor" aria-hidden="true" />
                         <strong>{m(skill.name)}</strong>
                         <small>{m(skill.description)}</small>
+                        <em className="ad-skill-challenge">
+                          {SKILL_CHALLENGE[skill.id] === 'concept'
+                            ? text('Quiz de conceito', 'Concept quiz')
+                            : SKILL_CHALLENGE[skill.id] === 'bug'
+                              ? text('Encontre o erro', 'Find the bug')
+                              : text('Exercício de código', 'Code exercise')}
+                        </em>
                       </button>
                     ))}
                   </div>

@@ -33,12 +33,13 @@ const attackFiles = [...heroLayers, 'weapon'].map((layer) => `hero-${layer}-atta
 const bowFiles = [...heroLayers, 'weapon'].map((layer) => `hero-${layer}-bow.png`);
 const walkingFiles = heroLayers.map((layer) => `hero-${layer}.png`);
 
-function usePreparedSprites(files: string[]) {
+function usePreparedSprites(files: string[], enabled = true) {
   const assets = (
     globalThis as typeof globalThis & { __MUNDINHO_ASSETS__?: Record<string, string> }
   ).__MUNDINHO_ASSETS__;
   const [readyFor, setReadyFor] = useState<{ files: string[]; assets: typeof assets }>();
   useEffect(() => {
+    if (!enabled) return;
     let cancelled = false;
     const urls = files.map((file) => adventureAsset(file, '/assets/mundinho'));
     void Promise.all(urls.map(prepareImage)).then((loaded) => {
@@ -47,13 +48,13 @@ function usePreparedSprites(files: string[]) {
     return () => {
       cancelled = true;
     };
-  }, [files, assets]);
-  return readyFor?.files === files && readyFor.assets === assets;
+  }, [files, assets, enabled]);
+  return enabled && readyFor?.files === files && readyFor.assets === assets;
 }
 
 /** Switch the entire pose together after every image has decoded. */
-export function useAttackSprites(bow = false) {
-  return usePreparedSprites(bow ? bowFiles : attackFiles);
+export function useAttackSprites(bow = false, enabled = true) {
+  return usePreparedSprites(bow ? bowFiles : attackFiles, enabled);
 }
 
 export function useWalkingSprites() {

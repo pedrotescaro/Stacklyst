@@ -801,3 +801,51 @@ describe('Mundinho battle navigation', () => {
     await screen.findByRole('region', { name: 'Clareira' });
   });
 });
+describe('Battle challenges and potions on screen', () => {
+  it('shows a find-the-bug question with numbered lines and sends the chosen answer', async () => {
+    const active = state('active');
+    active.battle!.skill = 'focus';
+    active.battle!.question = {
+      id: 'bug-JS-0',
+      kind: 'bug',
+      concept: 'Laços',
+      difficulty: 'Intermediário',
+      prompt: 'O laço imprime um undefined no final. Onde está o erro?',
+      snippet: 'const itens = [1, 2, 3];\nfor (let i = 0; i <= itens.length; i++) {}',
+      options: ['A', 'B', 'C', 'D'],
+    };
+    const transport = vi.fn(async () => active);
+    await openBattle(transport);
+    expect(screen.getByText('Encontre o erro')).toBeInTheDocument();
+    const snippet = screen.getByLabelText('Código com um erro');
+    expect(snippet.querySelectorAll('.ad-bug-line')).toHaveLength(2);
+    expect(snippet.querySelector('.ad-bug-line-number')).toHaveTextContent('1');
+    fireEvent.click(screen.getByRole('button', { name: /^B/ }));
+    await waitFor(() =>
+      expect(transport).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'battle-answer', question: 'bug-JS-0', answer: 1 })
+      )
+    );
+  });
+  it('labels each skill with its challenge and drinks a potion from the bag', async () => {
+    const active = state('active');
+    active.inventory = ['potion-heal', 'potion-heal'];
+    active.battle!.hp = 40;
+    const transport = vi.fn(async () => active);
+    await openBattle(transport);
+    expect(
+      screen.getByRole('button', { name: /Aplicar conceito.*Quiz de conceito/ })
+    ).toBeVisible();
+    expect(screen.getByRole('button', { name: /Depurar.*Encontre o erro/ })).toBeVisible();
+    expect(screen.getByRole('button', { name: /Refatorar.*Exercício de código/ })).toBeVisible();
+    expect(screen.getByRole('button', { name: /Poção de regeneração/ })).toBeDisabled();
+    const heal = screen.getByRole('button', { name: /Poção de cura/ });
+    expect(heal).toHaveTextContent('×2');
+    fireEvent.click(heal);
+    await waitFor(() =>
+      expect(transport).toHaveBeenCalledWith(
+        expect.objectContaining({ type: 'battle-item', item: 'potion-heal', turn: 0 })
+      )
+    );
+  });
+});

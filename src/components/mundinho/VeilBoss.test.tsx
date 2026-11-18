@@ -151,6 +151,43 @@ describe('VeilBoss command flow', () => {
     expect(container.querySelector('.veil-heart')).toBeInTheDocument();
     expect(guardian).not.toHaveClass('is-hit');
   });
+  it('steers the heart by finger movement on touch, wherever the drag starts', () => {
+    Object.assign(HTMLElement.prototype, {
+      setPointerCapture: vi.fn(),
+      hasPointerCapture: () => true,
+    });
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      left: 0,
+      top: 0,
+      width: 240,
+      height: 116,
+      right: 240,
+      bottom: 116,
+      x: 0,
+      y: 0,
+      toJSON: () => ({}),
+    });
+    vi.spyOn(mechanics, 'advanceShots').mockImplementation(() => ({ shots: [], hit: false }));
+    const { container } = render(<VeilBoss assetBase="/assets/mundinho" onLeave={() => {}} />);
+    click('ACT');
+    click(/Conversar/);
+    click('Continuar');
+    const field = screen.getByLabelText(/Área de batalha/);
+    const heart = () => container.querySelector<HTMLElement>('.veil-heart')!;
+    const startX = parseFloat(heart().style.left);
+    const startY = parseFloat(heart().style.top);
+    // The finger lands far from the heart (bottom-left corner) and slides up and right.
+    const touch = { pointerId: 1, pointerType: 'touch' };
+    fireEvent.pointerDown(field, { ...touch, clientX: 10, clientY: 110 });
+    tick(50);
+    // Landing alone does not pull the heart towards the finger.
+    expect(parseFloat(heart().style.left)).toBeCloseTo(startX, 0);
+    fireEvent.pointerMove(field, { ...touch, clientX: 50, clientY: 90 });
+    tick(400);
+    fireEvent.pointerUp(field, touch);
+    expect(parseFloat(heart().style.left)).toBeGreaterThan(startX + 15);
+    expect(parseFloat(heart().style.top)).toBeLessThan(startY - 5);
+  });
   it('synchronizes cues with actions and volleys and stops music on pause and exit', () => {
     const audio = { unlock: vi.fn(), play: vi.fn(), setBoss: vi.fn() };
     const view = render(<VeilBoss assetBase="/assets/mundinho" audio={audio} onLeave={() => {}} />);

@@ -21,6 +21,7 @@ import { actionSchema, adventure } from '../repository';
 import { POST } from '@/app/api/mundinho/route';
 import { codeChallenge, codeChallenges } from '../codeChallenges';
 import { QUESTIONS } from '../questions';
+import { findQuiz, quizPool } from '../quizzes';
 beforeEach(() => {
   db.random.mockReset().mockImplementation((maximum: number) => maximum - 1);
   db.execute.mockReset().mockResolvedValue({
@@ -244,7 +245,7 @@ describe('Server encounter rules', () => {
     for (const turn of [0, 1, 2])
       await adventure('user', { type: 'battle-skill', battle: 'battle', turn, skill: 'burst' });
     const result = await adventure('user');
-    expect(result.inventory).toEqual(['gear-clover']);
+    expect(result.inventory).toEqual(['gear-clover', 'potion-heal']);
     expect(result.battle?.drop).toEqual({ itemId: 'gear-clover', duplicateCoins: 5 });
     expect(result.coins).toBe(20);
   });
@@ -279,14 +280,14 @@ describe('Server encounter rules', () => {
       type: 'battle-skill',
       battle: 'battle',
       turn: 0,
-      skill: 'focus',
+      skill: 'burst',
     });
     const question = selected.battle!.question!.id;
     const skip = { type: 'battle-skip' as const, battle: 'battle', turn: 0, question };
     await expect(adventure('user', skip)).rejects.toThrow('Equipe o título Caça-bugs');
     await adventure('user', { type: 'equip', item: 'title-debugger' });
     const result = await adventure('user', skip);
-    expect(result.battle).toMatchObject({ turn: 1, enemyHp: 82, question: null, skill: null });
+    expect(result.battle).toMatchObject({ turn: 1, enemyHp: 55, question: null, skill: null });
     expect(result.battle?.feedback).toContain('Caça-bugs equipado!');
     expect(db.execute).not.toHaveBeenCalled();
     expect(db.tx.rpgBattle.update).toHaveBeenLastCalledWith(
@@ -296,7 +297,7 @@ describe('Server encounter rules', () => {
     );
     const repeated = await adventure('user', skip);
     expect(repeated.notice).toContain('sem repetir o golpe');
-    expect(repeated.battle).toMatchObject({ turn: 1, enemyHp: 82 });
+    expect(repeated.battle).toMatchObject({ turn: 1, enemyHp: 55 });
     await adventure('user', { type: 'equip', item: 'title-debugger', remove: true });
     expect((await adventure('user')).combatStats?.directChance).toBe(75);
   });
@@ -330,7 +331,7 @@ describe('Server encounter rules', () => {
       type: 'battle-skill',
       battle: id,
       turn: 0,
-      skill: 'strike',
+      skill: 'burst',
     });
     await adventure('user', { type: 'equip', item: 'title-debugger' });
     const payload = {
@@ -347,12 +348,12 @@ describe('Server encounter rules', () => {
       });
     const response = await POST(request(), { params: Promise.resolve({}) });
     expect(response.status).toBe(200);
-    expect((await response.json()).battle).toMatchObject({ turn: 1, enemyHp: 70 });
+    expect((await response.json()).battle).toMatchObject({ turn: 1, enemyHp: 55 });
     const repeated = await POST(request(), { params: Promise.resolve({}) });
     const body = await repeated.json();
     expect(repeated.status).toBe(200);
     expect(body.notice).toContain('sem repetir o golpe');
-    expect(body.battle).toMatchObject({ turn: 1, enemyHp: 70 });
+    expect(body.battle).toMatchObject({ turn: 1, enemyHp: 55 });
   });
   it('does not apply a compiler result if the same turn was already skipped from another session', async () => {
     await db.tx.rpgPlayer.update({ data: { inventory: ['title-debugger'], equipped: {} } });
@@ -361,7 +362,7 @@ describe('Server encounter rules', () => {
       type: 'battle-skill',
       battle: 'battle',
       turn: 0,
-      skill: 'strike',
+      skill: 'burst',
     });
     const question = selected.battle!.question!.id;
     await adventure('user', { type: 'equip', item: 'title-debugger' });
@@ -378,7 +379,7 @@ describe('Server encounter rules', () => {
       submit: true,
     });
     expect(result.notice).toContain('sem repetir o golpe');
-    expect(result.battle).toMatchObject({ turn: 1, enemyHp: 70 });
+    expect(result.battle).toMatchObject({ turn: 1, enemyHp: 55 });
     expect(result.codeRun).toBeUndefined();
   });
   it('counts a victory earned with the title, without crediting exercises that were skipped', async () => {
@@ -441,7 +442,7 @@ describe('Server encounter rules', () => {
         type: 'battle-skill',
         battle: id,
         turn: 0,
-        skill: 'strike',
+        skill: 'burst',
       });
       db.execute.mockResolvedValue({ ok: false, error: message });
       const response = await POST(
@@ -530,7 +531,7 @@ describe('Server encounter rules', () => {
       reward: 15,
       drop: { itemId: 'gear-clover', duplicateCoins: 0 },
     });
-    expect(won.inventory).toEqual(['gear-clover']);
+    expect(won.inventory).toEqual(['gear-clover', 'potion-heal']);
     expect(won.coins).toBe(15);
     expect(
       won.transactions.some((item) => item.label === 'Sorteio de equipamento da vitória')
@@ -544,7 +545,7 @@ describe('Server encounter rules', () => {
       skill: 'burst',
     });
     expect(repeated.notice).toContain('já terminou');
-    expect(repeated.inventory).toEqual(['gear-clover']);
+    expect(repeated.inventory).toEqual(['gear-clover', 'potion-heal']);
     expect(repeated.coins).toBe(15);
     expect(db.tx.user.update).toHaveBeenCalledTimes(1);
     expect(db.random).toHaveBeenCalledTimes(rolls);
@@ -558,7 +559,7 @@ describe('Server encounter rules', () => {
       await adventure('user', { type: 'battle-skill', battle: 'battle', turn, skill: 'burst' });
     const won = await adventure('user');
     expect(won.battle?.drop).toEqual({ itemId: 'gear-clover', duplicateCoins: 5 });
-    expect(won.inventory).toEqual(['gear-clover']);
+    expect(won.inventory).toEqual(['gear-clover', 'potion-heal']);
     expect(won.coins).toBe(20);
   });
   it('persists a failed loot roll so retries cannot find a different result', async () => {
@@ -574,7 +575,7 @@ describe('Server encounter rules', () => {
       skill: 'burst',
     });
     expect(won.battle?.drop).toBeNull();
-    expect(won.inventory).toEqual([]);
+    expect(won.inventory.filter((item) => !item.startsWith('potion-'))).toEqual([]);
     const rolls = db.random.mock.calls.length;
     await adventure('user', { type: 'battle-skill', battle: 'battle', turn: 2, skill: 'burst' });
     expect(db.random).toHaveBeenCalledTimes(rolls);
@@ -632,7 +633,7 @@ describe('Server encounter rules', () => {
       type: 'battle-skill',
       battle: 'battle',
       turn: 0,
-      skill: 'strike',
+      skill: 'burst',
     });
     db.execute.mockImplementationOnce(async () => {
       await db.tx.rpgBattle.update({ data: { turn: 1, questionId: null, hp: 89, enemyHp: 70 } });
@@ -739,9 +740,9 @@ describe('Server encounter rules', () => {
       type: 'battle-skill',
       battle: 'battle',
       turn: 0,
-      skill: 'focus',
+      skill: 'burst',
     });
-    expect(selected.battle?.skill).toBe('focus');
+    expect(selected.battle?.skill).toBe('burst');
     expect(selected.battle?.feedback).toContain('Resolva o exercício');
     expect(selected.battle?.question?.code?.starter).toBeTruthy();
     expect(codeChallenges('TS').map((q) => q.id)).toContain(selected.battle?.question?.id);
@@ -787,7 +788,7 @@ describe('Server encounter rules', () => {
       type: 'battle-skill',
       battle: 'battle',
       turn: 0,
-      skill: 'strike',
+      skill: 'burst',
     });
     db.tx.rpgBattle.update.mockClear();
     await expect(
@@ -824,7 +825,7 @@ describe('Server encounter rules', () => {
       type: 'battle-skill',
       battle: 'battle',
       turn: 0,
-      skill: 'strike',
+      skill: 'burst',
     });
     expect(first.battle?.question?.id).toBe(challenges.at(-1)!.id);
     await adventure('user', {
@@ -839,7 +840,7 @@ describe('Server encounter rules', () => {
       type: 'battle-skill',
       battle: 'battle',
       turn: 1,
-      skill: 'strike',
+      skill: 'burst',
     });
     expect(second.battle?.question?.id).not.toBe(first.battle?.question?.id);
   });
@@ -855,7 +856,7 @@ describe('Server encounter rules', () => {
         type: 'battle-skill',
         battle: 'battle',
         turn: 0,
-        skill: 'strike',
+        skill: 'burst',
       });
       expect(selected.battle?.question?.id).toMatch(new RegExp(`^code-l${level}-`));
       expect(selected.battle?.question?.code?.requiredStructures).toEqual(
@@ -900,7 +901,7 @@ describe('Server encounter rules', () => {
         type: 'battle-skill',
         battle: 'battle',
         turn: 0,
-        skill: 'strike',
+        skill: 'burst',
       });
       expect(selected.battle?.question?.code).toBeTruthy();
       await adventure('user', {
@@ -935,5 +936,115 @@ describe('Server encounter rules', () => {
     );
     expect(db.tx.user.update).not.toHaveBeenCalled();
     expect(db.tx.rpgTransaction.create).not.toHaveBeenCalled();
+  });
+});
+
+describe('Battle challenges by skill and potions', () => {
+  it('asks a concept quiz for Aplicar conceito and a find-the-bug snippet for Depurar', async () => {
+    await adventure('user', { type: 'battle-start', language: 'PYTHON', creature: 'syntax-slime' });
+    const concept = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 0,
+      skill: 'strike',
+    });
+    expect(concept.battle?.question).toMatchObject({ kind: 'concept' });
+    expect(concept.battle?.question?.code).toBeUndefined();
+    expect(concept.battle?.question).not.toHaveProperty('answer');
+    expect(concept.battle?.feedback).toContain('pergunta de conceito');
+    expect(quizPool('PYTHON', 'concept').map((q) => q.id)).toContain(concept.battle!.question!.id);
+    const quiz = findQuiz(concept.battle!.question!.id)!;
+    const answered = await adventure('user', {
+      type: 'battle-answer',
+      battle: 'battle',
+      turn: 0,
+      question: quiz.id,
+      answer: quiz.answer,
+    });
+    expect(answered.battle).toMatchObject({ turn: 1, enemyHp: 70, question: null });
+    const bug = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 1,
+      skill: 'focus',
+    });
+    expect(bug.battle?.question).toMatchObject({ kind: 'bug' });
+    expect(bug.battle?.question?.snippet).toContain('\n');
+    expect(bug.battle?.feedback).toContain('Encontre o erro');
+    expect(quizPool('PYTHON', 'bug').map((q) => q.id)).toContain(bug.battle!.question!.id);
+  });
+  it('drinks one potion per turn without spending it; strength and regeneration act on the next blows', async () => {
+    await db.tx.rpgPlayer.update({
+      data: { inventory: ['potion-heal', 'potion-strength', 'potion-regen', 'gear-clover'] },
+    });
+    await adventure('user', { type: 'battle-start', language: 'TS', creature: 'syntax-slime' });
+    await db.tx.rpgBattle.update({ data: { hp: 50 } });
+    const healed = await adventure('user', {
+      type: 'battle-item',
+      battle: 'battle',
+      turn: 0,
+      item: 'potion-heal',
+    });
+    expect(healed.battle).toMatchObject({ hp: 90, turn: 0, effects: { itemUsed: true } });
+    expect(healed.inventory).toEqual(['potion-strength', 'potion-regen', 'gear-clover']);
+    await expect(
+      adventure('user', { type: 'battle-item', battle: 'battle', turn: 0, item: 'potion-strength' })
+    ).rejects.toThrow('já usou uma poção');
+    db.random.mockReturnValue(0); // lucky, direct blows
+    await adventure('user', { type: 'battle-skill', battle: 'battle', turn: 0, skill: 'strike' });
+    const strong = await adventure('user', {
+      type: 'battle-item',
+      battle: 'battle',
+      turn: 1,
+      item: 'potion-strength',
+    });
+    expect(strong.battle?.effects).toMatchObject({ strength: true, itemUsed: true });
+    const boosted = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 1,
+      skill: 'strike',
+    });
+    expect(boosted.battle).toMatchObject({ enemyHp: 25, hp: 68 });
+    expect(boosted.battle?.effects).toMatchObject({ strength: false, itemUsed: false });
+    expect(boosted.battle?.feedback).toContain('45 de dano');
+    expect(boosted.battle?.feedback).toContain('Poção de força: +15 de dano.');
+    await db.tx.rpgBattle.update({ data: { enemyHp: 100 } });
+    await adventure('user', {
+      type: 'battle-item',
+      battle: 'battle',
+      turn: 2,
+      item: 'potion-regen',
+    });
+    const regenerated = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 2,
+      skill: 'strike',
+    });
+    expect(regenerated.battle).toMatchObject({ enemyHp: 70, hp: 69, effects: { regen: 2 } });
+    expect(regenerated.battle?.feedback).toContain('Regeneração: +12 de vida.');
+    expect(regenerated.inventory).toEqual(['gear-clover']);
+    await expect(
+      adventure('user', { type: 'battle-item', battle: 'battle', turn: 3, item: 'potion-heal' })
+    ).rejects.toThrow('não tem esta poção');
+  });
+  it('can leave a potion behind after a victory, rolled only once', async () => {
+    db.random.mockReturnValue(0);
+    await adventure('user', { type: 'battle-start', language: 'TS', creature: 'syntax-slime' });
+    for (const turn of [0, 1])
+      await adventure('user', { type: 'battle-skill', battle: 'battle', turn, skill: 'burst' });
+    const won = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 2,
+      skill: 'burst',
+    });
+    expect(won.battle?.status).toBe('won');
+    expect(won.inventory).toContain('potion-heal');
+    expect(won.battle?.feedback).toContain('A criatura deixou cair uma Poção de cura!');
+    expect(won.transactions.some((t) => t.label === 'Sorteio de poção da vitória')).toBe(false);
+    await adventure('user', { type: 'battle-skill', battle: 'battle', turn: 2, skill: 'burst' });
+    expect((await adventure('user')).inventory.filter((i) => i === 'potion-heal')).toHaveLength(1);
   });
 });
