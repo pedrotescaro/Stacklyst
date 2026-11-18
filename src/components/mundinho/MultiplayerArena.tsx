@@ -29,7 +29,8 @@ export function MultiplayerArena({
   language: BattleLanguage;
   initialState?: ArenaState | null;
   assetBase: string;
-  onLeave: () => void;
+  /** `via` is 'portal' when the player dropped into the exit stairs. */
+  onLeave: (via?: 'portal') => void;
 }) {
   const { text, language: uiLanguage, locale } = useLocalizedText();
   const m = (value: string) => translateMundinho(value, uiLanguage);
@@ -139,13 +140,24 @@ export function MultiplayerArena({
       setBusy(false);
     }
   };
-  const leave = async () => {
+  const leave = async (via?: 'portal') => {
     if (actionPending.current) return;
+    if (via === 'portal') {
+      // Dropping into the stairs: keep the room on screen, frozen, so the
+      // player is seen sinking while the screen closes in. Applying the
+      // server's "no room" reply here would unmount the arena first.
+      active.current = false;
+      const id = roomRef.current;
+      roomRef.current = undefined;
+      if (id) void transport({ type: 'leave', roomId: id }).catch(() => {});
+      onLeave(via);
+      return;
+    }
     if (roomRef.current) {
       await mutate({ type: 'leave', roomId: roomRef.current });
     }
     roomRef.current = undefined;
-    onLeave();
+    onLeave(via);
   };
   const rememberPose = useCallback((pose: ArenaPosition) => {
     position.current = pose;
@@ -198,7 +210,7 @@ export function MultiplayerArena({
       )}
       {!room && !error && <p role="status">{text('Entrando na arena…', 'Entering the arena…')}</p>}
       {!room && error && (
-        <button type="button" onClick={onLeave}>
+        <button type="button" onClick={() => onLeave()}>
           {text('Voltar e tentar novamente', 'Go back and try again')}
         </button>
       )}
@@ -373,7 +385,7 @@ export function MultiplayerArena({
                   onPoseChange={rememberPose}
                   onEncounter={() => {}}
                   onChest={async () => ({ awarded: false, reward: 0 })}
-                  onPortal={() => void leave()}
+                  onPortal={() => void leave('portal')}
                   onArenaPlayers={() => setPlayersOpen(true)}
                   overlayOpen={playersOpen}
                 />

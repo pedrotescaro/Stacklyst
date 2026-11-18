@@ -10,6 +10,7 @@ import {
   WORLD_OBJECTS,
   worldDepth,
 } from '../../lib/mundinho/world';
+import { ARENA_EXIT_MOUTH, arenaCanWalk as canWalkArena } from '../../lib/mundinho/arena-rules';
 
 beforeEach(() => {
   window.matchMedia = vi.fn().mockReturnValue({ matches: false });
@@ -260,6 +261,48 @@ describe('World keyboard ownership', () => {
     step(3000);
     expect(player).not.toHaveClass('is-descending');
     expect(enterArena).toHaveBeenCalledOnce();
+    vi.useRealTimers();
+  });
+  it('drops the player into the arena stairs the same way as the clearing hole', () => {
+    expect(canWalkArena(ARENA_EXIT_MOUTH.x, ARENA_EXIT_MOUTH.y)).toBe(true);
+    vi.useFakeTimers();
+    let frame = 0;
+    const frames = new Map<number, FrameRequestCallback>();
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      frames.set(++frame, callback);
+      return frame;
+    });
+    vi.stubGlobal('cancelAnimationFrame', (id: number) => frames.delete(id));
+    const step = (time: number) => {
+      const pending = [...frames.values()];
+      frames.clear();
+      act(() => pending.forEach((callback) => callback(time)));
+    };
+    const leave = vi.fn();
+    const { container } = render(
+      <World
+        area="arena"
+        avatar={DEFAULT_AVATAR}
+        assetBase="/assets/mundinho"
+        username="Jogador"
+        initialPosition={{ x: ARENA_EXIT_MOUTH.x, y: 380 }}
+        onEncounter={() => {}}
+        onChest={async () => ({ awarded: false, reward: 0 })}
+        onPortal={leave}
+      />
+    );
+    fireEvent.keyDown(window, { key: 's' });
+    for (let t = 1; t < 60 && !leave.mock.calls.length; t++) step(t * 40);
+    fireEvent.keyUp(window, { key: 's' });
+    expect(leave).toHaveBeenCalledOnce();
+    const player = container.querySelector('.world-player') as HTMLElement;
+    expect(player).toHaveClass('is-descending');
+    expect(player).toHaveStyle({
+      left: `${ARENA_EXIT_MOUTH.x}px`,
+      top: `${ARENA_EXIT_MOUTH.y}px`,
+    });
+    for (let t = 60; t < 80; t++) step(t * 40);
+    expect(leave).toHaveBeenCalledOnce();
     vi.useRealTimers();
   });
   it('opens the concealed rift independently of multiplayer', () => {

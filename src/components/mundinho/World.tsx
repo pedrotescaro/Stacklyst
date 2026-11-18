@@ -23,7 +23,7 @@ import { WorldDialogue } from './WorldDialogue';
 import { adventureAsset } from './assets';
 import { TouchStick } from './TouchStick';
 import { canChallengeCreature } from '../../lib/mundinho/rules';
-import { ARENA, arenaMove } from '../../lib/mundinho/arena-rules';
+import { ARENA, ARENA_EXIT_MOUTH, arenaMove } from '../../lib/mundinho/arena-rules';
 import type { ArenaPlayer, ArenaPosition } from '../../lib/mundinho/arena-types';
 
 export default function World({
@@ -151,13 +151,9 @@ export default function World({
   const nearest = targets.find((e) => Math.hypot(e.x - pose.x, e.y - pose.y) < 55);
   const isCreature = nearest && creatures.some((c) => c.id === nearest.id);
   const portal = objects.find((o) => o.id === 'portal');
-  // The forest hole swallows the player once their feet reach its dark
-  // opening; the arena exit keeps its small round doorway.
-  const portalZone = portal
-    ? area === 'arena'
-      ? { x: portal.x, y: portal.y, rx: 18, ry: 18 }
-      : holeMouth(portal)
-    : null;
+  // The clearing's hole and the arena's stairs both swallow the player once
+  // their feet reach the dark opening.
+  const portalZone = portal ? (area === 'arena' ? ARENA_EXIT_MOUTH : holeMouth(portal)) : null;
   // Armed only after the player has stood outside the opening, so spawning on
   // it (or a trip that never left the world) cannot fire it again by itself.
   const portalArmed = useRef(false);
@@ -175,7 +171,7 @@ export default function World({
       portalArmed.current = false;
       keys.current.clear();
       stick.current = { x: 0, y: 0 };
-      if (area === 'forest' && portalZone) {
+      if (portalZone) {
         // Step onto the opening and sink; the hub covers the screen meanwhile.
         player.current = { ...player.current, x: portalZone.x, y: portalZone.y, walking: false };
         setPose({ ...player.current });

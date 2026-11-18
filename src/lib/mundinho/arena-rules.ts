@@ -8,6 +8,12 @@ export const ARENA = {
   spawn: { x: 320, y: 340 },
   exit: { x: 384, y: 440 },
 };
+/**
+ * Dark opening of the stairs painted into blue-arena.png (x 361–406,
+ * y 424–445). Like the clearing's hole, the player drops in once their feet
+ * reach it.
+ */
+export const ARENA_EXIT_MOUTH = { x: 384, y: 434, rx: 16, ry: 8 };
 export const ARENA_TURN_MS = 120_000;
 export const ARENA_ONLINE_MS = 30_000;
 export const ARENA_INVITE_MS = 300_000;

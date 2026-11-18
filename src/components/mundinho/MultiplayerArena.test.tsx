@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { MultiplayerArena } from './MultiplayerArena';
 import { DEFAULT_AVATAR } from '../../lib/mundinho/types';
@@ -165,4 +165,51 @@ it.each([
     turn: 0,
     skill,
   });
+});
+
+it('keeps the arena on screen while the player drops into the exit stairs', async () => {
+  let frame = 0;
+  const frames = new Map<number, FrameRequestCallback>();
+  vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+    frames.set(++frame, callback);
+    return frame;
+  });
+  vi.stubGlobal('cancelAnimationFrame', (id: number) => frames.delete(id));
+  const step = (time: number) => {
+    const pending = [...frames.values()];
+    frames.clear();
+    act(() => pending.forEach((callback) => callback(time)));
+  };
+  const data = lobbyState();
+  const transport = vi.fn(async (action: { type: string }) =>
+    action.type === 'leave' ? { ...data, room: null } : data
+  );
+  const onLeave = vi.fn();
+  const { container } = render(
+    <MultiplayerArena
+      initialState={data}
+      language="JS"
+      assetBase="/assets/mundinho"
+      onLeave={onLeave}
+      transport={transport as never}
+    />
+  );
+  await screen.findByRole('button', { name: 'Voltar para a clareira' });
+  const player = () => container.querySelector('.world-player') as HTMLElement;
+  let time = 0;
+  const walk = (key: string, done: () => boolean) => {
+    fireEvent.keyDown(window, { key });
+    for (let i = 0; i < 80 && !done(); i++) step((time += 40));
+    fireEvent.keyUp(window, { key });
+  };
+  walk('d', () => parseFloat(player().style.left) >= 384);
+  walk('s', () => onLeave.mock.calls.length > 0);
+  expect(onLeave).toHaveBeenCalledWith('portal');
+  expect(transport).toHaveBeenCalledWith({ type: 'leave', roomId: 'room' });
+  // The server's empty room must not replace the scene mid-animation.
+  await act(async () => {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+  });
+  expect(container.querySelector('.world-player.is-descending')).not.toBeNull();
+  vi.unstubAllGlobals();
 });

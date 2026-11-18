@@ -1590,7 +1590,9 @@ export function AdventureHub({
           language={language}
           initialState={arenaSeed}
           assetBase={assetBase}
-          onLeave={() => travel('world', 'return', () => setArenaSeed(null))}
+          onLeave={(via) =>
+            travel('world', via === 'portal' ? 'descend' : 'return', () => setArenaSeed(null))
+          }
         />
       )}
       {transition && <RetroTransition key={transition.id} state={transition} />}
