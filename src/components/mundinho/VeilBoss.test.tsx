@@ -52,6 +52,34 @@ describe('VeilBoss command flow', () => {
     tick(6500);
     expect(button('FIGHT')).toBeEnabled();
   });
+  it('steers the heart with WASD in any case, so Caps Lock or Shift still work', () => {
+    const { container } = render(<VeilBoss assetBase="/assets/mundinho" onLeave={() => {}} />);
+    click('FIGHT');
+    tick(600);
+    click('Golpear');
+    tick(BOSS_HIT_MS);
+    const field = screen.getByLabelText(/Área de batalha/);
+    const heart = container.querySelector<HTMLElement>('.veil-heart')!;
+    const top = parseFloat(heart.style.top);
+    fireEvent.keyDown(field, { key: 'w' });
+    tick(300);
+    fireEvent.keyUp(field, { key: 'w' });
+    expect(parseFloat(heart.style.top)).toBeLessThan(top);
+    // Caps Lock on: the browser reports the letters in upper case.
+    const left = parseFloat(heart.style.left);
+    fireEvent.keyDown(field, { key: 'D' });
+    tick(300);
+    // Releasing after Caps Lock or Shift changed still lets go of the key.
+    fireEvent.keyUp(field, { key: 'd' });
+    const moved = parseFloat(heart.style.left);
+    expect(moved).toBeGreaterThan(left);
+    tick(300);
+    expect(parseFloat(heart.style.left)).toBe(moved);
+    fireEvent.keyDown(field, { key: 'A' });
+    tick(300);
+    fireEvent.keyUp(field, { key: 'A' });
+    expect(parseFloat(heart.style.left)).toBeLessThan(moved);
+  });
   it('requires three conversations to unlock mercy and consumes healing items', () => {
     render(<VeilBoss assetBase="/assets/mundinho" onLeave={() => {}} />);
     click('ACT');

@@ -75,6 +75,11 @@ const arrows: Record<string, string> = {
   ArrowDown: 'down',
   s: 'down',
 };
+/**
+ * The direction a key steers, ignoring case so WASD still works with Caps Lock
+ * or Shift held (the browser then reports "W", "A", "S", "D").
+ */
+const arrowOf = (key: string) => arrows[key.length === 1 ? key.toLowerCase() : key];
 const makeGame = () => ({
   phase: 'ready' as Phase,
   turn: 0,
@@ -373,7 +378,7 @@ export function VeilBoss({
           return;
         }
         if (paused || phase === 'dodge') return;
-        const direction = arrows[e.key];
+        const direction = arrowOf(e.key);
         if (direction && (phase === 'ready' || menu)) {
           e.preventDefault();
           const buttons = Array.from(
@@ -442,13 +447,14 @@ export function VeilBoss({
             'Battle field. Use arrows, WASD or drag the heart to dodge.'
           )}
           onKeyDown={(e) => {
-            if (phase === 'dodge' && !paused && arrows[e.key]) {
+            const direction = arrowOf(e.key);
+            if (phase === 'dodge' && !paused && direction) {
               e.preventDefault();
               target.current = null;
-              keys.current.add(arrows[e.key]);
+              keys.current.add(direction);
             }
           }}
-          onKeyUp={(e) => keys.current.delete(arrows[e.key])}
+          onKeyUp={(e) => keys.current.delete(arrowOf(e.key))}
           onBlur={() => keys.current.clear()}
           onPointerDown={(e) => {
             if (phase === 'dodge' && !paused) {
