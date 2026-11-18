@@ -52,6 +52,7 @@ import { canChallengeCreature, SKILLS } from '../../lib/mundinho/rules';
 import { BattleAudio } from '../../lib/mundinho/battleAudio';
 import { CodeBattle } from './CodeBattle';
 import { BattleEffects, CREATURE_ELEMENTS } from './BattleEffects';
+import { HitSpark } from './BattleHit';
 import { ColorPalette, PROFILE_COLORS } from '../ColorPalette';
 import {
   avatarHairColor,
@@ -593,7 +594,11 @@ export function AdventureHub({
       language: selectedLang,
       creature: selectedCreature,
     });
-    if (next) go('battle');
+    if (!next) return;
+    // Meeting a creature in the grass flashes the screen and closes it in
+    // blinds before the battle opens.
+    if (view === 'world') travel('battle', 'encounter');
+    else go('battle');
   };
   const acceptArenaInvite = async (roomId: string) => {
     if (pending.current) return;
@@ -1679,10 +1684,11 @@ export function AdventureHub({
           )}
 
           {battle && battle.status !== 'fled' && (
-            <div className="ad-arena-container">
+            <div className="ad-arena-container" key={battle.id}>
               {/* Arena Battleground */}
               <div
                 className={`ad-arena-scene combat-${combatPhase}`}
+                data-status={battle.status}
                 style={{
                   backgroundImage: `url(${adventureAsset('blue-battle.png', assetBase)})`,
                 }}
@@ -1704,7 +1710,9 @@ export function AdventureHub({
                       {battle.enemyHp} / {battle.enemyMaxHp ?? 100} {text('PV', 'HP')}
                     </span>
                   </div>
-                  <div className="battle-sprite battle-sprite-enemy">
+                  <div
+                    className={`battle-sprite battle-sprite-enemy${combatPhase === 'enemy-hurt' ? ' is-hit' : ''}`}
+                  >
                     <PixelCreature
                       kind={opponent.id}
                       color={opponent.color}
@@ -1719,6 +1727,7 @@ export function AdventureHub({
                     {combatPhase === 'enemy-hurt' && (
                       <>
                         <BattleEffects kind={attackEffect} stage="impact" />
+                        <HitSpark />
                         <span className="combat-damage" aria-hidden="true">
                           −{impact}
                         </span>
@@ -1734,7 +1743,9 @@ export function AdventureHub({
 
                 {/* Player Combatant */}
                 <div className="ad-combatant ad-combatant-player">
-                  <div className="battle-sprite battle-sprite-player">
+                  <div
+                    className={`battle-sprite battle-sprite-player${combatPhase === 'player-hurt' ? ' is-hit' : ''}`}
+                  >
                     <PixelAvatar
                       avatar={equippedAvatar}
                       direction={combatPhase === 'flee' ? 'left' : 'right'}
@@ -1767,6 +1778,7 @@ export function AdventureHub({
                           kind={CREATURE_ELEMENTS[opponent.id]?.element ?? 'slime'}
                           stage="impact"
                         />
+                        <HitSpark />
                         <span className="combat-damage battle-damage-player" aria-hidden="true">
                           −{incomingDamage}
                         </span>

@@ -15,6 +15,7 @@ import { SKILLS } from '../../lib/mundinho/rules';
 import World from './World';
 import { PixelAvatar } from './PixelArt';
 import { PixelMeter } from './PixelMeter';
+import { HitSpark, useHits } from './BattleHit';
 import { CodeBattle } from './CodeBattle';
 import { adventureAsset } from './assets';
 
@@ -167,6 +168,9 @@ export function MultiplayerArena({
   const peer = room?.players.find((p) => p.id !== data?.selfId);
   const match = room?.match;
   const myTurn = match?.status === 'active' && match.actorId === data?.selfId;
+  // Totals arrive by polling; a drop in someone's HP is the hit to show.
+  const hits = useHits(match?.status === 'active' ? match.hp : undefined, match?.id);
+  const selfHit = Boolean(data && hits[data.selfId]);
   useEffect(() => {
     if (match?.status === 'active') setPlayersOpen(false);
   }, [match?.status]);
@@ -219,14 +223,18 @@ export function MultiplayerArena({
           {match?.status === 'active' ? (
             <>
               <div
-                className="ad-pvp-scene"
+                className={`ad-pvp-scene${selfHit ? ' is-shaking' : ''}`}
                 style={{
                   backgroundImage: `url(${adventureAsset('blue-battle.png', assetBase)})`,
                 }}
               >
                 {room.players.map((p) => (
                   <div
-                    className="ad-pvp-player"
+                    className={`ad-pvp-player${hits[p.id] ? ' is-hit' : ''}${
+                      room.players.some((other) => other.id !== p.id && hits[other.id])
+                        ? ' is-attacking'
+                        : ''
+                    }`}
                     data-pvp-side={p.id === data.selfId ? 'self' : 'opponent'}
                     key={p.id}
                   >
@@ -247,10 +255,23 @@ export function MultiplayerArena({
                         {match.hp[p.id]} / {match.stats?.[p.id]?.maxHp ?? 100} {text('PV', 'HP')}
                       </span>
                     </div>
-                    <PixelAvatar
-                      avatar={p.avatar}
-                      direction={p.id === data.selfId ? 'right' : 'down'}
-                    />
+                    <div className="battle-sprite ad-pvp-sprite">
+                      <PixelAvatar
+                        avatar={p.avatar}
+                        direction={p.id === data.selfId ? 'right' : 'down'}
+                      />
+                      {hits[p.id] && (
+                        <span key={hits[p.id].key} className="ad-pvp-hit">
+                          <HitSpark />
+                          <span
+                            className={`combat-damage${p.id === data.selfId ? ' battle-damage-player' : ''}`}
+                            aria-hidden="true"
+                          >
+                            −{hits[p.id].amount}
+                          </span>
+                        </span>
+                      )}
+                    </div>
                   </div>
                 ))}
               </div>

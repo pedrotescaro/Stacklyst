@@ -4918,21 +4918,25 @@
   text-shadow: none;
   font-family: var(--rpg-font);
 }
-.ad-pvp-player > .sprite-avatar {
+.ad-pvp-player > .ad-pvp-sprite {
   position: absolute;
   transform: translateX(-50%);
 }
-.ad-pvp-player[data-pvp-side='self'] > .sprite-avatar {
+.ad-pvp-player[data-pvp-side='self'] > .ad-pvp-sprite {
   left: 23.3333%;
-  bottom: 18%;
+  bottom: 14%;
+}
+.ad-pvp-player[data-pvp-side='self'] .ad-pvp-sprite > .sprite-avatar {
+  width: 192px;
+  height: 192px !important;
+}
+.ad-pvp-player[data-pvp-side='opponent'] > .ad-pvp-sprite {
+  left: 75.8333%;
+  bottom: 60%;
+}
+.ad-pvp-player[data-pvp-side='opponent'] .ad-pvp-sprite > .sprite-avatar {
   width: 144px;
   height: 144px !important;
-}
-.ad-pvp-player[data-pvp-side='opponent'] > .sprite-avatar {
-  left: 75.8333%;
-  bottom: 64%;
-  width: 120px;
-  height: 120px !important;
 }
 .ad-pvp-player .ad-pvp-name {
   position: absolute;
@@ -4967,13 +4971,13 @@
   .ad-pvp-player .ad-pvp-name span {
     font-size: 12px;
   }
-  .ad-pvp-player[data-pvp-side='self'] > .sprite-avatar {
-    width: 120px;
-    height: 120px !important;
+  .ad-pvp-player[data-pvp-side='self'] .ad-pvp-sprite > .sprite-avatar {
+    width: 144px;
+    height: 144px !important;
   }
-  .ad-pvp-player[data-pvp-side='opponent'] > .sprite-avatar {
-    width: 96px;
-    height: 96px !important;
+  .ad-pvp-player[data-pvp-side='opponent'] .ad-pvp-sprite > .sprite-avatar {
+    width: 112px;
+    height: 112px !important;
   }
 }
 
@@ -5075,5 +5079,359 @@
 @keyframes rpg-counter-mirrored {
   50% {
     transform: translate(30px, 16px) rotate(-7deg);
+  }
+}
+
+/* ============================================================
+   BATTLE FEEL — creature battles and the multiplayer duel
+   Hits flash the sprite white twice, shake it, burst a pixel star and pop
+   the damage; combatants slide in, plates and text use the framed pixel
+   window, HP drains in steps and the loser faints into the ground.
+   ============================================================ */
+.adventure-battle .ad-combatant-player .pixel-avatar {
+  width: 176px;
+  height: 176px !important;
+}
+/* The sprite cell leaves room under the feet; stand them on the platform. */
+.adventure-battle .battle-sprite-player {
+  bottom: 3%;
+}
+.adventure-battle .ad-combatant-enemy .pixel-creature {
+  width: 112px;
+  height: 112px;
+}
+@container (max-width: 480px) {
+  .adventure-battle .ad-combatant-player .pixel-avatar {
+    width: 150px;
+    height: 150px !important;
+  }
+  .adventure-battle .ad-combatant-enemy .pixel-creature {
+    width: 84px;
+    height: 84px;
+  }
+}
+
+/* Name plates and the battle text box share the dialogue window. */
+.adventure .ad-arena-scene .ad-combatant-card,
+.adventure .ad-pvp-player .ad-pvp-name {
+  border: 2px solid #f4f1ea;
+  border-radius: 6px;
+  background: #0a0d16f0;
+  box-shadow:
+    inset 0 0 0 2px #050608,
+    inset 0 0 0 4px #273149,
+    0 4px 0 #00000059;
+  color: #fff;
+}
+.adventure .ad-battle-bottom-console .ad-battle-narrative {
+  min-height: 3.4em;
+  padding: 12px 16px;
+  border: 2px solid #f4f1ea;
+  border-radius: 6px;
+  background: #0a0d16f0;
+  box-shadow:
+    inset 0 0 0 2px #050608,
+    inset 0 0 0 4px #273149;
+  color: #fff;
+  font: 16px/1.5 var(--rpg-font);
+}
+.ad-arena-scene .rpg-meter-fill,
+.ad-pvp-scene .rpg-meter-fill {
+  transition: width 700ms steps(20, end);
+}
+
+/* Entrance: the foe slides in from the right, the hero from the left, then
+   their plates. Uses `translate` so it never fights the sprites' transforms. */
+.ad-arena-scene .battle-sprite-enemy,
+.ad-pvp-player[data-pvp-side='opponent'] > .ad-pvp-sprite {
+  animation: battle-enter-right 640ms steps(8, end) both;
+}
+.ad-arena-scene .battle-sprite-player,
+.ad-pvp-player[data-pvp-side='self'] > .ad-pvp-sprite {
+  animation: battle-enter-left 640ms steps(8, end) both;
+}
+.ad-arena-scene .ad-combatant-enemy .ad-combatant-card,
+.ad-pvp-player[data-pvp-side='opponent'] .ad-pvp-name {
+  animation: battle-plate-left 360ms steps(5, end) 520ms both;
+}
+.ad-arena-scene .ad-combatant-player .ad-combatant-card,
+.ad-pvp-player[data-pvp-side='self'] .ad-pvp-name {
+  animation: battle-plate-right 360ms steps(5, end) 520ms both;
+}
+@keyframes battle-enter-right {
+  from {
+    translate: 60vw 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+@keyframes battle-enter-left {
+  from {
+    translate: -60vw 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+@keyframes battle-plate-left {
+  from {
+    translate: -140% 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+@keyframes battle-plate-right {
+  from {
+    translate: 140% 0;
+  }
+  to {
+    translate: 0 0;
+  }
+}
+
+/* The hit itself: two white flashes and a shake, well under a second. */
+.ad-arena-scene .battle-sprite.is-hit > .pixel-creature {
+  animation:
+    creature-idle 0.9s steps(4) infinite,
+    battle-hit-flash 520ms steps(1, end) both,
+    battle-hit-shake 520ms steps(8, end) both;
+}
+.ad-arena-scene .battle-sprite.is-hit > .pixel-avatar,
+.ad-pvp-player.is-hit .ad-pvp-sprite > .pixel-avatar {
+  animation:
+    battle-hit-flash 520ms steps(1, end) both,
+    battle-hit-shake 520ms steps(8, end) both;
+}
+.battle-sprite.is-hit :is(.sprite-creature, .sprite-avatar)::before {
+  visibility: hidden;
+}
+@keyframes battle-hit-flash {
+  0% {
+    filter: brightness(0) invert(1);
+  }
+  25% {
+    filter: none;
+  }
+  50% {
+    filter: brightness(0) invert(1);
+  }
+  75%,
+  100% {
+    filter: none;
+  }
+}
+@keyframes battle-hit-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  20% {
+    translate: -7px 0;
+  }
+  40% {
+    translate: 6px 0;
+  }
+  60% {
+    translate: -4px 0;
+  }
+  80% {
+    translate: 3px 0;
+  }
+}
+/* The attacker of a multiplayer blow lunges at the same moment. */
+.ad-pvp-player.is-attacking[data-pvp-side='self'] .ad-pvp-sprite > .pixel-avatar {
+  animation: rpg-lunge 0.35s ease-out;
+}
+.ad-pvp-player.is-attacking[data-pvp-side='opponent'] .ad-pvp-sprite > .pixel-avatar {
+  animation: rpg-counter 0.35s ease-out;
+}
+/* Taking a blow shakes the whole battlefield a little. */
+.ad-arena-scene.combat-player-hurt,
+.ad-pvp-scene.is-shaking {
+  animation: battle-scene-shake 320ms steps(6, end);
+}
+@keyframes battle-scene-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  25% {
+    translate: -4px 2px;
+  }
+  50% {
+    translate: 4px -2px;
+  }
+  75% {
+    translate: -2px 0;
+  }
+}
+
+/* Impact star: white points with a gold core, popping and fading. */
+.battle-hit-spark {
+  position: absolute;
+  left: 50%;
+  top: 46%;
+  width: 84px;
+  height: 84px;
+  translate: -50% -50%;
+  z-index: 4;
+  pointer-events: none;
+}
+.battle-hit-spark > span,
+.battle-hit-spark > span::after {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  clip-path: polygon(
+    50% 0%,
+    57.7% 31.5%,
+    85.4% 14.6%,
+    68.5% 42.3%,
+    100% 50%,
+    68.5% 57.7%,
+    85.4% 85.4%,
+    57.7% 68.5%,
+    50% 100%,
+    42.3% 68.5%,
+    14.6% 85.4%,
+    31.5% 57.7%,
+    0% 50%,
+    31.5% 42.3%,
+    14.6% 14.6%,
+    42.3% 31.5%
+  );
+}
+.battle-hit-spark > span {
+  animation: battle-hit-spark 360ms steps(5, end) both;
+}
+.battle-hit-spark > span::after {
+  content: '';
+  inset: 24%;
+  background: #ffd75e;
+}
+@keyframes battle-hit-spark {
+  0% {
+    transform: scale(0.3) rotate(0deg);
+    opacity: 1;
+  }
+  40% {
+    transform: scale(1.1) rotate(12deg);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.35) rotate(22deg);
+    opacity: 0;
+  }
+}
+
+/* Damage pops above the sprite in the pixel font, outlined. */
+.battle-sprite .combat-damage {
+  left: 50%;
+  top: -10px;
+  right: auto;
+  translate: -50% 0;
+  color: #fff;
+  font: 700 28px/1 var(--rpg-font);
+  text-shadow:
+    2px 0 #14161f,
+    -2px 0 #14161f,
+    0 2px #14161f,
+    0 -2px #14161f,
+    2px 2px #14161f,
+    -2px -2px #14161f,
+    2px -2px #14161f,
+    -2px 2px #14161f;
+  animation: battle-damage-pop 900ms ease-out both;
+}
+.battle-sprite .battle-damage-player {
+  color: #ff8f7a;
+}
+.battle-sprite .battle-heal {
+  color: #9dffc8;
+}
+/* The foe stands near the top edge: its numbers pop at its side instead. */
+.battle-sprite-enemy .combat-damage {
+  left: 0;
+  top: 34%;
+  translate: -75% 0;
+}
+@keyframes battle-damage-pop {
+  0% {
+    transform: translateY(8px) scale(0.6);
+    opacity: 0;
+  }
+  18% {
+    transform: translateY(-10px) scale(1.25);
+    opacity: 1;
+  }
+  40% {
+    transform: translateY(-14px) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-34px) scale(1);
+    opacity: 0;
+  }
+}
+.ad-pvp-hit {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+/* Fainting: one more flash, then the loser sinks into the ground. */
+.ad-arena-scene[data-status='won'] .battle-sprite-enemy > .pixel-creature,
+.ad-arena-scene[data-status='lost'] .battle-sprite-player > .pixel-avatar {
+  animation: battle-faint 760ms steps(8, end) 120ms both;
+}
+@keyframes battle-faint {
+  0% {
+    filter: brightness(0) invert(1);
+    translate: 0 0;
+    opacity: 1;
+  }
+  20% {
+    filter: none;
+    translate: 0 0;
+    opacity: 1;
+  }
+  100% {
+    filter: none;
+    translate: 0 45%;
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ad-arena-scene .battle-sprite,
+  .ad-pvp-player > .ad-pvp-sprite,
+  .ad-arena-scene .ad-combatant-card,
+  .ad-pvp-player .ad-pvp-name,
+  .ad-arena-scene.combat-player-hurt,
+  .ad-pvp-scene.is-shaking,
+  .ad-pvp-player.is-attacking .ad-pvp-sprite > .pixel-avatar,
+  .battle-hit-spark > span {
+    animation: none;
+  }
+  .ad-arena-scene .battle-sprite.is-hit > .pixel-creature {
+    animation: creature-idle 0.9s steps(4) infinite;
+  }
+  .ad-arena-scene .battle-sprite.is-hit > .pixel-avatar,
+  .ad-pvp-player.is-hit .ad-pvp-sprite > .pixel-avatar {
+    animation: none;
+  }
+  .battle-hit-spark {
+    display: none;
+  }
+  .ad-arena-scene[data-status='won'] .battle-sprite-enemy > .pixel-creature,
+  .ad-arena-scene[data-status='lost'] .battle-sprite-player > .pixel-avatar {
+    animation: none;
+    opacity: 0;
+  }
+  .ad-arena-scene .rpg-meter-fill,
+  .ad-pvp-scene .rpg-meter-fill {
+    transition: none;
   }
 }

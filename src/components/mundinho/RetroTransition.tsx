@@ -3,10 +3,12 @@ import type { CSSProperties } from 'react';
 /**
  * - `descend`: the tiles close in on the hero as they drop into the hole.
  * - `boss`: two hard flashes, then a diagonal sweep, like a classic encounter.
+ * - `encounter`: two flashes, then blinds closing row by row from alternate
+ *   sides, when a creature is met in the grass.
  * - `return`: a plain iris back to the clearing.
  * Every reveal opens outward from `origin`, normally where the hero stands.
  */
-export type RetroTransitionKind = 'descend' | 'boss' | 'return';
+export type RetroTransitionKind = 'descend' | 'boss' | 'encounter' | 'return';
 export type RetroTransitionState = {
   id: number;
   kind: RetroTransitionKind;
@@ -18,7 +20,7 @@ export type RetroTransitionState = {
 
 const TILE_MS = 150;
 const FLASH_MS = 300;
-const SPREAD_MS = { descend: 420, boss: 380, return: 320 } as const;
+const SPREAD_MS = { descend: 420, boss: 380, encounter: 380, return: 320 } as const;
 const REVEAL_SPREAD_MS = 320;
 /** Distinct rings or diagonals, so the wipe reads as stepped rather than smooth. */
 const BANDS = 9;
@@ -26,6 +28,7 @@ const BANDS = 9;
 export const RETRO_COVER_MS = {
   descend: SPREAD_MS.descend + TILE_MS,
   boss: FLASH_MS + SPREAD_MS.boss + TILE_MS,
+  encounter: FLASH_MS + SPREAD_MS.encounter + TILE_MS,
   return: SPREAD_MS.return + TILE_MS,
 } as const;
 export const RETRO_REVEAL_MS = REVEAL_SPREAD_MS + TILE_MS;
@@ -65,7 +68,8 @@ export function RetroTransition({ state }: { state: RetroTransitionState }) {
   ].map(([x, y]) => Math.hypot(x - origin.x, y - origin.y));
   const reach = Math.max(1, ...corners);
   const cover = phase === 'cover';
-  const offset = cover && kind === 'boss' ? FLASH_MS : 0;
+  const flashes = cover && (kind === 'boss' || kind === 'encounter');
+  const offset = flashes ? FLASH_MS : 0;
   const spread = cover ? SPREAD_MS[kind] : REVEAL_SPREAD_MS;
 
   const tiles = [];
@@ -77,7 +81,10 @@ export function RetroTransition({ state }: { state: RetroTransitionState }) {
         ? distance
         : kind === 'boss'
           ? (col + row) / Math.max(1, cols + rows - 2)
-          : 1 - distance;
+          : kind === 'encounter'
+            ? // Each row sweeps from the opposite side of the one above it.
+              (row % 2 ? col : cols - 1 - col) / Math.max(1, cols - 1)
+            : 1 - distance;
       const band = Math.round(Math.min(1, Math.max(0, order)) * (BANDS - 1)) / (BANDS - 1);
       tiles.push(
         <i key={row * cols + col} style={{ animationDelay: `${offset + band * spread}ms` }} />
@@ -98,7 +105,7 @@ export function RetroTransition({ state }: { state: RetroTransitionState }) {
         } as CSSProperties
       }
     >
-      {cover && kind === 'boss' && <span className="retro-transition-flash" />}
+      {flashes && <span className="retro-transition-flash" />}
       {tiles}
     </div>
   );

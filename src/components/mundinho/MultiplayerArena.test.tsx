@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, within } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { MultiplayerArena } from './MultiplayerArena';
 import { DEFAULT_AVATAR } from '../../lib/mundinho/types';
@@ -212,4 +212,45 @@ it('keeps the arena on screen while the player drops into the exit stairs', asyn
   });
   expect(container.querySelector('.world-player.is-descending')).not.toBeNull();
   vi.unstubAllGlobals();
+});
+
+it('flashes the duelist who takes a blow, pops the damage and lunges the attacker', async () => {
+  const data = lobbyState();
+  data.room!.match = {
+    id: 'match',
+    status: 'active',
+    ready: ['a', 'b'],
+    hp: { a: 100, b: 100 },
+    actorId: 'a',
+    turn: 0,
+    scenario: 0,
+    level: 1,
+    deadline: new Date(Date.now() + 120_000).toISOString(),
+    winnerId: null,
+    log: [],
+  } as never;
+  const struck = structuredClone(data);
+  struck.room!.version = 2;
+  struck.room!.match!.hp = { a: 100, b: 70 };
+  const transport = vi.fn(async (action: { type: string }) =>
+    action.type === 'sync' ? struck : data
+  );
+  const { container } = render(
+    <MultiplayerArena
+      initialState={data}
+      language="JS"
+      assetBase="/assets/mundinho"
+      onLeave={() => {}}
+      transport={transport as never}
+    />
+  );
+  const opponent = () => container.querySelector('[data-pvp-side="opponent"]') as HTMLElement;
+  const self = () => container.querySelector('[data-pvp-side="self"]') as HTMLElement;
+  expect(opponent()).not.toHaveClass('is-hit');
+  await waitFor(() => expect(opponent()).toHaveClass('is-hit'), { timeout: 3000 });
+  expect(within(opponent()).getByText('−30')).toBeInTheDocument();
+  expect(opponent().querySelector('.battle-hit-spark')).not.toBeNull();
+  expect(self()).toHaveClass('is-attacking');
+  expect(self()).not.toHaveClass('is-hit');
+  expect(container.querySelector('.ad-pvp-scene')).not.toHaveClass('is-shaking');
 });

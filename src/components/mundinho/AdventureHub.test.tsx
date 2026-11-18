@@ -248,6 +248,11 @@ describe('Mundinho battle navigation', () => {
       expect(document.querySelector('[data-effect="focus-impact"]')).toBeInTheDocument()
     );
     expect(screen.getByText('+20')).toBeInTheDocument();
+    // The foe flashes white and an impact star bursts where the blow lands.
+    const foe = document.querySelector('.battle-sprite-enemy')!;
+    expect(foe).toHaveClass('is-hit');
+    expect(foe.querySelector('.battle-hit-spark')).not.toBeNull();
+    expect(document.querySelector('.battle-sprite-player')).not.toHaveClass('is-hit');
     await screen.findByText('125 / 130 PV', {}, { timeout: 3000 });
     expect(
       screen.queryByRole('region', { name: 'Desafio de código da batalha' })
