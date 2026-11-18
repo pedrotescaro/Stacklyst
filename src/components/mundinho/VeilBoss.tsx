@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useLocalizedText } from '../../i18n/useLocalizedText';
 import {
   advanceShots,
@@ -21,7 +21,19 @@ import type { BattleAudio } from '../../lib/mundinho/battleAudio';
 import { adventureAsset } from './assets';
 import './veil-boss.css';
 
-type Phase = 'ready' | 'act' | 'item' | 'mercy' | 'message' | 'aim' | 'dodge' | 'won' | 'lost';
+type Phase =
+  | 'ready'
+  | 'act'
+  | 'item'
+  | 'mercy'
+  | 'message'
+  | 'aim'
+  | 'hit'
+  | 'dodge'
+  | 'won'
+  | 'lost';
+/** How long a landed strike plays (flash, slash, damage, draining HP) before the guardian answers. */
+export const BOSS_HIT_MS = 1100;
 const COMMANDS = ['FIGHT', 'ACT', 'ITEM', 'MERCY'] as const;
 function Heart() {
   return (
@@ -70,6 +82,8 @@ const makeGame = () => ({
   beat: 0,
   grace: 0,
   damage: 0,
+  hitFrom: VEIL_BOSS_HP,
+  strikeAt: 0.5,
   calm: 0,
   items: 3,
   message: '',
@@ -131,14 +145,29 @@ export function VeilBoss({
     const g = game.current;
     if (g.phase !== 'aim' || paused) return;
     audio?.play('attack');
-    g.damage = strikeDamage(aimMarker(g.elapsed));
+    g.strikeAt = aimMarker(g.elapsed);
+    g.damage = strikeDamage(g.strikeAt);
+    g.hitFrom = g.boss;
     g.boss = Math.max(0, g.boss - g.damage);
-    if (g.boss) startDodge();
-    else {
-      g.phase = 'won';
-      update();
-    }
+    // Show the blow land and the HP drain before the guardian answers.
+    g.phase = 'hit';
+    update();
   };
+  useEffect(() => {
+    if (paused || snapshot.phase !== 'hit') return;
+    audio?.play('hit');
+    const timer = setTimeout(() => {
+      const g = game.current;
+      if (g.phase !== 'hit') return;
+      if (g.boss) startDodge();
+      else {
+        g.phase = 'won';
+        update();
+      }
+    }, BOSS_HIT_MS);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snapshot.phase, paused, audio]);
   const choose = (index: number) => {
     if (game.current.phase !== 'ready' || paused) return;
     audio?.play('select');
@@ -191,7 +220,7 @@ export function VeilBoss({
     const blur = () => {
       keys.current.clear();
       target.current = null;
-      if (['aim', 'dodge'].includes(game.current.phase)) setPaused(true);
+      if (['aim', 'hit', 'dodge'].includes(game.current.phase)) setPaused(true);
     };
     const visibility = () => {
       if (document.hidden) blur();
@@ -267,7 +296,8 @@ export function VeilBoss({
         )
         ?.focus({ preventScroll: true });
   }, [snapshot.phase, paused, selected]);
-  const { phase, health, boss, soul, shots, elapsed, turn, grace } = snapshot;
+  const { phase, health, boss, soul, shots, elapsed, turn, grace, damage, hitFrom, strikeAt } =
+    snapshot;
   const point = (event: React.PointerEvent<HTMLDivElement>) => {
     const box = event.currentTarget.getBoundingClientRect();
     target.current = {
@@ -284,26 +314,28 @@ export function VeilBoss({
           : t('O Guardião da Fenda bloqueia seu caminho.', 'The Rift Guardian blocks your path.')
       : phase === 'aim'
         ? t('Acerte o centro para causar mais dano.', 'Strike in the center for more damage.')
-        : phase === 'dodge'
-          ? [
-              t('Desvie da chuva de fragmentos.', 'Dodge the falling shards.'),
-              t('Atravesse as brechas nas fileiras.', 'Find the gaps in the crossing rows.'),
-              t('O guardião está mirando em você.', 'The guardian is aiming at you.'),
-            ][(turn - 1) % 3]
-          : phase === 'won'
-            ? t(
-                snapshot.spared
-                  ? 'Você poupou o guardião. A fenda está em paz.'
-                  : 'O guardião se curva. A fenda está em silêncio.',
-                snapshot.spared
-                  ? 'You spared the guardian. The rift is at peace.'
-                  : 'The guardian bows. The rift falls silent.'
-              )
-            : t(
-                'A luz se apagou. Você pode tentar de novo.',
-                'Your light went out. You can try again.'
-              );
-  const active = phase === 'aim' || phase === 'dodge';
+        : phase === 'hit'
+          ? t(`Você causou ${damage} de dano!`, `You dealt ${damage} damage!`)
+          : phase === 'dodge'
+            ? [
+                t('Desvie da chuva de fragmentos.', 'Dodge the falling shards.'),
+                t('Atravesse as brechas nas fileiras.', 'Find the gaps in the crossing rows.'),
+                t('O guardião está mirando em você.', 'The guardian is aiming at you.'),
+              ][(turn - 1) % 3]
+            : phase === 'won'
+              ? t(
+                  snapshot.spared
+                    ? 'Você poupou o guardião. A fenda está em paz.'
+                    : 'O guardião se curva. A fenda está em silêncio.',
+                  snapshot.spared
+                    ? 'You spared the guardian. The rift is at peace.'
+                    : 'The guardian bows. The rift falls silent.'
+                )
+              : t(
+                  'A luz se apagou. Você pode tentar de novo.',
+                  'Your light went out. You can try again.'
+                );
+  const active = phase === 'aim' || phase === 'hit' || phase === 'dodge';
   const menu = ['act', 'item', 'mercy'].includes(phase);
   return (
     <section
@@ -344,13 +376,23 @@ export function VeilBoss({
       }}
     >
       <div className="veil-sky">
-        <div
-          role="img"
-          aria-label={t('Guardião alado', 'Winged guardian')}
-          className="veil-guardian"
-          style={{ backgroundImage: `url(${adventureAsset('boss-veil.png', assetBase)})` }}
-        />
-        {phase === 'aim' && (
+        <div className="veil-guardian-slot">
+          <div
+            role="img"
+            aria-label={t('Guardião alado', 'Winged guardian')}
+            className={`veil-guardian${phase === 'hit' ? ' is-hit' : ''}`}
+            style={{ backgroundImage: `url(${adventureAsset('boss-veil.png', assetBase)})` }}
+          />
+          {phase === 'hit' && (
+            <>
+              <span className="veil-slash" aria-hidden="true" />
+              <span className="veil-damage" aria-hidden="true">
+                {damage}
+              </span>
+            </>
+          )}
+        </div>
+        {(phase === 'aim' || phase === 'hit') && (
           <div
             className="veil-enemy-health"
             role="meter"
@@ -358,8 +400,17 @@ export function VeilBoss({
             aria-valuemin={0}
             aria-valuemax={VEIL_BOSS_HP}
             aria-valuenow={boss}
+            data-draining={phase === 'hit' || undefined}
+            style={
+              {
+                '--from': `${(hitFrom / VEIL_BOSS_HP) * 100}%`,
+                '--to': `${(boss / VEIL_BOSS_HP) * 100}%`,
+              } as CSSProperties
+            }
           >
-            <i style={{ width: `${(boss / VEIL_BOSS_HP) * 100}%` }} />
+            {/* While draining, the lost chunk lingers in yellow behind the white. */}
+            {phase === 'hit' && <b className="veil-health-lag" />}
+            <i style={phase === 'hit' ? undefined : { width: `${(boss / VEIL_BOSS_HP) * 100}%` }} />
           </div>
         )}
       </div>
@@ -398,12 +449,22 @@ export function VeilBoss({
             target.current = null;
           }}
         >
-          {phase === 'aim' ? (
+          {phase === 'aim' || phase === 'hit' ? (
             <>
               <div className="veil-meter">
-                <i style={{ left: `${aimMarker(elapsed) * 100}%` }} />
+                {/* The marker stays where the blow landed while it plays out. */}
+                <i
+                  style={{
+                    left: `${(phase === 'hit' ? strikeAt : aimMarker(elapsed)) * 100}%`,
+                  }}
+                />
               </div>
-              <button className="veil-strike" data-veil-choice onClick={strike} disabled={paused}>
+              <button
+                className="veil-strike"
+                data-veil-choice
+                onClick={strike}
+                disabled={paused || phase === 'hit'}
+              >
                 {t('Golpear', 'Strike')}
               </button>
             </>

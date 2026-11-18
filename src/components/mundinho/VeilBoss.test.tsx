@@ -1,7 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import * as mechanics from '../../lib/mundinho/veil-boss';
-import { VeilBoss } from './VeilBoss';
+import { BOSS_HIT_MS, VeilBoss } from './VeilBoss';
 vi.mock('../../i18n/useLocalizedText', () => ({
   useLocalizedText: () => ({ text: (pt: string) => pt }),
 }));
@@ -33,6 +33,7 @@ describe('VeilBoss command flow', () => {
     click('FIGHT');
     tick(600);
     click('Golpear');
+    tick(BOSS_HIT_MS);
     const field = screen.getByLabelText(/Área de batalha/);
     expect(field).toHaveFocus();
     expect(container.querySelector('.veil-heart svg')).toBeInTheDocument();
@@ -104,6 +105,7 @@ describe('VeilBoss command flow', () => {
         tick(1);
       }
       click('Golpear');
+      tick(BOSS_HIT_MS);
       if (i < 5) tick(6500);
     }
     expect(screen.getByText(/O guardião se curva/)).toBeInTheDocument();
@@ -113,12 +115,41 @@ describe('VeilBoss command flow', () => {
     render(<VeilBoss assetBase="/assets/mundinho" onLeave={() => {}} />);
     click('FIGHT');
     click('Golpear');
+    tick(BOSS_HIT_MS);
     tick(6500);
     expect(screen.getByRole('meter', { name: 'Sua vida' })).toHaveAttribute('aria-valuenow', '0');
     click('Tentar de novo');
     expect(screen.getByRole('meter', { name: 'Sua vida' })).toHaveAttribute('aria-valuenow', '20');
     click('ITEM');
     expect(button(/Fruta ×3/)).toBeInTheDocument();
+  });
+  it('shows a landed strike: white flash, slash, damage and the HP bar draining', () => {
+    const audio = { unlock: vi.fn(), play: vi.fn(), setBoss: vi.fn() };
+    const { container } = render(
+      <VeilBoss assetBase="/assets/mundinho" audio={audio} onLeave={() => {}} />
+    );
+    click('FIGHT');
+    tick(300);
+    click('Golpear');
+    const guardian = screen.getByRole('img', { name: 'Guardião alado' });
+    expect(guardian).toHaveClass('is-hit');
+    expect(container.querySelector('.veil-slash')).toBeInTheDocument();
+    const dealt = Number(container.querySelector('.veil-damage')!.textContent);
+    expect(dealt).toBeGreaterThan(0);
+    const bar = screen.getByRole('meter', { name: 'Vida do guardião' });
+    expect(bar).toHaveAttribute('aria-valuenow', String(144 - dealt));
+    expect(bar).toHaveAttribute('data-draining', 'true');
+    expect(bar.style.getPropertyValue('--from')).toBe('100%');
+    expect(bar.querySelector('.veil-health-lag')).toBeInTheDocument();
+    expect(button('Golpear')).toBeDisabled();
+    expect(screen.getByText(new RegExp(`Você causou ${dealt} de dano!`))).toBeInTheDocument();
+    expect(audio.play).toHaveBeenCalledWith('hit');
+    // The guardian answers only once the blow has played out.
+    tick(BOSS_HIT_MS - 50);
+    expect(container.querySelector('.veil-heart')).not.toBeInTheDocument();
+    tick(50);
+    expect(container.querySelector('.veil-heart')).toBeInTheDocument();
+    expect(guardian).not.toHaveClass('is-hit');
   });
   it('synchronizes cues with actions and volleys and stops music on pause and exit', () => {
     const audio = { unlock: vi.fn(), play: vi.fn(), setBoss: vi.fn() };

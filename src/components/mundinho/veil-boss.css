@@ -343,3 +343,161 @@
     animation: none;
   }
 }
+
+/* A landed strike: the guardian flashes white twice and shakes, a red slash
+   cuts across it, the damage pops in red, and the HP bar drains from the old
+   value to the new one with the lost chunk lingering in yellow. */
+.veil-guardian-slot {
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.veil-guardian.is-hit {
+  animation:
+    veil-hover 1.2s steps(7) infinite,
+    veil-guardian-flash 340ms steps(1, end) both,
+    veil-guardian-shake 520ms steps(8, end) 80ms both;
+}
+@keyframes veil-guardian-flash {
+  0% {
+    filter: brightness(0) invert(1);
+  }
+  25% {
+    filter: grayscale(1) brightness(2.8) contrast(1.3);
+  }
+  50% {
+    filter: brightness(0) invert(1);
+  }
+  75%,
+  100% {
+    filter: grayscale(1) brightness(2.8) contrast(1.3);
+  }
+}
+@keyframes veil-guardian-shake {
+  0%,
+  100% {
+    translate: 0 0;
+  }
+  15% {
+    translate: -9px 0;
+  }
+  30% {
+    translate: 8px 0;
+  }
+  45% {
+    translate: -6px 0;
+  }
+  60% {
+    translate: 5px 0;
+  }
+  75% {
+    translate: -3px 0;
+  }
+  90% {
+    translate: 2px 0;
+  }
+}
+.veil-slash {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 70%;
+  height: 6px;
+  translate: -50% -50%;
+  rotate: -32deg;
+  transform-origin: left center;
+  background: #ff3b3b;
+  box-shadow: 0 0 0 2px #000;
+  pointer-events: none;
+  animation: veil-slash 300ms steps(6, end) both;
+}
+@keyframes veil-slash {
+  0% {
+    transform: scaleX(0);
+    opacity: 1;
+  }
+  45% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+  100% {
+    transform: scaleX(1) scaleY(0);
+    opacity: 0;
+  }
+}
+.veil-damage {
+  position: absolute;
+  right: 4%;
+  top: 4%;
+  color: #ff3b3b;
+  font-size: 32px;
+  line-height: 1;
+  text-shadow:
+    2px 2px 0 #000,
+    -2px -2px 0 #000;
+  pointer-events: none;
+  animation: veil-damage 1000ms steps(10, end) both;
+}
+@keyframes veil-damage {
+  0% {
+    transform: translateY(10px) scale(0.6);
+    opacity: 0;
+  }
+  15% {
+    transform: translateY(-8px) scale(1.2);
+    opacity: 1;
+  }
+  30% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  85% {
+    transform: translateY(-6px);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-14px);
+    opacity: 0;
+  }
+}
+.veil-enemy-health {
+  position: relative;
+}
+.veil-enemy-health i {
+  position: relative;
+  z-index: 1;
+}
+.veil-enemy-health[data-draining] i {
+  animation: veil-health-drain 600ms steps(12, end) 160ms both;
+}
+.veil-health-lag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  background: #ffd75e;
+  animation: veil-health-drain 420ms steps(8, end) 640ms both;
+}
+@keyframes veil-health-drain {
+  from {
+    width: var(--from);
+  }
+  to {
+    width: var(--to);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .veil-guardian.is-hit,
+  .veil-slash,
+  .veil-damage {
+    animation: none;
+  }
+  .veil-slash {
+    display: none;
+  }
+  .veil-enemy-health[data-draining] i,
+  .veil-health-lag {
+    animation: none;
+    width: var(--to);
+  }
+}
