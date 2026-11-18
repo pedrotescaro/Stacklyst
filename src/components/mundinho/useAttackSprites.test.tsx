@@ -78,6 +78,29 @@ it('keeps the character visible if an attack image fails', async () => {
   ).toContain('hero-outfit-idle.png');
 });
 
+it('starts walking by revealing the already painted walking sheet', async () => {
+  const { container, rerender } = render(<PixelAvatar walking={false} />);
+  await act(async () => {
+    await Promise.all(PendingImage.images.map((image) => image.onload?.()));
+  });
+  await waitFor(() =>
+    expect(container.querySelector('[data-walking-ready="true"]')).not.toBeNull()
+  );
+  const idle = container.querySelector<HTMLElement>('[data-pose="idle"][data-layer="body"]')!;
+  const walk = container.querySelector<HTMLElement>('[data-pose="walk"][data-layer="body"]')!;
+  expect(walk.style.backgroundImage).toContain('hero-body.png');
+  expect(idle).not.toHaveAttribute('data-standby');
+  expect(walk).toHaveAttribute('data-standby');
+
+  rerender(<PixelAvatar walking />);
+  // Same nodes, same images: only visibility flips, so no sheet is decoded mid-step.
+  expect(container.querySelector('[data-pose="idle"][data-layer="body"]')).toBe(idle);
+  expect(container.querySelector('[data-pose="walk"][data-layer="body"]')).toBe(walk);
+  expect(idle.style.backgroundImage).toContain('hero-body-idle.png');
+  expect(idle).toHaveAttribute('data-standby');
+  expect(walk).not.toHaveAttribute('data-standby');
+});
+
 it('reuses decoded layers when another character mounts', async () => {
   const first = render(<PixelAvatar />);
   await act(async () => {

@@ -1,0 +1,105 @@
+import type { CSSProperties } from 'react';
+
+/**
+ * - `descend`: the tiles close in on the hero as they drop into the hole.
+ * - `boss`: two hard flashes, then a diagonal sweep, like a classic encounter.
+ * - `return`: a plain iris back to the clearing.
+ * Every reveal opens outward from `origin`, normally where the hero stands.
+ */
+export type RetroTransitionKind = 'descend' | 'boss' | 'return';
+export type RetroTransitionState = {
+  id: number;
+  kind: RetroTransitionKind;
+  phase: 'cover' | 'reveal';
+  width: number;
+  height: number;
+  origin: { x: number; y: number };
+};
+
+const TILE_MS = 150;
+const FLASH_MS = 300;
+const SPREAD_MS = { descend: 420, boss: 380, return: 320 } as const;
+const REVEAL_SPREAD_MS = 320;
+/** Distinct rings or diagonals, so the wipe reads as stepped rather than smooth. */
+const BANDS = 9;
+
+export const RETRO_COVER_MS = {
+  descend: SPREAD_MS.descend + TILE_MS,
+  boss: FLASH_MS + SPREAD_MS.boss + TILE_MS,
+  return: SPREAD_MS.return + TILE_MS,
+} as const;
+export const RETRO_REVEAL_MS = REVEAL_SPREAD_MS + TILE_MS;
+
+/** Measures the transition area and the hero's feet inside `root`. */
+export function measureRetroTransition(
+  root: HTMLElement,
+  kind: RetroTransitionKind,
+  phase: RetroTransitionState['phase'],
+  id: number
+): RetroTransitionState {
+  const box = root.getBoundingClientRect();
+  const width = Math.max(1, box.width);
+  const height = Math.max(1, box.height);
+  const hero = root.querySelector('.world-player .sprite-avatar')?.getBoundingClientRect();
+  // Without a hero, open from the middle of the part of the page on screen.
+  const top = Math.max(0, -box.top);
+  const bottom = Math.min(height, window.innerHeight - box.top);
+  const origin =
+    hero && hero.width > 0
+      ? { x: hero.left + hero.width / 2 - box.left, y: hero.bottom - hero.height * 0.25 - box.top }
+      : { x: width / 2, y: bottom > top ? (top + bottom) / 2 : height / 2 };
+  return { id, kind, phase, width, height, origin };
+}
+
+export function RetroTransition({ state }: { state: RetroTransitionState }) {
+  const { kind, phase, width, height, origin } = state;
+  // Keep the grid to about 40 tiles on the long side, whatever the page height.
+  const tile = Math.max(32, Math.ceil(Math.max(width, height) / 40));
+  const cols = Math.ceil(width / tile);
+  const rows = Math.ceil(height / tile);
+  const corners = [
+    [0, 0],
+    [width, 0],
+    [0, height],
+    [width, height],
+  ].map(([x, y]) => Math.hypot(x - origin.x, y - origin.y));
+  const reach = Math.max(1, ...corners);
+  const cover = phase === 'cover';
+  const offset = cover && kind === 'boss' ? FLASH_MS : 0;
+  const spread = cover ? SPREAD_MS[kind] : REVEAL_SPREAD_MS;
+
+  const tiles = [];
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const distance =
+        Math.hypot((col + 0.5) * tile - origin.x, (row + 0.5) * tile - origin.y) / reach;
+      const order = !cover
+        ? distance
+        : kind === 'boss'
+          ? (col + row) / Math.max(1, cols + rows - 2)
+          : 1 - distance;
+      const band = Math.round(Math.min(1, Math.max(0, order)) * (BANDS - 1)) / (BANDS - 1);
+      tiles.push(
+        <i key={row * cols + col} style={{ animationDelay: `${offset + band * spread}ms` }} />
+      );
+    }
+  }
+
+  return (
+    <div
+      className="retro-transition"
+      data-kind={kind}
+      data-phase={phase}
+      aria-hidden="true"
+      style={
+        {
+          '--retro-tile': `${tile}px`,
+          gridTemplateColumns: `repeat(${cols}, ${tile}px)`,
+        } as CSSProperties
+      }
+    >
+      {cover && kind === 'boss' && <span className="retro-transition-flash" />}
+      {tiles}
+    </div>
+  );
+}

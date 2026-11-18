@@ -73,6 +73,15 @@ import {
   BUG_HUNTER_TITLE_ID,
 } from '../../lib/mundinho/equipment';
 import { EquipmentInventory } from './EquipmentInventory';
+import { flushSync } from 'react-dom';
+import {
+  measureRetroTransition,
+  RETRO_COVER_MS,
+  RETRO_REVEAL_MS,
+  RetroTransition,
+  type RetroTransitionKind,
+  type RetroTransitionState,
+} from './RetroTransition';
 import { EquipmentStore } from './EquipmentStore';
 import { EquipmentSprite } from './EquipmentSprite';
 import { MultiplayerArena } from './MultiplayerArena';
@@ -284,6 +293,11 @@ export function AdventureHub({
   const [confirm, setConfirm] = useState<string | null>(null);
 
   const heading = useRef<HTMLHeadingElement>(null);
+  const adventureRoot = useRef<HTMLDivElement>(null);
+  const [transition, setTransition] = useState<RetroTransitionState | null>(null);
+  const transitionId = useRef(0);
+  const transitionTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => transitionTimers.current.forEach(clearTimeout), []);
   const pending = useRef(false);
   const stateRevision = useRef(0);
   const worldPosition = useRef({ ...WORLD.spawn });
@@ -335,6 +349,45 @@ export function AdventureHub({
     if (next === 'avatar' && data) {
       setDraft(data.avatar);
     }
+  };
+
+  /**
+   * Scene change between the clearing, the arena and the rift: cover the
+   * screen with a retro tile wipe, swap the view while it is black, then open
+   * on the new scene. Reduced motion swaps immediately.
+   */
+  const travel = (next: View, kind: RetroTransitionKind, before?: () => void) => {
+    if (transitionId.current < 0) return;
+    const root = adventureRoot.current;
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? true;
+    if (!root || reduced) {
+      before?.();
+      go(next);
+      return;
+    }
+    const id = Math.abs(transitionId.current) + 1;
+    // Negative while a transition runs, so a second trigger is ignored.
+    transitionId.current = -id;
+    setTransition(measureRetroTransition(root, kind, 'cover', id));
+    transitionTimers.current.push(
+      setTimeout(() => {
+        flushSync(() => {
+          before?.();
+          go(next);
+        });
+        setTransition(
+          adventureRoot.current
+            ? measureRetroTransition(adventureRoot.current, kind, 'reveal', id)
+            : null
+        );
+        transitionTimers.current.push(
+          setTimeout(() => {
+            transitionId.current = id;
+            setTransition(null);
+          }, RETRO_REVEAL_MS)
+        );
+      }, RETRO_COVER_MS[kind])
+    );
   };
 
   useEffect(() => {
@@ -548,7 +601,7 @@ export function AdventureHub({
       const next = await arenaTransport({ type: 'accept', roomId, language });
       setArenaSeed(next);
       setArenaInvitations([]);
-      go('arena');
+      travel('arena', 'return');
     } catch (e) {
       setError(
         e instanceof Error
@@ -607,6 +660,7 @@ export function AdventureHub({
 
   return (
     <div
+      ref={adventureRoot}
       className={`adventure adventure-${view}`}
       onPointerDownCapture={() => battleAudio.unlock()}
       onKeyDownCapture={() => battleAudio.unlock()}
@@ -626,7 +680,9 @@ export function AdventureHub({
             onClick={() => {
               if (view === 'battle' && battle?.status === 'active')
                 void act({ type: 'battle-flee', battle: battle.id });
-              else go(view === 'battle' || view === 'arena' || view === 'boss' ? 'world' : 'home');
+              else if (view === 'arena') travel('world', 'return', () => setArenaSeed(null));
+              else if (view === 'boss') travel('world', 'return');
+              else go(view === 'battle' ? 'world' : 'home');
             }}
           >
             <ArrowLeft size={22} />
@@ -1471,11 +1527,9 @@ export function AdventureHub({
             username={data?.username ?? 'Pedrolado'}
             chestClaimed={data?.chest?.claimed ?? false}
             chestDay={data?.chest?.day ?? data?.checkin.day ?? ''}
-            onBoss={() => go('boss')}
-            onPortal={() => {
-              setArenaSeed(null);
-              go('arena');
-            }}
+            overlayOpen={transition !== null}
+            onBoss={() => travel('boss', 'boss')}
+            onPortal={() => travel('arena', 'descend', () => setArenaSeed(null))}
             onBack={() => go('home')}
             onInventory={() => go('inventory')}
             onEncounter={(id) => {
@@ -1500,7 +1554,7 @@ export function AdventureHub({
       {view === 'boss' && (
         <VeilBoss
           audio={battleAudio}
-          onLeave={() => go('world')}
+          onLeave={() => travel('world', 'return')}
           assetBase={assetBase}
           username={data?.username}
           level={xp.level}
@@ -1512,12 +1566,10 @@ export function AdventureHub({
           language={language}
           initialState={arenaSeed}
           assetBase={assetBase}
-          onLeave={() => {
-            setArenaSeed(null);
-            go('world');
-          }}
+          onLeave={() => travel('world', 'return', () => setArenaSeed(null))}
         />
       )}
+      {transition && <RetroTransition key={transition.id} state={transition} />}
 
       {/* ============================================================ */}
       {/* 6. VIEW: BATTLE (Concept Educational Battles, Section 10)    */}

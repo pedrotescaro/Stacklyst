@@ -13,6 +13,9 @@ import {
 } from 'lucide-react';
 import { ADA_AVATAR, CREATURES, type Avatar } from '../../lib/mundinho/types';
 import {
+  GROUND_DEPTH,
+  holeMouth,
+  insideZone,
   movementDirection,
   movePlayer,
   walkablePosition,
@@ -132,7 +135,10 @@ export default function World({
     []
   );
   const chestOpened = chestClaimed || openedDay === chestDay;
-  const worldPaused = Boolean(overlayOpen || dialogue || showGuide || chestPhase !== 'idle');
+  const [descending, setDescending] = useState(false);
+  const worldPaused = Boolean(
+    overlayOpen || dialogue || showGuide || chestPhase !== 'idle' || descending
+  );
   const paused = useRef(false);
   paused.current = worldPaused;
   const closeDialogue = () => {
@@ -148,11 +154,53 @@ export default function World({
   const targets = [...visibleCreatures, ...objects];
   const nearest = targets.find((e) => Math.hypot(e.x - pose.x, e.y - pose.y) < 55);
   const isCreature = nearest && creatures.some((c) => c.id === nearest.id);
+  const portal = objects.find((o) => o.id === 'portal');
+  // The forest hole swallows the player once their feet reach its dark
+  // opening; the arena exit keeps its small round doorway.
+  const portalZone = portal
+    ? area === 'arena'
+      ? { x: portal.x, y: portal.y, rx: 18, ry: 18 }
+      : holeMouth(portal)
+    : null;
+  // Armed only after the player has stood outside the opening, so spawning on
+  // it (or a trip that never left the world) cannot fire it again by itself.
+  const portalArmed = useRef(false);
+  const descentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (descentTimer.current) clearTimeout(descentTimer.current);
+    },
+    []
+  );
+  const enterPortal = useRef(() => {});
   useEffect(() => {
-    const portal = objects.find((o) => o.id === 'portal');
-    if (!worldPaused && portal && Math.hypot(pose.x - portal.x, pose.y - portal.y) < 18)
+    enterPortal.current = () => {
+      if (descentTimer.current) return;
+      portalArmed.current = false;
+      keys.current.clear();
+      stick.current = { x: 0, y: 0 };
+      if (area === 'forest' && portalZone) {
+        // Step onto the opening and sink; the hub covers the screen meanwhile.
+        player.current = { ...player.current, x: portalZone.x, y: portalZone.y, walking: false };
+        setPose({ ...player.current });
+        setDescending(true);
+      }
+      // If nothing takes the player away, give the controls back.
+      descentTimer.current = setTimeout(() => {
+        descentTimer.current = null;
+        setDescending(false);
+      }, 1600);
       onPortal?.();
-  }, [pose.x, pose.y, worldPaused, onPortal, objects]);
+    };
+  });
+  useEffect(() => {
+    if (!portalZone) return;
+    if (!insideZone(portalZone, pose)) {
+      portalArmed.current = true;
+      return;
+    }
+    if (!worldPaused && portalArmed.current) enterPortal.current();
+  }, [pose, portalZone?.x, portalZone?.y, worldPaused]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const interaction = useRef<(objectId?: string) => void>(() => {});
   useEffect(() => {
@@ -180,9 +228,7 @@ export default function World({
         return;
       }
       if (target.id === 'portal') {
-        keys.current.clear();
-        stick.current = { x: 0, y: 0 };
-        onPortal?.();
+        enterPortal.current();
       } else if (creatures.some((c) => c.id === target.id)) {
         const creature = creatures.find((c) => c.id === target.id)!;
         if (!canChallengeCreature(playerLevel, creature.level)) {
@@ -623,7 +669,12 @@ export default function World({
               aria-busy={o.id === 'chest' && chestPhase !== 'idle' ? true : undefined}
               key={o.id}
               className="world-entity world-object"
-              style={{ left: o.x, top: o.y, zIndex: worldDepth(o.y) }}
+              data-object={o.id}
+              style={{
+                left: o.x,
+                top: o.y,
+                zIndex: o.id === 'portal' || o.id === 'boss' ? GROUND_DEPTH : worldDepth(o.y),
+              }}
               onClick={() => interaction.current(o.id)}
             >
               <span className="world-entity-badge">
@@ -698,7 +749,7 @@ export default function World({
 
           {/* Player with Floating Username Tag (Matching Image 3) */}
           <div
-            className="world-entity world-player"
+            className={`world-entity world-player${descending ? ' is-descending' : ''}`}
             style={{ left: pose.x, top: pose.y, zIndex: worldDepth(pose.y) }}
           >
             <span className="world-player-name">{username}</span>

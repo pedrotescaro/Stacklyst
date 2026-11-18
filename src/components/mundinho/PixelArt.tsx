@@ -25,7 +25,7 @@ export const HAIR = LEGACY_HAIR_COLORS;
 export function PixelAvatar({
   avatar = DEFAULT_AVATAR,
   direction = 'down',
-  walking = false,
+  walking,
   className = '',
   style,
   effect = false,
@@ -50,9 +50,14 @@ export function PixelAvatar({
   const attackReady = useAttackSprites(bow);
   const walkingReady = useWalkingSprites();
   const visibleMotion = motion === 'attack' && !attackReady ? 'idle' : motion;
-  const isWalking = walking && walkingReady && motion === 'idle';
-  const poseSuffix =
-    visibleMotion === 'attack' ? (bow ? '-bow' : '-attack') : isWalking ? '' : '-idle';
+  const isWalking = Boolean(walking) && walkingReady && motion === 'idle';
+  const poseSuffix = visibleMotion === 'attack' ? (bow ? '-bow' : '-attack') : '-idle';
+  const pose = visibleMotion === 'attack' ? (bow ? 'bow' : 'attack') : 'idle';
+  // Characters that can walk keep the idle and walking sheets painted at all
+  // times and only swap opacity. Swapping background-image instead lets the
+  // browser evict the unused sheet's decoded pixels while the hero stands
+  // still, so the first step after a long pause drew one empty frame.
+  const standbyWalk = walking !== undefined && visibleMotion === 'idle';
   const layers = [
     ['body', avatar.skin + (female ? SKIN_PALETTES.length : 0), SKIN_PALETTES.length * 2],
     [
@@ -68,6 +73,25 @@ export function PixelAvatar({
     ],
     ['accessory', avatar.accessory, 6],
   ] as const;
+  const renderLayers = (suffix: string, layerPose: string, standby: boolean) =>
+    layers
+      .filter(([, value]) => value >= 0)
+      .map(([layer, value, count]) => (
+        <span
+          aria-hidden="true"
+          key={`${layerPose}-${layer}`}
+          data-layer={layer}
+          data-pose={layerPose}
+          data-standby={standby || undefined}
+          className={`sprite-layer${standbyWalk ? ' sprite-layer-swappable' : ''}`}
+          style={{
+            backgroundImage: `url(${adventureAsset(`hero-${layer}${suffix}.png`, '/assets/mundinho')})`,
+            backgroundSize: `600% ${count * 400}%`,
+            backgroundPositionY: `${((Math.min(count - 1, value) * 4 + d) / (count * 4 - 1)) * 100}%`,
+            ...(layer === 'hair' && tinted ? { filter: `url(#${filterId})` } : {}),
+          }}
+        />
+      ));
   return (
     <span
       role="img"
@@ -98,22 +122,8 @@ export function PixelAvatar({
           </defs>
         </svg>
       )}
-      {layers
-        .filter(([, value]) => value >= 0)
-        .map(([layer, value, count]) => (
-          <span
-            aria-hidden="true"
-            key={layer}
-            data-layer={layer}
-            className="sprite-layer"
-            style={{
-              backgroundImage: `url(${adventureAsset(`hero-${layer}${poseSuffix}.png`, '/assets/mundinho')})`,
-              backgroundSize: `600% ${count * 400}%`,
-              backgroundPositionY: `${((Math.min(count - 1, value) * 4 + d) / (count * 4 - 1)) * 100}%`,
-              ...(layer === 'hair' && tinted ? { filter: `url(#${filterId})` } : {}),
-            }}
-          />
-        ))}
+      {renderLayers(poseSuffix, pose, isWalking)}
+      {standbyWalk && renderLayers('', 'walk', !isWalking)}
       {visibleMotion === 'attack' && (
         <span
           aria-hidden="true"

@@ -65,6 +65,23 @@ export const COLLISIONS = [
   }),
 ];
 export const worldDepth = (feetY: number) => Math.round(feetY * 10);
+/** Holes and rifts are flat on the grass, so every standing sprite covers them. */
+export const GROUND_DEPTH = 1;
+/**
+ * Dark opening of the 64×48 hole sprite (pixels 14–49 × 16–31), relative to the
+ * object's anchor at the sprite's bottom centre. The feet must reach the
+ * opening, not the lower rim, before the player drops in.
+ */
+const HOLE_OPENING = { dy: -24, rx: 15, ry: 7 };
+export function holeMouth(anchor: { x: number; y: number }) {
+  return { x: anchor.x, y: anchor.y + HOLE_OPENING.dy, rx: HOLE_OPENING.rx, ry: HOLE_OPENING.ry };
+}
+export function insideZone(
+  zone: { x: number; y: number; rx: number; ry: number },
+  feet: { x: number; y: number }
+) {
+  return ((feet.x - zone.x) / zone.rx) ** 2 + ((feet.y - zone.y) / zone.ry) ** 2 <= 1;
+}
 export function movementDirection(dx: number, dy: number, previous: string) {
   if (Math.hypot(dx, dy) < 0.08) return previous;
   return Math.abs(dy) >= Math.abs(dx) ? (dy > 0 ? 'down' : 'up') : dx > 0 ? 'right' : 'left';

@@ -2,7 +2,14 @@ import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import World from './World';
 import { DEFAULT_AVATAR } from '../../lib/mundinho/types';
-import { canWalk, ROCKS, worldDepth } from '../../lib/mundinho/world';
+import {
+  canWalk,
+  holeMouth,
+  insideZone,
+  ROCKS,
+  WORLD_OBJECTS,
+  worldDepth,
+} from '../../lib/mundinho/world';
 
 beforeEach(() => {
   window.matchMedia = vi.fn().mockReturnValue({ matches: false });
@@ -122,6 +129,74 @@ describe('World keyboard ownership', () => {
     expect(screen.getByText('Nv. 10')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Descer para a arena multiplayer' }));
     expect(enterArena).toHaveBeenCalledTimes(1);
+  });
+  it('draws the hole and the rift on the ground, under a player standing on them', () => {
+    const { container } = render(
+      <World
+        avatar={DEFAULT_AVATAR}
+        assetBase="/assets/mundinho"
+        username="Jogador"
+        initialPosition={{ x: 600, y: 392 }}
+        onEncounter={() => {}}
+        onChest={async () => ({ awarded: false, reward: 0 })}
+      />
+    );
+    const depth = (selector: string) =>
+      Number((container.querySelector(selector) as HTMLElement).style.zIndex);
+    expect(depth('.world-player')).toBeGreaterThan(depth('[data-object="portal"]'));
+    expect(depth('[data-object="boss"]')).toBe(depth('[data-object="portal"]'));
+  });
+  it('drops the player in once when their feet reach the opening, not the rim', () => {
+    const portal = WORLD_OBJECTS.find((o) => o.id === 'portal')!;
+    const mouth = holeMouth(portal);
+    expect(canWalk(mouth.x, mouth.y)).toBe(true);
+    // The lower rim, where the old trigger sat, is still outside the opening.
+    expect(insideZone(mouth, { x: portal.x, y: portal.y })).toBe(false);
+    expect(insideZone(mouth, { x: portal.x + 4, y: mouth.y + 3 })).toBe(true);
+
+    vi.useFakeTimers();
+    let frame = 0;
+    const frames = new Map<number, FrameRequestCallback>();
+    vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
+      frames.set(++frame, callback);
+      return frame;
+    });
+    vi.stubGlobal('cancelAnimationFrame', (id: number) => frames.delete(id));
+    const step = (time: number) => {
+      const pending = [...frames.values()];
+      frames.clear();
+      act(() => pending.forEach((callback) => callback(time)));
+    };
+    const enterArena = vi.fn();
+    const { container } = render(
+      <World
+        avatar={DEFAULT_AVATAR}
+        assetBase="/assets/mundinho"
+        username="Jogador"
+        initialPosition={{ x: mouth.x, y: mouth.y + 30 }}
+        onEncounter={() => {}}
+        onChest={async () => ({ awarded: false, reward: 0 })}
+        onPortal={enterArena}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar diálogo' }));
+    fireEvent.keyDown(window, { key: 'w' });
+    for (let t = 1; t < 40 && !enterArena.mock.calls.length; t++) step(t * 40);
+    fireEvent.keyUp(window, { key: 'w' });
+    expect(enterArena).toHaveBeenCalledOnce();
+    const player = container.querySelector('.world-player') as HTMLElement;
+    expect(player).toHaveClass('is-descending');
+    expect(player).toHaveStyle({ left: `${mouth.x}px`, top: `${mouth.y}px` });
+    for (let t = 40; t < 60; t++) step(t * 40);
+    expect(enterArena).toHaveBeenCalledOnce();
+
+    // Nothing took the player away: controls return, but standing still on
+    // the opening does not drop them in again until they step out.
+    act(() => vi.advanceTimersByTime(1700));
+    step(3000);
+    expect(player).not.toHaveClass('is-descending');
+    expect(enterArena).toHaveBeenCalledOnce();
+    vi.useRealTimers();
   });
   it('opens the concealed rift independently of multiplayer', () => {
     const boss = vi.fn(),
