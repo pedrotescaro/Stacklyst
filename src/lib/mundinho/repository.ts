@@ -19,6 +19,7 @@ import {
   checkinStatus,
   creatureStats,
   dayKey,
+  enemyCounterDamage,
   resolveTurn,
   SKILLS,
 } from './rules';
@@ -31,6 +32,7 @@ import {
   potionForRoll,
   readBattleUsed,
   REGEN_HP,
+  type BattleEffects,
   REGEN_TURNS,
   STRENGTH_BONUS,
   withoutOnePotion,
@@ -175,11 +177,7 @@ function battleView(
     protection: stats.protection,
     directChance: stats.directChance,
     drop,
-    effects: {
-      strength: effects.strength,
-      regen: effects.regen,
-      itemUsed: effects.itemTurn === b.turn,
-    },
+    effects: { strength: effects.strength, regen: effects.regen },
   };
 }
 async function credit(tx: Tx, userId: string, key: string, label: string, amount: number) {
@@ -187,6 +185,34 @@ async function credit(tx: Tx, userId: string, key: string, label: string, amount
   await tx.rpgTransaction.create({ data: { userId, key, label, amount } });
   await tx.rpgPlayer.update({ where: { userId }, data: { coins: { increment: amount } } });
   return true;
+}
+
+/**
+ * Closes a creature battle turn after the creature's counter: an active
+ * regeneration heals, and running out of turns loses the battle. Returns the
+ * regeneration feedback, if any.
+ */
+function endTurn(
+  battle: RpgBattle,
+  result: { hp: number; status: 'active' | 'won' | 'lost' },
+  effects: BattleEffects,
+  stats: CombatStats
+) {
+  let feedback = '';
+  if (result.status === 'active' && effects.regen > 0) {
+    const healed = Math.min(REGEN_HP, Math.max(0, stats.maxHp - result.hp));
+    result.hp += healed;
+    effects.regen--;
+    if (healed) feedback = ` Regeneração: +${healed} de vida.`;
+  }
+  if (
+    battle.turn >= creatureStats(encounterLevel(battle)).turnLimit - 1 &&
+    result.status === 'active'
+  ) {
+    result.status = 'lost';
+    result.hp = 0;
+  }
+  return feedback;
 }
 
 async function resolveBattleAction(
@@ -209,17 +235,7 @@ async function resolveBattleAction(
   const result = resolveTurn(battle.hp, battle.enemyHp, correct, skill, enemyLevel, stats, bonus);
   let potionFeedback = bonus ? ` Poção de força: +${bonus} de dano.` : '';
   if (bonus) effects.strength = false;
-  if (result.status === 'active' && effects.regen > 0) {
-    const healed = Math.min(REGEN_HP, Math.max(0, stats.maxHp - result.hp));
-    result.hp += healed;
-    effects.regen--;
-    if (healed) potionFeedback += ` Regeneração: +${healed} de vida.`;
-  }
-  effects.itemTurn = null;
-  if (battle.turn >= creatureStats(enemyLevel).turnLimit - 1 && result.status === 'active') {
-    result.status = 'lost';
-    result.hp = 0;
-  }
+  potionFeedback += endTurn(battle, result, effects, stats);
   let reward = 0;
   let lootFeedback = '';
   if (result.status === 'won') {
@@ -664,9 +680,9 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
               });
             }
           } else if (a.type === 'battle-item') {
-            // Potions: one per turn, without spending the turn.
+            // Drinking a potion is the turn's action: the creature counters afterwards.
+            if (b.questionId) fail('Resolva o desafio deste turno antes de usar uma poção.');
             const { questions, effects } = readBattleUsed(b.used);
-            if (effects.itemTurn === b.turn) fail('Você já usou uma poção neste turno.');
             const owner = await tx.rpgPlayer.findUniqueOrThrow({ where: { userId } });
             const owned = owner.inventory as string[];
             if (!isPotion(a.item) || !owned.includes(a.item)) fail('Você não tem esta poção.');
@@ -679,7 +695,6 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
               used = `Você bebeu a Poção de cura: +${healed} de vida.`;
             } else if (a.item === 'potion-regen') {
               if (effects.regen > 0) fail('A regeneração já está ativa.');
-              effects.regen = REGEN_TURNS;
               used = 'Você bebeu a Poção de regeneração: +12 de vida ao fim dos próximos 3 turnos.';
             } else {
               if (effects.strength) fail('A força já está ativa.');
@@ -687,14 +702,27 @@ export async function adventure(userId: string, action?: Action): Promise<Advent
               used =
                 'Você bebeu a Poção de força: o próximo golpe certeiro causa 50% a mais de dano.';
             }
-            effects.itemTurn = b.turn;
+            const damage = enemyCounterDamage(encounterLevel(b), stats.protection);
+            const result = {
+              hp: Math.max(0, hp - damage),
+              status: hp > damage ? ('active' as const) : ('lost' as const),
+            };
+            const regen = endTurn(b, result, effects, stats);
+            // A new regeneration starts healing at the end of the next turn.
+            if (a.item === 'potion-regen' && result.status === 'active')
+              effects.regen = REGEN_TURNS;
             await tx.rpgPlayer.update({
               where: { userId },
               data: { inventory: withoutOnePotion(owned, a.item) },
             });
             await tx.rpgBattle.update({
               where: { id: b.id },
-              data: { hp, used: writeBattleUsed(questions, effects), feedback: used },
+              data: {
+                ...result,
+                turn: b.turn + 1,
+                used: writeBattleUsed(questions, effects),
+                feedback: `${used} A criatura revidou: ${damage} de dano.${regen}`,
+              },
             });
           } else {
             if (!b.questionId || b.questionId !== a.question || !b.skill) {

@@ -5716,8 +5716,9 @@
 /* ============================================================
    BATTLE CHALLENGES AND POTIONS
    Each skill names the challenge it asks for; quizzes carry a kind badge and,
-   for find-the-bug, the snippet with numbered lines; potions sit in a bag
-   under the skills, and their effects show on the hero's plate.
+   for find-the-bug, the snippet with numbered lines; "Usar poções" is the
+   fourth action and opens the potion picker in place of the actions, and
+   potion effects show on the hero's plate.
    ============================================================ */
 .ad-skill-challenge {
   /* Under the description, not in the 10px cursor column of the card grid. */
@@ -5782,14 +5783,20 @@
   text-align: right;
   user-select: none;
 }
-.ad-potion-bag {
-  margin-top: 14px;
-  padding: 10px 12px;
-  border: 2px solid #273149;
-  border-radius: 6px;
-  background: #0a0d16;
+.adventure-battle .ad-skills-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
 }
-.ad-potion-bag header {
+@media (max-width: 900px) {
+  .adventure-battle .ad-skills-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 600px) {
+  .adventure-battle .ad-skills-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+.ad-potion-menu header {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
@@ -5797,39 +5804,50 @@
   gap: 4px 12px;
   margin-bottom: 8px;
 }
-.ad-potion-bag header strong {
+.ad-potion-menu header strong {
   color: #fff;
   font: 700 15px/1.2 var(--rpg-font);
 }
-.ad-potion-bag header span {
-  color: #9aa3b8;
-  font-size: 12px;
+.ad-potion-menu header span {
+  color: #bac6b7;
+  font-size: 14px;
 }
 .ad-potion-list {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
   gap: 8px;
 }
-.ad-potion-btn {
+.ad-potion-btn,
+.ad-potion-back {
   display: flex;
   align-items: center;
   gap: 10px;
   min-height: 56px;
+  min-width: 0;
   padding: 8px 10px;
-  border: 2px solid #3a4256;
-  border-radius: 6px;
-  background: #121826;
-  color: #fff;
+  border: 2px solid #53665e;
+  border-radius: 0;
+  background: #000;
+  color: #f1e8cd;
   text-align: left;
+  box-shadow: inset 0 2px #77816b;
 }
-.ad-potion-btn:hover:not(:disabled) {
-  border-color: #f4f1ea;
+.ad-potion-back {
+  grid-column: 1 / -1;
+  justify-content: center;
+  min-height: 44px;
+  font: 700 15px/1.2 var(--rpg-font);
 }
-.ad-potion-btn:focus-visible {
-  outline: 2px solid #f4f1ea;
-  outline-offset: 2px;
+:is(.ad-potion-btn, .ad-potion-back):hover:not(:disabled) {
+  border-color: #c7c7c7;
 }
-.ad-potion-btn:disabled {
+:is(.ad-potion-btn, .ad-potion-back):focus-visible {
+  border-color: #fff;
+  background: #263732;
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+}
+:is(.ad-potion-btn, .ad-potion-back):disabled {
   opacity: 0.45;
   cursor: default;
 }
@@ -5849,8 +5867,8 @@
   font: 700 14px/1.2 var(--rpg-font);
 }
 .ad-potion-text small {
-  color: #9aa3b8;
-  font-size: 11px;
+  color: #bac6b7;
+  font-size: 13px;
   line-height: 1.3;
 }
 .ad-potion-count {

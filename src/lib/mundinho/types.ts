@@ -181,7 +181,7 @@ export type BattleView = {
   directChance?: number;
   drop?: { itemId: string; duplicateCoins: number } | null;
   /** Potion effects in play this battle. */
-  effects?: { strength: boolean; regen: number; itemUsed: boolean };
+  effects?: { strength: boolean; regen: number };
 };
 export type Mission = {
   id: string;

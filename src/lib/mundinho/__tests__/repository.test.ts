@@ -973,7 +973,7 @@ describe('Battle challenges by skill and potions', () => {
     expect(bug.battle?.feedback).toContain('Encontre o erro');
     expect(quizPool('PYTHON', 'bug').map((q) => q.id)).toContain(bug.battle!.question!.id);
   });
-  it('drinks one potion per turn without spending it; strength and regeneration act on the next blows', async () => {
+  it('spends the turn on a potion: the creature counters, then strength and regeneration act on later turns', async () => {
     await db.tx.rpgPlayer.update({
       data: { inventory: ['potion-heal', 'potion-strength', 'potion-regen', 'gear-clover'] },
     });
@@ -985,49 +985,88 @@ describe('Battle challenges by skill and potions', () => {
       turn: 0,
       item: 'potion-heal',
     });
-    expect(healed.battle).toMatchObject({ hp: 90, turn: 0, effects: { itemUsed: true } });
+    // +40 from the potion, then the level 1 creature's 11 damage counter.
+    expect(healed.battle).toMatchObject({ hp: 79, turn: 1, status: 'active', enemyHp: 100 });
+    expect(healed.battle?.feedback).toBe(
+      'Você bebeu a Poção de cura: +40 de vida. A criatura revidou: 11 de dano.'
+    );
     expect(healed.inventory).toEqual(['potion-strength', 'potion-regen', 'gear-clover']);
-    await expect(
-      adventure('user', { type: 'battle-item', battle: 'battle', turn: 0, item: 'potion-strength' })
-    ).rejects.toThrow('já usou uma poção');
+    // A replayed request for the finished turn neither drinks again nor counters again.
+    const replay = await adventure('user', {
+      type: 'battle-item',
+      battle: 'battle',
+      turn: 0,
+      item: 'potion-strength',
+    });
+    expect(replay.notice).toContain('já foi resolvido');
+    expect(replay.battle).toMatchObject({ hp: 79, turn: 1 });
+    expect(replay.inventory).toContain('potion-strength');
     db.random.mockReturnValue(0); // lucky, direct blows
-    await adventure('user', { type: 'battle-skill', battle: 'battle', turn: 0, skill: 'strike' });
+    await adventure('user', { type: 'battle-skill', battle: 'battle', turn: 1, skill: 'strike' });
     const strong = await adventure('user', {
       type: 'battle-item',
       battle: 'battle',
-      turn: 1,
+      turn: 2,
       item: 'potion-strength',
     });
-    expect(strong.battle?.effects).toMatchObject({ strength: true, itemUsed: true });
+    expect(strong.battle).toMatchObject({ hp: 57, enemyHp: 70, turn: 3 });
+    expect(strong.battle?.effects).toMatchObject({ strength: true });
     const boosted = await adventure('user', {
       type: 'battle-skill',
       battle: 'battle',
-      turn: 1,
+      turn: 3,
       skill: 'strike',
     });
-    expect(boosted.battle).toMatchObject({ enemyHp: 25, hp: 68 });
-    expect(boosted.battle?.effects).toMatchObject({ strength: false, itemUsed: false });
+    expect(boosted.battle).toMatchObject({ enemyHp: 25, hp: 46 });
+    expect(boosted.battle?.effects).toMatchObject({ strength: false });
     expect(boosted.battle?.feedback).toContain('45 de dano');
     expect(boosted.battle?.feedback).toContain('Poção de força: +15 de dano.');
     await db.tx.rpgBattle.update({ data: { enemyHp: 100 } });
-    await adventure('user', {
+    const regen = await adventure('user', {
       type: 'battle-item',
       battle: 'battle',
-      turn: 2,
+      turn: 4,
       item: 'potion-regen',
     });
+    // A new regeneration starts healing at the end of the next turn.
+    expect(regen.battle).toMatchObject({ hp: 35, turn: 5, effects: { regen: 3 } });
+    expect(regen.battle?.feedback).not.toContain('Regeneração:');
     const regenerated = await adventure('user', {
       type: 'battle-skill',
       battle: 'battle',
-      turn: 2,
+      turn: 5,
       skill: 'strike',
     });
-    expect(regenerated.battle).toMatchObject({ enemyHp: 70, hp: 69, effects: { regen: 2 } });
+    expect(regenerated.battle).toMatchObject({ enemyHp: 70, hp: 36, effects: { regen: 2 } });
     expect(regenerated.battle?.feedback).toContain('Regeneração: +12 de vida.');
     expect(regenerated.inventory).toEqual(['gear-clover']);
     await expect(
-      adventure('user', { type: 'battle-item', battle: 'battle', turn: 3, item: 'potion-heal' })
+      adventure('user', { type: 'battle-item', battle: 'battle', turn: 6, item: 'potion-heal' })
     ).rejects.toThrow('não tem esta poção');
+  });
+  it('does not drink during a pending challenge, and a potion turn can still be lost', async () => {
+    await db.tx.rpgPlayer.update({ data: { inventory: ['potion-strength', 'potion-regen'] } });
+    await adventure('user', { type: 'battle-start', language: 'TS', creature: 'syntax-slime' });
+    const challenged = await adventure('user', {
+      type: 'battle-skill',
+      battle: 'battle',
+      turn: 0,
+      skill: 'strike',
+    });
+    expect(challenged.battle?.question).not.toBeNull();
+    await expect(
+      adventure('user', { type: 'battle-item', battle: 'battle', turn: 0, item: 'potion-strength' })
+    ).rejects.toThrow('antes de usar uma poção');
+    await db.tx.rpgBattle.update({ data: { questionId: null, skill: null, hp: 5 } });
+    const lost = await adventure('user', {
+      type: 'battle-item',
+      battle: 'battle',
+      turn: 0,
+      item: 'potion-regen',
+    });
+    expect(lost.battle).toMatchObject({ hp: 0, status: 'lost', turn: 1 });
+    expect(lost.battle?.effects).toMatchObject({ regen: 0 });
+    expect(lost.inventory).toEqual(['potion-strength']);
   });
   it('can leave a potion behind after a victory, rolled only once', async () => {
     db.random.mockReturnValue(0);
