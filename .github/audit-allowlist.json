@@ -1,0 +1,30 @@
+{
+  "web": [
+    {
+      "id": "GHSA-fc5q-39xc-vjpf",
+      "package": "picomatch",
+      "reason": "ReDoS with crafted extglob patterns. Every published version (<=4.0.7) is affected and there is no fix yet. Only build and lint tooling match globs, with patterns from our own config, never user input.",
+      "expires": "2027-02-18"
+    }
+  ],
+  "mobile": [
+    {
+      "id": "GHSA-fc5q-39xc-vjpf",
+      "package": "picomatch",
+      "reason": "ReDoS with crafted extglob patterns. Every published version (<=4.0.7) is affected and there is no fix yet. Only Metro and the Expo CLI match globs at build time, with patterns from our own config.",
+      "expires": "2027-02-18"
+    },
+    {
+      "id": "GHSA-mrhx-c7xc-m3w5",
+      "package": "zod",
+      "reason": "Fixed only in zod 4.6.6, but @expo/cli requires zod ^3.25.76. It runs in the Expo CLI at build time and validates our own config, not untrusted input. Revisit when Expo moves to zod 4.",
+      "expires": "2027-02-18"
+    },
+    {
+      "id": "GHSA-qr28-fpjm-wq7f",
+      "package": "decode-uri-component",
+      "reason": "Quadratic decoding of malformed percent-encoded input. The fix (0.5.1) is ESM-only, and query-string 7 (pinned by expo-router) loads it with require, so an override would break routing. The worst case is a slow decode of a deep link on the user's own device. Revisit with the next expo-router upgrade.",
+      "expires": "2027-02-18"
+    }
+  ]
+}
