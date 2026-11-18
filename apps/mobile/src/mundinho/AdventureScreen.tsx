@@ -18,7 +18,9 @@ export function AdventureScreen({ onCourse }: { onCourse: (language?: string) =>
   const sound = useSoundEffects();
   const [ready, setReady] = useState(false);
   const account = useRef(me.data?.id);
-  account.current = me.data?.id;
+  useEffect(() => {
+    account.current = me.data?.id;
+  }, [me.data?.id]);
   const receive = (message: unknown) =>
     ref.current?.injectJavaScript(`window.mundinhoReceive(${JSON.stringify(message)});true;`);
   useEffect(() => {
