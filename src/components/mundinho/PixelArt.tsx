@@ -139,6 +139,33 @@ export function PixelAvatar({
     </span>
   );
 }
+/**
+ * Ada, the clearing's guide, has her own artwork (dark hair in a bun and a
+ * navy Victorian dress, after Ada Lovelace) instead of the player wardrobe.
+ * See scripts/build-mundinho-ada.mjs.
+ */
+export function AdaSprite({ assetBase = '/assets/mundinho' }: { assetBase?: string }) {
+  const { text } = useLocalizedText();
+  return (
+    <span
+      role="img"
+      aria-label={text('Ada, a guia da clareira', 'Ada, the clearing guide')}
+      className="pixel-avatar sprite-avatar sprite-idle"
+      data-silhouette="feminine"
+    >
+      <span
+        aria-hidden="true"
+        data-layer="ada"
+        className="sprite-layer"
+        style={{
+          backgroundImage: `url(${adventureAsset('ada-world.png', assetBase)})`,
+          backgroundSize: '600% 100%',
+        }}
+      />
+    </span>
+  );
+}
+
 export function PixelCreature({
   kind = 'syntax-slime',
   className = '',

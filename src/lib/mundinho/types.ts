@@ -30,16 +30,6 @@ export const DEFAULT_AVATAR: Avatar = {
   outfit: 0,
   accessory: 0,
 };
-/** Ada has her own appearance, independent of the player's wardrobe. */
-export const ADA_AVATAR: Avatar = {
-  gender: 'feminine',
-  skin: 5,
-  eyes: 2,
-  hair: 1,
-  hairColor: 3,
-  outfit: 1,
-  accessory: 0,
-};
 export type Item = {
   id: string;
   name: string;

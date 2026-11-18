@@ -13,13 +13,13 @@ import {
   Swords,
   X,
 } from 'lucide-react';
-import { PixelAvatar, PixelCreature } from '@/components/mundinho/PixelArt';
+import { AdaSprite, PixelAvatar, PixelCreature } from '@/components/mundinho/PixelArt';
 import { HabitatSprite, WorldPropSprite } from '@/components/mundinho/ScenerySprites';
 import { PixelMeter } from '@/components/mundinho/PixelMeter';
-import { Portrait } from '@/components/mundinho/Portrait';
+import { AdaPortrait } from '@/components/mundinho/Portrait';
 import { TouchStick } from '@/components/mundinho/TouchStick';
 import { adventureAsset } from '@/components/mundinho/assets';
-import { ADA_AVATAR, CREATURES, type Avatar } from '@/lib/mundinho/types';
+import { CREATURES, type Avatar } from '@/lib/mundinho/types';
 import { SCENERY, WORLD, WORLD_OBJECTS, worldDepth } from '@/lib/mundinho/world';
 import { canChallengeCreature } from '@/lib/mundinho/rules';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
@@ -217,7 +217,7 @@ export function MundinhoWorld({
             >
               <span className="world-entity-badge">{objectLabel[object.id]}</span>
               {object.id === 'guide' ? (
-                <PixelAvatar avatar={ADA_AVATAR} />
+                <AdaSprite assetBase={ASSET_BASE} />
               ) : (
                 <WorldPropSprite
                   kind={
@@ -251,7 +251,7 @@ export function MundinhoWorld({
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, ease: 'easeOut' }}
           >
-            <Portrait avatar={ADA_AVATAR} name="Ada" assetBase={ASSET_BASE} />
+            <AdaPortrait assetBase={ASSET_BASE} />
             <div className="world-dialogue-copy">
               <h2>Ada</h2>
               <p>

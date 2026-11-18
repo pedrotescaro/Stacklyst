@@ -11,7 +11,7 @@ import {
   Shield,
   Swords,
 } from 'lucide-react';
-import { ADA_AVATAR, CREATURES, type Avatar } from '../../lib/mundinho/types';
+import { CREATURES, type Avatar } from '../../lib/mundinho/types';
 import {
   GROUND_DEPTH,
   holeMouth,
@@ -25,7 +25,7 @@ import {
   WORLD,
   WORLD_OBJECTS,
 } from '../../lib/mundinho/world';
-import { PixelAvatar, PixelCreature } from './PixelArt';
+import { AdaSprite, PixelAvatar, PixelCreature } from './PixelArt';
 import { HabitatSprite, WorldPropSprite } from './ScenerySprites';
 import { PixelMeter } from './PixelMeter';
 import { WorldDialogue } from './WorldDialogue';
@@ -685,7 +685,7 @@ export default function World({
                   : o.name}
               </span>
               {o.id === 'guide' ? (
-                <PixelAvatar avatar={ADA_AVATAR} />
+                <AdaSprite assetBase={assetBase} />
               ) : o.id === 'portal' && area === 'arena' ? (
                 <span className="world-arena-exit-hitbox" aria-hidden="true" />
               ) : (

@@ -6,6 +6,28 @@ import { EYE_COLORS, OUTFIT_SPECS, SKIN_PALETTES } from '../../lib/mundinho/avat
 import { useLocalizedText } from '../../i18n/useLocalizedText';
 import HAIRSTYLES from '../../lib/mundinho/hairstyles.json';
 
+/** Ada's own portrait, drawn to match her world sprite. */
+export function AdaPortrait({ assetBase = '/assets/mundinho' }: { assetBase?: string }) {
+  const { text } = useLocalizedText();
+  return (
+    <span
+      className="rpg-portrait"
+      role="img"
+      aria-label={text('Retrato de Ada', 'Portrait of Ada')}
+      data-silhouette="feminine"
+    >
+      <span
+        aria-hidden="true"
+        data-portrait-layer="ada"
+        style={{
+          backgroundImage: `url(${adventureAsset('ada-portrait.png', assetBase)})`,
+          backgroundSize: '100% 100%',
+        }}
+      />
+    </span>
+  );
+}
+
 /** Independently drawn portrait layers; all indices share the avatar's saved wardrobe. */
 export function Portrait({
   avatar,

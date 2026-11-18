@@ -33,6 +33,8 @@ for (const file of [
   'combat-effects.png',
   'equipment.png',
   'blue-sign.png',
+  'ada-world.png',
+  'ada-portrait.png',
   'habitats-back.png',
   'habitats-front.png',
   'portrait-body.png',
