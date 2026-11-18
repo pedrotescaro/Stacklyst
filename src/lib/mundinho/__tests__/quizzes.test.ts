@@ -66,19 +66,15 @@ describe('potions', () => {
     ]);
   });
   it('stores battle effects beside the asked questions and reads them back', () => {
-    const used = writeBattleUsed(['PYTHON-0', 'bug-JS-1'], {
-      strength: true,
-      regen: 2,
-      itemTurn: 4,
-    });
+    const used = writeBattleUsed(['PYTHON-0', 'bug-JS-1'], { strength: true, regen: 2 });
     expect(readBattleUsed(used)).toEqual({
       questions: ['PYTHON-0', 'bug-JS-1'],
-      effects: { strength: true, regen: 2, itemTurn: 4 },
+      effects: { strength: true, regen: 2 },
     });
-    expect(readBattleUsed(['code-1']).effects).toEqual({
-      strength: false,
-      regen: 0,
-      itemTurn: null,
-    });
+    expect(readBattleUsed(['code-1']).effects).toEqual({ strength: false, regen: 0 });
+    // The per-turn marker from when potions did not spend the turn is ignored and dropped.
+    const legacy = readBattleUsed(['code-1', 'fx:item:3', 'fx:regen:1']);
+    expect(legacy).toEqual({ questions: ['code-1'], effects: { strength: false, regen: 1 } });
+    expect(writeBattleUsed(legacy.questions, legacy.effects)).toEqual(['code-1', 'fx:regen:1']);
   });
 });

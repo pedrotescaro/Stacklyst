@@ -31,6 +31,13 @@ const CUES: Record<BattleCue, { file: string; volume: number }> = {
   spare: { file: 'flee.mp3', volume: 0.3 },
 };
 
+/** Every fight, creature or boss, shares the boss song; exploring plays the world song. */
+const MUSIC = {
+  'boss.mp3': 0.24,
+  // Exploration sits under the effects; it was 0.2 and read as too loud.
+  'world.mp3': 0.13,
+} as const;
+
 /** Original game audio, decoded once and looped on the audio clock after a gesture. */
 export class BattleAudio {
   private context: AudioContext | null = null;
@@ -222,7 +229,8 @@ export class BattleAudio {
   }
 
   private updateMusic() {
-    const file = this.boss ? 'boss.mp3' : this.battling || this.exploring ? 'world.mp3' : null;
+    const file: keyof typeof MUSIC | null =
+      this.boss || this.battling ? 'boss.mp3' : this.exploring ? 'world.mp3' : null;
     if (!file || !this.enabled || !this.foreground || this.context?.state !== 'running') {
       this.stopMusic();
       return;
@@ -240,7 +248,7 @@ export class BattleAudio {
         return;
       }
       if (this.musicFile !== file || !this.enabled || !this.foreground) return;
-      this.musicNode = this.start(buffer, file === 'boss.mp3' ? 0.24 : 0.2, true);
+      this.musicNode = this.start(buffer, MUSIC[file], true);
     });
   }
 

@@ -1,6 +1,6 @@
 /**
- * Potions drop from defeated creatures and are used during creature battles,
- * at most one per turn, without spending the turn.
+ * Potions drop from defeated creatures and are used during creature battles.
+ * Drinking one is the turn's action: the creature counters afterwards.
  *
  * Storage needs no schema change: each potion owned is one `potion-*` entry in
  * the player's inventory array (equipment code only looks up equipment ids),
@@ -71,13 +71,13 @@ export function withoutOnePotion(inventory: readonly string[], id: PotionId) {
   return index < 0 ? [...inventory] : [...inventory.slice(0, index), ...inventory.slice(index + 1)];
 }
 
-export type BattleEffects = { strength: boolean; regen: number; itemTurn: number | null };
+export type BattleEffects = { strength: boolean; regen: number };
 
 const FX = 'fx:';
 
 /** Splits a battle's `used` list into the asked question ids and its potion effects. */
 export function readBattleUsed(used: unknown): { questions: string[]; effects: BattleEffects } {
-  const effects: BattleEffects = { strength: false, regen: 0, itemTurn: null };
+  const effects: BattleEffects = { strength: false, regen: 0 };
   const questions: string[] = [];
   for (const entry of Array.isArray(used) ? used : []) {
     if (typeof entry !== 'string') continue;
@@ -88,7 +88,7 @@ export function readBattleUsed(used: unknown): { questions: string[]; effects: B
     const [, name, value] = entry.split(':');
     if (name === 'strength') effects.strength = true;
     else if (name === 'regen') effects.regen = Math.max(0, Number(value) || 0);
-    else if (name === 'item') effects.itemTurn = Number(value);
+    // Older battles may still carry an `fx:item:<turn>` marker; it is dropped on the next write.
   }
   return { questions, effects };
 }
@@ -98,6 +98,5 @@ export function writeBattleUsed(questions: readonly string[], effects: BattleEff
     ...questions,
     ...(effects.strength ? [`${FX}strength`] : []),
     ...(effects.regen > 0 ? [`${FX}regen:${effects.regen}`] : []),
-    ...(effects.itemTurn !== null ? [`${FX}item:${effects.itemTurn}`] : []),
   ];
 }

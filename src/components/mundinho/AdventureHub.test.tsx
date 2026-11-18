@@ -488,15 +488,20 @@ describe('Mundinho battle navigation', () => {
     const apply = screen.getByRole('button', { name: /^Aplicar conceito/ });
     const debug = screen.getByRole('button', { name: /^Depurar/ });
     const refactor = screen.getByRole('button', { name: /^Refatorar/ });
+    const potions = screen.getByRole('button', { name: /^Usar poções/ });
     const heading = screen.getByRole('heading', { level: 1 });
     fireEvent.keyDown(heading, { key: 'ArrowLeft' });
+    expect(potions).toHaveFocus();
+    expect(potions).toHaveAttribute('data-selected', 'true');
+    fireEvent.keyDown(potions, { key: 'a' });
     expect(refactor).toHaveFocus();
-    expect(refactor).toHaveAttribute('data-selected', 'true');
     fireEvent.keyDown(refactor, { key: 'w' });
     expect(debug).toHaveFocus();
     fireEvent.keyDown(debug, { key: 'ArrowDown' });
     expect(refactor).toHaveFocus();
     fireEvent.keyDown(refactor, { key: 'd' });
+    expect(potions).toHaveFocus();
+    fireEvent.keyDown(potions, { key: 'd' });
     expect(apply).toHaveFocus();
     fireEvent.keyDown(apply, { key: 'd' });
     expect(debug).toHaveFocus();
@@ -827,7 +832,7 @@ describe('Battle challenges and potions on screen', () => {
       )
     );
   });
-  it('labels each skill with its challenge and drinks a potion from the bag', async () => {
+  it('labels each skill with its challenge and keeps potions behind a fourth action', async () => {
     const active = state('active');
     active.inventory = ['potion-heal', 'potion-heal'];
     active.battle!.hp = 40;
@@ -838,14 +843,94 @@ describe('Battle challenges and potions on screen', () => {
     ).toBeVisible();
     expect(screen.getByRole('button', { name: /Depurar.*Encontre o erro/ })).toBeVisible();
     expect(screen.getByRole('button', { name: /Refatorar.*Exercício de código/ })).toBeVisible();
+    // No potion strip under the actions: the potions open from "Usar poções".
+    expect(screen.queryByRole('button', { name: /Poção de cura/ })).not.toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Usar poções.*2 na bolsa/ })).toBeVisible();
+  });
+  it('drinks a potion from the picker by touch, spending the turn', async () => {
+    const active = state('active');
+    active.inventory = ['potion-heal', 'potion-heal'];
+    active.battle!.hp = 40;
+    const next = structuredClone(active);
+    next.inventory = ['potion-heal'];
+    next.battle!.hp = 69; // +40, then the creature's 11 damage counter.
+    next.battle!.turn = 1;
+    next.battle!.feedback =
+      'Você bebeu a Poção de cura: +40 de vida. A criatura revidou: 11 de dano.';
+    const transport = vi.fn<AdventureTransport>(async (action) =>
+      action?.type === 'battle-item' ? next : active
+    );
+    const sound = vi.spyOn(BattleAudio.prototype, 'play');
+    await openBattle(transport);
+    fireEvent.click(screen.getByRole('button', { name: /^Usar poções/ }));
+    const menu = screen.getByRole('region', { name: 'Poções' });
+    expect(screen.queryByRole('toolbar', { name: 'Ações de batalha' })).not.toBeInTheDocument();
+    expect(menu).toHaveTextContent('gasta o turno');
     expect(screen.getByRole('button', { name: /Poção de regeneração/ })).toBeDisabled();
     const heal = screen.getByRole('button', { name: /Poção de cura/ });
     expect(heal).toHaveTextContent('×2');
+    expect(heal).toHaveFocus();
     fireEvent.click(heal);
     await waitFor(() =>
-      expect(transport).toHaveBeenCalledWith(
-        expect.objectContaining({ type: 'battle-item', item: 'potion-heal', turn: 0 })
-      )
+      expect(transport).toHaveBeenCalledWith({
+        type: 'battle-item',
+        battle: 'battle-id',
+        turn: 0,
+        item: 'potion-heal',
+      })
     );
+    // The heal shows first, then the creature's counter on the hero.
+    await waitFor(() => expect(screen.getByText('+40')).toBeInTheDocument());
+    expect(sound).toHaveBeenCalledWith('heal');
+    await waitFor(() => expect(screen.getByText('−11')).toBeInTheDocument());
+    expect(sound).toHaveBeenCalledWith('hurt');
+    expect(sound).not.toHaveBeenCalledWith('attack');
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: /^Usar poções.*1 na bolsa/ })).toHaveFocus()
+    );
+    expect(screen.getByText('69 / 100 PV')).toBeInTheDocument();
+    expect(screen.queryByRole('region', { name: 'Poções' })).not.toBeInTheDocument();
+    sound.mockRestore();
+  });
+  it('opens and closes the picker by keyboard without spending the turn', async () => {
+    const active = state('active');
+    active.inventory = ['potion-strength', 'potion-heal'];
+    active.battle!.hp = 40;
+    const transport = vi.fn<AdventureTransport>(async () => active);
+    await openBattle(transport);
+    const heading = screen.getByRole('heading', { level: 1 });
+    fireEvent.keyDown(heading, { key: 'End' });
+    const potions = screen.getByRole('button', { name: /^Usar poções/ });
+    expect(potions).toHaveFocus();
+    fireEvent.keyDown(potions, { key: 'Enter' });
+    const heal = screen.getByRole('button', { name: /Poção de cura/ });
+    const strength = screen.getByRole('button', { name: /Poção de força/ });
+    const back = screen.getByRole('button', { name: 'Voltar' });
+    expect(heal).toHaveFocus();
+    // Regeneration is not in the bag, so the cursor skips it.
+    fireEvent.keyDown(heal, { key: 's' });
+    expect(strength).toHaveFocus();
+    fireEvent.keyDown(strength, { key: 'ArrowDown' });
+    expect(back).toHaveFocus();
+    fireEvent.keyDown(back, { key: 'ArrowDown' });
+    expect(heal).toHaveFocus();
+    fireEvent.keyDown(heal, { key: 'Escape' });
+    expect(screen.queryByRole('region', { name: 'Poções' })).not.toBeInTheDocument();
+    await waitFor(() => expect(screen.getByRole('button', { name: /^Usar poções/ })).toHaveFocus());
+    fireEvent.click(screen.getByRole('button', { name: /^Usar poções/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Voltar' }));
+    expect(screen.getByRole('toolbar', { name: 'Ações de batalha' })).toBeInTheDocument();
+    expect(transport.mock.calls.filter(([action]) => action)).toHaveLength(0);
+  });
+  it('explains an empty bag and only offers to go back', async () => {
+    const transport = vi.fn<AdventureTransport>(async () => state('active'));
+    await openBattle(transport);
+    fireEvent.click(screen.getByRole('button', { name: /^Usar poções.*Bolsa vazia/ }));
+    const menu = screen.getByRole('region', { name: 'Poções' });
+    expect(menu).toHaveTextContent('Sua bolsa está vazia');
+    expect(menu.querySelectorAll('button')).toHaveLength(1);
+    expect(screen.getByRole('button', { name: 'Voltar' })).toHaveFocus();
+    fireEvent.click(screen.getByRole('button', { name: 'Voltar' }));
+    expect(transport.mock.calls.filter(([action]) => action)).toHaveLength(0);
   });
 });

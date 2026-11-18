@@ -9,6 +9,7 @@ let fetchAudio: Mock<
   (url: string) => Promise<{ ok: boolean; arrayBuffer?: () => Promise<ArrayBuffer> }>
 >;
 let sources: FakeSource[];
+let volumes: number[];
 
 class FakeSource {
   buffer: { name: string } | null = null;
@@ -49,7 +50,7 @@ class FakeAudioContext {
   }
   createGain() {
     return {
-      gain: { setValueAtTime: vi.fn() },
+      gain: { setValueAtTime: vi.fn((value: number) => volumes.push(value)) },
       connect: vi.fn(),
       disconnect: vi.fn(),
     };
@@ -78,6 +79,7 @@ beforeEach(() => {
   vi.useFakeTimers();
   contexts = [];
   sources = [];
+  volumes = [];
   fetchAudio = vi.fn(async (url: string) => ({
     ok: true,
     arrayBuffer: async () => encode(url),
@@ -109,7 +111,7 @@ describe('Blue Star audio lifecycle', () => {
     audio.dispose();
   });
 
-  it('uses the real world/boss songs with one loop and restores the world after the boss', async () => {
+  it('plays the boss song in every fight and restores the quieter world song afterwards', async () => {
     const audio = new BattleAudio();
     audio.unlock();
     audio.setWorld(true);
@@ -117,23 +119,36 @@ describe('Blue Star audio lifecycle', () => {
     const world = sources[0];
     expect(world.buffer?.name).toBe('world.mp3');
     expect(world.loop).toBe(true);
+    // Exploration plays at about two thirds of the earlier 0.2.
+    expect(volumes[0]).toBe(0.13);
     audio.setBattle(true);
     audio.setWorld(false);
     await settle();
-    expect(sources).toHaveLength(1); // Ordinary battles share the original world song.
+    // An ordinary creature battle switches to the boss song, at the boss volume.
+    expect(world.stop).toHaveBeenCalledOnce();
+    const battle = sources[1];
+    expect(battle.buffer?.name).toBe('boss.mp3');
+    expect(battle.loop).toBe(true);
+    expect(volumes[1]).toBe(0.24);
+    audio.setBattle(false);
+    audio.setWorld(true);
+    await settle();
+    expect(battle.stop).toHaveBeenCalledOnce();
+    expect(sources[2].buffer?.name).toBe('world.mp3');
     audio.setBoss(true);
     await settle();
-    expect(world.stop).toHaveBeenCalledOnce();
-    const boss = sources[1];
+    expect(sources[2].stop).toHaveBeenCalledOnce();
+    const boss = sources[3];
     expect(boss.buffer?.name).toBe('boss.mp3');
     expect(boss.loop).toBe(true);
     audio.setBoss(false);
     await settle();
     expect(boss.stop).toHaveBeenCalledOnce();
-    expect(sources[2].buffer?.name).toBe('world.mp3');
-    audio.setBattle(false);
-    expect(sources[2].stop).toHaveBeenCalledOnce();
+    expect(sources[4].buffer?.name).toBe('world.mp3');
+    audio.setWorld(false);
+    expect(sources[4].stop).toHaveBeenCalledOnce();
     expect(fetchAudio.mock.calls.filter(([url]) => url.endsWith('/world.mp3'))).toHaveLength(1);
+    expect(fetchAudio.mock.calls.filter(([url]) => url.endsWith('/boss.mp3'))).toHaveLength(1);
     audio.dispose();
   });
 

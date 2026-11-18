@@ -1,3 +1,4 @@
+import { useEffect, useRef, type KeyboardEvent } from 'react';
 import { POTIONS, potionCounts, type PotionId } from '../../lib/mundinho/potions';
 import { useLocalizedText } from '../../i18n/useLocalizedText';
 
@@ -32,70 +33,126 @@ export function PotionIcon({ id }: { id: PotionId }) {
   );
 }
 
+export function potionTotal(inventory: readonly string[]) {
+  return Object.values(potionCounts(inventory)).reduce((sum, n) => sum + n, 0);
+}
+
+const PREVIOUS = ['arrowleft', 'arrowup', 'a', 'w'];
+const NEXT = ['arrowright', 'arrowdown', 'd', 's'];
+
 /**
- * The potions carried into a creature battle. One may be drunk per turn and
- * drinking does not spend the turn.
+ * The potion picker opened by the battle's "Usar poções" action. Drinking one
+ * spends the turn; going back does not.
  */
-export function PotionBag({
+export function PotionMenu({
   inventory,
-  usedThisTurn,
   healthFull,
   effects,
   busy,
   onUse,
+  onClose,
 }: {
   inventory: string[];
-  usedThisTurn: boolean;
   healthFull: boolean;
   effects: { strength: boolean; regen: number };
   busy: boolean;
   onUse: (id: PotionId) => void;
+  onClose: () => void;
 }) {
   const { text } = useLocalizedText();
   const counts = potionCounts(inventory);
-  const total = Object.values(counts).reduce((sum, n) => sum + n, 0);
+  const empty = potionTotal(inventory) === 0;
+  const list = useRef<HTMLDivElement>(null);
+  const buttons = () =>
+    Array.from(list.current?.querySelectorAll<HTMLButtonElement>('button:not(:disabled)') ?? []);
+  useEffect(() => {
+    // Opening the picker moves the cursor to the first potion that can be drunk.
+    buttons()[0]?.focus({ preventScroll: true });
+  }, []);
+  const onKeyDown = (event: KeyboardEvent<HTMLElement>) => {
+    if (event.altKey || event.ctrlKey || event.metaKey) return;
+    const key = event.key.toLowerCase();
+    if (key === 'escape' || key === 'backspace') {
+      event.preventDefault();
+      event.stopPropagation();
+      onClose();
+      return;
+    }
+    const previous = PREVIOUS.includes(key);
+    if (!previous && !NEXT.includes(key) && key !== 'home' && key !== 'end') return;
+    event.preventDefault();
+    event.stopPropagation();
+    const enabled = buttons();
+    if (!enabled.length) return;
+    const current = enabled.indexOf(document.activeElement as HTMLButtonElement);
+    const index =
+      key === 'home'
+        ? 0
+        : key === 'end'
+          ? enabled.length - 1
+          : (current + (previous ? -1 : 1) + enabled.length) % enabled.length;
+    enabled[index].focus({ preventScroll: true });
+  };
   return (
-    <section className="ad-potion-bag" aria-label={text('Poções', 'Potions')}>
+    <section
+      className="ad-potion-menu"
+      aria-labelledby="ad-potion-menu-title"
+      onKeyDown={onKeyDown}
+    >
       <header>
-        <strong>{text('Poções', 'Potions')}</strong>
+        <strong id="ad-potion-menu-title">{text('Poções', 'Potions')}</strong>
         <span>
-          {usedThisTurn
-            ? text('Você já bebeu uma poção neste turno.', 'You already drank a potion this turn.')
-            : total
-              ? text('Uma por turno, sem gastar o turno.', 'One per turn, without spending it.')
-              : text(
-                  'Derrote criaturas para encontrar poções.',
-                  'Defeat creatures to find potions.'
-                )}
+          {empty
+            ? text(
+                'Sua bolsa está vazia. Derrote criaturas para encontrar poções.',
+                'Your bag is empty. Defeat creatures to find potions.'
+              )
+            : text(
+                'Beber uma poção gasta o turno: a criatura ataca em seguida.',
+                'Drinking a potion spends your turn: the creature attacks next.'
+              )}
         </span>
       </header>
-      <div className="ad-potion-list">
-        {POTIONS.map((potion) => {
-          const blocked =
-            (potion.id === 'potion-heal' && healthFull) ||
-            (potion.id === 'potion-regen' && effects.regen > 0) ||
-            (potion.id === 'potion-strength' && effects.strength);
-          return (
-            <button
-              key={potion.id}
-              type="button"
-              className="ad-potion-btn"
-              disabled={busy || usedThisTurn || !counts[potion.id] || blocked}
-              onClick={() => onUse(potion.id)}
-              title={text(potion.description, potion.descriptionEn)}
-            >
-              <PotionIcon id={potion.id} />
-              <span className="ad-potion-text">
-                <strong>{text(potion.name, potion.nameEn)}</strong>
-                <small>{text(potion.description, potion.descriptionEn)}</small>
-              </span>
-              <span className="ad-potion-count" aria-label={text('Quantidade', 'Amount')}>
-                ×{counts[potion.id]}
-              </span>
-            </button>
-          );
-        })}
+      <div className="ad-potion-list" ref={list}>
+        {!empty &&
+          POTIONS.map((potion) => {
+            const active =
+              (potion.id === 'potion-regen' && effects.regen > 0) ||
+              (potion.id === 'potion-strength' && effects.strength);
+            const reason = !counts[potion.id]
+              ? text('Nenhuma na bolsa', 'None in your bag')
+              : potion.id === 'potion-heal' && healthFull
+                ? text('Vida cheia', 'HP is full')
+                : active
+                  ? text('Efeito já ativo', 'Effect already active')
+                  : null;
+            return (
+              <button
+                key={potion.id}
+                type="button"
+                className="ad-potion-btn"
+                disabled={busy || reason !== null}
+                onClick={() => onUse(potion.id)}
+              >
+                <PotionIcon id={potion.id} />
+                <span className="ad-potion-text">
+                  <strong>{text(potion.name, potion.nameEn)}</strong>
+                  <small>{reason ?? text(potion.description, potion.descriptionEn)}</small>
+                </span>
+                <span className="ad-potion-count">×{counts[potion.id]}</span>
+              </button>
+            );
+          })}
+        <button type="button" className="ad-potion-back" disabled={busy} onClick={onClose}>
+          {text('Voltar', 'Back')}
+        </button>
       </div>
+      <p className="rpg-command-hint">
+        {text(
+          'WASD / setas: selecionar · Enter: beber · Esc: voltar',
+          'WASD / arrows: select · Enter: drink · Esc: back'
+        )}
+      </p>
     </section>
   );
 }

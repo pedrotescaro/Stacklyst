@@ -49,12 +49,13 @@ import {
   type Course,
 } from '../../lib/mundinho/types';
 import { canChallengeCreature, SKILL_CHALLENGE, SKILLS } from '../../lib/mundinho/rules';
+import { POTION_HEAL } from '../../lib/mundinho/potions';
 import { BattleAudio } from '../../lib/mundinho/battleAudio';
 import { CodeBattle } from './CodeBattle';
 import { BattleEffects, CREATURE_ELEMENTS } from './BattleEffects';
 import { HitSpark } from './BattleHit';
 import { QuizChallenge } from './QuizChallenge';
-import { PotionBag } from './PotionBag';
+import { PotionMenu, potionTotal } from './PotionBag';
 import { CoinPackArt, type CoinPackId } from './CoinPackArt';
 import { ColorPalette, PROFILE_COLORS } from '../ColorPalette';
 import {
@@ -93,6 +94,9 @@ import type { ArenaInvitation, ArenaState, ArenaTransport } from '../../lib/mund
 
 import { VeilBoss } from './VeilBoss';
 const World = lazy(() => import('./World'));
+/** The three skills, then "Usar poções", which opens the potion picker. */
+const POTION_ACTION = SKILLS.length;
+const BATTLE_ACTIONS = SKILLS.length + 1;
 const hairColors = [
   ...new Set([...HAIR, ...NATURAL_HAIR_OPTIONS.map((item) => item.color), ...PROFILE_COLORS]),
 ];
@@ -243,6 +247,8 @@ export function AdventureHub({
   const [incomingDamage, setIncomingDamage] = useState(0);
   const [healing, setHealing] = useState(0);
   const [selectedSkill, setSelectedSkill] = useState(0);
+  /** The potion picker, opened by the fourth battle action. */
+  const [potionMenu, setPotionMenu] = useState(false);
   const skillButtons = useRef<(HTMLButtonElement | null)[]>([]);
   const [battleAudio] = useState(() => new BattleAudio());
   const [soundEnabled, setSoundEnabled] = useState(true);
@@ -353,6 +359,7 @@ export function AdventureHub({
     setNotice('');
     setConfirm(null);
     if (next === 'battle') setSelectedSkill(0);
+    setPotionMenu(false);
     if (next === 'avatar' && data) {
       setDraft(data.avatar);
     }
@@ -425,7 +432,9 @@ export function AdventureHub({
         !next.notice &&
         (action.type === 'battle-answer' ||
           (action.type === 'battle-code' && action.submit && !next.codeRun?.retryable) ||
-          ((action.type === 'battle-skill' || action.type === 'battle-skip') &&
+          ((action.type === 'battle-skill' ||
+            action.type === 'battle-skip' ||
+            action.type === 'battle-item') &&
             data?.battle?.id === next.battle?.id &&
             (next.battle?.turn ?? 0) > (data?.battle?.turn ?? 0)));
       if (answered && data?.battle && next.battle) {
@@ -433,22 +442,7 @@ export function AdventureHub({
         const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
         const pause = (ms: number) =>
           new Promise((resolve) => setTimeout(resolve, reduced ? 0 : ms));
-        setImpact(data.battle.enemyHp - next.battle.enemyHp);
-        const skill =
-          SKILLS.find(
-            (item) =>
-              item.id === (action.type === 'battle-skill' ? action.skill : data.battle?.skill)
-          ) ?? SKILLS[0];
         const maxHp = data.battle.maxHp ?? data.combatStats?.maxHp ?? 100;
-        const landed = next.battle.enemyHp < data.battle.enemyHp;
-        setAttackEffect(skill.id);
-        setHealing(landed ? Math.max(0, Math.min(maxHp - data.battle.hp, skill.heal)) : 0);
-        const recoveredHp = Math.max(
-          0,
-          landed ? Math.min(maxHp, data.battle.hp + skill.heal) : data.battle.hp
-        );
-        const counterDamage = Math.max(0, recoveredHp - next.battle.hp);
-        setIncomingDamage(counterDamage);
         // The response already confirms the turn. Present its damage/healing at
         // contact while keeping the remaining turn fields locked until recovery.
         const showBattleHealth = (hp: number) =>
@@ -459,14 +453,45 @@ export function AdventureHub({
               battle: { ...current.battle, enemyHp: resolvedBattle.enemyHp, hp },
             };
           });
-        battleAudio.play('attack');
-        setCombatPhase('player-attack');
-        await pause(350);
-        battleAudio.play(next.battle.enemyHp < data.battle.enemyHp ? 'hit' : 'miss');
-        if (landed && skill.heal > 0) battleAudio.play('heal');
-        showBattleHealth(recoveredHp);
-        setCombatPhase(next.battle.enemyHp < data.battle.enemyHp ? 'enemy-hurt' : 'miss');
-        await pause(450);
+        let recoveredHp: number;
+        if (action.type === 'battle-item') {
+          // Drinking is the turn's action; the creature then counters.
+          const healed =
+            action.item === 'potion-heal'
+              ? Math.max(0, Math.min(POTION_HEAL, maxHp - data.battle.hp))
+              : 0;
+          recoveredHp = data.battle.hp + healed;
+          setImpact(0);
+          setHealing(healed);
+          battleAudio.play('heal');
+          showBattleHealth(recoveredHp);
+          setCombatPhase('potion');
+          await pause(600);
+        } else {
+          setImpact(data.battle.enemyHp - next.battle.enemyHp);
+          const skill =
+            SKILLS.find(
+              (item) =>
+                item.id === (action.type === 'battle-skill' ? action.skill : data.battle?.skill)
+            ) ?? SKILLS[0];
+          const landed = next.battle.enemyHp < data.battle.enemyHp;
+          setAttackEffect(skill.id);
+          setHealing(landed ? Math.max(0, Math.min(maxHp - data.battle.hp, skill.heal)) : 0);
+          recoveredHp = Math.max(
+            0,
+            landed ? Math.min(maxHp, data.battle.hp + skill.heal) : data.battle.hp
+          );
+          battleAudio.play('attack');
+          setCombatPhase('player-attack');
+          await pause(350);
+          battleAudio.play(landed ? 'hit' : 'miss');
+          if (landed && skill.heal > 0) battleAudio.play('heal');
+          showBattleHealth(recoveredHp);
+          setCombatPhase(landed ? 'enemy-hurt' : 'miss');
+          await pause(450);
+        }
+        const counterDamage = Math.max(0, recoveredHp - next.battle.hp);
+        setIncomingDamage(counterDamage);
         if (counterDamage > 0 && next.battle.enemyHp > 0) {
           setCombatPhase('enemy-attack');
           await pause(350);
@@ -552,7 +577,11 @@ export function AdventureHub({
         ? text('Encontre o erro', 'Find the bug')
         : text('Exercício de código', 'Code exercise');
   const battleDrop = EQUIPMENT.find((item) => item.id === battle?.drop?.itemId);
-  const choosingSkill = view === 'battle' && battle?.status === 'active' && !battle.question;
+  const potionCount = potionTotal(data?.inventory ?? []);
+  const choosingSkill =
+    view === 'battle' && battle?.status === 'active' && !battle.question && !potionMenu;
+  // A resolved turn or a new battle always comes back to the battle actions.
+  useEffect(() => setPotionMenu(false), [battle?.id, battle?.turn, battle?.status]);
   useEffect(() => {
     if (!choosingSkill || busy) return;
     const focused = document.activeElement;
@@ -643,11 +672,24 @@ export function AdventureHub({
     }
   };
 
+  const openPotionMenu = () => {
+    setSelectedSkill(POTION_ACTION);
+    setPotionMenu(true);
+    battleAudio.play('select');
+  };
+  const closePotionMenu = () => {
+    setPotionMenu(false);
+    // Back on the battle actions, the cursor returns to "Usar poções".
+    requestAnimationFrame(() =>
+      skillButtons.current[POTION_ACTION]?.focus({ preventScroll: true })
+    );
+  };
   const handleBattleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
     if (
       view !== 'battle' ||
       battle?.status !== 'active' ||
       battle.question ||
+      potionMenu ||
       busy ||
       event.altKey ||
       event.ctrlKey ||
@@ -669,8 +711,8 @@ export function AdventureHub({
         key === 'home'
           ? 0
           : key === 'end'
-            ? SKILLS.length - 1
-            : (selectedSkill + (previous ? -1 : 1) + SKILLS.length) % SKILLS.length;
+            ? BATTLE_ACTIONS - 1
+            : (selectedSkill + (previous ? -1 : 1) + BATTLE_ACTIONS) % BATTLE_ACTIONS;
       setSelectedSkill(index);
       skillButtons.current[index]?.focus({ preventScroll: true });
       battleAudio.play('select');
@@ -678,6 +720,10 @@ export function AdventureHub({
       event.preventDefault();
       event.stopPropagation();
       if (event.repeat) return;
+      if (selectedSkill === POTION_ACTION) {
+        openPotionMenu();
+        return;
+      }
       void act({
         type: 'battle-skill',
         battle: battle.id,
@@ -1789,7 +1835,7 @@ export function AdventureHub({
                     {combatPhase === 'player-attack' && (
                       <BattleEffects kind={attackEffect} stage="cast" />
                     )}
-                    {combatPhase === 'enemy-hurt' && healing > 0 && (
+                    {(combatPhase === 'enemy-hurt' || combatPhase === 'potion') && healing > 0 && (
                       <>
                         <BattleEffects kind="focus" stage="heal" />
                         <span className="combat-damage battle-heal" aria-hidden="true">
@@ -1934,66 +1980,97 @@ export function AdventureHub({
                           {battle.maxHp ?? combatStats.maxHp} {text('PV', 'HP')}
                         </span>
                       </p>
-                      <div
-                        className="ad-skills-grid"
-                        role="toolbar"
-                        aria-label={text('Ações de batalha', 'Battle actions')}
-                        aria-orientation="horizontal"
-                      >
-                        {SKILLS.map((skill, index) => (
-                          <button
-                            key={skill.id}
-                            disabled={busy}
-                            className="ad-skill-card-btn"
-                            ref={(element) => {
-                              skillButtons.current[index] = element;
-                            }}
-                            tabIndex={selectedSkill === index ? 0 : -1}
-                            data-selected={selectedSkill === index}
-                            onFocus={() => setSelectedSkill(index)}
-                            onClick={() => {
-                              setSelectedSkill(index);
-                              void act({
-                                type: 'battle-skill',
-                                battle: battle.id,
-                                turn: battle.turn,
-                                skill: skill.id,
-                              });
-                            }}
+                      {potionMenu ? (
+                        <PotionMenu
+                          inventory={data?.inventory ?? []}
+                          healthFull={battle.hp >= (battle.maxHp ?? combatStats.maxHp)}
+                          effects={{
+                            strength: Boolean(battle.effects?.strength),
+                            regen: battle.effects?.regen ?? 0,
+                          }}
+                          busy={busy}
+                          onClose={closePotionMenu}
+                          onUse={(item) => {
+                            setPotionMenu(false);
+                            void act({
+                              type: 'battle-item',
+                              battle: battle.id,
+                              turn: battle.turn,
+                              item,
+                            });
+                          }}
+                        />
+                      ) : (
+                        <>
+                          <div
+                            className="ad-skills-grid"
+                            role="toolbar"
+                            aria-label={text('Ações de batalha', 'Battle actions')}
+                            aria-orientation="horizontal"
                           >
-                            <span className="rpg-selection-cursor" aria-hidden="true" />
-                            <strong>{m(skill.name)}</strong>
-                            <small>{m(skill.description)}</small>
-                            <em className="ad-skill-challenge">
-                              {challengeLabel(SKILL_CHALLENGE[skill.id])}
-                            </em>
-                          </button>
-                        ))}
-                      </div>
-                      <p className="rpg-command-hint">
-                        {text(
-                          'WASD / setas: selecionar · Enter / Espaço: confirmar',
-                          'WASD / arrows: select · Enter / Space: confirm'
-                        )}
-                      </p>
-                      <PotionBag
-                        inventory={data?.inventory ?? []}
-                        usedThisTurn={Boolean(battle.effects?.itemUsed)}
-                        healthFull={battle.hp >= (battle.maxHp ?? combatStats.maxHp)}
-                        effects={{
-                          strength: Boolean(battle.effects?.strength),
-                          regen: battle.effects?.regen ?? 0,
-                        }}
-                        busy={busy}
-                        onUse={(item) =>
-                          void act({
-                            type: 'battle-item',
-                            battle: battle.id,
-                            turn: battle.turn,
-                            item,
-                          })
-                        }
-                      />
+                            {SKILLS.map((skill, index) => (
+                              <button
+                                key={skill.id}
+                                disabled={busy}
+                                className="ad-skill-card-btn"
+                                ref={(element) => {
+                                  skillButtons.current[index] = element;
+                                }}
+                                tabIndex={selectedSkill === index ? 0 : -1}
+                                data-selected={selectedSkill === index}
+                                onFocus={() => setSelectedSkill(index)}
+                                onClick={() => {
+                                  setSelectedSkill(index);
+                                  void act({
+                                    type: 'battle-skill',
+                                    battle: battle.id,
+                                    turn: battle.turn,
+                                    skill: skill.id,
+                                  });
+                                }}
+                              >
+                                <span className="rpg-selection-cursor" aria-hidden="true" />
+                                <strong>{m(skill.name)}</strong>
+                                <small>{m(skill.description)}</small>
+                                <em className="ad-skill-challenge">
+                                  {challengeLabel(SKILL_CHALLENGE[skill.id])}
+                                </em>
+                              </button>
+                            ))}
+                            <button
+                              disabled={busy}
+                              className="ad-skill-card-btn ad-potion-action"
+                              ref={(element) => {
+                                skillButtons.current[POTION_ACTION] = element;
+                              }}
+                              tabIndex={selectedSkill === POTION_ACTION ? 0 : -1}
+                              data-selected={selectedSkill === POTION_ACTION}
+                              onFocus={() => setSelectedSkill(POTION_ACTION)}
+                              onClick={openPotionMenu}
+                            >
+                              <span className="rpg-selection-cursor" aria-hidden="true" />
+                              <strong>{text('Usar poções', 'Use potions')}</strong>
+                              <small>
+                                {text(
+                                  'Beba uma poção no lugar do golpe',
+                                  'Drink one instead of attacking'
+                                )}
+                              </small>
+                              <em className="ad-skill-challenge">
+                                {potionCount
+                                  ? text(`${potionCount} na bolsa`, `${potionCount} in your bag`)
+                                  : text('Bolsa vazia', 'Empty bag')}
+                              </em>
+                            </button>
+                          </div>
+                          <p className="rpg-command-hint">
+                            {text(
+                              'WASD / setas: selecionar · Enter / Espaço: confirmar',
+                              'WASD / arrows: select · Enter / Space: confirm'
+                            )}
+                          </p>
+                        </>
+                      )}
                     </>
                   )
                 ) : (

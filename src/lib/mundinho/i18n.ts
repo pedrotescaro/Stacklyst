@@ -167,7 +167,8 @@ export const MUNDINHO_EN: Record<string, string> = {
   'Poção de cura': 'Healing potion',
   'Poção de regeneração': 'Regeneration potion',
   'Poção de força': 'Strength potion',
-  'Você já usou uma poção neste turno.': 'You already used a potion this turn.',
+  'Resolva o desafio deste turno antes de usar uma poção.':
+    'Finish this turn’s challenge before using a potion.',
   'Você não tem esta poção.': 'You do not have this potion.',
   'Sua vida já está cheia.': 'Your HP is already full.',
   'A regeneração já está ativa.': 'Regeneration is already active.',
@@ -328,6 +329,7 @@ export const MUNDINHO_EN_PATTERNS: Pattern[] = [
   ],
   [/^Poção de força: \+(\d+) de dano\.$/, (m) => `Strength potion: +${m[1]} damage.`],
   [/^Regeneração: \+(\d+) de vida\.$/, (m) => `Regeneration: +${m[1]} HP.`],
+  [/^A criatura revidou: (\d+) de dano\.$/, (m) => `The creature struck back: ${m[1]} damage.`],
   [/^A criatura deixou cair uma (.+)!$/, (m, tr) => `The creature dropped a ${word(m[1], tr)}!`],
   [
     /^Você bebeu a Poção de cura: \+(\d+) de vida\.$/,

@@ -51,6 +51,13 @@ export const SKILL_CHALLENGE: Record<string, 'concept' | 'bug' | 'code'> = {
   focus: 'bug',
   burst: 'code',
 };
+/**
+ * What the creature deals back at the end of a turn: a full hit after a missed
+ * blow, a lighter one otherwise (a landed blow or drinking a potion).
+ */
+export function enemyCounterDamage(level: number, protection: number, missed = false) {
+  return Math.max(1, (missed ? 18 : 9) + level * 2 - protection);
+}
 export function resolveTurn(
   hp: number,
   enemyHp: number,
@@ -66,7 +73,7 @@ export function resolveTurn(
   const nextHp = Math.max(
     0,
     Math.min(equipment.maxHp, hp + (correct ? move.heal : 0)) -
-      (nextEnemy > 0 ? Math.max(1, (correct ? 9 : 18) + level * 2 - equipment.protection) : 0)
+      (nextEnemy > 0 ? enemyCounterDamage(level, equipment.protection, !correct) : 0)
   );
   return {
     hp: nextHp,
