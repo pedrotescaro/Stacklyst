@@ -110,7 +110,12 @@ export function EnadeQuestion({
             <legend>Escolha uma alternativa</legend>
             {!q.readOnly && (
               <p className={styles.strikeHint}>
-                Clique com o botão direito em uma alternativa para riscá-la.
+                <span className={styles.pointerOnly}>
+                  Clique com o botão direito em uma alternativa para riscá-la.
+                </span>
+                <span className={styles.touchOnly}>
+                  Toque no ícone de riscar ao lado de uma alternativa para descartá-la.
+                </span>
               </p>
             )}
             <div

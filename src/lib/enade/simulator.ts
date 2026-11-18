@@ -1,9 +1,12 @@
 import catalog from './exams.json';
 import type { EnadeAttempt, EnadeQuestion } from './types';
 
+/** Which part of the exam to practise: interpretation/general culture, the ADS/IT component, or both. */
+export type EnadeSectionFilter = 'all' | 'general' | 'specific';
 export type EnadeConfig = {
   version: 1;
   years: number[];
+  section: EnadeSectionFilter;
   questionCount: number;
   order: 'sequential' | 'random';
   durationMinutes: number | null;
@@ -47,6 +50,7 @@ export const EMPTY_WORKSPACE: EnadeWorkspace = {
 export const DEFAULT_CONFIG: EnadeConfig = {
   version: 1,
   years: [...ENADE_YEARS],
+  section: 'all',
   questionCount: 20,
   order: 'random',
   durationMinutes: 60,
@@ -54,13 +58,32 @@ export const DEFAULT_CONFIG: EnadeConfig = {
   includeDiscursive: false,
 };
 
-export function availableQuestions(config: Pick<EnadeConfig, 'years' | 'includeDiscursive'>) {
+export const SECTION_LABELS: Record<EnadeSectionFilter, string> = {
+  all: 'Prova completa',
+  general: 'Formação geral',
+  specific: 'Componente específico',
+};
+type PoolFilter = Pick<EnadeConfig, 'years' | 'includeDiscursive'> & {
+  section?: EnadeSectionFilter;
+};
+export function availableQuestions(config: PoolFilter) {
+  // Configs saved before the section filter existed have no `section`: they meant the whole exam.
+  const section = config.section ?? 'all';
   return QUESTION_BANK.filter(
     (q) =>
       config.years.includes(q.year) &&
       !q.annulled &&
+      (section === 'all' || q.section === section) &&
       (config.includeDiscursive || q.kind === 'objective')
   );
+}
+/** Pool size for each section choice, so the picker can show what every option offers. */
+export function sectionTotals(config: PoolFilter): Record<EnadeSectionFilter, number> {
+  return {
+    all: availableQuestions({ ...config, section: 'all' }).length,
+    general: availableQuestions({ ...config, section: 'general' }).length,
+    specific: availableQuestions({ ...config, section: 'specific' }).length,
+  };
 }
 export function configErrors(config: EnadeConfig) {
   const errors: string[] = [];
@@ -83,6 +106,8 @@ export function configErrors(config: EnadeConfig) {
   if (!['sequential', 'random'].includes(config.order))
     errors.push('Selecione a ordem das questões.');
   if (!['exam', 'training'].includes(config.mode)) errors.push('Selecione o modo do simulado.');
+  if (!['all', 'general', 'specific'].includes(config.section ?? 'all'))
+    errors.push('Selecione o conteúdo da prova.');
   return errors;
 }
 
@@ -163,6 +188,7 @@ export function standardConfig(year: number): EnadeConfig {
   return {
     version: 1,
     years: [year],
+    section: 'all',
     questionCount: 40,
     order: 'sequential',
     durationMinutes: 240,

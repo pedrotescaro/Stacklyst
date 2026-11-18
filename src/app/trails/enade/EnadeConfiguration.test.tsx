@@ -17,7 +17,7 @@ afterEach(() => vi.unstubAllGlobals());
 describe('Enade configuration', () => {
   it('validates counts, arbitrary minutes, selected years and no time limit', () => {
     render(<EnadeConfiguration userId="config-student" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Personalizar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções' }));
     expect(screen.getByLabelText('Incluir discursivas para autoavaliação')).not.toBeChecked();
     fireEvent.change(screen.getByRole('combobox', { name: 'Ano inicial' }), {
       target: { value: '2021' },
@@ -38,6 +38,28 @@ describe('Enade configuration', () => {
     expect(saved.config).toMatchObject({ years: [2021], questionCount: 35, durationMinutes: null });
     expect(saved.session.seed).toBeTypeOf('number');
   });
+  it('starts a session with only general or only specific questions in two clicks', () => {
+    render(<EnadeConfiguration userId="config-student" />);
+    expect(screen.getByRole('radio', { name: /Prova completa/ })).toBeChecked();
+    fireEvent.click(screen.getByRole('radio', { name: /Só específicas/ }));
+    expect(
+      screen.getByText(/20 questões · componente específico · todas as edições/)
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Iniciar simulado' }));
+    const saved = JSON.parse(localStorage.getItem('stacklyst:enade:workspace:v1:config-student')!);
+    expect(saved.config.section).toBe('specific');
+    expect(saved.session.questionIds).toHaveLength(20);
+
+    localStorage.clear();
+    fireEvent.click(screen.getByRole('radio', { name: /Só formação geral/ }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções' }));
+    fireEvent.change(screen.getByRole('combobox', { name: 'Ano inicial' }), {
+      target: { value: '2021' },
+    });
+    // One edition has 8 valid general objectives: the count follows the smaller pool.
+    expect(screen.getByLabelText('Quantidade')).toHaveValue(8);
+    expect(screen.getByRole('radio', { name: /Só formação geral.*8 questões/ })).toBeChecked();
+  });
   it('reapplies the latest valid saved configuration scoped to the student', () => {
     const config = {
       ...DEFAULT_CONFIG,
@@ -51,7 +73,7 @@ describe('Enade configuration', () => {
       JSON.stringify({ version: 1, config, session: null, updatedAt: Date.now() })
     );
     render(<EnadeConfiguration userId="config-student" />);
-    fireEvent.click(screen.getByRole('button', { name: 'Personalizar' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções' }));
     expect(screen.getByLabelText('Quantidade')).toHaveValue(12);
     expect(screen.getByLabelText('Minutos · de 1 a 300')).toHaveValue(47);
     expect(screen.getByRole('radio', { name: /Treino/ })).toBeChecked();

@@ -16,17 +16,40 @@ import {
   randomUnanswered,
   remainingTime,
   repeatSession,
+  sectionTotals,
   sessionFromLegacy,
+  sessionQuestions,
   shuffle,
   toggleReview,
 } from './simulator';
-import { enadeSessionSchema, enadeWorkspaceSchema } from './simulator-schema';
+import { enadeConfigSchema, enadeSessionSchema, enadeWorkspaceSchema } from './simulator-schema';
 import { explanationFor, questionPresentation } from './feedback';
 import contents from '../../../public/enade/2021/questions.json';
 const stamp = 1800000000000;
 const config = { ...DEFAULT_CONFIG, years: [2021], questionCount: 10 };
 
 describe('configurable Enade domain', () => {
+  it('restricts the pool to general or specific questions and keeps legacy configs whole', () => {
+    const general = availableQuestions({ ...DEFAULT_CONFIG, section: 'general' });
+    const specific = availableQuestions({ ...DEFAULT_CONFIG, section: 'specific' });
+    expect(general).toHaveLength(40);
+    expect(specific).toHaveLength(131);
+    expect(general.every((q) => q.section === 'general' && q.kind === 'objective')).toBe(true);
+    expect(specific.every((q) => q.section === 'specific')).toBe(true);
+    expect(sectionTotals({ ...DEFAULT_CONFIG, years: [2021] })).toEqual({
+      all: 35,
+      general: 8,
+      specific: 27,
+    });
+    const { section: _omit, ...legacy } = DEFAULT_CONFIG;
+    expect(availableQuestions(legacy)).toHaveLength(171);
+    expect(enadeConfigSchema.parse(legacy).section).toBe('all');
+    const session = createSession({ ...config, section: 'general', questionCount: 8 }, 7, stamp);
+    expect(sessionQuestions(session).every((q) => q.section === 'general')).toBe(true);
+    expect(() =>
+      createSession({ ...config, section: 'general', questionCount: 9 }, 7, stamp)
+    ).toThrow();
+  });
   it('filters years and optional discursives, excluding annulled questions', () => {
     expect(availableQuestions({ years: [2008], includeDiscursive: false })).toHaveLength(32);
     expect(availableQuestions({ years: [2008], includeDiscursive: true })).toHaveLength(36);
