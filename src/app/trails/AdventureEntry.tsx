@@ -127,6 +127,7 @@ export function AdventureEntry({
             }}
             transport={transport}
             courses={courses}
+            onEnade={() => router.push('/trails/enade')}
             onCourse={(language) =>
               router.push(
                 `/trails?view=map${language ? `&language=${encodeURIComponent(language)}` : ''}`

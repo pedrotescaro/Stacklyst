@@ -539,6 +539,87 @@
 }
 
 /* Stats Row: 2 Cards (Moedas + Sequência) */
+/* Direct way into the ENADE practice exams, right under the World banner. */
+.ad-enade-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  min-height: 72px;
+  margin-bottom: 12px;
+  padding: 12px 16px;
+  border: 1px solid var(--ad-border);
+  border-radius: 18px;
+  background: var(--ad-card);
+  color: var(--ad-text);
+  text-align: left;
+  transition: border-color 150ms ease;
+}
+.ad-enade-card:hover {
+  border-color: var(--ad-blue);
+}
+.ad-enade-card:focus-visible {
+  outline: 2px solid var(--ad-blue);
+  outline-offset: 2px;
+}
+.ad-enade-logo {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  width: 92px;
+  height: 40px;
+  padding: 4px 6px;
+  border-radius: 10px;
+  background: #fff;
+}
+.ad-enade-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.ad-enade-text {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.ad-enade-text strong {
+  font-size: 15px;
+  font-weight: 700;
+}
+.ad-enade-text span {
+  color: var(--ad-muted);
+  font-size: 13px;
+}
+.ad-enade-cta {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--ad-blue);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 700;
+}
+.ad-enade-card:hover .ad-enade-cta {
+  background: var(--ad-blue-hover);
+}
+@media (max-width: 600px) {
+  .ad-enade-card {
+    flex-wrap: wrap;
+  }
+  .ad-enade-text {
+    flex-basis: calc(100% - 106px);
+  }
+  .ad-enade-cta {
+    justify-content: center;
+    width: 100%;
+  }
+}
+
 .ad-stats-two-cards {
   display: grid;
   grid-template-columns: 1fr 1fr;

@@ -178,6 +178,7 @@ export function AdventureHub({
   transport,
   courses,
   onCourse,
+  onEnade,
   assetBase = '/assets/mundinho',
   soundPreference,
   onSoundPreferenceChange,
@@ -187,6 +188,8 @@ export function AdventureHub({
   transport: AdventureTransport;
   courses: Course[];
   onCourse: (language?: string) => void;
+  /** Opens the ENADE practice exams; the card is hidden where they are unavailable. */
+  onEnade?: () => void;
   assetBase?: string;
   soundPreference?: boolean;
   onSoundPreferenceChange?: (enabled: boolean) => void;
@@ -844,6 +847,28 @@ export function AdventureHub({
               </button>
             </div>
           </section>
+
+          {onEnade && (
+            <button type="button" className="ad-enade-card" onClick={onEnade}>
+              <span className="ad-enade-logo" aria-hidden="true">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src="/enade/logo.png" alt="" />
+              </span>
+              <span className="ad-enade-text">
+                <strong>{text('Simulados do ENADE · ADS', 'ENADE practice exams · ADS')}</strong>
+                <span>
+                  {text(
+                    'Provas anteriores com correção e simulado personalizado.',
+                    'Past exams with answers and a custom practice exam.'
+                  )}
+                </span>
+              </span>
+              <span className="ad-enade-cta">
+                {text('Fazer simulado', 'Start practicing')}
+                <ArrowRight size={16} aria-hidden="true" />
+              </span>
+            </button>
+          )}
 
           {/* Stats Row (Moedas + Sequência, Matching Image 1) */}
           <div className="ad-stats-two-cards">

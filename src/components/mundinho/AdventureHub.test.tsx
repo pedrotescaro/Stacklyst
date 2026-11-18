@@ -82,6 +82,27 @@ const openBattle = async (transport: AdventureTransport) => {
   await screen.findByText('Nível 1');
   fireEvent.click(screen.getByRole('button', { name: /Batalhas de Conceitos/ }));
 };
+describe('Mundinho home', () => {
+  it('opens the ENADE practice exams straight from the home screen', async () => {
+    const onEnade = vi.fn();
+    render(
+      <AdventureHub
+        transport={async () => state(null)}
+        courses={[]}
+        onCourse={() => {}}
+        onEnade={onEnade}
+      />
+    );
+    await screen.findByText('Nível 1');
+    fireEvent.click(screen.getByRole('button', { name: /Simulados do ENADE/ }));
+    expect(onEnade).toHaveBeenCalledOnce();
+  });
+  it('hides the ENADE card where the practice exams are not available', async () => {
+    render(<AdventureHub transport={async () => state(null)} courses={[]} onCourse={() => {}} />);
+    await screen.findByText('Nível 1');
+    expect(screen.queryByRole('button', { name: /Simulados do ENADE/ })).not.toBeInTheDocument();
+  });
+});
 describe('Mundinho battle navigation', () => {
   it('passes only a confirmed chest award and updates the saved claim state', async () => {
     const ready = state(null);
