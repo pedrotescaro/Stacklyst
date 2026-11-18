@@ -3471,7 +3471,8 @@
   filter: hue-rotate(-18deg) saturate(1.4);
 }
 .sprite-creature[data-creature='null-titan'] {
-  filter: hue-rotate(55deg) saturate(1.5);
+  /* A deeper, darker shade of the null ghost, not a pink recolour. */
+  filter: brightness(0.72) saturate(1.35) contrast(1.15);
   transform: scale(1.5);
   transform-origin: bottom center;
 }
@@ -5447,7 +5448,7 @@
   bottom: 17%;
 }
 /* Feet rows inside each square sprite cell: the hero's soles are 20.8% up;
-   creatures stand 8–17% up depending on their art. A negative bottom margin
+   slimes stand 16.7% up, the redrawn creatures 8.3% (row 21 of 24). A negative bottom margin
    (a share of the sprite's own width) drops that empty strip below the line. */
 .ad-arena-scene .battle-sprite > .pixel-avatar,
 .ad-pvp-sprite > .pixel-avatar {
@@ -5467,7 +5468,8 @@
     [data-creature='byte-bug'],
     [data-creature='iron-beetle'],
     [data-creature='null-ghost'],
-    [data-creature='null-titan']
+    [data-creature='null-titan'],
+    [data-creature='forest']
   ) {
   --feet: 8.3%;
 }
