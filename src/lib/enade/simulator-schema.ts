@@ -13,6 +13,8 @@ export const enadeConfigSchema = z
       )
       .min(1)
       .max(5),
+    // Older saved configs predate the filter and always covered the whole exam.
+    section: z.enum(['all', 'general', 'specific']).default('all'),
     questionCount: z.number().int().min(1).max(200),
     order: z.enum(['sequential', 'random']),
     durationMinutes: z.number().min(1).max(300).nullable(),

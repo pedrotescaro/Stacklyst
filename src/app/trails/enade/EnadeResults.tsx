@@ -1,6 +1,11 @@
 'use client';
 import { RotateCcw } from 'lucide-react';
-import { formatDuration, gradeSession, type EnadeSession } from '@/lib/enade/simulator';
+import {
+  formatDuration,
+  gradeSession,
+  SECTION_LABELS,
+  type EnadeSession,
+} from '@/lib/enade/simulator';
 import type { QuestionPresentation } from '@/lib/enade/feedback';
 import { EnadePageViewer } from './EnadePageViewer';
 import styles from './EnadeCourse.module.css';
@@ -18,6 +23,19 @@ export function EnadeResults({
   onRepeat: (wrongOnly: boolean) => void;
   onReview: (index: number) => void;
 }) {
+  const bySection = (['general', 'specific'] as const)
+    .map((section) => {
+      const scored = questions.filter(
+        (q) => q.section === section && q.kind === 'objective' && !q.annulled
+      );
+      return {
+        section,
+        label: SECTION_LABELS[section],
+        total: scored.length,
+        correct: scored.filter((q) => q.feedback === 'correct').length,
+      };
+    })
+    .filter((part) => part.total > 0);
   return (
     <section className={styles.results} aria-labelledby="results-title">
       <h2 id="results-title">Resultado do simulado</h2>
@@ -50,6 +68,27 @@ export function EnadeResults({
           <dd>{formatDuration(result.averageMs)}</dd>
         </div>
       </dl>
+      {bySection.length > 1 && (
+        <ul className={styles.sectionBreakdown} aria-label="Acertos por parte da prova">
+          {bySection.map((part) => (
+            <li key={part.section}>
+              <span>{part.label}</span>
+              <strong>
+                {part.correct}/{part.total}
+              </strong>
+              <span
+                className={styles.sectionMeter}
+                aria-hidden="true"
+                style={
+                  {
+                    '--value': `${part.total ? (part.correct / part.total) * 100 : 0}%`,
+                  } as React.CSSProperties
+                }
+              />
+            </li>
+          ))}
+        </ul>
+      )}
       <p className={styles.muted}>
         {result.correct} de {result.total} questões válidas · {result.percent}% de acerto.{' '}
         {result.unanswered} objetivas em branco. Discursivas e anuladas não entram na nota
@@ -78,6 +117,7 @@ export function EnadeResults({
                 <span>
                   Enade {q.year} · {q.kind === 'discursive' ? 'Discursiva' : 'Questão'} {q.number}
                   <small>
+                    {SECTION_LABELS[q.section]} ·{' '}
                     {q.feedback === 'correct'
                       ? 'Correta'
                       : q.feedback === 'incorrect'

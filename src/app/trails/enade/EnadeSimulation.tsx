@@ -14,7 +14,7 @@ import {
   Shuffle,
 } from 'lucide-react';
 import type { EnadeAttempt } from '@/lib/enade/types';
-import { formatDuration, type EnadeWorkspace } from '@/lib/enade/simulator';
+import { formatDuration, SECTION_LABELS, type EnadeWorkspace } from '@/lib/enade/simulator';
 import { useEnadeSession } from './useEnadeSession';
 import { EnadeQuestion } from './EnadeQuestion';
 import { EnadeResults } from './EnadeResults';
@@ -40,6 +40,36 @@ export function EnadeSimulation(props: {
       resultsStart.current?.scrollIntoView?.({ block: 'start' });
     }
   }, [session?.finishedAt]);
+  // ← / → move between questions; ignored while typing, choosing an option or zooming an image.
+  const stepBy = useRef<(delta: number) => void>(() => {});
+  useEffect(() => {
+    stepBy.current = (delta) => {
+      if (!session || session.paused || (session.finishedAt && showResults)) return;
+      const next = session.currentIndex + delta;
+      if (next >= 0 && next < simulation.questions.length) navigate(next);
+    };
+  });
+  useEffect(() => {
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      if (
+        event.defaultPrevented ||
+        event.altKey ||
+        event.ctrlKey ||
+        event.metaKey ||
+        event.shiftKey
+      )
+        return;
+      const target = event.target instanceof Element ? event.target : null;
+      if (target?.closest('input, textarea, select, [contenteditable="true"], [role="dialog"]'))
+        return;
+      if (document.querySelector('[role="dialog"], dialog[open]')) return;
+      event.preventDefault();
+      stepBy.current(event.key === 'ArrowLeft' ? -1 : 1);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
   function navigate(index: number) {
     simulation.navigate(index);
     setConfirmFinish(false);
@@ -74,6 +104,7 @@ export function EnadeSimulation(props: {
         </Link>
       </main>
     );
+  const firstBlank = simulation.presentations.findIndex((q) => !q.answered && !q.annulled);
   return (
     <main className={`${styles.main} ${styles.activity}`}>
       <header className={styles.activityHeader}>
@@ -129,6 +160,9 @@ export function EnadeSimulation(props: {
       <div className={styles.sessionHeader}>
         <h1>{simulation.title}</h1>
         <p className={styles.muted}>
+          {session.config.section && session.config.section !== 'all'
+            ? `${SECTION_LABELS[session.config.section]} · `
+            : ''}
           {session.config.mode === 'training'
             ? 'Modo treino · correção comentada após responder.'
             : 'Modo prova · a correção aparece ao finalizar.'}
@@ -210,7 +244,7 @@ export function EnadeSimulation(props: {
                   onCheckDiscursive={simulation.checkDiscursive}
                 />
               )}
-              <div className={styles.questionNav}>
+              <div className={styles.questionNav} aria-label="Navegar entre questões" role="group">
                 <button
                   disabled={session.currentIndex === 0}
                   onClick={() => navigate(session.currentIndex - 1)}
@@ -227,6 +261,9 @@ export function EnadeSimulation(props: {
                   <ChevronRight size={18} />
                 </button>
               </div>
+              <p className={styles.keyboardHint}>
+                Dica: use as setas <kbd>←</kbd> <kbd>→</kbd> do teclado para trocar de questão.
+              </p>
               {!session.finishedAt && (
                 <button
                   className={styles.skipButton}
@@ -274,6 +311,9 @@ export function EnadeSimulation(props: {
             >
               Finalizar e corrigir
             </button>
+            {firstBlank >= 0 && (
+              <button onClick={() => navigate(firstBlank)}>Ir para a primeira em branco</button>
+            )}
             <button onClick={() => setConfirmFinish(false)}>Continuar respondendo</button>
           </div>
         )}

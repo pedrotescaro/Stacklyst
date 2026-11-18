@@ -484,9 +484,18 @@
   outline: 2px solid var(--color-dd-accent);
   outline-offset: 2px;
 }
+.touchOnly {
+  display: none;
+}
 @media (hover: none) {
   .strikeButton {
     opacity: 1;
+  }
+  .pointerOnly {
+    display: none;
+  }
+  .touchOnly {
+    display: inline;
   }
 }
 .alternative[data-struck='true'] {
@@ -547,6 +556,26 @@
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;
+}
+.keyboardHint {
+  margin-top: 12px;
+  color: var(--color-dd-muted);
+  font-size: 12px;
+  text-align: right;
+}
+.keyboardHint kbd {
+  display: inline-block;
+  min-width: 22px;
+  padding: 1px 6px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 6px;
+  font: inherit;
+  text-align: center;
+}
+@media (hover: none), (max-width: 600px) {
+  .keyboardHint {
+    display: none;
+  }
 }
 .questionNav .nextQuestion {
   border-color: var(--color-dd-accent);
@@ -796,8 +825,125 @@
   font-size: 12px;
   line-height: 1.6;
 }
-.configForm > .startButton {
+.sectionChoices {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.sectionChoices label {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 14px;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background-color 0.15s;
+}
+.sectionChoices label:hover {
+  border-color: color-mix(in srgb, var(--color-dd-accent) 40%, var(--color-dd-border));
+}
+.sectionChoices label:has(input:checked) {
+  border-color: var(--color-dd-accent);
+  background: color-mix(in srgb, var(--color-dd-accent) 8%, var(--color-dd-bg));
+  box-shadow: inset 0 0 0 1px var(--color-dd-accent);
+}
+.sectionChoices label:has(input:disabled) {
+  opacity: 0.5;
+  cursor: default;
+}
+.sectionChoices label:has(input:focus-visible) {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 3px;
+}
+.sectionChoices input {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+.sectionIcon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--color-dd-surface);
+  color: var(--color-dd-accent);
+}
+.sectionText {
+  display: grid;
+  gap: 6px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.sectionText small {
+  color: var(--color-dd-muted);
+  font-size: 12px;
+  line-height: 1.55;
+}
+.sectionText em {
+  margin-top: 2px;
+  font-style: normal;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-dd-accent);
+}
+.moreOptions {
   justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 4px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-dd-accent);
+  cursor: pointer;
+}
+.moreOptions svg[data-open] {
+  transition: transform 0.2s;
+}
+.moreOptions svg[data-open='true'] {
+  transform: rotate(180deg);
+}
+.advancedOptions {
+  display: grid;
+  gap: 28px;
+  padding: 20px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 16px;
+}
+.startBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: var(--color-dd-surface);
+}
+.startSummary {
+  flex: 1 1 260px;
+  min-width: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.startSummary span {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--color-dd-muted);
+}
+.startBar .formError {
+  flex-basis: 100%;
 }
 .formError {
   font-size: 13px;
@@ -1171,6 +1317,35 @@
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
+.sectionBreakdown {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: -8px 0 24px;
+  list-style: none;
+}
+.sectionBreakdown li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 16px;
+  border-radius: 14px;
+  background: var(--color-dd-surface);
+  font-size: 13px;
+}
+.sectionBreakdown strong {
+  font-variant-numeric: tabular-nums;
+}
+.sectionMeter {
+  flex-basis: 100%;
+  height: 6px;
+  border-radius: 3px;
+  background:
+    linear-gradient(to right, var(--color-dd-accent) var(--value), transparent var(--value)),
+    color-mix(in srgb, var(--color-dd-text) 10%, transparent);
+}
 .resultActions {
   display: flex;
   flex-wrap: wrap;
@@ -1255,7 +1430,9 @@
   .pickerPanel,
   .pickerChevron,
   .pickerBadge,
-  .numberedGrid button {
+  .numberedGrid button,
+  .sectionChoices label,
+  .moreOptions svg {
     transition: none;
     animation: none;
   }
@@ -1264,12 +1441,35 @@
   .configColumns {
     grid-template-columns: minmax(0, 1fr);
   }
-  .configurationHeading > .secondaryButton,
-  .configForm > .startButton {
+  .sectionChoices {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .sectionChoices label {
+    flex-direction: row;
+    align-items: flex-start;
+    padding: 14px 44px 14px 14px;
+  }
+  .sectionIcon {
+    flex-shrink: 0;
+  }
+  .advancedOptions {
+    padding: 16px;
+  }
+  .startBar {
+    padding: 16px;
+  }
+  .startBar .startButton {
     width: 100%;
   }
   .resultMetrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .sectionBreakdown {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .resultActions > button {
+    flex: 1 1 100%;
   }
   .timerControls {
     gap: 0;
@@ -1341,5 +1541,19 @@
   }
   .question {
     scroll-margin-top: 100px;
+  }
+  /* Keep Anterior/Próxima under the thumb while reading a long question. */
+  .questionNav {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin-inline: -16px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: color-mix(in srgb, var(--color-dd-bg) 92%, transparent);
+    backdrop-filter: blur(8px);
+    border-top: 1px solid var(--color-dd-border);
+  }
+  .questionNav button {
+    flex: 1 1 0;
   }
 }
