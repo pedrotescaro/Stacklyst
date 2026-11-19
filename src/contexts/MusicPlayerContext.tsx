@@ -11,6 +11,17 @@ import React, {
   type ReactNode,
 } from 'react';
 import { loadSpotifyIframeApi, type SpotifyEmbedController } from '@/lib/spotify-iframe';
+import {
+  loadSpotifyWebPlaybackSdk,
+  type SpotifySdkPlayer,
+  type SpotifySdkState,
+} from '@/lib/spotify-web-playback';
+import {
+  SPOTIFY_CONNECTION_EVENT,
+  fetchSpotifyConnection,
+  forgetSpotifyAccessToken,
+  getSpotifyAccessToken,
+} from '@/lib/client/spotify-connection';
 
 export interface ActiveTrack {
   id: string;
@@ -28,8 +39,16 @@ interface PlaybackState {
   progress: number;
 }
 
+/**
+ * `account`: full tracks through the listener's own connected Spotify Premium
+ * account (Web Playback SDK). `embed`: Spotify's public embed, which plays full
+ * tracks only when the browser is signed in to Spotify, else 30s previews.
+ */
+export type PlaybackSource = 'account' | 'embed';
+
 interface MusicPlayerContextType extends PlaybackState {
   currentTrack: ActiveTrack | null;
+  playbackSource: PlaybackSource;
   error: string | null;
   isMinimized: boolean;
   playTrack: (track: ActiveTrack) => void;
@@ -75,10 +94,36 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const generationRef = useRef(0);
   const playbackRef = useRef(INITIAL_PLAYBACK);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [playbackSource, setPlaybackSource] = useState<PlaybackSource>('embed');
+  const sdkRef = useRef<{ player: SpotifySdkPlayer; deviceId: string | null } | null>(null);
+  /** True while the current track plays through the connected account. */
+  const sdkActiveRef = useRef(false);
+  const sdkLoadedIdRef = useRef<string | null>(null);
+  /** Tracks the account player refused (region, explicit filter...) use the embed. */
+  const embedOnlyIdRef = useRef<string | null>(null);
+  const ensureControllerRef = useRef<() => void>(() => {});
+  const handleSdkStateRef = useRef<(state: SpotifySdkState | null) => void>(() => {});
 
   const clearWatchdog = useCallback(() => {
     if (timeoutRef.current !== null) clearTimeout(timeoutRef.current);
     timeoutRef.current = null;
+  }, []);
+
+  const commitPlayback = useCallback((next: PlaybackState) => {
+    playbackRef.current = next;
+    setPlayback((prev) =>
+      Object.keys(next).every(
+        (key) => prev[key as keyof PlaybackState] === next[key as keyof PlaybackState]
+      )
+        ? prev
+        : next
+    );
+  }, []);
+
+  const stopAccountPlayback = useCallback(() => {
+    if (sdkActiveRef.current) void sdkRef.current?.player.pause().catch(() => {});
+    sdkActiveRef.current = false;
+    sdkLoadedIdRef.current = null;
   }, []);
 
   const disposeController = useCallback(() => {
@@ -99,13 +144,14 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
 
   const fail = useCallback(
     (message = LOAD_ERROR) => {
+      stopAccountPlayback();
       disposeController();
       wantsPlayRef.current = false;
       setError(message);
       setIsMinimized(false);
       setPlayback((prev) => ({ ...prev, isPlaying: false, isBuffering: false }));
     },
-    [disposeController]
+    [disposeController, stopAccountPlayback]
   );
 
   const startWatchdog = useCallback(() => {
@@ -115,7 +161,47 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     }, 15000);
   }, [fail]);
 
+  /** Returns false when the account player cannot take this track. */
+  const applySdkIntent = useCallback(() => {
+    const sdk = sdkRef.current;
+    const track = trackRef.current;
+    if (!sdk?.deviceId || !track || embedOnlyIdRef.current === track.id) return false;
+    sdkActiveRef.current = true;
+    if (sdkLoadedIdRef.current === track.id) {
+      void (wantsPlayRef.current ? sdk.player.resume() : sdk.player.pause()).catch(() => {});
+      return true;
+    }
+    if (!wantsPlayRef.current) return true;
+    sdkLoadedIdRef.current = track.id;
+    const generation = generationRef.current;
+    const deviceId = sdk.deviceId;
+    void getSpotifyAccessToken()
+      .then((token) =>
+        fetch(
+          `https://api.spotify.com/v1/me/player/play?device_id=${encodeURIComponent(deviceId)}`,
+          {
+            method: 'PUT',
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uris: [`spotify:track:${track.id}`] }),
+          }
+        )
+      )
+      .then((response) => {
+        if (!response.ok) throw new Error(`Spotify play failed: ${response.status}`);
+      })
+      .catch(() => {
+        if (generation !== generationRef.current || trackRef.current?.id !== track.id) return;
+        // Fall back to the public embed rather than leaving the listener stuck.
+        embedOnlyIdRef.current = track.id;
+        sdkActiveRef.current = false;
+        sdkLoadedIdRef.current = null;
+        ensureControllerRef.current();
+      });
+    return true;
+  }, []);
+
   const applyIntent = useCallback(() => {
+    if (sdkActiveRef.current && applySdkIntent()) return;
     const controller = controllerRef.current;
     const track = trackRef.current;
     if (!controller || !readyRef.current || !track) return;
@@ -136,9 +222,12 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     } catch {
       fail();
     }
-  }, [fail]);
+  }, [applySdkIntent, fail]);
 
   const ensureController = useCallback(() => {
+    if (sdkActiveRef.current || sdkRef.current?.deviceId) {
+      if (applySdkIntent()) return;
+    }
     if (controllerRef.current) {
       applyIntent();
       return;
@@ -191,22 +280,14 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
               if (playing) clearWatchdog();
               else if (buffering) startWatchdog();
               else if (timeoutRef.current === null && data.isPaused) wantsPlayRef.current = false;
-              const next = {
+              commitPlayback({
                 isPlaying: playing,
                 isBuffering:
                   buffering || (wantsPlayRef.current && timeoutRef.current !== null && !playing),
                 position,
                 duration,
                 progress: duration ? Math.min(100, (position / duration) * 100) : 0,
-              };
-              playbackRef.current = next;
-              setPlayback((prev) =>
-                Object.keys(next).every(
-                  (key) => prev[key as keyof PlaybackState] === next[key as keyof PlaybackState]
-                )
-                  ? prev
-                  : next
-              );
+              });
             });
           }
         );
@@ -214,7 +295,153 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
       .catch(() => {
         if (generation === generationRef.current) fail();
       });
-  }, [applyIntent, clearWatchdog, fail, startWatchdog]);
+  }, [applyIntent, applySdkIntent, clearWatchdog, commitPlayback, fail, startWatchdog]);
+
+  useEffect(() => {
+    ensureControllerRef.current = ensureController;
+  }, [ensureController]);
+
+  const handleSdkState = useCallback(
+    (state: SpotifySdkState | null) => {
+      const track = trackRef.current;
+      if (!state || !track || !sdkActiveRef.current) return;
+      const current = state.track_window?.current_track;
+      if (current?.id !== track.id && current?.linked_from?.id !== track.id) return;
+      const loading = Boolean(state.loading);
+      const buffering = wantsPlayRef.current && loading;
+      const playing = wantsPlayRef.current && !state.paused && !loading;
+      if (playing) clearWatchdog();
+      else if (buffering) startWatchdog();
+      else if (timeoutRef.current === null && state.paused) wantsPlayRef.current = false;
+      const duration = Number.isFinite(state.duration) && state.duration > 0 ? state.duration : 0;
+      const position = Number.isFinite(state.position) ? Math.max(0, state.position) : 0;
+      commitPlayback({
+        isPlaying: playing,
+        isBuffering: buffering || (wantsPlayRef.current && timeoutRef.current !== null && !playing),
+        position,
+        duration,
+        progress: duration ? Math.min(100, (position / duration) * 100) : 0,
+      });
+    },
+    [clearWatchdog, commitPlayback, startWatchdog]
+  );
+
+  useEffect(() => {
+    handleSdkStateRef.current = handleSdkState;
+  }, [handleSdkState]);
+
+  // The SDK only reports state changes, so poll the position while playing.
+  useEffect(() => {
+    if (!playback.isPlaying || playbackSource !== 'account') return;
+    const interval = setInterval(() => {
+      if (!sdkActiveRef.current) return;
+      void sdkRef.current?.player
+        .getCurrentState()
+        .then((state) => handleSdkStateRef.current(state))
+        .catch(() => {});
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [playback.isPlaying, playbackSource]);
+
+  // Connect the listener's own Spotify Premium account when they linked one in
+  // settings. Anything else keeps the public embed.
+  useEffect(() => {
+    let cancelled = false;
+    let request: AbortController | null = null;
+
+    const teardown = () => {
+      const sdk = sdkRef.current;
+      sdkRef.current = null;
+      setPlaybackSource('embed');
+      const wasActive = sdkActiveRef.current;
+      sdkActiveRef.current = false;
+      sdkLoadedIdRef.current = null;
+      try {
+        sdk?.player.disconnect();
+      } catch {
+        /* Already disconnected. */
+      }
+      // Keep the music going through the embed if the account player drops out.
+      if (!cancelled && wasActive && trackRef.current && wantsPlayRef.current) {
+        ensureControllerRef.current();
+      }
+    };
+
+    const init = async () => {
+      request?.abort();
+      const current = new AbortController();
+      request = current;
+      let status;
+      try {
+        status = await fetchSpotifyConnection(current.signal);
+      } catch {
+        return;
+      }
+      if (cancelled || request !== current) return;
+      if (!status.connected || !status.premium) {
+        if (sdkRef.current) teardown();
+        return;
+      }
+      if (sdkRef.current) return;
+      const Spotify = await loadSpotifyWebPlaybackSdk().catch(() => null);
+      if (!Spotify || cancelled || request !== current || sdkRef.current) return;
+      const entry: { player: SpotifySdkPlayer; deviceId: string | null } = {
+        player: new Spotify.Player({
+          name: 'Stacklyst',
+          volume: 0.8,
+          getOAuthToken: (callback) => {
+            getSpotifyAccessToken().then(callback, () => {
+              if (sdkRef.current === entry) teardown();
+            });
+          },
+        }),
+        deviceId: null,
+      };
+      const player = entry.player;
+      sdkRef.current = entry;
+      const unusable = () => {
+        if (sdkRef.current === entry) teardown();
+      };
+      player.addListener('ready', (event: { device_id?: string }) => {
+        if (sdkRef.current !== entry || typeof event?.device_id !== 'string') return;
+        entry.deviceId = event.device_id;
+        setPlaybackSource('account');
+      });
+      player.addListener('not_ready', () => {
+        if (sdkRef.current === entry) entry.deviceId = null;
+      });
+      // account_error: not Premium. authentication_error: token revoked.
+      player.addListener('initialization_error', unusable);
+      player.addListener('authentication_error', unusable);
+      player.addListener('account_error', unusable);
+      player.addListener('playback_error', () => {
+        const track = trackRef.current;
+        if (sdkRef.current !== entry || !sdkActiveRef.current || !track) return;
+        embedOnlyIdRef.current = track.id;
+        sdkActiveRef.current = false;
+        sdkLoadedIdRef.current = null;
+        ensureControllerRef.current();
+      });
+      player.addListener('player_state_changed', (state: SpotifySdkState | null) => {
+        if (sdkRef.current === entry) handleSdkStateRef.current(state);
+      });
+      const connected = await player.connect().catch(() => false);
+      if (!connected) unusable();
+    };
+
+    void init();
+    const onConnectionChange = () => {
+      forgetSpotifyAccessToken();
+      void init();
+    };
+    window.addEventListener(SPOTIFY_CONNECTION_EVENT, onConnectionChange);
+    return () => {
+      cancelled = true;
+      request?.abort();
+      window.removeEventListener(SPOTIFY_CONNECTION_EVENT, onConnectionChange);
+      teardown();
+    };
+  }, []);
 
   useEffect(() => {
     void loadSpotifyIframeApi().catch(() => {});
@@ -235,6 +462,8 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const resume = useCallback(() => {
     if (!trackRef.current) return;
     wantsPlayRef.current = true;
+    // Browsers only allow audio started from a user gesture; unlock it now.
+    void sdkRef.current?.player.activateElement?.().catch(() => {});
     setError(null);
     setPlayback((prev) => ({ ...prev, isPlaying: false, isBuffering: true }));
     startWatchdog();
@@ -253,6 +482,18 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
         togglePlay();
         return;
       }
+      if (sdkActiveRef.current) void sdkRef.current?.player.pause().catch(() => {});
+      sdkActiveRef.current = false;
+      sdkLoadedIdRef.current = null;
+      if (embedOnlyIdRef.current !== track.id) embedOnlyIdRef.current = null;
+      // Silence an embed from a previous track when the account player takes over.
+      if (sdkRef.current?.deviceId && controllerRef.current) {
+        try {
+          controllerRef.current.pause();
+        } catch {
+          /* The embed is replaced on its next use anyway. */
+        }
+      }
       trackRef.current = track;
       setCurrentTrack(track);
       setIsMinimized(false);
@@ -267,16 +508,25 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const closePlayer = useCallback(() => {
     trackRef.current = null;
     wantsPlayRef.current = false;
+    stopAccountPlayback();
+    embedOnlyIdRef.current = null;
     disposeController();
     setCurrentTrack(null);
     setError(null);
     setIsMinimized(false);
     playbackRef.current = INITIAL_PLAYBACK;
     setPlayback(INITIAL_PLAYBACK);
-  }, [disposeController]);
+  }, [disposeController, stopAccountPlayback]);
 
   const seek = useCallback(
     (percent: number) => {
+      if (sdkActiveRef.current && sdkRef.current && Number.isFinite(percent)) {
+        const duration = playbackRef.current.duration;
+        if (!duration) return;
+        const bounded = Math.max(0, Math.min(100, percent));
+        void sdkRef.current.player.seek(Math.round((bounded / 100) * duration)).catch(() => {});
+        return;
+      }
       if (!controllerRef.current || !readyRef.current || !Number.isFinite(percent)) return;
       const duration = playbackRef.current.duration;
       if (!duration) return;
@@ -298,6 +548,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
   const controls = useMemo(
     () => ({
       currentTrack,
+      playbackSource,
       isPlaying: playback.isPlaying,
       isBuffering: playback.isBuffering,
       error,
@@ -314,6 +565,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
     }),
     [
       currentTrack,
+      playbackSource,
       playback.isPlaying,
       playback.isBuffering,
       error,
@@ -356,6 +608,7 @@ export function MusicPlayerProvider({ children }: { children: ReactNode }) {
 const defaultMusicPlayerContext: MusicPlayerContextType = {
   ...INITIAL_PLAYBACK,
   currentTrack: null,
+  playbackSource: 'embed',
   error: null,
   isMinimized: false,
   playTrack: () => {},

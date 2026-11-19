@@ -1,5 +1,42 @@
 import type { NextConfig } from 'next';
 
+const isDev = process.env.NODE_ENV !== 'production';
+
+const SPOTIFY_SCRIPT_HOSTS =
+  'https://open.spotify.com https://*.spotify.com https://*.spotifycdn.com https://embed-cdn.spotifycdn.com https://*.scdn.co';
+
+const contentSecurityPolicy = [
+  "default-src 'self'",
+  // React needs eval only for dev tooling. Production keeps WebAssembly
+  // compilation available without allowing string-to-code evaluation.
+  `script-src 'self' ${isDev ? "'unsafe-eval'" : "'wasm-unsafe-eval'"} 'unsafe-inline' ${SPOTIFY_SCRIPT_HOSTS}`,
+  `script-src-elem 'self' 'unsafe-inline' ${SPOTIFY_SCRIPT_HOSTS}`,
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' blob: data: https://images.unsplash.com https://api.dicebear.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cdn.discordapp.com https://images-ext-1.discordapp.net https://assets.aceternity.com https://*.supabase.co https://*.scdn.co https://*.spotifycdn.com https://*.giphy.com",
+  "font-src 'self' data: https://fonts.gstatic.com",
+  [
+    "connect-src 'self'",
+    // Plain ws: is only for the dev server's HMR socket; production keeps
+    // realtime traffic encrypted and pinned to Supabase.
+    isDev ? 'ws: wss:' : 'wss://*.supabase.co',
+    'https://*.supabase.co https://api.github.com https://wandbox.org https://api.giphy.com https://*.giphy.com',
+    'https://*.spotify.com https://*.spotifycdn.com https://*.scdn.co https://spclient.wg.spotify.com',
+    // Spotify's player bundles point their source maps at webpack:// URLs.
+    // DevTools resolves them through the page CSP, which logged a violation per
+    // module. The scheme is not fetchable by page scripts, so this opens no
+    // network access.
+    'webpack:',
+  ].join(' '),
+  "media-src 'self' blob: https://*.spotifycdn.com https://*.scdn.co https://*.spotify.com",
+  "object-src 'none'",
+  // sdk.scdn.co hosts the Web Playback SDK frame used for full-track playback.
+  "frame-src 'self' https://open.spotify.com https://*.spotify.com https://sdk.scdn.co",
+  "worker-src 'self' blob:",
+  "base-uri 'self'",
+  "form-action 'self'",
+  "frame-ancestors 'self'",
+].join('; ');
+
 const securityHeaders = [
   {
     key: 'X-DNS-Prefetch-Control',
@@ -23,25 +60,11 @@ const securityHeaders = [
   },
   {
     key: 'Permissions-Policy',
-    value: 'camera=(), microphone=(self), geolocation=()',
+    value: 'camera=(), microphone=(self), geolocation=(), payment=(), usb=()',
   },
   {
     key: 'Content-Security-Policy',
-    value: [
-      "default-src 'self'",
-      "script-src 'self' 'unsafe-eval' 'unsafe-inline' https://open.spotify.com https://*.spotify.com https://*.spotifycdn.com https://embed-cdn.spotifycdn.com https://*.scdn.co",
-      "script-src-elem 'self' 'unsafe-inline' https://open.spotify.com https://*.spotify.com https://*.spotifycdn.com https://embed-cdn.spotifycdn.com https://*.scdn.co",
-      "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' blob: data: https://images.unsplash.com https://api.dicebear.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cdn.discordapp.com https://images-ext-1.discordapp.net https://assets.aceternity.com https://*.supabase.co https://*.scdn.co https://*.spotifycdn.com https://*.giphy.com",
-      "font-src 'self' data: https://fonts.gstatic.com",
-      "connect-src 'self' ws: wss: https://*.supabase.co https://api.github.com https://wandbox.org https://api.giphy.com https://*.giphy.com https://*.spotify.com https://*.spotifycdn.com https://*.scdn.co https://spclient.wg.spotify.com",
-      "media-src 'self' blob: https://*.spotifycdn.com https://*.scdn.co https://*.spotify.com",
-      "object-src 'none'",
-      "frame-src 'self' https://open.spotify.com https://*.spotify.com",
-      "base-uri 'self'",
-      "form-action 'self'",
-      "frame-ancestors 'self'",
-    ].join('; '),
+    value: contentSecurityPolicy,
   },
 ];
 
