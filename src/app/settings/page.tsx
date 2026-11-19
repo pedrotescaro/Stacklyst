@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Sidebar } from '@/components/Sidebar';
 import { BlockedUsersSettings } from '@/components/BlockedUsersSettings';
+import { ProfileIdentitySettings } from '@/components/settings/ProfileIdentitySettings';
+import { SpotifyConnectionSettings } from '@/components/settings/SpotifyConnectionSettings';
 import { getCurrentUser, invalidateCurrentUser } from '@/lib/client/current-user';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AVATAR_BACKGROUNDS, normalizeAvatarConfig } from '@/lib/avatar';
@@ -28,9 +30,23 @@ import {
   Volume2,
   Languages,
   Ban,
+  BadgeCheck,
+  Music2,
 } from 'lucide-react';
 
-type SettingsTab = 'sua-conta' | 'aparencia' | 'sons' | 'idioma' | 'bloqueados' | 'acoes';
+const SETTINGS_TABS = [
+  'sua-conta',
+  'perfil',
+  'aparencia',
+  'sons',
+  'spotify',
+  'idioma',
+  'bloqueados',
+  'acoes',
+] as const;
+type SettingsTab = (typeof SETTINGS_TABS)[number];
+const isSettingsTab = (value: string | null): value is SettingsTab =>
+  SETTINGS_TABS.includes(value as SettingsTab);
 type SoundFeedback = 'enabled' | 'disabled' | null;
 
 export default function SettingsPage() {
@@ -58,6 +74,15 @@ export default function SettingsPage() {
   const [activeTab, setActiveTab] = useState<SettingsTab>('sua-conta');
   const [mobileShowDetails, setMobileShowDetails] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Deep links such as /settings?tab=spotify (used by the Spotify OAuth return).
+  useEffect(() => {
+    const requested = new URLSearchParams(window.location.search).get('tab');
+    if (isSettingsTab(requested)) {
+      setActiveTab(requested);
+      setMobileShowDetails(true);
+    }
+  }, []);
 
   // Theme preference state & handler
   const [theme, setTheme] = useState<'light' | 'dark'>('dark');
@@ -278,6 +303,26 @@ export default function SettingsPage() {
       ],
     },
     {
+      id: 'perfil',
+      title: language === 'en' ? 'Profile' : 'Perfil',
+      description:
+        language === 'en' ? 'Frame, name, title and flags' : 'Moldura, nome, título e bandeiras',
+      icon: BadgeCheck,
+      keywords: [
+        'perfil',
+        'profile',
+        'moldura',
+        'frame',
+        'nome',
+        'name',
+        'titulo',
+        'title',
+        'bandeira',
+        'flag',
+        'cor',
+      ],
+    },
+    {
       id: 'aparencia',
       title: t.settings.tabs.appearance.title,
       description: t.settings.tabs.appearance.description,
@@ -290,6 +335,16 @@ export default function SettingsPage() {
       description: t.settings.tabs.sounds.description,
       icon: Volume2,
       keywords: ['sons', 'efeito', 'sonoro', 'audio', 'sound', 'barulho', 'volume'],
+    },
+    {
+      id: 'spotify',
+      title: 'Spotify',
+      description:
+        language === 'en'
+          ? 'Play full songs with your account'
+          : 'Ouça músicas inteiras com sua conta',
+      icon: Music2,
+      keywords: ['spotify', 'musica', 'music', 'conectar', 'conta', 'player', 'conexao'],
     },
     {
       id: 'idioma',
@@ -1003,6 +1058,10 @@ export default function SettingsPage() {
                 </div>
               </div>
             )}
+
+            {activeTab === 'perfil' && <ProfileIdentitySettings />}
+
+            {activeTab === 'spotify' && <SpotifyConnectionSettings />}
 
             {activeTab === 'bloqueados' && <BlockedUsersSettings />}
 

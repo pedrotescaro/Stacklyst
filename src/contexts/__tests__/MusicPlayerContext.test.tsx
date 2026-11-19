@@ -9,8 +9,49 @@ import {
 } from '../MusicPlayerContext';
 import { loadSpotifyIframeApi } from '@/lib/spotify-iframe';
 import { createSpotifyHarness } from '@/test/spotify-iframe-mock';
+import { loadSpotifyWebPlaybackSdk } from '@/lib/spotify-web-playback';
+import { fetchSpotifyConnection, getSpotifyAccessToken } from '@/lib/client/spotify-connection';
+
+function createSdkHarness() {
+  const listeners = new Map<string, (payload: unknown) => void>();
+  const player = {
+    connect: vi.fn().mockResolvedValue(true),
+    disconnect: vi.fn(),
+    activateElement: vi.fn().mockResolvedValue(undefined),
+    addListener: vi.fn((event: string, callback: (payload: unknown) => void) => {
+      listeners.set(event, callback);
+      return true;
+    }),
+    getCurrentState: vi.fn().mockResolvedValue(null),
+    pause: vi.fn().mockResolvedValue(undefined),
+    resume: vi.fn().mockResolvedValue(undefined),
+    seek: vi.fn().mockResolvedValue(undefined),
+  };
+  class Player {
+    constructor() {
+      return player;
+    }
+  }
+  return {
+    player,
+    sdk: { Player } as never,
+    emit: (event: string, payload?: unknown) => listeners.get(event)?.(payload),
+  };
+}
+
+const flush = () =>
+  act(async () => {
+    for (let index = 0; index < 5; index++) await Promise.resolve();
+  });
 
 vi.mock('@/lib/spotify-iframe', () => ({ loadSpotifyIframeApi: vi.fn() }));
+vi.mock('@/lib/spotify-web-playback', () => ({ loadSpotifyWebPlaybackSdk: vi.fn() }));
+vi.mock('@/lib/client/spotify-connection', () => ({
+  SPOTIFY_CONNECTION_EVENT: 'stacklyst:spotify-connection',
+  fetchSpotifyConnection: vi.fn(),
+  forgetSpotifyAccessToken: vi.fn(),
+  getSpotifyAccessToken: vi.fn(),
+}));
 const track1: ActiveTrack = { id: '4cOdK2wGLETKBW3PvgPWqT', title: 'Track 1', artist: 'Artist 1' };
 const track2: ActiveTrack = { id: '6rqhFgbbKwnb9MLmUQDhG6', title: 'Track 2', artist: 'Artist 2' };
 const wrapper = ({ children }: { children: React.ReactNode }) => (
@@ -33,9 +74,79 @@ describe('MusicPlayerContext', () => {
     vi.useFakeTimers();
     spotify = createSpotifyHarness();
     vi.mocked(loadSpotifyIframeApi).mockReset().mockResolvedValue(spotify.api);
+    vi.mocked(fetchSpotifyConnection)
+      .mockReset()
+      .mockResolvedValue({ configured: true, connected: false });
+    vi.mocked(loadSpotifyWebPlaybackSdk).mockReset();
+    vi.mocked(getSpotifyAccessToken).mockReset().mockResolvedValue('access-token');
   });
   afterEach(() => {
     vi.useRealTimers();
+    vi.unstubAllGlobals();
+  });
+
+  it('plays the full track through a connected Premium account instead of the embed', async () => {
+    const sdk = createSdkHarness();
+    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 204 });
+    vi.stubGlobal('fetch', fetchMock);
+    vi.mocked(fetchSpotifyConnection).mockResolvedValue({
+      configured: true,
+      connected: true,
+      premium: true,
+    });
+    vi.mocked(loadSpotifyWebPlaybackSdk).mockResolvedValue(sdk.sdk);
+    const { result } = renderHook(useMusicPlayer, { wrapper });
+    await flush();
+    act(() => sdk.emit('ready', { device_id: 'device-1' }));
+    expect(result.current.playbackSource).toBe('account');
+
+    await act(async () => {
+      result.current.playTrack(track1);
+    });
+    await flush();
+    expect(sdk.player.activateElement).toHaveBeenCalled();
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://api.spotify.com/v1/me/player/play?device_id=device-1',
+      expect.objectContaining({
+        method: 'PUT',
+        body: JSON.stringify({ uris: [`spotify:track:${track1.id}`] }),
+      })
+    );
+    expect(spotify.api.createController).not.toHaveBeenCalled();
+
+    act(() =>
+      sdk.emit('player_state_changed', {
+        paused: false,
+        loading: false,
+        position: 30000,
+        duration: 200000,
+        track_window: { current_track: { id: track1.id, uri: `spotify:track:${track1.id}` } },
+      })
+    );
+    expect(result.current.isPlaying).toBe(true);
+    expect(result.current.duration).toBe(200000);
+
+    act(() => result.current.togglePlay());
+    expect(sdk.player.pause).toHaveBeenCalled();
+  });
+
+  it('falls back to the embed when the connected account is not Premium', async () => {
+    const sdk = createSdkHarness();
+    vi.mocked(fetchSpotifyConnection).mockResolvedValue({
+      configured: true,
+      connected: true,
+      premium: true,
+    });
+    vi.mocked(loadSpotifyWebPlaybackSdk).mockResolvedValue(sdk.sdk);
+    const { result } = renderHook(useMusicPlayer, { wrapper });
+    await flush();
+    act(() => sdk.emit('ready', { device_id: 'device-1' }));
+    act(() => sdk.emit('account_error', { message: 'Premium required' }));
+    expect(result.current.playbackSource).toBe('embed');
+    expect(sdk.player.disconnect).toHaveBeenCalled();
+
+    await start(result);
+    expect(spotify.api.createController).toHaveBeenCalledOnce();
   });
 
   it('preloads the API without creating an embed or starting playback', () => {
