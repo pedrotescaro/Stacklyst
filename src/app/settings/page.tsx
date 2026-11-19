@@ -8,6 +8,7 @@ import { Sidebar } from '@/components/Sidebar';
 import { BlockedUsersSettings } from '@/components/BlockedUsersSettings';
 import { ProfileIdentitySettings } from '@/components/settings/ProfileIdentitySettings';
 import { SpotifyConnectionSettings } from '@/components/settings/SpotifyConnectionSettings';
+import { SpotifyLogo } from '@/components/icons/SpotifyLogo';
 import { getCurrentUser, invalidateCurrentUser } from '@/lib/client/current-user';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { AVATAR_BACKGROUNDS, normalizeAvatarConfig } from '@/lib/avatar';
@@ -31,7 +32,6 @@ import {
   Languages,
   Ban,
   BadgeCheck,
-  Music2,
 } from 'lucide-react';
 
 const SETTINGS_TABS = [
@@ -343,7 +343,7 @@ export default function SettingsPage() {
         language === 'en'
           ? 'Play full songs with your account'
           : 'Ouça músicas inteiras com sua conta',
-      icon: Music2,
+      icon: SpotifyLogo,
       keywords: ['spotify', 'musica', 'music', 'conectar', 'conta', 'player', 'conexao'],
     },
     {
