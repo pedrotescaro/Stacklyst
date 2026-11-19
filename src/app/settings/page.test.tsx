@@ -83,6 +83,15 @@ describe('SettingsPage', () => {
     expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
   });
 
+  it('marks the Spotify tab with the Spotify logo', async () => {
+    renderSettings();
+
+    await screen.findByRole('heading', { name: 'Sua conta' });
+    const tab = screen.getByRole('button', { name: /Spotify/ });
+
+    expect(tab.querySelector('svg path[fill="#1ED760"]')).not.toBeNull();
+  });
+
   it('plays a confirmation preview for both sound transitions and persists the setting', async () => {
     const interaction = userEvent.setup();
     renderSettings();
