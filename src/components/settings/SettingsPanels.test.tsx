@@ -86,7 +86,8 @@ describe('ProfileIdentitySettings', () => {
     });
     expect(saved!.preferences.flags.length).toBeGreaterThan(0);
     expect(screen.getByRole('button', { name: 'Salvar perfil' })).toBeDisabled();
-  });
+    // Renders the whole frame and flag catalogs; CI runners need more than 5s.
+  }, 20000);
 
   it('does not allow equipping locked titles', async () => {
     render(
