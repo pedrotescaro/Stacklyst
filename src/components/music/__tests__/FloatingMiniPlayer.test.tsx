@@ -160,4 +160,41 @@ describe('FloatingMiniPlayer', () => {
     expect(screen.queryByRole('alert')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Pausar música' })).toBeInTheDocument();
   });
+
+  it('docks a compact now-playing bar on phones', async () => {
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockReturnValue({
+        matches: true,
+        addEventListener: vi.fn(),
+        removeEventListener: vi.fn(),
+      })
+    );
+    try {
+      render(
+        <MusicPlayerProvider>
+          <TestPlayerTrigger />
+          <FloatingMiniPlayer />
+        </MusicPlayerProvider>
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Tocar Rick' }));
+
+      const bar = await screen.findByTestId('floating-mini-player');
+      expect(bar).toHaveAttribute('data-layout', 'mobile');
+      expect(screen.getByText('Never Gonna Give You Up')).toBeInTheDocument();
+      // Desktop-only extras stay out of the compact bar.
+      expect(
+        screen.queryByRole('button', { name: 'Compartilhar faixa do Spotify' })
+      ).not.toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Pausar música' })).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: 'Minimizar player' }));
+      expect(await screen.findByTestId('floating-mini-player-minimized')).toBeInTheDocument();
+      fireEvent.click(screen.getByTestId('floating-mini-player-minimized'));
+      fireEvent.click(await screen.findByRole('button', { name: 'Fechar player' }));
+      expect(screen.queryByTestId('floating-mini-player')).not.toBeInTheDocument();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
 });
