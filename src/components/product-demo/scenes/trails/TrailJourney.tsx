@@ -7,6 +7,7 @@ import { JourneyOverview } from '@/app/trails/JourneyOverview';
 import { TrailResourceBar } from '@/app/trails/TrailResourceBar';
 import { TrailViewSwitcher } from '@/app/trails/TrailViewSwitcher';
 import journey from '@/app/trails/LearningJourney.module.css';
+import { JourneyConnector, journeySide } from '@/app/trails/journeyLayout';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { Cascade, CascadeItem } from '../../demo-motion';
 import { DEMO_COURSES, DEMO_USER, demoCopy } from '../../demo-data';
@@ -34,8 +35,6 @@ interface JourneyNode {
   completedExercises: number;
 }
 
-/** Node geometry of `LearningJourney` (map mode), shared with the mascot walker. */
-export const JOURNEY_POSITIONS = [50, 34, 50, 66] as const;
 export const CURRENT_NODE_ID = 'learn-js-variables';
 export const NEXT_NODE_ID = 'learn-js-booleans';
 
@@ -122,8 +121,6 @@ export function TrailJourney({
             const locked = node.state === 'locked';
             const active = node.state === 'active';
             const Icon = completed ? Check : locked ? LockKeyhole : Star;
-            const x = JOURNEY_POSITIONS[index % JOURNEY_POSITIONS.length];
-            const nextX = JOURNEY_POSITIONS[(index + 1) % JOURNEY_POSITIONS.length];
             const actionClass = `dd-focus-ring relative z-10 flex shrink-0 items-center justify-center rounded-full transition-transform motion-reduce:transition-none ${journey.node} ${
               locked
                 ? 'border-slate-600 bg-slate-700 text-slate-200'
@@ -139,27 +136,11 @@ export function TrailJourney({
                 data-progress-state={
                   completed ? 'COMPLETED' : locked ? 'NOT_STARTED' : 'IN_PROGRESS'
                 }
+                data-side={journeySide(index)}
                 className={`relative scroll-mt-28 ${journey.stop}`}
               >
-                {index < nodes.length - 1 && (
-                  <svg
-                    aria-hidden="true"
-                    className={journey.connector}
-                    viewBox="0 0 100 248"
-                    preserveAspectRatio="none"
-                  >
-                    <path
-                      d={`M ${x} 0 C ${x} 125 ${nextX} 123 ${nextX} 248`}
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      vectorEffect="non-scaling-stroke"
-                      strokeDasharray="3 9"
-                      fill="none"
-                      strokeLinecap="round"
-                    />
-                  </svg>
-                )}
-                <div className={journey.station} style={{ left: `${x}%` }}>
+                {index < nodes.length - 1 && <JourneyConnector index={index} />}
+                <div className={journey.station}>
                   {active && (
                     <span className={journey.nextLabel}>
                       {text('SUA PRÓXIMA LIÇÃO', 'YOUR NEXT LESSON')}
@@ -185,16 +166,24 @@ export function TrailJourney({
                     />
                   </span>
                   <div className={journey.caption}>
-                    <h3 className="text-base font-bold leading-6 text-dd-text">{node.title}</h3>
+                    <h3
+                      className={`text-base font-bold leading-6 ${locked ? 'text-dd-muted' : 'text-dd-text'}`}
+                    >
+                      {node.title}
+                    </h3>
                     <p className="mt-1 text-xs font-medium text-dd-muted">
                       {labels.lesson} · {node.completedExercises}/{node.exercises}{' '}
                       {text('exercícios', 'exercises')}
-                      {completed
-                        ? text(' · Concluída', ' · Completed')
-                        : active
-                          ? text(' · Você está aqui', ' · You are here')
-                          : ''}
                     </p>
+                    {(completed || active) && (
+                      <p
+                        className={`${journey.statusRow} ${completed ? 'text-emerald-700 dark:text-emerald-400' : 'text-blue-600 dark:text-blue-400'}`}
+                      >
+                        {completed
+                          ? text('Concluída', 'Completed')
+                          : text('Você está aqui', 'You are here')}
+                      </p>
+                    )}
                     {locked && (
                       <details className={journey.requirements}>
                         <summary className="dd-focus-ring">

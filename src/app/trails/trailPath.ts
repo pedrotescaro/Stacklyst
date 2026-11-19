@@ -65,7 +65,12 @@ export function createSmoothTrailPath(
   samplesPerSegment = DEFAULT_SAMPLES_PER_SEGMENT
 ): SmoothTrailPath {
   const safePoints = points.length > 0 ? points : [{ x: 0, y: 0 }];
-  const samples = sampleSmoothPoints(safePoints, Math.max(4, samplesPerSegment));
+  return createPolylineTrailPath(sampleSmoothPoints(safePoints, Math.max(4, samplesPerSegment)));
+}
+
+/** Distance-addressable path along already-sampled points, joined by straight segments. */
+export function createPolylineTrailPath(points: readonly TrailPoint[]): SmoothTrailPath {
+  const samples = points.length > 0 ? points : [{ x: 0, y: 0 }];
   const cumulativeLengths = [0];
 
   for (let index = 1; index < samples.length; index += 1) {

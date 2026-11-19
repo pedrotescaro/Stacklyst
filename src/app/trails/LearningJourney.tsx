@@ -19,6 +19,7 @@ import styles from './LearningJourney.module.css';
 import { JourneyOverview } from './JourneyOverview';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { learningBossId } from '@/lib/learning/boss-ids';
+import { JourneyConnector, journeySide } from './journeyLayout';
 
 export function getJourneyItems(path: LearningPathSummary, nodes: KnowledgeMapNode[]) {
   const byId = new Map(nodes.map((node) => [node.id, node]));
@@ -196,40 +197,31 @@ export function LearningJourney({
                     />
                   );
                   const actionClass = `dd-focus-ring relative z-10 flex shrink-0 items-center justify-center rounded-full transition-transform motion-reduce:transition-none ${mode === 'map' ? styles.node : 'h-16 w-16 border-b-4'} ${locked ? 'border-slate-600 bg-slate-700 text-slate-200' : completed ? 'border-emerald-700 bg-emerald-500 text-white' : 'border-blue-700 bg-blue-500 text-white hover:-translate-y-0.5'}`;
-                  const positions = [50, 34, 50, 66];
-                  const x = positions[index % positions.length],
-                    nextX = positions[(index + 1) % positions.length];
+                  const status = completed
+                    ? {
+                        label: text('Concluída', 'Completed'),
+                        className: 'text-emerald-700 dark:text-emerald-400',
+                      }
+                    : active
+                      ? {
+                          label: text('Você está aqui', 'You are here'),
+                          className: 'text-blue-600 dark:text-blue-400',
+                        }
+                      : null;
                   return (
                     <li
                       key={node.id}
                       id={node.id}
                       data-learning-item={node.id}
                       data-progress-state={node.status}
+                      data-side={mode === 'map' ? journeySide(index) : undefined}
                       className={`relative scroll-mt-28 ${mode === 'map' ? styles.stop : 'py-5'}`}
                     >
-                      {mode === 'map' && unitItems.length > 0 && (
-                        <svg
-                          aria-hidden="true"
-                          className={styles.connector}
-                          viewBox="0 0 100 248"
-                          preserveAspectRatio="none"
-                        >
-                          <path
-                            d={`M ${x} 0 C ${x} 125 ${nextX} 123 ${nextX} 248`}
-                            stroke="currentColor"
-                            strokeWidth="3"
-                            vectorEffect="non-scaling-stroke"
-                            strokeDasharray="3 9"
-                            fill="none"
-                            strokeLinecap="round"
-                          />
-                        </svg>
-                      )}
+                      {mode === 'map' && <JourneyConnector index={index} />}
                       <div
                         className={
                           mode === 'map' ? styles.station : 'relative flex items-start gap-4'
                         }
-                        style={mode === 'map' ? { left: `${x}%` } : undefined}
                       >
                         {mode === 'map' && active && !completed && (
                           <span className={styles.nextLabel}>
@@ -260,21 +252,23 @@ export function LearningJourney({
                           </Link>
                         )}
                         <div className={mode === 'map' ? styles.caption : 'min-w-0 flex-1 pt-1'}>
-                          <h3 className="text-base font-bold leading-6 text-dd-text">
+                          <h3
+                            className={`text-base font-bold leading-6 ${locked ? 'text-dd-muted' : 'text-dd-text'}`}
+                          >
                             {node.title}
                           </h3>
-                          {completed && stars[node.id] ? (
-                            <NodeStars stars={stars[node.id]!} />
-                          ) : null}
                           <p className="mt-1 text-xs font-medium text-dd-muted">
                             {labels[node.activityKind ?? 'lesson']} · {node.completedExercises}/
                             {node.exercises.length} {text('exercícios', 'exercises')}
-                            {completed
-                              ? text(' · Concluída', ' · Completed')
-                              : active
-                                ? text(' · Você está aqui', ' · You are here')
-                                : ''}
                           </p>
+                          {status && (
+                            <p className={`${styles.statusRow} ${status.className}`}>
+                              {completed && stars[node.id] ? (
+                                <NodeStars stars={stars[node.id]!} />
+                              ) : null}
+                              <span>{status.label}</span>
+                            </p>
+                          )}
                           {locked ? (
                             <p
                               id={`requirements-${node.id}`}
@@ -338,8 +332,6 @@ export function LearningJourney({
                     const bossId = learningBossId(unitItems[0]!.id);
                     const unlocked = unitCompleted === unitItems.length;
                     const defeated = defeatedBosses.has(bossId);
-                    const positions = [50, 34, 50, 66];
-                    const x = positions[unitItems.length % positions.length];
                     const bossClass = `dd-focus-ring relative z-10 flex shrink-0 items-center justify-center rounded-full transition-transform motion-reduce:transition-none ${mode === 'map' ? `${styles.node} ${styles.bossNode}` : 'h-16 w-16 border-b-4'} ${!unlocked ? 'border-slate-600 bg-slate-700 text-slate-200' : defeated ? 'border-amber-700 bg-amber-400 text-amber-950' : 'border-rose-800 bg-rose-500 text-white hover:-translate-y-0.5'}`;
                     const icon = (
                       <Crown
@@ -354,13 +346,13 @@ export function LearningJourney({
                         key={bossId}
                         id={bossId}
                         data-learning-boss={bossId}
-                        className={`relative scroll-mt-28 ${mode === 'map' ? styles.stop : 'py-5'}`}
+                        data-side={mode === 'map' ? journeySide(unitItems.length) : undefined}
+                        className={`relative scroll-mt-28 ${mode === 'map' ? `${styles.stop} ${styles.boss}` : 'py-5'}`}
                       >
                         <div
                           className={
                             mode === 'map' ? styles.station : 'relative flex items-start gap-4'
                           }
-                          style={mode === 'map' ? { left: `${x}%` } : undefined}
                         >
                           {unlocked ? (
                             <Link
@@ -368,6 +360,8 @@ export function LearningJourney({
                               onClick={() => remember(bossId)}
                               aria-label={`${label}${defeated ? `: ${text('derrotado', 'defeated')}` : ''}`}
                               className={bossClass}
+                              // The mascot walks past the boss when it crosses into the next unit.
+                              data-trail-waypoint={mode === 'map' ? 'true' : undefined}
                             >
                               {icon}
                             </Link>
@@ -382,13 +376,14 @@ export function LearningJourney({
                             </button>
                           )}
                           <div className={mode === 'map' ? styles.caption : 'min-w-0 flex-1 pt-1'}>
-                            <h3 className="text-base font-bold leading-6 text-dd-text">
+                            <h3
+                              className={`text-base font-bold leading-6 ${unlocked ? 'text-dd-text' : 'text-dd-muted'}`}
+                            >
                               {text('Chefão', 'Boss')} · {unit}
                             </h3>
-                            {defeated && stars[bossId] ? (
-                              <NodeStars stars={stars[bossId]!} />
-                            ) : null}
-                            <p className="mt-1 text-xs font-medium text-dd-muted">
+                            <p
+                              className={`mt-1 text-xs font-medium ${defeated ? 'text-amber-700 dark:text-amber-400' : unlocked ? 'text-rose-600 dark:text-rose-400' : 'text-dd-muted'}`}
+                            >
                               {defeated
                                 ? text(
                                     'Derrotado · desafio opcional',
@@ -404,6 +399,11 @@ export function LearningJourney({
                                       'Finish the unit to face it'
                                     )}
                             </p>
+                            {defeated && stars[bossId] ? (
+                              <div className={styles.statusRow}>
+                                <NodeStars stars={stars[bossId]!} />
+                              </div>
+                            ) : null}
                           </div>
                         </div>
                       </li>

@@ -11,9 +11,17 @@ import {
   clearPendingTrailMascotMovement,
   readPendingTrailMascotMovement,
 } from './trailMascotProgress';
-import { createSmoothTrailPath, type SmoothTrailPath, type TrailPoint } from './trailPath';
+import type { SmoothTrailPath, TrailPoint } from './trailPath';
+import {
+  buildMascotRoute,
+  mascotStandPoint,
+  type MascotNodeBox,
+  type MascotSpriteSize,
+} from './trailMascotRoute';
 
-const WALK_SPEED_PX_PER_SECOND = 116;
+const WALK_SPEED_PX_PER_SECOND = 140;
+/** Long routes (several rows, or across a unit) speed up instead of dragging on. */
+const MAX_WALK_SECONDS = 3.2;
 const FRAME_DURATION_MS = 110;
 const START_DELAY_MS = 300;
 const LOOK_AHEAD_DISTANCE = 10;
@@ -31,16 +39,10 @@ interface TrailNodeLayout {
 }
 
 interface TrailLayout {
-  waypoints: Array<{ element: HTMLElement; point: TrailPoint }>;
+  waypoints: Array<{ element: HTMLElement; box: MascotNodeBox }>;
   nodes: TrailNodeLayout[];
   nodeByKey: Map<string, TrailNodeLayout>;
-}
-
-interface MovementLeg {
-  fromKey: string;
-  toKey: string;
-  targetElement: HTMLElement;
-  path: SmoothTrailPath;
+  sprite: MascotSpriteSize;
 }
 
 interface UseTrailMascotOptions {
@@ -51,21 +53,27 @@ interface UseTrailMascotOptions {
   currentNodeKey: string;
 }
 
-function centerInContainer(element: HTMLElement, containerRect: DOMRect): TrailPoint {
+function boxInContainer(element: HTMLElement, containerRect: DOMRect): MascotNodeBox {
   const rect = element.getBoundingClientRect();
-  const mascot = element
-    .closest('[data-testid="learning-journey"]')
-    ?.querySelector<HTMLElement>('[data-testid="trail-moving-mascot"]');
-  const spriteHeight = mascot?.getBoundingClientRect().height ?? 76;
-  const gap =
-    Number.parseFloat(getComputedStyle(element).getPropertyValue('--trail-mascot-gap')) || 8;
+  const side = element.closest('[data-side]')?.getAttribute('data-side');
   return {
-    x: rect.left - containerRect.left + rect.width / 2,
-    // The transform uses the mascot's foot anchor (`-88%`). Keep the feet
-    // just above the node; the mascot remains pointer-transparent so the
-    // underlying node stays clickable even while the sprite is in front.
-    y: rect.top - containerRect.top - gap + spriteHeight * 0.88,
+    cx: rect.left - containerRect.left + rect.width / 2,
+    cy: rect.top - containerRect.top + rect.height / 2,
+    halfWidth: rect.width / 2,
+    halfHeight: rect.height / 2,
+    side: side === 'left' || side === 'right' ? side : null,
   };
+}
+
+function readSpriteSize(container: HTMLElement, firstNode?: HTMLElement): MascotSpriteSize {
+  const mascot = container.querySelector<HTMLElement>('[data-testid="trail-moving-mascot"]');
+  // offsetWidth/Height ignore the transform, so the size is right mid-walk too.
+  const width = mascot?.offsetWidth || 76;
+  const height = mascot?.offsetHeight || 76;
+  const gap = firstNode
+    ? Number.parseFloat(getComputedStyle(firstNode).getPropertyValue('--trail-mascot-gap')) || 8
+    : 8;
+  return { width, height, gap };
 }
 
 function readTrailLayout(container: HTMLElement): TrailLayout {
@@ -73,9 +81,10 @@ function readTrailLayout(container: HTMLElement): TrailLayout {
   const waypointElements = Array.from(
     container.querySelectorAll<HTMLElement>('[data-trail-waypoint="true"]')
   );
+  const sprite = readSpriteSize(container, waypointElements[0]);
   const waypoints = waypointElements.map((element) => ({
     element,
-    point: centerInContainer(element, containerRect),
+    box: boxInContainer(element, containerRect),
   }));
   const waypointIndexByElement = new Map(
     waypointElements.map((element, index) => [element, index] as const)
@@ -90,7 +99,7 @@ function readTrailLayout(container: HTMLElement): TrailLayout {
       {
         element,
         key,
-        point: centerInContainer(element, containerRect),
+        point: mascotStandPoint(waypoints[waypointIndex]!.box, sprite),
         waypointIndex,
       },
     ];
@@ -100,6 +109,7 @@ function readTrailLayout(container: HTMLElement): TrailLayout {
     waypoints,
     nodes,
     nodeByKey: new Map(nodes.map((node) => [node.key, node])),
+    sprite,
   };
 }
 
@@ -109,36 +119,15 @@ function resolveCurrentNodeKey(layout: TrailLayout, fallbackKey: string) {
   return current?.key ?? layout.nodes.at(-1)?.key ?? fallbackKey;
 }
 
-function createMovementLeg(
-  layout: TrailLayout,
-  fromKey: string,
-  toKey: string,
-  startingPoint?: TrailPoint
-): MovementLeg | null {
+/** One continuous route through every waypoint (bosses included) between two nodes. */
+function createRoute(layout: TrailLayout, fromKey: string, toKey: string): SmoothTrailPath | null {
   const from = layout.nodeByKey.get(fromKey);
   const to = layout.nodeByKey.get(toKey);
   if (!from || !to || to.waypointIndex <= from.waypointIndex) return null;
-
-  let points = layout.waypoints
+  const boxes = layout.waypoints
     .slice(from.waypointIndex, to.waypointIndex + 1)
-    .map((waypoint) => waypoint.point);
-
-  if (startingPoint) {
-    const remaining = points.slice(1).filter((point, index, candidates) => {
-      const isDestination = index === candidates.length - 1;
-      return isDestination || point.y > startingPoint.y + 3;
-    });
-    points = [startingPoint, ...remaining];
-  }
-
-  if (points.length < 2) points = [startingPoint ?? from.point, to.point];
-
-  return {
-    fromKey,
-    toKey,
-    targetElement: to.element,
-    path: createSmoothTrailPath(points),
-  };
+    .map((waypoint) => waypoint.box);
+  return buildMascotRoute(boxes, layout.sprite);
 }
 
 function applyPosition(element: HTMLElement, point: TrailPoint) {
@@ -261,7 +250,13 @@ export function useTrailMascot({
     let animationFrame = 0;
     let idleInterval: number | null = null;
     let layoutDirty = false;
-    let moving = false;
+    // True from the moment a walk is scheduled until it settles, so layout
+    // observers never snap the sprite to the destination before it walks.
+    let walking = false;
+
+    const isObscured = () =>
+      document.hidden ||
+      Boolean(document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]'));
 
     const stopIdleAnimation = () => {
       if (idleInterval !== null) {
@@ -275,33 +270,34 @@ export function useTrailMascot({
       setIdleSprite(image, direction, 0);
       if (reduceMotion) return;
 
-      let sequenceIndex = 0;
-      idleInterval = window.setInterval(() => {
-        if (cancelled || moving) return;
-        if (
-          document.hidden ||
-          document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')
-        ) {
-          positionElement.style.visibility = 'hidden';
-          return;
-        }
-        positionElement.style.visibility = 'visible';
-        sequenceIndex = (sequenceIndex + 1) % IDLE_SEQUENCE.length;
-        setIdleSprite(image, direction, IDLE_SEQUENCE[sequenceIndex]!);
-      }, IDLE_FRAME_DURATION_MS);
+      // Start cycling only once every frame is cached, so no frame flashes blank.
+      void preloadMascotSprites().then(() => {
+        if (cancelled || walking || idleInterval !== null) return;
+        let sequenceIndex = 0;
+        idleInterval = window.setInterval(() => {
+          if (cancelled || walking) return;
+          if (isObscured()) {
+            positionElement.style.visibility = 'hidden';
+            return;
+          }
+          positionElement.style.visibility = 'visible';
+          sequenceIndex = (sequenceIndex + 1) % IDLE_SEQUENCE.length;
+          setIdleSprite(image, direction, IDLE_SEQUENCE[sequenceIndex]!);
+        }, IDLE_FRAME_DURATION_MS);
+      });
+    };
+
+    const snapToCurrentNode = () => {
+      const layout = readTrailLayout(container);
+      const target = layout.nodeByKey.get(resolveCurrentNodeKey(layout, currentNodeKey));
+      if (!target) return;
+      applyPosition(positionElement, target.point);
+      positionElement.style.visibility = 'visible';
     };
 
     const resizeObserver = new ResizeObserver(() => {
       layoutDirty = true;
-      if (!moving) {
-        const layout = readTrailLayout(container);
-        const targetKey = resolveCurrentNodeKey(layout, currentNodeKey);
-        const target = layout.nodeByKey.get(targetKey);
-        if (target) {
-          applyPosition(positionElement, target.point);
-          positionElement.style.visibility = 'visible';
-        }
-      }
+      if (!walking) snapToCurrentNode();
     });
     resizeObserver.observe(container);
 
@@ -339,23 +335,23 @@ export function useTrailMascot({
         : previousSettledKey && layout.nodeByKey.has(previousSettledKey)
           ? previousSettledKey
           : targetKey;
-    const movementRange = resolveMascotMovementRange(
+    const { fromIndex, targetIndex } = resolveMascotMovementRange(
       layout.nodes.map((node) => node.key),
       fromKey,
       targetKey,
       false
     );
-    const { fromIndex, targetIndex } = movementRange;
 
     // Replay only a real advance reported by the server, never a same-node return.
     if (fromKey !== layout.nodes[fromIndex]?.key && fromIndex >= 0) {
       fromKey = layout.nodes[fromIndex]!.key;
     }
 
-    const shouldAnimate = fromIndex >= 0 && targetIndex > fromIndex;
     const reduceMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+    let route =
+      fromIndex >= 0 && targetIndex > fromIndex ? createRoute(layout, fromKey, targetKey) : null;
 
-    if (!shouldAnimate || reduceMotion) {
+    if (!route || reduceMotion) {
       applyPosition(positionElement, target.point);
       positionElement.style.opacity = '1';
       positionElement.style.willChange = 'auto';
@@ -365,71 +361,53 @@ export function useTrailMascot({
       rememberPosition();
       if (pending) clearPendingTrailMascotMovement();
     } else {
+      walking = true;
+      // Lets the page hide overlays the route passes through (the "next lesson" bubble).
+      container.dataset.mascotWalking = 'true';
       stopIdleAnimation();
-      const start = layout.nodeByKey.get(fromKey)!;
-      applyPosition(positionElement, start.point);
+      let currentPoint = route.getPointAtLength(0);
+      applyPosition(positionElement, currentPoint);
+      setSprite(image, 'baixo', 0);
       positionElement.style.opacity = '1';
       positionElement.style.willChange = 'transform';
 
-      const destinationKeys = layout.nodes
-        .slice(fromIndex + 1, targetIndex + 1)
-        .map((node) => node.key);
-      let legFromKey = fromKey;
-      let legIndex = 0;
-      let leg = createMovementLeg(layout, legFromKey, destinationKeys[legIndex]!);
       let distance = 0;
       let elapsedForSprites = 0;
       let direction: MascotDirection = 'baixo';
       let lastTime = 0;
       let delayRemaining = START_DELAY_MS;
       let lastCameraUpdate = 0;
-      let currentPoint = start.point;
       const scrollContainer = findScrollableAncestor(container);
+      const speedFor = (path: SmoothTrailPath) =>
+        Math.max(WALK_SPEED_PX_PER_SECOND, path.totalLength / MAX_WALK_SECONDS);
+      let speed = speedFor(route);
 
       const finish = () => {
+        walking = false;
+        delete container.dataset.mascotWalking;
         const finalLayout = readTrailLayout(container);
         const finalTarget = finalLayout.nodeByKey.get(targetKey);
         if (finalTarget) {
-          currentPoint = finalTarget.point;
-          applyPosition(positionElement, currentPoint);
+          applyPosition(positionElement, finalTarget.point);
           playArrivalEffect(image, finalTarget.element);
         }
-        moving = false;
         positionElement.style.willChange = 'auto';
         positionElement.style.visibility = 'visible';
-        startIdleAnimation(direction, reduceMotion);
+        startIdleAnimation('baixo', reduceMotion);
         settledNodeKeyRef.current = targetKey;
         rememberPosition();
         clearPendingTrailMascotMovement();
       };
 
-      const advanceToNextLeg = () => {
-        if (!leg) return false;
-        legFromKey = leg.toKey;
-        legIndex += 1;
-        distance = 0;
-        if (legIndex >= destinationKeys.length) {
-          finish();
-          return false;
-        }
-        const nextLayout = readTrailLayout(container);
-        leg = createMovementLeg(nextLayout, legFromKey, destinationKeys[legIndex]!);
-        return Boolean(leg);
-      };
-
       const animate = (time: number) => {
-        if (cancelled || !leg) return;
-        if (
-          document.hidden ||
-          document.querySelector('dialog[open], [role="dialog"][aria-modal="true"]')
-        ) {
+        if (cancelled || !route) return;
+        if (isObscured()) {
           lastTime = time;
           positionElement.style.visibility = 'hidden';
           animationFrame = requestAnimationFrame(animate);
           return;
         }
         positionElement.style.visibility = 'visible';
-        moving = true;
         if (lastTime === 0) lastTime = time;
         const deltaMs = time - lastTime;
         const deltaSeconds = Math.min(MAX_DELTA_SECONDS, Math.max(0, deltaMs / 1000));
@@ -442,33 +420,36 @@ export function useTrailMascot({
         }
 
         if (layoutDirty) {
-          const nextLayout = readTrailLayout(container);
-          leg = createMovementLeg(nextLayout, legFromKey, leg.toKey, currentPoint) ?? leg;
-          distance = 0;
+          // Nodes moved (fonts, data, resize): rebuild the route on the new
+          // layout and keep the same share of it already walked.
           layoutDirty = false;
+          const progress = route.totalLength > 0 ? distance / route.totalLength : 1;
+          const nextRoute = createRoute(readTrailLayout(container), fromKey, targetKey);
+          if (nextRoute) {
+            route = nextRoute;
+            speed = speedFor(route);
+            distance = progress * route.totalLength;
+          }
         }
 
-        distance += WALK_SPEED_PX_PER_SECOND * deltaSeconds;
+        distance += speed * deltaSeconds;
         elapsedForSprites += deltaMs;
 
-        while (leg && distance >= leg.path.totalLength) {
-          currentPoint = leg.path.getPointAtLength(leg.path.totalLength);
-          applyPosition(positionElement, currentPoint);
-          if (!advanceToNextLeg()) return;
+        if (distance >= route.totalLength) {
+          finish();
+          return;
         }
 
-        if (!leg) return;
-        currentPoint = leg.path.getPointAtLength(distance);
-        const lookAhead = leg.path.getPointAtLength(
-          Math.min(leg.path.totalLength, distance + LOOK_AHEAD_DISTANCE)
+        currentPoint = route.getPointAtLength(distance);
+        const lookAhead = route.getPointAtLength(
+          Math.min(route.totalLength, distance + LOOK_AHEAD_DISTANCE)
         );
         direction = chooseMascotDirection(
           lookAhead.x - currentPoint.x,
           lookAhead.y - currentPoint.y,
           direction
         );
-        const frameIndex = Math.floor(elapsedForSprites / FRAME_DURATION_MS);
-        setSprite(image, direction, frameIndex);
+        setSprite(image, direction, Math.floor(elapsedForSprites / FRAME_DURATION_MS));
         applyPosition(positionElement, currentPoint);
 
         if (time - lastCameraUpdate >= CAMERA_UPDATE_INTERVAL_MS) {
@@ -480,13 +461,14 @@ export function useTrailMascot({
       };
 
       void preloadMascotSprites().then(() => {
-        if (!cancelled && leg) animationFrame = requestAnimationFrame(animate);
+        if (!cancelled) animationFrame = requestAnimationFrame(animate);
       });
     }
 
     return () => {
       cancelled = true;
-      moving = false;
+      walking = false;
+      delete container.dataset.mascotWalking;
       if (animationFrame) cancelAnimationFrame(animationFrame);
       stopIdleAnimation();
       resizeObserver.disconnect();

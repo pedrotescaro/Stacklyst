@@ -7,13 +7,16 @@ import {
   MASCOT_SPRITE_FRAMES,
   preloadMascotSprites,
 } from '@/app/trails/mascotSprites';
-import { cubicPoint, useSpriteFrame, type Point } from '../../demo-motion';
+import { buildMascotRoute, type MascotNodeBox } from '@/app/trails/trailMascotRoute';
+import type { SmoothTrailPath } from '@/app/trails/trailPath';
+import { useSpriteFrame } from '../../demo-motion';
 
 const WALK_FRAME_MS = 110;
 const IDLE_FRAME_MS = 180;
 const SPRITE_SIZE = 72;
-/** Same foot anchor and node gap as `useTrailMascot`. */
+/** Same node gap as `useTrailMascot`. */
 const NODE_GAP = 8;
+const SPRITE = { width: SPRITE_SIZE, height: SPRITE_SIZE, gap: NODE_GAP };
 
 interface TrailMascotWalkerProps {
   containerRef: RefObject<HTMLDivElement | null>;
@@ -28,19 +31,23 @@ interface TrailMascotWalkerProps {
 const mascotTransform = ({ x, y }: { x?: unknown; y?: unknown }) =>
   `translate3d(${x ?? '0px'}, ${y ?? '0px'}, 0) translate(-50%, -88%)`;
 
-function anchorOf(element: Element, container: HTMLElement): Point {
+function boxOf(element: Element, container: HTMLElement): MascotNodeBox {
   const containerRect = container.getBoundingClientRect();
   const scale = container.offsetWidth ? containerRect.width / container.offsetWidth : 1;
   const rect = element.getBoundingClientRect();
+  const side = element.closest('[data-side]')?.getAttribute('data-side');
   return {
-    x: (rect.left - containerRect.left) / scale + rect.width / scale / 2,
-    y: (rect.top - containerRect.top) / scale - NODE_GAP + SPRITE_SIZE * 0.88,
+    cx: (rect.left - containerRect.left + rect.width / 2) / scale,
+    cy: (rect.top - containerRect.top + rect.height / 2) / scale,
+    halfWidth: rect.width / scale / 2,
+    halfHeight: rect.height / scale / 2,
+    side: side === 'left' || side === 'right' ? side : null,
   };
 }
 
 /**
- * The trail mascot, moved by the scene clock along the same bezier the map
- * draws between two nodes. Uses the product's walking and idle sprite sets.
+ * The trail mascot, moved by the scene clock along the same route the real
+ * map uses (`buildMascotRoute`). Uses the product's walking and idle sprites.
  */
 export function TrailMascotWalker({
   containerRef,
@@ -49,13 +56,13 @@ export function TrailMascotWalker({
   progress,
   walking,
 }: TrailMascotWalkerProps) {
-  const [ends, setEnds] = useState<{ from: Point; to: Point } | null>(null);
+  const [route, setRoute] = useState<SmoothTrailPath | null>(null);
   // Position lives on motion values: the walker moves every frame without
   // re-rendering React, and only the compositor layer is translated.
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const endsRef = useRef(ends);
-  endsRef.current = ends;
+  const routeRef = useRef(route);
+  routeRef.current = route;
 
   useEffect(() => {
     void preloadMascotSprites();
@@ -68,7 +75,7 @@ export function TrailMascotWalker({
       const from = container.querySelector(`[data-trail-mascot-node="${fromId}"]`);
       const to = container.querySelector(`[data-trail-mascot-node="${toId}"]`);
       if (!from || !to) return;
-      setEnds({ from: anchorOf(from, container), to: anchorOf(to, container) });
+      setRoute(buildMascotRoute([boxOf(from, container), boxOf(to, container)], SPRITE));
     };
     measure();
     const observer = new ResizeObserver(measure);
@@ -77,23 +84,17 @@ export function TrailMascotWalker({
   }, [containerRef, fromId, toId]);
 
   const place = (p: number) => {
-    const current = endsRef.current;
+    const current = routeRef.current;
     if (!current) return;
-    const point = cubicPoint(
-      current.from,
-      { x: current.from.x, y: current.from.y + 125 },
-      { x: current.to.x, y: current.to.y - 125 },
-      current.to,
-      Math.max(0, Math.min(1, p))
-    );
+    const point = current.getPointAtLength(Math.max(0, Math.min(1, p)) * current.totalLength);
     x.set(point.x);
     y.set(point.y);
   };
 
   useEffect(() => {
     place(progress.get());
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- recompute when the ends are measured
-  }, [ends]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- recompute when the route is measured
+  }, [route]);
   useMotionValueEvent(progress, 'change', place);
 
   const frames = walking ? MASCOT_SPRITE_FRAMES.baixo : MASCOT_IDLE_FRAMES.baixo;
@@ -105,7 +106,7 @@ export function TrailMascotWalker({
       data-testid="trail-moving-mascot"
       data-walking={walking}
       aria-hidden="true"
-      style={{ x, y, opacity: ends ? 1 : 0 }}
+      style={{ x, y, opacity: route ? 1 : 0 }}
       transformTemplate={mascotTransform}
     >
       {/* eslint-disable-next-line @next/next/no-img-element -- preloaded local sprite frames */}
