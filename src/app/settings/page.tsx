@@ -467,7 +467,13 @@ export default function SettingsPage() {
                   >
                     <div className="flex items-center gap-3">
                       <TabIcon
-                        className={`w-4.5 h-4.5 ${isSelected ? 'text-blue-500' : 'text-dd-muted'}`}
+                        className={`w-4.5 h-4.5 ${
+                          isSelected
+                            ? tab.id === 'spotify'
+                              ? 'text-[#1ED760]'
+                              : 'text-blue-500'
+                            : 'text-dd-muted'
+                        }`}
                       />
                       <div className="space-y-0.5">
                         <span className="text-xs font-bold tracking-wide block">{tab.title}</span>

@@ -134,7 +134,7 @@ export function SpotifyConnectionSettings() {
 
       <div className="bg-dd-surface border border-dd-border rounded-xl p-5 space-y-4">
         <div className="flex items-center gap-3">
-          <SpotifyLogo className="h-10 w-10 shrink-0" />
+          <SpotifyLogo className="h-10 w-10 shrink-0 text-[#1ED760]" />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-bold text-dd-text">Spotify</p>
             <p className="text-xs text-dd-muted">

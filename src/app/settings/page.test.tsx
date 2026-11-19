@@ -83,13 +83,17 @@ describe('SettingsPage', () => {
     expect(screen.queryByRole('contentinfo')).not.toBeInTheDocument();
   });
 
-  it('marks the Spotify tab with the Spotify logo', async () => {
+  it('marks the Spotify tab with its logo, gray until the tab is selected', async () => {
+    const interaction = userEvent.setup();
     renderSettings();
 
     await screen.findByRole('heading', { name: 'Sua conta' });
     const tab = screen.getByRole('button', { name: /Spotify/ });
+    const logo = () => tab.querySelector('svg:has(path[fill="currentColor"])');
 
-    expect(tab.querySelector('svg path[fill="#1ED760"]')).not.toBeNull();
+    expect(logo()).toHaveClass('text-dd-muted');
+    await interaction.click(tab);
+    expect(logo()).toHaveClass('text-[#1ED760]');
   });
 
   it('plays a confirmation preview for both sound transitions and persists the setting', async () => {
