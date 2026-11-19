@@ -81,6 +81,8 @@ const nextConfig: NextConfig = {
   // server bundle for local, Docker, and other self-hosted deployments.
   output: process.env.VERCEL ? undefined : 'standalone',
   experimental: {
+    // Avisa agentes de código quando sair uma correção de segurança do Next.js.
+    agentUpgrade: 'security',
     // Mantem segmentos dinamicos recentes no cache do router. Isso torna voltas
     // e alternancias entre as areas principais instantaneas sem cachear respostas
     // de API ou dados no servidor.
