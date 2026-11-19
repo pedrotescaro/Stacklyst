@@ -2,13 +2,53 @@
 
 /* eslint-disable @next/next/no-img-element */
 import React, { useEffect, useState, useCallback } from 'react';
-import { Play, Pause, LoaderCircle, Share2, X, Music2, ChevronUp, SkipForward } from 'lucide-react';
-import { useMusicPlayerControls } from '@/contexts/MusicPlayerContext';
+import {
+  Play,
+  Pause,
+  LoaderCircle,
+  Share2,
+  X,
+  Music2,
+  ChevronUp,
+  ChevronDown,
+  SkipForward,
+} from 'lucide-react';
+import { useMusicPlayer, useMusicPlayerControls } from '@/contexts/MusicPlayerContext';
 import styles from './FloatingMiniPlayer.module.css';
+
+const MOBILE_QUERY = '(max-width: 639px)';
+
+/** Phones get a docked now-playing bar; wider screens keep the floating card. */
+function useIsMobile() {
+  const [mobile, setMobile] = useState(false);
+  useEffect(() => {
+    if (typeof window.matchMedia !== 'function') return;
+    const media = window.matchMedia(MOBILE_QUERY);
+    const update = () => setMobile(media.matches);
+    update();
+    media.addEventListener?.('change', update);
+    return () => media.removeEventListener?.('change', update);
+  }, []);
+  return mobile;
+}
+
+/** Isolated so frequent position updates only rerender this thin line. */
+function ProgressLine() {
+  const { progress } = useMusicPlayer();
+  return (
+    <div className="absolute inset-x-3 bottom-0 h-[2px] overflow-hidden rounded-full bg-white/10">
+      <div
+        className="h-full rounded-full bg-white transition-[width] duration-700 ease-linear"
+        style={{ width: `${progress}%` }}
+      />
+    </div>
+  );
+}
 
 export function FloatingMiniPlayer() {
   const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
+  const isMobile = useIsMobile();
   const {
     currentTrack,
     isPlaying,
@@ -108,6 +148,99 @@ export function FloatingMiniPlayer() {
           </div>
         </button>
       </div>
+    );
+  }
+
+  const statusText = error
+    ? 'Não foi possível tocar'
+    : isBuffering
+      ? 'Carregando música...'
+      : isPlaying
+        ? 'Ouvindo agora...'
+        : 'Pausado';
+  const playLabel = isBuffering
+    ? 'Cancelar carregamento da música'
+    : isPlaying
+      ? 'Pausar música'
+      : error
+        ? 'Tentar reproduzir novamente'
+        : 'Reproduzir música';
+
+  // ==========================================
+  // MOBILE — docked now-playing bar above the bottom navigation
+  // ==========================================
+  if (isMobile) {
+    return (
+      <aside
+        aria-label="Mini player de música"
+        data-testid="floating-mini-player"
+        data-layout="mobile"
+        className={`${styles.playerContainer} ${styles.slideIn} inset-x-2 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] overflow-hidden rounded-2xl border border-white/10 bg-[#1e1e1e]/95 text-white shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-md`}
+      >
+        <span role="status" className="sr-only">
+          {statusText}
+        </span>
+        <div className="relative flex items-center gap-3 py-2 pl-2 pr-1">
+          <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-neutral-800">
+            {currentTrack.artworkUrl ? (
+              <img
+                src={currentTrack.artworkUrl}
+                alt=""
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+            ) : (
+              <div className="flex h-full w-full items-center justify-center text-neutral-500">
+                <Music2 size={20} />
+              </div>
+            )}
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-semibold leading-tight">{currentTrack.title}</p>
+            <p
+              className={`mt-0.5 truncate text-xs leading-tight ${error ? 'text-red-300' : 'text-neutral-400'}`}
+            >
+              {error ? statusText : isBuffering ? 'Carregando…' : currentTrack.artist}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={togglePlay}
+            aria-label={playLabel}
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-black transition-transform active:scale-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            {isBuffering ? (
+              <LoaderCircle size={18} className="motion-safe:animate-spin" aria-hidden="true" />
+            ) : isPlaying ? (
+              <Pause size={18} className="fill-black text-black" />
+            ) : (
+              <Play size={18} className="ml-0.5 fill-black text-black" />
+            )}
+          </button>
+          <button
+            type="button"
+            onClick={minimize}
+            aria-label="Minimizar player"
+            className="flex h-10 w-9 shrink-0 items-center justify-center rounded-full text-neutral-400 active:bg-white/10 focus-visible:outline-2 focus-visible:outline-white"
+          >
+            <ChevronDown size={20} strokeWidth={2} />
+          </button>
+          <button
+            type="button"
+            onClick={closePlayer}
+            aria-label="Fechar player"
+            className="flex h-10 w-9 shrink-0 items-center justify-center rounded-full text-neutral-400 active:bg-white/10 focus-visible:outline-2 focus-visible:outline-white"
+          >
+            <X size={18} strokeWidth={2} />
+          </button>
+          {!error && <ProgressLine />}
+        </div>
+        {error && (
+          <p role="alert" className="px-3 pb-2.5 text-xs leading-relaxed text-neutral-300">
+            {error}
+          </p>
+        )}
+      </aside>
     );
   }
 
