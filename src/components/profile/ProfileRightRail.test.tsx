@@ -1,4 +1,5 @@
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { renderToString } from 'react-dom/server';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FeedRightSidebar } from '@/components/FeedRightSidebar';
 import { ProfileRightRail } from './ProfileRightRail';
@@ -9,7 +10,6 @@ vi.mock('@/i18n/useLocalizedText', () => ({
   useLocalizedText: () => ({ text: (pt: string) => pt }),
 }));
 vi.mock('@/components/AchievementShowcase', () => ({ AchievementShowcase: () => null }));
-vi.mock('@/app/feed/FeedEngagementCard', () => ({ FeedEngagementCard: () => null }));
 
 afterEach(() => {
   cleanup();
@@ -18,6 +18,29 @@ afterEach(() => {
 });
 
 describe('Profile personal rail recommendations', () => {
+  it('renders stable initial streak and XP text across UTC midnight', () => {
+    const rail = (
+      <FeedRightSidebar
+        hideWhoToFollow
+        user={{
+          streak: 1,
+          last_active_at: '2026-11-20T22:00:00Z',
+          trails: [{ id: 'ts', language: 'TS', level: 3, xp: 1600 }],
+        }}
+      />
+    );
+    vi.useFakeTimers();
+    try {
+      vi.setSystemTime(new Date('2026-11-20T23:59:59Z'));
+      const before = renderToString(rail);
+      vi.setSystemTime(new Date('2026-11-21T00:00:01Z'));
+      expect(renderToString(rail)).toBe(before);
+      expect(before).toContain('1.600');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+
   it('passes the authenticated viewer to the real WhoToFollow widget without adding IDs to the URL', async () => {
     vi.stubGlobal('IntersectionObserver', undefined);
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {

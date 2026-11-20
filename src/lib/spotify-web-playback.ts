@@ -39,7 +39,69 @@ type SdkWindow = Window & {
 };
 
 const SDK_URL = 'https://sdk.scdn.co/spotify-player.js';
+const PLAYER_API = 'https://api.spotify.com/v1/me/player';
 let pending: Promise<SpotifySdk> | null = null;
+
+function waitForDevice(delay: number, signal: AbortSignal) {
+  return new Promise<void>((resolve, reject) => {
+    signal.throwIfAborted();
+    const timer = setTimeout(() => {
+      signal.removeEventListener('abort', onAbort);
+      resolve();
+    }, delay);
+    function onAbort() {
+      clearTimeout(timer);
+      reject(signal.reason);
+    }
+    signal.addEventListener('abort', onAbort, { once: true });
+  });
+}
+
+/** An SDK device can emit ready before it appears in Spotify Connect. */
+export async function startSpotifyTrack(
+  token: string,
+  deviceId: string,
+  trackId: string,
+  signal: AbortSignal
+) {
+  const headers = { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' };
+  const play = () =>
+    fetch(`${PLAYER_API}/play?device_id=${encodeURIComponent(deviceId)}`, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ uris: [`spotify:track:${trackId}`] }),
+      signal,
+    });
+
+  const first = await play();
+  if (first.ok) return true;
+  if (first.status !== 404) return false;
+
+  let transferred = false;
+  for (const delay of [0, 250, 500, 1000, 1500]) {
+    await waitForDevice(delay, signal);
+    const response = await fetch(`${PLAYER_API}/devices`, { headers, signal, cache: 'no-store' });
+    if (!response.ok) return false;
+    const { devices } = (await response.json()) as {
+      devices?: { id?: string; is_active?: boolean; is_restricted?: boolean }[];
+    };
+    const device = devices?.find(({ id }) => id === deviceId);
+    if (!device) continue;
+    if (device.is_restricted) return false;
+    if (device.is_active) return (await play()).ok;
+    if (transferred) continue;
+
+    const transfer = await fetch(PLAYER_API, {
+      method: 'PUT',
+      headers,
+      body: JSON.stringify({ device_ids: [deviceId], play: false }),
+      signal,
+    });
+    if (!transfer.ok && transfer.status !== 404) return false;
+    transferred = transfer.ok;
+  }
+  return false;
+}
 
 export function loadSpotifyWebPlaybackSdk(): Promise<SpotifySdk> {
   const sdkWindow = window as SdkWindow;

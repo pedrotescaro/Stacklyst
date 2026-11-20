@@ -1,7 +1,8 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { describe, expect, it, beforeEach, vi } from 'vitest';
-import { loadSpotifyIframeApi } from '@/lib/spotify-iframe';
-import { createSpotifyHarness } from '@/test/spotify-iframe-mock';
+import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
+import { loadSpotifyWebPlaybackSdk } from '@/lib/spotify-web-playback';
+import { fetchSpotifyConnection, getSpotifyAccessToken } from '@/lib/client/spotify-connection';
+import { createSpotifySdkHarness } from '@/test/spotify-sdk-mock';
 import { PostAttachments } from '@/components/posts/PostAttachments';
 import {
   MusicPlayerProvider,
@@ -11,7 +12,16 @@ import {
 import { FloatingMiniPlayer } from '../FloatingMiniPlayer';
 import React from 'react';
 
-vi.mock('@/lib/spotify-iframe', () => ({ loadSpotifyIframeApi: vi.fn() }));
+vi.mock(import('@/lib/spotify-web-playback'), async (importOriginal) => ({
+  ...(await importOriginal()),
+  loadSpotifyWebPlaybackSdk: vi.fn(),
+}));
+vi.mock('@/lib/client/spotify-connection', () => ({
+  SPOTIFY_CONNECTION_EVENT: 'stacklyst:spotify-connection',
+  fetchSpotifyConnection: vi.fn(),
+  getSpotifyAccessToken: vi.fn(),
+  forgetSpotifyAccessToken: vi.fn(),
+}));
 
 const mockTrack: ActiveTrack = {
   id: '4cOdK2wGLETKBW3PvgPWqT',
@@ -31,10 +41,32 @@ function TestPlayerTrigger() {
 }
 
 describe('FloatingMiniPlayer', () => {
+  let sdk: ReturnType<typeof createSpotifySdkHarness>;
+  const ready = async () => {
+    await act(async () => {});
+    act(() => sdk.emit('ready', { device_id: 'device-1' }));
+  };
+  const startTrack = async () => {
+    await ready();
+    await act(async () => {
+      fireEvent.click(screen.getByRole('button', { name: 'Tocar Rick' }));
+    });
+    act(() => sdk.confirmPlaying(mockTrack.id));
+  };
   beforeEach(() => {
     window.localStorage.clear();
-    vi.mocked(loadSpotifyIframeApi).mockReset().mockResolvedValue(createSpotifyHarness(true).api);
+    sdk = createSpotifySdkHarness();
+    vi.mocked(loadSpotifyWebPlaybackSdk).mockResolvedValue(sdk.sdk);
+    vi.mocked(fetchSpotifyConnection).mockResolvedValue({
+      configured: true,
+      connected: true,
+      premium: true,
+    });
+    vi.mocked(getSpotifyAccessToken).mockResolvedValue('test-token');
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 204 })));
   });
+
+  afterEach(() => vi.unstubAllGlobals());
 
   it('does not render when no music is active', () => {
     render(
@@ -54,7 +86,7 @@ describe('FloatingMiniPlayer', () => {
       </MusicPlayerProvider>
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Tocar Rick' }));
+    await startTrack();
 
     expect(await screen.findByTestId('floating-mini-player')).toBeInTheDocument();
     expect(screen.getByText('Never Gonna Give You Up')).toBeInTheDocument();
@@ -70,7 +102,7 @@ describe('FloatingMiniPlayer', () => {
       </MusicPlayerProvider>
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Tocar Rick' }));
+    await startTrack();
     expect(await screen.findByTestId('floating-mini-player')).toBeInTheDocument();
 
     // Click minimize
@@ -94,7 +126,7 @@ describe('FloatingMiniPlayer', () => {
       </MusicPlayerProvider>
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Tocar Rick' }));
+    await startTrack();
     expect(await screen.findByTestId('floating-mini-player')).toBeInTheDocument();
 
     // Click close
@@ -104,8 +136,6 @@ describe('FloatingMiniPlayer', () => {
   });
 
   it('keeps the post and mini player synchronized while loading, playing and pausing', async () => {
-    const spotify = createSpotifyHarness();
-    vi.mocked(loadSpotifyIframeApi).mockResolvedValue(spotify.api);
     render(
       <MusicPlayerProvider>
         <PostAttachments
@@ -120,6 +150,7 @@ describe('FloatingMiniPlayer', () => {
         <FloatingMiniPlayer />
       </MusicPlayerProvider>
     );
+    await ready();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: `Reproduzir ${mockTrack.title}` }));
     });
@@ -127,38 +158,40 @@ describe('FloatingMiniPlayer', () => {
       2
     );
     expect(screen.getByRole('status')).toHaveTextContent('Carregando música');
-    act(() => {
-      spotify.finishCreation();
-      spotify.emit('ready');
-      spotify.confirmPlaying();
-    });
+    act(() => sdk.confirmPlaying(mockTrack.id));
     expect(screen.getByRole('button', { name: `Pausar ${mockTrack.title}` })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Pausar música' }));
-    expect(spotify.controller.pause).toHaveBeenCalledOnce();
+    expect(sdk.player.pause).toHaveBeenCalledOnce();
     expect(
       screen.getByRole('button', { name: `Reproduzir ${mockTrack.title}` })
     ).toBeInTheDocument();
     expect(screen.getByRole('status')).toHaveTextContent('Pausado');
   });
 
-  it('shows an error and lets the user retry after a network failure', async () => {
-    vi.mocked(loadSpotifyIframeApi).mockRejectedValue(new Error('offline'));
+  it('provides the official embed and a Spotify link if account playback fails', async () => {
+    vi.mocked(fetch).mockResolvedValue(new Response(null, { status: 403 }));
     render(
       <MusicPlayerProvider>
         <TestPlayerTrigger />
         <FloatingMiniPlayer />
       </MusicPlayerProvider>
     );
+    await ready();
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Tocar Rick' }));
     });
-    expect(screen.getByRole('alert')).toHaveTextContent('Não foi possível carregar');
-    vi.mocked(loadSpotifyIframeApi).mockResolvedValue(createSpotifyHarness(true).api);
-    await act(async () => {
-      fireEvent.click(screen.getByRole('button', { name: 'Tentar reproduzir novamente' }));
-    });
-    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Pausar música' })).toBeInTheDocument();
+    expect(screen.getByTitle(`${mockTrack.title} · Spotify`)).toHaveAttribute(
+      'src',
+      `https://open.spotify.com/embed/track/${mockTrack.id}`
+    );
+    expect(screen.getByRole('link', { name: 'Abrir no Spotify' })).toHaveAttribute(
+      'href',
+      mockTrack.spotifyUrl
+    );
+    expect(screen.queryByRole('button', { name: 'Cancelar carregamento da música' })).toBeNull();
+    expect(document.querySelector('script[src*="/embed/iframe-api"]')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar player' }));
+    expect(screen.queryByTitle(`${mockTrack.title} · Spotify`)).toBeNull();
   });
 
   it('docks a compact now-playing bar on phones', async () => {
@@ -177,7 +210,7 @@ describe('FloatingMiniPlayer', () => {
           <FloatingMiniPlayer />
         </MusicPlayerProvider>
       );
-      fireEvent.click(screen.getByRole('button', { name: 'Tocar Rick' }));
+      await startTrack();
 
       const bar = await screen.findByTestId('floating-mini-player');
       expect(bar).toHaveAttribute('data-layout', 'mobile');

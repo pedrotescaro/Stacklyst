@@ -21,6 +21,7 @@ const contentSecurityPolicy = [
     isDev ? 'ws: wss:' : 'wss://*.supabase.co',
     'https://*.supabase.co https://api.github.com https://wandbox.org https://api.klipy.com',
     'https://*.spotify.com https://*.spotifycdn.com https://*.scdn.co https://spclient.wg.spotify.com',
+    'wss://*.spotify.com',
     // Spotify's player bundles point their source maps at webpack:// URLs.
     // DevTools resolves them through the page CSP, which logged a violation per
     // module. The scheme is not fetchable by page scripts, so this opens no

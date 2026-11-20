@@ -14,6 +14,7 @@ import {
   SkipForward,
 } from 'lucide-react';
 import { useMusicPlayer, useMusicPlayerControls } from '@/contexts/MusicPlayerContext';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { MusicLevelBars } from './MusicLevelBars';
 import styles from './FloatingMiniPlayer.module.css';
 
@@ -47,6 +48,7 @@ function ProgressLine() {
 }
 
 export function FloatingMiniPlayer() {
+  const { text } = useLocalizedText();
   const [mounted, setMounted] = useState(false);
   const [copied, setCopied] = useState(false);
   const isMobile = useIsMobile();
@@ -54,7 +56,7 @@ export function FloatingMiniPlayer() {
     currentTrack,
     isPlaying,
     isBuffering,
-    error,
+    isEmbedOpen,
     isMinimized,
     togglePlay,
     minimize,
@@ -92,6 +94,46 @@ export function FloatingMiniPlayer() {
   );
 
   if (!mounted || !currentTrack) return null;
+
+  if (isEmbedOpen) {
+    return (
+      <aside
+        aria-label={text('Player do Spotify', 'Spotify player')}
+        data-testid="floating-mini-player"
+        className={`${styles.playerContainer} ${styles.slideIn} ${isMobile ? `${styles.mobileBar} inset-x-2` : 'bottom-6 right-6 w-[350px]'} rounded-xl border border-white/10 bg-[#181818] p-2 text-white shadow-xl`}
+      >
+        <div className="flex items-center justify-between gap-2 pl-2">
+          <p role="status" className="text-sm text-neutral-200">
+            {text('Toque no player do Spotify', 'Press play in the Spotify player')}
+          </p>
+          <button
+            type="button"
+            aria-label={text('Fechar player', 'Close player')}
+            onClick={closePlayer}
+            className="dd-focus-ring grid h-11 w-11 shrink-0 place-items-center rounded-lg hover:bg-white/10"
+          >
+            <X size={19} aria-hidden="true" />
+          </button>
+        </div>
+        <iframe
+          key={currentTrack.id}
+          title={`${currentTrack.title} · Spotify`}
+          src={`https://open.spotify.com/embed/track/${currentTrack.id}`}
+          height={152}
+          allow="encrypted-media; autoplay"
+          className="block w-full rounded-lg border-0"
+        />
+        <a
+          href={spotifyUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="dd-focus-ring my-1 inline-flex min-h-10 items-center rounded-md px-2 text-sm text-neutral-200 underline underline-offset-4 hover:text-white"
+        >
+          {text('Abrir no Spotify', 'Open in Spotify')}
+        </a>
+      </aside>
+    );
+  }
 
   // ==========================================
   // MINIMIZED VIEW
@@ -145,20 +187,16 @@ export function FloatingMiniPlayer() {
     );
   }
 
-  const statusText = error
-    ? 'Não foi possível tocar'
-    : isBuffering
-      ? 'Carregando música...'
-      : isPlaying
-        ? 'Ouvindo agora...'
-        : 'Pausado';
+  const statusText = isBuffering
+    ? 'Carregando música...'
+    : isPlaying
+      ? 'Ouvindo agora...'
+      : 'Pausado';
   const playLabel = isBuffering
     ? 'Cancelar carregamento da música'
     : isPlaying
       ? 'Pausar música'
-      : error
-        ? 'Tentar reproduzir novamente'
-        : 'Reproduzir música';
+      : 'Reproduzir música';
 
   // ==========================================
   // MOBILE — docked now-playing bar above the bottom navigation
@@ -203,10 +241,8 @@ export function FloatingMiniPlayer() {
               <span className="block truncate text-[14px] font-semibold leading-tight">
                 {currentTrack.title}
               </span>
-              <span
-                className={`mt-1 flex min-w-0 items-center gap-1.5 text-xs leading-tight ${error ? 'text-red-300' : 'text-neutral-400'}`}
-              >
-                {!error && !isBuffering && (
+              <span className="mt-1 flex min-w-0 items-center gap-1.5 text-xs leading-tight text-neutral-400">
+                {!isBuffering && (
                   <span className={styles.equalizer} data-playing={isPlaying} aria-hidden="true">
                     <span className={styles.bar} />
                     <span className={styles.bar} />
@@ -214,7 +250,7 @@ export function FloatingMiniPlayer() {
                   </span>
                 )}
                 <span className="truncate">
-                  {error ? statusText : isBuffering ? 'Carregando…' : currentTrack.artist}
+                  {isBuffering ? 'Carregando…' : currentTrack.artist}
                 </span>
               </span>
             </span>
@@ -250,13 +286,7 @@ export function FloatingMiniPlayer() {
             <X size={20} strokeWidth={2} aria-hidden="true" />
           </button>
         </div>
-        {error ? (
-          <p role="alert" className="px-3 pb-2.5 text-xs leading-relaxed text-neutral-300">
-            {error}
-          </p>
-        ) : (
-          <ProgressLine />
-        )}
+        <ProgressLine />
       </aside>
     );
   }
@@ -276,7 +306,7 @@ export function FloatingMiniPlayer() {
           role="status"
           className="flex items-center gap-2 text-[13px] text-neutral-400 font-normal select-none"
         >
-          {!error && !isBuffering && (
+          {!isBuffering && (
             <span className={styles.equalizer} data-playing={isPlaying} aria-hidden="true">
               <span className={styles.bar} />
               <span className={styles.bar} />
@@ -380,15 +410,7 @@ export function FloatingMiniPlayer() {
           <button
             type="button"
             onClick={togglePlay}
-            aria-label={
-              isBuffering
-                ? 'Cancelar carregamento da música'
-                : isPlaying
-                  ? 'Pausar música'
-                  : error
-                    ? 'Tentar reproduzir novamente'
-                    : 'Reproduzir música'
-            }
+            aria-label={playLabel}
             className="flex h-11 w-11 items-center justify-center rounded-full bg-white text-black shadow-md transition-all hover:bg-neutral-200 active:scale-95 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer"
           >
             {isBuffering ? (
@@ -413,11 +435,6 @@ export function FloatingMiniPlayer() {
           </a>
         </div>
       </div>
-      {error && (
-        <p role="alert" className="px-4 pb-3 text-xs leading-relaxed text-neutral-300">
-          {error}
-        </p>
-      )}
     </aside>
   );
 }

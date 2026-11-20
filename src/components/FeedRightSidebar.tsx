@@ -47,7 +47,7 @@ export function FeedRightSidebar({
   const [internalWeeklyActivity, setInternalWeeklyActivity] = useState<Map<number, number>>(
     new Map()
   );
-  const [internalCurrentDate, setInternalCurrentDate] = useState<string>(new Date().toISOString());
+  const [internalCurrentDate, setInternalCurrentDate] = useState<string | null>(null);
 
   const isControlledSearch = externalSearchQuery !== undefined && onSearchChange !== undefined;
   const currentSearchQuery = isControlledSearch ? externalSearchQuery : internalSearchQuery;
@@ -55,6 +55,10 @@ export function FeedRightSidebar({
   // Weekly activity state
   const weeklyActivity = externalWeeklyActivity ?? internalWeeklyActivity;
   const currentDate = externalCurrentDate ?? internalCurrentDate;
+
+  useEffect(() => {
+    setInternalCurrentDate(new Date().toISOString());
+  }, []);
 
   // Fetch weekly activity if not passed externally
   useEffect(() => {

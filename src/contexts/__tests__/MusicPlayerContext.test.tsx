@@ -7,45 +7,19 @@ import {
   useMusicPlayerControls,
   type ActiveTrack,
 } from '../MusicPlayerContext';
-import { loadSpotifyIframeApi } from '@/lib/spotify-iframe';
-import { createSpotifyHarness } from '@/test/spotify-iframe-mock';
+import { createSpotifySdkHarness } from '@/test/spotify-sdk-mock';
 import { loadSpotifyWebPlaybackSdk } from '@/lib/spotify-web-playback';
 import { fetchSpotifyConnection, getSpotifyAccessToken } from '@/lib/client/spotify-connection';
-
-function createSdkHarness() {
-  const listeners = new Map<string, (payload: unknown) => void>();
-  const player = {
-    connect: vi.fn().mockResolvedValue(true),
-    disconnect: vi.fn(),
-    activateElement: vi.fn().mockResolvedValue(undefined),
-    addListener: vi.fn((event: string, callback: (payload: unknown) => void) => {
-      listeners.set(event, callback);
-      return true;
-    }),
-    getCurrentState: vi.fn().mockResolvedValue(null),
-    pause: vi.fn().mockResolvedValue(undefined),
-    resume: vi.fn().mockResolvedValue(undefined),
-    seek: vi.fn().mockResolvedValue(undefined),
-  };
-  class Player {
-    constructor() {
-      return player;
-    }
-  }
-  return {
-    player,
-    sdk: { Player } as never,
-    emit: (event: string, payload?: unknown) => listeners.get(event)?.(payload),
-  };
-}
 
 const flush = () =>
   act(async () => {
     for (let index = 0; index < 5; index++) await Promise.resolve();
   });
 
-vi.mock('@/lib/spotify-iframe', () => ({ loadSpotifyIframeApi: vi.fn() }));
-vi.mock('@/lib/spotify-web-playback', () => ({ loadSpotifyWebPlaybackSdk: vi.fn() }));
+vi.mock(import('@/lib/spotify-web-playback'), async (importOriginal) => ({
+  ...(await importOriginal()),
+  loadSpotifyWebPlaybackSdk: vi.fn(),
+}));
 vi.mock('@/lib/client/spotify-connection', () => ({
   SPOTIFY_CONNECTION_EVENT: 'stacklyst:spotify-connection',
   fetchSpotifyConnection: vi.fn(),
@@ -57,27 +31,26 @@ const track2: ActiveTrack = { id: '6rqhFgbbKwnb9MLmUQDhG6', title: 'Track 2', ar
 const wrapper = ({ children }: { children: React.ReactNode }) => (
   <MusicPlayerProvider>{children}</MusicPlayerProvider>
 );
-let spotify: ReturnType<typeof createSpotifyHarness>;
+let sdk: ReturnType<typeof createSpotifySdkHarness>;
+let fetchMock: ReturnType<typeof vi.fn>;
 
-async function start(result: { current: ReturnType<typeof useMusicPlayer> }) {
-  await act(async () => {
-    result.current.playTrack(track1);
-  });
-  act(() => {
-    spotify.finishCreation();
-    spotify.emit('ready');
-  });
+async function setup(deviceId: string | null = 'device-1') {
+  const view = renderHook(useMusicPlayer, { wrapper });
+  await flush();
+  if (deviceId) act(() => sdk.emit('ready', { device_id: deviceId }));
+  return view;
 }
 
 describe('MusicPlayerContext', () => {
   beforeEach(() => {
     vi.useFakeTimers();
-    spotify = createSpotifyHarness();
-    vi.mocked(loadSpotifyIframeApi).mockReset().mockResolvedValue(spotify.api);
+    sdk = createSpotifySdkHarness();
+    fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', fetchMock);
     vi.mocked(fetchSpotifyConnection)
       .mockReset()
-      .mockResolvedValue({ configured: true, connected: false });
-    vi.mocked(loadSpotifyWebPlaybackSdk).mockReset();
+      .mockResolvedValue({ configured: true, connected: true, premium: true });
+    vi.mocked(loadSpotifyWebPlaybackSdk).mockReset().mockResolvedValue(sdk.sdk);
     vi.mocked(getSpotifyAccessToken).mockReset().mockResolvedValue('access-token');
   });
   afterEach(() => {
@@ -85,26 +58,16 @@ describe('MusicPlayerContext', () => {
     vi.unstubAllGlobals();
   });
 
-  it('plays the full track through a connected Premium account instead of the embed', async () => {
-    const sdk = createSdkHarness();
-    const fetchMock = vi.fn().mockResolvedValue({ ok: true, status: 204 });
-    vi.stubGlobal('fetch', fetchMock);
-    vi.mocked(fetchSpotifyConnection).mockResolvedValue({
-      configured: true,
-      connected: true,
-      premium: true,
-    });
-    vi.mocked(loadSpotifyWebPlaybackSdk).mockResolvedValue(sdk.sdk);
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    await flush();
-    act(() => sdk.emit('ready', { device_id: 'device-1' }));
-    expect(result.current.playbackSource).toBe('account');
-
-    await act(async () => {
-      result.current.playTrack(track1);
-    });
-    await flush();
+  it('waits for a ready device and confirms playback only on the matching SDK state', async () => {
+    const { result } = await setup(null);
+    act(() => result.current.playTrack(track1));
+    expect(result.current.isBuffering).toBe(true);
+    expect(result.current.isEmbedOpen).toBe(false);
+    expect(fetchMock).not.toHaveBeenCalled();
     expect(sdk.player.activateElement).toHaveBeenCalled();
+
+    act(() => sdk.emit('ready', { device_id: 'device-1' }));
+    await flush();
     expect(fetchMock).toHaveBeenCalledWith(
       'https://api.spotify.com/v1/me/player/play?device_id=device-1',
       expect.objectContaining({
@@ -112,293 +75,142 @@ describe('MusicPlayerContext', () => {
         body: JSON.stringify({ uris: [`spotify:track:${track1.id}`] }),
       })
     );
-    expect(spotify.api.createController).not.toHaveBeenCalled();
-
-    act(() =>
-      sdk.emit('player_state_changed', {
-        paused: false,
-        loading: false,
-        position: 30000,
-        duration: 200000,
-        track_window: { current_track: { id: track1.id, uri: `spotify:track:${track1.id}` } },
-      })
-    );
+    expect(result.current.isPlaying).toBe(false);
+    act(() => sdk.confirmPlaying(track2.id));
+    expect(result.current.isPlaying).toBe(false);
+    act(() => sdk.confirmPlaying(track1.id, { position: 30000 }));
     expect(result.current.isPlaying).toBe(true);
-    expect(result.current.duration).toBe(200000);
-
-    act(() => result.current.togglePlay());
-    expect(sdk.player.pause).toHaveBeenCalled();
+    expect(result.current.isBuffering).toBe(false);
+    expect(result.current.playbackSource).toBe('account');
+    expect(result.current.progress).toBe(15);
   });
 
-  it('falls back to the embed when the connected account is not Premium', async () => {
-    const sdk = createSdkHarness();
+  it('waits for the browser in Spotify Connect and activates it before retrying a 404', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(null, { status: 404 }))
+      .mockResolvedValueOnce(Response.json({ devices: [{ id: 'other', is_active: true }] }))
+      .mockResolvedValueOnce(Response.json({ devices: [{ id: 'device-1', is_active: false }] }))
+      .mockResolvedValueOnce(new Response(null, { status: 204 }))
+      .mockResolvedValueOnce(Response.json({ devices: [{ id: 'device-1', is_active: true }] }));
+    const { result } = await setup();
+    act(() => result.current.playTrack(track1));
+    await act(async () => vi.advanceTimersByTimeAsync(800));
+    expect(fetchMock.mock.calls.map(([url]) => new URL(url).pathname)).toEqual([
+      '/v1/me/player/play',
+      '/v1/me/player/devices',
+      '/v1/me/player/devices',
+      '/v1/me/player',
+      '/v1/me/player/devices',
+      '/v1/me/player/play',
+    ]);
+    expect(fetchMock.mock.calls[3][1].body).toBe(
+      JSON.stringify({ device_ids: ['device-1'], play: false })
+    );
+    expect(fetchMock.mock.calls[5][0]).toBe(
+      'https://api.spotify.com/v1/me/player/play?device_id=device-1'
+    );
+    act(() => sdk.confirmPlaying(track1.id));
+    expect(result.current.isPlaying).toBe(true);
+    expect(result.current.isEmbedOpen).toBe(false);
+  });
+
+  it('abandons recovery when the user cancels before the device is registered', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(null, { status: 404 }))
+      .mockResolvedValue(Response.json({ devices: [] }));
+    const { result } = await setup();
+    act(() => result.current.playTrack(track1));
+    await act(async () => vi.advanceTimersByTimeAsync(0));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    act(() => result.current.pause());
+    await act(async () => vi.advanceTimersByTimeAsync(15000));
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.current.isEmbedOpen).toBe(false);
+    expect(result.current.isBuffering).toBe(false);
+  });
+
+  it('uses the new device after losing the connection and ignores stale offline notifications', async () => {
+    const { result } = await setup();
+    await act(async () => result.current.playTrack(track1));
+    act(() => sdk.confirmPlaying(track1.id));
+    act(() => sdk.emit('not_ready', { device_id: 'device-1' }));
+    expect(result.current.isBuffering).toBe(true);
+
+    act(() => sdk.emit('ready', { device_id: 'device-2' }));
+    act(() => sdk.emit('not_ready', { device_id: 'device-1' }));
+    await flush();
+    expect(fetchMock.mock.calls.map(([url]) => new URL(url).searchParams.get('device_id'))).toEqual(
+      ['device-1', 'device-2']
+    );
+    act(() => sdk.confirmPlaying(track1.id));
+    expect(result.current.isPlaying).toBe(true);
+  });
+
+  it('opens the embed when the registered device never becomes available', async () => {
+    fetchMock
+      .mockResolvedValueOnce(new Response(null, { status: 404 }))
+      .mockImplementation(async () => Response.json({ devices: [] }));
+    const { result } = await setup();
+    act(() => result.current.playTrack(track1));
+    await act(async () => vi.advanceTimersByTimeAsync(4000));
+    expect(result.current.isEmbedOpen).toBe(true);
+    expect(result.current.isBuffering).toBe(false);
+    expect(result.current.isPlaying).toBe(false);
+    expect(fetchMock.mock.calls.filter(([url]) => url.includes('/play?'))).toHaveLength(1);
+  });
+
+  it('opens the embed after the browser refuses autoplay', async () => {
+    const { result } = await setup();
+    await act(async () => result.current.playTrack(track1));
+    act(() => sdk.emit('autoplay_failed'));
+    expect(result.current.isEmbedOpen).toBe(true);
+    expect(result.current.isBuffering).toBe(false);
+  });
+
+  it('falls back for a Free account without requesting an SDK access token', async () => {
     vi.mocked(fetchSpotifyConnection).mockResolvedValue({
       configured: true,
       connected: true,
-      premium: true,
+      premium: false,
     });
-    vi.mocked(loadSpotifyWebPlaybackSdk).mockResolvedValue(sdk.sdk);
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    await flush();
-    act(() => sdk.emit('ready', { device_id: 'device-1' }));
-    act(() => sdk.emit('account_error', { message: 'Premium required' }));
-    expect(result.current.playbackSource).toBe('embed');
-    expect(sdk.player.disconnect).toHaveBeenCalled();
-
-    await start(result);
-    expect(spotify.api.createController).toHaveBeenCalledOnce();
-  });
-
-  it('preloads the API without creating an embed or starting playback', () => {
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    expect(result.current.currentTrack).toBeNull();
-    expect(result.current.isPlaying).toBe(false);
-    expect(loadSpotifyIframeApi).toHaveBeenCalledOnce();
-    expect(spotify.api.createController).not.toHaveBeenCalled();
-  });
-
-  it('waits for ready and actual playback rather than showing fake playback', async () => {
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    await act(async () => {
-      result.current.playTrack(track1);
-    });
-    expect(result.current.isBuffering).toBe(true);
-    expect(result.current.isPlaying).toBe(false);
-    act(() => spotify.finishCreation());
-    expect(spotify.controller.resume).not.toHaveBeenCalled();
-    act(() => {
-      spotify.emit('ready');
-      spotify.emit('ready');
-    });
-    expect(spotify.controller.resume).toHaveBeenCalledOnce();
-    expect(result.current.isPlaying).toBe(false);
-    act(() => spotify.confirmPlaying());
-    expect(result.current.isPlaying).toBe(true);
-    expect(result.current.isBuffering).toBe(false);
-  });
-
-  it('creates one controller during rapid track switches and starts only the latest track', async () => {
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    await act(async () => {
-      result.current.playTrack(track1);
-    });
-    await act(async () => {
-      result.current.playTrack(track2);
-    });
-    expect(spotify.api.createController).toHaveBeenCalledOnce();
-    act(() => {
-      spotify.finishCreation();
-      spotify.emit('ready');
-    });
-    expect(spotify.controller.loadEntity).toHaveBeenCalledExactlyOnceWith(
-      `spotify:track:${track2.id}`
-    );
-    expect(spotify.controller.play).toHaveBeenCalledOnce();
-    expect(result.current.currentTrack).toEqual(track2);
-  });
-
-  it('uses the latest selection even before the API has loaded', async () => {
-    let resolveApi!: (api: typeof spotify.api) => void;
-    const pending = new Promise<typeof spotify.api>((resolve) => {
-      resolveApi = resolve;
-    });
-    vi.mocked(loadSpotifyIframeApi).mockReturnValue(pending);
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    act(() => {
-      result.current.playTrack(track1);
-      result.current.playTrack(track2);
-    });
-    await act(async () => {
-      resolveApi(spotify.api);
-    });
-    expect(spotify.api.createController).toHaveBeenCalledOnce();
-    expect(vi.mocked(spotify.api.createController).mock.calls[0][1].uri).toBe(
-      `spotify:track:${track2.id}`
-    );
-  });
-
-  it('cancels playback during loading, including two clicks within one React batch', async () => {
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    await act(async () => {
-      result.current.playTrack(track1);
-      result.current.playTrack(track1);
-    });
-    act(() => {
-      spotify.finishCreation();
-      spotify.emit('ready');
-    });
-    expect(spotify.controller.play).not.toHaveBeenCalled();
-    expect(spotify.controller.resume).not.toHaveBeenCalled();
-    expect(spotify.controller.pause).toHaveBeenCalledOnce();
-    expect(result.current.isBuffering).toBe(false);
-    act(() => vi.advanceTimersByTime(20000));
-    expect(result.current.error).toBeNull();
-  });
-
-  it('reuses the embed and resumes the paused position without reloading the track', async () => {
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    await start(result);
-    act(() => spotify.confirmPlaying());
-    act(() => result.current.togglePlay());
-    expect(spotify.controller.pause).toHaveBeenCalledOnce();
+    const { result } = await setup(null);
     act(() => result.current.playTrack(track1));
-    expect(spotify.controller.resume).toHaveBeenCalledTimes(2);
-    expect(spotify.controller.loadEntity).not.toHaveBeenCalled();
-    expect(spotify.api.createController).toHaveBeenCalledOnce();
+    expect(result.current.isEmbedOpen).toBe(true);
+    expect(result.current.playbackSource).toBe('embed');
+    expect(getSpotifyAccessToken).not.toHaveBeenCalled();
+    expect(loadSpotifyWebPlaybackSdk).not.toHaveBeenCalled();
   });
 
-  it('ignores playback events from an old track and restores buffering after a stall', async () => {
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    await start(result);
-    act(() => spotify.confirmPlaying());
-    act(() => result.current.playTrack(track2));
-    act(() =>
-      spotify.emit('playback_update', {
-        playingURI: `spotify:track:${track1.id}`,
-        isPaused: false,
-        position: 90000,
-      })
-    );
-    expect(result.current.isPlaying).toBe(false);
-    expect(result.current.position).toBe(0);
-    act(() => spotify.confirmPlaying());
-    expect(result.current.isPlaying).toBe(true);
-    act(() =>
-      spotify.emit('playback_update', {
-        playingURI: `spotify:track:${track2.id}`,
-        isPaused: false,
-        isBuffering: true,
-      })
-    );
-    expect(result.current.isBuffering).toBe(true);
-    expect(result.current.isPlaying).toBe(false);
-    act(() => spotify.confirmPlaying());
-    act(() => vi.advanceTimersByTime(20000));
-    expect(result.current.error).toBeNull();
-  });
-
-  it('destroys a late controller when closed during creation and never starts it', async () => {
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    await act(async () => {
+  it('stops waiting when the SDK never emits ready and preserves a newer track selection', async () => {
+    const { result } = await setup(null);
+    act(() => {
       result.current.playTrack(track1);
+      result.current.playTrack(track2);
     });
+    await act(async () => vi.advanceTimersByTimeAsync(12000));
+    expect(result.current.currentTrack).toEqual(track2);
+    expect(result.current.isEmbedOpen).toBe(true);
+    expect(result.current.isBuffering).toBe(false);
+    act(() => sdk.emit('ready', { device_id: 'late-device' }));
+    expect(fetchMock).not.toHaveBeenCalled();
     act(() => result.current.closePlayer());
-    act(() => {
-      spotify.finishCreation();
-      spotify.emit('ready');
-    });
-    expect(spotify.controller.destroy).toHaveBeenCalledOnce();
-    expect(spotify.controller.resume).not.toHaveBeenCalled();
+    expect(result.current.isEmbedOpen).toBe(false);
     expect(result.current.currentTrack).toBeNull();
   });
 
-  it('cancels creation when closed before the API response', async () => {
-    let resolveApi!: (api: typeof spotify.api) => void;
-    vi.mocked(loadSpotifyIframeApi).mockReturnValue(
-      new Promise((resolve) => {
-        resolveApi = resolve;
-      })
-    );
-    const { result } = renderHook(useMusicPlayer, { wrapper });
+  it('pauses, seeks and resumes account playback without restarting the track', async () => {
+    const { result } = await setup();
+    await act(async () => result.current.playTrack(track1));
+    act(() => sdk.confirmPlaying(track1.id));
     act(() => {
-      result.current.playTrack(track1);
-      result.current.closePlayer();
-    });
-    await act(async () => {
-      resolveApi(spotify.api);
-    });
-    expect(spotify.api.createController).not.toHaveBeenCalled();
-  });
-
-  it('cleans up on unmount and ignores subsequent Spotify messages', async () => {
-    const { result, unmount } = renderHook(useMusicPlayer, { wrapper });
-    await start(result);
-    unmount();
-    expect(spotify.controller.destroy).toHaveBeenCalledOnce();
-    act(() => {
-      spotify.emit('ready');
-      spotify.confirmPlaying();
-      vi.advanceTimersByTime(20000);
-    });
-    expect(spotify.controller.resume).toHaveBeenCalledOnce();
-  });
-
-  it('shows a recoverable error when the API fails and allows retry', async () => {
-    vi.mocked(loadSpotifyIframeApi)
-      .mockRejectedValueOnce(new Error('offline'))
-      .mockRejectedValueOnce(new Error('offline'));
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    await act(async () => {
-      result.current.playTrack(track1);
-    });
-    expect(result.current.error).toBeTruthy();
-    expect(result.current.isBuffering).toBe(false);
-    await act(async () => {
-      result.current.playTrack(track1);
-    });
-    act(() => {
-      spotify.finishCreation();
-      spotify.emit('ready');
-      spotify.confirmPlaying();
-    });
-    expect(result.current.error).toBeNull();
-    expect(result.current.isPlaying).toBe(true);
-  });
-
-  it('times out instead of spinning forever and invalidates late ready events', async () => {
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    await act(async () => {
-      result.current.playTrack(track1);
-    });
-    act(() => spotify.finishCreation());
-    act(() => result.current.minimize());
-    act(() => vi.advanceTimersByTime(15000));
-    expect(result.current.error).toContain('demorou');
-    expect(result.current.isBuffering).toBe(false);
-    expect(result.current.isMinimized).toBe(false);
-    act(() => spotify.emit('ready'));
-    expect(spotify.controller.resume).not.toHaveBeenCalled();
-    expect(spotify.controller.destroy).toHaveBeenCalledOnce();
-  });
-
-  it('recovers from controller command failures', async () => {
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    await start(result);
-    spotify.controller.pause.mockImplementationOnce(() => {
-      throw new Error('detached');
-    });
-    act(() => result.current.pause());
-    expect(result.current.error).toBeTruthy();
-    expect(spotify.controller.destroy).toHaveBeenCalledOnce();
-  });
-
-  it('seeks only with a known duration, clamps input and sends one command in StrictMode', async () => {
-    const strictWrapper = ({ children }: { children: React.ReactNode }) => (
-      <React.StrictMode>{wrapper({ children })}</React.StrictMode>
-    );
-    const { result } = renderHook(useMusicPlayer, { wrapper: strictWrapper });
-    await start(result);
-    act(() => result.current.seek(50));
-    expect(spotify.controller.seek).not.toHaveBeenCalled();
-    act(() => spotify.confirmPlaying());
-    act(() => {
-      result.current.seek(Number.NaN);
       result.current.seek(200);
+      result.current.pause();
     });
-    expect(spotify.controller.seek).toHaveBeenCalledExactlyOnceWith(180);
-  });
-
-  it('rejects malformed track IDs and keeps minimize controls operational', async () => {
-    const { result } = renderHook(useMusicPlayer, { wrapper });
-    act(() => result.current.playTrack({ ...track1, id: 'invalid' }));
-    expect(result.current.currentTrack).toBeNull();
-    await start(result);
-    act(() => result.current.minimize());
-    expect(result.current.isMinimized).toBe(true);
-    act(() => result.current.expand());
-    expect(result.current.isMinimized).toBe(false);
-    act(() => result.current.toggleMinimize());
-    expect(result.current.isMinimized).toBe(true);
+    expect(sdk.player.seek).toHaveBeenCalledWith(200000);
+    expect(sdk.player.pause).toHaveBeenCalledOnce();
+    await act(async () => result.current.resume());
+    expect(sdk.player.resume).toHaveBeenCalledOnce();
+    expect(fetchMock).toHaveBeenCalledOnce();
   });
 
   it('does not rerender feed controls for each progress update', async () => {
@@ -414,25 +226,13 @@ describe('MusicPlayerContext', () => {
         <Consumer />
       </MusicPlayerProvider>
     );
-    await act(async () => {
-      controls.playTrack(track1);
-    });
-    act(() => {
-      spotify.finishCreation();
-      spotify.emit('ready');
-      spotify.confirmPlaying();
-    });
+    await flush();
+    act(() => sdk.emit('ready', { device_id: 'device-1' }));
+    await act(async () => controls.playTrack(track1));
+    act(() => sdk.confirmPlaying(track1.id));
     const initialRenders = renders;
     for (let position = 1000; position <= 10000; position += 1000) {
-      act(() =>
-        spotify.emit('playback_update', {
-          playingURI: `spotify:track:${track1.id}`,
-          isPaused: false,
-          isBuffering: false,
-          duration: 180000,
-          position,
-        })
-      );
+      act(() => sdk.confirmPlaying(track1.id, { position }));
     }
     expect(renders).toBe(initialRenders);
   });

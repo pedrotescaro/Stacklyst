@@ -97,12 +97,6 @@
 .loadingIcon {
   animation: musicSpin 900ms linear infinite;
 }
-.musicError {
-  padding: 0 16px 14px;
-  color: var(--color-dd-text);
-  font-size: 12px;
-  line-height: 1.5;
-}
 @keyframes musicSpin {
   to {
     transform: rotate(360deg);

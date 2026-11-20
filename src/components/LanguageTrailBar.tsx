@@ -1,6 +1,7 @@
 'use client';
 
 import { getLanguageColor, getLanguageLabel } from './LanguageTag';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './LanguageTrailBar.module.css';
 
 interface LanguageTrailBarProps {
@@ -18,6 +19,8 @@ export function LanguageTrailBar({
   maxXp,
   compact = false,
 }: LanguageTrailBarProps) {
+  const { isEnglish } = useLocalizedText();
+  const locale = isEnglish ? 'en-US' : 'pt-BR';
   const color = getLanguageColor(language);
   const label = getLanguageLabel(language);
   const percent = maxXp > 0 ? Math.max(0, Math.min((xp / maxXp) * 100, 100)) : 0;
@@ -58,7 +61,7 @@ export function LanguageTrailBar({
             : 'text-dd-muted text-[10px] font-semibold font-mono w-20 text-right shrink-0'
         }
       >
-        {xp.toLocaleString()}/{maxXp.toLocaleString()} XP
+        {xp.toLocaleString(locale)}/{maxXp.toLocaleString(locale)} XP
       </span>
 
       {/* Level */}
