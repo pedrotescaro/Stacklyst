@@ -212,6 +212,11 @@ export const createAnswerSchema = z
     path: ['body'],
   });
 
+/** Editing a reply changes its text only; its media and markers are kept by the server. */
+export const updateAnswerSchema = z.object({
+  body: z.string().trim().max(5000).pipe(mentionSchema),
+});
+
 export const quizAttemptSchema = z.object({
   selected_index: z.number().int().min(0, 'Seleção inválida'),
 });

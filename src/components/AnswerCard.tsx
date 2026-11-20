@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MessageCircle, BarChart2, Share2, Send, Trash2 } from 'lucide-react';
+import { MessageCircle, BarChart2, Share2, Send } from 'lucide-react';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
 import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
 import { LikeButton } from '@/components/motion/LikeButton';
@@ -11,7 +11,8 @@ import { BookmarkButton } from '@/components/motion/BookmarkButton';
 import { RepostMenu } from '@/components/motion/RepostMenu';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
-import { PostActionDialog } from '@/components/posts/PostActionDialog';
+import { ReplyOwnerMenu } from '@/components/replies/ReplyOwnerMenu';
+import { ReplyEditForm } from '@/components/replies/ReplyEditForm';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { parsePostExtras } from '@/lib/post-composer';
 import { parseReplyMedia } from '@/lib/reply-media';
@@ -61,7 +62,10 @@ export function AnswerCard({
   connectToNext = false,
   replyingTo,
 }: AnswerCardProps) {
-  const replyMedia = parseReplyMedia(answer.body);
+  // Edits are applied locally so the reply updates without reloading the thread.
+  const [body, setBody] = useState(answer.body);
+  const [editing, setEditing] = useState(false);
+  const replyMedia = parseReplyMedia(body);
   const replyExtras = parsePostExtras(replyMedia.content);
   const initialUserVote =
     answer.votes?.[0]?.value === 1 ? 'up' : answer.votes?.[0]?.value === -1 ? 'down' : null;
@@ -112,39 +116,12 @@ export function AnswerCard({
     }
   };
   const [reposted, setReposted] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-  const deleteButtonRef = useRef<HTMLButtonElement>(null);
   const isOwnAnswer = Boolean(
     currentUser &&
     (answer.author_id && currentUser.id
       ? answer.author_id === currentUser.id
       : answer.author.username === currentUser.username)
   );
-  const handleDelete = async () => {
-    if (deleting) return;
-    setDeleting(true);
-    setDeleteError(null);
-    try {
-      const response = await fetch(`/api/answers/${answer.id}`, { method: 'DELETE' });
-      if (!response.ok) {
-        const data = await response.json().catch(() => null);
-        setDeleteError(
-          typeof data?.error === 'string'
-            ? data.error
-            : 'Não foi possível excluir a resposta. Tente novamente.'
-        );
-        return;
-      }
-      setDeleteOpen(false);
-      onAnswerDeleted?.(answer.id);
-    } catch {
-      setDeleteError('Não foi possível conectar. Tente excluir novamente.');
-    } finally {
-      setDeleting(false);
-    }
-  };
   const [repostCount, setRepostCount] = useState(0);
 
   const [showReplyBox, setShowReplyBox] = useState(false);
@@ -408,26 +385,38 @@ export function AnswerCard({
         )}
 
         {/* Body */}
-        <SensitiveContentGate isSensitive={replyExtras.isSensitive}>
-          {replyExtras.content && (
-            <div className="mt-2">
-              <MarkdownRenderer content={replyExtras.content} compact={false} />
-            </div>
-          )}
-          {(replyMedia.attachments.length > 0 || replyMedia.music) && (
-            <div className="mt-2">
-              <PostAttachments
-                postId={answer.id}
-                attachments={replyMedia.attachments}
-                music={replyMedia.music}
-              />
-            </div>
-          )}
-          <PostLocation location={replyExtras.location} className="mt-2" />
-        </SensitiveContentGate>
+        {editing ? (
+          <ReplyEditForm
+            answerId={answer.id}
+            body={body}
+            onCancel={() => setEditing(false)}
+            onSaved={(next) => {
+              setBody(next);
+              setEditing(false);
+            }}
+          />
+        ) : (
+          <SensitiveContentGate isSensitive={replyExtras.isSensitive}>
+            {replyExtras.content && (
+              <div className="mt-2">
+                <MarkdownRenderer content={replyExtras.content} compact={false} />
+              </div>
+            )}
+            {(replyMedia.attachments.length > 0 || replyMedia.music) && (
+              <div className="mt-2">
+                <PostAttachments
+                  postId={answer.id}
+                  attachments={replyMedia.attachments}
+                  music={replyMedia.music}
+                />
+              </div>
+            )}
+            <PostLocation location={replyExtras.location} className="mt-2" />
+          </SensitiveContentGate>
+        )}
 
         {/* Legacy code snippet fallback */}
-        {answer.code_snippet && !answer.body.includes('```') && (
+        {answer.code_snippet && !body.includes('```') && (
           <div className="bg-dd-bg rounded-lg p-3 mt-3 overflow-x-auto">
             <pre className="text-dd-text text-xs font-mono whitespace-pre">
               {answer.code_snippet}
@@ -498,71 +487,15 @@ export function AnswerCard({
               <Share2 className="h-[18px] w-[18px]" />
             </button>
 
-            {/* 7. Delete (own answers only) */}
+            {/* 7. More options (own answers only), like posts */}
             {isOwnAnswer && (
-              <button
-                ref={deleteButtonRef}
-                type="button"
-                onClick={() => {
-                  setDeleteError(null);
-                  setDeleteOpen(true);
-                }}
-                className={`${postActionClassName} hover:bg-red-500/10 hover:text-red-400`}
-                title="Excluir resposta"
-                aria-label="Excluir resposta"
-              >
-                <Trash2 className="h-[18px] w-[18px]" aria-hidden="true" />
-              </button>
+              <ReplyOwnerMenu
+                answerId={answer.id}
+                onEdit={() => setEditing(true)}
+                onDeleted={() => onAnswerDeleted?.(answer.id)}
+              />
             )}
           </PostActionsBar>
-          {deleteOpen && (
-            <PostActionDialog
-              variant="confirm"
-              titleId={`delete-answer-title-${answer.id}`}
-              descriptionId={`delete-answer-description-${answer.id}`}
-              busy={deleting}
-              onClose={() => setDeleteOpen(false)}
-              returnFocusRef={deleteButtonRef}
-            >
-              <h3
-                id={`delete-answer-title-${answer.id}`}
-                className="text-xl font-extrabold leading-6 text-dd-text"
-              >
-                Excluir resposta?
-              </h3>
-              <p
-                id={`delete-answer-description-${answer.id}`}
-                className="mt-2 text-[15px] leading-5 text-dd-muted"
-              >
-                Isso não pode ser desfeito. As respostas de outras pessoas a esta continuam na
-                conversa.
-              </p>
-              {deleteError && (
-                <p role="alert" className="mt-3 text-sm text-red-500 dark:text-red-400">
-                  {deleteError}
-                </p>
-              )}
-              <div className="mt-6 flex flex-col gap-3">
-                <button
-                  type="button"
-                  onClick={handleDelete}
-                  disabled={deleting}
-                  className="dd-touch min-h-11 w-full cursor-pointer rounded-full bg-[#f4212e] px-6 text-[15px] font-bold text-white transition-colors hover:bg-[#dc1e29] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f4212e] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {deleting ? 'Excluindo...' : 'Excluir'}
-                </button>
-                <button
-                  type="button"
-                  data-dialog-initial-focus
-                  disabled={deleting}
-                  onClick={() => setDeleteOpen(false)}
-                  className="dd-touch min-h-11 w-full cursor-pointer rounded-full border border-dd-border px-6 text-[15px] font-bold text-dd-text transition-colors hover:bg-dd-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dd-accent disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  Cancelar
-                </button>
-              </div>
-            </PostActionDialog>
-          )}
           {bookmarkError && (
             <p role="alert" className="mt-1 text-xs text-red-400">
               {bookmarkError}

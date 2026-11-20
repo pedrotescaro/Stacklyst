@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { MessageCircle, Share2, Trash2 } from 'lucide-react';
+import { MessageCircle, Share2 } from 'lucide-react';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { LevelBadge } from '@/components/LevelBadge';
@@ -11,7 +11,8 @@ import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { parseReplyMedia } from '@/lib/reply-media';
 import { parsePostExtras } from '@/lib/post-composer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
-import { PostActionDialog } from '@/components/posts/PostActionDialog';
+import { ReplyOwnerMenu } from '@/components/replies/ReplyOwnerMenu';
+import { ReplyEditForm } from '@/components/replies/ReplyEditForm';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
 import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
@@ -152,10 +153,9 @@ function ThreadContext({
 export function ProfileReplyThread({ reply, currentUser }: { reply: any; currentUser?: any }) {
   const { text } = useLocalizedText();
   const [deleted, setDeleted] = useState(false);
-  const [deleteOpen, setDeleteOpen] = useState(false);
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState('');
-  const deleteButtonRef = useRef<HTMLButtonElement>(null);
+  const [editing, setEditing] = useState(false);
+  // Edits are applied locally so the reply updates without reloading the tab.
+  const [body, setBody] = useState<string>(reply?.body ?? '');
   const [voteCount, setVoteCount] = useState(reply?.upvotes ?? 0);
   const [userVote, setUserVote] = useState(reply?.votes?.[0]?.value ?? 0);
   const [voting, setVoting] = useState(false);
@@ -182,37 +182,6 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
     currentUser?.id && (reply.author_id ?? reply.author.id) === currentUser.id
   );
 
-  async function deleteReply() {
-    if (deleting) return;
-    setDeleting(true);
-    setDeleteError('');
-    try {
-      const response = await fetch(`/api/answers/${reply.id}`, { method: 'DELETE' });
-      if (!response.ok) {
-        const data = await response.json().catch(() => null);
-        setDeleteError(
-          typeof data?.error === 'string'
-            ? data.error
-            : text(
-                'Não foi possível excluir a resposta. Tente novamente.',
-                'Could not delete the reply. Try again.'
-              )
-        );
-        return;
-      }
-      setDeleteOpen(false);
-      setDeleted(true);
-    } catch {
-      setDeleteError(
-        text(
-          'Não foi possível conectar. Tente excluir novamente.',
-          'Could not connect. Try deleting again.'
-        )
-      );
-    } finally {
-      setDeleting(false);
-    }
-  }
   const href = `/post/${reply.post_id}#answer-${reply.id}`;
 
   async function toggleLike() {
@@ -303,8 +272,20 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
               @{(reply.parent?.author ?? reply.post.author).username}
             </Link>
           </p>
-          <ThreadBody item={reply} kind="reply" />
-          {reply.code_snippet && !reply.body.includes('```') && (
+          {editing ? (
+            <ReplyEditForm
+              answerId={reply.id}
+              body={body}
+              onCancel={() => setEditing(false)}
+              onSaved={(next) => {
+                setBody(next);
+                setEditing(false);
+              }}
+            />
+          ) : (
+            <ThreadBody item={{ ...reply, body }} kind="reply" />
+          )}
+          {reply.code_snippet && !body.includes('```') && (
             <pre className="mt-3 overflow-x-auto rounded-lg bg-dd-surface p-3 text-xs text-dd-text">
               <code>{reply.code_snippet}</code>
             </pre>
@@ -334,72 +315,14 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
                 <Share2 size={18} aria-hidden="true" />
               </button>
               {isOwnReply && (
-                <button
-                  ref={deleteButtonRef}
-                  type="button"
-                  onClick={() => {
-                    setDeleteError('');
-                    setDeleteOpen(true);
-                  }}
-                  className={`${postActionClassName} hover:bg-red-500/10 hover:text-red-400`}
-                  aria-label={text('Excluir resposta', 'Delete reply')}
-                  title={text('Excluir resposta', 'Delete reply')}
-                >
-                  <Trash2 size={18} aria-hidden="true" />
-                </button>
+                <ReplyOwnerMenu
+                  answerId={reply.id}
+                  onEdit={() => setEditing(true)}
+                  onDeleted={() => setDeleted(true)}
+                />
               )}
             </PostActionsBar>
           </div>
-          {deleteOpen && (
-            <PostActionDialog
-              variant="confirm"
-              titleId={`delete-reply-title-${reply.id}`}
-              descriptionId={`delete-reply-description-${reply.id}`}
-              busy={deleting}
-              onClose={() => setDeleteOpen(false)}
-              returnFocusRef={deleteButtonRef}
-            >
-              <h3
-                id={`delete-reply-title-${reply.id}`}
-                className="text-xl font-extrabold leading-6 text-dd-text"
-              >
-                {text('Excluir resposta?', 'Delete reply?')}
-              </h3>
-              <p
-                id={`delete-reply-description-${reply.id}`}
-                className="mt-2 text-[15px] leading-5 text-dd-muted"
-              >
-                {text(
-                  'Isso não pode ser desfeito. As respostas de outras pessoas a esta continuam na conversa.',
-                  "This can't be undone. Other people's replies to it stay in the conversation."
-                )}
-              </p>
-              {deleteError && (
-                <p role="alert" className="mt-3 text-sm text-red-500 dark:text-red-400">
-                  {deleteError}
-                </p>
-              )}
-              <div className="mt-6 flex flex-col gap-3">
-                <button
-                  type="button"
-                  onClick={deleteReply}
-                  disabled={deleting}
-                  className="dd-touch min-h-11 w-full cursor-pointer rounded-full bg-[#f4212e] px-6 text-[15px] font-bold text-white transition-colors hover:bg-[#dc1e29] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f4212e] disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {deleting ? text('Excluindo...', 'Deleting...') : text('Excluir', 'Delete')}
-                </button>
-                <button
-                  type="button"
-                  data-dialog-initial-focus
-                  disabled={deleting}
-                  onClick={() => setDeleteOpen(false)}
-                  className="dd-touch min-h-11 w-full cursor-pointer rounded-full border border-dd-border px-6 text-[15px] font-bold text-dd-text transition-colors hover:bg-dd-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dd-accent disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {text('Cancelar', 'Cancel')}
-                </button>
-              </div>
-            </PostActionDialog>
-          )}
           {feedback && (
             <p role="status" className="mt-2 text-xs text-dd-muted">
               {feedback}

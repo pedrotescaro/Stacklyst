@@ -4,6 +4,7 @@ import { AnswerCard } from '@/components/AnswerCard';
 import { removeAnswerFromTree } from '@/components/AnswerThread';
 import { ProfileReplyThread } from '@/components/ProfileReplyThread';
 import type { AnswerNode } from '@/components/answer-types';
+import { encodeReplyMedia } from '@/lib/reply-media';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 vi.mock('@/components/MarkdownRenderer', () => ({
@@ -44,7 +45,7 @@ describe('removeAnswerFromTree', () => {
   });
 });
 
-describe('deleting your own reply', () => {
+describe('editing and deleting your own reply', () => {
   let fetcher: ReturnType<typeof vi.fn>;
   beforeEach(() => {
     localStorage.setItem('stacklyst-sound', 'false');
@@ -80,7 +81,9 @@ describe('deleting your own reply', () => {
         onAnswerDeleted={onDeleted}
       />
     );
-    expect(screen.queryByRole('button', { name: 'Excluir resposta' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Mais opções da resposta' })
+    ).not.toBeInTheDocument();
     rerender(
       <AnswerCard
         answer={node('mine', null)}
@@ -90,7 +93,8 @@ describe('deleting your own reply', () => {
         onAnswerDeleted={onDeleted}
       />
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Excluir resposta' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções da resposta' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Excluir' }));
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }));
     await waitFor(() => expect(onDeleted).toHaveBeenCalledWith('mine'));
     expect(fetcher).toHaveBeenCalledWith('/api/answers/mine', { method: 'DELETE' });
@@ -112,7 +116,8 @@ describe('deleting your own reply', () => {
         onAnswerDeleted={onDeleted}
       />
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Excluir resposta' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções da resposta' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Excluir' }));
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Falhou agora.');
     expect(onDeleted).not.toHaveBeenCalled();
@@ -136,11 +141,46 @@ describe('deleting your own reply', () => {
       },
     };
     render(<ProfileReplyThread reply={reply} currentUser={{ id: 'me' }} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Excluir resposta' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções da resposta' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Excluir' }));
     fireEvent.click(screen.getByRole('button', { name: 'Excluir' }));
     await waitFor(() => expect(screen.queryByText('Minha resposta')).not.toBeInTheDocument());
     cleanup();
     render(<ProfileReplyThread reply={reply} currentUser={{ id: 'someone-else' }} />);
-    expect(screen.queryByRole('button', { name: 'Excluir resposta' })).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Mais opções da resposta' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('edits the text of your answer in place and keeps its media', async () => {
+    const original = encodeReplyMedia('Texto antigo', {
+      attachments: [{ type: 'gif', url: 'https://static.klipy.com/ii/a/b.webp', alt: 'gif' }],
+      music: null,
+    });
+    const saved = encodeReplyMedia('Texto novo', {
+      attachments: [{ type: 'gif', url: 'https://static.klipy.com/ii/a/b.webp', alt: 'gif' }],
+      music: null,
+    });
+    fetcher.mockImplementation(async (_input: unknown, init?: RequestInit) =>
+      init?.method === 'PATCH'
+        ? Response.json({ id: 'mine', body: saved })
+        : Response.json({ bookmarked: false })
+    );
+    render(
+      <AnswerCard
+        answer={{ ...node('mine', null), body: original }}
+        depth={0}
+        isPostAuthor
+        currentUser={{ id: 'me', username: 'pedro' }}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções da resposta' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Editar' }));
+    const editor = screen.getAllByRole('textbox', { name: 'Resposta' }).at(-1)!;
+    expect(screen.getByRole('form', { name: 'Editar resposta' })).toBeInTheDocument();
+    fireEvent.submit(editor.closest('form')!);
+    await waitFor(() => expect(screen.getByText('Texto novo')).toBeInTheDocument());
+    expect(screen.queryByRole('form', { name: 'Editar resposta' })).not.toBeInTheDocument();
+    expect(screen.getByAltText('gif')).toBeInTheDocument();
   });
 });
