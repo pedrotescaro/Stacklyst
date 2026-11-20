@@ -909,17 +909,6 @@
   display: grid;
   gap: 24px;
 }
-.skeleton {
-  min-height: 92px;
-  border-bottom: 1px solid var(--color-dd-border);
-  background: linear-gradient(90deg, transparent, var(--color-dd-surface), transparent);
-  animation: breathe 1.5s ease-in-out infinite;
-}
-@keyframes breathe {
-  50% {
-    opacity: 0.45;
-  }
-}
 @media (min-width: 1200px) {
   .pageMain {
     padding-bottom: 50px;
@@ -982,8 +971,7 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .overview *,
-  .skeleton {
+  .overview * {
     animation: none;
     transition: none;
   }

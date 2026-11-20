@@ -1,0 +1,126 @@
+.postsPlaceholder,
+.mediaPlaceholder {
+  --placeholder: color-mix(in srgb, var(--color-dd-border) 65%, var(--color-dd-surface));
+  padding: clamp(16px, 3vw, 20px);
+  animation:
+    placeholderEnter 180ms ease-out 150ms backwards,
+    placeholderBreathe 1.8s ease-in-out 330ms infinite;
+}
+
+.postsPlaceholder {
+  display: grid;
+  gap: 34px;
+  padding-block: 24px 32px;
+}
+
+.placeholderPost {
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+}
+
+.placeholderAvatar,
+.placeholderIdentity > span,
+.placeholderBody > span,
+.mediaPlaceholder > span {
+  display: block;
+  background: var(--placeholder);
+}
+
+.placeholderAvatar {
+  aspect-ratio: 1;
+  border-radius: 50%;
+}
+
+.placeholderContent,
+.placeholderIdentity,
+.placeholderBody {
+  display: grid;
+}
+
+.placeholderContent {
+  gap: 18px;
+  padding-block: 4px 10px;
+}
+
+.placeholderIdentity,
+.placeholderBody {
+  gap: 8px;
+}
+
+.placeholderIdentity > span,
+.placeholderBody > span {
+  height: 10px;
+  border-radius: 999px;
+}
+
+.placeholderIdentity > span:first-child {
+  width: min(38%, 122px);
+  height: 12px;
+}
+
+.placeholderIdentity > span:last-child {
+  width: min(27%, 82px);
+  opacity: 0.65;
+}
+
+.placeholderBody > span:first-child {
+  width: 94%;
+}
+
+.placeholderBody > span:last-child {
+  width: 69%;
+}
+
+.placeholderPost:nth-child(2) .placeholderBody > span:first-child {
+  width: 81%;
+}
+
+.placeholderPost:nth-child(2) .placeholderBody > span:last-child {
+  width: 48%;
+}
+
+.mediaPlaceholder {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.mediaPlaceholder > span {
+  aspect-ratio: 1;
+  border-radius: 10px;
+}
+
+.postsReveal {
+  animation: postsReveal 200ms ease-out both;
+}
+
+@keyframes placeholderEnter {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes placeholderBreathe {
+  50% {
+    opacity: 0.6;
+  }
+}
+
+@keyframes postsReveal {
+  from {
+    opacity: 0.65;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .postsPlaceholder,
+  .mediaPlaceholder {
+    animation: placeholderEnter 1ms step-end 150ms backwards;
+  }
+
+  .postsReveal {
+    animation: none;
+  }
+}

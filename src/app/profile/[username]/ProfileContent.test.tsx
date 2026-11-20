@@ -89,6 +89,70 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe('Compact social profile content', () => {
+  it('shows one loading state while the new tab waits and ignores a late response from the old tab', async () => {
+    let finishPosts!: (response: Response) => void;
+    let finishLikes!: (response: Response) => void;
+    const posts = new Promise<Response>((resolve) => (finishPosts = resolve));
+    const likes = new Promise<Response>((resolve) => (finishLikes = resolve));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string) =>
+        url.includes('tab=posts')
+          ? posts
+          : url.includes('tab=likes')
+            ? likes
+            : Promise.resolve(Response.json({ items: [] }))
+      )
+    );
+    render(<ProfileContent {...props} />);
+    expect(screen.getByRole('tabpanel')).toHaveAttribute('aria-busy', 'true');
+    expect(screen.getByRole('status', { name: 'Carregando publicações' })).toBeInTheDocument();
+    fireEvent.click(
+      within(screen.getByTestId('profile-desktop-tabs')).getByRole('tab', { name: 'Curtidas' })
+    );
+    finishLikes(Response.json({ items: [{ id: 'liked', body: 'Post curtido' }] }));
+    expect(await screen.findByText('Post curtido')).toBeInTheDocument();
+    finishPosts(Response.json({ items: [{ id: 'own', body: 'Post antigo da outra aba' }] }));
+    await posts;
+    expect(screen.queryByText('Post antigo da outra aba')).not.toBeInTheDocument();
+    expect(screen.getByRole('tabpanel')).toHaveAttribute('aria-busy', 'false');
+    expect(
+      screen.queryByRole('status', { name: 'Carregando publicações' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('keeps current posts visible during pagination and retries a failed page', async () => {
+    let finishPage!: (response: Response) => void;
+    const page = new Promise<Response>((resolve) => (finishPage = resolve));
+    let moreRequests = 0;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string) => {
+        if (!url.includes('cursor=next')) {
+          return Response.json({
+            items: [{ id: 'first', body: 'Primeiro post' }],
+            nextCursor: 'next',
+          });
+        }
+        if (++moreRequests === 1) return page;
+        return Response.json({ items: [{ id: 'second', body: 'Segundo post' }] });
+      })
+    );
+    render(<ProfileContent {...props} />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Carregar mais' }));
+    expect(screen.getByText('Primeiro post')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Carregando mais…' })).toBeDisabled();
+    expect(
+      screen.queryByRole('status', { name: 'Carregando publicações' })
+    ).not.toBeInTheDocument();
+    finishPage(Response.json({ message: 'Não foi possível carregar mais.' }, { status: 503 }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Não foi possível carregar mais.');
+    expect(screen.getByText('Primeiro post')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Tentar novamente' }));
+    expect(await screen.findByText('Segundo post')).toBeInTheDocument();
+    expect(screen.getByText('Primeiro post')).toBeInTheDocument();
+  });
+
   it('renders original posts and contextual replies together in Postagens and Curtidas', async () => {
     vi.stubGlobal(
       'fetch',

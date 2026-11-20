@@ -37,6 +37,7 @@ import { useLocalizedText } from '@/i18n/useLocalizedText';
 import profileStyles from '@/components/profile/ProfilePublic.module.css';
 import styles from '@/components/profile-inline/InlineProfile.module.css';
 import headerStyles from './ProfileHeader.module.css';
+import listStyles from './ProfileList.module.css';
 import {
   PAGE_CACHE_FRESH_MS,
   fetchPage,
@@ -51,6 +52,51 @@ interface ProfileListPage {
   items?: any[];
   nextCursor?: string | null;
 }
+
+interface ProfileListState {
+  key: string;
+  items: any[];
+  cursor: string | null;
+  phase: 'loading' | 'ready' | 'appending' | 'error';
+  error?: string;
+  reveal?: boolean;
+}
+
+const EMPTY_ITEMS: any[] = [];
+
+function ProfileListPlaceholder({ label, media }: { label: string; media: boolean }) {
+  return (
+    <div role="status" aria-label={label}>
+      <span className="sr-only">{label}</span>
+      {media ? (
+        <div className={listStyles.mediaPlaceholder} aria-hidden="true">
+          <span />
+          <span />
+          <span />
+        </div>
+      ) : (
+        <div className={listStyles.postsPlaceholder} aria-hidden="true">
+          {[0, 1].map((row) => (
+            <div key={row} className={listStyles.placeholderPost}>
+              <span className={listStyles.placeholderAvatar} />
+              <div className={listStyles.placeholderContent}>
+                <div className={listStyles.placeholderIdentity}>
+                  <span />
+                  <span />
+                </div>
+                <div className={listStyles.placeholderBody}>
+                  <span />
+                  <span />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface ProfileContentProps {
   railUser: ProfileRailUser;
   user: {
@@ -169,10 +215,7 @@ export function ProfileContent({
       window.removeEventListener('resize', handleResize);
     };
   }, [mediaMenuOpen, mediaMenuOrigin]);
-  const [items, setItems] = useState<any[]>([]);
-  const [cursor, setCursor] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [list, setList] = useState<ProfileListState | null>(null);
   const [following, setFollowing] = useState(isFollowing);
   const [followers, setFollowers] = useState(followersCount);
   const [followersModal, setFollowersModal] = useState<'followers' | 'following' | null>(null);
@@ -201,57 +244,79 @@ export function ProfileContent({
     [profileUser.username, search]
   );
 
+  const isListTab = activeTab !== 'stats' && activeTab !== 'certificates';
+  const listKey = listUrl(activeTab, null);
+  const visibleList = list?.key === listKey ? list : null;
+  const items = visibleList?.items ?? EMPTY_ITEMS;
+  const cursor = visibleList?.cursor ?? null;
+  const error = visibleList?.error;
+  const loading = isListTab && (!visibleList || visibleList.phase === 'loading');
+  const appending = visibleList?.phase === 'appending';
+
+  function updateItems(update: (previous: any[]) => any[]) {
+    setList((previous) =>
+      previous?.key === listKey ? { ...previous, items: update(previous.items) } : previous
+    );
+  }
+
   const fetchContent = useCallback(
-    async (target: ProfileTab, after: string | null, append = false) => {
-      if (target === 'stats' || target === 'certificates') {
-        setLoading(false);
-        return;
-      }
+    async (target: ProfileTab, after: string | null) => {
+      if (target === 'stats' || target === 'certificates') return;
       listRequest.current?.abort();
       const controller = new AbortController();
       listRequest.current = controller;
+      const key = listUrl(target, null);
       const url = listUrl(target, after);
       // A first page seen before is shown at once; a stale one refreshes quietly.
-      const cached = !after && !append ? readCachedPage<ProfileListPage>(url) : null;
+      const cached = !after ? readCachedPage<ProfileListPage>(url) : null;
       if (cached) {
-        setItems(cached.data.items || []);
-        setCursor(cached.data.nextCursor || null);
-        setLoading(false);
-        setError('');
+        setList({
+          key,
+          items: cached.data.items ?? EMPTY_ITEMS,
+          cursor: cached.data.nextCursor ?? null,
+          phase: 'ready',
+        });
         if (cached.age < PAGE_CACHE_FRESH_MS) return;
+      } else if (after) {
+        setList((previous) =>
+          previous?.key === key ? { ...previous, phase: 'appending', error: undefined } : previous
+        );
       } else {
-        setLoading(true);
-        setError('');
+        setList({ key, items: EMPTY_ITEMS, cursor: null, phase: 'loading' });
       }
       try {
         const result = await fetchPage<ProfileListPage>(url);
         if (activeRef.current !== target || controller.signal.aborted) return;
-        setItems((previous) =>
-          append ? [...previous, ...(result.items || [])] : result.items || []
-        );
-        setCursor(result.nextCursor || null);
+        setList((previous) => {
+          if (previous?.key !== key) return previous;
+          const next = result.items ?? EMPTY_ITEMS;
+          return {
+            key,
+            items: after ? [...previous.items, ...next] : next,
+            cursor: result.nextCursor ?? null,
+            phase: 'ready',
+            reveal: after ? previous.reveal : !cached,
+          };
+        });
       } catch (failure) {
-        if (!controller.signal.aborted && !cached)
-          setError(failure instanceof Error ? failure.message : 'Sem conexão. Tente novamente.');
-      } finally {
-        if (!controller.signal.aborted) setLoading(false);
+        if (activeRef.current !== target || controller.signal.aborted || cached) return;
+        const error = failure instanceof Error ? failure.message : 'Sem conexão. Tente novamente.';
+        setList((previous) =>
+          previous?.key === key ? { ...previous, phase: 'error', error } : previous
+        );
       }
     },
     [listUrl]
   );
   useEffect(() => {
-    setItems([]);
-    setCursor(null);
-    setError('');
     void fetchContent(activeTab, null);
     return () => listRequest.current?.abort();
   }, [activeTab, fetchContent]);
   // Keep the cached first page in step with local edits, deletions and extra pages.
   useEffect(() => {
-    if (loading || error || activeTab === 'stats' || activeTab === 'certificates') return;
-    if (activeRef.current !== activeTab) return;
-    patchCachedPage(listUrl(activeTab, null), { items, nextCursor: cursor });
-  }, [items, cursor, loading, error, activeTab, listUrl]);
+    if (!isListTab || visibleList?.phase !== 'ready') return;
+    patchCachedPage(listKey, { items, nextCursor: cursor });
+  }, [isListTab, visibleList, listKey, items, cursor]);
   // Warm the other tabs once the visible one has loaded, so the first switch is instant.
   const listTabsReady = !loading;
   useEffect(() => {
@@ -862,7 +927,7 @@ export function ProfileContent({
               role="tabpanel"
               id={`profile-panel-${activeTab}`}
               aria-labelledby={`profile-tab-${isMediaActive ? 'media' : activeTab}`}
-              aria-busy={loading}
+              aria-busy={loading || appending}
             >
               {error && (
                 <div className={styles.empty} role="alert">
@@ -870,7 +935,7 @@ export function ProfileContent({
                   <button
                     type="button"
                     className={styles.button}
-                    onClick={() => void fetchContent(activeTab, cursor, Boolean(items.length))}
+                    onClick={() => void fetchContent(activeTab, cursor)}
                   >
                     {text('Tentar novamente', 'Try again')}
                   </button>
@@ -914,34 +979,43 @@ export function ProfileContent({
                     </div>
                   )}
                   {(activeTab === 'posts' || activeTab === 'likes' || activeTab === 'replies') &&
-                    items.map((item) =>
-                      activeTab === 'replies' || item.kind === 'reply' ? (
-                        <div key={`reply:${item.id}`} className="border-b border-dd-border">
-                          <ProfileReplyThread reply={item} currentUser={user} />
-                        </div>
-                      ) : (
-                        <div key={`post:${item.id}`} className="border-b border-dd-border">
-                          <PostCard
-                            post={item}
-                            isOwner={item.author_id === user.id}
-                            flat
-                            onDelete={(id) =>
-                              setItems((previous) =>
-                                previous.filter((post) => post.kind === 'reply' || post.id !== id)
-                              )
-                            }
-                            onEdit={(id, updated) =>
-                              setItems((previous) =>
-                                previous.map((post) =>
-                                  post.kind !== 'reply' && post.id === id
-                                    ? { ...post, ...updated }
-                                    : post
-                                )
-                              )
-                            }
-                          />
-                        </div>
-                      )
+                    items.length > 0 && (
+                      <div
+                        key={listKey}
+                        className={visibleList?.reveal ? listStyles.postsReveal : undefined}
+                      >
+                        {items.map((item) =>
+                          activeTab === 'replies' || item.kind === 'reply' ? (
+                            <div key={`reply:${item.id}`} className="border-b border-dd-border">
+                              <ProfileReplyThread reply={item} currentUser={user} />
+                            </div>
+                          ) : (
+                            <div key={`post:${item.id}`} className="border-b border-dd-border">
+                              <PostCard
+                                post={item}
+                                isOwner={item.author_id === user.id}
+                                flat
+                                onDelete={(id) =>
+                                  updateItems((previous) =>
+                                    previous.filter(
+                                      (post) => post.kind === 'reply' || post.id !== id
+                                    )
+                                  )
+                                }
+                                onEdit={(id, updated) =>
+                                  updateItems((previous) =>
+                                    previous.map((post) =>
+                                      post.kind !== 'reply' && post.id === id
+                                        ? { ...post, ...updated }
+                                        : post
+                                    )
+                                  )
+                                }
+                              />
+                            </div>
+                          )
+                        )}
+                      </div>
                     )}
                   {!loading && !error && items.length === 0 && (
                     <p className={styles.empty}>
@@ -968,19 +1042,27 @@ export function ProfileContent({
                     </p>
                   )}
                   {loading && (
-                    <div aria-label={text('Carregando conteúdo', 'Loading content')}>
-                      <div className={styles.skeleton} />
-                      <div className={styles.skeleton} />
-                    </div>
+                    <ProfileListPlaceholder
+                      key={listKey}
+                      media={isMediaActive}
+                      label={
+                        isMediaActive
+                          ? text('Carregando mídias', 'Loading media')
+                          : text('Carregando publicações', 'Loading posts')
+                      }
+                    />
                   )}
-                  {!loading && cursor && (
+                  {cursor && !error && (
                     <div className={styles.empty}>
                       <button
                         className={styles.button}
                         type="button"
-                        onClick={() => void fetchContent(activeTab, cursor, true)}
+                        disabled={appending}
+                        onClick={() => void fetchContent(activeTab, cursor)}
                       >
-                        {text('Carregar mais', 'Load more')}
+                        {appending
+                          ? text('Carregando mais…', 'Loading more…')
+                          : text('Carregar mais', 'Load more')}
                       </button>
                     </div>
                   )}
