@@ -11,7 +11,7 @@ import { LevelBadge } from '@/components/LevelBadge';
 import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import { QuizWidget } from '@/components/QuizWidget';
-import { AnswerThread } from '@/components/AnswerThread';
+import { AnswerThread, removeAnswerFromTree } from '@/components/AnswerThread';
 import type { AnswerNode } from '@/components/answer-types';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import {
@@ -872,6 +872,12 @@ export function PostDetailContent({
                 return { ...prev, answers: next };
               });
             }}
+            onAnswerDeleted={(id) =>
+              setPost((prev: any) => ({
+                ...prev,
+                answers: removeAnswerFromTree(prev.answers ?? [], id),
+              }))
+            }
           />
         </main>
         <FeedRightSidebar user={user} />

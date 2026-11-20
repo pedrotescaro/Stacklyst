@@ -22,6 +22,7 @@ export interface AnswerVote {
 export interface AnswerNode {
   id: string;
   post_id?: string;
+  author_id?: string;
   parent_id?: string | null;
   body: string;
   code_snippet?: string | null;

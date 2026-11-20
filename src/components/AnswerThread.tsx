@@ -12,6 +12,8 @@ interface AnswerThreadProps {
   onAccept?: (id: string) => void;
   /** Called when any answer (top-level or nested) is created. Receives the parent answer id (null for top-level) and the new answer node. */
   onAnswerAdded?: (parentAnswerId: string | null, newAnswer: AnswerNode) => void;
+  /** Called after the signed-in author deletes one of their answers. */
+  onAnswerDeleted?: (id: string) => void;
 }
 
 /**
@@ -25,6 +27,20 @@ export function countAnswers(answers: AnswerNode[]): number {
   }, 0);
 }
 
+/**
+ * Removes an answer from the tree the way the server does: its replies move up
+ * to its parent, in its place, instead of disappearing with it.
+ */
+export function removeAnswerFromTree(answers: AnswerNode[], id: string): AnswerNode[] {
+  return answers.flatMap((answer) => {
+    if (answer.id === id)
+      return (answer.replies ?? []).map((reply) => ({ ...reply, parent_id: answer.parent_id }));
+    return answer.replies?.length
+      ? [{ ...answer, replies: removeAnswerFromTree(answer.replies, id) }]
+      : [answer];
+  });
+}
+
 export function AnswerThread({
   answers,
   isPostAuthor,
@@ -32,6 +48,7 @@ export function AnswerThread({
   postId,
   onAccept,
   onAnswerAdded,
+  onAnswerDeleted,
 }: AnswerThreadProps) {
   const totalAnswers = countAnswers(answers);
 
@@ -58,6 +75,7 @@ export function AnswerThread({
               currentUser={currentUser}
               postId={postId}
               onAnswerAdded={onAnswerAdded}
+              onAnswerDeleted={onAnswerDeleted}
             />
           ))}
         </div>
