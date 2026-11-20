@@ -18,6 +18,7 @@ import {
   CircleUserRound,
   Check,
   GraduationCap,
+  ImagePlus,
   Link2,
   Lock,
   MapPin,
@@ -52,6 +53,9 @@ import type { PublicProfileCustomization } from '@/components/profile/ProfilePub
 import { ContextPopover } from './ContextPopover';
 import { FlagSelector } from './FlagSelector';
 import { MusicSelector } from './MusicSelector';
+import { KlipyGifSearch } from '@/components/gif/KlipyGifSearch';
+import { GifIcon } from '@/components/icons/GifIcon';
+import { isKlipyMediaUrl, type KlipyGif } from '@/lib/klipy';
 import { SpotifyTrackCard } from '@/components/music/SpotifyTrackCard';
 import { DiscordIcon, GitHubIcon } from '@/components/auth/OAuthProviderIcons';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
@@ -549,6 +553,17 @@ export function SocialProfileOverview({
     }
   };
 
+  const chooseGifBanner = (gif: KlipyGif) => {
+    setBannerFile(null);
+    setBannerPreview(null);
+    setClearBanner(false);
+    setPreferences((current) => ({
+      ...current,
+      banner: { ...current.banner, mode: 'image', imageUrl: gif.url, positionX: 50, positionY: 50 },
+    }));
+    setError('');
+  };
+
   const activePreferences = editing
     ? preferences
     : parseProfilePreferences(profile.customization?.preferences);
@@ -579,6 +594,56 @@ export function SocialProfileOverview({
               ? state.bannerUrl
               : profile.banner_url
           : null;
+  const bannerKind =
+    banner.mode === 'image' && !bannerPreview && isKlipyMediaUrl(banner.imageUrl)
+      ? 'gif'
+      : banner.mode;
+  const colorMode = banner.mode === 'gradient' ? 'gradient' : 'color';
+  const coverButton = (active: boolean) =>
+    `${styles.photoEditButton} ${active ? styles.coverActive : ''}`;
+  const resetCover = () => {
+    setBannerFile(null);
+    setBannerPreview(null);
+    setClearBanner(true);
+    updatePreference('banner', { ...banner, mode: 'default', imageUrl: null });
+  };
+  const applyColorCover = (change: Partial<ProfilePreferences['banner']>) => {
+    setBannerFile(null);
+    setBannerPreview(null);
+    setClearBanner(false);
+    updatePreference('banner', { ...banner, mode: colorMode, ...change });
+  };
+  const coverHelp = 'Clique em Salvar alterações no perfil para publicar.';
+  const coverPosition = (
+    <>
+      <label className={styles.field}>
+        Posição horizontal
+        <input
+          className={styles.range}
+          type="range"
+          min="0"
+          max="100"
+          value={banner.positionX}
+          onChange={(event) =>
+            updatePreference('banner', { ...banner, positionX: Number(event.target.value) })
+          }
+        />
+      </label>
+      <label className={styles.field}>
+        Posição vertical
+        <input
+          className={styles.range}
+          type="range"
+          min="0"
+          max="100"
+          value={banner.positionY}
+          onChange={(event) =>
+            updatePreference('banner', { ...banner, positionY: Number(event.target.value) })
+          }
+        />
+      </label>
+    </>
+  );
   const coverStyle: CSSProperties = {
     background:
       banner.mode === 'color'
@@ -608,108 +673,105 @@ export function SocialProfileOverview({
           />
         )}
         {editing && (
-          <div className={styles.coverEdit}>
+          <div className={styles.coverEdit} role="group" aria-label="Editar capa">
             <ContextPopover
-              label="Editar capa"
-              triggerIcon={<Camera size={19} />}
-              className={styles.photoEditButton}
+              label="Foto da capa"
+              triggerIcon={<ImagePlus size={19} aria-hidden="true" />}
+              className={coverButton(
+                bannerKind === 'image' || (banner.mode === 'default' && Boolean(bannerImage))
+              )}
               disabled={busy}
             >
               <div className={styles.popoverBody}>
                 <label className={styles.field}>
-                  Tipo de capa
-                  <select
-                    className={`${styles.select} ${styles.bannerMode}`}
-                    value={banner.mode}
-                    onChange={(event) => {
-                      setClearBanner(event.target.value === 'default');
-                      if (event.target.value !== 'image') {
-                        setBannerFile(null);
-                        setBannerPreview(null);
-                      }
-                      updatePreference('banner', {
-                        ...banner,
-                        mode: event.target.value as typeof banner.mode,
-                      });
-                    }}
+                  Enviar imagem
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/gif"
+                    onChange={chooseBanner}
                     disabled={busy}
-                  >
-                    <option value="default">Padrão</option>
-                    <option value="color">Cor sólida</option>
-                    <option value="gradient">Degradê (duas cores)</option>
-                    <option value="image">Imagem</option>
-                  </select>
-                </label>
-                {(banner.mode === 'color' || banner.mode === 'gradient') && (
-                  <BannerColorPicker
-                    banner={banner}
-                    disabled={busy}
-                    onChange={(field, value) =>
-                      updatePreference('banner', { ...banner, [field]: value })
-                    }
                   />
+                </label>
+                {bannerKind !== 'image' && banner.imageUrl && !isKlipyMediaUrl(banner.imageUrl) && (
+                  <button
+                    className={styles.button}
+                    type="button"
+                    onClick={() => {
+                      setClearBanner(false);
+                      updatePreference('banner', { ...banner, mode: 'image' });
+                    }}
+                  >
+                    Usar a imagem enviada
+                  </button>
                 )}
-                {banner.mode === 'image' && (
-                  <>
-                    <label className={styles.field}>
-                      Imagem da capa
-                      <input
-                        type="file"
-                        accept="image/jpeg,image/png,image/webp,image/gif"
-                        onChange={chooseBanner}
-                        disabled={busy}
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      Posição horizontal
-                      <input
-                        className={styles.range}
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={banner.positionX}
-                        onChange={(event) =>
-                          updatePreference('banner', {
-                            ...banner,
-                            positionX: Number(event.target.value),
-                          })
-                        }
-                      />
-                    </label>
-                    <label className={styles.field}>
-                      Posição vertical
-                      <input
-                        className={styles.range}
-                        type="range"
-                        min="0"
-                        max="100"
-                        value={banner.positionY}
-                        onChange={(event) =>
-                          updatePreference('banner', {
-                            ...banner,
-                            positionY: Number(event.target.value),
-                          })
-                        }
-                      />
-                    </label>
-                    <button
-                      className={styles.button}
-                      type="button"
-                      onClick={() => {
-                        setBannerFile(null);
-                        setBannerPreview(null);
-                        setClearBanner(true);
-                        updatePreference('banner', { ...banner, mode: 'default', imageUrl: null });
-                      }}
-                    >
-                      Remover imagem
-                    </button>
-                  </>
+                {bannerKind === 'image' && coverPosition}
+                {(bannerKind === 'image' || (banner.mode === 'default' && bannerImage)) && (
+                  <button className={styles.button} type="button" onClick={resetCover}>
+                    Remover imagem
+                  </button>
                 )}
-                <p className={styles.help}>
-                  {banner.mode === 'image' ? 'Imagens de até 5 MB. ' : ''}
-                  Escolha sua capa e clique em Salvar alterações no perfil para publicar.
-                </p>
+                <p className={styles.help}>JPEG, PNG, WebP ou GIF de até 5 MB. {coverHelp}</p>
+              </div>
+            </ContextPopover>
+            <ContextPopover
+              label="Cor da capa"
+              triggerIcon={<Palette size={19} aria-hidden="true" />}
+              className={coverButton(banner.mode === 'color' || banner.mode === 'gradient')}
+              disabled={busy}
+            >
+              <div className={styles.popoverBody}>
+                <div className={styles.bannerColorStops} role="group" aria-label="Estilo da cor">
+                  <button
+                    type="button"
+                    aria-pressed={banner.mode === 'color'}
+                    disabled={busy}
+                    onClick={() => applyColorCover({ mode: 'color' })}
+                  >
+                    Cor sólida
+                  </button>
+                  <button
+                    type="button"
+                    aria-pressed={banner.mode === 'gradient'}
+                    disabled={busy}
+                    onClick={() => applyColorCover({ mode: 'gradient' })}
+                  >
+                    Degradê
+                  </button>
+                </div>
+                <BannerColorPicker
+                  banner={{ ...banner, mode: colorMode }}
+                  disabled={busy}
+                  onChange={(field, value) => applyColorCover({ [field]: value })}
+                />
+                {(banner.mode === 'color' || banner.mode === 'gradient') && (
+                  <button className={styles.button} type="button" onClick={resetCover}>
+                    Remover cor
+                  </button>
+                )}
+                <p className={styles.help}>{coverHelp}</p>
+              </div>
+            </ContextPopover>
+            <ContextPopover
+              label="GIF da capa"
+              triggerIcon={<GifIcon width={20} height={20} />}
+              className={coverButton(bannerKind === 'gif')}
+              disabled={busy}
+            >
+              <div className={styles.popoverBody}>
+                <KlipyGifSearch
+                  compact
+                  disabled={busy}
+                  selectedUrl={banner.imageUrl}
+                  onSelect={chooseGifBanner}
+                  unavailableMessage="A pesquisa de GIFs ainda não está disponível. Use Foto da capa para enviar um GIF do seu dispositivo."
+                />
+                {bannerKind === 'gif' && coverPosition}
+                {bannerKind === 'gif' && (
+                  <button className={styles.button} type="button" onClick={resetCover}>
+                    Remover GIF
+                  </button>
+                )}
+                <p className={styles.help}>{coverHelp}</p>
               </div>
             </ContextPopover>
           </div>

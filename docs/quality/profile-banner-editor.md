@@ -1,5 +1,7 @@
 # Editor do banner do perfil
 
+Atualização de 20/11/2026. O editor ganhou o tipo GIF, que pesquisa no KLIPY (`NEXT_PUBLIC_KLIPY_API_KEY`). O GIF escolhido fica salvo como `mode: 'image'` com a URL do CDN do KLIPY (`static*.klipy.com`), sem migração e compatível com o app mobile. Pelas regras do KLIPY, a busca e a mídia carregam direto do navegador e o GIF não é re-hospedado; o servidor aceita só URLs desse CDN além dos uploads da própria conta. O mesmo vale para GIFs em posts e respostas, que antes eram baixados do GIPHY e reenviados ao nosso storage.
+
 Atualização de 30/10/2026. A área do avatar sobreposta ao banner interceptava o clique da câmera. O controle da capa agora fica acima dessa área, com botão circular de 44 px.
 
 O editor oferece Padrão, Cor sólida, Degradê (duas cores) e Imagem. A cor sólida usa a paleta compartilhada de 48 cores. No degradê, os controles Primeira cor e Segunda cor selecionam qual cor será alterada pela paleta. A prévia muda imediatamente e as alterações são publicadas pelo botão Salvar alterações do perfil. Cancelar descarta o rascunho. Upload, posicionamento de imagem e restauração do padrão continuam disponíveis.

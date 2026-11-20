@@ -96,6 +96,26 @@ beforeEach(() => {
     'fetch',
     vi.fn(async (url: string, init?: RequestInit) => {
       if (url.startsWith('/api/profile/tags')) return Response.json({ tags: ['python', 'react'] });
+      if (url.startsWith('https://api.klipy.com/')) {
+        if (init?.method === 'POST') return Response.json({ result: true });
+        return Response.json({
+          result: true,
+          data: {
+            data: [
+              {
+                id: 7,
+                slug: 'party-cat',
+                title: 'Party cat',
+                type: 'gif',
+                file: {
+                  md: { gif: { url: 'https://static.klipy.com/ii/a/party.gif', size: 1000 } },
+                  sm: { gif: { url: 'https://static.klipy.com/ii/a/party-sm.gif', size: 100 } },
+                },
+              },
+            ],
+          },
+        });
+      }
       if (url === '/api/upload') {
         uploads++;
         return Response.json({
@@ -367,10 +387,10 @@ describe('Inline social profile editing', () => {
       />
     );
     await edit();
-    fireEvent.click(screen.getByRole('button', { name: 'Editar capa' }));
-    fireEvent.change(screen.getByLabelText('Tipo de capa'), { target: { value: 'default' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Foto da capa' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Remover imagem' }));
     expect(screen.queryByRole('img', { name: 'Capa do perfil' })).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar editar capa' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar foto da capa' }));
     fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
     await screen.findByText('Perfil atualizado.');
     expect(writes[0]).toMatchObject({
@@ -382,11 +402,10 @@ describe('Inline social profile editing', () => {
   it('previews a solid banner and restores the saved color when the profile is reopened', async () => {
     const { saved, unmount } = mount();
     await edit();
-    fireEvent.click(screen.getByRole('button', { name: 'Editar capa' }));
-    fireEvent.change(screen.getByLabelText('Tipo de capa'), { target: { value: 'color' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Cor da capa' }));
     fireEvent.click(screen.getByRole('button', { name: 'Cor do banner: #ec4899' }));
     expect(writes).toHaveLength(0);
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar editar capa' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar cor da capa' }));
     fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
     await screen.findByText('Perfil atualizado.');
     expect(writes[0].preferences.banner).toMatchObject({ mode: 'color', color: '#ec4899' });
@@ -402,8 +421,8 @@ describe('Inline social profile editing', () => {
   it('selects each gradient stop independently and saves both colors', async () => {
     const { saved, unmount } = mount();
     await edit();
-    fireEvent.click(screen.getByRole('button', { name: 'Editar capa' }));
-    fireEvent.change(screen.getByLabelText('Tipo de capa'), { target: { value: 'gradient' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Cor da capa' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Degradê' }));
     fireEvent.click(screen.getByRole('button', { name: 'Cor do banner: #22c55e' }));
     fireEvent.click(screen.getByRole('button', { name: 'Escolher segunda cor do degradê' }));
     fireEvent.click(screen.getByRole('button', { name: 'Segunda cor do banner: #8e63ce' }));
@@ -412,7 +431,7 @@ describe('Inline social profile editing', () => {
       'aria-pressed',
       'true'
     );
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar editar capa' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar cor da capa' }));
     fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
     await screen.findByText('Perfil atualizado.');
     expect(writes[0].preferences.banner).toMatchObject({
@@ -428,13 +447,52 @@ describe('Inline social profile editing', () => {
     ).toContain('linear-gradient(120deg');
   });
 
+  it('picks a KLIPY GIF as the banner and reopens it in GIF mode', async () => {
+    vi.stubEnv('NEXT_PUBLIC_KLIPY_API_KEY', 'test-key');
+    try {
+      const { saved, unmount } = mount();
+      await edit();
+      fireEvent.click(screen.getByRole('button', { name: 'GIF da capa' }));
+      expect(screen.getByPlaceholderText('Pesquisar no KLIPY')).toBeInTheDocument();
+      fireEvent.click(await screen.findByRole('button', { name: 'Escolher Party cat' }));
+      expect(screen.getByRole('img', { name: 'Capa do perfil' })).toHaveAttribute(
+        'src',
+        'https://static.klipy.com/ii/a/party.gif'
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar gif da capa' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+      await screen.findByText('Perfil atualizado.');
+      expect(uploads).toBe(0);
+      expect(writes[0].preferences.banner).toMatchObject({
+        mode: 'image',
+        imageUrl: 'https://static.klipy.com/ii/a/party.gif',
+      });
+      const savedProfile = saved.mock.calls[0][0];
+      unmount();
+      mount('owner', savedProfile);
+      expect(screen.getByRole('img', { name: 'Capa do perfil' })).toHaveAttribute(
+        'src',
+        'https://static.klipy.com/ii/a/party.gif'
+      );
+      await edit();
+      fireEvent.click(screen.getByRole('button', { name: 'GIF da capa' }));
+      expect(screen.getByRole('button', { name: 'Remover GIF' })).toBeInTheDocument();
+      expect(await screen.findByRole('button', { name: 'Escolher Party cat' })).toHaveAttribute(
+        'aria-pressed',
+        'true'
+      );
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
   it('discards banner colors on cancel without publishing the draft', async () => {
     mount();
     await edit();
-    fireEvent.click(screen.getByRole('button', { name: 'Editar capa' }));
-    fireEvent.change(screen.getByLabelText('Tipo de capa'), { target: { value: 'gradient' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Cor da capa' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Degradê' }));
     fireEvent.click(screen.getByRole('button', { name: 'Cor do banner: #ec4899' }));
-    fireEvent.click(screen.getByRole('button', { name: 'Fechar editar capa' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Fechar cor da capa' }));
     fireEvent.click(screen.getByRole('button', { name: 'Cancelar' }));
     expect(writes).toHaveLength(0);
     expect(

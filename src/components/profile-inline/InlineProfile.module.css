@@ -18,7 +18,9 @@
   position: absolute;
   right: 14px;
   bottom: 14px;
-  /* The overlapping avatar row must not intercept the banner camera button. */
+  display: flex;
+  gap: 8px;
+  /* The overlapping avatar row must not intercept the banner cover buttons. */
   z-index: 2;
 }
 .coverEdit .photoEditButton {
@@ -27,6 +29,11 @@
   border-radius: 50%;
   background: var(--color-dd-bg);
   color: var(--color-dd-text);
+}
+.coverEdit .coverActive {
+  background: var(--color-dd-accent);
+  border-color: var(--color-dd-accent);
+  color: #fff;
 }
 .photoEditButton {
   width: 36px;
@@ -554,10 +561,6 @@
 }
 .bannerColors {
   min-width: 0;
-}
-.bannerMode {
-  min-height: 44px;
-  font-size: 16px;
 }
 .bannerColorLabel {
   margin-bottom: 10px;

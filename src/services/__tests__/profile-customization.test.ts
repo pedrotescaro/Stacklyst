@@ -260,6 +260,18 @@ describe('Profile persistence and awards', () => {
     expect(mocks.save).not.toHaveBeenCalled();
     expect(mocks.updateUser).not.toHaveBeenCalled();
   });
+  it('accepts a GIF banner served from KLIPY and mirrors it to banner_url', async () => {
+    const gif = 'https://static.klipy.com/ii/abc/14/af/hello.gif';
+    await saveProfileCustomization('owner', {
+      version: 0,
+      preferences: {
+        ...DEFAULT_PROFILE_PREFERENCES,
+        banner: { ...DEFAULT_PROFILE_PREFERENCES.banner, mode: 'image', imageUrl: gif },
+      },
+    });
+    expect(mocks.save).toHaveBeenCalled();
+    expect(mocks.updateUser.mock.calls[0][0].data.banner_url).toBe(gif);
+  });
   it('does not overwrite a photo when a stale version is rejected', async () => {
     mocks.state.mockResolvedValue({ version: 2, preferences: DEFAULT_PROFILE_PREFERENCES });
     await expect(

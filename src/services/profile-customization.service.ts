@@ -26,6 +26,7 @@ import {
 } from '@/lib/profile-customization';
 import { resolveSpotifyTrack } from '@/lib/profile-music';
 import { isOwnedProfileUpload } from '@/lib/profile-upload';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 import { z } from 'zod';
 import { LEARNING_COURSES } from '@/lib/learning/catalog';
 
@@ -478,7 +479,9 @@ export async function saveProfileCustomization(
   if (
     bannerImage &&
     bannerImage !== current.banner.imageUrl &&
-    !isOwnedProfileUpload(bannerImage, userId)
+    !isOwnedProfileUpload(bannerImage, userId) &&
+    // GIF banners chosen from KLIPY stay on its CDN, as its terms require.
+    !isKlipyMediaUrl(bannerImage)
   )
     throw new ValidationError(
       'BANNER_IMAGE_NOT_OWNED',
