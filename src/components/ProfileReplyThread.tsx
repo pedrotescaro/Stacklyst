@@ -16,8 +16,10 @@ import { ShareLinkButton } from '@/components/posts/ShareLinkButton';
 import { ReplyEditForm } from '@/components/replies/ReplyEditForm';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
+import { usePostBookmark } from '@/hooks/usePostBookmark';
 import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
 import { LikeButton } from '@/components/motion/LikeButton';
+import { BookmarkButton } from '@/components/motion/BookmarkButton';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 function ThreadIdentity({ author, createdAt }: { author: any; createdAt: string | Date }) {
@@ -161,6 +163,11 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
   const [userVote, setUserVote] = useState(reply?.votes?.[0]?.value ?? 0);
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState('');
+  const targetPostId = reply?.post_id ?? reply?.post?.id;
+  const { isBookmarked, bookmarkPending, bookmarkError, toggleBookmark } = usePostBookmark(
+    targetPostId,
+    Boolean(currentUser)
+  );
   const [blockedIds, setBlockedIds] = useState<Set<string>>(() => new Set());
   useEffect(() => {
     const ids = [reply?.author?.id, reply?.post?.author?.id, reply?.parent?.author?.id];
@@ -294,6 +301,12 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
                 onToggle={toggleLike}
                 title={text('Curtir resposta', 'Like reply')}
               />
+              <BookmarkButton
+                appearance="post"
+                isSaved={isBookmarked}
+                onToggle={toggleBookmark}
+                disabled={bookmarkPending || !targetPostId || !currentUser}
+              />
               <ShareLinkButton path={href} label={text('Compartilhar resposta', 'Share reply')} />
               {isOwnReply && (
                 <ReplyOwnerMenu
@@ -304,6 +317,11 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
               )}
             </PostActionsBar>
           </div>
+          {bookmarkError && (
+            <p role="alert" className="mt-2 text-xs text-red-700 dark:text-red-400">
+              {bookmarkError}
+            </p>
+          )}
           {error && (
             <p role="alert" className="mt-2 text-xs text-red-700 dark:text-red-400">
               {error}

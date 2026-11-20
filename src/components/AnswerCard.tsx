@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { MessageCircle, BarChart2, Send } from 'lucide-react';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
+import { usePostBookmark } from '@/hooks/usePostBookmark';
 import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
 import { LikeButton } from '@/components/motion/LikeButton';
 import { BookmarkButton } from '@/components/motion/BookmarkButton';
@@ -24,12 +25,6 @@ import { LevelBadge } from '@/components/LevelBadge';
 import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import type { AnswerNode } from '@/components/answer-types';
 import { MAX_ANSWER_DEPTH } from '@/components/answer-types';
-import {
-  POST_BOOKMARK_CHANGED,
-  readPostBookmark,
-  writePostBookmark,
-  type PostBookmarkChange,
-} from '@/lib/client/post-bookmarks';
 
 interface AnswerCardProps {
   answer: AnswerNode;
@@ -72,50 +67,11 @@ export function AnswerCard({
     answer.votes?.[0]?.value === 1 ? 'up' : answer.votes?.[0]?.value === -1 ? 'down' : null;
   const [voteCount, setVoteCount] = useState(answer.upvotes);
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(initialUserVote);
-  const [isBookmarked, setIsBookmarked] = useState(false);
-  const [bookmarkPending, setBookmarkPending] = useState(false);
-  const [bookmarkError, setBookmarkError] = useState<string | null>(null);
-  const bookmarkLock = useRef(false);
   const targetPostId = answer.post_id || postId;
-  useEffect(() => {
-    if (!targetPostId || !currentUser) return;
-    let active = true;
-    let changed = false;
-    const onChange = (event: Event) => {
-      const detail = (event as CustomEvent<PostBookmarkChange>).detail;
-      if (detail.postId === targetPostId) {
-        changed = true;
-        setIsBookmarked(detail.bookmarked);
-      }
-    };
-    window.addEventListener(POST_BOOKMARK_CHANGED, onChange);
-    void readPostBookmark(targetPostId)
-      .then((saved) => {
-        if (active && !changed && !bookmarkLock.current) setIsBookmarked(saved);
-      })
-      .catch(() => {});
-    return () => {
-      active = false;
-      window.removeEventListener(POST_BOOKMARK_CHANGED, onChange);
-    };
-  }, [targetPostId, currentUser]);
-  const handleBookmarkToggle = async () => {
-    if (!targetPostId || !currentUser || bookmarkLock.current) return;
-    bookmarkLock.current = true;
-    setBookmarkPending(true);
-    setBookmarkError(null);
-    const previous = isBookmarked;
-    setIsBookmarked(!previous);
-    try {
-      setIsBookmarked(await writePostBookmark(targetPostId, !previous));
-    } catch (error) {
-      setIsBookmarked(previous);
-      setBookmarkError(error instanceof Error ? error.message : 'Não foi possível salvar.');
-    } finally {
-      bookmarkLock.current = false;
-      setBookmarkPending(false);
-    }
-  };
+  const { isBookmarked, bookmarkPending, bookmarkError, toggleBookmark } = usePostBookmark(
+    targetPostId,
+    Boolean(currentUser)
+  );
   const [reposted, setReposted] = useState(false);
   const isOwnAnswer = Boolean(
     currentUser &&
@@ -458,19 +414,19 @@ export function AnswerCard({
               title="Curtir resposta"
             />
 
-            {/* 4. Views */}
+            {/* 4. BookmarkButton */}
+            <BookmarkButton
+              appearance="post"
+              isSaved={isBookmarked}
+              onToggle={toggleBookmark}
+              disabled={bookmarkPending || !targetPostId || !currentUser}
+            />
+
+            {/* 5. Views */}
             <span className={`${postActionClassName} pointer-events-none`} title="Visualizações">
               <BarChart2 className="h-4 w-4" aria-hidden="true" />
               <span className="text-[11px] font-semibold">{Math.abs(voteCount) * 4 + 12}</span>
             </span>
-
-            {/* 5. BookmarkButton */}
-            <BookmarkButton
-              appearance="post"
-              isSaved={isBookmarked}
-              onToggle={handleBookmarkToggle}
-              disabled={bookmarkPending || !targetPostId || !currentUser}
-            />
 
             {/* 6. Share button */}
             <ShareLinkButton

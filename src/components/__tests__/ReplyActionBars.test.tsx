@@ -110,6 +110,57 @@ describe('reply action bars', () => {
     expect(screen.getByRole('button', { name: 'Salvar' })).not.toBeDisabled();
   });
 
+  it('synchronizes saved state between the answer and its profile publication', async () => {
+    const fetcher = vi.fn(async (_input: unknown, init?: RequestInit) =>
+      Response.json({
+        bookmarked: init?.method === 'POST' ? JSON.parse(String(init.body)).bookmarked : false,
+      })
+    );
+    vi.stubGlobal('fetch', fetcher);
+    render(
+      <>
+        <AnswerCard
+          answer={answer}
+          depth={0}
+          isPostAuthor={false}
+          currentUser={{ id: 'owner', username: 'ana' }}
+        />
+        <ProfileReplyThread
+          reply={{
+            ...answer,
+            author_id: 'owner',
+            post: {
+              id: 'post-1',
+              body: 'Post original',
+              author,
+              created_at: answer.created_at,
+            },
+          }}
+          currentUser={{ id: 'owner', username: 'ana' }}
+        />
+      </>
+    );
+    fireEvent.click(screen.getAllByRole('button', { name: 'Salvar' })[0]);
+    await waitFor(() => {
+      const buttons = screen.getAllByRole('button', { name: 'Remover dos salvos' });
+      expect(buttons).toHaveLength(2);
+      for (const button of buttons) {
+        expect(button).toHaveAttribute('aria-pressed', 'true');
+        expect(button).not.toBeDisabled();
+      }
+    });
+    fireEvent.click(screen.getAllByRole('button', { name: 'Remover dos salvos' })[1]);
+    await waitFor(() => {
+      const buttons = screen.getAllByRole('button', { name: 'Salvar' });
+      expect(buttons).toHaveLength(2);
+      for (const button of buttons) {
+        expect(button).toHaveAttribute('aria-pressed', 'false');
+        expect(button).not.toBeDisabled();
+      }
+    });
+    expect(fetcher.mock.calls.filter(([, init]) => init?.method === 'POST')).toHaveLength(2);
+  });
+
   it('shows the selected flags and title for comments and nested replies', () => {
     const decoratedAuthor = {
       username: 'ana',
