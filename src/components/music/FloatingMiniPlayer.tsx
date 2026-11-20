@@ -14,6 +14,7 @@ import {
   SkipForward,
 } from 'lucide-react';
 import { useMusicPlayer, useMusicPlayerControls } from '@/contexts/MusicPlayerContext';
+import { MusicLevelBars } from './MusicLevelBars';
 import styles from './FloatingMiniPlayer.module.css';
 
 const MOBILE_QUERY = '(max-width: 639px)';
@@ -122,25 +123,18 @@ export function FloatingMiniPlayer() {
             </div>
           )}
 
-          {/* Equalizer waves centered in the square */}
-          <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-black/65 border border-white/20 shadow-lg backdrop-blur-sm">
-              {isBuffering ? (
-                <LoaderCircle
-                  size={16}
-                  className="text-white motion-safe:animate-spin"
-                  aria-hidden="true"
-                />
-              ) : (
-                <div className={styles.equalizer} data-playing={isPlaying}>
-                  <span className={styles.bar} style={{ height: '6px' }} />
-                  <span className={styles.bar} style={{ height: '12px' }} />
-                  <span className={styles.bar} style={{ height: '9px' }} />
-                  <span className={styles.bar} style={{ height: '6px' }} />
-                </div>
-              )}
+          {/* Equalizer bars across the whole artwork square */}
+          {isBuffering ? (
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center rounded-xl bg-black/55">
+              <LoaderCircle
+                size={20}
+                className="text-white motion-safe:animate-spin"
+                aria-hidden="true"
+              />
             </div>
-          </div>
+          ) : (
+            <MusicLevelBars playing={isPlaying} />
+          )}
 
           {/* Hover overlay with expand arrow */}
           <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/60 opacity-0 transition-opacity group-hover:opacity-100">
