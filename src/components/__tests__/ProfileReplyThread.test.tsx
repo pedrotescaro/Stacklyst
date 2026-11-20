@@ -1,6 +1,10 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ProfileReplyThread } from '../ProfileReplyThread';
+import { encodeReplyMedia } from '@/lib/reply-media';
+vi.mock('@/components/music/SpotifyTrackCard', () => ({
+  SpotifyTrackCard: ({ music }: { music: { title: string } }) => <p>Música: {music.title}</p>,
+}));
 vi.mock('@/components/MarkdownRenderer', () => ({
   MarkdownRenderer: ({ content }: { content: string }) => <p>{content}</p>,
 }));
@@ -81,5 +85,54 @@ describe('profile reply publications', () => {
       'Não foi possível atualizar a curtida'
     );
     expect(screen.getByTitle('Curtir resposta')).toHaveTextContent('3');
+  });
+  it('shows the music and GIFs of the original post, the previous reply and the reply', () => {
+    const track = (title: string) => ({
+      trackId: '4cOdK2wGLETKBW3PvgPWqT',
+      title,
+      artist: 'Artista',
+      artworkUrl: null,
+    });
+    const gif = (alt: string) => ({
+      type: 'gif' as const,
+      url: `https://static.klipy.com/ii/a/${alt}.webp`,
+      alt,
+    });
+    render(
+      <ProfileReplyThread
+        reply={{
+          ...reply,
+          body: encodeReplyMedia('', {
+            attachments: [gif('gif-da-resposta')],
+            music: track('Faixa da resposta'),
+          }),
+          post: {
+            ...reply.post,
+            body: '',
+            music: track('Faixa do post'),
+            attachments: [gif('gif-do-post')],
+          },
+          parent: {
+            id: 'parent',
+            body: encodeReplyMedia('Comentário anterior', {
+              attachments: [],
+              music: track('Faixa anterior'),
+            }),
+            author: author('parent'),
+            created_at: reply.created_at,
+          },
+        }}
+      />
+    );
+    expect(screen.getByText('Música: Faixa do post')).toBeInTheDocument();
+    expect(screen.getByAltText('gif-do-post')).toHaveAttribute(
+      'src',
+      'https://static.klipy.com/ii/a/gif-do-post.webp'
+    );
+    expect(screen.getByText('Comentário anterior')).toBeInTheDocument();
+    expect(screen.getByText('Música: Faixa anterior')).toBeInTheDocument();
+    expect(screen.getByText('Música: Faixa da resposta')).toBeInTheDocument();
+    expect(screen.getByAltText('gif-da-resposta')).toBeInTheDocument();
+    expect(screen.queryByText(/stacklyst-reply-media/)).not.toBeInTheDocument();
   });
 });

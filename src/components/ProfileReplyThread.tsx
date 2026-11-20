@@ -9,6 +9,9 @@ import { LevelBadge } from '@/components/LevelBadge';
 import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { parseReplyMedia } from '@/lib/reply-media';
+import { parsePostExtras } from '@/lib/post-composer';
+import { PostAttachments } from '@/components/posts/PostAttachments';
+import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
 import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
 import { LikeButton } from '@/components/motion/LikeButton';
@@ -43,7 +46,76 @@ function ThreadIdentity({ author, createdAt }: { author: any; createdAt: string 
   );
 }
 
-function ThreadContext({ item, href, label }: { item: any; href: string; label: string }) {
+/**
+ * Posts keep media in their own columns; replies carry it inside the body
+ * (see reply-media). Both also hide composer markers such as the location.
+ */
+function readThreadContent(item: any, kind: 'post' | 'reply') {
+  const body = typeof item?.body === 'string' ? item.body : '';
+  const media =
+    kind === 'post'
+      ? {
+          content: body,
+          attachments: Array.isArray(item.attachments) ? item.attachments : [],
+          music: item.music ?? null,
+        }
+      : parseReplyMedia(body);
+  const extras = parsePostExtras(media.content);
+  return { ...media, ...extras };
+}
+
+function ThreadBody({
+  item,
+  kind,
+  compact = false,
+}: {
+  item: any;
+  kind: 'post' | 'reply';
+  compact?: boolean;
+}) {
+  const content = readThreadContent(item, kind);
+  const hasMedia =
+    content.attachments.length > 0 ||
+    Boolean(content.music) ||
+    (kind === 'post' && Boolean(item.poll || item.image_url));
+  return (
+    <SensitiveContentGate isSensitive={content.isSensitive}>
+      {content.content && (
+        <div
+          className={
+            compact ? 'mt-2 line-clamp-4 text-sm text-dd-text/85' : 'mt-3 text-sm text-dd-text'
+          }
+        >
+          <MarkdownRenderer content={content.content} compact={compact} />
+        </div>
+      )}
+      {hasMedia && (
+        <div className="mt-2">
+          <PostAttachments
+            postId={item.id}
+            attachments={content.attachments}
+            music={content.music}
+            poll={kind === 'post' ? item.poll : null}
+            legacyImage={kind === 'post' ? item.image_url : null}
+          />
+        </div>
+      )}
+      <PostLocation location={content.location} className="mt-2" />
+    </SensitiveContentGate>
+  );
+}
+
+function ThreadContext({
+  item,
+  kind,
+  href,
+  label,
+}: {
+  item: any;
+  kind: 'post' | 'reply';
+  href: string;
+  label: string;
+}) {
   return (
     <div className="flex min-w-0 gap-3">
       <div className="flex shrink-0 flex-col items-center">
@@ -59,20 +131,8 @@ function ThreadContext({ item, href, label }: { item: any; href: string; label: 
       </div>
       <div className="min-w-0 flex-1 pb-5">
         <ThreadIdentity author={item.author} createdAt={item.created_at} />
-        <div className="mt-2 line-clamp-4 text-sm text-dd-text/85">
-          <MarkdownRenderer content={item.body} compact />
-        </div>
-        {item.image_url && (
-          <Link href={href} className="mt-3 block">
-            <img
-              src={item.image_url}
-              alt={label}
-              loading="lazy"
-              className="max-h-56 w-full rounded-xl object-cover"
-            />
-          </Link>
-        )}
-        {item.code_snippet && !item.body.includes('```') && (
+        <ThreadBody item={item} kind={kind} compact />
+        {item.code_snippet && !item.body?.includes('```') && (
           <pre className="mt-2 max-h-32 overflow-auto rounded-lg bg-dd-surface p-3 text-xs text-dd-text">
             <code>{item.code_snippet}</code>
           </pre>
@@ -170,12 +230,14 @@ export function ProfileReplyThread({ reply }: { reply: any; currentUser?: any })
     >
       <ThreadContext
         item={reply.post}
+        kind="post"
         href={`/post/${reply.post_id}`}
         label={text('Ver publicação original', 'View original post')}
       />
       {reply.parent?.author && (
         <ThreadContext
           item={reply.parent}
+          kind="reply"
           href={`/post/${reply.post_id}#answer-${reply.parent.id}`}
           label={text('Ver resposta anterior', 'View previous reply')}
         />
@@ -200,9 +262,7 @@ export function ProfileReplyThread({ reply }: { reply: any; currentUser?: any })
               @{(reply.parent?.author ?? reply.post.author).username}
             </Link>
           </p>
-          <div className="mt-3 text-sm text-dd-text">
-            <MarkdownRenderer content={parseReplyMedia(reply.body).content} />
-          </div>
+          <ThreadBody item={reply} kind="reply" />
           {reply.code_snippet && !reply.body.includes('```') && (
             <pre className="mt-3 overflow-x-auto rounded-lg bg-dd-surface p-3 text-xs text-dd-text">
               <code>{reply.code_snippet}</code>
