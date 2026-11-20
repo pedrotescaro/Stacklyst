@@ -163,4 +163,19 @@ describe('createPostSchema', () => {
     expect(localhostResult.success).toBe(true);
     expect(loopbackResult.success).toBe(true);
   });
+
+  it('accepts KLIPY GIF URLs only as GIF attachments', () => {
+    const klipy = 'https://static.klipy.com/ii/abc/14/af/hello.gif';
+    expect(
+      createPostSchema.safeParse({ body: '', attachments: [{ type: 'gif', url: klipy }] }).success
+    ).toBe(true);
+    for (const attachment of [
+      { type: 'image', url: klipy },
+      { type: 'gif', url: 'https://media.giphy.com/media/x/giphy.gif' },
+      { type: 'gif', url: 'https://static.klipy.com.evil.example/x.gif' },
+    ])
+      expect(createPostSchema.safeParse({ body: '', attachments: [attachment] }).success).toBe(
+        false
+      );
+  });
 });

@@ -42,4 +42,13 @@ describe('reply media', () => {
     expect(parsed.music).toBeNull();
     expect(stripReplyMedia(forged)).toBe('x');
   });
+
+  it('keeps KLIPY GIFs only as GIF attachments', () => {
+    const gif = { type: 'gif' as const, url: 'https://static.klipy.com/ii/a/b.gif', alt: 'Oi' };
+    const body = encodeReplyMedia('x', {
+      attachments: [gif, { type: 'image', url: 'https://static.klipy.com/ii/a/c.gif' }],
+      music: null,
+    });
+    expect(parseReplyMedia(body).attachments).toEqual([gif]);
+  });
 });

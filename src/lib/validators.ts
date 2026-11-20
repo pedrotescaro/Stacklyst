@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { Language } from '@prisma/client';
+import { isKlipyMediaUrl } from '@/lib/klipy';
+import { isUploadedPostMediaUrl } from '@/lib/post-content';
 
 function isPrivateIpOrHost(hostname: string): boolean {
   const lower = hostname.toLowerCase();
@@ -77,13 +79,18 @@ const mentionSchema = z.string().refine(
   { message: 'Máximo de 5 menções por post' }
 );
 
-const postAttachmentSchema = z.object({
-  type: z.enum(['image', 'gif', 'audio']),
-  url: z
-    .string()
-    .regex(/^\/api\/posts\/media\/[a-f0-9-]{36}$/i, 'Anexo inválido. Envie o arquivo novamente.'),
-  alt: z.string().trim().max(300).optional(),
-});
+const postAttachmentSchema = z
+  .object({
+    type: z.enum(['image', 'gif', 'audio']),
+    url: z.string().max(2048),
+    alt: z.string().trim().max(300).optional(),
+  })
+  // Uploads live in our storage; GIFs picked from KLIPY must stay on its CDN.
+  .refine(
+    (item) =>
+      isUploadedPostMediaUrl(item.url) || (item.type === 'gif' && isKlipyMediaUrl(item.url)),
+    { path: ['url'], message: 'Anexo inválido. Envie o arquivo novamente.' }
+  );
 
 export const postMusicSchema = z.object({
   trackId: z.string().regex(/^[a-zA-Z0-9]{22}$/),

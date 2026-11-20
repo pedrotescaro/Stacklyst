@@ -1,4 +1,5 @@
-import type { PostAttachment } from '@/lib/post-content';
+import { isUploadedPostMediaUrl, type PostAttachment } from '@/lib/post-content';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
 
 export interface ReplyMedia {
@@ -12,7 +13,6 @@ export interface ReplyMedia {
  * which keeps older readers clean, and no database migration is needed.
  */
 const MARKER = /\n*\[stacklyst-reply-media\]: # \(([A-Za-z0-9_-]+)\)\s*$/;
-const MEDIA_URL = /^\/api\/posts\/media\/[a-f0-9-]{36}$/i;
 const SPOTIFY_ART = /^https:\/\/([a-z0-9-]+\.)*(scdn\.co|spotifycdn\.com)\//i;
 
 /** Drops any hand-written marker so only server-validated media is stored. */
@@ -45,14 +45,13 @@ export function parseReplyMedia(body: string): ReplyMedia & { content: string } 
   const content = body.slice(0, match.index).trim();
   try {
     const parsed = JSON.parse(fromBase64Url(match[1]));
-    // The body is user text, so only render media that points at our own storage
-    // and Spotify, even if someone typed a marker by hand.
+    // The body is user text, so only render media that points at our own storage,
+    // KLIPY's GIF CDN and Spotify, even if someone typed a marker by hand.
     const attachments = (Array.isArray(parsed?.attachments) ? parsed.attachments : [])
       .filter(
         (item: PostAttachment) =>
           ['image', 'gif', 'audio'].includes(item?.type) &&
-          typeof item.url === 'string' &&
-          MEDIA_URL.test(item.url)
+          (isUploadedPostMediaUrl(item?.url) || (item.type === 'gif' && isKlipyMediaUrl(item.url)))
       )
       .slice(0, 4);
     const music = parsed?.music;

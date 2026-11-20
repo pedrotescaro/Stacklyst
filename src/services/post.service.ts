@@ -11,6 +11,7 @@ import { syncProfileAchievementsSafely } from './profile-customization.service';
 import { visiblePostWhere } from './post-access.service';
 import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
 import { ValidationError } from '@/lib/errors';
+import { isUploadedPostMediaUrl, uploadedMediaIds } from '@/lib/post-content';
 import { Prisma } from '@prisma/client';
 import { loadFeedDefinition, feedDefinitionWhere } from './feed-preferences.service';
 import {
@@ -36,8 +37,11 @@ export const PostService = {
 
     let leveledUp = false;
     const result = await prisma.$transaction(async (tx) => {
-      const mediaIds = attachments.map((item) => item.url.split('/').at(-1)!);
-      if (new Set(mediaIds).size !== mediaIds.length)
+      const mediaIds = uploadedMediaIds(attachments);
+      if (
+        new Set(mediaIds).size !== mediaIds.length ||
+        new Set(attachments.map((item) => item.url)).size !== attachments.length
+      )
         throw new ValidationError(
           'INVALID_MEDIA',
           'Um mesmo anexo não pode ser adicionado duas vezes.'
@@ -48,17 +52,19 @@ export const PostService = {
         });
         if (
           media.length !== mediaIds.length ||
-          attachments.some((item) => {
-            const file = media.find((file) => file.id === item.url.split('/').at(-1));
-            return (
-              !file ||
-              (item.type === 'audio'
-                ? !file.content_type.startsWith('audio/')
-                : item.type === 'gif'
-                  ? file.content_type !== 'image/gif'
-                  : !file.content_type.startsWith('image/'))
-            );
-          })
+          attachments
+            .filter((item) => isUploadedPostMediaUrl(item.url))
+            .some((item) => {
+              const file = media.find((file) => file.id === item.url.split('/').at(-1));
+              return (
+                !file ||
+                (item.type === 'audio'
+                  ? !file.content_type.startsWith('audio/')
+                  : item.type === 'gif'
+                    ? file.content_type !== 'image/gif'
+                    : !file.content_type.startsWith('image/'))
+              );
+            })
         )
           throw new ValidationError(
             'INVALID_MEDIA',

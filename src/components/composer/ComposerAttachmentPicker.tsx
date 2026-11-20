@@ -1,12 +1,12 @@
 'use client';
 
-/* Protected media and GIF previews are requested directly by the browser. */
-/* eslint-disable @next/next/no-img-element */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ImagePlus, LoaderCircle, Mic, Square, Upload, X } from 'lucide-react';
 import type { PostAttachment } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
 import { MusicSelector } from '@/components/profile-inline/MusicSelector';
+import { KlipyGifSearch } from '@/components/gif/KlipyGifSearch';
+import type { KlipyGif } from '@/lib/klipy';
 import styles from './ComposerMedia.module.css';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
@@ -20,27 +20,6 @@ interface PickerProps {
   onMusicChange: (music: SpotifyProfileTrack | null) => void;
   onBusyChange?: (busy: boolean) => void;
 }
-type GifResult = { id: string; title: string; preview: string; url: string };
-type GiphyItem = {
-  id: string;
-  title?: string;
-  images?: { fixed_width?: { url?: string }; original?: { url?: string; size?: string } };
-};
-const safeGiphyUrl = (value: string | undefined) => {
-  if (!value) return null;
-  try {
-    const url = new URL(value);
-    return url.protocol === 'https:' &&
-      /(^|\.)giphy\.com$/.test(url.hostname) &&
-      !url.username &&
-      !url.password
-      ? url.href
-      : null;
-  } catch {
-    return null;
-  }
-};
-
 type Translate = (portuguese: string, english: string) => string;
 const portugueseOnly: Translate = (portuguese) => portuguese;
 
@@ -88,9 +67,6 @@ function AttachmentPanel({
   const { text } = useLocalizedText();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
-  const [query, setQuery] = useState('');
-  const [gifs, setGifs] = useState<GifResult[]>([]);
-  const [searching, setSearching] = useState(false);
   const [recording, setRecording] = useState(false);
   const [recorded, setRecorded] = useState<Blob | null>(null);
   const [recordedUrl, setRecordedUrl] = useState('');
@@ -104,14 +80,11 @@ function AttachmentPanel({
   const busyCallback = useRef(onBusyChange);
   busyCallback.current = onBusyChange;
   const fileInput = useRef<HTMLInputElement>(null);
-  const searchInput = useRef<HTMLInputElement>(null);
-  const key = process.env.NEXT_PUBLIC_GIPHY_API_KEY;
   useEffect(() => {
     busyCallback.current?.(busy || recording || requestingMicrophone);
   }, [busy, recording, requestingMicrophone]);
   useEffect(() => {
     mounted.current = true;
-    if (panel === 'gif') searchInput.current?.focus();
     return () => {
       mounted.current = false;
       request.current?.abort();
@@ -139,51 +112,6 @@ function AttachmentPanel({
     }, 250);
     return () => window.clearInterval(timer);
   }, [recording]);
-  useEffect(() => {
-    if (panel !== 'gif' || !key) return;
-    const controller = new AbortController();
-    const timer = window.setTimeout(async () => {
-      setSearching(true);
-      setError('');
-      const params = new URLSearchParams({ api_key: key, limit: '20', rating: 'g', lang: 'pt' });
-      if (query.trim()) params.set('q', query.trim());
-      try {
-        const response = await fetch(
-          `https://api.giphy.com/v1/gifs/${query.trim() ? 'search' : 'trending'}?${params}`,
-          { signal: controller.signal }
-        );
-        if (!response.ok)
-          throw new Error(
-            text(
-              'A pesquisa de GIFs está indisponível. Tente novamente ou envie um arquivo.',
-              'GIF search is unavailable. Try again or upload a file.'
-            )
-          );
-        const result = (await response.json()) as { data?: GiphyItem[] };
-        const next = (result.data || []).flatMap((gif) => {
-          const preview = safeGiphyUrl(gif.images?.fixed_width?.url);
-          const url = safeGiphyUrl(gif.images?.original?.url);
-          return preview && url && Number(gif.images?.original?.size || 0) <= 5 * 1024 * 1024
-            ? [{ id: gif.id, title: gif.title || 'GIF', preview, url }]
-            : [];
-        });
-        if (!controller.signal.aborted) setGifs(next);
-      } catch (failure) {
-        if (!controller.signal.aborted)
-          setError(
-            failure instanceof Error
-              ? failure.message
-              : text('Não foi possível pesquisar GIFs.', 'Could not search GIFs.')
-          );
-      } finally {
-        if (!controller.signal.aborted) setSearching(false);
-      }
-    }, 350);
-    return () => {
-      window.clearTimeout(timer);
-      controller.abort();
-    };
-  }, [query, panel, key, text]);
   const addFiles = async (files: File[]) => {
     if (busy || !files.length) return;
     const count = attachments.filter((item) => item.type !== 'audio').length;
@@ -232,49 +160,19 @@ function AttachmentPanel({
       if (mounted.current) setBusy(false);
     }
   };
-  const selectGif = async (gif: GifResult) => {
+  const selectGif = (gif: KlipyGif) => {
     if (busy) return;
     if (attachments.filter((item) => item.type !== 'audio').length >= 4) {
       setError(text('O limite é de 4 imagens ou GIFs.', 'The limit is 4 images or GIFs.'));
       return;
     }
-    setBusy(true);
-    setError('');
-    const controller = new AbortController();
-    request.current = controller;
-    try {
-      const response = await fetch(gif.url, { signal: controller.signal });
-      if (!response.ok)
-        throw new Error(
-          text(
-            'Não foi possível baixar esse GIF. Escolha outro.',
-            'Could not download that GIF. Choose another one.'
-          )
-        );
-      const blob = await response.blob();
-      if (blob.size > 5 * 1024 * 1024)
-        throw new Error(
-          text(
-            'Esse GIF ultrapassa 5 MB. Escolha outro.',
-            'That GIF is over 5 MB. Choose another one.'
-          )
-        );
-      const file = new File([blob], `${gif.id}.gif`, { type: 'image/gif' });
-      const url = await uploadPostMedia(file, controller.signal, text);
-      if (mounted.current) {
-        onAttachmentsChange([...attachments, { type: 'gif', url, alt: gif.title }]);
-        onClose();
-      }
-    } catch (failure) {
-      if (mounted.current && !controller.signal.aborted)
-        setError(
-          failure instanceof Error
-            ? failure.message
-            : text('Não foi possível adicionar o GIF.', 'Could not add the GIF.')
-        );
-    } finally {
-      if (mounted.current) setBusy(false);
+    if (attachments.some((item) => item.url === gif.url)) {
+      setError(text('Esse GIF já foi adicionado.', 'That GIF is already added.'));
+      return;
     }
+    // KLIPY media must load from its own CDN, so the URL is stored as-is.
+    onAttachmentsChange([...attachments, { type: 'gif', url: gif.url, alt: gif.title }]);
+    onClose();
   };
   const startRecording = async () => {
     if (requestMicrophoneRef.current || recording || busy) return;
@@ -442,66 +340,15 @@ function AttachmentPanel({
           {(panel === 'gif' || panel === 'image') && (
             <>
               {panel === 'gif' && (
-                <>
-                  <input
-                    ref={searchInput}
-                    type="search"
-                    value={query}
-                    onChange={(event) => setQuery(event.target.value)}
-                    disabled={!key || busy}
-                    maxLength={100}
-                    className={styles.searchInput}
-                    aria-label={text('Pesquisar GIFs', 'Search GIFs')}
-                    placeholder={text('Pesquisar GIFs', 'Search GIFs')}
-                  />
-                  {!key && (
-                    <p className={styles.help} style={{ marginTop: 10 }}>
-                      {text(
-                        'A pesquisa de GIFs ainda não está disponível. Você pode enviar um GIF do seu dispositivo.',
-                        'GIF search is not available yet. You can upload a GIF from your device.'
-                      )}
-                    </p>
+                <KlipyGifSearch
+                  autoFocus
+                  disabled={busy}
+                  onSelect={selectGif}
+                  unavailableMessage={text(
+                    'A pesquisa de GIFs ainda não está disponível. Você pode enviar um GIF do seu dispositivo.',
+                    'GIF search is not available yet. You can upload a GIF from your device.'
                   )}
-                  {searching && (
-                    <p role="status" className={styles.status}>
-                      <LoaderCircle size={16} className="animate-spin" />
-                      {text('Pesquisando GIFs…', 'Searching GIFs…')}
-                    </p>
-                  )}
-                  {!!gifs.length && (
-                    <div className={styles.gifGrid}>
-                      {gifs.map((gif) => (
-                        <button
-                          key={gif.id}
-                          type="button"
-                          disabled={busy}
-                          onClick={() => void selectGif(gif)}
-                          aria-label={`Adicionar ${gif.title}`}
-                        >
-                          <img src={gif.preview} alt={gif.title} loading="lazy" />
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                  {key && !searching && query && !gifs.length && !error && (
-                    <p role="status" className={styles.help}>
-                      {text(
-                        'Nenhum GIF encontrado. Tente outra palavra.',
-                        'No GIFs found. Try another word.'
-                      )}
-                    </p>
-                  )}
-                  {key && (
-                    <a
-                      className={styles.help}
-                      href="https://giphy.com/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      Powered by GIPHY
-                    </a>
-                  )}
-                </>
+                />
               )}
               {panel === 'image' && (
                 <p className={styles.help}>

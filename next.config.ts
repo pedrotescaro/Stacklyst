@@ -12,14 +12,14 @@ const contentSecurityPolicy = [
   `script-src 'self' ${isDev ? "'unsafe-eval'" : "'wasm-unsafe-eval'"} 'unsafe-inline' ${SPOTIFY_SCRIPT_HOSTS}`,
   `script-src-elem 'self' 'unsafe-inline' ${SPOTIFY_SCRIPT_HOSTS}`,
   "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' blob: data: https://images.unsplash.com https://api.dicebear.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cdn.discordapp.com https://images-ext-1.discordapp.net https://assets.aceternity.com https://*.supabase.co https://*.scdn.co https://*.spotifycdn.com https://*.giphy.com",
+  "img-src 'self' blob: data: https://images.unsplash.com https://api.dicebear.com https://avatars.githubusercontent.com https://lh3.googleusercontent.com https://cdn.discordapp.com https://images-ext-1.discordapp.net https://assets.aceternity.com https://*.supabase.co https://*.scdn.co https://*.spotifycdn.com https://static.klipy.com https://static1.klipy.com https://static2.klipy.com",
   "font-src 'self' data: https://fonts.gstatic.com",
   [
     "connect-src 'self'",
     // Plain ws: is only for the dev server's HMR socket; production keeps
     // realtime traffic encrypted and pinned to Supabase.
     isDev ? 'ws: wss:' : 'wss://*.supabase.co',
-    'https://*.supabase.co https://api.github.com https://wandbox.org https://api.giphy.com https://*.giphy.com',
+    'https://*.supabase.co https://api.github.com https://wandbox.org https://api.klipy.com',
     'https://*.spotify.com https://*.spotifycdn.com https://*.scdn.co https://spclient.wg.spotify.com',
     // Spotify's player bundles point their source maps at webpack:// URLs.
     // DevTools resolves them through the page CSP, which logged a violation per

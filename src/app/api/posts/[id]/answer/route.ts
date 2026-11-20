@@ -8,6 +8,7 @@ import { XpService } from '@/services/xp.service';
 import { NotificationService } from '@/services/notification.service';
 import { NotFoundError, ValidationError } from '@/lib/errors';
 import { encodeReplyMedia, stripReplyMedia } from '@/lib/reply-media';
+import { isUploadedPostMediaUrl, uploadedMediaIds } from '@/lib/post-content';
 import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
 import { assertPostAudience } from '@/services/post-access.service';
 
@@ -54,8 +55,11 @@ export const POST = apiHandler(async (req, { params }) => {
   }
 
   const attachments = parsed.attachments;
-  const mediaIds = attachments.map((item) => item.url.split('/').at(-1)!);
-  if (new Set(mediaIds).size !== mediaIds.length)
+  const mediaIds = uploadedMediaIds(attachments);
+  if (
+    new Set(mediaIds).size !== mediaIds.length ||
+    new Set(attachments.map((item) => item.url)).size !== attachments.length
+  )
     throw new ValidationError(
       'INVALID_MEDIA',
       'Um mesmo anexo não pode ser adicionado duas vezes.'
@@ -71,17 +75,19 @@ export const POST = apiHandler(async (req, { params }) => {
       const media = await tx.postMedia.findMany({
         where: { id: { in: mediaIds }, owner_id: user.id, post_id: null },
       });
-      const invalid = attachments.some((item) => {
-        const file = media.find((entry) => entry.id === item.url.split('/').at(-1));
-        return (
-          !file ||
-          (item.type === 'audio'
-            ? !file.content_type.startsWith('audio/')
-            : item.type === 'gif'
-              ? file.content_type !== 'image/gif'
-              : !file.content_type.startsWith('image/'))
-        );
-      });
+      const invalid = attachments
+        .filter((item) => isUploadedPostMediaUrl(item.url))
+        .some((item) => {
+          const file = media.find((entry) => entry.id === item.url.split('/').at(-1));
+          return (
+            !file ||
+            (item.type === 'audio'
+              ? !file.content_type.startsWith('audio/')
+              : item.type === 'gif'
+                ? file.content_type !== 'image/gif'
+                : !file.content_type.startsWith('image/'))
+          );
+        });
       if (invalid)
         throw new ValidationError(
           'INVALID_MEDIA',
