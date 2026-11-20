@@ -3,7 +3,8 @@
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
-import { Image as ImageIcon, ImagePlay, Music2, Mic, Code2, MoreHorizontal, X } from 'lucide-react';
+import { Image as ImageIcon, Music2, Mic, Code2, MoreHorizontal, X } from 'lucide-react';
+import { GifIcon } from '@/components/icons/GifIcon';
 import { ComposeModal } from '@/components/motion/ComposeModal';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
@@ -400,7 +401,7 @@ export function ReplyComposerForm({
               active={panel === 'gif'}
               onClick={() => toggle('gif')}
             >
-              <ImagePlay />
+              <GifIcon />
             </Tool>
             <Tool
               label={text('Adicionar música', 'Add music')}

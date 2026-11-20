@@ -12,7 +12,6 @@ import {
   Users,
   Check,
   Image as ImageIcon,
-  ImagePlay,
   Music2,
   Mic,
   ChartNoAxesColumnIncreasing,
@@ -26,6 +25,7 @@ import {
   Heading2,
   Pilcrow,
 } from 'lucide-react';
+import { GifIcon } from '@/components/icons/GifIcon';
 import { ComposeModal } from '@/components/motion/ComposeModal';
 import { PublishButton, type PublishState } from '@/components/motion/PublishButton';
 import { MentionDropdown } from '@/components/motion/MentionDropdown';
@@ -587,7 +587,7 @@ export function PostComposerDialog({
                       className="flex min-h-11 items-center gap-2 px-2 text-sm"
                       onClick={() => setPanel('gif')}
                     >
-                      <ImagePlay className="h-4 w-4 text-dd-accent" />
+                      <GifIcon className="h-4 w-4 text-dd-accent" />
                       {text('Adicionar GIF', 'Add GIF')}
                     </button>
                   </div>
@@ -685,7 +685,7 @@ export function PostComposerDialog({
               active={panel === 'gif'}
               onClick={() => toggle('gif')}
             >
-              <ImagePlay />
+              <GifIcon />
               <span className="sr-only">GIF</span>
             </Tool>
             <Tool
