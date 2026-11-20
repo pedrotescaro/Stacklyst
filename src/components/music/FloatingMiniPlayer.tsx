@@ -107,7 +107,7 @@ export function FloatingMiniPlayer() {
           data-testid="floating-mini-player-minimized"
           aria-label={`Expandir player: ${currentTrack.title} - ${currentTrack.artist}`}
           title={`${currentTrack.title} · ${currentTrack.artist} (Clique para expandir)`}
-          className={`${styles.minimizedRing} group relative flex h-14 w-14 items-center justify-center rounded-xl border border-white/10 bg-[#1e1e1e] shadow-xl transition-all hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer`}
+          className={`${styles.minimizedRing} group relative flex h-14 w-14 items-center justify-center rounded-xl border border-white/[0.08] bg-[#181818] shadow-xl transition-all hover:scale-105 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer`}
           data-playing={isPlaying}
         >
           {currentTrack.artworkUrl ? (
@@ -268,18 +268,22 @@ export function FloatingMiniPlayer() {
     <aside
       aria-label="Mini player de música"
       data-testid="floating-mini-player"
-      className={`${styles.playerContainer} ${styles.slideIn} bottom-[4.75rem] right-3 sm:bottom-6 sm:right-6 w-[calc(100vw-1.5rem)] max-w-[350px] sm:w-[350px] overflow-hidden rounded-xl border border-white/10 bg-[#1e1e1e] text-white shadow-[0_16px_40px_rgba(0,0,0,0.7)] transition-all`}
+      className={`${styles.playerContainer} ${styles.slideIn} bottom-[4.75rem] right-3 sm:bottom-6 sm:right-6 w-[calc(100vw-1.5rem)] max-w-[350px] sm:w-[350px] overflow-hidden rounded-xl border border-white/[0.08] bg-[#181818] text-white shadow-[0_16px_40px_rgba(0,0,0,0.6)] transition-all`}
     >
       {/* ── Header: "Ouvindo agora..." + action buttons ── */}
       <div className="flex items-center justify-between px-4 pt-3 pb-2.5">
-        <span role="status" className="text-[13px] text-neutral-400 font-normal select-none">
-          {error
-            ? 'Não foi possível tocar'
-            : isBuffering
-              ? 'Carregando música...'
-              : isPlaying
-                ? 'Ouvindo agora...'
-                : 'Pausado'}
+        <span
+          role="status"
+          className="flex items-center gap-2 text-[13px] text-neutral-400 font-normal select-none"
+        >
+          {!error && !isBuffering && (
+            <span className={styles.equalizer} data-playing={isPlaying} aria-hidden="true">
+              <span className={styles.bar} />
+              <span className={styles.bar} />
+              <span className={styles.bar} />
+            </span>
+          )}
+          {statusText}
         </span>
         <div className="flex items-center gap-1">
           {/* Share button */}
