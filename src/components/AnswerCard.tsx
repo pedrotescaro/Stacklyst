@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { MessageCircle, BarChart2, Share2, Send } from 'lucide-react';
+import { MessageCircle, BarChart2, Send } from 'lucide-react';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
 import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
 import { LikeButton } from '@/components/motion/LikeButton';
@@ -12,6 +12,7 @@ import { RepostMenu } from '@/components/motion/RepostMenu';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
 import { ReplyOwnerMenu } from '@/components/replies/ReplyOwnerMenu';
+import { ShareLinkButton } from '@/components/posts/ShareLinkButton';
 import { ReplyEditForm } from '@/components/replies/ReplyEditForm';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { parsePostExtras } from '@/lib/post-composer';
@@ -163,12 +164,6 @@ export function AnswerCard({
     } finally {
       setReplySubmitting(false);
     }
-  };
-
-  const handleShare = () => {
-    const link = `${window.location.origin}/post/${answer.post_id || ''}#answer-${answer.id}`;
-    navigator.clipboard.writeText(link);
-    alert('Link da resposta copiado para a área de transferência!');
   };
 
   const [accepting, setAccepting] = useState(false);
@@ -478,14 +473,11 @@ export function AnswerCard({
             />
 
             {/* 6. Share button */}
-            <button
-              type="button"
-              onClick={handleShare}
-              className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
-              title="Compartilhar"
-            >
-              <Share2 className="h-[18px] w-[18px]" />
-            </button>
+            <ShareLinkButton
+              path={`/post/${targetPostId || ''}#answer-${answer.id}`}
+              label="Compartilhar resposta"
+              shareText={replyExtras.content.slice(0, 100)}
+            />
 
             {/* 7. More options (own answers only), like posts */}
             {isOwnAnswer && (

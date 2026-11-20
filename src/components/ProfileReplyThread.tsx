@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { MessageCircle, Share2 } from 'lucide-react';
+import { MessageCircle } from 'lucide-react';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { LevelBadge } from '@/components/LevelBadge';
@@ -12,6 +12,7 @@ import { parseReplyMedia } from '@/lib/reply-media';
 import { parsePostExtras } from '@/lib/post-composer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
 import { ReplyOwnerMenu } from '@/components/replies/ReplyOwnerMenu';
+import { ShareLinkButton } from '@/components/posts/ShareLinkButton';
 import { ReplyEditForm } from '@/components/replies/ReplyEditForm';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
@@ -159,7 +160,6 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
   const [voteCount, setVoteCount] = useState(reply?.upvotes ?? 0);
   const [userVote, setUserVote] = useState(reply?.votes?.[0]?.value ?? 0);
   const [voting, setVoting] = useState(false);
-  const [feedback, setFeedback] = useState('');
   const [error, setError] = useState('');
   const [blockedIds, setBlockedIds] = useState<Set<string>>(() => new Set());
   useEffect(() => {
@@ -213,20 +213,6 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
       );
     } finally {
       setVoting(false);
-    }
-  }
-
-  async function share() {
-    try {
-      await navigator.clipboard.writeText(`${window.location.origin}${href}`);
-      setFeedback(text('Link da resposta copiado.', 'Reply link copied.'));
-    } catch {
-      setError(
-        text(
-          'Não foi possível copiar o link. Tente novamente.',
-          'Could not copy the link. Try again.'
-        )
-      );
     }
   }
 
@@ -308,14 +294,7 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
                 onToggle={toggleLike}
                 title={text('Curtir resposta', 'Like reply')}
               />
-              <button
-                type="button"
-                onClick={share}
-                className={postActionClassName}
-                aria-label={text('Compartilhar resposta', 'Share reply')}
-              >
-                <Share2 size={18} aria-hidden="true" />
-              </button>
+              <ShareLinkButton path={href} label={text('Compartilhar resposta', 'Share reply')} />
               {isOwnReply && (
                 <ReplyOwnerMenu
                   answerId={reply.id}
@@ -325,11 +304,6 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
               )}
             </PostActionsBar>
           </div>
-          {feedback && (
-            <p role="status" className="mt-2 text-xs text-dd-muted">
-              {feedback}
-            </p>
-          )}
           {error && (
             <p role="alert" className="mt-2 text-xs text-red-700 dark:text-red-400">
               {error}

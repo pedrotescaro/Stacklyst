@@ -86,13 +86,13 @@ export function ReplyOwnerMenu({
         ref={trigger}
         type="button"
         onClick={() => setOpen(!open)}
-        className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
+        className={postActionClassName}
         title={text('Mais opções', 'More options')}
         aria-label={text('Mais opções da resposta', 'More reply options')}
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <MoreHorizontal className="h-[18px] w-[18px]" aria-hidden="true" />
+        <MoreHorizontal aria-hidden="true" />
       </button>
       {open && (
         <div
