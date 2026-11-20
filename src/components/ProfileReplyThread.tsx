@@ -290,7 +290,9 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
               <code>{reply.code_snippet}</code>
             </pre>
           )}
-          <div className="mt-4 border-t border-dd-border pt-2">
+          {/* The divider bleeds past the avatar gutter (padding + 32px avatar + 12px gap)
+              to the card edges, like the post page; the padding keeps the icons aligned. */}
+          <div className="mt-4 -ml-14 -mr-3 border-t border-dd-border pl-14 pr-3 pt-2 sm:-ml-[60px] sm:-mr-4 sm:pl-[60px] sm:pr-4 lg:-ml-16 lg:-mr-5 lg:pl-16 lg:pr-5">
             <PostActionsBar>
               <Link
                 href={href}
