@@ -29,7 +29,6 @@ import { openPostComposer } from '@/components/composer/PostComposerDialog';
 import { cn } from '@/lib/cn';
 import { getCurrentUser } from '@/lib/client/current-user';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
-import { useSearchWithDebounce } from '@/hooks/useSearchWithDebounce';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import { Language } from '@prisma/client';
 import {
@@ -45,7 +44,6 @@ import {
   BookOpen,
   Calendar,
   X,
-  Search,
   Flag,
   Heart,
   BarChart2,
@@ -117,24 +115,7 @@ async function fetchWithSingleRetry(url: string, init: RequestInit) {
   }
 }
 
-function highlightMatches(text: string, query: string) {
-  if (!query.trim()) return text;
-  const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-  const parts = text.split(new RegExp(`(${escaped})`, 'ig'));
-  return parts.map((part, index) => {
-    if (part.toLowerCase() === query.toLowerCase()) {
-      return (
-        <mark key={`${part}-${index}`} className="dd-search-highlight text-inherit">
-          {part}
-        </mark>
-      );
-    }
-    return <span key={`${part}-${index}`}>{part}</span>;
-  });
-}
-
 interface FeedContentProps {
-  initialSearchQuery?: string;
   initialPreferences?: OnboardingPreferences;
   initialCurrentDate: string;
   initialUser: {
@@ -218,7 +199,6 @@ function getInitialCursor(items: any[]) {
 }
 
 export function FeedContent({
-  initialSearchQuery = '',
   initialPreferences,
   initialCurrentDate,
   initialUser,
@@ -270,7 +250,7 @@ export function FeedContent({
     initialNextCursor === undefined ? initialPosts.length >= 10 : initialNextCursor !== null
   );
   const [loadingMore, setLoadingMore] = useState(false);
-  const [loadingSearch, setLoadingSearch] = useState(false);
+  const [loadingFeed, setLoadingFeed] = useState(false);
   const [refreshingPosts, setRefreshingPosts] = useState(false);
   const refreshRequestRef = useRef<AbortController | null>(null);
   const pageRequestRef = useRef<AbortController | null>(null);
@@ -278,9 +258,6 @@ export function FeedContent({
   const feedGenerationRef = useRef(0);
   const initialSnapshotRef = useRef(initialPosts);
   const [newPostsCount, setNewPostsCount] = useState(0);
-  const FEED_PAGE_SIZE = 10;
-  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
-  useEffect(() => setSearchQuery(initialSearchQuery), [initialSearchQuery]);
   const [bookmarkedPostIds, setBookmarkedPostIds] =
     useState<Record<string, boolean>>(initialBookmarks);
   const [repostState, setRepostState] = useState<
@@ -383,7 +360,7 @@ export function FeedContent({
     }
   };
 
-  // One first-page request owns the current search/filter. Old requests cannot
+  // One first-page request owns the current feed filter. Old requests cannot
   // overwrite a refresh or a newly selected feed after they finish out of order.
   useEffect(() => {
     const generation = ++feedGenerationRef.current;
@@ -398,12 +375,7 @@ export function FeedContent({
     setFeedError(null);
     const firstMount = !didMountFilterEffectRef.current;
     didMountFilterEffectRef.current = true;
-    const query = searchQuery.trim();
-    if (firstMount && !query) return;
-    if (query && query.length < 2) {
-      setLoadingSearch(false);
-      return;
-    }
+    if (firstMount) return;
 
     const controller = new AbortController();
     filterRequestRef.current = controller;
@@ -419,67 +391,47 @@ export function FeedContent({
       setNextCursor(data.nextCursor || null);
       setHasMore(Boolean(data.nextCursor));
     };
-    const pageUrl = query
-      ? `/api/search?q=${encodeURIComponent(query)}&type=posts&limit=${FEED_PAGE_SIZE}`
-      : feedFirstPageUrl(feedFilter, followingSort, feedLanguages, feedRequestSuffix);
+    const pageUrl = feedFirstPageUrl(feedFilter, followingSort, feedLanguages, feedRequestSuffix);
     // Switching back to a filter shows its last page at once; stale pages refresh quietly.
     // A new server snapshot (router.refresh) always asks the server again.
     const serverRefreshed = filterSnapshotRef.current !== initialPosts;
     filterSnapshotRef.current = initialPosts;
-    const cached = query || serverRefreshed ? null : readCachedPage<FeedPage>(pageUrl);
+    const cached = serverRefreshed ? null : readCachedPage<FeedPage>(pageUrl);
     if (cached) {
       applyPage(cached.data);
-      setLoadingSearch(false);
+      setLoadingFeed(false);
       if (cached.age < PAGE_CACHE_FRESH_MS) {
         if (filterRequestRef.current === controller) filterRequestRef.current = null;
         return () => controller.abort();
       }
     } else {
-      setLoadingSearch(true);
+      setLoadingFeed(true);
     }
-    const timer = window.setTimeout(
-      async () => {
-        if (controller.signal.aborted) return;
-        try {
-          let data: FeedPage;
-          if (query) {
-            const response = await fetch(pageUrl, { signal: controller.signal, cache: 'no-store' });
-            if (!response.ok) throw new Error('Feed unavailable');
-            data = await response.json();
-          } else {
-            data = await fetchPage<FeedPage>(pageUrl);
-          }
-          if (controller.signal.aborted || generation !== feedGenerationRef.current) return;
-          applyPage(data);
-        } catch {
-          if (controller.signal.aborted || generation !== feedGenerationRef.current) return;
-          if (cached) return;
-          setFeedError(
-            text(
-              'Não foi possível atualizar as publicações. Tente novamente.',
-              'Could not update posts. Try again.'
-            )
-          );
-        } finally {
-          if (generation === feedGenerationRef.current) setLoadingSearch(false);
-          if (filterRequestRef.current === controller) filterRequestRef.current = null;
-        }
-      },
-      query ? 300 : 0
-    );
+    const timer = window.setTimeout(async () => {
+      if (controller.signal.aborted) return;
+      try {
+        const data = await fetchPage<FeedPage>(pageUrl);
+        if (controller.signal.aborted || generation !== feedGenerationRef.current) return;
+        applyPage(data);
+      } catch {
+        if (controller.signal.aborted || generation !== feedGenerationRef.current) return;
+        if (cached) return;
+        setFeedError(
+          text(
+            'Não foi possível atualizar as publicações. Tente novamente.',
+            'Could not update posts. Try again.'
+          )
+        );
+      } finally {
+        if (generation === feedGenerationRef.current) setLoadingFeed(false);
+        if (filterRequestRef.current === controller) filterRequestRef.current = null;
+      }
+    }, 0);
     return () => {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [
-    feedFilter,
-    followingSort,
-    searchQuery,
-    feedLanguages,
-    text,
-    initialPosts,
-    feedRequestSuffix,
-  ]);
+  }, [feedFilter, followingSort, feedLanguages, text, initialPosts, feedRequestSuffix]);
 
   // Next router.refresh keeps Client Component state. Adopt a new server snapshot
   // rather than leaving the old useState(initialPosts) list on screen forever.
@@ -487,7 +439,6 @@ export function FeedContent({
     if (initialSnapshotRef.current === initialPosts) return;
     initialSnapshotRef.current = initialPosts;
     if (
-      searchQuery.trim() ||
       activeFeedId !== getFeedSettings(initialPreferences).defaultFeedId ||
       feedRevision > 0 ||
       (feedFilter === 'following' && followingSort === 'popular') ||
@@ -503,7 +454,7 @@ export function FeedContent({
     refreshRequestRef.current = null;
     setRefreshingPosts(false);
     setLoadingMore(false);
-    setLoadingSearch(false);
+    setLoadingFeed(false);
     setPosts(initialPosts);
     const cursor =
       initialNextCursor === undefined ? getInitialCursor(initialPosts) : initialNextCursor;
@@ -518,7 +469,6 @@ export function FeedContent({
     initialBookmarks,
     initialPreferences,
     followingSort,
-    searchQuery,
     feedFilter,
     feedLanguages,
     activeFeedId,
@@ -526,23 +476,18 @@ export function FeedContent({
   ]);
 
   const loadMorePosts = useCallback(async () => {
-    if (loadingMore || !hasMore || pageRequestRef.current || refreshingPosts || loadingSearch)
-      return;
+    if (loadingMore || !hasMore || pageRequestRef.current || refreshingPosts || loadingFeed) return;
     const controller = new AbortController();
     const generation = feedGenerationRef.current;
     pageRequestRef.current = controller;
     setLoadingMore(true);
     try {
-      let url = '';
-      if (searchQuery.trim()) {
-        url = `/api/search?q=${encodeURIComponent(searchQuery)}&type=posts&limit=${FEED_PAGE_SIZE}${nextCursor ? `&cursor=${nextCursor}` : ''}`;
-      } else {
-        url =
-          feedFilter === 'following'
-            ? `/api/posts?filter=following&sort=${followingSort}&useCursor=true&limit=${FEED_PAGE_SIZE}${nextCursor ? `&cursor=${nextCursor}` : ''}`
-            : `/api/posts?useCursor=true&limit=${FEED_PAGE_SIZE}${nextCursor ? `&cursor=${nextCursor}` : ''}${feedLanguages ? `&languages=${encodeURIComponent(feedLanguages)}` : ''}`;
-      }
-      const res = await fetch(searchQuery.trim() ? url : url + feedRequestSuffix, {
+      const cursorQuery = nextCursor ? `&cursor=${encodeURIComponent(nextCursor)}` : '';
+      const url =
+        feedFilter === 'following'
+          ? `/api/posts?filter=following&sort=${followingSort}&useCursor=true&limit=10${cursorQuery}`
+          : `/api/posts?useCursor=true&limit=10${cursorQuery}${feedLanguages ? `&languages=${encodeURIComponent(feedLanguages)}` : ''}`;
+      const res = await fetch(url + feedRequestSuffix, {
         cache: 'no-store',
         signal: controller.signal,
       });
@@ -573,13 +518,12 @@ export function FeedContent({
   }, [
     loadingMore,
     hasMore,
-    searchQuery,
     nextCursor,
     feedFilter,
     followingSort,
     feedLanguages,
     refreshingPosts,
-    loadingSearch,
+    loadingFeed,
     feedRequestSuffix,
   ]);
 
@@ -605,15 +549,15 @@ export function FeedContent({
   // Keep the cached first page of the visible filter in step with what is on screen
   // (new, edited and deleted posts), so returning to it never shows stale content.
   useEffect(() => {
-    if (activeTab !== 'feed' || searchQuery.trim() || loadingSearch || refreshingPosts) return;
+    if (activeTab !== 'feed' || loadingFeed || refreshingPosts) return;
     const settled = posts.filter((post) => !post._pending && !String(post.id).startsWith('temp-'));
     upsertCachedPage(firstPageUrl(), { items: settled, nextCursor });
-  }, [posts, nextCursor, activeTab, searchQuery, loadingSearch, refreshingPosts, firstPageUrl]);
+  }, [posts, nextCursor, activeTab, loadingFeed, refreshingPosts, firstPageUrl]);
 
   // Warm the other feeds after the first paint so switching between them is instant.
   // Custom feeds carry their own id in the URL, so each one is prefetched with its id.
   useEffect(() => {
-    if (activeTab !== 'feed' || searchQuery.trim()) return;
+    if (activeTab !== 'feed') return;
     return whenIdle(() => {
       if (feedSettings?.feeds?.length) {
         feedSettings.feeds
@@ -635,7 +579,6 @@ export function FeedContent({
     }, 2000);
   }, [
     activeTab,
-    searchQuery,
     feedFilter,
     followingSort,
     feedLanguages,
@@ -646,7 +589,7 @@ export function FeedContent({
   ]);
 
   useEffect(() => {
-    if (activeTab !== 'feed' || searchQuery.trim()) return;
+    if (activeTab !== 'feed') return;
 
     const controller = new AbortController();
     let checking = false;
@@ -696,20 +639,19 @@ export function FeedContent({
     activeTab,
     feedFilter,
     newestVisiblePostTimestamp,
-    searchQuery,
     feedLanguages,
     initialCurrentDate,
     feedRequestSuffix,
   ]);
 
   const handleLoadNewPosts = useCallback(async () => {
-    if (refreshRequestRef.current || activeTab !== 'feed' || searchQuery.trim()) return;
+    if (refreshRequestRef.current || activeTab !== 'feed') return;
     const generation = ++feedGenerationRef.current;
     pageRequestRef.current?.abort();
     pageRequestRef.current = null;
     filterRequestRef.current?.abort();
     setLoadingMore(false);
-    setLoadingSearch(false);
+    setLoadingFeed(false);
 
     const controller = new AbortController();
     refreshRequestRef.current = controller;
@@ -762,7 +704,7 @@ export function FeedContent({
       if (refreshRequestRef.current === controller) refreshRequestRef.current = null;
       if (generation === feedGenerationRef.current) setRefreshingPosts(false);
     }
-  }, [firstPageUrl, text, activeTab, searchQuery]);
+  }, [firstPageUrl, text, activeTab]);
 
   useEffect(() => {
     const refreshAfterPublishing = () => void handleLoadNewPosts();
@@ -1068,12 +1010,6 @@ export function FeedContent({
     }
   }, [currentXp, currentLevel]);
 
-  useEffect(() => {
-    if (!searchQuery.trim()) {
-      setFeedError(null);
-    }
-  }, [searchQuery]);
-
   const handleReactionSelect = async (postId: string, reaction?: string | null) => {
     const hasUpvote = votes[postId]?.userVote === 'up';
 
@@ -1221,7 +1157,7 @@ export function FeedContent({
       <NewPostsPill
         count={newPostsCount}
         onClick={handleLoadNewPosts}
-        visible={activeTab === 'feed' && !searchQuery.trim()}
+        visible={activeTab === 'feed'}
         loading={refreshingPosts}
       />
       {/* XP Toast Notification */}
@@ -1263,7 +1199,7 @@ export function FeedContent({
         >
           <MobilePullToRefresh
             refreshing={refreshingPosts}
-            disabled={loadingSearch || activeTab !== 'feed' || !!searchQuery.trim()}
+            disabled={loadingFeed || activeTab !== 'feed'}
             onRefresh={handleLoadNewPosts}
           >
             <FeedControls
@@ -1322,19 +1258,11 @@ export function FeedContent({
                 )}
 
                 <div className="flex flex-col">
-                  {searchQuery.trim().length === 1 ? (
-                    <p className="px-6 py-12 text-center text-sm text-dd-muted" role="status">
-                      {text(
-                        'Digite pelo menos 2 caracteres para buscar.',
-                        'Enter at least 2 characters to search.'
-                      )}
-                    </p>
-                  ) : loadingSearch ? (
+                  {loadingFeed ? (
                     <PostSkeletonList count={3} variant="feed" />
                   ) : posts.length === 0 ? (
                     <EmptyState
-                      type={searchQuery.trim() ? 'search' : 'feed'}
-                      searchTerm={searchQuery}
+                      type="feed"
                       className="bg-transparent border-0 rounded-none py-12 px-6"
                     />
                   ) : (
@@ -1380,9 +1308,7 @@ export function FeedContent({
                       label={text('Carregando mais publicações', 'Loading more posts')}
                     />
                   )}
-                  {!searchQuery.trim() && hasMore && (
-                    <div ref={scrollSentinelRef} className="h-1" aria-hidden />
-                  )}
+                  {hasMore && <div ref={scrollSentinelRef} className="h-1" aria-hidden />}
                 </div>
               </>
             )}
@@ -1670,9 +1596,6 @@ export function FeedContent({
         {/* ========================================================================= */}
         <FeedRightSidebar
           user={initialUser}
-          searchQuery={searchQuery}
-          onSearchChange={setSearchQuery}
-          loadingSearch={loadingSearch}
           weeklyActivity={weeklyActivity}
           currentDate={currentWeekDate}
         />

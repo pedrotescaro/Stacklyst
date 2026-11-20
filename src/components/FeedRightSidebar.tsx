@@ -3,13 +3,15 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Search, BookOpen, ChevronRight } from 'lucide-react';
+import { BookOpen, ChevronRight } from 'lucide-react';
 import { FeedEngagementCard } from '@/app/feed/FeedEngagementCard';
 import { WhoToFollow } from '@/components/WhoToFollow';
 import { LanguageTrailBar } from '@/components/LanguageTrailBar';
+import { ExploreSearchField } from '@/components/ExploreSearchField';
 import { calculateLevel } from '@/lib/learning/rewards';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { exploreSearchUrl } from '@/lib/explore-search';
 import styles from './FeedStudies.module.css';
 
 function hasStartedTrail(trail: any) {
@@ -18,9 +20,6 @@ function hasStartedTrail(trail: any) {
 
 interface FeedRightSidebarProps {
   user?: any;
-  searchQuery?: string;
-  onSearchChange?: (query: string) => void;
-  loadingSearch?: boolean;
   weeklyActivity?: Map<number, number>;
   currentDate?: string;
   className?: string;
@@ -32,9 +31,6 @@ interface FeedRightSidebarProps {
 
 export function FeedRightSidebar({
   user,
-  searchQuery: externalSearchQuery,
-  onSearchChange,
-  loadingSearch = false,
   weeklyActivity: externalWeeklyActivity,
   currentDate: externalCurrentDate,
   className,
@@ -43,14 +39,11 @@ export function FeedRightSidebar({
 }: FeedRightSidebarProps) {
   const router = useRouter();
   const { text } = useLocalizedText();
-  const [internalSearchQuery, setInternalSearchQuery] = useState('');
+  const [searchInput, setSearchInput] = useState('');
   const [internalWeeklyActivity, setInternalWeeklyActivity] = useState<Map<number, number>>(
     new Map()
   );
   const [internalCurrentDate, setInternalCurrentDate] = useState<string | null>(null);
-
-  const isControlledSearch = externalSearchQuery !== undefined && onSearchChange !== undefined;
-  const currentSearchQuery = isControlledSearch ? externalSearchQuery : internalSearchQuery;
 
   // Weekly activity state
   const weeklyActivity = externalWeeklyActivity ?? internalWeeklyActivity;
@@ -88,20 +81,6 @@ export function FeedRightSidebar({
     };
   }, [externalWeeklyActivity]);
 
-  const handleSearchChange = (val: string) => {
-    if (isControlledSearch) {
-      onSearchChange(val);
-    } else {
-      setInternalSearchQuery(val);
-    }
-  };
-
-  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && !isControlledSearch && internalSearchQuery.trim()) {
-      router.push(`/explore?q=${encodeURIComponent(internalSearchQuery.trim())}`);
-    }
-  };
-
   const startedTrails = (user?.trails ?? []).filter(hasStartedTrail);
   const currentStreak = user?.streak_days ?? user?.streak ?? 0;
   const currentLastActiveAt = user?.last_active_at ?? user?.lastActiveAt ?? null;
@@ -114,30 +93,17 @@ export function FeedRightSidebar({
         className
       )}
     >
-      {/* Search Bar */}
-      <div className={cn('relative w-full', hideSearch && 'hidden')}>
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search className="h-4 w-4 text-dd-muted" />
-        </div>
-        <input
-          type="text"
-          placeholder={text('Buscar', 'Search')}
-          aria-label={text('Buscar', 'Search')}
-          value={currentSearchQuery}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          onKeyDown={handleSearchKeyDown}
-          className="w-full pl-11 pr-4 py-2.5 bg-dd-search-bg hover:bg-dd-search-bg/80 focus:bg-dd-bg border border-dd-search-border focus:border-blue-500/50 text-sm rounded-full text-dd-text placeholder-dd-muted focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-all duration-200"
-        />
-      </div>
-      {!hideSearch && currentSearchQuery.trim() && (
-        <div className="rounded-xl border border-dd-border bg-dd-surface/70 p-3 text-xs text-dd-muted">
-          {loadingSearch
-            ? text('Filtrando o feed em tempo real...', 'Filtering the feed in real time...')
-            : text(
-                `Termo ativo: "${currentSearchQuery}".`,
-                `Active search: "${currentSearchQuery}".`
-              )}
-        </div>
+      {!hideSearch && (
+        <form
+          action="/explore"
+          role="search"
+          onSubmit={(event) => {
+            event.preventDefault();
+            if (searchInput.trim()) router.push(exploreSearchUrl(searchInput));
+          }}
+        >
+          <ExploreSearchField value={searchInput} onChange={setSearchInput} compact />
+        </form>
       )}
 
       {user && (

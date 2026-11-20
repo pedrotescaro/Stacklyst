@@ -1,5 +1,6 @@
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { cleanup, render, screen, within } from '@testing-library/react';
 import { renderToString } from 'react-dom/server';
+import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { FeedRightSidebar } from '@/components/FeedRightSidebar';
 import { ProfileRightRail } from './ProfileRightRail';
@@ -98,11 +99,21 @@ describe('Profile personal rail recommendations', () => {
 });
 
 describe('Rail search from another page', () => {
-  it('opens Explore with the entered query', () => {
+  it('waits for submission and opens Explore with the entered query', async () => {
     render(<FeedRightSidebar weeklyActivity={new Map()} />);
-    const input = screen.getByRole('textbox', { name: 'Buscar' });
-    fireEvent.change(input, { target: { value: '  typescript e react  ' } });
-    fireEvent.keyDown(input, { key: 'Enter' });
-    expect(push).toHaveBeenCalledWith('/explore?q=typescript%20e%20react');
+    const user = userEvent.setup();
+    const input = screen.getByRole('searchbox', { name: 'Pesquisar posts e pessoas' });
+    await user.type(input, '  tipos & react  ');
+    expect(push).not.toHaveBeenCalled();
+    await user.keyboard('{Enter}');
+    expect(push).toHaveBeenCalledWith('/explore?q=tipos+%26+react');
+  });
+
+  it('opens the People tab for a handle typed in the compact field', async () => {
+    render(<FeedRightSidebar weeklyActivity={new Map()} />);
+    const user = userEvent.setup();
+    await user.type(screen.getByRole('searchbox'), '@marina');
+    await user.click(screen.getByRole('button', { name: 'Pesquisar' }));
+    expect(push).toHaveBeenCalledWith('/explore?q=%40marina&tab=people');
   });
 });

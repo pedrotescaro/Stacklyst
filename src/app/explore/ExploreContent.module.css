@@ -31,50 +31,6 @@
 .back:hover {
   background: var(--color-dd-surface);
 }
-.search {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  flex: 1;
-  min-width: 0;
-  height: 52px;
-  padding: 0 16px 0 20px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  background: var(--color-dd-surface);
-  color: var(--color-dd-muted);
-  transition: border-color 150ms ease;
-}
-.search:focus-within {
-  border-color: color-mix(in srgb, var(--color-dd-accent) 60%, transparent);
-}
-.search input {
-  flex: 1;
-  min-width: 0;
-  background: transparent;
-  color: var(--color-dd-text);
-  font-size: 17px;
-  outline: none;
-}
-.search input::placeholder {
-  color: var(--color-dd-muted);
-}
-.search input::-webkit-search-cancel-button {
-  display: none;
-}
-.clear {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 28px;
-  height: 28px;
-  border-radius: 999px;
-  background: var(--color-dd-accent);
-  color: #fff;
-  cursor: pointer;
-}
-
 /* Postagens / Pessoas */
 .tabs {
   display: flex;
@@ -107,7 +63,6 @@
   background: var(--color-dd-accent);
 }
 .back:focus-visible,
-.clear:focus-visible,
 .tab:focus-visible,
 .chip:focus-visible,
 .identity:focus-visible,
@@ -327,7 +282,6 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .search,
   .chip {
     transition: none;
   }

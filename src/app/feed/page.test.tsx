@@ -1,5 +1,12 @@
 import { describe, expect, it, vi } from 'vitest';
+import { PostService } from '@/services/post.service';
 
+const redirect = vi.hoisted(() =>
+  vi.fn(() => {
+    throw new Error('NEXT_REDIRECT');
+  })
+);
+vi.mock('next/navigation', () => ({ redirect }));
 vi.mock('@/lib/auth', () => ({
   getAuthUser: vi.fn(async () => ({
     id: 'viewer',
@@ -29,12 +36,15 @@ vi.mock('./FeedContent', () => ({ FeedContent: () => null }));
 import FeedPage from './page';
 
 describe('Feed search URL', () => {
-  it('passes the query from the URL into the interactive feed', async () => {
-    const page = await FeedPage({ searchParams: Promise.resolve({ q: '  react  ' }) });
-    expect(page.props.initialSearchQuery).toBe('react');
+  it('redirects older search links to Explore before loading the timeline', async () => {
+    await expect(
+      FeedPage({ searchParams: Promise.resolve({ q: '  #react hooks  ' }) })
+    ).rejects.toThrow('NEXT_REDIRECT');
+    expect(redirect).toHaveBeenCalledWith('/explore?q=%23react+hooks');
+    expect(PostService.getFeed).not.toHaveBeenCalled();
   });
   it('ignores repeated query parameters', async () => {
     const page = await FeedPage({ searchParams: Promise.resolve({ q: ['one', 'two'] }) });
-    expect(page.props.initialSearchQuery).toBe('');
+    expect(page.props.initialPosts).toEqual([]);
   });
 });

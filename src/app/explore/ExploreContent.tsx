@@ -2,8 +2,9 @@
 
 import { useCallback, useEffect, useRef, useState, type ComponentProps } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Hash, Search, X } from 'lucide-react';
+import { ArrowLeft, Hash, Search } from 'lucide-react';
 import { PlatformPageShell } from '@/components/PlatformPageShell';
+import { ExploreSearchField } from '@/components/ExploreSearchField';
 import { PostCard } from '@/components/PostCard';
 import { PostSkeletonList } from '@/components/motion/PostSkeleton';
 import { FollowButton } from '@/components/motion/FollowButton';
@@ -13,9 +14,9 @@ import { WhoToFollow } from '@/components/WhoToFollow';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import type { FollowProfileIdentity } from '@/lib/follow-recommendations';
 import { cn } from '@/lib/cn';
+import { exploreSearchUrl, type ExploreTab } from '@/lib/explore-search';
 import styles from './ExploreContent.module.css';
 
-type ExploreTab = 'posts' | 'people';
 type ExplorePost = ComponentProps<typeof PostCard>['post'];
 type ShellUser = NonNullable<ComponentProps<typeof PlatformPageShell>['user']>;
 
@@ -40,13 +41,6 @@ interface Page<T> {
 
 const MIN_QUERY_LENGTH = 2;
 const SEARCH_DEBOUNCE_MS = 300;
-
-function exploreUrl(query: string, tab: ExploreTab) {
-  if (!query) return '/explore';
-  const params = new URLSearchParams({ q: query });
-  if (tab === 'people') params.set('tab', 'people');
-  return `/explore?${params}`;
-}
 
 export function ExploreContent({
   user,
@@ -80,13 +74,14 @@ export function ExploreContent({
 
   useEffect(() => {
     // The native history API keeps the URL shareable without a server round-trip per search.
-    const next = exploreUrl(query, tab);
+    const next = exploreSearchUrl(query, tab);
     if (`${window.location.pathname}${window.location.search}` !== next) {
       window.history.replaceState(null, '', next);
     }
   }, [query, tab]);
 
   const searching = query.length > 0;
+  const resultQuery = tab === 'people' ? query.replace(/^@/, '') : query;
 
   const openQuery = (value: string) => {
     setInput(value);
@@ -127,35 +122,12 @@ export function ExploreContent({
               <ArrowLeft size={22} aria-hidden="true" />
             </button>
           )}
-          <label className={styles.search}>
-            <Search size={20} aria-hidden="true" />
-            <input
-              ref={inputRef}
-              type="search"
-              value={input}
-              maxLength={100}
-              enterKeyHint="search"
-              placeholder={text('Pesquisar', 'Search')}
-              aria-label={text('Pesquisar posts e pessoas', 'Search posts and people')}
-              onChange={(event) => setInput(event.target.value)}
-              onKeyDown={(event) => {
-                if (event.key === 'Escape' && input) {
-                  event.preventDefault();
-                  clearSearch();
-                }
-              }}
-            />
-            {input && (
-              <button
-                type="button"
-                className={styles.clear}
-                onClick={clearSearch}
-                aria-label={text('Limpar pesquisa', 'Clear search')}
-              >
-                <X size={16} aria-hidden="true" />
-              </button>
-            )}
-          </label>
+          <ExploreSearchField
+            inputRef={inputRef}
+            value={input}
+            onChange={setInput}
+            onClear={clearSearch}
+          />
         </form>
 
         {searching && (
@@ -185,7 +157,7 @@ export function ExploreContent({
 
       {searching ? (
         <div id="explore-results" role="tabpanel" aria-labelledby={`explore-tab-${tab}`}>
-          {query.length < MIN_QUERY_LENGTH ? (
+          {resultQuery.length < MIN_QUERY_LENGTH ? (
             <EmptyMessage
               title={text('Continue digitando', 'Keep typing')}
               body={text(
@@ -196,7 +168,7 @@ export function ExploreContent({
           ) : tab === 'posts' ? (
             <PostResults key={query} query={query} viewerUsername={user.username} />
           ) : (
-            <PeopleResults key={query} query={query} viewerId={user.id} />
+            <PeopleResults key={resultQuery} query={resultQuery} viewerId={user.id} />
           )}
         </div>
       ) : (

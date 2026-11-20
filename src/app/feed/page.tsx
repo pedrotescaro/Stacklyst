@@ -4,6 +4,7 @@ import { prisma } from '@/lib/prisma';
 import { PostService } from '@/services/post.service';
 import { FeedContent } from './FeedContent';
 import { ONBOARDING_STATE_KEY, parseOnboarding } from '@/lib/onboarding';
+import { exploreSearchUrl } from '@/lib/explore-search';
 
 export const revalidate = 0;
 
@@ -24,7 +25,7 @@ export default async function FeedPage({
   const preferences = parseOnboarding(state?.value);
   if (!preferences) redirect('/onboarding');
   const { q } = await searchParams;
-  const initialSearchQuery = typeof q === 'string' ? q.trim().slice(0, 200) : '';
+  if (typeof q === 'string' && q.trim()) redirect(exploreSearchUrl(q));
 
   // Só o conteúdo essencial bloqueia o primeiro paint. Duelos e atividade semanal
   // são carregados no cliente depois que o feed já está utilizável.
@@ -57,7 +58,6 @@ export default async function FeedPage({
 
   return (
     <FeedContent
-      initialSearchQuery={initialSearchQuery}
       initialPreferences={preferences}
       initialCurrentDate={feedStartedAt}
       initialUser={{

@@ -1,0 +1,99 @@
+.field {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+  height: 52px;
+  padding: 0 16px 0 20px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--color-dd-surface);
+  color: var(--color-dd-muted);
+  transition: border-color 150ms ease;
+}
+
+.field:focus-within {
+  border-color: color-mix(in srgb, var(--color-dd-accent) 60%, transparent);
+}
+
+.field input {
+  flex: 1;
+  min-width: 0;
+  align-self: stretch;
+  background: transparent;
+  color: var(--color-dd-text);
+  font-size: 17px;
+  outline: none;
+}
+
+.field input::placeholder {
+  color: var(--color-dd-muted);
+}
+
+.field input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.submit,
+.clear {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  border-radius: 999px;
+  cursor: pointer;
+}
+
+.submit {
+  width: 32px;
+  height: 36px;
+  margin-inline: -6px;
+}
+
+.submit svg {
+  width: 20px;
+  height: 20px;
+}
+
+.submit:hover {
+  color: var(--color-dd-text);
+}
+
+.clear {
+  width: 28px;
+  height: 28px;
+  background: var(--color-dd-accent);
+  color: #fff;
+}
+
+.submit:focus-visible,
+.clear:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 2px;
+}
+
+.field[data-compact] {
+  gap: 12px;
+  height: 42px;
+  padding-inline: 16px 12px;
+}
+
+.field[data-compact] input {
+  font-size: 14px;
+}
+
+.field[data-compact] .submit {
+  width: 28px;
+  height: 32px;
+}
+
+.field[data-compact] .submit svg {
+  width: 16px;
+  height: 16px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field {
+    transition: none;
+  }
+}

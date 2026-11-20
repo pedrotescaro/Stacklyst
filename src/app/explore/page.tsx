@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getAuthUser } from '@/lib/auth';
+import { EXPLORE_QUERY_MAX_LENGTH, type ExploreTab } from '@/lib/explore-search';
 import { ExploreContent } from './ExploreContent';
 
 export const revalidate = 0;
@@ -13,11 +14,13 @@ export default async function ExplorePage({
   if (!user) redirect('/login?reason=session_expired');
 
   const { q, tab } = await searchParams;
-  const initialQuery = typeof q === 'string' ? q.trim().slice(0, 100) : '';
-  const initialTab = tab === 'people' ? 'people' : 'posts';
+  const initialQuery = typeof q === 'string' ? q.trim().slice(0, EXPLORE_QUERY_MAX_LENGTH) : '';
+  const initialTab: ExploreTab =
+    tab === 'people' || (tab !== 'posts' && initialQuery.startsWith('@')) ? 'people' : 'posts';
 
   return (
     <ExploreContent
+      key={`${initialTab}:${initialQuery}`}
       initialQuery={initialQuery}
       initialTab={initialTab}
       user={{
