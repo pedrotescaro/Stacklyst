@@ -54,7 +54,9 @@
 .minimizedRing {
   position: relative;
   overflow: hidden;
-  transition: transform 180ms ease, box-shadow 180ms ease;
+  transition:
+    transform 180ms ease,
+    box-shadow 180ms ease;
 }
 
 .minimizedRing:hover {
@@ -73,7 +75,8 @@
 }
 
 @keyframes pulseBorder {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 0.3;
     transform: scale(1);
   }
@@ -107,4 +110,10 @@
     animation: none !important;
     transition: none !important;
   }
+}
+
+/* Phone now-playing bar: 8px above the bottom navigation, which is 45px of
+   content plus max(10px, home-indicator inset). */
+.mobileBar {
+  bottom: calc(3.3125rem + max(0.625rem, env(safe-area-inset-bottom)));
 }

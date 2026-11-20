@@ -36,9 +36,9 @@ function useIsMobile() {
 function ProgressLine() {
   const { progress } = useMusicPlayer();
   return (
-    <div className="absolute inset-x-3 bottom-0 h-[2px] overflow-hidden rounded-full bg-white/10">
+    <div className="absolute inset-x-0 bottom-0 h-[3px] bg-white/15" aria-hidden="true">
       <div
-        className="h-full rounded-full bg-white transition-[width] duration-700 ease-linear"
+        className="h-full bg-white transition-[width] duration-700 ease-linear"
         style={{ width: `${progress}%` }}
       />
     </div>
@@ -170,75 +170,98 @@ export function FloatingMiniPlayer() {
   // MOBILE — docked now-playing bar above the bottom navigation
   // ==========================================
   if (isMobile) {
+    const controlClass =
+      'flex h-11 w-11 shrink-0 items-center justify-center rounded-full transition-colors active:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-white';
     return (
       <aside
         aria-label="Mini player de música"
         data-testid="floating-mini-player"
         data-layout="mobile"
-        className={`${styles.playerContainer} ${styles.slideIn} inset-x-2 bottom-[calc(4.5rem+env(safe-area-inset-bottom))] overflow-hidden rounded-2xl border border-white/10 bg-[#1e1e1e]/95 text-white shadow-[0_10px_30px_rgba(0,0,0,0.6)] backdrop-blur-md`}
+        className={`${styles.playerContainer} ${styles.slideIn} ${styles.mobileBar} inset-x-2 overflow-hidden rounded-xl border border-white/[0.08] bg-[#181818] text-white shadow-[0_8px_24px_rgba(0,0,0,0.5)]`}
       >
         <span role="status" className="sr-only">
           {statusText}
         </span>
-        <div className="relative flex items-center gap-3 py-2 pl-2 pr-1">
-          <div className="h-11 w-11 shrink-0 overflow-hidden rounded-lg bg-neutral-800">
-            {currentTrack.artworkUrl ? (
-              <img
-                src={currentTrack.artworkUrl}
-                alt=""
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
-            ) : (
-              <div className="flex h-full w-full items-center justify-center text-neutral-500">
-                <Music2 size={20} />
-              </div>
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold leading-tight">{currentTrack.title}</p>
-            <p
-              className={`mt-0.5 truncate text-xs leading-tight ${error ? 'text-red-300' : 'text-neutral-400'}`}
-            >
-              {error ? statusText : isBuffering ? 'Carregando…' : currentTrack.artist}
-            </p>
-          </div>
+        <div className="flex items-center gap-1 py-1.5 pl-1.5 pr-1">
+          {/* Tapping the track opens it in Spotify, like the desktop card's shortcut. */}
+          <a
+            href={spotifyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={`Abrir ${currentTrack.title} no Spotify`}
+            className="flex min-w-0 flex-1 items-center gap-3 rounded-lg p-0.5 pr-2 active:bg-white/5 focus-visible:outline-2 focus-visible:outline-white"
+          >
+            <span className="h-11 w-11 shrink-0 overflow-hidden rounded-md bg-neutral-800">
+              {currentTrack.artworkUrl ? (
+                <img
+                  src={currentTrack.artworkUrl}
+                  alt=""
+                  className="h-full w-full object-cover"
+                  loading="lazy"
+                />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-neutral-500">
+                  <Music2 size={20} />
+                </span>
+              )}
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block truncate text-[14px] font-semibold leading-tight">
+                {currentTrack.title}
+              </span>
+              <span
+                className={`mt-1 flex min-w-0 items-center gap-1.5 text-xs leading-tight ${error ? 'text-red-300' : 'text-neutral-400'}`}
+              >
+                {!error && !isBuffering && (
+                  <span className={styles.equalizer} data-playing={isPlaying} aria-hidden="true">
+                    <span className={styles.bar} />
+                    <span className={styles.bar} />
+                    <span className={styles.bar} />
+                  </span>
+                )}
+                <span className="truncate">
+                  {error ? statusText : isBuffering ? 'Carregando…' : currentTrack.artist}
+                </span>
+              </span>
+            </span>
+          </a>
           <button
             type="button"
             onClick={togglePlay}
             aria-label={playLabel}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white text-black transition-transform active:scale-90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            className={`${controlClass} text-white`}
           >
             {isBuffering ? (
-              <LoaderCircle size={18} className="motion-safe:animate-spin" aria-hidden="true" />
+              <LoaderCircle size={22} className="motion-safe:animate-spin" aria-hidden="true" />
             ) : isPlaying ? (
-              <Pause size={18} className="fill-black text-black" />
+              <Pause size={24} className="fill-current" aria-hidden="true" />
             ) : (
-              <Play size={18} className="ml-0.5 fill-black text-black" />
+              <Play size={24} className="ml-0.5 fill-current" aria-hidden="true" />
             )}
           </button>
           <button
             type="button"
             onClick={minimize}
             aria-label="Minimizar player"
-            className="flex h-10 w-9 shrink-0 items-center justify-center rounded-full text-neutral-400 active:bg-white/10 focus-visible:outline-2 focus-visible:outline-white"
+            className={`${controlClass} text-neutral-400`}
           >
-            <ChevronDown size={20} strokeWidth={2} />
+            <ChevronDown size={22} strokeWidth={2} aria-hidden="true" />
           </button>
           <button
             type="button"
             onClick={closePlayer}
             aria-label="Fechar player"
-            className="flex h-10 w-9 shrink-0 items-center justify-center rounded-full text-neutral-400 active:bg-white/10 focus-visible:outline-2 focus-visible:outline-white"
+            className={`${controlClass} text-neutral-400`}
           >
-            <X size={18} strokeWidth={2} />
+            <X size={20} strokeWidth={2} aria-hidden="true" />
           </button>
-          {!error && <ProgressLine />}
         </div>
-        {error && (
+        {error ? (
           <p role="alert" className="px-3 pb-2.5 text-xs leading-relaxed text-neutral-300">
             {error}
           </p>
+        ) : (
+          <ProgressLine />
         )}
       </aside>
     );
