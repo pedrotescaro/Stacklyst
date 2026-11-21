@@ -1,8 +1,9 @@
 import { render, screen, fireEvent, act } from '@testing-library/react';
-import { describe, expect, it, beforeEach, afterEach, vi } from 'vitest';
+import { describe, expect, it, beforeEach, afterEach, vi, type Mock } from 'vitest';
 import { loadSpotifyWebPlaybackSdk } from '@/lib/spotify-web-playback';
 import { fetchSpotifyConnection, getSpotifyAccessToken } from '@/lib/client/spotify-connection';
 import { createSpotifySdkHarness } from '@/test/spotify-sdk-mock';
+import { installFakeAudio } from '@/test/audio-mock';
 import { PostAttachments } from '@/components/posts/PostAttachments';
 import {
   MusicPlayerProvider,
@@ -42,6 +43,8 @@ function TestPlayerTrigger() {
 
 describe('FloatingMiniPlayer', () => {
   let sdk: ReturnType<typeof createSpotifySdkHarness>;
+  let spotifyApi: Mock<(...args: any[]) => Promise<Response>>;
+  let media: ReturnType<typeof installFakeAudio>;
   const ready = async () => {
     await act(async () => {});
     act(() => sdk.emit('ready', { device_id: 'device-1' }));
@@ -63,7 +66,13 @@ describe('FloatingMiniPlayer', () => {
       premium: true,
     });
     vi.mocked(getSpotifyAccessToken).mockResolvedValue('test-token');
-    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(new Response(null, { status: 204 })));
+    spotifyApi = vi.fn().mockResolvedValue(new Response(null, { status: 204 }));
+    vi.stubGlobal('fetch', (url: string, init?: RequestInit) =>
+      String(url).startsWith('/api/spotify/preview/')
+        ? Promise.resolve(Response.json({ url: 'https://p.scdn.co/mp3-preview/0123abcd' }))
+        : spotifyApi(url, init)
+    );
+    media = installFakeAudio();
   });
 
   afterEach(() => vi.unstubAllGlobals());
@@ -168,8 +177,8 @@ describe('FloatingMiniPlayer', () => {
     expect(screen.getByRole('status')).toHaveTextContent('Pausado');
   });
 
-  it('provides the official embed and a Spotify link if account playback fails', async () => {
-    vi.mocked(fetch).mockResolvedValue(new Response(null, { status: 403 }));
+  it('plays the 30s preview in our own player, never the Spotify embed', async () => {
+    spotifyApi.mockResolvedValue(new Response(null, { status: 403 }));
     render(
       <MusicPlayerProvider>
         <TestPlayerTrigger />
@@ -180,18 +189,45 @@ describe('FloatingMiniPlayer', () => {
     await act(async () => {
       fireEvent.click(screen.getByRole('button', { name: 'Tocar Rick' }));
     });
-    expect(screen.getByTitle(`${mockTrack.title} · Spotify`)).toHaveAttribute(
-      'src',
-      `https://open.spotify.com/embed/track/${mockTrack.id}`
-    );
-    expect(screen.getByRole('link', { name: 'Abrir no Spotify' })).toHaveAttribute(
-      'href',
-      mockTrack.spotifyUrl
-    );
-    expect(screen.queryByRole('button', { name: 'Cancelar carregamento da música' })).toBeNull();
-    expect(document.querySelector('script[src*="/embed/iframe-api"]')).toBeNull();
+    await act(async () => {
+      for (let index = 0; index < 20; index++) await Promise.resolve();
+    });
+    expect(document.querySelector('iframe')).toBeNull();
+    expect(media.audio?.src).toBe('https://p.scdn.co/mp3-preview/0123abcd');
+    act(() => media.audio?.startPlaying(30));
+
+    expect(screen.getByTestId('floating-mini-player')).toHaveTextContent('Prévia');
+    expect(screen.getByRole('button', { name: 'Pausar música' })).toBeInTheDocument();
+    const link = screen.getByRole('link', { name: 'Abrir no Spotify' });
+    expect(link).toHaveAttribute('href', mockTrack.spotifyUrl);
+    expect(link.querySelector('svg')).not.toBeNull();
+    // Seeking is a Premium feature; the preview bar only shows progress.
+    expect(screen.getByRole('slider', { name: 'Posição na música' })).toBeDisabled();
+    expect(screen.getByTestId('music-seek-bar')).toHaveTextContent('0:30');
+
     fireEvent.click(screen.getByRole('button', { name: 'Fechar player' }));
-    expect(screen.queryByTitle(`${mockTrack.title} · Spotify`)).toBeNull();
+    expect(screen.queryByTestId('floating-mini-player')).toBeNull();
+    expect(media.audio?.src).toBe('');
+  });
+
+  it('shows elapsed and total time and seeks with a connected Premium account', async () => {
+    render(
+      <MusicPlayerProvider>
+        <TestPlayerTrigger />
+        <FloatingMiniPlayer />
+      </MusicPlayerProvider>
+    );
+    await startTrack();
+    act(() => sdk.confirmPlaying(mockTrack.id, { position: 65000 }));
+
+    const bar = screen.getByTestId('music-seek-bar');
+    expect(bar).toHaveTextContent('1:05');
+    expect(bar).toHaveTextContent('3:20');
+    const slider = screen.getByRole('slider', { name: 'Posição na música' });
+    expect(slider).toBeEnabled();
+    fireEvent.change(slider, { target: { value: '120000' } });
+    expect(sdk.player.seek).toHaveBeenCalledWith(120000);
+    expect(bar).toHaveTextContent('2:00');
   });
 
   it('docks a compact now-playing bar on phones', async () => {
@@ -220,6 +256,7 @@ describe('FloatingMiniPlayer', () => {
         screen.queryByRole('button', { name: 'Compartilhar faixa do Spotify' })
       ).not.toBeInTheDocument();
       expect(await screen.findByRole('button', { name: 'Pausar música' })).toBeInTheDocument();
+      expect(screen.getByRole('slider', { name: 'Posição na música' })).toBeEnabled();
 
       fireEvent.click(screen.getByRole('button', { name: 'Minimizar player' }));
       expect(await screen.findByTestId('floating-mini-player-minimized')).toBeInTheDocument();

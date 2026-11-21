@@ -13,9 +13,11 @@ import {
   ChevronDown,
   SkipForward,
 } from 'lucide-react';
-import { useMusicPlayer, useMusicPlayerControls } from '@/contexts/MusicPlayerContext';
+import { useMusicPlayerControls } from '@/contexts/MusicPlayerContext';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import { SpotifyLogo } from '@/components/icons/SpotifyLogo';
 import { MusicLevelBars } from './MusicLevelBars';
+import { MusicSeekBar } from './MusicSeekBar';
 import styles from './FloatingMiniPlayer.module.css';
 
 const MOBILE_QUERY = '(max-width: 639px)';
@@ -34,16 +36,19 @@ function useIsMobile() {
   return mobile;
 }
 
-/** Isolated so frequent position updates only rerender this thin line. */
-function ProgressLine() {
-  const { progress } = useMusicPlayer();
+/** Marks Spotify's 30-second preview, played when no Premium account is connected. */
+function PreviewBadge() {
+  const { text } = useLocalizedText();
   return (
-    <div className="absolute inset-x-0 bottom-0 h-[3px] bg-white/15" aria-hidden="true">
-      <div
-        className="h-full bg-white transition-[width] duration-700 ease-linear"
-        style={{ width: `${progress}%` }}
-      />
-    </div>
+    <span
+      className="shrink-0 rounded-[3px] bg-white/15 px-1 py-px text-[10px] font-semibold leading-tight text-white"
+      title={text(
+        'Prévia de 30 segundos. Conecte o Spotify Premium para ouvir a faixa inteira.',
+        '30-second preview. Connect Spotify Premium to hear the full track.'
+      )}
+    >
+      {text('Prévia', 'Preview')}
+    </span>
   );
 }
 
@@ -56,7 +61,8 @@ export function FloatingMiniPlayer() {
     currentTrack,
     isPlaying,
     isBuffering,
-    isEmbedOpen,
+    playbackSource,
+    previewUnavailable,
     isMinimized,
     togglePlay,
     minimize,
@@ -94,46 +100,6 @@ export function FloatingMiniPlayer() {
   );
 
   if (!mounted || !currentTrack) return null;
-
-  if (isEmbedOpen) {
-    return (
-      <aside
-        aria-label={text('Player do Spotify', 'Spotify player')}
-        data-testid="floating-mini-player"
-        className={`${styles.playerContainer} ${styles.slideIn} ${isMobile ? `${styles.mobileBar} inset-x-2` : 'bottom-6 right-6 w-[350px]'} rounded-xl border border-white/10 bg-[#181818] p-2 text-white shadow-xl`}
-      >
-        <div className="flex items-center justify-between gap-2 pl-2">
-          <p role="status" className="text-sm text-neutral-200">
-            {text('Toque no player do Spotify', 'Press play in the Spotify player')}
-          </p>
-          <button
-            type="button"
-            aria-label={text('Fechar player', 'Close player')}
-            onClick={closePlayer}
-            className="dd-focus-ring grid h-11 w-11 shrink-0 place-items-center rounded-lg hover:bg-white/10"
-          >
-            <X size={19} aria-hidden="true" />
-          </button>
-        </div>
-        <iframe
-          key={currentTrack.id}
-          title={`${currentTrack.title} · Spotify`}
-          src={`https://open.spotify.com/embed/track/${currentTrack.id}`}
-          height={152}
-          allow="encrypted-media; autoplay"
-          className="block w-full rounded-lg border-0"
-        />
-        <a
-          href={spotifyUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="dd-focus-ring my-1 inline-flex min-h-10 items-center rounded-md px-2 text-sm text-neutral-200 underline underline-offset-4 hover:text-white"
-        >
-          {text('Abrir no Spotify', 'Open in Spotify')}
-        </a>
-      </aside>
-    );
-  }
 
   // ==========================================
   // MINIMIZED VIEW
@@ -187,11 +153,14 @@ export function FloatingMiniPlayer() {
     );
   }
 
-  const statusText = isBuffering
-    ? 'Carregando música...'
-    : isPlaying
-      ? 'Ouvindo agora...'
-      : 'Pausado';
+  const isPreview = playbackSource === 'preview';
+  const statusText = previewUnavailable
+    ? text('Prévia indisponível', 'Preview unavailable')
+    : isBuffering
+      ? 'Carregando música...'
+      : isPlaying
+        ? 'Ouvindo agora...'
+        : 'Pausado';
   const playLabel = isBuffering
     ? 'Cancelar carregamento da música'
     : isPlaying
@@ -249,8 +218,13 @@ export function FloatingMiniPlayer() {
                     <span className={styles.bar} />
                   </span>
                 )}
+                {isPreview && !previewUnavailable && <PreviewBadge />}
                 <span className="truncate">
-                  {isBuffering ? 'Carregando…' : currentTrack.artist}
+                  {previewUnavailable
+                    ? text('Prévia indisponível', 'Preview unavailable')
+                    : isBuffering
+                      ? 'Carregando…'
+                      : currentTrack.artist}
                 </span>
               </span>
             </span>
@@ -286,7 +260,8 @@ export function FloatingMiniPlayer() {
             <X size={20} strokeWidth={2} aria-hidden="true" />
           </button>
         </div>
-        <ProgressLine />
+        {/* Isolated so frequent position updates only rerender the bar. */}
+        <MusicSeekBar className="px-2.5 pb-1.5" />
       </aside>
     );
   }
@@ -314,6 +289,7 @@ export function FloatingMiniPlayer() {
             </span>
           )}
           {statusText}
+          {isPreview && !previewUnavailable && <PreviewBadge />}
         </span>
         <div className="flex items-center gap-1">
           {/* Share button */}
@@ -401,7 +377,17 @@ export function FloatingMiniPlayer() {
           >
             {currentTrack.artist}
           </p>
-          <p className="mt-1 text-[11px] text-neutral-500 leading-tight">Spotify</p>
+          <a
+            href={spotifyUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-1.5 inline-flex max-w-full items-center gap-1.5 rounded text-[12px] leading-tight text-neutral-300 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+          >
+            <SpotifyLogo className="h-4 w-4 shrink-0 text-white" />
+            <span className="truncate underline-offset-2 hover:underline">
+              {text('Abrir no Spotify', 'Open in Spotify')}
+            </span>
+          </a>
         </div>
 
         {/* Controls: Play/Pause circle + Next button */}
@@ -435,6 +421,8 @@ export function FloatingMiniPlayer() {
           </a>
         </div>
       </div>
+
+      <MusicSeekBar className="-mt-1 px-3 pb-3" />
     </aside>
   );
 }

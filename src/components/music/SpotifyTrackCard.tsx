@@ -25,14 +25,13 @@ interface SpotifyTrackCardProps {
 export function SpotifyTrackCard({ music, className }: SpotifyTrackCardProps) {
   const { text } = useLocalizedText();
   const trackId = music && SPOTIFY_TRACK_ID.test(music.trackId) ? music.trackId : null;
-  const { currentTrack, isPlaying, isBuffering, isEmbedOpen, playTrack } = useMusicPlayerControls();
+  const { currentTrack, isPlaying, isBuffering, playTrack } = useMusicPlayerControls();
 
   if (!trackId) return null;
 
   const isCurrent = currentTrack?.id === trackId;
   const isCurrentPlaying = isCurrent && isPlaying;
   const isCurrentLoading = isCurrent && isBuffering;
-  const isCurrentEmbed = isCurrent && isEmbedOpen;
   const title = music?.title || text('Faixa do Spotify', 'Spotify track');
   const spotifyUrl = `https://open.spotify.com/track/${trackId}`;
 
@@ -86,12 +85,7 @@ export function SpotifyTrackCard({ music, className }: SpotifyTrackCardProps) {
               ? text('Cancelar carregamento da música', 'Cancel music loading')
               : isCurrentPlaying
                 ? text(`Pausar ${music?.title || 'música'}`, `Pause ${music?.title || 'music'}`)
-                : isCurrentEmbed
-                  ? text('Mostrar player do Spotify', 'Show Spotify player')
-                  : text(
-                      `Reproduzir ${music?.title || 'música'}`,
-                      `Play ${music?.title || 'music'}`
-                    )
+                : text(`Reproduzir ${music?.title || 'música'}`, `Play ${music?.title || 'music'}`)
           }
         >
           {isCurrentLoading ? (

@@ -11,7 +11,10 @@ export interface SpotifySdkState {
   loading?: boolean;
   position: number;
   duration: number;
-  track_window: { current_track: SpotifySdkTrack | null };
+  track_window: {
+    current_track: SpotifySdkTrack | null;
+    previous_tracks?: SpotifySdkTrack[];
+  };
 }
 
 export interface SpotifySdkPlayer {
