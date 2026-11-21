@@ -2,12 +2,7 @@
 
 import { useEffect, useState, type CSSProperties } from 'react';
 import { brandGeometry } from '@/lib/brand-geometry';
-import {
-  brandWordmark,
-  WORDMARK_HEIGHT_RATIO,
-  WORDMARK_MARK_FRACTION,
-  WORDMARK_WIDTH_RATIO,
-} from '@/lib/brand-wordmark';
+import { brandWordmark, WORDMARK_HEIGHT_RATIO, WORDMARK_WIDTH_RATIO } from '@/lib/brand-wordmark';
 import styles from './BrandLogo.module.css';
 
 export interface BrandLogoProps {
@@ -16,7 +11,6 @@ export interface BrandLogoProps {
   className?: string;
   /** Full logo (S + name). `false` shows only the S, e.g. in a collapsed sidebar. */
   wordmark?: boolean;
-  animated?: boolean;
   label?: string;
 }
 
@@ -35,7 +29,7 @@ function checkArtwork() {
 }
 
 /** True once the logo artwork failed to load, so the name is typeset instead. */
-export function useBrandArtworkFailed() {
+function useBrandArtworkFailed() {
   const [failed, setFailed] = useState(artworkFailed);
   useEffect(() => {
     if (artworkFailed || typeof Image === 'undefined') return;
@@ -53,11 +47,10 @@ export function useBrandArtworkFailed() {
 }
 
 /** Shape-only artwork painted with `currentColor`, so callers keep choosing the colour. */
-export const brandArtworkStyle = {
+const brandArtworkStyle = {
   '--brand-artwork': `url("${brandWordmark.src}")`,
   '--brand-wordmark-height': WORDMARK_HEIGHT_RATIO,
   '--brand-wordmark-width': WORDMARK_WIDTH_RATIO,
-  '--brand-name-inset': `${((1 - WORDMARK_MARK_FRACTION) * 100).toFixed(2)}%`,
   '--brand-text-scale': 1 / brandWordmark.textMarkRatio,
 } as CSSProperties;
 
@@ -65,7 +58,6 @@ export function BrandLogo({
   size = 32,
   className = '',
   wordmark = true,
-  animated = false,
   label = 'Stacklyst',
 }: BrandLogoProps) {
   const artworkFailed = useBrandArtworkFailed();
@@ -75,7 +67,7 @@ export function BrandLogo({
     <span
       role="img"
       aria-label={label}
-      className={`${styles.brand} ${animated ? styles.animated : ''} ${className}`}
+      className={`${styles.brand} ${className}`}
       style={
         {
           ...brandArtworkStyle,

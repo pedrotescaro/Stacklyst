@@ -1,0 +1,58 @@
+/*
+ * Clean load: every letter's outline is traced, then the letter fills up from
+ * the bottom; letters follow each other left to right. Finishes in ~1.45s.
+ */
+.wordmark {
+  --brand-color: #0083fe;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --stagger: 70ms;
+  display: block;
+  aspect-ratio: 4234 / 804;
+  height: auto;
+  overflow: visible;
+  color: var(--brand-color);
+}
+
+.trace {
+  stroke-width: 16;
+  stroke-linejoin: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation:
+    trace 640ms calc(var(--letter) * var(--stagger)) cubic-bezier(0.65, 0, 0.35, 1) forwards,
+    trace-out 260ms 1180ms ease-out forwards;
+}
+
+.fill {
+  clip-path: inset(100% 0 0);
+  animation: fill-up 520ms calc(260ms + var(--letter) * var(--stagger)) var(--ease) forwards;
+}
+
+@keyframes trace {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes trace-out {
+  to {
+    stroke-opacity: 0;
+  }
+}
+@keyframes fill-up {
+  to {
+    clip-path: inset(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trace,
+  .fill {
+    animation: none;
+  }
+  .trace {
+    stroke-opacity: 0;
+  }
+  .fill {
+    clip-path: none;
+  }
+}

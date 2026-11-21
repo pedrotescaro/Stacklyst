@@ -8,7 +8,11 @@
   color: inherit;
 }
 .wordmark {
-  --brand-cap: clamp(28px, 5vw, 44px);
+  /* --reveal-size is the S height, capped like the other logos; the logo is 6.15 S wide. */
+  display: block;
+  width: calc(
+    min(var(--reveal-size, 44px), clamp(28px, 5vw, 44px), (100vw - 48px) / 6.25) * 4234 / 688
+  );
   max-width: 100%;
 }
 .copy {

@@ -1,6 +1,7 @@
 'use client';
 
-import { BrandLogo } from './BrandLogo';
+import type { CSSProperties } from 'react';
+import { BrandWordmarkTrace } from './BrandWordmarkTrace';
 import styles from './BrandReveal.module.css';
 
 export function BrandReveal({
@@ -16,7 +17,14 @@ export function BrandReveal({
 }) {
   return (
     <div className={`${styles.reveal} ${className}`} role="status" aria-live="polite">
-      <BrandLogo size={size} animated className={styles.wordmark} />
+      <span
+        className={styles.wordmark}
+        role="img"
+        aria-label="Stacklyst"
+        style={{ '--reveal-size': `${size}px` } as CSSProperties}
+      >
+        <BrandWordmarkTrace />
+      </span>
       {(title || subtitle) && (
         <div className={styles.copy}>
           {title && <p className={styles.title}>{title}</p>}

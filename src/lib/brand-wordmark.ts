@@ -15,11 +15,6 @@ export const brandWordmark = {
   /** Height of the S; sizes elsewhere are given as the S height. */
   markHeight: 317,
   /**
-   * Where the S ends and the name starts. The S reaches x = 330 and the "t"
-   * starts at 327, so clipping here shows the S without a sliver of the "t".
-   */
-  markWidth: 329,
-  /**
    * Text drawn with the logo typeface when the artwork cannot load. The font
    * only has the glyphs of "StackLyst" (no lowercase "l"), so a new name needs
    * the matching letters added to the font first.
@@ -32,5 +27,3 @@ export const brandWordmark = {
 /** Wordmark height and width relative to the S height. */
 export const WORDMARK_HEIGHT_RATIO = brandWordmark.height / brandWordmark.markHeight;
 export const WORDMARK_WIDTH_RATIO = brandWordmark.width / brandWordmark.markHeight;
-/** Fraction of the wordmark width taken by the S. */
-export const WORDMARK_MARK_FRACTION = brandWordmark.markWidth / brandWordmark.width;

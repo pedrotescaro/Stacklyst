@@ -1,7 +1,6 @@
 'use client';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { brandArtworkStyle, useBrandArtworkFailed } from '@/components/BrandLogo';
-import { brandWordmark } from '@/lib/brand-wordmark';
+import { BrandWordmarkTrace } from '@/components/BrandWordmarkTrace';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './SiteEntryLoader.module.css';
 
@@ -22,7 +21,6 @@ export default function SiteEntryLoader({
   forceMotion?: boolean;
 }) {
   const { text } = useLocalizedText();
-  const artworkFailed = useBrandArtworkFailed();
   const [exiting, setExiting] = useState(false);
   const complete = useRef(onComplete);
   const completed = useRef(false);
@@ -63,13 +61,7 @@ export default function SiteEntryLoader({
         }
       }}
     >
-      <div className={styles.brand} style={brandArtworkStyle} aria-hidden="true">
-        {artworkFailed ? (
-          <span className={`${styles.logo} ${styles.logoText}`}>{brandWordmark.text}</span>
-        ) : (
-          <span className={`${styles.logo} ${styles.logoArtwork}`} />
-        )}
-      </div>
+      <BrandWordmarkTrace className={styles.brand} />
 
       <span role="status" aria-live="polite" className="sr-only">
         {text('Carregando Stacklyst', 'Loading Stacklyst')}

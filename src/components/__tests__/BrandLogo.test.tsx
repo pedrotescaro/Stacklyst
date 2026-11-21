@@ -1,6 +1,8 @@
 import { act, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { brandGeometry } from '@/lib/brand-geometry';
+import { brandWordmarkPaths } from '@/lib/brand-wordmark-paths';
+import { BrandWordmarkTrace } from '../BrandWordmarkTrace';
 
 class FailingImage {
   onload: (() => void) | null = null;
@@ -53,5 +55,20 @@ describe('BrandLogo', () => {
     expect(screen.getByTestId('brand-wordmark-text')).toHaveTextContent('StackLyst');
     expect(screen.queryByTestId('brand-wordmark')).toBeNull();
     expect(screen.getByRole('img', { name: 'Stacklyst' })).toBeInTheDocument();
+  });
+});
+
+describe('BrandWordmarkTrace', () => {
+  it('draws every letter of the logo font with a traced outline and a fill', () => {
+    const { container } = render(<BrandWordmarkTrace />);
+    const letters = container.querySelectorAll('g');
+    expect(brandWordmarkPaths.letters.map((letter) => letter.char).join('')).toBe('StackLyst');
+    expect(letters).toHaveLength(9);
+    for (const [index, letter] of [...letters].entries()) {
+      const [fill, trace] = letter.querySelectorAll('path');
+      expect(fill.getAttribute('d')).toBe(brandWordmarkPaths.letters[index].d);
+      expect(trace.getAttribute('pathLength')).toBe('1');
+      expect(letter.getAttribute('style')).toContain(`--letter: ${index}`);
+    }
   });
 });
