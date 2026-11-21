@@ -35,6 +35,17 @@
   display: none;
 }
 
+/* Chrome paints autofilled text on its own blue-grey box; keep the pill's
+   surface and text colours instead. */
+.field input:-webkit-autofill,
+.field input:-webkit-autofill:hover,
+.field input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-dd-text);
+  caret-color: var(--color-dd-text);
+  box-shadow: 0 0 0 1000px var(--color-dd-surface) inset;
+  transition: background-color 9999s ease-out 0s;
+}
+
 .submit,
 .clear {
   display: inline-grid;
@@ -62,13 +73,20 @@
 .clear {
   width: 28px;
   height: 28px;
-  background: var(--color-dd-accent);
+  background: transparent;
+  color: var(--color-dd-muted);
+  transition: color 120ms ease;
+}
+
+.clear:hover,
+.clear:active,
+.clear:focus-visible {
   color: #fff;
 }
 
 .submit:focus-visible,
 .clear:focus-visible {
-  outline: 2px solid var(--color-dd-accent);
+  outline: 2px solid #fff;
   outline-offset: 2px;
 }
 
@@ -93,7 +111,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .field {
+  .field,
+  .clear {
     transition: none;
   }
 }

@@ -40,6 +40,7 @@ export function ExploreSearchField({
         value={value}
         maxLength={EXPLORE_QUERY_MAX_LENGTH}
         enterKeyHint="search"
+        autoComplete="off"
         placeholder={text('Pesquisar', 'Search')}
         aria-label={text('Pesquisar posts e pessoas', 'Search posts and people')}
         onChange={(event) => onChange(event.target.value)}
