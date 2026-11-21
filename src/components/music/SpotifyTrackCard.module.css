@@ -50,18 +50,27 @@
 }
 .musicInfo a {
   display: inline-flex;
-  gap: 4px;
+  gap: 6px;
   align-items: center;
-  color: color-mix(in srgb, var(--color-dd-text) 65%, var(--color-dd-surface));
+  color: color-mix(in srgb, var(--color-dd-text) 80%, var(--color-dd-surface));
   width: fit-content;
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.5;
   margin-top: 3px;
   text-underline-offset: 3px;
 }
 .musicInfo a:hover {
   color: var(--color-dd-text);
+}
+.musicInfo a:hover span {
   text-decoration: underline;
+}
+/* Same mark as the mini player: white on the dark theme, ink on light. */
+.spotifyLogo {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  color: var(--color-dd-text);
 }
 .music :is(button, a):focus-visible {
   outline: 2px solid var(--color-dd-accent);

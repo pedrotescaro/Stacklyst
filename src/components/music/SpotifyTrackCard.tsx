@@ -2,9 +2,10 @@
 
 /* Spotify artwork comes from i.scdn.co and is rendered as-is. */
 /* eslint-disable @next/next/no-img-element */
-import { ExternalLink, LoaderCircle, Music2, Pause, Play } from 'lucide-react';
+import { LoaderCircle, Music2, Pause, Play } from 'lucide-react';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
 import { useMusicPlayerControls } from '@/contexts/MusicPlayerContext';
+import { SpotifyLogo } from '@/components/icons/SpotifyLogo';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './SpotifyTrackCard.module.css';
 
@@ -72,8 +73,8 @@ export function SpotifyTrackCard({ music, className }: SpotifyTrackCardProps) {
             rel="noopener noreferrer"
             onClick={(e) => e.stopPropagation()}
           >
-            {text('Abrir no Spotify', 'Open in Spotify')}{' '}
-            <ExternalLink size={11} aria-hidden="true" />
+            <SpotifyLogo className={styles.spotifyLogo} />
+            <span>{text('Abrir no Spotify', 'Open in Spotify')}</span>
           </a>
         </div>
         <button
