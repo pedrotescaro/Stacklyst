@@ -550,6 +550,7 @@ export function AdventureHub({
       skillButtons.current[selectedSkill]?.focus({ preventScroll: true });
   }, [choosingSkill, busy, selectedSkill]);
   useEffect(() => {
+    if (view === 'arena') return;
     battleAudio.setBattle(view === 'battle' && battle?.status === 'active');
     battleAudio.setWorld(view === 'world');
     return () => {
@@ -741,7 +742,7 @@ export function AdventureHub({
           )}
         </div>
 
-        {(view === 'world' || view === 'battle' || view === 'boss') && (
+        {(view === 'world' || view === 'battle' || view === 'boss' || view === 'arena') && (
           <button
             className="ad-battle-sound"
             aria-label={
@@ -1621,6 +1622,7 @@ export function AdventureHub({
       )}
       {view === 'arena' && (
         <MultiplayerArena
+          audio={battleAudio}
           transport={arenaTransport}
           language={language}
           initialState={arenaSeed}

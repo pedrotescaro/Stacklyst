@@ -40,8 +40,8 @@ describe('Arena movement and combat', () => {
     const exercise = chooseArenaAttack(m, 99, now, 'focus');
     expect(exercise.skill).toBe('focus');
     expect(chooseArenaAttack(exercise, 0, now, 'burst')).toBe(exercise);
-    expect(advanceArenaTurn(exercise, true, now, 'Acertou').hp).toEqual({ a: 100, b: 82 });
-    expect(advanceArenaTurn(exercise, false, now, 'Errou').hp).toEqual(m.hp);
+    expect(advanceArenaTurn(exercise, 'hit', now, 'Acertou').hp).toEqual({ a: 100, b: 82 });
+    expect(advanceArenaTurn(exercise, 'miss', now, 'Errou').hp).toEqual(m.hp);
     expect(chooseArenaAttack({ ...m, hp: { a: 5, b: 100 } }, 0, now, 'burst')).toMatchObject({
       status: 'finished',
       winnerId: 'b',
@@ -100,23 +100,28 @@ describe('Arena movement and combat', () => {
   });
   it('alternates turns, applies only verified damage and finishes at zero life', () => {
     const now = new Date('2026-11-02T18:00:00Z');
-    const hit = advanceArenaTurn(match(), true, now, 'Acertou');
+    const hit = advanceArenaTurn(match(), 'hit', now, 'Acertou');
     expect(hit).toMatchObject({
       hp: { a: 100, b: 70 },
       actorId: 'b',
       turn: 1,
+      turnOutcome: 'hit',
       deadline: '2026-11-02T18:02:00.000Z',
     });
-    const miss = advanceArenaTurn(hit, false, now, 'Errou');
+    const miss = advanceArenaTurn(hit, 'miss', now, 'Errou');
     expect(miss.hp).toEqual(hit.hp);
     expect(miss.actorId).toBe('a');
-    const win = advanceArenaTurn({ ...match(), hp: { a: 70, b: 10 } }, true, now, 'Vitória');
+    expect(miss.turnOutcome).toBe('miss');
+    const win = advanceArenaTurn({ ...match(), hp: { a: 70, b: 10 } }, 'hit', now, 'Vitória');
     expect(win).toMatchObject({ status: 'finished', winnerId: 'a', hp: { a: 70, b: 0 } });
   });
   it('resolves the turn limit without an arbitrary winner on equal life', () => {
-    expect(advanceArenaTurn({ ...match(), turn: 19 }, false, new Date(), 'Tempo')).toMatchObject({
+    expect(
+      advanceArenaTurn({ ...match(), turn: 19 }, 'timeout', new Date(), 'Tempo')
+    ).toMatchObject({
       status: 'finished',
       winnerId: null,
+      turnOutcome: 'timeout',
     });
   });
   it('ignores forged identity/damage/outfits and rejects invalid coordinates or languages', () => {

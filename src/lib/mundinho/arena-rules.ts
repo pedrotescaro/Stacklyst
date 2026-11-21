@@ -1,4 +1,4 @@
-import type { ArenaMatch, ArenaPosition, ArenaSkill } from './arena-types';
+import type { ArenaMatch, ArenaPosition, ArenaSkill, ArenaTurnOutcome } from './arena-types';
 import { directAttack } from './equipment';
 import { SKILL_CHALLENGE, SKILLS } from './rules';
 
@@ -48,13 +48,14 @@ export function arenaOpponent(match: ArenaMatch, userId: string) {
 }
 export function advanceArenaTurn(
   match: ArenaMatch,
-  correct: boolean,
+  outcome: ArenaTurnOutcome,
   now: Date,
   message: string
 ): ArenaMatch {
   const opponent = arenaOpponent(match, match.actorId);
   const move = SKILLS.find((s) => s.id === match.skill) ?? SKILLS[0];
   const damage = arenaAttackDamage(match);
+  const correct = outcome === 'hit';
   const hp = {
     ...match.hp,
     [opponent]: Math.max(0, match.hp[opponent] - (correct ? damage : 0)),
@@ -76,6 +77,7 @@ export function advanceArenaTurn(
     winnerId: finished ? winnerId : null,
     actorId: opponent,
     turn: match.turn + 1,
+    turnOutcome: outcome,
     exerciseTurn: -1,
     skill: undefined,
     deadline: new Date(now.getTime() + ARENA_TURN_MS).toISOString(),
@@ -118,7 +120,7 @@ export function chooseArenaAttack(
   const move = SKILLS.find((s) => s.id === skill)!;
   return advanceArenaTurn(
     match,
-    true,
+    'hit',
     now,
     `${move.name}: ${stats.directChance === 100 ? 'Caça-bugs / sorte máxima!' : 'Golpe direto!'} ${damage} de dano no adversário.${move.heal > 0 ? ' Recupera até 20 de vida.' : move.heal < 0 ? ' Recebe 8 de desgaste.' : ''}`
   );

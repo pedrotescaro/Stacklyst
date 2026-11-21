@@ -235,12 +235,15 @@ it('flashes the duelist who takes a blow, pops the damage and lunges the attacke
   } as never;
   const struck = structuredClone(data);
   struck.room!.version = 2;
+  struck.room!.match!.turn++;
   struck.room!.match!.hp = { a: 100, b: 70 };
   const transport = vi.fn(async (action: { type: string }) =>
     action.type === 'sync' ? struck : data
   );
+  const audio = { play: vi.fn(), setBattle: vi.fn() };
   const { container } = render(
     <MultiplayerArena
+      audio={audio}
       initialState={data}
       language="JS"
       assetBase="/assets/mundinho"
@@ -257,6 +260,8 @@ it('flashes the duelist who takes a blow, pops the damage and lunges the attacke
   expect(self()).toHaveClass('is-attacking');
   expect(self()).not.toHaveClass('is-hit');
   expect(container.querySelector('.ad-pvp-scene')).not.toHaveClass('is-shaking');
+  expect(audio.setBattle).toHaveBeenCalledWith(true);
+  expect(audio.play.mock.calls).toEqual([['encounter'], ['attack'], ['hit']]);
 });
 
 it('updates the other player while both participants are exploring', async () => {
@@ -327,10 +332,13 @@ it.each([
       Object.assign(finished.room!.match!, {
         status: 'finished',
         winnerId,
+        turn: 1,
         hp: { a: winnerId === 'a' ? 100 : 0, b: winnerId === 'b' ? 25 : 0 },
       });
+      const audio = { play: vi.fn(), setBattle: vi.fn() };
       const { container } = render(
         <MultiplayerArena
+          audio={audio}
           initialState={data}
           language="JS"
           assetBase="/assets/mundinho"
@@ -345,11 +353,14 @@ it.each([
       expect(screen.getByText(result)).toBeVisible();
       expect(screen.queryByRole('button', { name: /Aplicar conceito/ })).not.toBeInTheDocument();
       expect(curtain()).toBeNull();
+      expect(audio.setBattle.mock.calls).toEqual([[true], [false]]);
+      expect(audio.play).toHaveBeenLastCalledWith(winnerId === 'a' ? 'hit' : 'hurt');
 
       await act(() => vi.advanceTimersByTimeAsync(HIT_MS));
       expect(curtain()).toHaveAttribute('data-kind', kind);
       expect(curtain()).toHaveAttribute('data-phase', 'cover');
       expect(battle()).toBeInTheDocument();
+      if (kind !== 'return') expect(audio.play).toHaveBeenLastCalledWith(kind);
 
       await act(() => vi.advanceTimersByTimeAsync(RETRO_COVER_MS[kind]));
       expect(curtain()).toHaveAttribute('data-phase', 'reveal');
@@ -358,6 +369,12 @@ it.each([
 
       await act(() => vi.advanceTimersByTimeAsync(RETRO_REVEAL_MS));
       expect(curtain()).toBeNull();
+      expect(audio.play.mock.calls).toEqual([
+        ['encounter'],
+        ['attack'],
+        [winnerId === 'a' ? 'hit' : 'hurt'],
+        ...(kind === 'return' ? [] : [[kind]]),
+      ]);
     } finally {
       vi.unstubAllGlobals();
       vi.useRealTimers();

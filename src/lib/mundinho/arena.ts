@@ -554,7 +554,7 @@ export async function arena(userId: string, action: ArenaAction): Promise<ArenaS
       } else if (match?.status === 'active' && new Date(match.deadline) <= now) {
         match = advanceArenaTurn(
           match,
-          false,
+          'timeout',
           now,
           'Tempo esgotado. O turno passou para o adversário.'
         );
@@ -607,6 +607,7 @@ export async function arena(userId: string, action: ArenaAction): Promise<ArenaS
             ready: [],
             hp: { [room.hostId]: 100, [room.guestId]: 100 },
             turn: 0,
+            turnOutcome: undefined,
             winnerId: null,
             scenario: match.scenario + 1,
             log: ['Revanche solicitada. Confirmem para começar.'],
@@ -678,7 +679,7 @@ export async function arena(userId: string, action: ArenaAction): Promise<ArenaS
             const correct = challenge.quiz.answer === action.answer;
             match = advanceArenaTurn(
               match,
-              correct,
+              correct ? 'hit' : 'miss',
               now,
               correct
                 ? `Resposta certa! ${arenaAttackDamage(match)} de dano no adversário.`
@@ -700,7 +701,7 @@ export async function arena(userId: string, action: ArenaAction): Promise<ArenaS
         } else if (action.submit && codeRun && !codeRun.retryable)
           match = advanceArenaTurn(
             match,
-            codeRun.passed,
+            codeRun.passed ? 'hit' : 'miss',
             now,
             codeRun.passed
               ? `Código correto! ${arenaAttackDamage(match)} de dano no adversário.`

@@ -2,6 +2,7 @@ import type { Avatar, BattleLanguage, CodeRun, PublicQuestion } from './types';
 import type { CombatStats } from './equipment';
 import type { SKILLS } from './rules';
 export type ArenaSkill = (typeof SKILLS)[number]['id'];
+export type ArenaTurnOutcome = 'hit' | 'miss' | 'timeout';
 
 export type ArenaPosition = { x: number; y: number; direction: string; walking: boolean };
 export type ArenaMatch = {
@@ -11,6 +12,7 @@ export type ArenaMatch = {
   hp: Record<string, number>;
   actorId: string;
   turn: number;
+  turnOutcome?: ArenaTurnOutcome;
   scenario: number;
   level: number;
   deadline: string;

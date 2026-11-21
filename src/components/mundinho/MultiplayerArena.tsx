@@ -11,6 +11,7 @@ import type {
 } from '../../lib/mundinho/arena-types';
 import { LANGUAGE_NAMES, type BattleLanguage } from '../../lib/mundinho/types';
 import { ARENA } from '../../lib/mundinho/arena-rules';
+import type { BattleAudio } from '../../lib/mundinho/battleAudio';
 import { SKILL_CHALLENGE, SKILLS } from '../../lib/mundinho/rules';
 import World from './World';
 import { PixelAvatar } from './PixelArt';
@@ -26,12 +27,14 @@ const PEER_SYNC_MS = 160;
 const LOBBY_SYNC_MS = 7200;
 
 export function MultiplayerArena({
+  audio,
   transport,
   language,
   initialState,
   assetBase,
   onLeave,
 }: {
+  audio?: Pick<BattleAudio, 'play' | 'setBattle'>;
   transport: ArenaTransport;
   language: BattleLanguage;
   initialState?: ArenaState | null;
@@ -64,32 +67,50 @@ export function MultiplayerArena({
   const lastMatch = useRef(initialState?.room?.match);
   const syncInterval = useRef(ROOM_SYNC_MS);
   const actionPending = useRef(false);
-  const apply = useCallback((next: ArenaState) => {
-    if (!active.current) return;
-    if (next.room && next.room.id === roomRef.current && next.room.version < lastVersion.current)
-      return;
-    const match = next.room?.match;
-    if (
-      next.room?.id === roomRef.current &&
-      match?.status === 'finished' &&
-      lastMatch.current?.id === match.id &&
-      lastMatch.current.status === 'active'
-    ) {
-      setOutcome(next);
-    }
-    lastMatch.current = match;
-    syncInterval.current =
-      match?.status !== 'active' && next.room?.players.some((p) => p.id !== next.selfId && p.online)
-        ? PEER_SYNC_MS
-        : ROOM_SYNC_MS;
-    roomRef.current = next.room?.id;
-    lastVersion.current = next.room?.version ?? -1;
-    setData((current) =>
-      next.lobbyUnchanged
-        ? { ...next, friends: current?.friends ?? [], invitations: current?.invitations ?? [] }
-        : next
-    );
-  }, []);
+  const apply = useCallback(
+    (next: ArenaState) => {
+      if (!active.current) return;
+      if (next.room && next.room.id === roomRef.current && next.room.version < lastVersion.current)
+        return;
+      const match = next.room?.match;
+      const previous = lastMatch.current;
+      if (
+        next.room?.id === roomRef.current &&
+        match &&
+        previous?.id === match.id &&
+        previous.status === 'active'
+      ) {
+        if (audio && match.turn > previous.turn) {
+          const changes = Object.entries(match.hp).map(([id, hp]) => ({
+            id,
+            delta: hp - (previous.hp[id] ?? hp),
+          }));
+          const hurt = changes.some(({ id, delta }) => id === next.selfId && delta < 0);
+          const hit = changes.some(({ id, delta }) => id !== next.selfId && delta < 0);
+          if (hurt || hit || match.turnOutcome === 'miss') {
+            audio.play('attack');
+            audio.play(hurt ? 'hurt' : hit ? 'hit' : 'miss');
+          }
+          if (changes.some(({ delta }) => delta > 0)) audio.play('heal');
+        }
+        if (match.status === 'finished') setOutcome(next);
+      }
+      lastMatch.current = match;
+      syncInterval.current =
+        match?.status !== 'active' &&
+        next.room?.players.some((p) => p.id !== next.selfId && p.online)
+          ? PEER_SYNC_MS
+          : ROOM_SYNC_MS;
+      roomRef.current = next.room?.id;
+      lastVersion.current = next.room?.version ?? -1;
+      setData((current) =>
+        next.lobbyUnchanged
+          ? { ...next, friends: current?.friends ?? [], invitations: current?.invitations ?? [] }
+          : next
+      );
+    },
+    [audio]
+  );
   useEffect(() => {
     active.current = true;
     let timer: ReturnType<typeof setTimeout>;
@@ -161,6 +182,7 @@ export function MultiplayerArena({
     actionPending.current = true;
     setBusy(true);
     setError('');
+    if (action.type === 'attack' || action.type === 'ready') audio?.play('select');
     try {
       const next = await transport(action);
       apply(next);
@@ -198,13 +220,23 @@ export function MultiplayerArena({
   const rememberPose = useCallback((pose: ArenaPosition) => {
     position.current = pose;
   }, []);
+  const activeMatchId = data?.room?.match?.status === 'active' ? data.room.match.id : undefined;
+  useEffect(() => {
+    if (!activeMatchId || !audio) return;
+    audio.setBattle(true);
+    audio.play('encounter');
+    return () => audio.setBattle(false);
+  }, [activeMatchId, audio]);
   useEffect(() => {
     if (!outcome?.room?.match) return;
     const winner = outcome.room.match.winnerId;
     const kind = winner ? (winner === outcome.selfId ? 'victory' : 'defeat') : 'return';
-    const timer = setTimeout(() => playTransition(kind, () => setOutcome(null)), HIT_MS);
+    const timer = setTimeout(() => {
+      if (kind !== 'return') audio?.play(kind);
+      playTransition(kind, () => setOutcome(null));
+    }, HIT_MS);
     return () => clearTimeout(timer);
-  }, [outcome, playTransition]);
+  }, [audio, outcome, playTransition]);
   const scene = outcome ?? data;
   const room = scene?.room;
   const self = room?.players.find((p) => p.id === scene?.selfId);
