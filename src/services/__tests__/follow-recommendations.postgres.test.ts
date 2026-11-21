@@ -71,7 +71,14 @@ describe.skipIf(process.env.STACKLYST_SOCIAL_POSTGRES !== '1')(
                   profileStyle: {
                     frame: { id: 'frame-neon', decoration: 'neon', color: '#0083fe' },
                     flags: ['BR', 'pride-trans'],
-                    title: { name: 'private-title-hidden' },
+                    nameStyle: { color: '#c084fc', bold: true },
+                    title: {
+                      id: 'pythonista',
+                      name: 'Pythonista',
+                      color: '#22c55e',
+                      rarity: 'rare',
+                    },
+                    level: 99,
                   },
                 },
               })),
@@ -137,12 +144,19 @@ describe.skipIf(process.env.STACKLYST_SOCIAL_POSTGRES !== '1')(
             expect(serialized).not.toContain('never-return-this');
             expect(serialized).not.toContain('avatar_config');
             expect(serialized).not.toContain('@example.invalid');
-            expect(serialized).not.toContain('private-title-hidden');
+            expect(serialized).not.toContain('"level"');
             expect(
               recommendations.find((profile) => profile.id === ids.language)?.identity
             ).toEqual({
               frame: { id: 'frame-neon', decoration: 'neon', color: '#0083fe' },
               flags: ['BR', 'pride-trans'],
+              nameStyle: { color: '#c084fc', bold: true, italic: false, underline: false },
+              title: {
+                id: 'pythonista',
+                name: 'Pythonista',
+                color: '#22c55e',
+                rarity: 'rare',
+              },
             });
             context.db = {
               $transaction: (callback: (transaction: typeof tx) => unknown) => callback(tx),

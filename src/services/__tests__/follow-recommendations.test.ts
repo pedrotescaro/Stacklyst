@@ -13,7 +13,11 @@ function profile(id: string, extras = {}) {
     avatar_config: {
       displayName: `Name ${id}`,
       privateSecret: 'not-public',
-      profileStyle: { title: { name: 'private-title' } },
+      profileStyle: {
+        nameStyle: { color: '#c084fc', bold: true },
+        title: { id: 'pythonista', name: 'Pythonista', color: '#22c55e', rarity: 'rare' },
+        level: 99,
+      },
     },
     total_xp: 100,
     last_active_at: now,
@@ -80,8 +84,15 @@ describe('bounded follow recommendation refresh', () => {
       expect(JSON.stringify(query.where)).toContain('notIn');
     const serialized = JSON.stringify(refresh);
     expect(serialized).not.toMatch(
-      /not-public|privateSecret|avatar_config|private-title|followingId|blockerId|blockedId/
+      /not-public|privateSecret|avatar_config|"level"|followingId|blockerId|blockedId/
     );
+    expect(refresh[0].identity).toEqual({
+      frame: null,
+      flags: [],
+      nameStyle: { color: '#c084fc', bold: true, italic: false, underline: false },
+      title: { id: 'pythonista', name: 'Pythonista', color: '#22c55e', rarity: 'rare' },
+    });
+    expect(refresh[0].total_xp).toBe(100);
   });
   it('returns an honest empty batch when all eligible candidates are excluded, with no retry or fallback', async () => {
     const { db, users } = fixture([profile('only')]);

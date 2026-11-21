@@ -4,7 +4,8 @@ import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import Link from 'next/link';
 import { UsersRound } from 'lucide-react';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
-import { ProfileFlag } from '@/components/profile/ProfileIdentity';
+import { LevelBadge } from '@/components/LevelBadge';
+import { ProfileFlag, ProfileName, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import type { FollowRecommendation } from '@/lib/follow-recommendations';
 import { cn } from '@/lib/cn';
@@ -258,9 +259,9 @@ export function WhoToFollow({
                     />
                     <span className={styles.copy}>
                       <span className={styles.nameRow}>
-                        <span className={styles.name}>
+                        <ProfileName config={profile.identity} className={styles.name}>
                           {profile.display_name || profile.username}
-                        </span>
+                        </ProfileName>
                         {Boolean(profile.identity?.flags.length) && (
                           <span className={styles.flags}>
                             {profile.identity?.flags.map((flag) => (
@@ -270,6 +271,10 @@ export function WhoToFollow({
                         )}
                       </span>
                       <span className={styles.handle}>@{profile.username}</span>
+                      <span className={styles.badges}>
+                        <LevelBadge totalXp={profile.total_xp} />
+                        <ProfileTitle title={profile.identity?.title} />
+                      </span>
                       <span className={styles.reason}>{reasonLabel(profile.reason)}</span>
                     </span>
                   </Link>

@@ -47,23 +47,43 @@ describe('Profile recommendation relevance', () => {
       parseFollowRecommendationQuery(new URLSearchParams('exclude=first&exclude=second'))
     ).toThrow();
   });
-  it('exposes only validated frames and selected flags, without titles or private configuration', () => {
+  it('exposes selected public identity decorations without private configuration or a configured level', () => {
     const frame = { id: 'frame-neon', decoration: 'neon', color: '#0083fe' };
+    const nameStyle = { color: '#c084fc', bold: true, italic: false, underline: true };
+    const title = { id: 'pythonista', name: 'Pythonista', color: '#22c55e', rarity: 'rare' };
     expect(
       getFollowProfileIdentity({
         privateSecret: 'private',
         profileStyle: {
           frame,
           flags: ['BR', 'pride-trans', 'not-a-flag'],
-          title: { name: 'Hidden title' },
+          nameStyle: { ...nameStyle, privateSecret: 'private' },
+          title: { ...title, privateSecret: 'private' },
           level: 99,
         },
       })
-    ).toEqual({ frame, flags: ['BR', 'pride-trans'] });
+    ).toEqual({ frame, flags: ['BR', 'pride-trans'], nameStyle, title });
     expect(getFollowProfileIdentity({ frame: { ...frame, color: 'invalid' }, flag: 'BR' })).toEqual(
       { frame: null, flags: ['BR'] }
     );
     expect(getFollowProfileIdentity(null)).toEqual({ frame: null, flags: [] });
+  });
+  it('validates optional name and title decorations from serialized profile settings', () => {
+    expect(
+      getFollowProfileIdentity(
+        JSON.stringify({
+          profileStyle: {
+            nameStyle: { color: 'url(private)', bold: 'true', italic: true },
+            flags: ['BR', 'BR'],
+            title: { name: 'a'.repeat(61) },
+          },
+        })
+      )
+    ).toEqual({
+      frame: null,
+      flags: ['BR'],
+      nameStyle: { color: null, bold: false, italic: true, underline: false },
+    });
   });
   it('prioritizes real connections and shared interests over raw popularity', () => {
     const popular = scoreFollowCandidate({ ...base, followers: 1000000000 }, ['TS'], now);

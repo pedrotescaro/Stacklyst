@@ -45,12 +45,22 @@ export function parseFollowRecommendationQuery(params: URLSearchParams): {
 export interface FollowProfileIdentity {
   frame: ProfileIdentityStyle['frame'];
   flags: string[];
+  nameStyle?: ProfileIdentityStyle['nameStyle'];
+  title?: ProfileIdentityStyle['title'];
 }
 
 /** Only the public decorations needed by a suggestion, never the full avatar config. */
 export function getFollowProfileIdentity(config: unknown): FollowProfileIdentity {
   const identity = readProfileIdentity(config);
-  return { frame: identity.frame ?? null, flags: [...new Set(identity.flags ?? [])] };
+  const nameStyle = identity.nameStyle;
+  return {
+    frame: identity.frame ?? null,
+    flags: [...new Set(identity.flags ?? [])],
+    ...(nameStyle?.color || nameStyle?.bold || nameStyle?.italic || nameStyle?.underline
+      ? { nameStyle }
+      : {}),
+    ...(identity.title ? { title: identity.title } : {}),
+  };
 }
 
 export interface FollowRecommendation {

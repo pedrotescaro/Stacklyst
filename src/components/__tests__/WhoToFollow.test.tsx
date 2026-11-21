@@ -44,16 +44,17 @@ afterEach(() => {
   vi.unstubAllGlobals();
 });
 describe('Who to follow', () => {
-  it('shows the selected frame and flags without showing a title or level', async () => {
+  it('shows the selected name style, frame, flags and title with the level from total XP', async () => {
     vi.spyOn(global, 'fetch').mockResolvedValue(
       response([
         {
           ...profiles[0],
-          total_xp: 99999,
+          total_xp: 12450,
           identity: {
+            nameStyle: { color: '#0083fe', bold: true, italic: true, underline: true },
             frame: { id: 'neon', color: '#0083fe', decoration: 'neon' },
             flags: ['BR', 'pride-trans'],
-            title: { name: 'Hidden title' },
+            title: { id: 'pythonista', name: 'Pythonista', color: '#0083fe', rarity: 'rare' },
             level: 99,
           },
         },
@@ -66,8 +67,17 @@ describe('Who to follow', () => {
     });
     expect(screen.getByRole('img', { name: 'Bandeira: Brasil' })).toBeInTheDocument();
     expect(screen.getByRole('img', { name: 'Bandeira: Transgênero' })).toBeInTheDocument();
-    expect(screen.queryByText('Hidden title')).not.toBeInTheDocument();
-    expect(profile.textContent).not.toMatch(/lvl|nível|99999/i);
+    expect(screen.getByText('Alice')).toHaveStyle({
+      '--name-dark': '#0083fe',
+      fontWeight: 700,
+      fontStyle: 'italic',
+      textDecoration: 'underline',
+    });
+    expect(screen.getByText('Pythonista').parentElement).toHaveStyle({
+      backgroundColor: '#0083fe',
+    });
+    expect(screen.getByLabelText('Nível 13')).toHaveTextContent('Lvl 13');
+    expect(screen.queryByLabelText('Nível 99')).not.toBeInTheDocument();
   });
   it('shows three real profiles with working profile links and recommendation reasons', async () => {
     const fetchMock = vi.spyOn(global, 'fetch').mockResolvedValue(response(profiles));
@@ -79,6 +89,8 @@ describe('Who to follow', () => {
     expect(screen.getByText('Seguido por 2 pessoas que você segue')).toBeInTheDocument();
     expect(screen.getByText('Também explora TypeScript')).toBeInTheDocument();
     expect(screen.getAllByRole('button', { name: /^Seguir @/ })).toHaveLength(3);
+    expect(screen.getAllByLabelText('Nível 1')).toHaveLength(3);
+    expect(screen.getByText('carol_dev', { exact: true })).toBeInTheDocument();
     expect(screen.queryByText('@dani_dev')).not.toBeInTheDocument();
     expect(fetchMock).toHaveBeenCalledWith('/api/users/suggestions?limit=3', {
       signal: expect.any(AbortSignal),
