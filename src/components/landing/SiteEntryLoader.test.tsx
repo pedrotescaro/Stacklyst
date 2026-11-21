@@ -31,6 +31,18 @@ afterEach(() => {
 });
 
 describe('Site entry completion', () => {
+  it('holds the completed logo until the destination is ready without replaying the sequence', () => {
+    const onComplete = vi.fn();
+    const { rerender } = render(<SiteEntryLoader ready={false} onComplete={onComplete} />);
+    advance(ENTRY + EXIT + 5000);
+    transitionEnd(screen.getByTestId('site-entry-loader'));
+    expect(onComplete).not.toHaveBeenCalled();
+
+    rerender(<SiteEntryLoader ready onComplete={onComplete} />);
+    advance(EXIT);
+    expect(onComplete).toHaveBeenCalledOnce();
+  });
+
   it('waits for the exiting root opacity transition, ignoring earlier and child events', () => {
     const onComplete = vi.fn();
     render(<SiteEntryLoader onComplete={onComplete} />);

@@ -24,6 +24,7 @@ import { feedRankingSurfaceClassName } from '@/components/FeedRankingSwitcher';
 import { EmptyState } from '@/components/motion/EmptyState';
 import { LevelUpOverlay } from '@/components/motion/LevelUpOverlay';
 import { FeedRightSidebar } from '@/components/FeedRightSidebar';
+import { useFeedEntryReady } from '@/components/FeedEntryBoundary';
 import { crossfadeVariants, springGentle } from '@/lib/motion';
 import { openPostComposer } from '@/components/composer/PostComposerDialog';
 import { cn } from '@/lib/cn';
@@ -207,6 +208,7 @@ export function FeedContent({
   initialNextCursor,
   initialBookmarks = {},
 }: FeedContentProps) {
+  useFeedEntryReady();
   const { text } = useLocalizedText();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'feed' | 'quizzes' | 'duels' | 'ranking'>('feed');

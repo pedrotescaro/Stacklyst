@@ -139,7 +139,7 @@ describe('Supabase session proxy', () => {
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', '');
     vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', '');
 
-    const response = await updateSession(new NextRequest('https://stacklyst.test/'));
+    const response = await updateSession(new NextRequest('https://stacklyst.test/landing'));
 
     expect(response.status).toBe(200);
     expect(createServerClient).not.toHaveBeenCalled();
@@ -154,6 +154,63 @@ describe('Supabase session proxy', () => {
     expect(response.status).toBe(307);
     expect(response.headers.get('location')).toBe('https://stacklyst.test/login');
     expect(createServerClient).not.toHaveBeenCalled();
+  });
+
+  it.each([
+    [null, '/login'],
+    [{ sub: 'user-1' }, '/feed'],
+  ])('opens the application from root with claims=%j', async (claims, destination) => {
+    getClaims.mockResolvedValue({ data: { claims }, error: null });
+    const response = await updateSession(new NextRequest('https://stacklyst.test/'));
+    expect(response.status).toBe(307);
+    expect(response.headers.get('location')).toBe(`https://stacklyst.test${destination}`);
+    expect(response.headers.get('cache-control')).toBe('private, no-store');
+  });
+
+  it('opens login from root when Auth is not configured', async () => {
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_URL', '');
+    vi.stubEnv('NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY', '');
+    const response = await updateSession(new NextRequest('https://stacklyst.test/'));
+    expect(response.headers.get('location')).toBe('https://stacklyst.test/login');
+    expect(createServerClient).not.toHaveBeenCalled();
+  });
+
+  it.each([null, { sub: 'user-1' }])('keeps landing available with claims=%j', async (claims) => {
+    getClaims.mockResolvedValue({ data: { claims }, error: null });
+    const response = await updateSession(new NextRequest('https://stacklyst.test/landing'));
+    expect(response.status).toBe(200);
+  });
+
+  it('retains protected deep links in the login return destination', async () => {
+    getClaims.mockResolvedValue({ data: { claims: null }, error: null });
+    const response = await updateSession(
+      new NextRequest('https://stacklyst.test/profile/developer?tab=replies')
+    );
+    const destination = new URL(response.headers.get('location')!);
+    expect(destination.pathname).toBe('/login');
+    expect(destination.searchParams.get('next')).toBe('/profile/developer?tab=replies');
+  });
+
+  it.each([
+    ['/jobs?search=ts#list', '/jobs?search=ts#list'],
+    ['//attacker.example', '/feed'],
+    ['/login', '/feed'],
+    ['/register', '/feed'],
+    ['/check-email', '/feed'],
+  ])('respects a safe return destination for a signed-in login: %s', async (next, expected) => {
+    getClaims.mockResolvedValue({ data: { claims: { sub: 'user-1' } }, error: null });
+    const response = await updateSession(
+      new NextRequest(`https://stacklyst.test/login?${new URLSearchParams({ next })}`)
+    );
+    expect(response.headers.get('location')).toBe(`https://stacklyst.test${expected}`);
+  });
+
+  it('retains the unusable-session escape hatch on login', async () => {
+    getClaims.mockResolvedValue({ data: { claims: { sub: 'user-1' } }, error: null });
+    const response = await updateSession(
+      new NextRequest('https://stacklyst.test/login?reason=session_expired')
+    );
+    expect(response.status).toBe(200);
   });
 
   it('always verifies Supabase claims even when the local JWT exists', async () => {

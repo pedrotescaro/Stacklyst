@@ -3,7 +3,11 @@ import { getAuthUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { PostService } from '@/services/post.service';
 import { FeedContent } from './FeedContent';
-import { ONBOARDING_STATE_KEY, parseOnboarding } from '@/lib/onboarding';
+import {
+  ONBOARDING_STATE_KEY,
+  parseOnboarding,
+  type OnboardingPreferences,
+} from '@/lib/onboarding';
 import { exploreSearchUrl } from '@/lib/explore-search';
 
 export const revalidate = 0;
@@ -22,8 +26,10 @@ export default async function FeedPage({
   const state = await prisma.mobileState.findUnique({
     where: { user_id_key: { user_id: user.id, key: ONBOARDING_STATE_KEY } },
   });
-  const preferences = parseOnboarding(state?.value);
-  if (!preferences) redirect('/onboarding');
+  const preferences: OnboardingPreferences = parseOnboarding(state?.value) ?? {
+    feed: 'for-you',
+    languages: ['JS'],
+  };
   const { q } = await searchParams;
   if (typeof q === 'string' && q.trim()) redirect(exploreSearchUrl(q));
 

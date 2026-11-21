@@ -7,6 +7,7 @@ import { isTemporaryAuthFailure } from '@/lib/supabase/auth-errors';
 import { getErrorSummary } from '@/lib/connection-errors';
 import { logger } from '@/lib/logger';
 import { getSupabasePublicConfig, isSupabasePublicConfigured } from '@/lib/supabase/env';
+import { getAuthReturnPath } from '@/lib/auth-redirect';
 
 const PROTECTED_ROUTE_PREFIXES = [
   '/bookmarks',
@@ -25,6 +26,7 @@ const PROTECTED_ROUTE_PREFIXES = [
 ] as const;
 
 function copySessionState(source: NextResponse, target: NextResponse) {
+  target.headers.set('Cache-Control', 'private, no-store');
   source.cookies.getAll().forEach((cookie) => target.cookies.set(cookie));
 
   for (const headerName of ['cache-control', 'expires', 'pragma']) {
@@ -33,6 +35,14 @@ function copySessionState(source: NextResponse, target: NextResponse) {
   }
 
   return target;
+}
+
+function loginDestination(request: NextRequest) {
+  const destination = new URL('/login', request.url);
+  const next =
+    request.nextUrl.pathname === '/' ? '/feed' : request.nextUrl.pathname + request.nextUrl.search;
+  if (next !== '/feed') destination.searchParams.set('next', next);
+  return destination;
 }
 
 export async function updateSession(request: NextRequest) {
@@ -45,11 +55,8 @@ export async function updateSession(request: NextRequest) {
   // Keep public pages available so login/register can show their configuration
   // guidance. Protected routes remain closed when Auth is not configured.
   if (!isSupabasePublicConfigured()) {
-    if (!isProtectedRoute) return supabaseResponse;
-
-    const loginUrl = request.nextUrl.clone();
-    loginUrl.pathname = '/login';
-    return NextResponse.redirect(loginUrl);
+    if (!isProtectedRoute && pathname !== '/') return supabaseResponse;
+    return NextResponse.redirect(loginDestination(request));
   }
 
   const { url, key } = getSupabasePublicConfig();
@@ -106,10 +113,12 @@ export async function updateSession(request: NextRequest) {
     });
   }
 
-  if (!user && isProtectedRoute) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    return copySessionState(supabaseResponse, NextResponse.redirect(url));
+  if (!user && (isProtectedRoute || pathname === '/')) {
+    return copySessionState(supabaseResponse, NextResponse.redirect(loginDestination(request)));
+  }
+
+  if (user && pathname === '/') {
+    return copySessionState(supabaseResponse, NextResponse.redirect(new URL('/feed', request.url)));
   }
 
   // Keep the explicit reason escape hatch for a failed database lookup. It
@@ -121,8 +130,7 @@ export async function updateSession(request: NextRequest) {
     !(pathname === '/login' && request.nextUrl.searchParams.get('addAccount') === '1') &&
     reasonParam !== 'session_expired'
   ) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/feed';
+    const url = new URL(getAuthReturnPath(request.nextUrl.searchParams.get('next')), request.url);
     return copySessionState(supabaseResponse, NextResponse.redirect(url));
   }
 

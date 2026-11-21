@@ -6,6 +6,7 @@ import { BrandLogo } from '@/components/BrandLogo';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabasePublicConfigured } from '@/lib/supabase/env';
+import { getAuthReturnPath } from '@/lib/auth-redirect';
 import { OAUTH_PROVIDER_LABELS, type OAuthProvider } from '@/lib/supabase/oauth';
 import { ArrowLeft, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import AuthHero from '@/components/auth/AuthHero';
@@ -102,9 +103,11 @@ export default function RegisterPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [successDestination, setSuccessDestination] = useState<string | null>(null);
+  const [returnPath, setReturnPath] = useState('/feed');
 
   useEffect(() => {
     document.documentElement.classList.add('lp-landing-page');
+    setReturnPath(getAuthReturnPath(new URLSearchParams(window.location.search).get('next')));
     return () => {
       document.documentElement.classList.remove('lp-landing-page');
     };
@@ -124,10 +127,12 @@ export default function RegisterPage() {
 
     try {
       const supabase = createClient();
+      const callbackUrl = new URL('/api/auth/callback', window.location.origin);
+      callbackUrl.searchParams.set('next', returnPath);
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback`,
+          redirectTo: callbackUrl.toString(),
         },
       });
 
@@ -167,6 +172,7 @@ export default function RegisterPage() {
           username: trimmedUsername,
           email: trimmedEmail,
           password,
+          next: returnPath,
         }),
       });
 
@@ -185,11 +191,16 @@ export default function RegisterPage() {
         } catch {
           /* The confirmation page also accepts manual entry. */
         }
-        setSuccessDestination('/check-email');
+        setSuccessDestination(
+          returnPath === '/feed'
+            ? '/check-email'
+            : `/check-email?${new URLSearchParams({ next: returnPath })}`
+        );
         return;
       }
 
-      setSuccessDestination('/onboarding');
+      router.push(returnPath);
+      router.refresh();
     } catch (err) {
       console.error(err);
       setError(copy.serverError);
@@ -223,7 +234,7 @@ export default function RegisterPage() {
           <header className="relative flex w-full max-w-[466px] lg:max-w-none items-center justify-between mb-4 sm:mb-6 lg:absolute lg:top-8 lg:inset-x-0 lg:px-8 lg:mb-0 lg:pointer-events-none">
             {/* Seta para voltar para a landing page */}
             <Link
-              href="/"
+              href="/landing"
               aria-label={copy.backHome}
               title={copy.backHome}
               className="group z-10 flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-[#1a1a1a] text-zinc-400 transition-all duration-200 hover:border-white/20 hover:bg-[#222] hover:text-white lg:pointer-events-auto"
@@ -234,7 +245,7 @@ export default function RegisterPage() {
             {/* Logo centralizado no mobile e tablet (< lg) */}
             <div className="absolute inset-x-0 flex items-center justify-center pointer-events-none lg:hidden">
               <Link
-                href="/"
+                href="/landing"
                 className="pointer-events-auto inline-flex items-center gap-2.5 transition-opacity hover:opacity-85"
               >
                 <BrandLogo size={28} />
@@ -439,7 +450,14 @@ export default function RegisterPage() {
 
                 <p className="mt-5 sm:mt-6 text-center text-xs text-zinc-300">
                   {copy.hasAccount}{' '}
-                  <Link href="/login" className="font-semibold text-white hover:underline">
+                  <Link
+                    href={
+                      returnPath === '/feed'
+                        ? '/login'
+                        : `/login?${new URLSearchParams({ next: returnPath })}`
+                    }
+                    className="font-semibold text-white hover:underline"
+                  >
                     {copy.signIn}
                   </Link>
                 </p>

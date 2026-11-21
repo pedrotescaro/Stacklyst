@@ -85,7 +85,7 @@ describe('Email ownership and recovery', () => {
       expect.objectContaining({
         options: {
           data: { username: 'developer' },
-          emailRedirectTo: 'https://stacklyst.test/api/auth/callback?next=/onboarding',
+          emailRedirectTo: 'https://stacklyst.test/api/auth/callback?next=%2Ffeed',
         },
       })
     );
@@ -150,10 +150,27 @@ describe('Email ownership and recovery', () => {
     expect(mocks.resend).toHaveBeenCalledWith({
       type: 'signup',
       email: 'private@example.com',
-      options: { emailRedirectTo: 'https://stacklyst.test/api/auth/callback?next=/onboarding' },
+      options: { emailRedirectTo: 'https://stacklyst.test/api/auth/callback?next=%2Ffeed' },
     });
     expect(mocks.verifyOtp).not.toHaveBeenCalled();
   });
+  it.each(['/jobs?search=ts#list', '//attacker.example'])(
+    'keeps signup confirmation on a safe destination: %s',
+    async (next) => {
+      await register(
+        request('register', {
+          username: 'developer',
+          email: 'private@example.com',
+          password: 'strong-password',
+          next,
+        }),
+        context
+      );
+      const destination = new URL(mocks.signUp.mock.calls[0][0].options.emailRedirectTo);
+      expect(destination.origin).toBe('https://stacklyst.test');
+      expect(destination.searchParams.get('next')).toBe(next.startsWith('//') ? '/feed' : next);
+    }
+  );
   it('requires a valid OTP or token hash to confirm the address', async () => {
     mocks.verifyOtp.mockResolvedValueOnce({ data: {}, error: { message: 'expired' } });
     const invalid = await confirm(

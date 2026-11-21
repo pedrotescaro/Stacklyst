@@ -52,10 +52,7 @@ function registerForm() {
 }
 
 describe('Account opening animation', () => {
-  it.each([
-    [true, '/check-email'],
-    [false, '/onboarding'],
-  ] as const)(
+  it.each([[true, '/check-email']] as const)(
     'waits for the successful signup opening before navigating with confirmation=%s',
     async (requiresEmailConfirmation, destination) => {
       mocks.fetch.mockResolvedValue(
@@ -72,6 +69,17 @@ describe('Account opening animation', () => {
       expect(mocks.refresh).toHaveBeenCalledOnce();
     }
   );
+  it('navigates signed-in signup directly to the feed so its entry loader plays once', async () => {
+    mocks.fetch.mockResolvedValue(
+      new Response(JSON.stringify({ success: true, requiresEmailConfirmation: false }), {
+        status: 200,
+      })
+    );
+    registerForm();
+    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith('/feed'));
+    expect(screen.queryByTestId('opening-animation')).not.toBeInTheDocument();
+    expect(mocks.refresh).toHaveBeenCalledOnce();
+  });
   it('restores the signup form immediately on failure without playing the opening or navigating', async () => {
     mocks.fetch.mockResolvedValue(
       new Response(JSON.stringify({ error: 'Falha ao criar conta' }), { status: 503 })

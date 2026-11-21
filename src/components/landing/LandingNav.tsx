@@ -47,7 +47,7 @@ export default function LandingNav({ initialUser }: LandingNavProps) {
     >
       <div className={styles.inner}>
         {/* ── Logo ── */}
-        <Link href="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+        <Link href="/landing" className="flex items-center gap-2 sm:gap-3 group shrink-0">
           <BrandLogo size={27} className={styles.brand} />
         </Link>
 

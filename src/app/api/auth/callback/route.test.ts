@@ -1,9 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { GET } from './route';
-import { hasDatabaseConnection } from '@/lib/prisma';
+import { hasDatabaseConnection, prisma } from '@/lib/prisma';
 import { createClient } from '@/lib/supabase/server';
 import { signJwt, setJwtCookie } from '@/lib/jwt';
-vi.mock('@/lib/prisma', () => ({ hasDatabaseConnection: vi.fn(() => false), prisma: {} }));
+vi.mock('@/lib/prisma', () => ({
+  hasDatabaseConnection: vi.fn(() => false),
+  prisma: {
+    user: { findUnique: vi.fn(), create: vi.fn() },
+    languageTrail: { createMany: vi.fn() },
+  },
+}));
 vi.mock('@/lib/supabase/server', () => ({ createClient: vi.fn() }));
 vi.mock('@/lib/jwt', () => ({ signJwt: vi.fn(), setJwtCookie: vi.fn() }));
 beforeEach(() => vi.clearAllMocks());
@@ -97,6 +103,34 @@ describe('Native OAuth code delivery', () => {
 });
 
 describe('OAuth redirect destination', () => {
+  it.each(['/feed', '/jobs?search=ts#list'])(
+    'opens %s after provisioning a first OAuth login without forcing onboarding',
+    async (next) => {
+      vi.mocked(hasDatabaseConnection).mockReturnValueOnce(true);
+      vi.mocked(createClient).mockResolvedValueOnce({
+        auth: {
+          exchangeCodeForSession: vi.fn(async () => ({
+            data: {
+              user: { id: 'new-oauth-user', email: 'developer@example.com', user_metadata: {} },
+              session: { access_token: 'private' },
+            },
+            error: null,
+          })),
+        },
+      } as never);
+      vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null).mockResolvedValueOnce(null);
+      vi.mocked(prisma.user.create).mockResolvedValueOnce({ id: 'new-oauth-user' } as never);
+      const response = await GET(
+        new Request(
+          `https://stacklyst.test/api/auth/callback?${new URLSearchParams({ code: 'new-user-code', next })}`
+        )
+      );
+      expect(response.headers.get('location')).toBe(`https://stacklyst.test${next}`);
+      expect(prisma.user.create).toHaveBeenCalledOnce();
+      expect(prisma.languageTrail.createMany).toHaveBeenCalledOnce();
+      expect(setJwtCookie).toHaveBeenCalledOnce();
+    }
+  );
   it('keeps the web callback database guard when a native client is not requested', async () => {
     const response = await GET(
       new Request('https://stacklyst.test/api/auth/callback?code=web-code')

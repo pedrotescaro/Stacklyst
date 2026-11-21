@@ -6,6 +6,7 @@ import { ArrowLeft, CheckCircle2, Mail, LockKeyhole, Eye, EyeOff } from 'lucide-
 import { BrandLogo } from '@/components/BrandLogo';
 import { createClient } from '@/lib/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { getAuthReturnPath } from '@/lib/auth-redirect';
 
 export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmation' }) {
   const { isEnglish } = useLanguage();
@@ -76,8 +77,8 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
             'Use at least 8 characters and a password you do not use elsewhere.'
           )
         : text(
-            'Abra o link enviado ao seu e-mail para ativar sua conta e escolher suas linguagens. Se precisar, solicite outro abaixo.',
-            'Open the link in your email to activate your account and choose your languages. You can request another below.'
+            'Abra o link enviado ao seu e-mail para ativar sua conta e entrar no feed. Se precisar, solicite outro abaixo.',
+            'Open the link in your email to activate your account and enter the feed. You can request another below.'
           );
 
   async function submit(event: React.FormEvent) {
@@ -115,7 +116,14 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               email: email.trim().toLowerCase(),
-              ...(mode === 'confirmation' ? { action: 'resend' } : {}),
+              ...(mode === 'confirmation'
+                ? {
+                    action: 'resend',
+                    next: getAuthReturnPath(
+                      new URLSearchParams(window.location.search).get('next')
+                    ),
+                  }
+                : {}),
             }),
           }
         );
@@ -145,7 +153,7 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
     <main className="flex min-h-svh items-center justify-center bg-black px-5 py-12 text-white">
       <div className="w-full max-w-md">
         <Link
-          href="/"
+          href="/landing"
           className="inline-flex rounded-sm focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-blue-400"
         >
           <BrandLogo size={38} />

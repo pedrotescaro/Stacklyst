@@ -5,6 +5,7 @@ import { AVATAR_API_URL, DEFAULT_LANGUAGE_TRAILS } from '@/lib/config';
 import { signJwt, setJwtCookie } from '@/lib/jwt';
 import { logger } from '@/lib/logger';
 import { getOAuthSignupBio } from '@/lib/supabase/oauth';
+import { getAuthReturnPath } from '@/lib/auth-redirect';
 import {
   issueRecoveryProof,
   RECOVERY_COOKIE,
@@ -79,17 +80,7 @@ export async function GET(request: Request) {
   const code = searchParams.get('code');
   const tokenHash = searchParams.get('token_hash');
   const emailType = searchParams.get('type');
-  const next = searchParams.get('next') ?? '/feed';
-  // Accept only local absolute paths, never authority/credential URL syntax.
-  const destination = new URL('/feed', origin);
-  if (next.startsWith('/') && !next.startsWith('//') && !/[\\\u0000-\u001f\u007f]/.test(next)) {
-    const candidate = new URL(next, origin);
-    if (candidate.origin === origin) {
-      destination.pathname = candidate.pathname;
-      destination.search = candidate.search;
-      destination.hash = candidate.hash;
-    }
-  }
+  const destination = new URL(getAuthReturnPath(searchParams.get('next')), origin);
 
   const isRecovery = emailType === 'recovery' || destination.pathname === '/reset-password';
   if (searchParams.has('error') || searchParams.has('error_code')) {
@@ -156,8 +147,6 @@ export async function GET(request: Request) {
         let finalUsername = username;
 
         if (!existingUser) {
-          // New OAuth accounts choose their feed and languages before entering.
-          if (destination.pathname === '/feed') destination.pathname = '/onboarding';
           // Garantir que o username é único no banco
           const userWithSameName = await prisma.user.findUnique({
             where: { username: finalUsername },

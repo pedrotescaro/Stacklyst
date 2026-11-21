@@ -1,5 +1,6 @@
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PostService } from '@/services/post.service';
+import { prisma } from '@/lib/prisma';
 
 const redirect = vi.hoisted(() =>
   vi.fn(() => {
@@ -24,16 +25,43 @@ vi.mock('@/lib/prisma', () => ({
     badge: { findMany: vi.fn(async () => []) },
   },
 }));
-vi.mock('@/lib/onboarding', () => ({
-  ONBOARDING_STATE_KEY: 'onboarding',
-  parseOnboarding: () => ({ feed: 'for-you', languages: [] }),
-}));
 vi.mock('@/services/post.service', () => ({
   PostService: { getFeed: vi.fn(async () => ({ items: [], nextCursor: null })) },
 }));
 vi.mock('./FeedContent', () => ({ FeedContent: () => null }));
 
 import FeedPage from './page';
+
+beforeEach(() => vi.clearAllMocks());
+
+describe('Feed entry preferences', () => {
+  it.each([null, { value: {} }])(
+    'opens the first feed without mandatory onboarding: %j',
+    async (state) => {
+      vi.mocked(prisma.mobileState.findUnique).mockResolvedValueOnce(state as never);
+      const page = await FeedPage({ searchParams: Promise.resolve({}) });
+      expect(redirect).not.toHaveBeenCalled();
+      expect(page.props.initialPreferences).toEqual({ feed: 'for-you', languages: ['JS'] });
+      expect(PostService.getFeed).toHaveBeenCalledWith('viewer', {
+        limit: 10,
+        filter: 'for-you',
+        languages: ['JS'],
+        feedId: undefined,
+      });
+    }
+  );
+
+  it('preserves saved feed and language preferences', async () => {
+    const preferences = { feed: 'following', languages: ['TS', 'PYTHON'] };
+    vi.mocked(prisma.mobileState.findUnique).mockResolvedValueOnce({ value: preferences } as never);
+    const page = await FeedPage({ searchParams: Promise.resolve({}) });
+    expect(page.props.initialPreferences).toEqual(preferences);
+    expect(PostService.getFeed).toHaveBeenCalledWith(
+      'viewer',
+      expect.objectContaining({ filter: 'following', languages: ['TS', 'PYTHON'] })
+    );
+  });
+});
 
 describe('Feed search URL', () => {
   it('redirects older search links to Explore before loading the timeline', async () => {

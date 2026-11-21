@@ -52,7 +52,7 @@ export default function AuthHero() {
       <div className={styles.overlay} aria-hidden="true" />
 
       <div className="relative z-10 flex w-full -translate-y-[1.5%] flex-col items-center px-10 text-center">
-        <Link href="/" className="inline-flex items-center gap-5">
+        <Link href="/landing" className="inline-flex items-center gap-5">
           <BrandLogo size={50} className="text-white" />
         </Link>
 

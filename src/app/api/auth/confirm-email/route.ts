@@ -4,6 +4,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { createClient } from '@/lib/supabase/server';
 import { logger } from '@/lib/logger';
 import { rateLimit } from '@/lib/ratelimit';
+import { getAuthReturnPath } from '@/lib/auth-redirect';
 
 const confirmEmailSchema = z.object({
   email: z.string().email('Endereço de e-mail inválido'),
@@ -39,7 +40,7 @@ export const POST = apiHandler(
           type: 'signup',
           email: email.trim().toLowerCase(),
           options: {
-            emailRedirectTo: `${new URL(request.url).origin}/api/auth/callback?next=/onboarding`,
+            emailRedirectTo: `${new URL(request.url).origin}/api/auth/callback?${new URLSearchParams({ next: getAuthReturnPath(body.next) })}`,
           },
         });
         if (error) {

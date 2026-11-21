@@ -16,12 +16,16 @@ function prefersReducedMotion() {
 
 export default function SiteEntryLoader({
   onComplete,
+  ready = true,
 }: {
   onComplete?: () => void;
+  /** Keep the completed logo visible while the destination is still loading. */
+  ready?: boolean;
   forceMotion?: boolean;
 }) {
   const { text } = useLocalizedText();
-  const [exiting, setExiting] = useState(false);
+  const [sequenceComplete, setSequenceComplete] = useState(false);
+  const exiting = sequenceComplete && ready;
   const complete = useRef(onComplete);
   const completed = useRef(false);
   complete.current = onComplete;
@@ -34,7 +38,7 @@ export default function SiteEntryLoader({
 
   useEffect(() => {
     const reveal = window.setTimeout(
-      () => setExiting(true),
+      () => setSequenceComplete(true),
       prefersReducedMotion() ? 0 : SITE_ENTRY_DURATION_MS
     );
     return () => window.clearTimeout(reveal);

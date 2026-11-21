@@ -6,6 +6,7 @@ import { BrandLogo } from '@/components/BrandLogo';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabasePublicConfigured } from '@/lib/supabase/env';
+import { getAuthReturnPath } from '@/lib/auth-redirect';
 import { OAUTH_PROVIDER_LABELS, type OAuthProvider } from '@/lib/supabase/oauth';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import AuthHero from '@/components/auth/AuthHero';
@@ -77,6 +78,7 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [isAddAccount, setIsAddAccount] = useState(false);
+  const [returnPath, setReturnPath] = useState('/feed');
 
   useEffect(() => {
     document.documentElement.classList.add('lp-landing-page');
@@ -84,6 +86,7 @@ export default function LoginPage() {
     if (typeof window !== 'undefined') {
       const queryParams = new URLSearchParams(window.location.search);
       setIsAddAccount(queryParams.get('addAccount') === '1');
+      setReturnPath(getAuthReturnPath(queryParams.get('next')));
       const queryError = queryParams.get('error');
       if (queryError) {
         setError(queryError);
@@ -138,10 +141,15 @@ export default function LoginPage() {
         sessionStorage.removeItem('stacklyst_user');
       }
       const supabase = createClient();
+      const callbackUrl = new URL('/api/auth/callback', window.location.origin);
+      callbackUrl.searchParams.set('next', returnPath);
+      if (new URLSearchParams(window.location.search).get('addAccount') === '1') {
+        callbackUrl.searchParams.set('addAccount', '1');
+      }
       const { error: oauthError } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/api/auth/callback${new URLSearchParams(window.location.search).get('addAccount') === '1' ? '?addAccount=1' : ''}`,
+          redirectTo: callbackUrl.toString(),
         },
       });
 
@@ -190,10 +198,9 @@ export default function LoginPage() {
       if (new URLSearchParams(window.location.search).get('addAccount') === '1') {
         sessionStorage.removeItem('stacklyst_user');
         // Clear client caches belonging to the previous account.
-        // eslint-disable-next-line @next/next/no-location-assign-relative-destination
-        window.location.assign('/feed');
+        window.location.assign(returnPath);
       } else {
-        router.push('/feed');
+        router.push(returnPath);
         router.refresh();
       }
     } catch (err) {
@@ -218,7 +225,7 @@ export default function LoginPage() {
           <header className="relative flex w-full max-w-[466px] lg:max-w-none items-center justify-between mb-6 sm:mb-8 lg:absolute lg:top-8 lg:inset-x-0 lg:px-8 lg:mb-0 lg:pointer-events-none">
             {/* Seta para voltar para a landing page */}
             <Link
-              href="/"
+              href="/landing"
               aria-label={copy.backHome}
               title={copy.backHome}
               className="group z-10 flex h-10 w-10 items-center justify-center rounded-xl border border-white/[0.08] bg-[#1a1a1a] text-zinc-400 transition-all duration-200 hover:border-white/20 hover:bg-[#222] hover:text-white lg:pointer-events-auto"
@@ -229,7 +236,7 @@ export default function LoginPage() {
             {/* Logo centralizado no mobile e tablet (< lg) */}
             <div className="absolute inset-x-0 flex items-center justify-center pointer-events-none lg:hidden">
               <Link
-                href="/"
+                href="/landing"
                 className="pointer-events-auto inline-flex items-center gap-2.5 transition-opacity hover:opacity-85"
               >
                 <BrandLogo size={28} />
@@ -388,7 +395,14 @@ export default function LoginPage() {
 
             <p className="mt-6 sm:mt-8 text-center text-xs text-zinc-300">
               {copy.noAccount}{' '}
-              <Link href="/register" className="font-semibold text-white hover:underline">
+              <Link
+                href={
+                  returnPath === '/feed'
+                    ? '/register'
+                    : `/register?${new URLSearchParams({ next: returnPath })}`
+                }
+                className="font-semibold text-white hover:underline"
+              >
                 {copy.createAccount}
               </Link>
             </p>

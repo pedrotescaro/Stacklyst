@@ -6,6 +6,7 @@ import { rateLimit } from '@/lib/ratelimit';
 import { apiHandler } from '@/lib/api-handler';
 import { AVATAR_API_URL, DEFAULT_LANGUAGE_TRAILS, RATE_LIMIT_REGISTER } from '@/lib/config';
 import { logger } from '@/lib/logger';
+import { getAuthReturnPath } from '@/lib/auth-redirect';
 
 export const POST = apiHandler(
   async (request) => {
@@ -56,7 +57,7 @@ export const POST = apiHandler(
       password,
       options: {
         data: { username },
-        emailRedirectTo: `${new URL(request.url).origin}/api/auth/callback?next=/onboarding`,
+        emailRedirectTo: `${new URL(request.url).origin}/api/auth/callback?${new URLSearchParams({ next: getAuthReturnPath(body.next) })}`,
       },
     });
     if (authError) {
