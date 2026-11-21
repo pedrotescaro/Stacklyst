@@ -1,3 +1,4 @@
+import { notifyMentions } from '@/services/mention-notifications';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
@@ -5,7 +6,8 @@ import { isOwnedProfileUpload } from '@/lib/profile-upload';
 import type { Prisma } from '@prisma/client';
 import { bumpProfileVersion } from '@/lib/profile-version';
 
-const USERNAME_COOLDOWN_MS = 7 * 24 * 60 * 60 * 1000;
+import { USERNAME_COOLDOWN_MS } from '@/lib/username';
+import { AppError } from '@/lib/errors';
 
 export async function POST(request: Request) {
   try {
@@ -39,10 +41,10 @@ export async function POST(request: Request) {
       );
     }
 
-    let newUsername = undefined;
-    let usernameChangedAt: Date | undefined;
-    if (username && typeof username === 'string') {
-      const cleanUsername = username.trim().toLowerCase();
+    if (username !== undefined && typeof username !== 'string')
+      return NextResponse.json({ error: 'Nome de usuário inválido.' }, { status: 400 });
+    const cleanUsername = username?.trim().toLowerCase();
+    if (cleanUsername !== undefined) {
       if (cleanUsername.length < 2 || cleanUsername.length > 30) {
         return NextResponse.json(
           { error: 'O nome de usuário deve ter entre 2 e 30 caracteres.' },
@@ -55,38 +57,6 @@ export async function POST(request: Request) {
           { status: 400 }
         );
       }
-
-      if (cleanUsername !== user.username.toLowerCase()) {
-        const availableAt = user.username_changed_at
-          ? new Date(user.username_changed_at).getTime() + USERNAME_COOLDOWN_MS
-          : 0;
-        if (availableAt > Date.now()) {
-          return NextResponse.json(
-            {
-              error: `Você poderá mudar seu username novamente em ${new Date(availableAt).toLocaleDateString('pt-BR')}.`,
-              code: 'USERNAME_COOLDOWN',
-              usernameChangeAvailableAt: new Date(availableAt).toISOString(),
-            },
-            { status: 429 }
-          );
-        }
-
-        const existing = await prisma.user.findFirst({
-          where: {
-            username: { equals: cleanUsername, mode: 'insensitive' },
-            id: { not: user.id },
-          },
-        });
-
-        if (existing) {
-          return NextResponse.json(
-            { error: 'Este nome de usuário já está em uso por outro desenvolvedor.' },
-            { status: 409 }
-          );
-        }
-        newUsername = cleanUsername;
-        usernameChangedAt = new Date();
-      }
     }
 
     const hasNameUpdate = name !== undefined && typeof name === 'string';
@@ -97,8 +67,34 @@ export async function POST(request: Request) {
       await tx.$executeRaw`SELECT pg_advisory_xact_lock(hashtext('stacklyst:profile:' || ${user.id}))`;
       const current = await tx.user.findUniqueOrThrow({
         where: { id: user.id },
-        select: { avatar_config: true },
+        select: { avatar_config: true, username: true, username_changed_at: true, bio: true },
       });
+      const changingUsername =
+        cleanUsername !== undefined && cleanUsername !== current.username.toLowerCase();
+      if (changingUsername) {
+        const availableAt = current.username_changed_at
+          ? current.username_changed_at.getTime() + USERNAME_COOLDOWN_MS
+          : 0;
+        if (availableAt > Date.now())
+          throw new AppError(
+            'USERNAME_COOLDOWN',
+            'Você pode alterar seu nome de usuário a cada 3 minutos.',
+            429,
+            { usernameChangeAvailableAt: new Date(availableAt).toISOString() }
+          );
+        const taken = await tx.user.findFirst({
+          where: { username: { equals: cleanUsername, mode: 'insensitive' }, id: { not: user.id } },
+          select: { id: true },
+        });
+        if (taken)
+          throw new AppError('USERNAME_TAKEN', 'Este nome de usuário já está em uso.', 409);
+      }
+      if (typeof bio === 'string')
+        await notifyMentions(tx, user.id, bio, {
+          type: 'PROFILE',
+          id: user.id,
+          previousBio: current.bio,
+        });
       let updatedAvatarConfig: Prisma.InputJsonObject | undefined;
       if (hasNameUpdate || hasConfigUpdate) {
         const currentConfig =
@@ -119,8 +115,8 @@ export async function POST(request: Request) {
       const updated = await tx.user.update({
         where: { id: user.id },
         data: {
-          username: newUsername !== undefined ? newUsername : undefined,
-          username_changed_at: usernameChangedAt,
+          username: changingUsername ? cleanUsername : undefined,
+          username_changed_at: changingUsername ? new Date() : undefined,
           bio: bio !== undefined ? bio : undefined,
           institution: institution !== undefined ? institution : undefined,
           github_username: github_username !== undefined ? github_username : undefined,
@@ -138,6 +134,16 @@ export async function POST(request: Request) {
 
     return NextResponse.json(updatedUser);
   } catch (error) {
+    if (error instanceof AppError)
+      return NextResponse.json(
+        { error: error.message, code: error.code, ...(error.details ?? {}) },
+        { status: error.statusCode }
+      );
+    if (typeof error === 'object' && error && 'code' in error && error.code === 'P2002')
+      return NextResponse.json(
+        { error: 'Este nome de usuário já está em uso.', code: 'USERNAME_TAKEN' },
+        { status: 409 }
+      );
     console.error('Error updating profile settings:', error);
     return NextResponse.json({ error: 'Erro ao atualizar perfil' }, { status: 500 });
   }

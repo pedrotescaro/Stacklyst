@@ -1,5 +1,6 @@
 'use client';
 
+import { parseMentions } from '@/lib/mentions';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, Edit3, GraduationCap, Sparkles, Swords, Trophy } from 'lucide-react';
@@ -231,11 +232,12 @@ export function ProfileHero({
 
       <div className="mt-5 space-y-3">
         <p className="max-w-2xl text-sm font-semibold leading-6 text-dd-text">
-          {profile.bio ||
-            text(
-              'Aprendendo, praticando e compartilhando código com a comunidade Stacklyst.',
-              'Learning, practicing, and sharing code with the Stacklyst community.'
-            )}
+          {profile.bio
+            ? parseMentions(profile.bio)
+            : text(
+                'Aprendendo, praticando e compartilhando código com a comunidade Stacklyst.',
+                'Learning, practicing, and sharing code with the Stacklyst community.'
+              )}
         </p>
         <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm font-bold text-dd-muted">

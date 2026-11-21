@@ -1,3 +1,4 @@
+import { notifyMentions } from '@/services/mention-notifications';
 import { Prisma } from '@prisma/client';
 import { EXTRA_PROFILE_FRAMES } from '@/lib/profile-frames';
 import { prisma } from '@/lib/prisma';
@@ -594,6 +595,12 @@ export async function saveProfileCustomization(
         !Array.isArray(user.avatar_config)
           ? user.avatar_config
           : {};
+      if (parsed.profile?.bio !== undefined)
+        await notifyMentions(tx, userId, parsed.profile.bio ?? '', {
+          type: 'PROFILE',
+          id: userId,
+          previousBio: user.bio,
+        });
       await tx.user.update({
         where: { id: userId },
         data: {

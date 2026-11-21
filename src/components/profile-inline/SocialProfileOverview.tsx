@@ -1,4 +1,6 @@
 'use client';
+import { MentionTextarea } from '@/components/MentionTextarea';
+import { parseMentions } from '@/lib/mentions';
 import { ColorPalette } from '@/components/ColorPalette';
 
 import Link from 'next/link';
@@ -1122,13 +1124,13 @@ export function SocialProfileOverview({
               <span className={styles.editAnchor}>
                 Biografia <Pencil size={12} aria-hidden="true" />
               </span>
-              <textarea
+              <MentionTextarea
                 className={styles.textarea}
                 rows={2}
                 maxLength={500}
                 value={basics.bio || ''}
-                onChange={(event) =>
-                  setBasics((current) => ({ ...current, bio: event.target.value || null }))
+                onValueChange={(value) =>
+                  setBasics((current) => ({ ...current, bio: value || null }))
                 }
                 disabled={saving}
               />
@@ -1264,7 +1266,7 @@ export function SocialProfileOverview({
             </div>
           </div>
         ) : (
-          activeBasics.bio && <p className={styles.bio}>{activeBasics.bio}</p>
+          activeBasics.bio && <p className={styles.bio}>{parseMentions(activeBasics.bio)}</p>
         )}
         <div className={styles.meta}>
           {activeBasics.institution && (

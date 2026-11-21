@@ -148,8 +148,9 @@ export async function GET(request: Request) {
 
         if (!existingUser) {
           // Garantir que o username é único no banco
-          const userWithSameName = await prisma.user.findUnique({
-            where: { username: finalUsername },
+          const userWithSameName = await prisma.user.findFirst({
+            where: { username: { equals: finalUsername, mode: 'insensitive' } },
+            select: { id: true },
           });
           if (userWithSameName) {
             finalUsername = `${username}_${data.user.id.substring(0, 4)}`;

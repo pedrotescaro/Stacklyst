@@ -6,7 +6,7 @@ import { signJwt, setJwtCookie } from '@/lib/jwt';
 vi.mock('@/lib/prisma', () => ({
   hasDatabaseConnection: vi.fn(() => false),
   prisma: {
-    user: { findUnique: vi.fn(), create: vi.fn() },
+    user: { findUnique: vi.fn(), findFirst: vi.fn(), create: vi.fn() },
     languageTrail: { createMany: vi.fn() },
   },
 }));
@@ -118,7 +118,8 @@ describe('OAuth redirect destination', () => {
           })),
         },
       } as never);
-      vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null).mockResolvedValueOnce(null);
+      vi.mocked(prisma.user.findUnique).mockResolvedValueOnce(null);
+      vi.mocked(prisma.user.findFirst).mockResolvedValueOnce(null);
       vi.mocked(prisma.user.create).mockResolvedValueOnce({ id: 'new-oauth-user' } as never);
       const response = await GET(
         new Request(

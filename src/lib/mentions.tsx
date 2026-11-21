@@ -1,15 +1,15 @@
+import { mentionPattern } from './mention-text';
 import Link from 'next/link';
 import React from 'react';
 
 export function parseMentions(text: string) {
   if (!text) return '';
 
-  // Matches '@username' only when not preceded by word characters, dots, or dashes (like in emails)
-  const parts = text.split(/(?<![\w.-])(@\w+)/g);
+  const parts = text.split(mentionPattern);
 
   return parts.map((part, index) => {
-    if (part.startsWith('@')) {
-      const username = part.slice(1);
+    if (index % 2 === 1) {
+      const username = part;
       return (
         <Link
           key={index}
@@ -17,7 +17,7 @@ export function parseMentions(text: string) {
           className="text-blue-500 hover:underline font-semibold"
           onClick={(e) => e.stopPropagation()}
         >
-          {part}
+          {'@' + username}
         </Link>
       );
     }

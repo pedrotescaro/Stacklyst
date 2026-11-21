@@ -10,6 +10,7 @@ import {
   type MouseEvent,
   type ReactNode,
 } from 'react';
+import { mentionPattern } from '@/lib/mention-text';
 import Image from 'next/image';
 import Link from 'next/link';
 import ReactMarkdown, { type Components } from 'react-markdown';
@@ -38,8 +39,6 @@ interface MarkdownNode {
   title?: string | null;
   children?: MarkdownNode[];
 }
-
-const mentionPattern = /(?<![\w.-])@([A-Za-z0-9_]{1,20})/g;
 
 function splitMentions(value: string): MarkdownNode[] {
   const nodes: MarkdownNode[] = [];

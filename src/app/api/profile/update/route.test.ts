@@ -4,6 +4,7 @@ const mocks = vi.hoisted(() => ({
   lock: vi.fn(),
   read: vi.fn(),
   update: vi.fn(),
+  findFirst: vi.fn(),
   version: vi.fn(),
 }));
 vi.mock('@/lib/auth', () => ({ getAuthUser: mocks.auth }));
@@ -12,7 +13,7 @@ vi.mock('@/lib/prisma', () => ({
     $transaction: (callback: (tx: unknown) => unknown) =>
       callback({
         $executeRaw: mocks.lock,
-        user: { findUniqueOrThrow: mocks.read, update: mocks.update },
+        user: { findUniqueOrThrow: mocks.read, update: mocks.update, findFirst: mocks.findFirst },
         profileCustomization: { upsert: mocks.version },
       }),
   },
@@ -30,7 +31,9 @@ beforeEach(() => {
     username: 'pedro',
     avatar_config: { profileStyle: { title: { id: 'stale' } } },
   });
+  mocks.findFirst.mockResolvedValue(null);
   mocks.read.mockResolvedValue({
+    username: 'pedro',
     avatar_config: { skin: 1, profileStyle: { title: { id: 'latest-earned' } } },
   });
   mocks.update.mockImplementation(async (input) => ({ id: 'owner', ...input.data }));
@@ -75,5 +78,37 @@ describe('legacy profile edits and earned decoration protection', () => {
       where: { id: 'owner' },
       data: { avatar_url: null },
     });
+  });
+});
+
+describe('username changes', () => {
+  it('uses the locked timestamp and releases the name change at exactly three minutes', async () => {
+    vi.useFakeTimers();
+    try {
+      const changedAt = new Date('2026-01-01T12:00:00Z');
+      mocks.read.mockResolvedValue({ username: 'pedro', username_changed_at: changedAt });
+      vi.setSystemTime(changedAt.getTime() + 179_999);
+      const blocked = await POST(request({ username: 'New-Name' }));
+      expect(blocked.status).toBe(429);
+      expect(await blocked.json()).toMatchObject({
+        usernameChangeAvailableAt: '2026-01-01T12:03:00.000Z',
+      });
+      expect(mocks.update).not.toHaveBeenCalled();
+      vi.setSystemTime(changedAt.getTime() + 180_000);
+      expect((await POST(request({ username: 'New-Name' }))).status).toBe(200);
+      expect(mocks.update.mock.calls[0][0].data.username).toBe('new-name');
+    } finally {
+      vi.useRealTimers();
+    }
+  });
+  it('returns a conflict for a case-insensitive match or a simultaneous unique index failure', async () => {
+    mocks.findFirst.mockResolvedValueOnce({ id: 'another' });
+    expect((await POST(request({ username: 'Taken' }))).status).toBe(409);
+    expect(mocks.findFirst.mock.calls[0][0].where.username).toEqual({
+      equals: 'taken',
+      mode: 'insensitive',
+    });
+    mocks.update.mockRejectedValueOnce({ code: 'P2002' });
+    expect((await POST(request({ username: 'Taken' }))).status).toBe(409);
   });
 });

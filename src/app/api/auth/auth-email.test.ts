@@ -22,7 +22,10 @@ vi.mock('@/lib/supabase/admin', () => ({
 }));
 vi.mock('@/lib/prisma', () => ({
   hasDatabaseConnection: () => true,
-  prisma: { user: { findUnique: mocks.findUnique }, $transaction: mocks.transaction },
+  prisma: {
+    user: { findUnique: mocks.findUnique, findFirst: mocks.findUnique },
+    $transaction: mocks.transaction,
+  },
 }));
 vi.mock('@/lib/ratelimit', () => ({ rateLimit: mocks.rateLimit }));
 vi.mock('@/lib/auth', () => ({ getAuthUser: vi.fn(async () => null) }));

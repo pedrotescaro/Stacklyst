@@ -1,5 +1,7 @@
 'use client';
 
+import { USERNAME_COOLDOWN_MS } from '@/lib/username';
+import { MentionTextarea } from '@/components/MentionTextarea';
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
@@ -61,6 +63,14 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
   const [error, setError] = useState<string | null>(null);
   const [usernameConfirmOpen, setUsernameConfirmOpen] = useState(false);
   const [usernameChangeAvailableAt, setUsernameChangeAvailableAt] = useState<string | null>(null);
+  useEffect(() => {
+    if (!usernameChangeAvailableAt) return;
+    const timer = window.setTimeout(
+      () => setUsernameChangeAvailableAt(null),
+      Math.max(0, Date.parse(usernameChangeAvailableAt) - Date.now())
+    );
+    return () => window.clearTimeout(timer);
+  }, [usernameChangeAvailableAt]);
 
   const bannerInputRef = useRef<HTMLInputElement>(null);
 
@@ -87,7 +97,7 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
       setError(null);
       setUsernameConfirmOpen(false);
       const availableAt = profileUser.username_changed_at
-        ? new Date(profileUser.username_changed_at).getTime() + 7 * 24 * 60 * 60 * 1000
+        ? new Date(profileUser.username_changed_at).getTime() + USERNAME_COOLDOWN_MS
         : 0;
       setUsernameChangeAvailableAt(
         availableAt > Date.now() ? new Date(availableAt).toISOString() : null
@@ -203,14 +213,14 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
   const handleSave = async () => {
     const cleanUsername = username.trim().toLowerCase();
     const cooldownEndsAt = profileUser.username_changed_at
-      ? new Date(profileUser.username_changed_at).getTime() + 7 * 24 * 60 * 60 * 1000
+      ? new Date(profileUser.username_changed_at).getTime() + USERNAME_COOLDOWN_MS
       : 0;
     if (cleanUsername !== profileUser.username.toLowerCase() && cooldownEndsAt > Date.now()) {
       setUsernameChangeAvailableAt(new Date(cooldownEndsAt).toISOString());
       setError(
         text(
-          'Você só poderá mudar o username novamente após 7 dias.',
-          'You can change your username again after 7 days.'
+          'Você só poderá mudar o username novamente após 3 minutos.',
+          'You can change your username again after 3 minutes.'
         )
       );
       return;
@@ -425,7 +435,7 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
                   {usernameChangeAvailableAt && (
                     <p className="mt-2 text-[11px] text-amber-300">
                       {text('Username bloqueado até', 'Username locked until')}{' '}
-                      {new Date(usernameChangeAvailableAt).toLocaleDateString(
+                      {new Date(usernameChangeAvailableAt).toLocaleTimeString(
                         language === 'en' ? 'en-US' : 'pt-BR'
                       )}
                       .
@@ -438,9 +448,9 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
                   <label className="absolute top-2.5 left-3 text-[11px] font-bold text-dd-muted pointer-events-none uppercase tracking-wider">
                     Bio
                   </label>
-                  <textarea
+                  <MentionTextarea
                     value={bio}
-                    onChange={(e) => setBio(e.target.value)}
+                    onValueChange={setBio}
                     rows={3}
                     maxLength={160}
                     className="w-full pt-8 pb-2.5 px-3 border border-dd-border rounded-xl bg-transparent text-sm text-dd-text resize-none focus:border-blue-500 focus:outline-none transition-colors focus:ring-2 focus:ring-blue-500/20"
@@ -557,8 +567,8 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
                       `Do you want to change your username to @${username.trim().toLowerCase()}?`
                     )}{' '}
                     {text(
-                      'Essa alteração só poderá ser feita novamente após 7 dias.',
-                      'You can change it again after 7 days.'
+                      'Essa alteração só poderá ser feita novamente após 3 minutos.',
+                      'You can change it again after 3 minutes.'
                     )}
                   </p>
                   <div className="mt-5 flex justify-end gap-2">

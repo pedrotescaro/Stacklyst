@@ -1,7 +1,16 @@
 'use client';
 
-import { forwardRef, useEffect, useImperativeHandle, useRef, type FocusEvent } from 'react';
-import { useEditor, EditorContent } from '@tiptap/react';
+import {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+  type FocusEvent,
+} from 'react';
+import { activeMention } from '@/lib/mention-text';
+import { MentionDropdown, type MentionTarget } from '@/components/motion/MentionDropdown';
+import { useEditor, EditorContent, type Editor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Placeholder from '@tiptap/extension-placeholder';
 import { BubbleMenu } from '@tiptap/react/menus';
@@ -60,6 +69,35 @@ export const NotionEditor = forwardRef<NotionEditorRef, NotionEditorProps>(funct
   },
   ref
 ) {
+  const [mention, setMention] = useState<MentionTarget | null>(null);
+  function syncMention(current: Editor) {
+    const { selection } = current.state;
+    const { $from } = selection;
+    if (
+      !current.isFocused ||
+      !selection.empty ||
+      current.isActive('codeBlock') ||
+      current.isActive('code') ||
+      current.isActive('link')
+    ) {
+      setMention(null);
+      return;
+    }
+    const text = $from.parent.textBetween(0, $from.parent.content.size, undefined, '\uFFFC');
+    const range = activeMention(text, $from.parentOffset);
+    if (!range) {
+      setMention(null);
+      return;
+    }
+    const pos = $from.pos;
+    setMention({
+      ...range,
+      from: $from.start() + range.from,
+      to: $from.start() + range.to,
+      field: current.view.dom,
+      rect: () => current.view.coordsAtPos(Math.min(pos, current.state.doc.content.size)),
+    });
+  }
   const syncingRef = useRef(false);
   const lastEmittedRef = useRef(value);
   const onStateChangeRef = useRef(onStateChange);
@@ -105,12 +143,20 @@ export const NotionEditor = forwardRef<NotionEditorRef, NotionEditorProps>(funct
       if (syncingRef.current) return;
       // Never truncate serialized markdown: it can cut a mark or code fence in half.
       // The shared composer validates the complete body and shows its character limit.
+      syncMention(currentEditor);
       const markdown = docToMarkdown(currentEditor.getJSON());
       lastEmittedRef.current = markdown;
       onChange(markdown);
     },
-    onFocus: () => onFocus?.(),
-    onBlur: () => onBlur?.(),
+    onSelectionUpdate: ({ editor }) => syncMention(editor),
+    onFocus: ({ editor }) => {
+      onFocus?.();
+      syncMention(editor);
+    },
+    onBlur: () => {
+      setMention(null);
+      onBlur?.();
+    },
     onTransaction: ({ editor: currentEditor }) => {
       onStateChangeRef.current?.({
         bold: currentEditor.isActive('bold'),
@@ -252,6 +298,29 @@ export const NotionEditor = forwardRef<NotionEditorRef, NotionEditorProps>(funct
       )}
 
       <EditorContent editor={editor} />
+      {editor && mention && (
+        <MentionDropdown
+          key={mention.from + ':' + mention.query}
+          target={mention}
+          onClose={() => setMention(null)}
+          onPick={(username) => {
+            const hasSpace =
+              editor.state.doc.textBetween(
+                mention.to,
+                Math.min(mention.to + 1, editor.state.doc.content.size)
+              ) === ' ';
+            editor
+              .chain()
+              .focus()
+              .insertContentAt(
+                { from: mention.from, to: mention.to + (hasSpace ? 1 : 0) },
+                { type: 'text', text: '@' + username + ' ' }
+              )
+              .run();
+            setMention(null);
+          }}
+        />
+      )}
     </div>
   );
 });

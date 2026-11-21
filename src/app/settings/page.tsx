@@ -1,4 +1,6 @@
 'use client';
+import { USERNAME_COOLDOWN_MS } from '@/lib/username';
+import { MentionTextarea } from '@/components/MentionTextarea';
 import { saveTheme, syncTheme } from '@/lib/theme';
 
 import { useState, useEffect } from 'react';
@@ -69,6 +71,14 @@ export default function SettingsPage() {
   const [username, setUsername] = useState('');
   const [usernameConfirmOpen, setUsernameConfirmOpen] = useState(false);
   const [usernameChangeAvailableAt, setUsernameChangeAvailableAt] = useState<string | null>(null);
+  useEffect(() => {
+    if (!usernameChangeAvailableAt) return;
+    const timer = window.setTimeout(
+      () => setUsernameChangeAvailableAt(null),
+      Math.max(0, Date.parse(usernameChangeAvailableAt) - Date.now())
+    );
+    return () => window.clearTimeout(timer);
+  }, [usernameChangeAvailableAt]);
 
   // Layout states for Twitter-like UI
   const [activeTab, setActiveTab] = useState<SettingsTab>('sua-conta');
@@ -138,7 +148,7 @@ export default function SettingsPage() {
         setUser(profileData);
         setUsername(profileData.username || '');
         const usernameAvailableAt = profileData.username_changed_at
-          ? new Date(profileData.username_changed_at).getTime() + 7 * 24 * 60 * 60 * 1000
+          ? new Date(profileData.username_changed_at).getTime() + USERNAME_COOLDOWN_MS
           : 0;
         setUsernameChangeAvailableAt(
           usernameAvailableAt > Date.now() ? new Date(usernameAvailableAt).toISOString() : null
@@ -224,7 +234,7 @@ export default function SettingsPage() {
         if (data.username_changed_at) {
           setUsernameChangeAvailableAt(
             new Date(
-              new Date(data.username_changed_at).getTime() + 7 * 24 * 60 * 60 * 1000
+              new Date(data.username_changed_at).getTime() + USERNAME_COOLDOWN_MS
             ).toISOString()
           );
         }
@@ -249,14 +259,14 @@ export default function SettingsPage() {
     const currentUsername = user?.username?.toLowerCase() || '';
     const cleanUsername = username.trim().toLowerCase();
     const cooldownEndsAt = user?.username_changed_at
-      ? new Date(user.username_changed_at).getTime() + 7 * 24 * 60 * 60 * 1000
+      ? new Date(user.username_changed_at).getTime() + USERNAME_COOLDOWN_MS
       : 0;
     if (cleanUsername !== currentUsername && cooldownEndsAt > Date.now()) {
       setUsernameChangeAvailableAt(new Date(cooldownEndsAt).toISOString());
       setError(
         language === 'en'
-          ? 'You can change your username again after 7 days.'
-          : 'Você só poderá mudar o username novamente após 7 dias.'
+          ? 'You can change your username again after 3 minutes.'
+          : 'Você só poderá mudar o username novamente após 3 minutos.'
       );
       return;
     }
@@ -561,10 +571,10 @@ export default function SettingsPage() {
                     />
                     <p className="mt-2 text-[11px] text-dd-muted">
                       {language === 'en'
-                        ? 'Username changes are allowed every 7 days.'
-                        : 'O username pode ser alterado a cada 7 dias.'}
+                        ? 'Username changes are allowed every 3 minutes.'
+                        : 'O username pode ser alterado a cada 3 minutos.'}
                       {usernameChangeAvailableAt &&
-                        ` ${language === 'en' ? 'Available on' : 'Disponível em'} ${new Date(usernameChangeAvailableAt).toLocaleDateString(language === 'en' ? 'en-US' : 'pt-BR')}.`}
+                        ` ${language === 'en' ? 'Available at' : 'Disponível às'} ${new Date(usernameChangeAvailableAt).toLocaleTimeString(language === 'en' ? 'en-US' : 'pt-BR')}.`}
                     </p>
                   </div>
 
@@ -780,11 +790,11 @@ export default function SettingsPage() {
                       <FileText className="w-3.5 h-3.5 text-dd-muted" />
                       {t.settings.account.bio}
                     </label>
-                    <textarea
+                    <MentionTextarea
                       id="bio"
                       rows={4}
                       value={bio}
-                      onChange={(e) => setBio(e.target.value)}
+                      onValueChange={setBio}
                       className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg/80 px-4 py-2.5 text-dd-text placeholder-slate-600 focus:border-blue-500/60 focus:outline-none resize-none transition-colors"
                       placeholder={t.settings.account.bioPlaceholder}
                     />
@@ -823,8 +833,8 @@ export default function SettingsPage() {
                       </h3>
                       <p className="mt-2 text-sm leading-relaxed text-dd-muted">
                         {language === 'en'
-                          ? `Do you want to change your username to @${username}? You can change it again after 7 days.`
-                          : `Você deseja mudar seu username para @${username}? Essa alteração só poderá ser feita novamente após 7 dias.`}
+                          ? `Do you want to change your username to @${username}? You can change it again after 3 minutes.`
+                          : `Você deseja mudar seu username para @${username}? Essa alteração só poderá ser feita novamente após 3 minutos.`}
                       </p>
                       <div className="mt-5 flex justify-end gap-2">
                         <button

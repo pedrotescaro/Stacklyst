@@ -1,3 +1,4 @@
+import { mentionPattern } from './mention-text';
 import { z } from 'zod';
 import { Language } from '@prisma/client';
 import { isKlipyMediaUrl } from '@/lib/klipy';
@@ -73,7 +74,7 @@ const imageUrlSchema = z
 
 const mentionSchema = z.string().refine(
   (body) => {
-    const mentions = body.match(/@[\w-]+/g) || [];
+    const mentions = body.match(mentionPattern) || [];
     return mentions.length <= 5;
   },
   { message: 'Máximo de 5 menções por post' }

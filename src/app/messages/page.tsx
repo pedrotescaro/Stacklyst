@@ -1053,7 +1053,7 @@ function MessagesContent() {
                       {/* Content Info */}
                       <div className="flex-grow min-w-0 space-y-1">
                         <div className="flex justify-between items-baseline gap-2">
-                          <DmName person={chat.partner} className="text-xs" />
+                          <DmName person={chat.partner} showTitle className="flex-wrap text-xs" />
                           <span className="text-[9.5px] text-dd-muted shrink-0 font-medium">
                             {formatChatTime(chat.lastMessageTime)}
                           </span>

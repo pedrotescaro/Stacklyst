@@ -1,3 +1,4 @@
+import type { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { visibleUserWhere } from '@/services/block.service';
@@ -11,15 +12,18 @@ export async function GET(request: Request) {
     }
 
     const { searchParams } = new URL(request.url);
-    const query = searchParams.get('q');
-
-    const whereClause: any = {};
-    if (query && query.trim().length > 0) {
-      whereClause.username = {
-        contains: query,
-        mode: 'insensitive',
-      };
-    }
+    const query = searchParams.get('q')?.trim();
+    const whereClause: Prisma.UserWhereInput = query
+      ? {
+          OR: [
+            { username: { contains: query, mode: 'insensitive' } },
+            { avatar_config: { path: ['name'], string_contains: query, mode: 'insensitive' } },
+            {
+              avatar_config: { path: ['displayName'], string_contains: query, mode: 'insensitive' },
+            },
+          ],
+        }
+      : {};
 
     const users = await prisma.user.findMany({
       where: { AND: [whereClause, visibleUserWhere(user.id)] },
@@ -29,6 +33,7 @@ export async function GET(request: Request) {
         avatar_url: true,
         avatar_config: true,
       },
+      orderBy: { username: 'asc' },
       take: 5,
     });
 

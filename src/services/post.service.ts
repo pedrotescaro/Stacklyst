@@ -1,3 +1,4 @@
+import { notifyMentions } from '@/services/mention-notifications';
 import { prisma } from '@/lib/prisma';
 import { visibleUserWhere } from '@/services/block.service';
 import { Language } from '@prisma/client';
@@ -123,43 +124,12 @@ export const PostService = {
         leveledUp = true;
       }
 
-      // 3. Mentions Parsing & Notifications
-      const usernames = Array.from(
-        new Set((body.match(/@([\w-]+)/g) || []).map((m) => m.substring(1)))
-      );
-
-      if (usernames.length > 0) {
-        const usersToNotify = await tx.user.findMany({
-          where: { username: { in: usernames } },
-          select: { id: true, username: true },
-        });
-
-        // Trigger mentions notifications (idempotent: unique target users)
-        for (const targetUser of usersToNotify) {
-          const canSee =
-            audience !== 'followers' ||
-            (await tx.follow.findUnique({
-              where: { followerId_followingId: { followerId: targetUser.id, followingId: userId } },
-            }));
-          if (targetUser.id !== userId && canSee) {
-            await tx.notification.create({
-              data: {
-                userId: targetUser.id,
-                type: 'MENTION',
-                actorId: userId,
-                resourceId: post.id,
-                resourceType: 'POST',
-                read: false,
-              },
-            });
-            logger.info('Mention notification created', {
-              postId: post.id,
-              actorId: userId,
-              targetId: targetUser.id,
-            });
-          }
-        }
-      }
+      await notifyMentions(tx, userId, body, {
+        type: 'POST',
+        id: post.id,
+        authorId: userId,
+        audience,
+      });
 
       logger.info('Post created successfully in DB', {
         userId,

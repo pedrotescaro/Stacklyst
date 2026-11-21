@@ -21,6 +21,7 @@ describe('Security and Platform Logic Hardening', () => {
   describe('P0: Orphan Account Takeover Prevention in Register', () => {
     it('rejects registration when email already exists without resetting password', async () => {
       vi.spyOn(prismaModule, 'hasDatabaseConnection').mockReturnValue(true);
+      vi.spyOn(prisma.user, 'findFirst').mockResolvedValue(null);
       vi.spyOn(prisma.user, 'findUnique').mockResolvedValue(null);
 
       const mockUpdateUserById = vi.fn();

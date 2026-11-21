@@ -1,3 +1,4 @@
+import { notifyMentions } from '@/services/mention-notifications';
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { BlockService } from '@/services/block.service';
@@ -98,7 +99,7 @@ export const POST = apiHandler(async (req, { params }) => {
         data: { post_id: postId },
       });
     }
-    return tx.answer.create({
+    const created = await tx.answer.create({
       data: {
         post_id: postId,
         author_id: user.id,
@@ -117,6 +118,13 @@ export const POST = apiHandler(async (req, { params }) => {
         },
       },
     });
+    await notifyMentions(tx, user.id, stripReplyMedia(parsed.body), {
+      type: 'ANSWER',
+      id: created.id,
+      authorId: post.author_id,
+      audience: post.audience,
+    });
+    return created;
   });
 
   // Notify post author using NotificationService

@@ -28,7 +28,6 @@ import {
 import { GifIcon } from '@/components/icons/GifIcon';
 import { ComposeModal } from '@/components/motion/ComposeModal';
 import { PublishButton, type PublishState } from '@/components/motion/PublishButton';
-import { MentionDropdown } from '@/components/motion/MentionDropdown';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { PostComposerExtras } from '@/components/PostComposerExtras';
 import { ComposerAttachments } from './ComposerAttachments';
@@ -144,7 +143,6 @@ export function PostComposerDialog({
     underline: false,
     color: null,
   });
-  const [showMentions, setShowMentions] = useState(true);
   const editorRef = useRef<NotionEditorRef>(null);
   const formId = useId();
   const submitLock = useRef(false);
@@ -235,7 +233,6 @@ export function PostComposerDialog({
     finalBody.length <= POST_CHAR_LIMIT &&
     !busy &&
     state === 'idle';
-  const lastWord = draft.body.split(/\s+/).at(-1) ?? '';
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -356,25 +353,11 @@ export function PostComposerDialog({
               <Editor
                 ref={editorRef}
                 value={draft.body}
-                onChange={(value) => {
-                  update('body', value);
-                  setShowMentions(true);
-                }}
+                onChange={(value) => update('body', value)}
                 onStateChange={setFormat}
                 placeholder={text('O que você está pensando?', "What's on your mind?")}
                 minHeight="10rem"
                 className="post-composer-editor"
-              />
-              <MentionDropdown
-                query={lastWord.replace(/^@/, '')}
-                visible={showMentions && lastWord.startsWith('@')}
-                onClose={() => setShowMentions(false)}
-                onSelect={(username) => {
-                  const words = draft.body.split(/\s+/);
-                  words[words.length - 1] = `@${username} `;
-                  update('body', words.join(' '));
-                  setShowMentions(false);
-                }}
               />
               <p
                 className={cn(

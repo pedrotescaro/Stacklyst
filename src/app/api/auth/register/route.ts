@@ -32,8 +32,9 @@ export const POST = apiHandler(
     }
 
     // Check username unique
-    const existingUsername = await prisma.user.findUnique({
-      where: { username },
+    const existingUsername = await prisma.user.findFirst({
+      where: { username: { equals: username, mode: 'insensitive' } },
+      select: { id: true },
     });
 
     if (existingUsername) {
