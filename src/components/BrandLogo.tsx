@@ -1,23 +1,66 @@
-import type { CSSProperties } from 'react';
+'use client';
+
+import { useEffect, useState, type CSSProperties } from 'react';
 import { brandGeometry } from '@/lib/brand-geometry';
+import {
+  brandWordmark,
+  WORDMARK_HEIGHT_RATIO,
+  WORDMARK_MARK_FRACTION,
+  WORDMARK_WIDTH_RATIO,
+} from '@/lib/brand-wordmark';
 import styles from './BrandLogo.module.css';
 
 export interface BrandLogoProps {
+  /** Height of the S in px; the full logo's "y" descender extends below it. */
   size?: number;
   className?: string;
+  /** Full logo (S + name). `false` shows only the S, e.g. in a collapsed sidebar. */
   wordmark?: boolean;
   animated?: boolean;
   label?: string;
 }
 
-/** Horizontal offset of "tackLyst" after the S, matching public/brand/wordmark.svg. */
-export const BRAND_SUFFIX_OFFSET = 904;
-const WORDMARK_VIEWBOX = `0 0 ${brandGeometry.wordmarkWidth} ${brandGeometry.wordmarkHeight}`;
+let artworkCheck: Promise<boolean> | null = null;
+let artworkFailed = false;
 
-/**
- * The S and "tackLyst" are both drawn as vector outlines with the same fill,
- * so the name renders in exactly the same blue as the monogram.
- */
+/** One shared load check for every logo on the page. */
+function checkArtwork() {
+  artworkCheck ??= new Promise<boolean>((resolve) => {
+    const image = new Image();
+    image.onload = () => resolve(true);
+    image.onerror = () => resolve(false);
+    image.src = brandWordmark.src;
+  });
+  return artworkCheck;
+}
+
+/** True once the logo artwork failed to load, so the name is typeset instead. */
+export function useBrandArtworkFailed() {
+  const [failed, setFailed] = useState(artworkFailed);
+  useEffect(() => {
+    if (artworkFailed || typeof Image === 'undefined') return;
+    let active = true;
+    void checkArtwork().then((loaded) => {
+      if (loaded) return;
+      artworkFailed = true;
+      if (active) setFailed(true);
+    });
+    return () => {
+      active = false;
+    };
+  }, []);
+  return failed;
+}
+
+/** Shape-only artwork painted with `currentColor`, so callers keep choosing the colour. */
+export const brandArtworkStyle = {
+  '--brand-artwork': `url("${brandWordmark.src}")`,
+  '--brand-wordmark-height': WORDMARK_HEIGHT_RATIO,
+  '--brand-wordmark-width': WORDMARK_WIDTH_RATIO,
+  '--brand-name-inset': `${((1 - WORDMARK_MARK_FRACTION) * 100).toFixed(2)}%`,
+  '--brand-text-scale': 1 / brandWordmark.textMarkRatio,
+} as CSSProperties;
+
 export function BrandLogo({
   size = 32,
   className = '',
@@ -25,9 +68,8 @@ export function BrandLogo({
   animated = false,
   label = 'Stacklyst',
 }: BrandLogoProps) {
+  const artworkFailed = useBrandArtworkFailed();
   const height = Math.min(size, 32);
-  const viewWidth = wordmark ? brandGeometry.wordmarkWidth : brandGeometry.width;
-  const viewHeight = wordmark ? brandGeometry.wordmarkHeight : brandGeometry.height;
 
   return (
     <span
@@ -36,30 +78,32 @@ export function BrandLogo({
       className={`${styles.brand} ${animated ? styles.animated : ''} ${className}`}
       style={
         {
+          ...brandArtworkStyle,
           '--brand-requested-size': `${size}px`,
           '--brand-width-ratio': wordmark
-            ? brandGeometry.wordmarkWidth / brandGeometry.height + 0.1
+            ? WORDMARK_WIDTH_RATIO + 0.1
             : brandGeometry.width / brandGeometry.height,
-          '--brand-view-ratio': viewWidth / viewHeight,
-          '--brand-height-ratio': viewHeight / brandGeometry.height,
         } as CSSProperties
       }
     >
-      <svg
-        className={styles.logo}
-        width={(height * viewWidth) / brandGeometry.height}
-        height={(height * viewHeight) / brandGeometry.height}
-        viewBox={wordmark ? WORDMARK_VIEWBOX : brandGeometry.viewBox}
-        fill="none"
-        aria-hidden="true"
-      >
-        <path className={styles.mark} d={brandGeometry.path} fill="currentColor" />
-        {wordmark && (
-          <g transform={`translate(${BRAND_SUFFIX_OFFSET} 0)`}>
-            <path className={styles.suffix} d={brandGeometry.suffixPath} fill="currentColor" />
-          </g>
-        )}
-      </svg>
+      {!wordmark ? (
+        <svg
+          className={styles.logo}
+          width={(height * brandGeometry.width) / brandGeometry.height}
+          height={height}
+          viewBox={brandGeometry.viewBox}
+          fill="none"
+          aria-hidden="true"
+        >
+          <path className={styles.mark} d={brandGeometry.path} fill="currentColor" />
+        </svg>
+      ) : artworkFailed ? (
+        <span className={styles.wordmarkText} aria-hidden="true" data-testid="brand-wordmark-text">
+          {brandWordmark.text}
+        </span>
+      ) : (
+        <span className={styles.wordmark} aria-hidden="true" data-testid="brand-wordmark" />
+      )}
     </span>
   );
 }

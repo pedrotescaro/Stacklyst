@@ -1,5 +1,6 @@
 .brand {
   --brand-color: #0083fe;
+  /* --brand-size is the height of the S; the full logo's "y" descender extends below it. */
   --brand-size: min(
     var(--brand-requested-size, 28px),
     var(--brand-cap, clamp(22px, 3vw, 32px)),
@@ -13,21 +14,49 @@
   color: var(--brand-color);
   line-height: 1;
 }
-/* --brand-size is the height of the S; the wordmark's descender ("y") extends below it. */
+
+/* The S on its own (collapsed sidebar, icons). */
 .logo {
   display: block;
-  height: calc(var(--brand-size) * var(--brand-height-ratio, 1));
-  width: calc(var(--brand-size) * var(--brand-height-ratio, 1) * var(--brand-view-ratio, 1));
+  height: var(--brand-size);
+  width: calc(var(--brand-size) * 868 / 801);
   flex-shrink: 0;
   overflow: visible;
   color: var(--brand-color);
 }
+
+/* Full logo: the artwork is used as a mask, so it takes the current text colour. */
+.wordmark {
+  display: block;
+  flex-shrink: 0;
+  height: calc(var(--brand-size) * var(--brand-wordmark-height));
+  width: calc(var(--brand-size) * var(--brand-wordmark-width));
+  background-color: currentColor;
+  -webkit-mask: var(--brand-artwork) left top / 100% 100% no-repeat;
+  mask: var(--brand-artwork) left top / 100% 100% no-repeat;
+}
+
+/* Typeset fallback with the logo typeface when the artwork cannot load. */
+.wordmarkText {
+  display: block;
+  font-family: var(--font-brand), var(--font-sans, system-ui), sans-serif;
+  font-size: calc(var(--brand-size) * var(--brand-text-scale));
+  font-weight: 400;
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: nowrap;
+  color: currentColor;
+}
+
 .animated .mark {
   animation: reveal-mark 620ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.animated .suffix {
-  animation: reveal-name 380ms 660ms cubic-bezier(0.22, 1, 0.36, 1) both;
+/* The S fills up from the bottom, then the name opens out of it. */
+.animated .wordmark,
+.animated .wordmarkText {
+  animation: reveal-logo 1040ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
 @keyframes reveal-mark {
   from {
     clip-path: inset(100% 0 0);
@@ -36,17 +65,22 @@
     clip-path: inset(0);
   }
 }
-@keyframes reveal-name {
-  from {
-    clip-path: inset(0 100% 0 0);
+@keyframes reveal-logo {
+  0% {
+    clip-path: inset(100% var(--brand-name-inset) 0 0);
   }
-  to {
-    clip-path: inset(0);
+  55% {
+    clip-path: inset(0 var(--brand-name-inset) 0 0);
+  }
+  100% {
+    clip-path: inset(0 -2% 0 0);
   }
 }
+
 @media (prefers-reduced-motion: reduce) {
   .animated .mark,
-  .animated .suffix {
+  .animated .wordmark,
+  .animated .wordmarkText {
     animation: none;
   }
 }

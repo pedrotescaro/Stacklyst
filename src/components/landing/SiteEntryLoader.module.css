@@ -1,4 +1,4 @@
-/* Clean entry: the S is traced and fills from the bottom, then "tackLyst" opens out of it. */
+/* Clean entry: the S of the logo fills from the bottom, then the name opens out of it. */
 .loader {
   position: fixed;
   inset: 0;
@@ -18,60 +18,51 @@
 .brand {
   --brand-color: #0083fe;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
   display: block;
-  /* Same footprint as before: S about 32–48px tall, never wider than the screen. */
-  width: min(clamp(132px, 24.6vw, 197px), calc(100vw - 48px));
-  height: auto;
-  aspect-ratio: var(--brand-view-ratio);
-  overflow: visible;
+  /* Same footprint as before: S about 31–47px tall, never wider than the screen. */
+  width: min(clamp(191px, 35.7vw, 289px), calc(100vw - 48px));
+  aspect-ratio: 1949 / 373;
+  container-type: size;
   color: var(--brand-color);
 }
 
-/* Outline drawn around the S... */
-.markTrace {
-  stroke-width: 14;
-  stroke-linejoin: round;
-  stroke-dasharray: 1;
-  stroke-dashoffset: 1;
+.logo {
+  position: absolute;
+  inset: 0;
+  /* Only the S, empty, until the load fills it. */
+  clip-path: inset(100% var(--brand-name-inset) 0 0);
   animation:
-    trace 760ms cubic-bezier(0.65, 0, 0.35, 1) forwards,
-    trace-out 260ms 980ms ease-out forwards;
+    fill-up 620ms 240ms var(--ease) forwards,
+    open-name 520ms 920ms var(--ease) forwards;
 }
-/* ...while the shape fills up from the bottom, like a load. */
-.markFill {
-  clip-path: inset(100% 0 0);
-  animation: fill-up 620ms 340ms var(--ease) forwards;
+.logoArtwork {
+  background-color: currentColor;
+  -webkit-mask: var(--brand-artwork) left top / 100% 100% no-repeat;
+  mask: var(--brand-artwork) left top / 100% 100% no-repeat;
+}
+.logoText {
+  font-family: var(--font-brand), system-ui, sans-serif;
+  /* S glyph is 688/1000 of the em; the S fills 317/373 of the box height. */
+  font-size: calc(100cqh * 317 / 373 / 0.688);
+  line-height: 1;
+  white-space: nowrap;
 }
 
-/* "tackLyst" opens out of the S once it is full. */
-.suffix {
-  clip-path: inset(0 100% 0 0);
-  animation: open-name 520ms 920ms var(--ease) forwards;
-}
-
-@keyframes trace {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-@keyframes trace-out {
-  to {
-    stroke-opacity: 0;
-  }
-}
 @keyframes fill-up {
+  from {
+    clip-path: inset(100% var(--brand-name-inset) 0 0);
+  }
   to {
-    clip-path: inset(0);
+    clip-path: inset(0 var(--brand-name-inset) 0 0);
   }
 }
 @keyframes open-name {
   from {
-    clip-path: inset(0 100% 0 0);
-    transform: translateX(-280px);
+    clip-path: inset(0 var(--brand-name-inset) 0 0);
   }
   to {
     clip-path: inset(0 -2% 0 0);
-    transform: translateX(0);
   }
 }
 
@@ -79,16 +70,8 @@
   .loader {
     transition: opacity 80ms linear;
   }
-  .markTrace,
-  .markFill,
-  .suffix {
+  .logo {
     animation: none;
-  }
-  .markTrace {
-    stroke-opacity: 0;
-  }
-  .markFill,
-  .suffix {
     clip-path: none;
   }
 }

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Sora, Space_Grotesk, JetBrains_Mono, Bebas_Neue } from 'next/font/google';
+import localFont from 'next/font/local';
 import './globals.css';
 import './landing.css';
 import ConnectionBanner from '@/components/ConnectionBanner';
@@ -56,6 +57,14 @@ const bebasNeue = Bebas_Neue({
   weight: '400',
 });
 
+// Logo typeface: only drawn when the logo artwork fails to load, so no preload.
+const brandFont = localFont({
+  src: './fonts/StackLyst-Logo.ttf',
+  variable: '--font-brand',
+  display: 'swap',
+  preload: false,
+});
+
 export const metadata: Metadata = {
   title: 'Stacklyst — The Gamified Community for Developers',
   description:
@@ -75,7 +84,7 @@ export default function RootLayout({
   return (
     <html
       lang="pt-BR"
-      className={`${inter.variable} ${sora.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${bebasNeue.variable} h-full antialiased`}
+      className={`${inter.variable} ${sora.variable} ${spaceGrotesk.variable} ${jetbrainsMono.variable} ${bebasNeue.variable} ${brandFont.variable} h-full antialiased`}
       suppressHydrationWarning
     >
       <head>

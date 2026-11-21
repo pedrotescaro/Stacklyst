@@ -4,7 +4,7 @@ import { PDFDocument, PDFName, PDFString, rgb, type PDFPage, type PDFFont } from
 import fontkit from '@pdf-lib/fontkit';
 import QRCode from 'qrcode';
 import sharp from 'sharp';
-import { brandGeometry } from '@/lib/brand-geometry';
+import { brandWordmark } from '@/lib/brand-wordmark';
 import type { CredentialRecord } from '@/lib/credentials/types';
 import { renderCredentialBadgeSvg } from '@/lib/credentials/badge-art';
 
@@ -24,11 +24,15 @@ function color(hex: string) {
 
 let assetsPromise: Promise<Buffer[]> | undefined;
 function loadAssets() {
-  assetsPromise ??= Promise.all(
-    ['Sora-Regular.ttf', 'Sora-SemiBold.ttf', 'Sora-Bold.ttf', 'signature.png'].map((name) =>
+  assetsPromise ??= Promise.all([
+    ...['Sora-Regular.ttf', 'Sora-SemiBold.ttf', 'Sora-Bold.ttf', 'signature.png'].map((name) =>
       readFile(path.join(process.cwd(), 'public', 'assets', 'credentials', name))
-    )
-  ).catch((error: unknown) => {
+    ),
+    // pdf-lib embeds PNG, not WebP.
+    readFile(path.join(process.cwd(), brandWordmark.file)).then((logo) =>
+      sharp(logo).png().toBuffer()
+    ),
+  ]).catch((error: unknown) => {
     assetsPromise = undefined;
     throw error;
   });
@@ -163,14 +167,15 @@ export async function renderCredentialPdf(
     !(url.protocol === 'http:' && ['localhost', '127.0.0.1'].includes(url.hostname))
   )
     throw new Error('URL de verificação inválida.');
-  const [regularBytes, semiBoldBytes, boldBytes, signatureBytes] = await loadAssets();
+  const [regularBytes, semiBoldBytes, boldBytes, signatureBytes, logoBytes] = await loadAssets();
   const document = await PDFDocument.create();
   document.registerFontkit(fontkit);
-  const [regular, semiBold, bold, signature] = await Promise.all([
+  const [regular, semiBold, bold, signature, logo] = await Promise.all([
     document.embedFont(regularBytes, { subset: true }),
     document.embedFont(semiBoldBytes, { subset: true }),
     document.embedFont(boldBytes, { subset: true }),
     document.embedPng(signatureBytes),
+    document.embedPng(logoBytes),
   ]);
   const page = document.addPage([PAGE_WIDTH, PAGE_HEIGHT]);
   document.setTitle(`Certificado de conclusão - ${cleanText(record.definition.title)}`);
@@ -198,14 +203,14 @@ export async function renderCredentialPdf(
     color: color(BLUE),
   });
 
-  const logoScale = 0.052;
-  const logoX = (PAGE_WIDTH - brandGeometry.wordmarkWidth * logoScale) / 2;
-  page.drawSvgPath(brandGeometry.path, { x: logoX, y: 551, scale: logoScale, color: color(BLUE) });
-  page.drawSvgPath(brandGeometry.suffixPath, {
-    x: logoX + 904 * logoScale,
-    y: 551,
-    scale: logoScale,
-    color: color(BLUE),
+  // Full logo with the S at its previous height (41.7pt), top edge at y = 551.
+  const logoHeight = (41.7 * brandWordmark.height) / brandWordmark.markHeight;
+  const logoWidth = (logoHeight * brandWordmark.width) / brandWordmark.height;
+  page.drawImage(logo, {
+    x: (PAGE_WIDTH - logoWidth) / 2,
+    y: 551 - logoHeight,
+    width: logoWidth,
+    height: logoHeight,
   });
   await drawBadge(page, document, record);
 

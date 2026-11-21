@@ -1,7 +1,7 @@
 'use client';
-import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
-import { BRAND_SUFFIX_OFFSET } from '@/components/BrandLogo';
-import { brandGeometry } from '@/lib/brand-geometry';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { brandArtworkStyle, useBrandArtworkFailed } from '@/components/BrandLogo';
+import { brandWordmark } from '@/lib/brand-wordmark';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './SiteEntryLoader.module.css';
 
@@ -22,6 +22,7 @@ export default function SiteEntryLoader({
   forceMotion?: boolean;
 }) {
   const { text } = useLocalizedText();
+  const artworkFailed = useBrandArtworkFailed();
   const [exiting, setExiting] = useState(false);
   const complete = useRef(onComplete);
   const completed = useRef(false);
@@ -62,29 +63,13 @@ export default function SiteEntryLoader({
         }
       }}
     >
-      <svg
-        className={styles.brand}
-        viewBox={`0 0 ${brandGeometry.wordmarkWidth} ${brandGeometry.wordmarkHeight}`}
-        fill="none"
-        aria-hidden="true"
-        style={
-          {
-            '--brand-view-ratio': brandGeometry.wordmarkWidth / brandGeometry.wordmarkHeight,
-          } as CSSProperties
-        }
-      >
-        <path className={styles.markFill} d={brandGeometry.path} fill="currentColor" />
-        <path
-          className={styles.markTrace}
-          d={brandGeometry.path}
-          pathLength={1}
-          stroke="currentColor"
-        />
-        {/* Same vector fill as the S, so the name is exactly the same blue. */}
-        <g transform={`translate(${BRAND_SUFFIX_OFFSET} 0)`}>
-          <path className={styles.suffix} d={brandGeometry.suffixPath} fill="currentColor" />
-        </g>
-      </svg>
+      <div className={styles.brand} style={brandArtworkStyle} aria-hidden="true">
+        {artworkFailed ? (
+          <span className={`${styles.logo} ${styles.logoText}`}>{brandWordmark.text}</span>
+        ) : (
+          <span className={`${styles.logo} ${styles.logoArtwork}`} />
+        )}
+      </div>
 
       <span role="status" aria-live="polite" className="sr-only">
         {text('Carregando Stacklyst', 'Loading Stacklyst')}
