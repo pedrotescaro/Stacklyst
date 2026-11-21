@@ -78,15 +78,7 @@ import {
   BUG_HUNTER_TITLE_ID,
 } from '../../lib/mundinho/equipment';
 import { EquipmentInventory } from './EquipmentInventory';
-import { flushSync } from 'react-dom';
-import {
-  measureRetroTransition,
-  RETRO_COVER_MS,
-  RETRO_REVEAL_MS,
-  RetroTransition,
-  type RetroTransitionKind,
-  type RetroTransitionState,
-} from './RetroTransition';
+import { RetroTransition, useRetroTransition, type RetroTransitionKind } from './RetroTransition';
 import { EquipmentStore } from './EquipmentStore';
 import { EquipmentSprite } from './EquipmentSprite';
 import { MultiplayerArena } from './MultiplayerArena';
@@ -307,10 +299,7 @@ export function AdventureHub({
 
   const heading = useRef<HTMLHeadingElement>(null);
   const adventureRoot = useRef<HTMLDivElement>(null);
-  const [transition, setTransition] = useState<RetroTransitionState | null>(null);
-  const transitionId = useRef(0);
-  const transitionTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
-  useEffect(() => () => transitionTimers.current.forEach(clearTimeout), []);
+  const { transition, play: playTransition } = useRetroTransition(adventureRoot);
   const pending = useRef(false);
   const stateRevision = useRef(0);
   const worldPosition = useRef({ ...WORLD.spawn });
@@ -377,39 +366,11 @@ export function AdventureHub({
     /** Runs once the new view is in place, e.g. to show a notice it would clear. */
     after?: () => void
   ) => {
-    if (transitionId.current < 0) return;
-    const root = adventureRoot.current;
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches ?? true;
-    if (!root || reduced) {
+    playTransition(kind, () => {
       before?.();
       go(next);
       after?.();
-      return;
-    }
-    const id = Math.abs(transitionId.current) + 1;
-    // Negative while a transition runs, so a second trigger is ignored.
-    transitionId.current = -id;
-    setTransition(measureRetroTransition(root, kind, 'cover', id));
-    transitionTimers.current.push(
-      setTimeout(() => {
-        flushSync(() => {
-          before?.();
-          go(next);
-          after?.();
-        });
-        setTransition(
-          adventureRoot.current
-            ? measureRetroTransition(adventureRoot.current, kind, 'reveal', id)
-            : null
-        );
-        transitionTimers.current.push(
-          setTimeout(() => {
-            transitionId.current = id;
-            setTransition(null);
-          }, RETRO_REVEAL_MS)
-        );
-      }, RETRO_COVER_MS[kind])
-    );
+    });
   };
 
   useEffect(() => {
@@ -755,6 +716,8 @@ export function AdventureHub({
             onClick={() => {
               if (view === 'battle' && battle?.status === 'active')
                 void act({ type: 'battle-flee', battle: battle.id });
+              else if (view === 'battle' && battle?.status === 'won') travel('world', 'victory');
+              else if (view === 'battle' && battle?.status === 'lost') travel('world', 'defeat');
               else if (view === 'arena') travel('world', 'return', () => setArenaSeed(null));
               else if (view === 'boss') travel('world', 'return');
               else go(view === 'battle' ? 'world' : 'home');
@@ -2130,7 +2093,7 @@ export function AdventureHub({
                     <button
                       className="ad-primary mt-4"
                       onClick={() =>
-                        battle.status === 'won' ? travel('world', 'victory') : go('world')
+                        travel('world', battle.status === 'won' ? 'victory' : 'defeat')
                       }
                     >
                       {text('Voltar ao Mundinho', 'Back to the World')}

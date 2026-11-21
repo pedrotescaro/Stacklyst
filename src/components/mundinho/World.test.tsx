@@ -352,7 +352,7 @@ describe('World keyboard ownership', () => {
     );
     expect(screen.getByText('Killua')).toBeInTheDocument();
     expect(screen.getByText('Anfitrião')).toBeInTheDocument();
-    expect(container.querySelector('.world-peer')).toHaveStyle({ left: '448px', top: '340px' });
+    expect(container.querySelector('.world-peer')).toHaveStyle({ translate: '448px 340px' });
     expect(container.querySelector('.world-peer .pixel-avatar')).toHaveAttribute(
       'data-silhouette',
       'feminine'

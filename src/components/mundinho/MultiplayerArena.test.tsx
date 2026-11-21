@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from 'vitest';
 import { MultiplayerArena } from './MultiplayerArena';
 import { DEFAULT_AVATAR } from '../../lib/mundinho/types';
 import type { ArenaState } from '../../lib/mundinho/arena-types';
+import { HIT_MS } from './BattleHit';
+import { RETRO_COVER_MS, RETRO_REVEAL_MS } from './RetroTransition';
 
 describe('PvP presentation and Portuguese text', () => {
   it.each(['host', 'guest'])(
@@ -121,7 +123,9 @@ it('opens player details in a dismissible modal without a side panel', () => {
     />
   );
   expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
-  fireEvent.click(screen.getByRole('button', { name: 'Adversário e batalha' }));
+  const menu = screen.getByRole('toolbar', { name: 'Menu' });
+  expect(within(menu).getByRole('button', { name: 'Guia de programação' })).toBeInTheDocument();
+  fireEvent.click(within(menu).getByRole('button', { name: 'Adversário e batalha' }));
   const dialog = screen.getByRole('dialog', { name: 'Seu adversário' });
   expect(within(dialog).getByText('Amigo')).toBeInTheDocument();
   expect(within(dialog).getByText(/Nível 4/)).toBeInTheDocument();
@@ -254,6 +258,112 @@ it('flashes the duelist who takes a blow, pops the damage and lunges the attacke
   expect(self()).not.toHaveClass('is-hit');
   expect(container.querySelector('.ad-pvp-scene')).not.toHaveClass('is-shaking');
 });
+
+it('updates the other player while both participants are exploring', async () => {
+  vi.useFakeTimers();
+  try {
+    const data = lobbyState();
+    const walking = structuredClone(data);
+    walking.room!.version++;
+    walking.room!.players[1].position = { x: 344, y: 340, direction: 'right', walking: true };
+    const stopped = structuredClone(walking);
+    stopped.room!.version++;
+    stopped.room!.players[1].position = { x: 366, y: 340, direction: 'right', walking: false };
+    const transport = vi.fn().mockResolvedValueOnce(walking).mockResolvedValue(stopped);
+    const { container } = render(
+      <MultiplayerArena
+        initialState={data}
+        language="JS"
+        assetBase="/assets/mundinho"
+        onLeave={() => {}}
+        transport={transport}
+      />
+    );
+    await act(() => vi.advanceTimersByTimeAsync(200));
+    const peer = container.querySelector<HTMLElement>('.world-peer')!;
+    expect(peer.style.translate).toBe('344px 340px');
+    expect(
+      within(peer).getByRole('img', { name: 'Avatar olhando para right' })
+    ).toBeInTheDocument();
+    await act(() => vi.advanceTimersByTimeAsync(200));
+    expect(peer.style.translate).toBe('366px 340px');
+    expect(
+      transport.mock.calls.filter(([action]) => action.type === 'sync').length
+    ).toBeGreaterThan(1);
+  } finally {
+    vi.useRealTimers();
+  }
+});
+
+it.each([
+  ['a', 'victory', 'Você venceu!'],
+  ['b', 'defeat', 'Você perdeu!'],
+  [null, 'return', 'Empate!'],
+] as const)(
+  'keeps the final hit on screen before the %s result transition',
+  async (winnerId, kind, result) => {
+    vi.useFakeTimers();
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn(() => ({ matches: false }))
+    );
+    try {
+      const data = lobbyState();
+      data.room!.match = {
+        id: 'battle',
+        status: 'active',
+        ready: ['a', 'b'],
+        hp: { a: 100, b: 25 },
+        actorId: 'a',
+        turn: 0,
+        scenario: 0,
+        level: 1,
+        deadline: new Date(Date.now() + 120_000).toISOString(),
+        winnerId: null,
+        log: [],
+      };
+      const finished = structuredClone(data);
+      finished.room!.version++;
+      Object.assign(finished.room!.match!, {
+        status: 'finished',
+        winnerId,
+        hp: { a: winnerId === 'a' ? 100 : 0, b: winnerId === 'b' ? 25 : 0 },
+      });
+      const { container } = render(
+        <MultiplayerArena
+          initialState={data}
+          language="JS"
+          assetBase="/assets/mundinho"
+          onLeave={() => {}}
+          transport={vi.fn().mockResolvedValue(finished)}
+        />
+      );
+      const battle = () => container.querySelector('.ad-pvp-scene');
+      const curtain = () => container.querySelector('.retro-transition');
+      await act(() => vi.advanceTimersByTimeAsync(700));
+      expect(battle()?.querySelector('.is-hit')).toBeInTheDocument();
+      expect(screen.getByText(result)).toBeVisible();
+      expect(screen.queryByRole('button', { name: /Aplicar conceito/ })).not.toBeInTheDocument();
+      expect(curtain()).toBeNull();
+
+      await act(() => vi.advanceTimersByTimeAsync(HIT_MS));
+      expect(curtain()).toHaveAttribute('data-kind', kind);
+      expect(curtain()).toHaveAttribute('data-phase', 'cover');
+      expect(battle()).toBeInTheDocument();
+
+      await act(() => vi.advanceTimersByTimeAsync(RETRO_COVER_MS[kind]));
+      expect(curtain()).toHaveAttribute('data-phase', 'reveal');
+      expect(battle()).toBeNull();
+      expect(screen.getByRole('button', { name: 'Adversário e batalha' })).toBeInTheDocument();
+
+      await act(() => vi.advanceTimersByTimeAsync(RETRO_REVEAL_MS));
+      expect(curtain()).toBeNull();
+    } finally {
+      vi.unstubAllGlobals();
+      vi.useRealTimers();
+    }
+  }
+);
 
 it('answers a concept quiz turn instead of opening the code editor', async () => {
   const data = lobbyState();

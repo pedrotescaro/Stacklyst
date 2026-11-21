@@ -15,10 +15,15 @@ import { SKILL_CHALLENGE, SKILLS } from '../../lib/mundinho/rules';
 import World from './World';
 import { PixelAvatar } from './PixelArt';
 import { PixelMeter } from './PixelMeter';
-import { HitSpark, useHits } from './BattleHit';
+import { HIT_MS, HitSpark, useHits } from './BattleHit';
 import { CodeBattle } from './CodeBattle';
 import { QuizChallenge } from './QuizChallenge';
 import { adventureAsset } from './assets';
+import { RetroTransition, useRetroTransition } from './RetroTransition';
+
+const ROOM_SYNC_MS = 600;
+const PEER_SYNC_MS = 160;
+const LOBBY_SYNC_MS = 7200;
 
 export function MultiplayerArena({
   transport,
@@ -43,6 +48,9 @@ export function MultiplayerArena({
   const [search, setSearch] = useState('');
   const [playersOpen, setPlayersOpen] = useState(false);
   const [selectedSkill, setSelectedSkill] = useState(0);
+  const [outcome, setOutcome] = useState<ArenaState | null>(null);
+  const stage = useRef<HTMLDivElement>(null);
+  const { transition, play: playTransition } = useRetroTransition(stage);
   const playersDialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const dialog = playersDialog.current;
@@ -53,11 +61,27 @@ export function MultiplayerArena({
   const active = useRef(true);
   const position = useRef<ArenaPosition>({ ...ARENA.spawn, direction: 'down', walking: false });
   const lastVersion = useRef(initialState?.room?.version ?? -1);
+  const lastMatch = useRef(initialState?.room?.match);
+  const syncInterval = useRef(ROOM_SYNC_MS);
   const actionPending = useRef(false);
   const apply = useCallback((next: ArenaState) => {
     if (!active.current) return;
     if (next.room && next.room.id === roomRef.current && next.room.version < lastVersion.current)
       return;
+    const match = next.room?.match;
+    if (
+      next.room?.id === roomRef.current &&
+      match?.status === 'finished' &&
+      lastMatch.current?.id === match.id &&
+      lastMatch.current.status === 'active'
+    ) {
+      setOutcome(next);
+    }
+    lastMatch.current = match;
+    syncInterval.current =
+      match?.status !== 'active' && next.room?.players.some((p) => p.id !== next.selfId && p.online)
+        ? PEER_SYNC_MS
+        : ROOM_SYNC_MS;
     roomRef.current = next.room?.id;
     lastVersion.current = next.room?.version ?? -1;
     setData((current) =>
@@ -70,30 +94,40 @@ export function MultiplayerArena({
     active.current = true;
     let timer: ReturnType<typeof setTimeout>;
     let stopped = false;
-    let syncCount = 0;
+    let lastLobbySync = performance.now();
     const sync = async () => {
+      const started = performance.now();
+      let failed = false;
       try {
-        if (document.visibilityState === 'visible' && roomRef.current) {
+        if (active.current && document.visibilityState === 'visible' && roomRef.current) {
+          const lobby = started - lastLobbySync >= LOBBY_SYNC_MS;
           const next = await transport({
             type: 'sync',
             roomId: roomRef.current,
             position: position.current,
-            lobby: ++syncCount % 12 === 0,
+            lobby,
           });
-          if (!stopped) {
+          if (!stopped && active.current) {
+            if (lobby) lastLobbySync = started;
             apply(next);
             setConnectionError('');
           }
         }
       } catch (e) {
-        if (!stopped)
+        failed = true;
+        if (!stopped && active.current)
           setConnectionError(
             e instanceof Error
               ? e.message
               : text('Reconectando à arena…', 'Reconnecting to the arena…')
           );
       } finally {
-        if (!stopped) timer = setTimeout(sync, 600);
+        if (!stopped && active.current) {
+          const interval =
+            document.visibilityState === 'visible' ? syncInterval.current : ROOM_SYNC_MS;
+          const delay = failed ? 1000 : Math.max(80, interval - (performance.now() - started));
+          timer = setTimeout(sync, delay);
+        }
       }
     };
     const enter = async () => {
@@ -105,7 +139,7 @@ export function MultiplayerArena({
         const own = next.room?.players.find((p) => p.id === next.selfId);
         if (own) position.current = own.position;
         apply(next);
-        timer = setTimeout(sync, 1000);
+        timer = setTimeout(sync, syncInterval.current);
       } catch (e) {
         if (!stopped)
           setError(
@@ -164,14 +198,31 @@ export function MultiplayerArena({
   const rememberPose = useCallback((pose: ArenaPosition) => {
     position.current = pose;
   }, []);
-  const room = data?.room;
-  const self = room?.players.find((p) => p.id === data?.selfId);
-  const peer = room?.players.find((p) => p.id !== data?.selfId);
+  useEffect(() => {
+    if (!outcome?.room?.match) return;
+    const winner = outcome.room.match.winnerId;
+    const kind = winner ? (winner === outcome.selfId ? 'victory' : 'defeat') : 'return';
+    const timer = setTimeout(() => playTransition(kind, () => setOutcome(null)), HIT_MS);
+    return () => clearTimeout(timer);
+  }, [outcome, playTransition]);
+  const scene = outcome ?? data;
+  const room = scene?.room;
+  const self = room?.players.find((p) => p.id === scene?.selfId);
+  const peer = room?.players.find((p) => p.id !== scene?.selfId);
   const match = room?.match;
-  const myTurn = match?.status === 'active' && match.actorId === data?.selfId;
+  const inBattle = match?.status === 'active' || Boolean(outcome);
+  const myTurn = match?.status === 'active' && match.actorId === scene?.selfId;
   // Totals arrive by polling; a drop in someone's HP is the hit to show.
-  const hits = useHits(match?.status === 'active' ? match.hp : undefined, match?.id);
-  const selfHit = Boolean(data && hits[data.selfId]);
+  const hits = useHits(inBattle ? match?.hp : undefined, match?.id);
+  const selfHit = Boolean(scene && hits[scene.selfId]);
+  const result =
+    match?.status === 'finished'
+      ? match.winnerId === self?.id
+        ? text('Você venceu!', 'You won!')
+        : match.winnerId
+          ? text('Você perdeu!', 'You lost!')
+          : text('Empate!', 'Draw!')
+      : null;
   useEffect(() => {
     if (match?.status === 'active') setPlayersOpen(false);
   }, [match?.status]);
@@ -179,9 +230,9 @@ export function MultiplayerArena({
     data?.friends.filter((friend) =>
       `${friend.name} ${friend.username}`.toLowerCase().includes(search.toLowerCase())
     ) ?? [];
-  return (
+  const content = (
     <section
-      className={`ad-multiplayer ${match?.status === 'active' ? '' : 'ad-arena-exploring'}`}
+      className={`ad-multiplayer ${inBattle ? '' : 'ad-arena-exploring'}`}
       aria-label={text('Arena multiplayer do Mundinho', 'World multiplayer arena')}
     >
       <header className="ad-arena-heading">
@@ -194,7 +245,12 @@ export function MultiplayerArena({
             )}
           </p>
         </div>
-        <button type="button" className="ad-secondary" onClick={() => void leave()} disabled={busy}>
+        <button
+          type="button"
+          className="ad-secondary"
+          onClick={() => void leave()}
+          disabled={busy || Boolean(outcome)}
+        >
           <ArrowLeft size={16} /> {text('Voltar à clareira', 'Back to the clearing')}
         </button>
       </header>
@@ -219,9 +275,9 @@ export function MultiplayerArena({
           {text('Voltar e tentar novamente', 'Go back and try again')}
         </button>
       )}
-      {room && self && (
+      {room && self && scene && (
         <>
-          {match?.status === 'active' ? (
+          {match && inBattle ? (
             <>
               <div
                 className={`ad-pvp-scene${selfHit ? ' is-shaking' : ''}`}
@@ -236,14 +292,14 @@ export function MultiplayerArena({
                         ? ' is-attacking'
                         : ''
                     }`}
-                    data-pvp-side={p.id === data.selfId ? 'self' : 'opponent'}
+                    data-pvp-side={p.id === scene.selfId ? 'self' : 'opponent'}
                     key={p.id}
                   >
                     <div className="ad-pvp-name">
                       <div className="battle-plate-head">
                         <strong>
                           {p.name}
-                          {p.id === data.selfId ? text(' (você)', ' (you)') : ''}
+                          {p.id === scene.selfId ? text(' (você)', ' (you)') : ''}
                         </strong>
                         <span className="battle-plate-level">
                           {text('Nv.', 'Lv.')} {p.level}
@@ -262,13 +318,13 @@ export function MultiplayerArena({
                     <div className="battle-sprite ad-pvp-sprite">
                       <PixelAvatar
                         avatar={p.avatar}
-                        direction={p.id === data.selfId ? 'right' : 'down'}
+                        direction={p.id === scene.selfId ? 'right' : 'down'}
                       />
                       {hits[p.id] && (
                         <span key={hits[p.id].key} className="ad-pvp-hit">
                           <HitSpark />
                           <span
-                            className={`combat-damage${p.id === data.selfId ? ' battle-damage-player' : ''}`}
+                            className={`combat-damage${p.id === scene.selfId ? ' battle-damage-player' : ''}`}
                             aria-hidden="true"
                           >
                             −{hits[p.id].amount}
@@ -279,149 +335,152 @@ export function MultiplayerArena({
                   </div>
                 ))}
               </div>
-              <div className="ad-pvp-turn" role="status">
-                <Swords size={18} />
-                <strong>
-                  {myTurn
-                    ? text('Seu turno', 'Your turn')
-                    : text(
-                        `Turno de ${peer?.name ?? 'seu amigo'}`,
-                        `${peer?.name ?? 'Your friend'}'s turn`
-                      )}
-                </strong>
-                <span>
-                  {text('Turno', 'Turn')} {match.turn + 1} · {text('até', 'until')}{' '}
-                  {new Date(match.deadline).toLocaleTimeString(locale, {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </span>
-              </div>
-              {myTurn && room.question && !room.question.code ? (
-                <QuizChallenge
-                  key={`${match.id}:${match.turn}`}
-                  question={room.question}
-                  busy={busy}
-                  onAnswer={(answer) =>
-                    void mutate({
-                      type: 'answer',
-                      roomId: room.id,
-                      matchId: match.id,
-                      turn: match.turn,
-                      questionId: room.question!.id,
-                      answer,
-                    })
-                  }
-                />
-              ) : myTurn && room.question ? (
-                <CodeBattle
-                  key={`${match.id}:${match.turn}`}
-                  question={room.question}
-                  avatar={self.avatar}
-                  busy={busy}
-                  battleLanguage={self.language}
-                  onExecute={async (code, submit) => {
-                    const next = await mutate({
-                      type: 'run',
-                      roomId: room.id,
-                      matchId: match.id,
-                      turn: match.turn,
-                      questionId: room.question!.id,
-                      code,
-                      submit,
-                    });
-                    return next ? { codeRun: next.codeRun } : undefined;
-                  }}
-                />
-              ) : myTurn ? (
-                <div className="ad-battle-bottom-console">
-                  <p className="ad-battle-odds">
-                    {match.stats?.[self.id]?.directChance ?? 75}%{' '}
-                    {text('de golpe direto', 'direct hit')} ·{' '}
-                    {100 - (match.stats?.[self.id]?.directChance ?? 75)}%{' '}
-                    {text('de exercício', 'exercise')}
-                    <span>
-                      {text('Proteção:', 'Protection:')} −{match.stats?.[self.id]?.protection ?? 0}{' '}
-                      {text('por golpe', 'per hit')} · {text('Vida máxima:', 'Max HP:')}{' '}
-                      {match.stats?.[self.id]?.maxHp ?? 100} {text('PV', 'HP')}
-                    </span>
-                  </p>
-                  <div
-                    className="ad-skills-grid"
-                    role="group"
-                    aria-label={text('Ações de batalha', 'Battle actions')}
-                    onKeyDown={(event) => {
-                      const offset = ['ArrowRight', 'ArrowDown', 'd', 's'].includes(event.key)
-                        ? 1
-                        : ['ArrowLeft', 'ArrowUp', 'a', 'w'].includes(event.key)
-                          ? -1
-                          : 0;
-                      if (!offset || event.ctrlKey || event.metaKey || event.altKey) return;
-                      event.preventDefault();
-                      event.currentTarget
-                        .querySelectorAll<HTMLButtonElement>('button')
-                        [(selectedSkill + offset + SKILLS.length) % SKILLS.length]?.focus();
-                    }}
-                  >
-                    {SKILLS.map((skill, index) => (
-                      <button
-                        key={skill.id}
-                        type="button"
-                        className="ad-skill-card-btn"
-                        data-selected={selectedSkill === index}
-                        onFocus={() => setSelectedSkill(index)}
-                        disabled={busy}
-                        onClick={() =>
-                          void mutate({
-                            type: 'attack',
-                            roomId: room.id,
-                            matchId: match.id,
-                            turn: match.turn,
-                            skill: skill.id,
-                          })
-                        }
-                      >
-                        <span className="rpg-selection-cursor" aria-hidden="true" />
-                        <strong>{m(skill.name)}</strong>
-                        <small>{m(skill.description)}</small>
-                        <em className="ad-skill-challenge">
-                          {SKILL_CHALLENGE[skill.id] === 'concept'
-                            ? text('Quiz de conceito', 'Concept quiz')
-                            : SKILL_CHALLENGE[skill.id] === 'bug'
-                              ? text('Encontre o erro', 'Find the bug')
-                              : text('Exercício de código', 'Code exercise')}
-                        </em>
-                      </button>
-                    ))}
-                  </div>
+              {outcome ? (
+                <div className="ad-pvp-turn" role="status">
+                  <Swords size={18} aria-hidden="true" />
+                  <strong>{result}</strong>
                 </div>
               ) : (
-                <p className="ad-arena-message">
-                  {text('Seu amigo está jogando em', 'Your friend is playing in')}{' '}
-                  {LANGUAGE_NAMES[peer?.language ?? language]}.{' '}
-                  {text('A batalha atualiza automaticamente.', 'The battle updates automatically.')}
-                </p>
+                <>
+                  <div className="ad-pvp-turn" role="status">
+                    <Swords size={18} />
+                    <strong>
+                      {myTurn
+                        ? text('Seu turno', 'Your turn')
+                        : text(
+                            `Turno de ${peer?.name ?? 'seu amigo'}`,
+                            `${peer?.name ?? 'Your friend'}'s turn`
+                          )}
+                    </strong>
+                    <span>
+                      {text('Turno', 'Turn')} {match.turn + 1} · {text('até', 'until')}{' '}
+                      {new Date(match.deadline).toLocaleTimeString(locale, {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </span>
+                  </div>
+                  {myTurn && room.question && !room.question.code ? (
+                    <QuizChallenge
+                      key={`${match.id}:${match.turn}`}
+                      question={room.question}
+                      busy={busy}
+                      onAnswer={(answer) =>
+                        void mutate({
+                          type: 'answer',
+                          roomId: room.id,
+                          matchId: match.id,
+                          turn: match.turn,
+                          questionId: room.question!.id,
+                          answer,
+                        })
+                      }
+                    />
+                  ) : myTurn && room.question ? (
+                    <CodeBattle
+                      key={`${match.id}:${match.turn}`}
+                      question={room.question}
+                      avatar={self.avatar}
+                      busy={busy}
+                      battleLanguage={self.language}
+                      onExecute={async (code, submit) => {
+                        const next = await mutate({
+                          type: 'run',
+                          roomId: room.id,
+                          matchId: match.id,
+                          turn: match.turn,
+                          questionId: room.question!.id,
+                          code,
+                          submit,
+                        });
+                        return next ? { codeRun: next.codeRun } : undefined;
+                      }}
+                    />
+                  ) : myTurn ? (
+                    <div className="ad-battle-bottom-console">
+                      <p className="ad-battle-odds">
+                        {match.stats?.[self.id]?.directChance ?? 75}%{' '}
+                        {text('de golpe direto', 'direct hit')} ·{' '}
+                        {100 - (match.stats?.[self.id]?.directChance ?? 75)}%{' '}
+                        {text('de exercício', 'exercise')}
+                        <span>
+                          {text('Proteção:', 'Protection:')} −
+                          {match.stats?.[self.id]?.protection ?? 0} {text('por golpe', 'per hit')} ·{' '}
+                          {text('Vida máxima:', 'Max HP:')} {match.stats?.[self.id]?.maxHp ?? 100}{' '}
+                          {text('PV', 'HP')}
+                        </span>
+                      </p>
+                      <div
+                        className="ad-skills-grid"
+                        role="group"
+                        aria-label={text('Ações de batalha', 'Battle actions')}
+                        onKeyDown={(event) => {
+                          const offset = ['ArrowRight', 'ArrowDown', 'd', 's'].includes(event.key)
+                            ? 1
+                            : ['ArrowLeft', 'ArrowUp', 'a', 'w'].includes(event.key)
+                              ? -1
+                              : 0;
+                          if (!offset || event.ctrlKey || event.metaKey || event.altKey) return;
+                          event.preventDefault();
+                          event.currentTarget
+                            .querySelectorAll<HTMLButtonElement>('button')
+                            [(selectedSkill + offset + SKILLS.length) % SKILLS.length]?.focus();
+                        }}
+                      >
+                        {SKILLS.map((skill, index) => (
+                          <button
+                            key={skill.id}
+                            type="button"
+                            className="ad-skill-card-btn"
+                            data-selected={selectedSkill === index}
+                            onFocus={() => setSelectedSkill(index)}
+                            disabled={busy}
+                            onClick={() =>
+                              void mutate({
+                                type: 'attack',
+                                roomId: room.id,
+                                matchId: match.id,
+                                turn: match.turn,
+                                skill: skill.id,
+                              })
+                            }
+                          >
+                            <span className="rpg-selection-cursor" aria-hidden="true" />
+                            <strong>{m(skill.name)}</strong>
+                            <small>{m(skill.description)}</small>
+                            <em className="ad-skill-challenge">
+                              {SKILL_CHALLENGE[skill.id] === 'concept'
+                                ? text('Quiz de conceito', 'Concept quiz')
+                                : SKILL_CHALLENGE[skill.id] === 'bug'
+                                  ? text('Encontre o erro', 'Find the bug')
+                                  : text('Exercício de código', 'Code exercise')}
+                            </em>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="ad-arena-message">
+                      {text('Seu amigo está jogando em', 'Your friend is playing in')}{' '}
+                      {LANGUAGE_NAMES[peer?.language ?? language]}.{' '}
+                      {text(
+                        'A batalha atualiza automaticamente.',
+                        'The battle updates automatically.'
+                      )}
+                    </p>
+                  )}
+                  <p className="ad-arena-rule">
+                    {text(
+                      'O golpe escolhido define dano, cura e desgaste. Submeter encerra o turno. Executar apenas testa. Dois minutos por turno. Sorte reduz exercícios, proteção reduz dano e relíquias aumentam a vida. Os bônus são fixados no início de cada partida.',
+                      'The chosen move sets damage, healing and recoil. Submitting ends the turn. Running only tests. Two minutes per turn. Luck reduces exercises, protection reduces damage and relics increase HP. Bonuses are locked in at the start of each match.'
+                    )}
+                  </p>
+                </>
               )}
-              <p className="ad-arena-rule">
-                {text(
-                  'O golpe escolhido define dano, cura e desgaste. Submeter encerra o turno. Executar apenas testa. Dois minutos por turno. Sorte reduz exercícios, proteção reduz dano e relíquias aumentam a vida. Os bônus são fixados no início de cada partida.',
-                  'The chosen move sets damage, healing and recoil. Submitting ends the turn. Running only tests. Two minutes per turn. Luck reduces exercises, protection reduces damage and relics increase HP. Bonuses are locked in at the start of each match.'
-                )}
-              </p>
             </>
           ) : (
             <>
               <div className="ad-arena-layout">
-                <button
-                  type="button"
-                  className="ad-secondary ad-arena-players-button"
-                  onClick={() => setPlayersOpen(true)}
-                >
-                  <Swords size={18} />{' '}
-                  {peer
-                    ? text('Adversário e batalha', 'Opponent and battle')
-                    : text('Convidar amigo', 'Invite friend')}
-                </button>
                 <World
                   key={room.id}
                   area="arena"
@@ -429,13 +488,18 @@ export function MultiplayerArena({
                   username={self.name}
                   assetBase={assetBase}
                   initialPosition={position.current}
-                  peers={room.players.filter((p) => p.id !== data.selfId)}
+                  peers={peer ? [peer] : []}
                   onPoseChange={rememberPose}
                   onEncounter={() => {}}
                   onChest={async () => ({ awarded: false, reward: 0 })}
                   onPortal={() => void leave('portal')}
                   onArenaPlayers={() => setPlayersOpen(true)}
-                  overlayOpen={playersOpen}
+                  arenaPlayersLabel={
+                    peer
+                      ? text('Adversário e batalha', 'Opponent and battle')
+                      : text('Convidar amigo', 'Invite friend')
+                  }
+                  overlayOpen={playersOpen || Boolean(transition)}
                 />
                 <dialog
                   ref={playersDialog}
@@ -463,17 +527,10 @@ export function MultiplayerArena({
                         <X size={18} />
                       </button>
                     </header>
-                    {match?.status === 'finished' && (
+                    {result && (
                       <div className="ad-arena-result" role="status">
-                        <strong>
-                          {match.winnerId
-                            ? text(
-                                `${room.players.find((p) => p.id === match.winnerId)?.name ?? 'Seu adversário'} venceu!`,
-                                `${room.players.find((p) => p.id === match.winnerId)?.name ?? 'Your opponent'} won!`
-                              )
-                            : text('Empate!', 'Draw!')}
-                        </strong>
-                        <p>{m(match.log.at(-1) ?? '')}</p>
+                        <strong>{result}</strong>
+                        <p>{m(match?.log.at(-1) ?? '')}</p>
                       </div>
                     )}
                     {peer ? (
@@ -561,7 +618,7 @@ export function MultiplayerArena({
                             placeholder={text('Nome ou @usuário', 'Name or @username')}
                           />
                         </label>
-                        {!data.friends.length && (
+                        {!scene.friends.length && (
                           <p>
                             {text(
                               'Nenhum amigo mútuo ainda. Vocês precisam se seguir para jogar juntos.',
@@ -569,7 +626,7 @@ export function MultiplayerArena({
                             )}
                           </p>
                         )}
-                        {data.friends.length > 0 && !friends.length && (
+                        {scene.friends.length > 0 && !friends.length && (
                           <p>{text('Nenhum amigo encontrado.', 'No friends found.')}</p>
                         )}
                         <ul className="ad-arena-friends">
@@ -621,5 +678,11 @@ export function MultiplayerArena({
         </>
       )}
     </section>
+  );
+  return (
+    <div ref={stage} className="ad-arena-stage">
+      {content}
+      {transition && <RetroTransition key={transition.id} state={transition} />}
+    </div>
   );
 }

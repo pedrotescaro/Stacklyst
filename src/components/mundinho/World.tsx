@@ -44,6 +44,7 @@ export default function World({
   area = 'forest',
   peers = [],
   onArenaPlayers,
+  arenaPlayersLabel,
   overlayOpen = false,
 }: {
   avatar: Avatar;
@@ -63,6 +64,7 @@ export default function World({
   area?: 'forest' | 'arena';
   peers?: ArenaPlayer[];
   onArenaPlayers?: () => void;
+  arenaPlayersLabel?: string;
   overlayOpen?: boolean;
 }) {
   const { text, language: uiLanguage } = useLocalizedText();
@@ -521,6 +523,18 @@ export default function World({
             >
               <BookOpen size={18} />
             </button>
+            {onArenaPlayers && (
+              <button
+                type="button"
+                className="world-hud-btn"
+                aria-label={arenaPlayersLabel}
+                aria-haspopup="dialog"
+                title={arenaPlayersLabel}
+                onClick={onArenaPlayers}
+              >
+                <Swords size={18} />
+              </button>
+            )}
             {onInventory && (
               <button
                 className="world-hud-btn"
@@ -712,8 +726,7 @@ export default function World({
                 key={peer.id}
                 className="world-entity world-peer"
                 style={{
-                  left: peer.position.x,
-                  top: peer.position.y,
+                  translate: `${peer.position.x}px ${peer.position.y}px`,
                   zIndex: worldDepth(peer.position.y),
                 }}
               >

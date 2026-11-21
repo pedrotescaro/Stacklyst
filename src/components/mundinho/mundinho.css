@@ -3491,9 +3491,9 @@
   }
 }
 .world-peer {
-  transition:
-    left 1000ms linear,
-    top 1000ms linear;
+  top: 0;
+  left: 0;
+  transition: translate 160ms linear;
   pointer-events: none;
 }
 .world-shell[data-area='arena'] .world-viewport {
@@ -5068,6 +5068,13 @@
 }
 
 /* The multiplayer lobby occupies the same game window as the forest. */
+.ad-arena-stage {
+  position: relative;
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-height: 0;
+}
 .adventure-arena .ad-multiplayer {
   flex: 1;
   min-height: 0;
@@ -5098,16 +5105,6 @@
   height: auto;
   min-height: 0;
   max-height: none;
-}
-.ad-arena-players-button {
-  position: absolute;
-  z-index: 12;
-  top: 64px;
-  right: 14px;
-  max-width: calc(100% - 28px);
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
 }
 .ad-arena-dialog {
   width: min(480px, calc(100% - 32px));
@@ -5895,12 +5892,16 @@
   background: #4cd37a;
 }
 
-/* Winning a battle: one warm golden flash before the curtain of tiles falls. */
+/* A single result flash before the curtain of tiles falls. */
+.retro-transition[data-kind='defeat'] .retro-transition-flash,
 .retro-transition[data-kind='victory'] .retro-transition-flash {
   background: #ffd75e;
-  animation: retro-victory-flash 300ms steps(3, end) both;
+  animation: retro-result-flash 300ms steps(3, end) both;
 }
-@keyframes retro-victory-flash {
+.retro-transition[data-kind='defeat'] .retro-transition-flash {
+  background: #ff4747;
+}
+@keyframes retro-result-flash {
   0% {
     opacity: 0.85;
   }
