@@ -1,7 +1,7 @@
 import { prisma } from '@/lib/prisma';
 
 export const PRESENCE_WINDOW_SECONDS = 60;
-const PRESENCE_KEY = 'platform:presence';
+export const PRESENCE_KEY = 'platform:presence';
 
 export interface PlatformPresenceSummary {
   activeCount: number;

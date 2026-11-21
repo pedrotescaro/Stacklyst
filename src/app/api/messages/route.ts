@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { BlockService } from '@/services/block.service';
+import { assertCanSendMessage } from '@/services/chat-privacy.service';
 import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { NotificationService } from '@/services/notification.service';
@@ -66,6 +67,7 @@ export const POST = apiHandler(async (req) => {
   }
 
   await BlockService.assertCanInteract(user.id, receiver_id);
+  await assertCanSendMessage(user.id, receiver_id);
 
   // Create message
   const message = await prisma.message.create({

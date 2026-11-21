@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { visibleUserWhere } from '@/services/block.service';
 import { getAuthUser } from '@/lib/auth';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 import { isTransientConnectionError } from '@/lib/connection-errors';
 
 export async function GET() {
@@ -19,15 +20,17 @@ export async function GET() {
       Array<{
         partnerId: string;
         lastMessage: string;
+        lastMessageId: string;
+        image_url: string | null;
         lastMessageTime: Date;
         lastSenderId: string;
       }>
     >`
-      SELECT "partnerId", content AS "lastMessage", created_at AS "lastMessageTime", sender_id AS "lastSenderId"
+      SELECT "partnerId", id AS "lastMessageId", content AS "lastMessage", image_url, created_at AS "lastMessageTime", sender_id AS "lastSenderId"
       FROM (
         SELECT DISTINCT ON ("partnerId")
           CASE WHEN sender_id = ${user.id} THEN receiver_id ELSE sender_id END AS "partnerId",
-          content, created_at, sender_id, id
+          content, image_url, created_at, sender_id, id
         FROM "Message"
         WHERE sender_id = ${user.id} OR receiver_id = ${user.id}
         ORDER BY "partnerId", created_at DESC, id DESC
@@ -56,10 +59,17 @@ export async function GET() {
     });
 
     const result = chatsList
-      .map((c) => {
+      .map(({ image_url, ...c }) => {
         const partner = partners.find((p) => p.id === c.partnerId);
         return {
           ...c,
+          lastMessage:
+            c.lastMessage ||
+            (image_url
+              ? isKlipyMediaUrl(image_url) || /\.gif$/i.test(image_url)
+                ? 'GIF'
+                : 'Imagem'
+              : ''),
           partner,
         };
       })

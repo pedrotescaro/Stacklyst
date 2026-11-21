@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useMutation } from '@tanstack/react-query';
 import * as Crypto from 'expo-crypto';
@@ -222,7 +222,9 @@ function ConversationContent({ id, username }: { id: string; username?: string }
                   )}
                   <Pressable
                     accessibilityRole="button"
-                    accessibilityLabel={(own ? 'Você: ' : 'Mensagem: ') + message.content}
+                    accessibilityLabel={
+                      (own ? 'Você: ' : 'Mensagem: ') + (message.content || 'Anexo')
+                    }
                     accessibilityHint="Mantenha pressionado para ver as opções da mensagem"
                     onLongPress={() => setMenuId(message.id)}
                     onPress={() => setMenuId(message.id)}
@@ -237,9 +239,21 @@ function ConversationContent({ id, username }: { id: string; username?: string }
                       },
                     ]}
                   >
-                    <Text style={[s.messageText, { color: own ? colorInk(c.ownMessage) : c.text }]}>
-                      {message.content}
-                    </Text>
+                    {message.image_url && (
+                      <Image
+                        source={{ uri: message.image_url }}
+                        accessibilityLabel="Anexo da mensagem"
+                        resizeMode="contain"
+                        style={s.attachment}
+                      />
+                    )}
+                    {!!message.content && (
+                      <Text
+                        style={[s.messageText, { color: own ? colorInk(c.ownMessage) : c.text }]}
+                      >
+                        {message.content}
+                      </Text>
+                    )}
                   </Pressable>
                   {!own && (
                     <ActionMenu
@@ -355,6 +369,7 @@ const s = StyleSheet.create({
   messageRow: { flexDirection: 'row', alignItems: 'center', gap: 2 },
   bubble: { maxWidth: '82%', borderRadius: 24, paddingHorizontal: 16, paddingVertical: 10 },
   messageText: { fontSize: 16, lineHeight: 23, flexShrink: 1 },
+  attachment: { width: 180, maxWidth: '100%', height: 140, borderRadius: 12 },
   sentStatus: { alignSelf: 'flex-end', fontSize: 12, lineHeight: 18, marginTop: 4, marginRight: 4 },
   pending: {
     width: '100%',

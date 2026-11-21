@@ -17,6 +17,15 @@ import { EMOJI_CATEGORIES, insertAtCursor } from '@/lib/post-composer';
 import { Sidebar } from '@/components/Sidebar';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { DmName } from '@/components/messages/DmIdentity';
+import { ChatPrivacyDialog } from '@/components/messages/ChatPrivacyDialog';
+import {
+  ConversationOnlineIndicator,
+  useConversationStatus,
+} from '@/components/messages/ConversationStatus';
+import { KlipyGifSearch } from '@/components/gif/KlipyGifSearch';
+import { GifIcon } from '@/components/icons/GifIcon';
+import { PostActionDialog } from '@/components/posts/PostActionDialog';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 import { EmptyState } from '@/components/motion/EmptyState';
 import { TypingIndicator } from '@/components/motion/TypingIndicator';
 import {
@@ -118,6 +127,12 @@ function MessagesContent() {
   // Conversations & Messages states
   const [chats, setChats] = useState<ChatItem[]>([]);
   const [activeChat, setActiveChat] = useState<ChatItem | null>(null);
+  const status = useConversationStatus(activeChat?.partnerId);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [gifOpen, setGifOpen] = useState(false);
+  const gifButton = useRef<HTMLButtonElement>(null);
+  const [sending, setSending] = useState(false);
+  const [sendError, setSendError] = useState('');
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessageText, setNewMessageText] = useState('');
   const [messageImage, setMessageImage] = useState('');
@@ -263,6 +278,14 @@ function MessagesContent() {
 
   // Fetch message history for active chat
   useEffect(() => {
+    setNewMessageText('');
+    setMessageImage('');
+    setGifOpen(false);
+    setEmojiPanelOpen(false);
+    setReplyingToMessage(null);
+    setSending(false);
+    setSendError('');
+    setUploadingImage(false);
     if (!activeChat) return;
     const controller = new AbortController();
     historyRequestRef.current?.abort();
@@ -296,6 +319,64 @@ function MessagesContent() {
     fetchMessages();
     return () => controller.abort();
   }, [activeChat]);
+
+  // Private Message rows are not published through Realtime on all deployments.
+  // Read history only when the list indicates a new message in the open conversation.
+  useEffect(() => {
+    if (!user) return;
+    const controller = new AbortController();
+    const options = { signal: controller.signal, cache: 'no-store' as const };
+    let latestId = activeChat?.lastMessageId;
+    let pending = false;
+    const refresh = async () => {
+      if (document.hidden || pending) return;
+      pending = true;
+      try {
+        const response = await fetch('/api/messages/chats', options);
+        if (!response.ok) return;
+        const list: ChatItem[] = await response.json();
+        if (controller.signal.aborted) return;
+        const current = list.find((chat) => chat.partnerId === activeChat?.partnerId);
+        setChats(
+          activeChat && !activeChat.lastMessageId && !current ? [activeChat, ...list] : list
+        );
+        if (!current?.lastMessageId || current.lastMessageId === latestId) return;
+        const history = await fetch(
+          `/api/messages?receiver_id=${encodeURIComponent(current.partnerId)}`,
+          options
+        );
+        if (!history.ok) return;
+        const rows: Message[] = await history.json();
+        if (controller.signal.aborted) return;
+        const cursor = history.headers.get('X-Next-Cursor');
+        if (cursor && !rows.some((row) => row.id === latestId)) {
+          // A full page arrived between checks. Keep the cursor for the missing interval.
+          setHistoryCursor(cursor);
+          setMessages(rows);
+        } else {
+          setMessages((previous) => {
+            const merged = new Map(previous.map((msg) => [msg.id, msg]));
+            for (const row of rows) merged.set(row.id, row);
+            return [...merged.values()].sort(
+              (a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id)
+            );
+          });
+        }
+        latestId = current.lastMessageId;
+      } catch {
+        // Keep loaded history through transient outages and retry on the next tick.
+      } finally {
+        pending = false;
+      }
+    };
+    const timer = window.setInterval(refresh, 12000);
+    document.addEventListener('visibilitychange', refresh);
+    return () => {
+      controller.abort();
+      window.clearInterval(timer);
+      document.removeEventListener('visibilitychange', refresh);
+    };
+  }, [user, activeChat]);
 
   async function loadOlderMessages() {
     if (!activeChat || !historyCursor || loadingOlder) return;
@@ -647,19 +728,25 @@ function MessagesContent() {
           image_url: forwardingMessage.image_url,
         }),
       });
-      if (res.ok) {
-        setToastMessage(text('Mensagem encaminhada!', 'Message forwarded!'));
-        setTimeout(() => setToastMessage(null), 2500);
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({}));
+        throw new Error(
+          error.message ||
+            text('Não foi possível encaminhar a mensagem.', 'Could not forward message.')
+        );
+      }
+      setToastMessage(text('Mensagem encaminhada!', 'Message forwarded!'));
+      setTimeout(() => setToastMessage(null), 2500);
 
-        // Refetch active chats to update list/order
-        const resChats = await fetch('/api/messages/chats');
-        if (resChats.ok) {
-          const data = await resChats.json();
-          setChats(data);
-        }
+      const resChats = await fetch('/api/messages/chats');
+      if (resChats.ok) {
+        const data = await resChats.json();
+        setChats(data);
       }
     } catch (err) {
-      console.error('Failed to forward message:', err);
+      setToastMessage(
+        err instanceof Error ? err.message : text('Falha ao encaminhar.', 'Forward failed.')
+      );
     } finally {
       setForwardingMessage(null);
     }
@@ -686,51 +773,58 @@ function MessagesContent() {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const signal = historyRequestRef.current?.signal;
+    e.target.value = '';
     setUploadingImage(true);
+    setSendError('');
     try {
       const formData = new FormData();
       formData.append('file', file);
       const res = await fetch('/api/upload', {
         method: 'POST',
         body: formData,
+        signal,
       });
-      if (res.ok) {
-        const data = await res.json();
-        setMessageImage(data.url);
-      }
+      const data = await res.json();
+      if (!res.ok)
+        throw new Error(
+          data.error || text('Falha no envio do anexo.', 'Attachment upload failed.')
+        );
+      if (!signal?.aborted) setMessageImage(data.url);
     } catch (err) {
-      console.error('Image upload failed:', err);
+      if (!signal?.aborted)
+        setSendError(
+          err instanceof Error
+            ? err.message
+            : text('Tente enviar o anexo novamente.', 'Try uploading again.')
+        );
     } finally {
-      setUploadingImage(false);
+      if (!signal?.aborted) setUploadingImage(false);
     }
   };
 
   const handleSendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!activeChat || (!newMessageText.trim() && !messageImage) || !user || uploadingImage) return;
+    if (
+      !activeChat ||
+      (!newMessageText.trim() && !messageImage) ||
+      !user ||
+      uploadingImage ||
+      sending ||
+      status?.canSend === false
+    )
+      return;
 
+    const signal = historyRequestRef.current?.signal;
+    setSending(true);
+    setSendError('');
     let textToSend = newMessageText.trim();
     if (replyingToMessage) {
       textToSend =
         `⤷ Em resposta a @${replyingToMessage.sender_id === user.id ? 'você' : activeChat.partner.username}: "${replyingToMessage.content}"\n\n` +
         textToSend;
-      setReplyingToMessage(null);
     }
     const imageToSend = messageImage;
-    setNewMessageText('');
-    setMessageImage('');
-
-    // Optimistic UI update
-    const tempMessage: Message = {
-      id: Math.random().toString(),
-      sender_id: user.id,
-      receiver_id: activeChat.partnerId,
-      content: textToSend,
-      image_url: imageToSend,
-      created_at: new Date().toISOString(),
-    };
-    setMessages((prev) => [...prev, tempMessage]);
-    playSound('send_dm');
 
     try {
       const res = await fetch('/api/messages', {
@@ -743,16 +837,42 @@ function MessagesContent() {
         }),
       });
 
-      if (res.ok) {
-        // Refetch active chats to update list/order
-        const resChats = await fetch('/api/messages/chats');
-        if (resChats.ok) {
-          const data = await resChats.json();
-          setChats(data);
-        }
+      const result = await res.json();
+      if (!res.ok)
+        throw new Error(
+          result.message ||
+            result.error ||
+            text('Falha ao enviar a mensagem.', 'Unable to send message.')
+        );
+      if (!signal?.aborted) {
+        setMessages((prev) =>
+          prev.some((msg) => msg.id === result.id) ? prev : [...prev, result]
+        );
+        setNewMessageText('');
+        setMessageImage('');
+        setReplyingToMessage(null);
+        playSound('send_dm');
       }
+      const updatedChat = {
+        ...activeChat,
+        lastMessageId: result.id,
+        lastMessage: textToSend || (isKlipyMediaUrl(imageToSend) ? 'GIF' : text('Imagem', 'Image')),
+        lastSenderId: user.id,
+        lastMessageTime: result.created_at,
+      };
+      setChats((prev) => [
+        updatedChat,
+        ...prev.filter((chat) => chat.partnerId !== activeChat.partnerId),
+      ]);
     } catch (err) {
-      console.error('Failed to send message:', err);
+      if (!signal?.aborted)
+        setSendError(
+          err instanceof Error
+            ? err.message
+            : text('Não foi possível enviar. Tente novamente.', 'Could not send. Try again.')
+        );
+    } finally {
+      if (!signal?.aborted) setSending(false);
     }
   };
 
@@ -836,14 +956,14 @@ function MessagesContent() {
   );
 
   return (
-    <div className="dd-platform-shell dd-platform-shell--workspace h-screen overflow-hidden">
+    <div className="dd-platform-shell dd-platform-shell--workspace h-dvh overflow-hidden">
       <Sidebar user={user} />
 
       <div
-        className="dd-platform-body flex h-full min-w-0 flex-1 flex-grow overflow-hidden bg-dd-bg w-full"
+        className="dd-platform-body flex min-h-0 min-w-0 flex-1 overflow-hidden bg-dd-bg w-full pb-[calc(2.875rem+max(0.625rem,env(safe-area-inset-bottom)))] md:pb-0"
         style={privateChatStyle(privateChat)}
       >
-        <main className="dd-platform-main flex w-full min-w-0 h-full overflow-hidden">
+        <main className="dd-platform-main flex w-full min-w-0 h-full overflow-hidden md:border-r md:border-dd-border">
           {/* Left Panel: Conversation List Sidebar */}
           <div
             className={cn(
@@ -855,7 +975,14 @@ function MessagesContent() {
             <div className="p-4 pb-2 flex items-center justify-between shrink-0">
               <h1 className="text-lg font-black tracking-tight text-dd-text">Bate-papo</h1>
               <div className="flex items-center gap-2">
-                <button className="p-2 hover:bg-dd-surface/60 rounded-full text-dd-text transition-colors">
+                <button
+                  type="button"
+                  onClick={() => setSettingsOpen(true)}
+                  aria-haspopup="dialog"
+                  aria-label={text('Configurações do bate-papo', 'Chat settings')}
+                  title={text('Configurações do bate-papo', 'Chat settings')}
+                  className="grid size-10 place-items-center rounded-full bg-blue-500 text-white transition-colors hover:bg-blue-600 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-500"
+                >
                   <Settings className="w-4.5 h-4.5" />
                 </button>
                 <button
@@ -906,7 +1033,6 @@ function MessagesContent() {
               ) : (
                 filteredChats.map((chat) => {
                   const isActive = activeChat?.partnerId === chat.partnerId;
-                  const initials = chat.partner.username.slice(0, 2).toUpperCase();
 
                   return (
                     <button
@@ -982,9 +1108,7 @@ function MessagesContent() {
                         @{activeChat.partner.username.toLowerCase()}
                       </span>
                     </h3>
-                    <p className="text-[9.5px] text-dd-muted font-bold tracking-wide mt-0.5">
-                      Ativo recentemente
-                    </p>
+                    {status?.online && <ConversationOnlineIndicator />}
                   </div>
                 </div>
 
@@ -1077,7 +1201,12 @@ function MessagesContent() {
                                 {msg.image_url && (
                                   <Image
                                     src={msg.image_url}
-                                    alt="Anexo"
+                                    unoptimized={isKlipyMediaUrl(msg.image_url)}
+                                    alt={
+                                      isKlipyMediaUrl(msg.image_url)
+                                        ? 'GIF'
+                                        : text('Anexo', 'Attachment')
+                                    }
                                     width={320}
                                     height={192}
                                     className={`rounded-xl object-cover max-h-48 max-w-full ${msg.content ? 'mb-2' : ''}`}
@@ -1478,7 +1607,8 @@ function MessagesContent() {
                       <div className="relative inline-block">
                         <Image
                           src={messageImage}
-                          alt="Anexo"
+                          unoptimized={isKlipyMediaUrl(messageImage)}
+                          alt={isKlipyMediaUrl(messageImage) ? 'GIF' : text('Anexo', 'Attachment')}
                           width={80}
                           height={80}
                           className="h-20 rounded-xl object-cover border border-dd-border shadow-sm"
@@ -1486,6 +1616,8 @@ function MessagesContent() {
                         <button
                           type="button"
                           onClick={() => setMessageImage('')}
+                          disabled={sending}
+                          aria-label={text('Remover anexo', 'Remove attachment')}
                           className="absolute -top-2 -right-2 p-1 bg-dd-surface border border-dd-border rounded-full text-dd-text hover:text-red-400 transition-colors shadow-md cursor-pointer"
                         >
                           <X className="w-3.5 h-3.5" />
@@ -1494,103 +1626,131 @@ function MessagesContent() {
                     </div>
                   )}
 
-                  <div className="p-4">
-                    <form onSubmit={handleSendMessage} className="flex items-center gap-3">
-                      <div className="relative">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageUpload}
-                          className="hidden"
-                          id="dm-image-upload"
-                          disabled={uploadingImage}
-                        />
-                        <label
-                          htmlFor="dm-image-upload"
-                          className={`p-2 rounded-full transition-colors shrink-0 cursor-pointer flex items-center justify-center ${
-                            uploadingImage
-                              ? 'text-blue-500 animate-pulse bg-blue-500/10'
-                              : 'text-dd-muted hover:text-dd-text'
-                          }`}
-                        >
-                          <ImageIcon className="w-4.5 h-4.5" />
-                        </label>
-                      </div>
-                      <div className="relative" ref={emojiPickerRef}>
+                  <div className="p-2 sm:p-4">
+                    {(sendError || status?.canSend === false) && (
+                      <p role="alert" className="mb-2 px-2 text-sm text-dd-text">
+                        {sendError ||
+                          text(
+                            'As configurações desta pessoa impedem que você inicie uma conversa.',
+                            'This person’s settings prevent you from starting a conversation.'
+                          )}
+                      </p>
+                    )}
+                    <form onSubmit={handleSendMessage}>
+                      <fieldset
+                        disabled={sending || status?.canSend === false}
+                        className="flex min-w-0 items-center gap-1 sm:gap-3"
+                      >
+                        <div className="relative">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageUpload}
+                            className="hidden"
+                            id="dm-image-upload"
+                            disabled={uploadingImage}
+                          />
+                          <label
+                            htmlFor="dm-image-upload"
+                            aria-label={text('Anexar imagem', 'Attach image')}
+                            className={`p-2 rounded-full transition-colors shrink-0 cursor-pointer flex items-center justify-center ${
+                              uploadingImage
+                                ? 'text-blue-500 animate-pulse bg-blue-500/10'
+                                : 'text-dd-muted hover:text-dd-text'
+                            }`}
+                          >
+                            <ImageIcon className="w-4.5 h-4.5" />
+                          </label>
+                        </div>
                         <button
                           type="button"
-                          onClick={() => setEmojiPanelOpen(!emojiPanelOpen)}
-                          className={`p-2 rounded-full transition-colors shrink-0 ${
-                            emojiPanelOpen
-                              ? 'bg-blue-500/15 text-blue-400'
-                              : 'text-dd-muted hover:text-dd-text'
-                          }`}
+                          ref={gifButton}
+                          onClick={() => setGifOpen(true)}
+                          disabled={uploadingImage}
+                          aria-haspopup="dialog"
+                          aria-label={text('Adicionar GIF', 'Add GIF')}
+                          title={text('Adicionar GIF', 'Add GIF')}
+                          className="rounded-full p-2 text-dd-muted hover:bg-dd-surface hover:text-dd-text"
                         >
-                          <Smile className="w-4.5 h-4.5" />
+                          <GifIcon className="size-5" />
                         </button>
-                        <AnimatePresence>
-                          {emojiPanelOpen && (
-                            <motion.div
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              exit={{ opacity: 0, y: 10 }}
-                              transition={{ duration: 0.2 }}
-                              className="absolute left-0 bottom-full mb-2 z-[100] w-72 rounded-xl border border-dd-border/80 bg-dd-surface/95 backdrop-blur-md p-3 shadow-2xl"
-                            >
-                              <p className="text-[10px] font-bold uppercase tracking-wider text-dd-muted mb-2">
-                                Emojis
-                              </p>
-                              <div className="space-y-3 max-h-52 overflow-y-auto">
-                                {EMOJI_CATEGORIES.map((category) => (
-                                  <div key={category.name}>
-                                    <p className="text-[10px] font-bold text-blue-400 mb-1.5">
-                                      {category.name}
-                                    </p>
-                                    <div className="grid grid-cols-6 gap-1">
-                                      {category.emojis.map((emoji) => (
-                                        <button
-                                          key={`${category.name}-${emoji}`}
-                                          type="button"
-                                          onClick={() => insertEmoji(emoji)}
-                                          className="text-lg rounded-lg p-1.5 hover:bg-blue-500/10 transition-colors cursor-pointer"
-                                        >
-                                          {emoji}
-                                        </button>
-                                      ))}
+                        <div className="relative" ref={emojiPickerRef}>
+                          <button
+                            type="button"
+                            onClick={() => setEmojiPanelOpen(!emojiPanelOpen)}
+                            className={`p-2 rounded-full transition-colors shrink-0 ${
+                              emojiPanelOpen
+                                ? 'bg-blue-500/15 text-blue-400'
+                                : 'text-dd-muted hover:text-dd-text'
+                            }`}
+                          >
+                            <Smile className="w-4.5 h-4.5" />
+                          </button>
+                          <AnimatePresence>
+                            {emojiPanelOpen && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: 10 }}
+                                transition={{ duration: 0.2 }}
+                                className="absolute left-0 bottom-full mb-2 z-[100] w-72 rounded-xl border border-dd-border/80 bg-dd-surface/95 backdrop-blur-md p-3 shadow-2xl"
+                              >
+                                <p className="text-[10px] font-bold uppercase tracking-wider text-dd-muted mb-2">
+                                  Emojis
+                                </p>
+                                <div className="space-y-3 max-h-52 overflow-y-auto">
+                                  {EMOJI_CATEGORIES.map((category) => (
+                                    <div key={category.name}>
+                                      <p className="text-[10px] font-bold text-blue-400 mb-1.5">
+                                        {category.name}
+                                      </p>
+                                      <div className="grid grid-cols-6 gap-1">
+                                        {category.emojis.map((emoji) => (
+                                          <button
+                                            key={`${category.name}-${emoji}`}
+                                            type="button"
+                                            onClick={() => insertEmoji(emoji)}
+                                            className="text-lg rounded-lg p-1.5 hover:bg-blue-500/10 transition-colors cursor-pointer"
+                                          >
+                                            {emoji}
+                                          </button>
+                                        ))}
+                                      </div>
                                     </div>
-                                  </div>
-                                ))}
-                              </div>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
+                                  ))}
+                                </div>
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
 
-                      <input
-                        ref={messageInputRef}
-                        type="text"
-                        placeholder={text('Enviar uma mensagem...', 'Send a message...')}
-                        value={newMessageText}
-                        onChange={(e) => setNewMessageText(e.target.value)}
-                        className="flex-1 rounded-full bg-dd-surface/80 border border-transparent focus:border-blue-500/50 focus:bg-dd-bg py-2.5 px-4 text-xs font-semibold text-dd-text placeholder-dd-muted/65 focus:outline-none transition-colors"
-                      />
+                        <input
+                          ref={messageInputRef}
+                          type="text"
+                          placeholder={text('Enviar uma mensagem...', 'Send a message...')}
+                          value={newMessageText}
+                          onChange={(e) => setNewMessageText(e.target.value)}
+                          className="min-w-0 flex-1 rounded-full bg-dd-surface/80 border border-transparent focus:border-blue-500/50 focus:bg-dd-bg py-2.5 px-4 text-xs font-semibold text-dd-text placeholder-dd-muted/65 focus:outline-none transition-colors"
+                        />
 
-                      <button
-                        type="submit"
-                        disabled={(!newMessageText.trim() && !messageImage) || uploadingImage}
-                        aria-label={text('Enviar mensagem', 'Send message')}
-                        style={
-                          privateChat.mode !== 'default' && (newMessageText.trim() || messageImage)
-                            ? {
-                                backgroundColor: 'var(--chat-accent, #3b82f6)',
-                                color: 'var(--chat-accent-text, #ffffff)',
-                              }
-                            : undefined
-                        }
-                        className="p-2.5 bg-blue-500 text-white rounded-full transition-all shrink-0 hover:bg-blue-600 disabled:opacity-50 disabled:bg-dd-surface disabled:text-dd-muted active:scale-95 cursor-pointer"
-                      >
-                        <Send className="w-4 h-4" />
-                      </button>
+                        <button
+                          type="submit"
+                          disabled={(!newMessageText.trim() && !messageImage) || uploadingImage}
+                          aria-label={text('Enviar mensagem', 'Send message')}
+                          style={
+                            privateChat.mode !== 'default' &&
+                            (newMessageText.trim() || messageImage)
+                              ? {
+                                  backgroundColor: 'var(--chat-accent, #3b82f6)',
+                                  color: 'var(--chat-accent-text, #ffffff)',
+                                }
+                              : undefined
+                          }
+                          className="p-2.5 bg-blue-500 text-white rounded-full transition-all shrink-0 hover:bg-blue-600 disabled:opacity-50 disabled:bg-dd-surface disabled:text-dd-muted active:scale-95 cursor-pointer"
+                        >
+                          <Send className="w-4 h-4" />
+                        </button>
+                      </fieldset>
                     </form>
                   </div>
                 </div>
@@ -1612,6 +1772,52 @@ function MessagesContent() {
       </div>
 
       {/* New Chat Selection Modal */}
+      {settingsOpen && <ChatPrivacyDialog onClose={() => setSettingsOpen(false)} />}
+      {gifOpen && activeChat && (
+        <PostActionDialog
+          titleId="chat-gif-title"
+          onClose={() => setGifOpen(false)}
+          returnFocusRef={gifButton}
+        >
+          <header className="flex items-center justify-between">
+            <h2 id="chat-gif-title" className="text-lg font-bold">
+              {text('Adicionar GIF', 'Add GIF')}
+            </h2>
+            <button
+              type="button"
+              aria-label={text('Fechar', 'Close')}
+              onClick={() => setGifOpen(false)}
+              className="rounded-full p-2 hover:bg-dd-bg"
+            >
+              <X size={18} />
+            </button>
+          </header>
+          <KlipyGifSearch
+            compact
+            autoFocus
+            selectedUrl={messageImage}
+            onSelect={(gif) => {
+              setMessageImage(gif.url);
+              setSendError('');
+              setGifOpen(false);
+            }}
+          />
+          <label className="block cursor-pointer rounded-xl border border-dd-border p-3 text-center text-sm font-semibold focus-within:outline-2">
+            {text('Escolher GIF do dispositivo', 'Choose GIF from device')}
+            <input
+              type="file"
+              accept="image/gif"
+              className="sr-only"
+              onChange={(event) => {
+                if (event.target.files?.length) {
+                  void handleImageUpload(event);
+                  setGifOpen(false);
+                }
+              }}
+            />
+          </label>
+        </PostActionDialog>
+      )}
       {newChatModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
@@ -1914,7 +2120,8 @@ function MessagesContent() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 15, scale: 0.95 }}
             transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-            className="fixed bottom-6 right-6 z-[200] bg-dd-surface border border-dd-border text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5"
+            role="status"
+            className="fixed bottom-20 right-4 z-[200] bg-dd-surface border border-dd-border text-xs font-bold px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-2.5 md:bottom-6 md:right-6"
           >
             <span className="w-2 h-2 bg-blue-500 rounded-full animate-ping" />
             <span className="text-dd-text">{toastMessage}</span>

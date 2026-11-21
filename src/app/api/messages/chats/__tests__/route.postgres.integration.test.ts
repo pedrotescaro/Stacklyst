@@ -52,7 +52,8 @@ describe.skipIf(!connectionString)('conversation query with PostgreSQL parameter
         id: 'old',
         sender_id: 'old',
         receiver_id: 'viewer',
-        content: 'Older conversation',
+        content: '',
+        image_url: 'https://static.klipy.com/hello.webp',
         created_at: '2026-10-01T00:00:00Z',
       },
       {
@@ -90,7 +91,7 @@ describe.skipIf(!connectionString)('conversation query with PostgreSQL parameter
       const result = await client.query(
         `WITH "Message" AS (
           SELECT * FROM json_to_recordset($1::json)
-          AS fixture(id text, sender_id text, receiver_id text, content text, created_at timestamp)
+          AS fixture(id text, sender_id text, receiver_id text, content text, image_url text, created_at timestamp)
         ), "user_blocks" AS (
           SELECT * FROM json_to_recordset($2::json) AS fixture("blockerId" text, "blockedId" text)
         ) ${sql}`,
@@ -107,7 +108,7 @@ describe.skipIf(!connectionString)('conversation query with PostgreSQL parameter
     expect(response.status).toBe(200);
     expect(await response.json()).toMatchObject([
       { partnerId: 'busy', lastMessage: 'Message 119', lastSenderId: 'busy' },
-      { partnerId: 'old', lastMessage: 'Older conversation', lastSenderId: 'old' },
+      { partnerId: 'old', lastMessage: 'GIF', lastSenderId: 'old' },
     ]);
   });
 });

@@ -1,6 +1,7 @@
 export interface ChatItem {
   partnerId: string;
   lastMessage: string;
+  lastMessageId?: string;
   lastMessageTime: string;
   lastSenderId: string;
   partner: {

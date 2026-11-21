@@ -2,6 +2,7 @@ import { apiHandler } from '@/lib/api-handler';
 import { requireAuth } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { BlockService } from '@/services/block.service';
+import { assertCanSendMessage } from '@/services/chat-privacy.service';
 import { z } from 'zod';
 import { AppError } from '@/lib/errors';
 import { rateLimit } from '@/lib/ratelimit';
@@ -29,11 +30,7 @@ export const POST = apiHandler(async (req) => {
       throw new AppError('IDEMPOTENCY_CONFLICT', 'Esta tentativa pertence a outra mensagem.', 409);
     return Response.json(existing);
   }
-  const receiver = await prisma.user.findUnique({
-    where: { id: data.receiver_id },
-    select: { id: true },
-  });
-  if (!receiver) throw new AppError('USER_NOT_FOUND', 'Destinatário não encontrado.', 404);
+  await assertCanSendMessage(user.id, data.receiver_id);
   let message;
   try {
     message = await prisma.message.create({ data: { ...data, sender_id: user.id } });

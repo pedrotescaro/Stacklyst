@@ -48,7 +48,13 @@ describe('mobile message durable idempotency', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.findUnique.mockResolvedValue(null);
-    mocks.receiver.mockResolvedValue({ id: input.receiver_id });
+    mocks.receiver.mockResolvedValue({
+      mobile_state: [{ key: 'chat:messages', value: 'everyone' }],
+      following: [],
+      followers: [],
+      sent_messages: [],
+      received_messages: [],
+    });
     mocks.notify.mockResolvedValue({});
   });
 
