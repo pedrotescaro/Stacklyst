@@ -28,6 +28,24 @@ describe('Enade page image viewer', () => {
     expect(screen.getByLabelText('Nível de zoom')).toHaveTextContent('100%');
   });
 
+  it('loads detail only after opening and falls back to the preview if needed', async () => {
+    const user = userEvent.setup();
+    const src = '/enade/2014/questions/2014-objective-29-A.webp';
+    const detailSrc = '/enade/2014/questions/2014-objective-29-A-detail.webp';
+    render(<EnadePageViewer src={src} detailSrc={detailSrc} page={23} year={2014} />);
+    expect(screen.getByRole('img')).toHaveAttribute('src', src);
+    await user.click(screen.getByRole('button', { name: /Abrir e ampliar/ }));
+    const enlarged = screen.getByRole('img', { name: 'Página 23 · Enade ADS 2014' });
+    expect(enlarged).toHaveAttribute('src', detailSrc);
+    expect(
+      screen.getByRole('link', { name: 'Abrir esta página no caderno original (nova aba)' })
+    ).toHaveAttribute('href', '/enade/2014/prova.pdf#page=23');
+
+    fireEvent.error(enlarged);
+    expect(enlarged).toHaveAttribute('src', src);
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
+
   it('supports keyboard zoom and allows closing after an image error', async () => {
     const user = userEvent.setup();
     render(<EnadePageViewer src="/enade/2021/page-5.webp" page={5} year={2021} />);

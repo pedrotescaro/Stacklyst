@@ -1724,7 +1724,8 @@
         "code": false,
         "image": {
           "src": "/enade/2017/questions/2017-objective-20-A.webp",
-          "page": 25
+          "page": 25,
+          "detailSrc": "/enade/2017/questions/2017-objective-20-A-detail.webp"
         }
       },
       {
@@ -1733,7 +1734,8 @@
         "code": false,
         "image": {
           "src": "/enade/2017/questions/2017-objective-20-B.webp",
-          "page": 25
+          "page": 25,
+          "detailSrc": "/enade/2017/questions/2017-objective-20-B-detail.webp"
         }
       },
       {
@@ -1742,7 +1744,8 @@
         "code": false,
         "image": {
           "src": "/enade/2017/questions/2017-objective-20-C.webp",
-          "page": 25
+          "page": 25,
+          "detailSrc": "/enade/2017/questions/2017-objective-20-C-detail.webp"
         }
       },
       {
@@ -1751,7 +1754,8 @@
         "code": false,
         "image": {
           "src": "/enade/2017/questions/2017-objective-20-D.webp",
-          "page": 25
+          "page": 25,
+          "detailSrc": "/enade/2017/questions/2017-objective-20-D-detail.webp"
         }
       },
       {
@@ -1760,7 +1764,8 @@
         "code": false,
         "image": {
           "src": "/enade/2017/questions/2017-objective-20-E.webp",
-          "page": 25
+          "page": 25,
+          "detailSrc": "/enade/2017/questions/2017-objective-20-E-detail.webp"
         }
       }
     ],

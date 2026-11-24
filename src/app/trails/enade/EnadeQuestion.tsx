@@ -85,9 +85,8 @@ export function EnadeQuestion({
         {q.content.images.map((image, part) => (
           <div key={image.src} className={styles.paper}>
             <EnadePageViewer
-              src={image.src}
+              {...image}
               year={q.year}
-              page={image.page}
               label={`${q.kind === 'discursive' ? 'Discursiva' : 'Questão'} ${q.number}${q.content!.images.length > 1 ? ` · parte ${part + 1}` : ''}`}
             />
           </div>
@@ -178,9 +177,8 @@ export function EnadeQuestion({
                     {option.image && (
                       <div className={styles.optionImage}>
                         <EnadePageViewer
-                          src={option.image.src}
+                          {...option.image}
                           year={q.year}
-                          page={option.image.page}
                           label={`${option.text ? 'Imagem' : 'Diagrama'} da alternativa ${option.letter} da questão ${q.number}`}
                         />
                       </div>

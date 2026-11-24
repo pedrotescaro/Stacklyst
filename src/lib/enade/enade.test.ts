@@ -116,10 +116,41 @@ describe('ADS Enade official archive', () => {
     expect(question.transcript).toContain('return this.getSalario() + adicional - desconto;');
     expect(question.statement).toMatch(/^Utilizando a engenharia reversa/);
     for (const option of question.options) {
-      expect(option.image).toEqual({
+      expect(option.image).toMatchObject({
         src: `/enade/2014/questions/${question.id}-${option.letter}.webp`,
         page: 23,
       });
+    }
+  });
+
+  it('provides a readable reconstruction for 2008/24 and enlarged sources for technical diagrams', async () => {
+    const [restored] = archivedQuestion(2008, 24).images;
+    expect(restored.src).toMatch(/2008-objective-24-readable\.svg$/);
+    expect(restored.page).toBe(14);
+    expect(restored.alt).toContain('Urna eletrônica');
+    const vector = readFileSync(resolve('public' + restored.src), 'utf8');
+    expect(vector).toContain('Solicita número do candidato');
+    expect(vector).toContain('Emite sinal sonoro');
+    expect(vector).not.toContain('<image');
+
+    const examples = [
+      archivedQuestion(2014, 29),
+      archivedQuestion(2017, 20),
+      archivedQuestion(2021, 15),
+    ];
+    const sources = [
+      examples[0].images[0],
+      ...examples.flatMap((question) => question.options.map((option) => option.image!)),
+    ];
+    expect(sources).toHaveLength(16);
+    for (const { src, detailSrc } of sources) {
+      expect(detailSrc).toBe(src.replace('.webp', '-detail.webp'));
+      const [preview, detail] = await Promise.all([
+        sharp(resolve('public' + src)).metadata(),
+        sharp(resolve('public' + detailSrc)).metadata(),
+      ]);
+      expect(detail.width).toBeGreaterThan(preview.width * 1.95);
+      expect(detail.height).toBeGreaterThan(preview.height * 1.9);
     }
   });
 

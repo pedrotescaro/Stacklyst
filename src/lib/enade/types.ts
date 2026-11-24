@@ -25,6 +25,8 @@ export interface EnadeAttempt {
 export interface EnadeQuestionImage {
   src: string;
   page: number;
+  detailSrc?: string;
+  alt?: string;
 }
 export type EnadeStatementBlock =
   | { kind: 'paragraph' | 'heading' | 'source' | 'code' | 'lines'; text: string }

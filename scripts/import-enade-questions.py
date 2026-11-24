@@ -52,6 +52,22 @@ OPTION_IMAGE_CLIPS = {
     ]),
 }
 
+# These layouts are vectors in the original PDFs. An extra lossless export
+# gives the zoom viewer more source detail without increasing preview downloads.
+DETAIL_STEMS = {'2014-objective-29': (0,)}
+DETAIL_OPTIONS = {'2014-objective-29', '2017-objective-20', '2021-objective-15'}
+RESTORED_STEMS = {
+    '2008-objective-24': (
+        '2008-objective-24-readable.svg',
+        'Três raias: Banco de dados, Urna eletrônica e Eleitor. A urna solicita o número; '
+        'o eleitor informa o número, gerando o objeto candidato para validação pela urna. '
+        'A urna solicita confirmação; o eleitor confirma, gerando o objeto voto. A urna '
+        'registra o voto e divide o fluxo entre armazenar o voto no banco de dados e exibir '
+        'a tela de fim de votação. Os dois caminhos se unem e a urna emite um sinal sonoro antes do fim.',
+    ),
+}
+IMAGE_DETAIL_QUESTIONS = DETAIL_OPTIONS | DETAIL_STEMS.keys() | RESTORED_STEMS.keys()
+
 
 def clean(text):
     text = unicodedata.normalize('NFKC', text).translate(str.maketrans({'Ɵ': 'ti', 'Ʃ': 'tt', 'ơ': 'tí', 'İ': 'fí', 'Ō': 'ft', 'Ņ': 'fk', 'ͷ': '5', '\u0002': '←', '\u00ad': ''}))
@@ -235,31 +251,65 @@ def trimmed_clip(doc, clip):
     return {'page': clip['page'], 'rect': list(rect)}
 
 
-def render_clip(doc, clip, destination):
+def render_clip(doc, clip, destination, *, scale=2.5, lossless=False):
     rect = fitz.Rect(clip['rect'])
     if rect.height < 2:
         return False
-    pix = doc[clip['page']].get_pixmap(matrix=fitz.Matrix(2.5, 2.5), clip=rect, alpha=False)
+    pix = doc[clip['page']].get_pixmap(matrix=fitz.Matrix(scale, scale), clip=rect, alpha=False)
     image = Image.frombytes('RGB', (pix.width, pix.height), pix.samples)
     ink = ImageChops.difference(image, Image.new('RGB', image.size, 'white')).convert('L').point(lambda p: 255 if p > 35 else 0).getbbox()
     if not ink:
         return False
     # Trim only vertical whitespace, retaining the source column's width and scale.
-    image = image.crop((0, max(0, ink[1] - 16), image.width, min(image.height, ink[3] + 16)))
-    image.save(destination, 'WEBP', quality=92, method=6)
+    padding = round(16 * scale / 2.5)
+    image = image.crop((0, max(0, ink[1] - padding), image.width, min(image.height, ink[3] + padding)))
+    image.save(destination, 'WEBP', quality=92, method=6, lossless=lossless)
     return True
 
 
-def publish(exam, items, text_only=False):
+def add_image_detail(doc, clip, image, folder):
+    preview = Path(image['src'])
+    filename = f'{preview.stem}-detail.webp'
+    if not render_clip(doc, clip, folder / filename, scale=5, lossless=True):
+        raise ValueError(f'Empty detail image: {filename}')
+    image['detailSrc'] = preview.with_name(filename).as_posix()
+
+
+def improve_question_images(doc, content, stem, folder):
+    question_id = content['id']
+    if question_id in RESTORED_STEMS:
+        filename, alt = RESTORED_STEMS[question_id]
+        if not (folder / filename).is_file():
+            raise FileNotFoundError(folder / filename)
+        image = content['images'][0]
+        image['src'] = Path(image['src']).with_name(filename).as_posix()
+        image['alt'] = alt
+    for index in DETAIL_STEMS.get(question_id, ()):
+        add_image_detail(doc, stem[index], content['images'][index], folder)
+    if question_id in DETAIL_OPTIONS:
+        page, rects = OPTION_IMAGE_CLIPS[question_id]
+        for option, rect in zip(content['options'], rects, strict=True):
+            add_image_detail(doc, {'page': page, 'rect': rect}, option['image'], folder)
+
+
+def publish(exam, items, text_only=False, image_details_only=False):
     year = exam['year']
     doc = source_document(year)
     folder = ROOT / f'public/enade/{year}/questions'
     folder.mkdir(exist_ok=True)
     output = folder.parent / 'questions.json'
-    previous = {item['id']: item for item in json.loads(output.read_text(encoding='utf8'))} if text_only else {}
+    if image_details_only and not any(item['id'] in IMAGE_DETAIL_QUESTIONS for item in items):
+        return
+    previous = (
+        {item['id']: item for item in json.loads(output.read_text(encoding='utf8'))}
+        if text_only or image_details_only else {}
+    )
     published = []
     for item in items:
         question_id = item['id']
+        if image_details_only and question_id not in IMAGE_DETAIL_QUESTIONS:
+            published.append(previous[question_id])
+            continue
         question = next(q for q in exam['questions'] if q['id'] == question_id)
         stem = item['contextClips']
         if question_id in STEM_CLIPS:
@@ -269,6 +319,11 @@ def publish(exam, items, text_only=False):
             boundary = [*last_clip['rect'][:3], DIAGRAM_STEM_BOTTOM[question_id]]
             stem = [*stem[:-1], {**last_clip, 'rect': boundary}]
         image_clips = [trimmed_clip(doc, clip) for clip in stem]
+        if image_details_only:
+            content = previous[question_id]
+            improve_question_images(doc, content, image_clips, folder)
+            published.append(content)
+            continue
         formatted = format_statement(doc, image_clips, clean, question_id)
         assert formatted, question_id
         if text_only:
@@ -329,14 +384,18 @@ def publish(exam, items, text_only=False):
             options.append({'letter': option['letter'], 'text': text, 'code': code, **({'image': media} if media else {})})
         assert images and statement, item['id']
         assert all(o['text'] or o.get('image') for o in options), item['id']
-        published.append({'id': question_id, 'images': images, 'statement': instruction, 'transcript': statement,
-                          'options': options, 'formattedStatement': formatted})
+        content = {'id': question_id, 'images': images, 'statement': instruction, 'transcript': statement,
+                   'options': options, 'formattedStatement': formatted}
+        improve_question_images(doc, content, image_clips, folder)
+        published.append(content)
     output.write_text(json.dumps(published, ensure_ascii=False, indent=2) + '\n', encoding='utf8')
 
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--text-only', action='store_true', help='Refresh formatted statements without rendering WebP assets.')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--text-only', action='store_true', help='Refresh formatted statements without rendering WebP assets.')
+    mode.add_argument('--image-details-only', action='store_true', help='Refresh only the restored and high-detail images.')
     args = parser.parse_args()
     catalog = json.loads((ROOT / 'src/lib/enade/exams.json').read_text(encoding='utf8'))
     all_items = {str(exam['year']): extract(exam) for exam in catalog}
@@ -347,4 +406,5 @@ if __name__ == '__main__':
     print(json.dumps({'errors': [(q['id'], q['error']) for q in errors], 'questions': sum(map(len, all_items.values()))}))
     assert not errors
     for exam in catalog:
-        publish(exam, all_items[str(exam['year'])], text_only=args.text_only)
+        publish(exam, all_items[str(exam['year'])], text_only=args.text_only,
+                image_details_only=args.image_details_only)

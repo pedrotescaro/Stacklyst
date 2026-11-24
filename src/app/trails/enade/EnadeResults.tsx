@@ -146,9 +146,8 @@ export function EnadeResults({
                     {q.correctOption?.image && (
                       <div className={styles.resultDiagram}>
                         <EnadePageViewer
-                          src={q.correctOption.image.src}
+                          {...q.correctOption.image}
                           year={q.year}
-                          page={q.correctOption.image.page}
                           label={`${q.correctOption.text ? 'Imagem' : 'Diagrama'} da resposta correta da questão ${q.number}`}
                         />
                       </div>

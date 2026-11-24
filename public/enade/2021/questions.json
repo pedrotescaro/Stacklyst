@@ -1315,7 +1315,8 @@
         "code": false,
         "image": {
           "src": "/enade/2021/questions/2021-objective-15-A.webp",
-          "page": 23
+          "page": 23,
+          "detailSrc": "/enade/2021/questions/2021-objective-15-A-detail.webp"
         }
       },
       {
@@ -1324,7 +1325,8 @@
         "code": false,
         "image": {
           "src": "/enade/2021/questions/2021-objective-15-B.webp",
-          "page": 23
+          "page": 23,
+          "detailSrc": "/enade/2021/questions/2021-objective-15-B-detail.webp"
         }
       },
       {
@@ -1333,7 +1335,8 @@
         "code": false,
         "image": {
           "src": "/enade/2021/questions/2021-objective-15-C.webp",
-          "page": 23
+          "page": 23,
+          "detailSrc": "/enade/2021/questions/2021-objective-15-C-detail.webp"
         }
       },
       {
@@ -1342,7 +1345,8 @@
         "code": false,
         "image": {
           "src": "/enade/2021/questions/2021-objective-15-D.webp",
-          "page": 23
+          "page": 23,
+          "detailSrc": "/enade/2021/questions/2021-objective-15-D-detail.webp"
         }
       },
       {
@@ -1351,7 +1355,8 @@
         "code": false,
         "image": {
           "src": "/enade/2021/questions/2021-objective-15-E.webp",
-          "page": 23
+          "page": 23,
+          "detailSrc": "/enade/2021/questions/2021-objective-15-E-detail.webp"
         }
       }
     ],

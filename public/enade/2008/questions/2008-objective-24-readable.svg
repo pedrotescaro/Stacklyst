@@ -1,0 +1,70 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="900" height="900" viewBox="0 0 720 720">
+  <title>Diagrama da urna eletrônica</title>
+  <!-- Redesenho do caderno ENADE ADS 2008, questão 24, página 14 do PDF. -->
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto">
+      <path d="m1 1 8 4-8 4" fill="none" stroke="#17202a" stroke-width="1.4"/>
+    </marker>
+  </defs>
+  <path fill="#fff" d="M0 0h720v720H0z"/>
+  <g fill="none" stroke="#17202a" stroke-width="2">
+    <rect x="12" y="12" width="696" height="696"/>
+    <path d="M214 12v696M480 12v696"/>
+  </g>
+  <g fill="#17202a" font-family="Arial, sans-serif" font-size="18" font-weight="700" text-anchor="middle">
+    <text x="113" y="42">Banco de dados</text>
+    <text x="347" y="42">Urna eletrônica</text>
+    <text x="594" y="42">Eleitor</text>
+  </g>
+  <g fill="none" stroke="#17202a" stroke-width="2.2" marker-end="url(#arrow)">
+    <path d="M347 80v31"/>
+    <path d="M466 136h44"/>
+    <path d="M347 244v25"/>
+    <path d="M445 294h54"/>
+    <path d="M347 402v24"/>
+    <path d="m347 426-48 21H113v25"/>
+    <path d="M347 426v46"/>
+    <path d="M113 523v25h214v20"/>
+    <path d="M347 523v45"/>
+    <path d="M347 568v34"/>
+    <path d="M347 653v14"/>
+  </g>
+  <g fill="none" stroke="#17202a" stroke-width="2.2" stroke-dasharray="5 4" marker-end="url(#arrow)">
+    <path d="M596 162v32"/>
+    <path d="M546 219H425"/>
+    <path d="M596 320v31"/>
+    <path d="M559 377H425"/>
+  </g>
+  <g fill="#fff" stroke="#17202a" stroke-width="2.4">
+    <rect x="228" y="111" width="238" height="51" rx="17"/>
+    <rect x="510" y="111" width="172" height="51" rx="17"/>
+    <rect x="546" y="194" width="100" height="50"/>
+    <rect x="269" y="194" width="156" height="50" rx="17"/>
+    <rect x="249" y="269" width="196" height="51" rx="17"/>
+    <rect x="499" y="269" width="194" height="51" rx="17"/>
+    <rect x="559" y="351" width="74" height="51"/>
+    <rect x="269" y="351" width="156" height="51" rx="17"/>
+    <rect x="32" y="472" width="162" height="51" rx="17"/>
+    <rect x="231" y="472" width="232" height="51" rx="17"/>
+    <rect x="258" y="602" width="178" height="51" rx="17"/>
+  </g>
+  <g fill="#17202a" font-family="Arial, sans-serif" font-size="16" text-anchor="middle" dominant-baseline="central">
+    <text x="347" y="136">Solicita número do candidato</text>
+    <text x="596" y="136">Informa número</text>
+    <text x="596" y="219" text-decoration="underline">candidato</text>
+    <text x="347" y="219">Valida número</text>
+    <text x="347" y="294">Solicita confirmação</text>
+    <text x="596" y="294">Informa confirmação</text>
+    <text x="596" y="377" text-decoration="underline">voto</text>
+    <text x="347" y="377">Registra voto</text>
+    <text x="113" y="498">Armazena voto</text>
+    <text x="347" y="498">Exibe tela de fim de votação</text>
+    <text x="347" y="628">Emite sinal sonoro</text>
+  </g>
+  <g fill="#17202a">
+    <circle cx="347" cy="69" r="11"/>
+    <path stroke="#17202a" stroke-width="6" d="M315 426h64M315 568h64"/>
+    <circle cx="347" cy="678" r="7.5"/>
+    <circle cx="347" cy="678" r="11" fill="none" stroke="#17202a" stroke-width="2"/>
+  </g>
+</svg>

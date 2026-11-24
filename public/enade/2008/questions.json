@@ -1565,8 +1565,9 @@
     "id": "2008-objective-24",
     "images": [
       {
-        "src": "/enade/2008/questions/2008-objective-24-1.webp",
-        "page": 14
+        "src": "/enade/2008/questions/2008-objective-24-readable.svg",
+        "page": 14,
+        "alt": "Três raias: Banco de dados, Urna eletrônica e Eleitor. A urna solicita o número; o eleitor informa o número, gerando o objeto candidato para validação pela urna. A urna solicita confirmação; o eleitor confirma, gerando o objeto voto. A urna registra o voto e divide o fluxo entre armazenar o voto no banco de dados e exibir a tela de fim de votação. Os dois caminhos se unem e a urna emite um sinal sonoro antes do fim."
       }
     ],
     "statement": "A figura acima mostra um diagrama de",

@@ -54,6 +54,12 @@
   min-height: 64px;
   padding: 8px 24px;
 }
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
 .title {
   min-width: 0;
   font-size: 14px;
@@ -88,6 +94,7 @@
   cursor: default;
 }
 .canvas {
+  container-type: size;
   min-height: 0;
   min-width: 0;
   overflow: hidden;
@@ -109,8 +116,8 @@
   display: block;
   width: auto;
   height: auto;
-  max-width: calc(100vw - 32px);
-  max-height: calc(100dvh - 210px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  max-width: calc(100cqw - 16px);
+  max-height: calc(100cqh - 16px);
   object-fit: contain;
   background: white;
   -webkit-user-drag: none;
@@ -156,5 +163,24 @@
   }
   .fit {
     margin-left: 4px;
+  }
+}
+
+@media (max-height: 480px) {
+  .header {
+    min-height: 48px;
+    padding-block: 2px;
+  }
+  .footer {
+    padding-block: 2px;
+  }
+  .help {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: 0;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
   }
 }

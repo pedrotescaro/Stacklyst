@@ -2207,7 +2207,8 @@
     "images": [
       {
         "src": "/enade/2014/questions/2014-objective-29-1.webp",
-        "page": 23
+        "page": 23,
+        "detailSrc": "/enade/2014/questions/2014-objective-29-1-detail.webp"
       },
       {
         "src": "/enade/2014/questions/2014-objective-29-2.webp",
@@ -2223,7 +2224,8 @@
         "code": false,
         "image": {
           "src": "/enade/2014/questions/2014-objective-29-A.webp",
-          "page": 23
+          "page": 23,
+          "detailSrc": "/enade/2014/questions/2014-objective-29-A-detail.webp"
         }
       },
       {
@@ -2232,7 +2234,8 @@
         "code": false,
         "image": {
           "src": "/enade/2014/questions/2014-objective-29-B.webp",
-          "page": 23
+          "page": 23,
+          "detailSrc": "/enade/2014/questions/2014-objective-29-B-detail.webp"
         }
       },
       {
@@ -2241,7 +2244,8 @@
         "code": false,
         "image": {
           "src": "/enade/2014/questions/2014-objective-29-C.webp",
-          "page": 23
+          "page": 23,
+          "detailSrc": "/enade/2014/questions/2014-objective-29-C-detail.webp"
         }
       },
       {
@@ -2250,7 +2254,8 @@
         "code": false,
         "image": {
           "src": "/enade/2014/questions/2014-objective-29-D.webp",
-          "page": 23
+          "page": 23,
+          "detailSrc": "/enade/2014/questions/2014-objective-29-D-detail.webp"
         }
       },
       {
@@ -2259,7 +2264,8 @@
         "code": false,
         "image": {
           "src": "/enade/2014/questions/2014-objective-29-E.webp",
-          "page": 23
+          "page": 23,
+          "detailSrc": "/enade/2014/questions/2014-objective-29-E-detail.webp"
         }
       }
     ],

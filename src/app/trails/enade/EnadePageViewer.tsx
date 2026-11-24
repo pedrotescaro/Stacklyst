@@ -2,30 +2,41 @@
 
 /* Exam page renders preserve the original diagrams and mathematical notation. */
 /* eslint-disable @next/next/no-img-element */
-import { useRef, useState, type KeyboardEvent } from 'react';
+import { useCallback, useRef, useState, type KeyboardEvent } from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { Maximize, X, ZoomIn, ZoomOut } from 'lucide-react';
+import { ExternalLink, Maximize, X, ZoomIn, ZoomOut } from 'lucide-react';
 import {
   TransformComponent,
   TransformWrapper,
   type ReactZoomPanPinchRef,
 } from 'react-zoom-pan-pinch';
+import type { EnadeQuestionImage } from '@/lib/enade/types';
 import styles from './EnadePageViewer.module.css';
 
-interface EnadePageViewerProps {
-  src: string;
+interface EnadePageViewerProps extends EnadeQuestionImage {
   year: number;
-  page: number;
   label?: string;
 }
 
-export function EnadePageViewer({ src, year, page, label }: EnadePageViewerProps) {
+export function EnadePageViewer({ src, detailSrc, alt, year, page, label }: EnadePageViewerProps) {
   const [open, setOpen] = useState(false);
   const [scale, setScale] = useState(1);
   const [imageError, setImageError] = useState(false);
+  const [detailError, setDetailError] = useState(false);
   const transform = useRef<ReactZoomPanPinchRef>(null);
   const closeButton = useRef<HTMLButtonElement>(null);
   const title = `${label || `Página ${page}`} · Enade ADS ${year}`;
+  const zoomSrc = detailError ? src : (detailSrc ?? src);
+
+  const observeCanvas = useCallback((frame: HTMLDivElement | null) => {
+    if (!frame || typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(() => {
+      const viewer = transform.current;
+      if (viewer?.instance.state.scale === 1) viewer.centerView(1, 0);
+    });
+    observer.observe(frame);
+    return () => observer.disconnect();
+  }, []);
 
   function handleKeyDown(event: KeyboardEvent) {
     if (event.altKey || event.ctrlKey || event.metaKey) return;
@@ -49,6 +60,7 @@ export function EnadePageViewer({ src, year, page, label }: EnadePageViewerProps
         if (next) {
           setScale(1);
           setImageError(false);
+          setDetailError(false);
         }
       }}
     >
@@ -63,7 +75,7 @@ export function EnadePageViewer({ src, year, page, label }: EnadePageViewerProps
         <img
           className={styles.preview}
           src={src}
-          alt={`${label || `Página ${page}`} da prova Enade ADS ${year}. Texto disponível a seguir.`}
+          alt={alt ?? `${label || `Página ${page}`} da prova Enade ADS ${year}.`}
         />
         <span className={styles.openHint}>
           <ZoomIn size={16} aria-hidden="true" /> Abrir e ampliar
@@ -78,16 +90,28 @@ export function EnadePageViewer({ src, year, page, label }: EnadePageViewerProps
         >
           <header className={styles.header}>
             <Dialog.Title className={styles.title}>{title}</Dialog.Title>
-            <Dialog.Close
-              ref={closeButton}
-              className={styles.control}
-              aria-label="Fechar visualizador"
-              title="Fechar (Esc)"
-            >
-              <X size={22} aria-hidden="true" />
-            </Dialog.Close>
+            <div className={styles.headerActions}>
+              <a
+                className={styles.control}
+                href={`/enade/${year}/prova.pdf#page=${page}`}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="Abrir esta página no caderno original (nova aba)"
+                title="Abrir PDF original"
+              >
+                PDF <ExternalLink size={16} aria-hidden="true" />
+              </a>
+              <Dialog.Close
+                ref={closeButton}
+                className={styles.control}
+                aria-label="Fechar visualizador"
+                title="Fechar (Esc)"
+              >
+                <X size={22} aria-hidden="true" />
+              </Dialog.Close>
+            </div>
           </header>
-          <div className={styles.canvas}>
+          <div ref={observeCanvas} className={styles.canvas}>
             {imageError ? (
               <p role="alert" className={styles.error}>
                 Não foi possível carregar a imagem. Feche e tente abrir novamente.
@@ -115,12 +139,15 @@ export function EnadePageViewer({ src, year, page, label }: EnadePageViewerProps
                   contentClass={styles.zoomContent}
                 >
                   <img
-                    src={src}
+                    src={zoomSrc}
                     className={styles.fullImage}
-                    alt={title}
+                    alt={alt ?? title}
                     draggable={false}
                     onLoad={() => transform.current?.centerView(1, 0)}
-                    onError={() => setImageError(true)}
+                    onError={() => {
+                      if (zoomSrc === src) setImageError(true);
+                      else setDetailError(true);
+                    }}
                   />
                 </TransformComponent>
               </TransformWrapper>
