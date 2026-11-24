@@ -149,7 +149,7 @@ export function EnadeResults({
                           src={q.correctOption.image.src}
                           year={q.year}
                           page={q.correctOption.image.page}
-                          label={`Diagrama da resposta correta da questão ${q.number}`}
+                          label={`${q.correctOption.text ? 'Imagem' : 'Diagrama'} da resposta correta da questão ${q.number}`}
                         />
                       </div>
                     )}

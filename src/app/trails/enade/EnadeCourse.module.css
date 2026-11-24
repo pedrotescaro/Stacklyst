@@ -516,6 +516,7 @@
   color: var(--color-dd-text);
 }
 .optionImage {
+  width: fit-content;
   overflow: hidden;
   margin: 0 20px 20px;
   border-radius: 10px;
@@ -1419,6 +1420,7 @@
   margin: 0;
 }
 .resultDiagram {
+  width: fit-content;
   margin-block: 20px;
   overflow: hidden;
   border-radius: 12px;
@@ -1524,7 +1526,8 @@
     grid-template-columns: minmax(0, 1fr);
   }
   .alternative label {
-    padding: 16px;
+    padding-block: 16px;
+    padding-left: 16px;
     gap: 12px;
   }
   .optionText {

@@ -191,7 +191,7 @@ export function EnadeQuestion({
                           src={option.image.src}
                           year={q.year}
                           page={option.image.page}
-                          label={`Diagrama da alternativa ${option.letter} da questão ${q.number}`}
+                          label={`${option.text ? 'Imagem' : 'Diagrama'} da alternativa ${option.letter} da questão ${q.number}`}
                         />
                       </div>
                     )}

@@ -1,9 +1,17 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { resolve } from 'node:path';
+import sharp from 'sharp';
 import { describe, it, expect } from 'vitest';
 import data from './exams.json';
 import { gradeEnade, type EnadeExam, type EnadeQuestionContent } from './types';
+
+function archivedQuestion(year: number, number: number) {
+  const items = JSON.parse(
+    readFileSync(resolve(`public/enade/${year}/questions.json`), 'utf8')
+  ) as EnadeQuestionContent[];
+  return items.find((item) => item.id === `${year}-objective-${number}`)!;
+}
 
 describe('ADS Enade official archive', () => {
   it('supplies complete lettered alternatives and source images for all 200 questions', () => {
@@ -39,6 +47,39 @@ describe('ADS Enade official archive', () => {
     }
     expect(optionCount).toBe(875);
   });
+
+  it('includes the full Lorenz graph and all five original artwork alternatives', async () => {
+    const graph = archivedQuestion(2008, 7);
+    expect(graph.images.map((image) => image.page)).toEqual([5, 5]);
+    const { width, height } = await sharp(resolve(`public${graph.images[0].src}`)).metadata();
+    expect(height / width).toBeGreaterThan(0.85);
+
+    const artwork = archivedQuestion(2008, 8);
+    expect(artwork.transcript).toContain('O filósofo alemão Friedrich Nietzsche');
+    for (const option of artwork.options) {
+      expect(option.text).toBeTruthy();
+      expect(option.image).toEqual({
+        src: `/enade/2008/questions/${artwork.id}-${option.letter}.webp`,
+        page: 6,
+      });
+      const painting = await sharp(resolve(`public${option.image!.src}`)).metadata();
+      expect(painting.height).toBeGreaterThan(painting.width);
+    }
+  });
+
+  it('includes both columns of the 2014 UML question and its five diagrams', () => {
+    const question = archivedQuestion(2014, 29);
+    expect(question.images.map((image) => image.page)).toEqual([23, 23]);
+    expect(question.transcript).toContain('return this.getSalario() + adicional - desconto;');
+    expect(question.statement).toMatch(/^Utilizando a engenharia reversa/);
+    for (const option of question.options) {
+      expect(option.image).toEqual({
+        src: `/enade/2014/questions/${question.id}-${option.letter}.webp`,
+        page: 23,
+      });
+    }
+  });
+
   it('contains all 200 questions across the five official ADS editions, with valid answer keys and assets', () => {
     expect(data.map((e) => e.year)).toEqual([2008, 2011, 2014, 2017, 2021]);
     for (const exam of data) {

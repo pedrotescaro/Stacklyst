@@ -233,10 +233,14 @@
       {
         "src": "/enade/2008/questions/2008-objective-7-1.webp",
         "page": 5
+      },
+      {
+        "src": "/enade/2008/questions/2008-objective-7-2.webp",
+        "page": 5
       }
     ],
     "statement": "De acordo com o mesmo gráfico, o percentual da renda total correspondente aos 20% de maior renda foi, aproximadamente, igual a",
-    "transcript": "Apesar do progresso verificado nos últimos anos, o Brasil continua\nsendo um país em que há uma grande desigualdade de renda\nentre os cidadãos. Uma forma de se constatar este fato é por meio\nda Curva de Lorenz, que fornece, para cada valor de x entre 0 e\n100, o percentual da renda total do País auferido pelos x% de\nbrasileiros de menor renda. Por exemplo, na Curva de Lorenz para\n2004, apresentada ao lado, constata-se que a renda total dos 60%\nde menor renda representou apenas 20% da renda total.\nDe acordo com o mesmo gráfico, o percentual da renda\ntotal \ncorrespondente \naos \n20% \nde \nmaior \nrenda \nfoi,\naproximadamente, igual a",
+    "transcript": "Disponível em http://www.ipea.gov.br    \nApesar do progresso verificado nos últimos anos, o Brasil continua\nsendo um país em que há uma grande desigualdade de renda\nentre os cidadãos. Uma forma de se constatar este fato é por meio\nda Curva de Lorenz, que fornece, para cada valor de x entre 0 e\n100, o percentual da renda total do País auferido pelos x% de\nbrasileiros de menor renda. Por exemplo, na Curva de Lorenz para\n2004, apresentada ao lado, constata-se que a renda total dos 60%\nde menor renda representou apenas 20% da renda total.\nDe acordo com o mesmo gráfico, o percentual da renda\ntotal \ncorrespondente \naos \n20% \nde \nmaior \nrenda \nfoi,\naproximadamente, igual a",
     "options": [
       {
         "letter": "A",
@@ -273,33 +277,53 @@
         "page": 6
       }
     ],
-    "statement": "As obras desse movimento deixam de priorizar o padrão de beleza tradicional para enfocar a instabilidade da vida, marcada por angústia, dor, inadequação do artista diante da realidade. Das obras a seguir, a que reflete esse enfoque artístico é",
+    "statement": "Das obras a seguir, a que reflete esse enfoque artístico é",
     "transcript": "O filósofo alemão Friedrich Nietzsche (1844-1900), talvez o pensador moderno mais incômodo e provocativo, influenciou\nvárias gerações e movimentos artísticos. O Expressionismo, que teve forte influência desse filósofo, contribuiu para o\npensamento contrário ao racionalismo moderno e ao trabalho mecânico, através do embate entre a razão e a fantasia.\nAs obras desse movimento deixam de priorizar o padrão de beleza tradicional para enfocar a instabilidade da vida,\nmarcada por angústia, dor, inadequação do artista diante da realidade.\nDas obras a seguir, a que reflete esse enfoque artístico é",
     "options": [
       {
         "letter": "A",
         "text": "Homem idoso na poltrona Rembrandt van Rijn – Louvre, Paris. Disponível em: http://www.allposters.com",
-        "code": false
+        "code": false,
+        "image": {
+          "src": "/enade/2008/questions/2008-objective-8-A.webp",
+          "page": 6
+        }
       },
       {
         "letter": "B",
         "text": "Figura e borboleta Milton Dacosta Disponível em: http://www.unesp.br",
-        "code": false
+        "code": false,
+        "image": {
+          "src": "/enade/2008/questions/2008-objective-8-B.webp",
+          "page": 6
+        }
       },
       {
         "letter": "C",
         "text": "O grito – Edvard Munch – Museu Munch, Oslo Disponível em: http://members.cox.net",
-        "code": false
+        "code": false,
+        "image": {
+          "src": "/enade/2008/questions/2008-objective-8-C.webp",
+          "page": 6
+        }
       },
       {
         "letter": "D",
         "text": "Menino mordido por um lagarto Michelangelo Merisi (Caravaggio) National Gallery, Londres Disponível em: http://vr.theatre.ntu.edu.tw",
-        "code": false
+        "code": false,
+        "image": {
+          "src": "/enade/2008/questions/2008-objective-8-D.webp",
+          "page": 6
+        }
       },
       {
         "letter": "E",
         "text": "Abaporu – Tarsila do Amaral Disponível em: http://tarsiladoamaral.com.br",
-        "code": false
+        "code": false,
+        "image": {
+          "src": "/enade/2008/questions/2008-objective-8-E.webp",
+          "page": 6
+        }
       }
     ]
   },

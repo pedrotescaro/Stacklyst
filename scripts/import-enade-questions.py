@@ -14,6 +14,42 @@ from PIL import Image, ImageChops
 ROOT = Path(__file__).resolve().parents[1]
 FONT_MAP = json.loads((ROOT / 'scripts/enade-font-map.json').read_text(encoding='utf8'))
 
+# Page indexes and PDF coordinates for layouts where the first answer marker
+# overlaps the stem, or where the stem continues in another column.
+STEM_CLIPS = {
+    '2008-objective-7': [(4, [33, 542, 271, 762]), (4, [271, 540, 570, 685])],
+    '2008-objective-8': [(5, [20, 90, 575, 232])],
+    '2014-objective-29': [(22, [44, 124, 313, 747]), (22, [318, 103, 584, 141])],
+}
+DIAGRAM_STEM_BOTTOM = {'2017-objective-20': 132, '2021-objective-15': 98}
+INSTRUCTION_START = re.compile(
+    r'^(?:Assinale|Com base|Considerando|É correto|A respeito|Acerca|Das (?:imagens|obras)|No poema|'
+    r'Usando|Utilizando a engenharia reversa|A partir|De acordo|Nesse contexto|Nessa situação|'
+    r'Diante|O que|Qual|Para que|A característica)',
+    re.IGNORECASE,
+)
+
+# The letters are printed halfway down the figures. Crop each figure above
+# and below its marker, excluding the original letter so answers can shuffle.
+OPTION_IMAGE_CLIPS = {
+    '2008-objective-8': (5, [
+        [50, 240, 195, 439], [220, 241, 371, 437], [404, 237, 560, 437],
+        [120, 519, 265, 724], [290, 517, 465, 721],
+    ]),
+    '2014-objective-29': (22, [
+        [342, 144, 574, 253], [342, 265, 574, 376], [342, 385, 574, 499],
+        [342, 508, 574, 614], [342, 628, 574, 738],
+    ]),
+    '2017-objective-20': (24, [
+        [82, 132, 315, 272], [82, 273, 315, 413], [82, 414, 315, 556],
+        [338, 132, 575, 272], [338, 273, 575, 413],
+    ]),
+    '2021-objective-15': (22, [
+        [48, 100, 462, 219], [48, 220, 462, 346], [48, 347, 462, 475],
+        [48, 476, 462, 606], [48, 607, 462, 736],
+    ]),
+}
+
 
 def clean(text):
     text = unicodedata.normalize('NFKC', text).translate(str.maketrans({'Ɵ': 'ti', 'Ʃ': 'tt', 'ơ': 'tí', 'İ': 'fí', 'Ō': 'ft', 'Ņ': 'fk', 'ͷ': '5', '\u0002': '←', '\u00ad': ''}))
@@ -219,28 +255,28 @@ def publish(exam, items):
     folder.mkdir(exist_ok=True)
     published = []
     for item in items:
-        question = next(q for q in exam['questions'] if q['id'] == item['id'])
+        question_id = item['id']
+        question = next(q for q in exam['questions'] if q['id'] == question_id)
         stem = item['contextClips']
-        # These two questions have diagrams as choices. Their letters sit halfway
-        # down the artwork, so normal text-line boundaries would crop the diagrams.
-        graphic_options = {
-            '2017-objective-20': [(24, [82, 132, 315, 272]), (24, [82, 273, 315, 413]), (24, [82, 414, 315, 556]), (24, [338, 132, 575, 272]), (24, [338, 273, 575, 413])],
-            '2021-objective-15': [(22, [48, 100, 462, 219]), (22, [48, 220, 462, 346]), (22, [48, 347, 462, 475]), (22, [48, 476, 462, 606]), (22, [48, 607, 462, 736])],
-        }.get(item['id'])
-        if graphic_options:
-            stem[-1]['rect'][3] = 132 if year == 2017 else 98
+        if question_id in STEM_CLIPS:
+            stem = [{'page': page, 'rect': rect} for page, rect in STEM_CLIPS[question_id]]
+        elif question_id in DIAGRAM_STEM_BOTTOM:
+            last_clip = stem[-1]
+            boundary = [*last_clip['rect'][:3], DIAGRAM_STEM_BOTTOM[question_id]]
+            stem = [*stem[:-1], {**last_clip, 'rect': boundary}]
+        graphic_options = OPTION_IMAGE_CLIPS.get(question_id)
         images = []
         for index, clip in enumerate(stem):
             clip = trimmed_clip(doc, clip)
-            filename = f"{item['id']}-{index + 1}.webp"
+            filename = f'{question_id}-{index + 1}.webp'
             if render_clip(doc, clip, folder / filename):
                 images.append({'src': f'/enade/{year}/questions/{filename}', 'page': clip['page'] + 1})
-        if graphic_options:
-            stem_text = '\n'.join(clip_text(doc, c) for c in stem)
-            item['statement'] = clean(stem_text)
-        statement = re.sub(r'(?im)^\s*(?:RASCUNHO|(?:Á?rea|ea) livre)[^\n]*', '', item['statement']).strip()
+        stem_text = item['statement']
+        if stem != item['contextClips']:
+            stem_text = clean('\n'.join(clip_text(doc, clip) for clip in stem))
+        statement = re.sub(r'(?im)^\s*(?:RASCUNHO|(?:Á?rea|ea) livre)[^\n]*', '', stem_text).strip()
         lines = [re.sub(r'[ \t]+', ' ', line).strip() for line in statement.splitlines() if line.strip()]
-        starts = [i for i, line in enumerate(lines) if re.match(r'(?i)^(?:Assinale|Com base|Considerando|É correto|A respeito|Acerca|Das imagens|No poema|Usando|A partir|De acordo|Nesse contexto|Nessa situação|Diante|O que|Qual|Para que|A característica)', line)]
+        starts = [i for i, line in enumerate(lines) if INSTRUCTION_START.match(line)]
         start = starts[-1] if starts else max(0, len(lines) - 3)
         instruction = ' '.join(lines[start:])
         if len(instruction) > 1600:
@@ -250,15 +286,24 @@ def publish(exam, items):
         options = []
         for index, option in enumerate(item['options']):
             text = option['text']
-            code = any('Courier' in span['font'] for c in option['clips'] for line in page_lines(doc[c['page']]) for span in line['spans'] if fitz.Rect(c['rect']).intersects(fitz.Rect(span['bbox'])))
+            code = graphic_options is None and any(
+                'Courier' in span['font']
+                for clip in option['clips']
+                for line in page_lines(doc[clip['page']])
+                for span in line['spans']
+                if fitz.Rect(clip['rect']).intersects(fitz.Rect(span['bbox']))
+            )
             media = None
             if graphic_options:
-                page, rect = graphic_options[index]
-                filename = f"{item['id']}-{option['letter']}.webp"
-                render_clip(doc, {'page': page, 'rect': rect}, folder / filename)
+                page, rects = graphic_options
+                filename = f"{question_id}-{option['letter']}.webp"
+                if not render_clip(doc, {'page': page, 'rect': rects[index]}, folder / filename):
+                    raise ValueError(f'Empty answer image: {filename}')
                 media = {'src': f'/enade/{year}/questions/{filename}', 'page': page + 1}
-                text = ''
-            elif not code:
+                # The artwork captions remain selectable text in the 2008 exam.
+                if question_id != '2008-objective-8':
+                    text = ''
+            if not code:
                 text = re.sub(r'\s+', ' ', text).strip()
             if item['id'] == '2008-objective-22':
                 # The source's legacy symbol font encodes minus as an exclamation
@@ -282,6 +327,7 @@ if __name__ == '__main__':
     catalog = json.loads((ROOT / 'src/lib/enade/exams.json').read_text(encoding='utf8'))
     all_items = {str(exam['year']): extract(exam) for exam in catalog}
     scratch = ROOT / 'scratch/enade/questions/extracted.json'
+    scratch.parent.mkdir(parents=True, exist_ok=True)
     scratch.write_text(json.dumps(all_items, ensure_ascii=False, indent=2), encoding='utf8')
     errors = [q for questions in all_items.values() for q in questions if 'error' in q]
     print(json.dumps({'errors': [(q['id'], q['error']) for q in errors], 'questions': sum(map(len, all_items.values()))}))

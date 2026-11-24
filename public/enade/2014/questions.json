@@ -1149,35 +1149,59 @@
       {
         "src": "/enade/2014/questions/2014-objective-29-1.webp",
         "page": 23
+      },
+      {
+        "src": "/enade/2014/questions/2014-objective-29-2.webp",
+        "page": 23
       }
     ],
-    "statement": "desenvolvedores visualizem os produtos de seus +Pessoa(rg:int,nome:String) trabalhos em diagramas padronizados. Ela surgiu",
-    "transcript": "código, o diagrama UML de classes correspondente é\nUML é uma linguagem padrão para desenvolver e \ndocumentar projetos de software e permite que \nPessoa\ndesenvolvedores visualizem os produtos de seus \n+Pessoa(rg:int,nome:String)\ntrabalhos em diagramas padronizados. Ela surgiu",
+    "statement": "Utilizando a engenharia reversa nesse trecho de código, o diagrama UML de classes correspondente é",
+    "transcript": "UML é uma linguagem padrão para desenvolver e \ndocumentar projetos de software e permite que \ndesenvolvedores visualizem os produtos de seus \ntrabalhos em diagramas padronizados. Ela surgiu \ncomo uma proposta de ser uma linguagem para \nmodelagem de dados que usava diversos artefatos \npara representar o modelo de negócio e um desses \nartefatos é o diagrama de classes.\nPRESSMAN, R. S. Engenharia de software. 6 ed. Porto Alegre: \nBookman, 2006 (adaptado).\nSe um projeto não tem a documentação apropriada \nou se está com a documentação desatualizada, uma \nopção é a engenharia reversa que possibilita mapear \ncódigos para diagramas UML. A seguir, é apresentado \num código na linguagem de programação JAVA.\n1 package default; \n2\n3 public class Funcionario extends Pessoa {\n4\nprivate double salario;\n5\n6\npublic Funcionario(int rg, String nome,\n7\ndouble salario) {\n8\nsuper(rg, nome);\n9\n this.salario= salario;\n10\n}\n11\npublic double getSalario() {\n12\nreturn salario; \n13\n14\n}\n15\npublic double obterSalario(double\n16\npercentualAcrescimo) {\n17\ndouble salarioReajustado = salario +\n1 8\nsalario * percentualAcrescimo / 100;\n19\nreturn salarioReajustado; \n20\n21\n}\n22\npublic double obterSalario(double\n23\nadicional, double desconto){\n24\nreturn this.getSalario() + adicional - desconto;\n25\n26\n}\n27 }\nUtilizando a engenharia reversa nesse trecho de \ncódigo, o diagrama UML de classes correspondente é",
     "options": [
       {
         "letter": "A",
-        "text": "Funcionario +Funcionario(rg:int,nome:String,salario:double) +getSalario(): double +obterSalario(adicional:double,desconto:double): double +obterSalario(percentualAcrescimo:double): double Pessoa +Pessoa(rg:int,nome:String)",
-        "code": false
+        "text": "",
+        "code": false,
+        "image": {
+          "src": "/enade/2014/questions/2014-objective-29-A.webp",
+          "page": 23
+        }
       },
       {
         "letter": "B",
-        "text": "Funcionario +Funcionario(rg:int,nome:String,salario:double) +getSalario(): double +obterSalario(adicional:double,desconto:double): double +obterSalario(percentualAcrescimo:double): double Pessoa +Funcionario(rg:int,nome:String)",
-        "code": false
+        "text": "",
+        "code": false,
+        "image": {
+          "src": "/enade/2014/questions/2014-objective-29-B.webp",
+          "page": 23
+        }
       },
       {
         "letter": "C",
-        "text": "Funcionario +Funcionario(rg:int,nome:String,salario:double) +getSalario(): double +obterSalario(adicional:double,desconto:double): double +obterSalario(percentualAcrescimo:double): double Pessoa +Pessoa(rg:int,nome:String)",
-        "code": false
+        "text": "",
+        "code": false,
+        "image": {
+          "src": "/enade/2014/questions/2014-objective-29-C.webp",
+          "page": 23
+        }
       },
       {
         "letter": "D",
-        "text": "Funcionario +Funcionario(rg:int,nome:String,salario:double) +getSalario(): double +obterSalario(adicional:double,desconto:double): double Pessoa",
-        "code": false
+        "text": "",
+        "code": false,
+        "image": {
+          "src": "/enade/2014/questions/2014-objective-29-D.webp",
+          "page": 23
+        }
       },
       {
         "letter": "E",
-        "text": "Funcionario +Funcionario(rg:int,nome:String,salario:double) +getSalario(): double +obterSalario(percentualAcrescimo:double): double +obterSalario(adicional:double,desconto:double): double",
-        "code": false
+        "text": "",
+        "code": false,
+        "image": {
+          "src": "/enade/2014/questions/2014-objective-29-E.webp",
+          "page": 23
+        }
       }
     ]
   },
