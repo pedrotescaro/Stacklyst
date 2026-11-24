@@ -4,12 +4,14 @@ Runs offline with PyMuPDF/Pillow. Original PDFs are never modified. Missing CID
 Unicode maps in 2014/2017 are recovered using the source font glyph IDs; the
 small Unicode map is committed so builds do not require proprietary font files.
 """
+import argparse
 import json
 import re
 import unicodedata
 from pathlib import Path
 import fitz
 from PIL import Image, ImageChops
+from enade_statement import format_statement
 
 ROOT = Path(__file__).resolve().parents[1]
 FONT_MAP = json.loads((ROOT / 'scripts/enade-font-map.json').read_text(encoding='utf8'))
@@ -248,11 +250,13 @@ def render_clip(doc, clip, destination):
     return True
 
 
-def publish(exam, items):
+def publish(exam, items, text_only=False):
     year = exam['year']
     doc = source_document(year)
     folder = ROOT / f'public/enade/{year}/questions'
     folder.mkdir(exist_ok=True)
+    output = folder.parent / 'questions.json'
+    previous = {item['id']: item for item in json.loads(output.read_text(encoding='utf8'))} if text_only else {}
     published = []
     for item in items:
         question_id = item['id']
@@ -264,10 +268,16 @@ def publish(exam, items):
             last_clip = stem[-1]
             boundary = [*last_clip['rect'][:3], DIAGRAM_STEM_BOTTOM[question_id]]
             stem = [*stem[:-1], {**last_clip, 'rect': boundary}]
+        image_clips = [trimmed_clip(doc, clip) for clip in stem]
+        formatted = format_statement(doc, image_clips, clean, question_id)
+        assert formatted, question_id
+        if text_only:
+            published.append({**previous[question_id], 'formattedStatement': formatted})
+            continue
+
         graphic_options = OPTION_IMAGE_CLIPS.get(question_id)
         images = []
-        for index, clip in enumerate(stem):
-            clip = trimmed_clip(doc, clip)
+        for index, clip in enumerate(image_clips):
             filename = f'{question_id}-{index + 1}.webp'
             if render_clip(doc, clip, folder / filename):
                 images.append({'src': f'/enade/{year}/questions/{filename}', 'page': clip['page'] + 1})
@@ -319,11 +329,15 @@ def publish(exam, items):
             options.append({'letter': option['letter'], 'text': text, 'code': code, **({'image': media} if media else {})})
         assert images and statement, item['id']
         assert all(o['text'] or o.get('image') for o in options), item['id']
-        published.append({'id': item['id'], 'images': images, 'statement': instruction, 'transcript': statement, 'options': options})
-    (folder.parent / 'questions.json').write_text(json.dumps(published, ensure_ascii=False, indent=2) + '\n', encoding='utf8')
+        published.append({'id': question_id, 'images': images, 'statement': instruction, 'transcript': statement,
+                          'options': options, 'formattedStatement': formatted})
+    output.write_text(json.dumps(published, ensure_ascii=False, indent=2) + '\n', encoding='utf8')
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--text-only', action='store_true', help='Refresh formatted statements without rendering WebP assets.')
+    args = parser.parse_args()
     catalog = json.loads((ROOT / 'src/lib/enade/exams.json').read_text(encoding='utf8'))
     all_items = {str(exam['year']): extract(exam) for exam in catalog}
     scratch = ROOT / 'scratch/enade/questions/extracted.json'
@@ -333,4 +347,4 @@ if __name__ == '__main__':
     print(json.dumps({'errors': [(q['id'], q['error']) for q in errors], 'questions': sum(map(len, all_items.values()))}))
     assert not errors
     for exam in catalog:
-        publish(exam, all_items[str(exam['year'])])
+        publish(exam, all_items[str(exam['year'])], text_only=args.text_only)

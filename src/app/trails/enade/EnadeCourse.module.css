@@ -302,36 +302,62 @@
   margin-block: 32px;
   scroll-margin-top: 110px;
 }
-.statement > p {
+.statementBody {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 12px;
+  max-inline-size: 72ch;
   margin-top: 12px;
-  font-size: 17px;
-  line-height: 1.75;
+  font-size: 1rem;
+  line-height: 1.7;
   overflow-wrap: anywhere;
 }
-.transcript {
-  margin-top: 16px;
+.statementBody h4 {
+  font-size: inherit;
+  font-weight: 650;
+}
+.statementList {
+  display: grid;
+  gap: 6px;
+  list-style: none;
+}
+.statementList > li {
+  display: grid;
+  grid-template-columns: 4ch minmax(0, 1fr);
+  gap: 8px;
+}
+.statementMarker {
+  font-weight: 600;
+}
+.statementTable {
+  justify-self: start;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.statementTable :is(th, td) {
+  border: 1px solid var(--color-dd-border);
+  padding: 6px 12px;
+  text-align: start;
+}
+.statementTable th {
+  background: var(--color-dd-surface);
+  font-size: 0.875rem;
+}
+.statementSource {
   color: var(--color-dd-muted);
-  font-size: 12px;
+  font-size: 0.875rem;
 }
-.transcript summary {
-  display: list-item;
-  width: fit-content;
-  padding-block: 10px;
-  cursor: pointer;
+.statementLines {
+  white-space: pre-wrap;
 }
-.transcript > p {
-  margin-top: 12px;
-  line-height: 1.7;
-}
-.transcript pre {
-  margin-top: 12px;
+.statementCode {
   padding: 16px;
   background: var(--color-dd-surface);
   border-radius: 12px;
-  font: inherit;
+  font-family: var(--font-geist-mono), monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
   white-space: pre-wrap;
-  overflow-wrap: anywhere;
-  line-height: 1.8;
 }
 .response fieldset {
   padding: 0;
@@ -1532,9 +1558,6 @@
   }
   .optionText {
     font-size: 14px;
-  }
-  .statement > p {
-    font-size: 16px;
   }
   .optionImage {
     margin: 0 16px 16px;

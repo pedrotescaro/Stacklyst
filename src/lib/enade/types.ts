@@ -26,11 +26,17 @@ export interface EnadeQuestionImage {
   src: string;
   page: number;
 }
+export type EnadeStatementBlock =
+  | { kind: 'paragraph' | 'heading' | 'source' | 'code' | 'lines'; text: string }
+  | { kind: 'list'; items: { marker: string; text: string }[] }
+  | { kind: 'table'; headers: string[]; rows: string[][] };
+
 export interface EnadeQuestionContent {
   id: string;
   images: EnadeQuestionImage[];
   statement: string;
   transcript: string;
+  formattedStatement?: EnadeStatementBlock[];
   options: {
     letter: string;
     text: string;

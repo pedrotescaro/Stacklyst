@@ -27,6 +27,20 @@ describe('ADS Enade official archive', () => {
         expect(item.images.length).toBeGreaterThan(0);
         expect(item.statement.length).toBeGreaterThan(5);
         expect(item.transcript.length).toBeGreaterThan(20);
+        expect(item.formattedStatement?.length).toBeGreaterThan(0);
+        for (const block of item.formattedStatement!) {
+          const texts =
+            block.kind === 'list'
+              ? block.items.map(({ text }) => text)
+              : block.kind === 'table'
+                ? [...block.headers, ...block.rows.flat()]
+                : [block.text];
+          expect(texts.length).toBeGreaterThan(0);
+          for (const text of texts) {
+            expect(text.trim()).not.toBe('');
+            expect(text).not.toMatch(/[\x00-\x08\x0b-\x1f]/);
+          }
+        }
         const images = [...item.images, ...item.options.flatMap((o) => (o.image ? [o.image] : []))];
         for (const image of images) {
           expect(image.src).toMatch(new RegExp(`^/enade/${exam.year}/questions/`));
@@ -46,6 +60,35 @@ describe('ADS Enade official archive', () => {
       }
     }
     expect(optionCount).toBe(875);
+  });
+
+  it('rejoins PDF line wraps while preserving verse, references, and code', () => {
+    expect(archivedQuestion(2014, 33).formattedStatement?.[0]).toMatchObject({
+      kind: 'paragraph',
+      text: expect.stringMatching(/^Às vezes, garantia de qualidade significa simplesmente/),
+    });
+    expect(archivedQuestion(2011, 1).formattedStatement?.map(({ kind }) => kind)).toEqual([
+      'heading',
+      'lines',
+      'source',
+      'paragraph',
+    ]);
+    expect(archivedQuestion(2014, 29).formattedStatement).toContainEqual({
+      kind: 'code',
+      text: expect.stringMatching(
+        /\n24 {2,}return this\.getSalario\(\) \+ adicional - desconto;\n/
+      ),
+    });
+    const table = archivedQuestion(2017, 9).formattedStatement?.find(
+      (block) => block.kind === 'table'
+    );
+    expect(table?.headers).toEqual(['NOTA', 'QUANTIDADE DE CLIENTES']);
+    expect(table?.rows).toHaveLength(11);
+    expect(table?.rows[3]).toEqual(['3', '1']);
+    const assertions = archivedQuestion(2017, 30).formattedStatement?.find(
+      (block) => block.kind === 'list'
+    );
+    expect(assertions?.items[0].text).toContain('\nImprimindo na Laser\nImprimindo na Matricial\n');
   });
 
   it('includes the full Lorenz graph and all five original artwork alternatives', async () => {

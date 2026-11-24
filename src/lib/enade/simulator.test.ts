@@ -24,6 +24,7 @@ import {
 } from './simulator';
 import { enadeConfigSchema, enadeSessionSchema, enadeWorkspaceSchema } from './simulator-schema';
 import { explanationFor, questionPresentation } from './feedback';
+import type { EnadeQuestionContent } from './types';
 import contents from '../../../public/enade/2021/questions.json';
 const stamp = 1800000000000;
 const config = { ...DEFAULT_CONFIG, years: [2021], questionCount: 10 };
@@ -142,7 +143,7 @@ describe('configurable Enade domain', () => {
   it('reveals feedback only after an answer in training, and preserves the first answer', () => {
     let session = createSession({ ...config, mode: 'training', order: 'sequential' }, 1, stamp);
     const q = QUESTION_BY_ID.get(session.questionIds[0])!;
-    const content = contents.find((item) => item.id === q.id)!;
+    const content = contents.find((item) => item.id === q.id) as EnadeQuestionContent;
     expect(questionPresentation(session, q, content).reveal).toBe(false);
     session = answerQuestion(session, q.id, q.answer!, stamp + 1000);
     expect(questionPresentation(session, q, content)).toMatchObject({

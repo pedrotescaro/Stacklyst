@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { Check, Flag, Strikethrough } from 'lucide-react';
 import type { QuestionPresentation } from '@/lib/enade/feedback';
 import { EnadePageViewer } from './EnadePageViewer';
+import { EnadeStatement } from './EnadeStatement';
 import styles from './EnadeCourse.module.css';
 
 const struckKey = (questionId: string) => `stacklyst-enade-struck:${questionId}`;
@@ -92,18 +93,7 @@ export function EnadeQuestion({
           </div>
         ))}
       </section>
-      <section className={styles.statement} aria-labelledby="statement-title">
-        <h3 id="statement-title">Enunciado</h3>
-        <p>{q.content.statement}</p>
-        <details className={styles.transcript}>
-          <summary>Ler texto completo da questão</summary>
-          <p>
-            Texto extraído do caderno. Consulte a imagem para conferir fórmulas, símbolos e
-            diagramas.
-          </p>
-          <pre>{q.content.transcript}</pre>
-        </details>
-      </section>
+      <EnadeStatement content={q.content} />
       <section className={styles.response} aria-label="Resposta da questão">
         {q.kind === 'objective' ? (
           <fieldset>

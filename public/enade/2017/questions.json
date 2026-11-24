@@ -17,7 +17,78 @@
     ],
     "statement": "Desenvolva sua resposta considerando o enunciado e os itens apresentados acima.",
     "transcript": "TEXTO 1\nEm 2001, a incidência da sífilis congênita ― transmitida da mulher para o feto durante a gravidez ― \nera de um caso a cada mil bebês nascidos vivos. Havia uma meta da Organização Pan-Americana \nde Saúde e da Unicef de essa ocorrência diminuir no Brasil, chegando, em 2015, a 5 casos de sífilis \ncongênita por 10 mil nascidos vivos. O país não atingiu esse objetivo, tendo se distanciado ainda \nmais dele, embora o tratamento para sífilis seja relativamente simples, à base de antibióticos. Trata-\nse de uma doença para a qual a medicina já encontrou a solução, mas a sociedade ainda não.\nDisponível em: <http://www1.folha.uol.com.br>. Acesso em: 23 jul. 2017 (adaptado).\nTEXTO 2\nO Ministério da Saúde anunciou que há uma epidemia de sífilis no Brasil. Nos últimos cinco anos, foram \n230 mil novos casos, um aumento de 32% somente entre 2014 e 2015. Por que isso aconteceu?\nPrimeiro, ampliou-se o diagnóstico com o teste rápido para sífilis realizado na unidade básica de \nsaúde e cujo resultado sai em 30 minutos. Aí vem o segundo ponto, um dos mais negativos, que foi \no desabastecimento, no país, da matéria-prima para a penicilina. O Ministério da Saúde importou \nessa penicilina, mas, por um bom tempo, não esteve disponível, e isso fez com que mais pessoas se \ninfectassem. O terceiro ponto é a prevenção. Houve, nos últimos dez anos, uma redução do uso do \npreservativo, o que aumentou, e muito, a transmissão.\nA incidência de casos de sífilis, que, em 2010, era maior entre homens, hoje recai sobre as mulheres. \nPor que a vulnerabilidade neste grupo está aumentando?\nAs mulheres ainda são as mais vulneráveis a doenças sexualmente transmissíveis (DST), de uma forma geral. \nElas têm dificuldade de negociar o preservativo com o parceiro, por exemplo. Mas o acesso da mulher \nao diagnóstico também é maior, por isso, é mais fácil contabilizar essa população. Quando um homem \nfaz exame para a sífilis? Somente quando tem sintoma aparente ou outra doença. E a sífilis pode ser uma \ndoença silenciosa. A mulher, por outro lado, vai fazer o pré-natal e, automaticamente, faz o teste para a \nsífilis. No Brasil, estima-se que apenas 12% dos parceiros sexuais recebam tratamento para sífilis.\nEntrevista com Ana Gabriela Travassos, presidente da regional baiana da Sociedade Brasileira de Doenças Sexualmente \nTransmissíveis. Disponível em: <http://www.agenciapatriciagalvao.org.br>. Acesso em: 25 jul. 2017 (adaptado).\nTEXTO 3\nVários estudos constatam que os homens, em geral, padecem mais de condições severas e crônicas de \nsaúde que as mulheres e morrem mais que elas em razão de doenças que levam a óbito. Entretanto, \napesar de as taxas de morbimortalidade masculinas assumirem um peso significativo, observa-se que a \npresença de homens nos serviços de atenção primária à saúde é muito menor que a de mulheres.\nGOMES, R.; NASCIMENTO, E.; ARAUJO, F. Por que os homens buscam menos os serviços de saúde do que as mulheres? As explicações \nde homens com baixa escolaridade e homens com ensino superior. Cad. Saúde Pública [online], v. 23, n. 3, 2007 (adaptado).\nA partir das informações apresentadas, redija um texto acerca do tema:\nEpidemia de sífilis congênita no Brasil e relações de gênero\nEm seu texto, aborde os seguintes aspectos:\n• a vulnerabilidade das mulheres às DSTs e o papel social do homem em relação à prevenção \ndessas doenças;\n• duas ações especificamente voltadas para o público masculino, a serem adotadas no âmbito das \npolíticas públicas de saúde ou de educação, para reduzir o problema. \n(valor: 10,0 pontos)\n\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15",
-    "options": []
+    "options": [],
+    "formattedStatement": [
+      {
+        "kind": "heading",
+        "text": "TEXTO 1"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Em 2001, a incidência da sífilis congênita ― transmitida da mulher para o feto durante a gravidez ― era de um caso a cada mil bebês nascidos vivos. Havia uma meta da Organização Pan-Americana de Saúde e da Unicef de essa ocorrência diminuir no Brasil, chegando, em 2015, a 5 casos de sífilis congênita por 10 mil nascidos vivos. O país não atingiu esse objetivo, tendo se distanciado ainda mais dele, embora o tratamento para sífilis seja relativamente simples, à base de antibióticos. Trata-se de uma doença para a qual a medicina já encontrou a solução, mas a sociedade ainda não."
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <http://www1.folha.uol.com.br>. Acesso em: 23 jul. 2017 (adaptado)."
+      },
+      {
+        "kind": "heading",
+        "text": "TEXTO 2"
+      },
+      {
+        "kind": "paragraph",
+        "text": "O Ministério da Saúde anunciou que há uma epidemia de sífilis no Brasil. Nos últimos cinco anos, foram 230 mil novos casos, um aumento de 32% somente entre 2014 e 2015. Por que isso aconteceu?"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Primeiro, ampliou-se o diagnóstico com o teste rápido para sífilis realizado na unidade básica de saúde e cujo resultado sai em 30 minutos. Aí vem o segundo ponto, um dos mais negativos, que foi o desabastecimento, no país, da matéria-prima para a penicilina. O Ministério da Saúde importou essa penicilina, mas, por um bom tempo, não esteve disponível, e isso fez com que mais pessoas se infectassem. O terceiro ponto é a prevenção. Houve, nos últimos dez anos, uma redução do uso do preservativo, o que aumentou, e muito, a transmissão."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A incidência de casos de sífilis, que, em 2010, era maior entre homens, hoje recai sobre as mulheres. Por que a vulnerabilidade neste grupo está aumentando?"
+      },
+      {
+        "kind": "paragraph",
+        "text": "As mulheres ainda são as mais vulneráveis a doenças sexualmente transmissíveis (DST), de uma forma geral. Elas têm dificuldade de negociar o preservativo com o parceiro, por exemplo. Mas o acesso da mulher ao diagnóstico também é maior, por isso, é mais fácil contabilizar essa população. Quando um homem faz exame para a sífilis? Somente quando tem sintoma aparente ou outra doença. E a sífilis pode ser uma doença silenciosa. A mulher, por outro lado, vai fazer o pré-natal e, automaticamente, faz o teste para a sífilis. No Brasil, estima-se que apenas 12% dos parceiros sexuais recebam tratamento para sífilis."
+      },
+      {
+        "kind": "source",
+        "text": "Entrevista com Ana Gabriela Travassos, presidente da regional baiana da Sociedade Brasileira de Doenças Sexualmente Transmissíveis. Disponível em: <http://www.agenciapatriciagalvao.org.br>. Acesso em: 25 jul. 2017 (adaptado)."
+      },
+      {
+        "kind": "heading",
+        "text": "TEXTO 3"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Vários estudos constatam que os homens, em geral, padecem mais de condições severas e crônicas de saúde que as mulheres e morrem mais que elas em razão de doenças que levam a óbito. Entretanto, apesar de as taxas de morbimortalidade masculinas assumirem um peso significativo, observa-se que a presença de homens nos serviços de atenção primária à saúde é muito menor que a de mulheres."
+      },
+      {
+        "kind": "source",
+        "text": "GOMES, R.; NASCIMENTO, E.; ARAUJO, F. Por que os homens buscam menos os serviços de saúde do que as mulheres? As explicações de homens com baixa escolaridade e homens com ensino superior. Cad. Saúde Pública [online], v. 23, n. 3, 2007 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A partir das informações apresentadas, redija um texto acerca do tema:"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Epidemia de sífilis congênita no Brasil e relações de gênero Em seu texto, aborde os seguintes aspectos:"
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "•",
+            "text": "a vulnerabilidade das mulheres às DSTs e o papel social do homem em relação à prevenção dessas doenças;"
+          },
+          {
+            "marker": "•",
+            "text": "duas ações especificamente voltadas para o público masculino, a serem adotadas no âmbito das políticas públicas de saúde ou de educação, para reduzir o problema. (valor: 10,0 pontos)"
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "2017-discursive-2",
@@ -33,7 +104,45 @@
     ],
     "statement": "Desenvolva sua resposta considerando o enunciado e os itens apresentados acima.",
     "transcript": "A pessoa trans precisa que alguém ateste, confirme e comprove que ela pode ser reconhecida pelo \nnome que ela escolheu. Não aceitam que ela se autodeclare mulher ou homem. Exigem que um \nprofissional de saúde diga quem ela é. Sua declaração é o que menos conta na hora de solicitar, \njudicialmente, a mudança dos documentos.\nDisponível em: <http://www.ebc.com.br>. Acesso em: 31 ago. 2017 (adaptado).\nNo chão, a travestimorre\nNinguém jamais saberá seu nome\nNos jornais, fala-se de outra morte\nDe tal homem que ninguém conheceu\nDisponível em: <http://www.aminoapps.com>. Acesso em: 31 ago. 2017 (adaptado).\nUsava meu nome oficial, feminino, no currículo porque diziam que eu estava cometendo um crime, \nque era falsidade ideológica se eu usasse outro nome. Depois fui pesquisar e descobri que não é assim. \nInfelizmente, ainda existe muita desinformação sobre os direitos das pessoas trans.\nDisponível em: <https://www.brasil.elpais.com>. Acesso em: 31 ago. 2017 (adaptado).\nUma vez o segurança da balada achou que eu tinha, por engano, mostrado o RG do meu namorado. \nIsso quando insistem em não colocar meu nome social na minha ficha de consumação.\nDisponível em: <https://www.brasil.elpais.com >. Acesso em: 31 ago. 2017 (adaptado).\nCom base nessas falas, discorra sobre a importância do nome para as pessoas transgêneras e, \nnesse contexto, proponha uma medida, no âmbito das políticas públicas, que tenha como objetivo \nfacilitar o acesso dessas pessoas à cidadania. (valor: 10,0 pontos)\n\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15",
-    "options": []
+    "options": [],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "A pessoa trans precisa que alguém ateste, confirme e comprove que ela pode ser reconhecida pelo nome que ela escolheu. Não aceitam que ela se autodeclare mulher ou homem. Exigem que um profissional de saúde diga quem ela é. Sua declaração é o que menos conta na hora de solicitar, judicialmente, a mudança dos documentos."
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <http://www.ebc.com.br>. Acesso em: 31 ago. 2017 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "No chão, a travestimorre Ninguém jamais saberá seu nome Nos jornais, fala-se de outra morte De tal homem que ninguém conheceu"
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <http://www.aminoapps.com>. Acesso em: 31 ago. 2017 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Usava meu nome oficial, feminino, no currículo porque diziam que eu estava cometendo um crime, que era falsidade ideológica se eu usasse outro nome. Depois fui pesquisar e descobri que não é assim. Infelizmente, ainda existe muita desinformação sobre os direitos das pessoas trans."
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <https://www.brasil.elpais.com>. Acesso em: 31 ago. 2017 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Uma vez o segurança da balada achou que eu tinha, por engano, mostrado o RG do meu namorado. Isso quando insistem em não colocar meu nome social na minha ficha de consumação."
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <https://www.brasil.elpais.com >. Acesso em: 31 ago. 2017 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base nessas falas, discorra sobre a importância do nome para as pessoas transgêneras e, nesse contexto, proponha uma medida, no âmbito das políticas públicas, que tenha como objetivo facilitar o acesso dessas pessoas à cidadania. (valor: 10,0 pontos)"
+      }
+    ]
   },
   {
     "id": "2017-objective-1",
@@ -70,6 +179,56 @@
         "letter": "E",
         "text": "O percentual de participação do Reino Unido com o bloco econômico em 2014 foi de 17,8%, o que o colocou entre os quatro maiores participantes.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Os britânicos decidiram sair da União Europeia (UE). A decisão do referendo abalou os mercados financeiros em meio às incertezas sobre os possíveis impactos dessa saída."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Os gráficos a seguir apresentam, respectivamente, as contribuições dos países integrantes do bloco para a UE, em 2014, que somam € 144,9 bilhões de euros, e a comparação entre a contribuição do Reino Unido para a UE e a contrapartida dos gastos da UE com o Reino Unido."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Reino Unido e UE Contribuições para a UE Dados de 2014, em € bilhões Dados de 2014, em € bilhões"
+      },
+      {
+        "kind": "lines",
+        "text": "50                        15\n42,1                     11,3\n40                        10"
+      },
+      {
+        "kind": "paragraph",
+        "text": "6,9"
+      },
+      {
+        "kind": "paragraph",
+        "text": "30 5 25,8"
+      },
+      {
+        "kind": "paragraph",
+        "text": "19,5 20 0"
+      },
+      {
+        "kind": "paragraph",
+        "text": "14,3 11,3 9,9 10 6,3 Contribuição do Reino Unido com a UE 3,8 3,6 3,5 2,6 2,2"
+      },
+      {
+        "kind": "code",
+        "text": "0                        Gasto da UE com o Reino Unido"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Itália França Suécia Bélgica Polônia Áustria Espanha Holanda Alemanha Dinamarca Reino Unido Outros países"
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <http://www.g1.globo.com>. Acesso em: 6 set. 2017 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando o texto e as informações apresentadas nos gráficos acima, assinale a opção correta."
       }
     ]
   },
@@ -109,6 +268,41 @@
         "text": "I, II e III.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Segundo o relatório da Organização das Nações Unidas para a Alimentação e a Agricultura de 2014, a agricultura familiar produz cerca de 80% dos alimentos no mundo e é guardiã de aproximadamente 75% de todos os recursos agrícolas do planeta. Nesse sentido, a agricultura familiar é fundamental para a melhoria da sustentabilidade ecológica."
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <http://www.fao.org>. Acesso em: 29 ago. 2017 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando as informações apresentadas no texto, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "Os principais desafios da agricultura familiar estão relacionados à segurança alimentar, à sustentabilidade ambiental e à capacidade produtiva."
+          },
+          {
+            "marker": "II.",
+            "text": "As políticas públicas para o desenvolvimento da agricultura familiar devem fomentar a inovação, respeitando o tamanho das propriedades, as tecnologias utilizadas, a integração de mercados e as configurações ecológicas."
+          },
+          {
+            "marker": "III.",
+            "text": "A maioria das propriedades agrícolas no mundo tem caráter familiar, entretanto o trabalho realizado nessas propriedades é majoritariamente resultante da contratação de mão de obra assalariada."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto o que se afirma em"
+      }
     ]
   },
   {
@@ -146,6 +340,53 @@
         "letter": "E",
         "text": "I, II e III.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "O sistema de tarifação de energia elétrica funciona com base em três bandeiras. Na bandeira verde, as condições de geração de energia são favoráveis e a tarifa não sofre acréscimo. Na bandeira amarela, a tarifa sofre acréscimo de R$ 0,020 para cada kWh consumido, e na bandeira vermelha, condição de maior custo de geração de energia, a tarifa sofre acréscimo de R$ 0,035 para cada kWh consumido. Assim, para saber o quanto se gasta com o consumo de energia de cada aparelho, basta multiplicar o consumo em kWh do aparelho pela tarifa em questão."
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <http://www.aneel.gov.br>. Acesso em: 17 jul. 2017 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Na tabela a seguir, são apresentadas a potência e o tempo de uso diário de alguns aparelhos eletroeletrônicos usuais em residências."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Potência Tempo de uso Aparelho kWh (kW) diário (h) Carregador de celular 0,010 24 0,240 Chuveiro 3 500 W 3,500 0,5 1,750 Chuveiro 5 500 W 5,500 0,5 2,250 Lâmpada de LED 0,008 5 0,040 Lâmpada fluorescente 0,015 5 0,075 Lâmpada incandescente 0,060 5 0,300 Modem de internet em stand-by 0,005 24 0,120 Modem de internet em uso 0,012 8 0,096"
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <https://www.educandoseubolso.blog.br>. Acesso em: 17 jul. 2017 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando as informações do texto, os dados apresentados na tabela, uma tarifa de R$ 0,50 por kWh em bandeira verde e um mês de 30 dias, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "Em bandeira amarela, o valor mensal da tarifa de energia elétrica para um chuveiro de 3 500 W seria de R$ 1,05, e de R$ 1,65, para um chuveiro de 5 500 W."
+          },
+          {
+            "marker": "II.",
+            "text": "Deixar um carregador de celular e um modem de internet em stand-by conectados na rede de energia durante 24 horas representa um gasto mensal de R$ 5,40 na tarifa de energia elétrica em bandeira verde, e de R$ 5,78, em bandeira amarela."
+          },
+          {
+            "marker": "III.",
+            "text": "Em bandeira verde, o consumidor gastaria mensalmente R$ 3,90 a mais na tarifa de energia elétrica em relação a cada lâmpada incandescente usada no lugar de uma lâmpada LED."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto o que se afirma em"
       }
     ]
   },
@@ -185,6 +426,36 @@
         "text": "reflexão crítica do telespectador, uma vez que permite o acesso a uma sequência de assuntos de interesse público que são apresentados de forma justaposta, o que permite o estabelecimento de comparações.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Sobre a televisão, considere a tirinha e o texto a seguir."
+      },
+      {
+        "kind": "heading",
+        "text": "TEXTO 1"
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <https://www.coletivando.files.wordpress.com>. Acesso em: 25 jul. 2015."
+      },
+      {
+        "kind": "heading",
+        "text": "TEXTO 2"
+      },
+      {
+        "kind": "paragraph",
+        "text": "A televisão é este contínuo de imagens, em que o telejornal se confunde com o anúncio de pasta de dentes, que é semelhante à novela, que se mistura com a transmissão de futebol. Os programas mal se distinguem uns dos outros. O espetáculo consiste na própria sequência, cada vez mais vertiginosa, de imagens."
+      },
+      {
+        "kind": "source",
+        "text": "PEIXOTO, N. B. As imagens de TV têm tempo? In: NOVAES, A. Rede imaginária: televisão e democracia. São Paulo: Companhia das Letras, 1991 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base nos textos 1 e 2, é correto afirmar que o tempo de recepção típico da televisão como veículo de comunicação estimula a"
+      }
     ]
   },
   {
@@ -222,6 +493,24 @@
         "letter": "E",
         "text": "O uso dos hidrogéis permite que as plantas sobrevivam sem a água da irrigação ou das chuvas.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Hidrogéis são materiais poliméricos em forma de pó, grão ou fragmentos semelhantes a pedaços de plástico maleável. Surgiram nos anos 1950, nos Estados Unidos da América e, desde então, têm sido usados na agricultura. Os hidrogéis ou polímeros hidrorretentores podem ser criados a partir de polímeros naturais ou sintetizados em laboratório. Os estudos com polímeros naturais mostram que eles são viáveis ecologicamente, mas ainda não comercialmente."
+      },
+      {
+        "kind": "paragraph",
+        "text": "No infográfico abaixo, explica-se como os polímeros naturais superabsorventes, quando misturados ao solo, podem viabilizar culturas agrícolas em regiões áridas."
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <http://www.revistapesquisa.fapesp.br>. Acesso em: 18 jul. 2017 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A partir das informações apresentadas, assinale a opção correta."
       }
     ]
   },
@@ -261,6 +550,32 @@
         "text": "a crescente onda de xenofobia que vem se destacando no Brasil evidencia que o preconceito e a rejeição por parte dos brasileiros em relação aos imigrantes haitianos é pautada pela discriminação social e pelo racismo.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "A imigração haitiana para o Brasil passou a ter grande repercussão na imprensa a partir de 2010. Devido ao pior terremoto do país, muitos haitianos redescobriram o Brasil como rota alternativa para migração. O país já havia sido uma alternativa para os haitianos desde 2004, e isso se deve à reorientação da política externa nacional para alcançar liderança regional nos assuntos humanitários."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A descoberta e a preferência pelo Brasil também sofreram influência da presença do exército brasileiro no Haiti, que intensificou a relação de proximidade entre brasileiros e haitianos. Em meio a esse clima amistoso, os haitianos presumiram que seriam bem acolhidos em uma possível migração ao país que passara a liderar a missão da ONU."
+      },
+      {
+        "kind": "paragraph",
+        "text": "No entanto, os imigrantes haitianos têm sofrido ataques xenofóbicos por parte da população brasileira. Recentemente, uma das grandes cidades brasileiras serviu como palco para uma marcha anti-imigração, com demonstrações de um crescente discurso de ódio em relação a povos imigrantes marginalizados."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Observa-se, na maneira como esses discursos se conformam, que a reação de uma parcela dos brasileiros aos imigrantes se dá em termos bem específicos: os que sofrem com a violência dos atos de xenofobia, em geral, são negros e têm origem em países mais pobres."
+      },
+      {
+        "kind": "source",
+        "text": "SILVA, C. A. S.; MORAES, M. T. A política migratória brasileira para refugiados e a imigração haitiana. Revista do Direito. Santa Cruz do Sul, v. 3, n. 50, p. 98-117, set./dez. 2016 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A partir das informações do texto, conclui-se que"
+      }
     ]
   },
   {
@@ -298,6 +613,36 @@
         "letter": "E",
         "text": "O ofício das paneleiras representa uma forma de resistência sociocultural da comunidade tradicional na medida em que o estado do Espírito Santo mantém-se alheio aos modos de produção, divulgação e comercialização dos produtos.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "A produção artesanal de panela de barro é uma das maiores expressões da cultura popular do Espírito Santo. A técnica de produção pouco mudou em mais de 400 anos, desde quando a panela de barro era produzida em comunidades indígenas. Atualmente, apresenta-se com modelagem própria e original, adaptada às necessidades funcionais da culinária típica da região. As artesãs, vinculadas à Associação das Paneleiras de Goiabeiras, do município de Vitória-ES, trabalham em um galpão com cabines individuais preparadas para a realização de todas as etapas de produção. Para fazer as panelas, as artesãs retiram a argila do Vale do Mulembá e do manguezal que margeia a região e coletam a casca da Rhysophora mangle, popularmente chamada de mangue vermelho. Da casca dessa planta as artesãs retiram a tintura impermeabilizante com a qual açoitam as panelas ainda quentes. Por tradição, as autênticas moqueca e torta capixabas, dois pratos típicos regionais, devem ser servidas nas panelas de barro assim produzidas. Essa fusão entre as panelas de barro e os pratos preparados com frutos do mar, principalmente a moqueca, pelo menos no estado do Espírito Santo, faz parte das tradições deixadas pelas comunidades indígenas."
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <http://www.vitoria.es.gov.br>. Acesso em: 14 jul. 2017 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Como principal elemento cultural na elaboração de pratos típicos da cultura capixaba, a panela de barro de Goiabeiras foi tombada, em 2002, tornando-se a primeira indicação geográfica brasileira na área do artesanato, considerada bem imaterial, registrado e protegido no Instituto do Patrimônio Histórico e Artístico Nacional (Iphan), no Livro de Registro dos Saberes e declarada patrimônio cultural do Brasil."
+      },
+      {
+        "kind": "source",
+        "text": "SILVA, A. Comunidade tradicional, práticas coletivas e reconhecimento: narrativas contemporâneas do patrimônio cultural. 40° Encontro Anual da Anpocs. Caxambu, 2016 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Atualmente, o trabalho foi profissionalizado e a concorrência para atender ao mercado ficou mais acirrada, a produção que se desenvolve no galpão ganhou um ritmo mais empresarial com maior visibilidade publicitária, enquanto as paneleiras de fundo de quintal se queixam de ficarem ofuscadas comercialmente depois que o galpão ganhou notoriedade."
+      },
+      {
+        "kind": "source",
+        "text": "MERLO, P. Repensando a tradição: a moqueca capixaba e a construção da identidade local. Interseções. Rio de Janeiro. v. 13, n. 1, 2011 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base nas informações apresentadas, assinale a alternativa correta."
       }
     ]
   },
@@ -337,6 +682,41 @@
         "text": "I, II e III. COMPONENTE ESPECÍFICO",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Os Objetivos de Desenvolvimento Sustentável (ODS) compõem uma agenda mundial adotada durante a Cúpula das Nações Unidas sobre o Desenvolvimento Sustentável, em setembro de 2015. Nessa agenda, representada na figura a seguir, são previstas ações em diversas áreas para o estabelecimento de parcerias, grupos e redes que favoreçam o cumprimento desses objetivos."
+      },
+      {
+        "kind": "source",
+        "text": "Disponível em: <http://www.stockholmresilience.org>. Acesso em: 26 set. 2017 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando que os ODS devem ser implementados por meio de ações que integrem a economia, a sociedade e a biosfera, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "O capital humano deve ser capacitado para atender às demandas por pesquisa e inovação em áreas estratégicas para o desenvolvimento sustentável."
+          },
+          {
+            "marker": "II.",
+            "text": "A padronização cultural dinamiza a difusão do conhecimento científico e tecnológico entre as nações para a promoção do desenvolvimento sustentável."
+          },
+          {
+            "marker": "III.",
+            "text": "Os países devem incentivar políticas de desenvolvimento do empreendedorismo e de atividades produtivas com geração de empregos que garantam a dignidade da pessoa humana."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto o que se afirma em"
+      }
     ]
   },
   {
@@ -353,7 +733,42 @@
     ],
     "statement": "Desenvolva sua resposta considerando o enunciado e os itens apresentados acima.",
     "transcript": "Uma empresa de cosméticos comercializa cinco diferentes tipos de produtos e os armazena em uma \nestante de 40 x 40 posições. Em cada posição da estante, pode ficar armazenada apenas uma caixa com \num desses produtos. Para facilitar sua identificação, os produtos foram codificados da forma a seguir:\n1: xampu;\n2: condicionador;\n3: hidratante;\n4: tintura;\n5: demaquilante;\n0: vazio.\nNessa situação e considerando o desenvolvimento de um sistema para gerenciar a organização dos \nprodutos na estante, estabeleceu-se a declaração de variáveis a seguir.\nVar\nEstante: matriz [1..40][1..40] de inteiro\nProdutos: vetor [0..5] de texto = {\"vazio\",\"xampu\",\"condicionador\",\n  \"hidratante\", \"tintura\", \"demaquilante\"}\nContador: vetor [0..5] de inteiro = {0,0,0,0,0,0}\ni, j: inteiro\nCom base nessa declaração e considerando a codificação dos produtos exposta, faça o que se pede nos \nitens a seguir, apresentando as soluções em pseudocódigo ou em linguagem de programação.\na) Escreva um trecho de código para ler os códigos dos produtos e armazená-los na matriz Estante.\n(valor: 4,0 pontos)\nb) Escreva um trecho de código para contar e imprimir a quantidade de caixas de cada tipo de produto \nna estante. (valor: 6,0 pontos)\n\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15",
-    "options": []
+    "options": [],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Uma empresa de cosméticos comercializa cinco diferentes tipos de produtos e os armazena em uma estante de 40 x 40 posições. Em cada posição da estante, pode ficar armazenada apenas uma caixa com um desses produtos. Para facilitar sua identificação, os produtos foram codificados da forma a seguir:"
+      },
+      {
+        "kind": "paragraph",
+        "text": "1: xampu; 2: condicionador; 3: hidratante; 4: tintura; 5: demaquilante; 0: vazio."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Nessa situação e considerando o desenvolvimento de um sistema para gerenciar a organização dos produtos na estante, estabeleceu-se a declaração de variáveis a seguir."
+      },
+      {
+        "kind": "code",
+        "text": "Var\nEstante: matriz [1..40][1..40] de inteiro\nProdutos: vetor [0..5] de texto = {\"vazio\",\"xampu\",\"condicionador\",\n  \"hidratante\", \"tintura\", \"demaquilante\"}\nContador: vetor [0..5] de inteiro = {0,0,0,0,0,0}\ni, j: inteiro"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base nessa declaração e considerando a codificação dos produtos exposta, faça o que se pede nos itens a seguir, apresentando as soluções em pseudocódigo ou em linguagem de programação."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "a)",
+            "text": "Escreva um trecho de código para ler os códigos dos produtos e armazená-los na matriz Estante. (valor: 4,0 pontos)"
+          },
+          {
+            "marker": "b)",
+            "text": "Escreva um trecho de código para contar e imprimir a quantidade de caixas de cada tipo de produto na estante. (valor: 6,0 pontos)"
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "2017-discursive-4",
@@ -373,7 +788,38 @@
     ],
     "statement": "Desenvolva sua resposta considerando o enunciado e os itens apresentados acima.",
     "transcript": "Uma empresa trabalha na produção de concreto e terceiriza o serviço de transporte do produto. Os \ncaminhoneiros telefonam para a empresa e registram seu interesse pelo trabalho. Todas as manhãs, \nos caminhoneiros estacionam o caminhão no pátio da empresa e aguardam sua vez. O atendimento \nsegue o critério de ordem de chegada. Esse processo é, atualmente, controlado pela secretária, que \nutiliza sua agenda para gerenciar os motoristas diariamente. A empresa, que carrega, no máximo, 10 \ncaminhões por dia, pretende informatizar esse processo.\nPara a solução do problema, apresenta-se, a seguir, um pseudocódigo que utiliza o conceito de fila, \nmantendo os elementos sempre nas primeiras posições do vetor.\nAlgoritmo Fila_Caminhoneiros\ninício\n   var\n   caminhoneiros : vetor[1..10] de texto\n   total : inteiro\n   procedimento inicializa()\n   início\n      total <- 0\n\u0003\n\u0003\u0003\u0003¿P\n   função estaVazia() : lógico\n   início\n      se (total = 0) então\n         retorna verdadeiro\n      senão\n         retorna falso\n\u0003\n\u0003\u0003\u0003\u0003\u0003\u0003¿P\u0010VH\n\u0003\n\u0003\u0003\u0003¿P\n   função estaCheia() : lógico\n   início\n      se (total >= 10) então\n         retorna verdadeiro\n      senão\n         retorna falso\n\u0003\n\u0003\u0003\u0003\u0003\u0003\u0003¿P\u0010VH\n\u0003\n\u0003\u0003\u0003¿P\n\u0003\n\u0003\u0003\u0003SURFHGLPHQWR\u0003HQ¿OHLUDU\u000bFDPLQKRQHLUR\u0003\u001d\u0003WH[WR\f\n   início\n      se (estaCheia() = falso) então \n         total <- total + 1 \n         caminhoneiros[total] <- caminhoneiro\n      senão\n         imprima(\"Fila cheia\")\n\u0003\n\u0003\u0003\u0003\u0003\u0003\u0003¿P\u0010VH\n\u0003\u0003\u0003¿m\n\u0003\n¿m\nCom base nas informações apresentadas, faça o que se pede nos itens a seguir, expondo cada solução em \npseudocódigo ou em linguagem de programação.\na) Implemente a função GHVHQ¿OHLUDU\u000f que deve remover e retornar um elemento representado \npor um caminhoneiro da fila ou a mensagem \"Fila vazia\" se não houver elementos. (valor: 6,0 pontos)\nb) Implemente o procedimento mostrarFila, que deve apresentar a lista de elementos, ou seja, os \ncaminhoneiros que estão na fila. (valor: 4,0 pontos)\n\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15",
-    "options": []
+    "options": [],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Uma empresa trabalha na produção de concreto e terceiriza o serviço de transporte do produto. Os caminhoneiros telefonam para a empresa e registram seu interesse pelo trabalho. Todas as manhãs, os caminhoneiros estacionam o caminhão no pátio da empresa e aguardam sua vez. O atendimento segue o critério de ordem de chegada. Esse processo é, atualmente, controlado pela secretária, que utiliza sua agenda para gerenciar os motoristas diariamente. A empresa, que carrega, no máximo, 10 caminhões por dia, pretende informatizar esse processo."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Para a solução do problema, apresenta-se, a seguir, um pseudocódigo que utiliza o conceito de fila, mantendo os elementos sempre nas primeiras posições do vetor."
+      },
+      {
+        "kind": "code",
+        "text": "Algoritmo Fila_Caminhoneiros\ninício\n   var\n   caminhoneiros : vetor[1..10] de texto\n   total : inteiro\n   procedimento inicializa()\n   início\n      total <- 0\n   fim\n   função estaVazia() : lógico\n   início\n      se (total = 0) então\n         retorna verdadeiro\n      senão\n         retorna falso\n      fim-se\n   fim\n   função estaCheia() : lógico\n   início\n      se (total >= 10) então\n         retorna verdadeiro\n      senão\n         retorna falso\n      fim-se\n   fim\n   procedimento enfileirar(caminhoneiro : texto)\n   início\n      se (estaCheia() = falso) então\n         total <- total + 1\n         caminhoneiros[total] <- caminhoneiro\n      senão\n         imprima(\"Fila cheia\")\n      fim-se\n   fim\nfim"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base nas informações apresentadas, faça o que se pede nos itens a seguir, expondo cada solução em pseudocódigo ou em linguagem de programação."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "a)",
+            "text": "Implemente a função desenfileirar, que deve remover e retornar um elemento representado por um caminhoneiro da fila ou a mensagem \"Fila vazia\" se não houver elementos. (valor: 6,0 pontos)"
+          },
+          {
+            "marker": "b)",
+            "text": "Implemente o procedimento mostrarFila, que deve apresentar a lista de elementos, ou seja, os caminhoneiros que estão na fila. (valor: 4,0 pontos)"
+          }
+        ]
+      }
+    ]
   },
   {
     "id": "2017-discursive-5",
@@ -393,7 +839,42 @@
     ],
     "statement": "Desenvolva sua resposta considerando o enunciado e os itens apresentados acima.",
     "transcript": "A coordenação de gestão de pessoas (CGP) de uma empresa solicitou à equipe de TI que desenvolvesse \num aplicativo (app) para criação de uma rede social on-line que incentivasse os empregados a idealizar e \nexecutar projetos. A fim de realizar o levantamento de requisitos, a equipe de desenvolvimento se reuniu \ncom a CGP e alguns empregados e, para melhorar a comunicação entre os envolvidos, os analistas de \nsistemas da empresa optaram pela prototipação de telas do app, conforme os exemplos a seguir.\nProtótipo 1 \nProtótipo 2 \nProtótipo 3 \nTendo-se usado a abordagem de prototipação, foram documentados os seguintes requisitos:\n• todo colaborador deve informar número de matrícula, nome, endereço de e-mail e senha de login\npara se cadastrar no app e poder registrar projetos e enviar comentários; a coordenação de um \nprojeto é atribuída automaticamente ao colaborador que o registrar;\n• cada projeto pode ser classificado em uma de duas possíveis categorias: \"Melhoria de Processo\" \nou \"Social\"; além dos dados em comum para ambas as categorias, um projeto de \"Melhoria de \nProcesso\" deve ser alocado ao departamento (selecionado de uma lista) em que ele será aplicado \ne os resultados esperados devem ser informados (conforme o protótipo 1); para um projeto \n\"Social\", deve-se indicar o público beneficiário (conforme o protótipo 2);\n• uma vez registrado o projeto, qualquer colaborador pode visualizá-lo no app e registrar um ou mais \ncomentários para contribuir com o refinamento da ideia (conforme o protótipo 3); os comentários \nsão visualizados em ordem cronológica, por data e horário;\n• o coordenador do projeto pode incluir até três colaboradores para participarem da equipe.\nConsiderando a situação e as informações apresentadas, construa um diagrama de classe que esteja em \nconformidade com os requisitos, indicando os atributos de cada classe e as associações entre as classes. \n(valor: 10,0 pontos)\n\n1\n2\n3\n4\n5\n6\n7\n8\n9\n10\n11\n12\n13\n14\n15",
-    "options": []
+    "options": [],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "A coordenação de gestão de pessoas (CGP) de uma empresa solicitou à equipe de TI que desenvolvesse um aplicativo (app) para criação de uma rede social on-line que incentivasse os empregados a idealizar e executar projetos. A fim de realizar o levantamento de requisitos, a equipe de desenvolvimento se reuniu com a CGP e alguns empregados e, para melhorar a comunicação entre os envolvidos, os analistas de sistemas da empresa optaram pela prototipação de telas do app, conforme os exemplos a seguir."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Protótipo 1 Protótipo 2 Protótipo 3 Tendo-se usado a abordagem de prototipação, foram documentados os seguintes requisitos:"
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "•",
+            "text": "todo colaborador deve informar número de matrícula, nome, endereço de e-mail e senha de login para se cadastrar no app e poder registrar projetos e enviar comentários; a coordenação de um projeto é atribuída automaticamente ao colaborador que o registrar;"
+          },
+          {
+            "marker": "•",
+            "text": "cada projeto pode ser classificado em uma de duas possíveis categorias: \"Melhoria de Processo\" ou \"Social\"; além dos dados em comum para ambas as categorias, um projeto de \"Melhoria de Processo\" deve ser alocado ao departamento (selecionado de uma lista) em que ele será aplicado e os resultados esperados devem ser informados (conforme o protótipo 1); para um projeto \"Social\", deve-se indicar o público beneficiário (conforme o protótipo 2);"
+          },
+          {
+            "marker": "•",
+            "text": "uma vez registrado o projeto, qualquer colaborador pode visualizá-lo no app e registrar um ou mais comentários para contribuir com o refinamento da ideia (conforme o protótipo 3); os comentários são visualizados em ordem cronológica, por data e horário;"
+          },
+          {
+            "marker": "•",
+            "text": "o coordenador do projeto pode incluir até três colaboradores para participarem da equipe."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando a situação e as informações apresentadas, construa um diagrama de classe que esteja em conformidade com os requisitos, indicando os atributos de cada classe e as associações entre as classes. (valor: 10,0 pontos)"
+      }
+    ]
   },
   {
     "id": "2017-objective-9",
@@ -430,6 +911,98 @@
         "letter": "E",
         "text": "III, IV e V.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Em uma pesquisa de satisfação com notas de 0 a 10, sendo 0 muito insatisfeito e 10 muito satisfeito, uma empresa construiu uma tabela, mostrada a seguir, com o resumo das notas atribuídas pelos seus clientes aos serviços recebidos."
+      },
+      {
+        "kind": "table",
+        "headers": [
+          "NOTA",
+          "QUANTIDADE DE CLIENTES"
+        ],
+        "rows": [
+          [
+            "0",
+            "0"
+          ],
+          [
+            "1",
+            "0"
+          ],
+          [
+            "2",
+            "0"
+          ],
+          [
+            "3",
+            "1"
+          ],
+          [
+            "4",
+            "2"
+          ],
+          [
+            "5",
+            "2"
+          ],
+          [
+            "6",
+            "2"
+          ],
+          [
+            "7",
+            "2"
+          ],
+          [
+            "8",
+            "2"
+          ],
+          [
+            "9",
+            "1"
+          ],
+          [
+            "10",
+            "0"
+          ]
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando essa situação e as informações apresentadas, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "A média das notas dos clientes é igual a 6,0."
+          },
+          {
+            "marker": "II.",
+            "text": "A mediana das notas dos clientes é igual a 6,0."
+          },
+          {
+            "marker": "III.",
+            "text": "O desvio padrão populacional é menor do que 3,0."
+          },
+          {
+            "marker": "IV.",
+            "text": "O conjunto de dados é amodal."
+          },
+          {
+            "marker": "V.",
+            "text": "Um cliente que atribuiu nota 3,0 encontra-se no 1o quartil."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto apenas o que se afirma em"
       }
     ]
   },
@@ -469,6 +1042,20 @@
         "text": "~p + q * ~r.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "A álgebra booleana possui um operador unário ~, conhecido como NÃO, e os operadores binários * e +, conhecidos como E e OU, respectivamente. A tabela verdade é utilizada para validar uma fórmula composta de operadores da álgebra booleana. A seguir, é apresentada a tabela verdade para as proposições p, q e r diante da fórmula G, em que V representa uma proposição verdadeira e F uma proposição falsa."
+      },
+      {
+        "kind": "paragraph",
+        "text": "p q r G V V V V V V F F V F V F V F F F F V V V F V F V F F V V F F F V"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando as informações contidas na tabela acima e a ordem de precedência dos operadores booleanos, a fórmula G possui a mesma tabela verdade da proposição"
+      }
     ]
   },
   {
@@ -506,6 +1093,53 @@
         "letter": "E",
         "text": "II, III e IV.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "No desenvolvimento de um sistema de automação para um clube recreativo, serão implementados módulos para o departamento administrativo, tais como os módulos de cadastro de associados e de gestão de mensalidades. Na construção desses módulos, algumas regras de negócio serão aplicadas conforme o diagrama abaixo."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Mensalidade Associado Tipo_Associado - codigo: int - codigo: int - anomesreferencia: string - codigo: int - nome: string - valormensalidade: currency - descricao: string - endereco: string - datavencimento: date"
+      },
+      {
+        "kind": "code",
+        "text": "1         0..*                  1          1..*"
+      },
+      {
+        "kind": "paragraph",
+        "text": "- valorMensalidade: currency - telefone: string - valorpago: currency - datapagamento: date"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base nesse diagrama, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "Haverá somente 12 mensalidades para cada associado, ou seja, as mensalidades do associado não poderão ultrapassar os 12 meses do ano."
+          },
+          {
+            "marker": "II.",
+            "text": "Não existem associados sem mensalidades, nem mensalidades sem associado a elas relacionado."
+          },
+          {
+            "marker": "III.",
+            "text": "Alterando-se o valor da mensalidade definido para cada tipo de associado cadastrado, o sistema automaticamente altera os valores das mensalidades geradas anteriormente."
+          },
+          {
+            "marker": "IV.",
+            "text": "Poderão existir tipos de associados que não terão nenhum associado relacionado a eles."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto apenas o que se afirma em"
       }
     ]
   },
@@ -545,6 +1179,49 @@
         "text": "R3, R4 e R5.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "A engenharia de requisitos, do ponto de vista do processo de software, é uma ação de engenharia de software importante, que se inicia durante a atividade de comunicação e continua na de modelagem. Ela deve ser adaptada às necessidades do processo, do projeto, do produto e das pessoas que estão realizando o trabalho."
+      },
+      {
+        "kind": "source",
+        "text": "PRESSMAN, R. S. Engenharia de software: uma abordagem profissional. 8. ed. Porto Alegre: AMGH, 2016 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considere os requisitos, a seguir, de um sistema para uma universidade, na qual se pretenda gerenciar o setor acadêmico."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "•",
+            "text": "R1: o sistema deve permitir que cada professor realize o lançamento de notas das turmas nas quais lecionou;"
+          },
+          {
+            "marker": "•",
+            "text": "R2: o sistema deverá ser desenvolvido de forma a possibilitar seu transporte para outro sistema operacional em, no máximo, sessenta dias;"
+          },
+          {
+            "marker": "•",
+            "text": "R3: o sistema deve permitir que um estudante realize a sua matrícula nas disciplinas oferecidas em um semestre letivo;"
+          },
+          {
+            "marker": "•",
+            "text": "R4: o sistema atualiza a nota do estudante, permitindo sua visualização, em até dois segundos depois do momento que o professor a registra;"
+          },
+          {
+            "marker": "•",
+            "text": "R5: o sistema deve permitir que o auxiliar de serviços acadêmicos realize o cadastro de um estudante em não mais do que dez minutos de orientação."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "Nessa situação, representam descrições de requisitos não funcionais apenas os requisitos"
+      }
     ]
   },
   {
@@ -582,6 +1259,42 @@
         "letter": "E",
         "text": "As asserções I e II são proposições falsas.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Na área de desenvolvimento de software, prazos, custos e qualidade são questões que demandam gerenciamento, para que se evitem atrasos, estouros orçamentários e sistemas que não atendam aos requisitos."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Sobre o modelo CMMI, avalie as asserções a seguir e a relação proposta entre elas."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "O CMMI fornece diretrizes para a melhoria dos processos e habilidades organizacionais, incluindo o ciclo de vida de produtos e serviços, que abrange as fases de concepção, desenvolvimento, aquisição, entrega e manutenção."
+          }
+        ]
+      },
+      {
+        "kind": "heading",
+        "text": "PORQUE"
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "II.",
+            "text": "As empresas brasileiras estão aderindo a programas de fomento à melhoria da qualidade de software, por meio da aplicação do modelo de maturidade CMMI, que é mais direcionado às pequenas e médias empresas, apesar de também ser um modelo aplicável em grandes organizações, sejam elas públicas ou privadas."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "A respeito dessas asserções, assinale a opção correta."
       }
     ]
   },
@@ -621,6 +1334,45 @@
         "text": "II, III e IV.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "O método do caminho crítico identifica a sequência de atividades que o gerente de projetos deve dar mais atenção, porque, caso uma delas atrase, todo o projeto estará atrasado. A tabela a seguir apresenta a estrutura de atividades de um projeto."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Atividade Duração Atividade predecessora em dias A -- 3 B A 5 C -- 12 D -- 4 E D 2 F D 5 G F 7 H E e G 8 I B 11 J C, H e I 3"
+      },
+      {
+        "kind": "paragraph",
+        "text": "A partir das informações apresentadas na tabela, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "O caminho crítico é composto pelas atividades A, B, I e J."
+          },
+          {
+            "marker": "II.",
+            "text": "O caminho crítico tem 27 dias."
+          },
+          {
+            "marker": "III.",
+            "text": "A atividade H faz parte do caminho crítico."
+          },
+          {
+            "marker": "IV.",
+            "text": "O projeto em pauta possui dois caminhos críticos."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto apenas o que se afirma em"
+      }
     ]
   },
   {
@@ -658,6 +1410,16 @@
         "letter": "E",
         "text": "confidencialidade.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Uma empresa multinacional está avaliando um incidente de segurança ocorrido internamente com o envolvimento de um de seus funcionários, o que poderá ser motivo para o encerramento de seu contrato. O referido funcionário estava realizando o compartilhamento de senhas e também enviando mensagens por meio do serviço de correio eletrônico da empresa, com o objetivo de difamar e caluniar outros colegas de trabalho."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Nessa situação, de acordo com as políticas de segurança que definem os direitos e as responsabilidades de cada um em relação à segurança dos recursos computacionais que utiliza, o funcionário violou a política de"
       }
     ]
   },
@@ -697,6 +1459,49 @@
         "text": "I, II, III e IV.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "O seguinte diagrama de classe representa a modelagem de um serviço de transferência de materiais entre funcionários de uma empresa."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Material 1 Funcionario RequisicaoTransferencia - material - descricao: string - nome: string - dataRequisicao: date - preco: double - origem 0..1 1..*"
+      },
+      {
+        "kind": "paragraph",
+        "text": "- destino"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando o diagrama de classe apresentado, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "A classe Funcionario é abstrata."
+          },
+          {
+            "marker": "II.",
+            "text": "Uma RequisicaoTransferencia só existe se estiver vinculada a um Material."
+          },
+          {
+            "marker": "III.",
+            "text": "A classe Funcionario, em razão de sua associação, possui um atributo do tipo RequisicaoTransferencia."
+          },
+          {
+            "marker": "IV.",
+            "text": "Em uma implementação da classe RequisicaoTransferencia, é necessário adicionar um atributo simples do tipo Material."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto o que se afirma em"
+      }
     ]
   },
   {
@@ -734,6 +1539,45 @@
         "letter": "E",
         "text": "II, III, IV e V.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Após a implantação de um sistema em ambiente de produção, este passa para a fase de manutenção dentro do ciclo de vida do desenvolvimento de software. Os sistemas geralmente necessitam de diversos tipos de manutenção durante sua existência."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando a etapa de manutenção no processo de desenvolvimento de software, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "A fase de manutenção é uma parte explícita do modelo em cascata do processo de desenvolvimento de software."
+          },
+          {
+            "marker": "II.",
+            "text": "A atualização do sistema para inserir customizações é considerada um tipo de manutenção."
+          },
+          {
+            "marker": "III.",
+            "text": "A depuração do programa é um processo específico da fase de desenvolvimento e um tipo de manutenção."
+          },
+          {
+            "marker": "IV.",
+            "text": "O acréscimo de novas funções a um sistema existente, sem perturbar sua operação, é considerado um tipo de manutenção."
+          },
+          {
+            "marker": "V.",
+            "text": "A manutenção do sistema está relacionada ao aumento do ciclo de vida do software."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto apenas o que se afirma em"
       }
     ]
   },
@@ -773,6 +1617,29 @@
         "text": "Pesquisa no Windows, pesquisa na web, jogos on-line e o banco de dados das agências bancárias.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "As redes de computadores estão por toda parte. A internet é uma delas, assim como as várias redes das quais ela é composta, que compartilham recursos por meio de Sistemas Distribuídos. Como o número de dispositivos tem crescido exponencialmente, em vez de paralelizar tarefas em várias máquinas, tornou-se cada vez mais importante empregar sistemas distribuídos, comunicando e coordenando dispositivos e, assim, contribuindo para o cotidiano de empresas, governos e demais instituições."
+      },
+      {
+        "kind": "source",
+        "text": "COULOURIS, G. et al. Sistemas Distribuídos: conceitos e projeto,"
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "5.",
+            "text": "ed. Porto Alegre: Bookman, 2013 (adaptado)."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "Nesse contexto, assinale a opção que apresenta exemplos atuais de sistemas distribuídos."
+      }
     ]
   },
   {
@@ -810,6 +1677,29 @@
         "letter": "E",
         "text": "máquina de estados finitos.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Conceitualmente, cada processo tem sua própria CPU (Central Processing Unit) virtual. É claro que, na realidade, a CPU troca a execução, a todo momento, de um processo para outro, mas, para entender esse sistema, é muito mais fácil pensar em um conjunto de processos sendo executados (pseudo) paralelamente do que tentar controlar o modo como a CPU faz esses chaveamentos."
+      },
+      {
+        "kind": "source",
+        "text": "TANENBAUM, A. S. Sistemas operacionais modernos."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "3.",
+            "text": "ed. São Paulo: Person, 2010 (adaptado)."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "De acordo com o exposto, o conceito descrito denomina-se"
       }
     ]
   },
@@ -873,6 +1763,122 @@
           "page": 25
         }
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "O quadro a seguir apresenta um exemplo de documentação de caso de uso Encerrar Conta para um Sistema de Controle Bancário."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Encerrar Conta Ator principal Cliente Atores secundários Funcionário Este caso de uso descreve as etapas necessárias para que Resumo um cliente encerre uma conta."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Pré-condições É necessário existir uma conta ativa."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Pós-condições Nenhuma Fluxo principal Ações do ator Ações do sistema"
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "1.",
+            "text": "Solicitar encerramento de conta"
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "fornecendo o seu número."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "2.",
+            "text": "Executar caso de uso Emitir Saldo."
+          },
+          {
+            "marker": "3.",
+            "text": "Encerrar a conta."
+          },
+          {
+            "marker": "1.",
+            "text": "A conta só pode ser encerrada pelo seu titular."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "Restrições/validações"
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "2.",
+            "text": "A conta só pode ser encerrada se o seu saldo estiver"
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "zerado."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Fluxo alternativo I – saldo positivo Ações do ator Ações do sistema"
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "1.",
+            "text": "Executar caso de uso Realizar Saque."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "Fluxo alternativo II – saldo negativo Ações do ator Ações do sistema"
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "1.",
+            "text": "Fornecer valor para depósito."
+          },
+          {
+            "marker": "2.",
+            "text": "Executar caso de uso Realizar Depósito."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "Fluxo alternativo III – manutenção do Cadastro do Cliente Ações do ator Ações do sistema"
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "1.",
+            "text": "Se for a única conta do cliente, atualizar seu cadastro,"
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "tornando-o inativo. Executar o caso de uso Manter Cliente."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base no quadro apresentado, assinale a opção na qual o diagrama corresponde a documentação descrita para o caso de uso Encerrar Conta usando associação de extensão com restrição e ponto de extensão."
+      }
     ]
   },
   {
@@ -910,6 +1916,41 @@
         "letter": "E",
         "text": "I, II e III.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Os modelos de processo foram propostos para trazer ordem ao caos existente na área de desenvolvimento de software. A história mostra que esses modelos trouxeram considerável contribuição no trabalho da engenharia de software."
+      },
+      {
+        "kind": "source",
+        "text": "PRESSMAN, R. S. Engenharia de software: uma abordagem profissional. 8. ed. Porto Alegre: AMGH, 2016 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A respeito dos modelos de processo, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "São atividades do modelo incremental: especificação, desenvolvimento e validação."
+          },
+          {
+            "marker": "II.",
+            "text": "No modelo espiral, a fase de modelagem é responsável, entre outras atividades, pela estimativa, cronograma e análise de risco."
+          },
+          {
+            "marker": "III.",
+            "text": "O modelo cascata sugere uma abordagem sequencial e sistemática para o desenvolvimento de software, iniciando na especificação de requisitos e finalizando com a entrega do software concluído."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto o que se afirma em"
       }
     ]
   },
@@ -949,6 +1990,41 @@
         "text": "II, III e IV.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Um desenvolvedor de software recém-formado foi contratado para a implementação de um projeto em uma empresa e, em reunião, recebeu várias explicações sobre como a gerência de configuração funcionava."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando essa situação, avalie as afirmações a seguir, referentes às informações dadas ao desenvolvedor."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "Inicialmente, para ter acesso à base de desenvolvimento, o profissional deve realizar uma operação de checkout para baixar os arquivos do projeto que estão armazenados no servidor."
+          },
+          {
+            "marker": "II.",
+            "text": "Na situação em que mais de um desenvolvedor estiver modificando um mesmo documento, ao se tentar realizar uma operação de commit, pode ser necessário realizar uma operação de tag (release) para resolução do conflito entre a versão local e a versão mais recente no repositório, caso algum desenvolvedor tenha submetido uma mudança no documento previamente."
+          },
+          {
+            "marker": "III.",
+            "text": "No desenvolvimento de um novo caso de uso, em que diversos arquivos sejam modificados, é recomendada a criação de uma ramificação (branch)."
+          },
+          {
+            "marker": "IV.",
+            "text": "A versão estável é o ramo principal de desenvolvimento, que segue do começo do desenvolvimento até o momento presente."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto apenas o que se afirma em"
+      }
     ]
   },
   {
@@ -986,6 +2062,45 @@
         "letter": "E",
         "text": "I, II, III e V.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Um software com defeito pode ser consequência de problemas no levantamento dos requisitos, uma vez que o requisito pode ser ambíguo porque o cliente não estava convicto da sua real necessidade ou porque a equipe o interpretou mal e registrou uma especificação de forma incorreta. Por esses motivos, as verificações, as validações e os testes são fundamentais para se certificar da qualidade do software resultante."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando esse contexto, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "O teste funcional certifica se o software desempenha as funções especificadas nos requisitos."
+          },
+          {
+            "marker": "II.",
+            "text": "O teste de desempenho valida a conformidade da especificação do processo de desenvolvimento de software."
+          },
+          {
+            "marker": "III.",
+            "text": "O teste de aceitação é realizado pelo cliente a fim de validar se aquilo que foi implementado é o que foi solicitado."
+          },
+          {
+            "marker": "IV.",
+            "text": "O teste de instalação, invariavelmente, é executado no local determinado pelo cliente para instalação do software."
+          },
+          {
+            "marker": "V.",
+            "text": "As técnicas de verificação e validação de software asseguram que o sistema que está sendo desenvolvido seja adequado ao seu propósito."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto apenas o que se afirma em"
       }
     ]
   },
@@ -1025,6 +2140,37 @@
         "text": "I, II e III.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Nas décadas de 1970 e 1980, muitos sistemas corporativos foram desenvolvidos com a linguagem Cobol, utilizando o Sistema Gerenciador de Banco de dados ADABAS e arquivos indexados do tipo ISAM e VISAM. Alguns desses produtos de implementação foram, ou estão sendo, descontinuados pelos seus fabricantes. Por isso, o trabalho de reengenharia desses sistemas, utilizando linguagens mais modernas, como Python, Java ou mesmo C++, associadas com sistemas de banco de dados mais atuais, apresenta-se como uma boa oportunidade de negócios."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando esse cenário, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "A dificuldade de reengenharia de sistemas antigos deve-se ao fato de que, na maioria das vezes, o desenvolvedor definia o sistema e esse já era o próprio processo da organização."
+          },
+          {
+            "marker": "II.",
+            "text": "O custo de alteração para modernização de uma linha de código em Cobol é alto, por isso, fazer a manutenção desses sistemas é menos despendioso."
+          },
+          {
+            "marker": "III.",
+            "text": "Uma estratégia de conversão dos referidos sistemas para uma linguagem orientada a objetos é definir uma estrutura de classes e métodos e realizar o refatoramento do código."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto o que se afirma em"
+      }
     ]
   },
   {
@@ -1063,6 +2209,20 @@
         "text": "void preorder(noArvore *raiz) { \n   if (raiz != NULL) { \n      preorder(raiz->direita); \n      cout << raiz->dado << \" \"; \n      preorder(raiz->esquerda); \n   } \n}",
         "code": true
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "O fragmento de código C++, a seguir, contém a implementação da inserção de um nó em uma árvore binária."
+      },
+      {
+        "kind": "code",
+        "text": "...\nstruct noArvore {\n   int dado;\n   noArvore *esquerda;\n   noArvore *direita;\n};\nnoArvore *insere(noArvore *arvore, int valor) {\n   if (arvore == NULL) {\n      arvore = new noArvore;\n      arvore->esquerda = NULL;\n      arvore->direita = NULL;\n      arvore->dado = valor;\n   } else if(valor < arvore->dado) {\n        arvore->esquerda = insere (arvore->esquerda, valor);\n     }\n     else {\n        arvore->direita = insere (arvore->direita, valor);\n     }\n     return(arvore);\n}\n..."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base no exposto, assinale a opção que apresenta o fragmento de programa para imprimir os valores contidos nos nós, percorrendo a árvore em pré-ordem."
+      }
     ]
   },
   {
@@ -1100,6 +2260,49 @@
         "letter": "E",
         "text": "I, II e III.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Para que se realize a multiplicação de probabilidades com maior facilidade, foi desenvolvida, utilizando-se o padrão MVC (Model-View-Controller), uma calculadora que pode ser configurada de dois modos: comum e probabilista. No primeiro, as multiplicações ocorrem de forma ordinária. No segundo, as multiplicações são feitas utilizando-se uma fórmula específica. A classe a seguir, escrita na linguagem Java, define o método multiplica. Ele é executado quando o botão da multiplicação é pressionado, e recebe como parâmetro os valores que o usuário deseja usar na operação, além de possuir uma variável de instância do tipo CalculadoraController. O método alteraModo é encarregado de alterar a instância para a qual essa variável faz referência conforme o modo selecionado pelo usuário. A instância interage com as partes do model apropriadas à solicitação realizada pelo usuário. Quando o usuário deseja usar o modo probabilista, a variável modo tem o valor 1, caso contrário, ela tem o valor 0."
+      },
+      {
+        "kind": "code",
+        "text": "public class Calculadora {\n\n   private CalculadoraController c;\n   private int modo;\n\n   public double multiplica (double[] valores) {\n      return c.multiplica (valores);\n   }\n\n   public void alteraModo () {\n\n      if ( modo == 1)\n         c = new ProbabilistaController();\n      else\n         c = new OrdinarioController();\n      }\n}"
+      },
+      {
+        "kind": "paragraph",
+        "text": "O diagrama de classe que se segue mostra a hierarquia de controllers definida para a implementação da calculadora descrita. A hierarquia de classes de controle representa uma família de algoritmos intercambiáveis, por isso, o comportamento dos componentes da view, a cada instante, pode ser dinamicamente alterado, bastando trocar o tipo da instância referenciada pela variável c."
+      },
+      {
+        "kind": "source",
+        "text": "CalculadoraController + multiplica(valores: double[ ]): double ProbabilistaController OrdinarioController + multiplica(valores: double[ ]): double + multiplica(valores: double[ ]): double"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considerando esse cenário, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "A hierarquia exibida ilustra o uso do padrão de projetos Strategy."
+          },
+          {
+            "marker": "II.",
+            "text": "O padrão composto MVC define a existência de um único controller e, portanto, a solução proposta não caracteriza o uso desse padrão."
+          },
+          {
+            "marker": "III.",
+            "text": "O método multiplica da classe Calculadora chama o método multiplica de CalculadoraController, o que caracteriza uma conversão de interfaces e, portanto, o uso do padrão de projetos Adapter."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto o que se afirma em"
       }
     ]
   },
@@ -1143,6 +2346,88 @@
         "text": "Quando for executada, a classe SimuladorBoeing757 apresentará um erro em tempo de execução \nporque os métodos setVoar e setPousar recebem respectivamente, como parâmetros, variáveis \ndo tipo classe, o que não é permitido na orientação a objetos.",
         "code": true
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "O diagrama de classe apresentado na figura a seguir mapeia um processo de um simulador de voo."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Nesse diagrama, é utilizado o padrão de projeto Strategy, que define uma família de algoritmos,"
+      },
+      {
+        "kind": "paragraph",
+        "text": "encapsula cada um deles e os torna intercambiáveis. O padrão Strategy, que deixa o algoritmo variar"
+      },
+      {
+        "kind": "paragraph",
+        "text": "independentemente dos clientes que o utilizam, aplica o princípio de projeto: “programar para uma"
+      },
+      {
+        "kind": "paragraph",
+        "text": "interface, não para uma implementação”."
+      },
+      {
+        "kind": "paragraph",
+        "text": "LARMAN, C. Utilizando UML e padrões: uma introdução à análise e ao projeto orientados a objetos e ao desenvolvimento iterativo. Porto Alegre: Bookman, 2007 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considere o diagrama de classe a seguir que descreve um simulador de voo."
+      },
+      {
+        "kind": "paragraph",
+        "text": "<<interface>> Aviao Voar"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Voar voarForma voar() Pousar pousarForma"
+      },
+      {
+        "kind": "paragraph",
+        "text": "perfomanceVoar() performancePousar() setVoar() VoarDia VoarNoite setPousar() voar() voar() informarDados()"
+      },
+      {
+        "kind": "paragraph",
+        "text": "<<interface>> Pousar"
+      },
+      {
+        "kind": "paragraph",
+        "text": "pousar() Boeing757"
+      },
+      {
+        "kind": "paragraph",
+        "text": "informarDados()"
+      },
+      {
+        "kind": "paragraph",
+        "text": "SimuladorBoeing757 PousarDia PousarNoite"
+      },
+      {
+        "kind": "paragraph",
+        "text": "main() pousar() pousar()"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considere ainda o seguinte código em linguagem Java como implementação do simulador."
+      },
+      {
+        "kind": "code",
+        "text": "public interface Voar {\n   public void voar();\n}\npublic interface Pousar {\n   public void pousar();\n}\npublic class VoarDia implements Voar {\n   public void voar() {\n      System.out.println(“Voar durante o dia.”);\n   }\n}\npublic class VoarNoite implements Voar {\n   public void voar() {\n      System.out.println(“Voar durante a noite.”);\n   }\n}\npublic class PousarDia implements Pousar {\n   public void pousar() {\n      System.out.println(“Pousar durante o dia.”);\n   }\n}"
+      },
+      {
+        "kind": "code",
+        "text": "public class PousarNoite implements Pousar {\n   public void pousar() {\n      System.out.println(“Pousar durante a noite.”);\n   }\n}\npublic abstract class Aviao {\n   Voar voarForma;\n   Pousar pousarForma;\n   public Aviao() {}\n   public abstract void informarDados();\n   public void performanceVoar() {\n      voarForma.voar();\n   }\n   public void performancePousar() {\n      pousarForma.pousar();\n   }\n   public void setVoar(Voar v) {\n      voarForma = v;\n   }\n   public void setPousar(Pousar p) {\n      pousarForma = p;\n   }\n}\npublic class Boeing757 extends Aviao {\n   public Boeing757() {\n      voarForma = new VoarDia();\n      pousarForma = new PousarDia();\n   }\n   public void informarDados() {\n      System.out.println(“Informando dados de um Boeing 757.”);\n   }\n}\npublic class SimuladorBoeing757 {\n   public static void main(String[] args) {\n      Boeing757 b757 = new Boeing757();\n      b757.performanceVoar();\n      b757.performancePousar();\n      b757.setVoar(new VoarNoite());\n      b757.setPousar(new PousarNoite());\n      b757.performanceVoar();\n      b757.performancePousar();\n   }\n}"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base no diagrama de classe, no código em linguagem Java e no conceito do padrão de projeto"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Strategy, assinale a opção correta."
+      }
     ]
   },
   {
@@ -1181,6 +2466,45 @@
         "text": "I, II, III e IV.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Os requisitos de um sistema consistem nas descrições daquilo que o sistema deve fazer, dos serviços que oferece e das restrições a seu funcionamento. Esses requisitos refletem as necessidades específicas dos clientes do sistema, como controlar um dispositivo, realizar um pedido ou encontrar informações. O processo de descobrir, analisar, documentar e verificar esses serviços e restrições é denominado de engenharia de requisitos."
+      },
+      {
+        "kind": "source",
+        "text": "SOMMERVILLE, I. Engenharia de software. 9. Ed. São Paulo: Pearson, 2011 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Tendo o texto como referência, avalie as atribuições listadas a seguir, no que se refere à etapa de especificação de requisitos em projetos de software."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "Identificar as expectativas e necessidades dos stakeholders com relação ao software a ser desenvolvido."
+          },
+          {
+            "marker": "II.",
+            "text": "Distribuir os requisitos em categorias, explorar as relações entre eles e classificar sua importância para os stakeholders."
+          },
+          {
+            "marker": "III.",
+            "text": "Produzir um documento de especificação de requisitos, de forma que todos os stakeholders possam entendê-lo."
+          },
+          {
+            "marker": "IV.",
+            "text": "Examinar a especificação do software para assegurar que todos os requisitos foram definidos sem inconsistências."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "São atribuições na etapa de especificação de requisitos os itens"
+      }
     ]
   },
   {
@@ -1218,6 +2542,41 @@
         "letter": "E",
         "text": "A condição 2 do programa define o conjunto de pessoas que tem ensino superior, pós-graduação e pelo menos cinco anos de experiência em sua área de atuação.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Uma pesquisa está sendo realizada para identificar a renda média de um grupo de profissionais, em função de algumas variáveis de interesse. As variáveis utilizadas são “possui ensino superior”, “possui pós-graduação” e “possui pelo menos 5 anos de experiência em sua área de atuação”. Os conjuntos de pessoas representados por essas variáveis são denotados A, B e C, respectivamente. Dado que as variáveis não são mutuamente exclusivas, uma pessoa pode pertencer a mais de um conjunto. As expressões a seguir representam subconjuntos para os quais se deseja obter a renda média das pessoas a eles pertencentes, tarefa que será realizada posteriormente."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "•",
+            "text": "Expressão 1: x ∈ A ∧ x ∉(B ∪C);"
+          },
+          {
+            "marker": "•",
+            "text": "Expressão 2: x ∈ A − (B ∪C);"
+          },
+          {
+            "marker": "•",
+            "text": "Expressão 3: x ∈ A ∧ x ∈ B ∧ x ∈C."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "Considere que, em função das expressões dadas, o seguinte programa em linguagem de programação C foi escrito, para que posteriormente se realize os cálculos desejados. Considere, ainda, que A, B e C são estruturas de dados apropriadamente definidas e que contém as pessoas exatamente como especificado. A função contem opera sobre elas e devolve um valor booleano, indicando se a pessoa apontada por p existe ou não na estrutura especificada."
+      },
+      {
+        "kind": "code",
+        "text": "void determina_renda (pessoa *p) {\n   /* condição 1 */\n   if (contem (A, p) && !contem (B, p) && !contem (C, p)) {\n      //renda será determinada posteriormente\n   }\n   /* condição 2 */\n   else if (contem (A, p) || contem (B, p) || contem (C, p)) {\n     //renda será determinada posteriormente\n   }\n}"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base nessa situação e nas informações apresentadas, assinale a opção correta."
       }
     ]
   },
@@ -1261,6 +2620,41 @@
         "text": "I, II e III.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "A área de desenvolvimento de software está se tornando cada vez mais complexa. Para lidar com essa realidade, os desenvolvedores contam com linguagens de programação baseadas no paradigma de orientação a objetos, cujos pilares são abstração, encapsulamento, herança e polimorfismo. No código a seguir, observa-se a implementação de classes relacionadas."
+      },
+      {
+        "kind": "code",
+        "text": "public abstract class Impressora {\n   String nome;\n\n   Impressora() {}\n\n   Impressora(String n) {\n      this.nome = n;\n   }\n\n   public void imprimir() {}\n}\n\npublic class Laser extends Impressora {\n\n   public Laser() {}\n\n   public void imprimir() {\n      System.out.println(“Imprimindo na Laser”);\n   }\n}\n\nclass Matricial extends Impressora {\n\n   public Matricial () {}\n\n   public void imprimir() {\n      System.out.println(“Imprimindo na Matricial”);\n   }\n}\n\npublic class JatoDeTinta extends Impressora {\n\n   public JatoDeTinta() {}\n\n   public void imprimir(){\n      System.out.println(“Imprimindo na Jato de tinta”);\n   }\n\n}\n\npublic class Main {\n\n   public static void main(String args[]) {\n      Impressora imp[] = new Impressora[3];\n      imp[0] = new Laser();\n      imp[1] = new JatoDeTinta();\n      imp[2] = new Matricial();\n\n      for(int i = imp.length - 1; i >= 0; i--){\n         imp[i].imprimir();\n      }\n   }\n}"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base nas informações do texto e no código apresentado, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "A execução do código, via classe Main, resulta na seguinte saída:\nImprimindo na Laser\nImprimindo na Matricial\nImprimindo na Jato de tinta"
+          },
+          {
+            "marker": "II.",
+            "text": "O código faz uso da técnica denominada polimorfismo."
+          },
+          {
+            "marker": "III.",
+            "text": "O código não será compilado, pois o vetor imp foi instanciado por meio da classe abstrata Impressora."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto o que se afirma em"
+      }
     ]
   },
   {
@@ -1298,6 +2692,45 @@
         "letter": "E",
         "text": "II, III e IV.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "À medida que o projeto de uma interface do usuário evolui, quatro questões de projeto comuns quase sempre vêm à tona: tempo de resposta do sistema, recursos de ajuda ao usuário, informações de tratamento de erros e atribuição de nomes a comandos."
+      },
+      {
+        "kind": "source",
+        "text": "PRESSMAN, R. S. Engenharia de software: uma abordagem profissional. 8. ed. São Paulo: AMGH, 2016 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Nesse contexto, avalie as afirmações a seguir, a respeito do projeto de interface e dos requisitos de software."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "A análise de interfaces tem por objetivo identificar o perfil dos usuários e auxiliar na especificação do requisito não funcional de segurança pertinente ao perfil de acesso dos usuários."
+          },
+          {
+            "marker": "II.",
+            "text": "O requisito não funcional de segurança descreve as características relacionadas a inteligibilidade, modo de usar ou operar o sistema."
+          },
+          {
+            "marker": "III.",
+            "text": "O requisito não funcional de confiabilidade descreve as características relacionadas ao tempo de resposta para processamento de dados ou informações."
+          },
+          {
+            "marker": "IV.",
+            "text": "O requisito não funcional de usabilidade descreve diretrizes de acessibilidade para pessoas com deficiência."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto apenas o que se afirma em"
       }
     ]
   },
@@ -1341,6 +2774,60 @@
         "text": "SELECT c.nome, p.nome, COUNT(v.votos) FROM Partido p, Candidato c, \nVotacao v WHERE c.numero = p.numero and v.partido = c.numero GROUP BY \nc.nome, p.nome, v.votos;",
         "code": true
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Um cliente solicitou a uma empresa a criação de um banco de dados para armazenar o resultado de uma eleição presidencial, com dados sobre os partidos políticos, os candidatos e a votação obtida por cada candidato em cada unidade da federação. O seguinte diagrama de Entidade-Relacionamento foi elaborado como representação dos requisitos obtidos com o cliente."
+      },
+      {
+        "kind": "paragraph",
+        "text": "numero nome sigla"
+      },
+      {
+        "kind": "lines",
+        "text": "1             1"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Candidato Filia Partido"
+      },
+      {
+        "kind": "paragraph",
+        "text": "1"
+      },
+      {
+        "kind": "paragraph",
+        "text": "numero nome Possui"
+      },
+      {
+        "kind": "paragraph",
+        "text": "partido N"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Votacao votos"
+      },
+      {
+        "kind": "paragraph",
+        "text": "estado"
+      },
+      {
+        "kind": "paragraph",
+        "text": "As tabelas a seguir contêm os dados registrados a partir do resultado dessa eleição."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Partido Candidato Votação número nome sigla número nome partido votos estado"
+      },
+      {
+        "kind": "code",
+        "text": "91    Partido 1     P1        91    Candidato 1      91       12 345     AC\n92    Partido 2     P2        92    Candidato 2      91       98 323     PE\n93    Partido 3     P3        93    Candidato 3      91     1 726 453     SP\n94    Partido 4     P4        94    Candidato 4      92       98 463     AC\n95    Partido 5     P5        95    Candidato 5      92      192 837     PE\n92     4 283 747     SP\n93       16 253     AC\n93      293 845     PE\n93     6 253 745     SP\n94       98 372     AC\n94      598 333     PE\n94     8 271 347     SP\n95       46 837     AC\n95      327 264     PE\n95     5 938 374     SP"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base nas informações e na situação apresentada, qual o comando SQL que seleciona corretamente os nomes dos candidatos, seus partidos e o total de votos de cada partido nessa eleição?"
+      }
     ]
   },
   {
@@ -1378,6 +2865,36 @@
         "letter": "E",
         "text": "Linha 11;    vetor[j] <- valor",
         "code": true
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "A ordenação por inserção funciona de modo semelhante à forma como algumas pessoas ordenam cartas de baralho. Inicia-se com a mão esquerda vazia e as cartas empilhadas na mesa. Remove-se da pilha uma carta de cada vez, inserindo-a na posição correta na mão esquerda. Para se identificar a posição correta de uma carta, deve-se compará-la com as cartas presentes na mão esquerda, no sentido da direita para a esquerda. Em todos os momentos, as cartas na mão esquerda estão ordenadas, tendo sido obtidas no topo da pilha da mesa."
+      },
+      {
+        "kind": "source",
+        "text": "CORMEN, T. H. et al. Introduction to algorithms. 3. ed. Cambridge: The MIT Press, 2009 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "Um programador implementou um algoritmo de ordenação semelhante à forma de ordenação de cartas"
+      },
+      {
+        "kind": "code",
+        "text": "descrita no texto. Ao realizar um teste com um vetor de nove posições (vetor[1..9]), verificou que o"
+      },
+      {
+        "kind": "paragraph",
+        "text": "algoritmo não funcionava corretamente."
+      },
+      {
+        "kind": "code",
+        "text": "01 para i <- 2 até 9 faça\n02    valor <- vetor[i]\n03    j <- i – 1\n04    enquanto ((j >= 1) e (valor < vetor[j])) faça\n05       vetor[i] <- vetor[j]\n06          j <- j – 1\n07           se (j = 0) então\n08             interrompa\n09           fim se\n10    fim enquanto\n11    vetor[j + 1] <- valor\n12 fim para"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base nessas informações, assinale a opção em que se apresentam a linha e o respectivo comando a ser substituído, para que o algoritmo ordene corretamente um vetor de inteiros de forma crescente."
       }
     ]
   },
@@ -1417,6 +2934,69 @@
         "text": "II, III e IV.",
         "code": false
       }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "JOÃO GRILO: — Isso é coisa de seca. Acaba nisso, essa fome: ninguém pode ter menino e haja cavalo no mundo. A comida é mais barata e é coisa que se pode vender. Mas seu cavalo, como foi?"
+      },
+      {
+        "kind": "paragraph",
+        "text": "CHICÓ: — Foi uma velha que me vendeu barato, porque ia se mudar, mas recomendou todo cuidado, porque o cavalo era bento. E só podia ser mesmo, porque cavalo bom como aquele eu nunca tinha visto."
+      },
+      {
+        "kind": "source",
+        "text": "SUASSUNA, A. Auto da Compadecida. Rio de Janeiro: Agir, 2000 (adaptado)."
+      },
+      {
+        "kind": "paragraph",
+        "text": "A seguir apresenta-se um modelo de dados elaborado a partir do diálogo entre Chicó e João Grilo."
+      },
+      {
+        "kind": "paragraph",
+        "text": "codigo rg possui"
+      },
+      {
+        "kind": "paragraph",
+        "text": "pessoa cavalo (1,1) (0,1)"
+      },
+      {
+        "kind": "paragraph",
+        "text": "nome eBento?"
+      },
+      {
+        "kind": "paragraph",
+        "text": "cpf raca codigo"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Com base no diálogo e no diagrama apresentados, avalie as afirmações a seguir."
+      },
+      {
+        "kind": "list",
+        "items": [
+          {
+            "marker": "I.",
+            "text": "O Chicó e a velha poderão ser cadastrados na entidade pessoa."
+          },
+          {
+            "marker": "II.",
+            "text": "O Chicó e a velha poderão ter mais que um cavalo cadastrados."
+          },
+          {
+            "marker": "III.",
+            "text": "O atributo rg da entidade pessoa pode ter a função de chave primária nessa entidade."
+          },
+          {
+            "marker": "IV.",
+            "text": "O cavalo deverá ter no mínimo uma pessoa e uma pessoa poderá ser cadastrada sem a necessidade de ter um cavalo."
+          }
+        ]
+      },
+      {
+        "kind": "paragraph",
+        "text": "É correto apenas o que se afirma em"
+      }
     ]
   },
   {
@@ -1454,6 +3034,36 @@
         "letter": "E",
         "text": "comunicabilidade, pois se uma imagem não comunica adequadamente a informação desejada, um texto alternativo deve complementar a respectiva informação, de forma que a interação com o sistema web não seja prejudicada.",
         "code": false
+      }
+    ],
+    "formattedStatement": [
+      {
+        "kind": "paragraph",
+        "text": "Em um sistema web para venda de ingressos para shows musicais, a equipe de marketing solicitou a um web designer que, na página inicial, os links para a área de venda de ingressos de cada show fossem imagens, para tornar a navegação pelos conteúdos da página mais atrativa e para que o próprio link já servisse como material de divulgação."
+      },
+      {
+        "kind": "source",
+        "text": "Navegador"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Slogan do site"
+      },
+      {
+        "kind": "source",
+        "text": "145 x 95 145 x 95 145 x 95 145 x 95 145 x 95 145 x 95"
+      },
+      {
+        "kind": "paragraph",
+        "text": "A partir do protótipo da página inicial apresentado e usando HTML, o web designer optou por implementar cada link de forma que a imagem forneça um texto informativo (por meio do atributo alt) para usuários que usem leitores de tela, conforme a seguir."
+      },
+      {
+        "kind": "code",
+        "text": "<a href=\"link-area-venda-ingresso\">\n   <img src=\"imagem-show.jpg\" alt=\"identificação do show\" />\n</a>\nConsiderando a situação apresentada, o uso do atributo alt e aspectos da interação humano-"
+      },
+      {
+        "kind": "paragraph",
+        "text": "computador, pode-se afirmar que o web designer atendeu, em sua implementação, o requisito de"
       }
     ]
   }
