@@ -19,6 +19,7 @@ import { NewPostsPill } from '@/components/motion/NewPostsPill';
 import { XPProgressBar } from '@/components/motion/XPProgressBar';
 import { FeedEngagementCard } from '@/app/feed/FeedEngagementCard';
 import { FeedControls } from '@/app/feed/FeedControls';
+import { FeedContinueStudying } from '@/app/feed/FeedContinueStudying';
 import { MobilePullToRefresh } from '@/components/MobilePullToRefresh';
 import { feedRankingSurfaceClassName } from '@/components/FeedRankingSwitcher';
 import { EmptyState } from '@/components/motion/EmptyState';
@@ -1223,6 +1224,7 @@ export function FeedContent({
             {/* Feed Tab View */}
             {activeTab === 'feed' && (
               <>
+                <FeedContinueStudying trails={initialUser.trails} />
                 <div
                   data-testid="desktop-feed-composer"
                   className="hidden border-b border-dd-border px-5 py-5 md:block"

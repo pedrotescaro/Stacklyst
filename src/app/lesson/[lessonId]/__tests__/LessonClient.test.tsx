@@ -175,3 +175,142 @@ describe('LessonClient trail progress', () => {
     });
   });
 });
+
+describe('LessonClient learner support', () => {
+  const choiceLesson: Lesson = {
+    id: 'learn-js-const',
+    title: 'Constantes',
+    description: 'const e let.',
+    language: 'JS',
+    unitNumber: 1,
+    levelNumber: 1,
+    xpReward: 20,
+    difficulty: 'iniciante',
+    estimatedTime: '2 min',
+    steps: [
+      {
+        id: 'step-choice',
+        type: 'multiple_choice',
+        title: 'Qual palavra cria uma constante?',
+        options: ['const', 'let'],
+        hints: ['Lembre-se que const vem de constant.', 'let permite nova atribuição.'],
+        xp: 20,
+      },
+    ],
+  };
+  const user = { id: 'user-1', username: 'Pedro', total_xp: 0, streak: 0 };
+
+  beforeEach(() => {
+    pushMock.mockClear();
+    playSoundMock.mockClear();
+  });
+
+  it('reveals the step hints one at a time', async () => {
+    vi.stubGlobal('fetch', vi.fn());
+    render(<LessonClient lesson={choiceLesson} user={user} />);
+
+    expect(screen.queryByText(/const vem de constant/)).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: /Ver dica/ }));
+    expect(screen.getByText('Lembre-se que const vem de constant.')).toBeInTheDocument();
+    expect(screen.queryByText('let permite nova atribuição.')).not.toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /Mais uma dica/ }));
+    expect(screen.getByText('let permite nova atribuição.')).toBeInTheDocument();
+    // Every hint is out: the button goes away instead of doing nothing.
+    expect(screen.queryByRole('button', { name: /dica/ })).not.toBeInTheDocument();
+  });
+
+  it('keeps a failed save recoverable inside the footer', async () => {
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ message: 'Resposta incompleta' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          isCorrect: true,
+          xpEarned: 20,
+          message: 'Isso!',
+          lessonCompleted: true,
+        }),
+      });
+    vi.stubGlobal('fetch', fetchMock);
+    render(<LessonClient lesson={choiceLesson} user={user} />);
+
+    await userEvent.click(screen.getByRole('button', { name: /const/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Verificar' }));
+
+    const alert = await screen.findByRole('alert');
+    expect(alert).toHaveTextContent('Verifique a conexão');
+    expect(alert).not.toHaveTextContent('Failed to fetch');
+    expect(alert.closest('footer')).not.toBeNull();
+
+    // The same button retries; the answer is kept.
+    await userEvent.click(screen.getByRole('button', { name: 'Tentar salvar novamente' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Verifique a conexão');
+    expect(screen.queryByText('Ops, não foi dessa vez!')).not.toBeInTheDocument();
+    await userEvent.click(screen.getByRole('button', { name: 'Tentar salvar novamente' }));
+    await screen.findByText('Mandou muito bem!');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(
+      fetchMock.mock.calls.map(([, request]) => JSON.parse(request.body).selectedOption)
+    ).toEqual([0, 0, 0]);
+  });
+
+  it('sends the learner to the unfinished step instead of a dead end', async () => {
+    const twoStepLesson: Lesson = {
+      ...choiceLesson,
+      steps: [
+        { ...choiceLesson.steps[0], id: 'step-a', question: 'Primeira pergunta', hints: undefined },
+        { ...choiceLesson.steps[0], id: 'step-b', question: 'Segunda pergunta', hints: undefined },
+      ],
+    };
+    vi.stubGlobal(
+      'fetch',
+      vi
+        .fn()
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            isCorrect: true,
+            xpEarned: 20,
+            message: 'Isso!',
+            lessonCompleted: false,
+            completedStepIds: ['step-b'],
+          }),
+        })
+        .mockResolvedValueOnce({
+          ok: true,
+          json: async () => ({
+            isCorrect: true,
+            xpEarned: 20,
+            message: 'Isso!',
+            lessonCompleted: true,
+            completedStepIds: ['step-a', 'step-b'],
+          }),
+        })
+    );
+    // step-a looked done when the lesson opened, but the server still has it pending.
+    render(<LessonClient lesson={twoStepLesson} completedStepIds={['step-a']} user={user} />);
+    expect(screen.getByText('Segunda pergunta')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /const/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Verificar' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Continuar' }));
+
+    // No "reopen the lesson" error: the learner lands on the remaining step.
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Falta concluir esta atividade para terminar a lição.')
+    ).toBeInTheDocument();
+    expect(screen.getByText('Primeira pergunta')).toBeInTheDocument();
+
+    await userEvent.click(screen.getByRole('button', { name: /const/ }));
+    await userEvent.click(screen.getByRole('button', { name: 'Verificar' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Continuar' }));
+    expect(await screen.findByRole('heading', { name: 'Lição Concluída!' })).toBeInTheDocument();
+  });
+});

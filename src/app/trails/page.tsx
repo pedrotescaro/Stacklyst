@@ -198,7 +198,13 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
         ? 'trail'
         : 'map';
 
-  if (!['map', 'trail'].includes(firstSearchValue(query.view) ?? '') && !initialPathSlug) {
+  // `resume=1` (the feed's "Continue studying") goes straight to the course in the saved view.
+  const resumeStudying = firstSearchValue(query.resume) === '1';
+  if (
+    !resumeStudying &&
+    !['map', 'trail'].includes(firstSearchValue(query.view) ?? '') &&
+    !initialPathSlug
+  ) {
     const dashboardCourses = ['PYTHON', 'JS', 'TS', 'RUST', 'GO', 'JAVA']
       .map((language) => {
         const nodes = unifiedMap.nodes.filter((node) => node.language === language);

@@ -7,6 +7,8 @@ import {
   ArrowRight,
   RotateCcw,
   LoaderCircle,
+  X,
+  Info,
 } from 'lucide-react';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './LessonFooter.module.css';
@@ -20,12 +22,19 @@ interface LessonFooterProps {
   earnedXp?: number;
   combo?: number;
   hints?: string[];
+  /** How many hints the learner has already revealed on this step. */
+  revealedHints?: number;
   onOpenHint?: () => void;
   onVerify: () => void;
   onContinue: () => void;
   onRetry?: () => void;
   canVerify: boolean;
   isVerifying?: boolean;
+  /** A failed save: shown in the footer, next to the button that retries it. */
+  errorMessage?: string | null;
+  onDismissError?: () => void;
+  /** Neutral guidance, e.g. after being sent back to an unfinished step. */
+  notice?: string | null;
 }
 
 export function LessonFooter({
@@ -37,16 +46,40 @@ export function LessonFooter({
   earnedXp = 0,
   combo = 0,
   hints,
+  revealedHints = 0,
   onOpenHint,
   onVerify,
   onContinue,
   onRetry,
   canVerify,
   isVerifying = false,
+  errorMessage,
+  onDismissError,
+  notice,
 }: LessonFooterProps) {
   const { text } = useLocalizedText();
   return (
     <footer className={styles.footer}>
+      {(errorMessage || notice) && (
+        <div className={styles.banner} data-tone={errorMessage ? 'error' : 'info'}>
+          {errorMessage ? (
+            <XCircle size={18} aria-hidden="true" />
+          ) : (
+            <Info size={18} aria-hidden="true" />
+          )}
+          <p role={errorMessage ? 'alert' : 'status'}>{errorMessage ?? notice}</p>
+          {errorMessage && onDismissError && (
+            <button
+              type="button"
+              onClick={onDismissError}
+              aria-label={text('Fechar aviso', 'Dismiss message')}
+              className={styles.bannerClose}
+            >
+              <X size={18} aria-hidden="true" />
+            </button>
+          )}
+        </div>
+      )}
       <div className={styles.inner}>
         {answered ? (
           <div className={styles.feedback} data-correct={isCorrect} role="status">
@@ -71,9 +104,33 @@ export function LessonFooter({
             </div>
           </div>
         ) : hints && hints.length > 0 && onOpenHint ? (
-          <button type="button" onClick={onOpenHint} className={styles.secondaryButton}>
-            <Lightbulb size={18} aria-hidden="true" /> {text('Ver Dica', 'Show hint')}
-          </button>
+          <div className={styles.hintArea}>
+            <div aria-live="polite" className={styles.hintUpdates}>
+              {revealedHints > 0 && (
+                <ol className={styles.hintList}>
+                  {hints.slice(0, revealedHints).map((hint) => (
+                    <li key={hint}>
+                      <Lightbulb size={16} aria-hidden="true" />
+                      <span>{hint}</span>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+            {revealedHints < hints.length && (
+              <button type="button" onClick={onOpenHint} className={styles.secondaryButton}>
+                <Lightbulb size={18} aria-hidden="true" />{' '}
+                {revealedHints === 0
+                  ? text('Ver dica', 'Show hint')
+                  : text('Mais uma dica', 'Another hint')}
+                {hints.length > 1 && (
+                  <span className={styles.hintCount}>
+                    {revealedHints + 1}/{hints.length}
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
         ) : (
           <span className={styles.guidance}>
             {isConceptOnly
@@ -106,11 +163,13 @@ export function LessonFooter({
               <span>
                 {answered
                   ? text('Continuar', 'Continue')
-                  : isConceptOnly
-                    ? text('Entendi, Continuar', 'Got it, continue')
-                    : isVerifying
-                      ? text('Verificando…', 'Checking…')
-                      : text('Verificar', 'Check')}
+                  : isVerifying
+                    ? text('Verificando…', 'Checking…')
+                    : errorMessage
+                      ? text('Tentar salvar novamente', 'Retry saving')
+                      : isConceptOnly
+                        ? text('Entendi, Continuar', 'Got it, continue')
+                        : text('Verificar', 'Check')}
               </span>
               {!isVerifying && <ArrowRight size={18} aria-hidden="true" />}
             </button>

@@ -52,6 +52,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
   const gameMode = lesson.mode;
   const maxLives = gameMode?.lives ?? 5;
   const doneStepIds = useRef(new Set(completedStepIds));
+  const recoveringPendingSteps = useRef(false);
   const firstPendingStep = useCallback(
     () =>
       Math.max(
@@ -94,6 +95,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
   const [editorCode, setEditorCode] = useState('');
   const [terminalCommand, setTerminalCommand] = useState('');
   const [selectedTokenIndices, setSelectedTokenIndices] = useState<number[]>([]);
+  const [revealedHints, setRevealedHints] = useState(0);
 
   const handleToggleToken = (tokenIndex: number) => {
     if (answered) return;
@@ -124,6 +126,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
     setBlankValues({});
     setMatchedPairs({});
     setSelectedTokenIndices([]);
+    setRevealedHints(0);
     setRunOutput(null);
     setRunError(null);
     setAnswered(false);
@@ -195,6 +198,25 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
 
   const [savedComplete, setSavedComplete] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const saveFailedMessage = text(
+    'Não foi possível salvar sua resposta. Verifique a conexão e tente de novo.',
+    "Your answer wasn't saved. Check your connection and try again."
+  );
+  const runFailedMessage = text('Não foi possível executar o código.', 'Could not run the code.');
+  const describeSaveError = (error: unknown) =>
+    // fetch() rejects with a TypeError when the network drops: show guidance, not "Failed to fetch".
+    error instanceof Error && !(error instanceof TypeError) && error.message
+      ? error.message
+      : saveFailedMessage;
+
+  const handleOpenHint = () => {
+    const total = currentStep?.hints?.length ?? 0;
+    if (revealedHints >= total) return;
+    setRevealedHints((count) => count + 1);
+    setSessionState((prev) => ({ ...prev, hintsUsedCount: prev.hintsUsedCount + 1 }));
+  };
 
   // Writing code is iterative: a failing submission breaks the combo but costs no heart.
   const registerMistake = useCallback(
@@ -287,6 +309,8 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
     setIsCorrect(false);
     setFeedbackMessage('');
     setFeedbackDetails(undefined);
+    setSaveError(null);
+    setNotice(null);
     setSessionState((prev) => ({
       ...prev,
       currentStepIndex: firstPendingStep(),
@@ -315,13 +339,19 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
         tokens: selectedTokenIndices.map((i) => currentStep.blockTokens?.[i] ?? ''),
       }),
     });
-    const data = await response.json();
+    const fallbackMessage = action === 'run' ? runFailedMessage : saveFailedMessage;
+    const data = await response.json().catch(() => null);
     if (!response.ok)
       throw new Error(
-        typeof data.message === 'string'
-          ? data.message
-          : (data.error?.message ?? 'Não foi possível salvar. Tente novamente.')
+        typeof data?.message === 'string' ? data.message : (data?.error?.message ?? fallbackMessage)
       );
+    if (
+      typeof data?.isCorrect !== 'boolean' ||
+      typeof data.message !== 'string' ||
+      typeof data.xpEarned !== 'number'
+    ) {
+      throw new Error(fallbackMessage);
+    }
     return data as {
       isCorrect: boolean;
       message: string;
@@ -329,8 +359,15 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
       output?: string;
       xpEarned: number;
       lessonCompleted?: boolean;
+      completedStepIds?: string[];
     };
   }
+
+  // The server's saved progress is the source of truth for what is still pending.
+  const syncDoneSteps = (stepId: string, correct: boolean, serverIds?: string[]) => {
+    if (Array.isArray(serverIds)) doneStepIds.current = new Set(serverIds);
+    else if (correct) doneStepIds.current.add(stepId);
+  };
 
   const handleRunCode = async () => {
     if (!currentStep || isRunningCode) return;
@@ -341,7 +378,11 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
       setRunOutput(result.output ?? '');
       if (!result.isCorrect) setRunError(result.details ?? result.message);
     } catch (error) {
-      setRunError(error instanceof Error ? error.message : 'Falha na execução.');
+      setRunError(
+        error instanceof Error && !(error instanceof TypeError) && error.message
+          ? error.message
+          : runFailedMessage
+      );
     } finally {
       setIsRunningCode(false);
     }
@@ -351,6 +392,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
     if (!currentStep || isVerifying || currentStep.type === 'concept_explanation') return;
     setIsVerifying(true);
     setSaveError(null);
+    setNotice(null);
     try {
       const result = await sendAnswer('submit');
       setAnswered(true);
@@ -358,9 +400,9 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
       setFeedbackMessage(result.message);
       setFeedbackDetails(result.details);
       setSavedComplete(Boolean(result.lessonCompleted));
+      syncDoneSteps(currentStep.id, result.isCorrect, result.completedStepIds);
       if (result.isCorrect) {
         playSound('quiz_correct');
-        doneStepIds.current.add(currentStep.id);
         const nextCombo = sessionState.combo + 1;
         if (result.xpEarned > 0) setXpPop({ amount: result.xpEarned, key: Date.now() });
         if ((COMBO_MILESTONES as readonly number[]).includes(nextCombo))
@@ -378,13 +420,40 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
       }
       return result;
     } catch (error) {
-      setSaveError(
-        error instanceof Error ? error.message : 'Não foi possível salvar. Tente novamente.'
-      );
+      setSaveError(describeSaveError(error));
       return undefined;
     } finally {
       setIsVerifying(false);
     }
+  };
+
+  const advanceLesson = (lessonCompleted: boolean) => {
+    const nextIndex = sessionState.currentStepIndex + 1;
+    if (!recoveringPendingSteps.current && nextIndex < lesson.steps.length) {
+      setSessionState((prev) => ({ ...prev, currentStepIndex: nextIndex }));
+      return;
+    }
+    if (lessonCompleted) {
+      finishLesson();
+      return;
+    }
+
+    const pendingIndex = lesson.steps.findIndex(
+      (step) =>
+        step.type !== 'concept_explanation' && !step.practice && !doneStepIds.current.has(step.id)
+    );
+    if (pendingIndex < 0 || pendingIndex === sessionState.currentStepIndex) {
+      setSaveError(saveFailedMessage);
+      return;
+    }
+    recoveringPendingSteps.current = true;
+    setNotice(
+      text(
+        'Falta concluir esta atividade para terminar a lição.',
+        'Finish this activity to complete the lesson.'
+      )
+    );
+    setSessionState((prev) => ({ ...prev, currentStepIndex: pendingIndex }));
   };
 
   const handleContinue = async () => {
@@ -392,25 +461,13 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
       if (isVerifying) return;
       setIsVerifying(true);
       setSaveError(null);
+      setNotice(null);
       try {
         const result = await sendAnswer('submit');
-        doneStepIds.current.add(currentStep.id);
-        setSavedComplete(Boolean(result.lessonCompleted));
-        setAnswered(false);
-        setIsCorrect(false);
-        setFeedbackMessage('');
-        setFeedbackDetails(undefined);
-        if (sessionState.currentStepIndex + 1 < lesson.steps.length) {
-          setSessionState((prev) => ({ ...prev, currentStepIndex: prev.currentStepIndex + 1 }));
-        } else if (result.lessonCompleted) {
-          finishLesson();
-        } else {
-          setSaveError('Há exercícios pendentes nesta lição. Reabra a lição para retomá-los.');
-        }
+        syncDoneSteps(currentStep.id, result.isCorrect, result.completedStepIds);
+        advanceLesson(Boolean(result.lessonCompleted));
       } catch (error) {
-        setSaveError(
-          error instanceof Error ? error.message : 'Não foi possível salvar. Tente novamente.'
-        );
+        setSaveError(describeSaveError(error));
       } finally {
         setIsVerifying(false);
       }
@@ -424,13 +481,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
     setFeedbackMessage('');
     setFeedbackDetails(undefined);
 
-    if (sessionState.currentStepIndex + 1 < lesson.steps.length) {
-      setSessionState((prev) => ({ ...prev, currentStepIndex: prev.currentStepIndex + 1 }));
-    } else if (savedComplete) {
-      finishLesson();
-    } else {
-      setSaveError('Há exercícios pendentes nesta lição. Reabra a lição para retomá-los.');
-    }
+    advanceLesson(savedComplete);
   };
 
   // Tentar novamente a etapa atual
@@ -657,16 +708,10 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
         )}
       </main>
 
-      {/* Footer de Ação & Feedback */}
-      {saveError && (
-        <p
-          role="alert"
-          className="fixed bottom-32 left-1/2 z-50 w-[min(90vw,40rem)] -translate-x-1/2 rounded-xl border border-red-500 bg-dd-bg p-4 text-sm text-red-400"
-        >
-          {saveError}
-        </p>
-      )}
       <LessonFooter
+        errorMessage={saveError}
+        onDismissError={() => setSaveError(null)}
+        notice={notice}
         isConceptOnly={currentStep?.type === 'concept_explanation'}
         answered={answered}
         isCorrect={isCorrect}
@@ -675,6 +720,8 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
         earnedXp={sessionState.earnedXp}
         combo={sessionState.combo}
         hints={currentStep?.hints}
+        revealedHints={revealedHints}
+        onOpenHint={handleOpenHint}
         canVerify={canVerify}
         isVerifying={isVerifying}
         onVerify={handleVerify}

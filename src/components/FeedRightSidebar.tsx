@@ -12,6 +12,7 @@ import { calculateLevel } from '@/lib/learning/rewards';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { exploreSearchUrl } from '@/lib/explore-search';
+import { continueStudyingHref } from '@/lib/learning/continue-studying';
 import styles from './FeedStudies.module.css';
 
 function hasStartedTrail(trail: any) {
@@ -151,7 +152,7 @@ export function FeedRightSidebar({
             })}
           </div>
         )}
-        <Link href="/trails" className={styles.continue}>
+        <Link href={continueStudyingHref(user?.trails ?? [])} className={styles.continue}>
           {text('Continuar estudando', 'Continue studying')}
           <ChevronRight size={16} aria-hidden="true" />
         </Link>
