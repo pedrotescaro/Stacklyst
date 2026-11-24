@@ -190,6 +190,12 @@ model User {
   learning_credentials      LearningCredential[]
   mobile_state              MobileState[]
   mobile_devices            MobileDevice[]
+  enade_attempts            EnadeAttempt[]
+  enade_answers             EnadeAnswer[]
+  enade_review_items        EnadeReviewItem[]
+  enade_study_progress      EnadeStudyProgress[]
+  enade_favorites           EnadeFavorite[]
+  enade_daily_activity      EnadeDailyActivity[]
   id                        String                   @id @default(uuid())
   username                  String                   @unique
   email                     String                   @unique
@@ -1264,4 +1270,163 @@ model QuizLibrary {
   correct_index Int
   tags          String[]
   created_at    DateTime @default(now())
+}
+
+// ── Central ENADE ────────────────────────────────────────────────────────────
+// Study material and the official question bank are versioned content in the
+// repository (content/enade and src/lib/enade), shared read-only by every user.
+// These tables hold only each learner's private history, served by the backend.
+
+enum EnadeAttemptKind {
+  STANDARD // a full official edition
+  CUSTOM // configured by the learner
+  WRONG_ONLY // the questions missed in an earlier attempt
+  REVIEW // spaced-repetition review from the error notebook
+  TOPIC // practice focused on one library subject
+  PRACTICE // a single question opened from the question bank
+}
+
+enum EnadeAttemptStatus {
+  IN_PROGRESS
+  FINISHED
+  ABANDONED
+}
+
+enum EnadeReviewStatus {
+  OPEN
+  RECOVERED
+}
+
+enum EnadeFavoriteKind {
+  ARTICLE
+  QUESTION
+}
+
+/// Every run is a new row: repeating an exam never overwrites earlier attempts.
+model EnadeAttempt {
+  id             String             @id @default(uuid())
+  user_id        String
+  kind           EnadeAttemptKind
+  mode           String // exam: answers revealed after finishing · training: immediate feedback
+  status         EnadeAttemptStatus @default(IN_PROGRESS)
+  title          String
+  source_year    Int?
+  topic          String?
+  parent_id      String?
+  client_ref     String?
+  state          Json
+  question_count Int
+  answered_count Int                @default(0)
+  scored_count   Int                @default(0)
+  correct_count  Int                @default(0)
+  wrong_count    Int                @default(0)
+  blank_count    Int                @default(0)
+  elapsed_ms     Int                @default(0)
+  version        Int                @default(1)
+  started_at     DateTime
+  finished_at    DateTime?
+  created_at     DateTime           @default(now())
+  updated_at     DateTime           @updatedAt
+  user           User               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  parent         EnadeAttempt?      @relation("EnadeAttemptRepeat", fields: [parent_id], references: [id], onDelete: SetNull)
+  repeats        EnadeAttempt[]     @relation("EnadeAttemptRepeat")
+  answers        EnadeAnswer[]
+
+  @@unique([user_id, client_ref])
+  @@index([user_id, status, updated_at(sort: Desc)])
+  @@index([user_id, finished_at(sort: Desc)])
+  @@map("enade_attempts")
+}
+
+/// One graded response per question per attempt, written once it is revealed.
+model EnadeAnswer {
+  id          String       @id @default(uuid())
+  attempt_id  String
+  user_id     String
+  question_id String
+  year        Int
+  section     String
+  topic       String?
+  selected    String?
+  correct     Boolean?
+  answered_at DateTime     @default(now())
+  attempt     EnadeAttempt @relation(fields: [attempt_id], references: [id], onDelete: Cascade)
+  user        User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@unique([attempt_id, question_id])
+  @@index([user_id, question_id])
+  @@index([user_id, answered_at(sort: Desc)])
+  @@index([user_id, topic])
+  @@map("enade_answers")
+}
+
+/// The error notebook: created on the first miss, scheduled by spaced repetition.
+model EnadeReviewItem {
+  user_id          String
+  question_id      String
+  topic            String?
+  status           EnadeReviewStatus @default(OPEN)
+  wrong_count      Int               @default(0)
+  correct_count    Int               @default(0)
+  streak           Int               @default(0)
+  ease             Float             @default(2.5)
+  interval_days    Int               @default(0)
+  last_selected    String?
+  last_attempt_id  String?
+  first_wrong_at   DateTime
+  last_wrong_at    DateTime
+  last_reviewed_at DateTime?
+  recovered_at     DateTime?
+  due_at           DateTime
+  updated_at       DateTime          @updatedAt
+  user             User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, question_id])
+  @@index([user_id, status, due_at])
+  @@map("enade_review_items")
+}
+
+/// Reading progress for one library article.
+model EnadeStudyProgress {
+  user_id       String
+  article_slug  String
+  studied       Boolean   @default(false)
+  studied_at    DateTime?
+  read_ms       Int       @default(0)
+  quiz_best     Int?
+  quiz_total    Int?
+  first_read_at DateTime  @default(now())
+  last_read_at  DateTime  @default(now())
+  user          User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, article_slug])
+  @@index([user_id, last_read_at(sort: Desc)])
+  @@map("enade_study_progress")
+}
+
+model EnadeFavorite {
+  user_id    String
+  kind       EnadeFavoriteKind
+  ref        String
+  created_at DateTime          @default(now())
+  user       User              @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, kind, ref])
+  @@index([user_id, created_at(sort: Desc)])
+  @@map("enade_favorites")
+}
+
+/// Daily learning history: time and volume, used for streaks and weekly/monthly trends.
+model EnadeDailyActivity {
+  user_id            String
+  day                DateTime @db.Date
+  reading_ms         Int      @default(0)
+  practice_ms        Int      @default(0)
+  questions_answered Int      @default(0)
+  questions_correct  Int      @default(0)
+  articles_studied   Int      @default(0)
+  user               User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@id([user_id, day])
+  @@map("enade_daily_activity")
 }

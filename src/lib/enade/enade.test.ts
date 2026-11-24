@@ -123,6 +123,27 @@ describe('ADS Enade official archive', () => {
     }
   });
 
+  it('preserves all 30 code lines and the second-column prompt in 2014 question 10', async () => {
+    const question = archivedQuestion(2014, 10);
+    expect(question.images.map((image) => image.page)).toEqual([13, 13]);
+    const code = question.formattedStatement?.find((block) => block.kind === 'code');
+    if (code?.kind !== 'code') throw new Error('The archived question is missing its code block.');
+    expect(code.text.split('\n').map((line) => Number(line.split(' ')[0]))).toEqual(
+      Array.from({ length: 30 }, (_, index) => index + 1)
+    );
+    expect(code.text).toContain('c += count(countValue, array, i);');
+    expect(code.text).toContain('System.out.println(co.count(5, array, 0));');
+    expect(question.statement).toMatch(/^Para que o algoritmo funcione corretamente/);
+    expect(question.transcript).toContain(code.text);
+    expect(question.options[2].text).toContain('c += count(countValue, array, i + 1);');
+    const [preview, detail] = await Promise.all([
+      sharp(resolve(`public${question.images[0].src}`)).metadata(),
+      sharp(resolve(`public${question.images[0].detailSrc}`)).metadata(),
+    ]);
+    expect(preview.height / preview.width).toBeGreaterThan(2);
+    expect(detail.width / preview.width).toBeGreaterThan(1.95);
+  });
+
   it('provides a readable reconstruction for 2008/24 and enlarged sources for technical diagrams', async () => {
     const [restored] = archivedQuestion(2008, 24).images;
     expect(restored.src).toMatch(/2008-objective-24-readable\.svg$/);

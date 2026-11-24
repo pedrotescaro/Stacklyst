@@ -969,42 +969,55 @@
     "images": [
       {
         "src": "/enade/2014/questions/2014-objective-10-1.webp",
+        "page": 13,
+        "detailSrc": "/enade/2014/questions/2014-objective-10-1-detail.webp"
+      },
+      {
+        "src": "/enade/2014/questions/2014-objective-10-2.webp",
         "page": 13
       }
     ],
-    "statement": "A classe CountOccurrence escrita na linguagem estrutura que deve ser aplicada é Java, tem por objetivo localizar e contar quantas",
-    "transcript": "atendendo o requisito proposto, a mudança em sua \nA classe CountOccurrence escrita na linguagem \nestrutura que deve ser aplicada é\nJava, tem por objetivo localizar e contar quantas",
+    "statement": "Para que o algoritmo funcione corretamente, atendendo o requisito proposto, a mudança em sua estrutura que deve ser aplicada é",
+    "transcript": "A classe CountOccurrence escrita na linguagem Java, tem por objetivo localizar e contar quantas ocorrências de um determinado valor existem em um conjunto predeterminado de valores, retornando a quantidade de vezes que um determinado valor se repete no conjunto.\n\n1 public class CountConcurrence {\n2\n3    public boolean hasValue(int searchValue, int[] array, int i) {\n4         if (i >= array.length)\n5             return false;\n6\n7         if (array[i] == searchValue)\n8             return true;\n9         else\n10            return hasValue(searchValue, array, i + 1);\n11   }\n12\n13  public int count(int countValue, int[] array, int i) {\n14       if (!hasValue(countValue, array, i) || i >= array.length)\n15                return 0;\n16\n17        int c = 0;\n18        if (array[i] == contValue)\n19                     c++;\n20\n21        c += count(countValue, array, i);\n22        return c;\n23   }\n24\n25   public static void main(String[] args) {\n26        int[] array = {2, 3, 5, 6, 9, 7, 8, 8, 9};\n27        CountOccurrence co = new CountOccurrence();\n28        System.out.println(co.count(5, array, 0));\n29   }\n30 }\n\nPara que o algoritmo funcione corretamente, atendendo o requisito proposto, a mudança em sua estrutura que deve ser aplicada é",
     "options": [
       {
         "letter": "A",
-        "text": "alterar a linha 15, de: return 0; para: return \ncount(countValue, array, 0);",
+        "text": "alterar a linha 15, de: return 0; para: return count(countValue, array, 0);",
         "code": true
       },
       {
         "letter": "B",
-        "text": "alterar a linha 18, de: if (array[i] == \ncountValue) para: if \n(array[c] \n== \ncountValue)",
+        "text": "alterar a linha 18, de: if (array[i] == countValue) para: if (array[c] == countValue)",
         "code": true
       },
       {
         "letter": "C",
-        "text": "alterar a linha 21, de:c += count(countValue, \narray, i); para:c += count(countValue, \narray, i + 1);",
+        "text": "alterar a linha 21, de: c += count(countValue, array, i); para: c += count(countValue, array, i + 1);",
         "code": true
       },
       {
         "letter": "D",
-        "text": "if\n alterar \na \nlinha \n14, \nde: \n(!hasValue(countValue, array, i) \n|| i >= array.length) para: if (i >= \narray.length)",
+        "text": "alterar a linha 14, de: if (!hasValue(countValue, array, i) || i >= array.length) para: if (i >= array.length)",
         "code": true
       },
       {
         "letter": "E",
-        "text": "alterar \na \nlinha \n10, \nde: \nreturn\nhasValue(searchValue, array, i + 1);\npara: return hasValue(searchValue, \narray, i - 1);",
+        "text": "alterar a linha 10, de: return hasValue(searchValue, array, i + 1); para: return hasValue(searchValue, array, i - 1);",
         "code": true
       }
     ],
     "formattedStatement": [
       {
         "kind": "paragraph",
-        "text": "atendendo o requisito proposto, a mudança em sua A classe CountOccurrence escrita na linguagem estrutura que deve ser aplicada é Java, tem por objetivo localizar e contar quantas"
+        "text": "A classe CountOccurrence escrita na linguagem Java, tem por objetivo localizar e contar quantas ocorrências de um determinado valor existem em um conjunto predeterminado de valores, retornando a quantidade de vezes que um determinado valor se repete no conjunto."
+      },
+      {
+        "kind": "code",
+        "text": "1 public class CountConcurrence {\n2\n3    public boolean hasValue(int searchValue, int[] array, int i) {\n4         if (i >= array.length)\n5             return false;\n6\n7         if (array[i] == searchValue)\n8             return true;\n9         else\n10            return hasValue(searchValue, array, i + 1);\n11   }\n12\n13  public int count(int countValue, int[] array, int i) {\n14       if (!hasValue(countValue, array, i) || i >= array.length)\n15                return 0;\n16\n17        int c = 0;\n18        if (array[i] == contValue)\n19                     c++;\n20\n21        c += count(countValue, array, i);\n22        return c;\n23   }\n24\n25   public static void main(String[] args) {\n26        int[] array = {2, 3, 5, 6, 9, 7, 8, 8, 9};\n27        CountOccurrence co = new CountOccurrence();\n28        System.out.println(co.count(5, array, 0));\n29   }\n30 }"
+      },
+      {
+        "kind": "paragraph",
+        "text": "Para que o algoritmo funcione corretamente, atendendo o requisito proposto, a mudança em sua estrutura que deve ser aplicada é"
       }
     ]
   },

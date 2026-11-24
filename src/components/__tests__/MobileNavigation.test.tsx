@@ -56,7 +56,7 @@ afterEach(() => vi.unstubAllGlobals());
 describe('responsive web navigation', () => {
   it('offers active account, adding an account and logging out in the desktop account menu', () => {
     render(<Sidebar user={user} />);
-    fireEvent.click(screen.getByRole('button', { name: 'Abrir menu do perfil' }));
+    fireEvent.click(screen.getByRole('button', { name: /pessoa.*Abrir menu do perfil/ }));
     const menu = screen.getByRole('menu');
     expect(within(menu).getAllByRole('menuitem')).toHaveLength(3);
     expect(

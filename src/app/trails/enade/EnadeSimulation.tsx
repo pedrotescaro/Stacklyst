@@ -13,24 +13,32 @@ import {
   Play,
   Shuffle,
 } from 'lucide-react';
-import type { EnadeAttempt } from '@/lib/enade/types';
-import { formatDuration, SECTION_LABELS, type EnadeWorkspace } from '@/lib/enade/simulator';
+import { formatDuration, SECTION_LABELS, type EnadeSession } from '@/lib/enade/simulator';
 import { useEnadeSession } from './useEnadeSession';
 import { EnadeQuestion } from './EnadeQuestion';
 import { EnadeResults } from './EnadeResults';
 import { QuestionPicker } from './QuestionPicker';
+import { startAttempt } from './_components/StartAttemptButton';
+import type { QuestionStudyAids } from './_components/QuestionExplanation';
 import styles from './EnadeCourse.module.css';
 
 export function EnadeSimulation(props: {
-  userId: string;
-  year?: number;
-  initialAttempt?: EnadeAttempt;
-  initialWorkspace?: EnadeWorkspace;
+  attemptId: string;
+  title: string;
+  kindLabel: string;
+  initialSession: EnadeSession;
+  aids: Record<string, QuestionStudyAids>;
+  favorites: string[];
 }) {
-  const simulation = useEnadeSession(props);
+  const simulation = useEnadeSession({
+    attemptId: props.attemptId,
+    initialSession: props.initialSession,
+  });
   const { session, question, result, ready, remaining } = simulation;
   const router = useRouter();
   const [confirmFinish, setConfirmFinish] = useState(false);
+  const [repeatError, setRepeatError] = useState('');
+  const [repeating, setRepeating] = useState(false);
   const [showResults, setShowResults] = useState(true);
   const questionStart = useRef<HTMLElement>(null);
   const resultsStart = useRef<HTMLDivElement>(null);
@@ -76,44 +84,48 @@ export function EnadeSimulation(props: {
     setShowResults(false);
     questionStart.current?.scrollIntoView?.({ block: 'start' });
   }
-  function repeat(wrongOnly: boolean) {
-    const next = simulation.repeat(wrongOnly);
-    if (next && props.year && !next.sourceYear) router.push('/trails/enade/personalizado');
-    setShowResults(false);
-    window.scrollTo?.({ top: 0 });
+  /** A repeat is a new attempt: the finished one stays untouched in the history. */
+  async function repeat(wrongOnly: boolean) {
+    setRepeating(true);
+    setRepeatError('');
+    try {
+      if (!(await simulation.flush())) {
+        throw new Error('Salve o resultado para iniciar outra tentativa.');
+      }
+      const id = await startAttempt({
+        kind: wrongOnly ? 'WRONG_ONLY' : 'REPEAT',
+        parentId: props.attemptId,
+      });
+      router.push(`/trails/enade/simulados/${id}`);
+    } catch (error) {
+      setRepeatError(
+        error instanceof Error
+          ? error.message
+          : 'Não foi possível criar a nova tentativa. Tente novamente.'
+      );
+      setRepeating(false);
+    }
   }
-  if (!ready)
+  if (!ready || !question)
     return (
       <main className={`${styles.main} ${styles.activity}`}>
         <p role="status">Preparando simulado...</p>
-      </main>
-    );
-  if (!session || !question || !result)
-    return (
-      <main className={`${styles.main} ${styles.activity}`}>
-        <Link className={styles.back} href="/trails/enade">
-          <ArrowLeft size={17} />
-          Todas as edições
-        </Link>
-        <h1>Monte seu simulado</h1>
-        <p className={styles.intro}>
-          Escolha as edições, a quantidade de questões e o tempo para começar.
-        </p>
-        <Link className={styles.startButton} href="/trails/enade#custom-title">
-          Configurar simulado
-        </Link>
       </main>
     );
   const firstBlank = simulation.presentations.findIndex((q) => !q.answered && !q.annulled);
   return (
     <main className={`${styles.main} ${styles.activity}`}>
       <header className={styles.activityHeader}>
-        <Link className={styles.exit} href="/trails/enade" aria-label="Todas as edições">
+        <Link
+          className={styles.exit}
+          href="/trails/enade/simulados"
+          aria-label="Voltar aos simulados"
+        >
           <ArrowLeft size={22} />
         </Link>
         <div className={styles.progressSummary}>
           <div className={styles.progressCaption}>
-            <span>{simulation.title}</span>
+            <span>{props.title}</span>
             <span>
               {result.answered}/{simulation.questions.length} respondidas
             </span>
@@ -158,14 +170,15 @@ export function EnadeSimulation(props: {
         </div>
       </header>
       <div className={styles.sessionHeader}>
-        <h1>{simulation.title}</h1>
+        <h1>{props.title}</h1>
         <p className={styles.muted}>
+          {props.kindLabel} ·{' '}
           {session.config.section && session.config.section !== 'all'
             ? `${SECTION_LABELS[session.config.section]} · `
             : ''}
           {session.config.mode === 'training'
-            ? 'Modo treino · correção comentada após responder.'
-            : 'Modo prova · a correção aparece ao finalizar.'}
+            ? 'Modo estudo · correção comentada logo após responder.'
+            : 'Modo simulado · o gabarito e os comentários aparecem ao finalizar.'}
           {remaining === null && !session.finishedAt ? ' Sem limite de tempo.' : ''}
         </p>
       </div>
@@ -175,8 +188,11 @@ export function EnadeSimulation(props: {
             session={session}
             result={result}
             questions={simulation.presentations}
-            onRepeat={repeat}
+            onRepeat={(wrongOnly) => void repeat(wrongOnly)}
             onReview={navigate}
+            repeating={repeating}
+            repeatError={repeatError}
+            aids={props.aids}
           />
         </div>
       ) : (
@@ -236,6 +252,9 @@ export function EnadeSimulation(props: {
                 </p>
               ) : (
                 <EnadeQuestion
+                  key={question.id}
+                  favorite={props.favorites.includes(question.id)}
+                  aids={props.aids[question.id]}
                   question={question}
                   index={session.currentIndex}
                   total={simulation.questions.length}

@@ -8,6 +8,7 @@ import {
 } from '@/lib/enade/simulator';
 import type { QuestionPresentation } from '@/lib/enade/feedback';
 import { EnadePageViewer } from './EnadePageViewer';
+import { QuestionExplanation, type QuestionStudyAids } from './_components/QuestionExplanation';
 import styles from './EnadeCourse.module.css';
 
 export function EnadeResults({
@@ -16,12 +17,18 @@ export function EnadeResults({
   questions,
   onRepeat,
   onReview,
+  repeating = false,
+  repeatError = '',
+  aids = {},
 }: {
   session: EnadeSession;
   result: ReturnType<typeof gradeSession>;
   questions: QuestionPresentation[];
   onRepeat: (wrongOnly: boolean) => void;
   onReview: (index: number) => void;
+  repeating?: boolean;
+  repeatError?: string;
+  aids?: Record<string, QuestionStudyAids>;
 }) {
   const bySection = (['general', 'specific'] as const)
     .map((section) => {
@@ -95,18 +102,26 @@ export function EnadeResults({
         automática. Os comentários são material de estudo independente; o gabarito é do Inep.
       </p>
       <div className={styles.resultActions}>
-        <button className={styles.startButton} onClick={() => onRepeat(false)}>
+        <button className={styles.startButton} disabled={repeating} onClick={() => onRepeat(false)}>
           <RotateCcw size={17} />
           Refazer com a mesma configuração
         </button>
         <button
           className={styles.secondaryButton}
-          disabled={!result.wrongIds.length}
+          disabled={repeating || !result.wrongIds.length}
           onClick={() => onRepeat(true)}
         >
           Refazer só as que errei ({result.errors})
         </button>
       </div>
+      <p className={styles.muted}>
+        Cada refação vira uma nova tentativa no histórico; esta continua salva como está.
+      </p>
+      {repeatError && (
+        <p className={styles.notice} role="alert">
+          {repeatError}
+        </p>
+      )}
       <h3 className={styles.correctionHeading}>Correção comentada</h3>
       <ol className={styles.resultList}>
         {questions.map((q, index) => (
@@ -162,7 +177,7 @@ export function EnadeResults({
                     </p>
                   )
                 )}
-                <p>{q.explanation}</p>
+                <QuestionExplanation question={q} aids={aids[q.id]} />
                 <div className={styles.resultDetailActions}>
                   <button className={styles.secondaryButton} onClick={() => onReview(index)}>
                     Ver questão completa

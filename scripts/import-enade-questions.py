@@ -21,6 +21,7 @@ FONT_MAP = json.loads((ROOT / 'scripts/enade-font-map.json').read_text(encoding=
 STEM_CLIPS = {
     '2008-objective-7': [(4, [33, 542, 271, 762]), (4, [271, 540, 570, 685])],
     '2008-objective-8': [(5, [20, 90, 575, 232])],
+    '2014-objective-10': [(12, [47, 125, 312, 742]), (12, [317, 106, 584, 151])],
     '2014-objective-29': [(22, [44, 124, 313, 747]), (22, [318, 103, 584, 141])],
 }
 DIAGRAM_STEM_BOTTOM = {'2017-objective-20': 132, '2021-objective-15': 98}
@@ -54,7 +55,7 @@ OPTION_IMAGE_CLIPS = {
 
 # These layouts are vectors in the original PDFs. An extra lossless export
 # gives the zoom viewer more source detail without increasing preview downloads.
-DETAIL_STEMS = {'2014-objective-29': (0,)}
+DETAIL_STEMS = {'2014-objective-10': (0,), '2014-objective-29': (0,)}
 DETAIL_OPTIONS = {'2014-objective-29', '2017-objective-20', '2021-objective-15'}
 RESTORED_STEMS = {
     '2008-objective-24': (
@@ -292,8 +293,10 @@ def improve_question_images(doc, content, stem, folder):
             add_image_detail(doc, {'page': page, 'rect': rect}, option['image'], folder)
 
 
-def publish(exam, items, text_only=False, image_details_only=False):
+def publish(exam, items, text_only=False, image_details_only=False, only_question=None):
     year = exam['year']
+    if only_question and not any(item['id'] == only_question for item in items):
+        return
     doc = source_document(year)
     folder = ROOT / f'public/enade/{year}/questions'
     folder.mkdir(exist_ok=True)
@@ -302,11 +305,14 @@ def publish(exam, items, text_only=False, image_details_only=False):
         return
     previous = (
         {item['id']: item for item in json.loads(output.read_text(encoding='utf8'))}
-        if text_only or image_details_only else {}
+        if text_only or image_details_only or only_question else {}
     )
     published = []
     for item in items:
         question_id = item['id']
+        if only_question and question_id != only_question:
+            published.append(previous[question_id])
+            continue
         if image_details_only and question_id not in IMAGE_DETAIL_QUESTIONS:
             published.append(previous[question_id])
             continue
@@ -348,6 +354,8 @@ def publish(exam, items, text_only=False, image_details_only=False):
             instruction = ' '.join(lines[-4:])
         if question['kind'] == 'discursive':
             instruction = 'Desenvolva sua resposta considerando o enunciado e os itens apresentados acima.'
+        if question_id == '2014-objective-10':
+            statement = '\n\n'.join(block['text'] for block in formatted)
         options = []
         for index, option in enumerate(item['options']):
             text = option['text']
@@ -381,6 +389,17 @@ def publish(exam, items, text_only=False, image_details_only=False):
                     'C ← 1\nM ← (C + F)/2\nC ← M + 1',
                 ][index]
                 code = True
+            if question_id == '2014-objective-10':
+                # Justified prose and inline code have separate PDF baselines.
+                # Preserve the official order and spacing verified on page 13.
+                text = [
+                    'alterar a linha 15, de: return 0; para: return count(countValue, array, 0);',
+                    'alterar a linha 18, de: if (array[i] == countValue) para: if (array[c] == countValue)',
+                    'alterar a linha 21, de: c += count(countValue, array, i); para: c += count(countValue, array, i + 1);',
+                    'alterar a linha 14, de: if (!hasValue(countValue, array, i) || i >= array.length) para: if (i >= array.length)',
+                    'alterar a linha 10, de: return hasValue(searchValue, array, i + 1); para: return hasValue(searchValue, array, i - 1);',
+                ][index]
+                code = True
             options.append({'letter': option['letter'], 'text': text, 'code': code, **({'image': media} if media else {})})
         assert images and statement, item['id']
         assert all(o['text'] or o.get('image') for o in options), item['id']
@@ -396,15 +415,21 @@ if __name__ == '__main__':
     mode = parser.add_mutually_exclusive_group()
     mode.add_argument('--text-only', action='store_true', help='Refresh formatted statements without rendering WebP assets.')
     mode.add_argument('--image-details-only', action='store_true', help='Refresh only the restored and high-detail images.')
+    parser.add_argument('--question', help='Refresh a single question by its archived ID.')
     args = parser.parse_args()
     catalog = json.loads((ROOT / 'src/lib/enade/exams.json').read_text(encoding='utf8'))
+    if args.question:
+        catalog = [exam for exam in catalog if any(q['id'] == args.question for q in exam['questions'])]
+        if not catalog:
+            parser.error(f'Unknown question: {args.question}')
     all_items = {str(exam['year']): extract(exam) for exam in catalog}
-    scratch = ROOT / 'scratch/enade/questions/extracted.json'
-    scratch.parent.mkdir(parents=True, exist_ok=True)
-    scratch.write_text(json.dumps(all_items, ensure_ascii=False, indent=2), encoding='utf8')
+    if not args.question:
+        scratch = ROOT / 'scratch/enade/questions/extracted.json'
+        scratch.parent.mkdir(parents=True, exist_ok=True)
+        scratch.write_text(json.dumps(all_items, ensure_ascii=False, indent=2), encoding='utf8')
     errors = [q for questions in all_items.values() for q in questions if 'error' in q]
     print(json.dumps({'errors': [(q['id'], q['error']) for q in errors], 'questions': sum(map(len, all_items.values()))}))
     assert not errors
     for exam in catalog:
         publish(exam, all_items[str(exam['year'])], text_only=args.text_only,
-                image_details_only=args.image_details_only)
+                image_details_only=args.image_details_only, only_question=args.question)

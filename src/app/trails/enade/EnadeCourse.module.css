@@ -1,4 +1,6 @@
 .main {
+  --enade-action: #0063bd;
+  --enade-link: #005eac;
   --color-dd-muted: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
   --enade-success: #087044;
   --enade-danger: #be2144;
@@ -7,6 +9,7 @@
   padding-bottom: 80px;
 }
 :global(:root.dark) .main {
+  --enade-link: #84c4ff;
   --enade-success: #34d399;
   --enade-danger: #fb7185;
   --enade-warning: #ffb45b;
@@ -129,7 +132,7 @@
   color: var(--color-dd-muted);
 }
 .done {
-  color: var(--color-dd-accent);
+  color: var(--enade-link);
 }
 .edition {
   flex: 1;
@@ -390,16 +393,16 @@
 .alternative:has(input:enabled):hover {
   background: var(--color-dd-surface);
 }
-.alternative label {
+.alternative label,
+.optionDescription {
   display: flex;
   align-items: flex-start;
   gap: 16px;
   min-height: 76px;
   padding: 20px;
-  cursor: pointer;
 }
-.alternative:has(input:disabled) label {
-  cursor: default;
+.alternative:has(input:enabled) label {
+  cursor: pointer;
 }
 .alternative input {
   position: absolute;
@@ -443,12 +446,12 @@
 }
 .alternative[data-selected='true'] .optionLetter {
   border-color: var(--color-dd-accent);
-  color: var(--color-dd-accent);
+  color: var(--enade-link);
 }
 .selectedCheck {
   flex-shrink: 0;
   align-self: center;
-  color: var(--color-dd-accent);
+  color: var(--enade-link);
 }
 .alternative[data-correction='correct'] {
   border-color: var(--enade-success);
@@ -606,7 +609,7 @@
 }
 .questionNav .nextQuestion {
   border-color: var(--color-dd-accent);
-  background: var(--color-dd-accent);
+  background: var(--enade-action);
   color: white;
 }
 .questionNav button:enabled:hover,
@@ -719,7 +722,7 @@
   background: var(--color-dd-surface);
 }
 .startButton {
-  background: var(--color-dd-accent);
+  background: var(--enade-action);
   border-color: var(--color-dd-accent);
   color: white;
   font-weight: 600;
@@ -730,7 +733,7 @@
 .resumeCustom {
   margin-top: 20px;
   font-size: 14px;
-  color: var(--color-dd-accent);
+  color: var(--enade-link);
 }
 .resumeCustom a {
   display: inline-flex;
@@ -899,7 +902,7 @@
   height: 36px;
   border-radius: 10px;
   background: var(--color-dd-surface);
-  color: var(--color-dd-accent);
+  color: var(--enade-link);
 }
 .sectionText {
   display: grid;
@@ -917,7 +920,7 @@
   font-style: normal;
   font-size: 12px;
   font-weight: 600;
-  color: var(--color-dd-accent);
+  color: var(--enade-link);
 }
 .moreOptions {
   justify-self: start;
@@ -928,7 +931,7 @@
   padding: 10px 4px;
   font-size: 13px;
   font-weight: 600;
-  color: var(--color-dd-accent);
+  color: var(--enade-link);
   cursor: pointer;
 }
 .moreOptions svg[data-open] {
@@ -1041,7 +1044,7 @@
   flex: 0 0 40px;
   height: 40px;
   border-radius: 10px;
-  background: var(--color-dd-accent);
+  background: var(--enade-action);
   color: #fff;
   font-family: var(--font-heading);
   font-size: 16px;
@@ -1162,7 +1165,7 @@
 }
 .pickerGroup h3 {
   margin-bottom: 8px;
-  color: var(--color-dd-accent);
+  color: var(--enade-link);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.02em;
@@ -1220,7 +1223,7 @@
 .numberedGrid button[data-state='answered'] {
   border-color: color-mix(in srgb, var(--color-dd-accent) 35%, transparent);
   background: var(--tile-answered);
-  color: var(--color-dd-accent);
+  color: var(--enade-link);
 }
 .numberedGrid button[data-state='correct'],
 .pickerBadge[data-state='correct'] {
@@ -1246,7 +1249,7 @@
 }
 .numberedGrid button[aria-current='step'] {
   border-color: var(--color-dd-accent);
-  background: var(--color-dd-accent);
+  background: var(--enade-action);
   color: #fff;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-dd-accent) 25%, transparent);
 }
@@ -1267,7 +1270,7 @@
   color: var(--color-dd-muted);
 }
 .reviewButton[aria-pressed='true'] {
-  color: var(--color-dd-accent);
+  color: var(--enade-link);
   border-color: currentColor;
 }
 .editionLabel {
@@ -1551,7 +1554,8 @@
   .alternatives[data-compact='true'] {
     grid-template-columns: minmax(0, 1fr);
   }
-  .alternative label {
+  .alternative label,
+  .optionDescription {
     padding-block: 16px;
     padding-left: 16px;
     gap: 12px;

@@ -38,11 +38,11 @@ export const enadeSessionSchema = z
       .number()
       .min(0)
       .max(365 * 24 * 60 * 60000),
-    runningSince: z.number().positive().nullable(),
+    runningSince: z.number().int().positive().nullable(),
     paused: z.boolean(),
-    startedAt: z.number().positive(),
-    finishedAt: z.number().positive().nullable(),
-    updatedAt: z.number().positive(),
+    startedAt: z.number().int().positive(),
+    finishedAt: z.number().int().positive().nullable(),
+    updatedAt: z.number().int().positive(),
     sourceYear: z.number().int().optional(),
     finishReason: z.enum(['manual', 'timeout']).nullable(),
   })
@@ -68,6 +68,15 @@ export const enadeSessionSchema = z
           !ids.has(id) || (QUESTION_BY_ID.get(id)?.kind === 'objective' && !/^[A-E]$/.test(answer))
       ) ||
       [...session.marked, ...session.checked].some((id) => !ids.has(id)) ||
+      (session.config.mode === 'exam' && session.checked.length > 0) ||
+      session.checked.some((id) => {
+        const question = QUESTION_BY_ID.get(id);
+        return question?.annulled || (question?.kind === 'objective' && !session.answers[id]);
+      }) ||
+      (session.config.mode === 'training' &&
+        Object.keys(session.answers).some(
+          (id) => QUESTION_BY_ID.get(id)?.kind === 'objective' && !session.checked.includes(id)
+        )) ||
       Object.keys(session.optionOrder).some(
         (id) => !ids.has(id) || QUESTION_BY_ID.get(id)?.kind !== 'objective'
       ) ||
@@ -79,6 +88,10 @@ export const enadeSessionSchema = z
       (session.paused || session.finishedAt !== null
         ? session.runningSince !== null
         : session.runningSince === null) ||
+      session.updatedAt < session.startedAt ||
+      (session.finishedAt !== null &&
+        (session.finishedAt < session.startedAt || session.finishedAt > session.updatedAt)) ||
+      (session.finishedAt === null) !== (session.finishReason === null) ||
       (session.config.durationMinutes !== null &&
         session.elapsedMs > session.config.durationMinutes * 60000);
     if (invalid) ctx.addIssue({ code: 'custom', message: 'Sessão do simulado inválida.' });

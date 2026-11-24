@@ -239,11 +239,12 @@ export function remainingTime(session: EnadeSession, now: number) {
     : Math.max(0, session.config.durationMinutes * 60000 - elapsedTime(session, now));
 }
 export function checkpoint(session: EnadeSession, now: number): EnadeSession {
+  const stamp = Math.max(now, session.updatedAt + 1);
   return {
     ...session,
-    elapsedMs: elapsedTime(session, now),
-    runningSince: session.paused || session.finishedAt ? null : now,
-    updatedAt: now,
+    elapsedMs: elapsedTime(session, stamp),
+    runningSince: session.paused || session.finishedAt ? null : stamp,
+    updatedAt: stamp,
   };
 }
 export function finishSession(
@@ -251,9 +252,10 @@ export function finishSession(
   now: number,
   reason: 'manual' | 'timeout' = 'manual'
 ): EnadeSession {
+  const next = checkpoint(session, now);
   return {
-    ...checkpoint(session, now),
-    finishedAt: now,
+    ...next,
+    finishedAt: next.updatedAt,
     runningSince: null,
     paused: false,
     finishReason: reason,
@@ -262,7 +264,7 @@ export function finishSession(
 export function pauseSession(session: EnadeSession, now: number): EnadeSession {
   if (session.finishedAt) return session;
   const next = checkpoint(session, now);
-  return { ...next, paused: !session.paused, runningSince: session.paused ? now : null };
+  return { ...next, paused: !session.paused, runningSince: session.paused ? next.updatedAt : null };
 }
 export function answerQuestion(
   session: EnadeSession,

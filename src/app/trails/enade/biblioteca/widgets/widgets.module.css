@@ -1,0 +1,218 @@
+.frame {
+  padding: 16px;
+  border: 1px solid var(--enade-line);
+  border-radius: 10px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+.loading {
+  min-height: 160px;
+  border-radius: 8px;
+  background: var(--enade-soft);
+}
+.title {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 12px;
+  margin-bottom: 10px;
+}
+.title strong {
+  font-size: 14.5px;
+}
+.title span,
+.hint {
+  font-size: 12.5px;
+  color: var(--color-dd-muted);
+}
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 0;
+}
+.input {
+  min-height: 34px;
+  min-width: 0;
+  padding: 0 10px;
+  border: 1px solid var(--enade-line);
+  border-radius: 8px;
+  background: var(--color-dd-bg);
+  color: var(--color-dd-text);
+  font: inherit;
+  font-size: 14px;
+}
+.input.mono,
+.mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+.button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--enade-line);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-dd-text);
+}
+.button:hover:not(:disabled) {
+  border-color: var(--color-dd-accent);
+}
+.button[aria-pressed='true'] {
+  border-color: var(--color-dd-accent);
+  background: color-mix(in srgb, var(--color-dd-accent) 10%, transparent);
+}
+.button:disabled {
+  opacity: 0.5;
+}
+.button:focus-visible,
+.input:focus-visible,
+.cell:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 2px;
+}
+.primary {
+  border-color: var(--color-dd-accent);
+  background: var(--enade-action);
+  color: #fff;
+}
+.status {
+  margin-top: 8px;
+  font-size: 13.5px;
+}
+.error {
+  color: var(--enade-danger);
+}
+.ok {
+  color: var(--enade-success);
+}
+.svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.svg text {
+  fill: var(--color-dd-text);
+  font-size: 12px;
+}
+.svg .muted {
+  fill: var(--color-dd-muted);
+}
+.graphControl {
+  cursor: pointer;
+}
+.graphControl:focus-visible {
+  outline: 2px solid var(--enade-action);
+  outline-offset: -2px;
+}
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+}
+.table th,
+.table td {
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--enade-line);
+  text-align: center;
+}
+.table th {
+  background: var(--enade-soft);
+  font-weight: 650;
+}
+.scroll {
+  overflow-x: auto;
+}
+.true {
+  color: var(--enade-success);
+  font-weight: 650;
+}
+.false {
+  color: var(--enade-danger);
+  font-weight: 650;
+}
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  min-height: 52px;
+  margin: 10px 0;
+}
+.cell {
+  display: inline-grid;
+  place-items: center;
+  min-width: 42px;
+  height: 42px;
+  padding: 0 8px;
+  border: 1.5px solid var(--color-dd-accent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--color-dd-accent) 8%, var(--color-dd-bg));
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  transition:
+    transform 0.2s ease,
+    background-color 0.2s ease;
+}
+.cell[data-active='true'] {
+  background: var(--enade-action);
+  color: #fff;
+}
+.cell[data-muted='true'] {
+  border-color: var(--enade-line);
+  background: var(--enade-soft);
+  color: var(--color-dd-muted);
+}
+.arrow {
+  color: var(--color-dd-muted);
+}
+.log {
+  display: grid;
+  gap: 2px;
+  max-height: 160px;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--enade-soft);
+  font-size: 12.5px;
+}
+.grid2 {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+@media (max-width: 720px) {
+  .grid2 {
+    grid-template-columns: 1fr;
+  }
+}
+.detail {
+  padding: 10px 12px;
+  border-left: 3px solid var(--color-dd-accent);
+  background: var(--enade-soft);
+  border-radius: 0 8px 8px 0;
+  font-size: 13.5px;
+}
+.detail h4 {
+  font-size: 14px;
+  font-weight: 650;
+}
+.detail ul {
+  margin-top: 6px;
+  padding-left: 18px;
+  list-style: disc;
+}
+@media (prefers-reduced-motion: reduce) {
+  .cell {
+    transition: none;
+  }
+}

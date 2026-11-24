@@ -9,6 +9,7 @@ interface AuthorAvatarProps {
   avatar_config?: unknown;
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  decorative?: boolean;
 }
 
 const sizeClasses = {
@@ -23,6 +24,7 @@ export function AuthorAvatar({
   avatar_config,
   size = 'sm',
   className = '',
+  decorative = false,
 }: AuthorAvatarProps) {
   const { text } = useLocalizedText();
   const initials = username.trim().slice(0, 2).toUpperCase() || 'DD';
@@ -32,17 +34,24 @@ export function AuthorAvatar({
       frame={readProfileIdentity(avatar_config).frame}
       className={`${sizeClasses[size]} shrink-0 ${className}`}
     >
-      <div className="flex h-full w-full select-none items-center justify-center overflow-hidden rounded-full border border-dd-border bg-blue-500/10 text-[10px] font-black text-blue-400">
+      <div
+        aria-hidden={decorative || undefined}
+        className="flex h-full w-full select-none items-center justify-center overflow-hidden rounded-full border border-dd-border bg-blue-500/10 text-[10px] font-black text-blue-700 dark:text-blue-400"
+      >
         {avatar_url ? (
           <Image
             src={avatar_url}
-            alt={text(`Foto de ${username}`, `Photo of ${username}`)}
+            alt={decorative ? '' : text(`Foto de ${username}`, `Photo of ${username}`)}
             width={48}
             height={48}
             className="h-full w-full object-cover"
           />
         ) : (
-          <span aria-label={text(`Iniciais de ${username}`, `Initials of ${username}`)}>
+          <span
+            aria-label={
+              decorative ? undefined : text(`Iniciais de ${username}`, `Initials of ${username}`)
+            }
+          >
             {initials}
           </span>
         )}

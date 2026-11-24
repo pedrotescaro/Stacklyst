@@ -81,6 +81,12 @@ const nextConfig: NextConfig = {
   // Vercel manages output tracing through its adapter. Keep the standalone
   // server bundle for local, Docker, and other self-hosted deployments.
   output: process.env.VERCEL ? undefined : 'standalone',
+  // The ENADE study library is versioned Markdown read on the server.
+  outputFileTracingIncludes: {
+    '/trails/enade': ['./content/enade/**/*'],
+    '/trails/enade/**': ['./content/enade/**/*'],
+    '/api/enade/**': ['./content/enade/**/*'],
+  },
   experimental: {
     // Avisa agentes de código quando sair uma correção de segurança do Next.js.
     agentUpgrade: 'security',

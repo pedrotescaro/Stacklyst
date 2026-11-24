@@ -1,23 +1,18 @@
 import { redirect } from 'next/navigation';
-import { getAuthUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
-import { EMPTY_WORKSPACE, WORKSPACE_KEY } from '@/lib/enade/simulator';
-import { enadeWorkspaceSchema } from '@/lib/enade/simulator-schema';
-import { EnadeSimulation } from '../EnadeSimulation';
+import { requireEnadeUser } from '@/lib/enade/hub.server';
+import { importLegacyProgress } from '@/lib/enade/attempts.server';
 
-export default async function PersonalizedEnadePage() {
-  const user = await getAuthUser();
-  if (!user) redirect('/login');
-  const row = await prisma.mobileState.findUnique({
-    where: { user_id_key: { user_id: user.id, key: WORKSPACE_KEY } },
-    select: { value: true },
+/** The former single custom slot: resume the running custom attempt or configure a new one. */
+export default async function LegacyCustomPage() {
+  const user = await requireEnadeUser();
+  await importLegacyProgress(user.id);
+  const running = await prisma.enadeAttempt.findFirst({
+    where: { user_id: user.id, kind: 'CUSTOM', status: 'IN_PROGRESS' },
+    orderBy: { updated_at: 'desc' },
+    select: { id: true },
   });
-  const parsed = enadeWorkspaceSchema.safeParse(row?.value);
-  return (
-    <EnadeSimulation
-      key={`${user.id}:personalizado`}
-      userId={user.id}
-      initialWorkspace={parsed.success ? parsed.data : EMPTY_WORKSPACE}
-    />
+  redirect(
+    running ? `/trails/enade/simulados/${running.id}` : '/trails/enade/simulados#personalizado'
   );
 }

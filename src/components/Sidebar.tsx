@@ -420,6 +420,9 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
   ];
 
   const isAdmin = activeUser?.role === 'ADMIN';
+  const activeAvatar = activeUser?.avatar_config as { name?: string; displayName?: string } | null;
+  const activeUserName =
+    activeUser?.name || activeAvatar?.name || activeAvatar?.displayName || activeUser?.username;
 
   const moreMenuIsActive = [
     '/jobs',
@@ -698,8 +701,8 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
           {activeUser && (
             <button
               onClick={() => setModalOpen(true)}
-              className="mt-3 flex h-12 w-12 self-center cursor-pointer items-center justify-center rounded-full bg-blue-500 p-0 text-center text-[17px] font-bold text-white shadow-md shadow-blue-500/20 transition-all duration-150 hover:bg-blue-600 active:scale-[0.98] xl:h-[52px] xl:w-full xl:px-5"
-              aria-label={t.nav.createPost}
+              className="mt-3 flex h-12 w-12 self-center cursor-pointer items-center justify-center rounded-full bg-blue-600 p-0 text-center text-[17px] font-bold text-white shadow-md shadow-blue-500/20 transition-all duration-150 hover:bg-blue-700 active:scale-[0.98] xl:h-[52px] xl:w-full xl:px-5"
+              aria-label={t.nav.post}
             >
               <SquarePen className="h-6 w-6 xl:hidden" />
               <span className="hidden xl:inline">{t.nav.post}</span>
@@ -719,32 +722,29 @@ export function Sidebar({ user, showDivider = true, hideMobileHeader = false }: 
               aria-expanded={dropdownOpen}
               aria-haspopup="menu"
               className="group mx-auto flex w-fit min-w-0 cursor-pointer items-center justify-center rounded-full p-1.5 text-left transition-colors duration-150 hover:bg-black/[0.06] focus-visible:bg-black/[0.06] focus-visible:outline-none dark:hover:bg-white/10 dark:focus-visible:bg-white/10 xl:w-full xl:justify-start xl:gap-3 xl:p-2.5"
-              aria-label={t.nav.openProfileMenu}
             >
               <AuthorAvatar
                 username={activeUser.username}
                 avatar_url={activeUser.avatar_url}
                 avatar_config={activeUser.avatar_config}
                 size="md"
+                decorative
                 className="!h-10 !w-10 shrink-0"
               />
               <div className="hidden min-w-0 flex-1 font-sans xl:block">
                 <div className="flex min-w-0 items-center justify-between gap-1.5">
                   <p className="min-w-0 truncate text-[15px] font-bold leading-tight text-dd-text dark:text-white">
-                    <ProfileName config={activeUser.avatar_config}>
-                      {activeUser.name ||
-                        (activeUser.avatar_config as any)?.name ||
-                        (activeUser.avatar_config as any)?.displayName ||
-                        activeUser.username}
-                    </ProfileName>
+                    <ProfileName config={activeUser.avatar_config}>{activeUserName}</ProfileName>
                   </p>
                 </div>
                 <div className="mt-0.5 min-w-0">
-                  <p className="truncate text-[14px] font-normal leading-tight text-dd-muted dark:text-neutral-500">
+                  <p className="truncate text-[14px] font-normal leading-tight text-dd-muted dark:text-neutral-400">
                     @{activeUser.username.toLowerCase()}
                   </p>
                 </div>
               </div>
+              <span className="sr-only xl:hidden">{activeUserName}</span>
+              <span className="sr-only">{t.nav.openProfileMenu}</span>
               <MoreHorizontal className="hidden h-5 w-5 shrink-0 text-dd-text dark:text-white xl:block" />
             </button>
 

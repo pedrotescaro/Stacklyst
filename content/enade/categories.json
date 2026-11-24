@@ -1,0 +1,100 @@
+[
+  {
+    "slug": "engenharia-de-software",
+    "title": "Engenharia de Software",
+    "description": "Processos, modelos de ciclo de vida, métodos ágeis, qualidade, manutenção, configuração, projetos e usabilidade.",
+    "icon": "workflow",
+    "order": 1
+  },
+  {
+    "slug": "rup",
+    "title": "RUP — Rational Unified Process",
+    "description": "O processo iterativo, dirigido por casos de uso e centrado na arquitetura: fases, marcos, disciplinas e o gráfico de baleias.",
+    "icon": "layers",
+    "order": 2
+  },
+  {
+    "slug": "engenharia-de-requisitos",
+    "title": "Engenharia de Requisitos",
+    "description": "Tipos de requisitos, o processo de requisitos, técnicas de elicitação, histórias de usuário, casos de uso e modelagem de processos.",
+    "icon": "clipboard",
+    "order": 3
+  },
+  {
+    "slug": "uml",
+    "title": "UML — Unified Modeling Language",
+    "description": "Os 14 diagramas da UML 2.5 com notação oficial: estruturais, comportamentais e de interação.",
+    "icon": "shapes",
+    "order": 4
+  },
+  {
+    "slug": "poo",
+    "title": "Programação Orientada a Objetos",
+    "description": "Classes, objetos, pilares da OO, relacionamentos, coesão e acoplamento, SOLID e padrões de projeto.",
+    "icon": "boxes",
+    "order": 5
+  },
+  {
+    "slug": "arquitetura",
+    "title": "Arquitetura de Software",
+    "description": "Da arquitetura centralizada aos microsserviços: camadas, cliente-servidor, MVC, MVP, MVVM, SOA, hexagonal e Clean Architecture.",
+    "icon": "building",
+    "order": 6
+  },
+  {
+    "slug": "estruturas-de-dados",
+    "title": "Estruturas de Dados e Algoritmos",
+    "description": "Lógica de programação, vetores, listas, pilhas, filas, árvores, grafos, hash, recursão, busca, ordenação e complexidade.",
+    "icon": "binary",
+    "order": 7
+  },
+  {
+    "slug": "testes",
+    "title": "Testes e Qualidade de Software",
+    "description": "Verificação e validação, tipos e níveis de teste, cobertura, grafos de fluxo e complexidade ciclomática.",
+    "icon": "test",
+    "order": 8
+  },
+  {
+    "slug": "logica",
+    "title": "Lógica Matemática e Raciocínio Lógico",
+    "description": "Proposições, conectivos, tabelas-verdade, equivalências, argumentos, quantificadores, conjuntos, bases numéricas e sequências.",
+    "icon": "sigma",
+    "order": 9
+  },
+  {
+    "slug": "matematica",
+    "title": "Matemática, Estatística e Gráficos",
+    "description": "Porcentagem, proporção, estatística descritiva, probabilidade, funções, leitura de gráficos, curva de Lorenz e índice de Gini.",
+    "icon": "chart",
+    "order": 10
+  },
+  {
+    "slug": "banco-de-dados",
+    "title": "Banco de Dados",
+    "description": "Modelagem conceitual, lógica e física, normalização, SQL, transações, ACID, índices e bancos não relacionais.",
+    "icon": "database",
+    "order": 11
+  },
+  {
+    "slug": "so-redes-seguranca",
+    "title": "Sistemas Operacionais, Redes e Segurança",
+    "description": "Processos, escalonamento, memória, deadlocks, redes TCP/IP, nuvem, criptografia, segurança da informação e LGPD.",
+    "icon": "shield",
+    "order": 12
+  },
+  {
+    "slug": "empreendedorismo-e-gestao",
+    "title": "Empreendedorismo e Gestão",
+    "description": "Empreendedorismo, plano de negócios, Canvas, SWOT, MVP, viabilidade econômica e sistemas de informação empresariais.",
+    "icon": "briefcase",
+    "order": 13
+  },
+  {
+    "slug": "formacao-geral",
+    "title": "Formação Geral do ENADE",
+    "description": "Como resolver as questões, interpretação de texto e de imagens, história, arte, ética, cidadania, sociedade, sustentabilidade e tecnologia.",
+    "icon": "globe",
+    "order": 14
+  }
+]

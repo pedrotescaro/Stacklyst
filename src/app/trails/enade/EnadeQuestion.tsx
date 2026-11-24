@@ -4,6 +4,8 @@ import { Check, Flag, Strikethrough } from 'lucide-react';
 import type { QuestionPresentation } from '@/lib/enade/feedback';
 import { EnadePageViewer } from './EnadePageViewer';
 import { EnadeStatement } from './EnadeStatement';
+import { QuestionExplanation, type QuestionStudyAids } from './_components/QuestionExplanation';
+import { FavoriteButton } from './_components/FavoriteButton';
 import styles from './EnadeCourse.module.css';
 
 const struckKey = (questionId: string) => `stacklyst-enade-struck:${questionId}`;
@@ -40,6 +42,8 @@ function useStruckOptions(questionId: string) {
 
 export function EnadeQuestion({
   question: q,
+  aids,
+  favorite,
   index,
   total,
   onAnswer,
@@ -47,6 +51,8 @@ export function EnadeQuestion({
   onCheckDiscursive,
 }: {
   question: QuestionPresentation;
+  aids?: QuestionStudyAids;
+  favorite?: boolean;
   index: number;
   total: number;
   onAnswer: (id: string, value: string) => void;
@@ -68,6 +74,15 @@ export function EnadeQuestion({
           </p>
         </div>
         <span className={styles.questionCounter}>
+          {favorite !== undefined && (
+            <FavoriteButton
+              kind="QUESTION"
+              refId={q.id}
+              initial={favorite}
+              label={`a questão ${q.number} do Enade ${q.year}`}
+              compact
+            />
+          )}
           {index + 1} de {total}
         </span>
       </div>
@@ -228,7 +243,7 @@ export function EnadeQuestion({
                 <strong>{q.answerLetter}</strong>
               </p>
             )}
-            <p>{q.explanation}</p>
+            <QuestionExplanation question={q} aids={aids} />
             <a
               href={`/enade/${q.year}/${q.kind === 'discursive' ? 'padrao-resposta' : 'gabarito'}.pdf`}
               target="_blank"

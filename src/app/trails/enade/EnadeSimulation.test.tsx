@@ -2,10 +2,29 @@ import React from 'react';
 import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { EnadeSimulation } from './EnadeSimulation';
+import { sessionFromLegacy, type EnadeSession } from '@/lib/enade/simulator';
+import type { EnadeAttempt } from '@/lib/enade/types';
 import contents from '../../../../public/enade/2021/questions.json';
 
-vi.mock('@/components/Sidebar', () => ({ Sidebar: () => <nav>Sidebar</nav> }));
-const user = { id: 'student-test', username: 'student', avatar_url: null, total_xp: 0 };
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn(), refresh: vi.fn() }) }));
+const attemptId = 'standard-attempt';
+const draftKey = `stacklyst:enade:attempt:${attemptId}`;
+const endpoint = `/api/enade/attempts/${attemptId}`;
+function simulation(legacy?: EnadeAttempt) {
+  return withSession(sessionFromLegacy(2021, legacy, Date.now()));
+}
+function withSession(initialSession: EnadeSession) {
+  return (
+    <EnadeSimulation
+      attemptId={attemptId}
+      title="Simulado 2021"
+      kindLabel="Edição oficial"
+      initialSession={initialSession}
+      aids={{}}
+      favorites={[]}
+    />
+  );
+}
 beforeEach(() => {
   localStorage.clear();
   vi.stubGlobal(
@@ -25,7 +44,7 @@ afterEach(() => {
 
 describe('Enade course simulations', () => {
   it('flushes the latest draft when leaving the standalone activity', async () => {
-    const { unmount } = render(<EnadeSimulation userId={user.id} year={2021} />);
+    const { unmount } = render(simulation());
     await screen.findByLabelText('Escreva sua resposta');
     fireEvent.change(screen.getByLabelText('Escreva sua resposta'), {
       target: { value: 'Última resposta antes de voltar.' },
@@ -33,7 +52,7 @@ describe('Enade course simulations', () => {
     unmount();
     await waitFor(() =>
       expect(fetch).toHaveBeenCalledWith(
-        '/api/enade/2021',
+        endpoint,
         expect.objectContaining({
           method: 'PUT',
           body: expect.stringContaining('Última resposta antes de voltar.'),
@@ -44,36 +63,35 @@ describe('Enade course simulations', () => {
   it('recovers a newer local draft before evaluating an older expired server attempt', async () => {
     const old = Date.now() - 5 * 60 * 60 * 1000;
     const recent = Date.now() - 10000;
-    localStorage.setItem(
-      'enade-ads:student-test:2021',
-      JSON.stringify({
-        answers: { '2021-objective-1': 'D' },
+    const initial = sessionFromLegacy(
+      2021,
+      {
+        answers: {},
         marked: [],
-        startedAt: recent,
-        updatedAt: recent,
+        startedAt: old,
+        updatedAt: old,
         finishedAt: null,
+      },
+      Date.now()
+    );
+    localStorage.setItem(
+      draftKey,
+      JSON.stringify({
+        ...initial,
+        answers: { '2021-objective-1': 'D' },
+        elapsedMs: 10_000,
+        runningSince: Date.now(),
+        updatedAt: recent,
       })
     );
-    render(
-      <EnadeSimulation
-        userId={user.id}
-        year={2021}
-        initialAttempt={{
-          answers: {},
-          marked: [],
-          startedAt: old,
-          updatedAt: old,
-          finishedAt: null,
-        }}
-      />
-    );
+    render(withSession(initial));
     expect(screen.queryByRole('region', { name: 'Resultado do simulado' })).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: /^Questão \d+ de \d+/ }));
     fireEvent.click(screen.getByRole('button', { name: /^Ir para questão 3 ·/ }));
     expect(await screen.findByRole('radio', { name: /^D / })).toBeChecked();
   });
   it('starts a real edition, records objective and discursive answers, finishes and reviews results', async () => {
-    render(<EnadeSimulation userId={user.id} year={2021} />);
+    render(simulation());
     expect(await screen.findByRole('heading', { name: 'Simulado 2021' })).toBeInTheDocument();
     expect(
       await screen.findByAltText(/Discursiva 1 · parte 1 da prova Enade ADS 2021/)
@@ -97,9 +115,9 @@ describe('Enade course simulations', () => {
     expect(screen.getByRole('region', { name: 'Resposta da questão' })).toBeVisible();
     expect(screen.queryByText('Sidebar')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Trocar curso' })).not.toBeInTheDocument();
-    expect(screen.getByRole('link', { name: 'Todas as edições' })).toHaveAttribute(
+    expect(screen.getByRole('link', { name: 'Voltar aos simulados' })).toHaveAttribute(
       'href',
-      '/trails/enade'
+      '/trails/enade/simulados'
     );
     fireEvent.click(screen.getByRole('button', { name: 'Finalizar simulado' }));
     fireEvent.click(screen.getByRole('button', { name: 'Finalizar e corrigir' }));
@@ -107,16 +125,14 @@ describe('Enade course simulations', () => {
       '1 de 35 questões válidas'
     );
     fireEvent.click(screen.getAllByText('Ver questão completa')[2]);
+    await waitFor(() =>
+      expect(fetch).toHaveBeenCalledWith(endpoint, expect.objectContaining({ method: 'PUT' }))
+    );
+    expect(vi.mocked(fetch).mock.calls.filter(([url]) => url === endpoint)).toHaveLength(1);
     expect(screen.getByRole('radio', { name: /^E / })).toBeDisabled();
     expect(document.querySelector('[data-correction="correct"]')).toHaveTextContent(option.text);
     expect(screen.getByText(/Sua resposta: E/)).toHaveTextContent('Gabarito: E');
-    await waitFor(() =>
-      expect(fetch).toHaveBeenCalledWith(
-        '/api/enade/2021',
-        expect.objectContaining({ method: 'PUT' })
-      )
-    );
-    const cache = JSON.parse(localStorage.getItem('enade-ads:student-test:2021')!);
+    const cache = JSON.parse(localStorage.getItem(draftKey)!);
     expect(cache.answers['2021-discursive-1']).toBe('Minha resposta discursiva.');
     expect(cache.finishedAt).toBeTruthy();
   });
@@ -124,17 +140,13 @@ describe('Enade course simulations', () => {
   it('finishes an expired attempt and preserves its answers on reopening', async () => {
     const stamp = Date.now() - 5 * 60 * 60 * 1000;
     render(
-      <EnadeSimulation
-        userId={user.id}
-        year={2021}
-        initialAttempt={{
-          answers: { '2021-objective-1': 'E' },
-          marked: [],
-          startedAt: stamp,
-          finishedAt: null,
-          updatedAt: stamp,
-        }}
-      />
+      simulation({
+        answers: { '2021-objective-1': 'E' },
+        marked: [],
+        startedAt: stamp,
+        finishedAt: null,
+        updatedAt: stamp,
+      })
     );
     expect(await screen.findByRole('region', { name: 'Resultado do simulado' })).toHaveTextContent(
       '1 de 35 questões válidas'
@@ -144,17 +156,13 @@ describe('Enade course simulations', () => {
   it('keeps diagram zoom available during final review while locking answers', async () => {
     const stamp = Date.now();
     render(
-      <EnadeSimulation
-        userId={user.id}
-        year={2021}
-        initialAttempt={{
-          answers: {},
-          marked: [],
-          startedAt: stamp,
-          updatedAt: stamp,
-          finishedAt: stamp,
-        }}
-      />
+      simulation({
+        answers: {},
+        marked: [],
+        startedAt: stamp,
+        updatedAt: stamp,
+        finishedAt: stamp,
+      })
     );
     await screen.findByRole('heading', { name: 'Resultado do simulado' });
     const index = contents.findIndex((q) => q.id === '2021-objective-15');
@@ -173,17 +181,13 @@ describe('Enade course simulations', () => {
     vi.mocked(fetch).mockImplementationOnce(async () => new Response('{}', { status: 500 }));
     const stamp = Date.now();
     render(
-      <EnadeSimulation
-        userId={user.id}
-        year={2021}
-        initialAttempt={{
-          answers: { '2021-discursive-1': 'Resposta preservada.' },
-          marked: [],
-          startedAt: stamp,
-          updatedAt: stamp,
-          finishedAt: null,
-        }}
-      />
+      simulation({
+        answers: { '2021-discursive-1': 'Resposta preservada.' },
+        marked: [],
+        startedAt: stamp,
+        updatedAt: stamp,
+        finishedAt: null,
+      })
     );
     expect(await screen.findByRole('alert')).toHaveTextContent(
       'Não foi possível carregar a questão'
@@ -197,7 +201,7 @@ describe('Enade course simulations', () => {
 
   it('batches draft saves while typing and reports sync failures', async () => {
     vi.useFakeTimers();
-    render(<EnadeSimulation userId={user.id} year={2021} />);
+    render(simulation());
     await act(async () => {});
     fireEvent.change(screen.getByLabelText('Escreva sua resposta'), { target: { value: 'a' } });
     fireEvent.change(screen.getByLabelText('Escreva sua resposta'), { target: { value: 'abc' } });

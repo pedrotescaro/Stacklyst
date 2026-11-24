@@ -1,22 +1,18 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import { ArrowRight, BookOpenText, ChevronDown, Code2, Layers, Settings2 } from 'lucide-react';
 import {
   availableQuestions,
   configErrors,
-  createSession,
   DEFAULT_CONFIG,
   ENADE_YEARS,
   SECTION_LABELS,
   sectionTotals,
   type EnadeConfig,
   type EnadeSectionFilter,
-  type EnadeWorkspace,
 } from '@/lib/enade/simulator';
-import { newEnadeSeed } from './useEnadeSession';
-import { useEnadeWorkspace } from './useEnadeWorkspace';
+import { startAttempt } from './_components/StartAttemptButton';
 import styles from './EnadeCourse.module.css';
 
 const SECTION_CHOICES: {
@@ -64,44 +60,38 @@ function durationSummary(minutes: number | null) {
   return rest ? `${hours}h${String(rest).padStart(2, '0')}` : `${hours}h`;
 }
 
-export function EnadeConfiguration({
-  userId,
-  initialWorkspace,
-}: {
-  userId: string;
-  initialWorkspace?: EnadeWorkspace;
-}) {
+export function EnadeConfiguration({ initialConfig }: { initialConfig?: EnadeConfig | null }) {
   const router = useRouter();
-  const { workspace, ready, save, saveStatus } = useEnadeWorkspace(userId, initialWorkspace);
   const [open, setOpen] = useState(false);
-  const [config, setConfig] = useState<EnadeConfig>(initialWorkspace?.config || DEFAULT_CONFIG);
-  const [confirmReplace, setConfirmReplace] = useState(false);
-  const initialized = useRef(false);
-  useEffect(() => {
-    if (ready && !initialized.current) {
-      initialized.current = true;
-      if (workspace.config) setConfig(workspace.config);
-    }
-  }, [ready, workspace.config]);
+  const [config, setConfig] = useState<EnadeConfig>(() =>
+    initialConfig && !configErrors(initialConfig).length ? initialConfig : DEFAULT_CONFIG
+  );
+  const [pending, setPending] = useState(false);
+  const [saveStatus, setSaveStatus] = useState('');
   const section = config.section ?? 'all';
   const total = availableQuestions(config).length;
   const totals = sectionTotals(config);
   const errors = configErrors(config);
   function update(next: EnadeConfig) {
     setConfig(next);
-    setConfirmReplace(false);
   }
   /** Changes that shrink the pool keep the question count inside what is still available. */
   function filter(next: EnadeConfig) {
     const count = availableQuestions(next).length;
     update({ ...next, questionCount: Math.min(next.questionCount || 1, count) });
   }
-  function start() {
-    if (!ready || errors.length) return;
-    const stamp = Date.now();
-    const next = createSession(config, newEnadeSeed(), stamp);
-    void save({ version: 1, config, session: next, updatedAt: stamp }, true);
-    router.push('/trails/enade/personalizado');
+  /** Every start is a new attempt; earlier ones stay in the history. */
+  async function start() {
+    if (pending || errors.length) return;
+    setPending(true);
+    setSaveStatus('');
+    try {
+      const id = await startAttempt({ kind: 'CUSTOM', config });
+      router.push(`/trails/enade/simulados/${id}`);
+    } catch (error) {
+      setSaveStatus((error as Error).message || 'Não foi possível iniciar o simulado.');
+      setPending(false);
+    }
   }
   const summary = [
     `${config.questionCount || 0} ${config.questionCount === 1 ? 'questão' : 'questões'}`,
@@ -110,7 +100,6 @@ export function EnadeConfiguration({
     durationSummary(config.durationMinutes),
     config.mode === 'training' ? 'treino' : 'prova',
   ].join(' · ');
-  const running = ready && workspace.session && !workspace.session.finishedAt;
   return (
     <section className={styles.configuration} aria-labelledby="custom-title">
       <div className={styles.configurationHeading}>
@@ -121,22 +110,11 @@ export function EnadeConfiguration({
           </p>
         </div>
       </div>
-      {ready && workspace.session && (
-        <p className={styles.resumeCustom}>
-          <Link href="/trails/enade/personalizado">
-            {workspace.session.finishedAt
-              ? 'Revisar último personalizado'
-              : 'Continuar simulado em andamento'}{' '}
-            <ArrowRight size={15} />
-          </Link>
-        </p>
-      )}
       <form
         className={styles.configForm}
         onSubmit={(event) => {
           event.preventDefault();
-          if (running) setConfirmReplace(true);
-          else start();
+          void start();
         }}
       >
         <fieldset>
@@ -419,32 +397,13 @@ export function EnadeConfiguration({
               {errors.join(' ')}
             </p>
           )}
-          {confirmReplace ? (
-            <div className={styles.confirm}>
-              <p>
-                Há um simulado personalizado em andamento. Iniciar outro substitui esse rascunho.
-              </p>
-              <button
-                type="button"
-                className={styles.primary}
-                disabled={!!errors.length}
-                onClick={start}
-              >
-                Substituir e iniciar
-              </button>
-              <button type="button" onClick={() => setConfirmReplace(false)}>
-                Continuar configurando
-              </button>
-            </div>
-          ) : (
-            <button
-              className={styles.startButton}
-              type="submit"
-              disabled={!ready || !!errors.length}
-            >
-              Iniciar simulado <ArrowRight size={17} />
-            </button>
-          )}
+          <button
+            className={styles.startButton}
+            type="submit"
+            disabled={pending || !!errors.length}
+          >
+            {pending ? 'Preparando...' : 'Iniciar simulado'} <ArrowRight size={17} />
+          </button>
         </div>
         {saveStatus && (
           <p role="status" className={styles.saveStatus}>
