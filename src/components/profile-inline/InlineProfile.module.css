@@ -30,7 +30,8 @@
   background: var(--color-dd-bg);
   color: var(--color-dd-text);
 }
-.coverEdit .coverActive {
+.coverEdit .coverActive,
+.avatarAction .coverActive {
   background: var(--color-dd-accent);
   border-color: var(--color-dd-accent);
   color: #fff;
@@ -77,6 +78,9 @@
   position: absolute;
   bottom: 4px;
   left: 98px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   z-index: 1;
 }
 .actions {

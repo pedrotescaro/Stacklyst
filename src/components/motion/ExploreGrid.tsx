@@ -3,6 +3,7 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/cn';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 
 interface Developer {
@@ -58,6 +59,7 @@ export function ExploreGrid({ developers, filter }: ExploreGridProps) {
                 alt={dev.username}
                 width={48}
                 height={48}
+                unoptimized={isKlipyMediaUrl(dev.avatar_url)}
                 className="w-12 h-12 rounded-full object-cover"
               />
             ) : (

@@ -570,11 +570,13 @@ export async function saveProfileCustomization(
       if (
         parsed.avatarUrl &&
         parsed.avatarUrl !== user.avatar_url &&
-        !isOwnedProfileUpload(parsed.avatarUrl, userId)
+        !isOwnedProfileUpload(parsed.avatarUrl, userId) &&
+        // GIF avatars chosen from KLIPY stay on its CDN, as its terms require.
+        !isKlipyMediaUrl(parsed.avatarUrl)
       )
         throw new ValidationError(
           'AVATAR_IMAGE_NOT_OWNED',
-          'Envie uma foto pela sua conta para usar no perfil.'
+          'Envie uma foto pela sua conta ou escolha um GIF do KLIPY para usar no perfil.'
         );
       await tx.profileCustomization.upsert({
         where: { userId },

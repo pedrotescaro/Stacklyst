@@ -5,6 +5,7 @@ import { LanguageTrailBar } from './LanguageTrailBar';
 import { Award, BookOpen, CheckCircle, GraduationCap } from 'lucide-react';
 import { FollowButton } from './motion/FollowButton';
 import { MarkdownRenderer } from './MarkdownRenderer';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 
 interface LanguageTrail {
   language: string;
@@ -67,6 +68,7 @@ export function ProfileHeader({
               alt={user.username}
               width={80}
               height={80}
+              unoptimized={isKlipyMediaUrl(user.avatar_url)}
               className="w-20 h-20 rounded-full object-cover shrink-0 ring-2 ring-slate-800"
             />
           ) : (

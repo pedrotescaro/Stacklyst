@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { StreakBadge } from './StreakBadge';
 import { LanguageToggle } from './LanguageToggle';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 
 interface NavbarUser {
   username: string;
@@ -30,6 +31,7 @@ function UserAvatar({ user, size = 32 }: { user: NavbarUser; size?: number }) {
         alt={user.username}
         width={size}
         height={size}
+        unoptimized={isKlipyMediaUrl(user.avatar_url)}
         className="rounded-full object-cover"
         style={{ width: size, height: size }}
       />

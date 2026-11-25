@@ -374,4 +374,41 @@ describe('PostDetailContent focal reply mode', () => {
     expect(mocks.push).toHaveBeenCalledWith('/post/post-1/reply/r1');
     expect(mocks.refresh).toHaveBeenCalled();
   });
+
+  it('lets the post author pin and unpin their root post as main profile post, but hides controls for others', async () => {
+    const authorUser = { ...viewerUser, id: 'user-root', username: 'rootauthor' };
+    mocks.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ success: true, pinned: true, postId: 'post-1' }),
+    });
+
+    const { unmount } = render(
+      <PostDetailContent user={authorUser} post={{ ...makeThreadPost(), is_pinned: false }} />
+    );
+
+    const pinButton = screen.getByRole('button', { name: 'Fixar no perfil' });
+    expect(pinButton).toHaveAttribute('aria-pressed', 'false');
+    fireEvent.click(pinButton);
+
+    await waitFor(() => {
+      expect(mocks.fetch).toHaveBeenCalledWith('/api/posts/post-1/pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pinned: true }),
+      });
+    });
+    expect(screen.getByRole('button', { name: 'Fixado no perfil' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+
+    // Dropdown menu also switches to Desafixar do perfil for the owner.
+    fireEvent.click(screen.getByTitle('Mais opções'));
+    expect(screen.getByRole('button', { name: 'Desafixar do perfil' })).toBeInTheDocument();
+
+    unmount();
+    render(<PostDetailContent user={viewerUser} post={{ ...makeThreadPost(), is_pinned: true }} />);
+    expect(screen.queryByRole('button', { name: /Fixar|Fixado/ })).not.toBeInTheDocument();
+    expect(screen.getByText('Fixado no perfil')).toBeInTheDocument();
+  });
 });

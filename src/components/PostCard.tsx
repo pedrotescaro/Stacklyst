@@ -13,6 +13,8 @@ import {
   Trash2,
   MoreHorizontal,
   Pencil,
+  Pin,
+  PinOff,
   Share2,
   Check,
 } from 'lucide-react';
@@ -45,6 +47,7 @@ import {
   writePostBookmark,
   type PostBookmarkChange,
 } from '@/lib/client/post-bookmarks';
+import { POST_PIN_CHANGED, writePostPin, type PostPinChange } from '@/lib/client/post-pins';
 import { prismaLanguageToEditor } from '@/lib/editor/languages';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './PostCard.module.css';
@@ -70,6 +73,7 @@ interface Post {
   music?: SpotifyProfileTrack | null;
   poll?: PostPoll | null;
   audience?: string | null;
+  is_pinned?: boolean;
   created_at: string;
   view_count: number;
   author: PostAuthor;
@@ -89,6 +93,7 @@ interface PostCardProps {
   onDelete?: (postId: string) => void;
   onEdit?: (postId: string, updatedPost: any) => void;
   flat?: boolean;
+  showPinnedBadge?: boolean;
   onBookmarkToggle?: (postId: string, bookmarked: boolean) => void;
 }
 
@@ -105,6 +110,7 @@ export function PostCard({
   onDelete,
   onEdit,
   flat = false,
+  showPinnedBadge = false,
   onBookmarkToggle,
 }: PostCardProps) {
   const router = useRouter();
@@ -114,7 +120,27 @@ export function PostCard({
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
+  const [pinned, setPinned] = useState(Boolean(post.is_pinned));
+  const [pinPending, setPinPending] = useState(false);
+  const pinLock = useRef(false);
   const [authorBlocked, setAuthorBlocked] = useState(false);
+
+  useEffect(() => {
+    if (!pinLock.current) setPinned(Boolean(post.is_pinned));
+  }, [post.is_pinned]);
+
+  useEffect(() => {
+    const onPinChange = (event: Event) => {
+      const detail = (event as CustomEvent<PostPinChange>).detail;
+      if (detail.postId === post.id) {
+        setPinned(detail.pinned);
+      } else if (detail.pinned && isOwner) {
+        setPinned(false);
+      }
+    };
+    window.addEventListener(POST_PIN_CHANGED, onPinChange);
+    return () => window.removeEventListener(POST_PIN_CHANGED, onPinChange);
+  }, [post.id, isOwner]);
 
   useEffect(() => {
     const onBlock = (event: Event) => {
@@ -297,6 +323,24 @@ export function PostCard({
     setRepostsCount((prev) => (newReposted ? prev + 1 : Math.max(0, prev - 1)));
   };
 
+  const handlePinToggle = async () => {
+    if (pinLock.current || !isOwner) return;
+    pinLock.current = true;
+    setPinPending(true);
+    const previousPinned = pinned;
+    const nextPinned = !previousPinned;
+    setPinned(nextPinned);
+    try {
+      const savedPinned = await writePostPin(post.id, nextPinned);
+      setPinned(savedPinned);
+    } catch {
+      setPinned(previousPinned);
+    } finally {
+      pinLock.current = false;
+      setPinPending(false);
+    }
+  };
+
   const handleDelete = async () => {
     if (deleting) return;
     setDeleting(true);
@@ -385,6 +429,13 @@ export function PostCard({
             : 'bg-dd-card border border-dd-border rounded-xl p-3 sm:p-5 hover:border-blue-500/30'
         )}
       >
+        {showPinnedBadge && pinned && (
+          <div className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold text-dd-accent">
+            <Pin className="h-3.5 w-3.5" aria-hidden="true" />
+            <span>{text('Fixado no perfil', 'Pinned to profile')}</span>
+          </div>
+        )}
+
         {/* Header */}
         <div className="mb-2.5 flex items-start gap-2 sm:mb-3 sm:gap-3">
           <Link
@@ -592,6 +643,29 @@ export function PostCard({
               >
                 {isOwner ? (
                   <>
+                    <button
+                      type="button"
+                      disabled={pinPending}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        setMenuOpen(false);
+                        void handlePinToggle();
+                      }}
+                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left disabled:opacity-50"
+                    >
+                      {pinned ? (
+                        <>
+                          <PinOff className="w-4 h-4 text-dd-muted" />
+                          <span>{text('Desafixar do perfil', 'Unpin from profile')}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Pin className="w-4 h-4 text-dd-accent" />
+                          <span>{text('Fixar no perfil', 'Pin to profile')}</span>
+                        </>
+                      )}
+                    </button>
                     <button
                       onClick={(e) => {
                         e.stopPropagation();

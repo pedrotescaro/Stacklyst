@@ -566,6 +566,17 @@ export function SocialProfileOverview({
     setError('');
   };
 
+  const chooseGifAvatar = (gif: KlipyGif) => {
+    setAvatarFile(null);
+    setAvatarUrl(gif.url);
+    setError('');
+  };
+
+  const removeAvatar = () => {
+    setAvatarFile(null);
+    setAvatarUrl(null);
+  };
+
   const activePreferences = editing
     ? preferences
     : parseProfilePreferences(profile.customization?.preferences);
@@ -792,7 +803,7 @@ export function SocialProfileOverview({
             )}
           </AvatarFrame>
           {editing && (
-            <div className={styles.avatarAction}>
+            <div className={styles.avatarAction} role="group" aria-label="Editar foto do perfil">
               <ContextPopover
                 label="Editar foto"
                 triggerIcon={<Camera size={15} />}
@@ -809,12 +820,32 @@ export function SocialProfileOverview({
                       setAvatarFile(file);
                       setAvatarUrl(url);
                     }}
-                    onRemove={() => {
-                      setAvatarFile(null);
-                      setAvatarUrl(null);
-                    }}
+                    onGifSelected={chooseGifAvatar}
+                    onRemove={removeAvatar}
                     onError={setError}
                   />
+                </div>
+              </ContextPopover>
+              <ContextPopover
+                label="GIF da foto"
+                triggerIcon={<GifIcon width={16} height={16} />}
+                className={`${styles.photoEditButton} ${isKlipyMediaUrl(avatarUrl) ? styles.coverActive : ''}`}
+                disabled={busy}
+              >
+                <div className={styles.popoverBody}>
+                  <KlipyGifSearch
+                    compact
+                    disabled={busy}
+                    selectedUrl={isKlipyMediaUrl(avatarUrl) ? avatarUrl : null}
+                    onSelect={chooseGifAvatar}
+                    unavailableMessage="A pesquisa de GIFs ainda não está disponível. Use Editar foto para enviar um GIF do seu dispositivo."
+                  />
+                  {isKlipyMediaUrl(avatarUrl) && (
+                    <button className={styles.button} type="button" onClick={removeAvatar}>
+                      Remover GIF
+                    </button>
+                  )}
+                  <p className={styles.help}>{coverHelp}</p>
                 </div>
               </ContextPopover>
             </div>

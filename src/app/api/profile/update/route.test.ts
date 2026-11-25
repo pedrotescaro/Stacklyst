@@ -72,11 +72,18 @@ describe('legacy profile edits and earned decoration protection', () => {
     mocks.auth.mockResolvedValue(null);
     expect((await POST(request({ avatar_url: null }))).status).toBe(401);
   });
-  it('supports explicit photo removal for the authenticated account', async () => {
+  it('supports explicit photo removal and KLIPY GIF avatars for the authenticated account', async () => {
     expect((await POST(request({ avatar_url: null }))).status).toBe(200);
     expect(mocks.update.mock.calls[0][0]).toMatchObject({
       where: { id: 'owner' },
       data: { avatar_url: null },
+    });
+
+    const gif = 'https://static.klipy.com/ii/abc/14/af/avatar.gif';
+    expect((await POST(request({ avatar_url: gif }))).status).toBe(200);
+    expect(mocks.update.mock.calls[1][0]).toMatchObject({
+      where: { id: 'owner' },
+      data: { avatar_url: gif },
     });
   });
 });

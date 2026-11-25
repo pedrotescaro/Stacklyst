@@ -22,4 +22,16 @@ describe('AuthorAvatar', () => {
     expect(screen.getByLabelText('Iniciais de Pedro Tescaro')).toHaveTextContent('PE');
     expect(screen.queryByRole('img')).not.toBeInTheDocument();
   });
+
+  it('mantem animacao sem proxy quando a foto do perfil e um GIF do KLIPY', () => {
+    render(
+      <AuthorAvatar
+        username="pedrotescaro"
+        avatar_url="https://static.klipy.com/ii/abc/14/af/avatar.webp"
+      />
+    );
+
+    const img = screen.getByRole('img', { name: 'Foto de pedrotescaro' });
+    expect(img).toHaveAttribute('src', 'https://static.klipy.com/ii/abc/14/af/avatar.webp');
+  });
 });

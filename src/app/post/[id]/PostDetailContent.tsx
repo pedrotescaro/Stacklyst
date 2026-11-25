@@ -21,6 +21,8 @@ import {
   Flag,
   Check,
   Zap,
+  Pin,
+  PinOff,
   Share2,
   MoreHorizontal,
 } from 'lucide-react';
@@ -45,6 +47,7 @@ import { PostLocation, SensitiveContentGate } from '@/components/PostPresentatio
 import { parsePostExtras } from '@/lib/post-composer';
 import { findAnswerPath } from '@/lib/answer-threads';
 import { parseReplyMedia } from '@/lib/reply-media';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import {
@@ -52,6 +55,7 @@ import {
   writePostBookmark,
   type PostBookmarkChange,
 } from '@/lib/client/post-bookmarks';
+import { POST_PIN_CHANGED, writePostPin, type PostPinChange } from '@/lib/client/post-pins';
 
 type AnswerDetailNode = AnswerNode & {
   is_accepted?: boolean;
@@ -244,9 +248,45 @@ export function PostDetailContent({
   const { playSound } = useSoundEffects(soundEnabled);
   const [isExpanded, setIsExpanded] = useState(false);
   const [editingFocused, setEditingFocused] = useState(false);
+  const [pinPending, setPinPending] = useState(false);
+  const [pinError, setPinError] = useState<string | null>(null);
+  const pinLock = useRef(false);
   const [toastXp, setToastXp] = useState<{ amount: number; language: string | null } | null>(null);
   const focalRef = useRef<HTMLElement>(null);
   const previousFocusedIdRef = useRef(focusedAnswerId);
+
+  useEffect(() => {
+    const onPinChange = (event: Event) => {
+      const detail = (event as CustomEvent<PostPinChange>).detail;
+      if (detail.postId === post.id) {
+        setPost((prev: any) => ({ ...prev, is_pinned: detail.pinned }));
+      } else if (detail.pinned && post.author_id === user.id) {
+        setPost((prev: any) => (prev.is_pinned ? { ...prev, is_pinned: false } : prev));
+      }
+    };
+    window.addEventListener(POST_PIN_CHANGED, onPinChange);
+    return () => window.removeEventListener(POST_PIN_CHANGED, onPinChange);
+  }, [post.id, post.author_id, user.id]);
+
+  const handlePinToggle = async () => {
+    if (pinLock.current || !isPostAuthor || focusedAnswer) return;
+    pinLock.current = true;
+    setPinPending(true);
+    setPinError(null);
+    const previousPinned = Boolean(post.is_pinned);
+    const nextPinned = !previousPinned;
+    setPost((prev: any) => ({ ...prev, is_pinned: nextPinned }));
+    try {
+      const savedPinned = await writePostPin(post.id, nextPinned);
+      setPost((prev: any) => ({ ...prev, is_pinned: savedPinned }));
+    } catch (err) {
+      setPost((prev: any) => ({ ...prev, is_pinned: previousPinned }));
+      setPinError(err instanceof Error ? err.message : 'Não foi possível fixar este post.');
+    } finally {
+      pinLock.current = false;
+      setPinPending(false);
+    }
+  };
 
   const [isSaved, setIsSaved] = useState(initialIsSaved);
   const [bookmarkPending, setBookmarkPending] = useState(false);
@@ -660,7 +700,7 @@ export function PostDetailContent({
                 </div>
               </div>
 
-              {focusedAnswer && (
+              {focusedAnswer ? (
                 <div className="flex items-center gap-2 shrink-0">
                   {isPostAuthor && !focusedAnswer.is_accepted && (
                     <button
@@ -683,8 +723,48 @@ export function PostDetailContent({
                     />
                   )}
                 </div>
-              )}
+              ) : isPostAuthor ? (
+                <button
+                  type="button"
+                  onClick={() => void handlePinToggle()}
+                  disabled={pinPending}
+                  aria-pressed={Boolean(post.is_pinned)}
+                  title={
+                    post.is_pinned
+                      ? text('Desafixar post principal do perfil', 'Unpin main profile post')
+                      : text('Fixar como post principal do perfil', 'Pin as main profile post')
+                  }
+                  className={cn(
+                    'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold transition-colors shrink-0 cursor-pointer disabled:opacity-50',
+                    post.is_pinned
+                      ? 'border-dd-accent/40 bg-dd-accent/15 text-dd-accent hover:bg-dd-accent/25'
+                      : 'border-dd-border bg-dd-surface/50 text-dd-muted hover:text-dd-text hover:bg-dd-surface'
+                  )}
+                >
+                  {post.is_pinned ? (
+                    <>
+                      <Pin className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>{text('Fixado no perfil', 'Pinned to profile')}</span>
+                    </>
+                  ) : (
+                    <>
+                      <Pin className="h-3.5 w-3.5" aria-hidden="true" />
+                      <span>{text('Fixar no perfil', 'Pin to profile')}</span>
+                    </>
+                  )}
+                </button>
+              ) : post.is_pinned ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-dd-accent/30 bg-dd-accent/10 px-2.5 py-1 text-[11px] font-semibold text-dd-accent shrink-0">
+                  <Pin className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span>{text('Fixado no perfil', 'Pinned to profile')}</span>
+                </span>
+              ) : null}
             </div>
+            {pinError && (
+              <p role="alert" className="text-xs text-red-400">
+                {pinError}
+              </p>
+            )}
 
             {focusedAnswer && parentUsername && (
               <div className="flex flex-wrap items-center gap-2 text-xs text-dd-muted">
@@ -908,24 +988,50 @@ export function PostDetailContent({
 
                     {menuOpen && (
                       <div
-                        className="absolute right-0 bottom-full mb-1.5 w-44 rounded-2xl border border-dd-border/80 bg-dd-surface p-1.5 shadow-2xl z-40 animate-slide-up"
+                        className="absolute right-0 bottom-full mb-1.5 w-48 rounded-2xl border border-dd-border/80 bg-dd-surface p-1.5 shadow-2xl z-40 animate-slide-up"
                         onClick={(e) => {
                           e.stopPropagation();
                           e.preventDefault();
                         }}
                       >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            setReportModalOpen(true);
-                            setMenuOpen(false);
-                          }}
-                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
-                        >
-                          <Flag className="w-4 h-4 text-dd-muted" />
-                          <span>{text('Denunciar', 'Report')}</span>
-                        </button>
+                        {!focusedAnswer && isPostAuthor ? (
+                          <button
+                            type="button"
+                            disabled={pinPending}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setMenuOpen(false);
+                              void handlePinToggle();
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left disabled:opacity-50"
+                          >
+                            {post.is_pinned ? (
+                              <>
+                                <PinOff className="w-4 h-4 text-dd-muted" />
+                                <span>{text('Desafixar do perfil', 'Unpin from profile')}</span>
+                              </>
+                            ) : (
+                              <>
+                                <Pin className="w-4 h-4 text-dd-accent" />
+                                <span>{text('Fixar no perfil', 'Pin to profile')}</span>
+                              </>
+                            )}
+                          </button>
+                        ) : (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setReportModalOpen(true);
+                              setMenuOpen(false);
+                            }}
+                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
+                          >
+                            <Flag className="w-4 h-4 text-dd-muted" />
+                            <span>{text('Denunciar', 'Report')}</span>
+                          </button>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1044,6 +1150,7 @@ export function PostDetailContent({
                     alt={user.username}
                     width={36}
                     height={36}
+                    unoptimized={isKlipyMediaUrl(user.avatar_url)}
                     className="w-9 h-9 rounded-full object-cover border border-dd-border shrink-0"
                   />
                 ) : (

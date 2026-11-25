@@ -572,4 +572,36 @@ describe('Inline social profile editing', () => {
     );
     expect(screen.getByLabelText('Discord: killua#1234')).toBeInTheDocument();
   });
+
+  it('picks a KLIPY GIF as the avatar, saves without uploading, and reopens with Remove GIF', async () => {
+    vi.stubEnv('NEXT_PUBLIC_KLIPY_API_KEY', 'test-key');
+    try {
+      const { saved, unmount } = mount();
+      await edit();
+      fireEvent.click(screen.getByRole('button', { name: 'GIF da foto' }));
+      expect(screen.getByPlaceholderText('Pesquisar no KLIPY')).toBeInTheDocument();
+      fireEvent.click(await screen.findByRole('button', { name: 'Escolher Party cat' }));
+      expect(screen.getByRole('img', { name: 'Foto de developer' })).toHaveAttribute(
+        'src',
+        'https://static.klipy.com/ii/a/party.gif'
+      );
+      fireEvent.click(screen.getByRole('button', { name: 'Fechar gif da foto' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
+      await screen.findByText('Perfil atualizado.');
+      expect(uploads).toBe(0);
+      expect(writes[0].avatarUrl).toBe('https://static.klipy.com/ii/a/party.gif');
+      const savedProfile = saved.mock.calls[0][0];
+      unmount();
+      mount('owner', savedProfile);
+      expect(screen.getByRole('img', { name: 'Foto de developer' })).toHaveAttribute(
+        'src',
+        'https://static.klipy.com/ii/a/party.gif'
+      );
+      await edit();
+      fireEvent.click(screen.getByRole('button', { name: 'GIF da foto' }));
+      expect(screen.getByRole('button', { name: 'Remover GIF' })).toBeInTheDocument();
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
 });

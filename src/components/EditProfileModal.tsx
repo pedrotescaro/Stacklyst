@@ -8,6 +8,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { X, Camera, Loader2, Check, Sparkles, AlertCircle } from 'lucide-react';
 import { AVATAR_BACKGROUNDS, normalizeAvatarConfig } from '@/lib/avatar';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
@@ -286,7 +287,14 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
                 style={{ backgroundColor: currentBgColor }}
               >
                 {bannerUrl ? (
-                  <Image src={bannerUrl} alt="Banner" fill sizes="100%" className="object-cover" />
+                  <Image
+                    src={bannerUrl}
+                    alt="Banner"
+                    fill
+                    sizes="100%"
+                    unoptimized={isKlipyMediaUrl(bannerUrl)}
+                    className="object-cover"
+                  />
                 ) : null}
 
                 {/* Banner overlay with camera buttons */}
@@ -332,6 +340,7 @@ export function EditProfileModal({ open, onClose, profileUser, onSaved }: EditPr
                       alt={profileUser.username}
                       width={96}
                       height={96}
+                      unoptimized={isKlipyMediaUrl(profileUser.avatar_url)}
                       className="w-24 h-24 rounded-full border-4 border-dd-bg object-cover bg-dd-surface shadow-md"
                     />
                   ) : (

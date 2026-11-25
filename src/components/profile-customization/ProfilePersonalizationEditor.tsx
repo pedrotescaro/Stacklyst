@@ -1084,6 +1084,14 @@ export function ProfilePersonalizationEditor({
                         'Foto preparada. Salve a personalização para atualizar seu perfil.'
                       );
                     }}
+                    onGifSelected={(gif) => {
+                      setAvatarFile(null);
+                      setAvatarUrl(gif.url);
+                      setError('');
+                      setNotice(
+                        'GIF selecionado. Salve a personalização para atualizar seu perfil.'
+                      );
+                    }}
                     onRemove={() => {
                       setAvatarFile(null);
                       setAvatarUrl(null);

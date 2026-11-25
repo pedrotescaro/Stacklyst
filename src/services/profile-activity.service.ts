@@ -76,11 +76,13 @@ export async function getProfileActivity(
     votes: { where: { user_id: viewerId ?? '__anonymous__' }, select: { value: true } },
     bookmarks: { where: { user_id: viewerId ?? '__anonymous__' }, select: { id: true } },
   } satisfies Prisma.PostInclude;
+  const filterPinnedOut = tab === 'posts' && !search;
   const postWhere: Prisma.PostWhereInput = {
     AND: [
       visiblePostWhere(viewerId),
       tab === 'likes' ? { votes: { some: { value: 1, user: person } } } : { author: person },
       activityCursorWhere(cursor, 'post'),
+      ...(filterPinnedOut ? [{ is_pinned: false }] : []),
       ...(search
         ? [
             {
@@ -113,8 +115,19 @@ export async function getProfileActivity(
         : []),
     ],
   };
+  const pinnedPromise =
+    filterPinnedOut && !cursor && typeof prisma.post.findFirst === 'function'
+      ? prisma.post.findFirst({
+          where: {
+            AND: [visiblePostWhere(viewerId), { author: person, is_pinned: true }],
+          },
+          orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
+          include: postInclude,
+        })
+      : Promise.resolve(null);
   // Fetch at most two bounded candidate pages; never merge independently paginated results.
-  const [posts, replies] = await Promise.all([
+  const [pinnedPost, posts, replies] = await Promise.all([
+    pinnedPromise,
     prisma.post.findMany({
       where: postWhere,
       orderBy: [{ created_at: 'desc' }, { id: 'desc' }],
@@ -133,13 +146,14 @@ export async function getProfileActivity(
       },
     }),
   ]);
+  const serializePostItem = (post: (typeof posts)[number]) => ({
+    ...post,
+    kind: 'post' as const,
+    poll: publicPostPoll(post.poll),
+    quizzes: post.quizzes.map(publicQuiz),
+  });
   const candidates = [
-    ...posts.map((post) => ({
-      ...post,
-      kind: 'post' as const,
-      poll: publicPostPoll(post.poll),
-      quizzes: post.quizzes.map(publicQuiz),
-    })),
+    ...posts.map(serializePostItem),
     ...replies.map((reply) => ({
       ...reply,
       kind: 'reply' as const,
@@ -156,10 +170,10 @@ export async function getProfileActivity(
       bKey = `${b.kind}:${b.id}`;
     return aKey < bKey ? 1 : aKey > bKey ? -1 : 0;
   });
-  const items = candidates.slice(0, limit);
-  const last = items.at(-1);
+  const chronological = candidates.slice(0, limit);
+  const last = chronological.at(-1);
   return {
-    items,
+    items: pinnedPost ? [serializePostItem(pinnedPost), ...chronological] : chronological,
     nextCursor:
       candidates.length > limit && last
         ? encodeCursor(last.created_at, `${last.kind}:${last.id}`)

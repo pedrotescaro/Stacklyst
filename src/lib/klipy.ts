@@ -27,7 +27,7 @@ type KlipyItem = {
   file?: Partial<Record<'hd' | 'md' | 'sm' | 'xs', { gif?: KlipyFile; webp?: KlipyFile }>>;
 };
 
-/** Only KLIPY's media CDN may be stored as a GIF attachment or profile banner. */
+/** Only KLIPY's media CDN may be stored as a GIF attachment, banner, or avatar. */
 export function isKlipyMediaUrl(value: unknown): value is string {
   if (typeof value !== 'string' || value.length > 2048) return false;
   try {

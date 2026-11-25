@@ -46,6 +46,7 @@ import {
   readCachedPage,
   whenIdle,
 } from '@/lib/client/page-cache';
+import { POST_PIN_CHANGED, type PostPinChange } from '@/lib/client/post-pins';
 
 type ProfileTab = 'posts' | 'photos' | 'videos' | 'likes' | 'replies' | 'stats' | 'certificates';
 interface ProfileListPage {
@@ -317,6 +318,31 @@ export function ProfileContent({
     if (!isListTab || visibleList?.phase !== 'ready') return;
     patchCachedPage(listKey, { items, nextCursor: cursor });
   }, [isListTab, visibleList, listKey, items, cursor]);
+  useEffect(() => {
+    const onPinChange = (event: Event) => {
+      const { postId, pinned } = (event as CustomEvent<PostPinChange>).detail;
+      setList((previous) => {
+        if (!previous) return previous;
+        let next = previous.items.map((item) => {
+          if (item.kind === 'reply') return item;
+          if (item.id === postId) return { ...item, is_pinned: pinned };
+          if (pinned && item.author_id === user.id && item.is_pinned) {
+            return { ...item, is_pinned: false };
+          }
+          return item;
+        });
+        if (pinned && activeRef.current === 'posts' && !search) {
+          const target = next.find((item) => item.kind !== 'reply' && item.id === postId);
+          if (target) {
+            next = [target, ...next.filter((item) => item !== target)];
+          }
+        }
+        return { ...previous, items: next };
+      });
+    };
+    window.addEventListener(POST_PIN_CHANGED, onPinChange);
+    return () => window.removeEventListener(POST_PIN_CHANGED, onPinChange);
+  }, [search, user.id]);
   // Warm the other tabs once the visible one has loaded, so the first switch is instant.
   const listTabsReady = !loading;
   useEffect(() => {
@@ -995,6 +1021,7 @@ export function ProfileContent({
                                 post={item}
                                 isOwner={item.author_id === user.id}
                                 flat
+                                showPinnedBadge={activeTab === 'posts' && !search}
                                 onDelete={(id) =>
                                   updateItems((previous) =>
                                     previous.filter(

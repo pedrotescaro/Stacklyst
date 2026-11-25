@@ -7,6 +7,7 @@ import { X, Users } from 'lucide-react';
 import { modalContentVariants, fadeVariants } from '@/lib/motion';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { FollowButton } from './FollowButton';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 import Link from 'next/link';
 
 interface UserListItem {
@@ -194,6 +195,7 @@ export function FollowersModal({
                               alt={itemUser.username}
                               width={40}
                               height={40}
+                              unoptimized={isKlipyMediaUrl(itemUser.avatar_url)}
                               className="w-10 h-10 rounded-full object-cover shrink-0"
                             />
                           ) : (

@@ -17,6 +17,7 @@ import {
   ProfileTitle,
 } from '@/components/profile/ProfileIdentity';
 import { readProfileIdentity, foregroundOn } from '@/lib/profile-style';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 import type { PublicProfileCustomization } from '@/components/profile/ProfilePublic';
 import { DiscordIcon } from '@/components/auth/OAuthProviderIcons';
 
@@ -129,6 +130,7 @@ export function ProfileHero({
             alt={text('Banner do perfil', 'Profile banner')}
             fill
             sizes="100%"
+            unoptimized={isKlipyMediaUrl(bannerImage)}
             className="object-cover"
             style={{ objectPosition: `${banner?.positionX ?? 50}% ${banner?.positionY ?? 50}%` }}
             priority
@@ -145,6 +147,7 @@ export function ProfileHero({
                 alt={text(`Foto de ${profile.username}`, `${profile.username}'s profile picture`)}
                 width={220}
                 height={220}
+                unoptimized={isKlipyMediaUrl(profile.avatar_url)}
                 className="h-full w-full object-cover"
                 priority
               />

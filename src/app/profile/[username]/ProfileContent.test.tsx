@@ -10,7 +10,15 @@ vi.mock('@/components/profile/ProfileRightRail', () => ({
   ),
 }));
 vi.mock('@/components/PostCard', () => ({
-  PostCard: ({ post }: { post: { body: string } }) => <article>{post.body}</article>,
+  PostCard: ({
+    post,
+    showPinnedBadge,
+  }: {
+    post: { body: string; is_pinned?: boolean };
+    showPinnedBadge?: boolean;
+  }) => (
+    <article data-pinned={String(Boolean(showPinnedBadge && post.is_pinned))}>{post.body}</article>
+  ),
 }));
 vi.mock('@/components/ProfileReplyThread', () => ({
   ProfileReplyThread: ({ reply }: { reply: { body: string } }) => <article>{reply.body}</article>,
@@ -534,5 +542,35 @@ describe('Compact social profile content', () => {
         );
       });
     });
+  });
+
+  it('reorders and marks the newly pinned post at the top of the profile posts list', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () =>
+        Response.json({
+          items: [
+            { id: 'post-new', body: 'Post recente', author_id: 'owner', is_pinned: false },
+            { id: 'post-old', body: 'Post antigo', author_id: 'owner', is_pinned: false },
+          ],
+          nextCursor: null,
+        })
+      )
+    );
+
+    render(<ProfileContent {...props} />);
+    await screen.findByText('Post recente');
+
+    fireEvent(
+      window,
+      new CustomEvent('stacklyst:post-pin-changed', {
+        detail: { postId: 'post-old', pinned: true },
+      })
+    );
+
+    const articles = screen.getAllByRole('article');
+    expect(articles.map((el) => el.textContent)).toEqual(['Post antigo', 'Post recente']);
+    expect(articles[0]).toHaveAttribute('data-pinned', 'true');
+    expect(articles[1]).toHaveAttribute('data-pinned', 'false');
   });
 });

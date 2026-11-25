@@ -1,6 +1,7 @@
 import Image from 'next/image';
 import { AvatarFrame } from '@/components/profile/ProfileIdentity';
 import { readProfileIdentity } from '@/lib/profile-style';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 interface AuthorAvatarProps {
@@ -44,6 +45,7 @@ export function AuthorAvatar({
             alt={decorative ? '' : text(`Foto de ${username}`, `Photo of ${username}`)}
             width={48}
             height={48}
+            unoptimized={isKlipyMediaUrl(avatar_url)}
             className="h-full w-full object-cover"
           />
         ) : (

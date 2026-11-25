@@ -310,4 +310,54 @@ describe('Profile personalization editor', () => {
     );
     expect(persisted.avatarUrl).toContain('/owner/photo.jpg');
   });
+
+  it('chooses a KLIPY GIF in Avatar e molduras and saves it without uploading', async () => {
+    vi.stubEnv('NEXT_PUBLIC_KLIPY_API_KEY', 'test-key');
+    const baseFetch = global.fetch;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        const url = String(input);
+        if (url.startsWith('https://api.klipy.com/')) {
+          if (url.includes('/share/')) return Response.json({ result: true });
+          return Response.json({
+            result: true,
+            data: {
+              data: [
+                {
+                  id: 'gif-1',
+                  slug: 'party',
+                  title: 'Party cat',
+                  type: 'gif',
+                  file: {
+                    md: { gif: { url: 'https://static.klipy.com/ii/a/party.gif', size: 1000 } },
+                    sm: { gif: { url: 'https://static.klipy.com/ii/a/party-sm.gif', size: 100 } },
+                  },
+                },
+              ],
+            },
+          });
+        }
+        return baseFetch(input, init);
+      })
+    );
+
+    try {
+      await open();
+      fireEvent.click(screen.getByRole('button', { name: 'Avatar e molduras' }));
+      fireEvent.click(screen.getByRole('button', { name: 'Escolher GIF' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Escolher Party cat' }));
+      await screen.findByText('GIF selecionado. Salve a personalização para atualizar seu perfil.');
+      fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+      await screen.findByText('Personalização salva. Seu perfil já está atualizado.');
+      expect(uploads).toBe(0);
+      expect(calls.at(-1)?.body).toHaveProperty(
+        'avatarUrl',
+        'https://static.klipy.com/ii/a/party.gif'
+      );
+      expect(persisted.avatarUrl).toBe('https://static.klipy.com/ii/a/party.gif');
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
 });

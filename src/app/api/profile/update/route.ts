@@ -3,6 +3,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getAuthUser } from '@/lib/auth';
 import { isOwnedProfileUpload } from '@/lib/profile-upload';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 import type { Prisma } from '@prisma/client';
 import { bumpProfileVersion } from '@/lib/profile-version';
 
@@ -33,7 +34,8 @@ export async function POST(request: Request) {
     if (
       avatar_url !== undefined &&
       avatar_url !== null &&
-      !isOwnedProfileUpload(avatar_url, user.id)
+      !isOwnedProfileUpload(avatar_url, user.id) &&
+      !isKlipyMediaUrl(avatar_url)
     ) {
       return NextResponse.json(
         { error: 'Envie uma foto pelo seletor de imagens do seu perfil.' },

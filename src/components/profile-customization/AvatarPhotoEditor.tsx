@@ -2,6 +2,9 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { Camera, Check, Trash2, Upload, X } from 'lucide-react';
+import { GifIcon } from '@/components/icons/GifIcon';
+import { KlipyGifSearch } from '@/components/gif/KlipyGifSearch';
+import { isKlipyMediaUrl, type KlipyGif } from '@/lib/klipy';
 import { cropAvatarPhoto } from './avatar-photo';
 import styles from './Personalization.module.css';
 
@@ -12,6 +15,7 @@ export function AvatarPhotoEditor({
   username,
   disabled,
   onPhotoSelected,
+  onGifSelected,
   onRemove,
   onError,
 }: {
@@ -19,6 +23,7 @@ export function AvatarPhotoEditor({
   username: string;
   disabled: boolean;
   onPhotoSelected: (file: File, previewUrl: string) => void;
+  onGifSelected?: (gif: KlipyGif) => void;
   onRemove: () => void;
   onError: (message: string) => void;
 }) {
@@ -26,6 +31,7 @@ export function AvatarPhotoEditor({
   const cameraRef = useRef<HTMLInputElement>(null);
   const requestRef = useRef(0);
   const [source, setSource] = useState<Source | null>(null);
+  const [gifOpen, setGifOpen] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [positionX, setPositionX] = useState(50);
   const [positionY, setPositionY] = useState(50);
@@ -152,6 +158,20 @@ export function AvatarPhotoEditor({
             >
               <Camera size={16} /> Tirar foto
             </button>
+            {onGifSelected && (
+              <button
+                type="button"
+                className={styles.button}
+                aria-pressed={gifOpen}
+                disabled={disabled || busy}
+                onClick={() => {
+                  setSource(null);
+                  setGifOpen((current) => !current);
+                }}
+              >
+                <GifIcon width={16} height={16} /> Escolher GIF
+              </button>
+            )}
             {avatarUrl && (
               <button
                 type="button"
@@ -159,6 +179,7 @@ export function AvatarPhotoEditor({
                 disabled={disabled || busy}
                 onClick={() => {
                   setSource(null);
+                  setGifOpen(false);
                   onRemove();
                 }}
               >
@@ -171,6 +192,21 @@ export function AvatarPhotoEditor({
           </p>
         </div>
       </div>
+      {gifOpen && onGifSelected && (
+        <div className={styles.cropEditor} aria-label="Escolher GIF do perfil">
+          <KlipyGifSearch
+            compact
+            disabled={disabled || busy}
+            selectedUrl={isKlipyMediaUrl(avatarUrl) ? avatarUrl : null}
+            onSelect={(gif) => {
+              setSource(null);
+              onGifSelected(gif);
+              setGifOpen(false);
+            }}
+            unavailableMessage="A pesquisa de GIFs ainda não está disponível. Use Escolher foto para enviar um GIF do seu dispositivo."
+          />
+        </div>
+      )}
       {source && (
         <div className={styles.cropEditor} aria-label="Recortar foto do perfil">
           <p className={styles.help}>

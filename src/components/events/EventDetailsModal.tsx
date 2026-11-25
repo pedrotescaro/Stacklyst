@@ -25,6 +25,7 @@ import { useEventDialog } from './useEventDialog';
 import styles from './event-dialog.module.css';
 import type { EventType } from '@/app/events/EventsContent';
 import { EventChallengesSection } from '@/components/events/EventChallengesSection';
+import { isKlipyMediaUrl } from '@/lib/klipy';
 
 interface EventParticipantItem {
   id: string;
@@ -517,6 +518,7 @@ export function EventDetailsModal({
                                         alt={p.user.username}
                                         width={28}
                                         height={28}
+                                        unoptimized={isKlipyMediaUrl(p.user.avatar_url)}
                                         className="w-full h-full object-cover"
                                       />
                                     ) : (

@@ -2,6 +2,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { encodeCursor, decodeCursor } from '@/lib/pagination';
 const mocks = vi.hoisted(() => ({
+  pinnedPost: vi.fn(),
   posts: vi.fn(),
   replies: vi.fn(),
   postCount: vi.fn(),
@@ -9,7 +10,7 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock('@/lib/prisma', () => ({
   prisma: {
-    post: { findMany: mocks.posts, count: mocks.postCount },
+    post: { findFirst: mocks.pinnedPost, findMany: mocks.posts, count: mocks.postCount },
     answer: { findMany: mocks.replies, count: mocks.replyCount },
   },
 }));
@@ -30,6 +31,7 @@ const reply = (id: string, createdAt = time) => ({
 });
 beforeEach(() => {
   vi.clearAllMocks();
+  mocks.pinnedPost.mockResolvedValue(null);
   mocks.posts.mockResolvedValue([]);
   mocks.replies.mockResolvedValue([]);
   mocks.postCount.mockResolvedValue(0);
@@ -129,5 +131,33 @@ describe('profile publications include replies', () => {
       getProfileActivity('viewer', 'developer', { cursor: invalid })
     ).rejects.toMatchObject({ code: 'INVALID_CURSOR' });
     expect(mocks.posts).not.toHaveBeenCalled();
+  });
+
+  it('places the single pinned post first on the Posts tab without breaking chronological cursor', async () => {
+    const olderPinned = {
+      ...post('pinned-old', new Date(time.getTime() - 10_000)),
+      is_pinned: true,
+    };
+    const newerChronological = post('newer-post', new Date(time.getTime() + 5_000));
+    const olderChronological = post('older-post', new Date(time.getTime() + 1_000));
+    mocks.pinnedPost.mockResolvedValueOnce(olderPinned);
+    mocks.posts.mockResolvedValueOnce([newerChronological, olderChronological]);
+
+    const firstPage = await getProfileActivity('viewer', 'developer', { tab: 'posts', limit: 1 });
+    expect(firstPage.items.map((item) => item.id)).toEqual(['pinned-old', 'newer-post']);
+    expect(mocks.posts.mock.calls[0][0].where.AND).toContainEqual({ is_pinned: false });
+    expect(decodeCursor(firstPage.nextCursor!).i).toBe('post:newer-post');
+
+    mocks.pinnedPost.mockResolvedValueOnce(olderPinned);
+    await getProfileActivity('viewer', 'developer', {
+      tab: 'posts',
+      limit: 1,
+      cursor: encodeCursor(time, 'post:newer-post'),
+    });
+    expect(mocks.pinnedPost).toHaveBeenCalledTimes(1);
+
+    await getProfileActivity('viewer', 'developer', { tab: 'posts', search: 'Pinned' });
+    await getProfileActivity('viewer', 'developer', { tab: 'likes' });
+    expect(mocks.pinnedPost).toHaveBeenCalledTimes(1);
   });
 });

@@ -272,6 +272,16 @@ describe('Profile persistence and awards', () => {
     expect(mocks.save).toHaveBeenCalled();
     expect(mocks.updateUser.mock.calls[0][0].data.banner_url).toBe(gif);
   });
+  it('accepts a GIF avatar served from KLIPY without requiring a Supabase upload', async () => {
+    const gif = 'https://static.klipy.com/ii/abc/14/af/avatar.webp';
+    await saveProfileCustomization('owner', {
+      version: 0,
+      preferences: DEFAULT_PROFILE_PREFERENCES,
+      avatarUrl: gif,
+    });
+    expect(mocks.save).toHaveBeenCalled();
+    expect(mocks.updateUser.mock.calls[0][0].data.avatar_url).toBe(gif);
+  });
   it('does not overwrite a photo when a stale version is rejected', async () => {
     mocks.state.mockResolvedValue({ version: 2, preferences: DEFAULT_PROFILE_PREFERENCES });
     await expect(
