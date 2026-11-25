@@ -3,7 +3,7 @@ title: Grafos de fluxo, caminhos independentes e complexidade ciclomática de Mc
 summary: Como transformar código em grafo de fluxo de controle, as três fórmulas de V(G), o conjunto de caminhos independentes (caminhos básicos), cobertura de decisões e uma calculadora interativa com seleção de caminhos.
 order: 2
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [complexidade ciclomática, mccabe, v(g), grafo de fluxo, grafo de fluxo de controle, cfg, nós, arestas, regiões, nós predicados, caminhos independentes, caminhos básicos, teste do caminho básico, cobertura de comandos, cobertura de decisões, caixa branca]
 related: [fundamentos-de-testes, algoritmos-e-logica-de-programacao, grafos, qualidade-de-software]
@@ -92,18 +92,7 @@ Grafo: nós 1, 2, 3, 4, 5, 6; arestas 1→2, 2→3, 2→6, 3→4, 3→5, 4→2, 
 
 ## Representação visual
 
-```mermaid Grafo de fluxo para caminhos básicos
-flowchart TD
-  N1((1)) --> N2((2))
-  N2 -->|"i &lt; n · sim"| N3((3))
-  N2 -->|Não| N6((6))
-  N3 -->|"calc(i) ≤ n · sim"| N4((4))
-  N3 -->|Não| N5((5))
-  N4 --> N2
-  N5 --> N2
-```
-
-Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 23) e McCABE (1976) — recriado pela equipe Stacklyst.
+::figure{id="grafo-fluxo-mccabe"}
 
 Os círculos representam blocos de execução. Os nós 2 e 3 têm duas saídas, e as duas ramificações internas retornam ao teste do laço. No ENADE, confira a contagem de seis nós e sete arestas antes de calcular V(G) = 3 e escolha três caminhos que introduzam arestas diferentes.
 

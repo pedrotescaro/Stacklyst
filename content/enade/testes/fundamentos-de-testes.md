@@ -3,7 +3,7 @@ title: Fundamentos de testes — V&V, caixa branca, preta e cinza, níveis e tip
 summary: Verificação e validação, defeito × erro × falha, as técnicas de caixa branca, caixa preta e caixa cinza, os níveis unitário, integração, sistema e aceitação (alfa e beta), e os testes de regressão, desempenho, carga, estresse e outros.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [teste de software, verificação, validação, v&v, defeito, erro, falha, caixa branca, caixa preta, caixa cinza, teste unitário, teste de integração, teste de sistema, teste de aceitação, alfa, beta, regressão, desempenho, carga, estresse, usabilidade, segurança, compatibilidade, instalação, partição de equivalência, valor limite, cobertura, tdd]
 related: [complexidade-ciclomatica, qualidade-de-software, modelos-de-processo, metodos-ageis, requisitos-fundamentos]
@@ -95,27 +95,11 @@ void naoDevePermitirSaqueMaiorQueSaldo() {         // teste unitário (JUnit)
 
 ## Representação visual
 
-```mermaid Estratégia de teste do componente ao sistema
-flowchart TD
-  U["Unidade<br/>componente isolado"] --> I["Integração<br/>interfaces entre partes"]
-  I --> V["Validação<br/>requisitos especificados"]
-  V --> S["Sistema<br/>ambiente e subsistemas"]
-```
-
-Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 22) — recriado pela equipe Stacklyst.
+::figure{id="estrategia-testes-software"}
 
 O escopo se amplia da unidade para o software integrado, chega à validação dos requisitos e inclui o sistema completo no seu ambiente. No ENADE, use o objeto descrito para identificar o nível. Uma função aponta para unidade, e sua interação com outros componentes aponta para integração.
 
-```mermaid Testes de desenvolvimento, release e usuário
-flowchart TD
-  subgraph D["Testes de desenvolvimento"]
-    U["Unidade"] --> C["Componente"] --> S["Sistema"]
-  end
-  R["Testes de release"] --> P["Testes de usuário<br/>alfa, beta, aceitação"]
-  D --> R
-```
-
-Fonte: adaptado de SOMMERVILLE (2018, cap. 8) — recriado pela equipe Stacklyst.
+::figure{id="etapas-testes-software"}
 
 Leia cada grupo pelo objetivo e por quem participa. O desenvolvimento testa as unidades e suas combinações; uma equipe separada pode verificar a versão candidata; usuários participam da avaliação final. No ENADE, observe que o alfa ocorre em ambiente acompanhado e que a aceitação dá base à decisão do cliente de aceitar ou rejeitar a entrega. Myers, Sandler e Badgett (2012, caps. 5 e 6) também distinguem testes de módulo e de ordem superior.
 
