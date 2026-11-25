@@ -3,7 +3,7 @@ title: Funções e interpretação de gráficos e tabelas
 summary: Funções afim, quadrática e exponencial, e como ler gráficos de barras, linhas, setores e histogramas, tabelas de dupla entrada e dados acumulados sem cair nas armadilhas comuns da formação geral.
 order: 4
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [função, função afim, função linear, função quadrática, função exponencial, taxa de variação, gráfico de barras, gráfico de linhas, gráfico de setores, pizza, histograma, tabela, dados acumulados, eixo, escala, tendência, correlação, causalidade]
 related: [porcentagem-e-proporcao, estatistica-descritiva, curva-de-lorenz-e-gini, leitura-de-imagens-e-charges]
@@ -73,19 +73,7 @@ Na tabela, Rio de Janeiro e São Paulo têm distribuições parecidas (cerca de 
 
 Parta da série e da população representada, leia as unidades e confira a escala antes de comparar os valores. No ENADE, essa checagem ajuda a distinguir valor absoluto de percentual e a perceber quando um eixo truncado aumenta a diferença aparente.
 
-```mermaid Leitura de um gráfico de dados
-flowchart TB
-  subgraph LEITURA["Ler o gráfico"]
-    I["Identificar série e fonte"] --> C["Checar escala e unidades"]
-    C --> V["Ler valores comparáveis"]
-  end
-  V --> P{"Mesma referência?"}
-  P -->|"Sim"| D["Interpretar a diferença"]
-  P -->|"Não"| AJ["Converter ou contextualizar"]
-  AJ --> V
-```
-
-Fonte: adaptado de WAINER (1984, p. 137–147) — recriado pela equipe Stacklyst.
+::figure{id="leitura-de-grafico-de-dados"}
 
 ## Vantagens e desvantagens
 

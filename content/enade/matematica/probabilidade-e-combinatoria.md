@@ -3,7 +3,7 @@ title: Probabilidade e análise combinatória
 summary: Princípio fundamental da contagem, permutações, arranjos e combinações, probabilidade clássica, eventos complementares, independentes e mutuamente exclusivos, probabilidade condicional e interpretação de probabilidades em sistemas.
 order: 3
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [probabilidade, espaço amostral, evento, complementar, independentes, mutuamente exclusivos, probabilidade condicional, regra do produto, regra da soma, análise combinatória, princípio fundamental da contagem, permutação, arranjo, combinação, fatorial, dados, valor esperado]
 related: [estatistica-descritiva, conjuntos-e-venn, porcentagem-e-proporcao, sistemas-de-informacao-empresariais]
@@ -68,25 +68,7 @@ Espaço amostral: 6 × 6 = 36 resultados. Soma 7: (1,6), (2,5), (3,4), (4,3), (5
 
 Cada caminho da raiz a uma folha corresponde a um resultado ordenado. Em lançamentos independentes de uma moeda justa, multiplique as probabilidades dos ramos para obter ¼ em cada folha. No ENADE, some resultados disjuntos quando o evento admite mais de um caminho, como obter uma única cara.
 
-```mermaid Árvore de dois lançamentos
----
-config:
-  flowchart:
-    nodeSpacing: 18
-    rankSpacing: 30
-    padding: 8
----
-flowchart TB
-  I(["Dois lançamentos"])
-  I -->|"½"| C["Cara"]
-  I -->|"½"| K["Coroa"]
-  C -->|"½"| CC["Cara, cara<br/>¼"]
-  C -->|"½"| CK["Cara, coroa<br/>¼"]
-  K -->|"½"| KC["Coroa, cara<br/>¼"]
-  K -->|"½"| KK["Coroa, coroa<br/>¼"]
-```
-
-Fonte: adaptado de ILLOWSKY; DEAN (2023, seção 3.5) — recriado pela equipe Stacklyst.
+::figure{id="arvore-de-dois-lancamentos"}
 
 ## Diferenças entre conceitos semelhantes
 

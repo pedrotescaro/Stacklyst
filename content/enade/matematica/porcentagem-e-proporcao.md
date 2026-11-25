@@ -3,7 +3,7 @@ title: Porcentagem, frações, razão, proporção e regra de três
 summary: Frações e decimais, porcentagem (aumentos, descontos e variações sucessivas), pontos percentuais, razão e proporção, grandezas direta e inversamente proporcionais e regra de três simples e composta, com resoluções passo a passo.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [porcentagem, percentual, ponto percentual, fração, decimal, razão, proporção, regra de três, regra de três composta, diretamente proporcional, inversamente proporcional, aumento, desconto, variação percentual, fator multiplicativo, consumo, kwh]
 related: [estatistica-descritiva, funcoes-e-graficos, viabilidade-economica, curva-de-lorenz-e-gini]
@@ -87,17 +87,7 @@ O fator multiplicativo aplica a variação percentual à base sobre a qual a tax
 
 Escolha a razão ou o produto que permanece constante para os pares de valores. No ENADE, use essa constante para determinar o valor desconhecido e confirme se, para grandezas positivas, dobrar uma grandeza deve dobrar ou reduzir à metade a outra.
 
-```mermaid Variações direta e inversa
-flowchart TB
-  G["Relacionar x e y"] --- D["Direta"]
-  G --- I["Inversa"]
-  D --> D1["y ÷ x = k"]
-  I --> I1["x · y = k"]
-  D1 --> D2["x dobra<br/>y dobra"]
-  I1 --> I2["x dobra<br/>y cai à metade"]
-```
-
-Fonte: adaptado de ABRAMSON (2021, seção 5.8) — recriado pela equipe Stacklyst.
+::figure{id="variacoes-direta-e-inversa"}
 
 ## Diferenças entre conceitos semelhantes
 
