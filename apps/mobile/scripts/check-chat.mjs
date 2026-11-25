@@ -23,6 +23,7 @@ const stubs = {
   'react-native': `import React from 'react';
     export const View=({children})=>React.createElement('div',null,children);
     export const Text=({children})=>React.createElement('span',null,children);
+    export const Image=({source,accessibilityLabel})=>React.createElement('img',{src:source?.uri,alt:accessibilityLabel||''});
     export const TextInput=()=>null;
     export const Pressable=({children,onPress,onLongPress,accessibilityLabel})=>React.createElement('button',{onClick:onPress,onContextMenu:onLongPress,'aria-label':accessibilityLabel},children);
     export const StyleSheet={create:value=>value,hairlineWidth:1};`,
