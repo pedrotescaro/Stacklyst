@@ -3,7 +3,7 @@ title: Princípios SOLID
 summary: Responsabilidade Única, Aberto/Fechado, Substituição de Liskov, Segregação de Interfaces e Inversão de Dependência — o problema que cada um resolve, exemplo de violação e de correção.
 order: 4
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [solid, srp, responsabilidade única, ocp, aberto fechado, lsp, liskov, isp, segregação de interfaces, dip, inversão de dependência, injeção de dependência, design orientado a objetos]
 related: [relacionamentos-coesao-acoplamento, heranca-e-polimorfismo, padroes-de-projeto, estilos-arquiteturais]
@@ -109,24 +109,7 @@ class ServicoDePedidos:
 
 ## Representação visual
 
-```mermaid Dependências de um serviço de pedidos
-classDiagram
-  direction TB
-  class ServicoPedidos {
-    +registrar(pedido)
-  }
-  class RepositorioPedidos {
-    <<interface>>
-    +salvar(pedido)
-  }
-  class RepositorioPostgres
-  class RepositorioMemoria
-  ServicoPedidos ..> RepositorioPedidos : usa contrato
-  RepositorioPedidos <|.. RepositorioPostgres
-  RepositorioPedidos <|.. RepositorioMemoria
-```
-
-Fonte: adaptado de MARTIN (2019, cap. 11) e OMG (2017, seções 7 e 10) — recriado pela equipe Stacklyst.
+::figure{id="inversao-dependencia-pedidos"}
 
 Siga as pontas das setas. O serviço usa o contrato, e as duas implementações realizam o mesmo contrato. No ENADE, verifique se a regra de negócio permanece disponível ao substituir o armazenamento por uma implementação em memória.
 

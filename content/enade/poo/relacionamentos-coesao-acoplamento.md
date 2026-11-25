@@ -3,7 +3,7 @@ title: Associação, agregação, composição, coesão, acoplamento e reutiliza
 summary: Como objetos se relacionam no código, a diferença prática entre agregação e composição, o que são coesão e acoplamento e por que "alta coesão e baixo acoplamento" é a meta de todo projeto, além das formas de reutilização.
 order: 3
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [associação, agregação, composição, todo-parte, coesão, acoplamento, alta coesão, baixo acoplamento, reutilização, reuso, composição sobre herança, injeção de dependência, lei de demeter]
 related: [uml-classes-e-objetos, heranca-e-polimorfismo, principios-solid, estilos-arquiteturais]
@@ -93,15 +93,7 @@ Uma classe `Pedido` que calcula total, envia e-mail e grava no banco tem **baixa
 
 ## Representação visual
 
-```mermaid Três relações estruturais UML
-classDiagram
-  direction LR
-  Cliente "1" -- "0..*" Pedido : realiza
-  Time "0..*" o-- "0..*" Jogador : reúne
-  Fatura "1" *-- "1..*" ItemFatura : contém
-```
-
-Fonte: adaptado de OMG (2017, seção 11) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 5 e 10) — recriado pela equipe Stacklyst.
+::figure{id="relacoes-estruturais-uml"}
 
 Leia a linha simples entre cliente e pedido. Em seguida, veja de que lado está o losango. O vazio indica agregação compartilhada, e o cheio indica composição. No ENADE, leia a multiplicidade a partir do extremo oposto e identifique qual classe é o todo.
 

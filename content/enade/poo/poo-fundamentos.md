@@ -3,7 +3,7 @@ title: Fundamentos da orientação a objetos — classes, objetos, atributos, m�
 summary: Os conceitos de base da POO explicados do zero, com exemplos em Java, TypeScript e Python: classe e objeto, estado e comportamento, mensagens, construtores, abstração, encapsulamento e modificadores de acesso.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [poo, orientação a objetos, classe, objeto, instância, atributo, método, mensagem, construtor, abstração, encapsulamento, private, public, protected, getter, setter, java, typescript, python]
 related: [heranca-e-polimorfismo, relacionamentos-coesao-acoplamento, uml-classes-e-objetos, principios-solid]
@@ -127,19 +127,7 @@ Se `saldo` fosse público, qualquer parte do sistema poderia fazer `conta.saldo 
 
 ## Representação visual
 
-```mermaid Interface de uma conta bancária
-classDiagram
-  direction TB
-  class ContaBancaria {
-    -numero : String
-    -saldo : Decimal
-    +depositar(valor : Decimal)
-    +sacar(valor : Decimal) Boolean
-    +consultarSaldo() Decimal
-  }
-```
-
-Fonte: adaptado de OMG (2017, seções 7 e 9) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 4) — recriado pela equipe Stacklyst.
+::figure{id="classe-conta-bancaria"}
 
 Leia o nome da classe, os atributos privados e as operações públicas de cima para baixo. No ENADE, diferencie o valor armazenado no saldo da operação pública usada para consultá-lo.
 
