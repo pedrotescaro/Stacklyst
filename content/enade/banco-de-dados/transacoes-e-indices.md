@@ -3,7 +3,7 @@ title: Transações, propriedades ACID, concorrência, índices e bancos não re
 summary: O que é uma transação, as propriedades ACID, COMMIT e ROLLBACK, problemas de concorrência e níveis de isolamento, recuperação após falhas, índices (B+ e hash), bancos NoSQL e bancos distribuídos com o teorema CAP.
 order: 4
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [transação, acid, atomicidade, consistência, isolamento, durabilidade, commit, rollback, concorrência, bloqueio, lock, deadlock, leitura suja, níveis de isolamento, log, recuperação, índice, árvore b+, índice hash, nosql, documentos, chave-valor, colunar, grafos, banco distribuído, replicação, particionamento, sharding, teorema cap, base]
 related: [sql, modelagem-de-dados, arvores, tabelas-hash, sistemas-operacionais]
@@ -90,20 +90,7 @@ Colocar um livro no carrinho **não** cria um segundo exemplar nem conclui a ven
 
 ## Representação visual
 
-```mermaid Ciclo de uma transação no SGBD
-stateDiagram-v2
-  state "Parcialmente confirmada" as Parcial
-  [*] --> Ativa : início
-  Ativa --> Parcial : fim das operações
-  Parcial --> Confirmada : commit
-  Ativa --> Falha : erro ou abortar
-  Parcial --> Falha : erro antes do commit
-  Falha --> Terminada : desfazer
-  Confirmada --> Terminada : liberar recursos
-  Terminada --> [*]
-```
-
-Fonte: adaptado de ELMASRI; NAVATHE (2018, cap. 20) — recriado pela equipe Stacklyst.
+::figure{id="ciclo-transacao-sgbd"}
 
 A transação fica parcialmente confirmada quando termina de executar. A confirmação depende de atingir o ponto de commit. Se houver falha antes disso, siga até o desfazimento e a terminação. No ENADE, use o estado e a confirmação persistente para decidir o que recuperar.
 

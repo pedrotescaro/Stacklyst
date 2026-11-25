@@ -3,7 +3,7 @@ title: SQL — DDL, DML, consultas, JOINs, agregação, subconsultas e operaçõ
 summary: Comandos de definição e manipulação de dados, SELECT completo com WHERE, ORDER BY, GROUP BY e HAVING, funções de agregação, todos os tipos de JOIN, subconsultas, UNION, INTERSECT e EXCEPT e o tratamento de NULL — com exemplos executáveis de cabeça.
 order: 3
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [sql, ddl, dml, dcl, create table, alter table, insert, update, delete, select, where, order by, group by, having, count, sum, avg, min, max, join, inner join, left join, right join, full join, cross join, subconsulta, in, exists, union, intersect, except, is null, distinct, alias]
 related: [modelagem-de-dados, normalizacao, transacoes-e-indices, conjuntos-e-venn]
@@ -140,17 +140,7 @@ HAVING AVG(hm.val_movimentado) > 5000;
 
 ## Representação visual
 
-```mermaid Junções sobre duas relações
-flowchart TB
-  A["A.id<br/>1, 2"] --> J["Condição<br/>A.id = B.id"]
-  B["B.id<br/>2, 3"] --> J
-  J --> I["INNER JOIN<br/>(2, 2)"]
-  J --> L["LEFT JOIN<br/>(1, NULL), (2, 2)"]
-  J --> R["RIGHT JOIN<br/>(2, 2), (NULL, 3)"]
-  J --> F["FULL JOIN<br/>(1, NULL)<br/>(2, 2), (NULL, 3)"]
-```
-
-Fonte: adaptado de ELMASRI; NAVATHE (2018, caps. 7 e 8) — recriado pela equipe Stacklyst.
+::figure{id="juncao-relacoes-sql"}
 
 Leia cada par de saída como (id de A, id de B). A chave 2 coincide nas duas tabelas. Quando a junção externa preserva uma linha sem par, a outra coluna recebe NULL. No ENADE, percorra as linhas preservadas antes de contar o resultado da consulta.
 

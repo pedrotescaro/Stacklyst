@@ -3,7 +3,7 @@ title: Modelagem de dados — conceitual, lógica e física, DER, cardinalidades
 summary: Os três níveis de modelagem, o Diagrama Entidade-Relacionamento (entidades, atributos, relacionamentos, entidades fracas), cardinalidades mínima e máxima, chaves primárias, estrangeiras e candidatas, restrições de integridade e o mapeamento para tabelas.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [modelagem de dados, modelo conceitual, modelo lógico, modelo físico, der, mer, entidade, entidade fraca, atributo, atributo multivalorado, atributo composto, relacionamento, cardinalidade, 1:1, 1:n, n:m, tabela associativa, chave primária, chave estrangeira, chave candidata, integridade referencial, integridade semântica, domínio, tupla, relação]
 related: [normalizacao, sql, transacoes-e-indices, uml-classes-e-objetos]
@@ -104,45 +104,7 @@ CREATE TABLE emprestimo (
 
 ## Representação visual
 
-```mermaid Cardinalidades do cadastro da biblioteca
----
-config:
-  er:
-    nodeSpacing: 22
-    rankSpacing: 38
----
-erDiagram
-  direction TB
-  ALUNO ||..o{ EMPRESTIMO : realiza
-  LIVRO ||..o{ EMPRESTIMO : integra
-  LIVRO ||--o{ LIVRO_AUTOR : possui
-  AUTOR ||--o{ LIVRO_AUTOR : assina
-  ALUNO {
-    int matricula PK
-    string nome
-  }
-  LIVRO {
-    int liv_cod PK
-    string titulo
-  }
-  EMPRESTIMO {
-    int emp_cod PK
-    int livro_cod FK
-    int aluno_mat FK
-    date data_emp
-    date data_dev
-  }
-  LIVRO_AUTOR {
-    int liv_cod PK,FK
-    int aut_cod PK,FK
-  }
-  AUTOR {
-    int aut_cod PK
-    string nome
-  }
-```
-
-Fonte: adaptado de ELMASRI; NAVATHE (2018, caps. 3 e 9 e apêndice A) — recriado pela equipe Stacklyst.
+::figure{id="cardinalidades-biblioteca"}
 
 Leia as pontas para saber quantas ocorrências podem participar. Cada empréstimo tem um aluno e um livro. A entidade associativa Livro–Autor usa as duas chaves estrangeiras como chave primária. No ENADE, essa leitura orienta o mapeamento de relações 1:N e N:M para tabelas.
 
