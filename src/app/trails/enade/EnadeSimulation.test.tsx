@@ -93,9 +93,7 @@ describe('Enade course simulations', () => {
   it('starts a real edition, records objective and discursive answers, finishes and reviews results', async () => {
     render(simulation());
     expect(await screen.findByRole('heading', { name: 'Simulado 2021' })).toBeInTheDocument();
-    expect(
-      await screen.findByAltText(/Discursiva 1 · parte 1 da prova Enade ADS 2021/)
-    ).toBeInTheDocument();
+    expect(await screen.findByAltText(/Discursiva 1 da prova Enade ADS 2021/)).toBeInTheDocument();
     fireEvent.change(screen.getByLabelText('Escreva sua resposta'), {
       target: { value: 'Minha resposta discursiva.' },
     });

@@ -25,6 +25,10 @@ STEM_CLIPS = {
     '2014-objective-29': [(22, [44, 124, 313, 747]), (22, [318, 103, 584, 141])],
 }
 DIAGRAM_STEM_BOTTOM = {'2017-objective-20': 132, '2021-objective-15': 98}
+# Top of the usable body for enunciados that continue on a later page.
+# Values use PDF points and one-based page numbers.
+CONTINUATION_TOP = {2014: 96, 2017: 82}
+CONTINUATION_PAGE_TOP = {2008: {9: 94}, 2021: {3: 80, 23: 60}}
 INSTRUCTION_START = re.compile(
     r'^(?:Assinale|Com base|Considerando|É correto|A respeito|Acerca|Das (?:imagens|obras)|No poema|'
     r'Usando|Utilizando a engenharia reversa|A partir|De acordo|Nesse contexto|Nessa situação|'
@@ -130,7 +134,11 @@ def clip_text(doc, clip):
 
 
 def extract(exam):
-    doc = source_document(exam['year'])
+    year = exam['year']
+    doc = source_document(year)
+    default_top = 65 if year == 2011 else 74
+    continuation_top = CONTINUATION_TOP.get(year, default_top)
+    continuation_pages = CONTINUATION_PAGE_TOP.get(year, {})
     regions, headers = [], []
     last_columns = 1
     for index, page in enumerate(doc):
@@ -163,7 +171,7 @@ def extract(exam):
             x0 = 20 if column == 0 else middle + 3
             x1 = middle - 3 if columns == 2 and column == 0 else page.rect.width - 20
             region_index = len(regions)
-            regions.append({'page': index, 'rect': [x0, 65 if exam['year'] == 2011 else 74, x1, bottom]})
+            regions.append({'page': index, 'rect': [x0, default_top, x1, bottom]})
             for question, line in found:
                 col = int(line['bbox'][0] > middle) if columns == 2 else 0
                 if col == column:
@@ -208,6 +216,8 @@ def extract(exam):
         stem = []
         for ci, clip in enumerate(clips):
             rect = list(clip['rect'])
+            if clip['page'] > clips[0]['page']:
+                rect[1] = continuation_pages.get(clip['page'] + 1, continuation_top)
             if markers and ci == markers[0]['clip']:
                 rect[3] = markers[0]['box'][1] - 2
             if markers and ci > markers[0]['clip']:

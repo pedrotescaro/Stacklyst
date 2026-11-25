@@ -5,10 +5,6 @@
       {
         "src": "/enade/2021/questions/2021-discursive-1-1.webp",
         "page": 2
-      },
-      {
-        "src": "/enade/2021/questions/2021-discursive-1-2.webp",
-        "page": 3
       }
     ],
     "statement": "Desenvolva sua resposta considerando o enunciado e os itens apresentados acima.",
@@ -1306,8 +1302,8 @@
         "page": 23
       }
     ],
-    "statement": "da fundação e de posse da planilha eletrônica, modelou um Diagrama de Classes como parte da especificação dos requisitos do sistema. corretamente pela equipe de desenvolvimento.",
-    "transcript": "Uma fundação municipal de arte e cultura oferece cursos para crianças e adolescentes de até 16 anos. \nOs registros de matrículas são realizados em uma planilha eletrônica ilustrada a seguir, o que dificulta bastante \no controle dos dados frente ao número expressivo de estudantes, muitos dos quais solicitam matrícula em mais \nde um curso. A administração da fundação, então, solicitou o desenvolvimento de um programa para facilitar \no registro e a consulta desses dados, incluindo-se a data de efetivação de cada matrícula, para fins de controles \nespecíficos da secretaria.\nNOME \nDATA \nNOME \nNÚMERO\nCONTATOS\nCURSO\nHORÁRIO\nPROFESSOR(A)\nESTUDANTE\nNASC.\nRESPONSÁVEL\n9h - 10h \n(99)99999-0101\nCharles \nViolão Básico\n(ter - qui)\nDennis Ritchie\n10\nAda Lovelace\n10/12/2009\ncharles@\nBabbage\nDesenho\n10h - 11h \nJohn Backus\nbabbage.com\n(seg - qua)\nOle-Johan \n9h - 10h\n11\n12/10/2008\nKristen Nygaard  -\nDesenho\nMary Keller\nDahl\n(seg - qua)\n(99)99999-0091\n12\nGrace Hopper 09/12/2010\nHoward Aiken\n(99)99999-0095 Balé\n8h - 10h (sex) Hedy Lamarr\n9h - 10h \n(99)99999-0231 Desenho\n(seg - qua)\nMary Keller\n13\nAlan Turing\n23/06/2009\nJoan Clarke\nViolão Básico\n9h - 10h \nDennis Ritchie\n(ter - qui)\nDorothy \nKatherine \n14\n20/09/2009\n(99)99999-0201 Balé\n8h - 10h (sex) Hedy Lamarr\nVaughan\nJohnson\n...\n...\n...\n...\n...\n...\n...\n...\nA equipe de desenvolvimento de softwares da prefeitura, após uma breve entrevista com a administração \nda fundação e de posse da planilha eletrônica, modelou um Diagrama de Classes como parte da \nespecificação dos requisitos do sistema.\ncorretamente pela equipe de desenvolvimento.",
+    "statement": "Considerando o cenário descrito, assinale a opção a seguir que exibe o Diagrama de Classes modelado corretamente pela equipe de desenvolvimento.",
+    "transcript": "Uma fundação municipal de arte e cultura oferece cursos para crianças e adolescentes de até 16 anos. \nOs registros de matrículas são realizados em uma planilha eletrônica ilustrada a seguir, o que dificulta bastante \no controle dos dados frente ao número expressivo de estudantes, muitos dos quais solicitam matrícula em mais \nde um curso. A administração da fundação, então, solicitou o desenvolvimento de um programa para facilitar \no registro e a consulta desses dados, incluindo-se a data de efetivação de cada matrícula, para fins de controles \nespecíficos da secretaria.\nNOME \nDATA \nNOME \nNÚMERO\nCONTATOS\nCURSO\nHORÁRIO\nPROFESSOR(A)\nESTUDANTE\nNASC.\nRESPONSÁVEL\n9h - 10h \n(99)99999-0101\nCharles \nViolão Básico\n(ter - qui)\nDennis Ritchie\n10\nAda Lovelace\n10/12/2009\ncharles@\nBabbage\nDesenho\n10h - 11h \nJohn Backus\nbabbage.com\n(seg - qua)\nOle-Johan \n9h - 10h\n11\n12/10/2008\nKristen Nygaard  -\nDesenho\nMary Keller\nDahl\n(seg - qua)\n(99)99999-0091\n12\nGrace Hopper 09/12/2010\nHoward Aiken\n(99)99999-0095 Balé\n8h - 10h (sex) Hedy Lamarr\n9h - 10h \n(99)99999-0231 Desenho\n(seg - qua)\nMary Keller\n13\nAlan Turing\n23/06/2009\nJoan Clarke\nViolão Básico\n9h - 10h \nDennis Ritchie\n(ter - qui)\nDorothy \nKatherine \n14\n20/09/2009\n(99)99999-0201 Balé\n8h - 10h (sex) Hedy Lamarr\nVaughan\nJohnson\n...\n...\n...\n...\n...\n...\n...\n...\nA equipe de desenvolvimento de softwares da prefeitura, após uma breve entrevista com a administração \nda fundação e de posse da planilha eletrônica, modelou um Diagrama de Classes como parte da \nespecificação dos requisitos do sistema.\nConsiderando o cenário descrito, assinale a opção a seguir que exibe o Diagrama de Classes modelado \ncorretamente pela equipe de desenvolvimento.",
     "options": [
       {
         "letter": "A",
@@ -1427,7 +1423,7 @@
       },
       {
         "kind": "paragraph",
-        "text": "corretamente pela equipe de desenvolvimento."
+        "text": "Considerando o cenário descrito, assinale a opção a seguir que exibe o Diagrama de Classes modelado corretamente pela equipe de desenvolvimento."
       }
     ]
   },

@@ -6,11 +6,15 @@ import { describe, it, expect } from 'vitest';
 import data from './exams.json';
 import { gradeEnade, type EnadeExam, type EnadeQuestionContent } from './types';
 
-function archivedQuestion(year: number, number: number) {
+function archivedQuestion(
+  year: number,
+  number: number,
+  kind: 'objective' | 'discursive' = 'objective'
+) {
   const items = JSON.parse(
     readFileSync(resolve(`public/enade/${year}/questions.json`), 'utf8')
   ) as EnadeQuestionContent[];
-  return items.find((item) => item.id === `${year}-objective-${number}`)!;
+  return items.find((item) => item.id === `${year}-${kind}-${number}`)!;
 }
 
 describe('ADS Enade official archive', () => {
@@ -172,6 +176,38 @@ describe('ADS Enade official archive', () => {
       ]);
       expect(detail.width).toBeGreaterThan(preview.width * 1.95);
       expect(detail.height).toBeGreaterThan(preview.height * 1.9);
+    }
+  });
+
+  it('keeps the complete 2021 class diagram prompt and its original page', async () => {
+    const question = archivedQuestion(2021, 15);
+    expect(question.statement).toMatch(/^Considerando o cenário descrito/);
+    expect(question.formattedStatement?.at(-1)).toMatchObject({
+      kind: 'paragraph',
+      text: expect.stringMatching(/^Considerando o cenário descrito.*equipe de desenvolvimento\.$/),
+    });
+    expect(question.images.map(({ page }) => page)).toEqual([22, 23]);
+    const { data: pixels, info } = await sharp(resolve(`public${question.images[1].src}`))
+      .greyscale()
+      .raw()
+      .toBuffer({ resolveWithObject: true });
+    const topRows = pixels.subarray(0, info.width * info.channels * 8);
+    expect(topRows.every((pixel) => pixel >= 220)).toBe(true);
+  });
+
+  it('omits header-only and scratch-only pages while retaining actual continuations', () => {
+    for (const [year, number, expectedPages] of [
+      [2008, 10, [8]],
+      [2014, 1, [2]],
+      [2017, 1, [2, 3]],
+      [2017, 5, [16, 17]],
+      [2021, 1, [2]],
+    ] as const) {
+      const question = archivedQuestion(year, number, 'discursive');
+      expect(
+        question.images.map(({ page }) => page),
+        question.id
+      ).toEqual(expectedPages);
     }
   });
 
