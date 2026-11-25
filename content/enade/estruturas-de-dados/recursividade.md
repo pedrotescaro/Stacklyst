@@ -3,8 +3,8 @@ title: Recursividade
 summary: Caso base e passo recursivo, como a pilha de chamadas executa uma função recursiva, exemplos (fatorial, Fibonacci, soma de vetor), recursão × iteração, memoização e como rastrear chamadas na prova.
 order: 8
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [recursão, recursividade, caso base, condição de parada, passo recursivo, pilha de chamadas, stack overflow, fatorial, fibonacci, memoização, programação dinâmica, recursão de cauda, divisão e conquista]
 related: [pilhas-e-filas, arvores, busca-e-ordenacao, complexidade-de-algoritmos]
 ---
@@ -89,17 +89,21 @@ Com `{2, -4, 7, 0, -1, 4}` e n = 6, a volta soma apenas os **positivos**: 2 + 7 
 
 ## Representação visual
 
-```mermaid Árvore de chamadas de fib(4) — note as repetições
-flowchart TD
-  F4[fib 4] --> F3[fib 3]
-  F4 --> F2a[fib 2]
-  F3 --> F2b[fib 2]
-  F3 --> F1a[fib 1]
-  F2a --> F1b[fib 1]
-  F2a --> F0a[fib 0]
-  F2b --> F1c[fib 1]
-  F2b --> F0b[fib 0]
+Desça pelas chamadas até os casos-base F(0) e F(1). Identificadores distintos representam chamadas distintas, mesmo quando o argumento se repete. No ENADE, conte quantas vezes F(2) é recalculado e explique por que memorizar esse valor reduz o trabalho.
+
+```mermaid Chamadas repetidas de Fibonacci
+flowchart TB
+  F4["F(4)"] --> F3["F(3)"]
+  F4 --> F2a["F(2)"]
+  F3 --> F2b["F(2)"]
+  F3 --> F1a["F(1) = 1"]
+  F2a --> F1b["F(1) = 1"]
+  F2a --> F0a["F(0) = 0"]
+  F2b --> F1c["F(1) = 1"]
+  F2b --> F0b["F(0) = 0"]
 ```
+
+Fonte: adaptado de CORMEN et al. (2009, cap. 15) — recriado pela equipe Stacklyst.
 
 ## Vantagens e desvantagens
 
@@ -180,3 +184,4 @@ A incorreta é a **C**: o método recursivo **não** é o mais eficiente — rec
 - CELES, W.; CERQUEIRA, R.; RANGEL, J. L. *Introdução a Estruturas de Dados*. Elsevier, 2004 — cap. 4.
 - CORMEN, T. H. et al. *Algoritmos: teoria e prática*. 3. ed. Elsevier, 2012 — caps. 4 e 15.
 - INEP. ENADE TADS 2008 (questão 27) e 2014 (questão 16).
+- CORMEN, Thomas H. et al. *Introduction to algorithms*. 3. ed. Cambridge, MA: MIT Press, 2009.

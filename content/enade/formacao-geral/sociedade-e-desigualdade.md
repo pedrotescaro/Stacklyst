@@ -3,8 +3,8 @@ title: Sociedade contemporânea — globalização, desigualdade social, trabalh
 summary: Globalização e seus efeitos, desigualdade de renda, raça e gênero, mobilidade social, urbanização e êxodo rural, transformações do trabalho (informalidade e gig economy), pandemia, migrações e o ciclo das políticas públicas.
 order: 6
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [sociologia, globalização, desigualdade social, mobilidade social, pobreza, renda, gênero, raça, urbanização, êxodo rural, periferia, mobilidade urbana, trabalho informal, gig economy, uberização, pandemia, covid-19, migração, xenofobia, políticas públicas, analfabetismo, educação, indicadores sociais]
 related: [curva-de-lorenz-e-gini, etica-cidadania-e-direitos-humanos, sustentabilidade-e-responsabilidade-social, ciencia-tecnologia-e-sociedade, funcoes-e-graficos]
 ---
@@ -65,11 +65,20 @@ Migrantes e refugiados (como a imigração **haitiana** para o Brasil após o te
 
 ## Representação visual
 
-```mermaid Ciclo de políticas públicas
-flowchart LR
-  P[Problema] --> A[Agenda] --> F[Formulação] --> D[Decisão] --> I[Implementação] --> AV[Avaliação]
-  AV -->|ajustes| P
+Siga o ciclo analítico desde o reconhecimento do problema até a avaliação de resultados. A avaliação informa ajustes nas alternativas ou a eventual extinção da política. No ENADE, localize em que fase se encontra o caso e diferencie o que foi decidido do que foi implantado e medido.
+
+```mermaid Sete fases de uma política pública
+flowchart TB
+  P["Identificar o problema"] --> A["Formar a agenda"]
+  A --> F["Formular alternativas"]
+  F --> D["Tomar a decisão"]
+  D --> I["Implementar a política"]
+  I --> V["Avaliar resultados"]
+  V -->|"Encerrar"| E["Extinção"]
+  V -.->|"Reformular"| F
 ```
+
+Fonte: adaptado de SECCHI (2013, cap. 3) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -145,5 +154,5 @@ No raciocínio da questão, condições precárias de trabalho aumentam a exposi
 - IPEA. *Retrato das desigualdades de gênero e raça*. Disponível em ipea.gov.br.
 - SANTOS, M. *Por uma outra globalização*. 6. ed. Record, 2001.
 - ANTUNES, R. *O privilégio da servidão: o novo proletariado de serviços na era digital*. Boitempo, 2018.
-- SECCHI, L. *Políticas Públicas: conceitos, esquemas de análise, casos práticos*. 2. ed. Cengage, 2013.
+- SECCHI, Leonardo. *Políticas públicas: conceitos, esquemas de análise, casos práticos*. 2. ed. São Paulo: Cengage Learning, 2013.
 - INEP. ENADE — formação geral, 2011, 2014, 2017 e 2021.

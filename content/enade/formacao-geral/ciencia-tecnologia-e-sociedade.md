@@ -3,8 +3,8 @@ title: Ciência, tecnologia e sociedade — exclusão digital, cibercultura, red
 summary: Como a tecnologia transforma a sociedade, a exclusão e a inclusão digital, cibercultura, redes sociais e privacidade, desinformação e infodemia, cidades inteligentes, educação a distância e a responsabilidade ética de quem desenvolve tecnologia.
 order: 8
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [ciência e tecnologia, sociedade da informação, exclusão digital, inclusão digital, cibercultura, redes sociais, privacidade, algoritmos, bolhas, desinformação, fake news, infodemia, saúde, letramento digital, cidades inteligentes, smart cities, internet das coisas, educação a distância, ead, inovação, ética da tecnologia, inteligência artificial]
 related: [sociedade-e-desigualdade, seguranca-da-informacao, sustentabilidade-e-responsabilidade-social, interpretacao-de-texto, leitura-de-imagens-e-charges]
 ---
@@ -60,14 +60,19 @@ Um post afirma que "chá X cura a doença Y". Verifique: quem publicou? Há estu
 
 ## Representação visual
 
-```mermaid Dimensões da exclusão digital
-flowchart LR
-  E[Exclusão digital] --> A[Acesso: equipamento e conexão]
-  E --> H[Habilidades: letramento digital]
-  E --> U[Uso significativo: conteúdo e serviços relevantes]
-  E --> AC[Acessibilidade: pessoas com deficiência e idosos]
-  E --> S[Fatores sociais, econômicos e culturais]
+Leia de cima para baixo o percurso de acesso, da motivação ao uso efetivo. As condições sociais influenciam as transições, inclusive a aquisição de equipamento e o desenvolvimento de habilidades. No ENADE, identifique em qual etapa uma política atua e qual barreira ainda impede a participação.
+
+```mermaid Acesso digital em etapas
+flowchart TB
+  S["Condições sociais<br/>e recursos"] -.-> A
+  subgraph ACESSO["Etapas do acesso"]
+    M["Motivação para acessar"] --> A["Conexão e equipamento"]
+    A --> H["Habilidades digitais"]
+    H --> U["Uso efetivo"]
+  end
 ```
+
+Fonte: adaptado de VAN DIJK (2005, caps. 2–6) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -145,3 +150,4 @@ Os textos defendem **critérios** para avaliar informações e reconhecem que a 
 - CETIC.br. *TIC Domicílios* (pesquisa anual sobre uso das TICs no Brasil). Disponível em cetic.br.
 - OMS. *Managing the COVID-19 infodemic*, 2020.
 - INEP. ENADE — formação geral, 2011, 2014, 2017 e 2021.
+- VAN DIJK, Jan A. G. M. *The deepening divide: inequality in the information society*. Thousand Oaks: SAGE, 2005.

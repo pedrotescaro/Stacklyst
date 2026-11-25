@@ -3,8 +3,8 @@ title: Histórias de usuário, critérios de aceitação e casos de uso
 summary: Como escrever histórias de usuário (formato, INVEST), critérios de aceitação (Dado-Quando-Então) e especificações de casos de uso com fluxo principal, alternativos e de exceção, pré e pós-condições.
 order: 4
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [histórias de usuário, user story, invest, critérios de aceitação, gherkin, bdd, dado quando então, casos de uso, especificação de caso de uso, fluxo principal, fluxo alternativo, fluxo de exceção, pré-condição, pós-condição, ator]
 related: [uml-casos-de-uso, processo-de-requisitos, metodos-ageis, requisitos-fundamentos]
 ---
@@ -110,12 +110,21 @@ Critério de aceitação de HST02: "Dado um pagamento Pix aprovado, quando o ban
 
 ## Representação visual
 
-```mermaid Do requisito ao teste
-flowchart LR
-  H[História de usuário] --> CA[Critérios de aceitação] --> T[Testes de aceitação automatizados]
-  UC[Caso de uso] --> FP[Fluxo principal] --> CT1[Caso de teste do caminho feliz]
-  UC --> FA[Fluxos alternativos e de exceção] --> CT2[Casos de teste de variações e erros]
+```mermaid Rastreabilidade entre requisito e teste
+flowchart TD
+  O["Necessidade do usuário"] --> H["História de usuário"]
+  O --> U["Caso de uso"]
+  H --> C["Critérios de aceitação"]
+  C --> T[["Testes de aceitação"]]
+  U --> P["Fluxo principal"]
+  U --> A["Fluxos alternativos<br/>e de exceção"]
+  P --> TP[["Teste do fluxo principal"]]
+  A --> TA[["Testes das variações"]]
 ```
+
+Fonte: adaptado de WIEGERS; BEATTY (2013, caps. 8, 17 e 29) — recriado pela equipe Stacklyst.
+
+Siga cada caminho da necessidade até sua evidência de teste. Uma história permite derivar testes dos critérios de aceitação. Um caso de uso permite derivá-los dos fluxos que descreve. No ENADE, verifique se os testes do exemplo cobrem tanto o cenário principal quanto as variações e exceções relevantes.
 
 ## Vantagens e desvantagens
 
@@ -198,3 +207,4 @@ Discursiva que parte de histórias no formato "COMO… GOSTARIA… PARA…". Par
 - JACOBSON, I. *Object-Oriented Software Engineering: A Use Case Driven Approach*. Addison-Wesley, 1992.
 - SMART, J. F. *BDD in Action*. Manning, 2014.
 - INEP. ENADE TADS 2017 (questão 20) e 2021 (discursiva 4).
+- WIEGERS, Karl; BEATTY, Joy. *Software requirements*. 3. ed. Redmond: Microsoft Press, 2013.

@@ -3,8 +3,8 @@ title: Listas encadeadas — simples, duplamente encadeadas e circulares
 summary: Nós e ponteiros, inserção, remoção e busca em listas simplesmente e duplamente encadeadas e circulares, com custos, código e visualização interativa.
 order: 3
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [lista encadeada, lista ligada, nó, ponteiro, cabeça, cauda, null, lista simplesmente encadeada, lista duplamente encadeada, lista circular, inserção, remoção, busca sequencial, estrutura dinâmica]
 related: [vetores-e-matrizes, pilhas-e-filas, arvores, complexidade-de-algoritmos]
 ---
@@ -86,18 +86,32 @@ Uma lista encadeada de cartões (número e cor) permite inserir pacientes urgent
 
 ## Representação visual
 
-```mermaid Lista simples, dupla e circular
-flowchart LR
-  subgraph Simples
-    A1[12] --> A2[7] --> A3[30] --> N1[NULL]
+Siga a seta que sai de cada registro. Na lista dupla, cada par de vizinhos permite percorrer as duas direções. Na circular, o último aponta para o primeiro. No ENADE, confira qual apontador encerra um percurso e quais referências uma inserção entre dois registros precisa atualizar.
+
+```mermaid Ponteiros em três listas
+flowchart TB
+  subgraph S["Simples"]
+    direction LR
+    S1["12"] --> S2["7"]
+    S2 --> S3["30"]
+    S3 --> SN["NULO"]
   end
-  subgraph Dupla
-    B1[12] <--> B2[7] <--> B3[30]
+  subgraph D["Dupla"]
+    direction LR
+    D1["12<br/>ant. = NULO"] <--> D2["7"]
+    D2 <--> D3["30<br/>próx. = NULO"]
   end
-  subgraph Circular
-    C1[12] --> C2[7] --> C3[30] --> C1
+  subgraph C["Circular"]
+    direction LR
+    C1["12"] --> C2["7"]
+    C2 --> C3["30"]
+    C3 --> C1
   end
+  S ~~~ D
+  D ~~~ C
 ```
+
+Fonte: adaptado de CORMEN et al. (2009, seção 10.2) — recriado pela equipe Stacklyst.
 
 ## Vantagens e desvantagens
 
@@ -179,3 +193,4 @@ Referências para o local anterior (origem) e o seguinte (destino) permitem perc
 - CORMEN, T. H. et al. *Algoritmos: teoria e prática*. 3. ed. Elsevier, 2012 — seção 10.2.
 - TENENBAUM, A. M.; LANGSAM, Y.; AUGENSTEIN, M. J. *Estruturas de Dados usando C*. Pearson, 1995.
 - INEP. ENADE TADS 2014 (questão 14) e 2021 (discursiva 5).
+- CORMEN, Thomas H. et al. *Introduction to algorithms*. 3. ed. Cambridge, MA: MIT Press, 2009.

@@ -3,8 +3,8 @@ title: Tautologia, contradição, contingência, equivalências e Leis de De Mor
 summary: Como classificar proposições pela tabela-verdade, as equivalências mais cobradas (contrapositiva, condicional como disjunção), as Leis de De Morgan e a negação correta de conjunções, disjunções, condicionais e bicondicionais.
 order: 2
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [tautologia, contradição, contingência, equivalência lógica, de morgan, negação, contrapositiva, recíproca, inversa, negação da condicional, dupla negação, distributiva, absorção, implicação lógica]
 related: [proposicoes-e-conectivos, argumentacao-e-quantificadores, conjuntos-e-venn]
 ---
@@ -80,14 +80,32 @@ Só a II é tautologia.
 
 ## Representação visual
 
-```mermaid Equivalentes à condicional p → q
-flowchart LR
-  C[p → q] --- D[¬p ∨ q]
-  C --- CP[¬q → ¬p — contrapositiva]
-  C -.NÃO equivale.- R[q → p — recíproca]
-  C -.NÃO equivale.- I[¬p → ¬q — inversa]
-  N[Negação de p → q] --- NE[p ∧ ¬q]
+Siga as linhas sólidas entre fórmulas de mesma tabela-verdade. A seta tracejada leva à negação da condicional, que vale apenas quando p é verdadeiro e q é falso. No ENADE, observe a diferença entre trocar a ordem das proposições e negar ambas ao inverter a ordem.
+
+```mermaid Equivalências e negação da condicional
+---
+config:
+  flowchart:
+    nodeSpacing: 18
+    rankSpacing: 30
+    padding: 8
+---
+flowchart TB
+  subgraph EQ["Condicional e equivalentes"]
+    C["p → q"] --- D["¬p ∨ q"]
+    C --- P["¬q → ¬p<br/>Contrapositiva"]
+  end
+  subgraph INV["Equivalentes entre si"]
+    R["q → p<br/>Recíproca"] --- I["¬p → ¬q<br/>Inversa"]
+  end
+  subgraph NEG["Negação"]
+    C2["p → q"] -.->|"Negar"| N["p ∧ ¬q"]
+  end
+  EQ ~~~ INV
+  INV ~~~ NEG
 ```
+
+Fonte: adaptado de ROSEN (2019, cap. 1) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -169,5 +187,5 @@ Se "X venceu → Y é campeão" é falsa, vale sua negação: **X venceu ∧ Y n
 ## Referências
 
 - ALENCAR FILHO, E. *Iniciação à Lógica Matemática*. Nobel, 2002 — caps. 4 a 7.
-- ROSEN, K. H. *Matemática Discreta e suas Aplicações*. 6. ed. McGraw-Hill, 2009 — seção 1.2.
+- ROSEN, Kenneth H. *Discrete mathematics and its applications*. 8. ed. New York: McGraw-Hill Education, 2019.
 - INEP. ENADE TADS 2011 (questão 19) e 2014 (questão 35).

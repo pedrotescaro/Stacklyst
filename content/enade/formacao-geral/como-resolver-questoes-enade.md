@@ -3,8 +3,8 @@ title: Como resolver as questões do ENADE — asserção-razão, itens I-II-III
 summary: A estrutura da prova, como atacar questões de asserção-razão e de múltiplas afirmativas sem errar por descuido, como escrever discursivas que pontuam e como distribuir as quatro horas.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [enade, estrutura da prova, formação geral, componente específico, asserção-razão, proposições, justificativa, múltiplas afirmativas, eliminação de alternativas, discursiva, padrão de resposta, gestão do tempo, estratégia de prova, inep]
 related: [interpretacao-de-texto, argumentacao-e-quantificadores, leitura-de-imagens-e-charges, proposicoes-e-conectivos]
 ---
@@ -93,17 +93,28 @@ As discursivas são corrigidas por um **padrão de resposta** publicado pelo Ine
 
 ## Representação visual
 
-```mermaid Fluxo de decisão para asserção-razão
-flowchart TD
-  A{I é verdadeira?} -->|não| B{II é verdadeira?}
-  B -->|sim| D[D]
-  B -->|não| E[E]
-  A -->|sim| C{II é verdadeira?}
-  C -->|não| CC[C]
-  C -->|sim| J{II explica I?}
-  J -->|sim| AA[A]
-  J -->|não| BB[B]
+Registre V ou F para I e II separadamente, na ordem indicada. Só avalie a justificativa quando ambas forem verdadeiras. No ENADE, combine o par obtido com a relação explicativa e procure a opção com esse significado.
+
+```mermaid Julgamento de asserção e razão
+---
+config:
+  flowchart:
+    nodeSpacing: 18
+    rankSpacing: 30
+    padding: 8
+---
+flowchart TB
+  I["Julgar I"] --> II["Julgar II"]
+  II --> P{"Par I, II"}
+  P -->|"V, V"| J{"II explica I?"}
+  P -->|"V, F"| C["Só I é V"]
+  P -->|"F, V"| D["Só II é V"]
+  P -->|"F, F"| E["Duas F"]
+  J -->|"Sim"| A["Duas V<br/>II explica I"]
+  J -->|"Não"| B["Duas V<br/>Sem nexo"]
 ```
+
+Fonte: adaptado de INEP (2014, questão 13) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -177,3 +188,4 @@ Revisa-se o produto de trabalho **porque** isso gera informação sobre defeitos
 - INEP. *Enade — provas e gabaritos*. Disponível em gov.br/inep.
 - INEP. *Manual do Estudante — Enade*. Edições anuais.
 - BRASIL. Lei nº 10.861, de 14 de abril de 2004 (institui o Sinaes).
+- INSTITUTO NACIONAL DE ESTUDOS E PESQUISAS EDUCACIONAIS ANÍSIO TEIXEIRA. *Enade 2014: tecnologia em análise e desenvolvimento de sistemas*. Brasília, DF: Inep, 2014. Disponível em: [Caderno de prova](https://download.inep.gov.br/educacao_superior/enade/provas/2014/40_tecnologia_analise_desenv_sistemas.pdf). Acesso em: 25 nov. 2026.

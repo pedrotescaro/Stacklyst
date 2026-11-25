@@ -3,8 +3,8 @@ title: Da arquitetura centralizada às três camadas — mainframes, cliente-ser
 summary: A evolução das arquiteturas de sistemas de informação, o que são camadas de apresentação, negócio e dados, como front-end, back-end, APIs, servidores e bancos conversam e a ideia de transparência em sistemas distribuídos.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [arquitetura de software, mainframe, arquitetura centralizada, terminal burro, cliente-servidor, duas camadas, três camadas, n camadas, apresentação, negócio, dados, front-end, back-end, api, rest, http, servidor de aplicação, banco de dados, sistemas distribuídos, transparência]
 related: [estilos-arquiteturais, mvc-mvp-mvvm, redes-de-computadores, uml-diagramas-estruturais, computacao-em-nuvem]
 ---
@@ -58,6 +58,10 @@ Quando aplicações e bases ficam em **máquinas diferentes**, ligadas por rede,
 
 ::widget layers-flow
 
+Fonte: adaptado de FOWLER (2002, cap. 1) e SOMMERVILLE (2018, cap. 6) — recriado pela equipe Stacklyst.
+
+Acompanhe a solicitação até os dados e a resposta de volta à tela. No ENADE, atribua a decisão de negócio à camada responsável por aplicá-la.
+
 ## Características principais
 
 - Separar responsabilidades permite **alterar partes de forma independente** (trocar o front-end sem mexer nas regras).
@@ -76,28 +80,46 @@ Quando aplicações e bases ficam em **máquinas diferentes**, ligadas por rede,
 
 ## Representação visual
 
-```mermaid Duas camadas × três camadas
-flowchart LR
-  subgraph Duas camadas
-    C1[Cliente<br/>interface + regras] -->|SQL| D1[(Servidor de BD)]
+```mermaid Duas e três camadas físicas
+flowchart TB
+  subgraph DUAS["Duas camadas físicas"]
+    direction TB
+    CL["Cliente<br/>Apresentação + negócio"] --> DB1[("Servidor de dados")]
   end
-  subgraph Três camadas
-    C2[Apresentação<br/>navegador / app] -->|HTTP + JSON| A2[Negócio<br/>servidor de aplicação / API]
-    A2 -->|SQL| D2[(Dados<br/>SGBD)]
+  subgraph TRES["Três camadas físicas"]
+    direction TB
+    UI["Cliente<br/>Apresentação"] --> APP["Servidor de aplicação<br/>Negócio"]
+    APP --> DB2[("Servidor de dados")]
   end
 ```
 
-```mermaid Sequência de uma requisição
+Fonte: adaptado de FOWLER (2002, cap. 1) e SOMMERVILLE (2018, cap. 6) — recriado pela equipe Stacklyst.
+
+Conte os níveis de implantação dentro de cada quadro. No exemplo de duas camadas físicas, apresentação e negócio compartilham o cliente. Em três camadas, a lógica de negócio está num servidor próprio. No ENADE, diferencie a divisão lógica do local onde cada parte roda.
+
+```mermaid Requisição através das camadas
+---
+config:
+  sequence:
+    actorMargin: 28
+    diagramMarginX: 16
+    width: 112
+    wrap: true
+---
 sequenceDiagram
-  participant F as Front-end
-  participant A as API (back-end)
-  participant B as Banco de dados
-  F->>A: POST /pedidos {itens}
-  A->>A: validar regras de negócio
-  A->>B: INSERT pedido (transação)
-  B-->>A: ok
-  A-->>F: 201 Created {numero}
+  participant UI as Apresentação
+  participant APP as Aplicação
+  participant DB as Dados
+  UI->>+APP: enviar pedido
+  APP->>APP: validar pedido
+  APP->>+DB: gravar transação
+  DB-->>-APP: pedido confirmado
+  APP-->>-UI: retornar número
 ```
+
+Fonte: adaptado de FOWLER (2002, cap. 1) e OMG (2017, seção 17) — recriado pela equipe Stacklyst.
+
+Leia a requisição de cima para baixo. A API valida o pedido e solicita a gravação. O retorno à apresentação só ocorre depois da confirmação. No ENADE, associe validação e armazenamento às responsabilidades das camadas.
 
 ## Vantagens e desvantagens
 
@@ -177,8 +199,10 @@ Para o usuário não perceber a distribuição, a característica fundamental é
 
 ## Referências
 
-- SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018 — cap. 6 (projeto de arquitetura).
+- SOMMERVILLE, I. *Engenharia de software*. 10. ed. São Paulo: Pearson Education do Brasil, 2018.
 - TANENBAUM, A. S.; VAN STEEN, M. *Sistemas Distribuídos: princípios e paradigmas*. 2. ed. Pearson, 2007 — cap. 1 (transparência).
 - FOWLER, M. *Padrões de Arquitetura de Aplicações Corporativas*. Bookman, 2006.
 - ISO/IEC/IEEE 42010:2022 — *Architecture description*.
 - INEP. ENADE TADS 2014, questões 15 e 18.
+- FOWLER, M. *Patterns of enterprise application architecture*. Boston: Addison-Wesley, 2002.
+- OBJECT MANAGEMENT GROUP. *Unified Modeling Language (UML)*. Versão 2.5.1. [S. l.]: OMG, 2017. Disponível em: https://www.omg.org/spec/UML/2.5.1. Acesso em: 25 nov. 2026.

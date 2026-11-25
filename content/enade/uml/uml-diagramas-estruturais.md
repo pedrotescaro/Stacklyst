@@ -3,8 +3,8 @@ title: Diagramas de componentes, implantação, pacotes, estrutura composta e pe
 summary: Os diagramas estruturais além do de classes — componentes e interfaces fornecidas/requeridas, nós e artefatos na implantação, pacotes e dependências, estrutura interna com partes e portas, e perfis com estereótipos.
 order: 6
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [diagrama de componentes, interface fornecida, interface requerida, pirulito, soquete, diagrama de implantação, nó, artefato, device, execution environment, diagrama de pacotes, import, diagrama de estrutura composta, parte, porta, conector, diagrama de perfil, estereótipo, metaclasse, valor marcado]
 related: [uml-visao-geral, evolucao-arquiteturas-e-camadas, estilos-arquiteturais, uml-classes-e-objetos]
 ---
@@ -35,6 +35,10 @@ Eles documentam a **arquitetura**: como o sistema se divide em módulos, onde ca
 
 ::widget uml diagram=component
 
+Fonte: adaptado de OMG (2017, seção 11) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 15) — recriado pela equipe Stacklyst.
+
+O círculo identifica a interface oferecida e o semicírculo identifica a interface requerida. No ENADE, siga essa ligação para saber quem fornece e quem consome o serviço.
+
 ### Diagrama de implantação
 
 - **Nó:** caixa **3D**. Pode ser «device» (hardware: servidor, celular) ou «executionEnvironment» (JVM, contêiner, SGBD).
@@ -42,6 +46,10 @@ Eles documentam a **arquitetura**: como o sistema se divide em módulos, onde ca
 - **Caminho de comunicação:** linha entre nós, com o protocolo (`«HTTPS»`, `«TCP/IP»`).
 
 ::widget uml diagram=deployment
+
+Fonte: adaptado de OMG (2017, seção 19) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 27 e 31) — recriado pela equipe Stacklyst.
+
+Localize o nó de execução e leia os artefatos contidos nele. No ENADE, associe caminhos de comunicação à topologia de instalação.
 
 ### Diagrama de pacotes
 
@@ -51,17 +59,29 @@ Eles documentam a **arquitetura**: como o sistema se divide em módulos, onde ca
 
 ::widget uml diagram=package
 
+Fonte: adaptado de OMG (2017, seção 12) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 12) — recriado pela equipe Stacklyst.
+
+Leia a ponta tracejada como o destino da dependência. No ENADE, verifique quais pacotes precisam mudar quando um fornecedor altera sua interface.
+
 ### Diagrama de estrutura composta
 
 Mostra **dentro** de uma classe: as **partes** (instâncias que a compõem, com multiplicidade), as **portas** (pontos de interação, quadradinhos na borda) e os **conectores** entre partes. Também representa **colaborações** (padrões de projeto como uma elipse tracejada).
 
 ::widget uml diagram=composite
 
+Fonte: adaptado de OMG (2017, seção 11) — recriado pela equipe Stacklyst.
+
+Os quadrados na borda são portas, e os conectores unem papéis dentro do classificador. No ENADE, reconheça quando o enunciado exige a estrutura interna de uma classe.
+
 ### Diagrama de perfil
 
 Permite **estender** a UML: um **estereótipo** («Entidade», «Controle») **estende** uma **metaclasse** da UML («metaclass» Class) por uma seta com **triângulo cheio**. Estereótipos podem ter **valores marcados** (tagged values, como `tabela: String`) e restrições.
 
 ::widget uml diagram=profile
+
+Fonte: adaptado de OMG (2017, seção 12) — recriado pela equipe Stacklyst.
+
+Siga o triângulo cheio do estereótipo à metaclasse estendida. No ENADE, identifique propriedades marcadas como informações acrescentadas pelo perfil.
 
 ## Características principais
 
@@ -83,7 +103,7 @@ Permite **estender** a UML: um **estereótipo** («Entidade», «Controle») **e
 
 ## Representação visual
 
-Os cinco diagramas acima estão desenhados em notação UML 2.5 nesta página.
+Ao escolher a vista, identifique primeiro o elemento central do enunciado. A prova pode descrever uma interface oferecida, um artefato hospedado ou uma parte interna. Procure, respectivamente, os símbolos de componente, implantação ou estrutura composta. Use os diagramas da seção Como funciona para comparar as cinco notações.
 
 ## Vantagens e desvantagens
 
@@ -160,6 +180,6 @@ Na engenharia reversa, `Funcionario extends Pessoa` aparece como uma linha com t
 
 ## Referências
 
-- OMG. *UML 2.5.1 Specification*, 2017 — cláusulas 11 (estruturas compostas), 12 (pacotes e perfis) e 19 (implantação).
+- OBJECT MANAGEMENT GROUP. *Unified Modeling Language (UML)*. Versão 2.5.1. [S. l.]: OMG, 2017. Disponível em: https://www.omg.org/spec/UML/2.5.1. Acesso em: 25 nov. 2026.
 - FOWLER, M. *UML Essencial*. 3. ed. Bookman, 2005 — caps. 7, 8, 13 e 14.
-- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: Guia do Usuário*. 2. ed. Elsevier, 2006 — caps. 25 a 27.
+- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.

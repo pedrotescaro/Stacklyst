@@ -3,8 +3,8 @@ title: Processo de engenharia de requisitos — viabilidade, elicitação, anál
 summary: As atividades da engenharia de requisitos, os artefatos de cada etapa, técnicas de priorização (MoSCoW e outras), validação, gerenciamento de mudanças e a matriz de rastreabilidade.
 order: 2
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [engenharia de requisitos, estudo de viabilidade, elicitação, análise, negociação, especificação, documento de requisitos, srs, validação, revisão, priorização, moscow, matriz de rastreabilidade, gerenciamento de requisitos]
 related: [requisitos-fundamentos, tecnicas-de-elicitacao, historias-e-casos-de-uso, qualidade-de-software, rup-disciplinas]
 ---
@@ -81,16 +81,13 @@ Ela permite **análise de impacto** (o que muda se RF02 mudar?) e prova de **cob
 
 ## Representação visual
 
-```mermaid Espiral da engenharia de requisitos
-flowchart LR
-  V[Estudo de viabilidade] --> E[Elicitação e análise]
-  E --> S[Especificação]
-  S --> VA[Validação]
-  VA -->|ajustes| E
-  VA --> D[Documento de requisitos aprovado]
-  D -.mudanças.-> G[Gerenciamento de requisitos e rastreabilidade]
-  G -.-> E
-```
+### Espiral da engenharia de requisitos
+
+::widget sommerville-espiral-requisitos
+
+Fonte: adaptado de SOMMERVILLE (2018, cap. 4) — recriado pela equipe Stacklyst.
+
+Siga do centro até a saída para o documento de requisitos. As voltas intercalam elicitação, especificação e validação, aprofundando o que se sabe sobre negócio, usuários e sistema. No ENADE, identifique a viabilidade no início, a prototipação e as revisões como recursos de validação e a gestão de mudanças como trabalho ao longo do processo.
 
 ## Vantagens e desvantagens
 
@@ -165,7 +162,7 @@ Elicitação → **documento de entrevista com usuários**; especificação → 
 
 ## Referências
 
-- SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018 — cap. 4.
+- SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson, 2018.
 - PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software*. 8. ed. AMGH, 2016 — caps. 8 e 9.
 - IIBA. *BABOK — Guia para o Corpo de Conhecimento de Análise de Negócios*, v3, 2015.
 - INEP. ENADE TADS 2021, questão 18.

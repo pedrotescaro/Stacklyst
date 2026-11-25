@@ -3,8 +3,8 @@ title: Algoritmos de busca e de ordenação
 summary: Busca sequencial e binária (com o código correto das lacunas), e os algoritmos de ordenação bolha, seleção, inserção, merge sort e quicksort, passo a passo, com complexidades, estabilidade e simulador.
 order: 9
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [busca sequencial, busca linear, busca binária, ordenação, bubble sort, bolha, selection sort, seleção, insertion sort, inserção, merge sort, intercalação, quicksort, pivô, heapsort, estabilidade, in-place, complexidade]
 related: [vetores-e-matrizes, complexidade-de-algoritmos, recursividade, arvores]
 ---
@@ -107,12 +107,17 @@ As três sequências do ENADE 2008 aparecem exatamente nesses pontos.
 
 ## Representação visual
 
-```mermaid Busca binária procurando 37 em 10 elementos ordenados
-flowchart LR
-  A["[3 8 15 22 29 37 41 50 62 77]<br/>meio = 29"] -->|37 > 29| B["[37 41 50 62 77]<br/>meio = 50"]
-  B -->|37 < 50| C["[37 41]<br/>meio = 37"]
-  C -->|achou| D((índice 5))
+O intervalo entre os índices inicial e final inclui ambas as extremidades. Compare 37 com o valor no índice do meio e descarte também o índice já testado. No ENADE, esse ajuste evita laços que voltam ao mesmo intervalo e explica como o algoritmo reconhece uma busca sem resultado.
+
+```mermaid Busca binária com limites inclusivos
+flowchart TB
+  A["Intervalo 0…9<br/>a[4] = 29"]
+  A -->|"37 &gt; 29"| B["Intervalo 5…9<br/>a[7] = 50"]
+  B -->|"37 &lt; 50"| C["Intervalo 5…6<br/>a[5] = 37"]
+  C -->|"37 = 37"| D(["Retorna 5"])
 ```
+
+Fonte: adaptado de SEDGEWICK; WAYNE (2011, seção 1.1) — recriado pela equipe Stacklyst.
 
 ## Vantagens e desvantagens
 
@@ -201,5 +206,5 @@ A linha que desloca os maiores precisa ser `vetor[j + 1] ← vetor[j]` (alternat
 
 - CORMEN, T. H. et al. *Algoritmos: teoria e prática*. 3. ed. Elsevier, 2012 — caps. 2, 6 e 7.
 - ZIVIANI, N. *Projeto de Algoritmos*. 3. ed. Cengage, 2010 — cap. 4.
-- SEDGEWICK, R.; WAYNE, K. *Algorithms*. 4. ed. Addison-Wesley, 2011 — cap. 2.
+- SEDGEWICK, Robert; WAYNE, Kevin. *Algorithms*. 4. ed. Upper Saddle River: Addison-Wesley, 2011.
 - INEP. ENADE TADS 2008 (questões 20 e 22) e 2017 (questão 33).

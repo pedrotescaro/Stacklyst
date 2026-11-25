@@ -3,8 +3,8 @@ title: Qualidade de software — ISO/IEC 25010, CMMI, MPS.BR, revisões, métric
 summary: Qualidade de produto e de processo, as características da ISO/IEC 25010, os níveis de maturidade do CMMI e do MPS.BR, revisões técnicas, métricas de confiabilidade e rastreabilidade.
 order: 5
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [qualidade, iso 25010, iso 9126, square, cmmi, mps.br, maturidade, capacidade, garantia da qualidade, sqa, revisão técnica formal, inspeção, métricas, confiabilidade, disponibilidade, mtbf, mttf, rastreabilidade]
 related: [fundamentos-de-testes, gerencia-de-configuracao, processo-de-requisitos, manutencao-e-divida-tecnica]
 ---
@@ -99,15 +99,24 @@ Em 10 instantes observados, o sistema estava disponível em 4 → **disponibilid
 
 ## Representação visual
 
-```mermaid Níveis de maturidade — CMMI e MPS.BR
-flowchart LR
-  subgraph CMMI
-    C1[1 Inicial] --> C2[2 Gerenciado] --> C3[3 Definido] --> C4[4 Quant. gerenciado] --> C5[5 Em otimização]
+```mermaid Escalas de maturidade de processos
+flowchart TB
+  subgraph CMMI["CMMI-DEV v1.3"]
+    direction TB
+    C1["1 · Inicial"] --> C2["2 · Gerenciado"] --> C3["3 · Definido"]
+    C3 --> C4["4 · Gerenciado<br/>quantitativamente"] --> C5["5 · Em otimização"]
   end
-  subgraph MPS.BR
-    G[G] --> F[F] --> E[E] --> D[D] --> C[C] --> B[B] --> A[A]
+  subgraph MPS["MR-MPS-SW"]
+    direction TB
+    G["G · Parcialmente<br/>gerenciado"] --> F["F · Gerenciado"] --> E["E · Parcialmente<br/>definido"]
+    E --> D["D · Largamente<br/>definido"] --> C["C · Definido"]
+    C --> B["B · Gerenciado<br/>quantitativamente"] --> A["A · Em otimização"]
   end
 ```
+
+Fonte: adaptado de CMMI PRODUCT TEAM (2010, cap. 3) e SOFTEX (2021) — recriado pela equipe Stacklyst.
+
+Siga cada escala de cima para baixo. O CMMI-DEV v1.3 vai de 1 a 5 e o MR-MPS-SW progride de G a A. No ENADE, use a letra ou o número para situar o nível no modelo indicado. Uma semelhança entre os nomes de dois níveis, por si só, não estabelece equivalência entre avaliações.
 
 ## Vantagens e desvantagens
 
@@ -197,7 +206,7 @@ As duas asserções são verdadeiras e a segunda justifica a primeira: produtos 
 ## Referências
 
 - ISO/IEC 25010:2011 — *Systems and software Quality Requirements and Evaluation (SQuaRE) — System and software quality models*.
-- SOFTEX. *MPS.BR — Guia Geral MPS de Software*. Disponível em softex.br.
-- CMMI Product Team. *CMMI for Development*, v1.3. SEI/Carnegie Mellon, 2010.
+- SOFTEX. *Guia geral MPS de software: 2021*. Brasília, DF: Softex, 2021. Disponível em: https://softex.br/download/guia-geral-de-software-2021/. Acesso em: 25 nov. 2026.
+- CMMI PRODUCT TEAM. *CMMI for development, version 1.3: improving processes for developing better products and services*. Pittsburgh: Software Engineering Institute, Carnegie Mellon University, 2010. (CMU/SEI-2010-TR-033).
 - SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018 — caps. 11 (confiabilidade) e 24 (qualidade).
 - PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software*. 8. ed. AMGH, 2016 — caps. 19 a 21.

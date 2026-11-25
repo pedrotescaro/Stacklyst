@@ -3,8 +3,8 @@ title: Modelos de processo — Cascata, V, Incremental, Iterativo, Evolucionári
 summary: Os modelos clássicos de ciclo de vida explicados do zero, com quando usar cada um, vantagens, desvantagens e uma tabela comparativa para não confundir na prova.
 order: 2
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [modelos de processo, ciclo de vida, cascata, waterfall, sequencial linear, modelo v, incremental, iterativo, evolucionário, prototipação, espiral, boehm, rad, desenvolvimento rápido de aplicações]
 related: [fundamentos-engenharia-de-software, metodos-ageis, rup-visao-geral, gerencia-de-projetos-e-riscos, fundamentos-de-testes]
 ---
@@ -26,7 +26,7 @@ Escolher o modelo certo é escolher **como lidar com a incerteza**. Se os requis
 
 ### Modelo Cascata (sequencial linear ou clássico)
 
-Proposto (e criticado) por Winston Royce em 1970. As etapas acontecem **uma após a outra**, e cada uma só começa quando a anterior termina e é aprovada:
+Royce discutiu o fluxo sequencial em 1970 e mostrou retornos entre etapas vizinhas. Uma síntese das etapas, da definição à manutenção, é:
 
 **Requisitos → Projeto → Implementação → Testes → Implantação → Manutenção**
 
@@ -50,7 +50,7 @@ Variação do cascata que **associa cada etapa de especificação a um nível de
 | Projeto detalhado de módulos | ↔ | Teste de unidade |
 | — base: codificação — | | |
 
-O planejamento de cada teste é feito **junto** com a etapa correspondente (o plano de teste de aceitação nasce com os requisitos). É muito usado em sistemas críticos (automotivo, médico, aeronáutico).
+O quadro usa uma divisão comum em requisitos de usuário e de sistema. A figura adiante segue os artefatos que Pressman e Maxim nomeiam. O planejamento de cada teste é feito **junto** com a etapa correspondente (o plano de teste de aceitação nasce com os requisitos). É muito usado em sistemas críticos (automotivo, médico, aeronáutico).
 
 ### Modelo Incremental
 
@@ -138,43 +138,54 @@ Fases típicas: modelagem do negócio → modelagem dos dados → modelagem do p
 
 ## Representação visual
 
-```mermaid Modelo Cascata
+```mermaid Cascata com retornos entre etapas
 flowchart TD
-  R[Requisitos] --> P[Projeto] --> I[Implementação] --> T[Testes] --> D[Implantação] --> M[Manutenção]
+  RS["Requisitos do sistema"] --> RW["Requisitos do software"]
+  RW --> A["Análise"] --> P["Projeto do programa"]
+  P --> C["Codificação"] --> T["Testes"] --> O["Operação"]
+  RW -.-> RS
+  A -.-> RW
+  P -.-> A
+  C -.-> P
+  T -.-> C
+  O -.-> T
 ```
 
-```mermaid Modelo V
-flowchart LR
-  RU[Requisitos do usuário] --> RS[Requisitos do sistema] --> PA[Projeto da arquitetura] --> PD[Projeto detalhado] --> C((Codificação))
-  C --> TU[Teste de unidade] --> TI[Teste de integração] --> TS[Teste de sistema] --> TA[Teste de aceitação]
-  PD -.planeja.-> TU
-  PA -.planeja.-> TI
-  RS -.planeja.-> TS
-  RU -.planeja.-> TA
-```
+Fonte: adaptado de ROYCE (1970, fig. 3) e PRESSMAN; MAXIM (2016, cap. 4) — recriado pela equipe Stacklyst.
 
-```mermaid Incremental — cada incremento passa por especificação, desenvolvimento e validação
-flowchart LR
-  subgraph I1[Incremento 1 — núcleo]
-    E1[Especificar] --> D1[Desenvolver] --> V1[Validar]
-  end
-  subgraph I2[Incremento 2]
-    E2[Especificar] --> D2[Desenvolver] --> V2[Validar]
-  end
-  subgraph I3[Incremento 3]
-    E3[Especificar] --> D3[Desenvolver] --> V3[Validar]
-  end
-  V1 --> E2
-  V2 --> E3
-```
+As setas contínuas mostram a sequência de Royce e as tracejadas indicam revisão da etapa imediatamente anterior. Pressman e Maxim agrupam o trabalho em comunicação, planejamento, modelagem, construção e entrega. No ENADE, reconheça o caráter planejado do modelo e o custo de descobrir um problema de requisitos somente nos testes.
 
-```mermaid Espiral — os quatro quadrantes de cada volta
-flowchart LR
-  O[1. Objetivos, alternativas e restrições] --> R[2. Avaliar alternativas e resolver riscos]
-  R --> D[3. Desenvolver e verificar]
-  D --> P[4. Planejar a próxima volta]
-  P -->|nova volta, custo acumulado maior| O
-```
+### Modelo V e suas verificações
+
+::widget modelo-v
+
+Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 4) — recriado pela equipe Stacklyst.
+
+Desça pela definição e pelo projeto até o executável e suba pelos testes. As ligações tracejadas mostram sobre quais trabalhos anteriores os testes fornecem evidência na versão de Pressman e Maxim. No ENADE, faça a correspondência conforme os artefatos nomeados no enunciado, da implementação da unidade aos requisitos examinados na aceitação.
+
+### Incrementos escalonados no tempo
+
+::widget incremental-escalonado
+
+Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 4) — recriado pela equipe Stacklyst.
+
+Leia cada faixa como uma sequência que termina com uma versão cumulativa do software. A construção abrange código e testes, e a entrega gera feedback para os incrementos seguintes. As posições no eixo mostram que o trabalho de um incremento pode começar antes da entrega do anterior. No ENADE, procure o núcleo utilizável na primeira entrega e a incorporação de funções nas versões seguintes.
+
+### Modelo espiral de Boehm
+
+::widget boehm-espiral
+
+Fonte: adaptado de BOEHM (1988, fig. 2), com apoio de PRESSMAN; MAXIM (2016, cap. 4) e SOMMERVILLE (2018, cap. 2) — recriado pela equipe Stacklyst.
+
+Comece no centro e percorra os quadrantes no sentido indicado. Cada volta define objetivos, investiga alternativas e riscos, desenvolve e verifica o resultado e prepara o próximo compromisso. A distância ao centro representa custo acumulado. No ENADE, localize a análise de risco e identifique quando um protótipo ajuda a decidir o que construir.
+
+### Custo relativo de mudar
+
+::widget boehm-custo-mudanca
+
+Fonte: adaptado de BOEHM (1981, cap. 4) — recriado pela equipe Stacklyst.
+
+Compare o custo relativo de corrigir o mesmo tipo de problema em diferentes etapas. As curvas qualitativas ilustram que a correção tardia pode alcançar mais artefatos e custar proporcionalmente mais em projetos maiores. No ENADE, relacione a validação antecipada dos requisitos à redução do retrabalho.
 
 ## Vantagens e desvantagens
 
@@ -279,8 +290,9 @@ A segunda asserção (o cascata é composto por etapas executadas de forma siste
 
 ## Referências
 
-- PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software: uma abordagem profissional*. 8. ed. AMGH, 2016 — cap. 4 (modelos de processo prescritivos).
-- SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018 — cap. 2.
-- BOEHM, B. W. A Spiral Model of Software Development and Enhancement. *Computer*, v. 21, n. 5, p. 61–72, 1988.
-- ROYCE, W. W. Managing the Development of Large Software Systems. *Proceedings of IEEE WESCON*, 1970.
+- PRESSMAN, Roger S.; MAXIM, Bruce R. *Engenharia de software: uma abordagem profissional*. 8. ed. Porto Alegre: AMGH, 2016.
+- SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson, 2018.
+- BOEHM, Barry W. A spiral model of software development and enhancement. *Computer*, New York, v. 21, n. 5, p. 61–72, 1988. DOI: 10.1109/2.59.
+- BOEHM, Barry W. *Software engineering economics*. Englewood Cliffs: Prentice-Hall, 1981.
+- ROYCE, Winston W. Managing the development of large software systems. In: IEEE WESCON, 1970, Los Angeles. *Proceedings [...]*. New York: IEEE, 1970. p. 1–9.
 - INEP. ENADE TADS 2011 (questão 27) e 2017 (questão 21).

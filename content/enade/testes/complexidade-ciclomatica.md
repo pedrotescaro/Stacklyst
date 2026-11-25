@@ -3,8 +3,8 @@ title: Grafos de fluxo, caminhos independentes e complexidade ciclomática de Mc
 summary: Como transformar código em grafo de fluxo de controle, as três fórmulas de V(G), o conjunto de caminhos independentes (caminhos básicos), cobertura de decisões e uma calculadora interativa com seleção de caminhos.
 order: 2
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [complexidade ciclomática, mccabe, v(g), grafo de fluxo, grafo de fluxo de controle, cfg, nós, arestas, regiões, nós predicados, caminhos independentes, caminhos básicos, teste do caminho básico, cobertura de comandos, cobertura de decisões, caixa branca]
 related: [fundamentos-de-testes, algoritmos-e-logica-de-programacao, grafos, qualidade-de-software]
 ---
@@ -53,6 +53,10 @@ Para cada caminho, escolha entradas que forcem a execução por ele e defina o r
 
 ::widget cyclomatic preset=while-if
 
+Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 23) e McCABE (1976) — recriado pela equipe Stacklyst.
+
+Escolha um caminho para ver os trechos do grafo que ele percorre. No ENADE, confira se cada caminho selecionado introduz uma aresta ainda não percorrida no conjunto.
+
 ## Características principais
 
 | V(G) | Interpretação usual |
@@ -88,16 +92,20 @@ Grafo: nós 1, 2, 3, 4, 5, 6; arestas 1→2, 2→3, 2→6, 3→4, 3→5, 4→2, 
 
 ## Representação visual
 
-```mermaid Grafo de fluxo do exemplo (nós de decisão: 2 e 3)
+```mermaid Grafo de fluxo para caminhos básicos
 flowchart TD
   N1((1)) --> N2((2))
-  N2 -->|i < n| N3((3))
-  N2 -->|senão| N6((6))
-  N3 -->|calc <= n| N4((4))
-  N3 -->|senão| N5((5))
+  N2 -->|"i &lt; n · sim"| N3((3))
+  N2 -->|Não| N6((6))
+  N3 -->|"calc(i) ≤ n · sim"| N4((4))
+  N3 -->|Não| N5((5))
   N4 --> N2
   N5 --> N2
 ```
+
+Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 23) e McCABE (1976) — recriado pela equipe Stacklyst.
+
+Os círculos representam blocos de execução. Os nós 2 e 3 têm duas saídas, e as duas ramificações internas retornam ao teste do laço. No ENADE, confira a contagem de seis nós e sete arestas antes de calcular V(G) = 3 e escolha três caminhos que introduzam arestas diferentes.
 
 ## Vantagens e desvantagens
 
@@ -180,7 +188,7 @@ V(G) = número de regiões **incluindo** a de fora do grafo.
 
 ## Referências
 
-- McCABE, T. J. A Complexity Measure. *IEEE Transactions on Software Engineering*, SE-2, n. 4, p. 308–320, 1976.
-- PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software*. 8. ed. AMGH, 2016 — cap. 23 (teste do caminho básico).
+- McCABE, Thomas J. A complexity measure. *IEEE Transactions on Software Engineering*, New York, v. SE-2, n. 4, p. 308–320, 1976. DOI: 10.1109/TSE.1976.233837.
+- PRESSMAN, Roger S.; MAXIM, Bruce R. *Engenharia de software: uma abordagem profissional*. 8. ed. Porto Alegre: AMGH, 2016.
 - DELAMARO, M. E.; MALDONADO, J. C.; JINO, M. *Introdução ao Teste de Software*. 2. ed. Elsevier, 2016 — cap. 4.
 - INEP. ENADE TADS 2014, questão 31.

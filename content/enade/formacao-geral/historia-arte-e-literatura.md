@@ -3,8 +3,8 @@ title: História do Brasil, literatura brasileira, movimentos artísticos e filo
 summary: Um panorama dos períodos da história do Brasil mais presentes na prova, dos principais autores e escolas da literatura brasileira, dos movimentos artísticos e das ideias filosóficas que aparecem nos textos-base.
 order: 4
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [história do brasil, colônia, império, república, proclamação da república, era vargas, ditadura militar, redemocratização, constituição de 1988, literatura brasileira, machado de assis, realismo, modernismo, semana de arte moderna, ariano suassuna, movimentos artísticos, barroco, expressionismo, cubismo, tarsila do amaral, filosofia, nietzsche, iluminismo, cultura popular, patrimônio cultural]
 related: [leitura-de-imagens-e-charges, interpretacao-de-texto, etica-cidadania-e-direitos-humanos, sociedade-e-desigualdade]
 ---
@@ -73,10 +73,32 @@ No trecho de *Esaú e Jacó*, os gêmeos Pedro e Paulo reagem de modo oposto à 
 
 ## Representação visual
 
-```mermaid Linha do tempo resumida
-flowchart LR
-  C[Colônia] --> I[Império 1822] --> A[Abolição 1888] --> R[República 1889] --> V[Era Vargas 1930] --> D[Ditadura 1964] --> CF[Constituição 1988]
+Leia primeiro o grupo da Colônia ao fim do Império e depois os marcos republicanos. As datas ancoram acontecimentos em seus períodos, como a abolição no fim do Império e a Constituição após a ditadura. No ENADE, use essa ordem para situar as obras e os conflitos sociais citados.
+
+```mermaid Marcos da história política brasileira
+---
+config:
+  flowchart:
+    nodeSpacing: 18
+    rankSpacing: 30
+    padding: 8
+---
+flowchart TB
+  subgraph IMP["Colônia e Império"]
+    direction LR
+    C["Colonização<br/>Século XVI"] --> I["Independência<br/>1822"]
+    I --> A["Abolição legal<br/>1888"]
+  end
+  subgraph REP["República"]
+    direction LR
+    R["República<br/>1889"] --> V["Era Vargas<br/>1930"]
+    V --> D["Golpe militar<br/>1964"]
+    D --> F["Constituição<br/>1988"]
+  end
+  IMP --> REP
 ```
+
+Fonte: adaptado de FAUSTO (2024) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -142,7 +164,7 @@ A questão trata a produção artesanal como expressão de cultura popular e pat
 
 ## Referências
 
-- FAUSTO, B. *História do Brasil*. 14. ed. Edusp, 2012.
+- FAUSTO, Boris. *História do Brasil*. 14. ed. São Paulo: Edusp, 2024.
 - BOSI, A. *História concisa da literatura brasileira*. 50. ed. Cultrix, 2017.
 - GOMBRICH, E. H. *A história da arte*. 16. ed. LTC, 2013.
 - IPHAN. *Patrimônio imaterial*. Disponível em portal.iphan.gov.br.

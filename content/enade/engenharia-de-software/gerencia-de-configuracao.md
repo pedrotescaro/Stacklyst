@@ -3,8 +3,8 @@ title: Gerência de configuração e mudanças
 summary: Itens de configuração, baselines, controle de versão, controle de mudanças, auditoria e relatório de status — como manter a integridade do software enquanto ele muda.
 order: 6
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [gerência de configuração, gcs, scm, itens de configuração, baseline, linha base, controle de versão, controle de mudanças, comitê de controle de mudanças, ccb, auditoria de configuração, relatório de status, git, branch, release]
 related: [rup-disciplinas, manutencao-e-divida-tecnica, qualidade-de-software, metodos-ageis]
 ---
@@ -57,17 +57,24 @@ O cliente pede um novo tipo de bolsa na matrícula. É aberta a **solicitação 
 
 ## Representação visual
 
-```mermaid Fluxo de controle de mudanças
-flowchart LR
-  S[Solicitação de mudança] --> A[Análise de impacto]
-  A --> CCB{CCB aprova?}
-  CCB -->|não| R[Rejeitada e registrada]
-  CCB -->|sim| I[Implementação em ramo controlado]
-  I --> V[Revisão e testes]
-  V --> AU[Auditoria de configuração]
-  AU --> B[Nova baseline / release]
-  B --> ST[Relatório de status]
+```mermaid Mudança em uma baseline
+flowchart TD
+  R["Registrar solicitação"] --> A["Avaliar impacto<br/>custo e itens afetados"]
+  A --> C{"CCB aprova?"}
+  C -->|Não| N["Registrar e comunicar"]
+  C -->|Sim| O["Emitir ordem de mudança"]
+  O --> I["Alterar versão controlada"]
+  I --> V{"Revisão e testes<br/>aprovados?"}
+  V -->|Não| I
+  V -->|Sim| U["Auditar a configuração"]
+  U --> B[["Nova baseline"]]
+  R -.-> S["Registro de status"]
+  B -.-> S
 ```
+
+Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 29) — recriado pela equipe Stacklyst.
+
+Siga a solicitação até a decisão do comitê. Uma mudança aprovada gera uma ordem de trabalho e só entra na nova baseline depois da verificação. No ENADE, distinga o controle de mudança, que autoriza a alteração, da auditoria, que confere o que foi implementado, e do registro de status, que mantém o histórico.
 
 ## Vantagens e desvantagens
 
@@ -154,7 +161,7 @@ A alternativa correta é a **B**: identificação de objetos na configuração, 
 
 ## Referências
 
-- PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software*. 8. ed. AMGH, 2016 — cap. 29 (gestão de configuração de software).
+- PRESSMAN, Roger S.; MAXIM, Bruce R. *Engenharia de software: uma abordagem profissional*. 8. ed. Porto Alegre: AMGH, 2016.
 - SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018 — cap. 25.
 - IEEE Std 828-2012 — *Standard for Configuration Management in Systems and Software Engineering*.
 - CHACON, S.; STRAUB, B. *Pro Git*. 2. ed. Apress, 2014 (disponível em git-scm.com/book).

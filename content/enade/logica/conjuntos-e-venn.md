@@ -3,8 +3,8 @@ title: Conjuntos e diagramas de Venn
 summary: Pertinência, inclusão, união, interseção, diferença, complementar e diferença simétrica, propriedades (distributiva e De Morgan), princípio da inclusão-exclusão e problemas de contagem com Venn — com diagrama interativo.
 order: 4
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [conjuntos, diagrama de venn, pertinência, inclusão, subconjunto, conjunto vazio, união, interseção, diferença, complementar, diferença simétrica, distributiva, de morgan, inclusão-exclusão, cardinalidade, conjunto das partes]
 related: [proposicoes-e-conectivos, tautologia-e-equivalencias, argumentacao-e-quantificadores, probabilidade-e-combinatoria, sql]
 ---
@@ -36,6 +36,8 @@ Contagem e probabilidade, raciocínio lógico (silogismos), **consultas SQL** (U
 | Diferença simétrica | A Δ B | em **exatamente um** | ⊕ |
 
 ::widget venn
+
+Fonte: adaptado de ROSEN (2019, cap. 2) — recriado pela equipe Stacklyst.
 
 ### Propriedades
 
@@ -69,7 +71,7 @@ Dica: em problemas com três conjuntos, preencha o Venn **de dentro para fora** 
 
 ## Representação visual
 
-O diagrama interativo acima mostra cada operação sombreada sobre três conjuntos.
+No diagrama interativo da seção Como funciona, cada curva separa os elementos que pertencem ao conjunto. Ao sombrear uma região, conte também as interseções que satisfazem a operação. No ENADE, use a diferença e o complemento para localizar o que está fora de um conjunto mas continua dentro do universo.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -138,3 +140,4 @@ I falsa (a união não é vazia no desenho); II falsa (a igualdade proposta para
 - IEZZI, G.; MURAKAMI, C. *Fundamentos de Matemática Elementar 1: conjuntos e funções*. 9. ed. Atual, 2013.
 - GERSTING, J. L. *Fundamentos Matemáticos para a Ciência da Computação*. 7. ed. LTC, 2017 — cap. 4.
 - INEP. ENADE TADS 2008 (questão 28) e 2017 (questão 29).
+- ROSEN, Kenneth H. *Discrete mathematics and its applications*. 8. ed. New York: McGraw-Hill Education, 2019.

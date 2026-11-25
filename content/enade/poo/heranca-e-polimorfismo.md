@@ -3,8 +3,8 @@ title: Herança, polimorfismo, interfaces, classes abstratas, sobrecarga e sobre
 summary: Como herança e polimorfismo funcionam de verdade (inclusive em tempo de execução), a diferença entre classe abstrata e interface e entre sobrecarga e sobrescrita, com código em Java, TypeScript e Python.
 order: 2
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [herança, extends, superclasse, subclasse, herança múltipla, polimorfismo, ligação dinâmica, classe abstrata, método abstrato, interface, implements, sobrecarga, overloading, sobrescrita, overriding, super]
 related: [poo-fundamentos, relacionamentos-coesao-acoplamento, principios-solid, padroes-de-projeto, uml-classes-e-objetos]
 ---
@@ -134,20 +134,30 @@ Antes: `if (tipo == "pix") ... else if (tipo == "boleto") ...` espalhado pelo c�
 
 ## Representação visual
 
-```mermaid Hierarquia com classe abstrata, interface e polimorfismo
+```mermaid Contrato e especialização de impressão
 classDiagram
-  class Impressora {
-    <<abstract>>
-    #nome : String
+  direction TB
+  class Imprimivel {
+    <<interface>>
+    +imprimir()
+  }
+  class Impressora["Impressora {abstract}"] {
     +imprimir()*
   }
-  class Laser { +imprimir() }
-  class JatoDeTinta { +imprimir() }
-  class Matricial { +imprimir() }
+  class Laser {
+    +imprimir()
+  }
+  class JatoDeTinta {
+    +imprimir()
+  }
+  Imprimivel <|.. Impressora
   Impressora <|-- Laser
   Impressora <|-- JatoDeTinta
-  Impressora <|-- Matricial
 ```
+
+Fonte: adaptado de OMG (2017, seções 9 e 10) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 9 e 11) — recriado pela equipe Stacklyst.
+
+O triângulo em linha contínua aponta para a classe abstrata. Em linha tracejada, ele aponta para a interface. No ENADE, identifique o contrato que o código enxerga e a implementação chamada conforme o tipo real do objeto.
 
 ## Vantagens e desvantagens
 
@@ -248,3 +258,5 @@ Sobre**c**arga = **c**ompilação, **c**ampos (parâmetros) diferentes. Sobre**s
 - GAMMA, E. et al. *Padrões de Projeto*. Bookman, 2000 — "programe para uma interface".
 - BLOCH, J. *Java Efetivo*. 3. ed. Alta Books, 2019 — "prefira composição à herança".
 - INEP. ENADE TADS 2008 (questão 12), 2011 (questão 21) e 2017 (questão 30).
+- OBJECT MANAGEMENT GROUP. *Unified Modeling Language (UML)*. Versão 2.5.1. [S. l.]: OMG, 2017. Disponível em: https://www.omg.org/spec/UML/2.5.1. Acesso em: 25 nov. 2026.
+- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.

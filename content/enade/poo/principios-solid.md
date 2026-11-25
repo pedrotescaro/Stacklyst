@@ -3,8 +3,8 @@ title: Princípios SOLID
 summary: Responsabilidade Única, Aberto/Fechado, Substituição de Liskov, Segregação de Interfaces e Inversão de Dependência — o problema que cada um resolve, exemplo de violação e de correção.
 order: 4
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [solid, srp, responsabilidade única, ocp, aberto fechado, lsp, liskov, isp, segregação de interfaces, dip, inversão de dependência, injeção de dependência, design orientado a objetos]
 related: [relacionamentos-coesao-acoplamento, heranca-e-polimorfismo, padroes-de-projeto, estilos-arquiteturais]
 ---
@@ -109,20 +109,26 @@ class ServicoDePedidos:
 
 ## Representação visual
 
-```mermaid Inversão de dependência
+```mermaid Dependências de um serviço de pedidos
 classDiagram
-  direction LR
-  class ServicoDePedidos
-  class RepositorioDePedidos {
+  direction TB
+  class ServicoPedidos {
+    +registrar(pedido)
+  }
+  class RepositorioPedidos {
     <<interface>>
-    +salvar(p)
+    +salvar(pedido)
   }
   class RepositorioPostgres
-  class RepositorioEmMemoria
-  ServicoDePedidos --> RepositorioDePedidos : depende da abstração
-  RepositorioDePedidos <|.. RepositorioPostgres
-  RepositorioDePedidos <|.. RepositorioEmMemoria
+  class RepositorioMemoria
+  ServicoPedidos ..> RepositorioPedidos : usa contrato
+  RepositorioPedidos <|.. RepositorioPostgres
+  RepositorioPedidos <|.. RepositorioMemoria
 ```
+
+Fonte: adaptado de MARTIN (2019, cap. 11) e OMG (2017, seções 7 e 10) — recriado pela equipe Stacklyst.
+
+Siga as pontas das setas. O serviço usa o contrato, e as duas implementações realizam o mesmo contrato. No ENADE, verifique se a regra de negócio permanece disponível ao substituir o armazenamento por uma implementação em memória.
 
 ## Vantagens e desvantagens
 
@@ -199,7 +205,8 @@ O padrão Strategy aplica "programar para uma interface": `Boeing757` depende da
 
 ## Referências
 
-- MARTIN, R. C. *Arquitetura Limpa*. Alta Books, 2019 — parte III (princípios de design).
+- MARTIN, R. C. *Arquitetura limpa*: o guia do artesão para estrutura e design de software. Rio de Janeiro: Alta Books, 2019.
 - MARTIN, R. C. *Agile Software Development: Principles, Patterns, and Practices*. Prentice Hall, 2002.
 - LISKOV, B.; WING, J. A Behavioral Notion of Subtyping. *ACM TOPLAS*, v. 16, n. 6, 1994.
 - INEP. ENADE TADS 2017, questão 27.
+- OBJECT MANAGEMENT GROUP. *Unified Modeling Language (UML)*. Versão 2.5.1. [S. l.]: OMG, 2017. Disponível em: https://www.omg.org/spec/UML/2.5.1. Acesso em: 25 nov. 2026.

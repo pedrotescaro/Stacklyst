@@ -3,8 +3,8 @@ title: Pilhas (LIFO) e filas (FIFO)
 summary: Operações push, pop, top, enqueue e dequeue, implementação com vetor e com nós encadeados, filas circulares e de prioridade, aplicações e como simular sequências de operações sem errar.
 order: 4
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [pilha, stack, lifo, push, pop, top, peek, fila, queue, fifo, enqueue, dequeue, front, fila circular, fila de prioridade, deque, overflow, underflow, pilha de chamadas]
 related: [listas-encadeadas, recursividade, vetores-e-matrizes, grafos]
 ---
@@ -78,17 +78,32 @@ Empilhe F-E-L-I-C-I-D-A-D-E e desempilhe tudo: sai **EDADICILEF**.
 
 ## Representação visual
 
-```mermaid Pilha × fila
-flowchart LR
-  subgraph Pilha LIFO
+Considere que A, B e C chegaram nessa ordem. Na pilha, o acesso acontece pelo topo, então sai C. Na fila, insere-se no fim e retira-se da frente, então sai A. No ENADE, acompanhe a extremidade acessada a cada operação antes de comparar os estados finais.
+
+```mermaid Entradas e saídas LIFO e FIFO
+---
+config:
+  flowchart:
+    nodeSpacing: 18
+    rankSpacing: 30
+    padding: 8
+---
+flowchart TB
+  subgraph PI["Pilha · LIFO"]
     direction TB
-    T[topo: C] --- B[B] --- A[A — base]
+    X["Inserir ou retirar"] <--> T["C · topo"]
+    T --- M["B"]
+    M --- B["A · base"]
   end
-  subgraph Fila FIFO
+  subgraph FI["Fila · FIFO"]
     direction LR
-    I[início: A] --> F1[B] --> F2[C — fim]
+    CF["C · fim<br/>Inserir aqui"] --- BF["B"]
+    BF --- AF["A · frente<br/>Retirar daqui"]
   end
+  PI ~~~ FI
 ```
+
+Fonte: adaptado de CORMEN et al. (2009, seção 10.1) — recriado pela equipe Stacklyst.
 
 ## Vantagens e desvantagens
 
@@ -177,3 +192,4 @@ Após as operações restam 10, 5, 3, 11 (base → topo): topo **11**, soma **29
 - CORMEN, T. H. et al. *Algoritmos: teoria e prática*. 3. ed. Elsevier, 2012 — seção 10.1.
 - GOODRICH, M. T.; TAMASSIA, R. *Estruturas de Dados e Algoritmos em Java*. 5. ed. Bookman, 2013.
 - INEP. ENADE TADS 2011 (questão 29), 2014 (discursiva 4), 2017 (discursiva 4) e 2021 (questões 11 e 13).
+- CORMEN, Thomas H. et al. *Introduction to algorithms*. 3. ed. Cambridge, MA: MIT Press, 2009.

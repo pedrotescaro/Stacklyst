@@ -3,8 +3,8 @@ title: Vetores e matrizes
 summary: Arranjos unidimensionais e multidimensionais, indexação, acesso em tempo constante, percursos com laços aninhados, armazenamento em memória e problemas clássicos de prova.
 order: 2
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [vetor, array, arranjo, matriz, matriz multidimensional, índice, linha, coluna, percurso, laço aninhado, row-major, acesso aleatório, estrutura estática]
 related: [algoritmos-e-logica-de-programacao, busca-e-ordenacao, listas-encadeadas, complexidade-de-algoritmos]
 ---
@@ -77,21 +77,30 @@ transposta = [[m[j][i] for j in range(3)] for i in range(3)]
 
 ## Representação visual
 
-| | col 0 | col 1 | col 2 |
+Cada linha da tabela corresponde a um trecho contíguo do arranjo em ordem de linhas. O primeiro índice escolhe a linha e o segundo escolhe a coluna.
+
+| | Coluna 0 | Coluna 1 | Coluna 2 |
 |---|---|---|---|
-| **lin 0** | m[0][0] | m[0][1] | m[0][2] |
-| **lin 1** | m[1][0] | m[1][1] | m[1][2] |
+| **Linha 0** | m[0][0] | m[0][1] | m[0][2] |
+| **Linha 1** | m[1][0] | m[1][1] | m[1][2] |
 
-Na memória (row-major): `m[0][0] m[0][1] m[0][2] m[1][0] m[1][1] m[1][2]`.
+O laço externo escolhe a linha i e o interno enumera suas colunas j. A seta de troca da linha volta ao teste externo, que reinicializa j ao entrar na próxima linha. No ENADE, siga o par de índices para conferir quais posições entram na soma de uma linha.
 
-```mermaid Laços aninhados percorrendo uma matriz
-flowchart LR
-  A[i = 0] --> B{i < linhas?}
-  B -->|sim| C[j = 0] --> D{j < colunas?}
-  D -->|sim| E[processa m i j] --> F[j++] --> D
-  D -->|não| G[i++] --> B
-  B -->|não| H[fim]
+```mermaid Percurso por linhas da matriz
+flowchart TB
+  I(["Início"]) --> R["i ← 0"]
+  R --> L{"i &lt; linhas?"}
+  L -->|"Sim"| C["j ← 0"]
+  C --> T{"j &lt; colunas?"}
+  T -->|"Sim"| A["Ler m[i][j]"]
+  A --> J["j ← j + 1"]
+  J --> T
+  T -->|"Não"| N["i ← i + 1"]
+  N --> L
+  L -->|"Não"| F(["Fim"])
 ```
+
+Fonte: adaptado de CELES; CERQUEIRA; RANGEL (2004) — recriado pela equipe Stacklyst.
 
 ## Vantagens e desvantagens
 
@@ -169,7 +178,7 @@ Discursiva que exige **teste de mesa** com laços aninhados: anote i, j e o valo
 
 ## Referências
 
-- CELES, W.; CERQUEIRA, R.; RANGEL, J. L. *Introdução a Estruturas de Dados*. Elsevier, 2004 — caps. 5 e 6.
+- CELES, Waldemar; CERQUEIRA, Renato; RANGEL, José Lucas. *Introdução a estruturas de dados: com técnicas de programação em C*. Rio de Janeiro: Elsevier, 2004.
 - CORMEN, T. H. et al. *Algoritmos: teoria e prática*. 3. ed. Elsevier, 2012.
 - ZIVIANI, N. *Projeto de Algoritmos com implementações em Pascal e C*. 3. ed. Cengage, 2010.
 - INEP. ENADE TADS 2021, questão 29.

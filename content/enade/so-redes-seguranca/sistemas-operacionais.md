@@ -3,8 +3,8 @@ title: Sistemas operacionais — processos, threads, multiprogramação, escalon
 summary: O papel do sistema operacional, processos e seus estados, threads, multiprogramação × multiprocessamento, algoritmos de escalonamento (FCFS, SJF, SRTF, Round-Robin, prioridade) com simulador, sincronização e deadlocks.
 order: 1
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [sistema operacional, kernel, processo, estados do processo, pcb, troca de contexto, thread, multithread, multiprogramação, multiprocessamento, escalonamento, fcfs, sjf, srtf, round-robin, quantum, prioridade, preemptivo, turnaround, tempo de espera, condição de corrida, região crítica, semáforo, mutex, deadlock, impasse, condições de coffman]
 related: [memoria-e-arquivos, computacao-em-nuvem, pilhas-e-filas, transacoes-e-indices]
 ---
@@ -58,6 +58,10 @@ Métricas: **turnaround** = término − chegada; **tempo de espera** = turnarou
 
 ::widget scheduling
 
+Fonte: adaptado de TANENBAUM; BOS (2016, cap. 2) e SILBERSCHATZ; GALVIN; GAGNE (2015) — recriado pela equipe Stacklyst.
+
+Leia os intervalos de execução e os instantes de chegada e término. No ENADE, aplique a política indicada antes de calcular a espera média ou o tempo de retorno.
+
 ### Sincronização
 
 Quando processos/threads acessam dados compartilhados ao mesmo tempo, pode ocorrer **condição de corrida**. O trecho que acessa o recurso é a **região crítica**, protegida por **exclusão mútua**: **mutex**, **semáforos** (Dijkstra), **monitores**.
@@ -86,17 +90,18 @@ Processos P1 (chega 0, dura 6), P2 (1, 3), P3 (2, 8), P4 (3, 2). FCFS: P1 de 0�
 
 ## Representação visual
 
-```mermaid Estados de um processo
+```mermaid Estados de execução de um processo
 stateDiagram-v2
-  [*] --> Novo
-  Novo --> Pronto : admitido
-  Pronto --> Executando : escalonado
-  Executando --> Pronto : fim do quantum
-  Executando --> Bloqueado : espera E/S
+  direction TB
+  Executando --> Pronto : preempção
+  Pronto --> Executando : despacho
+  Executando --> Bloqueado : espera por E/S
   Bloqueado --> Pronto : E/S concluída
-  Executando --> Terminado : fim
-  Terminado --> [*]
 ```
+
+Fonte: adaptado de TANENBAUM; BOS (2016, cap. 2) — recriado pela equipe Stacklyst.
+
+O recorte foca os três estados durante a vida do processo. A conclusão da E/S leva de bloqueado a pronto. Depois, o escalonador concede a CPU. No ENADE, confira se o processo está esperando um evento ou somente sua vez de executar.
 
 ## Vantagens e desvantagens
 
@@ -179,7 +184,7 @@ Impedir que um programa escreva no espaço de outro (ou do SO) é função do **
 
 ## Referências
 
-- TANENBAUM, A. S.; BOS, H. *Sistemas Operacionais Modernos*. 4. ed. Pearson, 2016 — caps. 1 a 6.
-- SILBERSCHATZ, A.; GALVIN, P. B.; GAGNE, G. *Fundamentos de Sistemas Operacionais*. 9. ed. LTC, 2015.
+- TANENBAUM, A. S.; BOS, H. *Sistemas operacionais modernos*. 4. ed. São Paulo: Pearson Education do Brasil, 2016.
+- SILBERSCHATZ, A.; GALVIN, P. B.; GAGNE, G. *Fundamentos de sistemas operacionais*. 9. ed. Rio de Janeiro: LTC, 2015.
 - MACHADO, F. B.; MAIA, L. P. *Arquitetura de Sistemas Operacionais*. 5. ed. LTC, 2013.
 - INEP. ENADE TADS 2017 (questão 19) e 2021 (questão 28).

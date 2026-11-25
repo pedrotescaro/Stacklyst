@@ -3,8 +3,8 @@ title: Manutenção de software, sistemas legados e dívida técnica
 summary: Os tipos de manutenção (corretiva, adaptativa, perfectiva/evolutiva e preventiva), a norma ISO/IEC 14764, sistemas legados, reengenharia e o conceito de dívida técnica.
 order: 4
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [manutenção, corretiva, adaptativa, perfectiva, evolutiva, preventiva, iso 14764, legado, reengenharia, engenharia reversa, refatoração, dívida técnica, leis de lehman]
 related: [fundamentos-engenharia-de-software, gerencia-de-configuracao, qualidade-de-software, estilos-arquiteturais]
 ---
@@ -78,13 +78,19 @@ Tipos frequentes: código duplicado, ausência de testes automatizados, arquitet
 
 ## Representação visual
 
-```mermaid Estratégias de evolução de um sistema legado ao longo do tempo
-flowchart LR
-  C[Sistema construído] --> M1[Manutenção]
-  M1 --> MO[Modernização<br/>reengenharia, migração]
-  MO --> M2[Manutenção do sistema modernizado]
-  M2 --> S[Substituição<br/>novo sistema]
+```mermaid Estratégias para sistemas legados
+quadrantChart
+  x-axis Qualidade baixa --> Qualidade alta
+  y-axis Valor baixo --> Valor alto
+  quadrant-1 Manter em operação
+  quadrant-2 Reengenharia ou substituição
+  quadrant-3 Descontinuar
+  quadrant-4 Manter sob condição
 ```
+
+Fonte: adaptado de SOMMERVILLE (2018, cap. 9) — recriado pela equipe Stacklyst.
+
+Localize a qualidade técnica no eixo horizontal e o valor para o negócio no eixo vertical. Em um legado de baixo valor e alta qualidade, mantenha enquanto a operação continuar econômica. Um sistema valioso com baixa qualidade pode ser recuperado por reengenharia ou substituído, conforme os custos. No ENADE, identifique as evidências de cada dimensão antes de decidir se o sistema deve continuar em uso.
 
 ## Vantagens e desvantagens
 
@@ -169,7 +175,7 @@ A demanda acrescenta uma capacidade (relatório de comissão) para atender uma n
 ## Referências
 
 - ISO/IEC/IEEE 14764:2022 — *Software engineering — Software life cycle processes — Maintenance*.
-- SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018 — cap. 9 (evolução de software).
+- SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson, 2018.
 - PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software*. 8. ed. AMGH, 2016 — cap. 36.
 - SEACORD, R. C.; PLAKOSH, D.; LEWIS, G. A. *Modernizing Legacy Systems*. Addison-Wesley, 2003.
 - FOWLER, M. *Refatoração: aperfeiçoando o design de códigos existentes*. 2. ed. Novatec, 2020.

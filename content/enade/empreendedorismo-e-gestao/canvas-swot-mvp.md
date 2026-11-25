@@ -3,8 +3,8 @@ title: Business Model Canvas, análise SWOT, MVP e Lean Startup
 summary: Os nove blocos do Business Model Canvas, a análise SWOT (forças, fraquezas, oportunidades e ameaças) e sua matriz cruzada, o Produto Mínimo Viável e o ciclo construir-medir-aprender.
 order: 2
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [business model canvas, canvas, modelo de negócios, proposta de valor, segmentos de clientes, canais, relacionamento, fontes de receita, recursos principais, atividades-chave, parcerias, estrutura de custos, swot, fofa, forças, fraquezas, oportunidades, ameaças, mvp, produto mínimo viável, lean startup, pivô, validação]
 related: [empreendedorismo-e-plano-de-negocios, viabilidade-economica, metodos-ageis, sistemas-de-informacao-empresariais]
 ---
@@ -72,20 +72,32 @@ Forças: equipe experiente em ERP. Fraquezas: dependência de um único cliente 
 
 ## Representação visual
 
-| Parcerias principais | Atividades-chave | Proposta de valor | Relacionamento | Segmentos de clientes |
-|---|---|---|---|---|
-| | **Recursos principais** | | **Canais** | |
-| **Estrutura de custos** | | | **Fontes de receita** | |
+Leia o quadro por grupos: o centro descreve o valor oferecido, a infraestrutura viabiliza a entrega, o lado do cliente organiza a relação com o público e as finanças registram custos e receitas. No ENADE, use essa distinção para associar cada decisão do caso ao bloco correspondente.
 
-```mermaid Ciclo Lean Startup
-flowchart LR
-  I[Ideias / hipóteses] --> B[Construir MVP]
-  B --> P[Produto]
-  P --> M[Medir]
-  M --> D[Dados]
-  D --> A[Aprender]
-  A -->|perseverar ou pivotar| I
+**Os nove blocos do Canvas**
+
+| Grupo | Blocos no exemplo de caronas |
+|---|---|
+| Infraestrutura | Parcerias com universidades e seguradora, verificação e suporte, aplicativo e base de alunos |
+| Oferta | Caronas seguras a um preço acessível |
+| Clientes | Estudantes passageiros e motoristas, canais no aplicativo e nas redes, relacionamento por avaliações |
+| Finanças | Custos de desenvolvimento e operação, receita por taxa de viagem |
+
+Fonte: adaptado de OSTERWALDER; PIGNEUR (2010, cap. 1) — recriado pela equipe Stacklyst.
+
+Siga as setas da hipótese ao aprendizado. A reação dos clientes ao MVP fornece os dados que orientam a próxima hipótese ou refinam a estratégia atual. No ENADE, identifique qual medida permitiria validar a hipótese e por que o aprendizado pode levar a um pivô.
+
+```mermaid Ciclo construir, medir e aprender
+flowchart TB
+  H(["Hipótese a testar"]) --> C["Construir"]
+  C --> P["MVP"]
+  P --> M["Medir"]
+  M --> D["Dados de uso"]
+  D --> A["Aprender"]
+  A -->|"Pivotar ou perseverar"| H
 ```
+
+Fonte: adaptado de RIES (2011, parte 2, introdução e caps. 5–8) — recriado pela equipe Stacklyst.
 
 ## Vantagens e desvantagens
 
@@ -163,3 +175,5 @@ Correta a **B**: startups de big data (como qualquer outra) usam o Canvas para *
 - BLANK, S.; DORF, B. *Startup: manual do empreendedor*. Alta Books, 2014.
 - SEBRAE. *Canvas — modelo de negócios*. Disponível em sebrae.com.br.
 - INEP. ENADE TADS 2021, questão 32.
+- OSTERWALDER, Alexander; PIGNEUR, Yves. *Business model generation: a handbook for visionaries, game changers, and challengers*. Hoboken: John Wiley & Sons, 2010.
+- RIES, Eric. *The lean startup: how today’s entrepreneurs use continuous innovation to create radically successful businesses*. New York: Crown Business, 2011.

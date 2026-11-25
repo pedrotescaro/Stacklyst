@@ -3,8 +3,8 @@ title: Sequências lógicas e padrões
 summary: Como descobrir a regra de sequências numéricas, de letras e de figuras — progressões aritméticas e geométricas, diferenças sucessivas, sequências alternadas, recursivas (Fibonacci) e cíclicas — com um método passo a passo.
 order: 6
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [sequências lógicas, padrões, progressão aritmética, pa, progressão geométrica, pg, razão, diferenças sucessivas, sequência alternada, fibonacci, sequência recursiva, sequência cíclica, termo geral, letras, figuras]
 related: [recursividade, funcoes-e-graficos, porcentagem-e-proporcao, algoritmos-e-logica-de-programacao]
 ---
@@ -64,18 +64,20 @@ Hoje é segunda-feira. Que dia será daqui a 100 dias? 100 mod 7 = 2 → **quart
 
 ## Representação visual
 
-```mermaid Árvore de decisão para identificar uma sequência
-flowchart TD
-  S[Sequência] --> D{Diferença constante?}
-  D -->|sim| PA[PA]
-  D -->|não| R{Razão constante?}
-  R -->|sim| PG[PG]
-  R -->|não| D2{Diferenças têm padrão?}
-  D2 -->|sim| O2[2ª ordem / quadrados]
-  D2 -->|não| A{Ímpares e pares separados?}
-  A -->|sim| ALT[Alternada]
-  A -->|não| REC[Testar recursiva ou cíclica]
+Compare os termos vizinhos em busca de uma diferença ou de uma razão constante, quando os denominadores permitem. Para a sequência de Fibonacci, observe os dois termos anteriores e os valores iniciais. No ENADE, confira se a regra encontrada explica todos os termos fornecidos antes de prever o próximo.
+
+```mermaid Fórmulas para reconhecer sequências
+flowchart TB
+  T["Termos consecutivos"] --- PA["Progressão aritmética"]
+  T --- PG["Progressão geométrica"]
+  T --- R["Fibonacci"]
+  PA --- P1["aₙ₊₁ − aₙ = d"]
+  PG --- P2["aₙ₊₁ = q · aₙ"]
+  R --- P3["Fₙ₊₂ = Fₙ₊₁ + Fₙ"]
+  P3 --- B["F₀ = 0, F₁ = 1"]
 ```
+
+Fonte: adaptado de ROSEN (2019, cap. 2) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -138,3 +140,4 @@ A sequência de Fibonacci é definida recursivamente (F(n) = F(n−1) + F(n−2)
 
 - IEZZI, G.; HAZZAN, S. *Fundamentos de Matemática Elementar 4: sequências, matrizes, determinantes e sistemas*. 8. ed. Atual, 2013.
 - MORGADO, A. C.; CARVALHO, P. C. P. *Matemática Discreta*. 2. ed. SBM, 2015 (Coleção PROFMAT).
+- ROSEN, Kenneth H. *Discrete mathematics and its applications*. 8. ed. New York: McGraw-Hill Education, 2019.

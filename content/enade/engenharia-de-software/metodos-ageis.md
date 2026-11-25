@@ -3,8 +3,8 @@ title: Desenvolvimento ágil — Manifesto Ágil, Scrum, Kanban e XP
 summary: Os valores e princípios do Manifesto Ágil, os papéis, eventos e artefatos do Scrum, o fluxo puxado do Kanban e as práticas técnicas da Programação Extrema.
 order: 3
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [ágil, manifesto ágil, scrum, sprint, product owner, scrum master, product backlog, daily, kanban, wip, xp, programação extrema, programação em pares, tdd, integração contínua, refatoração]
 related: [modelos-de-processo, historias-e-casos-de-uso, fundamentos-de-testes, rup-visao-geral]
 ---
@@ -103,22 +103,36 @@ Colunas: *Entrada → Análise (WIP 3) → Correção (WIP 2) → Verificação 
 
 ## Representação visual
 
-```mermaid Ciclo do Scrum
-flowchart LR
-  PB[Product Backlog<br/>ordenado pelo PO] --> SP[Sprint Planning]
-  SP --> SB[Sprint Backlog]
-  SB --> S((Sprint<br/>1–4 semanas))
-  S --> D[Daily Scrum<br/>todo dia] --> S
-  S --> I[Incremento<br/>Definição de Pronto]
-  I --> R[Sprint Review]
-  R --> RE[Retrospectiva]
-  R -.adapta.-> PB
+```mermaid Eventos e artefatos do Scrum
+flowchart TD
+  PB[["Product Backlog"]] --> P
+  subgraph sprint["Sprint · até um mês"]
+    P["Planejamento da Sprint"] --> SB[["Sprint Backlog"]]
+    SB --> T["Trabalho da Sprint"]
+    T --> D["Daily Scrum"]
+    D -. "Adapta o plano" .-> T
+    T --> I[["Incremento utilizável"]]
+    I --> R["Revisão da Sprint"]
+    R --> RE["Retrospectiva da Sprint"]
+  end
+  R -. "Adapta o backlog" .-> PB
+  RE -. "Próxima Sprint" .-> P
 ```
 
-```mermaid Ciclo do TDD na XP
-flowchart LR
-  V[Escrever teste que falha<br/>vermelho] --> G[Código mínimo para passar<br/>verde] --> RF[Refatorar] --> V
+Fonte: adaptado de SCHWABER; SUTHERLAND (2020, seções Eventos do Scrum e Artefatos do Scrum) — recriado pela equipe Stacklyst.
+
+A Sprint contém os quatro eventos. O planejamento define o objetivo e o plano de trabalho, a Daily ajusta o plano, a revisão inspeciona o resultado com os interessados e a retrospectiva prepara melhorias no modo de trabalhar. No ENADE, associe cada evento ao que ele inspeciona. O Incremento atende à Definição de Pronto e pode ser entregue durante a Sprint.
+
+```mermaid TDD em três passos
+flowchart TD
+  R["Vermelho<br/>confirmar que falha"] --> G["Verde<br/>fazer o teste passar"]
+  G --> F["Refatorar<br/>manter testes passando"]
+  F -->|Próximo comportamento| R
 ```
+
+Fonte: adaptado de BECK (2003, prefácio) — recriado pela equipe Stacklyst.
+
+Escreva um teste para o comportamento novo e confirme a falha. Implemente o necessário para fazê-lo passar e melhore a estrutura do código com a suíte passando. No ENADE, reconheça o teste escrito antes do código e a refatoração que preserva o comportamento observável.
 
 ## Vantagens e desvantagens
 
@@ -217,7 +231,8 @@ Refatoração, programação em pares e integração contínua são práticas da
 ## Referências
 
 - BECK, K. et al. *Manifesto para Desenvolvimento Ágil de Software*. 2001. Disponível em agilemanifesto.org.
-- SCHWABER, K.; SUTHERLAND, J. *Guia do Scrum*. 2020. Disponível em scrumguides.org.
+- SCHWABER, Ken; SUTHERLAND, Jeff. *O guia do Scrum: o guia definitivo para o Scrum*. [S. l.]: Scrum Guides, 2020. Disponível em: https://scrumguides.org/docs/scrumguide/v2020/2020-Scrum-Guide-PortugueseBR-3.0.pdf. Acesso em: 25 nov. 2026.
 - BECK, K. *Programação Extrema (XP) explicada*. Bookman, 2004.
 - ANDERSON, D. J. *Kanban: mudança evolucionária de sucesso para seu negócio de tecnologia*. Blue Hole Press, 2011.
 - SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018 — cap. 3.
+- BECK, Kent. *Test-driven development: by example*. Boston: Addison-Wesley, 2003.

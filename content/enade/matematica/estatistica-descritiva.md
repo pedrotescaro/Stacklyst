@@ -3,8 +3,8 @@ title: Estatística descritiva — média, moda, mediana, quartis, variância e 
 summary: Medidas de tendência central e de dispersão, cálculo a partir de tabelas de frequência, quartis e amplitude, variância e desvio padrão populacional e amostral — com calculadora interativa e resolução comentada.
 order: 2
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [estatística, média, média ponderada, mediana, moda, amodal, bimodal, quartil, percentil, amplitude, variância, desvio padrão, populacional, amostral, tabela de frequência, outlier, dispersão, tendência central]
 related: [porcentagem-e-proporcao, funcoes-e-graficos, probabilidade-e-combinatoria, curva-de-lorenz-e-gini]
 ---
@@ -76,12 +76,26 @@ O desvio padrão está na **mesma unidade** dos dados e indica a distância típ
 
 ## Representação visual
 
-```mermaid Assimetria e a posição das medidas
-flowchart LR
-  S[Distribuição simétrica] --> S1[média ≈ mediana ≈ moda]
-  D[Cauda longa à direita — ex.: renda] --> D1[moda < mediana < média]
-  E[Cauda longa à esquerda] --> E1[média < mediana < moda]
+Observe para qual lado se estende a cauda. A média tende a se deslocar nessa direção, enquanto a mediana separa a amostra ordenada em duas metades e a moda localiza o pico. No ENADE, essa ordem típica ajuda a ler histogramas e a decidir qual medida representa melhor um conjunto com valores extremos.
+
+```mermaid Medidas centrais em distribuições unimodais
+---
+config:
+  flowchart:
+    nodeSpacing: 18
+    rankSpacing: 30
+    padding: 8
+---
+flowchart TB
+  Q["Perfil da distribuição"] --- L["Cauda à esquerda"]
+  Q --- S["Simetria unimodal"]
+  Q --- R["Cauda à direita"]
+  L --- LM["média &lt; mediana<br/>&lt; moda"]
+  S --- SM["média = mediana<br/>= moda"]
+  R --- RM["moda &lt; mediana<br/>&lt; média"]
 ```
+
+Fonte: adaptado de ILLOWSKY; DEAN (2023, seção 2.6) — recriado pela equipe Stacklyst.
 
 ## Vantagens e desvantagens
 
@@ -158,3 +172,4 @@ O gabarito definitivo do Inep é **B (I, II e V)**: média 6,0, mediana 6,0 e a 
 - BUSSAB, W. O.; MORETTIN, P. A. *Estatística Básica*. 9. ed. Saraiva, 2017.
 - TRIOLA, M. F. *Introdução à Estatística*. 12. ed. LTC, 2017.
 - INEP. ENADE TADS 2017, questão 9.
+- ILLOWSKY, Barbara; DEAN, Susan. *Introductory statistics*. 2. ed. Houston: OpenStax, 2023. Disponível em: [OpenStax](https://openstax.org/details/books/introductory-statistics-2e). Acesso em: 25 nov. 2026.

@@ -3,8 +3,8 @@ title: Curva de Lorenz, índice de Gini e distribuição de renda
 summary: Como a curva de Lorenz representa a renda acumulada da população, como ler pontos e calcular a parcela dos mais ricos, o que o índice de Gini mede e como calculá-lo — com simulador interativo.
 order: 5
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [curva de lorenz, índice de gini, coeficiente de gini, desigualdade, distribuição de renda, renda acumulada, quintis, decis, linha de igualdade perfeita, área, ipea, ibge]
 related: [funcoes-e-graficos, porcentagem-e-proporcao, estatistica-descritiva, sociedade-e-desigualdade]
 ---
@@ -46,6 +46,8 @@ com X e Y em proporções acumuladas (0 a 1).
 
 ::widget lorenz-gini
 
+Fonte: adaptado de HOFFMANN (1998) — recriado pela equipe Stacklyst.
+
 ## Características principais
 
 - A curva é sempre **crescente** e **convexa** (cada grupo seguinte tem renda maior ou igual).
@@ -62,7 +64,7 @@ Participações: 5%, 10%, 15%, 25%, 45%. Acumulados Y: 0, 0,05, 0,15, 0,30, 0,55
 
 ## Representação visual
 
-O simulador acima desenha a curva, a linha de igualdade e a área de desigualdade (que dá o Gini). Teste os cenários de igualdade perfeita e de desigualdade alta.
+No gráfico interativo da seção Como funciona, leia no eixo horizontal a parcela da população acumulada da menor à maior renda. O eixo vertical mostra a parcela acumulada da renda que corresponde a esse grupo. No ENADE, para encontrar a parcela dos 20% mais ricos, leia o valor em 80% da população e complete até 100%.
 
 ## Vantagens e desvantagens
 
@@ -138,5 +140,5 @@ No gráfico, os **80% de menor renda** recebem aproximadamente **40%** da renda 
 
 - IBGE. *Síntese de Indicadores Sociais*. Rio de Janeiro, edições anuais.
 - IPEA. *Ipeadata — distribuição de renda e coeficiente de Gini*. Disponível em ipeadata.gov.br.
-- HOFFMANN, R. *Distribuição de Renda: medidas de desigualdade e pobreza*. Edusp, 1998.
+- HOFFMANN, Rodolfo. *Distribuição de renda: medidas de desigualdade e pobreza*. São Paulo: Edusp, 1998.
 - INEP. ENADE TADS 2008, questão 7.

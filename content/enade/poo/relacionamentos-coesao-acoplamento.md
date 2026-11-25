@@ -3,8 +3,8 @@ title: Associação, agregação, composição, coesão, acoplamento e reutiliza
 summary: Como objetos se relacionam no código, a diferença prática entre agregação e composição, o que são coesão e acoplamento e por que "alta coesão e baixo acoplamento" é a meta de todo projeto, além das formas de reutilização.
 order: 3
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [associação, agregação, composição, todo-parte, coesão, acoplamento, alta coesão, baixo acoplamento, reutilização, reuso, composição sobre herança, injeção de dependência, lei de demeter]
 related: [uml-classes-e-objetos, heranca-e-polimorfismo, principios-solid, estilos-arquiteturais]
 ---
@@ -93,13 +93,17 @@ Uma classe `Pedido` que calcula total, envia e-mail e grava no banco tem **baixa
 
 ## Representação visual
 
-```mermaid Associação, agregação e composição
+```mermaid Três relações estruturais UML
 classDiagram
   direction LR
-  Cliente "1" -- "0..*" Pedido : associação
-  Time "0..1" o-- "*" Jogador : agregação
-  Pedido "1" *-- "1..*" ItemPedido : composição
+  Cliente "1" -- "0..*" Pedido : realiza
+  Time "0..*" o-- "0..*" Jogador : reúne
+  Fatura "1" *-- "1..*" ItemFatura : contém
 ```
+
+Fonte: adaptado de OMG (2017, seção 11) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 5 e 10) — recriado pela equipe Stacklyst.
+
+Leia a linha simples entre cliente e pedido. Em seguida, veja de que lado está o losango. O vazio indica agregação compartilhada, e o cheio indica composição. No ENADE, leia a multiplicidade a partir do extremo oposto e identifique qual classe é o todo.
 
 ## Vantagens e desvantagens
 
@@ -178,3 +182,5 @@ A discursiva parte da ideia de que classes colaboram por **associações** que p
 - PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software*. 8. ed. AMGH, 2016 — cap. 12 (conceitos de projeto).
 - BLOCH, J. *Java Efetivo*. 3. ed. Alta Books, 2019 — item 18.
 - INEP. ENADE TADS 2014, discursiva 3.
+- OBJECT MANAGEMENT GROUP. *Unified Modeling Language (UML)*. Versão 2.5.1. [S. l.]: OMG, 2017. Disponível em: https://www.omg.org/spec/UML/2.5.1. Acesso em: 25 nov. 2026.
+- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.

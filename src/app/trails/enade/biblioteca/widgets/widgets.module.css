@@ -104,6 +104,79 @@
 .svg .muted {
   fill: var(--color-dd-muted);
 }
+.modelSvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 540px;
+  margin-inline: auto;
+  fill: var(--color-dd-text);
+  font-family: inherit;
+}
+.modelHeading {
+  font-size: 15px;
+  font-weight: 650;
+}
+.modelNote {
+  font-size: 14px;
+}
+.modelGuide,
+.modelAxis,
+.modelCurve,
+.modelComparison {
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.modelGuide {
+  stroke: color-mix(in srgb, var(--color-dd-text) 24%, var(--enade-line));
+  stroke-dasharray: 4 5;
+}
+.modelAxis,
+.modelComparison {
+  stroke: var(--color-dd-text);
+}
+.modelComparison {
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+}
+.modelCurve {
+  stroke: var(--color-dd-accent);
+  stroke-width: 2.5;
+}
+.modelPoint {
+  fill: var(--color-dd-accent);
+}
+.modelArtifact {
+  fill: var(--enade-soft);
+  stroke: var(--enade-line);
+}
+.modelScroll {
+  overflow-x: auto;
+}
+.modelScroll:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 2px;
+}
+.whale {
+  min-width: 490px;
+}
+.modelControls {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  gap: 8px;
+  margin: 12px 0;
+}
+.modelControls label {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+  font-weight: 600;
+}
+.modelControls select {
+  width: 100%;
+  min-height: 44px;
+}
 .graphControl {
   cursor: pointer;
 }

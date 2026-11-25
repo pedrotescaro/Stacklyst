@@ -3,8 +3,8 @@ title: Diagrama de classes e diagrama de objetos
 summary: Classes, atributos, operações, visibilidades (+ - # ~), multiplicidades e os relacionamentos — associação, agregação, composição, generalização, realização e dependência — com o diagrama de objetos.
 order: 2
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [diagrama de classes, diagrama de objetos, classe, atributo, operação, método, visibilidade, público, privado, protegido, pacote, multiplicidade, associação, agregação, composição, generalização, herança, realização, interface, dependência, classe abstrata, classe associativa]
 related: [poo-fundamentos, relacionamentos-coesao-acoplamento, heranca-e-polimorfismo, modelagem-de-dados, uml-visao-geral]
 ---
@@ -69,6 +69,10 @@ Leitura: em `Cliente 1 ──── 0..* Pedido`, **um cliente** tem **zero ou m
 
 ::widget uml diagram=relationships
 
+Fonte: adaptado de OMG (2017, seções 7, 9, 10 e 11) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 5 e 10) — recriado pela equipe Stacklyst.
+
+Compare a ponta e o traço de cada conector antes de ler os nomes. O ENADE pode pedir a interpretação simultânea da multiplicidade e do losango.
+
 - **Associação** — vínculo estrutural entre classes (linha). Pode ter **nome**, **papéis** nas pontas e **navegabilidade** (seta indica quem conhece quem).
 - **Agregação** (losango **vazado** no lado do **todo**) — relação todo-parte **fraca**: a parte **pode existir sem o todo** e ser compartilhada (Time ◇── Jogador).
 - **Composição** (losango **cheio** no todo) — todo-parte **forte**: a parte **não existe sem o todo**, pertence a um só todo e é destruída com ele (Pedido ◆── ItemPedido).
@@ -82,6 +86,10 @@ Leitura: em `Cliente 1 ──── 0..* Pedido`, **um cliente** tem **zero ou m
 Cada objeto aparece como `nomeDoObjeto : Classe` **sublinhado**, com os atributos e **valores** daquele momento; as linhas são **vínculos** (instâncias de associações).
 
 ::widget uml diagram=object
+
+Fonte: adaptado de OMG (2017, seção 9) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 13 e 14) — recriado pela equipe Stacklyst.
+
+Cada cabeçalho sublinhado identifica uma instância. No ENADE, confira se os vínculos concretos respeitam as associações e multiplicidades declaradas pelas classes.
 
 ## Características principais
 
@@ -114,43 +122,42 @@ public class PixPagamento implements Pagavel {             // realização
 
 ## Representação visual
 
-```mermaid Diagrama de classes de um sistema de vendas
+```mermaid Estrutura de vendas e pagamentos
 classDiagram
-  direction LR
-  class Pessoa {
-    <<abstract>>
+  direction TB
+  class Pessoa["Pessoa {abstract}"] {
     #nome : String
-    +getNome() String
   }
   class Cliente {
     -cpf : String
   }
   class Pedido {
-    -numero : int
-    -data : Date
-    +total() double
-    +adicionarItem(p : Produto, qtd : int)
+    -numero : Integer
+    +calcularTotal() Decimal
   }
   class ItemPedido {
-    -quantidade : int
-    -precoUnitario : double
+    -quantidade : Integer
+    -precoUnitario : Decimal
   }
   class Produto {
     -descricao : String
-    -preco : double
   }
   class Pagavel {
     <<interface>>
-    +pagar(valor : double)
+    +pagar(valor : Decimal)
   }
-  class PixPagamento
+  class PagamentoPix
   Pessoa <|-- Cliente
-  Cliente "1" -- "0..*" Pedido : faz
-  Pedido "1" *-- "1..*" ItemPedido
-  ItemPedido "0..*" --> "1" Produto
-  Pagavel <|.. PixPagamento
-  Pedido ..> Pagavel : usa
+  Cliente "1" -- "0..*" Pedido : realiza
+  Pedido "1" *-- "1..*" ItemPedido : contém
+  ItemPedido "0..*" --> "1" Produto : referencia
+  Pagavel <|.. PagamentoPix
+  Pedido ..> Pagavel : solicita pagamento
 ```
+
+Fonte: adaptado de OMG (2017, seções 7, 9, 10 e 11) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 8, 10 e 11) — recriado pela equipe Stacklyst.
+
+Leia cada multiplicidade na extremidade correspondente. Um pedido contém um ou mais itens, e cada item pertence a um único pedido. No ENADE, identifique o todo pelo losango cheio e distinga realização de dependência pela ponta da seta tracejada.
 
 ## Vantagens e desvantagens
 
@@ -250,8 +257,8 @@ Cenário em que regras ("dois tipos de carboidrato no café da manhã", "um tipo
 
 ## Referências
 
-- OMG. *UML 2.5.1 Specification*, 2017 — cláusulas 9 (classificação) e 11 (estruturas).
-- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: Guia do Usuário*. 2. ed. Elsevier, 2006 — caps. 4 a 10.
+- OBJECT MANAGEMENT GROUP. *Unified Modeling Language (UML)*. Versão 2.5.1. [S. l.]: OMG, 2017. Disponível em: https://www.omg.org/spec/UML/2.5.1. Acesso em: 25 nov. 2026.
+- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.
 - LARMAN, C. *Utilizando UML e Padrões*. 3. ed. Bookman, 2007.
 - GUEDES, G. T. A. *UML 2: uma abordagem prática*. 3. ed. Novatec, 2018.
 - INEP. ENADE TADS 2008 (questão 19) e 2017 (questão 16).

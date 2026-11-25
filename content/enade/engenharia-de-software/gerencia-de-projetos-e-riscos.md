@@ -3,8 +3,8 @@ title: Gerência de projetos e gerenciamento de riscos
 summary: Restrição tripla, áreas de conhecimento do PMBOK, EAP, cronograma e caminho crítico (com cálculo passo a passo), partes interessadas e o ciclo de gerenciamento de riscos.
 order: 7
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [gerência de projetos, pmbok, pmi, escopo, tempo, cronograma, custo, qualidade, partes interessadas, stakeholders, eap, wbs, caminho crítico, cpm, pert, folga, riscos, probabilidade, impacto, mitigar, transferir, evitar, aceitar]
 related: [modelos-de-processo, rup-fases-e-marcos, requisitos-fundamentos, viabilidade-economica]
 ---
@@ -101,14 +101,20 @@ $$\text{Exposição ao risco} = \text{probabilidade} \times \text{impacto}$$
 
 ## Representação visual
 
-```mermaid Rede do exemplo — caminho crítico em destaque
-flowchart LR
-  I((Início)) --> T1[T1 · 5] --> T2[T2 · 8] --> T3[T3 · 2] --> T5[T5 · 2] --> T7[T7 · 3] --> F((Fim))
-  I --> T4[T4 · 4] --> T5
-  I --> T6[T6 · 4] --> F
-  classDef crit stroke:#0083fe,stroke-width:3px
-  class T1,T2,T3,T5,T7 crit
+```mermaid Rede CPM do exemplo
+flowchart TD
+  Inicio((Início)) --> T1["T1 · 5 dias"] --> T2["T2 · 8 dias"] --> T3["T3 · 2 dias"]
+  Inicio --> T4["T4 · 4 dias"]
+  T3 --> T5["T5 · 2 dias"]
+  T4 --> T5
+  T5 --> T7["T7 · 3 dias"] --> Fim(("Fim<br/>20 dias"))
+  Inicio --> T6["T6 · 4 dias"] --> Fim
+  linkStyle 0,1,2,4,6,7 stroke-width:3px
 ```
+
+Fonte: adaptado de PROJECT MANAGEMENT INSTITUTE (2017, seção 6.5.2.2) — recriado pela equipe Stacklyst.
+
+Cada caixa é uma atividade e cada seta exige que a predecessora termine antes do início da sucessora. T5 aguarda T3 e T4. No ENADE, some as durações de cada caminho completo. O trajeto destacado soma 20 dias e determina a duração mínima do projeto pelas dependências do exemplo.
 
 ## Vantagens e desvantagens
 
@@ -197,7 +203,8 @@ Desentendimentos, falta de compreensão do que avaliar, novos solicitantes e pat
 
 ## Referências
 
-- PROJECT MANAGEMENT INSTITUTE. *Um Guia do Conhecimento em Gerenciamento de Projetos (Guia PMBOK)*. 6. ed. PMI, 2017; 7. ed. PMI, 2021.
+- PROJECT MANAGEMENT INSTITUTE. *A guide to the project management body of knowledge (PMBOK guide)*. 6. ed. Newtown Square: Project Management Institute, 2017.
+- PROJECT MANAGEMENT INSTITUTE. *A guide to the project management body of knowledge (PMBOK guide)*. 7. ed. Newtown Square: Project Management Institute, 2021.
 - SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018 — caps. 22 e 23.
 - PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software*. 8. ed. AMGH, 2016 — caps. 31 a 35.
 - INEP. ENADE TADS 2014 (questões 9 e 34), 2017 (questões 13 e 14) e 2021 (questão 14).

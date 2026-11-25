@@ -3,8 +3,8 @@ title: Padrões de projeto (Design Patterns) — criacionais, estruturais e comp
 summary: O que são os padrões GoF, os 23 padrões em três famílias e, em detalhe, os mais cobrados — Singleton, Factory Method, Abstract Factory, Builder, Prototype, Adapter, Facade, Composite, Decorator, Strategy, Observer, Template Method e Command.
 order: 5
 level: avançado
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [padrões de projeto, design patterns, gof, gang of four, criacionais, singleton, factory method, abstract factory, builder, prototype, estruturais, adapter, facade, composite, decorator, proxy, comportamentais, strategy, observer, template method, command, state, iterator]
 related: [principios-solid, heranca-e-polimorfismo, relacionamentos-coesao-acoplamento, mvc-mvp-mvvm]
 ---
@@ -104,43 +104,60 @@ Cada padrão é descrito por: **nome**, **problema** (quando aplicar), **soluç�
 
 ## Representação visual
 
-```mermaid Estrutura do padrão Strategy
+```mermaid Strategy para modos de voo
 classDiagram
-  direction LR
+  direction TB
   class Aviao {
-    -voo : EstrategiaVoo
-    +setVoar(v : EstrategiaVoo)
+    +configurarVoo(estrategia)
     +decolar()
   }
   class EstrategiaVoo {
     <<interface>>
     +voar()
   }
-  class VoarDia { +voar() }
-  class VoarNoite { +voar() }
-  Aviao o--> EstrategiaVoo
-  EstrategiaVoo <|.. VoarDia
-  EstrategiaVoo <|.. VoarNoite
+  class VooDiurno {
+    +voar()
+  }
+  class VooNoturno {
+    +voar()
+  }
+  Aviao "0..*" --> "1" EstrategiaVoo : delega voo
+  EstrategiaVoo <|.. VooDiurno
+  EstrategiaVoo <|.. VooNoturno
 ```
 
-```mermaid Estrutura do padrão Observer
+Fonte: adaptado de GAMMA et al. (2000, cap. 5) — recriado pela equipe Stacklyst.
+
+Comece pelo avião, que delega a operação de voo ao contrato da estratégia. Troque a estratégia concreta e observe que a chamada continua a mesma. No ENADE, essa delegação é a pista para reconhecer uma família de algoritmos intercambiáveis.
+
+```mermaid Observer para mudanças de estoque
 classDiagram
-  direction LR
-  class Sujeito {
-    -observadores : List
-    +inscrever(o : Observador)
+  direction TB
+  class Sujeito["Sujeito {abstract}"] {
+    +inscrever(o)
+    +remover(o)
     +notificar()
+  }
+  class Estoque {
+    -quantidade : Integer
+    +alterarQuantidade()
   }
   class Observador {
     <<interface>>
     +atualizar()
   }
-  class TelaEstoque { +atualizar() }
-  class AlertaEmail { +atualizar() }
-  Sujeito o--> Observador
-  Observador <|.. TelaEstoque
-  Observador <|.. AlertaEmail
+  class PainelEstoque {
+    +atualizar()
+  }
+  Sujeito <|-- Estoque
+  Sujeito "0..*" --> "0..*" Observador : notifica inscritos
+  Observador <|.. PainelEstoque
+  PainelEstoque --> Estoque : consulta quantidade
 ```
+
+Fonte: adaptado de GAMMA et al. (2000, cap. 5) — recriado pela equipe Stacklyst.
+
+A classe Estoque especializa o sujeito e guarda o estado. Ao notificar, o sujeito chama o contrato comum dos observadores inscritos. No ENADE, observe como a mudança em um sujeito aciona a atualização de vários observadores.
 
 ## Vantagens e desvantagens
 
@@ -222,7 +239,7 @@ Correta a **A**: quando o sistema deve ser **independente da maneira como seus p
 
 ## Referências
 
-- GAMMA, E.; HELM, R.; JOHNSON, R.; VLISSIDES, J. *Padrões de Projeto: soluções reutilizáveis de software orientado a objetos*. Bookman, 2000.
+- GAMMA, E.; HELM, R.; JOHNSON, R.; VLISSIDES, J. *Padrões de projeto*: soluções reutilizáveis de software orientado a objetos. Porto Alegre: Bookman, 2000.
 - FREEMAN, E.; ROBSON, E. *Use a Cabeça! Padrões de Projetos*. 2. ed. Alta Books, 2021.
 - LARMAN, C. *Utilizando UML e Padrões*. 3. ed. Bookman, 2007.
 - REFACTORING.GURU. *Padrões de projeto*. Disponível em refactoring.guru/pt-br/design-patterns.

@@ -3,8 +3,8 @@ title: Ética, cidadania, direitos humanos, democracia e diversidade
 summary: Ética e moral, cidadania e direitos (civis, políticos e sociais), a Declaração Universal dos Direitos Humanos e a Constituição de 1988, democracia majoritária e consensual, proteção de minorias, diversidade e inclusão, e como construir propostas de intervenção nas discursivas.
 order: 5
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [ética, moral, cidadania, direitos civis, direitos políticos, direitos sociais, direitos humanos, declaração universal dos direitos humanos, constituição de 1988, dignidade da pessoa humana, democracia, democracia majoritária, democracia consensual, minorias, diversidade, inclusão, igualdade de gênero, racismo, pessoas trans, povos indígenas, pessoas com deficiência, ética profissional]
 related: [sociedade-e-desigualdade, interpretacao-de-texto, seguranca-da-informacao, como-resolver-questoes-enade]
 ---
@@ -66,14 +66,22 @@ Uma boa proposta responde: **o que** fazer, **quem** faz (agente: Estado, escola
 
 ## Representação visual
 
-```mermaid Proposta de intervenção completa
-flowchart LR
-  P[Problema] --> AG[Agente: quem?]
-  AG --> AC[Ação: o quê?]
-  AC --> M[Meio: como?]
-  M --> F[Finalidade: para quê?]
-  F --> DH[Respeito aos direitos humanos]
+Parta do problema e use a ação como centro da proposta. O detalhamento especifica um dos elementos, e o respeito aos direitos humanos se aplica à proposta inteira. Use este roteiro de escrita quando o enunciado discursivo do ENADE pedir ações ou soluções.
+
+```mermaid Elementos de uma intervenção social
+flowchart TB
+  P["Problema discutido"] --> A["Ação proposta"]
+  subgraph E["Composição da proposta"]
+    R["Responsável"]
+    M["Meio de execução"]
+    F["Efeito esperado"]
+    D["Detalhe concreto"]
+  end
+  A --> E
+  E -.-> H["Respeito aos direitos<br/>humanos"]
 ```
+
+Fonte: adaptado de INEP (2025, p. 34) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -151,3 +159,4 @@ A resposta correta sustenta a necessidade de ações voltadas aos direitos funda
 - LIJPHART, A. *Modelos de Democracia*. 3. ed. Civilização Brasileira, 2019.
 - CHAUI, M. *Convite à Filosofia*. 14. ed. Ática, 2012 — unidade sobre ética.
 - INEP. ENADE — formação geral, 2008, 2014, 2017 e 2021.
+- INSTITUTO NACIONAL DE ESTUDOS E PESQUISAS EDUCACIONAIS ANÍSIO TEIXEIRA. *A redação do Enem 2025: cartilha do participante*. Brasília, DF: Inep, 2025. Disponível em: [Cartilha](https://download.inep.gov.br/publicacoes/institucionais/avaliacoes_e_exames_da_educacao_basica/a_redacao_no_enem_2025_cartilha_do_participante.pdf). Acesso em: 25 nov. 2026.

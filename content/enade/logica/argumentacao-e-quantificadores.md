@@ -3,8 +3,8 @@ title: Argumentação lógica, silogismos, quantificadores e lógica de predicad
 summary: Premissas e conclusão, validade × verdade, regras de inferência (modus ponens, modus tollens, silogismo hipotético e disjuntivo), falácias, silogismos categóricos e a lógica de predicados com quantificadores universal e existencial.
 order: 3
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [argumento, premissa, conclusão, validade, argumento válido, modus ponens, modus tollens, silogismo, silogismo hipotético, silogismo disjuntivo, falácia, afirmação do consequente, negação do antecedente, quantificador, universal, existencial, lógica de predicados, predicado]
 related: [tautologia-e-equivalencias, proposicoes-e-conectivos, conjuntos-e-venn, interpretacao-de-texto]
 ---
@@ -73,15 +73,28 @@ Ordem importa: ∀x ∃y Ama(x, y) ("todos amam alguém") ≠ ∃y ∀x Ama(x, y
 
 ## Representação visual
 
-```mermaid Modus ponens × falácia da afirmação do consequente
-flowchart LR
-  subgraph Válido
-    A1[Se chove → rua molhada] --> A3[Chove] --> A4[Logo, rua molhada ✓]
+Leia as premissas de cada grupo antes da conclusão. As duas premissas do modus ponens sustentam a conclusão. No ENADE, para refutar a afirmação do consequente, procure o cenário em que q vale e p é falso. As premissas dessa segunda forma são verdadeiras nesse cenário, enquanto sua conclusão é falsa.
+
+```mermaid Modus ponens e afirmação do consequente
+---
+config:
+  flowchart:
+    nodeSpacing: 18
+    rankSpacing: 30
+    padding: 8
+---
+flowchart TB
+  subgraph MP["Inferência válida"]
+    P["Premissas<br/>p → q, p"] --> Q["Conclusão<br/>q"]
   end
-  subgraph Inválido
-    B1[Se chove → rua molhada] --> B3[Rua molhada] --> B4[Logo, choveu ✗]
+  subgraph AC["Inferência inválida"]
+    A["Premissas<br/>p → q, q"] -.-> B["Conclusão proposta<br/>p"]
+    B --- C["Contraexemplo<br/>p = F, q = V"]
   end
+  MP ~~~ AC
 ```
+
+Fonte: adaptado de ROSEN (2019, cap. 1) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -153,5 +166,5 @@ Verifique se ela **decorre** das premissas.
 
 - COPI, I. M. *Introdução à Lógica*. 2. ed. Mestre Jou, 1978.
 - GERSTING, J. L. *Fundamentos Matemáticos para a Ciência da Computação*. 7. ed. LTC, 2017 — caps. 1 e 2.
-- ROSEN, K. H. *Matemática Discreta e suas Aplicações*. 6. ed. McGraw-Hill, 2009 — seções 1.3 a 1.6.
+- ROSEN, Kenneth H. *Discrete mathematics and its applications*. 8. ed. New York: McGraw-Hill Education, 2019.
 - INEP. ENADE TADS 2017 (questão 29) e 2021 (questão 35).

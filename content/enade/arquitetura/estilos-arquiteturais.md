@@ -3,8 +3,8 @@ title: Estilos arquiteturais — monolito, microsserviços, SOA, hexagonal e Cle
 summary: Monolito e microsserviços, arquitetura orientada a serviços (SOA), arquitetura hexagonal (portas e adaptadores), Clean Architecture e os princípios de separação de responsabilidades, alta coesão e baixo acoplamento.
 order: 2
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [estilos arquiteturais, padrões arquiteturais, monolito, monolítico, microsserviços, soa, arquitetura orientada a serviços, esb, web services, arquitetura hexagonal, portas e adaptadores, clean architecture, arquitetura limpa, separação de responsabilidades, alta coesão, baixo acoplamento, orientada a objetos, orientada a eventos]
 related: [evolucao-arquiteturas-e-camadas, mvc-mvp-mvvm, principios-solid, relacionamentos-coesao-acoplamento, computacao-em-nuvem]
 ---
@@ -82,28 +82,51 @@ Começa como **monolito modular** (rápido de entregar). Quando o módulo de pag
 
 ## Representação visual
 
-```mermaid Monolito × microsserviços
-flowchart LR
-  subgraph Monolito
-    M[Interface + Pedidos + Pagamentos + Catálogo] --> MB[(Banco único)]
+```mermaid Unidades de implantação
+---
+config:
+  flowchart:
+    nodeSpacing: 25
+---
+flowchart TB
+  subgraph MON["Monólito"]
+    direction TB
+    D["Uma implantação"] --> M["Pedidos e catálogo"]
+    M --> BD[("Banco da aplicação")]
   end
-  subgraph Microsserviços
-    G[API Gateway] --> P[Pedidos] --> PB[(BD Pedidos)]
-    G --> PG[Pagamentos] --> PGB[(BD Pagamentos)]
-    G --> C[Catálogo] --> CB[(BD Catálogo)]
-    P -. evento PedidoCriado .-> PG
+  subgraph MIC["Microsserviços"]
+    direction TB
+    P["Serviço de pedidos"] --> BP[("Dados de pedidos")]
+    C["Serviço de catálogo"] --> BC[("Dados de catálogo")]
+    P -->|"API"| C
   end
 ```
 
-```mermaid Arquitetura hexagonal
-flowchart LR
-  REST[Adaptador REST] --> PE((Porta de entrada))
-  CLI[Adaptador CLI] --> PE
-  PE --> N[Núcleo: regras de negócio]
-  N --> PS((Porta de saída))
-  PS --> DB[Adaptador PostgreSQL]
-  PS --> MAIL[Adaptador de e-mail]
+Fonte: adaptado de NEWMAN (2022, caps. 1 e 3) — recriado pela equipe Stacklyst.
+
+As caixas delimitam unidades que podem ser implantadas. No monólito, pedidos e catálogo vão juntos. Nos microsserviços, cada serviço pode ser entregue separadamente e controla o acesso aos seus dados. No ENADE, use essa fronteira para distinguir módulos internos de serviços autônomos.
+
+```mermaid Portas e adaptadores
+flowchart TB
+  subgraph EN["Adaptadores de entrada"]
+    H["Interface HTTP"]
+    T["Teste automatizado"]
+  end
+  H --> E(("Porta de pedidos"))
+  T --> E
+  E --> N{{"Núcleo da aplicação"}}
+  N --> S(("Porta de persistência"))
+  subgraph EX["Adaptadores de saída"]
+    DB["Adaptador SQL"]
+    MM["Adaptador em memória"]
+  end
+  S --> DB
+  S --> MM
 ```
+
+Fonte: adaptado de COCKBURN (2005) — recriado pela equipe Stacklyst.
+
+Siga a entrada da interface HTTP até a porta de pedidos. Quando o núcleo precisa persistir, ele chama uma porta de saída que pode ser atendida por um adaptador SQL ou por uma implementação em memória. No ENADE, procure a porta como contrato e o adaptador como integração tecnológica.
 
 ## Vantagens e desvantagens
 
@@ -181,8 +204,8 @@ Essa é a definição de microsserviços.
 ## Referências
 
 - PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software*. 8. ed. AMGH, 2016 — cap. 13 (projeto de arquitetura).
-- NEWMAN, S. *Criando Microsserviços*. 2. ed. Novatec, 2022.
+- NEWMAN, S. *Criando microsserviços*: projetando sistemas com componentes menores e mais especializados. 2. ed. São Paulo: Novatec, 2022.
 - MARTIN, R. C. *Arquitetura Limpa*. Alta Books, 2019.
-- COCKBURN, A. *Hexagonal Architecture*, 2005. Disponível em alistair.cockburn.us.
+- COCKBURN, A. *Hexagonal architecture*. [S. l.]: Humans and Technology, 2005. HaT Technical Report 2005.02. Disponível em: https://alistair.cockburn.us/hexagonal-architecture. Acesso em: 25 nov. 2026.
 - ERL, T. *SOA: princípios de design de serviços*. Pearson, 2009.
 - INEP. ENADE TADS 2021, questão 19.

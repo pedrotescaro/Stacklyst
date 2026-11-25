@@ -3,8 +3,8 @@ title: Diagrama de casos de uso — atores, associações, include, extend e gen
 summary: Como ler e desenhar diagramas de casos de uso na notação oficial, a diferença exata entre «include» e «extend», generalização de atores e de casos de uso e a fronteira do sistema.
 order: 3
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [casos de uso, diagrama de casos de uso, ator, associação, include, extend, inclusão, extensão, ponto de extensão, generalização, fronteira do sistema, uml]
 related: [historias-e-casos-de-uso, uml-visao-geral, requisitos-fundamentos, rup-visao-geral]
 ---
@@ -51,8 +51,6 @@ O caso de uso **extensor** acrescenta comportamento ao **base** **apenas sob cer
 - **Entre atores:** o ator filho herda as associações do pai (Aluno e Professor são tipos de Leitor). Seta com triângulo vazado apontando para o pai.
 - **Entre casos de uso:** o caso filho **herda** o comportamento e o significado do pai e pode **acrescentar ou sobrescrever** comportamento ("Validar aluno" generaliza "Validar via retina" e "Validar via digital" — formas **diferentes** da mesma validação).
 
-::widget uml diagram=usecase
-
 ## Características principais
 
 - Não mostra **ordem** nem **fluxo**: isso fica na especificação textual ou em diagramas de atividades/sequência.
@@ -70,19 +68,11 @@ O caso de uso **extensor** acrescenta comportamento ao **base** **apenas sob cer
 
 ## Representação visual
 
-Além do diagrama acima, a relação include/extend em forma de fluxo:
+::widget uml diagram=usecase
 
-```mermaid Include × extend no tempo de execução
-flowchart LR
-  subgraph Include
-    B1[Caso base inicia] --> I1[executa SEMPRE o incluído] --> B2[caso base continua]
-  end
-  subgraph Extend
-    C1[Caso base inicia] --> P{ponto de extensão:<br/>condição verdadeira?}
-    P -->|sim| X[executa o extensor] --> C2[caso base continua]
-    P -->|não| C2
-  end
-```
+Fonte: adaptado de OMG (2017, seção 18) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 17 e 18) — recriado pela equipe Stacklyst.
+
+Leia os atores fora da fronteira e os casos dentro das elipses. A seta «include» sai de Realizar empréstimo e aponta para Autenticar usuário. A seta «extend» sai de Pagar multa e aponta para Devolver livro. Nas questões do ENADE, confirme a direção da seta e verifique em que condição o comportamento adicional entra.
 
 ## Vantagens e desvantagens
 
@@ -179,7 +169,7 @@ O caso extensor acrescenta comportamento **próprio**; não é idêntico ao base
 
 ## Referências
 
-- OMG. *UML 2.5.1 Specification*, 2017 — cláusula 18 (Use Cases).
-- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: Guia do Usuário*. 2. ed. Elsevier, 2006 — caps. 16 e 17.
+- OBJECT MANAGEMENT GROUP. *Unified Modeling Language (UML)*. Versão 2.5.1. [S. l.]: OMG, 2017. Disponível em: https://www.omg.org/spec/UML/2.5.1. Acesso em: 25 nov. 2026.
+- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.
 - COCKBURN, A. *Escrevendo Casos de Uso Eficazes*. Bookman, 2005.
 - INEP. ENADE TADS 2008 (questão 25), 2011 (questões 11 e 12), 2014 (questão 17) e 2021 (questão 31).

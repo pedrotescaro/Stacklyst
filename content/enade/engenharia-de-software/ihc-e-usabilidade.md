@@ -3,8 +3,8 @@ title: Interação humano-computador, usabilidade e acessibilidade
 summary: Usabilidade e seus atributos, as 10 heurísticas de Nielsen, questões clássicas de projeto de interface, acessibilidade (WCAG, atributo alt), mapas de navegação e avaliação de interfaces.
 order: 8
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [ihc, interação humano-computador, usabilidade, nielsen, heurísticas, acessibilidade, wcag, alt, leitor de tela, ergonomia, comunicabilidade, mapa de navegação, avaliação heurística, teste de usabilidade, protótipo]
 related: [qualidade-de-software, requisitos-fundamentos, tecnicas-de-elicitacao, fundamentos-de-testes]
 ---
@@ -88,15 +88,22 @@ Para um portal de orientação a idosos: fonte grande e redimensionável, alto c
 
 ## Representação visual
 
-```mermaid Mapa de navegação de uma loja virtual
-flowchart LR
-  H[Página inicial] --> C[Categoria]
-  H --> B[Busca]
-  C --> P[Produto]
+```mermaid Caminhos de compra na loja
+flowchart TD
+  H["Página inicial"] -->|Explorar| C["Categorias"]
+  H -->|Pesquisar| B["Resultados da busca"]
+  C --> P["Detalhe do produto"]
   B --> P
-  P --> K[Carrinho] --> CO[Checkout] --> OK[Confirmação]
-  K --> H
+  P -->|Adicionar| K["Carrinho"]
+  K -->|Continuar comprando| H
+  K -->|Finalizar| F["Revisão do pedido"]
+  F -->|Editar itens| K
+  F -->|Confirmar| OK["Pedido confirmado"]
 ```
+
+Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 17) — recriado pela equipe Stacklyst.
+
+Cada caixa é uma tela e as setas indicam os caminhos que alguém pode percorrer. A compra pode começar por busca ou por categoria e voltar do carrinho para a loja. No ENADE, use o mapa para avaliar se uma tarefa é alcançável, se existe uma rota de retorno e quantos passos são necessários.
 
 ## Vantagens e desvantagens
 
@@ -179,5 +186,5 @@ O texto alternativo permite que pessoas com deficiência visual, usando leitores
 - BARBOSA, S. D. J.; SILVA, B. S. *Interação Humano-Computador*. Rio de Janeiro: Elsevier, 2010.
 - W3C. *Web Content Accessibility Guidelines (WCAG) 2.2*, 2023.
 - ISO 9241-11:2018 — *Ergonomics of human-system interaction — Usability: definitions and concepts*.
-- PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software*. 8. ed. AMGH, 2016 — cap. 15.
+- PRESSMAN, Roger S.; MAXIM, Bruce R. *Engenharia de software: uma abordagem profissional*. 8. ed. Porto Alegre: AMGH, 2016.
 - BRASIL. Lei nº 13.146, de 6 de julho de 2015 (Lei Brasileira de Inclusão).

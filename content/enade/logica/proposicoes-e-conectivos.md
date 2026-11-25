@@ -3,8 +3,8 @@ title: Proposições, conectivos e tabelas-verdade
 summary: O que é uma proposição, valores lógicos, os conectivos negação, conjunção, disjunção, disjunção exclusiva, condicional e bicondicional, como montar tabelas-verdade, precedência e álgebra booleana — com simulador.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [lógica proposicional, proposição, valor lógico, verdadeiro, falso, conectivos, negação, conjunção, disjunção, disjunção exclusiva, xor, condicional, implicação, bicondicional, tabela-verdade, precedência, álgebra booleana, formalização]
 related: [tautologia-e-equivalencias, argumentacao-e-quantificadores, conjuntos-e-venn, algoritmos-e-logica-de-programacao]
 ---
@@ -82,14 +82,27 @@ Monte qualquer tabela no simulador. Experimente `p -> q`, `~q -> ~p` e `~p | q` 
 
 ## Representação visual
 
-```mermaid Quando cada conectivo é verdadeiro
-flowchart LR
-  A[∧ e] -->|V só se| A1[os dois V]
-  O[∨ ou] -->|F só se| O1[os dois F]
-  X[⊕ ou exclusivo] -->|V se| X1[valores diferentes]
-  C[→ se… então] -->|F só se| C1[V → F]
-  B[↔ se e só se] -->|V se| B1[valores iguais]
+Cada ramo mostra quando a operação produz V. No ENADE, use os critérios para completar a tabela-verdade ou comparar duas fórmulas linha a linha, lembrando que antecedente falso torna a implicação verdadeira.
+
+```mermaid Condições de verdade dos conectivos
+flowchart TB
+  subgraph U["Conectivo unário"]
+    N["¬p"] --> NF["p é falso"]
+  end
+  subgraph C["Conjunção e disjunções"]
+    A["p ∧ q"] --> AV["Ambos verdadeiros"]
+    O["p ∨ q"] --> OV["Ao menos um verdadeiro"]
+    X["p ⊕ q"] --> XV["Só um verdadeiro"]
+  end
+  subgraph I["Implicação e equivalência"]
+    P["p → q"] --> PV["p falso ou<br/>q verdadeiro"]
+    B["p ↔ q"] --> BV["Valores iguais"]
+  end
+  U ~~~ C
+  C ~~~ I
 ```
+
+Fonte: adaptado de ROSEN (2019, cap. 1) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -176,5 +189,5 @@ Atribua letras às proposições simples, troque "e/mas" por ∧, "ou" por ∨ e
 
 - ALENCAR FILHO, E. *Iniciação à Lógica Matemática*. Nobel, 2002.
 - GERSTING, J. L. *Fundamentos Matemáticos para a Ciência da Computação*. 7. ed. LTC, 2017 — cap. 1.
-- ROSEN, K. H. *Matemática Discreta e suas Aplicações*. 6. ed. McGraw-Hill, 2009 — cap. 1.
+- ROSEN, Kenneth H. *Discrete mathematics and its applications*. 8. ed. New York: McGraw-Hill Education, 2019.
 - INEP. ENADE TADS 2008 (questão 29), 2014 (questão 35) e 2017 (questão 10).

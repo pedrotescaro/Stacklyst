@@ -3,8 +3,8 @@ title: UML 2.5 — visão geral dos 14 diagramas
 summary: O que é a UML (e por que ela não é uma metodologia), a divisão entre diagramas estruturais e comportamentais, os diagramas de interação e um mapa para escolher o diagrama certo.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [uml, unified modeling language, omg, diagramas estruturais, diagramas comportamentais, diagramas de interação, 14 diagramas, uml 2.5, visão 4+1]
 related: [uml-classes-e-objetos, uml-casos-de-uso, uml-interacao, uml-atividades-e-estados, uml-diagramas-estruturais, rup-visao-geral]
 ---
@@ -80,14 +80,20 @@ Mostram **o que acontece** ao longo do tempo.
 
 ## Representação visual
 
-```mermaid Os 14 diagramas da UML 2.5
-flowchart TD
-  D[Diagramas UML] --> E[Estruturais]
-  D --> C[Comportamentais]
-  E --> E1[Classes] & E2[Objetos] & E3[Componentes] & E4[Implantação] & E5[Pacotes] & E6[Estrutura composta] & E7[Perfil]
-  C --> C1[Casos de uso] & C2[Atividades] & C3[Máquina de estados] & I[Interação]
-  I --> I1[Sequência] & I2[Comunicação] & I3[Tempo] & I4[Visão geral de interação]
+```mermaid Famílias de diagramas UML
+flowchart TB
+  U["Diagramas UML"] --> E["Estruturais"]
+  U --> C["Comportamentais"]
+  E --> E1["Classes · Objetos<br/>Componentes · Implantação"]
+  E --> E2["Pacotes · Perfis<br/>Estrutura composta"]
+  C --> C1["Casos de uso · Atividades<br/>Máquinas de estados"]
+  C --> I["Interação"]
+  I --> I1["Sequência · Comunicação<br/>Tempo · Visão geral"]
 ```
+
+Fonte: adaptado de OMG (2017, anexo A) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 7) — recriado pela equipe Stacklyst.
+
+Comece pelas famílias estrutural e comportamental. Dentro da comportamental, siga o ramo dos diagramas de interação. No ENADE, procure o diagrama pela informação pedida. Se o enunciado pede a ordem das mensagens, escolha sequência. Se pede relações entre tipos, escolha classes.
 
 ## Vantagens e desvantagens
 
@@ -174,8 +180,8 @@ As cinco figuras são diagramas de classes. Compare a **generalização** de Fun
 
 ## Referências
 
-- OMG. *Unified Modeling Language (UML) Specification*, version 2.5.1, 2017. Disponível em omg.org/spec/UML.
-- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: Guia do Usuário*. 2. ed. Elsevier, 2006.
+- OBJECT MANAGEMENT GROUP. *Unified Modeling Language (UML)*. Versão 2.5.1. [S. l.]: OMG, 2017. Disponível em: https://www.omg.org/spec/UML/2.5.1. Acesso em: 25 nov. 2026.
+- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.
 - FOWLER, M. *UML Essencial*. 3. ed. Bookman, 2005.
 - GUEDES, G. T. A. *UML 2: uma abordagem prática*. 3. ed. Novatec, 2018.
 - INEP. ENADE TADS 2011 (questão 12) e 2014 (questão 29).

@@ -3,8 +3,8 @@ title: Fundamentos de Engenharia de Software e ciclo de vida
 summary: O que é engenharia de software, por que ela existe, o que é um processo, as atividades genéricas do desenvolvimento e o ciclo de vida de um sistema do nascimento à aposentadoria.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [engenharia de software, crise do software, processo de software, ciclo de vida, atividades genéricas, especificação, projeto, validação, evolução, ferramentas case, ide]
 related: [modelos-de-processo, metodos-ageis, rup-visao-geral, qualidade-de-software]
 ---
@@ -82,11 +82,29 @@ Pressman descreve a engenharia de software em **camadas**: na base, o **foco na 
 
 ## Representação visual
 
-```mermaid As quatro atividades fundamentais de qualquer processo
-flowchart LR
-  E[Especificação] --> P[Projeto e implementação] --> V[Validação] --> EV[Evolução]
-  EV -.novas necessidades.-> E
+```mermaid Atividades fundamentais de um processo
+flowchart TD
+  subgraph processo["Processo de software"]
+    E["Especificar<br/>requisitos e restrições"]
+    D["Desenvolver<br/>projeto e código"]
+    V["Validar<br/>necessidades do cliente"]
+    M["Evoluir<br/>responder a mudanças"]
+  end
+  E ~~~ D
+  V ~~~ M
 ```
+
+Fonte: adaptado de SOMMERVILLE (2018, cap. 2) — recriado pela equipe Stacklyst.
+
+Leia os quatro blocos como tipos de trabalho presentes em qualquer processo. A ordem e a sobreposição dependem do modelo adotado. No ENADE, associe a validação à verificação das necessidades do cliente e a evolução à resposta a mudanças ao longo da vida do produto.
+
+### Taxa de falhas do hardware
+
+::widget curva-banheira
+
+Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 1) — recriado pela equipe Stacklyst.
+
+Leia a curva da esquerda para a direita. A taxa de falhas cai após os defeitos iniciais, passa por um trecho aproximadamente estável e sobe com o desgaste físico. No ENADE, associe essa subida ao envelhecimento do hardware e os picos de falhas no software à introdução de defeitos durante mudanças.
 
 ## Vantagens e desvantagens
 
@@ -163,7 +181,7 @@ Eclipse e NetBeans podem reutilizar componentes compatíveis com as convenções
 
 ## Referências
 
-- SOMMERVILLE, I. *Engenharia de Software*. 10. ed. São Paulo: Pearson, 2018 — caps. 1 e 2.
-- PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software: uma abordagem profissional*. 8. ed. Porto Alegre: AMGH, 2016 — caps. 1 a 3.
+- SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson, 2018.
+- PRESSMAN, Roger S.; MAXIM, Bruce R. *Engenharia de software: uma abordagem profissional*. 8. ed. Porto Alegre: AMGH, 2016.
 - IEEE. *SWEBOK — Guide to the Software Engineering Body of Knowledge*, v3.0, 2014.
 - NAUR, P.; RANDELL, B. (org.). *Software Engineering: Report of a conference sponsored by the NATO Science Committee*, 1968.

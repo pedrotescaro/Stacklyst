@@ -4,8 +4,8 @@ summary: Modelagem de negócios, Requisitos, Análise e design, Implementação,
 order: 3
 parent: rup-visao-geral
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [rup, disciplinas, fluxos de trabalho, workflows, modelagem de negócios, requisitos, análise e design, implementação, teste, implantação, gerência de configuração, gerência de projeto, ambiente, papéis, artefatos]
 related: [rup-fases-e-marcos, gerencia-de-configuracao, processo-de-requisitos, uml-visao-geral]
 ---
@@ -51,6 +51,10 @@ As disciplinas dizem **que tipo de trabalho** existe no projeto e **quem é resp
 
 ::widget rup-whale
 
+Fonte: adaptado de KRUCHTEN (2004, cap. 2) — recriado pela equipe Stacklyst.
+
+A altura de cada faixa indica ênfase relativa naquela fase. No ENADE, compare os picos de Implementação e Implantação e observe que atividades de suporte atravessam as fases.
+
 ## Características principais
 
 | Disciplina | Tipo | Papéis típicos | Artefatos-chave | Ênfase |
@@ -81,15 +85,20 @@ As disciplinas dizem **que tipo de trabalho** existe no projeto e **quem é resp
 
 ## Representação visual
 
-```mermaid Do requisito ao teste: a rastreabilidade entre disciplinas
-flowchart LR
-  N[Modelagem de negócios<br/>processo atual] --> R[Requisitos<br/>casos de uso]
-  R --> A[Análise e design<br/>classes e interações]
-  A --> I[Implementação<br/>código e componentes]
-  I --> T[Teste<br/>casos de teste]
-  T --> D[Implantação<br/>release]
-  R -.casos de uso viram casos de teste.-> T
+```mermaid Caso de uso e seus artefatos
+flowchart TD
+  N[["Modelo de negócio"]] --> U[["Caso de uso do sistema"]]
+  U -->|É realizado no| A[["Modelo de projeto"]]
+  A -->|Orienta| I[["Componentes e build"]]
+  U -->|Dá origem a| T[["Casos de teste"]]
+  I -->|É exercitado por| T
+  I --> P[["Pacote de implantação"]]
+  T -. "Evidência de qualidade" .-> P
 ```
+
+Fonte: adaptado de KRUCHTEN (2004, cap. 6) e JACOBSON; BOOCH; RUMBAUGH (1999, cap. 1) — recriado pela equipe Stacklyst.
+
+Siga o caso de uso em duas direções. Uma leva ao projeto e à implementação. A outra leva a testes que exercitam o comportamento previsto. No ENADE, use essas ligações para identificar quais artefatos podem ser afetados por uma mudança e a qual disciplina pertencem.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -164,7 +173,8 @@ A disciplina de Requisitos existe em todas as fases, mas **a maior parte** da an
 
 ## Referências
 
-- KRUCHTEN, P. *Introdução ao RUP — Rational Unified Process*. Ciência Moderna, 2003 — parte II, disciplinas.
+- KRUCHTEN, Philippe. *The Rational Unified Process: an introduction*. 3. ed. Boston: Addison-Wesley, 2004.
 - IBM Rational. *RUP — Rational Unified Process* (base de conhecimento do processo, versão 7).
 - PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software: uma abordagem profissional*. 8. ed. AMGH, 2016.
 - INEP. ENADE TADS 2008 (questões 16 e 23) e 2014 (questão 24).
+- JACOBSON, Ivar; BOOCH, Grady; RUMBAUGH, James. *The unified software development process*. Reading: Addison-Wesley, 1999.

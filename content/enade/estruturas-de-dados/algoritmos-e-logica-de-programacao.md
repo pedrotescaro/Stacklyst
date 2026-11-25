@@ -3,8 +3,8 @@ title: Algoritmos e lógica de programação — variáveis, tipos, operadores, 
 summary: Como ler e escrever pseudocódigo (Portugol), tipos de dados e erros de atribuição, operadores, estruturas sequenciais, condicionais e de repetição, funções e a técnica do teste de mesa para resolver questões de código.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [algoritmo, lógica de programação, pseudocódigo, portugol, variável, tipo de dado, inteiro, real, lógico, literal, caractere, atribuição, operadores, condicional, se senão, repetição, enquanto, para, faça enquanto, função, procedimento, teste de mesa]
 related: [vetores-e-matrizes, recursividade, busca-e-ordenacao, complexidade-ciclomatica, proposicoes-e-conectivos]
 ---
@@ -115,15 +115,23 @@ Questões como a do quadriculado das toalhas (2021) pedem escolher qual função
 
 ## Representação visual
 
-```mermaid Fluxograma de "enquanto" com "se" interno
-flowchart TD
-  A([i ← 0]) --> B{i < n?}
-  B -->|não| F([imprimir resultado])
-  B -->|sim| C[i ← i + 1]
-  C --> D{condição?}
-  D -->|sim| E1[ação 1] --> B
-  D -->|não| E2[ação 2] --> B
+Comece no oval e siga o losango do enquanto antes de executar o corpo. As alternativas do se convergem para um único incremento antes da volta ao teste. No ENADE, simule inclusive n = 0 e verifique quais comandos ainda são executados.
+
+```mermaid Laço com teste no início
+flowchart TB
+  I(["Início"]) --> V["i ← 0"]
+  V --> L{"i &lt; n?"}
+  L -->|"V"| D{"Condição interna?"}
+  D -->|"V"| A["Executar ação A"]
+  D -->|"F"| B["Executar ação B"]
+  A --> P["i ← i + 1"]
+  B --> P
+  P --> L
+  L -->|"F"| S[/"Exibir resultado"/]
+  S --> F(["Fim"])
 ```
+
+Fonte: adaptado de FORBELLONE; EBERSPÄCHER (2005, cap. 3) — recriado pela equipe Stacklyst.
 
 ## Vantagens e desvantagens
 
@@ -203,7 +211,7 @@ Estratégia de resposta: (1) ler as 1 000 alturas em um vetor; (2) percorrer uma
 
 ## Referências
 
-- FORBELLONE, A. L. V.; EBERSPÄCHER, H. F. *Lógica de Programação: a construção de algoritmos e estruturas de dados*. 3. ed. Pearson, 2005.
+- FORBELLONE, André Luiz Villar; EBERSPÄCHER, Henri Frederico. *Lógica de programação: a construção de algoritmos e estruturas de dados*. 3. ed. São Paulo: Pearson Prentice Hall, 2005.
 - MANZANO, J. A. N. G.; OLIVEIRA, J. F. *Algoritmos: lógica para desenvolvimento de programação de computadores*. 28. ed. Érica, 2016.
 - CORMEN, T. H. et al. *Algoritmos: teoria e prática*. 3. ed. Elsevier, 2012 — cap. 1.
 - INEP. ENADE TADS 2008 (questão 21) e 2021 (questões 10 e 29, discursiva 3).

@@ -3,8 +3,8 @@ title: Probabilidade e análise combinatória
 summary: Princípio fundamental da contagem, permutações, arranjos e combinações, probabilidade clássica, eventos complementares, independentes e mutuamente exclusivos, probabilidade condicional e interpretação de probabilidades em sistemas.
 order: 3
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [probabilidade, espaço amostral, evento, complementar, independentes, mutuamente exclusivos, probabilidade condicional, regra do produto, regra da soma, análise combinatória, princípio fundamental da contagem, permutação, arranjo, combinação, fatorial, dados, valor esperado]
 related: [estatistica-descritiva, conjuntos-e-venn, porcentagem-e-proporcao, sistemas-de-informacao-empresariais]
 ---
@@ -66,15 +66,27 @@ Espaço amostral: 6 × 6 = 36 resultados. Soma 7: (1,6), (2,5), (3,4), (4,3), (5
 
 ## Representação visual
 
-```mermaid Árvore de probabilidades — dois lançamentos de moeda
-flowchart LR
-  I((início)) -->|1/2| C1[cara]
-  I -->|1/2| K1[coroa]
-  C1 -->|1/2| CC[cara-cara: 1/4]
-  C1 -->|1/2| CK[cara-coroa: 1/4]
-  K1 -->|1/2| KC[coroa-cara: 1/4]
-  K1 -->|1/2| KK[coroa-coroa: 1/4]
+Cada caminho da raiz a uma folha corresponde a um resultado ordenado. Em lançamentos independentes de uma moeda justa, multiplique as probabilidades dos ramos para obter ¼ em cada folha. No ENADE, some resultados disjuntos quando o evento admite mais de um caminho, como obter uma única cara.
+
+```mermaid Árvore de dois lançamentos
+---
+config:
+  flowchart:
+    nodeSpacing: 18
+    rankSpacing: 30
+    padding: 8
+---
+flowchart TB
+  I(["Dois lançamentos"])
+  I -->|"½"| C["Cara"]
+  I -->|"½"| K["Coroa"]
+  C -->|"½"| CC["Cara, cara<br/>¼"]
+  C -->|"½"| CK["Cara, coroa<br/>¼"]
+  K -->|"½"| KC["Coroa, cara<br/>¼"]
+  K -->|"½"| KK["Coroa, coroa<br/>¼"]
 ```
+
+Fonte: adaptado de ILLOWSKY; DEAN (2023, seção 3.5) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -147,3 +159,4 @@ Ao lançar dois dados justos, quantos resultados produzem soma 7? Entre os 36 pa
 - MORGADO, A. C. et al. *Análise Combinatória e Probabilidade*. SBM, 2006.
 - BUSSAB, W. O.; MORETTIN, P. A. *Estatística Básica*. 9. ed. Saraiva, 2017 — caps. 5 e 6.
 - INEP. ENADE TADS 2011 (discursiva 3) e 2021 (questão 34).
+- ILLOWSKY, Barbara; DEAN, Susan. *Introductory statistics*. 2. ed. Houston: OpenStax, 2023. Disponível em: [OpenStax](https://openstax.org/details/books/introductory-statistics-2e). Acesso em: 25 nov. 2026.

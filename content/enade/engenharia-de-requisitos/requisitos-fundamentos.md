@@ -3,8 +3,8 @@ title: Requisitos — funcionais, não funcionais, regras de negócio, restriç�
 summary: O que é um requisito, como distinguir requisito funcional de não funcional (com teste prático), regras de negócio, restrições, requisitos de domínio, stakeholders e escopo.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [requisitos, requisito funcional, requisito não funcional, requisitos de qualidade, regra de negócio, restrição, requisitos de domínio, requisitos de usuário, requisitos de sistema, stakeholders, partes interessadas, escopo]
 related: [processo-de-requisitos, tecnicas-de-elicitacao, historias-e-casos-de-uso, qualidade-de-software]
 ---
@@ -102,15 +102,20 @@ Ruim: "O sistema deve ser rápido." → Bom: "95% das consultas de nota devem re
 
 ## Representação visual
 
-```mermaid Tipos de requisitos (classificação de Sommerville)
+```mermaid Requisitos funcionais e não funcionais
 flowchart TD
-  R[Requisitos] --> F[Funcionais]
-  R --> N[Não funcionais]
-  R --> D[De domínio]
-  N --> P[Do produto<br/>desempenho, usabilidade, confiabilidade, segurança, portabilidade]
-  N --> O[Organizacionais<br/>prazo, processo, linguagem]
-  N --> E[Externos<br/>legais, éticos, interoperabilidade]
+  S["Requisitos do sistema"] --> F["Funcionais<br/>serviços e respostas"]
+  S --> N["Não funcionais<br/>qualidades e restrições"]
+  N --> P["Produto<br/>tempo de resposta"]
+  N --> O["Organização<br/>processo obrigatório"]
+  N --> E["Externos<br/>norma legal"]
+  D["Regras do domínio"] -.-> F
+  D -.-> N
 ```
+
+Fonte: adaptado de SOMMERVILLE (2018, cap. 4) e WIEGERS; BEATTY (2013, caps. 9 e 14) — recriado pela equipe Stacklyst.
+
+Leia primeiro o que o requisito descreve. Serviços e respostas são funcionais; qualidades ou restrições podem vir do produto, da organização ou de fontes externas. No ENADE, classifique “emitir relatório” como serviço e “em até dois segundos” como desempenho. Regras do domínio podem originar requisitos de ambos os tipos.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -198,8 +203,8 @@ Classificação usada no RUP: **F**uncionalidade, **U**sabilidade, **R**eliabili
 
 ## Referências
 
-- SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018 — cap. 4.
+- SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson, 2018.
 - PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software*. 8. ed. AMGH, 2016 — cap. 8.
 - ISO/IEC/IEEE 29148:2018 — *Systems and software engineering — Life cycle processes — Requirements engineering*.
-- WIEGERS, K.; BEATTY, J. *Software Requirements*. 3. ed. Microsoft Press, 2013.
+- WIEGERS, Karl; BEATTY, Joy. *Software requirements*. 3. ed. Redmond: Microsoft Press, 2013.
 - INEP. ENADE TADS 2014 (questão 19), 2017 (questão 12) e 2021 (questão 9).

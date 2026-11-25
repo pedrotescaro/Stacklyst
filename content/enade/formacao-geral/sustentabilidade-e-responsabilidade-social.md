@@ -3,8 +3,8 @@ title: Sustentabilidade, ODS, responsabilidade social, setores da sociedade, ONG
 summary: Desenvolvimento sustentável e seus pilares, os 17 Objetivos de Desenvolvimento Sustentável, pegada ecológica, desperdício de alimentos e mobilidade sustentável, primeiro, segundo e terceiro setor, ONGs, responsabilidade social empresarial, ESG e inovação social.
 order: 7
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [sustentabilidade, desenvolvimento sustentável, relatório brundtland, tripé da sustentabilidade, ods, agenda 2030, pegada ecológica, mudanças climáticas, desmatamento, amazônia, desperdício de alimentos, agricultura familiar, mobilidade sustentável, bicicleta, primeiro setor, segundo setor, terceiro setor, ong, oscip, responsabilidade social, esg, inovação social, economia circular]
 related: [sociedade-e-desigualdade, ciencia-tecnologia-e-sociedade, empreendedorismo-e-plano-de-negocios, etica-cidadania-e-direitos-humanos]
 ---
@@ -67,13 +67,23 @@ Soluções novas (produtos, serviços, modelos) que atendem a **necessidades soc
 
 ## Representação visual
 
-```mermaid Tripé da sustentabilidade
+Leia as três dimensões como critérios simultâneos para avaliar a mesma iniciativa. No ENADE, relacione medidas do caso com seus efeitos ambientais, sociais e econômicos, como reduzir poluição, ampliar acesso e sustentar a atividade ao longo do tempo.
+
+```mermaid Três dimensões da sustentabilidade
+---
+config:
+  flowchart:
+    nodeSpacing: 18
+    rankSpacing: 30
+    padding: 8
+---
 flowchart TB
-  A[Ambiental] --- S[Social]
-  S --- E[Econômico]
-  E --- A
-  A & S & E --> DS((Desenvolvimento sustentável))
+  A["Ambiental<br/>Recursos e impactos"] --- T["Sustentabilidade"]
+  S["Social<br/>Pessoas e equidade"] --- T
+  E["Econômica<br/>Viabilidade no tempo"] --- T
 ```
+
+Fonte: adaptado de ELKINGTON (1997) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -150,3 +160,4 @@ A diversidade cultural é parte do desenvolvimento sustentável.
 - WWF. *Relatório Planeta Vivo* (pegada ecológica).
 - INSTITUTO ETHOS. *Indicadores Ethos para Negócios Sustentáveis e Responsáveis*.
 - INEP. ENADE — formação geral, 2008, 2011, 2014, 2017 e 2021.
+- ELKINGTON, John. *Cannibals with forks: the triple bottom line of 21st century business*. Oxford: Capstone, 1997.

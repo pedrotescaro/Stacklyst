@@ -214,7 +214,7 @@ const DIAGRAMS: Record<
         />
         <UseCase x={270} y={80} label="Realizar empréstimo" />
         <UseCase x={470} y={80} label="Autenticar usuário" />
-        <UseCase x={270} y={190} label="Renovar empréstimo" />
+        <UseCase x={270} y={190} label="Devolver livro" />
         <UseCase x={470} y={190} label="Pagar multa" />
         <UseCase x={360} y={275} label="Cadastrar livro" w={120} />
         <line x1={76} y1={82} x2={204} y2={80} stroke={STROKE} strokeWidth={1.3} />

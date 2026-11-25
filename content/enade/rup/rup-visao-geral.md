@@ -3,8 +3,8 @@ title: RUP — visão geral do Rational Unified Process
 summary: O que é o RUP, seus três princípios (iterativo e incremental, dirigido por casos de uso, centrado na arquitetura) e a diferença entre fases e disciplinas, com o gráfico de baleias interativo.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [rup, processo unificado, iterativo, incremental, casos de uso, arquitetura, fases, disciplinas, fluxos de trabalho, gráfico de baleias, hump chart]
 related: [rup-fases-e-marcos, rup-disciplinas, modelos-de-processo, uml-casos-de-uso, metodos-ageis]
 ---
@@ -56,6 +56,8 @@ Explore o gráfico abaixo: clique em uma disciplina para ver quando ela pesa mai
 
 ::widget rup-whale
 
+Fonte: adaptado de KRUCHTEN (2004, cap. 2) — recriado pela equipe Stacklyst.
+
 :::warning Nenhuma disciplina pertence a uma única fase
 Requisitos não "acontecem na Concepção" e programação não "acontece só na Construção". O que muda entre as fases é a **ênfase**. Por isso o gráfico tem formato de baleias: cada disciplina cresce e diminui, mas raramente some.
 :::
@@ -80,20 +82,34 @@ Requisitos não "acontecem na Concepção" e programação não "acontece só na
 
 ## Representação visual
 
-```mermaid Ciclo de uma iteração dentro de qualquer fase
-flowchart LR
-  P[Planejar a iteração] --> R[Requisitos]
-  R --> A[Análise e design]
-  A --> I[Implementação]
-  I --> T[Teste]
-  T --> V[Avaliar e demonstrar]
-  V -->|próxima iteração| P
+```mermaid Ciclo de uma iteração do RUP
+flowchart TD
+  P["Planejar iteração<br/>riscos e casos de uso"] --> R
+  subgraph trabalho["Executar a iteração"]
+    R["Refinar escopo"] --> D["Projetar e implementar"]
+    D --> T["Integrar e testar"]
+    T -. "Ajustes" .-> D
+  end
+  T --> A["Avaliar resultados"]
+  A --> B[["Incremento executável"]]
+  A -->|Lições e riscos restantes| P
 ```
 
-```mermaid As quatro fases e seus marcos
-flowchart LR
-  C[Concepção] -->|LCO| E[Elaboração] -->|LCA| K[Construção] -->|IOC| T[Transição] -->|PR| F((Liberação))
+Fonte: adaptado de KRUCHTEN (2004, caps. 4 e 7) e JACOBSON; BOOCH; RUMBAUGH (1999, cap. 1) — recriado pela equipe Stacklyst.
+
+Comece pelo objetivo da iteração, definido pelos riscos e cenários a tratar. O trabalho e os testes refinam o incremento e a avaliação orienta o plano seguinte. No ENADE, associe iteração a trabalho que se repete e incremento à versão executável que evolui.
+
+```mermaid Fases e marcos do RUP
+flowchart TD
+  C["Concepção"] --> CO[["LCO · Objetivos<br/>do ciclo de vida"]]
+  CO --> E["Elaboração"] --> EA[["LCA · Arquitetura<br/>do ciclo de vida"]]
+  EA --> K["Construção"] --> KC[["IOC · Capacidade<br/>operacional inicial"]]
+  KC --> T["Transição"] --> TP[["PR · Liberação<br/>do produto"]]
 ```
+
+Fonte: adaptado de KRUCHTEN (2004, cap. 4) — recriado pela equipe Stacklyst.
+
+Cada fase termina em uma avaliação de marco. A Concepção define o rumo, a Elaboração valida a arquitetura, a Construção prepara o produto para operação inicial e a Transição termina com a liberação. No ENADE, identifique a fase pelo objetivo que precisa ser demonstrado no marco.
 
 ## Vantagens e desvantagens
 
@@ -196,8 +212,8 @@ As alternativas exploram a ideia errada de que requisitos têm fase exclusiva. A
 
 ## Referências
 
-- KRUCHTEN, P. *Introdução ao RUP — Rational Unified Process*. Rio de Janeiro: Ciência Moderna, 2003.
-- JACOBSON, I.; BOOCH, G.; RUMBAUGH, J. *The Unified Software Development Process*. Addison-Wesley, 1999.
+- KRUCHTEN, Philippe. *The Rational Unified Process: an introduction*. 3. ed. Boston: Addison-Wesley, 2004.
+- JACOBSON, Ivar; BOOCH, Grady; RUMBAUGH, James. *The unified software development process*. Reading: Addison-Wesley, 1999.
 - SOMMERVILLE, I. *Engenharia de Software*. 10. ed. São Paulo: Pearson, 2018 — seção sobre o Rational Unified Process.
 - IBM. *Rational Unified Process: Best Practices for Software Development Teams* (white paper TP026B).
 - INEP. Provas e gabaritos do ENADE de Tecnologia em Análise e Desenvolvimento de Sistemas (2008, 2014).

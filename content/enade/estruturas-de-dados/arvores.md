@@ -3,8 +3,8 @@ title: Árvores — binárias, de busca (ABB), percursos, AVL, multivias, B e B+
 summary: Terminologia de árvores, árvores binárias e de busca, os percursos pré-ordem, em ordem, pós-ordem e em nível, balanceamento (AVL) e as árvores multivias B e B+ usadas em bancos de dados, com simulador interativo.
 order: 5
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [árvore, raiz, folha, nó, altura, grau, nível, subárvore, árvore binária, árvore binária de busca, abb, bst, percurso, pré-ordem, em ordem, in-order, pós-ordem, em nível, largura, avl, balanceamento, rubro-negra, árvore b, árvore b+, multivias, heap]
 related: [listas-encadeadas, recursividade, grafos, transacoes-e-indices, busca-e-ordenacao]
 ---
@@ -101,23 +101,27 @@ void preOrdem(No *r) {
 
 ## Representação visual
 
-```mermaid Árvore binária de busca
-flowchart TD
-  A((50)) --> B((30))
-  A --> C((70))
-  B --> D((20))
-  B --> E((40))
-  C --> F((60))
-  C --> G((80))
+Em cada bifurcação, o ramo esquerdo contém chaves abaixo da chave do pai e o direito contém chaves acima. No ENADE, use essa relação para localizar uma chave e simule o percurso esquerda–raiz–direita para produzir a lista ordenada.
+
+```mermaid Ordem das chaves na ABB
+flowchart TB
+  R((50)) -->|"E"| A((30))
+  R -->|"D"| B((70))
+  A -->|"E"| C((20))
+  A -->|"D"| D((40))
+  B -->|"E"| E((60))
+  B -->|"D"| F((80))
 ```
 
-```mermaid Árvore B+ (ordem 3): dados nas folhas encadeadas
-flowchart TD
-  R["30 | 60"] --> L1[10 · 20]
-  R --> L2[30 · 40 · 50]
-  R --> L3[60 · 70 · 80]
-  L1 -.próxima folha.-> L2 -.próxima folha.-> L3
-```
+Fonte: adaptado de CORMEN et al. (2009, seção 12.1) — recriado pela equipe Stacklyst.
+
+### Árvore B+ e varredura das folhas
+
+Na raiz, os separadores 20 e 40 dividem as chaves em até 20, de mais de 20 até 40, e acima de 40. Para iniciar uma consulta em 35, desça até a folha do meio e siga os ponteiros tracejados enquanto as chaves permanecerem no intervalo. No ENADE, distinga a busca pelo separador no índice da leitura das referências aos registros nas folhas.
+
+::widget arvore-b-mais
+
+Fonte: adaptado de ELMASRI; NAVATHE (2016, seção 17.3) — recriado pela equipe Stacklyst.
 
 ## Vantagens e desvantagens
 
@@ -202,3 +206,5 @@ Pré-ordem imprime o **dado antes** das chamadas recursivas: `if (raiz != NULL) 
 - SZWARCFITER, J. L.; MARKENZON, L. *Estruturas de Dados e seus Algoritmos*. 3. ed. LTC, 2010.
 - ELMASRI, R.; NAVATHE, S. B. *Sistemas de Banco de Dados*. 7. ed. Pearson, 2018 — cap. 17 (índices B e B+).
 - INEP. ENADE TADS 2014 (questão 20) e 2017 (questão 25).
+- CORMEN, Thomas H. et al. *Introduction to algorithms*. 3. ed. Cambridge, MA: MIT Press, 2009.
+- ELMASRI, Ramez; NAVATHE, Shamkant B. *Fundamentals of database systems*. 7. ed. Hoboken: Pearson, 2016.

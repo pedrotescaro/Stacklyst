@@ -3,8 +3,8 @@ title: Fundamentos da orientação a objetos — classes, objetos, atributos, m�
 summary: Os conceitos de base da POO explicados do zero, com exemplos em Java, TypeScript e Python: classe e objeto, estado e comportamento, mensagens, construtores, abstração, encapsulamento e modificadores de acesso.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [poo, orientação a objetos, classe, objeto, instância, atributo, método, mensagem, construtor, abstração, encapsulamento, private, public, protected, getter, setter, java, typescript, python]
 related: [heranca-e-polimorfismo, relacionamentos-coesao-acoplamento, uml-classes-e-objetos, principios-solid]
 ---
@@ -127,19 +127,27 @@ Se `saldo` fosse público, qualquer parte do sistema poderia fazer `conta.saldo 
 
 ## Representação visual
 
-```mermaid Classe e objetos criados a partir dela
+```mermaid Interface de uma conta bancária
 classDiagram
+  direction TB
   class ContaBancaria {
     -numero : String
-    -saldo : double
-    +ContaBancaria(numero : String)
-    +depositar(valor : double)
-    +sacar(valor : double) boolean
-    +getSaldo() double
+    -saldo : Decimal
+    +depositar(valor : Decimal)
+    +sacar(valor : Decimal) Boolean
+    +consultarSaldo() Decimal
   }
 ```
 
+Fonte: adaptado de OMG (2017, seções 7 e 9) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 4) — recriado pela equipe Stacklyst.
+
+Leia o nome da classe, os atributos privados e as operações públicas de cima para baixo. No ENADE, diferencie o valor armazenado no saldo da operação pública usada para consultá-lo.
+
 ::widget uml diagram=object
+
+Fonte: adaptado de OMG (2017, seção 9) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 13 e 14) — recriado pela equipe Stacklyst.
+
+No exemplo de vendas, o nome sublinhado identifica o objeto e cada linha interna associa um atributo ao seu valor naquele instante. Em uma questão do ENADE, use essa diferença para separar o modelo de classes de um retrato de suas instâncias.
 
 ## Vantagens e desvantagens
 
@@ -225,3 +233,5 @@ Getters/setters para tudo expõem o estado do mesmo jeito. Encapsular é oferece
 - RAMALHO, L. *Python Fluente*. 2. ed. Novatec, 2023.
 - MICROSOFT. *TypeScript Handbook — Classes*. Disponível em typescriptlang.org.
 - INEP. ENADE TADS 2008 (questão 32) e 2011 (questão 35).
+- OBJECT MANAGEMENT GROUP. *Unified Modeling Language (UML)*. Versão 2.5.1. [S. l.]: OMG, 2017. Disponível em: https://www.omg.org/spec/UML/2.5.1. Acesso em: 25 nov. 2026.
+- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.

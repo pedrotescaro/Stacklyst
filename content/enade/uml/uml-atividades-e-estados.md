@@ -3,8 +3,8 @@ title: Diagrama de atividades e diagrama de máquina de estados
 summary: Nós inicial e final, ações, decisões e junções, fork e join (paralelismo), raias; estados, transições, eventos, guardas, ações e estados compostos — e como não confundir os dois diagramas.
 order: 5
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [diagrama de atividades, ação, nó inicial, nó final, decisão, merge, fork, join, bifurcação, sincronização, raias, partições, máquina de estados, estado, transição, evento, guarda, ação de entrada, estado composto, pseudoestado]
 related: [uml-visao-geral, uml-interacao, modelagem-de-processos-de-negocio, algoritmos-e-logica-de-programacao]
 ---
@@ -39,23 +39,6 @@ São dois diagramas **comportamentais** com propósitos diferentes:
 | **Raias (partições)** | colunas/linhas com nome | **quem** executa cada ação |
 | **Nó de objeto** | retângulo | dado que flui entre ações |
 
-```mermaid Atividades: pedido com decisão e paralelismo (fork/join)
-flowchart TD
-  I((●)) --> A([Receber pedido])
-  A --> D{Estoque disponível?}
-  D -->|não| N([Avisar cliente]) --> F
-  D -->|sim| FK[═══ fork ═══]
-  FK --> P([Emitir nota fiscal])
-  FK --> S([Separar produtos])
-  P --> J[═══ join ═══]
-  S --> J
-  J --> E([Enviar pedido]) --> F((◉))
-```
-
-:::note Sobre a notação no Mermaid
-Mermaid não tem símbolos nativos de atividade UML; aqui o círculo cheio é o nó inicial, os retângulos arredondados são ações, o losango é decisão e as barras "fork/join" representam bifurcação e sincronização.
-:::
-
 ### Elementos da máquina de estados
 
 - **Estado** — retângulo de cantos arredondados com o nome; pode ter compartimento interno com `entry / ação`, `do / atividade`, `exit / ação`.
@@ -66,19 +49,6 @@ Mermaid não tem símbolos nativos de atividade UML; aqui o círculo cheio é o 
   - **ação**: o que é executado na transição.
 - **Estado composto** — estado que contém subestados.
 - **Escolha** (losango), **junção**, **histórico** (H) — pseudoestados auxiliares.
-
-```mermaid Máquina de estados de um pedido
-stateDiagram-v2
-  [*] --> Aberto
-  Aberto --> AguardandoPagamento : finalizar [itens > 0]
-  AguardandoPagamento --> Pago : pagamentoConfirmado / emitirNota()
-  AguardandoPagamento --> Cancelado : prazoExpirado
-  Pago --> Enviado : despachar
-  Enviado --> Entregue : confirmarEntrega
-  Pago --> Cancelado : cancelar / estornar()
-  Entregue --> [*]
-  Cancelado --> [*]
-```
 
 ## Características principais
 
@@ -97,7 +67,51 @@ Após a Atividade 02, uma decisão: se **[não]**, volta para a Atividade 01; se
 
 ## Representação visual
 
-Os diagramas acima mostram um fluxo de atividades com decisão e paralelismo e uma máquina de estados com eventos, guardas e ações.
+```mermaid Atividade UML de expedição
+flowchart TB
+  inicio@{ shape: f-circ, label: "" }
+  fork@{ shape: fork, label: "" }
+  join@{ shape: fork, label: "" }
+  fim@{ shape: framed-circle, label: "" }
+  inicio --> pedido@{ shape: rounded, label: "Conferir estoque" }
+  pedido --> decisao{" "}
+  decisao -->|"[sem estoque]"| aviso@{ shape: rounded, label: "Avisar cliente" }
+  decisao -->|"[com estoque]"| fork
+  fork --> nota@{ shape: rounded, label: "Emitir nota" }
+  fork --> itens@{ shape: rounded, label: "Separar itens" }
+  nota --> join
+  itens --> join
+  join --> envio@{ shape: rounded, label: "Enviar pedido" }
+  aviso --> merge{" "}
+  envio --> merge
+  merge --> fim
+```
+
+Fonte: adaptado de OMG (2017, seção 15) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 20) — recriado pela equipe Stacklyst.
+
+Siga as setas desde o ponto inicial. As guardas do primeiro losango escolhem uma saída, o fork libera as duas ações e o join retém o fluxo até que ambas terminem. O segundo losango reúne os caminhos alternativos. O ENADE costuma perguntar quando uma ação pode começar.
+
+:::note Sobre a notação no Mermaid
+As barras representam bifurcação e sincronização. Os dois losangos têm funções distintas, identificadas pela quantidade de entradas e saídas.
+:::
+
+```mermaid Estados do pagamento à entrega
+stateDiagram-v2
+  state "Aguardando pagamento" as Aguardando
+  [*] --> Aberto
+  Aberto --> Aguardando : fechar [há itens]
+  Aguardando --> Pago : confirmar pagamento / emitir nota
+  Aguardando --> Cancelado : vencer prazo
+  Pago --> Cancelado : cancelar / estornar
+  Pago --> Enviado : despachar
+  Enviado --> Entregue : confirmar entrega
+  Entregue --> [*]
+  Cancelado --> [*]
+```
+
+Fonte: adaptado de OMG (2017, seção 14) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 22 e 25) — recriado pela equipe Stacklyst.
+
+Em cada seta, leia o evento, a guarda entre colchetes quando houver e o efeito após a barra. No ENADE, determine o estado atual antes de aplicar um evento. Cancelar um pedido pago, por exemplo, dispara o estorno.
 
 ## Vantagens e desvantagens
 
@@ -175,7 +189,7 @@ A figura mostra um fluxo que parte de um nó inicial e organiza **ações** sequ
 
 ## Referências
 
-- OMG. *UML 2.5.1 Specification*, 2017 — cláusulas 14 (State Machines) e 15 (Activities).
-- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: Guia do Usuário*. 2. ed. Elsevier, 2006 — caps. 20 a 25.
+- OBJECT MANAGEMENT GROUP. *Unified Modeling Language (UML)*. Versão 2.5.1. [S. l.]: OMG, 2017. Disponível em: https://www.omg.org/spec/UML/2.5.1. Acesso em: 25 nov. 2026.
+- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.
 - GUEDES, G. T. A. *UML 2: uma abordagem prática*. 3. ed. Novatec, 2018.
 - INEP. ENADE TADS 2008 (questão 24) e 2011 (questão 14).

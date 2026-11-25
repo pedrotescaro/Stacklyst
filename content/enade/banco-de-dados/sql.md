@@ -3,8 +3,8 @@ title: SQL — DDL, DML, consultas, JOINs, agregação, subconsultas e operaçõ
 summary: Comandos de definição e manipulação de dados, SELECT completo com WHERE, ORDER BY, GROUP BY e HAVING, funções de agregação, todos os tipos de JOIN, subconsultas, UNION, INTERSECT e EXCEPT e o tratamento de NULL — com exemplos executáveis de cabeça.
 order: 3
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [sql, ddl, dml, dcl, create table, alter table, insert, update, delete, select, where, order by, group by, having, count, sum, avg, min, max, join, inner join, left join, right join, full join, cross join, subconsulta, in, exists, union, intersect, except, is null, distinct, alias]
 related: [modelagem-de-dados, normalizacao, transacoes-e-indices, conjuntos-e-venn]
 ---
@@ -140,12 +140,19 @@ HAVING AVG(hm.val_movimentado) > 5000;
 
 ## Representação visual
 
-```mermaid Tipos de JOIN
-flowchart LR
-  I[INNER: só a interseção] --- L[LEFT: tudo da esquerda + interseção]
-  L --- R[RIGHT: tudo da direita + interseção]
-  R --- F[FULL: tudo dos dois lados]
+```mermaid Junções sobre duas relações
+flowchart TB
+  A["A.id<br/>1, 2"] --> J["Condição<br/>A.id = B.id"]
+  B["B.id<br/>2, 3"] --> J
+  J --> I["INNER JOIN<br/>(2, 2)"]
+  J --> L["LEFT JOIN<br/>(1, NULL), (2, 2)"]
+  J --> R["RIGHT JOIN<br/>(2, 2), (NULL, 3)"]
+  J --> F["FULL JOIN<br/>(1, NULL)<br/>(2, 2), (NULL, 3)"]
 ```
+
+Fonte: adaptado de ELMASRI; NAVATHE (2018, caps. 7 e 8) — recriado pela equipe Stacklyst.
+
+Leia cada par de saída como (id de A, id de B). A chave 2 coincide nas duas tabelas. Quando a junção externa preserva uma linha sem par, a outra coluna recebe NULL. No ENADE, percorra as linhas preservadas antes de contar o resultado da consulta.
 
 ## Vantagens e desvantagens
 
@@ -236,7 +243,7 @@ Correta a **A**: todos os títulos **EXCEPT** os ligados a empréstimos com `dat
 
 ## Referências
 
-- ELMASRI, R.; NAVATHE, S. B. *Sistemas de Banco de Dados*. 7. ed. Pearson, 2018 — caps. 6 a 8.
+- ELMASRI, R.; NAVATHE, S. B. *Sistemas de banco de dados*. 7. ed. São Paulo: Pearson Education do Brasil, 2018.
 - SILBERSCHATZ, A.; KORTH, H. F.; SUDARSHAN, S. *Sistema de Banco de Dados*. 7. ed. Elsevier, 2020 — caps. 3 a 5.
 - POSTGRESQL. *Documentation — Queries*. Disponível em postgresql.org/docs.
 - INEP. ENADE TADS 2008 (questão 30), 2011 (questão 22), 2014 (questão 11), 2017 (questão 32) e 2021 (questão 17).

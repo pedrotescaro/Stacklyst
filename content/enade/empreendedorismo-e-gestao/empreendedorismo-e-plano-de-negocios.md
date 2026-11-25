@@ -3,8 +3,8 @@ title: Empreendedorismo, inovação e plano de negócios
 summary: O que é empreender, perfil do empreendedor e riscos calculados, empreendedores e investidores, os fatores pessoas, oportunidade, contexto, riscos e recompensas, tipos de inovação, empreendedorismo social e a estrutura de um plano de negócios.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [empreendedorismo, empreendedor, intraempreendedorismo, empreendedorismo social, inovação, inovação incremental, inovação radical, inovação disruptiva, criatividade, riscos calculados, investidores, investidor-anjo, venture capital, plano de negócios, sumário executivo, análise de mercado, plano de marketing, plano financeiro, plano de contingência]
 related: [canvas-swot-mvp, viabilidade-economica, sistemas-de-informacao-empresariais, gerencia-de-projetos-e-riscos, sustentabilidade-e-responsabilidade-social]
 ---
@@ -87,14 +87,25 @@ Não existe uma "fórmula de sucesso" pronta: o plano é adaptado ao negócio e 
 
 ## Representação visual
 
-```mermaid Os quatro fatores de Sahlman
+Leia os quatro ramos como perguntas que o plano precisa responder em conjunto. No ENADE, diferencie as competências da equipe, as condições externas e a resposta da empresa a cenários de risco.
+
+```mermaid Quatro dimensões do plano de negócios
+---
+config:
+  flowchart:
+    nodeSpacing: 18
+    rankSpacing: 30
+    padding: 8
+---
 flowchart TB
-  P[Pessoas] --- O[Oportunidade]
-  O --- C[Contexto]
-  C --- R[Riscos e recompensas]
-  R --- P
-  P & O & C & R --> S((Ajuste = chance de sucesso))
+  PL["Plano de negócios"]
+  PL --- P["Pessoas<br/>Equipe"]
+  PL --- O["Oportunidade<br/>Mercado"]
+  PL --- C["Contexto<br/>Ambiente"]
+  PL --- R["Riscos e retornos<br/>Cenários"]
 ```
+
+Fonte: adaptado de SAHLMAN (1997) — recriado pela equipe Stacklyst.
 
 ## Vantagens e desvantagens
 
@@ -178,7 +189,7 @@ Documentar como eliminar ou reduzir cenários de indisponibilidade e manter os n
 ## Referências
 
 - DORNELAS, J. *Empreendedorismo: transformando ideias em negócios*. 8. ed. Empreende, 2021.
-- SAHLMAN, W. A. How to Write a Great Business Plan. *Harvard Business Review*, jul.–ago. 1997.
+- SAHLMAN, William A. How to write a great business plan. *Harvard Business Review*, Boston, v. 75, n. 4, p. 98–108, jul./ago. 1997. Disponível em: [Harvard Business Review](https://hbr.org/1997/07/how-to-write-a-great-business-plan). Acesso em: 25 nov. 2026.
 - CHRISTENSEN, C. M. *O Dilema da Inovação*. M.Books, 2012.
 - OCDE. *Manual de Oslo*. 4. ed., 2018.
 - SEBRAE. *Como elaborar um plano de negócio*. Disponível em sebrae.com.br.

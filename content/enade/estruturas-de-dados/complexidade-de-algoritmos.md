@@ -3,8 +3,8 @@ title: Complexidade de algoritmos e notação Big O
 summary: Como medir a eficiência de um algoritmo, as notações O, Ω e Θ, as classes de crescimento mais comuns, como contar passos em laços e recursões e os paradigmas divisão e conquista, programação dinâmica e guloso.
 order: 10
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [complexidade, análise de algoritmos, big o, notação assintótica, omega, theta, pior caso, melhor caso, caso médio, o(1), o(log n), o(n), o(n log n), o(n²), exponencial, complexidade de espaço, divisão e conquista, programação dinâmica, guloso, força bruta]
 related: [busca-e-ordenacao, recursividade, vetores-e-matrizes, grafos]
 ---
@@ -53,6 +53,8 @@ Formalmente, T(n) = O(f(n)) se existem constantes c > 0 e n₀ tais que $T(n) \l
 
 ::widget big-o
 
+Fonte: adaptado de CORMEN et al. (2009, cap. 3) — recriado pela equipe Stacklyst.
+
 ### Contando passos
 
 ```python
@@ -98,7 +100,7 @@ def exemplo(v):
 
 ## Representação visual
 
-O gráfico interativo acima compara o crescimento das classes; arraste o valor de *n* para ver como as curvas quadrática e exponencial disparam.
+No gráfico interativo da seção Como funciona, compare as classes para o mesmo tamanho de entrada e depois aumente n. No ENADE, concentre-se na taxa de crescimento para n grande e lembre-se de que O(g(n)) é um limite superior assintótico.
 
 ## Vantagens e desvantagens
 
@@ -186,3 +188,4 @@ A recursão ingênua é **exponencial**; dizer que é o método mais eficiente �
 - ZIVIANI, N. *Projeto de Algoritmos*. 3. ed. Cengage, 2010 — caps. 1 e 2.
 - DASGUPTA, S.; PAPADIMITRIOU, C.; VAZIRANI, U. *Algoritmos*. McGraw-Hill, 2009.
 - INEP. ENADE TADS 2008, questões 26 (anulada) e 27.
+- CORMEN, Thomas H. et al. *Introduction to algorithms*. 3. ed. Cambridge, MA: MIT Press, 2009.

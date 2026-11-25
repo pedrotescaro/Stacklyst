@@ -3,8 +3,8 @@ title: Transações, propriedades ACID, concorrência, índices e bancos não re
 summary: O que é uma transação, as propriedades ACID, COMMIT e ROLLBACK, problemas de concorrência e níveis de isolamento, recuperação após falhas, índices (B+ e hash), bancos NoSQL e bancos distribuídos com o teorema CAP.
 order: 4
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [transação, acid, atomicidade, consistência, isolamento, durabilidade, commit, rollback, concorrência, bloqueio, lock, deadlock, leitura suja, níveis de isolamento, log, recuperação, índice, árvore b+, índice hash, nosql, documentos, chave-valor, colunar, grafos, banco distribuído, replicação, particionamento, sharding, teorema cap, base]
 related: [sql, modelagem-de-dados, arvores, tabelas-hash, sistemas-operacionais]
 ---
@@ -90,17 +90,22 @@ Colocar um livro no carrinho **não** cria um segundo exemplar nem conclui a ven
 
 ## Representação visual
 
-```mermaid Estados de uma transação
+```mermaid Ciclo de uma transação no SGBD
 stateDiagram-v2
-  [*] --> Ativa
-  Ativa --> ParcialmenteConfirmada : última operação
-  ParcialmenteConfirmada --> Confirmada : COMMIT gravado no log
-  Ativa --> Falha : erro
-  ParcialmenteConfirmada --> Falha : erro antes do commit
-  Falha --> Abortada : ROLLBACK
-  Confirmada --> [*]
-  Abortada --> [*]
+  state "Parcialmente confirmada" as Parcial
+  [*] --> Ativa : início
+  Ativa --> Parcial : fim das operações
+  Parcial --> Confirmada : commit
+  Ativa --> Falha : erro ou abortar
+  Parcial --> Falha : erro antes do commit
+  Falha --> Terminada : desfazer
+  Confirmada --> Terminada : liberar recursos
+  Terminada --> [*]
 ```
+
+Fonte: adaptado de ELMASRI; NAVATHE (2018, cap. 20) — recriado pela equipe Stacklyst.
+
+A transação fica parcialmente confirmada quando termina de executar. A confirmação depende de atingir o ponto de commit. Se houver falha antes disso, siga até o desfazimento e a terminação. No ENADE, use o estado e a confirmação persistente para decidir o que recuperar.
 
 ## Vantagens e desvantagens
 
@@ -177,7 +182,7 @@ Nenhum dos itens está certo: não houve violação de consistência por "dois e
 
 ## Referências
 
-- ELMASRI, R.; NAVATHE, S. B. *Sistemas de Banco de Dados*. 7. ed. Pearson, 2018 — caps. 17, 20 a 23 e 24 (NoSQL).
+- ELMASRI, R.; NAVATHE, S. B. *Sistemas de banco de dados*. 7. ed. São Paulo: Pearson Education do Brasil, 2018.
 - SILBERSCHATZ, A.; KORTH, H. F.; SUDARSHAN, S. *Sistema de Banco de Dados*. 7. ed. Elsevier, 2020 — caps. 14 a 19.
 - BREWER, E. Towards Robust Distributed Systems. *PODC Keynote*, 2000 (teorema CAP).
 - SADALAGE, P. J.; FOWLER, M. *NoSQL Essencial*. Novatec, 2013.

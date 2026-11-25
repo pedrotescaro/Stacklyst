@@ -3,8 +3,8 @@ title: Interpretação de texto — informações explícitas e implícitas, inf
 summary: Como ler textos da formação geral com método — identificar tema, tese e argumentos, separar o que está dito do que está implícito, fazer inferências válidas, evitar extrapolações e avaliar criticamente.
 order: 2
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [interpretação de texto, compreensão, informação explícita, informação implícita, pressuposto, subentendido, inferência, extrapolação, redução, contradição, tese, argumento, argumentação, coesão, coerência, intertextualidade, análise crítica, gêneros textuais]
 related: [como-resolver-questoes-enade, leitura-de-imagens-e-charges, argumentacao-e-quantificadores, etica-cidadania-e-direitos-humanos]
 ---
@@ -71,16 +71,29 @@ Texto: "A chance de uma criança de baixa renda ter um futuro melhor está relac
 
 ## Representação visual
 
-```mermaid Do texto à resposta
-flowchart LR
-  C[Comando da questão] --> T[Tema e tese]
-  T --> A[Argumentos e dados]
-  A --> E{A alternativa está no texto<br/>ou é necessariamente sugerida?}
-  E -->|sim| OK[Pode ser a resposta]
-  E -->|vai além| X[Extrapolação ✗]
-  E -->|só uma parte| R[Redução ✗]
-  E -->|o contrário| CT[Contradição ✗]
+A figura reúne o que está escrito, o contexto e o conhecimento que o leitor mobiliza para construir sentido. No ENADE, confronte a interpretação com o comando da questão e busque no texto uma pista que sustente a inferência.
+
+```mermaid Pistas e inferências na leitura
+---
+config:
+  flowchart:
+    nodeSpacing: 18
+    rankSpacing: 30
+    padding: 8
+---
+flowchart TB
+  subgraph L["Construção de sentido"]
+    T["Pistas do texto"] --> I["Inferência do leitor"]
+    F["Situação de<br/>comunicação"] --> I
+    S["Conhecimento<br/>de mundo"] --> I
+  end
+  I --> V{"Há apoio textual?"}
+  V -->|"Sim"| A["Validar a leitura"]
+  V -->|"Não"| R["Rever a leitura"]
+  R --> T
 ```
+
+Fonte: adaptado de KOCH; ELIAS (2006, cap. 1) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -151,7 +164,7 @@ A leitura de poemas exige atenção a **imagens** e **ironias**: o texto sugere 
 
 ## Referências
 
-- KOCH, I. V.; ELIAS, V. M. *Ler e compreender: os sentidos do texto*. Contexto, 2006.
+- KOCH, Ingedore Villaça; ELIAS, Vanda Maria. *Ler e compreender: os sentidos do texto*. São Paulo: Contexto, 2006.
 - FIORIN, J. L.; SAVIOLI, F. P. *Para entender o texto: leitura e redação*. 17. ed. Ática, 2007.
 - PLATÃO, F.; FIORIN, J. L. *Lições de texto: leitura e redação*. 5. ed. Ática, 2006.
 - INEP. ENADE — formação geral, edições 2008 a 2021.

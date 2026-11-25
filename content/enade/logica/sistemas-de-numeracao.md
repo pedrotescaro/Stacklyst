@@ -3,8 +3,8 @@ title: Sistemas de numeração e álgebra booleana — binário, octal, decimal 
 summary: Notação posicional, conversões entre bases (com passo a passo), atalhos binário–octal–hexadecimal, bits, bytes e barramentos, operações binárias e a ligação com a álgebra booleana e portas lógicas.
 order: 5
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [sistemas de numeração, base 2, binário, octal, decimal, hexadecimal, conversão de bases, notação posicional, bit, byte, palavra, barramento, endereçamento, álgebra booleana, portas lógicas, and, or, not, nand, xor, complemento de dois]
 related: [proposicoes-e-conectivos, memoria-e-arquivos, redes-de-computadores, algoritmos-e-logica-de-programacao]
 ---
@@ -79,6 +79,8 @@ Inverta os bits e some 1: com 8 bits, +5 = 00000101 → −5 = 11111011. Faixa c
 
 ## Representação visual
 
+Cada coluna representa o mesmo inteiro escrito em outra base.
+
 | Decimal | Binário | Octal | Hexa |
 |---|---|---|---|
 | 0 | 0000 | 0 | 0 |
@@ -89,13 +91,18 @@ Inverta os bits e some 1: com 8 bits, +5 = 00000101 → −5 = 11111011. Faixa c
 | 16 | 10000 | 20 | 10 |
 | 255 | 11111111 | 377 | FF |
 
-```mermaid Atalho binário → hexadecimal
-flowchart LR
-  B["1011 0110 (binário)"] --> G1["1011 = B"]
-  B --> G2["0110 = 6"]
-  G1 --> H["(B6)₁₆"]
-  G2 --> H
+Separe os bits em grupos de quatro a partir da direita. Cada grupo vira um algarismo hexadecimal na mesma posição porque 16 = 2⁴. No ENADE, confira a ordem dos grupos e complete o grupo mais à esquerda com zeros se ele tiver menos de quatro bits.
+
+```mermaid Conversão binário–hexadecimal
+flowchart TB
+  B["1011 0110₂"]
+  B -->|"Grupo alto"| A["1011₂ → B"]
+  B -->|"Grupo baixo"| C["0110₂ → 6"]
+  A --> H["B6₁₆"]
+  C --> H
 ```
+
+Fonte: adaptado de ROSEN (2019, cap. 4) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -169,3 +176,4 @@ Cálculos de barramento usam potências de 2: um barramento de endereços de *n*
 - TANENBAUM, A. S.; AUSTIN, T. *Organização Estruturada de Computadores*. 6. ed. Pearson, 2013 — apêndices A e B.
 - IDOETA, I. V.; CAPUANO, F. G. *Elementos de Eletrônica Digital*. 42. ed. Érica, 2019.
 - INEP. ENADE TADS 2014 (questão 27) e 2021 (questão 27).
+- ROSEN, Kenneth H. *Discrete mathematics and its applications*. 8. ed. New York: McGraw-Hill Education, 2019.

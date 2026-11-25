@@ -3,8 +3,8 @@ title: Normalização e formas normais — 1FN, 2FN, 3FN e BCNF
 summary: Dependências funcionais, anomalias de inserção, atualização e exclusão, e como levar uma tabela (ou planilha) até a 3FN passo a passo, com BCNF, 4FN e a desnormalização consciente.
 order: 2
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [normalização, formas normais, primeira forma normal, 1fn, segunda forma normal, 2fn, terceira forma normal, 3fn, bcnf, boyce-codd, 4fn, dependência funcional, dependência parcial, dependência transitiva, anomalias, redundância, desnormalização, atributo multivalorado]
 related: [modelagem-de-dados, sql, transacoes-e-indices]
 ---
@@ -82,13 +82,23 @@ A data pertence à **matrícula**; o horário e o professor, à **turma**; não 
 
 ## Representação visual
 
-```mermaid Normalização passo a passo
-flowchart LR
-  T[Tabela não normalizada<br/>grupos repetidos] -->|atomizar e separar repetições| F1[1FN]
-  F1 -->|remover dependências parciais| F2[2FN]
-  F2 -->|remover dependências transitivas| F3[3FN]
-  F3 -->|todo determinante é superchave| BC[BCNF]
+```mermaid Normalização por dependências funcionais
+flowchart TD
+  U["Ficha com turmas<br/>repetidas"] -->|"uma turma por linha"| R["1FN: Matrícula<br/>(aluno, turma, nomes, professor)"]
+  R -->|"aluno → nome"| A["2FN: Aluno<br/>(aluno, nome)"]
+  R -->|"turma → professor"| T["2FN: Turma<br/>(turma, professor, nomeProf)"]
+  R -->|"chave composta"| M["2FN: Matrícula<br/>(aluno, turma)"]
+  T -->|"preserva a referência"| C["3FN: Turma<br/>(turma, professor)"]
+  T -->|"professor → nomeProf"| P["3FN: Professor<br/>(professor, nome)"]
+  A --> B["Teste de BCNF<br/>determinantes são superchaves?"]
+  M --> B
+  C --> B
+  P --> B
 ```
+
+Fonte: adaptado de ELMASRI; NAVATHE (2018, cap. 14) e DATE (2019) — recriado pela equipe Stacklyst.
+
+O exemplo parte da chave composta aluno + turma. O nome do aluno depende de só uma parte da chave, e o nome do professor depende de prof. Após a decomposição, confira se determinantes não triviais são superchaves para a BCNF. O ENADE costuma pedir a identificação de dependências parciais e transitivas antes de sugerir tabelas.
 
 ## Vantagens e desvantagens
 
@@ -164,6 +174,7 @@ O modelo correto separa **pessoas** (estudantes e responsáveis), **contatos**, 
 ## Referências
 
 - CODD, E. F. A Relational Model of Data for Large Shared Data Banks. *Communications of the ACM*, v. 13, n. 6, 1970.
-- ELMASRI, R.; NAVATHE, S. B. *Sistemas de Banco de Dados*. 7. ed. Pearson, 2018 — caps. 14 e 15.
+- ELMASRI, R.; NAVATHE, S. B. *Sistemas de banco de dados*. 7. ed. São Paulo: Pearson Education do Brasil, 2018.
 - HEUSER, C. A. *Projeto de Banco de Dados*. 6. ed. Bookman, 2009 — cap. 6.
 - INEP. ENADE TADS 2011 (questão 23) e 2021 (questão 15).
+- DATE, C. J. *Database design and relational theory*: normal forms and all that jazz. 2. ed. Berkeley: Apress, 2019. DOI 10.1007/978-1-4842-5540-7.

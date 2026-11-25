@@ -13,10 +13,19 @@ const load = (factory: () => Promise<ComponentType<WidgetProps>>) =>
 export const WIDGETS: Record<string, ComponentType<WidgetProps>> = {
   'truth-table': load(() => import('./TruthTable').then((m) => m.TruthTable)),
   'rup-whale': load(() => import('./RupWhale').then((m) => m.RupWhale)),
+  'modelo-v': load(() => import('./VModel').then((m) => m.VModel)),
+  'incremental-escalonado': load(() => import('./VModel').then((m) => m.IncrementalTimeline)),
+  'boehm-espiral': load(() => import('./ProcessSpirals').then((m) => m.BoehmSpiral)),
+  'boehm-custo-mudanca': load(() => import('./LifecycleCurves').then((m) => m.ChangeCostCurve)),
+  'curva-banheira': load(() => import('./LifecycleCurves').then((m) => m.BathtubCurve)),
+  'sommerville-espiral-requisitos': load(() =>
+    import('./ProcessSpirals').then((m) => m.RequirementsSpiral)
+  ),
   cyclomatic: load(() => import('./Cyclomatic').then((m) => m.Cyclomatic)),
   'stack-queue': load(() => import('./StackQueue').then((m) => m.StackQueue)),
   'linked-list': load(() => import('./LinkedList').then((m) => m.LinkedList)),
   bst: load(() => import('./BinarySearchTree').then((m) => m.BinarySearchTree)),
+  'arvore-b-mais': load(() => import('./BPlusTree').then((m) => m.BPlusTree)),
   sorting: load(() => import('./Sorting').then((m) => m.Sorting)),
   'big-o': load(() => import('./BigO').then((m) => m.BigO)),
   'lorenz-gini': load(() => import('./LorenzGini').then((m) => m.LorenzGini)),

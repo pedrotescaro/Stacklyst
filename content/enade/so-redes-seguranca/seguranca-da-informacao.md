@@ -3,8 +3,8 @@ title: Segurança da informação — CID, autenticação, autorização, cripto
 summary: Os pilares confidencialidade, integridade e disponibilidade, autenticação × autorização, criptografia simétrica e assimétrica, hash, assinatura e certificado digital, ataques comuns (DoS/DDoS, phishing, injeção), políticas de segurança, LGPD e Marco Civil da Internet.
 order: 5
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [segurança da informação, confidencialidade, integridade, disponibilidade, cid, autenticidade, não repúdio, autenticação, autorização, mfa, criptografia, simétrica, assimétrica, aes, rsa, chave pública, chave privada, hash, sha-256, bcrypt, assinatura digital, certificado digital, tls, dos, ddos, botnet, zumbis, phishing, sql injection, xss, ransomware, política de segurança, uso aceitável, lgpd, anpd, marco civil da internet]
 related: [redes-de-computadores, tabelas-hash, computacao-em-nuvem, etica-cidadania-e-direitos-humanos, qualidade-de-software]
 ---
@@ -39,7 +39,7 @@ Proteger dados pessoais, financeiros e estratégicos; manter sistemas funcionand
 | **Assimétrica** | **par de chaves**: pública e privada | RSA, ECC | troca de chaves, assinaturas digitais |
 
 - Para **confidencialidade**, cifra-se com a **chave pública do destinatário**; só a **privada** dele decifra.
-- **Assinatura digital:** o autor cifra o **hash** da mensagem com sua **chave privada**; qualquer um verifica com a **pública** → garante **autenticidade, integridade e não repúdio**.
+- **Assinatura digital:** o signatário usa a **chave privada** para gerar a assinatura, e o destinatário usa a **chave pública** correspondente para verificar a mensagem. O processo sustenta a verificação de **autenticidade**, **integridade** e **não repúdio**.
 - **Certificado digital** (ICP-Brasil, X.509): documento emitido por uma **Autoridade Certificadora** que associa uma chave pública a uma identidade. O HTTPS/TLS usa certificados e combina assimétrica (estabelecer chave) com simétrica (dados).
 
 ### Hashing
@@ -109,18 +109,20 @@ ps.setString(1, loginDigitado);   // o valor nunca é interpretado como SQL
 
 ## Representação visual
 
-```mermaid Assinatura digital
-flowchart LR
-  M[Mensagem] --> H[Hash da mensagem]
-  H --> S[Cifrar com a chave PRIVADA do autor]
-  S --> A[Assinatura]
-  A --> V[Destinatário decifra com a chave PÚBLICA do autor]
-  M --> H2[Recalcula o hash]
-  V --> C{Hashes iguais?}
-  H2 --> C
-  C -->|sim| OK[Autêntica e íntegra]
-  C -->|não| NO[Alterada ou falsa]
+```mermaid Geração e verificação da assinatura
+flowchart TB
+  M["Mensagem"] --> S["Signatário<br/>Gera a assinatura"]
+  KP["Chave privada"] --> S
+  S -->|"mensagem e assinatura"| V["Destinatário<br/>Verifica a assinatura"]
+  KU["Chave pública validada"] --> V
+  V --> R{"Assinatura válida?"}
+  R -->|"sim"| O["Aceitar verificação"]
+  R -->|"não"| F["Rejeitar verificação"]
 ```
+
+Fonte: adaptado de KUROSE; ROSS (2021, cap. 8) e NIST (2023, seção 3) — recriado pela equipe Stacklyst.
+
+A chave privada entra na geração da assinatura. Na verificação, entram a mensagem recebida, a assinatura e a chave pública associada ao signatário. No ENADE, identifique quando o objetivo é verificar integridade e autoria e qual chave executa cada operação.
 
 ## Vantagens e desvantagens
 
@@ -179,7 +181,7 @@ As duas asserções são verdadeiras — a lei garante a qualidade contratada e 
 :::summary
 - **CID**: confidencialidade, integridade, disponibilidade (+ autenticidade, não repúdio).
 - Autenticação (**quem**) × autorização (**o quê**); MFA.
-- Simétrica (1 chave, rápida) × assimétrica (pública/privada). Assinatura = hash + chave **privada** do autor.
+- Simétrica (1 chave, rápida) × assimétrica (pública/privada). Assinatura digital usa a chave **privada** para assinar e a **pública** correspondente para verificar.
 - Hash é **irreversível**; senhas com **bcrypt/Argon2 + sal**.
 - DDoS ataca a **disponibilidade**.
 - **LGPD** (13.709/2018): fundamentos art. 2º, princípios art. 6º, ANPD, controlador/operador/encarregado. **Marco Civil** (12.965/2014): neutralidade, privacidade, qualidade e não suspensão.
@@ -225,3 +227,5 @@ As duas asserções são verdadeiras — a lei garante a qualidade contratada e 
 - CERT.br. *Cartilha de Segurança para Internet*. Disponível em cartilha.cert.br.
 - OWASP. *OWASP Top 10*. Disponível em owasp.org.
 - INEP. ENADE TADS 2011 (questão 31), 2014 (questão 13), 2017 (questão 15, anulada) e 2021 (questão 26).
+- KUROSE, J. F.; ROSS, K. W. *Redes de computadores e a internet*: uma abordagem top-down. 8. ed. São Paulo: Pearson, Porto Alegre: Bookman, 2021.
+- NATIONAL INSTITUTE OF STANDARDS AND TECHNOLOGY. *Digital signature standard (DSS)*. Gaithersburg: NIST, 2023. FIPS 186-5. DOI 10.6028/NIST.FIPS.186-5.

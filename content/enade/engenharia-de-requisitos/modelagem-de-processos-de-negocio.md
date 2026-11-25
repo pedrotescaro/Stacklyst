@@ -3,8 +3,8 @@ title: Modelagem de processos de negócio — BPM, EPC/ARIS e BPMN
 summary: O ciclo de gestão de processos de negócio (BPM), a linguagem gráfica EPC do método ARIS (eventos, funções e conectores lógicos) e uma comparação com BPMN.
 order: 5
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [processos de negócio, bpm, gestão de processos, epc, event-driven process chain, aris, conectores, xor, and, or, bpmn, modelagem as-is, to-be, otimização]
 related: [requisitos-fundamentos, uml-atividades-e-estados, tecnicas-de-elicitacao, sistemas-de-informacao-empresariais]
 ---
@@ -74,22 +74,33 @@ Evento **"Pedido de crédito recebido"** → função **"Analisar cadastro"** �
 
 ## Representação visual
 
-```mermaid EPC simplificada — eventos (hexágonos) e funções (retângulos arredondados)
+```mermaid EPC de concessão de crédito
 flowchart TD
-  E1{{Pedido de crédito recebido}} --> F1([Analisar cadastro])
-  F1 --> E2{{Cadastro analisado}}
-  E2 --> F2([Decidir crédito])
-  F2 --> X((XOR))
-  X --> E3{{Crédito aprovado}}
-  X --> E4{{Crédito negado}}
-  E3 --> F3([Liberar valor]) --> E5{{Valor liberado}}
+  E0{{"Pedido recebido"}} --> F0("Analisar cadastro")
+  F0 --> E1{{"Cadastro analisado"}}
+  E1 --> F1("Decidir concessão")
+  F1 --> X((XOR))
+  X --> E2{{"Crédito aprovado"}}
+  X --> E3{{"Crédito recusado"}}
+  E2 --> F2("Liberar valor") --> E4{{"Valor liberado"}}
+  E3 --> F3("Notificar solicitante") --> E5{{"Recusa comunicada"}}
 ```
 
-```mermaid Ciclo de gestão de processos (BPM)
-flowchart LR
-  P[Planejamento] --> M[Modelagem e análise] --> I[Implantação e execução] --> MO[Monitoramento] --> O[Otimização]
-  O --> P
+Fonte: adaptado de SCHEER (2000) — recriado pela equipe Stacklyst.
+
+Leia os hexágonos como eventos e os retângulos arredondados como funções. O XOR sai da função que toma a decisão e habilita um único evento de resultado. No ENADE, confira se a cadeia começa e termina com eventos e se o ponto de escolha sucede uma função.
+
+```mermaid Ciclo de gestão de processos
+flowchart TD
+  I["Identificar processos"] --> D["Descobrir o processo<br/>modelo atual"]
+  D --> A["Analisar problemas"] --> R["Redesenhar processo<br/>modelo desejado"]
+  R --> E["Implantar mudanças"] --> M["Monitorar e controlar"]
+  M -->|Resultados e desvios| D
 ```
+
+Fonte: adaptado de DUMAS et al. (2018, cap. 1) — recriado pela equipe Stacklyst.
+
+A identificação define qual processo merece atenção. Depois, a equipe mapeia o trabalho atual, analisa problemas, projeta e implanta mudanças. O monitoramento guia a próxima volta. No ENADE, reconheça a otimização contínua quando os resultados observados voltam para orientar a análise e o redesenho.
 
 ## Vantagens e desvantagens
 
@@ -172,8 +183,9 @@ A **otimização** revê resultados e busca melhorias contínuas, impedindo que 
 
 ## Referências
 
-- SCHEER, A.-W. *ARIS — Business Process Modeling*. 3. ed. Springer, 2000.
+- SCHEER, August-Wilhelm. *ARIS: business process modeling*. 3. ed. Berlin: Springer, 2000. DOI: 10.1007/978-3-642-57108-4.
 - BALDAM, R.; VALLE, R.; ROZENFELD, H. *Gerenciamento de Processos de Negócio — BPM*. 2. ed. Érica, 2009.
 - OMG. *Business Process Model and Notation (BPMN)*, v2.0.2, 2014.
 - ABPMP. *BPM CBOK — Guia para o Gerenciamento de Processos de Negócio*, v3, 2013.
 - INEP. ENADE TADS 2011, questões 13 e 17.
+- DUMAS, Marlon; LA ROSA, Marcello; MENDLING, Jan; REIJERS, Hajo A. *Fundamentals of business process management*. 2. ed. Berlin: Springer, 2018. DOI: 10.1007/978-3-662-56509-4.

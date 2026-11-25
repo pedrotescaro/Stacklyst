@@ -3,8 +3,8 @@ title: Diagramas de interação — sequência, comunicação, tempo e visão ge
 summary: Linhas de vida, barras de ativação, mensagens síncronas, assíncronas e de retorno, criação e destruição de objetos, fragmentos combinados alt, opt e loop, e os outros três diagramas de interação.
 order: 4
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [diagrama de sequência, linha de vida, lifeline, barra de ativação, mensagem síncrona, mensagem assíncrona, retorno, criação, destruição, fragmentos combinados, alt, opt, loop, par, ref, diagrama de comunicação, diagrama de tempo, timing, visão geral de interação]
 related: [uml-visao-geral, uml-classes-e-objetos, uml-casos-de-uso, mvc-mvp-mvvm]
 ---
@@ -48,31 +48,6 @@ related: [uml-visao-geral, uml-classes-e-objetos, uml-casos-de-uso, mvc-mvp-mvvm
 | **ref** | referência a outro diagrama de interação | chamada de sub-rotina |
 | break, critical, neg, assert, seq, strict, ignore, consider | outros operadores menos cobrados | — |
 
-```mermaid Sequência: login com fragmentos alt e loop
-sequenceDiagram
-  actor U as Usuário
-  participant T as :TelaLogin
-  participant C as :ControladorAcesso
-  participant R as :RepositorioUsuario
-  U->>T: informarCredenciais(login, senha)
-  activate T
-  T->>+C: autenticar(login, senha)
-  C->>+R: buscar(login)
-  R-->>-C: usuario
-  alt senha correta
-    C-->>T: sessao
-    T-->>U: exibir painel
-  else senha incorreta
-    C-->>T: erro
-    loop até 3 tentativas
-      T-->>U: pedir nova senha
-    end
-  end
-  deactivate C
-  deactivate T
-  C-)R: registrarTentativa(login) [assíncrona]
-```
-
 No Mermaid: `->>` é síncrona (seta cheia), `-)` é assíncrona (seta aberta), `-->>` é retorno (tracejada); `+`/`-` ativam e desativam as barras de ativação.
 
 ### Diagrama de comunicação
@@ -81,17 +56,29 @@ Mostra os **mesmos objetos e mensagens**, mas organizados pelos **vínculos** en
 
 ::widget uml diagram=communication
 
+Fonte: adaptado de OMG (2017, seção 17) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 19) — recriado pela equipe Stacklyst.
+
+Comece pela numeração das mensagens e siga suas linhas de ligação. O ENADE pode pedir a ordem das chamadas em um desenho que prioriza a conexão entre participantes.
+
 ### Diagrama de tempo (timing)
 
 Mostra **mudanças de estado** de uma ou mais linhas de vida ao longo de um **eixo horizontal de tempo**, com **restrições de duração** (`{t ≤ 4 s}`). Usado em sistemas embarcados e de tempo real.
 
 ::widget uml diagram=timing
 
+Fonte: adaptado de OMG (2017, seção 17) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 19) — recriado pela equipe Stacklyst.
+
+Leia o eixo da esquerda para a direita e compare a duração do estado com a restrição assinalada. No ENADE, essa vista serve para verificar prazos de resposta.
+
 ### Diagrama de visão geral de interação
 
 Combina a estrutura de um **diagrama de atividades** (nó inicial, decisões, fluxos, nó final) com **quadros de interação** (`sd`) e **referências** (`ref`) a diagramas de sequência. Dá a visão do **fluxo entre várias interações**.
 
 ::widget uml diagram=overview
+
+Fonte: adaptado de OMG (2017, seção 17) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 19) — recriado pela equipe Stacklyst.
+
+Siga as guardas e localize os quadros de referência. O ENADE pode pedir qual interação é executada depois de uma decisão.
 
 ## Características principais
 
@@ -107,7 +94,43 @@ Se a linha de vida `:ControladorAcesso` começa com uma mensagem «create» vind
 
 ## Representação visual
 
-Os diagramas acima são a representação visual desta página: sequência (Mermaid), comunicação, tempo e visão geral (SVG em notação UML).
+```mermaid Sequência de tentativas de acesso
+---
+config:
+  sequence:
+    actorMargin: 28
+    diagramMarginX: 16
+    width: 100
+    wrap: true
+---
+sequenceDiagram
+  actor U as Pessoa
+  participant T as :Login
+  participant A as :Acesso
+  participant C as :Cadastro
+  loop Até 3 tentativas<br/>enquanto pendente
+    U->>T: enviar credenciais
+    activate T
+    T->>+A: autenticar
+    A->>+C: consultar cadastro
+    C-->>-A: dados de acesso
+    alt senha válida
+      A-->>T: sessão criada
+      T-->>U: abrir painel
+    else senha inválida
+      A-->>T: acesso recusado
+      T-->>U: informar falha
+    end
+    deactivate A
+    deactivate T
+  end
+```
+
+Fonte: adaptado de OMG (2017, seção 17) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 19) — recriado pela equipe Stacklyst.
+
+Leia de cima para baixo. Cada tentativa inclui o envio das credenciais e a consulta ao cadastro. O quadro alt escolhe a resposta pelas guardas, dentro do loop de tentativas. O ENADE costuma cobrar a diferença entre alternativa, repetição e o retorno tracejado de uma chamada.
+
+Na seção Como funciona, compare essa mesma leitura temporal com a numeração da comunicação, com a duração dos estados no gráfico de tempo e com o encadeamento de quadros na visão geral.
 
 ## Vantagens e desvantagens
 
@@ -188,7 +211,7 @@ A linha de vida de `Controlador Acesso` **começa** com a mensagem de criação 
 
 ## Referências
 
-- OMG. *UML 2.5.1 Specification*, 2017 — cláusula 17 (Interactions).
+- OBJECT MANAGEMENT GROUP. *Unified Modeling Language (UML)*. Versão 2.5.1. [S. l.]: OMG, 2017. Disponível em: https://www.omg.org/spec/UML/2.5.1. Acesso em: 25 nov. 2026.
 - FOWLER, M. *UML Essencial*. 3. ed. Bookman, 2005 — cap. 4.
-- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: Guia do Usuário*. 2. ed. Elsevier, 2006 — caps. 18 e 19.
+- BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.
 - INEP. ENADE TADS 2008, questão 13.

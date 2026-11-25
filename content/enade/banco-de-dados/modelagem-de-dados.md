@@ -3,8 +3,8 @@ title: Modelagem de dados — conceitual, lógica e física, DER, cardinalidades
 summary: Os três níveis de modelagem, o Diagrama Entidade-Relacionamento (entidades, atributos, relacionamentos, entidades fracas), cardinalidades mínima e máxima, chaves primárias, estrangeiras e candidatas, restrições de integridade e o mapeamento para tabelas.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [modelagem de dados, modelo conceitual, modelo lógico, modelo físico, der, mer, entidade, entidade fraca, atributo, atributo multivalorado, atributo composto, relacionamento, cardinalidade, 1:1, 1:n, n:m, tabela associativa, chave primária, chave estrangeira, chave candidata, integridade referencial, integridade semântica, domínio, tupla, relação]
 related: [normalizacao, sql, transacoes-e-indices, uml-classes-e-objetos]
 ---
@@ -104,15 +104,22 @@ CREATE TABLE emprestimo (
 
 ## Representação visual
 
-```mermaid DER em notação pé de galinha
+```mermaid Cardinalidades do cadastro da biblioteca
+---
+config:
+  er:
+    nodeSpacing: 22
+    rankSpacing: 38
+---
 erDiagram
-  ALUNO ||--o{ EMPRESTIMO : realiza
-  LIVRO ||--o{ EMPRESTIMO : "é emprestado em"
-  LIVRO }o--o{ AUTOR : "escrito por"
+  direction TB
+  ALUNO ||..o{ EMPRESTIMO : realiza
+  LIVRO ||..o{ EMPRESTIMO : integra
+  LIVRO ||--o{ LIVRO_AUTOR : possui
+  AUTOR ||--o{ LIVRO_AUTOR : assina
   ALUNO {
     int matricula PK
     string nome
-    date data_nasc
   }
   LIVRO {
     int liv_cod PK
@@ -125,11 +132,19 @@ erDiagram
     date data_emp
     date data_dev
   }
+  LIVRO_AUTOR {
+    int liv_cod PK,FK
+    int aut_cod PK,FK
+  }
   AUTOR {
     int aut_cod PK
     string nome
   }
 ```
+
+Fonte: adaptado de ELMASRI; NAVATHE (2018, caps. 3 e 9 e apêndice A) — recriado pela equipe Stacklyst.
+
+Leia as pontas para saber quantas ocorrências podem participar. Cada empréstimo tem um aluno e um livro. A entidade associativa Livro–Autor usa as duas chaves estrangeiras como chave primária. No ENADE, essa leitura orienta o mapeamento de relações 1:N e N:M para tabelas.
 
 ## Vantagens e desvantagens
 
@@ -219,6 +234,6 @@ Cada N:M vira tabela associativa com as chaves das duas entidades (incluindo cha
 ## Referências
 
 - HEUSER, C. A. *Projeto de Banco de Dados*. 6. ed. Bookman, 2009.
-- ELMASRI, R.; NAVATHE, S. B. *Sistemas de Banco de Dados*. 7. ed. Pearson, 2018 — caps. 3, 5 e 9.
+- ELMASRI, R.; NAVATHE, S. B. *Sistemas de banco de dados*. 7. ed. São Paulo: Pearson Education do Brasil, 2018.
 - CHEN, P. P. The Entity-Relationship Model — Toward a Unified View of Data. *ACM TODS*, v. 1, n. 1, 1976.
 - INEP. ENADE TADS 2008 (questão 34), 2011 (questão 23), 2014 (questões 21 e 22), 2017 (questão 34) e 2021 (questão 15).

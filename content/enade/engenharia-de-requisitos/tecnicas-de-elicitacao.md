@@ -3,8 +3,8 @@ title: Técnicas de elicitação — brainstorming, JAD, FAST, PIECES, entrevist
 summary: Cada técnica de levantamento de requisitos explicada com quando usar, como conduzir e como reconhecê-la em uma questão de prova, além de uma tabela comparativa completa.
 order: 3
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [elicitação, levantamento de requisitos, brainstorming, jad, joint application design, fast, facilitated application specification techniques, pieces, entrevista estruturada, semiestruturada, não estruturada, questionário, observação, etnografia, análise documental, prototipação, workshop, cenários, grupo focal]
 related: [processo-de-requisitos, requisitos-fundamentos, historias-e-casos-de-uso, modelos-de-processo]
 ---
@@ -109,17 +109,22 @@ Construção rápida de uma **versão preliminar** (papel, wireframe, telas nave
 
 ## Representação visual
 
-```mermaid Como escolher uma técnica
+```mermaid Descoberta e análise de requisitos
 flowchart TD
-  Q{O que você precisa?} --> A[Opiniões de muitas pessoas] --> QU[Questionário]
-  Q --> B[Gerar ideias novas] --> BR[Brainstorming]
-  Q --> C[Decidir em conjunto com usuários e TI] --> J[JAD / FAST]
-  Q --> D[Entender o trabalho real] --> O[Observação / Etnografia]
-  Q --> E[Detalhes e raciocínio de uma pessoa] --> EN[Entrevista]
-  Q --> F[Regras escritas e formulários] --> AD[Análise documental]
-  Q --> G[Validar telas e fluxo] --> P[Prototipação]
-  Q --> H[Diagnosticar problemas do sistema atual] --> PI[PIECES]
+  subgraph descoberta["Descobrir necessidades"]
+    U["Entrevistas"] --> D["Registrar descobertas"]
+    O["Observação"] --> D
+    S["Documentos"] --> D
+  end
+  D --> A["Classificar e organizar"]
+  A --> P["Priorizar e negociar"]
+  P --> E[["Especificar requisitos"]]
+  E -. "Lacunas e dúvidas" .-> descoberta
 ```
+
+Fonte: adaptado de SOMMERVILLE (2018, cap. 4) e SOMMERVILLE; SAWYER (1997, cap. 4) — recriado pela equipe Stacklyst.
+
+As três entradas mostram fontes complementares para descobrir requisitos. Combine seus resultados, organize o material e negocie conflitos antes de registrar o acordo. No ENADE, escolha a técnica pela evidência necessária. A observação do trabalho revela práticas que podem escapar em entrevistas ou documentos.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -212,8 +217,9 @@ Gerar ideias livremente, **sem criticar as dos outros**, com tempo limitado, e s
 
 ## Referências
 
-- SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018 — cap. 4 (elicitação de requisitos, etnografia).
+- SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson, 2018.
 - PRESSMAN, R. S.; MAXIM, B. R. *Engenharia de Software*. 8. ed. AMGH, 2016 — cap. 8 (coleta colaborativa de requisitos, FAST).
 - WOOD, J.; SILVER, D. *Joint Application Development*. 2. ed. Wiley, 1995.
 - WETHERBE, J. C. *Systems Analysis and Design: Best Practices*. West Publishing, 1994 (framework PIECES).
 - INEP. ENADE TADS 2008 (questão 17) e 2011 (questão 9).
+- SOMMERVILLE, Ian; SAWYER, Pete. *Requirements engineering: a good practice guide*. Chichester: Wiley, 1997.

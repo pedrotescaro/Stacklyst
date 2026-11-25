@@ -4,8 +4,8 @@ summary: Concepção, Elaboração, Construção e Transição em detalhe — ob
 order: 2
 parent: rup-visao-geral
 level: intermediário
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [rup, concepção, inception, elaboração, elaboration, construção, construction, transição, transition, marcos, milestones, LCO, LCA, IOC, artefatos]
 related: [rup-disciplinas, rup-visao-geral, gerencia-de-projetos-e-riscos]
 ---
@@ -89,6 +89,10 @@ Uma distribuição típica é **1** iteração na Concepção, **2** na Elabora�
 
 ::widget rup-whale
 
+Fonte: adaptado de KRUCHTEN (2004, cap. 2) — recriado pela equipe Stacklyst.
+
+Compare a posição das iterações com a concentração de esforço em cada disciplina. No ENADE, a presença de uma atividade antes do pico ajuda a explicar por que modelagem e testes já podem ocorrer nas primeiras fases.
+
 ## Características principais
 
 | Fase | Foco | Duração típica* | Marco |
@@ -117,24 +121,30 @@ Uma distribuição típica é **1** iteração na Concepção, **2** na Elabora�
 
 ## Representação visual
 
-```mermaid Linha do tempo de um projeto RUP
-gantt
-  title Fases e iterações (exemplo)
-  dateFormat  X
-  axisFormat %s
-  section Concepção
-  I1 :0, 2
-  section Elaboração
-  E1 :2, 5
-  E2 :5, 8
-  section Construção
-  C1 :8, 11
-  C2 :11, 14
-  C3 :14, 17
-  section Transição
-  T1 :17, 19
-  T2 :19, 21
+```mermaid Iterações e marcos no tempo
+flowchart LR
+  subgraph C["Concepção"]
+    direction TB
+    I1["I1"] --> LCO[["LCO"]]
+  end
+  subgraph E["Elaboração"]
+    direction TB
+    E1["E1"] --> E2["E2"] --> LCA[["LCA"]]
+  end
+  subgraph K["Construção"]
+    direction TB
+    C1["C1"] --> C2["C2"] --> C3["C3"] --> IOC[["IOC"]]
+  end
+  subgraph T["Transição"]
+    direction TB
+    T1["T1"] --> T2["T2"] --> PR[["PR"]]
+  end
+  C --> E --> K --> T
 ```
+
+Fonte: adaptado de KRUCHTEN (2004, cap. 4) — recriado pela equipe Stacklyst.
+
+Leia as fases da esquerda para a direita e percorra as iterações dentro de cada grupo. A quantidade de iterações é ilustrativa, e o marco fecha a fase depois de verificar seus objetivos. No ENADE, associe LCA à validação da arquitetura e IOC à disponibilidade operacional inicial para a Transição.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -204,7 +214,7 @@ A questão separa claramente **fase** (quando) e **fluxo de trabalho** (o quê).
 
 ## Referências
 
-- KRUCHTEN, P. *Introdução ao RUP — Rational Unified Process*. Ciência Moderna, 2003 — capítulos sobre fases e marcos.
+- KRUCHTEN, Philippe. *The Rational Unified Process: an introduction*. 3. ed. Boston: Addison-Wesley, 2004.
 - KROLL, P.; KRUCHTEN, P. *The Rational Unified Process Made Easy*. Addison-Wesley, 2003.
 - SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018.
 - INEP. ENADE 2014 — Tecnologia em Análise e Desenvolvimento de Sistemas, questão 24.

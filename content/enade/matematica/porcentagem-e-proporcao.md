@@ -3,8 +3,8 @@ title: Porcentagem, frações, razão, proporção e regra de três
 summary: Frações e decimais, porcentagem (aumentos, descontos e variações sucessivas), pontos percentuais, razão e proporção, grandezas direta e inversamente proporcionais e regra de três simples e composta, com resoluções passo a passo.
 order: 1
 level: básico
-version: 1
-updated: 2026-11-24
+version: 2
+updated: 2026-11-25
 tags: [porcentagem, percentual, ponto percentual, fração, decimal, razão, proporção, regra de três, regra de três composta, diretamente proporcional, inversamente proporcional, aumento, desconto, variação percentual, fator multiplicativo, consumo, kwh]
 related: [estatistica-descritiva, funcoes-e-graficos, viabilidade-economica, curva-de-lorenz-e-gini]
 ---
@@ -75,19 +75,29 @@ Lâmpada incandescente (0,300 kWh/dia) × LED (0,040 kWh/dia): diferença de 0,2
 
 ## Representação visual
 
+O fator multiplicativo aplica a variação percentual à base sobre a qual a taxa foi definida.
+
 | Situação | Fator |
 |---|---|
-| +5% | × 1,05 |
-| +50% | × 1,50 |
-| −30% | × 0,70 |
-| dobrar | × 2 (= +100%) |
-| reduzir à metade | × 0,5 (= −50%) |
+| Aumento de 5% | × 1,05 |
+| Aumento de 50% | × 1,50 |
+| Redução de 30% | × 0,70 |
+| Dobrar | × 2 |
+| Reduzir à metade | × 0,50 |
 
-```mermaid Direta ou inversa?
-flowchart LR
-  Q{Uma grandeza aumenta...} -->|a outra aumenta| D[Diretamente proporcional<br/>multiplica em cruz]
-  Q -->|a outra diminui| I[Inversamente proporcional<br/>inverte uma razão]
+Escolha a razão ou o produto que permanece constante para os pares de valores. No ENADE, use essa constante para determinar o valor desconhecido e confirme se, para grandezas positivas, dobrar uma grandeza deve dobrar ou reduzir à metade a outra.
+
+```mermaid Variações direta e inversa
+flowchart TB
+  G["Relacionar x e y"] --- D["Direta"]
+  G --- I["Inversa"]
+  D --> D1["y ÷ x = k"]
+  I --> I1["x · y = k"]
+  D1 --> D2["x dobra<br/>y dobra"]
+  I1 --> I2["x dobra<br/>y cai à metade"]
 ```
+
+Fonte: adaptado de ABRAMSON (2021, seção 5.8) — recriado pela equipe Stacklyst.
 
 ## Diferenças entre conceitos semelhantes
 
@@ -160,3 +170,4 @@ Calcule a diferença diária em kWh, multiplique por 30 dias e pela tarifa: troc
 - IEZZI, G.; HAZZAN, S.; DEGENSZAJN, D. *Fundamentos de Matemática Elementar 11: matemática comercial, financeira e estatística descritiva*. 2. ed. Atual, 2013.
 - DANTE, L. R. *Matemática: contexto e aplicações*. Ática, 2016.
 - INEP. ENADE TADS 2008 (questão 3) e 2017 (questão 3).
+- ABRAMSON, Jay. *College algebra*. 2. ed. Houston: OpenStax, 2021. Disponível em: [OpenStax](https://openstax.org/details/books/college-algebra-2e). Acesso em: 25 nov. 2026.
