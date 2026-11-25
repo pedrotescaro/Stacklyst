@@ -3,7 +3,7 @@ title: Gerenciamento de memória, memória virtual, sistemas de arquivos e arqui
 summary: Hierarquia de memória, isolamento de espaços de endereçamento, partições, paginação e segmentação, memória virtual e substituição de páginas, sistemas de arquivos e uma revisão de CPU, barramentos e E/S.
 order: 2
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [gerenciamento de memória, hierarquia de memória, cache, ram, endereço lógico, endereço físico, mmu, paginação, página, quadro, tabela de páginas, segmentação, fragmentação, memória virtual, falta de página, page fault, substituição de páginas, lru, fifo, ótimo, thrashing, swap, sistema de arquivos, fat, ntfs, ext4, inode, diretório, cpu, barramento, entrada e saída, dma]
 related: [sistemas-operacionais, sistemas-de-numeracao, computacao-em-nuvem, seguranca-da-informacao]
@@ -79,20 +79,7 @@ Referências: 1, 2, 3, 1, 4, 2. Após 1, 2, 3 (3 faltas) e o acesso a 1 (acerto)
 
 ## Representação visual
 
-```mermaid Da página virtual ao quadro
-flowchart TB
-  V["Endereço virtual<br/>Página + deslocamento"] --> T{"Entrada na TLB?"}
-  T -->|"sim"| Q["Número do quadro"]
-  T -->|"não"| P{"Página presente<br/>na tabela?"}
-  P -->|"sim"| U["Atualizar TLB"]
-  U --> Q
-  P -->|"não"| F["Falta de página"]
-  F --> S["SO carrega página<br/>e atualiza tabela"]
-  S -->|"reinicia a instrução"| V
-  Q --> A["Endereço físico<br/>Quadro + deslocamento"]
-```
-
-Fonte: adaptado de TANENBAUM; BOS (2016, cap. 3) — recriado pela equipe Stacklyst.
+::figure{id="traducao-de-endereco-virtual"}
 
 A MMU procura o número do quadro primeiro na TLB. Se precisar consultar a tabela, a página pode estar presente mesmo sem entrada no cache. No ENADE, diferencie falha na TLB de falta de página e mantenha o deslocamento ao formar o endereço físico.
 

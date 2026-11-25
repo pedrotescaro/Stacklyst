@@ -9,6 +9,7 @@ import { figures as logica } from './logica';
 import { figures as matematica } from './matematica';
 import { figures as poo } from './poo';
 import { figures as rup } from './rup';
+import { figures as soRedesSeguranca } from './so-redes-seguranca';
 import type { FigureRegistry } from './types';
 
 export const figureRegistry: FigureRegistry = {
@@ -23,6 +24,7 @@ export const figureRegistry: FigureRegistry = {
   ...matematica,
   ...poo,
   ...rup,
+  ...soRedesSeguranca,
 };
 
 export function getFigure(id: string) {

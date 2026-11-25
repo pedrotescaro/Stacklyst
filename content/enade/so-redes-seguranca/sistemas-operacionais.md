@@ -3,7 +3,7 @@ title: Sistemas operacionais — processos, threads, multiprogramação, escalon
 summary: O papel do sistema operacional, processos e seus estados, threads, multiprogramação × multiprocessamento, algoritmos de escalonamento (FCFS, SJF, SRTF, Round-Robin, prioridade) com simulador, sincronização e deadlocks.
 order: 1
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [sistema operacional, kernel, processo, estados do processo, pcb, troca de contexto, thread, multithread, multiprogramação, multiprocessamento, escalonamento, fcfs, sjf, srtf, round-robin, quantum, prioridade, preemptivo, turnaround, tempo de espera, condição de corrida, região crítica, semáforo, mutex, deadlock, impasse, condições de coffman]
 related: [memoria-e-arquivos, computacao-em-nuvem, pilhas-e-filas, transacoes-e-indices]
@@ -90,16 +90,7 @@ Processos P1 (chega 0, dura 6), P2 (1, 3), P3 (2, 8), P4 (3, 2). FCFS: P1 de 0�
 
 ## Representação visual
 
-```mermaid Estados de execução de um processo
-stateDiagram-v2
-  direction TB
-  Executando --> Pronto : preempção
-  Pronto --> Executando : despacho
-  Executando --> Bloqueado : espera por E/S
-  Bloqueado --> Pronto : E/S concluída
-```
-
-Fonte: adaptado de TANENBAUM; BOS (2016, cap. 2) — recriado pela equipe Stacklyst.
+::figure{id="estados-do-processo"}
 
 O recorte foca os três estados durante a vida do processo. A conclusão da E/S leva de bloqueado a pronto. Depois, o escalonador concede a CPU. No ENADE, confira se o processo está esperando um evento ou somente sua vez de executar.
 

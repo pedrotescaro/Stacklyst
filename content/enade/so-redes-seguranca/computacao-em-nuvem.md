@@ -3,7 +3,7 @@ title: Computação em nuvem, virtualização, IaaS, PaaS e SaaS
 summary: Características essenciais da nuvem (NIST), modelos de serviço IaaS, PaaS e SaaS e o modelo de responsabilidade compartilhada, modelos de implantação, virtualização com máquinas virtuais e hipervisores, contêineres e serverless.
 order: 4
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [computação em nuvem, cloud, nist, autoatendimento, elasticidade, pay-as-you-go, iaas, paas, saas, faas, serverless, nuvem pública, privada, híbrida, comunitária, virtualização, máquina virtual, hipervisor, tipo 1, tipo 2, contêiner, docker, kubernetes, responsabilidade compartilhada]
 related: [sistemas-operacionais, estilos-arquiteturais, redes-de-computadores, seguranca-da-informacao]
@@ -74,44 +74,11 @@ Isolam **processos** compartilhando o **kernel** do hospedeiro (Docker); são ma
 
 ## Representação visual
 
-```mermaid Responsabilidades por modelo de nuvem
-flowchart TB
-  subgraph IA["IaaS"]
-    direction TB
-    IC["Cliente<br/>Aplicações, dados e SO"] --- IP["Provedor<br/>Recursos de infraestrutura"]
-  end
-  subgraph PA["PaaS"]
-    direction TB
-    PC["Cliente<br/>Aplicações implantadas"] --- PP["Provedor<br/>Plataforma e infraestrutura"]
-  end
-  subgraph SA["SaaS"]
-    direction TB
-    SC["Cliente<br/>Configurações permitidas"] --- SP["Provedor<br/>Aplicação e infraestrutura"]
-  end
-```
-
-Fonte: adaptado de MELL; GRANCE (2011, seção 2) — recriado pela equipe Stacklyst.
+::figure{id="responsabilidade-na-nuvem"}
 
 Leia cada coluna como uma fronteira de controle. O cliente controla o sistema convidado na IaaS, a aplicação implantada na PaaS e configurações restritas na SaaS. No ENADE, classifique o serviço pela camada que o consumidor pode configurar.
 
-```mermaid Hipervisor e kernel compartilhado
-flowchart TB
-  subgraph V["Máquinas virtuais"]
-    direction TB
-    A1["Aplicação e<br/>SO convidado"] --> H["Hipervisor tipo 1"]
-    A2["Aplicação e<br/>SO convidado"] --> H
-    H --> HW1["Hardware"]
-  end
-  subgraph C["Contêineres"]
-    direction TB
-    C1["Aplicação e<br/>dependências"] --> RT["Runtime de contêineres"]
-    C2["Aplicação e<br/>dependências"] --> RT
-    RT --> K["Kernel do hospedeiro"]
-    K --> HW2["Hardware"]
-  end
-```
-
-Fonte: adaptado de TANENBAUM; BOS (2016, cap. 7) e IRWIN (2026) — recriado pela equipe Stacklyst.
+::figure{id="hipervisor-e-conteineres"}
 
 Leia a pilha de baixo para cima. No exemplo de hipervisor tipo 1, cada VM inclui um sistema convidado. Os contêineres isolam processos que usam o kernel do hospedeiro. No ENADE, identifique o que muda entre as duas formas de isolamento.
 
@@ -196,6 +163,7 @@ O conceito de VM vem do IBM System/370 e hoje sustenta data centers; as afirmaç
 
 - MELL, P.; GRANCE, T. *The NIST definition of cloud computing*. Gaithersburg: National Institute of Standards and Technology, 2011. NIST Special Publication 800-145. DOI 10.6028/NIST.SP.800-145.
 - TANENBAUM, A. S.; BOS, H. *Sistemas operacionais modernos*. 4. ed. São Paulo: Pearson Education do Brasil, 2016.
+- TANENBAUM, Andrew S.; BOS, Herbert. *Modern operating systems*. 5. ed. Hoboken: Pearson, 2023.
 - VERAS, M. *Cloud Computing: nova arquitetura da TI*. Brasport, 2012.
 - INEP. ENADE TADS 2008 (questão 15) e 2011 (questão 28).
 - IRWIN, M. *What is a container?* [S. l.]: Docker, 2026. Disponível em: https://docs.docker.com/learn/content/what-is-a-container/. Acesso em: 25 nov. 2026.

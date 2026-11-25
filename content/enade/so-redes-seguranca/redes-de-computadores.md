@@ -3,7 +3,7 @@ title: Redes de computadores — modelo OSI, TCP/IP, HTTP/HTTPS, DNS, endereçam
 summary: As camadas OSI e TCP/IP, TCP × UDP, portas, HTTP e HTTPS, como o DNS resolve nomes, endereçamento IPv4 com máscara de sub-rede e gateway, IPv6, e o papel de hubs, switches e roteadores.
 order: 3
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [redes, modelo osi, tcp/ip, camadas, pdu, tcp, udp, portas, http, https, tls, dns, resolução de nomes, cache dns, servidor autoritativo, ip, ipv4, ipv6, máscara de sub-rede, cidr, gateway, dhcp, nat, hub, switch, roteador, colisão, lan, wan, protocolos]
 related: [seguranca-da-informacao, computacao-em-nuvem, evolucao-arquiteturas-e-camadas, sistemas-de-numeracao]
@@ -33,6 +33,8 @@ Compare os papéis das camadas de cada pilha. No ENADE, localize o protocolo pel
 | 4 Transporte | **Transporte** | segmento / datagrama | **TCP**, **UDP** (portas) |
 | 3 Rede | **Internet** | pacote | **IP**, ICMP, roteadores |
 | 2 Enlace, 1 Física | **Acesso à rede** | quadro / bits | Ethernet, Wi-Fi, MAC, switches, cabos |
+
+::figure{id="camadas-osi-tcp-ip"}
 
 O OSI é um **modelo de referência** didático; o **TCP/IP** é a pilha **usada na Internet**.
 
@@ -97,21 +99,7 @@ PROFESSORES01: 175.16.10.200 com máscara **255.255.255.0** → enxerga como sua
 
 ## Representação visual
 
-```mermaid Consulta recursiva com passos iterativos
-flowchart TB
-  C["Cliente"] -->|"consulta recursiva"| D{"Resolvedor local<br/>Tem a resposta?"}
-  D -->|"sim"| R["Responder ao cliente"]
-  D -->|"não"| A["Consultar raiz"]
-  subgraph I["Consultas iterativas"]
-    direction TB
-    A -->|"referência ao .br"| T["Consultar servidor .br"]
-    T -->|"referência ao domínio"| AU["Consultar servidor autoritativo"]
-  end
-  AU -->|"registro solicitado"| G["Guardar no cache"]
-  G --> R
-```
-
-Fonte: adaptado de KUROSE; ROSS (2021, cap. 2) — recriado pela equipe Stacklyst.
+::figure{id="consulta-dns-recursiva"}
 
 O cliente pede a resposta final ao resolvedor local. Numa falta de cache, raiz e domínio de topo devolvem referências, e o servidor autoritativo responde pelo domínio consultado. No ENADE, siga quem encaminha as consultas para distinguir a etapa recursiva das consultas iterativas.
 
@@ -209,7 +197,7 @@ O hub cria um único domínio de colisão; substituí-lo por um **switch** reduz
 
 ## Referências
 
-- KUROSE, J. F.; ROSS, K. W. *Redes de computadores e a internet*: uma abordagem top-down. 8. ed. São Paulo: Pearson, Porto Alegre: Bookman, 2021.
+- KUROSE, James F.; ROSS, Keith W. *Computer networking: a top-down approach*. 8. ed. Hoboken: Pearson, 2021.
 - TANENBAUM, A. S.; WETHERALL, D. *Redes de computadores*. 5. ed. São Paulo: Pearson Prentice Hall, 2011.
 - IETF. RFC 1034/1035 (DNS), RFC 9110 (HTTP Semantics), RFC 791 (IPv4), RFC 8200 (IPv6).
 - INEP. ENADE TADS 2008 (questão 37), 2014 (questão 26), 2017 (questão 18) e 2021 (questão 30).

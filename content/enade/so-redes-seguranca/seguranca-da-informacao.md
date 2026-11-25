@@ -3,7 +3,7 @@ title: Segurança da informação — CID, autenticação, autorização, cripto
 summary: Os pilares confidencialidade, integridade e disponibilidade, autenticação × autorização, criptografia simétrica e assimétrica, hash, assinatura e certificado digital, ataques comuns (DoS/DDoS, phishing, injeção), políticas de segurança, LGPD e Marco Civil da Internet.
 order: 5
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [segurança da informação, confidencialidade, integridade, disponibilidade, cid, autenticidade, não repúdio, autenticação, autorização, mfa, criptografia, simétrica, assimétrica, aes, rsa, chave pública, chave privada, hash, sha-256, bcrypt, assinatura digital, certificado digital, tls, dos, ddos, botnet, zumbis, phishing, sql injection, xss, ransomware, política de segurança, uso aceitável, lgpd, anpd, marco civil da internet]
 related: [redes-de-computadores, tabelas-hash, computacao-em-nuvem, etica-cidadania-e-direitos-humanos, qualidade-de-software]
@@ -109,18 +109,7 @@ ps.setString(1, loginDigitado);   // o valor nunca é interpretado como SQL
 
 ## Representação visual
 
-```mermaid Geração e verificação da assinatura
-flowchart TB
-  M["Mensagem"] --> S["Signatário<br/>Gera a assinatura"]
-  KP["Chave privada"] --> S
-  S -->|"mensagem e assinatura"| V["Destinatário<br/>Verifica a assinatura"]
-  KU["Chave pública validada"] --> V
-  V --> R{"Assinatura válida?"}
-  R -->|"sim"| O["Aceitar verificação"]
-  R -->|"não"| F["Rejeitar verificação"]
-```
-
-Fonte: adaptado de KUROSE; ROSS (2021, cap. 8) e NIST (2023, seção 3) — recriado pela equipe Stacklyst.
+::figure{id="assinatura-digital-validacao"}
 
 A chave privada entra na geração da assinatura. Na verificação, entram a mensagem recebida, a assinatura e a chave pública associada ao signatário. No ENADE, identifique quando o objetivo é verificar integridade e autoria e qual chave executa cada operação.
 
