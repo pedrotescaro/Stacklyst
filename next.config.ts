@@ -1,4 +1,6 @@
 import type { NextConfig } from 'next';
+import { join } from 'node:path';
+import nextPackage from 'next/package.json';
 
 const isDev = process.env.NODE_ENV !== 'production';
 
@@ -72,6 +74,20 @@ const securityHeaders = [
 const ALLOWED_ORIGINS = [process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'];
 
 const nextConfig: NextConfig = {
+  ...(isDev && !process.env.TURBOPACK && nextPackage.version === '16.4.6'
+    ? {
+        webpack(config, { dev, isServer }) {
+          if (dev && !isServer) {
+            config.module.rules.push({
+              test: /[\\/]next[\\/]dist[\\/]client[\\/]components[\\/]use-action-queue\.js$/,
+              enforce: 'pre',
+              loader: join(__dirname, 'scripts', 'next-webpack-hmr-loader.cjs'),
+            });
+          }
+          return config;
+        },
+      }
+    : {}),
   // Keep the embedded WASM bytes intact. Turbopack can rewrite the single-file
   // QuickJS payload into invalid JavaScript when it bundles this dependency.
   serverExternalPackages: [
