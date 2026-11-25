@@ -92,7 +92,8 @@
 }
 
 .cell:hover,
-.cell:focus-visible {
+.cell:focus-visible,
+.row [aria-selected='true'] .cell {
   border-color: var(--color-dd-text);
 }
 
@@ -103,24 +104,20 @@
   outline-offset: 0;
 }
 
-.row [aria-selected='true'] .cell {
-  border-color: var(--enade-success);
-}
-
 .figure [data-level='1'] {
-  --calendar-fill: color-mix(in srgb, var(--enade-success) 28%, var(--color-dd-bg));
+  --calendar-fill: color-mix(in srgb, var(--enade-link) 36%, var(--color-dd-bg));
 }
 
 .figure [data-level='2'] {
-  --calendar-fill: color-mix(in srgb, var(--enade-success) 50%, var(--color-dd-bg));
+  --calendar-fill: color-mix(in srgb, var(--enade-link) 56%, var(--color-dd-bg));
 }
 
 .figure [data-level='3'] {
-  --calendar-fill: color-mix(in srgb, var(--enade-success) 74%, var(--color-dd-bg));
+  --calendar-fill: color-mix(in srgb, var(--enade-link) 77%, var(--color-dd-bg));
 }
 
 .figure [data-level='4'] {
-  --calendar-fill: var(--enade-success);
+  --calendar-fill: var(--enade-link);
 }
 
 .footer {
