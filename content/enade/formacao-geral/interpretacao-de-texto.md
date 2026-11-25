@@ -3,7 +3,7 @@ title: Interpretação de texto — informações explícitas e implícitas, inf
 summary: Como ler textos da formação geral com método — identificar tema, tese e argumentos, separar o que está dito do que está implícito, fazer inferências válidas, evitar extrapolações e avaliar criticamente.
 order: 2
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [interpretação de texto, compreensão, informação explícita, informação implícita, pressuposto, subentendido, inferência, extrapolação, redução, contradição, tese, argumento, argumentação, coesão, coerência, intertextualidade, análise crítica, gêneros textuais]
 related: [como-resolver-questoes-enade, leitura-de-imagens-e-charges, argumentacao-e-quantificadores, etica-cidadania-e-direitos-humanos]
@@ -73,27 +73,7 @@ Texto: "A chance de uma criança de baixa renda ter um futuro melhor está relac
 
 A figura reúne o que está escrito, o contexto e o conhecimento que o leitor mobiliza para construir sentido. No ENADE, confronte a interpretação com o comando da questão e busque no texto uma pista que sustente a inferência.
 
-```mermaid Pistas e inferências na leitura
----
-config:
-  flowchart:
-    nodeSpacing: 18
-    rankSpacing: 30
-    padding: 8
----
-flowchart TB
-  subgraph L["Construção de sentido"]
-    T["Pistas do texto"] --> I["Inferência do leitor"]
-    F["Situação de<br/>comunicação"] --> I
-    S["Conhecimento<br/>de mundo"] --> I
-  end
-  I --> V{"Há apoio textual?"}
-  V -->|"Sim"| A["Validar a leitura"]
-  V -->|"Não"| R["Rever a leitura"]
-  R --> T
-```
-
-Fonte: adaptado de KOCH; ELIAS (2006, cap. 1) — recriado pela equipe Stacklyst.
+::figure{id="pistas-e-inferencias-na-leitura"}
 
 ## Diferenças entre conceitos semelhantes
 

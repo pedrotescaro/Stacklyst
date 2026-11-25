@@ -3,7 +3,7 @@ title: Sociedade contemporânea — globalização, desigualdade social, trabalh
 summary: Globalização e seus efeitos, desigualdade de renda, raça e gênero, mobilidade social, urbanização e êxodo rural, transformações do trabalho (informalidade e gig economy), pandemia, migrações e o ciclo das políticas públicas.
 order: 6
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [sociologia, globalização, desigualdade social, mobilidade social, pobreza, renda, gênero, raça, urbanização, êxodo rural, periferia, mobilidade urbana, trabalho informal, gig economy, uberização, pandemia, covid-19, migração, xenofobia, políticas públicas, analfabetismo, educação, indicadores sociais]
 related: [curva-de-lorenz-e-gini, etica-cidadania-e-direitos-humanos, sustentabilidade-e-responsabilidade-social, ciencia-tecnologia-e-sociedade, funcoes-e-graficos]
@@ -67,18 +67,7 @@ Migrantes e refugiados (como a imigração **haitiana** para o Brasil após o te
 
 Siga o ciclo analítico desde o reconhecimento do problema até a avaliação de resultados. A avaliação informa ajustes nas alternativas ou a eventual extinção da política. No ENADE, localize em que fase se encontra o caso e diferencie o que foi decidido do que foi implantado e medido.
 
-```mermaid Sete fases de uma política pública
-flowchart TB
-  P["Identificar o problema"] --> A["Formar a agenda"]
-  A --> F["Formular alternativas"]
-  F --> D["Tomar a decisão"]
-  D --> I["Implementar a política"]
-  I --> V["Avaliar resultados"]
-  V -->|"Encerrar"| E["Extinção"]
-  V -.->|"Reformular"| F
-```
-
-Fonte: adaptado de SECCHI (2013, cap. 3) — recriado pela equipe Stacklyst.
+::figure{id="ciclo-de-politica-publica"}
 
 ## Diferenças entre conceitos semelhantes
 

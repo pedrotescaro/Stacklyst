@@ -3,7 +3,7 @@ title: Ética, cidadania, direitos humanos, democracia e diversidade
 summary: Ética e moral, cidadania e direitos (civis, políticos e sociais), a Declaração Universal dos Direitos Humanos e a Constituição de 1988, democracia majoritária e consensual, proteção de minorias, diversidade e inclusão, e como construir propostas de intervenção nas discursivas.
 order: 5
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [ética, moral, cidadania, direitos civis, direitos políticos, direitos sociais, direitos humanos, declaração universal dos direitos humanos, constituição de 1988, dignidade da pessoa humana, democracia, democracia majoritária, democracia consensual, minorias, diversidade, inclusão, igualdade de gênero, racismo, pessoas trans, povos indígenas, pessoas com deficiência, ética profissional]
 related: [sociedade-e-desigualdade, interpretacao-de-texto, seguranca-da-informacao, como-resolver-questoes-enade]
@@ -68,20 +68,7 @@ Uma boa proposta responde: **o que** fazer, **quem** faz (agente: Estado, escola
 
 Parta do problema e use a ação como centro da proposta. O detalhamento especifica um dos elementos, e o respeito aos direitos humanos se aplica à proposta inteira. Use este roteiro de escrita quando o enunciado discursivo do ENADE pedir ações ou soluções.
 
-```mermaid Elementos de uma intervenção social
-flowchart TB
-  P["Problema discutido"] --> A["Ação proposta"]
-  subgraph E["Composição da proposta"]
-    R["Responsável"]
-    M["Meio de execução"]
-    F["Efeito esperado"]
-    D["Detalhe concreto"]
-  end
-  A --> E
-  E -.-> H["Respeito aos direitos<br/>humanos"]
-```
-
-Fonte: adaptado de INEP (2025, p. 34) — recriado pela equipe Stacklyst.
+::figure{id="elementos-da-intervencao-social"}
 
 ## Diferenças entre conceitos semelhantes
 

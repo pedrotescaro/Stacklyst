@@ -3,7 +3,7 @@ title: Sustentabilidade, ODS, responsabilidade social, setores da sociedade, ONG
 summary: Desenvolvimento sustentável e seus pilares, os 17 Objetivos de Desenvolvimento Sustentável, pegada ecológica, desperdício de alimentos e mobilidade sustentável, primeiro, segundo e terceiro setor, ONGs, responsabilidade social empresarial, ESG e inovação social.
 order: 7
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [sustentabilidade, desenvolvimento sustentável, relatório brundtland, tripé da sustentabilidade, ods, agenda 2030, pegada ecológica, mudanças climáticas, desmatamento, amazônia, desperdício de alimentos, agricultura familiar, mobilidade sustentável, bicicleta, primeiro setor, segundo setor, terceiro setor, ong, oscip, responsabilidade social, esg, inovação social, economia circular]
 related: [sociedade-e-desigualdade, ciencia-tecnologia-e-sociedade, empreendedorismo-e-plano-de-negocios, etica-cidadania-e-direitos-humanos]
@@ -69,21 +69,7 @@ Soluções novas (produtos, serviços, modelos) que atendem a **necessidades soc
 
 Leia as três dimensões como critérios simultâneos para avaliar a mesma iniciativa. No ENADE, relacione medidas do caso com seus efeitos ambientais, sociais e econômicos, como reduzir poluição, ampliar acesso e sustentar a atividade ao longo do tempo.
 
-```mermaid Três dimensões da sustentabilidade
----
-config:
-  flowchart:
-    nodeSpacing: 18
-    rankSpacing: 30
-    padding: 8
----
-flowchart TB
-  A["Ambiental<br/>Recursos e impactos"] --- T["Sustentabilidade"]
-  S["Social<br/>Pessoas e equidade"] --- T
-  E["Econômica<br/>Viabilidade no tempo"] --- T
-```
-
-Fonte: adaptado de ELKINGTON (1997) — recriado pela equipe Stacklyst.
+::figure{id="dimensoes-da-sustentabilidade"}
 
 ## Diferenças entre conceitos semelhantes
 

@@ -3,7 +3,7 @@ title: Como resolver as questões do ENADE — asserção-razão, itens I-II-III
 summary: A estrutura da prova, como atacar questões de asserção-razão e de múltiplas afirmativas sem errar por descuido, como escrever discursivas que pontuam e como distribuir as quatro horas.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [enade, estrutura da prova, formação geral, componente específico, asserção-razão, proposições, justificativa, múltiplas afirmativas, eliminação de alternativas, discursiva, padrão de resposta, gestão do tempo, estratégia de prova, inep]
 related: [interpretacao-de-texto, argumentacao-e-quantificadores, leitura-de-imagens-e-charges, proposicoes-e-conectivos]
@@ -95,26 +95,7 @@ As discursivas são corrigidas por um **padrão de resposta** publicado pelo Ine
 
 Registre V ou F para I e II separadamente, na ordem indicada. Só avalie a justificativa quando ambas forem verdadeiras. No ENADE, combine o par obtido com a relação explicativa e procure a opção com esse significado.
 
-```mermaid Julgamento de asserção e razão
----
-config:
-  flowchart:
-    nodeSpacing: 18
-    rankSpacing: 30
-    padding: 8
----
-flowchart TB
-  I["Julgar I"] --> II["Julgar II"]
-  II --> P{"Par I, II"}
-  P -->|"V, V"| J{"II explica I?"}
-  P -->|"V, F"| C["Só I é V"]
-  P -->|"F, V"| D["Só II é V"]
-  P -->|"F, F"| E["Duas F"]
-  J -->|"Sim"| A["Duas V<br/>II explica I"]
-  J -->|"Não"| B["Duas V<br/>Sem nexo"]
-```
-
-Fonte: adaptado de INEP (2014, questão 13) — recriado pela equipe Stacklyst.
+::figure{id="julgamento-de-assercao-e-razao"}
 
 ## Diferenças entre conceitos semelhantes
 

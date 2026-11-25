@@ -3,7 +3,7 @@ title: Leitura de imagens, charges, tirinhas e infográficos
 summary: Como interpretar linguagem não verbal na prova — elementos visuais, humor, ironia e crítica nas charges e tirinhas, fotografias como documento histórico, obras de arte e infográficos — e como relacioná-los aos textos.
 order: 3
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [leitura de imagens, linguagem não verbal, charge, cartum, tirinha, ironia, humor, crítica social, fotografia, fotojornalismo, obra de arte, infográfico, mapa, intertextualidade, contexto histórico]
 related: [interpretacao-de-texto, historia-arte-e-literatura, funcoes-e-graficos, ciencia-tecnologia-e-sociedade]
@@ -65,26 +65,7 @@ A tirinha e o texto descrevem a TV como um fluxo contínuo de imagens em que tel
 
 Leia as falas, os elementos visuais e a relação entre quadros antes de formular a interpretação. No ENADE, associe o efeito de humor ou crítica a uma escolha observável, como o contraste entre a fala e a expressão da personagem.
 
-```mermaid Leitura integrada de charges e tirinhas
----
-config:
-  flowchart:
-    nodeSpacing: 18
-    rankSpacing: 30
-    padding: 8
----
-flowchart TB
-  subgraph P["Pistas da cena"]
-    W["Falas"] --> R["Palavra<br/>e imagem"]
-    V["Gestos e planos"] --> R
-    S["Sequência"] --> R
-  end
-  R --> I["Entender a cena"]
-  C["Contexto"] --> I
-  I --> H["Humor ou crítica"]
-```
-
-Fonte: adaptado de RAMOS (2009) — recriado pela equipe Stacklyst.
+::figure{id="leitura-de-quadrinhos-e-charges"}
 
 ## Diferenças entre conceitos semelhantes
 
