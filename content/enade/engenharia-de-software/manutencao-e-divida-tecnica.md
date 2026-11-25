@@ -3,7 +3,7 @@ title: Manutenção de software, sistemas legados e dívida técnica
 summary: Os tipos de manutenção (corretiva, adaptativa, perfectiva/evolutiva e preventiva), a norma ISO/IEC 14764, sistemas legados, reengenharia e o conceito de dívida técnica.
 order: 4
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [manutenção, corretiva, adaptativa, perfectiva, evolutiva, preventiva, iso 14764, legado, reengenharia, engenharia reversa, refatoração, dívida técnica, leis de lehman]
 related: [fundamentos-engenharia-de-software, gerencia-de-configuracao, qualidade-de-software, estilos-arquiteturais]
@@ -78,17 +78,7 @@ Tipos frequentes: código duplicado, ausência de testes automatizados, arquitet
 
 ## Representação visual
 
-```mermaid Estratégias para sistemas legados
-quadrantChart
-  x-axis Qualidade baixa --> Qualidade alta
-  y-axis Valor baixo --> Valor alto
-  quadrant-1 Manter em operação
-  quadrant-2 Reengenharia ou substituição
-  quadrant-3 Descontinuar
-  quadrant-4 Manter sob condição
-```
-
-Fonte: adaptado de SOMMERVILLE (2018, cap. 9) — recriado pela equipe Stacklyst.
+::figure{id="matriz-sistemas-legados"}
 
 Localize a qualidade técnica no eixo horizontal e o valor para o negócio no eixo vertical. Em um legado de baixo valor e alta qualidade, mantenha enquanto a operação continuar econômica. Um sistema valioso com baixa qualidade pode ser recuperado por reengenharia ou substituído, conforme os custos. No ENADE, identifique as evidências de cada dimensão antes de decidir se o sistema deve continuar em uso.
 

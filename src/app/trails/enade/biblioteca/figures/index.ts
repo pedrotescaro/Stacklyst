@@ -2,6 +2,7 @@ import { figures as arquitetura } from './arquitetura';
 import { figures as bancoDeDados } from './banco-de-dados';
 import { figures as empreendedorismoEGestao } from './empreendedorismo-e-gestao';
 import { figures as engenhariaDeRequisitos } from './engenharia-de-requisitos';
+import { figures as engenhariaDeSoftware } from './engenharia-de-software';
 import type { FigureRegistry } from './types';
 
 export const figureRegistry: FigureRegistry = {
@@ -9,6 +10,7 @@ export const figureRegistry: FigureRegistry = {
   ...bancoDeDados,
   ...empreendedorismoEGestao,
   ...engenhariaDeRequisitos,
+  ...engenhariaDeSoftware,
 };
 
 export function getFigure(id: string) {

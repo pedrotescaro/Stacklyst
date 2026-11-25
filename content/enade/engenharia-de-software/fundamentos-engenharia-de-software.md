@@ -3,7 +3,7 @@ title: Fundamentos de Engenharia de Software e ciclo de vida
 summary: O que é engenharia de software, por que ela existe, o que é um processo, as atividades genéricas do desenvolvimento e o ciclo de vida de um sistema do nascimento à aposentadoria.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [engenharia de software, crise do software, processo de software, ciclo de vida, atividades genéricas, especificação, projeto, validação, evolução, ferramentas case, ide]
 related: [modelos-de-processo, metodos-ageis, rup-visao-geral, qualidade-de-software]
@@ -82,19 +82,7 @@ Pressman descreve a engenharia de software em **camadas**: na base, o **foco na 
 
 ## Representação visual
 
-```mermaid Atividades fundamentais de um processo
-flowchart TD
-  subgraph processo["Processo de software"]
-    E["Especificar<br/>requisitos e restrições"]
-    D["Desenvolver<br/>projeto e código"]
-    V["Validar<br/>necessidades do cliente"]
-    M["Evoluir<br/>responder a mudanças"]
-  end
-  E ~~~ D
-  V ~~~ M
-```
-
-Fonte: adaptado de SOMMERVILLE (2018, cap. 2) — recriado pela equipe Stacklyst.
+::figure{id="atividades-processo-software"}
 
 Leia os quatro blocos como tipos de trabalho presentes em qualquer processo. A ordem e a sobreposição dependem do modelo adotado. No ENADE, associe a validação à verificação das necessidades do cliente e a evolução à resposta a mudanças ao longo da vida do produto.
 

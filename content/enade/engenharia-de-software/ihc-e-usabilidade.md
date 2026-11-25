@@ -3,7 +3,7 @@ title: Interação humano-computador, usabilidade e acessibilidade
 summary: Usabilidade e seus atributos, as 10 heurísticas de Nielsen, questões clássicas de projeto de interface, acessibilidade (WCAG, atributo alt), mapas de navegação e avaliação de interfaces.
 order: 8
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [ihc, interação humano-computador, usabilidade, nielsen, heurísticas, acessibilidade, wcag, alt, leitor de tela, ergonomia, comunicabilidade, mapa de navegação, avaliação heurística, teste de usabilidade, protótipo]
 related: [qualidade-de-software, requisitos-fundamentos, tecnicas-de-elicitacao, fundamentos-de-testes]
@@ -88,20 +88,7 @@ Para um portal de orientação a idosos: fonte grande e redimensionável, alto c
 
 ## Representação visual
 
-```mermaid Caminhos de compra na loja
-flowchart TD
-  H["Página inicial"] -->|Explorar| C["Categorias"]
-  H -->|Pesquisar| B["Resultados da busca"]
-  C --> P["Detalhe do produto"]
-  B --> P
-  P -->|Adicionar| K["Carrinho"]
-  K -->|Continuar comprando| H
-  K -->|Finalizar| F["Revisão do pedido"]
-  F -->|Editar itens| K
-  F -->|Confirmar| OK["Pedido confirmado"]
-```
-
-Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 17) — recriado pela equipe Stacklyst.
+::figure{id="navegacao-loja"}
 
 Cada caixa é uma tela e as setas indicam os caminhos que alguém pode percorrer. A compra pode começar por busca ou por categoria e voltar do carrinho para a loja. No ENADE, use o mapa para avaliar se uma tarefa é alcançável, se existe uma rota de retorno e quantos passos são necessários.
 

@@ -3,7 +3,7 @@ title: Desenvolvimento ágil — Manifesto Ágil, Scrum, Kanban e XP
 summary: Os valores e princípios do Manifesto Ágil, os papéis, eventos e artefatos do Scrum, o fluxo puxado do Kanban e as práticas técnicas da Programação Extrema.
 order: 3
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [ágil, manifesto ágil, scrum, sprint, product owner, scrum master, product backlog, daily, kanban, wip, xp, programação extrema, programação em pares, tdd, integração contínua, refatoração]
 related: [modelos-de-processo, historias-e-casos-de-uso, fundamentos-de-testes, rup-visao-geral]
@@ -103,34 +103,11 @@ Colunas: *Entrada → Análise (WIP 3) → Correção (WIP 2) → Verificação 
 
 ## Representação visual
 
-```mermaid Eventos e artefatos do Scrum
-flowchart TD
-  PB[["Product Backlog"]] --> P
-  subgraph sprint["Sprint · até um mês"]
-    P["Planejamento da Sprint"] --> SB[["Sprint Backlog"]]
-    SB --> T["Trabalho da Sprint"]
-    T --> D["Daily Scrum"]
-    D -. "Adapta o plano" .-> T
-    T --> I[["Incremento utilizável"]]
-    I --> R["Revisão da Sprint"]
-    R --> RE["Retrospectiva da Sprint"]
-  end
-  R -. "Adapta o backlog" .-> PB
-  RE -. "Próxima Sprint" .-> P
-```
-
-Fonte: adaptado de SCHWABER; SUTHERLAND (2020, seções Eventos do Scrum e Artefatos do Scrum) — recriado pela equipe Stacklyst.
+::figure{id="eventos-artefatos-scrum"}
 
 A Sprint contém os quatro eventos. O planejamento define o objetivo e o plano de trabalho, a Daily ajusta o plano, a revisão inspeciona o resultado com os interessados e a retrospectiva prepara melhorias no modo de trabalhar. No ENADE, associe cada evento ao que ele inspeciona. O Incremento atende à Definição de Pronto e pode ser entregue durante a Sprint.
 
-```mermaid TDD em três passos
-flowchart TD
-  R["Vermelho<br/>confirmar que falha"] --> G["Verde<br/>fazer o teste passar"]
-  G --> F["Refatorar<br/>manter testes passando"]
-  F -->|Próximo comportamento| R
-```
-
-Fonte: adaptado de BECK (2003, prefácio) — recriado pela equipe Stacklyst.
+::figure{id="ciclo-tdd"}
 
 Escreva um teste para o comportamento novo e confirme a falha. Implemente o necessário para fazê-lo passar e melhore a estrutura do código com a suíte passando. No ENADE, reconheça o teste escrito antes do código e a refatoração que preserva o comportamento observável.
 

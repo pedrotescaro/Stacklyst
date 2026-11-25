@@ -3,7 +3,7 @@ title: Modelos de processo — Cascata, V, Incremental, Iterativo, Evolucionári
 summary: Os modelos clássicos de ciclo de vida explicados do zero, com quando usar cada um, vantagens, desvantagens e uma tabela comparativa para não confundir na prova.
 order: 2
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [modelos de processo, ciclo de vida, cascata, waterfall, sequencial linear, modelo v, incremental, iterativo, evolucionário, prototipação, espiral, boehm, rad, desenvolvimento rápido de aplicações]
 related: [fundamentos-engenharia-de-software, metodos-ageis, rup-visao-geral, gerencia-de-projetos-e-riscos, fundamentos-de-testes]
@@ -138,28 +138,13 @@ Fases típicas: modelagem do negócio → modelagem dos dados → modelagem do p
 
 ## Representação visual
 
-```mermaid Cascata com retornos entre etapas
-flowchart TD
-  RS["Requisitos do sistema"] --> RW["Requisitos do software"]
-  RW --> A["Análise"] --> P["Projeto do programa"]
-  P --> C["Codificação"] --> T["Testes"] --> O["Operação"]
-  RW -.-> RS
-  A -.-> RW
-  P -.-> A
-  C -.-> P
-  T -.-> C
-  O -.-> T
-```
+::figure{id="modelo-cascata"}
 
-Fonte: adaptado de ROYCE (1970, fig. 3) e PRESSMAN; MAXIM (2016, cap. 4) — recriado pela equipe Stacklyst.
-
-As setas contínuas mostram a sequência de Royce e as tracejadas indicam revisão da etapa imediatamente anterior. Pressman e Maxim agrupam o trabalho em comunicação, planejamento, modelagem, construção e entrega. No ENADE, reconheça o caráter planejado do modelo e o custo de descobrir um problema de requisitos somente nos testes.
+As setas contínuas mostram as cinco etapas na versão de Sommerville. As tracejadas exemplificam retornos para revisar um resultado anterior. Pressman e Maxim agrupam o trabalho em comunicação, planejamento, modelagem, construção e entrega. No ENADE, reconheça o caráter planejado do modelo e o custo de descobrir um problema de requisitos somente nos testes.
 
 ### Modelo V e suas verificações
 
-::widget modelo-v
-
-Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 4) — recriado pela equipe Stacklyst.
+::figure{id="modelo-v"}
 
 Desça pela definição e pelo projeto até o executável e suba pelos testes. As ligações tracejadas mostram sobre quais trabalhos anteriores os testes fornecem evidência na versão de Pressman e Maxim. No ENADE, faça a correspondência conforme os artefatos nomeados no enunciado, da implementação da unidade aos requisitos examinados na aceitação.
 
@@ -173,9 +158,7 @@ Leia cada faixa como uma sequência que termina com uma versão cumulativa do so
 
 ### Modelo espiral de Boehm
 
-::widget boehm-espiral
-
-Fonte: adaptado de BOEHM (1988, fig. 2), com apoio de PRESSMAN; MAXIM (2016, cap. 4) e SOMMERVILLE (2018, cap. 2) — recriado pela equipe Stacklyst.
+::figure{id="espiral-boehm"}
 
 Comece no centro e percorra os quadrantes no sentido indicado. Cada volta define objetivos, investiga alternativas e riscos, desenvolve e verifica o resultado e prepara o próximo compromisso. A distância ao centro representa custo acumulado. No ENADE, localize a análise de risco e identifique quando um protótipo ajuda a decidir o que construir.
 

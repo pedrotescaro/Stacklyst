@@ -3,7 +3,7 @@ title: Gerência de configuração e mudanças
 summary: Itens de configuração, baselines, controle de versão, controle de mudanças, auditoria e relatório de status — como manter a integridade do software enquanto ele muda.
 order: 6
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [gerência de configuração, gcs, scm, itens de configuração, baseline, linha base, controle de versão, controle de mudanças, comitê de controle de mudanças, ccb, auditoria de configuração, relatório de status, git, branch, release]
 related: [rup-disciplinas, manutencao-e-divida-tecnica, qualidade-de-software, metodos-ageis]
@@ -57,22 +57,7 @@ O cliente pede um novo tipo de bolsa na matrícula. É aberta a **solicitação 
 
 ## Representação visual
 
-```mermaid Mudança em uma baseline
-flowchart TD
-  R["Registrar solicitação"] --> A["Avaliar impacto<br/>custo e itens afetados"]
-  A --> C{"CCB aprova?"}
-  C -->|Não| N["Registrar e comunicar"]
-  C -->|Sim| O["Emitir ordem de mudança"]
-  O --> I["Alterar versão controlada"]
-  I --> V{"Revisão e testes<br/>aprovados?"}
-  V -->|Não| I
-  V -->|Sim| U["Auditar a configuração"]
-  U --> B[["Nova baseline"]]
-  R -.-> S["Registro de status"]
-  B -.-> S
-```
-
-Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 29) — recriado pela equipe Stacklyst.
+::figure{id="mudanca-baseline"}
 
 Siga a solicitação até a decisão do comitê. Uma mudança aprovada gera uma ordem de trabalho e só entra na nova baseline depois da verificação. No ENADE, distinga o controle de mudança, que autoriza a alteração, da auditoria, que confere o que foi implementado, e do registro de status, que mantém o histórico.
 

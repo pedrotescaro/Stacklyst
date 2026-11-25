@@ -3,7 +3,7 @@ title: Gerência de projetos e gerenciamento de riscos
 summary: Restrição tripla, áreas de conhecimento do PMBOK, EAP, cronograma e caminho crítico (com cálculo passo a passo), partes interessadas e o ciclo de gerenciamento de riscos.
 order: 7
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [gerência de projetos, pmbok, pmi, escopo, tempo, cronograma, custo, qualidade, partes interessadas, stakeholders, eap, wbs, caminho crítico, cpm, pert, folga, riscos, probabilidade, impacto, mitigar, transferir, evitar, aceitar]
 related: [modelos-de-processo, rup-fases-e-marcos, requisitos-fundamentos, viabilidade-economica]
@@ -101,18 +101,7 @@ $$\text{Exposição ao risco} = \text{probabilidade} \times \text{impacto}$$
 
 ## Representação visual
 
-```mermaid Rede CPM do exemplo
-flowchart TD
-  Inicio((Início)) --> T1["T1 · 5 dias"] --> T2["T2 · 8 dias"] --> T3["T3 · 2 dias"]
-  Inicio --> T4["T4 · 4 dias"]
-  T3 --> T5["T5 · 2 dias"]
-  T4 --> T5
-  T5 --> T7["T7 · 3 dias"] --> Fim(("Fim<br/>20 dias"))
-  Inicio --> T6["T6 · 4 dias"] --> Fim
-  linkStyle 0,1,2,4,6,7 stroke-width:3px
-```
-
-Fonte: adaptado de PROJECT MANAGEMENT INSTITUTE (2017, seção 6.5.2.2) — recriado pela equipe Stacklyst.
+::figure{id="rede-caminho-critico"}
 
 Cada caixa é uma atividade e cada seta exige que a predecessora termine antes do início da sucessora. T5 aguarda T3 e T4. No ENADE, some as durações de cada caminho completo. O trajeto destacado soma 20 dias e determina a duração mínima do projeto pelas dependências do exemplo.
 
