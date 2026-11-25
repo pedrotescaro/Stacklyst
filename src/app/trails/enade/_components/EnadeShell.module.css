@@ -1,6 +1,6 @@
 /* Tokens of the ENADE hub, shared by the main column and the right rail. */
 .root {
-  --enade-action: #0063bd;
+  --enade-action: var(--color-dd-accent);
   --enade-link: #0070dc;
   --enade-success: #087044;
   --enade-danger: #be2144;

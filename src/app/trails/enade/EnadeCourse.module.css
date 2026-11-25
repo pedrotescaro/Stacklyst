@@ -1,5 +1,6 @@
 .main {
-  --enade-action: #0063bd;
+  /* Solid buttons and the current question use the Stacklyst brand blue. */
+  --enade-action: var(--color-dd-accent);
   --enade-link: #005eac;
   --color-dd-muted: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
   --enade-success: #087044;
@@ -25,12 +26,22 @@
   margin-inline: auto;
   padding: 24px 32px 64px;
 }
+/* Question picker centred, "Caderno original" pinned to the right. */
 .activityNavigation {
-  display: flex;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 560px) minmax(0, 1fr);
+  align-items: start;
   gap: 12px;
   margin-bottom: 24px;
   font-size: 13px;
+}
+.activityNavigation > .picker {
+  grid-column: 2;
+  max-width: none;
+}
+.activityNavigation > .originalLink {
+  grid-column: 3;
+  justify-self: end;
 }
 .activityNavigation .back {
   display: flex;
@@ -200,6 +211,11 @@
   padding: 20px 32px;
   background: var(--color-dd-bg);
   border-bottom: 1px solid var(--color-dd-border);
+  /* Full-bleed: the divider and the sticky background reach both screen edges.
+     Both extensions are paint-only, so they never add a horizontal scrollbar. */
+  border-image: linear-gradient(var(--color-dd-border) 0 0) 0 0 1 0 / 0 0 1px 0 / 0 100vmax;
+  box-shadow: 0 0 0 100vmax var(--color-dd-bg);
+  clip-path: inset(0 -100vmax);
 }
 .exit {
   display: grid;
@@ -608,9 +624,14 @@
   }
 }
 .questionNav .nextQuestion {
-  border-color: var(--color-dd-accent);
+  border-color: transparent;
   background: var(--enade-action);
   color: white;
+  font-weight: 600;
+}
+.questionNav .nextQuestion:enabled:hover {
+  filter: none;
+  background: color-mix(in srgb, var(--enade-action) 88%, black);
 }
 .questionNav button:enabled:hover,
 .finishButton:hover {
@@ -1067,9 +1088,9 @@
     border-color 0.2s,
     box-shadow 0.2s;
 }
+/* Open: just a slightly lighter gray border, no glow. */
 .picker[data-open='true'] {
-  border-color: color-mix(in srgb, var(--color-dd-accent) 45%, var(--color-dd-border));
-  box-shadow: 0 10px 30px -18px color-mix(in srgb, var(--color-dd-accent) 70%, transparent);
+  border-color: color-mix(in srgb, var(--color-dd-text) 22%, var(--color-dd-bg));
 }
 .pickerTrigger {
   display: flex;
@@ -1302,7 +1323,6 @@
   border-color: var(--color-dd-accent);
   background: var(--enade-action);
   color: #fff;
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-dd-accent) 25%, transparent);
 }
 .numberedGrid button[aria-current='step'] svg {
   color: #fff;
@@ -1588,6 +1608,7 @@
     gap: 6px;
   }
   .activityNavigation {
+    display: flex;
     flex-wrap: wrap;
   }
   .originalLink {
