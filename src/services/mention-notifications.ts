@@ -7,7 +7,14 @@ import { visibleUserWhere } from '@/services/block.service';
 
 type MentionSource =
   | { type: 'PROFILE'; id: string; previousBio?: string | null }
-  | { type: 'POST' | 'ANSWER'; id: string; authorId: string; audience?: string };
+  | { type: 'POST'; id: string; authorId: string; audience?: string }
+  | {
+      type: 'ANSWER';
+      id: string;
+      authorId: string;
+      audience?: string;
+      replyRecipientId?: string;
+    };
 
 function postUsernames(text: string) {
   if (!text.includes('@')) return [];
@@ -36,7 +43,8 @@ export async function notifyMentions(
   );
   const candidates = source.type === 'PROFILE' ? mentionedUsernames(text) : postUsernames(text);
   const names = candidates.filter((name) => !previous.has(name));
-  if (!names.length) return;
+  const replyRecipientId = source.type === 'ANSWER' ? source.replyRecipientId : undefined;
+  if (!names.length && !replyRecipientId) return;
   const restrictions: Prisma.UserWhereInput[] = [visibleUserWhere(actorId)];
   if (source.type !== 'PROFILE') {
     if (source.authorId !== actorId) restrictions.push(visibleUserWhere(source.authorId));
@@ -45,10 +53,11 @@ export async function notifyMentions(
         OR: [{ id: source.authorId }, { following: { some: { followingId: source.authorId } } }],
       });
   }
+  const usernames = { username: { in: names, mode: 'insensitive' as const } };
   const people = await tx.user.findMany({
     where: {
       id: { not: actorId },
-      username: { in: names, mode: 'insensitive' },
+      ...(replyRecipientId ? { OR: [usernames, { id: replyRecipientId }] } : usernames),
       AND: restrictions,
     },
     select: { id: true },

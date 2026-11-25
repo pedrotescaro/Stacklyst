@@ -196,6 +196,11 @@
   padding: 12px;
   background: #0005;
 }
+.sheetBackdropFixed {
+  position: fixed;
+  z-index: 250;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+}
 .sheet {
   width: 100%;
   max-width: 520px;

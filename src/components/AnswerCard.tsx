@@ -1,9 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
-import { MessageCircle, BarChart2, Send } from 'lucide-react';
+import { MessageCircle, BarChart2 } from 'lucide-react';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
 import { usePostBookmark } from '@/hooks/usePostBookmark';
 import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
@@ -18,7 +17,7 @@ import { ReplyEditForm } from '@/components/replies/ReplyEditForm';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { parsePostExtras } from '@/lib/post-composer';
 import { parseReplyMedia } from '@/lib/reply-media';
-import { MarkdownEditor } from '@/components/MarkdownEditor';
+import { ReplyComposerForm } from '@/components/composer/ReplyComposerDialog';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { LevelBadge } from '@/components/LevelBadge';
@@ -32,8 +31,12 @@ interface AnswerCardProps {
   depth: number;
   isPostAuthor: boolean;
   onAccept?: (id: string) => void;
-  currentUser?: { id?: string; username: string; avatar_url?: string | null };
-  onAnswerAdded?: (parentAnswerId: string | null, newAnswer: AnswerNode) => void;
+  currentUser?: {
+    id?: string;
+    username: string;
+    avatar_url?: string | null;
+    avatar_config?: unknown;
+  };
   /** Called after the signed-in author deletes this answer. */
   onAnswerDeleted?: (id: string) => void;
   postId?: string;
@@ -51,7 +54,6 @@ export function AnswerCard({
   isPostAuthor,
   onAccept,
   currentUser,
-  onAnswerAdded,
   onAnswerDeleted,
   postId,
   continued = false,
@@ -82,44 +84,12 @@ export function AnswerCard({
   const [repostCount, setRepostCount] = useState(0);
 
   const [showReplyBox, setShowReplyBox] = useState(false);
-  const [replyText, setReplyText] = useState(`@${answer.author.username} `);
-  const [replySubmitting, setReplySubmitting] = useState(false);
-
-  const handleReplySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    const targetPostId = answer.post_id || postId;
-    if (replySubmitting || !replyText.trim() || !targetPostId) return;
-
-    setReplySubmitting(true);
-
-    try {
-      const res = await fetch(`/api/posts/${targetPostId}/answer`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          body: replyText,
-          parent_answer_id: answer.id,
-        }),
-      });
-
-      if (!res.ok) {
-        throw new Error('Erro ao responder comentário');
-      }
-
-      const data = await res.json();
-      if (onAnswerAdded) {
-        // Pass the parent answer id so the tree can insert the reply in the right place.
-        onAnswerAdded(answer.id, data.answer as AnswerNode);
-      }
-
-      setReplyText(`@${answer.author.username} `);
-      setShowReplyBox(false);
-    } catch (err) {
-      console.error(err);
-      alert('Não foi possível enviar sua resposta agora.');
-    } finally {
-      setReplySubmitting(false);
-    }
+  const [replyBusy, setReplyBusy] = useState(false);
+  const replyTrigger = useRef<HTMLButtonElement>(null);
+  const closeReply = () => {
+    setShowReplyBox(false);
+    setReplyBusy(false);
+    replyTrigger.current?.focus();
   };
 
   const [accepting, setAccepting] = useState(false);
@@ -234,7 +204,6 @@ export function AnswerCard({
     onAccept,
     currentUser,
     postId,
-    onAnswerAdded,
     onAnswerDeleted,
   };
   const showAccept =
@@ -244,7 +213,7 @@ export function AnswerCard({
     answer.author.username !== currentUser.username;
 
   const row = (
-    <div id={`answer-${answer.id}`} className="flex scroll-mt-20 gap-3">
+    <div id={`answer-${answer.id}`} className="flex scroll-mt-20 scroll-mb-24 gap-3 md:scroll-mb-6">
       {/* Avatar gutter: the line below the avatar joins this answer to the next one. */}
       <div className="flex w-8 shrink-0 flex-col items-center">
         <Link
@@ -380,12 +349,13 @@ export function AnswerCard({
           <PostActionsBar>
             {/* 1. Comment bubble */}
             <button
+              ref={replyTrigger}
               type="button"
+              disabled={!currentUser || !targetPostId}
+              aria-disabled={replyBusy || undefined}
+              aria-expanded={showReplyBox}
               onClick={() => {
-                setShowReplyBox(!showReplyBox);
-                if (!showReplyBox) {
-                  setReplyText(`@${answer.author.username} `);
-                }
+                if (!replyBusy) setShowReplyBox((open) => !open);
               }}
               className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
               title="Responder a este comentário"
@@ -476,57 +446,16 @@ export function AnswerCard({
           )}
         </div>
 
-        {showReplyBox && (
-          <form onSubmit={handleReplySubmit} className="mt-3 flex gap-3">
-            <div className="shrink-0">
-              {currentUser?.avatar_url ? (
-                <Image
-                  src={currentUser.avatar_url}
-                  alt={currentUser.username}
-                  width={32}
-                  height={32}
-                  className="w-8 h-8 rounded-full object-cover border border-dd-border"
-                />
-              ) : (
-                <div className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-400 flex items-center justify-center text-xs font-bold border border-blue-500/10">
-                  {currentUser?.username?.slice(0, 2).toUpperCase() || 'ME'}
-                </div>
-              )}
-            </div>
-            <div className="flex-grow space-y-2">
-              <MarkdownEditor
-                value={replyText}
-                onChange={setReplyText}
-                maxLength={280}
-                minHeight="5rem"
-                placeholder={`Responder a @${answer.author.username}...`}
-              />
-              <div className="flex justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowReplyBox(false);
-                    setReplyText(`@${answer.author.username} `);
-                  }}
-                  className="px-3 py-1.5 rounded-lg border border-dd-border text-xs font-bold text-dd-muted hover:text-dd-text hover:bg-dd-border/30 transition-colors cursor-pointer"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  disabled={
-                    replySubmitting ||
-                    !replyText.trim() ||
-                    replyText.trim() === `@${answer.author.username}`
-                  }
-                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-xs font-bold text-white transition-all duration-200 active:scale-[0.97] cursor-pointer disabled:opacity-50"
-                >
-                  <Send className="w-3.5 h-3.5" />
-                  <span>{replySubmitting ? 'Enviando...' : 'Responder'}</span>
-                </button>
-              </div>
-            </div>
-          </form>
+        {showReplyBox && targetPostId && currentUser && (
+          <ReplyComposerForm
+            postId={targetPostId}
+            parentAnswer={{ id: answer.id, username: answer.author.username }}
+            user={currentUser}
+            className="mt-3"
+            onCancel={closeReply}
+            onDone={closeReply}
+            onBusyChange={setReplyBusy}
+          />
         )}
 
         {/* Branching replies: indented under this answer's text, beside the avatar line. */}
@@ -546,6 +475,7 @@ export function AnswerCard({
       {row}
       {continuation && (
         <AnswerCard
+          key={continuation.id}
           answer={continuation}
           depth={depth}
           continued

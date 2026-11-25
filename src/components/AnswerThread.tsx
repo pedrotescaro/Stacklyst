@@ -7,11 +7,14 @@ import type { AnswerNode } from '@/components/answer-types';
 interface AnswerThreadProps {
   answers: AnswerNode[];
   isPostAuthor: boolean;
-  currentUser?: { id?: string; username: string; avatar_url?: string | null };
+  currentUser?: {
+    id?: string;
+    username: string;
+    avatar_url?: string | null;
+    avatar_config?: unknown;
+  };
   postId: string;
   onAccept?: (id: string) => void;
-  /** Called when any answer (top-level or nested) is created. Receives the parent answer id (null for top-level) and the new answer node. */
-  onAnswerAdded?: (parentAnswerId: string | null, newAnswer: AnswerNode) => void;
   /** Called after the signed-in author deletes one of their answers. */
   onAnswerDeleted?: (id: string) => void;
 }
@@ -47,7 +50,6 @@ export function AnswerThread({
   currentUser,
   postId,
   onAccept,
-  onAnswerAdded,
   onAnswerDeleted,
 }: AnswerThreadProps) {
   const totalAnswers = countAnswers(answers);
@@ -74,7 +76,6 @@ export function AnswerThread({
               onAccept={onAccept}
               currentUser={currentUser}
               postId={postId}
-              onAnswerAdded={onAnswerAdded}
               onAnswerDeleted={onAnswerDeleted}
             />
           ))}

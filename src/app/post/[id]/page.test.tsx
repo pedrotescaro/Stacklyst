@@ -49,7 +49,7 @@ vi.mock('./PostDetailContent', () => ({
 }));
 
 describe('post detail author identity', () => {
-  it('loads identity and XP for the post author and every fetched reply level', async () => {
+  it('loads identity and XP for the post author and all visible replies in one query', async () => {
     mocks.updatePost.mockResolvedValue({});
     mocks.findBookmark.mockResolvedValue(null);
     mocks.findPost.mockResolvedValue({ created_at: new Date(), answers: [], quizzes: [] });
@@ -65,11 +65,45 @@ describe('post detail author identity', () => {
       total_xp: true,
     };
     expect(include.author.select).toEqual(expected);
-    let answers = include.answers;
-    for (let depth = 0; depth <= 3; depth++) {
-      expect(answers.include.author.select).toEqual(expected);
-      answers = answers.include.replies;
+    expect(include.answers.include.author.select).toEqual(expected);
+    expect(include.answers.where).toEqual({
+      author: {
+        blocks_made: { none: { blockedId: 'viewer' } },
+        blocks_received: { none: { blockerId: 'viewer' } },
+      },
+    });
+    expect(include.answers.include.votes.where).toEqual({ user_id: 'viewer' });
+  });
+
+  it('renders saved replies at every depth and omits branches whose parent is hidden', async () => {
+    const created_at = new Date('2026-11-01T01:00:00.000Z');
+    const chain = Array.from({ length: 6 }, (_, depth) => ({
+      id: `reply-${depth}`,
+      parent_id: depth === 0 ? null : `reply-${depth - 1}`,
+      body: `Resposta ${depth}`,
+      created_at,
+    }));
+    mocks.updatePost.mockResolvedValue({});
+    mocks.findBookmark.mockResolvedValue(null);
+    mocks.findPost.mockResolvedValue({
+      created_at,
+      answers: [
+        ...chain,
+        { id: 'hidden-child', parent_id: 'blocked-author-reply', body: 'Ramo oculto', created_at },
+        { id: 'hidden-grandchild', parent_id: 'hidden-child', body: 'Ramo oculto', created_at },
+      ],
+      quizzes: [],
+    });
+
+    render(await PostDetailPage({ params: Promise.resolve({ id: 'post-1' }) }));
+
+    let replies = mocks.renderDetail.mock.calls.at(-1)![0].post.answers;
+    for (const row of chain) {
+      expect(replies).toHaveLength(1);
+      expect(replies[0]).toMatchObject({ ...row, created_at: created_at.toISOString() });
+      replies = replies[0].replies;
     }
+    expect(replies).toEqual([]);
   });
 
   it('supplies the shared right rail with the viewer activity and earned badges without private account fields', async () => {

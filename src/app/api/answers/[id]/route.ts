@@ -4,7 +4,7 @@ import { getAuthUser } from '@/lib/auth';
 import { uploadedMediaIds } from '@/lib/post-content';
 import { encodeReplyMedia, parseReplyMedia, stripReplyMedia } from '@/lib/reply-media';
 import { appendPostExtras, parsePostExtras } from '@/lib/post-composer';
-import { updateAnswerSchema } from '@/lib/validators';
+import { replyTextLengthError, updateAnswerSchema } from '@/lib/validators';
 
 /**
  * Edits the text of a reply written by the signed-in user. The reply's media
@@ -29,7 +29,7 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const { id } = await params;
     const answer = await prisma.answer.findUnique({
       where: { id },
-      select: { author_id: true, body: true },
+      select: { author_id: true, body: true, parent_id: true },
     });
     if (!answer) {
       return NextResponse.json({ error: 'Resposta não encontrada' }, { status: 404 });
@@ -44,12 +44,12 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const media = parseReplyMedia(answer.body);
     const extras = parsePostExtras(media.content);
     const text = stripReplyMedia(parsed.data.body);
-    if (text.length < 5 && !media.attachments.length && !media.music) {
-      return NextResponse.json(
-        { error: 'A resposta deve ter pelo menos 5 caracteres' },
-        { status: 400 }
-      );
-    }
+    const error = replyTextLengthError({
+      body: text,
+      parentId: answer.parent_id,
+      hasMedia: media.attachments.length > 0 || Boolean(media.music),
+    });
+    if (error) return NextResponse.json({ error }, { status: 400 });
 
     const body = encodeReplyMedia(
       appendPostExtras(text, {

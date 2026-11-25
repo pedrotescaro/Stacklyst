@@ -33,6 +33,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
           include: {
             author: {
               select: {
+                id: true,
                 username: true,
                 avatar_url: true,
                 avatar_config: true,
@@ -61,7 +62,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     return NextResponse.json({
       ...post,
       poll: publicPostPoll(post.poll),
-      answers: buildAnswerThreads(post.answers),
+      answers: buildAnswerThreads(post.answers).filter((answer) => answer.parent_id === null),
       quizzes: post.quizzes.map(publicQuiz),
     });
   } catch (error) {

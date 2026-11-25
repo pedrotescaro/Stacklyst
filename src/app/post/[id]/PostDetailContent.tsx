@@ -11,7 +11,7 @@ import { LevelBadge } from '@/components/LevelBadge';
 import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import { QuizWidget } from '@/components/QuizWidget';
-import { AnswerThread, removeAnswerFromTree } from '@/components/AnswerThread';
+import { AnswerThread, countAnswers, removeAnswerFromTree } from '@/components/AnswerThread';
 import type { AnswerNode } from '@/components/answer-types';
 import { useSoundEffects } from '@/hooks/useSoundEffects';
 import {
@@ -19,7 +19,6 @@ import {
   MessageCircle,
   ArrowLeft,
   Flag,
-  X,
   Check,
   Zap,
   Share2,
@@ -33,6 +32,7 @@ import {
   openReplyComposer,
   ReplyComposerForm,
   REPLY_CREATED_EVENT,
+  type ReplyCreatedDetail,
 } from '@/components/composer/ReplyComposerDialog';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
@@ -64,38 +64,28 @@ interface PostDetailContentProps {
   initialIsSaved?: boolean;
 }
 
-/**
- * Recursively inserts a new reply into the answer tree under the answer whose
- * id matches `parentId`. Returns a new tree (does not mutate the input).
- * If the parent cannot be found (e.g. its level wasn't fetched from the server
- * because it was beyond the include depth), the reply is appended to the
- * nearest ancestor that was found, so it still surfaces in the UI.
- */
-function insertReplyIntoTree(
-  answers: AnswerNode[],
-  parentId: string,
-  newReply: AnswerNode
-): AnswerNode[] {
-  const insert = (node: AnswerNode): AnswerNode => {
-    if (node.id === parentId) {
-      return { ...node, replies: [...(node.replies ?? []), newReply] };
-    }
-    if (node.replies && node.replies.length > 0) {
-      return { ...node, replies: node.replies.map(insert) };
-    }
-    return node;
-  };
-
-  const next = answers.map(insert);
-  return next.some((node) => node.id === parentId || containsId(node.replies, parentId))
-    ? next
-    : [...next, newReply];
+function containsAnswerId(answers: AnswerNode[] | undefined, id: string): boolean {
+  if (!answers) return false;
+  return answers.some((node) => node.id === id || containsAnswerId(node.replies, id));
 }
 
-/** Returns true if the given id exists anywhere in the answer subtree. */
-function containsId(answers: AnswerNode[] | undefined, id: string): boolean {
-  if (!answers) return false;
-  return answers.some((node) => node.id === id || containsId(node.replies, id));
+function insertReplyIntoTree(answers: AnswerNode[], newReply: AnswerNode): AnswerNode[] {
+  if (containsAnswerId(answers, newReply.id)) return answers;
+  if (!newReply.parent_id) return [...answers, newReply];
+  let inserted = false;
+  const append = (nodes: AnswerNode[]): AnswerNode[] =>
+    nodes.map((answer) => {
+      if (answer.id === newReply.parent_id) {
+        inserted = true;
+        return { ...answer, replies: [...(answer.replies ?? []), newReply] };
+      }
+      if (answer.replies?.length) {
+        return { ...answer, replies: append(answer.replies) };
+      }
+      return answer;
+    });
+  const next = append(answers);
+  return inserted ? next : [...next, newReply];
 }
 
 export function PostDetailContent({
@@ -126,7 +116,7 @@ export function PostDetailContent({
 
   const { playSound } = useSoundEffects(soundEnabled);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [toastXp, setToastXp] = useState<{ amount: number; language: string } | null>(null);
+  const [toastXp, setToastXp] = useState<{ amount: number; language: string | null } | null>(null);
 
   const [isSaved, setIsSaved] = useState(initialIsSaved);
   const [bookmarkPending, setBookmarkPending] = useState(false);
@@ -294,12 +284,15 @@ export function PostDetailContent({
     }
   };
 
-  // Replies sent from the pop-up land here too.
+  // Both inline and pop-up composers send the saved answer, including its parent.
   useEffect(() => {
     const onReply = (event: Event) => {
-      const detail = (event as CustomEvent<{ postId: string; xpResult?: any }>).detail;
+      const detail = (event as CustomEvent<ReplyCreatedDetail>).detail;
       if (detail.postId !== post.id) return;
-      void reloadPost();
+      setPost((current: any) => ({
+        ...current,
+        answers: insertReplyIntoTree(current.answers ?? [], detail.answer),
+      }));
       if (detail.xpResult?.xpEarned)
         showXPToast(detail.xpResult.xpEarned, detail.xpResult.language);
     };
@@ -308,7 +301,7 @@ export function PostDetailContent({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [post.id]);
 
-  const showXPToast = (amount: number, language: string) => {
+  const showXPToast = (amount: number, language: string | null) => {
     setToastXp({ amount, language });
     playSound('xpgain');
     setTimeout(() => {
@@ -387,6 +380,8 @@ export function PostDetailContent({
   };
 
   const isPostAuthor = post.author_id === user.id;
+  const answers: AnswerNode[] = post.answers ?? [];
+  const replyCount = countAnswers(answers);
   const presentedPost = parsePostExtras(post.body);
 
   return (
@@ -399,7 +394,14 @@ export function PostDetailContent({
           </div>
           <div>
             <p className="font-bold text-sm text-dd-text">XP Concedido!</p>
-            <p className="text-xs text-dd-muted">Você progrediu na trilha de {toastXp.language}</p>
+            <p className="text-xs text-dd-muted">
+              {toastXp.language
+                ? text(
+                    `Você progrediu na trilha de ${toastXp.language}`,
+                    `You progressed in the ${toastXp.language} trail`
+                  )
+                : text('Sua participação rendeu XP.', 'You earned XP for participating.')}
+            </p>
           </div>
         </div>
       )}
@@ -552,13 +554,13 @@ export function PostDetailContent({
                   type="button"
                   className={postActionClassName}
                   title="Responder"
-                  aria-label={`Responder (${post.answers?.length || 0} respostas)`}
+                  aria-label={`Responder (${replyCount} respostas)`}
                   onClick={() => {
                     if (!openReplyComposer(post)) setIsExpanded(true);
                   }}
                 >
                   <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
-                  <InteractionCount count={post.answers?.length || 0} />
+                  <InteractionCount count={replyCount} />
                 </button>
 
                 {/* 2. Repost Menu */}
@@ -810,41 +812,22 @@ export function PostDetailContent({
             </div>
           ) : (
             <div className="relative z-10 border-b border-dd-border/50 bg-transparent">
-              <div className="flex items-center px-3 pt-3 md:px-5">
-                <button
-                  type="button"
-                  onClick={() => setIsExpanded(false)}
-                  className="rounded-full p-1.5 text-dd-muted transition-colors hover:bg-dd-border/30 hover:text-dd-text cursor-pointer"
-                  title="Fechar"
-                  aria-label="Fechar resposta"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-              <ReplyComposerForm postId={post.id} user={user} onDone={() => setIsExpanded(false)} />
+              <ReplyComposerForm
+                postId={post.id}
+                user={user}
+                onCancel={() => setIsExpanded(false)}
+                onDone={() => setIsExpanded(false)}
+              />
             </div>
           )}
 
           {/* Answers List Section */}
           <AnswerThread
-            answers={post.answers ?? []}
+            answers={answers}
             isPostAuthor={isPostAuthor}
-            currentUser={{
-              id: user.id,
-              username: user.username,
-              avatar_url: user.avatar_url,
-            }}
+            currentUser={user}
             postId={post.id}
             onAccept={handleAcceptAnswer}
-            onAnswerAdded={(parentAnswerId, newAnswer) => {
-              setPost((prev: any) => {
-                const roots: AnswerNode[] = prev.answers ?? [];
-                const next = parentAnswerId
-                  ? insertReplyIntoTree(roots, parentAnswerId, newAnswer)
-                  : [...roots, newAnswer];
-                return { ...prev, answers: next };
-              });
-            }}
             onAnswerDeleted={(id) =>
               setPost((prev: any) => ({
                 ...prev,

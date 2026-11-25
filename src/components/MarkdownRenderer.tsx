@@ -4,6 +4,7 @@ import {
   Children,
   isValidElement,
   useEffect,
+  useId,
   useMemo,
   useRef,
   useState,
@@ -38,6 +39,45 @@ interface MarkdownNode {
   url?: string;
   title?: string | null;
   children?: MarkdownNode[];
+}
+
+const POST_PREVIEW_LINES = 10;
+
+/** Measure rendered prose without counting paragraph spacing, attachments or code controls. */
+function prosePreviewHeight(element: HTMLElement) {
+  const range = element.ownerDocument.createRange();
+  if (!range.getClientRects) return null;
+
+  const walker = element.ownerDocument.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+  const fragments: { top: number; bottom: number }[] = [];
+  while (walker.nextNode()) {
+    const node = walker.currentNode;
+    if (!node.textContent?.trim() || node.parentElement?.closest('[data-code-block], pre')) {
+      continue;
+    }
+    range.selectNodeContents(node);
+    for (const { top, bottom, width, height } of range.getClientRects()) {
+      if (width && height) fragments.push({ top, bottom });
+    }
+  }
+
+  // Inline formatting and neighboring table cells can yield several fragments on one row.
+  fragments.sort((a, b) => a.top - b.top);
+  const lines: typeof fragments = [];
+  for (const fragment of fragments) {
+    const previous = lines.at(-1);
+    if (previous && (fragment.top + fragment.bottom) / 2 <= previous.bottom) {
+      previous.bottom = Math.max(previous.bottom, fragment.bottom);
+    } else {
+      lines.push(fragment);
+    }
+  }
+
+  if (lines.length <= POST_PREVIEW_LINES) return null;
+  const lastVisible = lines[POST_PREVIEW_LINES - 1];
+  const next = lines[POST_PREVIEW_LINES];
+  const cutoff = Math.min(lastVisible.bottom + 2, next.top);
+  return Math.ceil(cutoff - element.getBoundingClientRect().top);
 }
 
 function splitMentions(value: string): MarkdownNode[] {
@@ -314,29 +354,25 @@ function CodeBlock({
 
 export function MarkdownRenderer({ content, compact = false }: MarkdownRendererProps) {
   const { text } = useLocalizedText();
+  const previewId = useId();
   const contentRef = useRef<HTMLDivElement>(null);
   const [expanded, setExpanded] = useState(false);
-  const [canExpand, setCanExpand] = useState(false);
+  const [previewHeight, setPreviewHeight] = useState<number | null>(null);
 
   useEffect(() => {
     setExpanded(false);
+    setPreviewHeight(null);
   }, [content, compact]);
 
   useEffect(() => {
-    if (!compact || expanded) {
-      setCanExpand(false);
-      return;
-    }
-
+    if (!compact || expanded) return;
     const element = contentRef.current;
     if (!element) return;
 
-    const updateOverflow = () => {
-      setCanExpand(element.scrollHeight > element.clientHeight + 4);
-    };
-
-    updateOverflow();
-    const observer = new ResizeObserver(updateOverflow);
+    const measure = () => setPreviewHeight(prosePreviewHeight(element));
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(measure);
     observer.observe(element);
 
     return () => observer.disconnect();
@@ -429,39 +465,56 @@ export function MarkdownRenderer({ content, compact = false }: MarkdownRendererP
     [compact]
   );
 
+  const showDisclosure = compact && !expanded && previewHeight !== null;
+
   return (
-    <div className="relative">
+    <div>
       <div
-        ref={contentRef}
-        className={cn(
-          'dd-markdown text-sm leading-relaxed text-dd-text',
-          compact &&
-            !expanded &&
-            (content.includes('```') ? 'max-h-72 overflow-hidden' : 'max-h-36 overflow-hidden')
-        )}
+        id={previewId}
+        className={showDisclosure ? 'overflow-clip' : undefined}
+        style={showDisclosure ? { maxHeight: previewHeight } : undefined}
+        onFocusCapture={(event) => {
+          if (
+            showDisclosure &&
+            event.target.getBoundingClientRect().bottom >
+              event.currentTarget.getBoundingClientRect().bottom
+          ) {
+            setExpanded(true);
+          }
+        }}
       >
-        <ReactMarkdown
-          remarkPlugins={[remarkGfm, remarkPostFormatting, remarkMentions]}
-          rehypePlugins={[rehypeHighlight]}
-          components={components}
+        <div
+          ref={contentRef}
+          tabIndex={compact ? -1 : undefined}
+          className={cn(
+            'dd-markdown text-sm leading-relaxed text-dd-text',
+            compact && 'flow-root focus:outline-none'
+          )}
         >
-          {content}
-        </ReactMarkdown>
+          <ReactMarkdown
+            remarkPlugins={[remarkGfm, remarkPostFormatting, remarkMentions]}
+            rehypePlugins={[rehypeHighlight]}
+            components={components}
+          >
+            {content}
+          </ReactMarkdown>
+        </div>
       </div>
 
-      {compact && !expanded && canExpand && (
-        <div className="absolute inset-x-0 bottom-0 flex justify-start bg-gradient-to-t from-dd-card via-dd-card/95 to-transparent px-0 pb-0 pt-10">
-          <button
-            type="button"
-            onClick={(event) => {
-              event.stopPropagation();
-              setExpanded(true);
-            }}
-            className="rounded-md border border-dd-border bg-dd-surface px-2.5 py-1 text-[10px] font-bold text-dd-text shadow-sm transition-colors hover:border-dd-accent hover:text-dd-accent cursor-pointer"
-          >
-            {text('Ver mais', 'See more')}
-          </button>
-        </div>
+      {showDisclosure && (
+        <button
+          type="button"
+          aria-expanded={false}
+          aria-controls={previewId}
+          className="dd-markdown-disclosure mt-2"
+          onClick={(event) => {
+            event.stopPropagation();
+            setExpanded(true);
+            if (event.detail === 0) contentRef.current?.focus({ preventScroll: true });
+          }}
+        >
+          {text('Ver mais', 'See more')}
+        </button>
       )}
     </div>
   );

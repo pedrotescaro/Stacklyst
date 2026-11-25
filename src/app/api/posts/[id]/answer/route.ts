@@ -12,6 +12,7 @@ import { encodeReplyMedia, stripReplyMedia } from '@/lib/reply-media';
 import { isUploadedPostMediaUrl, uploadedMediaIds } from '@/lib/post-content';
 import { syncProfileAchievementsSafely } from '@/services/profile-customization.service';
 import { assertPostAudience } from '@/services/post-access.service';
+import { logger } from '@/lib/logger';
 
 export const POST = apiHandler(async (req, { params }) => {
   const user = await requireAuth();
@@ -34,6 +35,7 @@ export const POST = apiHandler(async (req, { params }) => {
   // If replying to another answer, validate the parent exists and belongs to the same post.
   // This prevents orphan/cross-post replies and keeps the thread consistent.
   let parentId: string | null = null;
+  let replyRecipientId: string | undefined;
   if (parsed.parent_answer_id) {
     const parentAnswer = await prisma.answer.findUnique({
       where: { id: parsed.parent_answer_id },
@@ -53,6 +55,9 @@ export const POST = apiHandler(async (req, { params }) => {
 
     await BlockService.assertCanInteract(user.id, parentAnswer.author_id);
     parentId = parentAnswer.id;
+    if (parentAnswer.author_id !== user.id && parentAnswer.author_id !== post.author_id) {
+      replyRecipientId = parentAnswer.author_id;
+    }
   }
 
   const attachments = parsed.attachments;
@@ -65,7 +70,8 @@ export const POST = apiHandler(async (req, { params }) => {
       'INVALID_MEDIA',
       'Um mesmo anexo não pode ser adicionado duas vezes.'
     );
-  const body = encodeReplyMedia(stripReplyMedia(parsed.body), {
+  const content = stripReplyMedia(parsed.body);
+  const body = encodeReplyMedia(content, {
     attachments,
     music: parsed.music ?? null,
   });
@@ -73,8 +79,9 @@ export const POST = apiHandler(async (req, { params }) => {
   // Create answer, attaching uploads to the post so everyone who can see it sees them.
   const answer = await prisma.$transaction(async (tx) => {
     if (mediaIds.length) {
+      const availableUploads = { id: { in: mediaIds }, owner_id: user.id, post_id: null };
       const media = await tx.postMedia.findMany({
-        where: { id: { in: mediaIds }, owner_id: user.id, post_id: null },
+        where: availableUploads,
       });
       const invalid = attachments
         .filter((item) => isUploadedPostMediaUrl(item.url))
@@ -94,10 +101,15 @@ export const POST = apiHandler(async (req, { params }) => {
           'INVALID_MEDIA',
           'Um anexo está indisponível. Envie o arquivo novamente.'
         );
-      await tx.postMedia.updateMany({
-        where: { id: { in: mediaIds }, owner_id: user.id, post_id: null },
+      const claimed = await tx.postMedia.updateMany({
+        where: availableUploads,
         data: { post_id: postId },
       });
+      if (claimed.count !== mediaIds.length)
+        throw new ValidationError(
+          'INVALID_MEDIA',
+          'Um anexo está indisponível. Envie o arquivo novamente.'
+        );
     }
     const created = await tx.answer.create({
       data: {
@@ -118,11 +130,12 @@ export const POST = apiHandler(async (req, { params }) => {
         },
       },
     });
-    await notifyMentions(tx, user.id, stripReplyMedia(parsed.body), {
+    await notifyMentions(tx, user.id, content, {
       type: 'ANSWER',
       id: created.id,
       authorId: post.author_id,
       audience: post.audience,
+      replyRecipientId,
     });
     return created;
   });
@@ -145,8 +158,11 @@ export const POST = apiHandler(async (req, { params }) => {
     }
   }
 
-  // Award XP (+15 XP for answering)
-  const xpResult = await XpService.awardXP(user.id, post.language, 15);
+  // The answer and its uploads are already saved. Reward failures cannot undo them.
+  const xpResult = await XpService.awardXP(user.id, post.language, 15).catch((error) => {
+    logger.error('Failed to award answer XP', { answerId: answer.id, error: String(error) });
+    return null;
+  });
   await syncProfileAchievementsSafely(user.id);
 
   return NextResponse.json({ answer, xpResult });

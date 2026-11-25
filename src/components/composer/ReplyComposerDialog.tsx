@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Image as ImageIcon, Music2, Mic, Code2, MoreHorizontal, X } from 'lucide-react';
@@ -15,6 +15,7 @@ import { ComposerAttachments } from './ComposerAttachments';
 import { ComposerAttachmentPicker, type ComposerAttachmentPanel } from './ComposerAttachmentPicker';
 import type { NotionEditorRef } from '@/components/editor/NotionEditor';
 import type { ComposerUser } from './PostComposerDialog';
+import type { AnswerNode } from '@/components/answer-types';
 import { appendPostExtras, parsePostExtras, type ReplyAudience } from '@/lib/post-composer';
 import type { PostAttachment } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
@@ -49,6 +50,11 @@ export interface ReplyTarget {
 
 export const OPEN_REPLY_EVENT = 'stacklyst:open-reply';
 export const REPLY_CREATED_EVENT = 'stacklyst:reply-created';
+export type ReplyCreatedDetail = {
+  postId: string;
+  answer: AnswerNode;
+  xpResult?: { xpEarned: number; language: string | null } | null;
+};
 
 /**
  * Asks the app shell to open the reply pop-up. Returns false when nobody can
@@ -197,17 +203,21 @@ export function ReplyComposerDialog({
  */
 export function ReplyComposerForm({
   postId,
+  parentAnswer,
   user,
   header,
   onDone,
+  onCancel,
   onDraftChange,
   onBusyChange,
   className,
 }: {
   postId: string;
-  user: ComposerUser;
+  parentAnswer?: { id: string; username: string };
+  user: Pick<ComposerUser, 'username' | 'avatar_url' | 'avatar_config'>;
   header?: ReactNode;
   onDone?: () => void;
+  onCancel?: () => void;
   onDraftChange?: (hasDraft: boolean) => void;
   onBusyChange?: (busy: boolean) => void;
   className?: string;
@@ -222,7 +232,7 @@ export function ReplyComposerForm({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const editorRef = useRef<NotionEditorRef>(null);
-  const formId = useId();
+  const submitLock = useRef(false);
 
   const reset = () => {
     setBody('');
@@ -235,7 +245,7 @@ export function ReplyComposerForm({
 
   const finalBody = appendPostExtras(body, extras);
   const hasContent = Boolean(body.trim() || attachments.length || music);
-  const tooShort = !attachments.length && !music && body.trim().length < 5;
+  const tooShort = !parentAnswer && !attachments.length && !music && body.trim().length < 5;
   const canReply =
     hasContent && !tooShort && finalBody.length <= POST_CHAR_LIMIT && !busy && !submitting;
   useEffect(() => onDraftChange?.(hasContent), [hasContent, onDraftChange]);
@@ -245,23 +255,33 @@ export function ReplyComposerForm({
 
   const submit = async (event: React.FormEvent) => {
     event.preventDefault();
-    if (!canReply) return;
+    if (!canReply || submitLock.current) return;
+    submitLock.current = true;
     setSubmitting(true);
     setError(null);
     try {
       const response = await fetch(`/api/posts/${postId}/answer`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: finalBody, attachments, music }),
+        body: JSON.stringify({
+          body: finalBody,
+          attachments,
+          music,
+          ...(parentAnswer ? { parent_answer_id: parentAnswer.id } : {}),
+        }),
       });
       const data = await response.json().catch(() => ({}));
-      if (!response.ok)
+      if (!response.ok || !data.answer)
         throw new Error(
           data.message ||
             data.error ||
             text('Não foi possível responder. Tente novamente.', 'Could not reply. Try again.')
         );
-      window.dispatchEvent(new CustomEvent(REPLY_CREATED_EVENT, { detail: { postId, ...data } }));
+      window.dispatchEvent(
+        new CustomEvent<ReplyCreatedDetail>(REPLY_CREATED_EVENT, {
+          detail: { postId, answer: data.answer, xpResult: data.xpResult },
+        })
+      );
       reset();
       onDone?.();
     } catch (cause) {
@@ -271,6 +291,7 @@ export function ReplyComposerForm({
           : text('Não foi possível responder. Tente novamente.', 'Could not reply. Try again.')
       );
     } finally {
+      submitLock.current = false;
       setSubmitting(false);
     }
   };
@@ -293,13 +314,24 @@ export function ReplyComposerForm({
       setExtras((current) => ({ ...current, isSensitive: value })),
   };
   const pickerPanel = panel === 'more' ? null : panel;
+  const isInline = Boolean(onCancel);
+  const isNestedInline = Boolean(onCancel && parentAnswer);
 
   return (
     <form
-      id={formId}
       onSubmit={submit}
-      className={cn('post-composer-form relative', pickerPanel && 'min-h-[480px]', className)}
-      aria-label={text('Responder postagem', 'Reply to post')}
+      className={cn(
+        'post-composer-form relative',
+        isInline && 'reply-composer-inline',
+        isNestedInline && 'reply-composer-nested',
+        !isInline && pickerPanel && 'min-h-[480px]',
+        className
+      )}
+      aria-label={
+        parentAnswer
+          ? text('Responder comentário', 'Reply to comment')
+          : text('Responder postagem', 'Reply to post')
+      }
     >
       <div className="composer-scroll">
         {header}
@@ -309,17 +341,31 @@ export function ReplyComposerForm({
               username={user.username}
               avatar_url={user.avatar_url}
               avatar_config={user.avatar_config}
-              size="lg"
-              className="!h-10 !w-10 md:!h-11 md:!w-11"
+              size={isNestedInline ? 'sm' : 'lg'}
+              className={
+                isNestedInline ? '!h-8 !w-8 sm:!h-9 sm:!w-9' : '!h-10 !w-10 md:!h-11 md:!w-11'
+              }
             />
           </div>
           <div className="relative min-w-0 flex-1">
+            {parentAnswer && (
+              <p className="mb-1 text-[13px] text-dd-muted">
+                {text('Respondendo a', 'Replying to')}{' '}
+                <Link
+                  href={`/profile/${parentAnswer.username}`}
+                  className="font-semibold text-blue-700 hover:underline dark:text-blue-400"
+                >
+                  @{parentAnswer.username}
+                </Link>
+              </p>
+            )}
             <Editor
               ref={editorRef}
               value={body}
               onChange={setBody}
               placeholder={text('Postar sua resposta', 'Post your reply')}
-              minHeight="5rem"
+              autoFocus={isInline}
+              minHeight={isNestedInline ? '4rem' : '5rem'}
               className="post-composer-editor"
             />
             {finalBody.length > POST_CHAR_LIMIT * 0.8 && (
@@ -434,14 +480,21 @@ export function ReplyComposerForm({
               <MoreHorizontal />
             </Tool>
           </div>
-          <button
-            type="submit"
-            form={formId}
-            disabled={!canReply}
-            className="shrink-0 cursor-pointer rounded-full bg-dd-accent px-5 py-2 text-sm font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {submitting ? text('Respondendo…', 'Replying…') : text('Responder', 'Reply')}
-          </button>
+          <div className="reply-composer-actions">
+            {onCancel && (
+              <button
+                type="button"
+                disabled={submitting || busy}
+                onClick={onCancel}
+                className="reply-composer-cancel"
+              >
+                {text('Cancelar', 'Cancel')}
+              </button>
+            )}
+            <button type="submit" disabled={!canReply} className="reply-composer-submit">
+              {submitting ? text('Respondendo…', 'Replying…') : text('Responder', 'Reply')}
+            </button>
+          </div>
         </div>
       </div>
       <ComposerAttachmentPicker
@@ -452,6 +505,7 @@ export function ReplyComposerForm({
         music={music}
         onMusicChange={setMusic}
         onBusyChange={setBusy}
+        portal={isInline}
       />
     </form>
   );

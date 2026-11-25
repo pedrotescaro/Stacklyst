@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { visibleUserWhere } from '@/services/block.service';
 import { publicQuiz } from '@/lib/quiz-public';
 import { getAuthUser } from '@/lib/auth';
+import { buildAnswerThreads } from '@/lib/answer-threads';
 import { PostDetailContent } from './PostDetailContent';
 import { visiblePostWhere } from '@/services/post-access.service';
 import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
@@ -33,8 +34,7 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
         select: authorSelect,
       },
       answers: {
-        // Only top-level answers here; nested replies come embedded via `replies`.
-        where: { parent_id: null, author: visibleUserWhere(user.id) },
+        where: { author: visibleUserWhere(user.id) },
         orderBy: { created_at: 'asc' },
         include: {
           author: {
@@ -42,31 +42,6 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
           },
           votes: {
             where: { user_id: user.id },
-          },
-          // Nested replies up to 3 levels deep (matches the UI indent cap).
-          replies: {
-            where: { author: visibleUserWhere(user.id) },
-            orderBy: { created_at: 'asc' },
-            include: {
-              author: { select: authorSelect },
-              votes: { where: { user_id: user.id } },
-              replies: {
-                where: { author: visibleUserWhere(user.id) },
-                orderBy: { created_at: 'asc' },
-                include: {
-                  author: { select: authorSelect },
-                  votes: { where: { user_id: user.id } },
-                  replies: {
-                    where: { author: visibleUserWhere(user.id) },
-                    orderBy: { created_at: 'asc' },
-                    include: {
-                      author: { select: authorSelect },
-                      votes: { where: { user_id: user.id } },
-                    },
-                  },
-                },
-              },
-            },
           },
         },
       },
@@ -103,15 +78,17 @@ export default async function PostDetailPage({ params }: { params: Promise<{ id:
   // Verificar se o post está salvo nos bookmarks do usuário
   const initialIsSaved = !!bookmark;
 
+  // Keep replies under their real parent, including when that branch is hidden by blocking.
+  const answers = buildAnswerThreads(
+    post.answers.map((answer) => ({ ...answer, created_at: answer.created_at.toISOString() }))
+  ).filter((answer) => answer.parent_id === null);
+
   // Serializar datas
   const serializedPost = {
     ...post,
     poll: publicPostPoll(post.poll),
     created_at: post.created_at.toISOString(),
-    answers: post.answers.map((answer) => ({
-      ...answer,
-      created_at: answer.created_at.toISOString(),
-    })),
+    answers,
     quizzes: post.quizzes.map((quiz) => ({
       ...publicQuiz(quiz),
       created_at: quiz.created_at.toISOString(),

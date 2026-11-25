@@ -1,15 +1,30 @@
-import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { AnswerCard } from '@/components/AnswerCard';
 import { ProfileReplyThread } from '@/components/ProfileReplyThread';
+import { REPLY_CREATED_EVENT } from '@/components/composer/ReplyComposerDialog';
 
 const router = vi.hoisted(() => ({ push: vi.fn() }));
 vi.mock('next/navigation', () => ({ useRouter: () => router }));
 vi.mock('@/components/MarkdownRenderer', () => ({
   MarkdownRenderer: ({ content }: { content: string }) => <span>{content}</span>,
 }));
-vi.mock('@/components/MarkdownEditor', () => ({
-  MarkdownEditor: () => <textarea aria-label="Resposta" />,
+vi.mock('@/components/editor/NotionEditor', () => ({
+  NotionEditor: ({
+    value,
+    onChange,
+    placeholder,
+  }: {
+    value: string;
+    onChange: (value: string) => void;
+    placeholder: string;
+  }) => (
+    <textarea
+      aria-label={placeholder}
+      value={value}
+      onChange={(event) => onChange(event.target.value)}
+    />
+  ),
 }));
 vi.mock('@/components/AuthorAvatar', () => ({ AuthorAvatar: () => <span /> }));
 
@@ -68,7 +83,7 @@ describe('reply action bars', () => {
       expect(fetcher).toHaveBeenCalledWith('/api/posts/post-1/bookmark', { cache: 'no-store' })
     );
     fireEvent.click(screen.getByRole('button', { name: 'Responder a este comentário' }));
-    expect(screen.getByRole('textbox', { name: 'Resposta' })).toBeInTheDocument();
+    expect(await screen.findByRole('textbox', { name: 'Postar sua resposta' })).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Remover dos salvos' })).not.toBeDisabled()
@@ -231,6 +246,98 @@ describe('reply action bars', () => {
     const a = container.querySelector('#answer-a');
     expect(a?.contains(container.querySelector('#answer-b'))).toBe(true);
     expect(a?.contains(container.querySelector('#answer-c'))).toBe(true);
+  });
+
+  it('uses the rich composer on an owned nested answer, preserves failed drafts, and submits to that answer', async () => {
+    const parent = { ...answer, id: 'my-nested-answer', parent_id: answer.id };
+    const posted = { ...parent, id: 'new-reply', parent_id: parent.id, body: 'oi' };
+    const send = vi
+      .fn()
+      .mockResolvedValueOnce(Response.json({ message: 'Tente novamente.' }, { status: 503 }))
+      .mockResolvedValueOnce(Response.json({ answer: posted }));
+    vi.stubGlobal(
+      'fetch',
+      vi.fn((url: string, init?: RequestInit) =>
+        url.endsWith('/answer')
+          ? send(url, init)
+          : Promise.resolve(Response.json({ bookmarked: false }))
+      )
+    );
+    const created = vi.spyOn(window, 'dispatchEvent');
+    const { container } = render(
+      <AnswerCard
+        answer={{ ...answer, replies: [parent] }}
+        depth={0}
+        isPostAuthor={false}
+        currentUser={{ username: 'ana' }}
+      />
+    );
+    try {
+      const nested = within(container.querySelector<HTMLElement>('#answer-my-nested-answer')!);
+      const trigger = nested.getByRole('button', { name: 'Responder a este comentário' });
+      fireEvent.click(trigger);
+      const composer = within(nested.getByRole('form', { name: 'Responder comentário' }));
+      expect(composer.getByText(/Respondendo a/)).toBeInTheDocument();
+      for (const name of ['Adicionar imagens', 'Adicionar GIF', 'Inserir código executável']) {
+        expect(composer.getByRole('button', { name })).toBeInTheDocument();
+      }
+      const editor = await composer.findByRole('textbox', { name: 'Postar sua resposta' });
+      const publish = composer.getByRole('button', { name: /^Responder$/ });
+      expect(publish).toBeDisabled();
+      expect(publish.querySelector('svg')).toBeNull();
+      expect(composer.getByRole('button', { name: 'Cancelar' })).toBeInTheDocument();
+      fireEvent.change(editor, { target: { value: posted.body } });
+      expect(publish).toBeEnabled();
+      fireEvent.click(publish);
+      expect(await composer.findByRole('alert')).toHaveTextContent('Tente novamente.');
+      expect(editor).toHaveValue(posted.body);
+      fireEvent.click(publish);
+      await waitFor(() => expect(trigger).toHaveAttribute('aria-expanded', 'false'));
+      expect(trigger).toHaveFocus();
+      expect(send).toHaveBeenCalledTimes(2);
+      expect(send).toHaveBeenLastCalledWith('/api/posts/post-1/answer', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          body: posted.body,
+          attachments: [],
+          music: null,
+          parent_answer_id: parent.id,
+        }),
+      });
+      expect(created).toHaveBeenCalledWith(
+        expect.objectContaining({
+          type: REPLY_CREATED_EVENT,
+          detail: expect.objectContaining({ postId: answer.post_id, answer: posted }),
+        })
+      );
+    } finally {
+      created.mockRestore();
+    }
+  });
+
+  it('opens the attachment picker in a viewport sheet for nested inline replies without layout clipping', async () => {
+    const nested = { ...answer, id: 'deep-reply', parent_id: answer.id };
+    const { container } = render(
+      <AnswerCard
+        answer={{ ...answer, replies: [nested] }}
+        depth={0}
+        isPostAuthor={false}
+        currentUser={{ username: 'ana' }}
+      />
+    );
+
+    const card = within(container.querySelector<HTMLElement>('#answer-deep-reply')!);
+    fireEvent.click(card.getByRole('button', { name: 'Responder a este comentário' }));
+    const composer = within(card.getByRole('form', { name: 'Responder comentário' }));
+    fireEvent.click(composer.getByRole('button', { name: 'Adicionar imagens' }));
+
+    const dialog = await screen.findByRole('dialog', { name: 'Adicionar imagens' });
+    expect(container).not.toContainElement(dialog);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog', { name: 'Adicionar imagens' })).not.toBeInTheDocument()
+    );
   });
 
   it('links to the reply from its comment action', () => {

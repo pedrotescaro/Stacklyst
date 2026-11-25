@@ -49,6 +49,7 @@ interface NotionEditorProps {
   placeholder?: string;
   maxLength?: number;
   minHeight?: string;
+  autoFocus?: boolean;
   onFocus?: () => void;
   onBlur?: (event?: FocusEvent) => void;
   onStateChange?: (state: EditorFormattingState) => void;
@@ -62,6 +63,7 @@ export const NotionEditor = forwardRef<NotionEditorRef, NotionEditorProps>(funct
     placeholder = 'Comece a escrever ou digite / para blocos...',
     maxLength,
     minHeight = '2.5rem',
+    autoFocus = false,
     onFocus,
     onBlur,
     onStateChange,
@@ -107,6 +109,7 @@ export const NotionEditor = forwardRef<NotionEditorRef, NotionEditorProps>(funct
 
   const editor = useEditor({
     immediatelyRender: false,
+    autofocus: autoFocus,
     extensions: [
       StarterKit.configure({
         codeBlock: false,

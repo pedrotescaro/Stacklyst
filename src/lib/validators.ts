@@ -199,18 +199,47 @@ export const createPostSchema = z
 
 export type CreatePostInput = z.infer<typeof createPostSchema>;
 
+export function replyTextLengthError({
+  body,
+  parentId,
+  hasMedia,
+}: {
+  body: string;
+  parentId?: string | null;
+  hasMedia: boolean;
+}) {
+  const minimum = parentId ? 1 : 5;
+  if (hasMedia || body.length >= minimum) return null;
+  return parentId
+    ? 'Escreva uma resposta ou adicione um anexo.'
+    : 'A resposta deve ter pelo menos 5 caracteres';
+}
+
 export const createAnswerSchema = z
   .object({
     body: z.string().trim().max(5000).pipe(mentionSchema),
     code_snippet: z.string().optional().nullable(),
     parent_answer_id: z.string().uuid().optional().nullable(),
-    attachments: z.array(postAttachmentSchema).max(4).optional().default([]),
+    attachments: z
+      .array(postAttachmentSchema)
+      .max(5)
+      .optional()
+      .default([])
+      .refine(
+        (items) =>
+          items.filter((item) => item.type === 'audio').length <= 1 &&
+          items.filter((item) => item.type !== 'audio').length <= 4,
+        'Adicione até 4 imagens e 1 áudio.'
+      ),
     music: postMusicSchema.nullable().optional(),
   })
-  // A reply made only of an image or a song is still a reply.
-  .refine((data) => data.body.length >= 5 || data.attachments.length > 0 || Boolean(data.music), {
-    message: 'A resposta deve ter pelo menos 5 caracteres',
-    path: ['body'],
+  .superRefine((data, ctx) => {
+    const error = replyTextLengthError({
+      body: data.body,
+      parentId: data.parent_answer_id,
+      hasMedia: data.attachments.length > 0 || Boolean(data.music),
+    });
+    if (error) ctx.addIssue({ code: 'custom', message: error, path: ['body'] });
   });
 
 /** Editing a reply changes its text only; its media and markers are kept by the server. */

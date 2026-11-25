@@ -53,7 +53,7 @@ export function parseReplyMedia(body: string): ReplyMedia & { content: string } 
           ['image', 'gif', 'audio'].includes(item?.type) &&
           (isUploadedPostMediaUrl(item?.url) || (item.type === 'gif' && isKlipyMediaUrl(item.url)))
       )
-      .slice(0, 4);
+      .slice(0, 5);
     const music = parsed?.music;
     const validMusic =
       music &&

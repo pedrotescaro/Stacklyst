@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { ImagePlus, LoaderCircle, Mic, Square, Upload, X } from 'lucide-react';
 import type { PostAttachment } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
@@ -19,6 +20,8 @@ interface PickerProps {
   music: SpotifyProfileTrack | null;
   onMusicChange: (music: SpotifyProfileTrack | null) => void;
   onBusyChange?: (busy: boolean) => void;
+  /** Render as a fixed viewport sheet so inline nested composers do not clip or jump. */
+  portal?: boolean;
 }
 type Translate = (portuguese: string, english: string) => string;
 const portugueseOnly: Translate = (portuguese) => portuguese;
@@ -63,6 +66,7 @@ function AttachmentPanel({
   music,
   onMusicChange,
   onBusyChange,
+  portal = false,
 }: PickerProps & { panel: Exclude<ComposerAttachmentPanel, null> }) {
   const { text } = useLocalizedText();
   const [busy, setBusy] = useState(false);
@@ -80,6 +84,15 @@ function AttachmentPanel({
   const busyCallback = useRef(onBusyChange);
   busyCallback.current = onBusyChange;
   const fileInput = useRef<HTMLInputElement>(null);
+  const closeButton = useRef<HTMLButtonElement>(null);
+  useEffect(() => {
+    if (!portal) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    if (panel !== 'gif') closeButton.current?.focus();
+    return () => {
+      previousFocus?.focus();
+    };
+  }, [portal, panel]);
   useEffect(() => {
     busyCallback.current?.(busy || recording || requestingMicrophone);
   }, [busy, recording, requestingMicrophone]);
@@ -298,9 +311,11 @@ function AttachmentPanel({
     audio: text('Gravar áudio', 'Record audio'),
     image: text('Adicionar imagens', 'Add images'),
   }[panel];
-  return (
+  const sheet = (
     <div
-      className={styles.sheetBackdrop}
+      className={
+        portal ? `${styles.sheetBackdrop} ${styles.sheetBackdropFixed}` : styles.sheetBackdrop
+      }
       onClick={(event) => {
         if (event.target === event.currentTarget) close();
       }}
@@ -309,6 +324,7 @@ function AttachmentPanel({
         <header className={styles.sheetHeader}>
           <h3>{title}</h3>
           <button
+            ref={closeButton}
             type="button"
             className={styles.iconButton}
             aria-label={text('Fechar seletor', 'Close picker')}
@@ -464,4 +480,6 @@ function AttachmentPanel({
       </section>
     </div>
   );
+
+  return portal && typeof document !== 'undefined' ? createPortal(sheet, document.body) : sheet;
 }

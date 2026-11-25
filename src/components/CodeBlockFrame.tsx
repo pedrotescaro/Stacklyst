@@ -1,9 +1,10 @@
 'use client';
 
-import type { MouseEvent, ReactNode } from 'react';
+import { useId, useRef, type MouseEvent, type ReactNode } from 'react';
 import { Loader2, Play } from 'lucide-react';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
+import './MarkdownRenderer.css';
 
 export interface CodeBlockFrameProps {
   language: string;
@@ -41,9 +42,12 @@ export function CodeBlockFrame({
   className,
 }: CodeBlockFrameProps) {
   const { text } = useLocalizedText();
+  const codeId = useId();
+  const codeRef = useRef<HTMLPreElement>(null);
 
   return (
     <div
+      data-code-block
       className={cn('my-3 overflow-hidden rounded-lg border border-dd-border bg-dd-bg', className)}
     >
       <div className="flex items-center justify-between gap-3 border-b border-dd-border bg-dd-surface px-3 py-2">
@@ -76,22 +80,30 @@ export function CodeBlockFrame({
         </div>
       </div>
 
-      <div className="relative">
+      <div>
         <pre
+          id={codeId}
+          ref={codeRef}
+          tabIndex={onExpand ? -1 : undefined}
           className={cn(
-            'm-0 overflow-x-auto bg-dd-bg p-4 font-mono text-xs leading-relaxed text-dd-text',
-            collapsed && 'max-h-24 overflow-x-auto overflow-y-hidden'
+            'm-0 overflow-x-auto bg-dd-bg font-mono text-xs leading-relaxed text-dd-text',
+            collapsed ? 'max-h-[calc(3lh+1rem)] overflow-y-hidden px-4 pt-4 pb-0' : 'p-4'
           )}
         >
           <code className={cn('hljs', `language-${language}`)}>{children}</code>
         </pre>
 
         {collapsed && (
-          <div className="absolute inset-x-0 bottom-0 flex justify-center bg-gradient-to-t from-dd-bg via-dd-bg/95 to-transparent px-3 pb-2 pt-8">
+          <div className="border-t border-dd-border px-3 py-2.5 mt-3">
             <button
               type="button"
-              onClick={onExpand}
-              className="rounded-md border border-dd-border bg-dd-surface px-2.5 py-1 text-[10px] font-bold text-dd-text shadow-sm transition-colors hover:border-dd-accent hover:text-dd-accent cursor-pointer"
+              aria-controls={codeId}
+              aria-expanded={false}
+              onClick={(event) => {
+                onExpand?.(event);
+                if (event.detail === 0) codeRef.current?.focus({ preventScroll: true });
+              }}
+              className="dd-markdown-disclosure"
             >
               {text('Ver código completo', 'View full code')}
             </button>

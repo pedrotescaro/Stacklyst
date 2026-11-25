@@ -37,3 +37,38 @@ it('does not renotify an unchanged bio mention', async () => {
   );
   expect(people).not.toHaveBeenCalled();
 });
+
+it('notifies an answer author once even when the text also mentions them', async () => {
+  const people = vi.fn().mockResolvedValue([{ id: 'parent-author' }]);
+  const createMany = vi.fn();
+  const tx = {
+    user: { findMany: people },
+    notification: { createMany },
+  } as unknown as Prisma.TransactionClient;
+  await notifyMentions(tx, 'reply-author', 'Respondendo ao exemplo da @Ana.', {
+    type: 'ANSWER',
+    id: 'reply',
+    authorId: 'post-author',
+    audience: 'followers',
+    replyRecipientId: 'parent-author',
+  });
+  expect(people.mock.calls[0][0].where).toMatchObject({
+    id: { not: 'reply-author' },
+    OR: [{ username: { in: ['ana'], mode: 'insensitive' } }, { id: 'parent-author' }],
+    AND: expect.arrayContaining([
+      expect.objectContaining({ blocks_made: { none: { blockedId: 'post-author' } } }),
+      { OR: [{ id: 'post-author' }, { following: { some: { followingId: 'post-author' } } }] },
+    ]),
+  });
+  expect(createMany).toHaveBeenCalledWith({
+    data: [
+      {
+        actorId: 'reply-author',
+        userId: 'parent-author',
+        type: 'MENTION',
+        resourceType: 'ANSWER',
+        resourceId: 'reply',
+      },
+    ],
+  });
+});

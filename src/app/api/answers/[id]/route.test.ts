@@ -150,6 +150,17 @@ describe('PATCH /api/answers/[id]', () => {
     expect(prisma.answer.update).not.toHaveBeenCalled();
   });
 
+  it('allows editing a nested answer to a short message', async () => {
+    vi.mocked(prisma.answer.findUnique).mockResolvedValue({
+      author_id: 'me',
+      body: 'Texto antigo',
+      parent_id: 'parent',
+    } as never);
+    const response = await edit({ body: 'oi' });
+    expect(response.status).toBe(200);
+    expect((await response.json()).body).toBe('oi');
+  });
+
   it('drops a hand-written media marker from the new text', async () => {
     vi.mocked(prisma.answer.findUnique).mockResolvedValue({
       author_id: 'me',

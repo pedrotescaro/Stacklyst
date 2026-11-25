@@ -288,6 +288,9 @@
   overflow: hidden;
   overflow-wrap: anywhere;
 }
+.reply-original-body .dd-markdown-disclosure {
+  display: none;
+}
 .reply-original-media {
   max-height: 260px;
   overflow: hidden;
@@ -312,8 +315,140 @@
   overflow-x: auto;
   scrollbar-width: none;
 }
+
+.reply-composer-actions {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-inline-start: auto;
+}
+
+.reply-composer-submit,
+.reply-composer-cancel {
+  min-height: 44px;
+  padding: 6px 16px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background-color 150ms ease,
+    opacity 150ms ease;
+}
+
+.reply-composer-submit {
+  background: color-mix(in srgb, var(--color-dd-accent) 78%, black);
+  color: white;
+}
+
+.reply-composer-submit:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-dd-accent) 70%, black);
+}
+
+.reply-composer-cancel {
+  border-color: var(--color-dd-border);
+  color: var(--color-dd-text);
+}
+
+.reply-composer-cancel:hover:not(:disabled) {
+  background: var(--color-dd-surface);
+}
+
+.reply-composer-actions :disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.reply-composer-actions :focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 2px;
+}
+
+.reply-composer-inline,
+.reply-composer-inline .notion-editor-content {
+  scroll-margin-top: 5rem;
+  scroll-margin-bottom: 7rem;
+}
+
+.reply-composer-inline .reply-composer-bar {
+  flex-wrap: wrap;
+}
+
+.reply-composer-inline .reply-composer-tools {
+  flex: 1 0 min(100%, 252px);
+  flex-wrap: wrap;
+  overflow: visible;
+}
+
+.reply-composer-inline .composer-attachments-area:has(> :only-child:empty) {
+  padding-top: 0;
+}
+
+.reply-composer-nested {
+  border: 1px solid var(--color-dd-border);
+  border-radius: 16px;
+  background: var(--color-dd-bg);
+}
+
+.reply-composer-nested .composer-scroll {
+  padding: 12px 12px 12px;
+}
+
+.reply-composer-nested .composer-attachments-area {
+  padding-top: 12px;
+  padding-left: 0;
+}
+
+.reply-composer-nested .composer-footer {
+  border-bottom-left-radius: 16px;
+  border-bottom-right-radius: 16px;
+}
+
+.reply-composer-nested .reply-composer-bar {
+  padding: 8px 10px 10px;
+}
+
+.reply-composer-nested .reply-composer-tools {
+  flex: 1 0 min(100%, 228px);
+}
+
+.reply-composer-nested .composer-tool {
+  width: 38px;
+  height: 42px;
+  padding: 7px;
+}
+
+@media (max-width: 767px) {
+  .reply-composer-inline .post-composer-editor .notion-code-block {
+    margin-left: 0;
+    width: 100%;
+  }
+}
+
+@media (min-width: 640px) {
+  .reply-composer-nested .composer-scroll {
+    padding: 12px 16px 14px;
+  }
+  .reply-composer-nested .composer-attachments-area {
+    padding-left: 44px;
+  }
+  .reply-composer-nested .reply-composer-bar {
+    padding: 8px 14px 12px;
+  }
+}
+
 @media (min-width: 768px) {
   .reply-composer-bar {
     padding: 10px 20px 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reply-composer-submit,
+  .reply-composer-cancel {
+    transition: none;
   }
 }
