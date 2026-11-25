@@ -3,7 +3,7 @@ title: Vetores e matrizes
 summary: Arranjos unidimensionais e multidimensionais, indexação, acesso em tempo constante, percursos com laços aninhados, armazenamento em memória e problemas clássicos de prova.
 order: 2
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [vetor, array, arranjo, matriz, matriz multidimensional, índice, linha, coluna, percurso, laço aninhado, row-major, acesso aleatório, estrutura estática]
 related: [algoritmos-e-logica-de-programacao, busca-e-ordenacao, listas-encadeadas, complexidade-de-algoritmos]
@@ -86,21 +86,7 @@ Cada linha da tabela corresponde a um trecho contíguo do arranjo em ordem de li
 
 O laço externo escolhe a linha i e o interno enumera suas colunas j. A seta de troca da linha volta ao teste externo, que reinicializa j ao entrar na próxima linha. No ENADE, siga o par de índices para conferir quais posições entram na soma de uma linha.
 
-```mermaid Percurso por linhas da matriz
-flowchart TB
-  I(["Início"]) --> R["i ← 0"]
-  R --> L{"i &lt; linhas?"}
-  L -->|"Sim"| C["j ← 0"]
-  C --> T{"j &lt; colunas?"}
-  T -->|"Sim"| A["Ler m[i][j]"]
-  A --> J["j ← j + 1"]
-  J --> T
-  T -->|"Não"| N["i ← i + 1"]
-  N --> L
-  L -->|"Não"| F(["Fim"])
-```
-
-Fonte: adaptado de CELES; CERQUEIRA; RANGEL (2004) — recriado pela equipe Stacklyst.
+::figure{id="percurso-matriz-por-linhas"}
 
 ## Vantagens e desvantagens
 

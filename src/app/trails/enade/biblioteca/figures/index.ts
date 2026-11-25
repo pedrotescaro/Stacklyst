@@ -3,6 +3,7 @@ import { figures as bancoDeDados } from './banco-de-dados';
 import { figures as empreendedorismoEGestao } from './empreendedorismo-e-gestao';
 import { figures as engenhariaDeRequisitos } from './engenharia-de-requisitos';
 import { figures as engenhariaDeSoftware } from './engenharia-de-software';
+import { figures as estruturasDeDados } from './estruturas-de-dados';
 import type { FigureRegistry } from './types';
 
 export const figureRegistry: FigureRegistry = {
@@ -11,6 +12,7 @@ export const figureRegistry: FigureRegistry = {
   ...empreendedorismoEGestao,
   ...engenhariaDeRequisitos,
   ...engenhariaDeSoftware,
+  ...estruturasDeDados,
 };
 
 export function getFigure(id: string) {

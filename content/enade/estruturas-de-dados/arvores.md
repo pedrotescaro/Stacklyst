@@ -3,7 +3,7 @@ title: Árvores — binárias, de busca (ABB), percursos, AVL, multivias, B e B+
 summary: Terminologia de árvores, árvores binárias e de busca, os percursos pré-ordem, em ordem, pós-ordem e em nível, balanceamento (AVL) e as árvores multivias B e B+ usadas em bancos de dados, com simulador interativo.
 order: 5
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [árvore, raiz, folha, nó, altura, grau, nível, subárvore, árvore binária, árvore binária de busca, abb, bst, percurso, pré-ordem, em ordem, in-order, pós-ordem, em nível, largura, avl, balanceamento, rubro-negra, árvore b, árvore b+, multivias, heap]
 related: [listas-encadeadas, recursividade, grafos, transacoes-e-indices, busca-e-ordenacao]
@@ -103,17 +103,7 @@ void preOrdem(No *r) {
 
 Em cada bifurcação, o ramo esquerdo contém chaves abaixo da chave do pai e o direito contém chaves acima. No ENADE, use essa relação para localizar uma chave e simule o percurso esquerda–raiz–direita para produzir a lista ordenada.
 
-```mermaid Ordem das chaves na ABB
-flowchart TB
-  R((50)) -->|"E"| A((30))
-  R -->|"D"| B((70))
-  A -->|"E"| C((20))
-  A -->|"D"| D((40))
-  B -->|"E"| E((60))
-  B -->|"D"| F((80))
-```
-
-Fonte: adaptado de CORMEN et al. (2009, seção 12.1) — recriado pela equipe Stacklyst.
+::figure{id="ordem-de-chaves-na-abb"}
 
 ### Árvore B+ e varredura das folhas
 

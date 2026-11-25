@@ -3,7 +3,7 @@ title: Tabelas hash (tabelas de dispersão)
 summary: Função hash, índices, colisões, encadeamento separado, endereçamento aberto (sondagem linear e quadrática), fator de carga, rehash e por que a busca média é O(1).
 order: 7
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [hash, tabela hash, tabela de dispersão, função hash, mod, colisão, encadeamento separado, endereçamento aberto, sondagem linear, sondagem quadrática, duplo hash, fator de carga, rehash, dicionário, hashmap]
 related: [vetores-e-matrizes, listas-encadeadas, seguranca-da-informacao, transacoes-e-indices]
@@ -68,15 +68,7 @@ Rápida de calcular, **distribui uniformemente** as chaves e é **determinístic
 
 Calcule h(k) = k mod 7 e siga apenas a lista do índice obtido. As chaves 22 e 15 colidem porque o resto da divisão de ambas é 1. No ENADE, distinga uma colisão entre chaves de um erro de busca e conte quantas comparações a lista pode exigir.
 
-```mermaid Tabela hash com listas por índice
-flowchart LR
-  B1["Índice 1"] --> A1["22"] --> A2["15"] --> N1["NULO"]
-  B3["Índice 3"] --> C1["10"] --> C2["31"] --> N3["NULO"]
-  B4["Índice 4"] --> D["4"] --> N4["NULO"]
-  BV["Índices<br/>0, 2, 5, 6"] --> NV["NULO"]
-```
-
-Fonte: adaptado de CORMEN et al. (2009, seção 11.2) — recriado pela equipe Stacklyst.
+::figure{id="encadeamento-em-tabela-hash"}
 
 ## Vantagens e desvantagens
 

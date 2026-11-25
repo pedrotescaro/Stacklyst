@@ -3,7 +3,7 @@ title: Algoritmos e lógica de programação — variáveis, tipos, operadores, 
 summary: Como ler e escrever pseudocódigo (Portugol), tipos de dados e erros de atribuição, operadores, estruturas sequenciais, condicionais e de repetição, funções e a técnica do teste de mesa para resolver questões de código.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [algoritmo, lógica de programação, pseudocódigo, portugol, variável, tipo de dado, inteiro, real, lógico, literal, caractere, atribuição, operadores, condicional, se senão, repetição, enquanto, para, faça enquanto, função, procedimento, teste de mesa]
 related: [vetores-e-matrizes, recursividade, busca-e-ordenacao, complexidade-ciclomatica, proposicoes-e-conectivos]
@@ -117,21 +117,7 @@ Questões como a do quadriculado das toalhas (2021) pedem escolher qual função
 
 Comece no oval e siga o losango do enquanto antes de executar o corpo. As alternativas do se convergem para um único incremento antes da volta ao teste. No ENADE, simule inclusive n = 0 e verifique quais comandos ainda são executados.
 
-```mermaid Laço com teste no início
-flowchart TB
-  I(["Início"]) --> V["i ← 0"]
-  V --> L{"i &lt; n?"}
-  L -->|"V"| D{"Condição interna?"}
-  D -->|"V"| A["Executar ação A"]
-  D -->|"F"| B["Executar ação B"]
-  A --> P["i ← i + 1"]
-  B --> P
-  P --> L
-  L -->|"F"| S[/"Exibir resultado"/]
-  S --> F(["Fim"])
-```
-
-Fonte: adaptado de FORBELLONE; EBERSPÄCHER (2005, cap. 3) — recriado pela equipe Stacklyst.
+::figure{id="laco-com-teste-inicial"}
 
 ## Vantagens e desvantagens
 

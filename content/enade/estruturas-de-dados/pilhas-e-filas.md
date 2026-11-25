@@ -3,7 +3,7 @@ title: Pilhas (LIFO) e filas (FIFO)
 summary: Operações push, pop, top, enqueue e dequeue, implementação com vetor e com nós encadeados, filas circulares e de prioridade, aplicações e como simular sequências de operações sem errar.
 order: 4
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [pilha, stack, lifo, push, pop, top, peek, fila, queue, fifo, enqueue, dequeue, front, fila circular, fila de prioridade, deque, overflow, underflow, pilha de chamadas]
 related: [listas-encadeadas, recursividade, vetores-e-matrizes, grafos]
@@ -80,30 +80,7 @@ Empilhe F-E-L-I-C-I-D-A-D-E e desempilhe tudo: sai **EDADICILEF**.
 
 Considere que A, B e C chegaram nessa ordem. Na pilha, o acesso acontece pelo topo, então sai C. Na fila, insere-se no fim e retira-se da frente, então sai A. No ENADE, acompanhe a extremidade acessada a cada operação antes de comparar os estados finais.
 
-```mermaid Entradas e saídas LIFO e FIFO
----
-config:
-  flowchart:
-    nodeSpacing: 18
-    rankSpacing: 30
-    padding: 8
----
-flowchart TB
-  subgraph PI["Pilha · LIFO"]
-    direction TB
-    X["Inserir ou retirar"] <--> T["C · topo"]
-    T --- M["B"]
-    M --- B["A · base"]
-  end
-  subgraph FI["Fila · FIFO"]
-    direction LR
-    CF["C · fim<br/>Inserir aqui"] --- BF["B"]
-    BF --- AF["A · frente<br/>Retirar daqui"]
-  end
-  PI ~~~ FI
-```
-
-Fonte: adaptado de CORMEN et al. (2009, seção 10.1) — recriado pela equipe Stacklyst.
+::figure{id="insercao-retirada-lifo-fifo"}
 
 ## Vantagens e desvantagens
 

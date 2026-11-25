@@ -3,7 +3,7 @@ title: Algoritmos de busca e de ordenação
 summary: Busca sequencial e binária (com o código correto das lacunas), e os algoritmos de ordenação bolha, seleção, inserção, merge sort e quicksort, passo a passo, com complexidades, estabilidade e simulador.
 order: 9
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [busca sequencial, busca linear, busca binária, ordenação, bubble sort, bolha, selection sort, seleção, insertion sort, inserção, merge sort, intercalação, quicksort, pivô, heapsort, estabilidade, in-place, complexidade]
 related: [vetores-e-matrizes, complexidade-de-algoritmos, recursividade, arvores]
@@ -109,15 +109,7 @@ As três sequências do ENADE 2008 aparecem exatamente nesses pontos.
 
 O intervalo entre os índices inicial e final inclui ambas as extremidades. Compare 37 com o valor no índice do meio e descarte também o índice já testado. No ENADE, esse ajuste evita laços que voltam ao mesmo intervalo e explica como o algoritmo reconhece uma busca sem resultado.
 
-```mermaid Busca binária com limites inclusivos
-flowchart TB
-  A["Intervalo 0…9<br/>a[4] = 29"]
-  A -->|"37 &gt; 29"| B["Intervalo 5…9<br/>a[7] = 50"]
-  B -->|"37 &lt; 50"| C["Intervalo 5…6<br/>a[5] = 37"]
-  C -->|"37 = 37"| D(["Retorna 5"])
-```
-
-Fonte: adaptado de SEDGEWICK; WAYNE (2011, seção 1.1) — recriado pela equipe Stacklyst.
+::figure{id="busca-binaria-intervalos"}
 
 ## Vantagens e desvantagens
 

@@ -3,7 +3,7 @@ title: Grafos — representação, percursos BFS e DFS e caminhos mínimos
 summary: Vértices, arestas, grafos dirigidos e ponderados, grau, caminhos e ciclos, matriz e lista de adjacência, busca em largura e em profundidade, e os algoritmos clássicos de Dijkstra, Prim e Kruskal.
 order: 6
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [grafo, vértice, aresta, grafo dirigido, dígrafo, ponderado, grau, caminho, ciclo, conexo, matriz de adjacência, lista de adjacência, bfs, busca em largura, dfs, busca em profundidade, dijkstra, caminho mínimo, árvore geradora mínima, prim, kruskal, ordenação topológica]
 related: [arvores, pilhas-e-filas, complexidade-de-algoritmos, gerencia-de-projetos-e-riscos]
@@ -95,16 +95,7 @@ As dependências de um projeto formam um **dígrafo acíclico**; a ordenação t
 
 Os círculos são vértices, as linhas sem ponta são arestas transitáveis dos dois lados e os números são custos. No ENADE, use a soma para comparar caminhos ponderados. Entre A e D, o caminho A–C–B–D custa 5, enquanto a aresta direta custa 7.
 
-```mermaid Vértices e arestas com pesos
-flowchart TB
-  A((A)) ---|"4"| B((B))
-  A ---|"2"| C((C))
-  C ---|"1"| B
-  A ---|"7"| D((D))
-  B ---|"2"| D
-```
-
-Fonte: adaptado de CORMEN et al. (2009, caps. 22–24) — recriado pela equipe Stacklyst.
+::figure{id="grafo-nao-dirigido-ponderado"}
 
 ## Vantagens e desvantagens
 

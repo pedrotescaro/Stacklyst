@@ -3,7 +3,7 @@ title: Listas encadeadas — simples, duplamente encadeadas e circulares
 summary: Nós e ponteiros, inserção, remoção e busca em listas simplesmente e duplamente encadeadas e circulares, com custos, código e visualização interativa.
 order: 3
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [lista encadeada, lista ligada, nó, ponteiro, cabeça, cauda, null, lista simplesmente encadeada, lista duplamente encadeada, lista circular, inserção, remoção, busca sequencial, estrutura dinâmica]
 related: [vetores-e-matrizes, pilhas-e-filas, arvores, complexidade-de-algoritmos]
@@ -88,30 +88,7 @@ Uma lista encadeada de cartões (número e cor) permite inserir pacientes urgent
 
 Siga a seta que sai de cada registro. Na lista dupla, cada par de vizinhos permite percorrer as duas direções. Na circular, o último aponta para o primeiro. No ENADE, confira qual apontador encerra um percurso e quais referências uma inserção entre dois registros precisa atualizar.
 
-```mermaid Ponteiros em três listas
-flowchart TB
-  subgraph S["Simples"]
-    direction LR
-    S1["12"] --> S2["7"]
-    S2 --> S3["30"]
-    S3 --> SN["NULO"]
-  end
-  subgraph D["Dupla"]
-    direction LR
-    D1["12<br/>ant. = NULO"] <--> D2["7"]
-    D2 <--> D3["30<br/>próx. = NULO"]
-  end
-  subgraph C["Circular"]
-    direction LR
-    C1["12"] --> C2["7"]
-    C2 --> C3["30"]
-    C3 --> C1
-  end
-  S ~~~ D
-  D ~~~ C
-```
-
-Fonte: adaptado de CORMEN et al. (2009, seção 10.2) — recriado pela equipe Stacklyst.
+::figure{id="variantes-de-lista-encadeada"}
 
 ## Vantagens e desvantagens
 
