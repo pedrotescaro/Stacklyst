@@ -11,6 +11,7 @@ import { figures as poo } from './poo';
 import { figures as rup } from './rup';
 import { figures as soRedesSeguranca } from './so-redes-seguranca';
 import { figures as testes } from './testes';
+import { figures as uml } from './uml';
 import type { FigureRegistry } from './types';
 
 export const figureRegistry: FigureRegistry = {
@@ -27,6 +28,7 @@ export const figureRegistry: FigureRegistry = {
   ...rup,
   ...soRedesSeguranca,
   ...testes,
+  ...uml,
 };
 
 export function getFigure(id: string) {

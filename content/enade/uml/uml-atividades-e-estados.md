@@ -3,7 +3,7 @@ title: Diagrama de atividades e diagrama de máquina de estados
 summary: Nós inicial e final, ações, decisões e junções, fork e join (paralelismo), raias; estados, transições, eventos, guardas, ações e estados compostos — e como não confundir os dois diagramas.
 order: 5
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [diagrama de atividades, ação, nó inicial, nó final, decisão, merge, fork, join, bifurcação, sincronização, raias, partições, máquina de estados, estado, transição, evento, guarda, ação de entrada, estado composto, pseudoestado]
 related: [uml-visao-geral, uml-interacao, modelagem-de-processos-de-negocio, algoritmos-e-logica-de-programacao]
@@ -67,27 +67,7 @@ Após a Atividade 02, uma decisão: se **[não]**, volta para a Atividade 01; se
 
 ## Representação visual
 
-```mermaid Atividade UML de expedição
-flowchart TB
-  inicio@{ shape: f-circ, label: "" }
-  fork@{ shape: fork, label: "" }
-  join@{ shape: fork, label: "" }
-  fim@{ shape: framed-circle, label: "" }
-  inicio --> pedido@{ shape: rounded, label: "Conferir estoque" }
-  pedido --> decisao{" "}
-  decisao -->|"[sem estoque]"| aviso@{ shape: rounded, label: "Avisar cliente" }
-  decisao -->|"[com estoque]"| fork
-  fork --> nota@{ shape: rounded, label: "Emitir nota" }
-  fork --> itens@{ shape: rounded, label: "Separar itens" }
-  nota --> join
-  itens --> join
-  join --> envio@{ shape: rounded, label: "Enviar pedido" }
-  aviso --> merge{" "}
-  envio --> merge
-  merge --> fim
-```
-
-Fonte: adaptado de OMG (2017, seção 15) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 20) — recriado pela equipe Stacklyst.
+::figure{id="atividade-expedicao"}
 
 Siga as setas desde o ponto inicial. As guardas do primeiro losango escolhem uma saída, o fork libera as duas ações e o join retém o fluxo até que ambas terminem. O segundo losango reúne os caminhos alternativos. O ENADE costuma perguntar quando uma ação pode começar.
 
@@ -95,21 +75,7 @@ Siga as setas desde o ponto inicial. As guardas do primeiro losango escolhem uma
 As barras representam bifurcação e sincronização. Os dois losangos têm funções distintas, identificadas pela quantidade de entradas e saídas.
 :::
 
-```mermaid Estados do pagamento à entrega
-stateDiagram-v2
-  state "Aguardando pagamento" as Aguardando
-  [*] --> Aberto
-  Aberto --> Aguardando : fechar [há itens]
-  Aguardando --> Pago : confirmar pagamento / emitir nota
-  Aguardando --> Cancelado : vencer prazo
-  Pago --> Cancelado : cancelar / estornar
-  Pago --> Enviado : despachar
-  Enviado --> Entregue : confirmar entrega
-  Entregue --> [*]
-  Cancelado --> [*]
-```
-
-Fonte: adaptado de OMG (2017, seção 14) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 22 e 25) — recriado pela equipe Stacklyst.
+::figure{id="estados-pedido"}
 
 Em cada seta, leia o evento, a guarda entre colchetes quando houver e o efeito após a barra. No ENADE, determine o estado atual antes de aplicar um evento. Cancelar um pedido pago, por exemplo, dispara o estorno.
 

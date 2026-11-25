@@ -17,7 +17,6 @@ import { questionLabel } from '@/lib/enade/topics';
 import { ArticleMarkdown } from './ArticleMarkdown';
 import { Quiz } from './Quiz';
 import { FigureFrame } from './FigureFrame';
-import { Mermaid } from './Mermaid';
 import { getFigure } from '../figures';
 import { Widget } from '../widgets/Widget';
 import styles from './article.module.css';
@@ -82,8 +81,6 @@ export function ArticleBody({
                 best={quizBest}
               />
             );
-          case 'mermaid':
-            return <Mermaid key={index} code={block.code} caption={block.caption} />;
           case 'figure': {
             const figure = getFigure(block.id);
             if (!figure) throw new Error(`Artigo ${slug}: figura desconhecida: ${block.id}.`);

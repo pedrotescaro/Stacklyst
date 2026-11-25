@@ -3,7 +3,7 @@ title: Diagrama de classes e diagrama de objetos
 summary: Classes, atributos, operações, visibilidades (+ - # ~), multiplicidades e os relacionamentos — associação, agregação, composição, generalização, realização e dependência — com o diagrama de objetos.
 order: 2
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [diagrama de classes, diagrama de objetos, classe, atributo, operação, método, visibilidade, público, privado, protegido, pacote, multiplicidade, associação, agregação, composição, generalização, herança, realização, interface, dependência, classe abstrata, classe associativa]
 related: [poo-fundamentos, relacionamentos-coesao-acoplamento, heranca-e-polimorfismo, modelagem-de-dados, uml-visao-geral]
@@ -122,40 +122,7 @@ public class PixPagamento implements Pagavel {             // realização
 
 ## Representação visual
 
-```mermaid Estrutura de vendas e pagamentos
-classDiagram
-  direction TB
-  class Pessoa["Pessoa {abstract}"] {
-    #nome : String
-  }
-  class Cliente {
-    -cpf : String
-  }
-  class Pedido {
-    -numero : Integer
-    +calcularTotal() Decimal
-  }
-  class ItemPedido {
-    -quantidade : Integer
-    -precoUnitario : Decimal
-  }
-  class Produto {
-    -descricao : String
-  }
-  class Pagavel {
-    <<interface>>
-    +pagar(valor : Decimal)
-  }
-  class PagamentoPix
-  Pessoa <|-- Cliente
-  Cliente "1" -- "0..*" Pedido : realiza
-  Pedido "1" *-- "1..*" ItemPedido : contém
-  ItemPedido "0..*" --> "1" Produto : referencia
-  Pagavel <|.. PagamentoPix
-  Pedido ..> Pagavel : solicita pagamento
-```
-
-Fonte: adaptado de OMG (2017, seções 7, 9, 10 e 11) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 8, 10 e 11) — recriado pela equipe Stacklyst.
+::figure{id="classes-vendas-pagamentos"}
 
 Leia cada multiplicidade na extremidade correspondente. Um pedido contém um ou mais itens, e cada item pertence a um único pedido. No ENADE, identifique o todo pelo losango cheio e distinga realização de dependência pela ponta da seta tracejada.
 

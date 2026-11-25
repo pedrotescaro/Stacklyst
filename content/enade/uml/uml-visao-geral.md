@@ -3,7 +3,7 @@ title: UML 2.5 — visão geral dos 14 diagramas
 summary: O que é a UML (e por que ela não é uma metodologia), a divisão entre diagramas estruturais e comportamentais, os diagramas de interação e um mapa para escolher o diagrama certo.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [uml, unified modeling language, omg, diagramas estruturais, diagramas comportamentais, diagramas de interação, 14 diagramas, uml 2.5, visão 4+1]
 related: [uml-classes-e-objetos, uml-casos-de-uso, uml-interacao, uml-atividades-e-estados, uml-diagramas-estruturais, rup-visao-geral]
@@ -80,18 +80,7 @@ Mostram **o que acontece** ao longo do tempo.
 
 ## Representação visual
 
-```mermaid Famílias de diagramas UML
-flowchart TB
-  U["Diagramas UML"] --> E["Estruturais"]
-  U --> C["Comportamentais"]
-  E --> E1["Classes · Objetos<br/>Componentes · Implantação"]
-  E --> E2["Pacotes · Perfis<br/>Estrutura composta"]
-  C --> C1["Casos de uso · Atividades<br/>Máquinas de estados"]
-  C --> I["Interação"]
-  I --> I1["Sequência · Comunicação<br/>Tempo · Visão geral"]
-```
-
-Fonte: adaptado de OMG (2017, anexo A) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 7) — recriado pela equipe Stacklyst.
+::figure{id="familias-uml"}
 
 Comece pelas famílias estrutural e comportamental. Dentro da comportamental, siga o ramo dos diagramas de interação. No ENADE, procure o diagrama pela informação pedida. Se o enunciado pede a ordem das mensagens, escolha sequência. Se pede relações entre tipos, escolha classes.
 

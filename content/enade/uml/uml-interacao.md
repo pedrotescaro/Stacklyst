@@ -3,7 +3,7 @@ title: Diagramas de interação — sequência, comunicação, tempo e visão ge
 summary: Linhas de vida, barras de ativação, mensagens síncronas, assíncronas e de retorno, criação e destruição de objetos, fragmentos combinados alt, opt e loop, e os outros três diagramas de interação.
 order: 4
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [diagrama de sequência, linha de vida, lifeline, barra de ativação, mensagem síncrona, mensagem assíncrona, retorno, criação, destruição, fragmentos combinados, alt, opt, loop, par, ref, diagrama de comunicação, diagrama de tempo, timing, visão geral de interação]
 related: [uml-visao-geral, uml-classes-e-objetos, uml-casos-de-uso, mvc-mvp-mvvm]
@@ -94,39 +94,7 @@ Se a linha de vida `:ControladorAcesso` começa com uma mensagem «create» vind
 
 ## Representação visual
 
-```mermaid Sequência de tentativas de acesso
----
-config:
-  sequence:
-    actorMargin: 28
-    diagramMarginX: 16
-    width: 100
-    wrap: true
----
-sequenceDiagram
-  actor U as Pessoa
-  participant T as :Login
-  participant A as :Acesso
-  participant C as :Cadastro
-  loop Até 3 tentativas<br/>enquanto pendente
-    U->>T: enviar credenciais
-    activate T
-    T->>+A: autenticar
-    A->>+C: consultar cadastro
-    C-->>-A: dados de acesso
-    alt senha válida
-      A-->>T: sessão criada
-      T-->>U: abrir painel
-    else senha inválida
-      A-->>T: acesso recusado
-      T-->>U: informar falha
-    end
-    deactivate A
-    deactivate T
-  end
-```
-
-Fonte: adaptado de OMG (2017, seção 17) e BOOCH; RUMBAUGH; JACOBSON (2006, cap. 19) — recriado pela equipe Stacklyst.
+::figure{id="sequencia-tentativas-acesso"}
 
 Leia de cima para baixo. Cada tentativa inclui o envio das credenciais e a consulta ao cadastro. O quadro alt escolhe a resposta pelas guardas, dentro do loop de tentativas. O ENADE costuma cobrar a diferença entre alternativa, repetição e o retorno tracejado de uma chamada.
 

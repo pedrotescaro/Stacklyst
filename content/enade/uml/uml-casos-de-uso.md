@@ -3,7 +3,7 @@ title: Diagrama de casos de uso — atores, associações, include, extend e gen
 summary: Como ler e desenhar diagramas de casos de uso na notação oficial, a diferença exata entre «include» e «extend», generalização de atores e de casos de uso e a fronteira do sistema.
 order: 3
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [casos de uso, diagrama de casos de uso, ator, associação, include, extend, inclusão, extensão, ponto de extensão, generalização, fronteira do sistema, uml]
 related: [historias-e-casos-de-uso, uml-visao-geral, requisitos-fundamentos, rup-visao-geral]
@@ -67,6 +67,8 @@ O caso de uso **extensor** acrescenta comportamento ao **base** **apenas sob cer
 :::
 
 ## Representação visual
+
+::figure{id="casos-de-uso-biblioteca"}
 
 ::widget uml diagram=usecase
 

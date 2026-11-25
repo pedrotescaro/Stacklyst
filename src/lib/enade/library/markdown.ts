@@ -44,8 +44,7 @@ export type ArticleBlock =
   | { type: 'quiz'; items: QuizItem[] }
   | { type: 'widget'; name: string; props: Record<string, string> }
   | { type: 'question'; id: string; note: string }
-  | { type: 'figure'; id: string }
-  | { type: 'mermaid'; code: string; caption: string };
+  | { type: 'figure'; id: string };
 
 export type TocEntry = { depth: 2 | 3; text: string; id: string };
 
@@ -92,8 +91,14 @@ export function parseAttributes(source: string): Record<string, string> {
 }
 
 const FENCE = /^(\s*)(`{3,}|~{3,})/;
-
+const LEGACY_DIAGRAM = /^\s*(?:>\s*)*(?:(?:[-+*]|\d+[.)])\s+)?(?:`{3,}|~{3,})\s*mermaid(?:\s|$)/i;
 const FIGURE = /^::figure\{\s*id\s*=\s*"([a-z0-9]+(?:-[a-z0-9]+)*)"\s*\}$/;
+
+function rejectLegacyDiagram(line: string, index: number) {
+  if (LEGACY_DIAGRAM.test(line)) {
+    throw new Error(`Linha ${index + 1}: bloco Mermaid legado. Use ::figure{id="…"}.`);
+  }
+}
 
 export function parseBlocks(body: string): ArticleBlock[] {
   const lines = body.replace(/\r\n/g, '\n').split('\n');
@@ -114,26 +119,8 @@ export function parseBlocks(body: string): ArticleBlock[] {
         fence = null;
       continue;
     }
+    rejectLegacyDiagram(line, i);
     if (fenceMatch) {
-      const diagram = /^\s*(`{3,}|~{3,})\s*mermaid(?![\w-])\s*(.*)$/.exec(line);
-      if (diagram) {
-        flush();
-        const code: string[] = [];
-        let closed = false;
-        for (i = i + 1; i < lines.length; i++) {
-          if (
-            lines[i].trim().startsWith(diagram[1]) &&
-            lines[i].trim().replace(/[`~]/g, '') === ''
-          ) {
-            closed = true;
-            break;
-          }
-          code.push(lines[i]);
-        }
-        if (!closed) throw new Error('Diagrama Mermaid sem fechamento.');
-        blocks.push({ type: 'mermaid', code: code.join('\n').trim(), caption: diagram[2].trim() });
-        continue;
-      }
       fence = fenceMatch[2];
       buffer.push(line);
       continue;
@@ -171,10 +158,13 @@ export function parseBlocks(body: string): ArticleBlock[] {
             currentFence[2].length >= innerFence.length
           )
             innerFence = null;
-        } else if (currentFence) innerFence = currentFence[2];
-        else if (current.trim() === ':::') {
-          closed = true;
-          break;
+        } else {
+          rejectLegacyDiagram(current, i);
+          if (currentFence) innerFence = currentFence[2];
+          else if (current.trim() === ':::') {
+            closed = true;
+            break;
+          }
         }
         inner.push(current);
       }
@@ -303,10 +293,7 @@ export function summaryBlocks(blocks: ArticleBlock[]): ArticleBlock[] {
         result.push(block);
       continue;
     }
-    if (
-      (block.type === 'mermaid' || block.type === 'figure') &&
-      SUMMARY_SECTIONS.includes(section)
-    ) {
+    if (block.type === 'figure' && SUMMARY_SECTIONS.includes(section)) {
       result.push(block);
       continue;
     }
