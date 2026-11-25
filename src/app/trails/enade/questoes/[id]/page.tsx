@@ -6,6 +6,7 @@ import { QUESTION_BY_ID } from '@/lib/enade/simulator';
 import { questionLabel } from '@/lib/enade/topics';
 import { studyAids } from '@/lib/enade/aids.server';
 import { dateTime } from '@/lib/enade/format';
+import { discursiveSummary } from '@/lib/enade/discursive';
 import { EnadeShell } from '../../_components/EnadeShell';
 import { StartAttemptButton } from '../../_components/StartAttemptButton';
 import { FavoriteButton } from '../../_components/FavoriteButton';
@@ -74,7 +75,13 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
                     <span>{dateTime(a.answered_at)}</span>
                     <span>
                       Resposta:{' '}
-                      {a.selected ?? (question.kind === 'discursive' ? 'discursiva' : 'em branco')}
+                      {a.selected
+                        ? question.kind === 'discursive'
+                          ? discursiveSummary(a.selected)
+                          : a.selected
+                        : question.kind === 'discursive'
+                          ? 'discursiva'
+                          : 'em branco'}
                     </span>
                   </p>
                 </div>

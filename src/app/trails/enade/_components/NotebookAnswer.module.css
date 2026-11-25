@@ -1,0 +1,79 @@
+/* A ruled sheet: numbered gutter on the left, one 32px rule per line.
+   Selectors are scoped under .sheet so the course's `.response textarea`
+   rule does not override them. */
+.sheet {
+  --line: 32px;
+  --rule: color-mix(in srgb, var(--color-dd-text) 17%, var(--color-dd-bg));
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr);
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 16px;
+  background: var(--color-dd-surface);
+}
+.sheet:focus-within {
+  border-color: color-mix(in srgb, var(--color-dd-text) 30%, var(--color-dd-bg));
+}
+.sheet .gutter {
+  margin: 0;
+  padding: 12px 0;
+  list-style: none;
+  border-right: 1px solid var(--rule);
+  color: var(--color-dd-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  user-select: none;
+}
+.sheet .gutter li {
+  height: var(--line);
+  line-height: var(--line);
+}
+.sheet .paper {
+  display: block;
+  width: 100%;
+  height: calc(var(--line) * 15 + 24px);
+  margin: 0;
+  padding: 12px 18px;
+  overflow: hidden;
+  border: 0;
+  border-radius: 0;
+  outline: none;
+  background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 calc(var(--line) - 1px),
+      var(--rule) calc(var(--line) - 1px) var(--line)
+    )
+    0 12px / 100% calc(var(--line) * 15) no-repeat;
+  background-attachment: local;
+  color: var(--color-dd-text);
+  font: inherit;
+  font-size: 15px;
+  line-height: var(--line);
+  resize: none;
+}
+/* Older answers written before the limit can still be read in full. */
+.sheet .paper[data-overflow] {
+  overflow-y: auto;
+}
+/* Focus shows on the sheet border instead of a clipped outline. */
+.sheet .paper.paper:focus-visible {
+  outline: none;
+}
+.sheet .paper::placeholder {
+  color: var(--color-dd-muted);
+}
+.sheet .count {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 8px 14px;
+  border-top: 1px solid var(--rule);
+  color: var(--color-dd-muted);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.sheet .count[data-full] {
+  color: var(--enade-warning, #ffb45b);
+}

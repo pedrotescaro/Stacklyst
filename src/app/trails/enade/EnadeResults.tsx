@@ -7,6 +7,7 @@ import {
   type EnadeSession,
 } from '@/lib/enade/simulator';
 import type { QuestionPresentation } from '@/lib/enade/feedback';
+import { discursiveSummary } from '@/lib/enade/discursive';
 import { EnadePageViewer } from './EnadePageViewer';
 import { QuestionExplanation, type QuestionStudyAids } from './_components/QuestionExplanation';
 import styles from './EnadeCourse.module.css';
@@ -173,7 +174,7 @@ export function EnadeResults({
                     <p className={styles.discursiveResult}>
                       <strong>Sua resposta:</strong>
                       {'\n'}
-                      {q.selected || 'Em branco'}
+                      {discursiveSummary(q.selected) || 'Em branco'}
                     </p>
                   )
                 )}

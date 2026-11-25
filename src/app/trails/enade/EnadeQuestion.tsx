@@ -6,6 +6,7 @@ import { EnadePageViewer } from './EnadePageViewer';
 import { EnadeStatement } from './EnadeStatement';
 import { QuestionExplanation, type QuestionStudyAids } from './_components/QuestionExplanation';
 import { FavoriteButton } from './_components/FavoriteButton';
+import { DiscursiveAnswerField } from './_components/DiscursiveAnswerField';
 import styles from './EnadeCourse.module.css';
 
 const struckKey = (questionId: string) => `stacklyst-enade-struck:${questionId}`;
@@ -205,17 +206,13 @@ export function EnadeQuestion({
           </fieldset>
         ) : (
           <>
-            <label className={styles.answerLabel} htmlFor="discursive-answer">
-              Escreva sua resposta
-            </label>
-            <textarea
-              id="discursive-answer"
-              maxLength={10000}
-              rows={8}
-              readOnly={q.readOnly}
-              placeholder="Desenvolva sua resposta aqui..."
+            <DiscursiveAnswerField
+              key={q.id}
+              questionId={q.id}
+              statement={`${q.content.statement}\n${q.content.transcript}`}
               value={q.selected || ''}
-              onChange={(event) => onAnswer(q.id, event.target.value)}
+              readOnly={q.readOnly}
+              onAnswer={(value) => onAnswer(q.id, value)}
             />
             {q.showDiscursiveCheck && (
               <button className={styles.secondaryButton} onClick={onCheckDiscursive}>

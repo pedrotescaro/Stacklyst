@@ -1,0 +1,58 @@
+.field {
+  display: grid;
+  min-width: 0;
+}
+.head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.label {
+  font-size: 16px;
+  font-weight: 600;
+}
+/* Two separate pills; the chosen one is solid blue, the other a gray outline. */
+.tabs {
+  display: inline-flex;
+  gap: 8px;
+}
+.tabs button {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--color-dd-border);
+  border-radius: 999px;
+  color: var(--color-dd-muted);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+.tabs button:hover {
+  background: color-mix(in srgb, var(--color-dd-text) 6%, var(--color-dd-bg));
+  color: var(--color-dd-text);
+}
+.tabs button[aria-selected='true'] {
+  border-color: var(--color-dd-accent);
+  background: var(--color-dd-accent);
+  color: #fff;
+}
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.error {
+  margin-top: 8px;
+  color: var(--enade-danger);
+  font-size: 13px;
+}
