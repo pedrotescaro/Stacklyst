@@ -8,9 +8,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock3,
+  CloudCheck,
+  CloudOff,
   ExternalLink,
+  LoaderCircle,
   Pause,
   Play,
+  RefreshCw,
   Shuffle,
 } from 'lucide-react';
 import { formatDuration, SECTION_LABELS, type EnadeSession } from '@/lib/enade/simulator';
@@ -21,6 +25,23 @@ import { QuestionPicker } from './QuestionPicker';
 import { startAttempt } from './_components/StartAttemptButton';
 import type { QuestionStudyAids } from './_components/QuestionExplanation';
 import styles from './EnadeCourse.module.css';
+
+/** Label with three dots lighting up in turn, above a plain spinning ring. */
+function LoadingState({ label, page = false }: { label: string; page?: boolean }) {
+  return (
+    <div role="status" className={`${styles.loading} ${page ? styles.loadingPage : ''}`}>
+      <p className={styles.loadingText}>
+        {label}
+        <span className={styles.loadingDots} aria-hidden="true">
+          <span>.</span>
+          <span>.</span>
+          <span>.</span>
+        </span>
+      </p>
+      <span className={styles.spinner} aria-hidden="true" />
+    </div>
+  );
+}
 
 export function EnadeSimulation(props: {
   attemptId: string;
@@ -109,10 +130,15 @@ export function EnadeSimulation(props: {
   if (!ready || !question)
     return (
       <main className={`${styles.main} ${styles.activity}`}>
-        <p role="status">Preparando simulado...</p>
+        <LoadingState label="Preparando simulado" page />
       </main>
     );
   const firstBlank = simulation.presentations.findIndex((q) => !q.answered && !q.annulled);
+  const saveState = simulation.saveStatus.startsWith('Salvando')
+    ? 'saving'
+    : simulation.saveStatus.startsWith('Não foi possível')
+      ? 'error'
+      : 'saved';
   return (
     <main className={`${styles.main} ${styles.activity}`}>
       <header className={styles.activityHeader}>
@@ -164,7 +190,11 @@ export function EnadeSimulation(props: {
               aria-label={session.paused ? 'Retomar simulado' : 'Pausar simulado'}
               title={session.paused ? 'Retomar' : 'Pausar'}
             >
-              {session.paused ? <Play size={18} /> : <Pause size={18} />}
+              {session.paused ? (
+                <Play size={14} aria-hidden="true" />
+              ) : (
+                <Pause size={14} aria-hidden="true" />
+              )}
             </button>
           )}
         </div>
@@ -247,9 +277,7 @@ export function EnadeSimulation(props: {
                   </button>
                 </div>
               ) : !question.content ? (
-                <p role="status" className={styles.loading}>
-                  Carregando questão...
-                </p>
+                <LoadingState label="Carregando questão" />
               ) : (
                 <EnadeQuestion
                   key={question.id}
@@ -271,41 +299,59 @@ export function EnadeSimulation(props: {
                   <ChevronLeft size={18} />
                   Anterior
                 </button>
-                <button
-                  className={styles.nextQuestion}
-                  disabled={session.currentIndex === simulation.questions.length - 1}
-                  onClick={() => navigate(session.currentIndex + 1)}
-                >
-                  Próxima
-                  <ChevronRight size={18} />
-                </button>
+                <div className={styles.navRight}>
+                  {!session.finishedAt && (
+                    <button
+                      className={styles.skipButton}
+                      disabled={!simulation.canSkip}
+                      aria-label="Pular para uma aleatória em branco"
+                      title="Pular para uma questão aleatória em branco"
+                      onClick={() => {
+                        simulation.skip();
+                        questionStart.current?.scrollIntoView?.({ block: 'start' });
+                      }}
+                    >
+                      <Shuffle size={15} aria-hidden="true" />
+                      <span>Aleatória em branco</span>
+                    </button>
+                  )}
+                  <button
+                    className={styles.nextQuestion}
+                    disabled={session.currentIndex === simulation.questions.length - 1}
+                    onClick={() => navigate(session.currentIndex + 1)}
+                  >
+                    Próxima
+                    <ChevronRight size={18} />
+                  </button>
+                </div>
               </div>
               <p className={styles.keyboardHint}>
-                Dica: use as setas <kbd>←</kbd> <kbd>→</kbd> do teclado para trocar de questão.
+                <ChevronLeft size={13} aria-hidden="true" />
+                <ChevronRight size={13} aria-hidden="true" />
+                <span>Use as setas do teclado para trocar de questão</span>
               </p>
-              {!session.finishedAt && (
-                <button
-                  className={styles.skipButton}
-                  disabled={!simulation.canSkip}
-                  onClick={() => {
-                    simulation.skip();
-                    questionStart.current?.scrollIntoView?.({ block: 'start' });
-                  }}
-                >
-                  <Shuffle size={16} />
-                  Pular para uma aleatória em branco
-                </button>
-              )}
             </article>
           )}
         </>
       )}
       <footer className={styles.sessionFooter}>
-        <div>
-          <p className={styles.saveStatus} role="status">
-            {simulation.saveStatus}
+        <div className={styles.saveRow}>
+          <p className={styles.saveStatus} role="status" data-state={saveState}>
+            {simulation.saveStatus && (
+              <>
+                {saveState === 'saving' ? (
+                  <LoaderCircle size={14} aria-hidden="true" className={styles.saveSpin} />
+                ) : saveState === 'error' ? (
+                  <CloudOff size={14} aria-hidden="true" />
+                ) : (
+                  <CloudCheck size={14} aria-hidden="true" />
+                )}
+                <span>{simulation.saveStatus}</span>
+              </>
+            )}
           </p>
-          <button className={styles.back} onClick={simulation.saveNow}>
+          <button className={styles.saveAgain} onClick={simulation.saveNow}>
+            <RefreshCw size={13} aria-hidden="true" />
             Salvar novamente
           </button>
         </div>

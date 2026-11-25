@@ -33,6 +33,11 @@ function describe(q: QuestionPresentation) {
   return `${q.year} · ${q.kind === 'discursive' ? 'Discursiva' : 'Objetiva'} ${q.number}`;
 }
 
+/** Discursives read "D1", "D2"…; objectives keep their position in the session. */
+function tileLabel(q: QuestionPresentation, index: number) {
+  return q.kind === 'discursive' ? `D${q.number}` : String(index + 1);
+}
+
 function tileState(q: QuestionPresentation) {
   if (q.reveal && (q.feedback === 'correct' || q.feedback === 'incorrect')) return q.feedback;
   return q.answered ? 'answered' : 'blank';
@@ -81,7 +86,7 @@ export function QuestionPicker(props: {
         onClick={() => setOpen((o) => !o)}
       >
         <span className={styles.pickerBadge} data-state={tileState(current)} aria-hidden="true">
-          {currentIndex + 1}
+          {tileLabel(current, currentIndex)}
         </span>
         <span className={styles.pickerText}>
           <strong>
@@ -125,6 +130,11 @@ export function QuestionPicker(props: {
               <span>
                 <Flag size={12} /> Revisar
               </span>
+              {questions.some((q) => q.kind === 'discursive') && (
+                <span>
+                  <b>D</b> Discursiva
+                </span>
+              )}
             </div>
             <button
               type="button"
@@ -159,9 +169,10 @@ export function QuestionPicker(props: {
                         title={describe(q)}
                         data-state={tileState(q)}
                         data-marked={q.marked}
+                        data-kind={q.kind}
                         style={{ '--i': offset } as React.CSSProperties}
                       >
-                        {index + 1}
+                        {tileLabel(q, index)}
                         {q.marked && <Flag size={10} aria-hidden="true" />}
                       </button>
                     );
