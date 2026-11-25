@@ -2,7 +2,7 @@
 
 /* Session-protected attachments must keep browser cookies on their requests. */
 /* eslint-disable @next/next/no-img-element */
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Check, Users } from 'lucide-react';
 import type { PostAttachment, PostPoll } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
@@ -54,21 +54,12 @@ export function PostAttachments({
                 ]
               : []),
           ].map((item, index) => (
-            <a
-              href={item.url}
+            <PostImage
               key={`${item.url}-${index}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${text('Abrir imagem', 'Open image')} ${index + 1}`}
-            >
-              <img
-                src={item.url}
-                alt={
-                  item.alt || text(`Imagem ${index + 1} da publicação`, `Post image ${index + 1}`)
-                }
-                loading="lazy"
-              />
-            </a>
+              src={item.url}
+              alt={item.alt || text(`Imagem ${index + 1} da publicação`, `Post image ${index + 1}`)}
+              label={`${text('Abrir imagem', 'Open image')} ${index + 1}`}
+            />
           ))}
         </div>
       )}
@@ -84,6 +75,37 @@ export function PostAttachments({
       <SpotifyTrackCard music={music} />
       {poll && <PostPollWidget key={poll.id} postId={postId} initialPoll={poll} />}
     </div>
+  );
+}
+
+/**
+ * Keeps a quiet placeholder in the image's slot until it has loaded; the fade-in
+ * itself comes from the platform-wide image reveal (src/lib/image-reveal.ts).
+ */
+function PostImage({ src, alt, label }: { src: string; alt: string; label: string }) {
+  const [loading, setLoading] = useState(true);
+  // Server-rendered images can finish before hydration attaches onLoad.
+  const checkComplete = useCallback((image: HTMLImageElement | null) => {
+    if (image?.complete) setLoading(false);
+  }, []);
+  return (
+    <a
+      href={src}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className={styles.imageSlot}
+      data-loading={loading || undefined}
+    >
+      <img
+        ref={checkComplete}
+        src={src}
+        alt={alt}
+        loading="lazy"
+        onLoad={() => setLoading(false)}
+        onError={() => setLoading(false)}
+      />
+    </a>
   );
 }
 

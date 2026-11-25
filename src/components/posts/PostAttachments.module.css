@@ -33,6 +33,27 @@
   max-height: 440px;
   object-fit: contain;
 }
+/* While an image downloads its slot breathes softly instead of sitting blank. */
+.imageSlot[data-loading] {
+  animation: imageSlotPulse 1.6s ease-in-out infinite;
+}
+.imageGrid > a:only-child[data-loading] img {
+  min-height: 220px;
+}
+@keyframes imageSlotPulse {
+  0%,
+  100% {
+    background-color: var(--color-dd-surface);
+  }
+  50% {
+    background-color: color-mix(in srgb, var(--color-dd-surface) 90%, var(--color-dd-text));
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .imageSlot[data-loading] {
+    animation: none;
+  }
+}
 .audio {
   width: 100%;
   max-width: 100%;

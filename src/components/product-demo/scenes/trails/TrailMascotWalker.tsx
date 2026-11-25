@@ -113,6 +113,7 @@ export function TrailMascotWalker({
       <img
         src={frame}
         alt=""
+        data-image-reveal="off"
         draggable={false}
         decoding="async"
         className="h-full w-full object-contain drop-shadow-[0_6px_8px_rgba(0,0,0,0.28)]"

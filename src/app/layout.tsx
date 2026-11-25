@@ -11,6 +11,7 @@ import { MusicPlayerProvider } from '@/contexts/MusicPlayerContext';
 import { FloatingMiniPlayer } from '@/components/music/FloatingMiniPlayer';
 import { ThemeSync } from '@/components/ThemeSync';
 import { themeBootstrap } from '@/lib/theme';
+import { imageRevealBootstrap } from '@/lib/image-reveal';
 
 const themeScript = `
   (function() {
@@ -92,6 +93,8 @@ export default function RootLayout({
             dark choice never flashes light on reload. next/script's beforeInteractive
             runs after paint in the App Router, which caused that flash. */}
         <script id="theme-script" dangerouslySetInnerHTML={{ __html: themeScript }} />
+        {/* Must run before the body is parsed so images never paint half-downloaded. */}
+        <script id="image-reveal" dangerouslySetInnerHTML={{ __html: imageRevealBootstrap }} />
       </head>
       <body className="bg-dd-bg text-dd-text min-h-screen font-sans" suppressHydrationWarning>
         <LanguageProvider>
