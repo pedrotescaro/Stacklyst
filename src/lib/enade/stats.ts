@@ -63,11 +63,12 @@ export type StatsFilter = {
 
 export const STUDY_TIME_ZONE = 'America/Sao_Paulo';
 const DAY = 24 * 60 * 60 * 1000;
+const CALENDAR_DAYS = 365;
 const PERIOD_DAYS: Record<StatsPeriod, number | null> = {
   '7d': 7,
   '30d': 30,
   '90d': 90,
-  '365d': 365,
+  '365d': CALENDAR_DAYS,
   all: null,
 };
 export const ACTIVITY_KINDS: Record<Exclude<StatsActivity, 'all'>, AttemptKind[]> = {
@@ -342,7 +343,7 @@ export function computeStats(
     struggling: byTopic
       .filter(isStruggling)
       .sort((a, b) => (a.accuracy ?? 0) - (b.accuracy ?? 0) || b.wrong - a.wrong),
-    streak: computeStreak(daily, answered, now),
+    streak: computeStreak(daily, answered, now, days ?? CALENDAR_DAYS),
     comparisons: [...comparisons.entries()]
       .filter(([, list]) => list.length > 1)
       .map(([year, list]) => ({ year, attempts: list }))
@@ -351,21 +352,49 @@ export function computeStats(
 }
 export type EnadeStats = ReturnType<typeof computeStats>;
 
+type DailyStudy = {
+  durationMs: number;
+  answers: number;
+  articles: number;
+};
+
+export type StudyCalendarDay = DailyStudy & {
+  day: string;
+  level: number;
+};
+
 /** Consecutive study days (reading or answering), ending today or yesterday. */
-export function computeStreak(daily: DailyRecord[], answers: AnswerRecord[], now = new Date()) {
-  const active = new Set<string>();
-  for (const day of daily)
-    if (day.readingMs + day.practiceMs > 0 || day.questionsAnswered > 0 || day.articlesStudied > 0)
-      active.add(day.day);
-  for (const answer of answers) active.add(dayKey(answer.answeredAt));
+export function computeStreak(
+  daily: DailyRecord[],
+  answered: AnswerRecord[],
+  now = new Date(),
+  calendarDays = CALENDAR_DAYS
+) {
   const today = dayKey(now);
-  let cursor = active.has(today) ? today : shiftDay(today, -1);
+  const activity = new Map<string, DailyStudy>();
+  const activityFor = (day: string) => {
+    const existing = activity.get(day);
+    if (existing) return existing;
+    const entry = { durationMs: 0, answers: 0, articles: 0 };
+    activity.set(day, entry);
+    return entry;
+  };
+  for (const day of daily) {
+    const durationMs = day.readingMs + day.practiceMs;
+    if (durationMs <= 0 && day.questionsAnswered <= 0 && day.articlesStudied <= 0) continue;
+    const entry = activityFor(day.day);
+    entry.durationMs += durationMs;
+    entry.articles += day.articlesStudied;
+  }
+  for (const answer of answered) activityFor(dayKey(answer.answeredAt)).answers++;
+
+  let cursor = activity.has(today) ? today : shiftDay(today, -1);
   let current = 0;
-  while (active.has(cursor)) {
+  while (activity.has(cursor)) {
     current++;
     cursor = shiftDay(cursor, -1);
   }
-  const sorted = [...active].sort();
+  const sorted = [...activity.keys()].sort();
   let longest = 0;
   let run = 0;
   let previous: string | null = null;
@@ -374,22 +403,20 @@ export function computeStreak(daily: DailyRecord[], answers: AnswerRecord[], now
     longest = Math.max(longest, run);
     previous = key;
   }
-  const intensity = new Map<string, number>();
-  for (const day of daily)
-    intensity.set(day.day, (intensity.get(day.day) ?? 0) + day.readingMs + day.practiceMs);
-  const calendar = Array.from({ length: 84 }, (_, index) => {
-    const key = shiftDay(today, index - 83);
-    const ms = intensity.get(key) ?? 0;
-    const level = !active.has(key)
+  const calendar = Array.from({ length: calendarDays }, (_, index): StudyCalendarDay => {
+    const day = shiftDay(today, index + 1 - calendarDays);
+    const entry = activity.get(day);
+    const durationMs = entry?.durationMs ?? 0;
+    const level = !entry
       ? 0
-      : ms >= 60 * 60000
+      : durationMs >= 60 * 60000
         ? 4
-        : ms >= 30 * 60000
+        : durationMs >= 30 * 60000
           ? 3
-          : ms >= 10 * 60000
+          : durationMs >= 10 * 60000
             ? 2
             : 1;
-    return { day: key, level, minutes: Math.round(ms / 60000) };
+    return { day, level, durationMs, answers: entry?.answers ?? 0, articles: entry?.articles ?? 0 };
   });
-  return { current, longest, activeDays: active.size, calendar };
+  return { current, longest, activeDays: activity.size, calendar };
 }

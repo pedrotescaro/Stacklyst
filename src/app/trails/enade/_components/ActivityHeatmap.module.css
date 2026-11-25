@@ -1,0 +1,187 @@
+.figure {
+  container-type: inline-size;
+  margin: 0;
+  min-width: 0;
+}
+
+.plot {
+  --cell-size: clamp(10px, calc((100cqi - 150px) / 53), 14px);
+  --cell-gap: 2px;
+  --month-height: 18px;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr);
+  gap: 6px;
+  min-width: 0;
+}
+
+.weekdays {
+  display: grid;
+  grid-template-rows: repeat(7, var(--cell-size));
+  gap: var(--cell-gap);
+  align-items: center;
+  align-self: start;
+  padding-top: calc(var(--month-height) + 6px);
+}
+
+.weekdays,
+.months {
+  color: var(--color-dd-muted);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.viewport {
+  min-width: 0;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  scrollbar-color: var(--enade-border) transparent;
+  padding-block: 2px 5px;
+  margin-block: -2px -5px;
+  /* Open at the most recent end even before hydration. The chart stays in chronological order. */
+  direction: rtl;
+}
+
+.calendar {
+  width: max-content;
+  margin-right: auto;
+  direction: ltr;
+}
+
+.months,
+.row {
+  display: grid;
+  grid-template-columns: repeat(var(--weeks), var(--cell-size));
+  column-gap: var(--cell-gap);
+}
+
+.months {
+  min-width: max-content;
+  height: var(--month-height);
+  margin-bottom: 6px;
+  align-items: center;
+  text-transform: capitalize;
+}
+
+.months span {
+  width: max-content;
+}
+
+.grid {
+  display: grid;
+  row-gap: var(--cell-gap);
+}
+
+.row {
+  grid-auto-rows: var(--cell-size);
+}
+
+.cell,
+.swatch {
+  display: block;
+  border: 1px solid color-mix(in srgb, var(--color-dd-text) 8%, transparent);
+  border-radius: 2px;
+  background-color: var(--calendar-fill, var(--enade-soft));
+}
+
+.cell {
+  width: 100%;
+  height: 100%;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cell:hover,
+.cell:focus-visible {
+  border-color: var(--color-dd-text);
+}
+
+.cell:focus-visible {
+  position: relative;
+  z-index: 1;
+  outline: 2px solid var(--enade-link);
+  outline-offset: 0;
+}
+
+.row [aria-selected='true'] .cell {
+  border-color: var(--enade-success);
+}
+
+.figure [data-level='1'] {
+  --calendar-fill: color-mix(in srgb, var(--enade-success) 28%, var(--color-dd-bg));
+}
+
+.figure [data-level='2'] {
+  --calendar-fill: color-mix(in srgb, var(--enade-success) 50%, var(--color-dd-bg));
+}
+
+.figure [data-level='3'] {
+  --calendar-fill: color-mix(in srgb, var(--enade-success) 74%, var(--color-dd-bg));
+}
+
+.figure [data-level='4'] {
+  --calendar-fill: var(--enade-success);
+}
+
+.footer {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 6px 16px;
+  margin-top: 12px;
+  color: var(--color-dd-muted);
+  font-size: 11.5px;
+}
+
+.legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.legendTitle {
+  margin-right: 5px;
+  font-weight: 600;
+}
+
+.swatch {
+  width: 10px;
+  height: 10px;
+}
+
+.detail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 3px 12px;
+  margin-top: 12px;
+  padding-top: 9px;
+  border-top: 1px solid var(--enade-line);
+  color: var(--color-dd-muted);
+  font-size: 12px;
+}
+
+.detail time {
+  color: var(--color-dd-text);
+  font-weight: 600;
+}
+
+.detail time::first-letter {
+  text-transform: uppercase;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@container (max-width: 480px) {
+  .plot {
+    --cell-size: 13px;
+    --cell-gap: 3px;
+  }
+}

@@ -1,5 +1,5 @@
 'use client';
-import { useId, useState, type KeyboardEvent } from 'react';
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react';
 import styles from './Charts.module.css';
 
 /*
@@ -21,6 +21,24 @@ function tooltipPosition(percent: number) {
   return `clamp(min(110px, 50%), ${percent}%, calc(100% - min(110px, 50%)))`;
 }
 
+function usePlotWidth() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [width, setWidth] = useState(640);
+
+  useEffect(() => {
+    const plot = ref.current;
+    if (!plot || typeof ResizeObserver === 'undefined') return;
+
+    const observer = new ResizeObserver(([entry]) => {
+      setWidth(Math.max(140, Math.round(entry.contentRect.width)));
+    });
+    observer.observe(plot);
+    return () => observer.disconnect();
+  }, []);
+
+  return { ref, width };
+}
+
 export function LineChart({
   points,
   title,
@@ -36,8 +54,8 @@ export function LineChart({
 }) {
   const [active, setActive] = useState<number | null>(null);
   const id = useId();
-  const width = 640;
-  const pad = { top: 14, right: 16, bottom: 26, left: 34 };
+  const { ref, width } = usePlotWidth();
+  const pad = { top: 14, right: 12, bottom: 26, left: 40 };
   const innerW = width - pad.left - pad.right;
   const innerH = height - pad.top - pad.bottom;
   const x = (i: number) =>
@@ -45,15 +63,16 @@ export function LineChart({
   const y = (v: number) => pad.top + innerH - (Math.min(v, max) / max) * innerH;
   const path = points.map((p, i) => `${i ? 'L' : 'M'}${x(i)},${y(p.value)}`).join(' ');
   const ticks = [0, max / 2, max];
-  const shown = active ?? null;
+  const shown = active !== null && points[active] ? active : null;
   return (
     <figure className={styles.figure} aria-labelledby={`${id}-title`}>
       <figcaption id={`${id}-title`} className={styles.srOnly}>
         {title}
       </figcaption>
-      <div className={styles.plot}>
+      <div className={styles.plot} ref={ref}>
         <svg
           viewBox={`0 0 ${width} ${height}`}
+          height={height}
           role="group"
           aria-label={title}
           className={styles.svg}
@@ -84,29 +103,43 @@ export function LineChart({
             />
           )}
           <path d={path} className={styles.line} />
-          {points.map((p, i) => (
-            <g key={`${p.label}-${i}`}>
-              <circle cx={x(i)} cy={y(p.value)} r={shown === i ? 5.5 : 4} className={styles.dot} />
-              <rect
-                x={x(i) - Math.max(10, innerW / Math.max(1, points.length) / 2)}
-                y={pad.top}
-                width={Math.max(20, innerW / Math.max(1, points.length))}
-                height={innerH}
-                className={styles.hit}
-                role="button"
-                tabIndex={0}
-                aria-label={`${p.label}: ${p.value}${unit}${p.detail ? ` · ${p.detail}` : ''}`}
-                onMouseEnter={() => setActive(i)}
-                onClick={() => setActive(i)}
-                onKeyDown={(event) => onMarkKey(event, () => setActive(i))}
-                onFocus={() => setActive(i)}
-                onBlur={() => setActive(null)}
-              />
-            </g>
-          ))}
+          {points.map((p, i) => {
+            const start = i === 0 ? pad.left : (x(i - 1) + x(i)) / 2;
+            const end = i === points.length - 1 ? width - pad.right : (x(i) + x(i + 1)) / 2;
+            return (
+              <g key={`${p.label}-${i}`}>
+                <circle
+                  cx={x(i)}
+                  cy={y(p.value)}
+                  r={shown === i ? 5.5 : 4}
+                  className={styles.dot}
+                />
+                <rect
+                  x={start}
+                  y={pad.top - 5}
+                  width={end - start}
+                  height={innerH + 10}
+                  className={styles.hit}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${p.label}: ${p.value}${unit}${p.detail ? ` · ${p.detail}` : ''}`}
+                  onMouseEnter={() => setActive(i)}
+                  onClick={() => setActive(i)}
+                  onKeyDown={(event) => onMarkKey(event, () => setActive(i))}
+                  onFocus={() => setActive(i)}
+                  onBlur={() => setActive(null)}
+                />
+              </g>
+            );
+          })}
           {points.length > 0 && (
             <>
-              <text x={x(0)} y={height - 6} className={styles.axis} textAnchor="start">
+              <text
+                x={x(0)}
+                y={height - 6}
+                className={styles.axis}
+                textAnchor={points.length === 1 ? 'middle' : 'start'}
+              >
                 {points[0].label}
               </text>
               {points.length > 1 && (
@@ -152,83 +185,20 @@ export function ColumnChart({
   bars,
   title,
   height = 170,
+  emptyMessage,
 }: {
   bars: Bar[];
   title: string;
   height?: number;
+  emptyMessage?: string;
 }) {
-  const [active, setActive] = useState<number | null>(null);
-  const width = 640;
-  const pad = { top: 12, bottom: 24, left: 4, right: 4 };
-  const innerH = height - pad.top - pad.bottom;
-  const max = Math.max(1, ...bars.map((b) => b.value));
-  const slot = (width - pad.left - pad.right) / Math.max(1, bars.length);
-  const barW = Math.max(4, Math.min(36, slot - 4));
   return (
     <figure className={styles.figure}>
-      <div className={styles.plot}>
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          role="group"
-          aria-label={title}
-          className={styles.svg}
-          onMouseLeave={() => setActive(null)}
-        >
-          <line
-            x1={pad.left}
-            x2={width - pad.right}
-            y1={pad.top + innerH}
-            y2={pad.top + innerH}
-            className={styles.grid}
-          />
-          {bars.map((bar, i) => {
-            const h = (bar.value / max) * innerH;
-            const cx = pad.left + slot * i + slot / 2;
-            return (
-              <g key={`${bar.label}-${i}`}>
-                {h > 0 && (
-                  <path
-                    className={styles.bar}
-                    data-active={active === i}
-                    d={roundedTop(cx - barW / 2, pad.top + innerH - h, barW, h, Math.min(4, h))}
-                  />
-                )}
-                <rect
-                  x={cx - slot / 2}
-                  y={pad.top}
-                  width={slot}
-                  height={innerH}
-                  className={styles.hit}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${bar.label}: ${bar.display ?? bar.value}${bar.detail ? ` · ${bar.detail}` : ''}`}
-                  onMouseEnter={() => setActive(i)}
-                  onClick={() => setActive(i)}
-                  onKeyDown={(event) => onMarkKey(event, () => setActive(i))}
-                  onFocus={() => setActive(i)}
-                  onBlur={() => setActive(null)}
-                />
-                {(bars.length <= 12 || i % Math.ceil(bars.length / 8) === 0) && (
-                  <text x={cx} y={height - 6} className={styles.axis} textAnchor="middle">
-                    {bar.label}
-                  </text>
-                )}
-              </g>
-            );
-          })}
-        </svg>
-        {active !== null && bars[active] && (
-          <div
-            className={styles.tooltip}
-            style={{ left: tooltipPosition(((pad.left + slot * active + slot / 2) / width) * 100) }}
-            aria-hidden="true"
-          >
-            <strong>{bars[active].display ?? bars[active].value}</strong>
-            <span>{bars[active].label}</span>
-            {bars[active].detail && <span>{bars[active].detail}</span>}
-          </div>
-        )}
-      </div>
+      {emptyMessage ? (
+        <p className={styles.empty}>{emptyMessage}</p>
+      ) : (
+        <ColumnPlot bars={bars} title={title} height={height} />
+      )}
       <DataTable
         caption={title}
         headers={['Período', 'Valor', 'Detalhe']}
@@ -238,47 +208,85 @@ export function ColumnChart({
   );
 }
 
-function roundedTop(x: number, y: number, w: number, h: number, r: number) {
-  return `M${x},${y + h} V${y + r} Q${x},${y} ${x + r},${y} H${x + w - r} Q${x + w},${y} ${x + w},${y + r} V${y + h} Z`;
-}
-
-export function ActivityHeatmap({
-  days,
-}: {
-  days: { day: string; level: number; minutes: number }[];
-}) {
-  const weeks: (typeof days)[] = [];
-  const first = new Date(`${days[0]?.day ?? '2026-01-01'}T12:00:00Z`).getUTCDay();
-  const padded = [...Array((first + 6) % 7).fill(null), ...days];
-  for (let i = 0; i < padded.length; i += 7) weeks.push(padded.slice(i, i + 7));
-  const date = (key: string) =>
-    new Date(`${key}T12:00:00Z`).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+function ColumnPlot({ bars, title, height }: { bars: Bar[]; title: string; height: number }) {
+  const [active, setActive] = useState<number | null>(null);
+  const { ref, width } = usePlotWidth();
+  const pad = { top: 12, bottom: 24, left: 4, right: 4 };
+  const innerH = height - pad.top - pad.bottom;
+  const max = Math.max(1, ...bars.map((b) => b.value));
+  const slot = (width - pad.left - pad.right) / Math.max(1, bars.length);
+  const barW = Math.max(2, Math.min(36, slot - 4));
+  const labelStep = Math.max(1, Math.ceil(36 / slot));
   return (
-    <div className={styles.heatmap} role="grid" aria-label="Dias de estudo nas últimas 12 semanas">
-      {weeks.map((week, w) => (
-        <div key={w} role="row" className={styles.heatWeek}>
-          {week.map((cell, d) =>
-            cell ? (
-              <span
-                key={cell.day}
-                role="gridcell"
-                className={styles.heatCell}
-                data-level={cell.level}
-                title={`${date(cell.day)}: ${cell.level ? `${cell.minutes} min de estudo registrados` : 'sem estudo'}`}
-                aria-label={`${date(cell.day)}: ${cell.level ? `${cell.minutes} minutos` : 'sem estudo'}`}
+    <div className={styles.plot} ref={ref}>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        height={height}
+        role="group"
+        aria-label={title}
+        className={styles.svg}
+        onMouseLeave={() => setActive(null)}
+      >
+        <line
+          x1={pad.left}
+          x2={width - pad.right}
+          y1={pad.top + innerH}
+          y2={pad.top + innerH}
+          className={styles.grid}
+        />
+        {bars.map((bar, i) => {
+          const h = (bar.value / max) * innerH;
+          const cx = pad.left + slot * i + slot / 2;
+          return (
+            <g key={`${bar.label}-${i}`}>
+              {h > 0 && (
+                <path
+                  className={styles.bar}
+                  data-active={active === i}
+                  d={roundedTop(cx - barW / 2, pad.top + innerH - h, barW, h, Math.min(4, h))}
+                />
+              )}
+              <rect
+                x={cx - slot / 2}
+                y={pad.top}
+                width={slot}
+                height={innerH}
+                className={styles.hit}
+                role="button"
+                tabIndex={0}
+                aria-label={`${bar.label}: ${bar.display ?? bar.value}${bar.detail ? ` · ${bar.detail}` : ''}`}
+                onMouseEnter={() => setActive(i)}
+                onClick={() => setActive(i)}
+                onKeyDown={(event) => onMarkKey(event, () => setActive(i))}
+                onFocus={() => setActive(i)}
+                onBlur={() => setActive(null)}
               />
-            ) : (
-              <span key={`pad-${d}`} className={styles.heatPad} aria-hidden="true" />
-            )
-          )}
+              {i % labelStep === 0 && (
+                <text x={cx} y={height - 6} className={styles.axis} textAnchor="middle">
+                  {bar.label}
+                </text>
+              )}
+            </g>
+          );
+        })}
+      </svg>
+      {active !== null && bars[active] && (
+        <div
+          className={styles.tooltip}
+          style={{ left: tooltipPosition(((pad.left + slot * active + slot / 2) / width) * 100) }}
+          aria-hidden="true"
+        >
+          <strong>{bars[active].display ?? bars[active].value}</strong>
+          <span>{bars[active].label}</span>
+          {bars[active].detail && <span>{bars[active].detail}</span>}
         </div>
-      ))}
-      <p className={styles.heatLegend} aria-hidden="true">
-        Menos <span data-level="1" /> <span data-level="2" /> <span data-level="3" />{' '}
-        <span data-level="4" /> Mais
-      </p>
+      )}
     </div>
   );
+}
+
+function roundedTop(x: number, y: number, w: number, h: number, r: number) {
+  return `M${x},${y + h} V${y + r} Q${x},${y} ${x + r},${y} H${x + w - r} Q${x + w},${y} ${x + w},${y + r} V${y + h} Z`;
 }
 
 function DataTable({

@@ -14,7 +14,7 @@ import {
   QUESTION_BY_ID,
 } from './simulator';
 import { enadeSessionSchema } from './simulator-schema';
-import { computeStats, type AttemptRecord } from './stats';
+import { computeStats, type AttemptRecord, type DailyRecord } from './stats';
 
 const startedAt = 1_800_000_000_000;
 const exam = buildSession({ kind: 'STANDARD', year: 2021 }, 42, startedAt);
@@ -169,9 +169,53 @@ describe('ENADE study statistics', () => {
       total: 180_000,
       isScoped: true,
     });
+    expect(stats.streak.calendar).toHaveLength(7);
+    expect(stats.streak.calendar.at(-1)).toEqual({
+      day: '2026-11-24',
+      level: 1,
+      durationMs: 180_000,
+      answers: 2,
+      articles: 0,
+    });
     expect(
       computeStats(input, { period: '7d', activity: 'all', year: 2017, topic: 'rup' }, now).attempts
         .finished
     ).toBe(0);
+  });
+
+  it('fills the last 365 São Paulo study days while keeping streak totals for older activity', () => {
+    const daily = (day: string, readingMs: number, articlesStudied = 0): DailyRecord => ({
+      day,
+      readingMs,
+      practiceMs: 0,
+      questionsAnswered: 0,
+      questionsCorrect: 0,
+      articlesStudied,
+    });
+    const stats = computeStats(
+      {
+        attempts: [],
+        answers: [],
+        daily: [
+          daily('2025-01-01', 60_000),
+          daily('2025-01-02', 60_000),
+          daily('2025-01-03', 60_000),
+          daily('2026-11-23', 20 * 60_000),
+          daily('2026-11-24', 0, 1),
+        ],
+        topicCategory: new Map(),
+      },
+      { period: 'all', activity: 'all' },
+      new Date('2026-11-25T02:15:00Z')
+    );
+
+    expect(stats.streak).toMatchObject({ current: 2, longest: 3, activeDays: 5 });
+    expect(stats.streak.calendar).toHaveLength(365);
+    expect(stats.streak.calendar[0]).toMatchObject({ day: '2025-11-25', level: 0 });
+    expect(stats.streak.calendar.slice(-3)).toEqual([
+      { day: '2026-11-22', level: 0, durationMs: 0, answers: 0, articles: 0 },
+      { day: '2026-11-23', level: 2, durationMs: 20 * 60_000, answers: 0, articles: 0 },
+      { day: '2026-11-24', level: 1, durationMs: 0, answers: 0, articles: 1 },
+    ]);
   });
 });
