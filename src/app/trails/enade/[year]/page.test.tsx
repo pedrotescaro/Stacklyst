@@ -1,11 +1,11 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { prisma } from '@/lib/prisma';
-import { requireEnadeUser } from '@/lib/enade/hub.server';
+import { requireEnadeUserId } from '@/lib/enade/hub.server';
 import { importLegacyProgress } from '@/lib/enade/attempts.server';
 import { redirect } from 'next/navigation';
 import EnadeSimulationPage from './page';
 
-vi.mock('@/lib/enade/hub.server', () => ({ requireEnadeUser: vi.fn() }));
+vi.mock('@/lib/enade/hub.server', () => ({ requireEnadeUserId: vi.fn() }));
 vi.mock('@/lib/enade/attempts.server', () => ({ importLegacyProgress: vi.fn() }));
 vi.mock('@/lib/prisma', () => ({ prisma: { enadeAttempt: { findFirst: vi.fn() } } }));
 vi.mock('next/navigation', () => ({
@@ -19,7 +19,7 @@ vi.mock('next/navigation', () => ({
 describe('Standalone Enade route', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.mocked(requireEnadeUser).mockResolvedValue({ id: 'student-1' } as never);
+    vi.mocked(requireEnadeUserId).mockResolvedValue('student-1');
     vi.mocked(prisma.enadeAttempt.findFirst).mockResolvedValue(null);
   });
   it('imports legacy progress and redirects to the signed-in student’s edition attempt', async () => {
@@ -47,7 +47,7 @@ describe('Standalone Enade route', () => {
     expect(redirect).toHaveBeenCalledWith('/trails/enade/simulados');
   });
   it('requires login and rejects editions that do not exist', async () => {
-    vi.mocked(requireEnadeUser).mockRejectedValueOnce(new Error('redirect'));
+    vi.mocked(requireEnadeUserId).mockRejectedValueOnce(new Error('redirect'));
     await expect(
       EnadeSimulationPage({ params: Promise.resolve({ year: '2021' }) })
     ).rejects.toThrow('redirect');

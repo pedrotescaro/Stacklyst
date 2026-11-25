@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { loadReviewItems, requireEnadeUser, shellUser, topicTitles } from '@/lib/enade/hub.server';
+import { loadReviewItems, requireEnadeUserId, topicTitles } from '@/lib/enade/hub.server';
 import { QUESTION_BY_ID } from '@/lib/enade/simulator';
 import { explanationFor } from '@/lib/enade/feedback';
 import { questionLabel } from '@/lib/enade/topics';
@@ -18,14 +18,14 @@ export default async function ErrorNotebookPage({
 }: {
   searchParams: Promise<{ filtro?: string; assunto?: string }>;
 }) {
-  const user = await requireEnadeUser();
+  const userId = await requireEnadeUserId();
   const params = await searchParams;
   const filter: Filter = (['open', 'recurring', 'recovered', 'all'] as const).includes(
     params.filtro as Filter
   )
     ? (params.filtro as Filter)
     : 'open';
-  const items = (await loadReviewItems(user.id)).filter((i) => QUESTION_BY_ID.has(i.question_id));
+  const items = (await loadReviewItems(userId)).filter((i) => QUESTION_BY_ID.has(i.question_id));
   const titles = topicTitles();
   const topic = params.assunto && titles.has(params.assunto) ? params.assunto : null;
   const topics = [...new Set(items.map((i) => i.topic).filter((t): t is string => !!t))].sort(
@@ -62,7 +62,6 @@ export default async function ErrorNotebookPage({
   };
   return (
     <EnadeShell
-      user={shellUser(user)}
       title="Caderno de erros"
       description="Toda questão objetiva que você errar entra aqui automaticamente. Ela é considerada recuperada depois de dois acertos seguidos em revisões espaçadas."
       actions={

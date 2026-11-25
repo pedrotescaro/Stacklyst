@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { StartAttemptButton } from './StartAttemptButton';
 import ui from './ui.module.css';
+import { plural } from '@/lib/enade/format';
 
 export function TopicPractice({
   topics,
@@ -69,7 +70,9 @@ export function TopicPractice({
         </button>
       </div>
       <StartAttemptButton payload={{ kind: 'TOPIC', topic, limit, mode }} disabled={!selected}>
-        Praticar {selected ? Math.min(limit, selected.count) : ''} questões
+        {selected
+          ? `Praticar ${plural(Math.min(limit, selected.count), 'questão', 'questões')}`
+          : 'Praticar'}
       </StartAttemptButton>
     </div>
   );

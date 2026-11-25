@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
-import { requireEnadeUser, shellUser } from '@/lib/enade/hub.server';
+import { requireEnadeUserId } from '@/lib/enade/hub.server';
 import { QUESTION_BY_ID } from '@/lib/enade/simulator';
 import { questionLabel } from '@/lib/enade/topics';
 import { studyAids } from '@/lib/enade/aids.server';
@@ -13,24 +13,23 @@ import { QuestionDetail } from '../../_components/QuestionDetail';
 import ui from '../../_components/ui.module.css';
 
 export default async function QuestionPage({ params }: { params: Promise<{ id: string }> }) {
-  const user = await requireEnadeUser();
+  const userId = await requireEnadeUserId();
   const { id } = await params;
   const question = QUESTION_BY_ID.get(id);
   if (!question) notFound();
   const [answers, favorite] = await Promise.all([
     prisma.enadeAnswer.findMany({
-      where: { user_id: user.id, question_id: id },
+      where: { user_id: userId, question_id: id },
       orderBy: { answered_at: 'desc' },
       select: { id: true, selected: true, correct: true, answered_at: true, attempt_id: true },
     }),
     prisma.enadeFavorite.findUnique({
-      where: { user_id_kind_ref: { user_id: user.id, kind: 'QUESTION', ref: id } },
+      where: { user_id_kind_ref: { user_id: userId, kind: 'QUESTION', ref: id } },
     }),
   ]);
   const aids = studyAids([id])[id];
   return (
     <EnadeShell
-      user={shellUser(user)}
       title={questionLabel(question)}
       description={
         <>
@@ -69,7 +68,7 @@ export default async function QuestionPage({ params }: { params: Promise<{ id: s
           </div>
           <ul className={ui.rows}>
             {answers.map((a) => (
-              <li key={a.id} className={ui.row} style={{ padding: '10px 0' }}>
+              <li key={a.id} className={`${ui.row} ${ui.rowCompact}`}>
                 <div className={ui.rowMain}>
                   <p className={ui.rowMeta} style={{ marginTop: 0 }}>
                     <span>{dateTime(a.answered_at)}</span>

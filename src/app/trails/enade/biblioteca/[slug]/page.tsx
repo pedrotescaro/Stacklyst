@@ -4,13 +4,15 @@ import { BookOpen, ChevronRight, Clock3, History, ListChecks } from 'lucide-reac
 import { prisma } from '@/lib/prisma';
 import { loadLibrary } from '@/lib/enade/library/load';
 import { summaryBlocks } from '@/lib/enade/library/markdown';
-import { requireEnadeUser } from '@/lib/enade/hub.server';
+import { requireEnadeUserId } from '@/lib/enade/hub.server';
 import { questionsForTopic } from '@/lib/enade/topics';
-import { shortDate } from '@/lib/enade/format';
+import { plural, shortDate } from '@/lib/enade/format';
 import { ArticleBody } from '../_components/ArticleBody';
 import { ArticleActions } from '../_components/ArticleActions';
 import { TableOfContents } from '../_components/TableOfContents';
 import { StartAttemptButton } from '../../_components/StartAttemptButton';
+import { IconTile } from '../_components/IconTile';
+import { splitTitle } from '@/lib/enade/library/title';
 import styles from '../_components/library.module.css';
 import ui from '../../_components/ui.module.css';
 
@@ -27,7 +29,7 @@ export default async function ArticlePage({
   params: Promise<{ slug: string }>;
   searchParams: Promise<{ view?: string }>;
 }) {
-  const user = await requireEnadeUser();
+  const userId = await requireEnadeUserId();
   const { slug } = await params;
   const { view } = await searchParams;
   const library = loadLibrary();
@@ -36,10 +38,10 @@ export default async function ArticlePage({
   const summary = view === 'resumo';
   const [progress, favorite] = await Promise.all([
     prisma.enadeStudyProgress.findUnique({
-      where: { user_id_article_slug: { user_id: user.id, article_slug: slug } },
+      where: { user_id_article_slug: { user_id: userId, article_slug: slug } },
     }),
     prisma.enadeFavorite.findUnique({
-      where: { user_id_kind_ref: { user_id: user.id, kind: 'ARTICLE', ref: slug } },
+      where: { user_id_kind_ref: { user_id: userId, kind: 'ARTICLE', ref: slug } },
     }),
   ]);
   const category = library.categories.find((c) => c.slug === article.category)!;
@@ -53,10 +55,12 @@ export default async function ArticlePage({
   const official = questionsForTopic(slug);
   const blocks = summary ? summaryBlocks(article.blocks) : article.blocks;
   const toc = summary ? [] : article.toc;
+  const heading = splitTitle(article.title);
   return (
     <div className={styles.articleGrid}>
       <article aria-labelledby="article-title">
         <nav className={styles.breadcrumbs} aria-label="Você está em">
+          <IconTile icon={category.icon} size={22} />
           <Link href="/trails/enade/biblioteca">Biblioteca</Link>
           <ChevronRight size={12} aria-hidden="true" />
           <Link href={`/trails/enade/biblioteca/categoria/${category.slug}`}>{category.title}</Link>
@@ -66,32 +70,20 @@ export default async function ArticlePage({
               <Link href={`/trails/enade/biblioteca/${parent.slug}`}>{parent.title}</Link>
             </>
           )}
-          <ChevronRight size={12} aria-hidden="true" />
-          <span aria-current="page">{article.title}</span>
         </nav>
         <h1 id="article-title" className={styles.articleTitle}>
-          {article.title}
+          {heading.main}
         </h1>
+        {heading.detail && <p className={styles.articleDetail}>{heading.detail}</p>}
         <p className={styles.articleSummary}>{article.summary}</p>
         <p className={styles.articleMeta}>
           <span>
-            <Clock3
-              size={13}
-              aria-hidden="true"
-              style={{ display: 'inline', verticalAlign: '-2px' }}
-            />{' '}
-            {article.readingMinutes} min de leitura
+            <Clock3 size={13} aria-hidden="true" /> {article.readingMinutes} min de leitura
           </span>
           <span>Nível {article.level}</span>
-          <span>
-            <History
-              size={13}
-              aria-hidden="true"
-              style={{ display: 'inline', verticalAlign: '-2px' }}
-            />{' '}
-            versão {article.version} · revisado em {shortDate(`${article.updated}T12:00:00Z`)}
-          </span>
-          {official.length > 0 && <span>{official.length} questões oficiais relacionadas</span>}
+          {official.length > 0 && (
+            <span>{plural(official.length, 'questão oficial', 'questões oficiais')}</span>
+          )}
         </p>
         <div className={styles.articleActions}>
           <div className={styles.viewSwitch} role="group" aria-label="Modo de leitura">
@@ -129,6 +121,10 @@ export default async function ArticlePage({
           slug={slug}
           quizBest={{ best: progress?.quiz_best ?? null, total: progress?.quiz_total ?? null }}
         />
+        <p className={styles.revision}>
+          <History size={13} aria-hidden="true" /> Versão {article.version} · revisado em{' '}
+          {shortDate(`${article.updated}T12:00:00Z`)}
+        </p>
         {children.length > 0 && (
           <section className={styles.related} aria-labelledby="children-title">
             <h2 id="children-title">Subpáginas</h2>

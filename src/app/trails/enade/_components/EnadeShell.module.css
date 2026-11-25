@@ -1,128 +1,252 @@
-.main {
+/* Tokens of the ENADE hub, shared by the main column and the right rail. */
+.root {
   --enade-action: #0063bd;
-  --enade-link: #005eac;
+  --enade-link: #0070dc;
   --enade-success: #087044;
   --enade-danger: #be2144;
   --enade-warning: #a34c00;
   --enade-soft: color-mix(in srgb, var(--color-dd-text) 4%, var(--color-dd-bg));
-  --enade-line: var(--color-dd-border);
-  --color-dd-muted: color-mix(in srgb, var(--color-dd-text) 66%, var(--color-dd-bg));
-  min-width: 0;
-  padding-bottom: 96px;
+  --enade-softer: color-mix(in srgb, var(--color-dd-text) 2.5%, var(--color-dd-bg));
+  --enade-brand-soft: color-mix(in srgb, var(--color-dd-accent) 11%, var(--color-dd-bg));
+  --enade-line: color-mix(in srgb, var(--color-dd-text) 9%, var(--color-dd-bg));
+  --enade-border: var(--color-dd-border);
+  --color-dd-muted: color-mix(in srgb, var(--color-dd-text) 64%, var(--color-dd-bg));
+  /* Height of the sticky header (title row + tabs), used by sticky children. */
+  --enade-topbar: 109px;
 }
-:global(:root.dark) .main {
-  --enade-link: #84c4ff;
+:global(:root.dark) .root {
+  --enade-link: #5cb0ff;
   --enade-success: #34d399;
   --enade-danger: #fb7185;
   --enade-warning: #ffb45b;
-  --enade-soft: color-mix(in srgb, var(--color-dd-text) 6%, var(--color-dd-bg));
+  --enade-soft: color-mix(in srgb, var(--color-dd-text) 6.5%, var(--color-dd-bg));
+  --enade-softer: color-mix(in srgb, var(--color-dd-text) 4%, var(--color-dd-bg));
+  --enade-brand-soft: color-mix(in srgb, var(--color-dd-accent) 18%, var(--color-dd-bg));
+  --enade-line: color-mix(in srgb, var(--color-dd-text) 12%, var(--color-dd-bg));
 }
-.nav {
+
+/* Main column: framed by hairlines on both sides, like the rest of the platform. */
+.main {
+  min-width: 0;
+  min-height: 100dvh;
+  padding-bottom: 96px;
+  border-right: 1px solid var(--enade-border);
+  background: var(--color-dd-bg);
+}
+.main[data-library='true'] {
+  padding-bottom: 0;
+}
+
+/* Right column: folds its width to zero on the library, letting the reading area grow. */
+.railSlot {
+  position: sticky;
+  top: 0;
+  display: none;
+  flex: none;
+  align-self: flex-start;
+  width: 350px;
+  height: 100dvh;
+  overflow: clip;
+  transition:
+    width 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+    opacity 0.35s ease;
+}
+.railSlot > * {
+  width: 350px;
+  transition: transform 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.railSlot[data-collapsed='true'] {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+.railSlot[data-collapsed='true'] > * {
+  transform: translateX(24px);
+}
+@media (min-width: 1280px) {
+  .railSlot {
+    display: block;
+  }
+}
+@media (min-width: 1536px) {
+  .railSlot,
+  .railSlot > * {
+    width: 380px;
+  }
+  .railSlot[data-collapsed='true'] {
+    width: 0;
+  }
+}
+
+/* Sticky header: title row and tabs, translucent like the timeline header. */
+.topbar {
   position: sticky;
   top: 0;
   z-index: 20;
+  border-bottom: 1px solid var(--enade-border);
+  background: color-mix(in srgb, var(--color-dd-bg) 85%, transparent);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.titleRow {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 0 20px;
-  border-bottom: 1px solid var(--enade-line);
-  background: var(--color-dd-bg);
+  gap: 20px;
+  height: 52px;
+  padding: 0 16px;
 }
 .back {
-  flex-shrink: 0;
-  padding-right: 10px;
-  margin-right: 2px;
-  border-right: 1px solid var(--enade-line);
-  font-size: 12.5px;
-  color: var(--color-dd-muted);
-  white-space: nowrap;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  margin-left: -4px;
+  border-radius: 999px;
+  color: var(--color-dd-text);
+  transition: background-color 0.15s ease;
 }
 .back:hover {
-  color: var(--color-dd-text);
-}
-.tabs {
-  display: flex;
-  flex: 1;
-  gap: 2px;
-  overflow-x: auto;
-  scrollbar-width: thin;
-}
-.navMenu {
-  position: relative;
-  flex: none;
-}
-.navMenu summary {
-  display: grid;
-  place-items: center;
-  width: 42px;
-  height: 42px;
-  border-radius: 8px;
-  list-style: none;
-  cursor: pointer;
-}
-.navMenu summary::-webkit-details-marker {
-  display: none;
-}
-.navMenu summary:hover,
-.navMenu a:hover,
-.navMenu a[aria-current='page'] {
   background: var(--enade-soft);
 }
-.navMenu ul {
-  position: absolute;
-  inset: calc(100% + 6px) 0 auto auto;
-  width: max-content;
-  max-height: min(430px, calc(100dvh - 120px));
-  overflow-y: auto;
-  padding: 4px;
-  border: 1px solid var(--enade-line);
-  border-radius: 10px;
-  background: var(--color-dd-bg);
+.titleText {
+  min-width: 0;
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
 }
-.navMenu a {
+
+/*
+ * Tabs: icon circles. The current one grows into a blue pill with its name while the
+ * previous one folds back into a circle, both driven by the same easing.
+ */
+.tabs {
+  --tab-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --tab-time: 0.42s;
   display: flex;
   align-items: center;
-  gap: 10px;
-  min-height: 40px;
-  padding: 0 10px;
-  border-radius: 6px;
-  font-size: 0.875rem;
+  padding: 4px 16px 12px;
 }
-.navMenu a[aria-current='page'] {
-  color: var(--enade-link);
+.tabList {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 8px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.tabList::-webkit-scrollbar {
+  display: none;
+}
+.tabList > li {
+  display: flex;
+  flex: none;
 }
 .tab {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  min-height: 48px;
-  padding: 0 10px;
-  border-bottom: 2px solid transparent;
+  height: 40px;
+  padding: 0 11px;
+  border-radius: 999px;
+  background: var(--enade-soft);
   color: var(--color-dd-muted);
-  font-size: 13px;
-  font-weight: 550;
+  font-size: 15px;
+  font-weight: 700;
   white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
   transition:
-    color 0.15s ease,
-    border-color 0.15s ease;
+    padding var(--tab-time) var(--tab-ease),
+    background-color var(--tab-time) var(--tab-ease),
+    color var(--tab-time) var(--tab-ease),
+    box-shadow var(--tab-time) var(--tab-ease);
 }
 .tab:hover {
+  background: color-mix(in srgb, var(--color-dd-text) 12%, var(--color-dd-bg));
   color: var(--color-dd-text);
 }
-.tab[aria-current='page'] {
-  border-bottom-color: var(--color-dd-accent);
-  color: var(--color-dd-text);
+.tab[data-selected='true'] {
+  padding: 0 18px 0 14px;
+  background: var(--color-dd-accent);
+  color: #fff;
+  box-shadow: 0 6px 18px rgb(0 131 254 / 0.3);
 }
-.tab[aria-current='page'] svg {
-  color: var(--enade-link);
+.tab[data-selected='true']:hover {
+  background: color-mix(in srgb, var(--color-dd-accent) 90%, #000);
 }
+.tabIcon {
+  flex: none;
+}
+/* The name unfolds through a 0fr → 1fr grid track, so the pill width animates itself. */
+.tabText {
+  display: grid;
+  grid-template-columns: 0fr;
+  margin-left: 0;
+  opacity: 0;
+  transition:
+    grid-template-columns var(--tab-time) var(--tab-ease),
+    margin-left var(--tab-time) var(--tab-ease),
+    opacity 0.25s ease;
+}
+.tabText > span {
+  min-width: 0;
+  overflow: hidden;
+}
+.tab[data-selected='true'] .tabText {
+  grid-template-columns: 1fr;
+  margin-left: 8px;
+  opacity: 1;
+  transition:
+    grid-template-columns var(--tab-time) var(--tab-ease),
+    margin-left var(--tab-time) var(--tab-ease),
+    opacity 0.3s ease 0.08s;
+}
+
+/* Personal pages live in the right rail; where there is no rail they join the tabs. */
+.personalTab {
+  display: flex;
+  flex: none;
+  animation: tabIn 0.35s cubic-bezier(0.32, 0.72, 0, 1) both;
+}
+@keyframes tabIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+}
+.personalTab[data-first-personal] {
+  margin-left: 6px;
+  padding-left: 14px;
+  border-left: 1px solid var(--enade-border);
+}
+@media (min-width: 1280px) {
+  .main:not([data-library='true']) .personalTab {
+    display: none;
+  }
+}
+
 .tab:focus-visible,
-.navMenu summary:focus-visible,
-.navMenu a:focus-visible,
 .back:focus-visible {
   outline: 2px solid var(--color-dd-accent);
   outline-offset: -2px;
-  border-radius: 4px;
+}
+
+/* Page header and content */
+.page {
+  min-width: 0;
+  animation: pageIn 0.2s ease-out both;
+}
+@keyframes pageIn {
+  from {
+    opacity: 0;
+  }
+}
+.notices {
+  padding: 0 24px;
+}
+.notices:empty {
+  display: none;
 }
 .header {
   display: flex;
@@ -130,32 +254,19 @@
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px 24px;
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 32px 28px 8px;
-}
-.main[data-wide='true'] .header,
-.main[data-wide='true'] .content {
-  max-width: none;
-}
-.eyebrow {
-  margin-bottom: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  color: var(--enade-link);
+  padding: 24px 24px 4px;
 }
 .header h1 {
-  font-size: clamp(24px, 3vw, 30px);
-  font-weight: 650;
-  line-height: 1.2;
-  letter-spacing: -0.025em;
+  font-size: clamp(24px, 2.6vw, 30px);
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 .description {
-  max-width: 64ch;
+  max-width: 62ch;
   margin-top: 8px;
-  font-size: 14.5px;
-  line-height: 1.65;
+  font-size: 15px;
+  line-height: 1.6;
   color: var(--color-dd-muted);
 }
 .actions {
@@ -164,23 +275,37 @@
   gap: 8px;
 }
 .content {
-  max-width: 980px;
-  margin: 0 auto;
-  padding: 20px 28px 0;
+  padding: 24px 24px 0;
 }
+
 @media (max-width: 640px) {
-  .nav {
+  .titleRow {
+    padding: 0 12px;
+  }
+  .tab {
     padding: 0 12px;
   }
   .header {
-    padding: 24px 16px 4px;
+    padding: 20px 16px 4px;
   }
   .content {
-    padding: 16px 16px 0;
+    padding: 18px 16px 0;
+  }
+  .notices {
+    padding: 0 16px;
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .tab {
+  .tab,
+  .tabText,
+  .tab[data-selected='true'] .tabText,
+  .railSlot,
+  .railSlot > *,
+  .back {
     transition: none;
+  }
+  .page,
+  .personalTab {
+    animation: none;
   }
 }

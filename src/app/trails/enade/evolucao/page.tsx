@@ -2,8 +2,7 @@ import Link from 'next/link';
 import {
   libraryOutline,
   loadHistory,
-  requireEnadeUser,
-  shellUser,
+  requireEnadeUserId,
   topicCategories,
   topicTitles,
 } from '@/lib/enade/hub.server';
@@ -54,7 +53,7 @@ export default async function EvolutionPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const user = await requireEnadeUser();
+  const userId = await requireEnadeUserId();
   const params = await searchParams;
   const outline = libraryOutline();
   const period = PERIODS.some((p) => p.value === params.periodo)
@@ -71,7 +70,7 @@ export default async function EvolutionPage({
       (article) => article.slug === params.assunto && (!category || article.category === category)
     )?.slug ?? null;
   const year = ENADE_YEARS.includes(Number(params.ano)) ? Number(params.ano) : null;
-  const history = await loadHistory(user.id);
+  const history = await loadHistory(userId);
   const stats = computeStats(
     { ...history, topicCategory: topicCategories() },
     { period, activity, category, topic, year }
@@ -82,7 +81,6 @@ export default async function EvolutionPage({
     stats.totals.answered > 0 || stats.studyMs.total > 0 || stats.attempts.finished > 0;
   return (
     <EnadeShell
-      user={shellUser(user)}
       title="Minha evolução"
       description="Indicadores calculados a partir das suas respostas registradas. Questões únicas e respostas repetidas aparecem separadas para não inflar o desempenho."
     >
@@ -387,7 +385,7 @@ function TopicTable({
       {rows.length ? (
         <ul className={ui.rows}>
           {rows.slice(0, 12).map((row) => (
-            <li key={row.slug} className={ui.row} style={{ padding: '10px 0' }}>
+            <li key={row.slug} className={`${ui.row} ${ui.rowCompact}`}>
               <div className={ui.rowMain} style={{ flexBasis: 160 }}>
                 <p className={ui.rowTitle} style={{ fontSize: 13.5 }}>
                   <Link href={href(row.slug)}>{label(row.slug)}</Link>
@@ -427,7 +425,7 @@ function TopicList({
   return (
     <ul className={ui.rows}>
       {items.slice(0, 8).map((item) => (
-        <li key={item.slug} className={ui.row} style={{ padding: '10px 0' }}>
+        <li key={item.slug} className={`${ui.row} ${ui.rowCompact}`}>
           <div className={ui.rowMain}>
             <Link className={ui.rowTitle} href={`/trails/enade/biblioteca/${item.slug}`}>
               {titles.get(item.slug) ?? item.slug}

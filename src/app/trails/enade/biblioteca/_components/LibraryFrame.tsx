@@ -13,6 +13,8 @@ import {
 } from 'lucide-react';
 import type { LibraryCategory } from '@/lib/enade/library/catalog';
 import { LibrarySearch } from './LibrarySearch';
+import { IconTile } from './IconTile';
+import { splitTitle } from '@/lib/enade/library/title';
 import styles from './library.module.css';
 
 type Entry = { slug: string; title: string; category: string; parent: string | null };
@@ -122,7 +124,9 @@ export function LibraryFrame({
                 className={styles.treeLink}
                 aria-current={active ? 'page' : undefined}
               >
-                <span className={styles.treeTitle}>{article.title}</span>
+                <span className={styles.treeTitle} title={article.title}>
+                  {splitTitle(article.title).main}
+                </span>
                 {favorite && (
                   <Star
                     size={12}
@@ -216,8 +220,10 @@ export function LibraryFrame({
                     aria-current={
                       pathname.endsWith(`/categoria/${category.slug}`) ? 'page' : undefined
                     }
+                    className={styles.treeCategoryLink}
                   >
-                    {category.title}
+                    <IconTile icon={category.icon} size={22} />
+                    <span>{category.title}</span>
                   </Link>
                   <span className={styles.treeCount}>
                     {done}/{total.length}
@@ -253,7 +259,9 @@ export function LibraryFrame({
           </button>
         </div>
       )}
-      <div className={styles.page}>{children}</div>
+      <div className={styles.page}>
+        <div className={styles.pageInner}>{children}</div>
+      </div>
       {searching && <LibrarySearch onClose={() => setSearching(false)} />}
     </div>
   );

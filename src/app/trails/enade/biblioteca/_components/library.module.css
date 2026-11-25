@@ -1,8 +1,8 @@
 .frame {
   position: relative;
   display: grid;
-  grid-template-columns: 250px minmax(0, 1fr);
-  min-height: calc(100dvh - 49px);
+  grid-template-columns: 272px minmax(0, 1fr);
+  min-height: calc(100dvh - var(--enade-topbar, 62px));
 }
 .frame[data-collapsed='true'] {
   grid-template-columns: minmax(0, 1fr);
@@ -12,16 +12,24 @@
 }
 .sidebar {
   position: sticky;
-  top: 49px;
+  top: var(--enade-topbar, 62px);
   align-self: start;
   display: grid;
+  align-content: start;
   gap: 2px;
-  max-height: calc(100dvh - 49px);
+  height: calc(100dvh - var(--enade-topbar, 62px));
   overflow-y: auto;
-  padding: 14px 10px 40px;
+  padding: 10px 14px 32px 16px;
+  /* One quiet divider between the tree and the reading area. */
   border-right: 1px solid var(--enade-line);
   font-size: 13.5px;
+  /* The scrollbar only shows while the pointer is over the tree. */
   scrollbar-width: thin;
+  scrollbar-color: transparent transparent;
+}
+.sidebar:hover,
+.sidebar:focus-within {
+  scrollbar-color: var(--enade-line) transparent;
 }
 .sidebarTop {
   display: flex;
@@ -33,10 +41,10 @@
   flex: 1;
   align-items: center;
   gap: 8px;
-  min-height: 34px;
-  padding: 0 10px;
-  border: 1px solid var(--enade-line);
-  border-radius: 8px;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 999px;
+  background: var(--enade-soft);
   color: var(--color-dd-muted);
   font-size: 13px;
 }
@@ -85,10 +93,10 @@
   display: flex;
   align-items: center;
   gap: 2px;
-  min-height: 32px;
-  padding-right: 6px;
-  border-radius: 6px;
-  font-weight: 600;
+  min-height: 36px;
+  padding-right: 8px;
+  border-radius: 10px;
+  font-weight: 700;
 }
 .treeCategory:hover {
   background: var(--enade-soft);
@@ -109,6 +117,11 @@
   line-height: 1.3;
   overflow-wrap: anywhere;
 }
+.treeCategory a.treeCategoryLink {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .treeCategory a[aria-current='page'] {
   color: var(--enade-link);
 }
@@ -127,8 +140,10 @@
 }
 .treeList {
   display: grid;
-  gap: 1px;
-  margin: 2px 0 6px 12px;
+  gap: 2px;
+  margin: 2px 0 8px 22px;
+  padding-left: 8px;
+  border-left: 1px solid var(--enade-line);
 }
 .treeList[data-depth='1'] {
   margin: 1px 0 2px 16px;
@@ -147,9 +162,9 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  min-height: 30px;
-  padding: 4px 8px 4px 10px;
-  border-radius: 6px;
+  min-height: 32px;
+  padding: 5px 10px;
+  border-radius: 10px;
   color: color-mix(in srgb, var(--color-dd-text) 82%, var(--color-dd-bg));
   line-height: 1.35;
 }
@@ -158,14 +173,17 @@
   color: var(--color-dd-text);
 }
 .treeLink[aria-current='page'] {
-  background: color-mix(in srgb, var(--color-dd-accent) 10%, transparent);
-  color: var(--color-dd-text);
-  font-weight: 600;
+  background: var(--enade-brand-soft);
+  color: var(--enade-link);
+  font-weight: 700;
 }
 .treeTitle {
+  display: -webkit-box;
   flex: 1;
   min-width: 0;
-  overflow-wrap: anywhere;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 .treeDone {
   flex-shrink: 0;
@@ -188,7 +206,12 @@
 }
 .page {
   min-width: 0;
-  padding: 28px 32px 80px;
+  padding: 28px 40px 80px;
+}
+/* The reading column is centred in the space beside the tree. */
+.pageInner {
+  max-width: 1000px;
+  margin: 0 auto;
 }
 .frame[data-collapsed='true'] .page {
   padding-left: 60px;
@@ -224,19 +247,22 @@
     align-items: center;
     gap: 8px;
     min-height: 40px;
-    padding: 0 12px;
-    border: 1px solid var(--enade-line);
-    border-radius: 8px;
+    padding: 0 14px;
+    border-radius: 999px;
+    background: var(--enade-soft);
     font-size: 13px;
     font-weight: 600;
   }
   .sidebar {
     position: static;
     display: none;
+    height: auto;
     max-height: none;
     margin: 8px 16px 0;
-    border: 1px solid var(--enade-line);
-    border-radius: 10px;
+    padding: 12px 10px 20px;
+    border-right: 0;
+    border-radius: 18px;
+    background: var(--enade-softer);
   }
   .sidebar[data-open='true'],
   .frame[data-collapsed='true'] .sidebar[data-open='true'] {
@@ -341,6 +367,9 @@
   gap: 40px;
 }
 @media (max-width: 1240px) {
+  .pageInner {
+    max-width: 760px;
+  }
   .articleGrid {
     grid-template-columns: minmax(0, 760px);
   }
@@ -348,22 +377,38 @@
     display: none;
   }
 }
+.revision {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 32px;
+  font-size: 12.5px;
+  color: var(--color-dd-muted);
+}
+.articleDetail {
+  margin-top: 6px;
+  font-size: 15px;
+  font-weight: 600;
+  line-height: 1.5;
+  color: color-mix(in srgb, var(--color-dd-text) 78%, var(--color-dd-bg));
+}
 .breadcrumbs {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
-  font-size: 12.5px;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
   color: var(--color-dd-muted);
 }
 .breadcrumbs a:hover {
   color: var(--color-dd-text);
 }
 .articleTitle {
-  margin-top: 14px;
-  font-size: clamp(26px, 3.4vw, 34px);
-  font-weight: 700;
-  line-height: 1.18;
+  margin-top: 12px;
+  font-size: clamp(26px, 2.6vw, 32px);
+  font-weight: 800;
+  line-height: 1.15;
   letter-spacing: -0.03em;
 }
 .articleSummary {
@@ -377,10 +422,19 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px 16px;
-  margin-top: 14px;
+  gap: 6px;
+  margin-top: 16px;
   font-size: 12.5px;
   color: var(--color-dd-muted);
+}
+.articleMeta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--enade-soft);
+  font-weight: 600;
 }
 .articleActions {
   display: flex;
@@ -434,9 +488,9 @@
 }
 .tocRail {
   position: sticky;
-  top: 72px;
+  top: calc(var(--enade-topbar, 62px) + 20px);
   align-self: start;
-  max-height: calc(100dvh - 96px);
+  max-height: calc(100dvh - var(--enade-topbar, 62px) - 40px);
   overflow-y: auto;
   font-size: 12.5px;
 }

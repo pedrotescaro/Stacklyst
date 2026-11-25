@@ -1,10 +1,5 @@
 import Link from 'next/link';
-import {
-  libraryOutline,
-  loadStudyState,
-  requireEnadeUser,
-  shellUser,
-} from '@/lib/enade/hub.server';
+import { libraryOutline, loadStudyState, requireEnadeUserId } from '@/lib/enade/hub.server';
 import { QUESTION_BY_ID } from '@/lib/enade/simulator';
 import { questionLabel, primaryTopic } from '@/lib/enade/topics';
 import { shortDate } from '@/lib/enade/format';
@@ -16,8 +11,8 @@ import ui from '../_components/ui.module.css';
 export const metadata = { title: 'Favoritos ENADE · Stacklyst' };
 
 export default async function FavoritesPage() {
-  const user = await requireEnadeUser();
-  const study = await loadStudyState(user.id);
+  const userId = await requireEnadeUserId();
+  const study = await loadStudyState(userId);
   const outline = libraryOutline();
   const articles = study.favorites
     .filter((f) => f.kind === 'ARTICLE')
@@ -31,7 +26,6 @@ export default async function FavoritesPage() {
   const categories = new Map(outline.categories.map((c) => [c.slug, c.title]));
   return (
     <EnadeShell
-      user={shellUser(user)}
       title="Favoritos"
       description="Conteúdos e questões que você marcou com a estrela para voltar depois."
     >

@@ -1,6 +1,6 @@
 /* Long-form reading: ~70ch measure, generous leading, quiet chrome. */
 .body {
-  font-size: 15.5px;
+  font-size: 16px;
   line-height: 1.75;
   color: var(--color-dd-text);
 }
@@ -12,22 +12,20 @@
 }
 .body :global(h2) {
   position: relative;
-  margin-top: 2.4em;
-  padding-top: 0.6em;
-  border-top: 1px solid var(--enade-line);
-  font-size: 22px;
-  font-weight: 650;
+  margin-top: 2.2em;
+  font-size: 24px;
+  font-weight: 800;
   line-height: 1.3;
   letter-spacing: -0.015em;
-  scroll-margin-top: 72px;
+  scroll-margin-top: calc(var(--enade-topbar, 62px) + 20px);
 }
 .body :global(h3) {
   position: relative;
   margin-top: 1.8em;
-  font-size: 17.5px;
-  font-weight: 650;
+  font-size: 18.5px;
+  font-weight: 750;
   line-height: 1.35;
-  scroll-margin-top: 72px;
+  scroll-margin-top: calc(var(--enade-topbar, 62px) + 20px);
 }
 .body :global(h4) {
   margin-top: 1.4em;
@@ -107,7 +105,7 @@
 .body :global(.table-wrap) {
   overflow-x: auto;
   border: 1px solid var(--enade-line);
-  border-radius: 8px;
+  border-radius: 14px;
 }
 .body :global(.table-wrap:focus-visible) {
   outline: 2px solid var(--color-dd-accent);
@@ -144,12 +142,13 @@
 }
 
 /* Callouts: a tinted left rule, no boxes inside boxes. */
+/* Notion-like callouts: a soft rounded box tinted by its kind. */
 .callout {
   --tone: var(--color-dd-accent);
-  padding: 12px 16px 14px;
-  border-left: 3px solid var(--tone);
-  border-radius: 0 8px 8px 0;
-  background: color-mix(in srgb, var(--tone) 7%, var(--color-dd-bg));
+  padding: 14px 18px 16px;
+  border: 1px solid color-mix(in srgb, var(--tone) 22%, transparent);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--tone) 8%, var(--color-dd-bg));
 }
 .callout[data-variant='trap'],
 .callout[data-variant='warning'] {
@@ -178,6 +177,10 @@
   font-weight: 650;
 }
 .calloutTitle svg {
+  box-sizing: content-box;
+  padding: 5px;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--tone) 16%, transparent);
   color: var(--tone);
 }
 .calloutKind {
@@ -187,26 +190,34 @@
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
+/* Toggles read as cards that open in place. */
 .toggle {
-  border-top: 1px solid var(--enade-line);
-  border-bottom: 1px solid var(--enade-line);
+  border: 1px solid var(--enade-line);
+  border-radius: 14px;
+  transition: background-color 0.15s ease;
 }
 .toggle + .toggle {
-  margin-top: 0;
-  border-top: 0;
+  margin-top: 8px;
+}
+.toggle[open] {
+  background: var(--enade-softer);
 }
 .toggle summary {
-  padding: 10px 0;
-  font-weight: 600;
+  padding: 12px 16px;
+  border-radius: 14px;
+  font-weight: 650;
   cursor: pointer;
   list-style-position: inside;
+}
+.toggle summary:hover {
+  background: var(--enade-soft);
 }
 .toggle summary:focus-visible {
   outline: 2px solid var(--color-dd-accent);
   outline-offset: 2px;
 }
 .toggle > div {
-  padding: 0 0 14px 18px;
+  padding: 2px 18px 16px 34px;
 }
 .official {
   padding: 10px 14px;
@@ -229,22 +240,105 @@
   margin-inline: 0;
 }
 .diagram figcaption {
-  margin-top: 6px;
-  font-size: 12.5px;
+  margin-top: 8px;
+  font-size: 13px;
   color: var(--color-dd-muted);
   text-align: center;
 }
+/* Diagrams keep their natural size; wide ones scroll sideways instead of shrinking. */
+.diagramFrame {
+  position: relative;
+  border: 1px solid var(--enade-line);
+  border-radius: 16px;
+  background: var(--enade-softer);
+}
 .diagramSvg {
   display: flex;
-  justify-content: center;
   overflow-x: auto;
-  padding: 12px;
-  border: 1px solid var(--enade-line);
-  border-radius: 8px;
+  padding: 24px 20px;
+  cursor: zoom-in;
+  scrollbar-width: thin;
+  scrollbar-color: var(--enade-line) transparent;
 }
 .diagramSvg :global(svg) {
-  max-width: 100%;
+  flex: none;
+  width: var(--diagram-width, auto);
+  max-width: none;
   height: auto;
+  margin: 0 auto;
+}
+.diagramExpand {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  background: var(--enade-soft);
+  color: var(--color-dd-muted);
+  opacity: 0.85;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.diagramExpand:hover {
+  background: var(--color-dd-accent);
+  color: #fff;
+  opacity: 1;
+}
+.diagramExpand:focus-visible {
+  outline: 2px solid var(--color-dd-accent);
+  outline-offset: 2px;
+}
+.diagramDialog {
+  width: min(1200px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 48px);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--enade-line);
+  border-radius: 20px;
+  background: var(--color-dd-bg);
+  color: var(--color-dd-text);
+}
+.diagramDialog::backdrop {
+  background: rgb(0 0 0 / 0.6);
+  backdrop-filter: blur(4px);
+}
+.diagramDialogHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px 12px 20px;
+  border-bottom: 1px solid var(--enade-line);
+  font-size: 15px;
+  font-weight: 700;
+}
+.diagramDialogHead button {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+}
+.diagramDialogHead button:hover {
+  background: var(--enade-soft);
+}
+.diagramDialogBody {
+  display: flex;
+  max-height: calc(100dvh - 120px);
+  overflow: auto;
+  padding: 28px;
+}
+.diagramDialogBody :global(svg) {
+  flex: none;
+  max-width: none;
+  height: auto;
+  margin: auto;
 }
 .diagramLoading {
   display: grid;

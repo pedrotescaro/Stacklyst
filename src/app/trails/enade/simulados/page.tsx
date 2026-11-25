@@ -7,7 +7,7 @@ import { attemptPercent, SIMULATION_KINDS } from '@/lib/enade/stats';
 import { KIND_LABELS } from '@/lib/enade/attempts';
 import { dateTime, shortDate } from '@/lib/enade/format';
 import { questionsForTopic } from '@/lib/enade/topics';
-import { libraryOutline, loadHistory, requireEnadeUser, shellUser } from '@/lib/enade/hub.server';
+import { libraryOutline, loadHistory, requireEnadeUserId } from '@/lib/enade/hub.server';
 import { EnadeShell } from '../_components/EnadeShell';
 import { StartAttemptButton } from '../_components/StartAttemptButton';
 import { DiscardAttemptButton } from '../_components/DiscardAttemptButton';
@@ -18,13 +18,15 @@ import ui from '../_components/ui.module.css';
 export const metadata = { title: 'Simulados ENADE · Stacklyst' };
 
 export default async function SimulationsPage() {
-  const user = await requireEnadeUser();
-  const history = await loadHistory(user.id);
-  const lastCustom = await prisma.enadeAttempt.findFirst({
-    where: { user_id: user.id, kind: 'CUSTOM' },
-    orderBy: { created_at: 'desc' },
-    select: { state: true },
-  });
+  const userId = await requireEnadeUserId();
+  const [history, lastCustom] = await Promise.all([
+    loadHistory(userId),
+    prisma.enadeAttempt.findFirst({
+      where: { user_id: userId, kind: 'CUSTOM' },
+      orderBy: { created_at: 'desc' },
+      select: { state: true },
+    }),
+  ]);
   const running = history.attempts
     .filter((a) => a.status === 'IN_PROGRESS' && SIMULATION_KINDS.includes(a.kind))
     .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
@@ -40,7 +42,6 @@ export default async function SimulationsPage() {
   const editions = [...catalog].reverse();
   return (
     <EnadeShell
-      user={shellUser(user)}
       title="Simulados"
       description="Provas oficiais completas, simulados sob medida e prática por assunto. Cada tentativa fica salva no seu histórico — refazer nunca apaga a anterior."
     >

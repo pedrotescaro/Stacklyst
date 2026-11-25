@@ -2,8 +2,7 @@ import {
   loadHistory,
   loadReviewItems,
   loadStudyState,
-  requireEnadeUser,
-  shellUser,
+  requireEnadeUserId,
   topicCategories,
   topicTitles,
 } from '@/lib/enade/hub.server';
@@ -21,11 +20,11 @@ import ui from '../_components/ui.module.css';
 export const metadata = { title: 'Revisão inteligente ENADE · Stacklyst' };
 
 export default async function SmartReviewPage() {
-  const user = await requireEnadeUser();
+  const userId = await requireEnadeUserId();
   const [items, history, study] = await Promise.all([
-    loadReviewItems(user.id),
-    loadHistory(user.id),
-    loadStudyState(user.id),
+    loadReviewItems(userId),
+    loadHistory(userId),
+    loadStudyState(userId),
   ]);
   const now = new Date();
   const due = items.filter((i) => i.due_at <= now);
@@ -58,7 +57,6 @@ export default async function SmartReviewPage() {
     if (item.topic) dueByTopic.set(item.topic, (dueByTopic.get(item.topic) ?? 0) + 1);
   return (
     <EnadeShell
-      user={shellUser(user)}
       title="Revisão inteligente"
       description={
         <>
@@ -81,7 +79,7 @@ export default async function SmartReviewPage() {
             </p>
           </div>
         ) : (
-          <div className={ui.row} style={{ borderTop: '1px solid var(--enade-line)' }}>
+          <div className={`${ui.row} ${ui.solo}`}>
             <div className={ui.rowMain}>
               <p className={ui.rowTitle}>
                 {due.length
@@ -106,7 +104,7 @@ export default async function SmartReviewPage() {
             {[...dueByTopic.entries()]
               .sort((a, b) => b[1] - a[1])
               .map(([topic, count]) => (
-                <li key={topic} className={ui.row} style={{ padding: '10px 0' }}>
+                <li key={topic} className={`${ui.row} ${ui.rowCompact}`}>
                   <div className={ui.rowMain}>
                     <p className={ui.rowTitle} style={{ fontSize: 13.5 }}>
                       {titles.get(topic) ?? topic}

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { prisma } from '@/lib/prisma';
-import { libraryOutline, requireEnadeUser, shellUser } from '@/lib/enade/hub.server';
+import { libraryOutline, requireEnadeUserId } from '@/lib/enade/hub.server';
 import { ENADE_YEARS, QUESTION_BANK } from '@/lib/enade/simulator';
 import { primaryTopic, questionLabel, topicsFor } from '@/lib/enade/topics';
 import { insightFor } from '@/lib/enade/insights';
@@ -19,7 +19,7 @@ export default async function QuestionBankPage({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const user = await requireEnadeUser();
+  const userId = await requireEnadeUserId();
   const params = await searchParams;
   const outline = libraryOutline();
   const year = ENADE_YEARS.includes(Number(params.ano)) ? Number(params.ano) : null;
@@ -40,12 +40,12 @@ export default async function QuestionBankPage({
 
   const [answers, favorites] = await Promise.all([
     prisma.enadeAnswer.findMany({
-      where: { user_id: user.id },
+      where: { user_id: userId },
       orderBy: { answered_at: 'asc' },
       select: { question_id: true, correct: true },
     }),
     prisma.enadeFavorite.findMany({
-      where: { user_id: user.id, kind: 'QUESTION' },
+      where: { user_id: userId, kind: 'QUESTION' },
       select: { ref: true },
     }),
   ]);
@@ -89,7 +89,6 @@ export default async function QuestionBankPage({
   };
   return (
     <EnadeShell
-      user={shellUser(user)}
       title="Banco de questões"
       description="As 200 questões oficiais de ADS (Inep, 2008–2021), classificadas por assunto. Resolva uma a uma com correção comentada imediata."
     >

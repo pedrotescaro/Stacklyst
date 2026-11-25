@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { loadHistory, requireEnadeUser, shellUser, topicTitles } from '@/lib/enade/hub.server';
+import { loadHistory, requireEnadeUserId, topicTitles } from '@/lib/enade/hub.server';
 import { attemptPercent, SIMULATION_KINDS, type AttemptKind } from '@/lib/enade/stats';
 import { KIND_LABELS } from '@/lib/enade/attempts';
 import { dateTime, percent, studyTime } from '@/lib/enade/format';
@@ -21,9 +21,9 @@ export default async function HistoryPage({
 }: {
   searchParams: Promise<{ tipo?: string; status?: string }>;
 }) {
-  const user = await requireEnadeUser();
+  const userId = await requireEnadeUserId();
   const params = await searchParams;
-  const history = await loadHistory(user.id);
+  const history = await loadHistory(userId);
   const kind = (SIMULATION_KINDS as string[]).includes(params.tipo ?? '')
     ? (params.tipo as AttemptKind)
     : null;
@@ -55,7 +55,6 @@ export default async function HistoryPage({
   };
   return (
     <EnadeShell
-      user={shellUser(user)}
       title="Meu histórico"
       description="Todas as suas tentativas, inclusive as repetidas. Abra qualquer uma para revisar respostas e explicações, refazer ou praticar só as erradas."
     >

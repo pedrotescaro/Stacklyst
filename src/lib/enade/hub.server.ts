@@ -1,6 +1,8 @@
 import 'server-only';
 import { redirect } from 'next/navigation';
+import { cache } from 'react';
 import { getAuthUser } from '@/lib/auth';
+import { getAuthUserId } from '@/lib/auth-session';
 import { prisma } from '@/lib/prisma';
 import { loadLibrary } from './library/load';
 import { articleMeta } from './library/catalog';
@@ -14,6 +16,16 @@ export async function requireEnadeUser() {
   if (!user) redirect('/login');
   return user;
 }
+
+/**
+ * Only the verified user ID, without loading the profile. Pages need nothing else, so
+ * their queries start right away while the layout loads the full user for the sidebar.
+ */
+export const requireEnadeUserId = cache(async () => {
+  const userId = await getAuthUserId();
+  if (!userId) redirect('/login');
+  return userId;
+});
 
 export function shellUser(user: Awaited<ReturnType<typeof requireEnadeUser>>) {
   return {
@@ -47,7 +59,7 @@ export function topicTitles() {
   return new Map(loadLibrary().articles.map((a) => [a.slug, a.title]));
 }
 
-export async function loadStudyState(userId: string) {
+export const loadStudyState = cache(async (userId: string) => {
   const [progress, favorites] = await Promise.all([
     prisma.enadeStudyProgress.findMany({ where: { user_id: userId } }),
     prisma.enadeFavorite.findMany({ where: { user_id: userId }, orderBy: { created_at: 'desc' } }),
@@ -59,10 +71,10 @@ export async function loadStudyState(userId: string) {
     favoriteQuestions: favorites.filter((f) => f.kind === 'QUESTION').map((f) => f.ref),
     favorites,
   };
-}
+});
 
 /** The learner's complete private history, mapped to the analytics records. */
-export async function loadHistory(userId: string) {
+export const loadHistory = cache(async (userId: string) => {
   await importLegacyProgress(userId);
   const [attempts, answers, daily] = await Promise.all([
     prisma.enadeAttempt.findMany({
@@ -151,12 +163,12 @@ export async function loadHistory(userId: string) {
     articlesStudied: d.articles_studied,
   }));
   return { attempts: attemptRecords, answers: answerRecords, daily: dailyRecords };
-}
+});
 
-export async function loadReviewItems(userId: string) {
+export const loadReviewItems = cache(async (userId: string) => {
   await importLegacyProgress(userId);
   return prisma.enadeReviewItem.findMany({
     where: { user_id: userId },
     orderBy: [{ status: 'asc' }, { due_at: 'asc' }],
   });
-}
+});

@@ -1,13 +1,22 @@
 import Link from 'next/link';
 import { cookies } from 'next/headers';
-import { ArrowRight, BookOpen, Clock3, Flame, RotateCcw } from 'lucide-react';
+import {
+  ArrowRight,
+  BookOpen,
+  ClipboardCheck,
+  Clock3,
+  Flame,
+  Info,
+  ListChecks,
+  RotateCcw,
+  Target,
+} from 'lucide-react';
 import {
   libraryOutline,
   loadHistory,
   loadReviewItems,
   loadStudyState,
-  requireEnadeUser,
-  shellUser,
+  requireEnadeUserId,
   topicCategories,
   topicTitles,
 } from '@/lib/enade/hub.server';
@@ -28,16 +37,16 @@ import ui from './_components/ui.module.css';
 export const metadata = { title: 'Central ENADE · Stacklyst' };
 
 export default async function EnadeOverviewPage() {
-  const user = await requireEnadeUser();
+  const userId = await requireEnadeUserId();
   const store = await cookies();
   const preferences = parseTrailCoursePreferences(
     store.get(TRAIL_COURSE_PREFERENCES_COOKIE)?.value,
-    user.id
+    userId
   );
   const [history, study, reviewItems] = await Promise.all([
-    loadHistory(user.id),
-    loadStudyState(user.id),
-    loadReviewItems(user.id),
+    loadHistory(userId),
+    loadStudyState(userId),
+    loadReviewItems(userId),
   ]);
   const outline = libraryOutline();
   const stats = computeStats(
@@ -68,7 +77,6 @@ export default async function EnadeOverviewPage() {
   });
   return (
     <EnadeShell
-      user={shellUser(user)}
       title="Central de estudos ENADE"
       description="Estude a teoria na biblioteca, pratique com as provas oficiais do Inep, revise seus erros e acompanhe sua evolução com dados reais."
     >
@@ -79,7 +87,9 @@ export default async function EnadeOverviewPage() {
         </h2>
         <dl className={ui.metrics}>
           <div className={ui.metric}>
-            <dt>Questões únicas respondidas</dt>
+            <dt>
+              <ListChecks size={16} aria-hidden="true" /> Questões únicas
+            </dt>
             <dd>
               {stats.totals.uniqueQuestions}
               <small>
@@ -88,14 +98,18 @@ export default async function EnadeOverviewPage() {
             </dd>
           </div>
           <div className={ui.metric}>
-            <dt>Aproveitamento atual</dt>
+            <dt>
+              <Target size={16} aria-hidden="true" /> Aproveitamento atual
+            </dt>
             <dd>
               {percent(stats.totals.latestAccuracy)}
               <small>última resposta de cada questão</small>
             </dd>
           </div>
           <div className={ui.metric}>
-            <dt>Simulados concluídos</dt>
+            <dt>
+              <ClipboardCheck size={16} aria-hidden="true" /> Simulados concluídos
+            </dt>
             <dd>
               {stats.attempts.finished}
               <small>
@@ -106,13 +120,45 @@ export default async function EnadeOverviewPage() {
             </dd>
           </div>
           <div className={ui.metric}>
-            <dt>Sequência de estudo</dt>
+            <dt>
+              <Flame size={16} aria-hidden="true" /> Sequência de estudo
+            </dt>
             <dd>
               {plural(stats.streak.current, 'dia', 'dias')}
               <small>{studyTime(stats.studyMs.total)} estudados</small>
             </dd>
           </div>
         </dl>
+      </section>
+
+      <section className={ui.section} aria-labelledby="method-title">
+        <div className={ui.sectionHead}>
+          <h2 id="method-title">Como estudar por aqui</h2>
+          <p>Um ciclo simples, que se repete a cada assunto.</p>
+        </div>
+        <ol className={ui.steps}>
+          <li>
+            <Link href="/trails/enade/biblioteca">
+              <span className={ui.stepNumber}>1</span>
+              <strong>Entenda a teoria</strong>
+              <span>Leia o assunto na biblioteca e faça o miniquestionário.</span>
+            </Link>
+          </li>
+          <li>
+            <Link href="/trails/enade/questoes">
+              <span className={ui.stepNumber}>2</span>
+              <strong>Pratique com provas reais</strong>
+              <span>Resolva questões oficiais com correção comentada.</span>
+            </Link>
+          </li>
+          <li>
+            <Link href="/trails/enade/revisao">
+              <span className={ui.stepNumber}>3</span>
+              <strong>Revise os erros</strong>
+              <span>Eles voltam no momento certo até você dominar o assunto.</span>
+            </Link>
+          </li>
+        </ol>
       </section>
 
       {(running.length > 0 || lastArticle) && (
@@ -165,7 +211,7 @@ export default async function EnadeOverviewPage() {
           </Link>
         </div>
         {reviewItems.length ? (
-          <div className={ui.row} style={{ borderTop: '1px solid var(--enade-line)' }}>
+          <div className={`${ui.row} ${ui.solo}`}>
             <RotateCcw size={18} aria-hidden="true" />
             <div className={ui.rowMain}>
               <p className={ui.rowTitle}>
@@ -221,7 +267,7 @@ export default async function EnadeOverviewPage() {
                   </p>
                   <p className={ui.rowMeta}>{category.description}</p>
                 </div>
-                <div className={ui.rowAside} style={{ width: 160 }}>
+                <div className={ui.progressAside}>
                   <span className={ui.meter} aria-hidden="true">
                     <span
                       style={{ width: `${articles.length ? (done / articles.length) * 100 : 0}%` }}
@@ -237,19 +283,15 @@ export default async function EnadeOverviewPage() {
         </ul>
       </section>
 
-      <section className={ui.section}>
-        <p className={ui.muted}>
-          <Flame
-            size={13}
-            aria-hidden="true"
-            style={{ display: 'inline', verticalAlign: '-2px' }}
-          />{' '}
-          As questões, cadernos e gabaritos são as provas oficiais do Inep (edições 2008, 2011,
-          2014, 2017 e 2021 de ADS). Explicações, exercícios autorais e materiais teóricos são da
-          equipe Stacklyst, preparação independente sem vínculo com o Inep. A porcentagem de acertos
-          não é a nota oficial do Enade.
-        </p>
-      </section>
+      <p className={ui.footnote}>
+        <Info size={14} aria-hidden="true" />
+        <span>
+          Questões, cadernos e gabaritos são as provas oficiais do Inep (ADS 2008, 2011, 2014, 2017
+          e 2021). Explicações, exercícios autorais e materiais teóricos são da equipe Stacklyst,
+          uma preparação independente, sem vínculo com o Inep. A porcentagem de acertos não é a nota
+          oficial do Enade.
+        </span>
+      </p>
     </EnadeShell>
   );
 }

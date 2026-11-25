@@ -450,12 +450,22 @@ export async function importBrowserProgress(userId: string, key: string, value: 
  * One-time import of progress saved before the history existed (one slot per
  * edition plus the custom workspace in MobileState). Original rows stay intact.
  */
+/**
+ * Users whose legacy import is known to be done in this server process. The marker
+ * never goes away once written, so later page loads skip the extra database round trip.
+ */
+const importedUsers = new Set<string>();
+
 export async function importLegacyProgress(userId: string) {
+  if (importedUsers.has(userId)) return;
   const marker = await prisma.mobileState.findUnique({
     where: { user_id_key: { user_id: userId, key: LEGACY_MARKER } },
     select: { key: true },
   });
-  if (marker) return;
+  if (marker) {
+    importedUsers.add(userId);
+    return;
+  }
   const rows = await prisma.mobileState.findMany({
     where: {
       user_id: userId,
@@ -483,4 +493,5 @@ export async function importLegacyProgress(userId: string) {
       update: {},
     });
   });
+  importedUsers.add(userId);
 }
