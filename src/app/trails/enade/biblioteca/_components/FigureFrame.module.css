@@ -1,0 +1,96 @@
+.diagram {
+  margin-inline: 0;
+}
+.diagramFrame {
+  border-radius: 10px;
+  outline: 1px solid var(--enade-line);
+}
+.diagramFrame > :global(svg) {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.diagramCaption {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 12px;
+  margin-top: 10px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.diagramSource {
+  display: block;
+  margin-top: 3px;
+  font-size: 13px;
+  color: var(--color-dd-muted);
+}
+.diagramExpand {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--enade-line);
+  border-radius: 8px;
+  background: var(--enade-soft);
+  color: var(--color-dd-muted);
+}
+.diagramExpand:hover {
+  border-color: var(--enade-link);
+  color: var(--enade-link);
+}
+.diagramExpand:focus-visible,
+.diagramDialogHead button:focus-visible,
+.diagramDialogBody:focus-visible {
+  outline: 2px solid var(--enade-link);
+  outline-offset: 2px;
+}
+.diagramDialog {
+  width: min(1080px, calc(100vw - 32px));
+  max-width: none;
+  max-height: calc(100dvh - 48px);
+  margin: auto;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--enade-line);
+  border-radius: 20px;
+  background: var(--color-dd-bg);
+  color: var(--color-dd-text);
+}
+.diagramDialog::backdrop {
+  background: rgb(0 0 0 / 0.6);
+}
+.diagramDialogHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 12px 12px 20px;
+  border-bottom: 1px solid var(--enade-line);
+  font-size: 15px;
+  font-weight: 700;
+}
+.diagramDialogHead button {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+}
+.diagramDialogHead button:hover {
+  background: var(--enade-soft);
+}
+.diagramDialogBody {
+  max-height: calc(100dvh - 120px);
+  overflow: auto;
+  padding: clamp(12px, 3vw, 24px);
+}
+.diagramDialogBody > :global(svg) {
+  display: block;
+  width: 100%;
+  min-width: 600px;
+  height: auto;
+  margin: auto;
+}

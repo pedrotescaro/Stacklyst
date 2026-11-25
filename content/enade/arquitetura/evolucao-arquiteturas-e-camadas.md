@@ -3,7 +3,7 @@ title: Da arquitetura centralizada às três camadas — mainframes, cliente-ser
 summary: A evolução das arquiteturas de sistemas de informação, o que são camadas de apresentação, negócio e dados, como front-end, back-end, APIs, servidores e bancos conversam e a ideia de transparência em sistemas distribuídos.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [arquitetura de software, mainframe, arquitetura centralizada, terminal burro, cliente-servidor, duas camadas, três camadas, n camadas, apresentação, negócio, dados, front-end, back-end, api, rest, http, servidor de aplicação, banco de dados, sistemas distribuídos, transparência]
 related: [estilos-arquiteturais, mvc-mvp-mvvm, redes-de-computadores, uml-diagramas-estruturais, computacao-em-nuvem]
@@ -80,44 +80,11 @@ Acompanhe a solicitação até os dados e a resposta de volta à tela. No ENADE,
 
 ## Representação visual
 
-```mermaid Duas e três camadas físicas
-flowchart TB
-  subgraph DUAS["Duas camadas físicas"]
-    direction TB
-    CL["Cliente<br/>Apresentação + negócio"] --> DB1[("Servidor de dados")]
-  end
-  subgraph TRES["Três camadas físicas"]
-    direction TB
-    UI["Cliente<br/>Apresentação"] --> APP["Servidor de aplicação<br/>Negócio"]
-    APP --> DB2[("Servidor de dados")]
-  end
-```
-
-Fonte: adaptado de FOWLER (2002, cap. 1) e SOMMERVILLE (2018, cap. 6) — recriado pela equipe Stacklyst.
+::figure{id="duas-tres-camadas-fisicas"}
 
 Conte os níveis de implantação dentro de cada quadro. No exemplo de duas camadas físicas, apresentação e negócio compartilham o cliente. Em três camadas, a lógica de negócio está num servidor próprio. No ENADE, diferencie a divisão lógica do local onde cada parte roda.
 
-```mermaid Requisição através das camadas
----
-config:
-  sequence:
-    actorMargin: 28
-    diagramMarginX: 16
-    width: 112
-    wrap: true
----
-sequenceDiagram
-  participant UI as Apresentação
-  participant APP as Aplicação
-  participant DB as Dados
-  UI->>+APP: enviar pedido
-  APP->>APP: validar pedido
-  APP->>+DB: gravar transação
-  DB-->>-APP: pedido confirmado
-  APP-->>-UI: retornar número
-```
-
-Fonte: adaptado de FOWLER (2002, cap. 1) e OMG (2017, seção 17) — recriado pela equipe Stacklyst.
+::figure{id="requisicao-camadas"}
 
 Leia a requisição de cima para baixo. A API valida o pedido e solicita a gravação. O retorno à apresentação só ocorre depois da confirmação. No ENADE, associe validação e armazenamento às responsabilidades das camadas.
 

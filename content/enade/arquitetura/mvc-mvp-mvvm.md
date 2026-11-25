@@ -3,7 +3,7 @@ title: MVC, MVP e MVVM
 summary: Os três padrões de organização da interface — Model-View-Controller, Model-View-Presenter e Model-View-ViewModel —, o papel de cada parte, como os dados fluem e como diferenciá-los.
 order: 3
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [mvc, model view controller, mvp, model view presenter, mvvm, model view viewmodel, data binding, padrão arquitetural, interface, separação de responsabilidades, controller, presenter, viewmodel]
 related: [estilos-arquiteturais, evolucao-arquiteturas-e-camadas, padroes-de-projeto, uml-interacao]
@@ -68,36 +68,11 @@ A classe `Calculadora` mantém uma referência a `CalculadoraController`. Ao tro
 
 ## Representação visual
 
-```mermaid MVC com notificação do modelo
-flowchart TB
-  U["Pessoa usuária"] -->|"interage"| C["Controlador"]
-  V["Visão"] -->|"apresenta dados"| U
-  C -->|"controla entrada"| V
-  C -->|"altera estado"| M["Modelo"]
-  M -.->|"notifica mudança"| V
-  V -->|"lê estado"| M
-```
-
-Fonte: adaptado de FOWLER (2006) — recriado pela equipe Stacklyst.
+::figure{id="mvc-notificacao-modelo"}
 
 No MVC clássico, o controlador interpreta a ação, o modelo altera o estado e a visão observa a mudança e lê os dados atualizados. No ENADE, associe cada seta a entrada, domínio ou apresentação e considere a variante de MVC citada no enunciado.
 
-```mermaid Visão passiva e vinculação de dados
-flowchart TB
-  subgraph MVP["MVP com visão passiva"]
-    direction TB
-    V1["Visão"] <-->|"eventos e atualização explícita"| P["Apresentador"]
-    P <-->|"consulta e alteração"| M1["Modelo"]
-  end
-  subgraph MVVM["MVVM"]
-    direction TB
-    V2["Visão"] <-->|"vinculação de dados"| VM["ViewModel"]
-    V2 -->|"comandos"| VM
-    VM <-->|"consulta e alteração"| M2["Modelo"]
-  end
-```
-
-Fonte: adaptado de FOWLER (2006) e MICROSOFT (2024) — recriado pela equipe Stacklyst.
+::figure{id="mvp-mvvm-vinculacao"}
 
 No MVP com visão passiva, o apresentador atualiza a tela por chamadas explícitas. No MVVM, a vinculação propaga dados e encaminha comandos. No ENADE, procure o mecanismo que sincroniza a tela e observe quem conhece a visão.
 

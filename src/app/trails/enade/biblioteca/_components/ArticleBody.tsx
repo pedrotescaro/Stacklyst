@@ -16,7 +16,9 @@ import { QUESTION_BY_ID } from '@/lib/enade/simulator';
 import { questionLabel } from '@/lib/enade/topics';
 import { ArticleMarkdown } from './ArticleMarkdown';
 import { Quiz } from './Quiz';
+import { FigureFrame } from './FigureFrame';
 import { Mermaid } from './Mermaid';
+import { getFigure } from '../figures';
 import { Widget } from '../widgets/Widget';
 import styles from './article.module.css';
 
@@ -82,6 +84,22 @@ export function ArticleBody({
             );
           case 'mermaid':
             return <Mermaid key={index} code={block.code} caption={block.caption} />;
+          case 'figure': {
+            const figure = getFigure(block.id);
+            if (!figure) throw new Error(`Artigo ${slug}: figura desconhecida: ${block.id}.`);
+            const { component: Diagram, title, source, relatedSources = [] } = figure;
+            return (
+              <FigureFrame
+                key={index}
+                id={block.id}
+                title={title}
+                sources={[source, ...relatedSources]}
+                expanded={<Diagram />}
+              >
+                <Diagram />
+              </FigureFrame>
+            );
+          }
           case 'widget':
             return <Widget key={index} name={block.name} props={block.props} />;
           case 'question': {

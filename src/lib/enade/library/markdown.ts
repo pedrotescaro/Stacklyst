@@ -10,6 +10,7 @@
  *   :::details Título              collapsible block
  *   :::quiz                        JSON array of authored questions
  *   ::widget truth-table expr="p -> q"
+ *   ::figure{id="modelo-v"}        authored SVG from the figure registry
  *   ::question 2014-objective-24   card linking to an official INEP question
  *
  * Directive lines inside fenced code are ignored, so code samples can contain
@@ -43,6 +44,7 @@ export type ArticleBlock =
   | { type: 'quiz'; items: QuizItem[] }
   | { type: 'widget'; name: string; props: Record<string, string> }
   | { type: 'question'; id: string; note: string }
+  | { type: 'figure'; id: string }
   | { type: 'mermaid'; code: string; caption: string };
 
 export type TocEntry = { depth: 2 | 3; text: string; id: string };
@@ -91,6 +93,8 @@ export function parseAttributes(source: string): Record<string, string> {
 
 const FENCE = /^(\s*)(`{3,}|~{3,})/;
 
+const FIGURE = /^::figure\{\s*id\s*=\s*"([a-z0-9]+(?:-[a-z0-9]+)*)"\s*\}$/;
+
 export function parseBlocks(body: string): ArticleBlock[] {
   const lines = body.replace(/\r\n/g, '\n').split('\n');
   const blocks: ArticleBlock[] = [];
@@ -132,6 +136,14 @@ export function parseBlocks(body: string): ArticleBlock[] {
       }
       fence = fenceMatch[2];
       buffer.push(line);
+      continue;
+    }
+    const directive = line.trim();
+    if (/^::figure(?:\b|\{)/.test(directive)) {
+      const figure = FIGURE.exec(directive);
+      if (!figure) throw new Error(`Linha ${i + 1}: diretiva ::figure inválida.`);
+      flush();
+      blocks.push({ type: 'figure', id: figure[1] });
       continue;
     }
     const single = /^::(widget|question)\s+(\S+)\s*(.*)$/.exec(line.trim());
@@ -291,7 +303,10 @@ export function summaryBlocks(blocks: ArticleBlock[]): ArticleBlock[] {
         result.push(block);
       continue;
     }
-    if (block.type === 'mermaid' && SUMMARY_SECTIONS.includes(section)) {
+    if (
+      (block.type === 'mermaid' || block.type === 'figure') &&
+      SUMMARY_SECTIONS.includes(section)
+    ) {
       result.push(block);
       continue;
     }

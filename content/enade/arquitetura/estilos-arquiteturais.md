@@ -3,7 +3,7 @@ title: Estilos arquiteturais — monolito, microsserviços, SOA, hexagonal e Cle
 summary: Monolito e microsserviços, arquitetura orientada a serviços (SOA), arquitetura hexagonal (portas e adaptadores), Clean Architecture e os princípios de separação de responsabilidades, alta coesão e baixo acoplamento.
 order: 2
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [estilos arquiteturais, padrões arquiteturais, monolito, monolítico, microsserviços, soa, arquitetura orientada a serviços, esb, web services, arquitetura hexagonal, portas e adaptadores, clean architecture, arquitetura limpa, separação de responsabilidades, alta coesão, baixo acoplamento, orientada a objetos, orientada a eventos]
 related: [evolucao-arquiteturas-e-camadas, mvc-mvp-mvvm, principios-solid, relacionamentos-coesao-acoplamento, computacao-em-nuvem]
@@ -82,49 +82,11 @@ Começa como **monolito modular** (rápido de entregar). Quando o módulo de pag
 
 ## Representação visual
 
-```mermaid Unidades de implantação
----
-config:
-  flowchart:
-    nodeSpacing: 25
----
-flowchart TB
-  subgraph MON["Monólito"]
-    direction TB
-    D["Uma implantação"] --> M["Pedidos e catálogo"]
-    M --> BD[("Banco da aplicação")]
-  end
-  subgraph MIC["Microsserviços"]
-    direction TB
-    P["Serviço de pedidos"] --> BP[("Dados de pedidos")]
-    C["Serviço de catálogo"] --> BC[("Dados de catálogo")]
-    P -->|"API"| C
-  end
-```
-
-Fonte: adaptado de NEWMAN (2022, caps. 1 e 3) — recriado pela equipe Stacklyst.
+::figure{id="implantacao-monolito-microsservicos"}
 
 As caixas delimitam unidades que podem ser implantadas. No monólito, pedidos e catálogo vão juntos. Nos microsserviços, cada serviço pode ser entregue separadamente e controla o acesso aos seus dados. No ENADE, use essa fronteira para distinguir módulos internos de serviços autônomos.
 
-```mermaid Portas e adaptadores
-flowchart TB
-  subgraph EN["Adaptadores de entrada"]
-    H["Interface HTTP"]
-    T["Teste automatizado"]
-  end
-  H --> E(("Porta de pedidos"))
-  T --> E
-  E --> N{{"Núcleo da aplicação"}}
-  N --> S(("Porta de persistência"))
-  subgraph EX["Adaptadores de saída"]
-    DB["Adaptador SQL"]
-    MM["Adaptador em memória"]
-  end
-  S --> DB
-  S --> MM
-```
-
-Fonte: adaptado de COCKBURN (2005) — recriado pela equipe Stacklyst.
+::figure{id="portas-e-adaptadores"}
 
 Siga a entrada da interface HTTP até a porta de pedidos. Quando o núcleo precisa persistir, ele chama uma porta de saída que pode ser atendida por um adaptador SQL ou por uma implementação em memória. No ENADE, procure a porta como contrato e o adaptador como integração tecnológica.
 
