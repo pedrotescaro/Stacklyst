@@ -3,7 +3,7 @@ title: Argumentação lógica, silogismos, quantificadores e lógica de predicad
 summary: Premissas e conclusão, validade × verdade, regras de inferência (modus ponens, modus tollens, silogismo hipotético e disjuntivo), falácias, silogismos categóricos e a lógica de predicados com quantificadores universal e existencial.
 order: 3
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [argumento, premissa, conclusão, validade, argumento válido, modus ponens, modus tollens, silogismo, silogismo hipotético, silogismo disjuntivo, falácia, afirmação do consequente, negação do antecedente, quantificador, universal, existencial, lógica de predicados, predicado]
 related: [tautologia-e-equivalencias, proposicoes-e-conectivos, conjuntos-e-venn, interpretacao-de-texto]
@@ -75,26 +75,7 @@ Ordem importa: ∀x ∃y Ama(x, y) ("todos amam alguém") ≠ ∃y ∀x Ama(x, y
 
 Leia as premissas de cada grupo antes da conclusão. As duas premissas do modus ponens sustentam a conclusão. No ENADE, para refutar a afirmação do consequente, procure o cenário em que q vale e p é falso. As premissas dessa segunda forma são verdadeiras nesse cenário, enquanto sua conclusão é falsa.
 
-```mermaid Modus ponens e afirmação do consequente
----
-config:
-  flowchart:
-    nodeSpacing: 18
-    rankSpacing: 30
-    padding: 8
----
-flowchart TB
-  subgraph MP["Inferência válida"]
-    P["Premissas<br/>p → q, p"] --> Q["Conclusão<br/>q"]
-  end
-  subgraph AC["Inferência inválida"]
-    A["Premissas<br/>p → q, q"] -.-> B["Conclusão proposta<br/>p"]
-    B --- C["Contraexemplo<br/>p = F, q = V"]
-  end
-  MP ~~~ AC
-```
-
-Fonte: adaptado de ROSEN (2019, cap. 1) — recriado pela equipe Stacklyst.
+::figure{id="modus-ponens-e-falacia"}
 
 ## Diferenças entre conceitos semelhantes
 

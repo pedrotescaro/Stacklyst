@@ -5,6 +5,7 @@ import { figures as engenhariaDeRequisitos } from './engenharia-de-requisitos';
 import { figures as engenhariaDeSoftware } from './engenharia-de-software';
 import { figures as estruturasDeDados } from './estruturas-de-dados';
 import { figures as formacaoGeral } from './formacao-geral';
+import { figures as logica } from './logica';
 import type { FigureRegistry } from './types';
 
 export const figureRegistry: FigureRegistry = {
@@ -15,6 +16,7 @@ export const figureRegistry: FigureRegistry = {
   ...engenhariaDeSoftware,
   ...estruturasDeDados,
   ...formacaoGeral,
+  ...logica,
 };
 
 export function getFigure(id: string) {

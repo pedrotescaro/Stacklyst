@@ -3,7 +3,7 @@ title: Proposições, conectivos e tabelas-verdade
 summary: O que é uma proposição, valores lógicos, os conectivos negação, conjunção, disjunção, disjunção exclusiva, condicional e bicondicional, como montar tabelas-verdade, precedência e álgebra booleana — com simulador.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [lógica proposicional, proposição, valor lógico, verdadeiro, falso, conectivos, negação, conjunção, disjunção, disjunção exclusiva, xor, condicional, implicação, bicondicional, tabela-verdade, precedência, álgebra booleana, formalização]
 related: [tautologia-e-equivalencias, argumentacao-e-quantificadores, conjuntos-e-venn, algoritmos-e-logica-de-programacao]
@@ -84,25 +84,7 @@ Monte qualquer tabela no simulador. Experimente `p -> q`, `~q -> ~p` e `~p | q` 
 
 Cada ramo mostra quando a operação produz V. No ENADE, use os critérios para completar a tabela-verdade ou comparar duas fórmulas linha a linha, lembrando que antecedente falso torna a implicação verdadeira.
 
-```mermaid Condições de verdade dos conectivos
-flowchart TB
-  subgraph U["Conectivo unário"]
-    N["¬p"] --> NF["p é falso"]
-  end
-  subgraph C["Conjunção e disjunções"]
-    A["p ∧ q"] --> AV["Ambos verdadeiros"]
-    O["p ∨ q"] --> OV["Ao menos um verdadeiro"]
-    X["p ⊕ q"] --> XV["Só um verdadeiro"]
-  end
-  subgraph I["Implicação e equivalência"]
-    P["p → q"] --> PV["p falso ou<br/>q verdadeiro"]
-    B["p ↔ q"] --> BV["Valores iguais"]
-  end
-  U ~~~ C
-  C ~~~ I
-```
-
-Fonte: adaptado de ROSEN (2019, cap. 1) — recriado pela equipe Stacklyst.
+::figure{id="condicoes-de-verdade"}
 
 ## Diferenças entre conceitos semelhantes
 

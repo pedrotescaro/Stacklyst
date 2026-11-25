@@ -3,7 +3,7 @@ title: Sistemas de numeração e álgebra booleana — binário, octal, decimal 
 summary: Notação posicional, conversões entre bases (com passo a passo), atalhos binário–octal–hexadecimal, bits, bytes e barramentos, operações binárias e a ligação com a álgebra booleana e portas lógicas.
 order: 5
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [sistemas de numeração, base 2, binário, octal, decimal, hexadecimal, conversão de bases, notação posicional, bit, byte, palavra, barramento, endereçamento, álgebra booleana, portas lógicas, and, or, not, nand, xor, complemento de dois]
 related: [proposicoes-e-conectivos, memoria-e-arquivos, redes-de-computadores, algoritmos-e-logica-de-programacao]
@@ -93,16 +93,7 @@ Cada coluna representa o mesmo inteiro escrito em outra base.
 
 Separe os bits em grupos de quatro a partir da direita. Cada grupo vira um algarismo hexadecimal na mesma posição porque 16 = 2⁴. No ENADE, confira a ordem dos grupos e complete o grupo mais à esquerda com zeros se ele tiver menos de quatro bits.
 
-```mermaid Conversão binário–hexadecimal
-flowchart TB
-  B["1011 0110₂"]
-  B -->|"Grupo alto"| A["1011₂ → B"]
-  B -->|"Grupo baixo"| C["0110₂ → 6"]
-  A --> H["B6₁₆"]
-  C --> H
-```
-
-Fonte: adaptado de ROSEN (2019, cap. 4) — recriado pela equipe Stacklyst.
+::figure{id="conversao-binario-hexadecimal"}
 
 ## Diferenças entre conceitos semelhantes
 

@@ -3,7 +3,7 @@ title: Tautologia, contradição, contingência, equivalências e Leis de De Mor
 summary: Como classificar proposições pela tabela-verdade, as equivalências mais cobradas (contrapositiva, condicional como disjunção), as Leis de De Morgan e a negação correta de conjunções, disjunções, condicionais e bicondicionais.
 order: 2
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [tautologia, contradição, contingência, equivalência lógica, de morgan, negação, contrapositiva, recíproca, inversa, negação da condicional, dupla negação, distributiva, absorção, implicação lógica]
 related: [proposicoes-e-conectivos, argumentacao-e-quantificadores, conjuntos-e-venn]
@@ -82,30 +82,7 @@ Só a II é tautologia.
 
 Siga as linhas sólidas entre fórmulas de mesma tabela-verdade. A seta tracejada leva à negação da condicional, que vale apenas quando p é verdadeiro e q é falso. No ENADE, observe a diferença entre trocar a ordem das proposições e negar ambas ao inverter a ordem.
 
-```mermaid Equivalências e negação da condicional
----
-config:
-  flowchart:
-    nodeSpacing: 18
-    rankSpacing: 30
-    padding: 8
----
-flowchart TB
-  subgraph EQ["Condicional e equivalentes"]
-    C["p → q"] --- D["¬p ∨ q"]
-    C --- P["¬q → ¬p<br/>Contrapositiva"]
-  end
-  subgraph INV["Equivalentes entre si"]
-    R["q → p<br/>Recíproca"] --- I["¬p → ¬q<br/>Inversa"]
-  end
-  subgraph NEG["Negação"]
-    C2["p → q"] -.->|"Negar"| N["p ∧ ¬q"]
-  end
-  EQ ~~~ INV
-  INV ~~~ NEG
-```
-
-Fonte: adaptado de ROSEN (2019, cap. 1) — recriado pela equipe Stacklyst.
+::figure{id="equivalencias-da-condicional"}
 
 ## Diferenças entre conceitos semelhantes
 
