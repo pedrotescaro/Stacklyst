@@ -2,6 +2,7 @@
 
 import { useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { MessageCircle, BarChart2 } from 'lucide-react';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
 import { usePostBookmark } from '@/hooks/usePostBookmark';
@@ -70,6 +71,8 @@ export function AnswerCard({
   const [voteCount, setVoteCount] = useState(answer.upvotes);
   const [userVote, setUserVote] = useState<'up' | 'down' | null>(initialUserVote);
   const targetPostId = answer.post_id || postId;
+  const router = useRouter();
+  const replyHref = targetPostId ? `/post/${targetPostId}/reply/${answer.id}` : null;
   const { isBookmarked, bookmarkPending, bookmarkError, toggleBookmark } = usePostBookmark(
     targetPostId,
     Boolean(currentUser)
@@ -212,8 +215,29 @@ export function AnswerCard({
     currentUser &&
     answer.author.username !== currentUser.username;
 
+  const handleReplyClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    event.stopPropagation();
+    if (!replyHref || editing) return;
+    const target = event.target as HTMLElement;
+    if (
+      target.closest(
+        'button, a, select, input, textarea, pre, audio, video, form, [role="dialog"], [role="menu"], [data-code-block], .notion-editor'
+      ) ||
+      window.getSelection()?.toString()
+    ) {
+      return;
+    }
+    router.push(replyHref);
+  };
+
   const row = (
-    <div id={`answer-${answer.id}`} className="flex scroll-mt-20 scroll-mb-24 gap-3 md:scroll-mb-6">
+    <div
+      id={`answer-${answer.id}`}
+      onClick={handleReplyClick}
+      className={`flex scroll-mt-20 scroll-mb-24 gap-3 md:scroll-mb-6 ${
+        replyHref && !editing ? 'cursor-pointer' : ''
+      }`}
+    >
       {/* Avatar gutter: the line below the avatar joins this answer to the next one. */}
       <div className="flex w-8 shrink-0 flex-col items-center">
         <Link
@@ -273,7 +297,17 @@ export function AnswerCard({
             @{answer.author.username.toLowerCase()}
           </Link>
           <span>·</span>
-          <span className="text-[10px]">{relativeTime}</span>
+          {replyHref ? (
+            <Link
+              href={replyHref}
+              onClick={(event) => event.stopPropagation()}
+              className="text-[10px] hover:underline"
+            >
+              {relativeTime}
+            </Link>
+          ) : (
+            <span className="text-[10px]">{relativeTime}</span>
+          )}
         </div>
 
         {replyingTo && (
@@ -400,7 +434,7 @@ export function AnswerCard({
 
             {/* 6. Share button */}
             <ShareLinkButton
-              path={`/post/${targetPostId || ''}#answer-${answer.id}`}
+              path={replyHref ?? `/post/${targetPostId || ''}#answer-${answer.id}`}
               label="Compartilhar resposta"
               shareText={replyExtras.content.slice(0, 100)}
             />

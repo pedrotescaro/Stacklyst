@@ -37,9 +37,14 @@ import {
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
 import { ReportPostDialog } from '@/components/posts/ReportPostDialog';
+import { ThreadAncestors } from '@/components/posts/ThreadAncestors';
+import { ReplyEditForm } from '@/components/replies/ReplyEditForm';
+import { ReplyOwnerMenu } from '@/components/replies/ReplyOwnerMenu';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { parsePostExtras } from '@/lib/post-composer';
+import { findAnswerPath } from '@/lib/answer-threads';
+import { parseReplyMedia } from '@/lib/reply-media';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import {
@@ -47,6 +52,14 @@ import {
   writePostBookmark,
   type PostBookmarkChange,
 } from '@/lib/client/post-bookmarks';
+
+type AnswerDetailNode = AnswerNode & {
+  is_accepted?: boolean;
+  view_count?: number;
+  reposts_count?: number;
+  votes?: Array<{ value: number }>;
+  user_vote?: 'up' | 'down' | null;
+};
 
 interface PostDetailContentProps {
   user: {
@@ -62,6 +75,7 @@ interface PostDetailContentProps {
   };
   post: any;
   initialIsSaved?: boolean;
+  focusedAnswerId?: string;
 }
 
 function containsAnswerId(answers: AnswerNode[] | undefined, id: string): boolean {
@@ -88,15 +102,128 @@ function insertReplyIntoTree(answers: AnswerNode[], newReply: AnswerNode): Answe
   return inserted ? next : [...next, newReply];
 }
 
+function updateAnswerInTree(
+  answers: AnswerNode[],
+  targetId: string,
+  updater: (node: AnswerDetailNode) => AnswerDetailNode
+): AnswerNode[] {
+  let changed = false;
+  const visit = (nodes: AnswerNode[]): AnswerNode[] =>
+    nodes.map((node) => {
+      if (node.id === targetId) {
+        changed = true;
+        return updater(node as AnswerDetailNode);
+      }
+      if (node.replies?.length) {
+        const nextReplies = visit(node.replies);
+        if (nextReplies !== node.replies) {
+          return { ...node, replies: nextReplies };
+        }
+      }
+      return node;
+    });
+  const next = visit(answers);
+  return changed ? next : answers;
+}
+
+function readAnswerVote(answer: AnswerDetailNode | null): 'up' | 'down' | null {
+  if (!answer) return null;
+  if (answer.votes?.[0]?.value === 1) return 'up';
+  if (answer.votes?.[0]?.value === -1) return 'down';
+  if (answer.user_vote === 'up' || answer.user_vote === 'down') return answer.user_vote;
+  return null;
+}
+
+function computeVoteTransition(currentVote: 'up' | 'down' | null, type: 'up' | 'down') {
+  const newValue: 0 | 1 | -1 =
+    type === 'up' ? (currentVote === 'up' ? 0 : 1) : currentVote === 'down' ? 0 : -1;
+
+  let diff = 0;
+  let newUserVote: 'up' | 'down' | null = null;
+  if (type === 'up') {
+    diff = currentVote === 'up' ? -1 : currentVote === 'down' ? 2 : 1;
+    newUserVote = currentVote === 'up' ? null : 'up';
+  } else {
+    diff = currentVote === 'down' ? 1 : currentVote === 'up' ? -2 : -1;
+    newUserVote = currentVote === 'down' ? null : 'down';
+  }
+
+  return { newValue, diff, newUserVote };
+}
+
+function confirmDownvoteJustification(): boolean {
+  const justification = prompt(
+    'No Stacklyst, o downvote exige uma justificativa construtiva. Escreva seu motivo para o autor melhorar:'
+  );
+  if (!justification || justification.trim().length <= 3) {
+    alert(
+      'O downvote foi cancelado. É necessária uma justificativa construtiva de pelo menos 4 caracteres.'
+    );
+    return false;
+  }
+  return true;
+}
+
+function unwrapFocalContent(post: any, focusedAnswer: AnswerDetailNode | null) {
+  if (focusedAnswer) {
+    const media = parseReplyMedia(focusedAnswer.body);
+    const extras = parsePostExtras(media.content);
+    return {
+      content: extras.content,
+      attachments: media.attachments,
+      music: media.music,
+      poll: null,
+      legacyImage: null,
+      audience: null,
+      location: extras.location,
+      isSensitive: extras.isSensitive,
+      codeSnippet: focusedAnswer.code_snippet ?? null,
+    };
+  }
+  const extras = parsePostExtras(post.body);
+  return {
+    content: extras.content,
+    attachments: post.attachments,
+    music: post.music,
+    poll: post.poll,
+    legacyImage: post.image_url,
+    audience: post.audience,
+    location: post.location || extras.location,
+    isSensitive: extras.isSensitive,
+    codeSnippet: post.code_snippet ?? null,
+  };
+}
+
 export function PostDetailContent({
   user,
   post: initialPost,
   initialIsSaved = false,
+  focusedAnswerId,
 }: PostDetailContentProps) {
   const router = useRouter();
   const { text } = useLocalizedText();
   const [post, setPost] = useState<any>(initialPost);
   const [soundEnabled, setSoundEnabled] = useState(true);
+
+  const answers: AnswerDetailNode[] = post.answers ?? [];
+  const focusedPath = focusedAnswerId ? findAnswerPath(answers, focusedAnswerId) : null;
+  const focusedAnswer =
+    (focusedPath?.[focusedPath.length - 1] as AnswerDetailNode | undefined) ?? null;
+  const ancestorReplies = focusedPath ? focusedPath.slice(0, -1) : [];
+  const visibleAnswers = focusedAnswer ? (focusedAnswer.replies ?? []) : answers;
+  const focalReplyCount = countAnswers(visibleAnswers);
+  const isPostAuthor = post.author_id === user.id;
+  const isFocusedOwnAnswer = Boolean(focusedAnswer && focusedAnswer.author_id === user.id);
+  const parentUsername = focusedAnswer
+    ? ancestorReplies.length > 0
+      ? ancestorReplies[ancestorReplies.length - 1].author.username
+      : post.author.username
+    : null;
+  const parentHref = focusedAnswer
+    ? ancestorReplies.length > 0
+      ? `/post/${post.id}/reply/${ancestorReplies[ancestorReplies.length - 1].id}`
+      : `/post/${post.id}`
+    : '/';
 
   useEffect(() => {
     const updateSoundState = () => {
@@ -116,7 +243,10 @@ export function PostDetailContent({
 
   const { playSound } = useSoundEffects(soundEnabled);
   const [isExpanded, setIsExpanded] = useState(false);
+  const [editingFocused, setEditingFocused] = useState(false);
   const [toastXp, setToastXp] = useState<{ amount: number; language: string | null } | null>(null);
+  const focalRef = useRef<HTMLElement>(null);
+  const previousFocusedIdRef = useRef(focusedAnswerId);
 
   const [isSaved, setIsSaved] = useState(initialIsSaved);
   const [bookmarkPending, setBookmarkPending] = useState(false);
@@ -137,6 +267,29 @@ export function PostDetailContent({
     count: post.reposts_count ?? 0,
     reposted: false,
   });
+  const [focusedRepostState, setFocusedRepostState] = useState({
+    count: focusedAnswer?.reposts_count ?? 0,
+    reposted: false,
+  });
+
+  useEffect(() => {
+    if (previousFocusedIdRef.current !== focusedAnswerId) {
+      previousFocusedIdRef.current = focusedAnswerId;
+      setEditingFocused(false);
+      setMenuOpen(false);
+      setIsExpanded(false);
+      setFocusedRepostState({
+        count: focusedAnswer?.reposts_count ?? 0,
+        reposted: false,
+      });
+    }
+    if (focusedAnswerId && focalRef.current) {
+      const rect = focalRef.current.getBoundingClientRect();
+      if (rect.top > window.innerHeight * 0.65 || rect.top < 0) {
+        focalRef.current.scrollIntoView?.({ block: 'start' });
+      }
+    }
+  }, [focusedAnswerId, focusedAnswer?.reposts_count]);
 
   const handleBookmarkToggle = async () => {
     if (bookmarkLock.current) return;
@@ -174,70 +327,34 @@ export function PostDetailContent({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [menuOpen]);
 
+  const activeRepostState = focusedAnswer ? focusedRepostState : repostState;
   const handleRepost = () => {
-    setRepostState((prev) => ({
+    const updater = (prev: { count: number; reposted: boolean }) => ({
       count: prev.reposted ? Math.max(0, prev.count - 1) : prev.count + 1,
       reposted: !prev.reposted,
-    }));
+    });
+    if (focusedAnswer) {
+      setFocusedRepostState(updater);
+    } else {
+      setRepostState(updater);
+    }
   };
 
   const handleQuotePost = () => {
     alert('Citação mockada no detalhe do post!');
   };
 
-  const postUserVote =
+  const postUserVote: 'up' | 'down' | null =
     post.votes?.[0]?.value === 1 ? 'up' : post.votes?.[0]?.value === -1 ? 'down' : null;
   const postVotesCount = post.upvotes;
+  const focalUserVote = focusedAnswer ? readAnswerVote(focusedAnswer) : postUserVote;
+  const focalVotesCount = focusedAnswer ? (focusedAnswer.upvotes ?? 0) : postVotesCount;
 
   const handlePostVote = async (type: 'up' | 'down') => {
     const currentVote = postUserVote;
     const currentCount = postVotesCount;
-    let newValue = 0;
-
-    if (type === 'up') {
-      newValue = currentVote === 'up' ? 0 : 1;
-    } else {
-      newValue = currentVote === 'down' ? 0 : -1;
-    }
-
-    if (newValue === -1) {
-      const justification = prompt(
-        'No Stacklyst, o downvote exige uma justificativa construtiva. Escreva seu motivo para o autor melhorar:'
-      );
-      if (!justification || justification.trim().length <= 3) {
-        alert(
-          'O downvote foi cancelado. É necessária uma justificativa construtiva de pelo menos 4 caracteres.'
-        );
-        return;
-      }
-    }
-
-    // Optimistic UI update
-    let diff = 0;
-    let newUserVote: 'up' | 'down' | null = null;
-    if (type === 'up') {
-      if (currentVote === 'up') {
-        diff = -1;
-        newUserVote = null;
-      } else if (currentVote === 'down') {
-        diff = 2;
-        newUserVote = 'up';
-      } else {
-        diff = 1;
-        newUserVote = 'up';
-      }
-    } else {
-      if (currentVote === 'down') {
-        diff = 1;
-        newUserVote = null;
-      } else if (currentVote === 'up') {
-        diff = -2;
-        newUserVote = 'down';
-      } else {
-        diff = -1;
-        newUserVote = 'down';
-      }
-    }
+    const { newValue, diff, newUserVote } = computeVoteTransition(currentVote, type);
+    if (newValue === -1 && !confirmDownvoteJustification()) return;
 
     setPost((prev: any) => ({
       ...prev,
@@ -270,6 +387,48 @@ export function PostDetailContent({
       }));
     }
   };
+
+  const handleAnswerVote = async (targetAnswer: AnswerDetailNode, type: 'up' | 'down') => {
+    const currentVote = readAnswerVote(targetAnswer);
+    const currentCount = targetAnswer.upvotes ?? 0;
+    const { newValue, diff, newUserVote } = computeVoteTransition(currentVote, type);
+    if (newValue === -1 && !confirmDownvoteJustification()) return;
+
+    const patchAnswerVote = (votesCount: number, vote: 'up' | 'down' | null) => {
+      setPost((prev: any) => ({
+        ...prev,
+        answers: updateAnswerInTree(prev.answers ?? [], targetAnswer.id, (node) => ({
+          ...node,
+          upvotes: votesCount,
+          user_vote: vote,
+          votes: vote ? [{ value: vote === 'up' ? 1 : -1 }] : [],
+        })),
+      }));
+    };
+
+    patchAnswerVote(currentCount + diff, newUserVote);
+
+    try {
+      const res = await fetch(`/api/answers/${targetAnswer.id}/vote`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: newValue }),
+      });
+
+      if (!res.ok) {
+        throw new Error('Erro ao registrar voto');
+      }
+
+      const data = await res.json();
+      patchAnswerVote(data.upvotes, newUserVote);
+    } catch (err) {
+      console.error(err);
+      patchAnswerVote(currentCount, currentVote);
+    }
+  };
+
+  const handleFocalVote = (type: 'up' | 'down') =>
+    focusedAnswer ? handleAnswerVote(focusedAnswer, type) : handlePostVote(type);
 
   // Recarregar os dados do post
   const reloadPost = async () => {
@@ -379,10 +538,14 @@ export function PostDetailContent({
     );
   };
 
-  const isPostAuthor = post.author_id === user.id;
-  const answers: AnswerNode[] = post.answers ?? [];
-  const replyCount = countAnswers(answers);
-  const presentedPost = parsePostExtras(post.body);
+  const presentedFocal = unwrapFocalContent(post, focusedAnswer);
+  const focalAuthor = focusedAnswer ? focusedAnswer.author : post.author;
+  const focalCreatedAt = focusedAnswer ? focusedAnswer.created_at : post.created_at;
+  const focalViewCount = focusedAnswer ? focusedAnswer.view_count : post.view_count;
+  const focalAuthorIdentity = readProfileIdentity(focalAuthor.avatar_config);
+  const focalSharePath = focusedAnswer
+    ? `/post/${post.id}/reply/${focusedAnswer.id}`
+    : `/post/${post.id}`;
 
   return (
     <div className="dd-platform-shell dd-platform-shell--fullscreen selection:bg-blue-500/35 selection:text-white">
@@ -416,7 +579,14 @@ export function PostDetailContent({
           {/* Header (Twitter style: Back arrow + Title) */}
           <div className="sticky top-0 z-30 bg-dd-bg/95 backdrop-blur-md border-b border-dd-border/60 px-4 py-3 flex items-center gap-4">
             <button
-              onClick={() => router.back()}
+              type="button"
+              onClick={() => {
+                if (focusedAnswer && typeof window !== 'undefined' && window.history.length <= 1) {
+                  router.push(parentHref);
+                  return;
+                }
+                router.back();
+              }}
               className="flex items-center text-dd-muted hover:text-dd-text transition-colors cursor-pointer"
               style={{ background: 'transparent', border: 'none', padding: '4px' }}
               title="Voltar"
@@ -428,18 +598,27 @@ export function PostDetailContent({
             </div>
           </div>
 
-          {/* Post Detail Card */}
-          <article className="bg-transparent border-b border-dd-border/50 p-4 sm:p-6 space-y-6">
+          {focusedAnswer && <ThreadAncestors post={post} ancestors={ancestorReplies} />}
+
+          {/* Post Detail Card (root post or focal reply treated as post) */}
+          <article
+            ref={focalRef}
+            data-testid={focusedAnswer ? 'focal-reply-article' : 'focal-post-article'}
+            className={cn(
+              'bg-transparent border-b border-dd-border/50 scroll-mt-14 space-y-6',
+              focusedAnswer ? 'px-4 sm:px-6 pt-2 pb-4 sm:pb-6' : 'p-4 sm:p-6'
+            )}
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
                 <Link
-                  href={`/profile/${post.author.username}`}
+                  href={`/profile/${focalAuthor.username}`}
                   className="hover:opacity-85 transition-opacity shrink-0 pt-0.5"
                 >
                   <AuthorAvatar
-                    username={post.author.username}
-                    avatar_url={post.author.avatar_url}
-                    avatar_config={post.author.avatar_config}
+                    username={focalAuthor.username}
+                    avatar_url={focalAuthor.avatar_url}
+                    avatar_config={focalAuthor.avatar_config}
                     size="md"
                   />
                 </Link>
@@ -447,98 +626,154 @@ export function PostDetailContent({
                   {/* Top row: Display Name, Flags, Title, Level (>= 5) */}
                   <div className="flex items-center gap-1.5 flex-wrap min-w-0">
                     <Link
-                      href={`/profile/${post.author.username}`}
+                      href={`/profile/${focalAuthor.username}`}
                       className="hover:underline truncate group/author min-w-0"
                     >
                       <span className="text-xs sm:text-sm font-bold text-dd-text truncate min-w-0 group-hover/author:underline">
-                        <ProfileName config={post.author.avatar_config}>
-                          {getAuthorDisplayName(post.author)}
+                        <ProfileName config={focalAuthor.avatar_config}>
+                          {getAuthorDisplayName(focalAuthor)}
                         </ProfileName>
                       </span>
                     </Link>
-                    {(() => {
-                      const postAuthorIdentity = readProfileIdentity(post.author.avatar_config);
-                      return (
-                        <>
-                          {postAuthorIdentity.flags && postAuthorIdentity.flags.length > 0 && (
-                            <span className="inline-flex items-center gap-1 shrink-0">
-                              {postAuthorIdentity.flags.map((code) => (
-                                <ProfileFlag key={code} code={code} />
-                              ))}
-                            </span>
-                          )}
-                          {postAuthorIdentity.title && (
-                            <ProfileTitle title={postAuthorIdentity.title} />
-                          )}
-                        </>
-                      );
-                    })()}
-                    <LevelBadge totalXp={post.author.total_xp ?? 0} />
+                    {focalAuthorIdentity.flags && focalAuthorIdentity.flags.length > 0 && (
+                      <span className="inline-flex items-center gap-1 shrink-0">
+                        {focalAuthorIdentity.flags.map((code) => (
+                          <ProfileFlag key={code} code={code} />
+                        ))}
+                      </span>
+                    )}
+                    {focalAuthorIdentity.title && (
+                      <ProfileTitle title={focalAuthorIdentity.title} />
+                    )}
+                    <LevelBadge totalXp={focalAuthor.total_xp ?? 0} />
                   </div>
 
                   {/* Bottom row: @username */}
                   <div className="mt-0.5 text-[11px] text-dd-muted font-medium">
                     <Link
-                      href={`/profile/${post.author.username}`}
+                      href={`/profile/${focalAuthor.username}`}
                       className="hover:underline truncate"
                     >
-                      @{post.author.username.toLowerCase()}
+                      @{focalAuthor.username.toLowerCase()}
                     </Link>
                   </div>
                 </div>
               </div>
-            </div>
 
-            <SensitiveContentGate isSensitive={presentedPost.isSensitive}>
-              <MarkdownRenderer content={presentedPost.content} compact={false} />
-              <PostAttachments
-                postId={post.id}
-                attachments={post.attachments}
-                music={post.music}
-                poll={post.poll}
-                legacyImage={post.image_url}
-                audience={post.audience}
-              />
-
-              {post.code_snippet && !presentedPost.content.includes('```') && (
-                <div className="rounded-lg border border-dd-border bg-dd-bg p-4 overflow-x-auto shadow-inner">
-                  {highlightCode(post.code_snippet)}
+              {focusedAnswer && (
+                <div className="flex items-center gap-2 shrink-0">
+                  {isPostAuthor && !focusedAnswer.is_accepted && (
+                    <button
+                      type="button"
+                      onClick={() => handleAcceptAnswer(focusedAnswer.id)}
+                      className="inline-flex items-center gap-1 rounded-full border border-emerald-500/40 bg-emerald-500/10 px-2.5 py-1 text-[11px] font-semibold text-emerald-400 transition-colors hover:bg-emerald-500/20 cursor-pointer"
+                    >
+                      <Check className="h-3 w-3" />
+                      <span>Aceitar</span>
+                    </button>
+                  )}
+                  {isFocusedOwnAnswer && (
+                    <ReplyOwnerMenu
+                      answerId={focusedAnswer.id}
+                      onEdit={() => setEditingFocused(true)}
+                      onDeleted={() => {
+                        router.push(parentHref);
+                        router.refresh();
+                      }}
+                    />
+                  )}
                 </div>
               )}
-            </SensitiveContentGate>
+            </div>
+
+            {focusedAnswer && parentUsername && (
+              <div className="flex flex-wrap items-center gap-2 text-xs text-dd-muted">
+                <span>
+                  Respondendo a{' '}
+                  <Link href={parentHref} className="text-dd-accent hover:underline">
+                    @{parentUsername.toLowerCase()}
+                  </Link>
+                </span>
+                {focusedAnswer.is_accepted && (
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+                    <Check className="h-3 w-3" />
+                    Resposta aceita
+                  </span>
+                )}
+              </div>
+            )}
+
+            {focusedAnswer && editingFocused ? (
+              <ReplyEditForm
+                answerId={focusedAnswer.id}
+                body={focusedAnswer.body}
+                onSaved={(newBody) => {
+                  setPost((prev: any) => ({
+                    ...prev,
+                    answers: updateAnswerInTree(prev.answers ?? [], focusedAnswer.id, (node) => ({
+                      ...node,
+                      body: newBody,
+                    })),
+                  }));
+                  setEditingFocused(false);
+                }}
+                onCancel={() => setEditingFocused(false)}
+              />
+            ) : (
+              <SensitiveContentGate isSensitive={presentedFocal.isSensitive}>
+                {presentedFocal.content && (
+                  <MarkdownRenderer content={presentedFocal.content} compact={false} />
+                )}
+                <PostAttachments
+                  postId={focusedAnswer?.id ?? post.id}
+                  attachments={presentedFocal.attachments}
+                  music={presentedFocal.music}
+                  poll={presentedFocal.poll}
+                  legacyImage={presentedFocal.legacyImage}
+                  audience={presentedFocal.audience}
+                />
+
+                {presentedFocal.codeSnippet && !presentedFocal.content.includes('```') && (
+                  <div className="rounded-lg border border-dd-border bg-dd-bg p-4 overflow-x-auto shadow-inner">
+                    {highlightCode(presentedFocal.codeSnippet)}
+                  </div>
+                )}
+              </SensitiveContentGate>
+            )}
 
             {/* Metadata Row: Time, Date, Views (Twitter style) */}
             <div className="text-[11px] text-dd-muted font-medium pt-3 border-t border-dd-border/30 flex flex-wrap items-center gap-1.5 select-none">
               <span>
-                {new Date(post.created_at).toLocaleTimeString('pt-BR', {
+                {new Date(focalCreatedAt).toLocaleTimeString('pt-BR', {
                   hour: '2-digit',
                   minute: '2-digit',
                 })}
               </span>
               <span>·</span>
               <span>
-                {new Date(post.created_at).toLocaleDateString('pt-BR', {
+                {new Date(focalCreatedAt).toLocaleDateString('pt-BR', {
                   day: 'numeric',
                   month: 'short',
                   year: 'numeric',
                 })}
               </span>
-              {(post.location || presentedPost.location) && (
+              {presentedFocal.location && (
                 <>
                   <span>·</span>
-                  <PostLocation
-                    location={post.location || presentedPost.location}
-                    className="max-w-48"
-                  />
+                  <PostLocation location={presentedFocal.location} className="max-w-48" />
                 </>
               )}
-              <span>·</span>
-              <span className="text-dd-text font-bold">
-                {post.view_count >= 1000
-                  ? `${(post.view_count / 1000).toFixed(0)} mil`
-                  : post.view_count}
-              </span>
-              <span>Visualizações</span>
+              {typeof focalViewCount === 'number' && (
+                <>
+                  <span>·</span>
+                  <span className="text-dd-text font-bold">
+                    {focalViewCount >= 1000
+                      ? `${(focalViewCount / 1000).toFixed(0)} mil`
+                      : focalViewCount}
+                  </span>
+                  <span>Visualizações</span>
+                </>
+              )}
             </div>
 
             {/* Post bottom actions section: the divider bleeds to the column borders. */}
@@ -554,20 +789,30 @@ export function PostDetailContent({
                   type="button"
                   className={postActionClassName}
                   title="Responder"
-                  aria-label={`Responder (${replyCount} respostas)`}
+                  aria-label={`Responder (${focalReplyCount} respostas)`}
                   onClick={() => {
-                    if (!openReplyComposer(post)) setIsExpanded(true);
+                    const replyTarget = focusedAnswer
+                      ? {
+                          ...focusedAnswer,
+                          postId: post.id,
+                          parentAnswer: {
+                            id: focusedAnswer.id,
+                            username: focusedAnswer.author.username,
+                          },
+                        }
+                      : post;
+                    if (!openReplyComposer(replyTarget)) setIsExpanded(true);
                   }}
                 >
                   <MessageCircle className="h-[18px] w-[18px]" aria-hidden="true" />
-                  <InteractionCount count={replyCount} />
+                  <InteractionCount count={focalReplyCount} />
                 </button>
 
                 {/* 2. Repost Menu */}
                 <RepostMenu
                   appearance="post"
-                  count={repostState.count}
-                  isReposted={repostState.reposted}
+                  count={activeRepostState.count}
+                  isReposted={activeRepostState.reposted}
                   onRepost={handleRepost}
                   onQuote={handleQuotePost}
                 />
@@ -575,10 +820,10 @@ export function PostDetailContent({
                 {/* 3. Heart/Like button */}
                 <LikeButton
                   appearance="post"
-                  count={postVotesCount}
-                  isActive={postUserVote === 'up'}
-                  onToggle={() => handlePostVote('up')}
-                  title="Curtir post"
+                  count={focalVotesCount}
+                  isActive={focalUserVote === 'up'}
+                  onToggle={() => handleFocalVote('up')}
+                  title={focusedAnswer ? 'Curtir resposta' : 'Curtir post'}
                 />
 
                 {/* 4. BookmarkButton */}
@@ -603,13 +848,15 @@ export function PostDetailContent({
                       e.preventDefault();
                       const url =
                         typeof window !== 'undefined'
-                          ? `${window.location.origin}/post/${post.id}`
-                          : `/post/${post.id}`;
+                          ? `${window.location.origin}${focalSharePath}`
+                          : focalSharePath;
                       if (navigator.share && /mobile|android|iphone/i.test(navigator.userAgent)) {
                         try {
                           await navigator.share({
-                            title: post.title || 'Stacklyst Post',
-                            text: post.body.substring(0, 100),
+                            title: focusedAnswer
+                              ? `Resposta de @${focusedAnswer.author.username}`
+                              : post.title || 'Stacklyst Post',
+                            text: presentedFocal.content.substring(0, 100),
                             url,
                           });
                           return;
@@ -626,7 +873,7 @@ export function PostDetailContent({
                       }
                     }}
                     className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
-                    title="Compartilhar post"
+                    title={focusedAnswer ? 'Compartilhar resposta' : 'Compartilhar post'}
                   >
                     {shareCopied ? (
                       <Check className="w-[18px] h-[18px] text-emerald-400" />
@@ -642,51 +889,54 @@ export function PostDetailContent({
                 </div>
 
                 {/* 6. More Options (...) */}
-                <div className="relative" ref={menuRef}>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setMenuOpen(!menuOpen);
-                    }}
-                    className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
-                    ref={menuButtonRef}
-                    aria-expanded={menuOpen}
-                    title={text('Mais opções', 'More options')}
-                  >
-                    <MoreHorizontal className="w-[18px] h-[18px]" />
-                  </button>
-
-                  {menuOpen && (
-                    <div
-                      className="absolute right-0 bottom-full mb-1.5 w-44 rounded-2xl border border-dd-border/80 bg-dd-surface p-1.5 shadow-2xl z-40 animate-slide-up"
+                {!isFocusedOwnAnswer && (
+                  <div className="relative" ref={menuRef}>
+                    <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
+                        setMenuOpen(!menuOpen);
                       }}
+                      className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
+                      ref={menuButtonRef}
+                      aria-expanded={menuOpen}
+                      title={text('Mais opções', 'More options')}
                     >
-                      <button
+                      <MoreHorizontal className="w-[18px] h-[18px]" />
+                    </button>
+
+                    {menuOpen && (
+                      <div
+                        className="absolute right-0 bottom-full mb-1.5 w-44 rounded-2xl border border-dd-border/80 bg-dd-surface p-1.5 shadow-2xl z-40 animate-slide-up"
                         onClick={(e) => {
                           e.stopPropagation();
                           e.preventDefault();
-                          setReportModalOpen(true);
-                          setMenuOpen(false);
                         }}
-                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
                       >
-                        <Flag className="w-4 h-4 text-dd-muted" />
-                        <span>{text('Denunciar', 'Report')}</span>
-                      </button>
-                    </div>
-                  )}
-                </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setReportModalOpen(true);
+                            setMenuOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
+                        >
+                          <Flag className="w-4 h-4 text-dd-muted" />
+                          <span>{text('Denunciar', 'Report')}</span>
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </PostActionsBar>
             </div>
           </article>
 
           {/* Resolver como Quiz button outside/below the post box (Duolingo style) */}
-          {post.quizzes &&
+          {!focusedAnswer &&
+            post.quizzes &&
             post.quizzes.length > 0 &&
             (() => {
               const hasCompleted = Boolean(
@@ -814,6 +1064,12 @@ export function PostDetailContent({
             <div className="relative z-10 border-b border-dd-border/50 bg-transparent">
               <ReplyComposerForm
                 postId={post.id}
+                parentAnswer={
+                  focusedAnswer
+                    ? { id: focusedAnswer.id, username: focusedAnswer.author.username }
+                    : undefined
+                }
+                surfaceVariant="inline"
                 user={user}
                 onCancel={() => setIsExpanded(false)}
                 onDone={() => setIsExpanded(false)}
@@ -823,7 +1079,7 @@ export function PostDetailContent({
 
           {/* Answers List Section */}
           <AnswerThread
-            answers={answers}
+            answers={visibleAnswers}
             isPostAuthor={isPostAuthor}
             currentUser={user}
             postId={post.id}

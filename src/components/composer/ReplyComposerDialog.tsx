@@ -17,6 +17,7 @@ import type { NotionEditorRef } from '@/components/editor/NotionEditor';
 import type { ComposerUser } from './PostComposerDialog';
 import type { AnswerNode } from '@/components/answer-types';
 import { appendPostExtras, parsePostExtras, type ReplyAudience } from '@/lib/post-composer';
+import { parseReplyMedia } from '@/lib/reply-media';
 import type { PostAttachment } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
 import { getAuthorDisplayName } from '@/lib/profile-style';
@@ -31,9 +32,11 @@ const Editor = dynamic(
   { ssr: false, loading: () => <div className="dd-skeleton h-16 w-full rounded-lg" /> }
 );
 
-/** The post being answered, as the feed already has it. */
+/** The post or reply being answered, as the feed or detail thread already has it. */
 export interface ReplyTarget {
   id: string;
+  postId?: string;
+  parentAnswer?: { id: string; username: string };
   body: string;
   created_at: string | Date;
   image_url?: string | null;
@@ -94,7 +97,10 @@ function Tool({
 function OriginalPost({ target }: { target: ReplyTarget }) {
   const { text } = useLocalizedText();
   const { text: time } = useHydrationSafeRelativeTime(target.created_at);
-  const presented = parsePostExtras(target.body);
+  const replyMedia = target.parentAnswer ? parseReplyMedia(target.body) : null;
+  const presented = parsePostExtras(replyMedia ? replyMedia.content : target.body);
+  const attachments = replyMedia ? replyMedia.attachments : target.attachments;
+  const music = replyMedia ? replyMedia.music : target.music;
   return (
     <div className="reply-original">
       <div className="reply-original-rail">
@@ -133,9 +139,9 @@ function OriginalPost({ target }: { target: ReplyTarget }) {
             <div className="reply-original-media">
               <PostAttachments
                 postId={target.id}
-                attachments={target.attachments}
-                music={target.music}
-                legacyImage={target.image_url}
+                attachments={attachments}
+                music={music}
+                legacyImage={target.parentAnswer ? null : target.image_url}
               />
             </div>
           </>
@@ -181,11 +187,16 @@ export function ReplyComposerDialog({
       composerLayout
       fitContent
       busy={busy}
-      label={text('Responder postagem', 'Reply to post')}
+      label={
+        target?.parentAnswer
+          ? text('Responder comentário', 'Reply to comment')
+          : text('Responder postagem', 'Reply to post')
+      }
     >
       {target && (
         <ReplyComposerForm
-          postId={target.id}
+          postId={target.postId ?? target.id}
+          parentAnswer={target.parentAnswer}
           user={user}
           header={<OriginalPost target={target} />}
           onDone={onClose}
@@ -204,6 +215,7 @@ export function ReplyComposerDialog({
 export function ReplyComposerForm({
   postId,
   parentAnswer,
+  surfaceVariant,
   user,
   header,
   onDone,
@@ -214,6 +226,7 @@ export function ReplyComposerForm({
 }: {
   postId: string;
   parentAnswer?: { id: string; username: string };
+  surfaceVariant?: 'inline' | 'nested';
   user: Pick<ComposerUser, 'username' | 'avatar_url' | 'avatar_config'>;
   header?: ReactNode;
   onDone?: () => void;
@@ -315,7 +328,9 @@ export function ReplyComposerForm({
   };
   const pickerPanel = panel === 'more' ? null : panel;
   const isInline = Boolean(onCancel);
-  const isNestedInline = Boolean(onCancel && parentAnswer);
+  const isNestedInline = surfaceVariant
+    ? surfaceVariant === 'nested'
+    : Boolean(onCancel && parentAnswer);
 
   return (
     <form

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildAnswerThreads } from '../answer-threads';
+import { buildAnswerThreads, findAnswerPath } from '../answer-threads';
 
 describe('buildAnswerThreads', () => {
   it('includes replies deeper than the old fixed include, retaining order and fields', () => {
@@ -37,5 +37,17 @@ describe('buildAnswerThreads', () => {
       },
       { id: 'd', parent_id: 'removed', replies: [] },
     ]);
+  });
+
+  it('finds the ancestor chain to any nested reply and returns null when absent', () => {
+    const threads = buildAnswerThreads([
+      { id: 'a', parent_id: null },
+      { id: 'b', parent_id: 'a' },
+      { id: 'c', parent_id: 'b' },
+      { id: 'd', parent_id: 'a' },
+    ]);
+    expect(findAnswerPath(threads, 'c')?.map((item) => item.id)).toEqual(['a', 'b', 'c']);
+    expect(findAnswerPath(threads, 'd')?.map((item) => item.id)).toEqual(['a', 'd']);
+    expect(findAnswerPath(threads, 'missing')).toBeNull();
   });
 });

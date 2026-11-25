@@ -16,3 +16,21 @@ export function buildAnswerThreads<T extends { id: string; parent_id: string | n
   }
   return roots;
 }
+
+/**
+ * Finds the chain `[rootReply, ..., parentReply, targetReply]` inside a thread
+ * tree, returning `null` when the target answer is absent.
+ */
+export function findAnswerPath<T extends { id: string; replies?: T[] }>(
+  roots: T[],
+  targetId: string
+): T[] | null {
+  for (const node of roots) {
+    if (node.id === targetId) return [node];
+    if (node.replies?.length) {
+      const childPath = findAnswerPath(node.replies, targetId);
+      if (childPath) return [node, ...childPath];
+    }
+  }
+  return null;
+}

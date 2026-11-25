@@ -22,7 +22,15 @@ import { LikeButton } from '@/components/motion/LikeButton';
 import { BookmarkButton } from '@/components/motion/BookmarkButton';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
-function ThreadIdentity({ author, createdAt }: { author: any; createdAt: string | Date }) {
+function ThreadIdentity({
+  author,
+  createdAt,
+  href,
+}: {
+  author: any;
+  createdAt: string | Date;
+  href?: string;
+}) {
   const { text: relativeTime } = useHydrationSafeRelativeTime(createdAt);
   const identity = readProfileIdentity(author.avatar_config);
   return (
@@ -45,7 +53,13 @@ function ThreadIdentity({ author, createdAt }: { author: any; createdAt: string 
           @{author.username}
         </Link>
         <span aria-hidden="true">·</span>
-        <span>{relativeTime}</span>
+        {author?.username && href ? (
+          <Link href={href} className="hover:underline">
+            {relativeTime}
+          </Link>
+        ) : (
+          <span>{relativeTime}</span>
+        )}
       </div>
     </div>
   );
@@ -255,7 +269,11 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
           />
         </Link>
         <div className="min-w-0 flex-1">
-          <ThreadIdentity author={reply.author} createdAt={reply.created_at} />
+          <ThreadIdentity
+            author={reply.author}
+            createdAt={reply.created_at}
+            href={`/post/${reply.post_id}/reply/${reply.id}`}
+          />
           <p className="mt-1 text-xs text-dd-muted">
             {text('Respondendo a', 'Replying to')}{' '}
             <Link
