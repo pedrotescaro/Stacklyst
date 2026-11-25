@@ -3,7 +3,7 @@ title: Modelagem de processos de negócio — BPM, EPC/ARIS e BPMN
 summary: O ciclo de gestão de processos de negócio (BPM), a linguagem gráfica EPC do método ARIS (eventos, funções e conectores lógicos) e uma comparação com BPMN.
 order: 5
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [processos de negócio, bpm, gestão de processos, epc, event-driven process chain, aris, conectores, xor, and, or, bpmn, modelagem as-is, to-be, otimização]
 related: [requisitos-fundamentos, uml-atividades-e-estados, tecnicas-de-elicitacao, sistemas-de-informacao-empresariais]
@@ -74,31 +74,11 @@ Evento **"Pedido de crédito recebido"** → função **"Analisar cadastro"** �
 
 ## Representação visual
 
-```mermaid EPC de concessão de crédito
-flowchart TD
-  E0{{"Pedido recebido"}} --> F0("Analisar cadastro")
-  F0 --> E1{{"Cadastro analisado"}}
-  E1 --> F1("Decidir concessão")
-  F1 --> X((XOR))
-  X --> E2{{"Crédito aprovado"}}
-  X --> E3{{"Crédito recusado"}}
-  E2 --> F2("Liberar valor") --> E4{{"Valor liberado"}}
-  E3 --> F3("Notificar solicitante") --> E5{{"Recusa comunicada"}}
-```
-
-Fonte: adaptado de SCHEER (2000) — recriado pela equipe Stacklyst.
+::figure{id="epc-concessao-credito"}
 
 Leia os hexágonos como eventos e os retângulos arredondados como funções. O XOR sai da função que toma a decisão e habilita um único evento de resultado. No ENADE, confira se a cadeia começa e termina com eventos e se o ponto de escolha sucede uma função.
 
-```mermaid Ciclo de gestão de processos
-flowchart TD
-  I["Identificar processos"] --> D["Descobrir o processo<br/>modelo atual"]
-  D --> A["Analisar problemas"] --> R["Redesenhar processo<br/>modelo desejado"]
-  R --> E["Implantar mudanças"] --> M["Monitorar e controlar"]
-  M -->|Resultados e desvios| D
-```
-
-Fonte: adaptado de DUMAS et al. (2018, cap. 1) — recriado pela equipe Stacklyst.
+::figure{id="ciclo-gestao-processos"}
 
 A identificação define qual processo merece atenção. Depois, a equipe mapeia o trabalho atual, analisa problemas, projeta e implanta mudanças. O monitoramento guia a próxima volta. No ENADE, reconheça a otimização contínua quando os resultados observados voltam para orientar a análise e o redesenho.
 
