@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { StartAttemptButton } from './StartAttemptButton';
+import { MenuSelect } from './MenuSelect';
 import ui from './ui.module.css';
 import { plural } from '@/lib/enade/format';
 
@@ -20,37 +21,30 @@ export function TopicPractice({
   if (!topics.length) return null;
   return (
     <div className={ui.filters} style={{ alignItems: 'flex-end' }}>
-      <label className={ui.label}>
-        Assunto
-        <select className={ui.select} value={topic} onChange={(e) => setTopic(e.target.value)}>
-          {categories.map((category) => {
-            const options = topics.filter((t) => t.category === category.slug);
-            return options.length ? (
-              <optgroup key={category.slug} label={category.title}>
-                {options.map((t) => (
-                  <option key={t.slug} value={t.slug}>
-                    {t.title} ({t.count})
-                  </option>
-                ))}
-              </optgroup>
-            ) : null;
-          })}
-        </select>
-      </label>
-      <label className={ui.label}>
-        Questões
-        <select
-          className={ui.select}
-          value={limit}
-          onChange={(e) => setLimit(Number(e.target.value))}
-        >
-          {[5, 10, 20].map((n) => (
-            <option key={n} value={n}>
-              até {n}
-            </option>
-          ))}
-        </select>
-      </label>
+      <MenuSelect
+        label="Assunto"
+        className="w-full"
+        value={topic}
+        onChange={setTopic}
+        groups={categories
+          .map((category) => ({
+            label: category.title,
+            options: topics
+              .filter((t) => t.category === category.slug)
+              .map((t) => ({
+                value: t.slug,
+                label: t.title,
+                detail: plural(t.count, 'questão', 'questões'),
+              })),
+          }))
+          .filter((group) => group.options.length)}
+      />
+      <MenuSelect
+        label="Questões"
+        value={String(limit)}
+        onChange={(value) => setLimit(Number(value))}
+        options={[5, 10, 20].map((n) => ({ value: String(n), label: `até ${n}` }))}
+      />
       <div role="radiogroup" aria-label="Modo" className={ui.filters} style={{ margin: 0 }}>
         <button
           type="button"
