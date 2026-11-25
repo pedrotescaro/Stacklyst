@@ -4,7 +4,7 @@ summary: Modelagem de negócios, Requisitos, Análise e design, Implementação,
 order: 3
 parent: rup-visao-geral
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [rup, disciplinas, fluxos de trabalho, workflows, modelagem de negócios, requisitos, análise e design, implementação, teste, implantação, gerência de configuração, gerência de projeto, ambiente, papéis, artefatos]
 related: [rup-fases-e-marcos, gerencia-de-configuracao, processo-de-requisitos, uml-visao-geral]
@@ -85,18 +85,7 @@ A altura de cada faixa indica ênfase relativa naquela fase. No ENADE, compare o
 
 ## Representação visual
 
-```mermaid Caso de uso e seus artefatos
-flowchart TD
-  N[["Modelo de negócio"]] --> U[["Caso de uso do sistema"]]
-  U -->|É realizado no| A[["Modelo de projeto"]]
-  A -->|Orienta| I[["Componentes e build"]]
-  U -->|Dá origem a| T[["Casos de teste"]]
-  I -->|É exercitado por| T
-  I --> P[["Pacote de implantação"]]
-  T -. "Evidência de qualidade" .-> P
-```
-
-Fonte: adaptado de KRUCHTEN (2004, cap. 6) e JACOBSON; BOOCH; RUMBAUGH (1999, cap. 1) — recriado pela equipe Stacklyst.
+::figure{id="artefatos-caso-uso-rup"}
 
 Siga o caso de uso em duas direções. Uma leva ao projeto e à implementação. A outra leva a testes que exercitam o comportamento previsto. No ENADE, use essas ligações para identificar quais artefatos podem ser afetados por uma mudança e a qual disciplina pertencem.
 

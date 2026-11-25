@@ -3,7 +3,7 @@ title: RUP — visão geral do Rational Unified Process
 summary: O que é o RUP, seus três princípios (iterativo e incremental, dirigido por casos de uso, centrado na arquitetura) e a diferença entre fases e disciplinas, com o gráfico de baleias interativo.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [rup, processo unificado, iterativo, incremental, casos de uso, arquitetura, fases, disciplinas, fluxos de trabalho, gráfico de baleias, hump chart]
 related: [rup-fases-e-marcos, rup-disciplinas, modelos-de-processo, uml-casos-de-uso, metodos-ageis]
@@ -82,34 +82,13 @@ Requisitos não "acontecem na Concepção" e programação não "acontece só na
 
 ## Representação visual
 
-```mermaid Ciclo de uma iteração do RUP
-flowchart TD
-  P["Planejar iteração<br/>riscos e casos de uso"] --> R
-  subgraph trabalho["Executar a iteração"]
-    R["Refinar escopo"] --> D["Projetar e implementar"]
-    D --> T["Integrar e testar"]
-    T -. "Ajustes" .-> D
-  end
-  T --> A["Avaliar resultados"]
-  A --> B[["Incremento executável"]]
-  A -->|Lições e riscos restantes| P
-```
-
-Fonte: adaptado de KRUCHTEN (2004, caps. 4 e 7) e JACOBSON; BOOCH; RUMBAUGH (1999, cap. 1) — recriado pela equipe Stacklyst.
+::figure{id="ciclo-iteracao-rup"}
 
 Comece pelo objetivo da iteração, definido pelos riscos e cenários a tratar. O trabalho e os testes refinam o incremento e a avaliação orienta o plano seguinte. No ENADE, associe iteração a trabalho que se repete e incremento à versão executável que evolui.
 
-```mermaid Fases e marcos do RUP
-flowchart TD
-  C["Concepção"] --> CO[["LCO · Objetivos<br/>do ciclo de vida"]]
-  CO --> E["Elaboração"] --> EA[["LCA · Arquitetura<br/>do ciclo de vida"]]
-  EA --> K["Construção"] --> KC[["IOC · Capacidade<br/>operacional inicial"]]
-  KC --> T["Transição"] --> TP[["PR · Liberação<br/>do produto"]]
-```
+::figure{id="fases-disciplinas-marcos-rup"}
 
-Fonte: adaptado de KRUCHTEN (2004, cap. 4) — recriado pela equipe Stacklyst.
-
-Cada fase termina em uma avaliação de marco. A Concepção define o rumo, a Elaboração valida a arquitetura, a Construção prepara o produto para operação inicial e a Transição termina com a liberação. No ENADE, identifique a fase pelo objetivo que precisa ser demonstrado no marco.
+Cada fase termina em uma avaliação de marco. A Concepção define o rumo, a Elaboração valida a arquitetura, a Construção prepara o produto para operação inicial e a Transição termina com a liberação. As curvas mostram como a ênfase de cada disciplina muda ao longo das fases. No ENADE, identifique a fase pelo objetivo que precisa ser demonstrado no marco.
 
 ## Vantagens e desvantagens
 

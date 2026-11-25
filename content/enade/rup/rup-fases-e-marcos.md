@@ -4,7 +4,7 @@ summary: Concepção, Elaboração, Construção e Transição em detalhe — ob
 order: 2
 parent: rup-visao-geral
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [rup, concepção, inception, elaboração, elaboration, construção, construction, transição, transition, marcos, milestones, LCO, LCA, IOC, artefatos]
 related: [rup-disciplinas, rup-visao-geral, gerencia-de-projetos-e-riscos]
@@ -121,28 +121,7 @@ Compare a posição das iterações com a concentração de esforço em cada dis
 
 ## Representação visual
 
-```mermaid Iterações e marcos no tempo
-flowchart LR
-  subgraph C["Concepção"]
-    direction TB
-    I1["I1"] --> LCO[["LCO"]]
-  end
-  subgraph E["Elaboração"]
-    direction TB
-    E1["E1"] --> E2["E2"] --> LCA[["LCA"]]
-  end
-  subgraph K["Construção"]
-    direction TB
-    C1["C1"] --> C2["C2"] --> C3["C3"] --> IOC[["IOC"]]
-  end
-  subgraph T["Transição"]
-    direction TB
-    T1["T1"] --> T2["T2"] --> PR[["PR"]]
-  end
-  C --> E --> K --> T
-```
-
-Fonte: adaptado de KRUCHTEN (2004, cap. 4) — recriado pela equipe Stacklyst.
+::figure{id="linha-tempo-marcos-rup"}
 
 Leia as fases da esquerda para a direita e percorra as iterações dentro de cada grupo. A quantidade de iterações é ilustrativa, e o marco fecha a fase depois de verificar seus objetivos. No ENADE, associe LCA à validação da arquitetura e IOC à disponibilidade operacional inicial para a Transição.
 

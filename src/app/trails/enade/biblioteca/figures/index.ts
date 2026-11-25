@@ -8,6 +8,7 @@ import { figures as formacaoGeral } from './formacao-geral';
 import { figures as logica } from './logica';
 import { figures as matematica } from './matematica';
 import { figures as poo } from './poo';
+import { figures as rup } from './rup';
 import type { FigureRegistry } from './types';
 
 export const figureRegistry: FigureRegistry = {
@@ -21,6 +22,7 @@ export const figureRegistry: FigureRegistry = {
   ...logica,
   ...matematica,
   ...poo,
+  ...rup,
 };
 
 export function getFigure(id: string) {
