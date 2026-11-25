@@ -10,9 +10,15 @@ interface PostActionDialogProps {
   onClose: () => void;
   returnFocusRef: RefObject<HTMLButtonElement | null>;
   children: ReactNode;
-  /** "confirm" is the compact X-style yes/no card used for destructive actions. */
-  variant?: 'default' | 'confirm';
+  variant?: 'default' | 'confirm' | 'report';
 }
+
+const panelClasses = {
+  default: 'max-w-md space-y-4 overflow-y-auto border border-dd-border bg-dd-surface p-5',
+  confirm: 'max-w-[320px] overflow-y-auto bg-dd-bg p-8 shadow-2xl outline-none',
+  report:
+    'flex max-w-[456px] flex-col overflow-hidden border border-dd-border bg-dd-bg outline-none',
+};
 
 export function PostActionDialog({
   titleId,
@@ -80,9 +86,9 @@ export function PostActionDialog({
   return createPortal(
     <div
       className={
-        variant === 'confirm'
-          ? 'fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto bg-black/40 p-4 dark:bg-[#5b7083]/40'
-          : 'fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm'
+        variant === 'default'
+          ? 'fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto bg-black/70 p-4 backdrop-blur-sm'
+          : 'fixed inset-0 z-[200] flex items-center justify-center overflow-y-auto bg-black/40 p-4 dark:bg-[#5b7083]/40'
       }
       onClick={(event) => {
         event.stopPropagation();
@@ -97,11 +103,7 @@ export function PostActionDialog({
         aria-describedby={descriptionId}
         aria-busy={busy || undefined}
         tabIndex={-1}
-        className={
-          variant === 'confirm'
-            ? 'relative w-full max-w-[320px] max-h-[calc(100dvh-2rem)] overflow-y-auto rounded-2xl bg-dd-bg p-8 text-left shadow-2xl outline-none'
-            : 'relative w-full max-w-md max-h-[calc(100dvh-2rem)] space-y-4 overflow-y-auto rounded-2xl border border-dd-border bg-dd-surface p-5 text-left'
-        }
+        className={`relative w-full max-h-[calc(100dvh-2rem)] rounded-2xl text-left ${panelClasses[variant]}`}
       >
         {children}
       </div>

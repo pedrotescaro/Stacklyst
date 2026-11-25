@@ -208,6 +208,75 @@ describe('PostCard', () => {
     expect(pushMock).not.toHaveBeenCalled();
   });
 
+  it('opens the report above feed cards and lets the user select and cancel with the keyboard', async () => {
+    const user = userEvent.setup();
+    const fetchMock = vi.fn();
+    vi.stubGlobal('fetch', fetchMock);
+    const { container } = render(<PostCard post={pythonPost} flat />);
+    const menu = screen.getByRole('button', { name: 'Mais opções' });
+    await user.click(menu);
+    await user.click(screen.getByRole('button', { name: 'Denunciar' }));
+    const dialog = screen.getByRole('dialog', { name: 'Denunciar postagem' });
+    expect(container).not.toContainElement(dialog);
+    expect(within(dialog).getByRole('button', { name: 'Fechar' })).toHaveFocus();
+    expect(within(dialog).getByRole('button', { name: 'Enviar denúncia' })).toBeDisabled();
+    await user.tab();
+    await user.keyboard(' ');
+    expect(within(dialog).getByRole('radio', { name: /Spam/ })).toBeChecked();
+    await user.keyboard('{Escape}');
+    expect(dialog).not.toBeInTheDocument();
+    expect(menu).toHaveFocus();
+    expect(fetchMock).not.toHaveBeenCalled();
+  });
+
+  it('keeps the reason on failure and confirms a successful report retry', async () => {
+    const user = userEvent.setup();
+    let completeRequest!: (response: Response) => void;
+    const fetchMock = vi
+      .fn()
+      .mockRejectedValueOnce(new TypeError('Failed to fetch'))
+      .mockImplementationOnce(
+        () =>
+          new Promise<Response>((resolve) => {
+            completeRequest = resolve;
+          })
+      );
+    vi.stubGlobal('fetch', fetchMock);
+    render(<PostCard post={pythonPost} flat />);
+    const menu = screen.getByRole('button', { name: 'Mais opções' });
+    await user.click(menu);
+    await user.click(screen.getByRole('button', { name: 'Denunciar' }));
+    const dialog = within(screen.getByRole('dialog', { name: 'Denunciar postagem' }));
+    const reason = dialog.getByRole('radio', { name: 'Assédio / Bullying' });
+    await user.click(reason);
+    await user.click(dialog.getByRole('button', { name: 'Enviar denúncia' }));
+    expect(await dialog.findByRole('alert')).toHaveTextContent('Tente novamente.');
+    expect(reason).toBeChecked();
+    await user.click(dialog.getByRole('button', { name: 'Enviar denúncia' }));
+    await user.keyboard('{Escape}');
+    expect(dialog.getByRole('button', { name: 'Enviando…' })).toHaveAttribute(
+      'aria-disabled',
+      'true'
+    );
+    expect(fetchMock.mock.calls).toEqual(
+      Array.from({ length: 2 }, () => [
+        '/api/posts/post-1/report',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ reason: 'Assédio / Bullying' }),
+        },
+      ])
+    );
+    completeRequest(Response.json({ success: true }));
+    const confirmation = within(await screen.findByRole('dialog', { name: 'Denúncia enviada' }));
+    const done = confirmation.getByRole('button', { name: 'Concluir' });
+    expect(done).toHaveFocus();
+    await user.click(done);
+    expect(menu).toHaveFocus();
+    expect(pushMock).not.toHaveBeenCalled();
+  });
+
   it('opens deletion outside animated feed items and cancels without deleting or navigating', async () => {
     const user = userEvent.setup();
     const fetchMock = vi.fn();

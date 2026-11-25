@@ -24,8 +24,6 @@ import {
   Zap,
   Share2,
   MoreHorizontal,
-  Pencil,
-  Trash2,
 } from 'lucide-react';
 import { PostActionsBar, postActionClassName, InteractionCount } from '@/components/PostActionsBar';
 import { RepostMenu } from '@/components/motion/RepostMenu';
@@ -38,10 +36,12 @@ import {
 } from '@/components/composer/ReplyComposerDialog';
 import { MarkdownRenderer } from '@/components/MarkdownRenderer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
+import { ReportPostDialog } from '@/components/posts/ReportPostDialog';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { parsePostExtras } from '@/lib/post-composer';
 import { cn } from '@/lib/cn';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import {
   POST_BOOKMARK_CHANGED,
   writePostBookmark,
@@ -104,6 +104,7 @@ export function PostDetailContent({
   initialIsSaved = false,
 }: PostDetailContentProps) {
   const router = useRouter();
+  const { text } = useLocalizedText();
   const [post, setPost] = useState<any>(initialPost);
   const [soundEnabled, setSoundEnabled] = useState(true);
 
@@ -165,15 +166,12 @@ export function PostDetailContent({
     }
   };
 
-  // Report post state
   const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [reportReason, setReportReason] = useState('');
-  const [reporting, setReporting] = useState(false);
-  const [reported, setReported] = useState(false);
   const [showQuiz, setShowQuiz] = useState(true);
   const [shareCopied, setShareCopied] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -185,33 +183,6 @@ export function PostDetailContent({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [menuOpen]);
-
-  const handleReportSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reportReason.trim()) return;
-    setReporting(true);
-    try {
-      const res = await fetch(`/api/posts/${post.id}/report`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: reportReason.trim() }),
-      });
-      if (res.ok) {
-        setReported(true);
-        setTimeout(() => {
-          setReportModalOpen(false);
-          setReported(false);
-          setReportReason('');
-        }, 1500);
-      } else {
-        alert('Falha ao enviar denúncia.');
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setReporting(false);
-    }
-  };
 
   const handleRepost = () => {
     setRepostState((prev) => ({
@@ -678,7 +649,9 @@ export function PostDetailContent({
                       setMenuOpen(!menuOpen);
                     }}
                     className={`${postActionClassName} hover:bg-blue-500/10 hover:text-blue-400`}
-                    title="Mais opções"
+                    ref={menuButtonRef}
+                    aria-expanded={menuOpen}
+                    title={text('Mais opções', 'More options')}
                   >
                     <MoreHorizontal className="w-[18px] h-[18px]" />
                   </button>
@@ -701,7 +674,7 @@ export function PostDetailContent({
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
                       >
                         <Flag className="w-4 h-4 text-dd-muted" />
-                        <span>Denunciar</span>
+                        <span>{text('Denunciar', 'Report')}</span>
                       </button>
                     </div>
                   )}
@@ -884,76 +857,11 @@ export function PostDetailContent({
       </div>
 
       {reportModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            setReportModalOpen(false);
-          }}
-        >
-          <div
-            className="w-full max-w-md bg-dd-surface border border-dd-border rounded-2xl p-5 space-y-4 text-left relative z-10"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-sm font-black text-dd-text">Denunciar Postagem</h3>
-            <p className="text-xs text-dd-muted font-semibold leading-relaxed">
-              Ajude-nos a entender o que há de errado com esta postagem. Ela viola alguma de nossas
-              diretrizes de comunidade?
-            </p>
-
-            {reported ? (
-              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold p-3 rounded-lg text-center animate-pulse">
-                Denúncia enviada com sucesso. Obrigado por ajudar!
-              </div>
-            ) : (
-              <form onSubmit={handleReportSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] text-dd-muted font-bold uppercase tracking-wider block">
-                    Motivo da denúncia
-                  </label>
-                  <select
-                    value={reportReason}
-                    onChange={(e) => setReportReason(e.target.value)}
-                    required
-                    className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg px-3 py-2.5 text-dd-text focus:border-red-500/50 focus:outline-none"
-                  >
-                    <option value="">Selecione um motivo...</option>
-                    <option value="Spam / Propaganda enganosa">Spam / Propaganda enganosa</option>
-                    <option value="Discurso de ódio / Ofensa">Discurso de ódio / Ofensa</option>
-                    <option value="Assédio / Bullying">Assédio / Bullying</option>
-                    <option value="Código / Conteúdo malicioso ou perigoso">
-                      Código / Conteúdo malicioso ou perigoso
-                    </option>
-                    <option value="Outro motivo">Outro motivo</option>
-                  </select>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2 border-t border-dd-border">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setReportModalOpen(false);
-                    }}
-                    className="text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
-                  >
-                    Cancelar
-                  </button>
-                  <button
-                    type="submit"
-                    onClick={(e) => e.stopPropagation()}
-                    disabled={reporting || !reportReason}
-                    className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
-                  >
-                    {reporting ? 'Enviando...' : 'Denunciar'}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
+        <ReportPostDialog
+          postId={post.id}
+          onClose={() => setReportModalOpen(false)}
+          returnFocusRef={menuButtonRef}
+        />
       )}
     </div>
   );

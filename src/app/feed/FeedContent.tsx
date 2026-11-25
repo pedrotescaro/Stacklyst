@@ -46,7 +46,6 @@ import {
   BookOpen,
   Calendar,
   X,
-  Flag,
   Heart,
   BarChart2,
   ChevronDown,
@@ -327,41 +326,6 @@ export function FeedContent({
 
   const didMountFilterEffectRef = useRef(false);
   const filterSnapshotRef = useRef(initialPosts);
-
-  // Report post state
-  const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [reportReason, setReportReason] = useState('');
-  const [reporting, setReporting] = useState(false);
-  const [reported, setReported] = useState(false);
-  const [selectedReportPostId, setSelectedReportPostId] = useState<string | null>(null);
-
-  const handleReportSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reportReason.trim() || !selectedReportPostId) return;
-    setReporting(true);
-    try {
-      const res = await fetch(`/api/posts/${selectedReportPostId}/report`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: reportReason.trim() }),
-      });
-      if (res.ok) {
-        setReported(true);
-        setTimeout(() => {
-          setReportModalOpen(false);
-          setReported(false);
-          setReportReason('');
-          setSelectedReportPostId(null);
-        }, 1500);
-      } else {
-        alert(text('Falha ao enviar denúncia.', 'Could not send report.'));
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setReporting(false);
-    }
-  };
 
   // One first-page request owns the current feed filter. Old requests cannot
   // overwrite a refresh or a newly selected feed after they finish out of order.
@@ -1604,95 +1568,6 @@ export function FeedContent({
           currentDate={currentWeekDate}
         />
       </div>
-
-      {reportModalOpen && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            e.preventDefault();
-            setReportModalOpen(false);
-          }}
-        >
-          <div
-            className="w-full max-w-md bg-dd-surface border border-dd-border rounded-2xl p-5 space-y-4 text-left relative z-10"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="text-sm font-black text-dd-text">
-              {text('Denunciar postagem', 'Report post')}
-            </h3>
-            <p className="text-xs text-dd-muted font-semibold leading-relaxed">
-              {text(
-                'Ajude-nos a entender o que há de errado com esta postagem. Ela viola alguma de nossas diretrizes de comunidade?',
-                'Help us understand what is wrong with this post. Does it violate our community guidelines?'
-              )}
-            </p>
-
-            {reported ? (
-              <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold p-3 rounded-lg text-center animate-pulse">
-                {text(
-                  'Denúncia enviada com sucesso. Obrigado por ajudar!',
-                  'Report sent. Thanks for helping!'
-                )}
-              </div>
-            ) : (
-              <form onSubmit={handleReportSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="text-[10px] text-dd-muted font-bold uppercase tracking-wider block">
-                    {text('Motivo da denúncia', 'Report reason')}
-                  </label>
-                  <select
-                    value={reportReason}
-                    onChange={(e) => setReportReason(e.target.value)}
-                    required
-                    className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg px-3 py-2.5 text-dd-text focus:border-red-500/50 focus:outline-none"
-                  >
-                    <option value="">{text('Selecione um motivo...', 'Select a reason...')}</option>
-                    <option value="Spam / Propaganda enganosa">
-                      {text('Spam / Propaganda enganosa', 'Spam / Misleading advertising')}
-                    </option>
-                    <option value="Discurso de ódio / Ofensa">
-                      {text('Discurso de ódio / Ofensa', 'Hate speech / Offense')}
-                    </option>
-                    <option value="Assédio / Bullying">
-                      {text('Assédio / Bullying', 'Harassment / Bullying')}
-                    </option>
-                    <option value="Código / Conteúdo malicioso ou perigoso">
-                      {text(
-                        'Código / Conteúdo malicioso ou perigoso',
-                        'Malicious or dangerous code / content'
-                      )}
-                    </option>
-                    <option value="Outro motivo">{text('Outro motivo', 'Other reason')}</option>
-                  </select>
-                </div>
-
-                <div className="flex justify-end gap-2 pt-2 border-t border-dd-border">
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      e.preventDefault();
-                      setReportModalOpen(false);
-                    }}
-                    className="text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
-                  >
-                    {text('Cancelar', 'Cancel')}
-                  </button>
-                  <button
-                    type="submit"
-                    onClick={(e) => e.stopPropagation()}
-                    disabled={reporting || !reportReason}
-                    className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
-                  >
-                    {reporting ? text('Enviando...', 'Sending...') : text('Denunciar', 'Report')}
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

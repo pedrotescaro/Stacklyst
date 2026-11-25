@@ -13,7 +13,6 @@ import {
   Trash2,
   MoreHorizontal,
   Pencil,
-  X,
   Share2,
   Check,
 } from 'lucide-react';
@@ -38,6 +37,7 @@ import { POST_CHAR_LIMIT } from '@/lib/motion';
 import { parsePostExtras } from '@/lib/post-composer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
 import { PostActionDialog } from '@/components/posts/PostActionDialog';
+import { ReportPostDialog } from '@/components/posts/ReportPostDialog';
 import type { PostAttachment, PostPoll } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
 import {
@@ -125,9 +125,6 @@ export function PostCard({
     return () => window.removeEventListener('stacklyst:block-changed', onBlock);
   }, [post.author.id, post.author_id]);
 
-  const [reportReason, setReportReason] = useState('');
-  const [reporting, setReporting] = useState(false);
-  const [reported, setReported] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -298,33 +295,6 @@ export function PostCard({
     const newReposted = !reposted;
     setReposted(newReposted);
     setRepostsCount((prev) => (newReposted ? prev + 1 : Math.max(0, prev - 1)));
-  };
-
-  const handleReportSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!reportReason.trim()) return;
-    setReporting(true);
-    try {
-      const res = await fetch(`/api/posts/${post.id}/report`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ reason: reportReason.trim() }),
-      });
-      if (res.ok) {
-        setReported(true);
-        setTimeout(() => {
-          setReportModalOpen(false);
-          setReported(false);
-          setReportReason('');
-        }, 1500);
-      } else {
-        alert(text('Falha ao enviar denúncia.', 'Could not send report.'));
-      }
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setReporting(false);
-    }
   };
 
   const handleDelete = async () => {
@@ -660,7 +630,7 @@ export function PostCard({
                       className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
                     >
                       <Flag className="w-4 h-4 text-dd-muted" />
-                      <span>Denunciar</span>
+                      <span>{text('Denunciar', 'Report')}</span>
                     </button>
                     {(post.author.id ?? post.author_id) && (
                       <BlockUserButton
@@ -678,87 +648,11 @@ export function PostCard({
       </article>
 
       {reportModalOpen && (
-        <PostActionDialog
-          titleId={`report-post-title-${post.id}`}
-          busy={reporting}
+        <ReportPostDialog
+          postId={post.id}
           onClose={() => setReportModalOpen(false)}
           returnFocusRef={menuButtonRef}
-        >
-          <h3 id={`report-post-title-${post.id}`} className="text-sm font-black text-dd-text">
-            {text('Denunciar postagem', 'Report post')}
-          </h3>
-          <p className="text-xs text-dd-muted font-semibold leading-relaxed">
-            {text(
-              'Ajude-nos a entender o que há de errado com esta postagem. Ela viola alguma de nossas diretrizes de comunidade?',
-              'Help us understand what is wrong with this post. Does it violate our community guidelines?'
-            )}
-          </p>
-
-          {reported ? (
-            <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-bold p-3 rounded-lg text-center animate-pulse">
-              {text(
-                'Denúncia enviada com sucesso. Obrigado por ajudar!',
-                'Report sent. Thanks for helping!'
-              )}
-            </div>
-          ) : (
-            <form onSubmit={handleReportSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <label className="text-[10px] text-dd-muted font-bold uppercase tracking-wider block">
-                  {text('Motivo da denúncia', 'Report reason')}
-                </label>
-                <select
-                  data-dialog-initial-focus
-                  value={reportReason}
-                  onChange={(e) => setReportReason(e.target.value)}
-                  required
-                  className="w-full text-xs rounded-lg border border-dd-border bg-dd-bg px-3 py-2.5 text-dd-text focus:border-red-500/50 focus:outline-none"
-                >
-                  <option value="">{text('Selecione um motivo...', 'Select a reason...')}</option>
-                  <option value="Spam / Propaganda enganosa">
-                    {text('Spam / Propaganda enganosa', 'Spam / Misleading advertising')}
-                  </option>
-                  <option value="Discurso de ódio / Ofensa">
-                    {text('Discurso de ódio / Ofensa', 'Hate speech / Offense')}
-                  </option>
-                  <option value="Assédio / Bullying">
-                    {text('Assédio / Bullying', 'Harassment / Bullying')}
-                  </option>
-                  <option value="Código / Conteúdo malicioso ou perigoso">
-                    {text(
-                      'Código / Conteúdo malicioso ou perigoso',
-                      'Malicious or dangerous code / content'
-                    )}
-                  </option>
-                  <option value="Outro motivo">{text('Outro motivo', 'Other reason')}</option>
-                </select>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2 border-t border-dd-border">
-                <button
-                  type="button"
-                  disabled={reporting}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    setReportModalOpen(false);
-                  }}
-                  className="text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
-                >
-                  {text('Cancelar', 'Cancel')}
-                </button>
-                <button
-                  type="submit"
-                  onClick={(e) => e.stopPropagation()}
-                  disabled={reporting || !reportReason}
-                  className="bg-red-600 hover:bg-red-700 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
-                >
-                  {reporting ? text('Enviando...', 'Sending...') : text('Denunciar', 'Report')}
-                </button>
-              </div>
-            </form>
-          )}
-        </PostActionDialog>
+        />
       )}
 
       {deleteModalOpen && (
