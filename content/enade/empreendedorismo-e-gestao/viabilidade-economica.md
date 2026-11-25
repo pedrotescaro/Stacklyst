@@ -3,7 +3,7 @@ title: Viabilidade econômica — ROI, payback, VPL, TIR e ponto de equilíbrio
 summary: Como avaliar se um projeto ou negócio vale a pena — retorno sobre investimento, payback simples e descontado, valor presente líquido, taxa interna de retorno e ponto de equilíbrio —, com cálculos passo a passo e aplicação a projetos de software.
 order: 3
 level: intermediário
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [viabilidade econômica, estudo de viabilidade, roi, retorno sobre investimento, payback, payback descontado, vpl, valor presente líquido, tir, taxa interna de retorno, tma, taxa mínima de atratividade, fluxo de caixa, ponto de equilíbrio, custos fixos, custos variáveis, margem de contribuição, capex, opex, tco]
 related: [empreendedorismo-e-plano-de-negocios, canvas-swot-mvp, gerencia-de-projetos-e-riscos, porcentagem-e-proporcao, processo-de-requisitos]
@@ -84,21 +84,7 @@ VPL = −100.000 + 45.000/1,1 + 45.000/1,21 + 45.000/1,331 ≈ −100.000 + 40.9
 
 Leia o tempo da esquerda para a direita. O sinal negativo marca o desembolso inicial e os positivos marcam as economias esperadas. Para calcular o VPL no ENADE, desconte cada valor positivo a 10% pelo número de anos entre a sua entrada e o marco zero, e some o investimento com seu sinal.
 
-```mermaid Fluxo de caixa por ano
----
-config:
-  flowchart:
-    nodeSpacing: 18
-    rankSpacing: 30
-    padding: 8
----
-flowchart LR
-  T0["Ano 0<br/>−R$ 100 mil"] --- T1["Ano 1<br/>+R$ 45 mil"]
-  T1 --- T2["Ano 2<br/>+R$ 45 mil"]
-  T2 --> T3["Ano 3<br/>+R$ 45 mil"]
-```
-
-Fonte: adaptado de DAHLQUIST; KNIGHT (2022, seção 16.2) — recriado pela equipe Stacklyst.
+::figure{id="fluxo-de-caixa-do-projeto"}
 
 ## Vantagens e desvantagens
 

@@ -3,7 +3,7 @@ title: Business Model Canvas, análise SWOT, MVP e Lean Startup
 summary: Os nove blocos do Business Model Canvas, a análise SWOT (forças, fraquezas, oportunidades e ameaças) e sua matriz cruzada, o Produto Mínimo Viável e o ciclo construir-medir-aprender.
 order: 2
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [business model canvas, canvas, modelo de negócios, proposta de valor, segmentos de clientes, canais, relacionamento, fontes de receita, recursos principais, atividades-chave, parcerias, estrutura de custos, swot, fofa, forças, fraquezas, oportunidades, ameaças, mvp, produto mínimo viável, lean startup, pivô, validação]
 related: [empreendedorismo-e-plano-de-negocios, viabilidade-economica, metodos-ageis, sistemas-de-informacao-empresariais]
@@ -87,17 +87,7 @@ Fonte: adaptado de OSTERWALDER; PIGNEUR (2010, cap. 1) — recriado pela equipe 
 
 Siga as setas da hipótese ao aprendizado. A reação dos clientes ao MVP fornece os dados que orientam a próxima hipótese ou refinam a estratégia atual. No ENADE, identifique qual medida permitiria validar a hipótese e por que o aprendizado pode levar a um pivô.
 
-```mermaid Ciclo construir, medir e aprender
-flowchart TB
-  H(["Hipótese a testar"]) --> C["Construir"]
-  C --> P["MVP"]
-  P --> M["Medir"]
-  M --> D["Dados de uso"]
-  D --> A["Aprender"]
-  A -->|"Pivotar ou perseverar"| H
-```
-
-Fonte: adaptado de RIES (2011, parte 2, introdução e caps. 5–8) — recriado pela equipe Stacklyst.
+::figure{id="ciclo-construir-medir-aprender"}
 
 ## Vantagens e desvantagens
 

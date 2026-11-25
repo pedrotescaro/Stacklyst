@@ -3,7 +3,7 @@ title: Sistemas de informação empresariais — ERP, CRM, BI, SCM e sistemas es
 summary: Os tipos de sistemas de informação por nível organizacional, ERP, CRM, SCM, Business Intelligence e data warehouse, sistemas especialistas com regras de produção, integração entre sistemas e a ligação com gestão de projetos.
 order: 4
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [sistemas de informação, sistema de informação empresarial, sig, sad, sit, ese, erp, crm, scm, bi, business intelligence, data warehouse, olap, dashboard, kpi, sistema especialista, regras de produção, motor de inferência, base de conhecimento, inteligência artificial, integração, api, gestão de projetos]
 related: [empreendedorismo-e-plano-de-negocios, gerencia-de-projetos-e-riscos, modelagem-de-processos-de-negocio, probabilidade-e-combinatoria, manutencao-e-divida-tecnica]
@@ -77,21 +77,7 @@ O vendedor registra o pedido no **CRM** → o **ERP** reserva o estoque, emite a
 
 As setas de duas pontas indicam troca de dados operacionais e o fluxo descendente mostra o envio de dados para análise. No ENADE, associe clientes ao CRM, fornecedores ao SCM, integração interna ao ERP e consultas históricas ao data warehouse.
 
-```mermaid ERP, aplicações empresariais e análise
-flowchart TB
-  subgraph OPS["Operação"]
-    CRM["CRM<br/>Clientes"] <-->|"Pedidos"| ERP["ERP<br/>Módulos internos"]
-    SCM["SCM<br/>Fornecedores"] <-->|"Suprimento"| ERP
-    ERP <-->|"Registros"| BD[("Base transacional")]
-  end
-  subgraph ANALISE["Análise"]
-    ETL["Extrair, transformar<br/>e carregar"] --> DW[("Data warehouse")]
-    DW --> BI["Relatórios e painéis"]
-  end
-  BD --> ETL
-```
-
-Fonte: adaptado de LAUDON; LAUDON (2022, caps. 6 e 9) — recriado pela equipe Stacklyst.
+::figure{id="operacao-empresarial-e-analise"}
 
 ## Vantagens e desvantagens
 

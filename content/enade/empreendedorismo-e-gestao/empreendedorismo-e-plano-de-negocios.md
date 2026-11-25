@@ -3,7 +3,7 @@ title: Empreendedorismo, inovação e plano de negócios
 summary: O que é empreender, perfil do empreendedor e riscos calculados, empreendedores e investidores, os fatores pessoas, oportunidade, contexto, riscos e recompensas, tipos de inovação, empreendedorismo social e a estrutura de um plano de negócios.
 order: 1
 level: básico
-version: 2
+version: 3
 updated: 2026-11-25
 tags: [empreendedorismo, empreendedor, intraempreendedorismo, empreendedorismo social, inovação, inovação incremental, inovação radical, inovação disruptiva, criatividade, riscos calculados, investidores, investidor-anjo, venture capital, plano de negócios, sumário executivo, análise de mercado, plano de marketing, plano financeiro, plano de contingência]
 related: [canvas-swot-mvp, viabilidade-economica, sistemas-de-informacao-empresariais, gerencia-de-projetos-e-riscos, sustentabilidade-e-responsabilidade-social]
@@ -89,23 +89,7 @@ Não existe uma "fórmula de sucesso" pronta: o plano é adaptado ao negócio e 
 
 Leia os quatro ramos como perguntas que o plano precisa responder em conjunto. No ENADE, diferencie as competências da equipe, as condições externas e a resposta da empresa a cenários de risco.
 
-```mermaid Quatro dimensões do plano de negócios
----
-config:
-  flowchart:
-    nodeSpacing: 18
-    rankSpacing: 30
-    padding: 8
----
-flowchart TB
-  PL["Plano de negócios"]
-  PL --- P["Pessoas<br/>Equipe"]
-  PL --- O["Oportunidade<br/>Mercado"]
-  PL --- C["Contexto<br/>Ambiente"]
-  PL --- R["Riscos e retornos<br/>Cenários"]
-```
-
-Fonte: adaptado de SAHLMAN (1997) — recriado pela equipe Stacklyst.
+::figure{id="dimensoes-do-plano-de-negocios"}
 
 ## Vantagens e desvantagens
 
