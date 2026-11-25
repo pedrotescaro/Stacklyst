@@ -3,7 +3,7 @@ title: Modelos de processo — Cascata, V, Incremental, Iterativo, Evolucionári
 summary: Os modelos clássicos de ciclo de vida explicados do zero, com quando usar cada um, vantagens, desvantagens e uma tabela comparativa para não confundir na prova.
 order: 2
 level: básico
-version: 3
+version: 4
 updated: 2026-11-25
 tags: [modelos de processo, ciclo de vida, cascata, waterfall, sequencial linear, modelo v, incremental, iterativo, evolucionário, prototipação, espiral, boehm, rad, desenvolvimento rápido de aplicações]
 related: [fundamentos-engenharia-de-software, metodos-ageis, rup-visao-geral, gerencia-de-projetos-e-riscos, fundamentos-de-testes]
@@ -140,7 +140,7 @@ Fases típicas: modelagem do negócio → modelagem dos dados → modelagem do p
 
 ::figure{id="modelo-cascata"}
 
-As setas contínuas mostram as cinco etapas na versão de Sommerville. As tracejadas exemplificam retornos para revisar um resultado anterior. Pressman e Maxim agrupam o trabalho em comunicação, planejamento, modelagem, construção e entrega. No ENADE, reconheça o caráter planejado do modelo e o custo de descobrir um problema de requisitos somente nos testes.
+Os cinco estágios seguem em degraus. As setas de retorno permitem revisar atividades anteriores. Compare essa sequência com a de Pressman e Maxim, que organizam o trabalho em comunicação, planejamento, modelagem, construção e entrega. No ENADE, relacione o planejamento antecipado ao custo de descobrir problemas de requisitos só nos testes.
 
 ### Modelo V e suas verificações
 
@@ -148,13 +148,17 @@ As setas contínuas mostram as cinco etapas na versão de Sommerville. As tracej
 
 Desça pela definição e pelo projeto até o executável e suba pelos testes. As ligações tracejadas mostram sobre quais trabalhos anteriores os testes fornecem evidência na versão de Pressman e Maxim. No ENADE, faça a correspondência conforme os artefatos nomeados no enunciado, da implementação da unidade aos requisitos examinados na aceitação.
 
-### Incrementos escalonados no tempo
+### Desenvolvimento incremental
 
-::widget incremental-escalonado
+::figure{id="incrementos-sommerville"}
 
-Fonte: adaptado de PRESSMAN; MAXIM (2016, cap. 4) — recriado pela equipe Stacklyst.
+Na versão de Sommerville, especificação, desenvolvimento e validação se sobrepõem. A descrição geral dá origem a uma versão inicial, versões intermediárias e uma final. Cada entrega ajuda a confirmar o que já funciona e o que a próxima versão precisa incorporar.
 
-Leia cada faixa como uma sequência que termina com uma versão cumulativa do software. A construção abrange código e testes, e a entrega gera feedback para os incrementos seguintes. As posições no eixo mostram que o trabalho de um incremento pode começar antes da entrega do anterior. No ENADE, procure o núcleo utilizável na primeira entrega e a incorporação de funções nas versões seguintes.
+### Desenvolvimento orientado para o reúso
+
+::figure{id="processo-reuso-sommerville"}
+
+As alternativas disponíveis ajudam a refinar os requisitos antes de configurar uma aplicação, adaptar componentes ou desenvolver o que falta.
 
 ### Modelo espiral de Boehm
 

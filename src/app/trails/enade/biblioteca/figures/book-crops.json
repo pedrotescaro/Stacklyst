@@ -1,0 +1,191 @@
+{
+  "modelo-cascata": {
+    "title": "O modelo em cascata",
+    "alt": "Cinco estágios em degraus da definição de requisitos à operação e manutenção, com caminhos de retorno para revisão.",
+    "number": "2.1",
+    "page": 33,
+    "pdfPage": 48,
+    "width": 1161,
+    "height": 660
+  },
+  "incrementos-sommerville": {
+    "title": "Desenvolvimento incremental",
+    "alt": "Descrição geral, atividades simultâneas de especificação, desenvolvimento e validação, e versões inicial, intermediárias e final.",
+    "number": "2.2",
+    "page": 35,
+    "pdfPage": 50,
+    "width": 1050,
+    "height": 582
+  },
+  "processo-reuso-sommerville": {
+    "title": "Engenharia de software orientada para o reúso",
+    "alt": "Requisitos levam à descoberta e avaliação de software disponível, ao refinamento dos requisitos e à configuração, adaptação ou integração de componentes.",
+    "number": "2.3",
+    "page": 38,
+    "pdfPage": 53,
+    "width": 1560,
+    "height": 480
+  },
+  "especificacao-requisitos-sommerville": {
+    "title": "O processo de engenharia de requisitos",
+    "alt": "A elicitação e análise informa a especificação. A validação examina requisitos do usuário e do sistema para produzir o documento de requisitos.",
+    "number": "2.4",
+    "page": 40,
+    "pdfPage": 55,
+    "width": 837,
+    "height": 606
+  },
+  "estagios-teste-sommerville": {
+    "title": "Estágios do teste",
+    "alt": "Teste de componente, teste de sistema e teste de cliente, com retornos entre os estágios.",
+    "number": "2.6",
+    "page": 43,
+    "pdfPage": 58,
+    "width": 813,
+    "height": 258
+  },
+  "plano-e-agil-sommerville": {
+    "title": "Desenvolvimento dirigido por plano e desenvolvimento ágil",
+    "alt": "No processo dirigido por plano, engenharia e especificação de requisitos precedem projeto e implementação. No ágil, requisitos e implementação realimentam um ao outro.",
+    "number": "3.1",
+    "page": 59,
+    "pdfPage": 74,
+    "width": 942,
+    "height": 729
+  },
+  "xp-release-sommerville": {
+    "title": "Ciclo de lançamento da Programação Extrema",
+    "alt": "Histórias de usuário são divididas em tarefas. A equipe planeja a versão, desenvolve, integra e testa, entrega e avalia o sistema para iniciar outro ciclo.",
+    "number": "3.3",
+    "page": 62,
+    "pdfPage": 77,
+    "width": 1023,
+    "height": 417
+  },
+  "eventos-artefatos-scrum": {
+    "title": "O ciclo de Sprint do Scrum",
+    "alt": "O backlog do produto alimenta a seleção e o planejamento, que geram o backlog da Sprint. A equipe executa a Sprint, integra o software e revê o trabalho.",
+    "number": "3.9",
+    "page": 70,
+    "pdfPage": 85,
+    "width": 1167,
+    "height": 477
+  },
+  "requisitos-usuario-sistema-sommerville": {
+    "title": "Leitores das especificações de requisitos",
+    "alt": "A figura compara os grupos que leem requisitos do usuário e requisitos do sistema, de gerentes e usuários finais a arquitetos e desenvolvedores.",
+    "number": "4.2",
+    "page": 87,
+    "pdfPage": 102,
+    "width": 783,
+    "height": 456
+  },
+  "tipos-requisitos-sistema": {
+    "title": "Tipos de requisitos não funcionais",
+    "alt": "Hierarquia de requisitos do produto, organizacionais e externos, com desdobramentos como desempenho, confiabilidade e requisitos éticos ou legais.",
+    "number": "4.3",
+    "page": 92,
+    "pdfPage": 107,
+    "width": 1488,
+    "height": 876
+  },
+  "espiral-requisitos": {
+    "title": "Uma visão em espiral da engenharia de requisitos",
+    "alt": "Elicitação, especificação e validação se repetem e aumentam o detalhe, dos requisitos de negócio aos de usuário e sistema. A saída é o documento de requisitos.",
+    "number": "4.6",
+    "page": 95,
+    "pdfPage": 110,
+    "width": 1371,
+    "height": 1218
+  },
+  "descoberta-analise-requisitos": {
+    "title": "Processo de elicitação e análise de requisitos",
+    "alt": "Ciclo de descoberta e compreensão, classificação e organização, priorização e negociação e documentação de requisitos.",
+    "number": "4.7",
+    "page": 97,
+    "pdfPage": 112,
+    "width": 855,
+    "height": 570
+  },
+  "notacoes-requisitos-sommerville": {
+    "title": "Notações para escrever requisitos de sistema",
+    "alt": "Tabela que compara linguagem natural, linguagem natural estruturada, notações gráficas e especificações matemáticas.",
+    "number": "4.11",
+    "page": 104,
+    "pdfPage": 119,
+    "width": 1245,
+    "height": 828
+  },
+  "casos-uso-mentcare-sommerville": {
+    "title": "Casos de uso do sistema Mentcare",
+    "alt": "Atores como recepcionista, profissional de enfermagem, gerente e médico têm associações com diferentes serviços do sistema Mentcare.",
+    "number": "4.15",
+    "page": 109,
+    "pdfPage": 124,
+    "width": 1134,
+    "height": 711
+  },
+  "atividade-expedicao": {
+    "title": "Modelo de processo de internação compulsória",
+    "alt": "Diagrama de atividades com guardas de disponibilidade e perigo, caminhos alternativos e ações de internação e informação do paciente.",
+    "number": "5.2",
+    "page": 125,
+    "pdfPage": 140,
+    "width": 1458,
+    "height": 828
+  },
+  "sequencia-tentativas-acesso": {
+    "title": "Sequência para visualizar informações do paciente",
+    "alt": "Uma recepcionista chama serviços do Mentcare e o quadro alt distingue respostas conforme a autorização. As mensagens seguem de cima para baixo.",
+    "number": "5.6",
+    "page": 129,
+    "pdfPage": 144,
+    "width": 1032,
+    "height": 813
+  },
+  "classes-vendas-pagamentos": {
+    "title": "Classes e associações no sistema Mentcare",
+    "alt": "Paciente, consulta, condição, questionário, clínica geral, medicação e tratamento estão conectados por associações com multiplicidades.",
+    "number": "5.9",
+    "page": 132,
+    "pdfPage": 147,
+    "width": 924,
+    "height": 642
+  },
+  "estados-pedido": {
+    "title": "Máquina de estados de um forno de micro-ondas",
+    "alt": "As transições ligam estados de espera, seleção de potência, definição de tempo, habilitação, desabilitação e operação a eventos como abrir ou fechar a porta.",
+    "number": "5.16",
+    "page": 138,
+    "pdfPage": 153,
+    "width": 1491,
+    "height": 957
+  },
+  "processo-teste-sommerville": {
+    "title": "Modelo do processo de teste de software",
+    "alt": "O processo projeta casos de teste, prepara dados, executa o programa e compara resultados aos esperados.",
+    "number": "8.3",
+    "page": 207,
+    "pdfPage": 222,
+    "width": 1473,
+    "height": 303
+  },
+  "ciclo-tdd": {
+    "title": "Desenvolvimento dirigido por testes",
+    "alt": "Identifique a funcionalidade, escreva e execute o teste. Quando falha, implemente e refatore, e execute de novo. Quando passa, avance para a próxima funcionalidade.",
+    "number": "8.9",
+    "page": 219,
+    "pdfPage": 234,
+    "width": 1227,
+    "height": 381
+  },
+  "matriz-sistemas-legados": {
+    "title": "Exemplo de avaliação de sistemas legados",
+    "alt": "Ativos numerados se distribuem em quatro quadrantes segundo a qualidade do sistema e o valor para o negócio.",
+    "number": "9.9",
+    "page": 243,
+    "pdfPage": 258,
+    "width": 942,
+    "height": 624
+  }
+}

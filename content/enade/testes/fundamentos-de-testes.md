@@ -3,7 +3,7 @@ title: Fundamentos de testes — V&V, caixa branca, preta e cinza, níveis e tip
 summary: Verificação e validação, defeito × erro × falha, as técnicas de caixa branca, caixa preta e caixa cinza, os níveis unitário, integração, sistema e aceitação (alfa e beta), e os testes de regressão, desempenho, carga, estresse e outros.
 order: 1
 level: básico
-version: 3
+version: 4
 updated: 2026-11-25
 tags: [teste de software, verificação, validação, v&v, defeito, erro, falha, caixa branca, caixa preta, caixa cinza, teste unitário, teste de integração, teste de sistema, teste de aceitação, alfa, beta, regressão, desempenho, carga, estresse, usabilidade, segurança, compatibilidade, instalação, partição de equivalência, valor limite, cobertura, tdd]
 related: [complexidade-ciclomatica, qualidade-de-software, modelos-de-processo, metodos-ageis, requisitos-fundamentos]
@@ -98,6 +98,14 @@ void naoDevePermitirSaqueMaiorQueSaldo() {         // teste unitário (JUnit)
 ::figure{id="estrategia-testes-software"}
 
 O escopo se amplia da unidade para o software integrado, chega à validação dos requisitos e inclui o sistema completo no seu ambiente. No ENADE, use o objeto descrito para identificar o nível. Uma função aponta para unidade, e sua interação com outros componentes aponta para integração.
+
+::figure{id="processo-teste-sommerville"}
+
+O fluxo separa os casos de teste, os dados de entrada, a execução e a comparação entre o resultado observado e o esperado.
+
+::figure{id="estagios-teste-sommerville"}
+
+O escopo vai do componente ao sistema e ao teste conduzido com o cliente. Os retornos permitem corrigir problemas identificados nos estágios posteriores.
 
 ::figure{id="etapas-testes-software"}
 

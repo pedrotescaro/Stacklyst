@@ -3,7 +3,7 @@ title: Técnicas de elicitação — brainstorming, JAD, FAST, PIECES, entrevist
 summary: Cada técnica de levantamento de requisitos explicada com quando usar, como conduzir e como reconhecê-la em uma questão de prova, além de uma tabela comparativa completa.
 order: 3
 level: básico
-version: 3
+version: 4
 updated: 2026-11-25
 tags: [elicitação, levantamento de requisitos, brainstorming, jad, joint application design, fast, facilitated application specification techniques, pieces, entrevista estruturada, semiestruturada, não estruturada, questionário, observação, etnografia, análise documental, prototipação, workshop, cenários, grupo focal]
 related: [processo-de-requisitos, requisitos-fundamentos, historias-e-casos-de-uso, modelos-de-processo]
@@ -111,7 +111,7 @@ Construção rápida de uma **versão preliminar** (papel, wireframe, telas nave
 
 ::figure{id="descoberta-analise-requisitos"}
 
-As três entradas mostram fontes complementares para descobrir requisitos. Combine seus resultados, organize o material e negocie conflitos antes de registrar o acordo. No ENADE, escolha a técnica pela evidência necessária. A observação do trabalho revela práticas que podem escapar em entrevistas ou documentos.
+Siga o ciclo da descoberta até a documentação. Classificar aproxima requisitos relacionados. Priorizar e negociar resolve conflitos antes de registrar o acordo. Entrevistas, cenários e observação alimentam a descoberta, cada técnica com um tipo de evidência.
 
 ## Diferenças entre conceitos semelhantes
 

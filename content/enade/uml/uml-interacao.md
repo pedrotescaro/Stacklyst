@@ -3,7 +3,7 @@ title: Diagramas de interação — sequência, comunicação, tempo e visão ge
 summary: Linhas de vida, barras de ativação, mensagens síncronas, assíncronas e de retorno, criação e destruição de objetos, fragmentos combinados alt, opt e loop, e os outros três diagramas de interação.
 order: 4
 level: intermediário
-version: 3
+version: 4
 updated: 2026-11-25
 tags: [diagrama de sequência, linha de vida, lifeline, barra de ativação, mensagem síncrona, mensagem assíncrona, retorno, criação, destruição, fragmentos combinados, alt, opt, loop, par, ref, diagrama de comunicação, diagrama de tempo, timing, visão geral de interação]
 related: [uml-visao-geral, uml-classes-e-objetos, uml-casos-de-uso, mvc-mvp-mvvm]
@@ -96,7 +96,7 @@ Se a linha de vida `:ControladorAcesso` começa com uma mensagem «create» vind
 
 ::figure{id="sequencia-tentativas-acesso"}
 
-Leia de cima para baixo. Cada tentativa inclui o envio das credenciais e a consulta ao cadastro. O quadro alt escolhe a resposta pelas guardas, dentro do loop de tentativas. O ENADE costuma cobrar a diferença entre alternativa, repetição e o retorno tracejado de uma chamada.
+Leia de cima para baixo. A recepcionista solicita informações, e o sistema consulta a autorização. O quadro alt separa os resultados: mostrar a informação quando há autorização ou indicar falta de acesso.
 
 Na seção Como funciona, compare essa mesma leitura temporal com a numeração da comunicação, com a duração dos estados no gráfico de tempo e com o encadeamento de quadros na visão geral.
 
@@ -183,3 +183,4 @@ A linha de vida de `Controlador Acesso` **começa** com a mensagem de criação 
 - FOWLER, M. *UML Essencial*. 3. ed. Bookman, 2005 — cap. 4.
 - BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.
 - INEP. ENADE TADS 2008, questão 13.
+- SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson, 2018.

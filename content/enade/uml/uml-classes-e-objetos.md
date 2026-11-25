@@ -3,7 +3,7 @@ title: Diagrama de classes e diagrama de objetos
 summary: Classes, atributos, operações, visibilidades (+ - # ~), multiplicidades e os relacionamentos — associação, agregação, composição, generalização, realização e dependência — com o diagrama de objetos.
 order: 2
 level: intermediário
-version: 3
+version: 4
 updated: 2026-11-25
 tags: [diagrama de classes, diagrama de objetos, classe, atributo, operação, método, visibilidade, público, privado, protegido, pacote, multiplicidade, associação, agregação, composição, generalização, herança, realização, interface, dependência, classe abstrata, classe associativa]
 related: [poo-fundamentos, relacionamentos-coesao-acoplamento, heranca-e-polimorfismo, modelagem-de-dados, uml-visao-geral]
@@ -124,7 +124,7 @@ public class PixPagamento implements Pagavel {             // realização
 
 ::figure{id="classes-vendas-pagamentos"}
 
-Leia cada multiplicidade na extremidade correspondente. Um pedido contém um ou mais itens, e cada item pertence a um único pedido. No ENADE, identifique o todo pelo losango cheio e distinga realização de dependência pela ponta da seta tracejada.
+Leia as multiplicidades nas pontas de cada associação. No Mentcare, um paciente frequenta uma ou mais consultas, e a consulta pertence ao paciente. Para distinguir agregação, composição, dependência e realização, use a comparação de notações na seção Como funciona.
 
 ## Vantagens e desvantagens
 
@@ -229,3 +229,4 @@ Cenário em que regras ("dois tipos de carboidrato no café da manhã", "um tipo
 - LARMAN, C. *Utilizando UML e Padrões*. 3. ed. Bookman, 2007.
 - GUEDES, G. T. A. *UML 2: uma abordagem prática*. 3. ed. Novatec, 2018.
 - INEP. ENADE TADS 2008 (questão 19) e 2017 (questão 16).
+- SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson, 2018.

@@ -9,12 +9,14 @@ export function FigureFrame({
   id,
   title,
   sources,
+  bookCrop = false,
   children,
   expanded,
 }: {
   id: string;
   title: string;
   sources: FigureSource[];
+  bookCrop?: boolean;
   children: ReactNode;
   expanded: ReactNode;
 }) {
@@ -29,12 +31,14 @@ export function FigureFrame({
 
   return (
     <figure className={styles.diagram} data-figure-id={id}>
-      <div className={styles.diagramFrame}>{children}</div>
+      <div className={styles.diagramFrame} data-book-crop={bookCrop || undefined}>
+        {children}
+      </div>
       <figcaption className={styles.diagramCaption}>
         <div>
           <strong>{title}</strong>
           <span className={styles.diagramSource}>
-            Fonte: modelo descrito em{' '}
+            {bookCrop ? 'Recorte do livro: ' : 'Fonte: modelo descrito em '}
             {sources.map(({ author, year, chapter, href }, index) => {
               const citation = `${author.toLocaleUpperCase('pt-BR')} (${year}${chapter ? `, ${chapter}` : ''})`;
               return (
@@ -44,7 +48,7 @@ export function FigureFrame({
                 </Fragment>
               );
             })}
-            ; ilustração autoral Stacklyst.
+            {bookCrop ? '.' : '; ilustração autoral Stacklyst.'}
           </span>
         </div>
         <button

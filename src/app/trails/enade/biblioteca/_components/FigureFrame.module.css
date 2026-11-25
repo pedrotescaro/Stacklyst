@@ -10,6 +10,22 @@
   width: 100%;
   height: auto;
 }
+.diagramFrame[data-book-crop] {
+  overflow: hidden;
+  background: #fff;
+  padding: clamp(6px, 1.5vw, 14px);
+}
+.diagramFrame > :global(img),
+.diagramDialogBody > :global(img) {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin-inline: auto;
+}
+.diagramDialogBody > :global(img) {
+  min-width: 800px;
+  max-width: none;
+}
 .diagramCaption {
   display: flex;
   justify-content: space-between;

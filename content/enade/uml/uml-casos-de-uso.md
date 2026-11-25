@@ -3,7 +3,7 @@ title: Diagrama de casos de uso — atores, associações, include, extend e gen
 summary: Como ler e desenhar diagramas de casos de uso na notação oficial, a diferença exata entre «include» e «extend», generalização de atores e de casos de uso e a fronteira do sistema.
 order: 3
 level: básico
-version: 3
+version: 4
 updated: 2026-11-25
 tags: [casos de uso, diagrama de casos de uso, ator, associação, include, extend, inclusão, extensão, ponto de extensão, generalização, fronteira do sistema, uml]
 related: [historias-e-casos-de-uso, uml-visao-geral, requisitos-fundamentos, rup-visao-geral]
@@ -68,13 +68,17 @@ O caso de uso **extensor** acrescenta comportamento ao **base** **apenas sob cer
 
 ## Representação visual
 
+### Atores e funções no Mentcare
+
+::figure{id="casos-uso-mentcare-sommerville"}
+
+Identifique quem participa e quais funções cada ator inicia ou utiliza. As ligações mostram associações, sem indicar uma sequência temporal.
+
+### Inclusão e extensão
+
 ::figure{id="casos-de-uso-biblioteca"}
 
-::widget uml diagram=usecase
-
-Fonte: adaptado de OMG (2017, seção 18) e BOOCH; RUMBAUGH; JACOBSON (2006, caps. 17 e 18) — recriado pela equipe Stacklyst.
-
-Leia os atores fora da fronteira e os casos dentro das elipses. A seta «include» sai de Realizar empréstimo e aponta para Autenticar usuário. A seta «extend» sai de Pagar multa e aponta para Devolver livro. Nas questões do ENADE, confirme a direção da seta e verifique em que condição o comportamento adicional entra.
+A seta «include» sai de Realizar empréstimo e aponta para Autenticar usuário. A seta «extend» sai de Pagar multa e aponta para Devolver livro. No ENADE, verifique a direção da seta e a condição que ativa o comportamento adicional.
 
 ## Vantagens e desvantagens
 
@@ -175,3 +179,4 @@ O caso extensor acrescenta comportamento **próprio**; não é idêntico ao base
 - BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.
 - COCKBURN, A. *Escrevendo Casos de Uso Eficazes*. Bookman, 2005.
 - INEP. ENADE TADS 2008 (questão 25), 2011 (questões 11 e 12), 2014 (questão 17) e 2021 (questão 31).
+- SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson, 2018.

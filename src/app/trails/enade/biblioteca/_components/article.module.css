@@ -70,6 +70,7 @@
 }
 .body :global(a) {
   color: var(--enade-link);
+  overflow-wrap: anywhere;
   text-decoration: underline;
   text-decoration-color: color-mix(in srgb, var(--color-dd-accent) 35%, transparent);
   text-underline-offset: 3px;
@@ -141,14 +142,23 @@
   border-radius: 8px;
 }
 
-/* Callouts: a tinted left rule, no boxes inside boxes. */
-/* Notion-like callouts: a soft rounded box tinted by its kind. */
 .callout {
   --tone: var(--color-dd-accent);
-  padding: 14px 18px 16px;
-  border: 1px solid color-mix(in srgb, var(--tone) 22%, transparent);
-  border-radius: 14px;
-  background: color-mix(in srgb, var(--tone) 8%, var(--color-dd-bg));
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  align-items: start;
+  gap: 12px;
+  padding: 14px clamp(12px, 3vw, 20px);
+  border: 1px solid var(--enade-line);
+  border-radius: 10px;
+  background: var(--enade-softer);
+  font-size: 15px;
+  line-height: 1.65;
+}
+.callout[data-variant='enade'] {
+  --tone: var(--enade-link);
+  border-color: color-mix(in srgb, var(--tone) 24%, var(--enade-line));
+  background: color-mix(in srgb, var(--tone) 5%, var(--color-dd-bg));
 }
 .callout[data-variant='trap'],
 .callout[data-variant='warning'] {
@@ -165,30 +175,19 @@
 .callout[data-variant='mnemonic'] {
   --tone: #7c6ff7;
 }
-.callout > * + * {
-  margin-top: 0.6em;
+.callout + .callout[data-variant='trap'] {
+  margin-top: 8px;
 }
-.calloutTitle {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 8px;
-  font-size: 14px;
-  font-weight: 650;
-}
-.calloutTitle svg {
-  box-sizing: content-box;
-  padding: 5px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--tone) 16%, transparent);
+.calloutIcon {
+  margin-top: 3px;
   color: var(--tone);
 }
-.calloutKind {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--color-dd-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
+.calloutContent > * + * {
+  margin-top: 8px;
+}
+.calloutContent > .calloutTitle {
+  margin-bottom: 4px;
+  font-weight: 700;
 }
 /* Toggles read as cards that open in place. */
 .toggle {
@@ -220,21 +219,46 @@
   padding: 2px 18px 16px 34px;
 }
 .official {
-  padding: 10px 14px;
-  border: 1px dashed var(--enade-line);
-  border-radius: 8px;
-  font-size: 14px;
+  border: 1px solid var(--enade-line);
+  border-radius: 12px;
+  overflow: hidden;
+  font-size: 15px;
+}
+.officialHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding: 12px clamp(12px, 3vw, 20px);
+  background: var(--enade-softer);
+}
+.officialHead > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  font-size: 13px;
+  font-weight: 650;
 }
 .officialTag {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 650;
-  color: var(--enade-link);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-}
-.officialNote {
-  margin-top: 4px;
   color: var(--color-dd-muted);
+}
+.officialHead .officialTitle {
+  margin-top: 3px;
+  font-weight: 700;
+  line-height: 1.45;
+}
+.officialComment {
+  padding: 14px clamp(12px, 3vw, 20px) 16px;
+  border-top: 1px solid var(--enade-line);
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+}
+.officialComment > * + * {
+  margin-top: 0.75em;
 }
 
 /* Quiz */

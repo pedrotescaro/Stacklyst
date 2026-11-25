@@ -3,7 +3,7 @@ title: Requisitos — funcionais, não funcionais, regras de negócio, restriç�
 summary: O que é um requisito, como distinguir requisito funcional de não funcional (com teste prático), regras de negócio, restrições, requisitos de domínio, stakeholders e escopo.
 order: 1
 level: básico
-version: 3
+version: 4
 updated: 2026-11-25
 tags: [requisitos, requisito funcional, requisito não funcional, requisitos de qualidade, regra de negócio, restrição, requisitos de domínio, requisitos de usuário, requisitos de sistema, stakeholders, partes interessadas, escopo]
 related: [processo-de-requisitos, tecnicas-de-elicitacao, historias-e-casos-de-uso, qualidade-de-software]
@@ -104,7 +104,13 @@ Ruim: "O sistema deve ser rápido." → Bom: "95% das consultas de nota devem re
 
 ::figure{id="tipos-requisitos-sistema"}
 
-Leia primeiro o que o requisito descreve. Serviços e respostas são funcionais; qualidades ou restrições podem vir do produto, da organização ou de fontes externas. No ENADE, classifique “emitir relatório” como serviço e “em até dois segundos” como desempenho. Regras do domínio podem originar requisitos de ambos os tipos.
+A figura organiza os requisitos não funcionais de acordo com a origem da restrição: produto, organização ou ambiente externo. No ENADE, classifique “emitir relatório” como serviço e “em até dois segundos” como desempenho. Regras do domínio podem originar requisitos de ambos os tipos.
+
+### Quem lê as especificações
+
+::figure{id="requisitos-usuario-sistema-sommerville"}
+
+Os requisitos de usuário são voltados à comunicação com clientes, usuários e gerentes. Os requisitos de sistema também dão suporte às decisões de arquitetura e desenvolvimento.
 
 ## Diferenças entre conceitos semelhantes
 

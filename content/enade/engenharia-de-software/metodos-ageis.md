@@ -3,7 +3,7 @@ title: Desenvolvimento ágil — Manifesto Ágil, Scrum, Kanban e XP
 summary: Os valores e princípios do Manifesto Ágil, os papéis, eventos e artefatos do Scrum, o fluxo puxado do Kanban e as práticas técnicas da Programação Extrema.
 order: 3
 level: básico
-version: 3
+version: 4
 updated: 2026-11-25
 tags: [ágil, manifesto ágil, scrum, sprint, product owner, scrum master, product backlog, daily, kanban, wip, xp, programação extrema, programação em pares, tdd, integração contínua, refatoração]
 related: [modelos-de-processo, historias-e-casos-de-uso, fundamentos-de-testes, rup-visao-geral]
@@ -103,13 +103,29 @@ Colunas: *Entrada → Análise (WIP 3) → Correção (WIP 2) → Verificação 
 
 ## Representação visual
 
+### Planejamento prévio e desenvolvimento ágil
+
+::figure{id="plano-e-agil-sommerville"}
+
+Compare a especificação antecipada do processo dirigido por plano com o ajuste contínuo entre requisitos e implementação no ágil.
+
+### Scrum e seus artefatos
+
 ::figure{id="eventos-artefatos-scrum"}
 
-A Sprint contém os quatro eventos. O planejamento define o objetivo e o plano de trabalho, a Daily ajusta o plano, a revisão inspeciona o resultado com os interessados e a retrospectiva prepara melhorias no modo de trabalhar. No ENADE, associe cada evento ao que ele inspeciona. O Incremento atende à Definição de Pronto e pode ser entregue durante a Sprint.
+No recorte, o Product Backlog orienta a seleção do trabalho, o Sprint Backlog registra o plano e a Sprint produz software potencialmente entregável. Use o Scrum Guide 2020 para estudar os compromissos atuais: Meta do Produto, Meta da Sprint e Definição de Pronto. No ENADE, associe cada artefato ao seu compromisso e diferencie Revisão da Sprint e Retrospectiva.
+
+### Ciclo de lançamento da XP
+
+::figure{id="xp-release-sommerville"}
+
+As histórias viram tarefas. A equipe planeja, desenvolve, integra e testa antes de lançar e avaliar a versão.
+
+### Desenvolvimento dirigido por testes
 
 ::figure{id="ciclo-tdd"}
 
-Escreva um teste para o comportamento novo e confirme a falha. Implemente o necessário para fazê-lo passar e melhore a estrutura do código com a suíte passando. No ENADE, reconheça o teste escrito antes do código e a refatoração que preserva o comportamento observável.
+No fluxograma do livro, escreva e execute um teste para a nova funcionalidade. A falha leva à implementação e à refatoração, seguidas de nova execução. Com o teste passando, retome o ciclo com o próximo comportamento.
 
 ## Vantagens e desvantagens
 
@@ -158,7 +174,12 @@ Se a afirmativa fala em "Sprint do Kanban" ou em papéis obrigatórios do Kanban
 
 ::question 2021-objective-12 Scrum, XP e Kanban numa entrevista de emprego
 
-**I** correta: métodos ágeis são iterativos e incrementais, com foco em rapidez, flexibilidade e participação do cliente. **II** correta: em XP, testes automatizados são escritos **antes** da funcionalidade (TDD). **III** errada: atribui a gestão do Product Backlog ao Scrum Master, mas ela é do **Product Owner**. **IV** correta: o quadro Kanban torna o fluxo visível. Resposta: **I, II e IV**.
+- **I — Correta.** Métodos ágeis trabalham com iterações e incrementos, com participação do cliente.
+- **II — Correta.** No TDD, o teste é escrito antes da funcionalidade.
+- **III — Incorreta.** O Product Owner é responsável pelo Product Backlog.
+- **IV — Correta.** O quadro Kanban torna o fluxo visível.
+
+**Resposta: I, II e IV.**
 
 ::question 2011-objective-10 Práticas da XP ligadas ao código
 
@@ -211,5 +232,5 @@ Refatoração, programação em pares e integração contínua são práticas da
 - SCHWABER, Ken; SUTHERLAND, Jeff. *O guia do Scrum: o guia definitivo para o Scrum*. [S. l.]: Scrum Guides, 2020. Disponível em: https://scrumguides.org/docs/scrumguide/v2020/2020-Scrum-Guide-PortugueseBR-3.0.pdf. Acesso em: 25 nov. 2026.
 - BECK, K. *Programação Extrema (XP) explicada*. Bookman, 2004.
 - ANDERSON, D. J. *Kanban: mudança evolucionária de sucesso para seu negócio de tecnologia*. Blue Hole Press, 2011.
-- SOMMERVILLE, I. *Engenharia de Software*. 10. ed. Pearson, 2018 — cap. 3.
+- SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson, 2018 — caps. 3 e 8.
 - BECK, Kent. *Test-driven development: by example*. Boston: Addison-Wesley, 2003.

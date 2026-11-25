@@ -2,8 +2,10 @@ import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
+import sharp from 'sharp';
 import { describe, expect, it } from 'vitest';
 import { figureRegistry, getFigure } from '@/app/trails/enade/biblioteca/figures';
+import { bookFigures, getBookFigure } from '@/app/trails/enade/biblioteca/figures/bookFigures';
 import { LIBRARY_ROOT, loadLibrary } from './load';
 import { parseBlocks, summaryBlocks } from './markdown';
 
@@ -12,11 +14,15 @@ describe('authored ENADE figures', () => {
     const ids = loadLibrary().articles.flatMap(({ slug, blocks }) =>
       blocks.flatMap((block) => {
         if (block.type !== 'figure') return [];
-        expect(getFigure(block.id), `${slug} → ${block.id}`).toBeDefined();
+        expect(
+          getBookFigure(block.id) ?? getFigure(block.id),
+          `${slug} → ${block.id}`
+        ).toBeDefined();
         return [block.id];
       })
     );
-    expect(ids.sort()).toEqual(Object.keys(figureRegistry).sort());
+    const registered = new Set([...Object.keys(figureRegistry), ...Object.keys(bookFigures)]);
+    expect(ids.sort()).toEqual([...registered].sort());
   });
 
   it('keeps Mermaid fences out of every Markdown file', () => {
@@ -69,6 +75,16 @@ describe('authored ENADE figures', () => {
     `);
     }
   );
+});
+
+describe('book crops', () => {
+  it.each(Object.keys(bookFigures))('serves the referenced image for %s', async (id) => {
+    const figure = getBookFigure(id)!;
+    const image = await sharp(path.join(process.cwd(), 'public', figure.src)).metadata();
+    expect(image).toMatchObject({ format: 'webp', width: figure.width, height: figure.height });
+    expect(figure.alt.trim()).not.toBe('');
+    expect(figure.source.chapter).toContain(`p. ${figure.page}, fig. ${figure.number}`);
+  });
 });
 
 describe('figure directives', () => {

@@ -3,7 +3,7 @@ title: Diagrama de atividades e diagrama de máquina de estados
 summary: Nós inicial e final, ações, decisões e junções, fork e join (paralelismo), raias; estados, transições, eventos, guardas, ações e estados compostos — e como não confundir os dois diagramas.
 order: 5
 level: intermediário
-version: 3
+version: 4
 updated: 2026-11-25
 tags: [diagrama de atividades, ação, nó inicial, nó final, decisão, merge, fork, join, bifurcação, sincronização, raias, partições, máquina de estados, estado, transição, evento, guarda, ação de entrada, estado composto, pseudoestado]
 related: [uml-visao-geral, uml-interacao, modelagem-de-processos-de-negocio, algoritmos-e-logica-de-programacao]
@@ -69,15 +69,11 @@ Após a Atividade 02, uma decisão: se **[não]**, volta para a Atividade 01; se
 
 ::figure{id="atividade-expedicao"}
 
-Siga as setas desde o ponto inicial. As guardas do primeiro losango escolhem uma saída, o fork libera as duas ações e o join retém o fluxo até que ambas terminem. O segundo losango reúne os caminhos alternativos. O ENADE costuma perguntar quando uma ação pode começar.
-
-:::note Sobre a notação no Mermaid
-As barras representam bifurcação e sincronização. Os dois losangos têm funções distintas, identificadas pela quantidade de entradas e saídas.
-:::
+No processo de internação, as guardas indicam o caminho compatível com a periculosidade e a disponibilidade de um local seguro. As barras sincronizam ações que podem avançar em paralelo.
 
 ::figure{id="estados-pedido"}
 
-Em cada seta, leia o evento, a guarda entre colchetes quando houver e o efeito após a barra. No ENADE, determine o estado atual antes de aplicar um evento. Cancelar um pedido pago, por exemplo, dispara o estorno.
+No micro-ondas, o estado atual determina a resposta ao evento. Fechar a porta após definir o tempo habilita a operação. Iniciar e cancelar provocam transições distintas. No ENADE, identifique o estado de origem antes de seguir a seta.
 
 ## Vantagens e desvantagens
 
@@ -159,3 +155,4 @@ A figura mostra um fluxo que parte de um nó inicial e organiza **ações** sequ
 - BOOCH, G.; RUMBAUGH, J.; JACOBSON, I. *UML: guia do usuário*. 2. ed. Rio de Janeiro: Elsevier, 2006.
 - GUEDES, G. T. A. *UML 2: uma abordagem prática*. 3. ed. Novatec, 2018.
 - INEP. ENADE TADS 2008 (questão 24) e 2011 (questão 14).
+- SOMMERVILLE, Ian. *Engenharia de software*. 10. ed. São Paulo: Pearson, 2018.

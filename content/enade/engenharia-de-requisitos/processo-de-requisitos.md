@@ -3,7 +3,7 @@ title: Processo de engenharia de requisitos — viabilidade, elicitação, anál
 summary: As atividades da engenharia de requisitos, os artefatos de cada etapa, técnicas de priorização (MoSCoW e outras), validação, gerenciamento de mudanças e a matriz de rastreabilidade.
 order: 2
 level: intermediário
-version: 3
+version: 4
 updated: 2026-11-25
 tags: [engenharia de requisitos, estudo de viabilidade, elicitação, análise, negociação, especificação, documento de requisitos, srs, validação, revisão, priorização, moscow, matriz de rastreabilidade, gerenciamento de requisitos]
 related: [requisitos-fundamentos, tecnicas-de-elicitacao, historias-e-casos-de-uso, qualidade-de-software, rup-disciplinas]
@@ -85,7 +85,13 @@ Ela permite **análise de impacto** (o que muda se RF02 mudar?) e prova de **cob
 
 ::figure{id="espiral-requisitos"}
 
-Siga do centro até a saída para o documento de requisitos. As voltas intercalam elicitação, especificação e validação, aprofundando o que se sabe sobre negócio, usuários e sistema. No ENADE, identifique a avaliação de viabilidade no início quando necessária, a prototipação e as revisões como recursos de validação e a gestão de mudanças como trabalho ao longo do processo.
+Siga do centro até a saída para o documento de requisitos. As voltas intercalam elicitação, especificação e validação, aprofundando o conhecimento sobre negócio, usuários e sistema. No ENADE, relacione a prototipação e as revisões à validação.
+
+### Como registrar a especificação
+
+::figure{id="notacoes-requisitos-sommerville"}
+
+A notação precisa atender a quem lê. Uma descrição em linguagem natural facilita a comunicação com usuários. Um formulário acrescenta estrutura, e um diagrama ajuda a explicitar interações.
 
 ## Vantagens e desvantagens
 
