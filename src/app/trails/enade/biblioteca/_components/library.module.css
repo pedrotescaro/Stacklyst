@@ -4,11 +4,64 @@
   grid-template-columns: 272px minmax(0, 1fr);
   min-height: calc(100dvh - var(--enade-topbar, 62px));
 }
-.frame[data-collapsed='true'] {
-  grid-template-columns: minmax(0, 1fr);
+/* Collapsing folds the tree's column to zero; the tree slides out with it. */
+@media (min-width: 961px) {
+  .frame[data-collapsed='true'] {
+    grid-template-columns: 0px minmax(0, 1fr);
+  }
+  .sidebar {
+    min-width: 0;
+    overflow-x: hidden;
+  }
+  /* A floor just under the open width (leaving room for a scrollbar), so the
+     titles stop rewrapping while the column moves. */
+  .sidebar > * {
+    min-width: 220px;
+  }
+  .frame[data-collapsed='true'] .sidebar {
+    visibility: hidden;
+    opacity: 0;
+    transform: translateX(-24px);
+    pointer-events: none;
+  }
+  /* Only animated after a click, so a saved "collapsed" state doesn't play on load. */
+  .frame[data-animate='true'] {
+    transition: grid-template-columns 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .frame[data-animate='true'] .sidebar {
+    transition:
+      opacity 0.3s ease,
+      transform 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+      visibility 0s;
+  }
+  .frame[data-animate='true'][data-collapsed='true'] .sidebar {
+    transition:
+      opacity 0.25s ease,
+      transform 0.5s cubic-bezier(0.32, 0.72, 0, 1),
+      visibility 0s linear 0.5s;
+  }
+  .frame[data-animate='true'] .page {
+    transition: padding-left 0.5s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  .frame[data-animate='true'] .collapsedTools {
+    animation: collapsedToolsIn 0.3s ease 0.2s both;
+  }
 }
-.frame[data-collapsed='true'] .sidebar {
-  display: none;
+@keyframes collapsedToolsIn {
+  from {
+    opacity: 0;
+    transform: translateX(-6px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .frame[data-animate='true'],
+  .frame[data-animate='true'] .sidebar,
+  .frame[data-animate='true'] .page {
+    transition: none;
+  }
+  .frame[data-animate='true'] .collapsedTools {
+    animation: none;
+  }
 }
 .sidebar {
   position: sticky;
@@ -50,15 +103,6 @@
 }
 .searchButton:hover {
   color: var(--color-dd-text);
-}
-.searchButton kbd,
-.paletteInput kbd {
-  margin-left: auto;
-  padding: 1px 6px;
-  border: 1px solid var(--enade-line);
-  border-radius: 4px;
-  font-size: 11px;
-  font-family: inherit;
 }
 .iconButton,
 .expandButton {
@@ -191,7 +235,7 @@
 }
 .treeStar {
   flex-shrink: 0;
-  color: #d4a106;
+  color: var(--enade-link);
 }
 .treeLink:focus-visible,
 .treeBranch button:focus-visible,
@@ -279,61 +323,110 @@
 }
 
 /* Search palette */
+/* Twitter-style: a pill search field on a soft popover with a light glow. */
 .palette {
-  width: min(640px, calc(100% - 32px));
+  width: min(600px, calc(100% - 32px));
   max-height: 75dvh;
   margin: 10dvh auto auto;
+  padding: 0;
   overflow: hidden;
-  border: 1px solid var(--enade-line);
-  border-radius: 12px;
+  border: 0;
+  border-radius: 16px;
   background: var(--color-dd-bg);
   color: var(--color-dd-text);
-  box-shadow: 0 24px 60px rgb(0 0 0 / 0.25);
+  box-shadow:
+    rgb(101 119 134 / 0.2) 0 0 15px,
+    rgb(101 119 134 / 0.15) 0 0 3px 1px;
+}
+:global(:root.dark) .palette {
+  box-shadow:
+    rgb(255 255 255 / 0.2) 0 0 15px,
+    rgb(255 255 255 / 0.15) 0 0 3px 1px;
 }
 .palette[open] {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto;
+  animation: paletteIn 0.18s cubic-bezier(0.32, 0.72, 0, 1);
 }
 .palette::backdrop {
-  background: rgb(0 0 0 / 0.35);
+  background: rgb(91 112 131 / 0.4);
+}
+@keyframes paletteIn {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.98);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .palette[open] {
+    animation: none;
+  }
 }
 .paletteInput {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 0 14px;
-  border-bottom: 1px solid var(--enade-line);
+  gap: 8px;
+  padding: 12px 12px 8px 16px;
+}
+/* The field itself: a rounded pill that turns blue while typing. */
+.paletteField {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+  height: 44px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  background: var(--enade-soft);
   color: var(--color-dd-muted);
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+.paletteField:focus-within {
+  border-color: var(--color-dd-accent);
+  background: var(--color-dd-bg);
+  color: var(--color-dd-accent);
 }
 .paletteInput input {
   flex: 1;
   min-width: 0;
-  min-height: 52px;
+  height: 100%;
   border: 0;
   background: transparent;
   color: var(--color-dd-text);
-  font-size: 16px;
+  font-size: 15px;
   outline: none;
+}
+.paletteInput input::placeholder {
+  color: var(--color-dd-muted);
+}
+.paletteInput .iconButton {
+  border-radius: 999px;
 }
 .paletteResults {
   overflow-y: auto;
-  padding: 6px;
+  padding: 4px 0;
 }
+/* Full-width rows with a faint hover, like Twitter's search suggestions. */
 .paletteResults li {
   display: grid;
   gap: 2px;
   width: 100%;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 12px 16px;
   text-align: left;
   cursor: pointer;
+  transition: background-color 0.12s ease;
 }
 .paletteResults li[aria-selected='true'] {
-  background: color-mix(in srgb, var(--color-dd-accent) 10%, transparent);
+  background: var(--enade-softer);
 }
 .hitTitle {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 15px;
+  font-weight: 700;
 }
 .hitTitle span {
   font-weight: 500;
@@ -353,9 +446,10 @@
   overflow: hidden;
 }
 .paletteStatus {
-  padding: 8px 14px;
-  border-top: 1px solid var(--enade-line);
-  font-size: 12px;
+  padding: 14px 16px 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  text-align: center;
   color: var(--color-dd-muted);
 }
 
@@ -445,15 +539,39 @@
   padding-bottom: 18px;
   border-bottom: 1px solid var(--enade-line);
 }
+/* Two equal halves, so the pill only has to slide by its own width. */
 .viewSwitch {
-  display: inline-flex;
+  position: relative;
+  isolation: isolate;
+  display: inline-grid;
+  grid-template-columns: 1fr 1fr;
   padding: 2px;
   border: 1px solid var(--enade-line);
   border-radius: 8px;
 }
+.viewPill {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  left: 2px;
+  z-index: -1;
+  width: calc(50% - 2px);
+  border-radius: 6px;
+  background: var(--color-dd-accent);
+  transition: transform 0.28s cubic-bezier(0.32, 0.72, 0, 1);
+}
+.viewSwitch[data-mode='resumo'] .viewPill {
+  transform: translateX(100%);
+}
+@media (prefers-reduced-motion: reduce) {
+  .viewPill {
+    transition: none;
+  }
+}
 .viewSwitch a {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   min-height: 30px;
   padding: 0 10px;
@@ -461,10 +579,24 @@
   font-size: 13px;
   font-weight: 600;
   color: var(--color-dd-muted);
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
+}
+/* The chosen mode sits on the blue pill; the other one tints blue on hover. */
+.viewSwitch a:not([aria-current='true']):hover {
+  background: var(--enade-brand-soft);
+  color: var(--enade-link);
 }
 .viewSwitch a[aria-current='true'] {
-  background: var(--enade-soft);
-  color: var(--color-dd-text);
+  color: #fff;
+}
+/* Favorite as a square star button, so the whole row fits on one line. */
+.articleActions .favoriteButton[data-compact='true'] {
+  border-color: var(--enade-line);
+}
+.articleActions .favoriteButton[data-compact='true']:hover {
+  border-color: var(--color-dd-border);
 }
 .studyButton {
   display: inline-flex;

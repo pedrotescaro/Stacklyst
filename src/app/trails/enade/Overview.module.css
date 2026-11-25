@@ -1,0 +1,155 @@
+/* Central de estudos: same structure as "Minha evolução" (evolucao/Evolution.module.css). */
+.layout {
+  container: enade-overview / inline-size;
+  display: grid;
+  gap: 28px;
+  min-width: 0;
+}
+
+/* One joined block of figures, split by hairlines. */
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  overflow: hidden;
+  border: 1px solid var(--enade-line);
+  border-radius: 14px;
+  background: var(--enade-line);
+}
+
+.metric {
+  display: grid;
+  grid-template-rows: subgrid;
+  grid-row: span 2;
+  gap: 4px;
+  min-width: 0;
+  padding: 12px 14px 14px;
+  background: var(--enade-softer);
+}
+
+/* Titles stay on one line, so the icons and figures line up across the row. */
+.metric dt {
+  display: flex;
+  align-items: center;
+  align-self: start;
+  gap: 6px;
+  min-width: 0;
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 650;
+  line-height: 1.35;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--color-dd-muted);
+}
+
+.metric dt svg {
+  flex: none;
+  color: var(--enade-link);
+}
+
+.metric dd {
+  margin: 0;
+  font-size: 27px;
+  font-weight: 750;
+  line-height: 1.12;
+  letter-spacing: -0.025em;
+  font-variant-numeric: tabular-nums;
+}
+
+.metric small {
+  display: block;
+  margin-top: 5px;
+  font-size: 12px;
+  font-weight: 450;
+  line-height: 1.45;
+  letter-spacing: 0;
+  color: var(--color-dd-muted);
+}
+
+/* Sections are separated by a hairline instead of large gaps. */
+.section {
+  min-width: 0;
+}
+
+.section,
+.pair {
+  padding-block-start: 20px;
+  border-block-start: 1px solid var(--enade-line);
+}
+
+.sectionHead {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 16px;
+  margin-block-end: 12px;
+}
+
+.sectionHead > div {
+  display: grid;
+  gap: 4px;
+}
+
+.sectionHead h2 {
+  font-size: 17px;
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+.sectionHead p {
+  font-size: 13px;
+  line-height: 1.55;
+  color: var(--color-dd-muted);
+}
+
+.layout .steps {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+
+.pair .section {
+  padding: 0;
+  border: 0;
+}
+
+.pair .section + .section {
+  padding-block-start: 20px;
+  border-block-start: 1px solid var(--enade-line);
+}
+
+.layout .footnote {
+  margin-top: 0;
+}
+
+@container enade-overview (min-width: 560px) {
+  .metrics {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .layout .steps {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@container enade-overview (min-width: 720px) {
+  .pair {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+  }
+
+  .pair .section + .section {
+    padding-block-start: 0;
+    padding-inline-start: 24px;
+    border-block-start: 0;
+    border-inline-start: 1px solid var(--enade-line);
+  }
+}

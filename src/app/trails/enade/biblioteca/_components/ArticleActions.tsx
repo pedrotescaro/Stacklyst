@@ -85,7 +85,14 @@ export function ArticleActions({
         )}
         {studied ? 'Estudado' : 'Marcar como estudado'}
       </button>
-      <FavoriteButton kind="ARTICLE" refId={slug} initial={favorite} label={title} />
+      <FavoriteButton
+        kind="ARTICLE"
+        refId={slug}
+        initial={favorite}
+        label={title}
+        compact
+        className={styles.favoriteButton}
+      />
       {error && (
         <span role="alert" style={{ fontSize: 12.5, color: 'var(--enade-danger)' }}>
           {error}

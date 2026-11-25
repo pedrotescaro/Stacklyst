@@ -33,13 +33,15 @@ export default async function LibraryHome() {
   return (
     <div>
       <header className={styles.hero}>
-        <span
-          className={styles.iconTile}
-          style={{ '--tile-hue': 211, '--tile-size': '48px' } as CSSProperties}
-        >
-          <Library size={24} strokeWidth={2.1} aria-hidden="true" />
-        </span>
-        <h1 className={styles.heroTitle}>Biblioteca de estudos</h1>
+        <div className={styles.heroHead}>
+          <span
+            className={styles.iconTile}
+            style={{ '--tile-hue': 211, '--tile-size': '48px' } as CSSProperties}
+          >
+            <Library size={24} strokeWidth={2.1} aria-hidden="true" />
+          </span>
+          <h1 className={styles.heroTitle}>Biblioteca de estudos</h1>
+        </div>
         <p className={styles.heroLead}>
           Toda a teoria do ENADE de ADS em páginas curtas: o que é, para que serve, como funciona,
           como cai na prova e um miniquestionário no fim.
@@ -53,10 +55,6 @@ export default async function LibraryHome() {
           </span>
           <span className={styles.stat}>
             <Clock3 size={14} aria-hidden="true" /> ≈ <strong>{hours} h</strong> de leitura
-          </span>
-          <span className={styles.stat}>
-            Pesquisar <kbd>Ctrl</kbd>
-            <kbd>K</kbd>
           </span>
         </div>
       </header>

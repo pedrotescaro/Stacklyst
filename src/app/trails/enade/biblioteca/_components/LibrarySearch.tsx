@@ -2,6 +2,7 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, X } from 'lucide-react';
+import { plural } from '@/lib/enade/format';
 import styles from './library.module.css';
 
 type Hit = {
@@ -78,33 +79,35 @@ export function LibrarySearch({ onClose }: { onClose: () => void }) {
       }}
     >
       <div className={styles.paletteInput}>
-        <Search size={17} aria-hidden="true" />
-        <input
-          ref={input}
-          value={query}
-          onChange={(event) => {
-            setQuery(event.target.value);
-            setActive(0);
-          }}
-          onKeyDown={(event) => {
-            if (!hits.length || event.nativeEvent.isComposing) return;
-            if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
-              event.preventDefault();
-              const step = event.key === 'ArrowDown' ? 1 : -1;
-              setActive((index) => (index + step + hits.length) % hits.length);
-            } else if (event.key === 'Enter' && hits[active]) {
-              event.preventDefault();
-              go(hits[active]);
-            }
-          }}
-          placeholder="Pesquise um conceito: RUP, include, De Morgan, Gini…"
-          aria-label="Termo de busca"
-          role="combobox"
-          aria-autocomplete="list"
-          aria-expanded={hits.length > 0}
-          aria-controls={listId}
-          aria-activedescendant={hits[active] ? `${listId}-${active}` : undefined}
-        />
+        <label className={styles.paletteField}>
+          <Search size={17} aria-hidden="true" />
+          <input
+            ref={input}
+            value={query}
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setActive(0);
+            }}
+            onKeyDown={(event) => {
+              if (!hits.length || event.nativeEvent.isComposing) return;
+              if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                const step = event.key === 'ArrowDown' ? 1 : -1;
+                setActive((index) => (index + step + hits.length) % hits.length);
+              } else if (event.key === 'Enter' && hits[active]) {
+                event.preventDefault();
+                go(hits[active]);
+              }
+            }}
+            placeholder="Pesquise um conceito: RUP, include, De Morgan, Gini…"
+            aria-label="Termo de busca"
+            role="combobox"
+            aria-autocomplete="list"
+            aria-expanded={hits.length > 0}
+            aria-controls={listId}
+            aria-activedescendant={hits[active] ? `${listId}-${active}` : undefined}
+          />
+        </label>
         <button
           type="button"
           className={styles.iconButton}
@@ -148,8 +151,8 @@ export function LibrarySearch({ onClose }: { onClose: () => void }) {
             : currentResult && !hits.length
               ? 'Nenhum conteúdo encontrado.'
               : hits.length
-                ? `${hits.length} resultados. Use as setas e Enter para abrir.`
-                : 'Digite pelo menos dois caracteres.'}
+                ? plural(hits.length, 'resultado', 'resultados')
+                : 'Pesquise conceitos, assuntos ou palavras-chave da biblioteca.'}
       </p>
     </dialog>
   );

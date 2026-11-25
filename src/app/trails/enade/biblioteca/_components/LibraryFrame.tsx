@@ -64,6 +64,8 @@ export function LibraryFrame({
     return [...keys];
   }, [articles, currentArticle]);
   const [collapsed, setCollapsed] = useState(false);
+  // Off until the first click, so restoring a saved state never plays the animation.
+  const [animate, setAnimate] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [open, setOpen] = useState<string[]>([]);
   const [searching, setSearching] = useState(false);
@@ -76,16 +78,6 @@ export function LibraryFrame({
       setOpen((items) => [...new Set([...items, currentCategory, ...parentPath])]);
     setMobileOpen(false);
   }, [currentCategory, parentPath, pathname]);
-  useEffect(() => {
-    const onKey = (event: KeyboardEvent) => {
-      if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
-        event.preventDefault();
-        setSearching(true);
-      }
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, []);
   const studiedSet = useMemo(() => new Set(studied), [studied]);
   const favoriteSet = useMemo(() => new Set(favorites), [favorites]);
   const toggleBranch = (slug: string) => {
@@ -94,6 +86,7 @@ export function LibraryFrame({
     write('open', next);
   };
   const toggleCollapsed = () => {
+    setAnimate(true);
     setCollapsed(!collapsed);
     write('collapsed', !collapsed);
   };
@@ -151,7 +144,7 @@ export function LibraryFrame({
     </ul>
   );
   return (
-    <div className={styles.frame} data-collapsed={collapsed}>
+    <div className={styles.frame} data-collapsed={collapsed} data-animate={animate}>
       <div className={styles.mobileTools}>
         <button
           type="button"
@@ -176,7 +169,6 @@ export function LibraryFrame({
           <button type="button" className={styles.searchButton} onClick={() => setSearching(true)}>
             <Search size={15} aria-hidden="true" />
             <span>Pesquisar</span>
-            <kbd>Ctrl K</kbd>
           </button>
           <button
             type="button"

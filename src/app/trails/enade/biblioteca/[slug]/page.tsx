@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { BookOpen, ChevronRight, Clock3, History, ListChecks } from 'lucide-react';
+import { ChevronRight, Clock3, History } from 'lucide-react';
 import { prisma } from '@/lib/prisma';
 import { loadLibrary } from '@/lib/enade/library/load';
 import { summaryBlocks } from '@/lib/enade/library/markdown';
@@ -9,6 +9,7 @@ import { questionsForTopic } from '@/lib/enade/topics';
 import { plural, shortDate } from '@/lib/enade/format';
 import { ArticleBody } from '../_components/ArticleBody';
 import { ArticleActions } from '../_components/ArticleActions';
+import { ViewSwitch } from '../_components/ViewSwitch';
 import { TableOfContents } from '../_components/TableOfContents';
 import { StartAttemptButton } from '../../_components/StartAttemptButton';
 import { IconTile } from '../_components/IconTile';
@@ -86,22 +87,7 @@ export default async function ArticlePage({
           )}
         </p>
         <div className={styles.articleActions}>
-          <div className={styles.viewSwitch} role="group" aria-label="Modo de leitura">
-            <Link
-              href={`/trails/enade/biblioteca/${slug}`}
-              aria-current={!summary ? 'true' : undefined}
-              scroll={false}
-            >
-              <BookOpen size={14} aria-hidden="true" /> Completo
-            </Link>
-            <Link
-              href={`/trails/enade/biblioteca/${slug}?view=resumo`}
-              aria-current={summary ? 'true' : undefined}
-              scroll={false}
-            >
-              <ListChecks size={14} aria-hidden="true" /> Resumo
-            </Link>
-          </div>
+          <ViewSwitch slug={slug} summary={summary} />
           <ArticleActions
             key={slug}
             slug={slug}

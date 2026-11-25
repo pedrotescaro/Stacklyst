@@ -14,19 +14,49 @@
     border-color 0.15s ease;
 }
 .button[data-compact='true'] {
+  position: relative;
   justify-content: center;
   width: 36px;
   padding: 0;
   border-color: transparent;
 }
-.button:hover {
-  color: var(--color-dd-text);
+/* Small dark tooltip under the star, shown after a short hover. */
+.button[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  z-index: 30;
+  padding: 3px 8px;
+  border-radius: 6px;
+  background: rgb(83 100 113 / 0.95);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.4;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transform: translate(-50%, -3px);
+  transition:
+    opacity 0.12s ease,
+    transform 0.12s ease;
 }
+.button[data-tooltip]:hover::after,
+.button[data-tooltip]:focus-visible::after {
+  opacity: 1;
+  transform: translate(-50%, 0);
+  transition-delay: 0.35s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .button[data-tooltip]::after {
+    transition: none;
+  }
+}
+/* Brand blue on hover and once favorited. */
+.button:hover,
 .button[data-active='true'] {
-  color: #875d00;
-}
-:global(:root.dark) .button[data-active='true'] {
-  color: #f5cf5d;
+  color: var(--enade-link, var(--color-dd-accent));
 }
 .button:focus-visible {
   outline: 2px solid var(--color-dd-accent);

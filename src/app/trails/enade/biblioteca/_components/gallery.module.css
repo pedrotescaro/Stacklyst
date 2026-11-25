@@ -18,6 +18,15 @@
 .hero {
   margin-bottom: 8px;
 }
+/* Icon and title on one line (library home). */
+.heroHead {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.heroHead .heroTitle {
+  margin-top: 0;
+}
 .heroTitle {
   margin-top: 14px;
   font-size: clamp(26px, 2.6vw, 32px);
@@ -65,13 +74,6 @@
 }
 .stat strong {
   color: var(--color-dd-text);
-}
-.stat kbd {
-  padding: 0 5px;
-  border: 1px solid var(--enade-line);
-  border-radius: 5px;
-  font-family: inherit;
-  font-size: 11px;
 }
 
 /* Progress and "continue reading" */
@@ -131,7 +133,8 @@
 }
 .continueCard .iconTile,
 :global(:root.dark) .continueCard .iconTile {
-  background: rgb(255 255 255 / 0.18);
+  /* A deeper blue than the card, so the tile reads as its own shape. */
+  background: color-mix(in srgb, var(--color-dd-accent) 58%, #001a40);
   color: #fff;
 }
 .continueCard > div {
@@ -243,6 +246,7 @@
 
 /* "Mais cobrados": a trending list */
 .trending {
+  isolation: isolate;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   overflow: hidden;
@@ -250,18 +254,34 @@
   border-radius: 18px;
 }
 .trending li {
+  position: relative;
+  /* Rows overlap by 1px so the last row's divider hides under the frame. */
   margin: 0 0 -1px;
-  border-bottom: 1px solid var(--enade-border);
+  /* The hover is inset in the cell, away from the dividing lines. */
+  padding: 6px;
+}
+/* Dividers sit on their own layer above every cell, so no hover can cover them. */
+.trending li::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  height: 1px;
+  background: var(--enade-border);
+  pointer-events: none;
 }
 .trending a {
   display: flex;
   gap: 14px;
   height: 100%;
-  padding: 14px 16px;
+  padding: 8px 10px;
+  border-radius: 12px;
   transition: background-color 0.15s ease;
 }
 .trending a:hover {
-  background: var(--enade-softer);
+  background: var(--enade-soft);
 }
 .rank {
   flex: none;

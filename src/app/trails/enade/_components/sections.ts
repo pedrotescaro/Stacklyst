@@ -1,12 +1,12 @@
 import {
   BookOpen,
+  BrainCircuit,
   ClipboardList,
   History,
   LayoutDashboard,
   LineChart,
   ListChecks,
   NotebookPen,
-  RotateCcw,
   Star,
   type LucideIcon,
 } from 'lucide-react';
@@ -34,7 +34,7 @@ export const PRIMARY_SECTIONS: EnadeSection[] = [
     href: '/trails/enade/revisao',
     label: 'Revisão inteligente',
     short: 'Revisão',
-    icon: RotateCcw,
+    icon: BrainCircuit,
   },
 ];
 

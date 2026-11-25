@@ -10,12 +10,14 @@ export function FavoriteButton({
   initial,
   label,
   compact = false,
+  className = '',
 }: {
   kind: 'ARTICLE' | 'QUESTION';
   refId: string;
   initial: boolean;
   label: string;
   compact?: boolean;
+  className?: string;
 }) {
   const router = useRouter();
   const [favorite, setFavorite] = useState(initial);
@@ -45,17 +47,21 @@ export function FavoriteButton({
     <>
       <button
         type="button"
-        className={styles.button}
+        className={`${styles.button} ${className}`}
         data-active={favorite}
         data-compact={compact}
         aria-pressed={favorite}
         aria-label={favorite ? `Remover ${label} dos favoritos` : `Favoritar ${label}`}
+        // The star-only button shows a small hover tooltip instead of the native one.
+        data-tooltip={compact ? (favorite ? 'Remover dos favoritos' : 'Favoritar') : undefined}
         title={
           error
             ? 'Não foi possível salvar. Tente novamente.'
-            : favorite
-              ? 'Nos favoritos'
-              : 'Favoritar'
+            : compact
+              ? undefined
+              : favorite
+                ? 'Nos favoritos'
+                : 'Favoritar'
         }
         disabled={pending}
         onClick={() => void toggle()}
