@@ -1,3 +1,5 @@
+import { BLOOD_FRAME_ART } from '@/lib/profile-frame-art/blood';
+
 /** Small vector ornaments stay legible from comment avatars to full profiles. */
 export function FrameDetails({ kind }: { kind: string }) {
   const point = (angle: number, radius = 53) => [
@@ -93,6 +95,25 @@ export function FrameDetails({ kind }: { kind: string }) {
           <path d="m60 3 4 6-4 5-4-5Z" fill="#fff7cc" />
           <path d="m57 109 3-5 3 5-3 6Z" fill="#fde68a" />
         </g>
+      )}
+      {kind === 'blood' && (
+        <>
+          <circle cx="60" cy="60" r="51.5" stroke={BLOOD_FRAME_ART.shadow} strokeWidth="5" />
+          <circle cx="60" cy="60" r="51.5" stroke="var(--frame-color)" strokeWidth="2.75" />
+          <path
+            d={BLOOD_FRAME_ART.drips}
+            fill="var(--frame-color)"
+            stroke={BLOOD_FRAME_ART.shadow}
+            strokeWidth="1.1"
+            strokeLinejoin="round"
+          />
+          <path
+            d={`${BLOOD_FRAME_ART.highlights} ${BLOOD_FRAME_ART.gleam}`}
+            stroke={BLOOD_FRAME_ART.shine}
+            strokeWidth="1.1"
+            strokeLinecap="round"
+          />
+        </>
       )}
     </svg>
   );

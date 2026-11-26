@@ -107,6 +107,30 @@ describe('Profile persistence and awards', () => {
     expect(catalog.frames.some((frame) => frame.id === 'propeller')).toBe(true);
     expect(catalog.frames.some((frame) => frame.id === 'pride-rainbow')).toBe(true);
     expect(catalog.frames.some((frame) => frame.id === 'country-br')).toBe(true);
+    expect(catalog.frames.find((frame) => frame.id === 'blood')).toEqual({
+      id: 'blood',
+      name: 'Sangue Carmesim',
+      color: '#b91c32',
+      decoration: 'blood',
+    });
+  });
+  it('equips the blood frame for an account with no achievements', async () => {
+    await saveProfileCustomization('owner', {
+      version: 0,
+      preferences: { ...DEFAULT_PROFILE_PREFERENCES, frameId: 'blood' },
+    });
+
+    expect(mocks.updateUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          avatar_config: expect.objectContaining({
+            profileStyle: expect.objectContaining({
+              frame: { id: 'blood', color: '#b91c32', decoration: 'blood' },
+            }),
+          }),
+        }),
+      })
+    );
   });
   it('rejects owner impersonation and fabricated unlock lists in the payload', async () => {
     await expect(

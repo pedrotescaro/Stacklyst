@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import { View } from 'react-native';
-import Svg, { Circle, Line, Rect } from 'react-native-svg';
+import Svg, { Circle, G, Line, Path, Rect } from 'react-native-svg';
+import { BLOOD_FRAME_ART } from '@/lib/profile-frame-art/blood';
 
 const frameColors: Record<string, string> = {
   minimal: '#94a3b8',
@@ -11,6 +12,7 @@ const frameColors: Record<string, string> = {
   pixel: '#facc15',
   galaxy: '#a78bfa',
   hacker: '#4ade80',
+  blood: BLOOD_FRAME_ART.color,
   halloween: '#fb923c',
   christmas: '#4ade80',
   legendary: '#fbbf24',
@@ -33,6 +35,9 @@ export function AvatarFrame({
   if (!frameId || frameId === 'none') return children;
   const stroke = color || frameColors[frameId] || '#38bdf8';
   const variant = decoration || frameId;
+  const isBlood = variant === 'blood';
+  const overlaySize = isBlood ? size * 1.2 : size;
+  const overlayInset = (size - overlaySize) / 2;
   return (
     <View style={{ width: size, height: size }}>
       <View
@@ -49,29 +54,55 @@ export function AvatarFrame({
       </View>
       <Svg
         pointerEvents="none"
-        width={size}
-        height={size}
-        viewBox="0 0 100 100"
-        style={{ position: 'absolute', inset: 0 }}
+        width={overlaySize}
+        height={overlaySize}
+        viewBox={isBlood ? '0 0 120 120' : '0 0 100 100'}
+        style={{ position: 'absolute', inset: overlayInset }}
       >
-        <Circle
-          cx="50"
-          cy="50"
-          r="48"
-          fill="none"
-          stroke={stroke}
-          strokeWidth={variant === 'minimal' ? 1 : 2}
-          strokeDasharray={['circuit', 'hacker', 'pixel'].includes(variant) ? '8 5' : undefined}
-        />
-        {variant !== 'minimal' && (
-          <Circle
-            cx="50"
-            cy="50"
-            r="44"
-            fill="none"
-            stroke={variant === 'christmas' ? '#f87171' : stroke}
-            strokeWidth=".6"
-          />
+        {isBlood ? (
+          <>
+            <Circle
+              cx="60"
+              cy="60"
+              r="51.5"
+              fill="none"
+              stroke={BLOOD_FRAME_ART.shadow}
+              strokeWidth="5"
+            />
+            <Circle cx="60" cy="60" r="51.5" fill="none" stroke={stroke} strokeWidth="2.75" />
+            <Path
+              d={BLOOD_FRAME_ART.drips}
+              fill={stroke}
+              stroke={BLOOD_FRAME_ART.shadow}
+              strokeWidth="1.1"
+            />
+            <G fill="none" stroke={BLOOD_FRAME_ART.shine} strokeWidth="1.1" strokeLinecap="round">
+              <Path d={BLOOD_FRAME_ART.highlights} />
+              <Path d={BLOOD_FRAME_ART.gleam} />
+            </G>
+          </>
+        ) : (
+          <>
+            <Circle
+              cx="50"
+              cy="50"
+              r="48"
+              fill="none"
+              stroke={stroke}
+              strokeWidth={variant === 'minimal' ? 1 : 2}
+              strokeDasharray={['circuit', 'hacker', 'pixel'].includes(variant) ? '8 5' : undefined}
+            />
+            {variant !== 'minimal' && (
+              <Circle
+                cx="50"
+                cy="50"
+                r="44"
+                fill="none"
+                stroke={variant === 'christmas' ? '#f87171' : stroke}
+                strokeWidth=".6"
+              />
+            )}
+          </>
         )}
         {['circuit', 'cyberpunk', 'hacker', 'galaxy', 'halloween', 'legendary'].includes(variant) &&
           [0, 60, 120, 180, 240, 300].map((angle) => (

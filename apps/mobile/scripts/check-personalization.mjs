@@ -132,6 +132,7 @@ try {
       achievements: [],
       frames: [
         { id: 'none', name: 'Sem moldura', color: '#0083FE', decoration: 'none' },
+        { id: 'blood', name: 'Sangue Carmesim', color: '#b91c32', decoration: 'blood' },
         {
           id: 'legendary',
           name: 'Lendária',
@@ -189,11 +190,14 @@ try {
     true,
     'Locked rewards cannot be equipped'
   );
+  await click('Sangue Carmesim');
+  assert.equal(button('Sangue Carmesim').getAttribute('aria-pressed'), 'true');
   await click('Salvar personalização');
   const save = state.requests.at(-1);
   assert.equal(save.method, 'PUT');
   assert.equal(save.path, '/api/profile/customization');
   assert.equal(save.body.avatarUrl, 'https://storage.example.invalid/owner-id/photo.jpg');
+  assert.equal(save.body.preferences.frameId, 'blood');
   assert.equal(save.body.version, 1);
   assert.equal(
     button('Salvar personalização').disabled,

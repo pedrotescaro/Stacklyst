@@ -108,9 +108,16 @@ export function AvatarFrame({
       )}
       {children}
       {frame &&
-        ['pixel', 'circuit', 'galaxy', 'hacker', 'halloween', 'christmas', 'legendary'].includes(
-          frame.decoration
-        ) && <FrameDetails kind={frame.decoration} />}
+        [
+          'pixel',
+          'circuit',
+          'galaxy',
+          'hacker',
+          'halloween',
+          'christmas',
+          'legendary',
+          'blood',
+        ].includes(frame.decoration) && <FrameDetails kind={frame.decoration} />}
       {frame?.decoration === 'propeller' && (
         <svg className={styles.propellerHat} viewBox="0 0 120 65" fill="none" aria-hidden="true">
           <path

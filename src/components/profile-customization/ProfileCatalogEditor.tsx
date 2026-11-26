@@ -7,6 +7,7 @@ import { ArrowLeft, Check, Plus, RotateCcw, Save } from 'lucide-react';
 import {
   PROFILE_METRICS,
   PROFILE_RARITIES,
+  avatarFrameSchema,
   profileCatalogSchema,
   type ProfileCatalog,
 } from '@/lib/profile-customization';
@@ -51,20 +52,6 @@ const icons = [
   'sprout',
   'star',
 ] as const;
-const decorations = [
-  'none',
-  'minimal',
-  'neon',
-  'cyberpunk',
-  'circuit',
-  'pixel',
-  'galaxy',
-  'hacker',
-  'halloween',
-  'christmas',
-  'legendary',
-] as const;
-
 export function ProfileCatalogEditor() {
   const [saved, setSaved] = useState<CatalogResponse | null>(null);
   const [catalog, setCatalog] = useState<ProfileCatalog | null>(null);
@@ -677,7 +664,7 @@ export function ProfileCatalogEditor() {
                                   })
                                 }
                               >
-                                {decorations.map((decoration) => (
+                                {avatarFrameSchema.shape.decoration.options.map((decoration) => (
                                   <option key={decoration} value={decoration}>
                                     {decoration}
                                   </option>

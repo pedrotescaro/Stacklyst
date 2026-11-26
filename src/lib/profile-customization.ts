@@ -305,6 +305,7 @@ export const avatarFrameSchema = z
       'orbit',
       'laurel',
       'aurora',
+      'blood',
     ]),
     achievementId: z.string().max(80).optional(),
   })

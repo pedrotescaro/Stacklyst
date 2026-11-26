@@ -66,6 +66,9 @@
 .frame[data-decoration='hat']::after {
   border-width: 1px;
 }
+.frame[data-decoration='blood']::after {
+  content: none;
+}
 .alienOverlay {
   position: absolute;
   inset: -12%;
