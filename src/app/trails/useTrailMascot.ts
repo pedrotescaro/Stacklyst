@@ -1,12 +1,7 @@
 'use client';
 
 import { useEffect, useRef, type RefObject } from 'react';
-import {
-  MASCOT_IDLE_FRAMES,
-  MASCOT_SPRITE_FRAMES,
-  preloadMascotSprites,
-  type MascotDirection,
-} from './mascotSprites';
+import type { MascotDirection } from './mascotSprites';
 import {
   clearPendingTrailMascotMovement,
   readPendingTrailMascotMovement,
@@ -22,14 +17,19 @@ import {
 const WALK_SPEED_PX_PER_SECOND = 140;
 /** Long routes (several rows, or across a unit) speed up instead of dragging on. */
 const MAX_WALK_SECONDS = 3.2;
-const FRAME_DURATION_MS = 110;
 const START_DELAY_MS = 300;
 const LOOK_AHEAD_DISTANCE = 10;
 const DIRECTION_THRESHOLD = 1.2;
 const CAMERA_UPDATE_INTERVAL_MS = 190;
 const MAX_DELTA_SECONDS = 0.05;
-const IDLE_FRAME_DURATION_MS = 180;
-const IDLE_SEQUENCE = [0, 1, 2, 3, 2, 1] as const;
+/** How often a standing mascot checks whether a dialog now covers it. */
+const OBSCURED_CHECK_MS = 300;
+
+/** Which way the hero faces and whether it is walking; the sprite animates each pose itself. */
+export interface MascotPose {
+  direction: MascotDirection;
+  walking: boolean;
+}
 
 interface TrailNodeLayout {
   element: HTMLElement;
@@ -48,7 +48,9 @@ interface TrailLayout {
 interface UseTrailMascotOptions {
   containerRef: RefObject<HTMLElement | null>;
   positionRef: RefObject<HTMLDivElement | null>;
-  imageRef: RefObject<HTMLImageElement | null>;
+  /** The drawn hero, bounced on arrival. */
+  spriteRef: RefObject<HTMLElement | null>;
+  onPoseChange: (pose: MascotPose) => void;
   progressKey: string;
   currentNodeKey: string;
 }
@@ -134,18 +136,6 @@ function applyPosition(element: HTMLElement, point: TrailPoint) {
   element.style.transform = `translate3d(${point.x}px, ${point.y}px, 0) translate(-50%, -88%)`;
 }
 
-function setSprite(image: HTMLImageElement, direction: MascotDirection, frameIndex: number) {
-  const frames = MASCOT_SPRITE_FRAMES[direction];
-  const source = frames[frameIndex % frames.length]!;
-  if (!image.src.endsWith(source)) image.src = source;
-}
-
-function setIdleSprite(image: HTMLImageElement, direction: MascotDirection, frameIndex: number) {
-  const frames = MASCOT_IDLE_FRAMES[direction];
-  const source = frames[frameIndex % frames.length]!;
-  if (!image.src.endsWith(source)) image.src = source;
-}
-
 function isHorizontal(direction: MascotDirection) {
   return direction === 'direita' || direction === 'esquerda';
 }
@@ -216,8 +206,8 @@ function followMascotWithCamera(element: HTMLElement, scrollContainer: HTMLEleme
   else window.scrollBy({ top: delta, behavior: 'smooth' });
 }
 
-function playArrivalEffect(image: HTMLImageElement, target: HTMLElement) {
-  image.animate?.(
+function playArrivalEffect(sprite: HTMLElement, target: HTMLElement) {
+  sprite.animate?.(
     [
       { transform: 'translateY(0)' },
       { transform: 'translateY(-4px)', offset: 0.45 },
@@ -234,17 +224,28 @@ function playArrivalEffect(image: HTMLImageElement, target: HTMLElement) {
 export function useTrailMascot({
   containerRef,
   positionRef,
-  imageRef,
+  spriteRef,
+  onPoseChange,
   progressKey,
   currentNodeKey,
 }: UseTrailMascotOptions) {
   const settledNodeKeyRef = useRef<string | null>(null);
+  const poseRef = useRef(onPoseChange);
+  poseRef.current = onPoseChange;
 
   useEffect(() => {
     const container = containerRef.current;
     const positionElement = positionRef.current;
-    const image = imageRef.current;
-    if (!container || !positionElement || !image || !currentNodeKey) return;
+    const sprite = spriteRef.current;
+    if (!container || !positionElement || !sprite || !currentNodeKey) return;
+    // The walk loop asks every frame; the page hears only actual turns and stops.
+    let lastPose = '';
+    const setPose = (direction: MascotDirection, moving: boolean) => {
+      const key = `${direction}:${moving}`;
+      if (key === lastPose) return;
+      lastPose = key;
+      poseRef.current({ direction, walking: moving });
+    };
 
     let cancelled = false;
     let animationFrame = 0;
@@ -265,26 +266,15 @@ export function useTrailMascot({
       }
     };
 
+    // Standing still the hero breathes on its own; this only hides it under dialogs.
     const startIdleAnimation = (direction: MascotDirection, reduceMotion: boolean) => {
       stopIdleAnimation();
-      setIdleSprite(image, direction, 0);
+      setPose(direction, false);
       if (reduceMotion) return;
-
-      // Start cycling only once every frame is cached, so no frame flashes blank.
-      void preloadMascotSprites().then(() => {
-        if (cancelled || walking || idleInterval !== null) return;
-        let sequenceIndex = 0;
-        idleInterval = window.setInterval(() => {
-          if (cancelled || walking) return;
-          if (isObscured()) {
-            positionElement.style.visibility = 'hidden';
-            return;
-          }
-          positionElement.style.visibility = 'visible';
-          sequenceIndex = (sequenceIndex + 1) % IDLE_SEQUENCE.length;
-          setIdleSprite(image, direction, IDLE_SEQUENCE[sequenceIndex]!);
-        }, IDLE_FRAME_DURATION_MS);
-      });
+      idleInterval = window.setInterval(() => {
+        if (cancelled || walking) return;
+        positionElement.style.visibility = isObscured() ? 'hidden' : 'visible';
+      }, OBSCURED_CHECK_MS);
     };
 
     const snapToCurrentNode = () => {
@@ -367,12 +357,11 @@ export function useTrailMascot({
       stopIdleAnimation();
       let currentPoint = route.getPointAtLength(0);
       applyPosition(positionElement, currentPoint);
-      setSprite(image, 'baixo', 0);
+      setPose('baixo', true);
       positionElement.style.opacity = '1';
       positionElement.style.willChange = 'transform';
 
       let distance = 0;
-      let elapsedForSprites = 0;
       let direction: MascotDirection = 'baixo';
       let lastTime = 0;
       let delayRemaining = START_DELAY_MS;
@@ -389,10 +378,11 @@ export function useTrailMascot({
         const finalTarget = finalLayout.nodeByKey.get(targetKey);
         if (finalTarget) {
           applyPosition(positionElement, finalTarget.point);
-          playArrivalEffect(image, finalTarget.element);
+          playArrivalEffect(sprite, finalTarget.element);
         }
         positionElement.style.willChange = 'auto';
         positionElement.style.visibility = 'visible';
+        // Arrived: turn to face the learner and breathe.
         startIdleAnimation('baixo', reduceMotion);
         settledNodeKeyRef.current = targetKey;
         rememberPosition();
@@ -433,7 +423,6 @@ export function useTrailMascot({
         }
 
         distance += speed * deltaSeconds;
-        elapsedForSprites += deltaMs;
 
         if (distance >= route.totalLength) {
           finish();
@@ -449,7 +438,7 @@ export function useTrailMascot({
           lookAhead.y - currentPoint.y,
           direction
         );
-        setSprite(image, direction, Math.floor(elapsedForSprites / FRAME_DURATION_MS));
+        setPose(direction, true);
         applyPosition(positionElement, currentPoint);
 
         if (time - lastCameraUpdate >= CAMERA_UPDATE_INTERVAL_MS) {
@@ -460,9 +449,7 @@ export function useTrailMascot({
         animationFrame = requestAnimationFrame(animate);
       };
 
-      void preloadMascotSprites().then(() => {
-        if (!cancelled) animationFrame = requestAnimationFrame(animate);
-      });
+      animationFrame = requestAnimationFrame(animate);
     }
 
     return () => {
@@ -474,5 +461,5 @@ export function useTrailMascot({
       resizeObserver.disconnect();
       window.removeEventListener('resize', handleWindowResize);
     };
-  }, [containerRef, currentNodeKey, imageRef, positionRef, progressKey]);
+  }, [containerRef, currentNodeKey, spriteRef, positionRef, progressKey]);
 }

@@ -1,8 +1,11 @@
 'use client';
 
-import { useRef, type RefObject } from 'react';
-import { MASCOT_SPRITE_FRAMES } from './mascotSprites';
-import { useTrailMascot } from './useTrailMascot';
+import { useCallback, useRef, useState, type RefObject } from 'react';
+import { PixelAvatar } from '@/components/mundinho/PixelArt';
+import type { MascotDirection } from './mascotSprites';
+import { useTrailMascotAvatar } from './trailMascotAvatar';
+import { useTrailMascot, type MascotPose } from './useTrailMascot';
+import styles from './TrailMascot.module.css';
 
 interface TrailMascotProps {
   containerRef: RefObject<HTMLDivElement | null>;
@@ -10,14 +13,33 @@ interface TrailMascotProps {
   currentNodeKey: string;
 }
 
+const HERO_DIRECTION: Record<MascotDirection, 'down' | 'up' | 'left' | 'right'> = {
+  baixo: 'down',
+  cima: 'up',
+  esquerda: 'left',
+  direita: 'right',
+};
+
+/** The learner's Mundinho hero walks the trail: four walking directions, breathing when still. */
 export function TrailMascot({ containerRef, progressKey, currentNodeKey }: TrailMascotProps) {
+  const avatar = useTrailMascotAvatar();
   const positionRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
+  const [pose, setPose] = useState<MascotPose>({ direction: 'baixo', walking: false });
+  // The walk loop runs every frame; React only re-renders when the pose changes.
+  const changePose = useCallback(
+    (next: MascotPose) =>
+      setPose((current) =>
+        current.direction === next.direction && current.walking === next.walking ? current : next
+      ),
+    []
+  );
 
   useTrailMascot({
     containerRef,
     positionRef,
-    imageRef,
+    spriteRef: heroRef,
+    onPoseChange: changePose,
     progressKey,
     currentNodeKey,
   });
@@ -26,21 +48,19 @@ export function TrailMascot({ containerRef, progressKey, currentNodeKey }: Trail
     <div
       ref={positionRef}
       data-testid="trail-moving-mascot"
+      data-direction={pose.direction}
+      data-walking={pose.walking || undefined}
       aria-hidden="true"
-      className="pointer-events-none absolute left-0 top-0 z-[15] h-[clamp(56px,7vw,76px)] w-[clamp(56px,7vw,76px)] select-none opacity-0 [contain:layout_style_paint]"
+      className="pointer-events-none absolute left-0 top-0 z-[15] h-[clamp(56px,7vw,76px)] w-[clamp(56px,7vw,76px)] select-none opacity-0"
       style={{ transform: 'translate3d(0, 0, 0) translate(-50%, -88%)' }}
     >
-      {/* A plain img lets the animation swap already-preloaded frames without React renders. */}
-      {/* eslint-disable-next-line @next/next/no-img-element -- frames are local, fixed-size, and preloaded */}
-      <img
-        ref={imageRef}
-        src={MASCOT_SPRITE_FRAMES.baixo[0]}
-        alt=""
-        data-image-reveal="off"
-        draggable={false}
-        decoding="async"
-        className="h-full w-full object-contain drop-shadow-[0_6px_8px_rgba(0,0,0,0.28)]"
-      />
+      <div ref={heroRef} className={styles.hero}>
+        <PixelAvatar
+          avatar={avatar}
+          direction={HERO_DIRECTION[pose.direction]}
+          walking={pose.walking}
+        />
+      </div>
     </div>
   );
 }

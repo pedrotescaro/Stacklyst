@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { DEFAULT_AVATAR, type Avatar } from '@/lib/mundinho/types';
+import { TrailMascotAvatarProvider } from './trailMascotAvatar';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ClipboardCheck, MapPinned } from 'lucide-react';
@@ -36,6 +38,8 @@ interface TrailsContentProps {
   initialCourses: TrailCourseOption[];
   initialActiveLanguage: TrailLanguageCode;
   gems: number;
+  /** The learner's Mundinho hero, who walks the trail map. */
+  mascotAvatar?: Avatar;
   globalRank: number;
   totalParticipants: number;
   dailyProgress: TrailDailyProgress;
@@ -53,6 +57,7 @@ export function TrailsContent({
   initialCourses,
   initialActiveLanguage,
   gems,
+  mascotAvatar = DEFAULT_AVATAR,
   globalRank,
   totalParticipants,
   dailyProgress,
@@ -127,127 +132,133 @@ export function TrailsContent({
     });
   }
   return (
-    <div className="dd-platform-shell relative min-h-screen bg-dd-bg">
-      <Sidebar user={user} />
-      <div className="dd-platform-body mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
-        <main className="dd-platform-main min-w-0 flex-1 pb-20">
-          <header className="sticky top-0 z-30 border-b border-dd-border bg-dd-bg px-4 py-3">
-            <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-              <Link
-                href="/trails"
-                className="dd-focus-ring inline-flex min-h-10 items-center text-sm font-semibold text-dd-accent"
-              >
-                {text('← Meu Mundinho e recompensas', '← My World & rewards')}
-              </Link>
-              <Link
-                href="/trails/enade"
-                className="dd-focus-ring inline-flex min-h-10 items-center gap-2 rounded-full border border-dd-border bg-dd-surface px-3.5 text-sm font-semibold text-dd-text transition-colors hover:border-dd-accent/60"
-              >
-                <ClipboardCheck className="h-4 w-4 text-dd-accent" aria-hidden="true" />
-                {text('Simulados do ENADE', 'ENADE practice exams')}
-              </Link>
-            </div>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <TrailViewSwitcher active={viewMode} onChange={changeMode} />
-              <div className="xl:hidden">
-                <TrailResourceBar
-                  activeLanguage={activeLanguage}
-                  courses={selectedCourses}
-                  onSelectCourse={selectCourse}
-                  streak={user.streak}
-                  lastActiveAt={user.last_active_at}
-                  totalXp={user.total_xp}
-                  gems={gems}
-                />
-              </div>
-            </div>
-            <div className="mt-3 flex items-center gap-3 text-sm text-dd-muted">
-              <span className="shrink-0 font-medium text-dd-muted">{text('Caminho', 'Path')}</span>
-              <div className="min-w-0 flex-1">
-                <Select
-                  value={path?.id ?? ''}
-                  onValueChange={(val) => {
-                    if (typeof val === 'string' && val) setPathId(val);
-                  }}
+    <TrailMascotAvatarProvider value={mascotAvatar}>
+      <div className="dd-platform-shell relative min-h-screen bg-dd-bg">
+        <Sidebar user={user} />
+        <div className="dd-platform-body mx-auto flex w-full min-w-0 flex-grow xl:max-w-[1660px]">
+          <main className="dd-platform-main min-w-0 flex-1 pb-20">
+            <header className="sticky top-0 z-30 border-b border-dd-border bg-dd-bg px-4 py-3">
+              <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                <Link
+                  href="/trails"
+                  className="dd-focus-ring inline-flex min-h-10 items-center text-sm font-semibold text-dd-accent"
                 >
-                  <SelectTrigger
-                    aria-label={text('Caminho de aprendizado', 'Learning path')}
-                    className="min-h-11 min-w-0 w-full rounded-xl border border-dd-border bg-dd-bg px-3.5 text-sm text-dd-text transition-colors hover:border-dd-accent/60"
-                  >
-                    <SelectValue placeholder={text('Selecione um caminho...', 'Select a path...')}>
-                      {path ? (
-                        <div className="flex min-w-0 flex-1 items-center gap-2">
-                          <span className="min-w-0 truncate font-semibold text-dd-text">
-                            {path.title}
-                          </span>
-                          <span className="shrink-0 text-xs text-dd-muted">
-                            · {path.completedNodes}/{path.totalNodes} {text('lições', 'lessons')}
-                          </span>
-                        </div>
-                      ) : null}
-                    </SelectValue>
-                  </SelectTrigger>
-                  <SelectContent>
-                    {paths.map((p) => (
-                      <SelectItem
-                        key={p.id}
-                        value={p.id}
-                        label={`${p.title} · ${p.completedNodes}/${p.totalNodes} ${text('lições', 'lessons')}`}
-                        className="min-h-12"
-                      >
-                        <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-1">
-                          <span className="min-w-0 break-words font-semibold text-dd-text">
-                            {p.title}
-                          </span>
-                          <span className="shrink-0 text-xs tabular-nums text-dd-muted">
-                            {p.completedNodes}/{p.totalNodes} {text('lições', 'lessons')}
-                          </span>
-                        </div>
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  {text('← Meu Mundinho e recompensas', '← My World & rewards')}
+                </Link>
+                <Link
+                  href="/trails/enade"
+                  className="dd-focus-ring inline-flex min-h-10 items-center gap-2 rounded-full border border-dd-border bg-dd-surface px-3.5 text-sm font-semibold text-dd-text transition-colors hover:border-dd-accent/60"
+                >
+                  <ClipboardCheck className="h-4 w-4 text-dd-accent" aria-hidden="true" />
+                  {text('Simulados do ENADE', 'ENADE practice exams')}
+                </Link>
               </div>
-            </div>
-          </header>
-          {path ? (
-            <LearningJourney
-              key={`${user.id}:${path.id}`}
-              userId={user.id}
-              nodes={nodes}
-              path={path}
-              language={activeLanguage}
-              mode={viewMode}
-              stars={lessonStars}
-              completedBossIds={completedBossIds}
-            />
-          ) : (
-            <div className="p-8 text-dd-muted">
-              <MapPinned className="mb-3" />
-              <p>
-                {text(
-                  'Nenhum conteúdo publicado nesta linguagem.',
-                  'No content published in this language.'
-                )}
-              </p>
-            </div>
-          )}
-        </main>
-        <TrailsProgressSidebar
-          activeLanguage={activeLanguage}
-          courses={selectedCourses}
-          onSelectCourse={selectCourse}
-          totalXp={user.total_xp}
-          gems={gems}
-          streak={user.streak}
-          lastActiveAt={user.last_active_at}
-          globalRank={globalRank}
-          totalParticipants={totalParticipants}
-          username={user.username}
-          avatarUrl={user.avatar_url}
-          dailyProgress={dailyProgress}
-        />
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <TrailViewSwitcher active={viewMode} onChange={changeMode} />
+                <div className="xl:hidden">
+                  <TrailResourceBar
+                    activeLanguage={activeLanguage}
+                    courses={selectedCourses}
+                    onSelectCourse={selectCourse}
+                    streak={user.streak}
+                    lastActiveAt={user.last_active_at}
+                    totalXp={user.total_xp}
+                    gems={gems}
+                  />
+                </div>
+              </div>
+              <div className="mt-3 flex items-center gap-3 text-sm text-dd-muted">
+                <span className="shrink-0 font-medium text-dd-muted">
+                  {text('Caminho', 'Path')}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <Select
+                    value={path?.id ?? ''}
+                    onValueChange={(val) => {
+                      if (typeof val === 'string' && val) setPathId(val);
+                    }}
+                  >
+                    <SelectTrigger
+                      aria-label={text('Caminho de aprendizado', 'Learning path')}
+                      className="min-h-11 min-w-0 w-full rounded-xl border border-dd-border bg-dd-bg px-3.5 text-sm text-dd-text transition-colors hover:border-dd-accent/60"
+                    >
+                      <SelectValue
+                        placeholder={text('Selecione um caminho...', 'Select a path...')}
+                      >
+                        {path ? (
+                          <div className="flex min-w-0 flex-1 items-center gap-2">
+                            <span className="min-w-0 truncate font-semibold text-dd-text">
+                              {path.title}
+                            </span>
+                            <span className="shrink-0 text-xs text-dd-muted">
+                              · {path.completedNodes}/{path.totalNodes} {text('lições', 'lessons')}
+                            </span>
+                          </div>
+                        ) : null}
+                      </SelectValue>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {paths.map((p) => (
+                        <SelectItem
+                          key={p.id}
+                          value={p.id}
+                          label={`${p.title} · ${p.completedNodes}/${p.totalNodes} ${text('lições', 'lessons')}`}
+                          className="min-h-12"
+                        >
+                          <div className="flex min-w-0 flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-1">
+                            <span className="min-w-0 break-words font-semibold text-dd-text">
+                              {p.title}
+                            </span>
+                            <span className="shrink-0 text-xs tabular-nums text-dd-muted">
+                              {p.completedNodes}/{p.totalNodes} {text('lições', 'lessons')}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+            </header>
+            {path ? (
+              <LearningJourney
+                key={`${user.id}:${path.id}`}
+                userId={user.id}
+                nodes={nodes}
+                path={path}
+                language={activeLanguage}
+                mode={viewMode}
+                stars={lessonStars}
+                completedBossIds={completedBossIds}
+              />
+            ) : (
+              <div className="p-8 text-dd-muted">
+                <MapPinned className="mb-3" />
+                <p>
+                  {text(
+                    'Nenhum conteúdo publicado nesta linguagem.',
+                    'No content published in this language.'
+                  )}
+                </p>
+              </div>
+            )}
+          </main>
+          <TrailsProgressSidebar
+            activeLanguage={activeLanguage}
+            courses={selectedCourses}
+            onSelectCourse={selectCourse}
+            totalXp={user.total_xp}
+            gems={gems}
+            streak={user.streak}
+            lastActiveAt={user.last_active_at}
+            globalRank={globalRank}
+            totalParticipants={totalParticipants}
+            username={user.username}
+            avatarUrl={user.avatar_url}
+            dailyProgress={dailyProgress}
+          />
+        </div>
       </div>
-    </div>
+    </TrailMascotAvatarProvider>
   );
 }

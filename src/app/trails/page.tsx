@@ -11,6 +11,7 @@ import { calculateTrailDailyProgress } from '@/app/trails/trailDailyProgress';
 import { getAuthUser } from '@/lib/auth';
 import { getKnowledgeMapForUser } from '@/lib/learning/repository';
 import { prisma } from '@/lib/prisma';
+import { readTrailMascotAvatar } from './readTrailMascotAvatar';
 import { TrailsContent } from '@/app/trails/TrailsContent';
 import { buildLearningMap, mergeLearningMaps } from '@/lib/learning/catalog';
 import { calculateTrailGems } from './trailRailStats';
@@ -95,7 +96,7 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
     }),
     prisma.rpgPlayer.findUnique({
       where: { userId: user.id },
-      select: { coins: true },
+      select: { coins: true, avatar: true },
     }),
     prisma.mobileState.findUnique({
       where: { user_id_key: { user_id: user.id, key: TRAIL_STARS_STATE_KEY } },
@@ -250,6 +251,7 @@ export default async function TrailsPage({ searchParams }: TrailsPageProps) {
       initialCourses={courses}
       initialActiveLanguage={initialActiveLanguage}
       gems={userCoins}
+      mascotAvatar={readTrailMascotAvatar(rpgPlayer?.avatar)}
       globalRank={usersAhead + 1}
       totalParticipants={totalParticipants}
       dailyProgress={dailyProgress}

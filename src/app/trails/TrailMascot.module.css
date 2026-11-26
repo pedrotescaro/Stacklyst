@@ -1,0 +1,78 @@
+/*
+ * The mascot box keeps the size the trail route is measured against. The
+ * Mundinho hero is drawn larger inside it at a whole-pixel scale (48px frames
+ * at 2x, then 3x), centered, with its feet (79% down its frame) on the box's
+ * foot line (88% down the box).
+ */
+.hero {
+  --hero-size: 96px;
+  position: absolute;
+  left: 50%;
+  top: calc(88% - var(--hero-size) * 0.79);
+  width: var(--hero-size);
+  height: var(--hero-size);
+  transform: translateX(-50%);
+  filter: drop-shadow(0 4px 5px rgb(0 0 0 / 0.25));
+}
+@media (min-width: 1024px) {
+  .hero {
+    --hero-size: 144px;
+  }
+}
+
+/* The same sprite rules the Mundinho uses, scoped to the trail mascot. */
+.hero :global(.sprite-avatar) {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  image-rendering: pixelated;
+}
+.hero :global(.sprite-layer) {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  image-rendering: pixelated;
+  /* Standing still: the six-frame breathing loop. */
+  animation: trail-hero-steps 1.2s steps(6) infinite;
+}
+.hero :global(.sprite-layer[data-pose='walk']) {
+  animation-duration: 0.6s;
+}
+.hero :global(.sprite-layer-swappable) {
+  will-change: opacity;
+}
+.hero :global(.sprite-layer[data-standby]) {
+  opacity: 0;
+}
+.hero :global(.sprite-color-defs) {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+/* Ground shadow under the hero's feet. */
+.hero :global(.sprite-avatar)::before {
+  content: '';
+  position: absolute;
+  left: 35.4%;
+  bottom: 18.75%;
+  width: 29.2%;
+  height: 4.2%;
+  border-radius: 50%;
+  background: rgb(7 26 36 / 0.25);
+}
+@keyframes trail-hero-steps {
+  from {
+    background-position-x: 0%;
+  }
+  to {
+    background-position-x: 120%;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero :global(.sprite-layer) {
+    animation: none;
+    background-position-x: 0%;
+  }
+}
