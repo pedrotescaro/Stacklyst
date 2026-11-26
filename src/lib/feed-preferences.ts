@@ -59,6 +59,25 @@ export function createFeed(
   };
 }
 
+/** Names the two built-in feeds are created with, in Portuguese and English. */
+const DEFAULT_FEED_NAMES: Record<string, readonly [string, string]> = {
+  following: ['Seguindo', 'Following'],
+  'for-you': ['Para você', 'For you'],
+};
+
+/**
+ * The name to show for a feed. Built-in feeds still carrying their default name
+ * follow the interface language; a name the user typed is shown as written.
+ */
+export function feedDisplayName(
+  feed: Pick<FeedDefinition, 'id' | 'name'>,
+  text: (pt: string, en: string) => string
+) {
+  const defaults = DEFAULT_FEED_NAMES[feed.id];
+  if (defaults && defaults.includes(feed.name.trim())) return text(defaults[0], defaults[1]);
+  return feed.name;
+}
+
 export function getFeedSettings(
   preferences?: {
     feed: 'for-you' | 'following';

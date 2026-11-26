@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { FeedControls } from '../FeedControls';
+import { LanguageProvider } from '@/contexts/LanguageContext';
+import { createFeed } from '@/lib/feed-preferences';
 
 function Controls() {
   const [filter, setFilter] = useState<'for-you' | 'following'>('for-you');
@@ -34,5 +36,33 @@ describe('Feed controls', () => {
     render(<Controls />);
     expect(screen.getByRole('button', { name: 'Personalizar feed' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'Atualizar publicações' })).not.toBeInTheDocument();
+  });
+
+  it('shows the built-in feeds in English while keeping names the user typed', async () => {
+    localStorage.setItem('site-language', 'en');
+    try {
+      render(
+        <LanguageProvider>
+          <FeedControls
+            filter="for-you"
+            onFilterChange={vi.fn()}
+            sort="recent"
+            onSortChange={vi.fn()}
+            feeds={[
+              createFeed('following', 'Seguindo', []),
+              createFeed('for-you', 'Para você', ['JS']),
+              createFeed('custom-1', 'Rustaceans', ['RUST']),
+            ]}
+            activeFeedId="for-you"
+          />
+        </LanguageProvider>
+      );
+      expect(await screen.findByRole('tab', { name: 'Following' })).toBeInTheDocument();
+      expect(screen.getByRole('tab', { name: 'For you' })).toHaveAttribute('aria-selected', 'true');
+      expect(screen.getByRole('tab', { name: 'Rustaceans' })).toBeInTheDocument();
+      expect(screen.queryByRole('tab', { name: /Seguindo|Para você/ })).not.toBeInTheDocument();
+    } finally {
+      localStorage.removeItem('site-language');
+    }
   });
 });

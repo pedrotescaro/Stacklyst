@@ -6,7 +6,7 @@ import { Check, ChevronDown } from 'lucide-react';
 import { FeedRankingSwitcher } from '@/components/FeedRankingSwitcher';
 import { cn } from '@/lib/cn';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
-import { type FeedDefinition } from '@/lib/feed-preferences';
+import { feedDisplayName, type FeedDefinition } from '@/lib/feed-preferences';
 
 type FeedFilter = 'for-you' | 'following';
 type FollowingSort = 'recent' | 'popular';
@@ -87,7 +87,7 @@ export function FeedControls({
                       : 'border-dd-border text-dd-muted hover:text-dd-text'
                   )}
                 >
-                  {feed.name}
+                  {feedDisplayName(feed, text)}
                 </button>
               ))
           ) : (

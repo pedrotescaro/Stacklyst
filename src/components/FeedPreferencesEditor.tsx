@@ -22,6 +22,7 @@ import { parseOnboarding, type OnboardingPreferences } from '@/lib/onboarding';
 import {
   createFeed,
   FEED_LANGUAGES,
+  feedDisplayName,
   getFeedSettings,
   type FeedDefinition,
   type FeedSettings,
@@ -355,13 +356,13 @@ export function FeedPreferencesEditor() {
                           }}
                         >
                           <span className={styles.feedName}>
-                            {feed.name || text('Novo feed', 'New feed')}
+                            {feedDisplayName(feed, text) || text('Novo feed', 'New feed')}
                           </span>
                           <div className={styles.rowActions}>
                             <button
                               type="button"
                               className={styles.iconButton}
-                              aria-label={`${text('Editar', 'Edit')} ${feed.name}`}
+                              aria-label={`${text('Editar', 'Edit')} ${feedDisplayName(feed, text)}`}
                               onClick={() => edit(feed.id)}
                               disabled={busy}
                             >
@@ -370,7 +371,7 @@ export function FeedPreferencesEditor() {
                             <button
                               type="button"
                               className={styles.iconButton}
-                              aria-label={`${feed.visible ? text('Ocultar', 'Hide') : text('Mostrar', 'Show')} ${feed.name}`}
+                              aria-label={`${feed.visible ? text('Ocultar', 'Hide') : text('Mostrar', 'Show')} ${feedDisplayName(feed, text)}`}
                               aria-pressed={feed.visible}
                               onClick={() => toggleVisibility(feed)}
                               disabled={busy}
@@ -380,7 +381,7 @@ export function FeedPreferencesEditor() {
                             <button
                               type="button"
                               className={styles.iconButton}
-                              aria-label={`${text('Reordenar', 'Reorder')} ${feed.name}`}
+                              aria-label={`${text('Reordenar', 'Reorder')} ${feedDisplayName(feed, text)}`}
                               aria-expanded={reordering === feed.id}
                               draggable={!busy}
                               onDragStart={() => {
@@ -435,7 +436,7 @@ export function FeedPreferencesEditor() {
                           .filter((feed) => feed.visible)
                           .map((feed) => (
                             <option key={feed.id} value={feed.id}>
-                              {feed.name}
+                              {feedDisplayName(feed, text)}
                             </option>
                           ))}
                       </select>
@@ -445,7 +446,7 @@ export function FeedPreferencesEditor() {
                     <section
                       key={editing.id}
                       className={styles.editor}
-                      aria-label={`${text('Preferências de', 'Preferences for')} ${editing.name}`}
+                      aria-label={`${text('Preferências de', 'Preferences for')} ${feedDisplayName(editing, text)}`}
                     >
                       <fieldset disabled={busy} className={styles.fields}>
                         {!['for-you', 'following'].includes(editing.id) && (
