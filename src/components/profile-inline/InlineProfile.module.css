@@ -64,6 +64,7 @@
   background: var(--color-dd-surface);
   flex-shrink: 0;
   display: grid;
+  grid-template: minmax(0, 1fr) / minmax(0, 1fr);
   place-items: center;
   font-size: 38px;
   font-weight: 650;
