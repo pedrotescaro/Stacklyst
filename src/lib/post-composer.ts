@@ -174,6 +174,22 @@ export function appendPostExtras(
   return finalBody;
 }
 
+const REPLY_AUDIENCE_MARKER =
+  /(?:^|\n{2,})🔒 Apenas (seguidores|pessoas mencionadas) podem responder\s*$/;
+
+/** Reads who may reply from the trailing composer marker (no marker means everyone). */
+export function readReplyAudience(body: string): ReplyAudience {
+  const match = body.trim().match(REPLY_AUDIENCE_MARKER);
+  if (!match) return 'everyone';
+  return match[1] === 'seguidores' ? 'followers' : 'mentioned';
+}
+
+/** Rewrites the trailing reply-audience marker, keeping the rest of the body as is. */
+export function withReplyAudience(body: string, audience: ReplyAudience) {
+  const withoutMarker = body.trim().replace(REPLY_AUDIENCE_MARKER, '').trimEnd();
+  return appendPostExtras(withoutMarker, { replyAudience: audience });
+}
+
 export interface ParsedPostExtras {
   content: string;
   isSensitive: boolean;

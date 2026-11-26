@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { prisma } from '@/lib/prisma';
 import { visiblePostWhere } from '@/services/post-access.service';
+import { visibleUserWhere } from '@/services/block.service';
 import { postPollInclude, publicPostPoll } from '@/lib/post-poll';
 import { getAuthUser } from '@/lib/auth';
 import { BookmarksContent } from './BookmarksContent';
@@ -52,6 +53,54 @@ export default async function BookmarksPage() {
     },
   });
 
+  const authorSelect = {
+    id: true,
+    username: true,
+    avatar_url: true,
+    avatar_config: true,
+    total_xp: true,
+  } as const;
+  // Saved replies come with their conversation so they render like on the profile.
+  const answerBookmarks = await prisma.answerBookmark.findMany({
+    where: {
+      user_id: user.id,
+      answer: {
+        post: visiblePostWhere(user.id),
+        author: visibleUserWhere(user.id),
+        OR: [{ parent: null }, { parent: { author: visibleUserWhere(user.id) } }],
+      },
+    },
+    orderBy: { created_at: 'desc' },
+    include: {
+      answer: {
+        include: {
+          author: { select: authorSelect },
+          votes: { where: { user_id: user.id }, select: { value: true } },
+          post: {
+            include: {
+              poll: { include: postPollInclude(user.id) },
+              author: { select: authorSelect },
+            },
+          },
+          parent: { include: { author: { select: authorSelect } } },
+        },
+      },
+    },
+  });
+  const serializedReplies = answerBookmarks.map((saved) => ({
+    ...saved.answer,
+    created_at: saved.answer.created_at.toISOString(),
+    saved_at: saved.created_at.toISOString(),
+    post: {
+      ...saved.answer.post,
+      poll: publicPostPoll(saved.answer.post.poll),
+      created_at: saved.answer.post.created_at.toISOString(),
+    },
+    parent: saved.answer.parent
+      ? { ...saved.answer.parent, created_at: saved.answer.parent.created_at.toISOString() }
+      : null,
+  }));
+
   // Mapear posts salvos
   const serializedPosts = bookmarks.map((b) => ({
     ...b.post,
@@ -61,6 +110,7 @@ export default async function BookmarksPage() {
     poll: publicPostPoll(b.post.poll),
     quizzes: b.post.quizzes.map(publicQuiz),
     created_at: b.post.created_at.toISOString(),
+    saved_at: b.created_at.toISOString(),
     bookmarks: [{ id: b.id }], // Garante que a postagem seja identificada como salva no feed de bookmarks
   }));
 
@@ -87,5 +137,11 @@ export default async function BookmarksPage() {
       .sort((a: { xp: number }, b: { xp: number }) => b.xp - a.xp),
   };
 
-  return <BookmarksContent user={serializedUser} initialPosts={serializedPosts} />;
+  return (
+    <BookmarksContent
+      user={serializedUser}
+      initialPosts={serializedPosts}
+      initialReplies={serializedReplies}
+    />
+  );
 }

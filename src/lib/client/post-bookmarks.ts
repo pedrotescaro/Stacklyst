@@ -40,3 +40,47 @@ export async function writePostBookmark(postId: string, bookmarked: boolean) {
   );
   return result.bookmarked as boolean;
 }
+
+/** Replies are saved on their own, never through the thread's original post. */
+export const ANSWER_BOOKMARK_CHANGED = 'stacklyst:answer-bookmark-changed';
+export interface AnswerBookmarkChange {
+  answerId: string;
+  bookmarked: boolean;
+}
+
+const pendingAnswerReads = new Map<string, Promise<boolean>>();
+
+export function readAnswerBookmark(answerId: string) {
+  let pending = pendingAnswerReads.get(answerId);
+  if (!pending) {
+    pending = fetch(`/api/answers/${answerId}/bookmark`, { cache: 'no-store' })
+      .then(async (response) => {
+        const result = await response.json();
+        if (!response.ok || typeof result.bookmarked !== 'boolean') {
+          throw new Error(result.message || 'Não foi possível consultar os itens salvos.');
+        }
+        return result.bookmarked as boolean;
+      })
+      .finally(() => pendingAnswerReads.delete(answerId));
+    pendingAnswerReads.set(answerId, pending);
+  }
+  return pending;
+}
+
+export async function writeAnswerBookmark(answerId: string, bookmarked: boolean) {
+  const response = await fetch(`/api/answers/${answerId}/bookmark`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ bookmarked }),
+  });
+  const result = await response.json();
+  if (!response.ok || typeof result.bookmarked !== 'boolean') {
+    throw new Error(result.message || 'Não foi possível salvar a resposta. Tente novamente.');
+  }
+  window.dispatchEvent(
+    new CustomEvent<AnswerBookmarkChange>(ANSWER_BOOKMARK_CHANGED, {
+      detail: { answerId, bookmarked: result.bookmarked },
+    })
+  );
+  return result.bookmarked as boolean;
+}

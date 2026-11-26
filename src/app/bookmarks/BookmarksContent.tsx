@@ -7,11 +7,24 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowLeft, Bookmark, Code2, Image as ImageIcon, Search, X } from 'lucide-react';
 import { PlatformPageShell } from '@/components/PlatformPageShell';
 import { PostCard } from '@/components/PostCard';
+import { ProfileReplyThread } from '@/components/ProfileReplyThread';
+import { parseReplyMedia } from '@/lib/reply-media';
+import { ANSWER_BOOKMARK_CHANGED, type AnswerBookmarkChange } from '@/lib/client/post-bookmarks';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './BookmarksContent.module.css';
 
-type SavedPost = ComponentProps<typeof PostCard>['post'];
+type SavedPost = ComponentProps<typeof PostCard>['post'] & { saved_at?: string };
+/** A saved reply, shaped like the profile's reply items. */
+export interface SavedReply {
+  id: string;
+  body: string;
+  code_snippet?: string | null;
+  saved_at?: string;
+  author: { username: string; name?: string | null };
+  [key: string]: unknown;
+}
+type SavedItem = { kind: 'post'; item: SavedPost } | { kind: 'reply'; item: SavedReply };
 type Filter = 'all' | 'code' | 'media';
 interface BookmarksContentProps {
   user: NonNullable<ComponentProps<typeof PlatformPageShell>['user']> & {
@@ -20,6 +33,7 @@ interface BookmarksContentProps {
     trails?: Array<{ id: string; language: string; xp: number; level: number }>;
   };
   initialPosts: SavedPost[];
+  initialReplies?: SavedReply[];
 }
 
 function hasCode(post: SavedPost) {
@@ -30,12 +44,29 @@ function hasMedia(post: SavedPost) {
   return Boolean(post.image_url || post.attachments?.length || post.music);
 }
 
-export function BookmarksContent({ user, initialPosts }: BookmarksContentProps) {
+function replyHasCode(reply: SavedReply) {
+  return Boolean(reply.code_snippet?.trim() || /(^|\n)\s{0,3}(`{3,}|~{3,})/.test(reply.body));
+}
+
+function replyHasMedia(reply: SavedReply) {
+  const media = parseReplyMedia(reply.body);
+  return Boolean(media.attachments.length || media.music);
+}
+
+const EMPTY_REPLIES: SavedReply[] = [];
+
+export function BookmarksContent({
+  user,
+  initialPosts,
+  initialReplies = EMPTY_REPLIES,
+}: BookmarksContentProps) {
   const router = useRouter();
   const { text } = useLocalizedText();
   const reduced = useReducedMotion();
   const [posts, setPosts] = useState(initialPosts);
   const [removedIds, setRemovedIds] = useState<Set<string>>(() => new Set());
+  const [replies, setReplies] = useState(initialReplies);
+  const [removedReplyIds, setRemovedReplyIds] = useState<Set<string>>(() => new Set());
   const [searchQuery, setSearchQuery] = useState('');
   const [searchOpen, setSearchOpen] = useState(false);
   const [filter, setFilter] = useState<Filter>('all');
@@ -50,6 +81,23 @@ export function BookmarksContent({ user, initialPosts }: BookmarksContentProps) 
     setPosts(initialPosts);
     setRemovedIds(new Set());
   }, [initialPosts]);
+  useEffect(() => {
+    setReplies(initialReplies);
+    setRemovedReplyIds(new Set());
+  }, [initialReplies]);
+  useEffect(() => {
+    const onChange = (event: Event) => {
+      const { answerId, bookmarked } = (event as CustomEvent<AnswerBookmarkChange>).detail;
+      setRemovedReplyIds((previous) => {
+        const next = new Set(previous);
+        if (bookmarked) next.delete(answerId);
+        else next.add(answerId);
+        return next;
+      });
+    };
+    window.addEventListener(ANSWER_BOOKMARK_CHANGED, onChange);
+    return () => window.removeEventListener(ANSWER_BOOKMARK_CHANGED, onChange);
+  }, []);
 
   const savedPosts = posts.filter((post) => !removedIds.has(post.id));
   const query = searchQuery.trim().toLocaleLowerCase();
@@ -69,6 +117,22 @@ export function BookmarksContent({ user, initialPosts }: BookmarksContentProps) 
       ].some((value) => value?.toLocaleLowerCase().includes(query))
     );
   });
+  const savedReplies = replies.filter((reply) => !removedReplyIds.has(reply.id));
+  const filteredReplies = savedReplies.filter((reply) => {
+    if (filter === 'code' && !replyHasCode(reply)) return false;
+    if (filter === 'media' && !replyHasMedia(reply)) return false;
+    return (
+      !query ||
+      [reply.body, reply.author.username, reply.author.name].some((value) =>
+        value?.toLocaleLowerCase().includes(query)
+      )
+    );
+  });
+  const savedCount = savedPosts.length + savedReplies.length;
+  const items: SavedItem[] = [
+    ...filteredPosts.map((item) => ({ kind: 'post' as const, item })),
+    ...filteredReplies.map((item) => ({ kind: 'reply' as const, item })),
+  ].sort((a, b) => (b.item.saved_at ?? '').localeCompare(a.item.saved_at ?? ''));
   const filters = [
     { value: 'all' as const, label: text('Todos', 'All'), icon: Bookmark },
     { value: 'code' as const, label: text('Código', 'Code'), icon: Code2 },
@@ -111,9 +175,9 @@ export function BookmarksContent({ user, initialPosts }: BookmarksContentProps) 
           <h1>{text('Itens salvos', 'Bookmarks')}</h1>
           <output
             className={styles.count}
-            aria-label={`${savedPosts.length} ${savedPosts.length === 1 ? text('publicação salva', 'saved post') : text('publicações salvas', 'saved posts')}`}
+            aria-label={`${savedCount} ${savedCount === 1 ? text('item salvo', 'saved item') : text('itens salvos', 'saved items')}`}
           >
-            {savedPosts.length.toLocaleString()}
+            {savedCount.toLocaleString()}
           </output>
           <button
             ref={searchButton}
@@ -194,7 +258,7 @@ export function BookmarksContent({ user, initialPosts }: BookmarksContentProps) 
         </div>
       )}
 
-      {filteredPosts.length === 0 ? (
+      {items.length === 0 ? (
         <div className={styles.empty} role="status">
           {filtered ? (
             <Search size={32} aria-hidden="true" />
@@ -228,30 +292,34 @@ export function BookmarksContent({ user, initialPosts }: BookmarksContentProps) 
       ) : (
         <ul className={styles.list} aria-label={text('Publicações salvas', 'Saved posts')}>
           <AnimatePresence initial={false}>
-            {filteredPosts.map((post) => (
+            {items.map(({ kind, item }) => (
               <motion.li
-                key={post.id}
+                key={`${kind}:${item.id}`}
                 className={styles.item}
                 initial={false}
                 exit={{ opacity: 0 }}
                 transition={{ duration: reduced ? 0 : 0.16 }}
               >
-                <PostCard
-                  post={post}
-                  isOwner={post.author.username === user.username}
-                  flat
-                  onBookmarkToggle={handleBookmarkToggle}
-                  onDelete={(postId) =>
-                    setPosts((previous) => previous.filter((item) => item.id !== postId))
-                  }
-                  onEdit={(postId, updatedPost) =>
-                    setPosts((previous) =>
-                      previous.map((item) =>
-                        item.id === postId ? { ...item, ...updatedPost } : item
+                {kind === 'reply' ? (
+                  <ProfileReplyThread reply={item} currentUser={user} />
+                ) : (
+                  <PostCard
+                    post={item}
+                    isOwner={item.author.username === user.username}
+                    flat
+                    onBookmarkToggle={handleBookmarkToggle}
+                    onDelete={(postId) =>
+                      setPosts((previous) => previous.filter((item) => item.id !== postId))
+                    }
+                    onEdit={(postId, updatedPost) =>
+                      setPosts((previous) =>
+                        previous.map((item) =>
+                          item.id === postId ? { ...item, ...updatedPost } : item
+                        )
                       )
-                    )
-                  }
-                />
+                    }
+                  />
+                )}
               </motion.li>
             ))}
           </AnimatePresence>

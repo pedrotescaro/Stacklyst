@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { PostDetailContent } from './PostDetailContent';
 import {
   REPLY_CREATED_EVENT,
@@ -45,6 +45,12 @@ vi.mock('@/hooks/useSoundEffects', () => ({
 
 vi.mock('@/hooks/usePostBookmark', () => ({
   usePostBookmark: () => ({
+    saved: false,
+    pending: false,
+    error: null,
+    toggle: vi.fn(),
+  }),
+  useAnswerBookmark: () => ({
     saved: false,
     pending: false,
     error: null,
@@ -375,7 +381,7 @@ describe('PostDetailContent focal reply mode', () => {
     expect(mocks.refresh).toHaveBeenCalled();
   });
 
-  it('lets the post author pin and unpin their root post as main profile post, but hides controls for others', async () => {
+  it('puts pin, edit, delete and who-can-reply in the owner menu instead of a header pill', async () => {
     const authorUser = { ...viewerUser, id: 'user-root', username: 'rootauthor' };
     mocks.fetch.mockResolvedValue({
       ok: true,
@@ -386,10 +392,16 @@ describe('PostDetailContent focal reply mode', () => {
       <PostDetailContent user={authorUser} post={{ ...makeThreadPost(), is_pinned: false }} />
     );
 
-    const pinButton = screen.getByRole('button', { name: 'Fixar no perfil' });
-    expect(pinButton).toHaveAttribute('aria-pressed', 'false');
-    fireEvent.click(pinButton);
+    expect(screen.queryByRole('button', { name: /Fixar no perfil|Fixado no perfil/ })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções' }));
+    expect(screen.getAllByRole('menuitem').map((item) => item.textContent)).toEqual([
+      'Excluir',
+      'Fixar no seu perfil',
+      'Editar',
+      'Altere quem pode responder',
+    ]);
 
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Fixar no seu perfil' }));
     await waitFor(() => {
       expect(mocks.fetch).toHaveBeenCalledWith('/api/posts/post-1/pin', {
         method: 'POST',
@@ -397,18 +409,60 @@ describe('PostDetailContent focal reply mode', () => {
         body: JSON.stringify({ pinned: true }),
       });
     });
-    expect(screen.getByRole('button', { name: 'Fixado no perfil' })).toHaveAttribute(
-      'aria-pressed',
-      'true'
-    );
-
-    // Dropdown menu also switches to Desafixar do perfil for the owner.
-    fireEvent.click(screen.getByTitle('Mais opções'));
-    expect(screen.getByRole('button', { name: 'Desafixar do perfil' })).toBeInTheDocument();
+    expect(screen.getByText('Fixado no perfil')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções' }));
+    expect(screen.getByRole('menuitem', { name: 'Desafixar do perfil' })).toBeInTheDocument();
 
     unmount();
     render(<PostDetailContent user={viewerUser} post={{ ...makeThreadPost(), is_pinned: true }} />);
-    expect(screen.queryByRole('button', { name: /Fixar|Fixado/ })).not.toBeInTheDocument();
     expect(screen.getByText('Fixado no perfil')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções' }));
+    expect(screen.queryByRole('menuitem', { name: /Excluir|Fixar|Editar/ })).toBeNull();
+    expect(screen.getByRole('menuitem', { name: 'Denunciar post' })).toBeInTheDocument();
+  });
+
+  it('changes who can reply by rewriting the post marker', async () => {
+    const authorUser = { ...viewerUser, id: 'user-root', username: 'rootauthor' };
+    const savedBody = 'Conteudo do post original\n\n🔒 Apenas seguidores podem responder';
+    mocks.fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ body: savedBody, language: null, code_snippet: null }),
+    });
+    render(<PostDetailContent user={authorUser} post={makeThreadPost()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Altere quem pode responder' }));
+    expect(screen.getByRole('radio', { name: /Qualquer pessoa/ })).toHaveAttribute(
+      'aria-checked',
+      'true'
+    );
+    // Like X, choosing an option saves it straight away.
+    fireEvent.click(
+      within(screen.getByRole('dialog', { name: 'Quem pode responder?' })).getByRole('radio', {
+        name: /Apenas seguidores/,
+      })
+    );
+
+    await waitFor(() =>
+      expect(mocks.fetch).toHaveBeenCalledWith('/api/posts/post-1', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ body: savedBody }),
+      })
+    );
+    await waitFor(() => expect(screen.queryByRole('dialog')).toBeNull());
+  });
+
+  it('deletes the root post from the menu and goes to the author profile', async () => {
+    const authorUser = { ...viewerUser, id: 'user-root', username: 'rootauthor' };
+    mocks.fetch.mockResolvedValue(new Response(null, { status: 204 }));
+    render(<PostDetailContent user={authorUser} post={makeThreadPost()} />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Mais opções' }));
+    fireEvent.click(screen.getByRole('menuitem', { name: 'Excluir' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Deletar' }));
+
+    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith('/profile/rootauthor'));
+    expect(mocks.fetch).toHaveBeenCalledWith('/api/posts/post-1', { method: 'DELETE' });
   });
 });

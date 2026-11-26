@@ -5,19 +5,7 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
-import {
-  Flag,
-  Heart,
-  MessageCircle,
-  BarChart2,
-  Trash2,
-  MoreHorizontal,
-  Pencil,
-  Pin,
-  PinOff,
-  Share2,
-  Check,
-} from 'lucide-react';
+import { MessageCircle, Pin, Share2, Check } from 'lucide-react';
 import { LikeButton } from './motion/LikeButton';
 import { BookmarkButton } from './motion/BookmarkButton';
 import { openReplyComposer, REPLY_CREATED_EVENT } from './composer/ReplyComposerDialog';
@@ -26,20 +14,14 @@ import { PostActionsBar, postActionClassName, InteractionCount } from '@/compone
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { ProfileName, ProfileFlag, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { LevelBadge } from '@/components/LevelBadge';
-import { BlockUserButton } from '@/components/BlockUserButton';
 import { readProfileIdentity, getAuthorDisplayName } from '@/lib/profile-style';
 import { MarkdownRenderer } from './MarkdownRenderer';
 import { PostLocation, SensitiveContentGate } from './PostPresentation';
 import { cn } from '@/lib/cn';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
-import { ComposeModal } from '@/components/motion/ComposeModal';
-import { MarkdownEditor, type NotionEditorRef } from '@/components/MarkdownEditor';
-import { CharCounter } from '@/components/motion/CharCounter';
-import { POST_CHAR_LIMIT } from '@/lib/motion';
 import { parsePostExtras } from '@/lib/post-composer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
-import { PostActionDialog } from '@/components/posts/PostActionDialog';
-import { ReportPostDialog } from '@/components/posts/ReportPostDialog';
+import { PostOptionsMenu, type PostBodyUpdate } from '@/components/posts/PostOptionsMenu';
 import type { PostAttachment, PostPoll } from '@/lib/post-content';
 import type { SpotifyProfileTrack } from '@/lib/profile-music';
 import {
@@ -91,7 +73,7 @@ interface PostCardProps {
   post: Post;
   isOwner?: boolean;
   onDelete?: (postId: string) => void;
-  onEdit?: (postId: string, updatedPost: any) => void;
+  onEdit?: (postId: string, update: PostBodyUpdate) => void;
   flat?: boolean;
   showPinnedBadge?: boolean;
   onBookmarkToggle?: (postId: string, bookmarked: boolean) => void;
@@ -115,10 +97,6 @@ export function PostCard({
 }: PostCardProps) {
   const router = useRouter();
   const { text } = useLocalizedText();
-  const [reportModalOpen, setReportModalOpen] = useState(false);
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
-  const [editModalOpen, setEditModalOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [shareCopied, setShareCopied] = useState(false);
   const [pinned, setPinned] = useState(Boolean(post.is_pinned));
   const [pinPending, setPinPending] = useState(false);
@@ -151,38 +129,16 @@ export function PostCard({
     return () => window.removeEventListener('stacklyst:block-changed', onBlock);
   }, [post.author.id, post.author_id]);
 
-  const [deleting, setDeleting] = useState(false);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
-  const [saving, setSaving] = useState(false);
-
   // Stateful copy of post fields for instant local updates
   const [postBody, setPostBody] = useState(post.body);
   const [postLanguage, setPostLanguage] = useState(post.language);
   const [postCodeSnippet, setPostCodeSnippet] = useState(post.code_snippet);
-  const [editBody, setEditBody] = useState(post.body);
-
-  const menuRef = useRef<HTMLDivElement>(null);
-  const menuButtonRef = useRef<HTMLButtonElement>(null);
-  const editBodyEditorRef = useRef<NotionEditorRef>(null);
 
   useEffect(() => {
     setPostBody(post.body);
     setPostLanguage(post.language);
     setPostCodeSnippet(post.code_snippet);
-    setEditBody(post.body);
   }, [post.body, post.language, post.code_snippet]);
-
-  // Click outside to close the dropdown menu
-  useEffect(() => {
-    if (!menuOpen) return;
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [menuOpen]);
 
   const handleCardClick = (e: React.MouseEvent) => {
     const target = e.target as HTMLElement;
@@ -341,70 +297,11 @@ export function PostCard({
     }
   };
 
-  const handleDelete = async () => {
-    if (deleting) return;
-    setDeleting(true);
-    setDeleteError(null);
-    try {
-      const res = await fetch(`/api/posts/${post.id}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        setDeleteModalOpen(false);
-        onDelete?.(post.id);
-      } else {
-        const data = await res.json().catch(() => null);
-        setDeleteError(
-          typeof data?.message === 'string'
-            ? data.message
-            : typeof data?.error === 'string'
-              ? data.error
-              : text(
-                  'Não foi possível excluir a publicação. Tente novamente.',
-                  'Could not delete the post. Try again.'
-                )
-        );
-      }
-    } catch (err) {
-      console.error(err);
-      setDeleteError(
-        text(
-          'Não foi possível conectar. Tente excluir novamente.',
-          'Could not connect. Try deleting again.'
-        )
-      );
-    } finally {
-      setDeleting(false);
-    }
-  };
-
-  const handleEditSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editBody.trim() || editBody.trim().length < 10) return;
-    setSaving(true);
-    try {
-      const res = await fetch(`/api/posts/${post.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ body: editBody.trim() }),
-      });
-      if (res.ok) {
-        const updatedPost = await res.json();
-        setEditModalOpen(false);
-        setPostBody(updatedPost.body);
-        setPostLanguage(updatedPost.language);
-        setPostCodeSnippet(updatedPost.code_snippet);
-        onEdit?.(post.id, updatedPost);
-      } else {
-        const data = await res.json();
-        alert(data.error || text('Falha ao editar post.', 'Failed to edit post.'));
-      }
-    } catch (err) {
-      console.error(err);
-      alert(text('Erro ao editar post.', 'Error editing post.'));
-    } finally {
-      setSaving(false);
-    }
+  const handleBodyUpdated = (update: PostBodyUpdate) => {
+    setPostBody(update.body);
+    setPostLanguage(update.language);
+    setPostCodeSnippet(update.code_snippet);
+    onEdit?.(post.id, update);
   };
 
   const presentedPost = parsePostExtras(postBody);
@@ -489,6 +386,15 @@ export function PostCard({
               </span>
             </div>
           </div>
+          <PostOptionsMenu
+            post={{ ...post, body: postBody }}
+            isOwner={isOwner}
+            pinned={pinned}
+            pinPending={pinPending}
+            onTogglePin={() => void handlePinToggle()}
+            onDeleted={(id) => onDelete?.(id)}
+            onUpdated={handleBodyUpdated}
+          />
         </div>
 
         <SensitiveContentGate isSensitive={presentedPost.isSensitive}>
@@ -616,240 +522,8 @@ export function PostCard({
               </div>
             )}
           </div>
-
-          {/* 6. More Options (...) */}
-          <div className="relative" ref={menuRef}>
-            <button
-              ref={menuButtonRef}
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                setMenuOpen(!menuOpen);
-              }}
-              className={postActionClassName}
-              title={text('Mais opções', 'More options')}
-            >
-              <MoreHorizontal aria-hidden="true" />
-            </button>
-
-            {menuOpen && (
-              <div
-                className="absolute right-0 bottom-full mb-1.5 w-64 max-w-[calc(100vw-3rem)] rounded-2xl border border-dd-border/80 bg-dd-surface p-1.5 shadow-2xl z-40 animate-slide-up"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                }}
-              >
-                {isOwner ? (
-                  <>
-                    <button
-                      type="button"
-                      disabled={pinPending}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setMenuOpen(false);
-                        void handlePinToggle();
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left disabled:opacity-50"
-                    >
-                      {pinned ? (
-                        <>
-                          <PinOff className="w-4 h-4 text-dd-muted" />
-                          <span>{text('Desafixar do perfil', 'Unpin from profile')}</span>
-                        </>
-                      ) : (
-                        <>
-                          <Pin className="w-4 h-4 text-dd-accent" />
-                          <span>{text('Fixar no perfil', 'Pin to profile')}</span>
-                        </>
-                      )}
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setEditModalOpen(true);
-                        setMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
-                    >
-                      <Pencil className="w-4 h-4 text-dd-muted" />
-                      <span>{text('Editar', 'Edit')}</span>
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setDeleteError(null);
-                        setDeleteModalOpen(true);
-                        setMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-red-400 hover:bg-red-500/10 transition-colors cursor-pointer text-left"
-                    >
-                      <Trash2 className="w-4 h-4 text-red-400" />
-                      <span>{text('Excluir', 'Delete')}</span>
-                    </button>
-                  </>
-                ) : (
-                  <>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        setReportModalOpen(true);
-                        setMenuOpen(false);
-                      }}
-                      className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
-                    >
-                      <Flag className="w-4 h-4 text-dd-muted" />
-                      <span>{text('Denunciar', 'Report')}</span>
-                    </button>
-                    {(post.author.id ?? post.author_id) && (
-                      <BlockUserButton
-                        userId={(post.author.id ?? post.author_id)!}
-                        username={post.author.username}
-                        className="w-full text-left"
-                      />
-                    )}
-                  </>
-                )}
-              </div>
-            )}
-          </div>
         </PostActionsBar>
       </article>
-
-      {reportModalOpen && (
-        <ReportPostDialog
-          postId={post.id}
-          onClose={() => setReportModalOpen(false)}
-          returnFocusRef={menuButtonRef}
-        />
-      )}
-
-      {deleteModalOpen && (
-        <PostActionDialog
-          variant="confirm"
-          titleId={`delete-post-title-${post.id}`}
-          descriptionId={`delete-post-description-${post.id}`}
-          busy={deleting}
-          onClose={() => setDeleteModalOpen(false)}
-          returnFocusRef={menuButtonRef}
-        >
-          <h3
-            id={`delete-post-title-${post.id}`}
-            className="text-xl font-extrabold leading-6 text-dd-text"
-          >
-            {text('Deletar postagem?', 'Delete post?')}
-          </h3>
-          <p
-            id={`delete-post-description-${post.id}`}
-            className="mt-2 text-[15px] leading-5 text-dd-muted"
-          >
-            {text(
-              'Isso não pode ser desfeito, e a postagem será removida do seu perfil, do feed de quem segue você e dos resultados de busca.',
-              "This can't be undone and it will be removed from your profile, the feed of anyone following you, and search results."
-            )}
-          </p>
-
-          {deleteError && (
-            <p role="alert" className="mt-3 text-sm text-red-500 dark:text-red-400">
-              {deleteError}
-            </p>
-          )}
-
-          <div className="mt-6 flex flex-col gap-3">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                handleDelete();
-              }}
-              disabled={deleting}
-              className="dd-touch min-h-11 w-full cursor-pointer rounded-full bg-[#f4212e] px-6 text-[15px] font-bold text-white transition-colors hover:bg-[#dc1e29] focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#f4212e] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {deleting ? text('Deletando...', 'Deleting...') : text('Deletar', 'Delete')}
-            </button>
-            <button
-              type="button"
-              data-dialog-initial-focus
-              disabled={deleting}
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                setDeleteModalOpen(false);
-              }}
-              className="dd-touch min-h-11 w-full cursor-pointer rounded-full border border-dd-border px-6 text-[15px] font-bold text-dd-text transition-colors hover:bg-dd-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dd-accent disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {text('Cancelar', 'Cancel')}
-            </button>
-          </div>
-        </PostActionDialog>
-      )}
-
-      {/* EDIT POST MODAL */}
-      <ComposeModal
-        open={editModalOpen}
-        onClose={() => setEditModalOpen(false)}
-        hasDraft={editBody !== postBody}
-        onDiscard={() => setEditBody(postBody)}
-      >
-        <form
-          onSubmit={handleEditSubmit}
-          className="space-y-4"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="flex gap-3">
-            <AuthorAvatar
-              username={post.author.username}
-              avatar_url={post.author.avatar_url}
-              avatar_config={post.author.avatar_config}
-            />
-
-            <div className="flex-grow min-w-0 space-y-3 relative">
-              <h3 className="text-sm font-black text-dd-text">
-                {text('Editar publicação', 'Edit post')}
-              </h3>
-              <MarkdownEditor
-                ref={editBodyEditorRef}
-                value={editBody}
-                onChange={(val) => setEditBody(val)}
-                maxLength={POST_CHAR_LIMIT}
-                minHeight="8rem"
-                placeholder={text('Editar conteúdo...', 'Edit content...')}
-              />
-              <div className="flex justify-end">
-                <CharCounter text={editBody} limit={POST_CHAR_LIMIT} />
-              </div>
-            </div>
-          </div>
-
-          <div className="border-t border-dd-border/50 pt-3 flex items-center justify-end gap-2">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                e.preventDefault();
-                setEditModalOpen(false);
-              }}
-              className="text-xs font-bold text-dd-muted hover:text-dd-text py-2 px-4 rounded-lg hover:bg-dd-surface transition-all cursor-pointer"
-            >
-              {text('Cancelar', 'Cancel')}
-            </button>
-            <button
-              type="submit"
-              onClick={(e) => e.stopPropagation()}
-              disabled={saving || !editBody.trim() || editBody.length >= POST_CHAR_LIMIT}
-              className="bg-blue-500 hover:bg-blue-600 disabled:opacity-50 text-white text-xs font-bold py-2 px-5 rounded-lg transition-colors cursor-pointer"
-            >
-              {saving ? text('Salvando...', 'Saving...') : text('Salvar', 'Save')}
-            </button>
-          </div>
-        </form>
-      </ComposeModal>
     </div>
   );
 }

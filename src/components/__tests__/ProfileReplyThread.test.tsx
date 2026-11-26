@@ -86,7 +86,7 @@ describe('profile reply publications', () => {
     await waitFor(() =>
       expect(screen.getByRole('button', { name: 'Remover dos salvos' })).not.toBeDisabled()
     );
-    expect(fetcher).toHaveBeenCalledWith('/api/posts/post/bookmark', {
+    expect(fetcher).toHaveBeenCalledWith('/api/answers/answer/bookmark', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ bookmarked: true }),
@@ -198,5 +198,49 @@ describe('profile reply publications', () => {
     expect(screen.getByText('Música: Faixa da resposta')).toBeInTheDocument();
     expect(screen.getByAltText('gif-da-resposta')).toBeInTheDocument();
     expect(screen.queryByText(/stacklyst-reply-media/)).not.toBeInTheDocument();
+  });
+  it('saves only the chosen reply, never the other replies of the same thread', async () => {
+    const saved = new Set<string>();
+    const fetcher = vi.fn(async (input: unknown, init?: RequestInit) => {
+      const id = String(input).match(/answers\/([^/]+)\/bookmark/)?.[1] ?? '';
+      if (init?.method === 'POST') saved.add(id);
+      return Response.json({ bookmarked: saved.has(id) });
+    });
+    vi.stubGlobal('fetch', fetcher);
+    const currentUser = { id: 'owner', username: 'responder' };
+    render(
+      <>
+        <ProfileReplyThread reply={{ ...reply, id: 'first' }} currentUser={currentUser} />
+        <ProfileReplyThread reply={{ ...reply, id: 'second' }} currentUser={currentUser} />
+      </>
+    );
+    await waitFor(() => expect(fetcher).toHaveBeenCalledTimes(2));
+    fireEvent.click(screen.getAllByRole('button', { name: 'Salvar' })[0]);
+    await waitFor(() =>
+      expect(screen.getByRole('button', { name: 'Remover dos salvos' })).not.toBeDisabled()
+    );
+    expect(screen.getAllByRole('button', { name: 'Salvar' })).toHaveLength(1);
+    expect([...saved]).toEqual(['first']);
+    expect(fetcher.mock.calls.some(([url]) => String(url).includes('/api/posts/'))).toBe(false);
+  });
+
+  it('gives the original post above a reply its own top-right menu', () => {
+    const currentUser = { id: 'owner', username: 'original' };
+    render(
+      <ProfileReplyThread
+        reply={{
+          ...reply,
+          post: { ...reply.post, author: { ...author('original'), id: 'owner' } },
+        }}
+        currentUser={currentUser}
+      />
+    );
+    fireEvent.click(screen.getAllByRole('button', { name: 'Mais opções' })[0]);
+    expect(screen.getAllByRole('menuitem').map((item) => item.textContent)).toEqual([
+      'Excluir',
+      'Fixar no seu perfil',
+      'Editar',
+      'Altere quem pode responder',
+    ]);
   });
 });

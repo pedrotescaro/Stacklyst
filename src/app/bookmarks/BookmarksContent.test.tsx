@@ -55,7 +55,7 @@ describe('Bookmarks collection', () => {
   it('filters actual saved content, searches music and restores all results', async () => {
     render(<BookmarksContent user={user} initialPosts={posts} />);
     expect(screen.getAllByRole('article')).toHaveLength(3);
-    expect(screen.getByLabelText('3 publicações salvas')).toBeInTheDocument();
+    expect(screen.getByLabelText('3 itens salvos')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Código' }));
     await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(1));
     expect(screen.getByText('Exemplo de TypeScript.')).toBeInTheDocument();
@@ -92,7 +92,7 @@ describe('Bookmarks collection', () => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ bookmarked: false }),
     });
-    expect(screen.getByLabelText('2 publicações salvas')).toBeInTheDocument();
+    expect(screen.getByLabelText('2 itens salvos')).toBeInTheDocument();
     await act(async () => finish(Response.json({ message: 'Falhou' }, { status: 500 })));
     await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(3));
     expect(screen.getAllByRole('article')[0]).toHaveTextContent('Leitura para estudar depois.');
@@ -101,7 +101,7 @@ describe('Bookmarks collection', () => {
     expect(
       within(screen.getAllByRole('article')[0]).getByRole('button', { name: 'Remover dos salvos' })
     ).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByLabelText('3 publicações salvas')).toBeInTheDocument();
+    expect(screen.getByLabelText('3 itens salvos')).toBeInTheDocument();
   });
 
   it('keeps a confirmed removal out of the list and provides a useful empty state', async () => {
@@ -121,6 +121,6 @@ describe('Bookmarks collection', () => {
     view.rerender(<BookmarksContent user={user} initialPosts={[posts[1]]} />);
     await waitFor(() => expect(screen.getAllByRole('article')).toHaveLength(1));
     expect(screen.getByRole('article')).toHaveTextContent('Exemplo de TypeScript.');
-    expect(screen.getByLabelText('1 publicação salva')).toBeInTheDocument();
+    expect(screen.getByLabelText('1 item salvo')).toBeInTheDocument();
   });
 });

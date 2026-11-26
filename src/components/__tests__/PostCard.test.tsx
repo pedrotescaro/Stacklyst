@@ -215,7 +215,7 @@ describe('PostCard', () => {
     const { container } = render(<PostCard post={pythonPost} flat />);
     const menu = screen.getByRole('button', { name: 'Mais opções' });
     await user.click(menu);
-    await user.click(screen.getByRole('button', { name: 'Denunciar' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Denunciar post' }));
     const dialog = screen.getByRole('dialog', { name: 'Denunciar postagem' });
     expect(container).not.toContainElement(dialog);
     expect(within(dialog).getByRole('button', { name: 'Fechar' })).toHaveFocus();
@@ -245,7 +245,7 @@ describe('PostCard', () => {
     render(<PostCard post={pythonPost} flat />);
     const menu = screen.getByRole('button', { name: 'Mais opções' });
     await user.click(menu);
-    await user.click(screen.getByRole('button', { name: 'Denunciar' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Denunciar post' }));
     const dialog = within(screen.getByRole('dialog', { name: 'Denunciar postagem' }));
     const reason = dialog.getByRole('radio', { name: 'Assédio / Bullying' });
     await user.click(reason);
@@ -288,7 +288,7 @@ describe('PostCard', () => {
     );
     const menu = screen.getByRole('button', { name: 'Mais opções' });
     await user.click(menu);
-    await user.click(screen.getByRole('button', { name: 'Excluir' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Excluir' }));
 
     const dialog = screen.getByRole('dialog', { name: 'Deletar postagem?' });
     expect(container).not.toContainElement(dialog);
@@ -336,7 +336,7 @@ describe('PostCard', () => {
     vi.stubGlobal('fetch', fetchMock);
     render(<PostCard post={pythonPost} isOwner flat onDelete={onDelete} />);
     await user.click(screen.getByRole('button', { name: 'Mais opções' }));
-    await user.click(screen.getByRole('button', { name: 'Excluir' }));
+    await user.click(screen.getByRole('menuitem', { name: 'Excluir' }));
     expect(fetchMock).not.toHaveBeenCalled();
     await user.click(screen.getByRole('button', { name: 'Deletar' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('Servidor indisponível');

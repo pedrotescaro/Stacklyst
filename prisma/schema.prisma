@@ -235,6 +235,7 @@ model User {
   sent_messages          Message[]              @relation("sent_messages")
   received_messages      Message[]              @relation("received_messages")
   bookmarks              Bookmark[]
+  answer_bookmarks       AnswerBookmark[]
   notifications          Notification[]
   notifications_acted    Notification[]         @relation("NotificationActor")
   reports                Report[]
@@ -835,7 +836,8 @@ model Answer {
   author  User         @relation(fields: [author_id], references: [id], onDelete: Cascade)
   parent  Answer?      @relation("AnswerReplies", fields: [parent_id], references: [id], onDelete: Cascade)
   replies Answer[]     @relation("AnswerReplies")
-  votes   AnswerVote[]
+  votes     AnswerVote[]
+  bookmarks AnswerBookmark[]
 
   @@index([parent_id])
 }
@@ -1169,6 +1171,20 @@ model Bookmark {
   post Post @relation(fields: [post_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, post_id])
+  @@index([created_at])
+}
+
+/// A saved reply. Kept apart from Bookmark so saving one reply never saves its whole thread.
+model AnswerBookmark {
+  id         String   @id @default(uuid())
+  user_id    String
+  answer_id  String
+  created_at DateTime @default(now())
+
+  user   User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  answer Answer @relation(fields: [answer_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, answer_id])
   @@index([created_at])
 }
 

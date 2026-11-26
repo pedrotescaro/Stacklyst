@@ -12,11 +12,12 @@ import { parseReplyMedia } from '@/lib/reply-media';
 import { parsePostExtras } from '@/lib/post-composer';
 import { PostAttachments } from '@/components/posts/PostAttachments';
 import { ReplyOwnerMenu } from '@/components/replies/ReplyOwnerMenu';
+import { ThreadItemMenu } from '@/components/posts/ThreadItemMenu';
 import { ShareLinkButton } from '@/components/posts/ShareLinkButton';
 import { ReplyEditForm } from '@/components/replies/ReplyEditForm';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
-import { usePostBookmark } from '@/hooks/usePostBookmark';
+import { useAnswerBookmark } from '@/hooks/usePostBookmark';
 import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
 import { LikeButton } from '@/components/motion/LikeButton';
 import { BookmarkButton } from '@/components/motion/BookmarkButton';
@@ -129,12 +130,22 @@ function ThreadContext({
   kind,
   href,
   label,
+  viewerId,
+  onPostDeleted,
 }: {
   item: any;
   kind: 'post' | 'reply';
   href: string;
   label: string;
+  viewerId?: string | null;
+  onPostDeleted?: () => void;
 }) {
+  // Edits and deletes from the context's own menu apply here without a reload.
+  const [body, setBody] = useState<string>(item.body ?? '');
+  const [editing, setEditing] = useState(false);
+  const [removed, setRemoved] = useState(false);
+  if (removed) return null;
+  const current = { ...item, body };
   return (
     <div className="flex min-w-0 gap-3">
       <div className="flex shrink-0 flex-col items-center">
@@ -149,9 +160,40 @@ function ThreadContext({
         <div aria-hidden="true" className="mt-1.5 min-h-6 w-px flex-1 bg-dd-border" />
       </div>
       <div className="min-w-0 flex-1 pb-5">
-        <ThreadIdentity author={item.author} createdAt={item.created_at} />
-        <ThreadBody item={item} kind={kind} compact />
-        {item.code_snippet && !item.body?.includes('```') && (
+        <div className="flex items-start justify-between gap-2">
+          <ThreadIdentity author={item.author} createdAt={item.created_at} />
+          {kind === 'post' ? (
+            <ThreadItemMenu
+              kind="post"
+              item={current}
+              viewerId={viewerId}
+              onDeleted={onPostDeleted}
+              onUpdated={(update) => setBody(update.body)}
+            />
+          ) : (
+            <ThreadItemMenu
+              kind="reply"
+              item={current}
+              viewerId={viewerId}
+              onEdit={() => setEditing(true)}
+              onDeleted={() => setRemoved(true)}
+            />
+          )}
+        </div>
+        {editing ? (
+          <ReplyEditForm
+            answerId={item.id}
+            body={body}
+            onCancel={() => setEditing(false)}
+            onSaved={(next) => {
+              setBody(next);
+              setEditing(false);
+            }}
+          />
+        ) : (
+          <ThreadBody item={current} kind={kind} compact />
+        )}
+        {item.code_snippet && !body.includes('```') && (
           <pre className="mt-2 max-h-32 overflow-auto rounded-lg bg-dd-surface p-3 text-xs text-dd-text">
             <code>{item.code_snippet}</code>
           </pre>
@@ -178,8 +220,8 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
   const [voting, setVoting] = useState(false);
   const [error, setError] = useState('');
   const targetPostId = reply?.post_id ?? reply?.post?.id;
-  const { isBookmarked, bookmarkPending, bookmarkError, toggleBookmark } = usePostBookmark(
-    targetPostId,
+  const { isBookmarked, bookmarkPending, bookmarkError, toggleBookmark } = useAnswerBookmark(
+    reply?.id,
     Boolean(currentUser)
   );
   const [blockedIds, setBlockedIds] = useState<Set<string>>(() => new Set());
@@ -250,6 +292,8 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
         kind="post"
         href={`/post/${reply.post_id}`}
         label={text('Ver publicação original', 'View original post')}
+        viewerId={currentUser?.id}
+        onPostDeleted={() => setDeleted(true)}
       />
       {reply.parent?.author && (
         <ThreadContext
@@ -257,6 +301,7 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
           kind="reply"
           href={`/post/${reply.post_id}#answer-${reply.parent.id}`}
           label={text('Ver resposta anterior', 'View previous reply')}
+          viewerId={currentUser?.id}
         />
       )}
       <div className="flex min-w-0 gap-3">
@@ -269,11 +314,21 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
           />
         </Link>
         <div className="min-w-0 flex-1">
-          <ThreadIdentity
-            author={reply.author}
-            createdAt={reply.created_at}
-            href={`/post/${reply.post_id}/reply/${reply.id}`}
-          />
+          <div className="flex items-start justify-between gap-2">
+            <ThreadIdentity
+              author={reply.author}
+              createdAt={reply.created_at}
+              href={`/post/${reply.post_id}/reply/${reply.id}`}
+            />
+            {isOwnReply && (
+              <ReplyOwnerMenu
+                answerId={reply.id}
+                placement="down"
+                onEdit={() => setEditing(true)}
+                onDeleted={() => setDeleted(true)}
+              />
+            )}
+          </div>
           <p className="mt-1 text-xs text-dd-muted">
             {text('Respondendo a', 'Replying to')}{' '}
             <Link
@@ -326,13 +381,6 @@ export function ProfileReplyThread({ reply, currentUser }: { reply: any; current
                 disabled={bookmarkPending || !targetPostId || !currentUser}
               />
               <ShareLinkButton path={href} label={text('Compartilhar resposta', 'Share reply')} />
-              {isOwnReply && (
-                <ReplyOwnerMenu
-                  answerId={reply.id}
-                  onEdit={() => setEditing(true)}
-                  onDeleted={() => setDeleted(true)}
-                />
-              )}
             </PostActionsBar>
           </div>
           {bookmarkError && (

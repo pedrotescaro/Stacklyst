@@ -64,7 +64,7 @@ describe('reply action bars', () => {
     }));
   });
 
-  it('persists the parent post from an answer and reads the saved state after reload', async () => {
+  it('saves only this answer, not the thread’s post, and reads the saved state after reload', async () => {
     let saved = false;
     const fetcher = vi.fn(async (_input: unknown, init?: RequestInit) => {
       if (init?.method === 'POST') saved = JSON.parse(String(init.body)).bookmarked;
@@ -80,7 +80,9 @@ describe('reply action bars', () => {
       />
     );
     await waitFor(() =>
-      expect(fetcher).toHaveBeenCalledWith('/api/posts/post-1/bookmark', { cache: 'no-store' })
+      expect(fetcher).toHaveBeenCalledWith(`/api/answers/${answer.id}/bookmark`, {
+        cache: 'no-store',
+      })
     );
     fireEvent.click(screen.getByRole('button', { name: 'Responder a este comentário' }));
     expect(await screen.findByRole('textbox', { name: 'Postar sua resposta' })).toBeInTheDocument();

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { MessageCircle, BarChart2 } from 'lucide-react';
 import { useHydrationSafeRelativeTime } from '@/hooks/useHydrationSafeRelativeTime';
-import { usePostBookmark } from '@/hooks/usePostBookmark';
+import { useAnswerBookmark } from '@/hooks/usePostBookmark';
 import { PostActionsBar, postActionClassName } from '@/components/PostActionsBar';
 import { LikeButton } from '@/components/motion/LikeButton';
 import { BookmarkButton } from '@/components/motion/BookmarkButton';
@@ -73,8 +73,8 @@ export function AnswerCard({
   const targetPostId = answer.post_id || postId;
   const router = useRouter();
   const replyHref = targetPostId ? `/post/${targetPostId}/reply/${answer.id}` : null;
-  const { isBookmarked, bookmarkPending, bookmarkError, toggleBookmark } = usePostBookmark(
-    targetPostId,
+  const { isBookmarked, bookmarkPending, bookmarkError, toggleBookmark } = useAnswerBookmark(
+    answer.id,
     Boolean(currentUser)
   );
   const [reposted, setReposted] = useState(false);

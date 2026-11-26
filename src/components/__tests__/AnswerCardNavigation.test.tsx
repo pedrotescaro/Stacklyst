@@ -19,6 +19,12 @@ vi.mock('@/hooks/usePostBookmark', () => ({
     error: null,
     toggle: vi.fn(),
   }),
+  useAnswerBookmark: () => ({
+    saved: false,
+    pending: false,
+    error: null,
+    toggle: vi.fn(),
+  }),
 }));
 
 function makeAnswer(overrides: Partial<AnswerNode> = {}): AnswerNode {

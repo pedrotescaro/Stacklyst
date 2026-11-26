@@ -10,12 +10,16 @@ interface PostActionDialogProps {
   onClose: () => void;
   returnFocusRef: RefObject<HTMLButtonElement | null>;
   children: ReactNode;
-  variant?: 'default' | 'confirm' | 'report';
+  variant?: 'default' | 'confirm' | 'report' | 'sheet';
 }
 
 const panelClasses = {
   default: 'max-w-md space-y-4 overflow-y-auto border border-dd-border bg-dd-surface p-5',
-  confirm: 'max-w-[320px] overflow-y-auto bg-dd-bg p-8 shadow-2xl outline-none',
+  confirm:
+    'max-w-[320px] overflow-y-auto border border-dd-border/70 bg-dd-surface p-8 shadow-[0_12px_40px_rgba(0,0,0,0.5)] outline-none',
+  /** X-style choice sheet, on the same surface as the sidebar's "Mais" menu. */
+  sheet:
+    'max-w-[400px] overflow-y-auto border border-dd-border/70 bg-dd-surface px-6 pt-6 pb-4 shadow-[0_12px_40px_rgba(0,0,0,0.5)] outline-none',
   report:
     'flex max-w-[456px] flex-col overflow-hidden border border-dd-border bg-dd-bg outline-none',
 };

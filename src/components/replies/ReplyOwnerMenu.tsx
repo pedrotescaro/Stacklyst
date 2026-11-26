@@ -4,6 +4,13 @@ import { useEffect, useRef, useState } from 'react';
 import { MoreHorizontal, Pencil, Trash2 } from 'lucide-react';
 import { postActionClassName } from '@/components/PostActionsBar';
 import { PostActionDialog } from '@/components/posts/PostActionDialog';
+import {
+  POST_MENU_ICON,
+  POST_MENU_ITEM,
+  POST_MENU_ITEM_DANGER,
+  POST_MENU_PANEL,
+  POST_MENU_TRIGGER,
+} from '@/components/posts/menu-styles';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 
 /**
@@ -14,10 +21,13 @@ export function ReplyOwnerMenu({
   answerId,
   onEdit,
   onDeleted,
+  placement = 'up',
 }: {
   answerId: string;
   onEdit: () => void;
   onDeleted: () => void;
+  /** 'down' when the trigger sits in a header, 'up' in a bottom action bar. */
+  placement?: 'up' | 'down';
 }) {
   const { text } = useLocalizedText();
   const [open, setOpen] = useState(false);
@@ -77,40 +87,28 @@ export function ReplyOwnerMenu({
     }
   }
 
-  const itemClass =
-    'flex w-full cursor-pointer items-center gap-2.5 rounded-xl px-3 py-2 text-left text-xs font-semibold transition-colors';
-
   return (
-    <div className="relative" ref={menu}>
+    <div className="relative shrink-0" ref={menu}>
       <button
         ref={trigger}
         type="button"
         onClick={() => setOpen(!open)}
-        className={postActionClassName}
+        className={placement === 'down' ? POST_MENU_TRIGGER : postActionClassName}
         title={text('Mais opções', 'More options')}
         aria-label={text('Mais opções da resposta', 'More reply options')}
         aria-haspopup="menu"
         aria-expanded={open}
       >
-        <MoreHorizontal aria-hidden="true" />
+        <MoreHorizontal
+          className={placement === 'down' ? 'h-5 w-5' : undefined}
+          aria-hidden="true"
+        />
       </button>
       {open && (
         <div
           role="menu"
-          className="absolute right-0 bottom-full z-40 mb-1.5 w-44 rounded-2xl border border-dd-border/80 bg-dd-surface p-1.5 shadow-2xl animate-slide-up"
+          className={`absolute right-0 ${placement === 'down' ? 'top-0' : 'bottom-full mb-1.5'} ${POST_MENU_PANEL}`}
         >
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onEdit();
-            }}
-            className={`${itemClass} text-dd-text hover:bg-dd-bg`}
-          >
-            <Pencil className="h-4 w-4 text-dd-muted" aria-hidden="true" />
-            {text('Editar', 'Edit')}
-          </button>
           <button
             type="button"
             role="menuitem"
@@ -119,10 +117,22 @@ export function ReplyOwnerMenu({
               setError('');
               setConfirming(true);
             }}
-            className={`${itemClass} text-red-400 hover:bg-red-500/10`}
+            className={POST_MENU_ITEM_DANGER}
           >
-            <Trash2 className="h-4 w-4 text-red-400" aria-hidden="true" />
+            <Trash2 className={POST_MENU_ICON} aria-hidden="true" />
             {text('Excluir', 'Delete')}
+          </button>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              onEdit();
+            }}
+            className={POST_MENU_ITEM}
+          >
+            <Pencil className={POST_MENU_ICON} aria-hidden="true" />
+            {text('Editar', 'Edit')}
           </button>
         </div>
       )}
@@ -169,7 +179,7 @@ export function ReplyOwnerMenu({
               data-dialog-initial-focus
               disabled={deleting}
               onClick={() => setConfirming(false)}
-              className="dd-touch min-h-11 w-full cursor-pointer rounded-full border border-dd-border px-6 text-[15px] font-bold text-dd-text transition-colors hover:bg-dd-surface focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dd-accent disabled:cursor-not-allowed disabled:opacity-60"
+              className="dd-touch min-h-11 w-full cursor-pointer rounded-full border border-dd-border px-6 text-[15px] font-bold text-dd-text transition-colors hover:bg-dd-bg/60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-dd-accent disabled:cursor-not-allowed disabled:opacity-60"
             >
               {text('Cancelar', 'Cancel')}
             </button>

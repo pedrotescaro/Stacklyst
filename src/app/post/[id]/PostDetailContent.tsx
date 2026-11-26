@@ -22,7 +22,6 @@ import {
   Check,
   Zap,
   Pin,
-  PinOff,
   Share2,
   MoreHorizontal,
 } from 'lucide-react';
@@ -42,6 +41,7 @@ import { ReportPostDialog } from '@/components/posts/ReportPostDialog';
 import { ThreadAncestors } from '@/components/posts/ThreadAncestors';
 import { ReplyEditForm } from '@/components/replies/ReplyEditForm';
 import { ReplyOwnerMenu } from '@/components/replies/ReplyOwnerMenu';
+import { PostOptionsMenu } from '@/components/posts/PostOptionsMenu';
 import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { PostLocation, SensitiveContentGate } from '@/components/PostPresentation';
 import { parsePostExtras } from '@/lib/post-composer';
@@ -55,6 +55,7 @@ import {
   writePostBookmark,
   type PostBookmarkChange,
 } from '@/lib/client/post-bookmarks';
+import { useAnswerBookmark } from '@/hooks/usePostBookmark';
 import { POST_PIN_CHANGED, writePostPin, type PostPinChange } from '@/lib/client/post-pins';
 
 type AnswerDetailNode = AnswerNode & {
@@ -289,6 +290,8 @@ export function PostDetailContent({
   };
 
   const [isSaved, setIsSaved] = useState(initialIsSaved);
+  // A focused reply is saved on its own; saving it must not save the whole thread.
+  const focusedBookmark = useAnswerBookmark(focusedAnswer?.id, Boolean(focusedAnswer));
   const [bookmarkPending, setBookmarkPending] = useState(false);
   const [bookmarkError, setBookmarkError] = useState<string | null>(null);
   const bookmarkLock = useRef(false);
@@ -638,7 +641,33 @@ export function PostDetailContent({
             </div>
           </div>
 
-          {focusedAnswer && <ThreadAncestors post={post} ancestors={ancestorReplies} />}
+          {focusedAnswer && (
+            <ThreadAncestors
+              post={post}
+              ancestors={ancestorReplies}
+              viewerId={user.id}
+              onPostDeleted={() => {
+                router.push(`/profile/${post.author.username}`);
+                router.refresh();
+              }}
+              onPostUpdated={(update) => setPost((prev: any) => ({ ...prev, ...update }))}
+              onReplyUpdated={(answerId, body) =>
+                setPost((prev: any) => ({
+                  ...prev,
+                  answers: updateAnswerInTree(prev.answers ?? [], answerId, (node) => ({
+                    ...node,
+                    body,
+                  })),
+                }))
+              }
+              onReplyDeleted={(answerId) =>
+                setPost((prev: any) => ({
+                  ...prev,
+                  answers: removeAnswerFromTree(prev.answers ?? [], answerId),
+                }))
+              }
+            />
+          )}
 
           {/* Post Detail Card (root post or focal reply treated as post) */}
           <article
@@ -649,6 +678,12 @@ export function PostDetailContent({
               focusedAnswer ? 'px-4 sm:px-6 pt-2 pb-4 sm:pb-6' : 'p-4 sm:p-6'
             )}
           >
+            {!focusedAnswer && post.is_pinned && (
+              <div className="-mb-3 flex items-center gap-1.5 text-[11px] font-semibold text-dd-accent">
+                <Pin className="h-3.5 w-3.5" aria-hidden="true" />
+                <span>{text('Fixado no perfil', 'Pinned to profile')}</span>
+              </div>
+            )}
             <div className="flex items-start justify-between gap-3">
               <div className="flex items-start gap-2.5 sm:gap-3 min-w-0">
                 <Link
@@ -715,6 +750,7 @@ export function PostDetailContent({
                   {isFocusedOwnAnswer && (
                     <ReplyOwnerMenu
                       answerId={focusedAnswer.id}
+                      placement="down"
                       onEdit={() => setEditingFocused(true)}
                       onDeleted={() => {
                         router.push(parentHref);
@@ -723,42 +759,20 @@ export function PostDetailContent({
                     />
                   )}
                 </div>
-              ) : isPostAuthor ? (
-                <button
-                  type="button"
-                  onClick={() => void handlePinToggle()}
-                  disabled={pinPending}
-                  aria-pressed={Boolean(post.is_pinned)}
-                  title={
-                    post.is_pinned
-                      ? text('Desafixar post principal do perfil', 'Unpin main profile post')
-                      : text('Fixar como post principal do perfil', 'Pin as main profile post')
-                  }
-                  className={cn(
-                    'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-[11px] font-semibold transition-colors shrink-0 cursor-pointer disabled:opacity-50',
-                    post.is_pinned
-                      ? 'border-dd-accent/40 bg-dd-accent/15 text-dd-accent hover:bg-dd-accent/25'
-                      : 'border-dd-border bg-dd-surface/50 text-dd-muted hover:text-dd-text hover:bg-dd-surface'
-                  )}
-                >
-                  {post.is_pinned ? (
-                    <>
-                      <Pin className="h-3.5 w-3.5" aria-hidden="true" />
-                      <span>{text('Fixado no perfil', 'Pinned to profile')}</span>
-                    </>
-                  ) : (
-                    <>
-                      <Pin className="h-3.5 w-3.5" aria-hidden="true" />
-                      <span>{text('Fixar no perfil', 'Pin to profile')}</span>
-                    </>
-                  )}
-                </button>
-              ) : post.is_pinned ? (
-                <span className="inline-flex items-center gap-1.5 rounded-full border border-dd-accent/30 bg-dd-accent/10 px-2.5 py-1 text-[11px] font-semibold text-dd-accent shrink-0">
-                  <Pin className="h-3.5 w-3.5" aria-hidden="true" />
-                  <span>{text('Fixado no perfil', 'Pinned to profile')}</span>
-                </span>
-              ) : null}
+              ) : (
+                <PostOptionsMenu
+                  post={post}
+                  isOwner={isPostAuthor}
+                  pinned={Boolean(post.is_pinned)}
+                  pinPending={pinPending}
+                  onTogglePin={() => void handlePinToggle()}
+                  onDeleted={() => {
+                    router.push(`/profile/${post.author.username}`);
+                    router.refresh();
+                  }}
+                  onUpdated={(update) => setPost((prev: any) => ({ ...prev, ...update }))}
+                />
+              )}
             </div>
             {pinError && (
               <p role="alert" className="text-xs text-red-400">
@@ -909,13 +923,17 @@ export function PostDetailContent({
                 {/* 4. BookmarkButton */}
                 <BookmarkButton
                   appearance="post"
-                  isSaved={isSaved}
-                  onToggle={handleBookmarkToggle}
-                  disabled={bookmarkPending}
+                  isSaved={focusedAnswer ? focusedBookmark.isBookmarked : isSaved}
+                  onToggle={
+                    focusedAnswer
+                      ? () => void focusedBookmark.toggleBookmark()
+                      : handleBookmarkToggle
+                  }
+                  disabled={focusedAnswer ? focusedBookmark.bookmarkPending : bookmarkPending}
                 />
-                {bookmarkError && (
+                {(focusedAnswer ? focusedBookmark.bookmarkError : bookmarkError) && (
                   <span role="alert" className="text-xs text-red-400">
-                    {bookmarkError}
+                    {focusedAnswer ? focusedBookmark.bookmarkError : bookmarkError}
                   </span>
                 )}
 
@@ -969,7 +987,7 @@ export function PostDetailContent({
                 </div>
 
                 {/* 6. More Options (...) */}
-                {!isFocusedOwnAnswer && (
+                {focusedAnswer && !isFocusedOwnAnswer && (
                   <div className="relative" ref={menuRef}>
                     <button
                       type="button"
@@ -994,44 +1012,18 @@ export function PostDetailContent({
                           e.preventDefault();
                         }}
                       >
-                        {!focusedAnswer && isPostAuthor ? (
-                          <button
-                            type="button"
-                            disabled={pinPending}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              setMenuOpen(false);
-                              void handlePinToggle();
-                            }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left disabled:opacity-50"
-                          >
-                            {post.is_pinned ? (
-                              <>
-                                <PinOff className="w-4 h-4 text-dd-muted" />
-                                <span>{text('Desafixar do perfil', 'Unpin from profile')}</span>
-                              </>
-                            ) : (
-                              <>
-                                <Pin className="w-4 h-4 text-dd-accent" />
-                                <span>{text('Fixar no perfil', 'Pin to profile')}</span>
-                              </>
-                            )}
-                          </button>
-                        ) : (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              e.preventDefault();
-                              setReportModalOpen(true);
-                              setMenuOpen(false);
-                            }}
-                            className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
-                          >
-                            <Flag className="w-4 h-4 text-dd-muted" />
-                            <span>{text('Denunciar', 'Report')}</span>
-                          </button>
-                        )}
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setReportModalOpen(true);
+                            setMenuOpen(false);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-semibold text-dd-text hover:bg-dd-bg transition-colors cursor-pointer text-left"
+                        >
+                          <Flag className="w-4 h-4 text-dd-muted" />
+                          <span>{text('Denunciar', 'Report')}</span>
+                        </button>
                       </div>
                     )}
                   </div>
