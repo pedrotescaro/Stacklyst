@@ -501,13 +501,15 @@ export function ProfileContent({
   return (
     <div data-testid="profile-shell" className="dd-platform-shell dd-platform-shell--fullscreen">
       <Sidebar user={user} hideMobileHeader />
-      <div
-        className={`dd-platform-body min-w-0 flex-grow bg-dd-bg ${styles.pageLayout} ${profileStyles.scope}`}
-        data-secondary={Boolean(preferences?.appearance.secondaryColor)}
-        data-custom-card={Boolean(preferences?.appearance.cardColor)}
-        style={preferences ? profileAppearanceStyle(preferences) : undefined}
-      >
-        <main className={`dd-platform-main ${styles.pageMain}`}>
+      <div className={`dd-platform-body min-w-0 flex-grow bg-dd-bg ${styles.pageLayout}`}>
+        {/* The owner's colors theme their profile column only. The right rail is the
+            viewer's own widgets, so it keeps the site's colors. */}
+        <main
+          className={`dd-platform-main bg-dd-bg ${styles.pageMain} ${profileStyles.scope}`}
+          data-secondary={Boolean(preferences?.appearance.secondaryColor)}
+          data-custom-card={Boolean(preferences?.appearance.cardColor)}
+          style={preferences ? profileAppearanceStyle(preferences) : undefined}
+        >
           <div className={styles.content} data-testid="profile-layout">
             <div className={headerStyles.sticky}>
               <header className={headerStyles.header}>

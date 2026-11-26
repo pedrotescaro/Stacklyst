@@ -1,3 +1,4 @@
+import { DEFAULT_PROFILE_PREFERENCES } from '@/lib/profile-customization';
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -572,5 +573,24 @@ describe('Compact social profile content', () => {
     expect(articles.map((el) => el.textContent)).toEqual(['Post antigo', 'Post recente']);
     expect(articles[0]).toHaveAttribute('data-pinned', 'true');
     expect(articles[1]).toHaveAttribute('data-pinned', 'false');
+  });
+
+  describe('Profile colors', () => {
+    it('themes only the profile column, never the viewer’s right rail', () => {
+      const preferences = {
+        ...DEFAULT_PROFILE_PREFERENCES,
+        appearance: { ...DEFAULT_PROFILE_PREFERENCES.appearance, accentColor: '#fbbf24' },
+      };
+      render(
+        <ProfileContent
+          {...props}
+          profileUser={{ ...props.profileUser, customization: { preferences } } as never}
+        />
+      );
+      const rail = screen.getByRole('complementary', { name: 'Painel pessoal' });
+      expect(screen.getByRole('main')).toHaveStyle({ '--color-dd-accent': '#fbbf24' });
+      for (let node: HTMLElement | null = rail; node; node = node.parentElement)
+        expect(node.style.getPropertyValue('--color-dd-accent')).toBe('');
+    });
   });
 });
