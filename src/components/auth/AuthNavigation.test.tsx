@@ -21,10 +21,12 @@ vi.mock('@/components/BrandReveal', () => ({ BrandReveal: () => <span>Preparando
 
 import LoginPage from '@/app/login/page';
 import RegisterPage from '@/app/register/page';
+import { RECOVERY_LOGIN_EMAIL_KEY } from '@/lib/auth-redirect';
 
 beforeEach(() => {
   vi.clearAllMocks();
   window.history.replaceState({}, '', '/');
+  window.sessionStorage.clear();
   vi.stubGlobal('fetch', mocks.fetch);
   mocks.signInWithPassword.mockResolvedValue({ error: null });
   mocks.signInWithOAuth.mockResolvedValue({ error: null });
@@ -45,6 +47,22 @@ describe('Authentication navigation', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
     await waitFor(() => expect(mocks.push).toHaveBeenCalledWith(destination));
     expect(mocks.refresh).toHaveBeenCalledOnce();
+  });
+
+  it('signs in with the verified recovery email prefilled and the new password', async () => {
+    window.history.replaceState({}, '', '/login?passwordReset=1');
+    window.sessionStorage.setItem(RECOVERY_LOGIN_EMAIL_KEY, 'owner@example.com');
+    render(<LoginPage />);
+    expect(screen.getByLabelText('Endereço de e-mail')).toHaveValue('owner@example.com');
+    expect(window.sessionStorage.getItem(RECOVERY_LOGIN_EMAIL_KEY)).toBeNull();
+
+    fireEvent.change(screen.getByLabelText('Senha'), { target: { value: 'new-strong-password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Entrar' }));
+    await waitFor(() => expect(mocks.push).toHaveBeenCalledWith('/feed'));
+    expect(mocks.signInWithPassword).toHaveBeenCalledWith({
+      email: 'owner@example.com',
+      password: 'new-strong-password',
+    });
   });
 
   it('preserves the deep link and account-add marker in OAuth without changing account saving', async () => {

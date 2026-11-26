@@ -1,7 +1,13 @@
+import { clearAuthCookiesAtScopes } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { apiHandler } from '@/lib/api-handler';
+import { JWT_COOKIE_NAME, JWT_COOKIE_OPTIONS } from '@/lib/config';
+import { logger } from '@/lib/logger';
+import { cookieOptions, SPOTIFY_SESSION_COOKIE } from '@/lib/spotify-connect';
+import { ACCOUNT_COOKIE, ACCOUNT_COOKIE_OPTIONS } from '@/lib/supabase/account-vault';
+import { getSupabaseUrl } from '@/lib/supabase/env';
 import { createClient } from '@/lib/supabase/server';
 import {
   RECOVERY_COOKIE,
@@ -27,9 +33,9 @@ async function recoverySession() {
 
 export const GET = apiHandler(
   async () => {
-    await recoverySession();
+    const { user } = await recoverySession();
     return NextResponse.json(
-      { valid: true },
+      { valid: true, email: user.email ?? null },
       { headers: { 'Cache-Control': 'private, no-store' } }
     );
   },
@@ -61,7 +67,30 @@ export const POST = apiHandler(
       { success: true },
       { headers: { 'Cache-Control': 'private, no-store' } }
     );
+    const signedOut = await supabase.auth.signOut({ scope: 'global' }).then(
+      ({ error }) => !error,
+      () => false
+    );
+    if (!signedOut) {
+      // Supabase already accepted the password. Remove this browser's cookies even
+      // when the provider cannot complete the sign-out request.
+      logger.warn('Password updated but Supabase sign-out did not complete');
+      const store = await cookies();
+      const project = new URL(getSupabaseUrl()).hostname.split('.')[0];
+      await clearAuthCookiesAtScopes({
+        getAll: () => store.getAll(),
+        setAll: (entries) => {
+          for (const { name, value, options } of entries)
+            response.cookies.set(name, value, options);
+        },
+        storageKey: `sb-${project}-auth-token`,
+        scopes: [{ path: '/' }],
+      });
+    }
     response.cookies.set(RECOVERY_COOKIE, '', { ...RECOVERY_COOKIE_OPTIONS, maxAge: 0 });
+    response.cookies.set(JWT_COOKIE_NAME, '', { ...JWT_COOKIE_OPTIONS, maxAge: 0 });
+    response.cookies.set(ACCOUNT_COOKIE, '', { ...ACCOUNT_COOKIE_OPTIONS, maxAge: 0 });
+    response.cookies.set(SPOTIFY_SESSION_COOKIE, '', cookieOptions(0));
     return response;
   },
   { resolveSession: false }

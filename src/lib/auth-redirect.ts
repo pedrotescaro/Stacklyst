@@ -1,3 +1,5 @@
+export const RECOVERY_LOGIN_EMAIL_KEY = 'stacklyst-recovery-login-email';
+
 /** Keep post-auth navigation on this site, including deep-link queries/fragments. */
 export function getAuthReturnPath(next: unknown): string {
   if (

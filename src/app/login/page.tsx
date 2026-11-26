@@ -6,7 +6,7 @@ import { BrandLogo } from '@/components/BrandLogo';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { isSupabasePublicConfigured } from '@/lib/supabase/env';
-import { getAuthReturnPath } from '@/lib/auth-redirect';
+import { getAuthReturnPath, RECOVERY_LOGIN_EMAIL_KEY } from '@/lib/auth-redirect';
 import { OAUTH_PROVIDER_LABELS, type OAuthProvider } from '@/lib/supabase/oauth';
 import { ArrowLeft, Eye, EyeOff } from 'lucide-react';
 import AuthHero from '@/components/auth/AuthHero';
@@ -87,6 +87,15 @@ export default function LoginPage() {
       const queryParams = new URLSearchParams(window.location.search);
       setIsAddAccount(queryParams.get('addAccount') === '1');
       setReturnPath(getAuthReturnPath(queryParams.get('next')));
+      if (queryParams.get('passwordReset') === '1') {
+        try {
+          const recoveryEmail = sessionStorage.getItem(RECOVERY_LOGIN_EMAIL_KEY);
+          sessionStorage.removeItem(RECOVERY_LOGIN_EMAIL_KEY);
+          if (recoveryEmail) setEmail(recoveryEmail);
+        } catch {
+          /* Manual sign-in is available with browser storage disabled. */
+        }
+      }
       const queryError = queryParams.get('error');
       if (queryError) {
         setError(queryError);
@@ -329,11 +338,12 @@ export default function LoginPage() {
                 </label>
                 <input
                   id="email"
+                  name="username"
                   type="email"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                   required
-                  autoComplete="email"
+                  autoComplete="username"
                   className="h-11 sm:h-[49px] w-full rounded-lg border border-white/[0.08] bg-[#1a1a1a] px-4 text-sm text-white outline-none transition-colors placeholder:text-zinc-500 hover:border-white/15 focus:border-[#469cff]"
                   placeholder={copy.emailPlaceholder}
                 />
@@ -349,6 +359,7 @@ export default function LoginPage() {
                 <div className="relative">
                   <input
                     id="password"
+                    name="password"
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(event) => setPassword(event.target.value)}

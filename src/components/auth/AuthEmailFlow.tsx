@@ -4,9 +4,8 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, CheckCircle2, Mail, LockKeyhole, Eye, EyeOff } from 'lucide-react';
 import { BrandLogo } from '@/components/BrandLogo';
-import { createClient } from '@/lib/supabase/client';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { getAuthReturnPath } from '@/lib/auth-redirect';
+import { getAuthReturnPath, RECOVERY_LOGIN_EMAIL_KEY } from '@/lib/auth-redirect';
 
 export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmation' }) {
   const { isEnglish } = useLanguage();
@@ -33,6 +32,7 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
     void (async () => {
       try {
         const response = await fetch('/api/auth/reset-password', { cache: 'no-store' });
+        const payload = response.ok ? await response.json() : null;
         if (!active) return;
         if (!response.ok) {
           setError(
@@ -41,7 +41,10 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
               'This link is invalid or expired. Request a new recovery email.'
             )
           );
-        } else setReady(true);
+        } else {
+          if (typeof payload?.email === 'string') setEmail(payload.email);
+          setReady(true);
+        }
       } catch {
         if (active)
           setError(
@@ -83,6 +86,7 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
 
   async function submit(event: React.FormEvent) {
     event.preventDefault();
+    if (busy || !ready) return;
     setError('');
     if (mode === 'reset' && password !== confirmation) {
       setError(text('As senhas precisam ser iguais.', 'The passwords must match.'));
@@ -91,7 +95,6 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
     setBusy(true);
     try {
       if (mode === 'reset') {
-        const supabase = createClient();
         const updateResponse = await fetch('/api/auth/reset-password', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -104,10 +107,14 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
               'We could not update your password. Request a new link and try again.'
             )
           );
-        await Promise.allSettled([
-          supabase.auth.signOut({ scope: 'global' }),
-          fetch('/api/auth/logout', { method: 'POST' }),
-        ]);
+        try {
+          sessionStorage.removeItem('stacklyst_user');
+          if (email) sessionStorage.setItem(RECOVERY_LOGIN_EMAIL_KEY, email);
+        } catch {
+          /* Recovery also works with browser storage disabled. */
+        }
+        setPassword('');
+        setConfirmation('');
       } else {
         const response = await fetch(
           mode === 'forgot' ? '/api/auth/forgot-password' : '/api/auth/confirm-email',
@@ -225,6 +232,22 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
               </div>
             ) : (
               <>
+                {email && (
+                  <div>
+                    <label htmlFor="recovery-account" className="mb-2 block text-sm">
+                      {text('E-mail da conta', 'Account email')}
+                    </label>
+                    <input
+                      id="recovery-account"
+                      name="username"
+                      type="email"
+                      autoComplete="username"
+                      readOnly
+                      value={email}
+                      className={inputClass}
+                    />
+                  </div>
+                )}
                 <div>
                   <label htmlFor="new-password" className="mb-2 block text-sm">
                     {text('Nova senha', 'New password')}
@@ -232,9 +255,11 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
                   <div className="relative">
                     <input
                       id="new-password"
+                      name="password"
                       type={visible ? 'text' : 'password'}
                       autoComplete="new-password"
                       minLength={8}
+                      maxLength={128}
                       required
                       value={password}
                       onChange={(event) => setPassword(event.target.value)}
@@ -261,9 +286,11 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
                   </label>
                   <input
                     id="confirm-new-password"
+                    name="password-confirmation"
                     type={visible ? 'text' : 'password'}
                     autoComplete="new-password"
                     minLength={8}
+                    maxLength={128}
                     required
                     value={confirmation}
                     onChange={(event) => setConfirmation(event.target.value)}
@@ -287,13 +314,25 @@ export function AuthEmailFlow({ mode }: { mode: 'forgot' | 'reset' | 'confirmati
             </button>
           </form>
         )}
-        <Link
-          href="/login"
-          className="mt-8 inline-flex items-center gap-2 py-2 text-sm text-zinc-300 hover:text-white"
-        >
-          <ArrowLeft size={16} aria-hidden="true" />
-          {text('Voltar para o login', 'Back to sign in')}
-        </Link>
+        {mode === 'reset' && done ? (
+          // Reload so authentication uses the cleared cookies and a fresh routing cache.
+          <a
+            href="/login?passwordReset=1"
+            className="mt-8 inline-flex items-center gap-2 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            <ArrowLeft size={16} aria-hidden="true" />
+            {text('Entrar com a nova senha', 'Sign in with your new password')}
+          </a>
+        ) : (
+          <Link
+            href="/login"
+            prefetch={mode !== 'reset' ? undefined : false}
+            className="mt-8 inline-flex items-center gap-2 py-2 text-sm text-zinc-300 hover:text-white"
+          >
+            <ArrowLeft size={16} aria-hidden="true" />
+            {text('Voltar para o login', 'Back to sign in')}
+          </Link>
+        )}
       </div>
     </main>
   );

@@ -1,22 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 const mocks = vi.hoisted(() => ({
-  getUser: vi.fn(),
-  updateUser: vi.fn(),
-  signOut: vi.fn(),
   fetch: vi.fn(),
 }));
 vi.mock('@/contexts/LanguageContext', () => ({ useLanguage: () => ({ isEnglish: false }) }));
 vi.mock('@/components/BrandLogo', () => ({ BrandLogo: () => <span>Stacklyst</span> }));
-vi.mock('@/lib/supabase/client', () => ({ createClient: () => ({ auth: mocks }) }));
+import { RECOVERY_LOGIN_EMAIL_KEY } from '@/lib/auth-redirect';
 import { AuthEmailFlow } from './AuthEmailFlow';
 
 beforeEach(() => {
   vi.clearAllMocks();
   vi.stubGlobal('fetch', mocks.fetch);
-  mocks.getUser.mockResolvedValue({ data: { user: { id: 'verified-user' } }, error: null });
-  mocks.updateUser.mockResolvedValue({ error: null });
-  mocks.signOut.mockResolvedValue({ error: null });
+  window.sessionStorage.clear();
   mocks.fetch.mockResolvedValue(new Response(JSON.stringify({ success: true }), { status: 200 }));
 });
 describe('Email recovery interface', () => {
@@ -43,12 +38,18 @@ describe('Email recovery interface', () => {
       'href',
       '/forgot-password'
     );
-    expect(mocks.updateUser).not.toHaveBeenCalled();
+    expect(mocks.fetch).toHaveBeenCalledTimes(1);
   });
-  it('requires matching passwords, updates through Supabase and signs out after success', async () => {
+  it('shows the verified account and returns to login after a single password update request', async () => {
+    mocks.fetch.mockResolvedValueOnce(Response.json({ valid: true, email: 'owner@example.com' }));
+    window.sessionStorage.setItem('stacklyst_user', 'previous-user');
     render(<AuthEmailFlow mode="reset" />);
     const submit = screen.getByRole('button', { name: 'Salvar nova senha' });
     await waitFor(() => expect(submit).toBeEnabled());
+    const account = screen.getByLabelText('E-mail da conta');
+    expect(account).toHaveValue('owner@example.com');
+    expect(account).toHaveAttribute('readonly');
+    expect(account).toHaveAttribute('autocomplete', 'username');
     fireEvent.change(screen.getByLabelText('Nova senha'), {
       target: { value: 'new-strong-password' },
     });
@@ -57,7 +58,7 @@ describe('Email recovery interface', () => {
     });
     fireEvent.click(submit);
     expect(screen.getByRole('alert')).toHaveTextContent('precisam ser iguais');
-    expect(mocks.updateUser).not.toHaveBeenCalled();
+    expect(mocks.fetch).toHaveBeenCalledTimes(1);
     fireEvent.change(screen.getByLabelText('Confirme a nova senha'), {
       target: { value: 'new-strong-password' },
     });
@@ -70,6 +71,12 @@ describe('Email recovery interface', () => {
         body: JSON.stringify({ password: 'new-strong-password' }),
       })
     );
-    expect(mocks.signOut).toHaveBeenCalledWith({ scope: 'global' });
+    expect(mocks.fetch).toHaveBeenCalledTimes(2);
+    expect(screen.getByRole('link', { name: 'Entrar com a nova senha' })).toHaveAttribute(
+      'href',
+      '/login?passwordReset=1'
+    );
+    expect(sessionStorage.getItem('stacklyst_user')).toBeNull();
+    expect(sessionStorage.getItem(RECOVERY_LOGIN_EMAIL_KEY)).toBe('owner@example.com');
   });
 });
