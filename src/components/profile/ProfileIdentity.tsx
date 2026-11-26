@@ -26,6 +26,7 @@ import {
   readableColor,
   type ProfileIdentityStyle,
 } from '@/lib/profile-style';
+import { JESTER_FRAME_ART as JESTER } from '@/lib/profile-frame-art/jester';
 import styles from './ProfileIdentity.module.css';
 
 type IdentityBackgrounds = { light: string; dark: string };
@@ -61,6 +62,46 @@ export function ProfileName({
     <span className={`${styles.name} ${className}`} style={variables}>
       {children}
     </span>
+  );
+}
+
+/** Red-and-blue jester hat with a bell swinging on each tip. */
+function JesterHat() {
+  const { panels } = JESTER;
+  const bell = (cx: number) => (
+    <g className={styles.jesterBell}>
+      <circle
+        cx={cx}
+        cy={JESTER.bellY}
+        r="6"
+        fill={JESTER.yellow}
+        stroke={JESTER.outline}
+        strokeWidth="1.4"
+      />
+      <circle cx={cx - 1.8} cy={JESTER.bellY - 2} r="1.8" fill="#fff" fillOpacity=".7" />
+    </g>
+  );
+  return (
+    <svg className={styles.jesterHat} viewBox="0 0 140 100" fill="none" aria-hidden="true">
+      <g stroke={JESTER.outline} strokeWidth="1.6" strokeLinejoin="round">
+        <path d={panels.leftOuter} fill={JESTER.red} />
+        <path d={panels.leftInner} fill={JESTER.blue} />
+        <path d={panels.centerLeft} fill={JESTER.blue} />
+        <path d={panels.centerRight} fill={JESTER.red} />
+        <path d={panels.rightOuter} fill={JESTER.blue} />
+        <path d={panels.rightInner} fill={JESTER.red} />
+        <path d={JESTER.band} fill={JESTER.yellow} />
+      </g>
+      <path
+        d={JESTER.shine}
+        stroke="#fff"
+        strokeOpacity=".35"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
+      {bell(8)}
+      {bell(132)}
+    </svg>
   );
 }
 
@@ -203,6 +244,7 @@ export function AvatarFrame({
           <circle cx="90" cy="104" r="3" fill="#f4cf74" />
         </svg>
       )}
+      {frame?.decoration === 'jester' && <JesterHat />}
       {frame?.decoration === 'hat' && (
         <svg className={styles.hatOverlay} viewBox="0 0 120 52" fill="none" aria-hidden="true">
           <path

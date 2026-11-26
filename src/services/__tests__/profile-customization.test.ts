@@ -114,6 +114,30 @@ describe('Profile persistence and awards', () => {
       decoration: 'blood',
     });
   });
+  it('offers the jester hat frame to everyone and equips it', async () => {
+    const catalog = await getProfileCatalog();
+    expect(catalog.frames.find((frame) => frame.id === 'jester')).toEqual({
+      id: 'jester',
+      name: 'Chapéu de Bobo da Corte',
+      color: '#ef4444',
+      decoration: 'jester',
+    });
+    await saveProfileCustomization('owner', {
+      version: 0,
+      preferences: { ...DEFAULT_PROFILE_PREFERENCES, frameId: 'jester' },
+    });
+    expect(mocks.updateUser).toHaveBeenCalledWith(
+      expect.objectContaining({
+        data: expect.objectContaining({
+          avatar_config: expect.objectContaining({
+            profileStyle: expect.objectContaining({
+              frame: { id: 'jester', color: '#ef4444', decoration: 'jester' },
+            }),
+          }),
+        }),
+      })
+    );
+  });
   it('equips the blood frame for an account with no achievements', async () => {
     await saveProfileCustomization('owner', {
       version: 0,

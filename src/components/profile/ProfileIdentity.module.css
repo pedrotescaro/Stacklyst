@@ -69,6 +69,47 @@
 .frame[data-decoration='blood']::after {
   content: none;
 }
+.frame[data-decoration='jester']::after {
+  border-width: 3px;
+  border-color: #ef4444 #4c5fd7 #4c5fd7 #ef4444;
+}
+/* Wider than the avatar so the horns and bells hang past both sides. */
+.jesterHat {
+  position: absolute;
+  width: 130%;
+  height: 92.9%;
+  left: -15%;
+  top: -40%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 3;
+}
+.jesterBell {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: jesterBell 2.4s ease-in-out infinite;
+}
+@keyframes jesterBell {
+  0%,
+  70%,
+  100% {
+    transform: rotate(0deg);
+  }
+  78% {
+    transform: rotate(14deg);
+  }
+  86% {
+    transform: rotate(-10deg);
+  }
+  94% {
+    transform: rotate(5deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .jesterBell {
+    animation: none;
+  }
+}
 .alienOverlay {
   position: absolute;
   inset: -12%;

@@ -1,5 +1,6 @@
 import type { AvatarFrameDefinition } from '@/lib/profile-customization';
 import { BLOOD_FRAME_ART } from '@/lib/profile-frame-art/blood';
+import { JESTER_FRAME_ART } from '@/lib/profile-frame-art/jester';
 
 /** Curated colors only: no user CSS or remote assets enter the avatar ring. */
 const rings = [
@@ -54,6 +55,12 @@ export const EXTRA_PROFILE_FRAMES: AvatarFrameDefinition[] = [
   { id: 'laurel', name: 'Louros', color: '#d4af37', decoration: 'laurel' },
   { id: 'aurora', name: 'Aurora', color: '#2dd4bf', decoration: 'aurora' },
   { id: 'blood', name: 'Sangue Carmesim', color: BLOOD_FRAME_ART.color, decoration: 'blood' },
+  {
+    id: 'jester',
+    name: 'Chapéu de Bobo da Corte',
+    color: JESTER_FRAME_ART.color,
+    decoration: 'jester',
+  },
 ];
 
 export function getFrameRingBackground(id: string) {

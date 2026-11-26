@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import { View } from 'react-native';
 import Svg, { Circle, G, Line, Path, Rect } from 'react-native-svg';
 import { BLOOD_FRAME_ART } from '@/lib/profile-frame-art/blood';
+import { JESTER_FRAME_ART } from '@/lib/profile-frame-art/jester';
 
 const frameColors: Record<string, string> = {
   minimal: '#94a3b8',
@@ -13,6 +14,7 @@ const frameColors: Record<string, string> = {
   galaxy: '#a78bfa',
   hacker: '#4ade80',
   blood: BLOOD_FRAME_ART.color,
+  jester: JESTER_FRAME_ART.color,
   halloween: '#fb923c',
   christmas: '#4ade80',
   legendary: '#fbbf24',
