@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useSoundEffects } from '@/hooks/useSoundEffects';
+import { useSoundEffects, useSoundPreference } from '@/hooks/useSoundEffects';
 import { LessonSessionHeader } from './LessonSessionHeader';
 import type { Lesson, LessonSessionState, OrderItem } from '@/lib/lessons/types';
 import { LessonFooter } from '@/components/lesson/LessonFooter';
@@ -40,13 +40,7 @@ interface LessonClientProps {
 export function LessonClient({ lesson, returnTo, completedStepIds = [] }: LessonClientProps) {
   const { text } = useLocalizedText();
   const router = useRouter();
-  const [soundEnabled, setSoundEnabled] = useState(true);
-
-  useEffect(() => {
-    setSoundEnabled(localStorage.getItem('stacklyst-sound') !== 'false');
-  }, []);
-
-  const { playSound } = useSoundEffects(soundEnabled);
+  const { playSound } = useSoundEffects(useSoundPreference());
 
   // Trail lessons play by game rules (real lives, timer, stars); others keep the classic flow.
   const gameMode = lesson.mode;

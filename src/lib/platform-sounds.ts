@@ -23,6 +23,33 @@ const FILES: Record<SoundType, string> = {
   send_dm: 'SendDM_Sound.ogg',
   notification: 'Notification_Sound.ogg',
 };
+interface Note {
+  wave: OscillatorType;
+  frequency: number;
+  /** Slides to this pitch by the end of the note. */
+  glideTo?: number;
+  /** Seconds after the sound starts. */
+  at: number;
+  peak: number;
+  length: number;
+}
+
+/**
+ * The answer sounds lessons have always used: a rising E-A-E chord for a right
+ * answer and a falling buzz for a wrong one. They are synthesized so they start
+ * with the click, even before any audio file has downloaded.
+ */
+const QUIZ_CUES: Partial<Record<SoundType, Note[]>> = {
+  quiz_correct: [
+    { wave: 'triangle', frequency: 659.25, at: 0, peak: 0.25, length: 0.14 },
+    { wave: 'sine', frequency: 880, at: 0.07, peak: 0.35, length: 0.28 },
+    { wave: 'sine', frequency: 1318.51, at: 0.08, peak: 0.12, length: 0.2 },
+  ],
+  quiz_incorrect: [
+    { wave: 'sawtooth', frequency: 220, glideTo: 160, at: 0, peak: 0.2, length: 0.2 },
+  ],
+};
+
 /** Skip encoded leading silence, retaining a short attack margin to avoid clicks. */
 export function soundOnset(buffer: AudioBuffer) {
   let first = buffer.length;
@@ -129,10 +156,35 @@ export class PlatformSounds {
       this.nodes.delete(node);
     };
   }
+  /** One synthesized note with a 4 ms attack, so it never clicks. */
+  private tone(ctx: AudioContext, note: Note) {
+    const oscillator = ctx.createOscillator(),
+      gain = ctx.createGain(),
+      start = ctx.currentTime + note.at,
+      end = start + note.length;
+    oscillator.type = note.wave;
+    oscillator.frequency.setValueAtTime(note.frequency, start);
+    if (note.glideTo) oscillator.frequency.linearRampToValueAtTime(note.glideTo, end);
+    gain.gain.setValueAtTime(0, start);
+    gain.gain.linearRampToValueAtTime(note.peak, start + 0.004);
+    gain.gain.exponentialRampToValueAtTime(0.001, end);
+    oscillator.connect(gain);
+    gain.connect(ctx.destination);
+    this.track(oscillator, gain);
+    oscillator.start(start);
+    oscillator.stop(end + 0.01);
+  }
   private emit(ctx: AudioContext, type: SoundType) {
+    // Lesson answers keep their bright chord and low buzz: instant, and as loud
+    // as the rest of the platform's sounds.
+    const cue = QUIZ_CUES[type];
+    if (cue) {
+      cue.forEach((note) => this.tone(ctx, note));
+      return;
+    }
     const decoded = this.buffers.get(FILES[type]);
-    // Keep the short quiz cues; long recorded rewards play only when already decoded.
-    if (decoded && type !== 'quiz_correct' && type !== 'quiz_incorrect') {
+    // Recorded sounds play once decoded; a cold click gets a short local cue instead.
+    if (decoded) {
       const source = ctx.createBufferSource();
       source.buffer = decoded.buffer;
       source.connect(ctx.destination);
@@ -141,30 +193,10 @@ export class PlatformSounds {
       return;
     }
     const frequencies =
-      type === 'quiz_incorrect'
-        ? [220, 160]
-        : type === 'quiz_correct'
-          ? [659.25, 880, 1318.51]
-          : type === 'bookmark'
-            ? [784, 1047]
-            : type === 'like'
-              ? [660, 880]
-              : [523, 784];
-    frequencies.forEach((frequency, i) => {
-      const oscillator = ctx.createOscillator(),
-        gain = ctx.createGain(),
-        time = ctx.currentTime + i * 0.045;
-      oscillator.type = type === 'quiz_incorrect' ? 'sawtooth' : 'triangle';
-      oscillator.frequency.setValueAtTime(frequency, time);
-      gain.gain.setValueAtTime(0, time);
-      gain.gain.linearRampToValueAtTime(0.1, time + 0.004);
-      gain.gain.exponentialRampToValueAtTime(0.001, time + 0.12);
-      oscillator.connect(gain);
-      gain.connect(ctx.destination);
-      this.track(oscillator, gain);
-      oscillator.start(time);
-      oscillator.stop(time + 0.13);
-    });
+      type === 'bookmark' ? [784, 1047] : type === 'like' ? [660, 880] : [523, 784];
+    frequencies.forEach((frequency, i) =>
+      this.tone(ctx, { wave: 'triangle', frequency, at: i * 0.045, peak: 0.1, length: 0.12 })
+    );
   }
   stop() {
     this.revision++;

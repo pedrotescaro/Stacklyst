@@ -8,13 +8,14 @@ const buffer = {
   sampleRate: 1000,
   getChannelData: () => signal,
 } as unknown as AudioBuffer;
+let gains: { gain: { linearRampToValueAtTime: ReturnType<typeof vi.fn> } }[] = [];
 let contexts: FakeContext[],
   oscillators: ReturnType<typeof node>[],
   sources: ReturnType<typeof node>[];
 function node() {
   return {
     buffer: null,
-    frequency: { setValueAtTime: vi.fn() },
+    frequency: { setValueAtTime: vi.fn(), linearRampToValueAtTime: vi.fn() },
     connect: vi.fn(),
     disconnect: vi.fn(),
     start: vi.fn(),
@@ -44,7 +45,7 @@ class FakeContext {
     return oscillator;
   }
   createGain() {
-    return {
+    const gain = {
       gain: {
         setValueAtTime: vi.fn(),
         linearRampToValueAtTime: vi.fn(),
@@ -53,10 +54,13 @@ class FakeContext {
       connect: vi.fn(),
       disconnect: vi.fn(),
     };
+    gains.push(gain);
+    return gain;
   }
 }
 beforeEach(() => {
   contexts = [];
+  gains = [];
   oscillators = [];
   sources = [];
   vi.stubGlobal('AudioContext', FakeContext);
@@ -164,5 +168,20 @@ describe('Platform sound timing', () => {
         getChannelData: (i: number) => (i ? atStart : signal),
       })
     ).toBe(0);
+  });
+  it('plays the lesson answer chord and buzz at full volume, even when files are decoded', async () => {
+    const sounds = new PlatformSounds();
+    await sounds.prepare(['quiz_correct', 'quiz_incorrect']);
+    sounds.play('quiz_correct');
+    expect(sources).toHaveLength(0);
+    expect(oscillators.map((o) => o.frequency.setValueAtTime.mock.calls[0][0])).toEqual([
+      659.25, 880, 1318.51,
+    ]);
+    expect(gains.map((g) => g.gain.linearRampToValueAtTime.mock.calls[0][0])).toEqual([
+      0.25, 0.35, 0.12,
+    ]);
+    sounds.play('quiz_incorrect');
+    expect(oscillators[3].frequency.setValueAtTime).toHaveBeenCalledWith(220, 1);
+    expect(oscillators[3].frequency.linearRampToValueAtTime).toHaveBeenCalledWith(160, 1.2);
   });
 });

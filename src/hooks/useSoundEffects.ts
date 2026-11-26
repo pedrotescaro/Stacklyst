@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { PlatformSounds, type SoundType } from '../lib/platform-sounds';
 export type { SoundType } from '../lib/platform-sounds';
 const sounds = new PlatformSounds();
@@ -15,6 +15,22 @@ const visibility = () => {
 /** Explicit settings preview, including when the saved preference is disabled. */
 export function playSoundPreview(type: SoundType = 'notification') {
   sounds.play(type);
+}
+
+/** The saved "Efeitos sonoros" setting, kept in sync when Settings changes it. */
+export function useSoundPreference() {
+  const [enabled, setEnabled] = useState(true);
+  useEffect(() => {
+    const sync = () => setEnabled(localStorage.getItem('stacklyst-sound') !== 'false');
+    sync();
+    window.addEventListener('storage', sync);
+    window.addEventListener('stacklyst-sound-changed', sync);
+    return () => {
+      window.removeEventListener('storage', sync);
+      window.removeEventListener('stacklyst-sound-changed', sync);
+    };
+  }, []);
+  return enabled;
 }
 
 export function useSoundEffects(enabled: boolean = false) {

@@ -3,6 +3,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { ExerciseWorkspace } from '@/app/lesson/[lessonId]/ExerciseWorkspace';
 import type { ExerciseWorkspaceData } from '@/lib/exercises/types';
 
+const playSoundMock = vi.hoisted(() => vi.fn());
+vi.mock('@/hooks/useSoundEffects', () => ({
+  useSoundEffects: () => ({ playSound: playSoundMock }),
+  useSoundPreference: () => true,
+}));
+
 vi.mock('@/components/CodeEditor', () => ({
   CodeEditor: ({ value, onChange }: { value: string; onChange: (value: string) => void }) => (
     <textarea
@@ -208,5 +214,37 @@ describe('ExerciseWorkspace', () => {
     expect(screen.getByText('Avaliação não concluída')).toBeInTheDocument();
     expect(screen.queryByText(/0\/0 aprovados/)).not.toBeInTheDocument();
     expect(screen.getByText(/Os testes não foram executados/)).toBeInTheDocument();
+  });
+
+  it('plays the answer sounds: buzz for failing tests, completion for an accepted submission', async () => {
+    playSoundMock.mockClear();
+    const reply = (passed: boolean, ok = true) => ({
+      ok,
+      json: async () => ({
+        ok,
+        passed,
+        passedTests: passed ? 4 : 1,
+        totalTests: 4,
+        tests: [],
+        consoleOutput: '',
+        executionMs: 10,
+      }),
+    });
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce(reply(false))
+      .mockResolvedValueOnce(reply(true))
+      .mockResolvedValueOnce(reply(false, false));
+    vi.stubGlobal('fetch', fetchMock);
+    render(<ExerciseWorkspace exercise={exercise} />);
+
+    fireEvent.click(screen.getByRole('button', { name: /^Executar/ }));
+    await waitFor(() => expect(playSoundMock).toHaveBeenLastCalledWith('quiz_incorrect'));
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar solução' }));
+    await waitFor(() => expect(playSoundMock).toHaveBeenLastCalledWith('lesson_completed'));
+    // The evaluator could not run the tests: no sound.
+    fireEvent.click(screen.getByRole('button', { name: 'Enviar solução' }));
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledTimes(3));
+    expect(playSoundMock).toHaveBeenCalledTimes(2);
   });
 });

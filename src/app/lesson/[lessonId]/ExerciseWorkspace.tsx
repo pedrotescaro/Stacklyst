@@ -23,6 +23,7 @@ import {
   Terminal,
 } from 'lucide-react';
 import { AssistanceControls } from '@/components/lesson/AssistanceControls';
+import { useSoundEffects, useSoundPreference } from '@/hooks/useSoundEffects';
 import { CodeEditor } from '@/components/CodeEditor';
 import { cn } from '@/lib/cn';
 import type {
@@ -109,6 +110,7 @@ function TestResultRow({ test }: { test: ExerciseApiTestResult }) {
 
 export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: ExerciseWorkspaceProps) {
   const { text } = useLocalizedText();
+  const { playSound } = useSoundEffects(useSoundPreference());
   const [code, setCode] = useState(exercise.starterCode);
   const [assistanceMode, setAssistanceMode] = useState<AssistanceMode>(
     jumpChallenge ? 'HARD' : 'STANDARD'
@@ -206,6 +208,17 @@ export function ExerciseWorkspace({ exercise, jumpChallenge, returnTo }: Exercis
         error: data.message ?? data.error,
       });
 
+      // Same feedback as lesson questions: a chord when the tests pass, a buzz when
+      // they fail, and the completion sound for an accepted submission. Nothing plays
+      // when the tests could not run at all.
+      if (data.ok)
+        playSound(
+          data.passed
+            ? action === 'submit'
+              ? 'lesson_completed'
+              : 'quiz_correct'
+            : 'quiz_incorrect'
+        );
       if (typeof data.runCount === 'number') setRunCount(data.runCount);
       if (typeof data.submissionCount === 'number') setSubmissionCount(data.submissionCount);
       if (action === 'submit' && data.passed && jumpChallenge) {

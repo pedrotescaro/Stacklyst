@@ -15,6 +15,7 @@ vi.mock('next/navigation', () => ({
 
 vi.mock('@/hooks/useSoundEffects', () => ({
   useSoundEffects: () => ({ playSound: playSoundMock }),
+  useSoundPreference: () => true,
 }));
 
 const lesson: Lesson = {
