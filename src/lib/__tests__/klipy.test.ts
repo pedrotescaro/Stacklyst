@@ -1,5 +1,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { isKlipyMediaUrl, registerKlipyShare, searchKlipyGifs } from '../klipy';
+import {
+  isKlipyMediaUrl,
+  isKlipyRateLimited,
+  registerKlipyShare,
+  resetKlipySearchCache,
+  searchKlipyGifs,
+} from '../klipy';
 
 const media = (name: string, size = 1000) => ({
   url: `https://static.klipy.com/ii/abc/14/af/${name}.gif`,
@@ -9,6 +15,8 @@ const media = (name: string, size = 1000) => ({
 });
 
 afterEach(() => {
+  vi.useRealTimers();
+  resetKlipySearchCache();
   vi.unstubAllGlobals();
   window.localStorage.clear();
 });
@@ -120,6 +128,8 @@ describe('searchKlipyGifs', () => {
     );
     vi.stubGlobal('fetch', fetch);
     await searchKlipyGifs({ key: 'k', query: '  ', locale: 'us' });
+    // The second request would come from the cache; clear it to compare customer ids.
+    resetKlipySearchCache();
     await searchKlipyGifs({ key: 'k', query: '', locale: 'us' });
     const first = new URL(fetch.mock.calls[0][0]);
     const second = new URL(fetch.mock.calls[1][0]);
@@ -153,5 +163,59 @@ describe('registerKlipyShare', () => {
     ).toMatchObject({
       q: 'oi',
     });
+  });
+});
+
+describe('searchKlipyGifs quota handling', () => {
+  const ok = () =>
+    Response.json({
+      result: true,
+      data: {
+        data: [
+          { id: 1, slug: 'cat', title: 'Cat', type: 'gif', file: { sm: { gif: media('sm') } } },
+        ],
+      },
+    });
+
+  it('reuses a recent search instead of spending the quota again', async () => {
+    const fetch = vi.fn(async () => ok());
+    vi.stubGlobal('fetch', fetch);
+    await searchKlipyGifs({ key: 'k', query: 'Gato', locale: 'br' });
+    await searchKlipyGifs({ key: 'k', query: ' gato ', locale: 'br' });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    await searchKlipyGifs({ key: 'k', query: 'gato', locale: 'us' });
+    expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it('retries a rate limit and a server error, then succeeds', async () => {
+    vi.useFakeTimers();
+    const fetch = vi
+      .fn()
+      .mockResolvedValueOnce(new Response(null, { status: 429, headers: { 'Retry-After': '1' } }))
+      .mockResolvedValueOnce(new Response(null, { status: 503 }))
+      .mockResolvedValueOnce(ok());
+    vi.stubGlobal('fetch', fetch);
+    const search = searchKlipyGifs({ key: 'k', query: 'retry', locale: 'br' });
+    await vi.advanceTimersByTimeAsync(1000);
+    await vi.advanceTimersByTimeAsync(1600);
+    expect(await search).toHaveLength(1);
+    expect(fetch).toHaveBeenCalledTimes(3);
+  });
+
+  it('reports a rate limit that outlasts the retries, and never retries an invalid key', async () => {
+    vi.useFakeTimers();
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => new Response(null, { status: 429 }))
+    );
+    const limited = searchKlipyGifs({ key: 'k', query: 'busy', locale: 'br' }).catch((e) => e);
+    await vi.advanceTimersByTimeAsync(3000);
+    expect(isKlipyRateLimited(await limited)).toBe(true);
+
+    const fetch = vi.fn(async () => new Response(null, { status: 401 }));
+    vi.stubGlobal('fetch', fetch);
+    const refused = await searchKlipyGifs({ key: 'bad', query: 'x', locale: 'br' }).catch((e) => e);
+    expect(isKlipyRateLimited(refused)).toBe(false);
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 });

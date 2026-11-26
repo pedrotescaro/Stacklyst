@@ -4,7 +4,13 @@
 /* eslint-disable @next/next/no-img-element */
 import { useEffect, useRef, useState } from 'react';
 import { LoaderCircle } from 'lucide-react';
-import { klipyApiKey, registerKlipyShare, searchKlipyGifs, type KlipyGif } from '@/lib/klipy';
+import {
+  isKlipyRateLimited,
+  klipyApiKey,
+  registerKlipyShare,
+  searchKlipyGifs,
+  type KlipyGif,
+} from '@/lib/klipy';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
 import styles from './KlipyGifSearch.module.css';
 
@@ -33,6 +39,8 @@ export function KlipyGifSearch({
   const [gifs, setGifs] = useState<KlipyGif[]>([]);
   const [searching, setSearching] = useState(false);
   const [error, setError] = useState('');
+  // Bumped by "Tentar novamente" to run the same search again.
+  const [attempt, setAttempt] = useState(0);
   const input = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -42,6 +50,7 @@ export function KlipyGifSearch({
   useEffect(() => {
     if (!key) return;
     const controller = new AbortController();
+    // Waits for a pause in typing so each keystroke does not spend the API quota.
     const timer = window.setTimeout(async () => {
       setSearching(true);
       setError('');
@@ -53,25 +62,30 @@ export function KlipyGifSearch({
           signal: controller.signal,
         });
         if (!controller.signal.aborted) setGifs(next);
-      } catch {
+      } catch (failure) {
         if (!controller.signal.aborted) {
           setGifs([]);
           setError(
-            text(
-              'A pesquisa de GIFs está indisponível agora. Tente novamente em instantes.',
-              'GIF search is unavailable right now. Try again in a moment.'
-            )
+            isKlipyRateLimited(failure)
+              ? text(
+                  'Muitas buscas de GIF em pouco tempo. Aguarde alguns segundos e tente de novo.',
+                  'Too many GIF searches in a short time. Wait a few seconds and try again.'
+                )
+              : text(
+                  'A pesquisa de GIFs está indisponível agora. Tente novamente em instantes.',
+                  'GIF search is unavailable right now. Try again in a moment.'
+                )
           );
         }
       } finally {
         if (!controller.signal.aborted) setSearching(false);
       }
-    }, 350);
+    }, 450);
     return () => {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [key, query, language, text]);
+  }, [key, query, language, text, attempt]);
 
   if (!key)
     return (
@@ -102,9 +116,12 @@ export function KlipyGifSearch({
         </p>
       )}
       {error && (
-        <p role="alert" className={styles.error}>
-          {error}
-        </p>
+        <div role="alert" className={styles.error}>
+          <p>{error}</p>
+          <button type="button" className={styles.retry} onClick={() => setAttempt((n) => n + 1)}>
+            {text('Tentar novamente', 'Try again')}
+          </button>
+        </div>
       )}
       {!!gifs.length && (
         <div className={`${styles.grid} ${compact ? styles.compact : ''}`}>

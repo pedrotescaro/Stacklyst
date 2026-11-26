@@ -87,6 +87,55 @@ function toGif(item: KlipyItem): KlipyGif | null {
   };
 }
 
+/** A KLIPY response that was not a success, kept so callers can explain a rate limit. */
+export class KlipyRequestError extends Error {
+  constructor(readonly status: number) {
+    super(`KLIPY ${status}`);
+    this.name = 'KlipyRequestError';
+  }
+}
+
+export function isKlipyRateLimited(error: unknown) {
+  return error instanceof KlipyRequestError && error.status === 429;
+}
+
+/**
+ * The API key has a small request quota, so each search is remembered for a few
+ * minutes: reopening a picker or retyping a word does not spend it again.
+ */
+const SEARCH_CACHE_MS = 5 * 60 * 1000;
+const MAX_CACHED_SEARCHES = 60;
+const searchCache = new Map<string, { at: number; gifs: KlipyGif[] }>();
+
+export function resetKlipySearchCache() {
+  searchCache.clear();
+}
+
+const RETRY_DELAYS_MS = [700, 1600];
+
+function waitFor(ms: number, signal?: AbortSignal) {
+  return new Promise<void>((resolve, reject) => {
+    if (signal?.aborted) return reject(signal.reason);
+    const timer = setTimeout(resolve, ms);
+    signal?.addEventListener(
+      'abort',
+      () => {
+        clearTimeout(timer);
+        reject(signal.reason);
+      },
+      { once: true }
+    );
+  });
+}
+
+/** Retry-After in seconds, capped so a picker never hangs for long. */
+function retryDelay(response: Response | null, attempt: number) {
+  const seconds = Number(response?.headers.get('retry-after'));
+  return Number.isFinite(seconds) && seconds > 0
+    ? Math.min(seconds * 1000, 5000)
+    : RETRY_DELAYS_MS[attempt];
+}
+
 export async function searchKlipyGifs({
   key,
   query,
@@ -99,6 +148,10 @@ export async function searchKlipyGifs({
   signal?: AbortSignal;
 }): Promise<KlipyGif[]> {
   const term = query.trim();
+  const cacheKey = `${key}|${locale}|${term.toLocaleLowerCase()}`;
+  const cached = searchCache.get(cacheKey);
+  if (cached && Date.now() - cached.at < SEARCH_CACHE_MS) return cached.gifs;
+
   const params = new URLSearchParams({
     page: '1',
     per_page: '24',
@@ -108,17 +161,39 @@ export async function searchKlipyGifs({
     format_filter: 'webp,gif',
   });
   if (term) params.set('q', term);
-  const response = await fetch(
-    `${KLIPY_API}/${encodeURIComponent(key)}/gifs/${term ? 'search' : 'trending'}?${params}`,
-    { signal }
-  );
-  if (!response.ok) throw new Error(`KLIPY ${response.status}`);
-  const result = (await response.json()) as { result?: boolean; data?: { data?: KlipyItem[] } };
-  if (result.result === false) throw new Error('KLIPY result=false');
-  return (result.data?.data || []).flatMap((item) => {
-    const gif = toGif(item);
-    return gif ? [gif] : [];
-  });
+  const url = `${KLIPY_API}/${encodeURIComponent(key)}/gifs/${term ? 'search' : 'trending'}?${params}`;
+
+  // A rate limit, a server error or a dropped connection is retried twice;
+  // any other refusal (such as an invalid key) fails straight away.
+  for (let attempt = 0; ; attempt++) {
+    let response: Response | null = null;
+    try {
+      response = await fetch(url, { signal });
+    } catch (error) {
+      if (signal?.aborted || attempt >= RETRY_DELAYS_MS.length) throw error;
+      await waitFor(retryDelay(null, attempt), signal);
+      continue;
+    }
+    if (response.ok) {
+      const result = (await response.json()) as {
+        result?: boolean;
+        data?: { data?: KlipyItem[] };
+      };
+      if (result.result === false) throw new Error('KLIPY result=false');
+      const gifs = (result.data?.data || []).flatMap((item) => {
+        const gif = toGif(item);
+        return gif ? [gif] : [];
+      });
+      searchCache.set(cacheKey, { at: Date.now(), gifs });
+      if (searchCache.size > MAX_CACHED_SEARCHES)
+        searchCache.delete(searchCache.keys().next().value as string);
+      return gifs;
+    }
+    const retryable = response.status === 429 || response.status >= 500;
+    if (!retryable || attempt >= RETRY_DELAYS_MS.length)
+      throw new KlipyRequestError(response.status);
+    await waitFor(retryDelay(response, attempt), signal);
+  }
 }
 
 /** Tells KLIPY a GIF was chosen. Failures never block the user's action. */
