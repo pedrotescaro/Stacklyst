@@ -87,7 +87,10 @@ export class PlatformSounds {
   }
   unlock() {
     const ctx = this.getContext();
-    if (!ctx || ctx.state === 'running') return Promise.resolve();
+    // Chrome may leave resume pending until a gesture. Do not cache that call
+    // and prevent the real activation event from trying to resume again.
+    if (!ctx || ctx.state === 'running' || navigator.userActivation?.hasBeenActive === false)
+      return Promise.resolve();
     if (!this.resuming)
       this.resuming = ctx
         .resume()

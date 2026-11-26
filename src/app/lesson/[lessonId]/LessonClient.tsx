@@ -371,6 +371,7 @@ export function LessonClient({ lesson, returnTo, completedStepIds = [] }: Lesson
       const result = await sendAnswer('run');
       setRunOutput(result.output ?? '');
       if (!result.isCorrect) setRunError(result.details ?? result.message);
+      playSound(result.isCorrect ? 'quiz_correct' : 'quiz_incorrect');
     } catch (error) {
       setRunError(
         error instanceof Error && !(error instanceof TypeError) && error.message

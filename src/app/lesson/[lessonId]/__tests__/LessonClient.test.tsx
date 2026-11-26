@@ -2,6 +2,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { LessonClient } from '@/app/lesson/[lessonId]/LessonClient';
+import { getLessonById } from '@/lib/lessons/registry';
 import type { Lesson } from '@/lib/lessons/types';
 
 const { pushMock, playSoundMock } = vi.hoisted(() => ({
@@ -204,6 +205,46 @@ describe('LessonClient learner support', () => {
   beforeEach(() => {
     pushMock.mockClear();
     playSoundMock.mockClear();
+  });
+
+  it('plays evaluation feedback when testing code in the first JavaScript lesson', async () => {
+    const firstOutput = getLessonById('learn-js-first-output')!;
+    const codeStepIndex = firstOutput.steps.findIndex((step) => step.type === 'code_editor');
+    const evaluate = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ isCorrect: true, xpEarned: 0, message: 'Validado', output: 'Olá!' }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ isCorrect: false, xpEarned: 0, message: 'Revise seu código' }),
+      })
+      .mockRejectedValueOnce(new TypeError('Offline'));
+    vi.stubGlobal('fetch', evaluate);
+    render(
+      <LessonClient
+        lesson={firstOutput}
+        completedStepIds={firstOutput.steps.slice(0, codeStepIndex).map((step) => step.id)}
+        user={user}
+      />
+    );
+
+    const run = screen.getByRole('button', { name: 'Testar Código' });
+    await userEvent.click(run);
+    await waitFor(() => expect(playSoundMock).toHaveBeenCalledExactlyOnceWith('quiz_correct'));
+    expect(JSON.parse(evaluate.mock.calls[0][1].body)).toMatchObject({
+      action: 'run',
+      stepId: firstOutput.steps[codeStepIndex].id,
+    });
+
+    await userEvent.click(run);
+    await screen.findByText('Revise seu código');
+    expect(playSoundMock).toHaveBeenLastCalledWith('quiz_incorrect');
+
+    await userEvent.click(run);
+    await screen.findByText('Não foi possível executar o código.');
+    expect(playSoundMock).toHaveBeenCalledTimes(2);
   });
 
   it('reveals the step hints one at a time', async () => {

@@ -130,6 +130,28 @@ describe('Platform sound timing', () => {
     expect(sources).toHaveLength(0);
     expect(oscillators).toHaveLength(0);
   });
+  it('waits for user activation before attempting to resume Web Audio', async () => {
+    let activated = false;
+    vi.stubGlobal('navigator', {
+      userActivation: {
+        get hasBeenActive() {
+          return activated;
+        },
+      },
+    });
+    const sounds = new PlatformSounds();
+    await sounds.prepare(['quiz_correct']);
+    const ctx = contexts[0];
+    ctx.state = 'suspended';
+    await sounds.unlock();
+    expect(ctx.resume).not.toHaveBeenCalled();
+
+    activated = true;
+    await sounds.unlock();
+    sounds.play('quiz_correct');
+    expect(ctx.resume).toHaveBeenCalledOnce();
+    expect(oscillators).toHaveLength(3);
+  });
   it('honors a changed preference while resuming and stops active sources on background', async () => {
     const sounds = new PlatformSounds();
     await sounds.prepare(['like']);
