@@ -3,6 +3,11 @@
   gap: 10px;
   min-width: 0;
 }
+.searchControls {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
 .input {
   width: 100%;
   min-width: 0;
@@ -12,6 +17,19 @@
   background: var(--color-dd-bg);
   color: var(--color-dd-text);
   font-size: 14px;
+}
+.submit {
+  border: 1px solid var(--color-dd-border);
+  border-radius: 8px;
+  padding: 0 10px;
+  background: var(--color-dd-surface);
+  color: var(--color-dd-text);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.submit:hover:enabled {
+  border-color: var(--color-dd-accent);
 }
 .status {
   display: flex;
@@ -37,18 +55,34 @@
   line-height: 1.6;
   color: #e5484d;
 }
-.retry {
+.errorActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
   margin-top: 4px;
+}
+.recoveryAction {
   font-weight: 700;
   color: var(--color-dd-accent);
   cursor: pointer;
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.retry:focus-visible {
+.submit:focus-visible,
+.recoveryAction:focus-visible {
   outline: 2px solid var(--color-dd-accent);
   outline-offset: 2px;
-  border-radius: 4px;
+}
+.submit:disabled,
+.recoveryAction:disabled {
+  cursor: default;
+  color: var(--color-dd-muted);
+}
+.recoveryAction:disabled {
+  text-decoration: none;
+}
+.error .help {
+  margin-top: 4px;
 }
 .grid {
   display: grid;

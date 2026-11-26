@@ -20,119 +20,203 @@ interface KlipyGifSearchProps {
   autoFocus?: boolean;
   /** Message shown when no API key is configured. */
   unavailableMessage?: string;
+  /** Search only when the user submits a term. */
+  searchOnSubmit?: boolean;
+  uploadHint?: string;
   /** Highlights the GIF currently in use, e.g. the saved banner. */
   selectedUrl?: string | null;
   compact?: boolean;
 }
+
+type SearchResult = {
+  term: string;
+  locale: string;
+  attempt: number;
+  gifs: KlipyGif[];
+  error?: 'unavailable' | 'rate-limit';
+  retryAt?: number;
+};
 
 export function KlipyGifSearch({
   onSelect,
   disabled = false,
   autoFocus = false,
   unavailableMessage,
+  searchOnSubmit = false,
+  uploadHint,
   selectedUrl,
   compact = false,
 }: KlipyGifSearchProps) {
   const { text, language } = useLocalizedText();
   const key = klipyApiKey();
   const [query, setQuery] = useState('');
-  const [gifs, setGifs] = useState<KlipyGif[]>([]);
-  const [searching, setSearching] = useState(false);
-  const [error, setError] = useState('');
-  // Bumped by "Tentar novamente" to run the same search again.
+  const [submittedTerm, setSubmittedTerm] = useState('');
+  const [result, setResult] = useState<SearchResult | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [lastCooldownEnd, setLastCooldownEnd] = useState<number>();
   const input = useRef<HTMLInputElement>(null);
+  const locale = language === 'en' ? 'us' : 'br';
+  const term = searchOnSubmit ? submittedTerm : query.trim();
+  const canSearch = !searchOnSubmit || Boolean(term);
+  const current =
+    canSearch && result?.term === term && result.locale === locale && result.attempt === attempt
+      ? result
+      : null;
+  const searching = canSearch && !current;
+  const retryAt = current?.retryAt;
+  const coolingDown = retryAt !== undefined && retryAt !== lastCooldownEnd;
 
   useEffect(() => {
     if (autoFocus) input.current?.focus();
   }, [autoFocus]);
 
   useEffect(() => {
-    if (!key) return;
+    if (!key || !canSearch) return;
     const controller = new AbortController();
-    // Waits for a pause in typing so each keystroke does not spend the API quota.
-    const timer = window.setTimeout(async () => {
-      setSearching(true);
-      setError('');
+    async function search() {
       try {
-        const next = await searchKlipyGifs({
+        const gifs = await searchKlipyGifs({
           key,
-          query,
-          locale: language === 'en' ? 'us' : 'br',
+          query: term,
+          locale,
           signal: controller.signal,
         });
-        if (!controller.signal.aborted) setGifs(next);
+        if (!controller.signal.aborted) setResult({ term, locale, attempt, gifs });
       } catch (failure) {
         if (!controller.signal.aborted) {
-          setGifs([]);
-          setError(
-            isKlipyRateLimited(failure)
-              ? text(
-                  'Muitas buscas de GIF em pouco tempo. Aguarde alguns segundos e tente de novo.',
-                  'Too many GIF searches in a short time. Wait a few seconds and try again.'
-                )
-              : text(
-                  'A pesquisa de GIFs está indisponível agora. Tente novamente em instantes.',
-                  'GIF search is unavailable right now. Try again in a moment.'
-                )
-          );
+          const rateLimited = isKlipyRateLimited(failure);
+          setResult({
+            term,
+            locale,
+            attempt,
+            gifs: [],
+            error: rateLimited ? 'rate-limit' : 'unavailable',
+            retryAt: rateLimited ? failure.retryAt : undefined,
+          });
         }
-      } finally {
-        if (!controller.signal.aborted) setSearching(false);
       }
-    }, 450);
+    }
+    const timer = window.setTimeout(search, searchOnSubmit ? 0 : 450);
     return () => {
       window.clearTimeout(timer);
       controller.abort();
     };
-  }, [key, query, language, text, attempt]);
+  }, [key, canSearch, term, locale, searchOnSubmit, attempt]);
+
+  useEffect(() => {
+    if (retryAt === undefined) return;
+    const timer = window.setTimeout(
+      () => setLastCooldownEnd(retryAt),
+      Math.max(0, retryAt - Date.now())
+    );
+    return () => window.clearTimeout(timer);
+  }, [retryAt]);
+
+  function submitSearch() {
+    if (!query.trim() || disabled || searching || coolingDown) return;
+    setSubmittedTerm(query.trim());
+    setAttempt((n) => n + 1);
+  }
 
   if (!key)
     return (
       <p className={styles.help}>
         {unavailableMessage ||
           text('A pesquisa de GIFs ainda não está disponível.', 'GIF search is not available yet.')}
+        {uploadHint && ` ${uploadHint}`}
       </p>
     );
 
   return (
     <div className={styles.search}>
-      <input
-        ref={input}
-        type="search"
-        value={query}
-        onChange={(event) => setQuery(event.target.value)}
-        disabled={disabled}
-        maxLength={100}
-        className={styles.input}
-        aria-label={text('Pesquisar GIFs no KLIPY', 'Search KLIPY GIFs')}
-        // KLIPY's attribution guidelines require this placeholder.
-        placeholder={text('Pesquisar no KLIPY', 'Search KLIPY')}
-      />
+      <div className={searchOnSubmit ? styles.searchControls : undefined}>
+        <input
+          ref={input}
+          type="search"
+          value={query}
+          onChange={(event) => {
+            const value = event.target.value;
+            setQuery(value);
+            if (searchOnSubmit && value.trim() !== submittedTerm) setSubmittedTerm('');
+          }}
+          onKeyDown={(event) => {
+            if (searchOnSubmit && event.key === 'Enter' && !event.nativeEvent.isComposing) {
+              event.preventDefault();
+              submitSearch();
+            }
+          }}
+          disabled={disabled}
+          maxLength={100}
+          className={styles.input}
+          aria-label={text('Pesquisar GIFs no KLIPY', 'Search KLIPY GIFs')}
+          // KLIPY's attribution guidelines require this placeholder.
+          placeholder={text('Pesquisar no KLIPY', 'Search KLIPY')}
+        />
+        {searchOnSubmit && (
+          <button
+            type="button"
+            className={styles.submit}
+            disabled={disabled || !query.trim() || searching || coolingDown}
+            onClick={submitSearch}
+          >
+            {text('Buscar GIFs', 'Find GIFs')}
+          </button>
+        )}
+      </div>
       {searching && (
         <p role="status" className={styles.status}>
           <LoaderCircle size={16} className="animate-spin" aria-hidden="true" />
           {text('Pesquisando GIFs…', 'Searching GIFs…')}
         </p>
       )}
-      {error && (
-        <div role="alert" className={styles.error}>
-          <p>{error}</p>
-          <button type="button" className={styles.retry} onClick={() => setAttempt((n) => n + 1)}>
-            {text('Tentar novamente', 'Try again')}
-          </button>
+      {current?.error && (
+        <div className={styles.error}>
+          <p role="alert">
+            {current.error === 'rate-limit'
+              ? text(
+                  'O KLIPY atingiu o limite temporário de buscas de GIFs.',
+                  'KLIPY has reached its temporary GIF search limit.'
+                )
+              : text(
+                  'A pesquisa de GIFs está indisponível agora.',
+                  'GIF search is unavailable right now.'
+                )}
+          </p>
+          <div className={styles.errorActions}>
+            {searchOnSubmit && term && current.error === 'rate-limit' && (
+              <a
+                className={styles.recoveryAction}
+                href={`https://klipy.com/search/${encodeURIComponent(term.replace(/\s+/g, '-'))}`}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {text('Buscar no site do KLIPY', 'Search on the KLIPY website')}
+              </a>
+            )}
+            <button
+              type="button"
+              className={styles.recoveryAction}
+              disabled={disabled || coolingDown}
+              onClick={() => setAttempt((n) => n + 1)}
+            >
+              {coolingDown
+                ? text('Aguardando nova tentativa…', 'Waiting to retry…')
+                : text('Tentar novamente', 'Try again')}
+            </button>
+          </div>
+          {uploadHint && <p className={styles.help}>{uploadHint}</p>}
         </div>
       )}
-      {!!gifs.length && (
+      {!!current?.gifs.length && (
         <div className={`${styles.grid} ${compact ? styles.compact : ''}`}>
-          {gifs.map((gif) => (
+          {current.gifs.map((gif) => (
             <button
               key={gif.id}
               type="button"
               disabled={disabled}
               aria-pressed={selectedUrl ? selectedUrl === gif.url : undefined}
               onClick={() => {
-                registerKlipyShare(key, gif.slug, query);
+                registerKlipyShare(key, gif.slug, term);
                 onSelect(gif);
               }}
               aria-label={text(`Escolher ${gif.title}`, `Choose ${gif.title}`)}
@@ -142,7 +226,7 @@ export function KlipyGifSearch({
           ))}
         </div>
       )}
-      {!searching && !error && query.trim() && !gifs.length && (
+      {term && current && !current.error && !current.gifs.length && (
         <p role="status" className={styles.help}>
           {text('Nenhum GIF encontrado. Tente outra palavra.', 'No GIFs found. Try another word.')}
         </p>

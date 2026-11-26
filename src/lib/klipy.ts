@@ -89,13 +89,16 @@ function toGif(item: KlipyItem): KlipyGif | null {
 
 /** A KLIPY response that was not a success, kept so callers can explain a rate limit. */
 export class KlipyRequestError extends Error {
-  constructor(readonly status: number) {
+  constructor(
+    readonly status: number,
+    readonly retryAt?: number
+  ) {
     super(`KLIPY ${status}`);
     this.name = 'KlipyRequestError';
   }
 }
 
-export function isKlipyRateLimited(error: unknown) {
+export function isKlipyRateLimited(error: unknown): error is KlipyRequestError & { status: 429 } {
   return error instanceof KlipyRequestError && error.status === 429;
 }
 
@@ -105,10 +108,13 @@ export function isKlipyRateLimited(error: unknown) {
  */
 const SEARCH_CACHE_MS = 5 * 60 * 1000;
 const MAX_CACHED_SEARCHES = 60;
+const RATE_LIMIT_FALLBACK_MS = 60_000;
 const searchCache = new Map<string, { at: number; gifs: KlipyGif[] }>();
+const rateLimits = new Map<string, number>();
 
 export function resetKlipySearchCache() {
   searchCache.clear();
+  rateLimits.clear();
 }
 
 const RETRY_DELAYS_MS = [700, 1600];
@@ -116,24 +122,23 @@ const RETRY_DELAYS_MS = [700, 1600];
 function waitFor(ms: number, signal?: AbortSignal) {
   return new Promise<void>((resolve, reject) => {
     if (signal?.aborted) return reject(signal.reason);
-    const timer = setTimeout(resolve, ms);
-    signal?.addEventListener(
-      'abort',
-      () => {
-        clearTimeout(timer);
-        reject(signal.reason);
-      },
-      { once: true }
-    );
+    const onAbort = () => {
+      clearTimeout(timer);
+      reject(signal?.reason);
+    };
+    const timer = setTimeout(() => {
+      signal?.removeEventListener('abort', onAbort);
+      resolve();
+    }, ms);
+    signal?.addEventListener('abort', onAbort, { once: true });
   });
 }
 
-/** Retry-After in seconds, capped so a picker never hangs for long. */
-function retryDelay(response: Response | null, attempt: number) {
-  const seconds = Number(response?.headers.get('retry-after'));
-  return Number.isFinite(seconds) && seconds > 0
-    ? Math.min(seconds * 1000, 5000)
-    : RETRY_DELAYS_MS[attempt];
+function retryAtFromResponse(response: Response, now: number) {
+  const header = response.headers.get('retry-after')?.trim();
+  if (!header) return undefined;
+  const retryAt = /^\d+$/.test(header) ? now + Number(header) * 1000 : Date.parse(header);
+  return Number.isFinite(retryAt) ? Math.max(now, retryAt) : undefined;
 }
 
 export async function searchKlipyGifs({
@@ -148,9 +153,13 @@ export async function searchKlipyGifs({
   signal?: AbortSignal;
 }): Promise<KlipyGif[]> {
   const term = query.trim();
-  const cacheKey = `${key}|${locale}|${term.toLocaleLowerCase()}`;
+  const cacheKey = `${key}|${locale}|${term.toLowerCase()}`;
+  const now = Date.now();
   const cached = searchCache.get(cacheKey);
-  if (cached && Date.now() - cached.at < SEARCH_CACHE_MS) return cached.gifs;
+  if (cached && now - cached.at < SEARCH_CACHE_MS) return cached.gifs;
+
+  const retryAt = Math.max(rateLimits.get(key) ?? 0, rateLimits.get(cacheKey) ?? 0);
+  if (retryAt > now) throw new KlipyRequestError(429, retryAt);
 
   const params = new URLSearchParams({
     page: '1',
@@ -163,15 +172,14 @@ export async function searchKlipyGifs({
   if (term) params.set('q', term);
   const url = `${KLIPY_API}/${encodeURIComponent(key)}/gifs/${term ? 'search' : 'trending'}?${params}`;
 
-  // A rate limit, a server error or a dropped connection is retried twice;
-  // any other refusal (such as an invalid key) fails straight away.
+  // Short retries are for server errors and dropped connections. A 429 starts a cooldown.
   for (let attempt = 0; ; attempt++) {
-    let response: Response | null = null;
+    let response: Response;
     try {
       response = await fetch(url, { signal });
     } catch (error) {
       if (signal?.aborted || attempt >= RETRY_DELAYS_MS.length) throw error;
-      await waitFor(retryDelay(null, attempt), signal);
+      await waitFor(RETRY_DELAYS_MS[attempt], signal);
       continue;
     }
     if (response.ok) {
@@ -189,10 +197,27 @@ export async function searchKlipyGifs({
         searchCache.delete(searchCache.keys().next().value as string);
       return gifs;
     }
-    const retryable = response.status === 429 || response.status >= 500;
-    if (!retryable || attempt >= RETRY_DELAYS_MS.length)
+    if (response.status === 429) {
+      const now = Date.now();
+      const providerRetryAt = retryAtFromResponse(response, now);
+      const retryAt = providerRetryAt ?? now + RATE_LIMIT_FALLBACK_MS;
+      // Without Retry-After, another term may still be available in the provider's cache.
+      rateLimits.set(providerRetryAt === undefined ? cacheKey : key, retryAt);
+      for (const [entry, until] of rateLimits) {
+        if (until <= now) rateLimits.delete(entry);
+      }
+      if (rateLimits.size > MAX_CACHED_SEARCHES)
+        rateLimits.delete(rateLimits.keys().next().value as string);
+      throw new KlipyRequestError(429, retryAt);
+    }
+    if (response.status < 500 || attempt >= RETRY_DELAYS_MS.length)
       throw new KlipyRequestError(response.status);
-    await waitFor(retryDelay(response, attempt), signal);
+    const now = Date.now();
+    const retryAt = retryAtFromResponse(response, now);
+    await waitFor(
+      retryAt === undefined ? RETRY_DELAYS_MS[attempt] : Math.min(retryAt - now, 5000),
+      signal
+    );
   }
 }
 

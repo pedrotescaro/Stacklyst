@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Camera, Check, Trash2, Upload, X } from 'lucide-react';
 import { GifIcon } from '@/components/icons/GifIcon';
 import { KlipyGifSearch } from '@/components/gif/KlipyGifSearch';
+import { useLocalizedText } from '@/i18n/useLocalizedText';
 import { isKlipyMediaUrl, type KlipyGif } from '@/lib/klipy';
 import { cropAvatarPhoto } from './avatar-photo';
 import styles from './Personalization.module.css';
@@ -27,6 +28,7 @@ export function AvatarPhotoEditor({
   onRemove: () => void;
   onError: (message: string) => void;
 }) {
+  const { text } = useLocalizedText();
   const uploadRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const requestRef = useRef(0);
@@ -78,6 +80,13 @@ export function AvatarPhotoEditor({
         image.naturalWidth * image.naturalHeight > 40_000_000
       )
         throw new Error('Use uma foto de pelo menos 32 × 32 pixels e até 40 megapixels.');
+      if (file.type === 'image/gif') {
+        // The canvas crop exports JPEG, which would discard the animation.
+        onPhotoSelected(file, url);
+        setSource(null);
+        setGifOpen(false);
+        return;
+      }
       setSource({ url, width: image.naturalWidth, height: image.naturalHeight });
       setZoom(1);
       setPositionX(50);
@@ -188,7 +197,10 @@ export function AvatarPhotoEditor({
             )}
           </div>
           <p className={styles.help}>
-            JPEG, PNG, WebP ou GIF, até 5 MB. Recorte a foto e salve para publicar.
+            {text(
+              'JPEG, PNG, WebP ou GIF de até 5 MB. GIFs mantêm a animação e o tamanho original.',
+              'JPEG, PNG, WebP, or GIF up to 5 MB. GIFs keep their animation and original dimensions.'
+            )}
           </p>
         </div>
       </div>
@@ -196,6 +208,7 @@ export function AvatarPhotoEditor({
         <div className={styles.cropEditor} aria-label="Escolher GIF do perfil">
           <KlipyGifSearch
             compact
+            searchOnSubmit
             disabled={disabled || busy}
             selectedUrl={isKlipyMediaUrl(avatarUrl) ? avatarUrl : null}
             onSelect={(gif) => {
@@ -203,7 +216,10 @@ export function AvatarPhotoEditor({
               onGifSelected(gif);
               setGifOpen(false);
             }}
-            unavailableMessage="A pesquisa de GIFs ainda não está disponível. Use Escolher foto para enviar um GIF do seu dispositivo."
+            uploadHint={text(
+              'Use Escolher foto para enviar um GIF do seu dispositivo.',
+              'Use Choose photo to upload a GIF from your device.'
+            )}
           />
         </div>
       )}

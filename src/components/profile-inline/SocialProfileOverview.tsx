@@ -773,10 +773,14 @@ export function SocialProfileOverview({
               <div className={styles.popoverBody}>
                 <KlipyGifSearch
                   compact
+                  searchOnSubmit
                   disabled={busy}
                   selectedUrl={banner.imageUrl}
                   onSelect={chooseGifBanner}
-                  unavailableMessage="A pesquisa de GIFs ainda não está disponível. Use Foto da capa para enviar um GIF do seu dispositivo."
+                  uploadHint={text(
+                    'Use Foto da capa para enviar um GIF do seu dispositivo.',
+                    'Use Cover photo to upload a GIF from your device.'
+                  )}
                 />
                 {bannerKind === 'gif' && coverPosition}
                 {bannerKind === 'gif' && (
@@ -835,10 +839,14 @@ export function SocialProfileOverview({
                 <div className={styles.popoverBody}>
                   <KlipyGifSearch
                     compact
+                    searchOnSubmit
                     disabled={busy}
                     selectedUrl={isKlipyMediaUrl(avatarUrl) ? avatarUrl : null}
                     onSelect={chooseGifAvatar}
-                    unavailableMessage="A pesquisa de GIFs ainda não está disponível. Use Editar foto para enviar um GIF do seu dispositivo."
+                    uploadHint={text(
+                      'Use Editar foto para enviar um GIF do seu dispositivo.',
+                      'Use Edit photo to upload a GIF from your device.'
+                    )}
                   />
                   {isKlipyMediaUrl(avatarUrl) && (
                     <button className={styles.button} type="button" onClick={removeAvatar}>

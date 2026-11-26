@@ -187,11 +187,11 @@ describe('searchKlipyGifs quota handling', () => {
     expect(fetch).toHaveBeenCalledTimes(2);
   });
 
-  it('retries a rate limit and a server error, then succeeds', async () => {
+  it('waits for transient server errors and retries them', async () => {
     vi.useFakeTimers();
     const fetch = vi
       .fn()
-      .mockResolvedValueOnce(new Response(null, { status: 429, headers: { 'Retry-After': '1' } }))
+      .mockResolvedValueOnce(new Response(null, { status: 503, headers: { 'Retry-After': '1' } }))
       .mockResolvedValueOnce(new Response(null, { status: 503 }))
       .mockResolvedValueOnce(ok());
     vi.stubGlobal('fetch', fetch);
@@ -202,16 +202,55 @@ describe('searchKlipyGifs quota handling', () => {
     expect(fetch).toHaveBeenCalledTimes(3);
   });
 
-  it('reports a rate limit that outlasts the retries, and never retries an invalid key', async () => {
+  it('makes only one request during a headerless rate limit and allows other search terms', async () => {
     vi.useFakeTimers();
-    vi.stubGlobal(
-      'fetch',
-      vi.fn(async () => new Response(null, { status: 429 }))
-    );
-    const limited = searchKlipyGifs({ key: 'k', query: 'busy', locale: 'br' }).catch((e) => e);
-    await vi.advanceTimersByTimeAsync(3000);
-    expect(isKlipyRateLimited(await limited)).toBe(true);
+    const fetch = vi.fn().mockResolvedValueOnce(new Response(null, { status: 429 }));
+    fetch.mockImplementation(async () => ok());
+    vi.stubGlobal('fetch', fetch);
 
+    const search = (query: string) => searchKlipyGifs({ key: 'k', query, locale: 'br' });
+    const limited = await search('gyro').catch((error) => error);
+    expect(isKlipyRateLimited(limited)).toBe(true);
+    expect(limited.retryAt).toBe(Date.now() + 60_000);
+    await expect(search(' Gyro ')).rejects.toMatchObject({ retryAt: limited.retryAt });
+    expect(fetch).toHaveBeenCalledTimes(1);
+
+    await expect(search('Jojo')).resolves.toHaveLength(1);
+    await vi.advanceTimersByTimeAsync(60_000);
+    await expect(search('gyro')).resolves.toHaveLength(1);
+    expect(fetch).toHaveBeenCalledTimes(3);
+  });
+
+  it.each(['120', 'Tue, 01 Jan 2030 00:02:00 GMT'])(
+    'respects the full Retry-After duration across queries (%s)',
+    async (header) => {
+      vi.useFakeTimers();
+      vi.setSystemTime(new Date('2030-01-01T00:00:00Z'));
+      const fetch = vi
+        .fn()
+        .mockImplementationOnce(async () => ok())
+        .mockResolvedValueOnce(
+          new Response(null, { status: 429, headers: { 'Retry-After': header } })
+        )
+        .mockImplementation(async () => ok());
+      vi.stubGlobal('fetch', fetch);
+
+      const search = (query: string) => searchKlipyGifs({ key: 'k', query, locale: 'br' });
+      await expect(search('Jojo')).resolves.toHaveLength(1);
+      const retryAt = Date.now() + 120_000;
+      await expect(search('gyro')).rejects.toMatchObject({ status: 429, retryAt });
+      await vi.advanceTimersByTimeAsync(5000);
+      await expect(search('Steel Ball Run')).rejects.toMatchObject({ status: 429, retryAt });
+      await expect(search('Jojo')).resolves.toHaveLength(1);
+      expect(fetch).toHaveBeenCalledTimes(2);
+
+      await vi.advanceTimersByTimeAsync(115_000);
+      await expect(search('gyro')).resolves.toHaveLength(1);
+      expect(fetch).toHaveBeenCalledTimes(3);
+    }
+  );
+
+  it('never retries an invalid key', async () => {
     const fetch = vi.fn(async () => new Response(null, { status: 401 }));
     vi.stubGlobal('fetch', fetch);
     const refused = await searchKlipyGifs({ key: 'bad', query: 'x', locale: 'br' }).catch((e) => e);

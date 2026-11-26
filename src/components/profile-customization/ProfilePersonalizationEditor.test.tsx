@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { resetKlipySearchCache } from '@/lib/klipy';
 import {
   DEFAULT_CHAT_PREFERENCES,
   DEFAULT_PROFILE_CATALOG,
@@ -44,8 +45,10 @@ beforeEach(() => {
     vi.fn(async (url: string, init?: RequestInit) => {
       if (url === '/api/upload') {
         uploads += 1;
+        const file = (init?.body as FormData).get('file');
+        const extension = file instanceof File && file.type === 'image/gif' ? 'gif' : 'jpg';
         return Response.json({
-          url: 'https://project.supabase.co/storage/v1/object/public/uploads/owner/photo.jpg',
+          url: `https://project.supabase.co/storage/v1/object/public/uploads/owner/photo.${extension}`,
         });
       }
       if (url.startsWith('/api/profile/tags')) return Response.json({ tags: ['python', 'pyqt'] });
@@ -74,6 +77,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  resetKlipySearchCache();
   vi.restoreAllMocks();
   vi.unstubAllGlobals();
 });
@@ -84,6 +88,29 @@ async function open(initialSection?: 'appearance' | 'achievements') {
     name: initialSection === 'achievements' ? 'Conquistas' : 'Aparência',
   });
   return view;
+}
+
+function mockPhotoDecode() {
+  const OriginalURL = URL;
+  let nextUrl = 0;
+  vi.stubGlobal(
+    'URL',
+    class extends OriginalURL {
+      static createObjectURL = vi.fn(() => `blob:photo-${++nextUrl}`);
+      static revokeObjectURL = vi.fn();
+    }
+  );
+  vi.stubGlobal(
+    'Image',
+    class {
+      src = '';
+      naturalWidth = 1200;
+      naturalHeight = 800;
+      decode() {
+        return Promise.resolve();
+      }
+    }
+  );
 }
 
 describe('Profile personalization editor', () => {
@@ -256,26 +283,7 @@ describe('Profile personalization editor', () => {
   });
 
   it('stages a cropped photo, retries a failed save without uploading twice and persists it atomically', async () => {
-    const OriginalURL = URL;
-    let nextUrl = 0;
-    vi.stubGlobal(
-      'URL',
-      class extends OriginalURL {
-        static createObjectURL = vi.fn(() => `blob:photo-${++nextUrl}`);
-        static revokeObjectURL = vi.fn();
-      }
-    );
-    vi.stubGlobal(
-      'Image',
-      class {
-        src = '';
-        naturalWidth = 1200;
-        naturalHeight = 800;
-        decode() {
-          return Promise.resolve();
-        }
-      }
-    );
+    mockPhotoDecode();
     vi.spyOn(HTMLCanvasElement.prototype, 'getContext').mockReturnValue({
       fillStyle: '',
       fillRect: vi.fn(),
@@ -311,27 +319,56 @@ describe('Profile personalization editor', () => {
     expect(persisted.avatarUrl).toContain('/owner/photo.jpg');
   });
 
+  it('previews and saves the original GIF file as an avatar', async () => {
+    mockPhotoDecode();
+    const file = new File(['GIF89a'], 'gyro.gif', { type: 'image/gif' });
+    await open();
+    fireEvent.click(screen.getByRole('button', { name: 'Avatar e molduras' }));
+    fireEvent.change(screen.getByLabelText('Selecionar foto do perfil'), {
+      target: { files: [file] },
+    });
+    await screen.findByText('Foto preparada. Salve a personalização para atualizar seu perfil.');
+    const photoEditor = screen.getByRole('region', { name: 'Foto do perfil' });
+    expect(within(photoEditor).getByRole('img', { name: 'Foto de developer' })).toHaveAttribute(
+      'src',
+      'blob:photo-1'
+    );
+    expect(uploads).toBe(0);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
+    await screen.findByText('Personalização salva. Seu perfil já está atualizado.');
+    const upload = vi.mocked(fetch).mock.calls.find(([url]) => url === '/api/upload')?.[1];
+    expect(upload?.method).toBe('POST');
+    expect((upload?.body as FormData).get('file')).toBe(file);
+    expect(uploads).toBe(1);
+    expect(persisted.avatarUrl).toBe(
+      'https://project.supabase.co/storage/v1/object/public/uploads/owner/photo.gif'
+    );
+  });
+
   it('chooses a KLIPY GIF in Avatar e molduras and saves it without uploading', async () => {
     vi.stubEnv('NEXT_PUBLIC_KLIPY_API_KEY', 'test-key');
     const baseFetch = global.fetch;
+    const gifQueries: (string | null)[] = [];
     vi.stubGlobal(
       'fetch',
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
         const url = String(input);
         if (url.startsWith('https://api.klipy.com/')) {
           if (url.includes('/share/')) return Response.json({ result: true });
+          gifQueries.push(new URL(url).searchParams.get('q'));
           return Response.json({
             result: true,
             data: {
               data: [
                 {
                   id: 'gif-1',
-                  slug: 'party',
-                  title: 'Party cat',
+                  slug: 'jojo',
+                  title: 'Jojo',
                   type: 'gif',
                   file: {
-                    md: { gif: { url: 'https://static.klipy.com/ii/a/party.gif', size: 1000 } },
-                    sm: { gif: { url: 'https://static.klipy.com/ii/a/party-sm.gif', size: 100 } },
+                    md: { gif: { url: 'https://static.klipy.com/ii/a/jojo.gif', size: 1000 } },
+                    sm: { gif: { url: 'https://static.klipy.com/ii/a/jojo-sm.gif', size: 100 } },
                   },
                 },
               ],
@@ -343,19 +380,34 @@ describe('Profile personalization editor', () => {
     );
 
     try {
-      await open();
+      const { unmount } = await open();
       fireEvent.click(screen.getByRole('button', { name: 'Avatar e molduras' }));
       fireEvent.click(screen.getByRole('button', { name: 'Escolher GIF' }));
-      fireEvent.click(await screen.findByRole('button', { name: 'Escolher Party cat' }));
+      fireEvent.change(screen.getByPlaceholderText('Pesquisar no KLIPY'), {
+        target: { value: 'Jojo' },
+      });
+      expect(gifQueries).toEqual([]);
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar GIFs' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Escolher Jojo' }));
+      expect(gifQueries).toEqual(['Jojo']);
       await screen.findByText('GIF selecionado. Salve a personalização para atualizar seu perfil.');
       fireEvent.click(screen.getByRole('button', { name: 'Salvar' }));
       await screen.findByText('Personalização salva. Seu perfil já está atualizado.');
       expect(uploads).toBe(0);
       expect(calls.at(-1)?.body).toHaveProperty(
         'avatarUrl',
-        'https://static.klipy.com/ii/a/party.gif'
+        'https://static.klipy.com/ii/a/jojo.gif'
       );
-      expect(persisted.avatarUrl).toBe('https://static.klipy.com/ii/a/party.gif');
+      expect(persisted.avatarUrl).toBe('https://static.klipy.com/ii/a/jojo.gif');
+
+      unmount();
+      await open();
+      fireEvent.click(screen.getByRole('button', { name: 'Avatar e molduras' }));
+      const photoEditor = screen.getByRole('region', { name: 'Foto do perfil' });
+      expect(within(photoEditor).getByRole('img', { name: 'Foto de developer' })).toHaveAttribute(
+        'src',
+        'https://static.klipy.com/ii/a/jojo.gif'
+      );
     } finally {
       vi.unstubAllEnvs();
     }

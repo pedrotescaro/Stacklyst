@@ -1,5 +1,7 @@
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { resetKlipySearchCache } from '@/lib/klipy';
 import {
   DEFAULT_CHAT_PREFERENCES,
   DEFAULT_PROFILE_CATALOG,
@@ -57,6 +59,7 @@ let state: ProfileCustomizationState;
 let writes: any[];
 let uploads: number;
 let failSave: boolean;
+let gifQueries: (string | null)[];
 beforeEach(() => {
   Object.defineProperty(window, 'matchMedia', {
     configurable: true,
@@ -69,6 +72,7 @@ beforeEach(() => {
   writes = [];
   uploads = 0;
   failSave = false;
+  gifQueries = [];
   state = {
     version: 3,
     avatarUrl: null,
@@ -98,18 +102,23 @@ beforeEach(() => {
       if (url.startsWith('/api/profile/tags')) return Response.json({ tags: ['python', 'react'] });
       if (url.startsWith('https://api.klipy.com/')) {
         if (init?.method === 'POST') return Response.json({ result: true });
+        const query = new URL(url).searchParams.get('q');
+        gifQueries.push(query);
+        if (query === 'gyro jojo') return new Response(null, { status: 429 });
+        const isGyro = query === 'Gyro Zeppeli';
+        const slug = isGyro ? 'gyro-zeppeli' : 'jojo';
         return Response.json({
           result: true,
           data: {
             data: [
               {
                 id: 7,
-                slug: 'party-cat',
-                title: 'Party cat',
+                slug,
+                title: isGyro ? 'Gyro Zeppeli' : 'Jojo',
                 type: 'gif',
                 file: {
-                  md: { gif: { url: 'https://static.klipy.com/ii/a/party.gif', size: 1000 } },
-                  sm: { gif: { url: 'https://static.klipy.com/ii/a/party-sm.gif', size: 100 } },
+                  md: { gif: { url: `https://static.klipy.com/ii/a/${slug}.gif`, size: 1000 } },
+                  sm: { gif: { url: `https://static.klipy.com/ii/a/${slug}-sm.gif`, size: 100 } },
                 },
               },
             ],
@@ -145,6 +154,7 @@ beforeEach(() => {
 });
 afterEach(() => {
   cleanup();
+  resetKlipySearchCache();
   vi.unstubAllGlobals();
 });
 const mount = (owner = 'owner', selectedProfile = profile) => {
@@ -447,17 +457,29 @@ describe('Inline social profile editing', () => {
     ).toContain('linear-gradient(120deg');
   });
 
-  it('picks a KLIPY GIF as the banner and reopens it in GIF mode', async () => {
+  it('searches for a banner after a rate-limited term and reopens the saved GIF', async () => {
     vi.stubEnv('NEXT_PUBLIC_KLIPY_API_KEY', 'test-key');
     try {
       const { saved, unmount } = mount();
       await edit();
       fireEvent.click(screen.getByRole('button', { name: 'GIF da capa' }));
-      expect(screen.getByPlaceholderText('Pesquisar no KLIPY')).toBeInTheDocument();
-      fireEvent.click(await screen.findByRole('button', { name: 'Escolher Party cat' }));
+      const input = screen.getByPlaceholderText('Pesquisar no KLIPY');
+      fireEvent.change(input, { target: { value: 'gyro jojo' } });
+      expect(gifQueries).toEqual([]);
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar GIFs' }));
+      await screen.findByRole('alert');
+      expect(gifQueries).toEqual(['gyro jojo']);
+      expect(screen.getByRole('link', { name: 'Buscar no site do KLIPY' })).toHaveAttribute(
+        'href',
+        'https://klipy.com/search/gyro-jojo'
+      );
+      fireEvent.change(input, { target: { value: 'Gyro Zeppeli' } });
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar GIFs' }));
+      fireEvent.click(await screen.findByRole('button', { name: 'Escolher Gyro Zeppeli' }));
+      expect(gifQueries).toEqual(['gyro jojo', 'Gyro Zeppeli']);
       expect(screen.getByRole('img', { name: 'Capa do perfil' })).toHaveAttribute(
         'src',
-        'https://static.klipy.com/ii/a/party.gif'
+        'https://static.klipy.com/ii/a/gyro-zeppeli.gif'
       );
       fireEvent.click(screen.getByRole('button', { name: 'Fechar gif da capa' }));
       fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
@@ -465,22 +487,27 @@ describe('Inline social profile editing', () => {
       expect(uploads).toBe(0);
       expect(writes[0].preferences.banner).toMatchObject({
         mode: 'image',
-        imageUrl: 'https://static.klipy.com/ii/a/party.gif',
+        imageUrl: 'https://static.klipy.com/ii/a/gyro-zeppeli.gif',
       });
       const savedProfile = saved.mock.calls[0][0];
       unmount();
       mount('owner', savedProfile);
       expect(screen.getByRole('img', { name: 'Capa do perfil' })).toHaveAttribute(
         'src',
-        'https://static.klipy.com/ii/a/party.gif'
+        'https://static.klipy.com/ii/a/gyro-zeppeli.gif'
       );
       await edit();
       fireEvent.click(screen.getByRole('button', { name: 'GIF da capa' }));
       expect(screen.getByRole('button', { name: 'Remover GIF' })).toBeInTheDocument();
-      expect(await screen.findByRole('button', { name: 'Escolher Party cat' })).toHaveAttribute(
+      fireEvent.change(screen.getByPlaceholderText('Pesquisar no KLIPY'), {
+        target: { value: 'Gyro Zeppeli' },
+      });
+      fireEvent.click(screen.getByRole('button', { name: 'Buscar GIFs' }));
+      expect(await screen.findByRole('button', { name: 'Escolher Gyro Zeppeli' })).toHaveAttribute(
         'aria-pressed',
         'true'
       );
+      expect(gifQueries).toEqual(['gyro jojo', 'Gyro Zeppeli']);
     } finally {
       vi.unstubAllEnvs();
     }
@@ -576,26 +603,31 @@ describe('Inline social profile editing', () => {
   it('picks a KLIPY GIF as the avatar, saves without uploading, and reopens with Remove GIF', async () => {
     vi.stubEnv('NEXT_PUBLIC_KLIPY_API_KEY', 'test-key');
     try {
+      const keyboard = userEvent.setup();
       const { saved, unmount } = mount();
       await edit();
       fireEvent.click(screen.getByRole('button', { name: 'GIF da foto' }));
-      expect(screen.getByPlaceholderText('Pesquisar no KLIPY')).toBeInTheDocument();
-      fireEvent.click(await screen.findByRole('button', { name: 'Escolher Party cat' }));
+      const input = screen.getByPlaceholderText('Pesquisar no KLIPY');
+      await keyboard.type(input, 'Jojo');
+      expect(gifQueries).toEqual([]);
+      await keyboard.keyboard('{Enter}');
+      fireEvent.click(await screen.findByRole('button', { name: 'Escolher Jojo' }));
+      expect(gifQueries).toEqual(['Jojo']);
       expect(screen.getByRole('img', { name: 'Foto de developer' })).toHaveAttribute(
         'src',
-        'https://static.klipy.com/ii/a/party.gif'
+        'https://static.klipy.com/ii/a/jojo.gif'
       );
       fireEvent.click(screen.getByRole('button', { name: 'Fechar gif da foto' }));
       fireEvent.click(screen.getByRole('button', { name: 'Salvar alterações' }));
       await screen.findByText('Perfil atualizado.');
       expect(uploads).toBe(0);
-      expect(writes[0].avatarUrl).toBe('https://static.klipy.com/ii/a/party.gif');
+      expect(writes[0].avatarUrl).toBe('https://static.klipy.com/ii/a/jojo.gif');
       const savedProfile = saved.mock.calls[0][0];
       unmount();
       mount('owner', savedProfile);
       expect(screen.getByRole('img', { name: 'Foto de developer' })).toHaveAttribute(
         'src',
-        'https://static.klipy.com/ii/a/party.gif'
+        'https://static.klipy.com/ii/a/jojo.gif'
       );
       await edit();
       fireEvent.click(screen.getByRole('button', { name: 'GIF da foto' }));
