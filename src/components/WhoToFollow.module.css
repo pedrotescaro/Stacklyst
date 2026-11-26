@@ -102,7 +102,8 @@
   display: flex;
   min-width: 0;
   flex-direction: column;
-  padding: 14px 18px 0;
+  /* Starts below the Seguir button (84px + 34px) so a long name row never runs under it. */
+  padding: 24px 18px 0;
 }
 .name {
   overflow: hidden;
@@ -150,8 +151,8 @@
   justify-content: center;
   flex-shrink: 0;
   min-width: 76px;
-  min-height: 34px;
-  padding: 6px 16px;
+  height: 34px;
+  padding: 0 16px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-dd-accent) 85%, black);
   color: white;

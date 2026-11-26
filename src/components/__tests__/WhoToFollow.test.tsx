@@ -314,4 +314,17 @@ describe('Who to follow', () => {
       )
     ).toBe(true);
   });
+
+  it('hides the follow confirmation after a few seconds', async () => {
+    vi.spyOn(global, 'fetch').mockImplementation(async (_url, init) =>
+      init?.method === 'PUT' ? response({ following: true }) : response(profiles)
+    );
+    render(<WhoToFollow viewerId="me" />);
+    fireEvent.click(await screen.findByRole('button', { name: 'Seguir @alice_dev' }));
+    expect(await screen.findByText('Agora você segue @alice_dev.')).toBeInTheDocument();
+    await waitFor(
+      () => expect(screen.queryByText('Agora você segue @alice_dev.')).not.toBeInTheDocument(),
+      { timeout: 6000 }
+    );
+  }, 10000);
 });

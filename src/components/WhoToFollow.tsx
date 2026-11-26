@@ -18,6 +18,8 @@ interface WhoToFollowProps {
   followedUserIds?: string[];
   onFollowChange?: (id: string, following: boolean) => void;
 }
+/** How long a confirmation like "Agora você segue @x" stays before it fades out. */
+const FEEDBACK_VISIBLE_MS = 4000;
 const languageNames: Record<string, string> = {
   TS: 'TypeScript',
   JS: 'JavaScript',
@@ -85,6 +87,13 @@ export function WhoToFollow({
   const [feedback, setFeedback] = useState('');
   const [followed, setFollowed] = useState<string[]>([]);
   const [pending, setPending] = useState<string[]>([]);
+
+  // Confirmations such as "Agora você segue @x" are read once, then leave the widget.
+  useEffect(() => {
+    if (!feedback) return;
+    const timer = window.setTimeout(() => setFeedback(''), FEEDBACK_VISIBLE_MS);
+    return () => window.clearTimeout(timer);
+  }, [feedback]);
 
   const load = useCallback(
     async (refresh = false) => {
