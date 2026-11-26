@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
+import { createEvent, fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Sidebar } from '@/components/Sidebar';
 import type { NotionEditorRef } from '@/components/editor/NotionEditor';
@@ -111,6 +111,85 @@ describe('responsive web navigation', () => {
     expect(within(dialog).getByRole('button', { name: 'Fechar rascunho' })).toHaveFocus();
     fireEvent.keyDown(window, { key: 'Escape' });
     await waitFor(() => expect(button).toHaveFocus());
+  });
+
+  it('uploads and publishes a clipboard image without duplicating it or intercepting plain text', async () => {
+    const attachmentUrl = '/api/posts/media/pasted-image';
+    const fetchMock = vi.fn(async (url: RequestInfo | URL, _options?: RequestInit) => ({
+      ok: true,
+      json: async () =>
+        url === '/api/posts/media' ? { url: attachmentUrl } : { id: 'post-1', count: 0 },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    render(<Sidebar user={user} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Nova postagem' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Criar nova publicação' });
+    const editor = within(dialog).getByRole('textbox', { name: 'O que você está pensando?' });
+
+    const textPaste = createEvent.paste(editor, {
+      clipboardData: { files: [], items: [{ kind: 'string', type: 'text/plain' }] },
+    });
+    fireEvent(editor, textPaste);
+    expect(textPaste.defaultPrevented).toBe(false);
+
+    const file = new File(['image'], 'clipboard.png', { type: 'image/png' });
+    const closeButton = within(dialog).getByRole('button', { name: 'Fechar rascunho' });
+    const imagePaste = createEvent.paste(closeButton, {
+      clipboardData: {
+        files: [file],
+        items: [{ kind: 'file', type: file.type, getAsFile: () => file }],
+      },
+    });
+    fireEvent(closeButton, imagePaste);
+    expect(imagePaste.defaultPrevented).toBe(true);
+    const publish = within(dialog).getByRole('button', { name: 'Publicar' });
+    await waitFor(() => expect(publish).toBeEnabled());
+
+    const uploads = fetchMock.mock.calls.filter(([url]) => url === '/api/posts/media');
+    expect(uploads).toHaveLength(1);
+    expect((uploads[0][1]?.body as FormData).get('file')).toBe(file);
+    fireEvent.click(publish);
+    await waitFor(() => {
+      const request = fetchMock.mock.calls.find(([url]) => url === '/api/posts');
+      expect(JSON.parse(request?.[1]?.body as string)).toMatchObject({
+        body: '',
+        attachments: [{ type: 'image', url: attachmentUrl }],
+      });
+    });
+  });
+
+  it('applies the picker size limit to pasted images and allows a valid retry', async () => {
+    const fetchMock = vi.fn(async (url: RequestInfo | URL, _options?: RequestInit) => ({
+      ok: true,
+      json: async () =>
+        url === '/api/posts/media' ? { url: '/api/posts/media/pasted-gif' } : { count: 0 },
+    }));
+    vi.stubGlobal('fetch', fetchMock);
+    render(<Sidebar user={user} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Nova postagem' }));
+    const dialog = await screen.findByRole('dialog', { name: 'Criar nova publicação' });
+    const editor = within(dialog).getByRole('textbox', { name: 'O que você está pensando?' });
+    const large = new File([new Uint8Array(5 * 1024 * 1024 + 1)], 'large.png', {
+      type: 'image/png',
+    });
+    fireEvent.paste(editor, { clipboardData: { files: [large], items: [] } });
+    expect(await within(dialog).findByRole('alert')).toHaveTextContent('até 5 MB');
+    expect(fetchMock.mock.calls.some(([url]) => url === '/api/posts/media')).toBe(false);
+
+    const picker = within(dialog).getByRole('dialog', { name: 'Adicionar imagens' });
+    const gif = new File(['gif'], 'clipboard.gif', { type: 'image/gif' });
+    fireEvent.paste(picker, {
+      clipboardData: {
+        files: [],
+        items: [{ kind: 'file', type: gif.type, getAsFile: () => gif }],
+      },
+    });
+    const publish = within(dialog).getByRole('button', { name: 'Publicar' });
+    await waitFor(() => expect(publish).toBeEnabled());
+    const uploads = fetchMock.mock.calls.filter(([url]) => url === '/api/posts/media');
+    expect(uploads).toHaveLength(1);
+    expect((uploads[0][1]?.body as FormData).get('file')).toBe(gif);
+    expect(within(dialog).queryByRole('alert')).not.toBeInTheDocument();
   });
 
   it('publishes the floating composer through the posts API', async () => {

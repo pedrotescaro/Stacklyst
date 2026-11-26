@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useRef, useState, type ClipboardEvent, type ReactNode } from 'react';
 import dynamic from 'next/dynamic';
 import {
   AlignLeft,
@@ -135,7 +135,9 @@ export function PostComposerDialog({
   const [draft, setDraft] = useState<Draft>(emptyDraft);
   const [state, setState] = useState<PublishState>('idle');
   const [error, setError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
+  const [pickerBusy, setPickerBusy] = useState(false);
+  const [pastedImages, setPastedImages] = useState<File[] | null>(null);
+  const busy = pickerBusy || pastedImages !== null;
   const [panel, setPanel] = useState<Panel>(null);
   const [format, setFormat] = useState<FormatState>({
     bold: false,
@@ -181,6 +183,7 @@ export function PostComposerDialog({
     if (!open) {
       setPanel(null);
       setError(null);
+      setPastedImages(null);
     }
   }, [open]);
 
@@ -301,9 +304,30 @@ export function PostComposerDialog({
     isSensitive: draft.isSensitive,
     setIsSensitive: (value: boolean) => update('isSensitive', value),
   };
-  const toggle = (value: Panel) => setPanel((current) => (current === value ? null : value));
+  const toggle = (value: Panel) => {
+    if (!busy) setPanel((current) => (current === value ? null : value));
+  };
   const pickerPanel =
     panel === 'gif' || panel === 'music' || panel === 'audio' || panel === 'image' ? panel : null;
+
+  const pasteImages = (event: ClipboardEvent<HTMLDivElement>) => {
+    const clipboard = event.clipboardData;
+    if (!clipboard) return;
+    const imageFiles = Array.from(clipboard.files ?? []).filter((file) =>
+      file.type.startsWith('image/')
+    );
+    const images = imageFiles.length
+      ? imageFiles
+      : Array.from(clipboard.items ?? [])
+          .filter((item) => item.kind === 'file' && item.type.startsWith('image/'))
+          .map((item) => item.getAsFile())
+          .filter((file): file is File => file !== null);
+    if (!images.length) return;
+    event.preventDefault();
+    if (!open || busy || state !== 'idle' || submitLock.current) return;
+    setPastedImages((current) => current ?? images);
+    setPanel('image');
+  };
 
   return (
     <ComposeModal
@@ -314,6 +338,7 @@ export function PostComposerDialog({
       onSaveDraft={saveDraft}
       composerLayout
       busy={busy || state !== 'idle'}
+      onPasteCapture={pasteImages}
       mobileTitle={text('Nova postagem', 'New post')}
       headerExtra={
         <PublishButton
@@ -706,6 +731,7 @@ export function PostComposerDialog({
             <Tool
               label={text('Inserir código executável', 'Insert executable code')}
               onClick={() => {
+                if (busy) return;
                 editorRef.current?.insertCodeBlock();
                 setPanel(null);
               }}
@@ -728,7 +754,11 @@ export function PostComposerDialog({
           onAttachmentsChange={(value) => update('attachments', value)}
           music={draft.music}
           onMusicChange={(value) => update('music', value)}
-          onBusyChange={setBusy}
+          onBusyChange={setPickerBusy}
+          pastedImages={pastedImages}
+          onPastedImagesHandled={(images) =>
+            setPastedImages((current) => (current === images ? null : current))
+          }
         />
       </form>
     </ComposeModal>

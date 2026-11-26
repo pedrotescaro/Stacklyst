@@ -1,6 +1,13 @@
 'use client';
 
-import { ReactNode, useCallback, useEffect, useRef, useState } from 'react';
+import {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type ClipboardEventHandler,
+} from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { X } from 'lucide-react';
 import { modalContentVariants, fadeVariants, bottomSheetVariants } from '@/lib/motion';
@@ -20,6 +27,7 @@ interface ComposeModalProps {
   mobileTitle?: string;
   composerLayout?: boolean;
   busy?: boolean;
+  onPasteCapture?: ClipboardEventHandler<HTMLDivElement>;
   /** Accessible name for the dialog. */
   label?: string;
   /** On desktop, grow with the content instead of using a fixed height. */
@@ -37,6 +45,7 @@ export function ComposeModal({
   mobileTitle,
   composerLayout = false,
   busy = false,
+  onPasteCapture,
   label,
   fitContent = false,
 }: ComposeModalProps) {
@@ -187,6 +196,7 @@ export function ComposeModal({
                 : 'max-h-[calc(100%-1rem)] max-w-xl space-y-4 overflow-y-auto overscroll-contain rounded-t-2xl border border-dd-border bg-dd-surface p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl sm:rounded-2xl sm:pb-4'
             )}
             onClick={(e) => e.stopPropagation()}
+            onPasteCapture={discardWarning ? undefined : onPasteCapture}
           >
             <div
               className={cn(

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useEffectEvent, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { ImagePlus, LoaderCircle, Mic, Square, Upload, X } from 'lucide-react';
 import type { PostAttachment } from '@/lib/post-content';
@@ -20,6 +20,8 @@ interface PickerProps {
   music: SpotifyProfileTrack | null;
   onMusicChange: (music: SpotifyProfileTrack | null) => void;
   onBusyChange?: (busy: boolean) => void;
+  pastedImages?: File[] | null;
+  onPastedImagesHandled?: (images: File[]) => void;
   /** Render as a fixed viewport sheet so inline nested composers do not clip or jump. */
   portal?: boolean;
 }
@@ -66,6 +68,8 @@ function AttachmentPanel({
   music,
   onMusicChange,
   onBusyChange,
+  pastedImages,
+  onPastedImagesHandled,
   portal = false,
 }: PickerProps & { panel: Exclude<ComposerAttachmentPanel, null> }) {
   const { text } = useLocalizedText();
@@ -81,6 +85,7 @@ function AttachmentPanel({
   const mounted = useRef(true);
   const request = useRef<AbortController | null>(null);
   const requestMicrophoneRef = useRef(false);
+  const preparing = busy || Boolean(pastedImages?.length);
   const busyCallback = useRef(onBusyChange);
   busyCallback.current = onBusyChange;
   const fileInput = useRef<HTMLInputElement>(null);
@@ -126,7 +131,7 @@ function AttachmentPanel({
     return () => window.clearInterval(timer);
   }, [recording]);
   const addFiles = async (files: File[]) => {
-    if (busy || !files.length) return;
+    if (busy || request.current || !files.length) return;
     const count = attachments.filter((item) => item.type !== 'audio').length;
     const slots = 4 - count;
     if (slots <= 0) {
@@ -159,6 +164,7 @@ function AttachmentPanel({
           );
         const url = await uploadPostMedia(file, controller.signal, text);
         next = [...next, { type: file.type === 'image/gif' ? 'gif' : 'image', url }];
+        if (controller.signal.aborted) return;
         if (mounted.current) onAttachmentsChange(next);
       }
       if (mounted.current) onClose();
@@ -170,9 +176,27 @@ function AttachmentPanel({
             : text('Não foi possível enviar o arquivo.', 'Could not upload the file.')
         );
     } finally {
+      if (request.current === controller) request.current = null;
       if (mounted.current) setBusy(false);
     }
   };
+  const addPastedImages = useEffectEvent(async (images: File[]) => {
+    try {
+      await addFiles(images);
+    } finally {
+      onPastedImagesHandled?.(images);
+    }
+  });
+  useEffect(() => {
+    if (panel !== 'image' || !pastedImages?.length) return;
+    let cancelled = false;
+    queueMicrotask(() => {
+      if (!cancelled) void addPastedImages(pastedImages);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [panel, pastedImages]);
   const selectGif = (gif: KlipyGif) => {
     if (busy) return;
     if (attachments.filter((item) => item.type !== 'audio').length >= 4) {
@@ -288,12 +312,13 @@ function AttachmentPanel({
             : text('Não foi possível enviar a gravação.', 'Could not upload the recording.')
         );
     } finally {
+      if (request.current === controller) request.current = null;
       if (mounted.current) setBusy(false);
     }
   };
   const close = useCallback(() => {
-    if (!busy && !recording && !requestingMicrophone) onClose();
-  }, [busy, recording, requestingMicrophone, onClose]);
+    if (!preparing && !recording && !requestingMicrophone) onClose();
+  }, [preparing, recording, requestingMicrophone, onClose]);
   useEffect(() => {
     const keyDown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
@@ -329,7 +354,7 @@ function AttachmentPanel({
             className={styles.iconButton}
             aria-label={text('Fechar seletor', 'Close picker')}
             onClick={close}
-            disabled={busy || recording || requestingMicrophone}
+            disabled={preparing || recording || requestingMicrophone}
           >
             <X size={20} />
           </button>
@@ -368,6 +393,11 @@ function AttachmentPanel({
               )}
               {panel === 'image' && (
                 <p className={styles.help}>
+                  {onPastedImagesHandled &&
+                    text(
+                      'Cole uma imagem com Ctrl+V ou ⌘+V ou escolha um arquivo. ',
+                      'Paste an image with Ctrl+V or ⌘+V or choose a file. '
+                    )}
                   {text(
                     'Adicione até 4 imagens. JPEG, PNG e WebP são otimizados no envio; GIFs mantêm a animação. Até 5 MB por arquivo.',
                     'Add up to 4 images. JPEG, PNG and WebP are optimized on upload; GIFs keep their animation. Up to 5 MB per file.'
@@ -377,7 +407,7 @@ function AttachmentPanel({
               <button
                 type="button"
                 className={styles.uploadButton}
-                disabled={busy}
+                disabled={preparing}
                 onClick={() => fileInput.current?.click()}
               >
                 {panel === 'gif' ? <Upload size={19} /> : <ImagePlus size={19} />}
@@ -393,7 +423,7 @@ function AttachmentPanel({
                 hidden
                 accept={panel === 'gif' ? 'image/gif' : 'image/jpeg,image/png,image/webp,image/gif'}
                 multiple={panel === 'image'}
-                disabled={busy}
+                disabled={preparing}
                 onChange={(event) => {
                   void addFiles(Array.from(event.target.files || []));
                   event.target.value = '';
@@ -465,7 +495,7 @@ function AttachmentPanel({
               )}
             </>
           )}
-          {busy && (
+          {preparing && (
             <p role="status" className={styles.status}>
               <LoaderCircle size={16} className="animate-spin" />
               {text('Enviando e preparando o anexo…', 'Uploading and preparing the attachment…')}
