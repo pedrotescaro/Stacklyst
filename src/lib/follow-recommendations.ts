@@ -1,5 +1,6 @@
 import type { Language } from '@prisma/client';
 import { readProfileIdentity, type ProfileIdentityStyle } from '@/lib/profile-style';
+import { parseProfilePreferences } from '@/lib/profile-customization';
 import { z } from 'zod';
 
 export const FOLLOW_RECOMMENDATION_MAX_EXCLUDE = 50;
@@ -63,6 +64,42 @@ export function getFollowProfileIdentity(config: unknown): FollowProfileIdentity
   };
 }
 
+/** The cover shown behind a suggestion, read from the profile's banner settings. */
+export interface FollowProfileBanner {
+  mode: 'image' | 'color' | 'gradient' | 'default';
+  imageUrl?: string;
+  color?: string;
+  secondaryColor?: string;
+  positionX?: number;
+  positionY?: number;
+}
+
+const SAFE_BANNER_URL = /^(?:https:\/\/|\/(?!\/))/;
+
+/**
+ * Mirrors the profile page: an image/GIF banner, a color or gradient, or the
+ * legacy uploaded cover when the banner is left on its default setting.
+ */
+export function getFollowProfileBanner(
+  preferences: unknown,
+  legacyBannerUrl?: string | null
+): FollowProfileBanner {
+  const banner = parseProfilePreferences(preferences).banner;
+  if (banner.mode === 'image' && banner.imageUrl && SAFE_BANNER_URL.test(banner.imageUrl))
+    return {
+      mode: 'image',
+      imageUrl: banner.imageUrl,
+      positionX: banner.positionX,
+      positionY: banner.positionY,
+    };
+  if (banner.mode === 'color') return { mode: 'color', color: banner.color };
+  if (banner.mode === 'gradient')
+    return { mode: 'gradient', color: banner.color, secondaryColor: banner.secondaryColor };
+  if (legacyBannerUrl && SAFE_BANNER_URL.test(legacyBannerUrl))
+    return { mode: 'image', imageUrl: legacyBannerUrl, positionX: 50, positionY: 50 };
+  return { mode: 'default' };
+}
+
 export interface FollowRecommendation {
   id: string;
   username: string;
@@ -70,6 +107,7 @@ export interface FollowRecommendation {
   avatar_url: string | null;
   total_xp: number;
   identity?: FollowProfileIdentity;
+  banner?: FollowProfileBanner;
   reason: {
     type: 'mutual' | 'language' | 'interaction' | 'active';
     language?: Language;

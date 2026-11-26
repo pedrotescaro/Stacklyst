@@ -36,13 +36,52 @@
   padding: 16px 18px;
   border-top: 1px solid var(--color-dd-border);
 }
+/* Each suggestion is a small profile card: cover, overlapping avatar, identity. */
+.card {
+  position: relative;
+  min-width: 0;
+  border-top: 1px solid var(--color-dd-border);
+}
 .identity {
   display: flex;
-  align-items: center;
-  gap: 11px;
-  flex: 1;
+  flex-direction: column;
   min-width: 0;
+  padding-bottom: 14px;
   text-decoration: none;
+  transition: background-color 150ms ease;
+}
+.identity:hover {
+  background: color-mix(in srgb, var(--color-dd-surface) 45%, transparent);
+}
+.banner {
+  display: block;
+  position: relative;
+  height: 76px;
+  overflow: hidden;
+  background: var(--color-dd-surface);
+}
+.banner img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.bannerDefault {
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-dd-accent) 55%, var(--color-dd-bg)),
+    color-mix(in srgb, #7c3aed 45%, var(--color-dd-bg))
+  );
+}
+.avatar {
+  /* Above the cover, which is positioned and would otherwise paint over it. */
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-self: flex-start;
+  margin: -26px 0 0 16px;
+  border-radius: 999px;
+  background: var(--color-dd-bg);
+  box-shadow: 0 0 0 3px var(--color-dd-bg);
 }
 .identity:focus-visible,
 .follow:focus-visible,
@@ -61,9 +100,9 @@
 }
 .copy {
   display: flex;
-  flex: 1;
   min-width: 0;
   flex-direction: column;
+  padding: 14px 18px 0;
 }
 .name {
   overflow: hidden;
@@ -77,19 +116,12 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 3px 6px;
+  gap: 4px 6px;
   min-width: 0;
 }
 .nameRow .name {
   min-width: 0;
   max-width: 100%;
-}
-.flags {
-  display: inline-flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  flex-shrink: 0;
-  align-items: center;
 }
 .handle {
   overflow: hidden;
@@ -98,14 +130,6 @@
   color: color-mix(in srgb, var(--color-dd-text) 68%, var(--color-dd-bg));
   font-size: 13px;
   line-height: 1.5;
-}
-.badges {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px 6px;
-  min-width: 0;
-  margin-top: 4px;
 }
 .reason {
   display: -webkit-box;
@@ -118,13 +142,16 @@
   line-height: 1.5;
 }
 .follow {
+  position: absolute;
+  top: 84px;
+  right: 16px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   min-width: 76px;
-  min-height: 44px;
-  padding: 9px 14px;
+  min-height: 34px;
+  padding: 6px 16px;
   border-radius: 999px;
   background: color-mix(in srgb, var(--color-dd-accent) 85%, black);
   color: white;
@@ -198,10 +225,11 @@
     padding: 14px;
     gap: 8px;
   }
-  .identity {
-    gap: 8px;
+  .copy {
+    padding-inline: 14px;
   }
   .follow {
+    right: 12px;
     min-width: 70px;
     padding-inline: 10px;
   }

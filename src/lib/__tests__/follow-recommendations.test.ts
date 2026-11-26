@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
+  getFollowProfileBanner,
   getFollowProfileIdentity,
   scoreFollowCandidate,
   type RecommendationCandidate,
@@ -102,5 +103,64 @@ describe('Profile recommendation relevance', () => {
     expect(scoreFollowCandidate(base, [], now).score).toBeGreaterThan(
       scoreFollowCandidate({ ...base, activityAt: now - 180 * 86400000 }, [], now).score
     );
+  });
+
+  describe('Suggestion banners', () => {
+    const prefs = (banner: Record<string, unknown>) => ({
+      appearance: {
+        backgroundColor: null,
+        accentColor: null,
+        secondaryColor: null,
+        cardColor: null,
+        borderColor: null,
+        buttonColor: null,
+      },
+      nameStyle: { color: null, bold: false, italic: false, underline: false },
+      banner: {
+        mode: 'default',
+        color: '#0083fe',
+        secondaryColor: '#7c3aed',
+        imageUrl: null,
+        positionX: 50,
+        positionY: 50,
+        ...banner,
+      },
+      flag: null,
+      frameId: 'none',
+      tags: [],
+      studies: [],
+      music: null,
+      equippedTitleId: null,
+      featuredAchievementIds: [],
+    });
+    it('uses a GIF or image banner with its position', () => {
+      expect(
+        getFollowProfileBanner(
+          prefs({ mode: 'image', imageUrl: 'https://static.klipy.com/x.webp', positionY: 30 })
+        )
+      ).toEqual({
+        mode: 'image',
+        imageUrl: 'https://static.klipy.com/x.webp',
+        positionX: 50,
+        positionY: 30,
+      });
+    });
+    it('uses colors and gradients, and the legacy cover on the default setting', () => {
+      expect(
+        getFollowProfileBanner(
+          prefs({ mode: 'gradient', color: '#111111', secondaryColor: '#222222' })
+        )
+      ).toEqual({
+        mode: 'gradient',
+        color: '#111111',
+        secondaryColor: '#222222',
+      });
+      expect(getFollowProfileBanner(prefs({}), '/uploads/cover.png')).toMatchObject({
+        mode: 'image',
+        imageUrl: '/uploads/cover.png',
+      });
+      expect(getFollowProfileBanner(undefined, 'javascript:alert(1)')).toEqual({ mode: 'default' });
+      expect(getFollowProfileBanner(undefined, null)).toEqual({ mode: 'default' });
+    });
   });
 });

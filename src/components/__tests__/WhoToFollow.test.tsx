@@ -275,4 +275,43 @@ describe('Who to follow', () => {
     expect(screen.queryByText('@alice_dev')).not.toBeInTheDocument();
     expect(screen.queryByText('@bob_dev')).not.toBeInTheDocument();
   });
+
+  it('shows the banner, then name, flag, title and level on one line', async () => {
+    vi.spyOn(global, 'fetch').mockResolvedValue(
+      response([
+        {
+          ...profiles[0],
+          total_xp: 12450,
+          banner: {
+            mode: 'image',
+            imageUrl: 'https://static.klipy.com/ii/a/b/c.webp',
+            positionX: 50,
+            positionY: 20,
+          },
+          identity: {
+            frame: null,
+            flags: ['BR'],
+            title: { id: 'pythonista', name: 'Pythonista', color: '#0083fe', rarity: 'rare' },
+          },
+        },
+        {
+          ...profiles[1],
+          banner: { mode: 'gradient', color: '#111111', secondaryColor: '#222222' },
+        },
+      ])
+    );
+    const { container } = render(<WhoToFollow viewerId="me" />);
+    const profile = await screen.findByRole('link', { name: /Alice/ });
+    const cover = profile.querySelector('img[src="https://static.klipy.com/ii/a/b/c.webp"]');
+    expect(cover).toHaveStyle({ objectPosition: '50% 20%' });
+    const row = screen.getByText('Alice').closest('span')!.parentElement!;
+    expect(row).toContainElement(screen.getByRole('img', { name: 'Bandeira: Brasil' }));
+    expect(row).toContainElement(screen.getByText('Pythonista'));
+    expect(row).toContainElement(screen.getByLabelText('Nível 13'));
+    expect(
+      [...container.querySelectorAll('[aria-hidden="true"]')].some((node) =>
+        (node as HTMLElement).style.background.includes('linear-gradient')
+      )
+    ).toBe(true);
+  });
 });

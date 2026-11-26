@@ -2,6 +2,7 @@ import type { Language, Prisma } from '@prisma/client';
 import { prisma } from '@/lib/prisma';
 import { getAuthorDisplayName } from '@/lib/profile-style';
 import {
+  getFollowProfileBanner,
   getFollowProfileIdentity,
   scoreFollowCandidate,
   normalizeFollowRecommendationExclusions,
@@ -152,6 +153,8 @@ export async function getFollowRecommendations(
       username: true,
       avatar_url: true,
       avatar_config: true,
+      banner_url: true,
+      profile_customization: { select: { preferences: true } },
       total_xp: true,
       last_active_at: true,
       created_at: true,
@@ -207,6 +210,10 @@ export async function getFollowRecommendations(
           display_name: getAuthorDisplayName(candidate).slice(0, 80),
           avatar_url: candidate.avatar_url,
           identity: getFollowProfileIdentity(candidate.avatar_config),
+          banner: getFollowProfileBanner(
+            candidate.profile_customization?.preferences,
+            candidate.banner_url
+          ),
           total_xp: candidate.total_xp,
           reason,
         },

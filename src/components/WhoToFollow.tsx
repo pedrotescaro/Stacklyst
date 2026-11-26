@@ -7,7 +7,7 @@ import { AuthorAvatar } from '@/components/AuthorAvatar';
 import { LevelBadge } from '@/components/LevelBadge';
 import { ProfileFlag, ProfileName, ProfileTitle } from '@/components/profile/ProfileIdentity';
 import { useLocalizedText } from '@/i18n/useLocalizedText';
-import type { FollowRecommendation } from '@/lib/follow-recommendations';
+import type { FollowProfileBanner, FollowRecommendation } from '@/lib/follow-recommendations';
 import { cn } from '@/lib/cn';
 import styles from './WhoToFollow.module.css';
 
@@ -29,6 +29,36 @@ const languageNames: Record<string, string> = {
   SWIFT: 'Swift',
   CPP: 'C++',
 };
+
+/** The profile's cover, drawn like the profile page: image or GIF, color, gradient or default. */
+function SuggestionBanner({ banner }: { banner?: FollowProfileBanner }) {
+  if (banner?.mode === 'image' && banner.imageUrl)
+    return (
+      <span className={styles.banner} aria-hidden="true">
+        {/* eslint-disable-next-line @next/next/no-img-element -- GIF covers must stay animated */}
+        <img
+          src={banner.imageUrl}
+          alt=""
+          loading="lazy"
+          decoding="async"
+          style={{ objectPosition: `${banner.positionX ?? 50}% ${banner.positionY ?? 50}%` }}
+        />
+      </span>
+    );
+  const background =
+    banner?.mode === 'color'
+      ? banner.color
+      : banner?.mode === 'gradient'
+        ? `linear-gradient(135deg, ${banner.color}, ${banner.secondaryColor})`
+        : undefined;
+  return (
+    <span
+      className={cn(styles.banner, !background && styles.bannerDefault)}
+      style={background ? { background } : undefined}
+      aria-hidden="true"
+    />
+  );
+}
 
 export function WhoToFollow({
   viewerId,
@@ -245,36 +275,34 @@ export function WhoToFollow({
           {visible.length ? (
             <ul>
               {visible.map((profile) => (
-                <li key={profile.id} className={styles.row}>
+                <li key={profile.id} className={styles.card}>
                   <Link
                     href={`/profile/${encodeURIComponent(profile.username)}`}
                     className={styles.identity}
                     title={profile.display_name || profile.username}
                   >
-                    <AuthorAvatar
-                      username={profile.username}
-                      avatar_url={profile.avatar_url}
-                      avatar_config={profile.identity}
-                      size="lg"
-                    />
+                    <SuggestionBanner banner={profile.banner} />
+                    <span className={styles.avatar}>
+                      <AuthorAvatar
+                        username={profile.username}
+                        avatar_url={profile.avatar_url}
+                        avatar_config={profile.identity}
+                        size="lg"
+                        className="!h-13 !w-13"
+                      />
+                    </span>
                     <span className={styles.copy}>
                       <span className={styles.nameRow}>
                         <ProfileName config={profile.identity} className={styles.name}>
                           {profile.display_name || profile.username}
                         </ProfileName>
-                        {Boolean(profile.identity?.flags.length) && (
-                          <span className={styles.flags}>
-                            {profile.identity?.flags.map((flag) => (
-                              <ProfileFlag key={flag} code={flag} />
-                            ))}
-                          </span>
-                        )}
+                        {profile.identity?.flags.map((flag) => (
+                          <ProfileFlag key={flag} code={flag} />
+                        ))}
+                        <ProfileTitle title={profile.identity?.title} />
+                        <LevelBadge totalXp={profile.total_xp} />
                       </span>
                       <span className={styles.handle}>@{profile.username}</span>
-                      <span className={styles.badges}>
-                        <LevelBadge totalXp={profile.total_xp} />
-                        <ProfileTitle title={profile.identity?.title} />
-                      </span>
                       <span className={styles.reason}>{reasonLabel(profile.reason)}</span>
                     </span>
                   </Link>
